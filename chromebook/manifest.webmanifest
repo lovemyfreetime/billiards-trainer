@@ -1,0 +1,26 @@
+{
+  "id": "./billiards-trainer-4-12",
+  "name": "Billiards Trainer 4.12 for Chromebook",
+  "short_name": "Billiards Trainer",
+  "description": "Billiards Trainer 4.12 Chromebook Edition with virtual diamond bank and kick systems.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#090b0e",
+  "theme_color": "#11151b",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
