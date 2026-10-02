@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-pwa-v1';
+const CACHE_NAME = 'billiards-trainer-4-12-pwa-v2';
 const APP_SHELL = [
   './',
   './index.html',

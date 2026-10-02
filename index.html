@@ -439,7 +439,7 @@
           <div class="metric"><span>Tip location</span><b id="tipText">Center</b></div>
           <div class="metric"><span>Predicted cue-ball squirt</span><b id="squirtText">0.00°</b></div>
           <div class="metric"><span>Power feel</span><b id="powerFeelText">—</b></div>
-          <div class="metric"><span id="pocketNeedLabel">Pocket need</span><b id="pocketNeedText">—</b></div>
+          <div class="metric"><span id="pocketNeedLabel">Pocket speed</span><b id="pocketNeedText">—</b></div>
           <div class="metric"><span id="impactPowerLabel">CB → object ball</span><b id="impactPowerText">—</b></div>
           <div class="metric"><span id="pocketArrivalLabel">Object ball → pocket</span><b id="pocketArrivalText">—</b></div>
         </div>
@@ -447,7 +447,7 @@
           <div class="metric"><span>Tip location</span><b id="tip2Text">Center</b></div>
           <div class="metric"><span>Predicted cue-ball squirt</span><b id="squirt2Text">0.00°</b></div>
           <div class="metric"><span>Power feel</span><b id="powerFeel2Text">—</b></div>
-          <div class="metric"><span id="pocketNeed2Label">Pocket need</span><b id="pocketNeed2Text">—</b></div>
+          <div class="metric"><span id="pocketNeed2Label">Pocket speed</span><b id="pocketNeed2Text">—</b></div>
           <div class="metric"><span id="impactPower2Label">CB → object ball</span><b id="impactPower2Text">—</b></div>
           <div class="metric"><span id="pocketArrival2Label">Object ball → pocket</span><b id="pocketArrival2Text">—</b></div>
         </div>
@@ -2919,14 +2919,14 @@ function updateMetrics(){
 
   const pa=teachingPowerState(1);
   if(pa.mode==='ball'){
-    $('pocketNeedLabel').textContent='Pocket need';
+    $('pocketNeedLabel').textContent='Pocket speed';
     $('impactPowerLabel').textContent='CB → object ball';
     $('pocketArrivalLabel').textContent='Object ball → pocket';
     $('pocketNeedText').textContent=pa.feel.diamonds.toFixed(1)+' diamonds · '+formatLagFraction(pa.feel.lagFraction);
     $('impactPowerText').textContent=pa.currentCueImpact.toFixed(2)+' / '+pa.requiredCueImpact.toFixed(2)+' m/s';
     $('pocketArrivalText').textContent=pa.currentPocketArrival.toFixed(2)+' m/s · '+pa.status.toLowerCase();
   } else {
-    $('pocketNeedLabel').textContent='Pocket need';
+    $('pocketNeedLabel').textContent='Pocket speed';
     $('impactPowerLabel').textContent='CB → object ball';
     $('pocketArrivalLabel').textContent='Object ball → pocket';
     $('pocketNeedText').textContent='—';
@@ -2945,14 +2945,14 @@ function updateMetrics(){
 
     const pa2=teachingPowerState(2);
     if(pa2.mode==='ball'){
-      $('pocketNeed2Label').textContent='Pocket need';
+      $('pocketNeed2Label').textContent='Pocket speed';
       $('impactPower2Label').textContent='CB → object ball';
       $('pocketArrival2Label').textContent='Object ball → pocket';
       $('pocketNeed2Text').textContent=pa2.feel.diamonds.toFixed(1)+' diamonds · '+formatLagFraction(pa2.feel.lagFraction);
       $('impactPower2Text').textContent=pa2.currentCueImpact.toFixed(2)+' / '+pa2.requiredCueImpact.toFixed(2)+' m/s';
       $('pocketArrival2Text').textContent=pa2.currentPocketArrival.toFixed(2)+' m/s · '+pa2.status.toLowerCase();
     } else {
-      $('pocketNeed2Label').textContent='Pocket need';
+      $('pocketNeed2Label').textContent='Pocket speed';
       $('impactPower2Label').textContent='CB → object ball';
       $('pocketArrival2Label').textContent='Object ball → pocket';
       $('pocketNeed2Text').textContent='—';
@@ -2966,7 +2966,7 @@ function updateMetrics(){
     $('distance2').textContent=c2?c2.distanceBalls.toFixed(2)+' balls':'—';
     $('firstEvent2').textContent=friendlyEventText(s.preview&&s.preview.firstEvent);
   } else {
-    $('pocketNeed2Label').textContent='Pocket need';
+    $('pocketNeed2Label').textContent='Pocket speed';
     $('impactPower2Label').textContent='CB → object ball';
     $('pocketArrival2Label').textContent='Object ball → pocket';
     $('pocketNeed2Text').textContent='—';
@@ -3937,42 +3937,5 @@ resize(); if(!isProjector){
   }
 })();
 </script>
-
-<script>
-(function(){
-  function standaloneMode(){
-    return window.navigator.standalone === true ||
-      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
-  }
-
-  // When launched from the iPhone/iPad Home Screen, wait until the service
-  // worker is active and then tell the temporary installer that the cached app
-  // has launched successfully. This request is deliberately not cached.
-  if (standaloneMode()) {
-    var notify = function(){
-      fetch('./__pwa_installed', {method:'POST', cache:'no-store', keepalive:true}).catch(function(){});
-    };
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.ready.then(function(){ setTimeout(notify, 500); }).catch(function(){ setTimeout(notify, 1200); });
-    } else {
-      setTimeout(notify, 1200);
-    }
-  }
-
-  // Only show installation directions when the temporary installer adds
-  // ?install=1 to the URL. The installed app itself starts without this panel.
-  var params = new URLSearchParams(location.search);
-  if (params.get('install') === '1' && !standaloneMode()) {
-    window.addEventListener('load', function(){
-      var box=document.createElement('div');
-      box.id='iosInstallHelp';
-      box.style.cssText='position:fixed;z-index:99999;left:10px;right:10px;top:10px;padding:12px 44px 12px 14px;background:rgba(10,13,17,.96);color:#fff;border:1px solid #6b7684;border-radius:12px;font:600 14px/1.35 -apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif;box-shadow:0 4px 24px rgba(0,0,0,.55)';
-      box.innerHTML='<b>Install Billiards Trainer</b><br>Safari: tap <b>Share</b> → <b>Add to Home Screen</b> → turn on <b>Open as Web App</b> → <b>Add</b>.<br><span style="font-weight:400;color:#b9c2cc">Then close Safari and launch Billiards Trainer from the new Home Screen icon. The temporary installer will detect it and shut itself down.</span><button aria-label="Close" style="position:absolute;right:8px;top:7px;width:30px;height:30px;border:0;border-radius:15px;background:#303844;color:#fff;font-size:20px" onclick="this.parentNode.remove()">×</button>';
-      document.body.appendChild(box);
-    });
-  }
-})();
-</script>
-
 </body>
 </html>
