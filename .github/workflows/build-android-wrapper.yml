@@ -7,6 +7,9 @@ on:
       - 'android-wrapper/**'
       - '.github/workflows/build-android-wrapper.yml'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,6 +28,19 @@ jobs:
       - name: Build debug APK
         working-directory: android-wrapper
         run: gradle :app:assembleDebug
+      - name: Publish current Android installer
+        run: |
+          mkdir -p downloads
+          cp android-wrapper/app/build/outputs/apk/debug/app-debug.apk downloads/Billiards-Trainer-Android.apk
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f downloads/Billiards-Trainer-Android.apk
+          if git diff --cached --quiet; then
+            echo "Published APK is already current."
+          else
+            git commit -m "Publish current Android installer"
+            git push
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: Billiards-Trainer-Android-Wrapper-debug
