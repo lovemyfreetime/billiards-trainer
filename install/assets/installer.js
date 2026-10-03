@@ -28,5 +28,10 @@ function prepareTrainerWrapper(){
 window.addEventListener('DOMContentLoaded',()=>{
   prepareTrainerWrapper();
   const d=currentDevice();
-  if(d){const card=document.querySelector(`[data-device="${d}"]`);if(card)card.classList.add('recommended');const label=document.getElementById('detectedDevice');if(label)label.textContent=d==='apple'?'Apple iPhone/iPad':d==='chromebook'?'Chromebook':d==='android'?'Android':d==='windows'?'Windows':'this device';}
+  if(d){
+    const card=document.querySelector(`[data-device="${d}"]`);
+    if(card)card.classList.add('recommended');
+    const label=document.getElementById('detectedDevice');
+    if(label)label.textContent=d==='apple'?'Apple':d==='chromebook'?'Chromebook':d==='android'?'Android':d==='windows'?'Windows':'this device';
+  }
 });
