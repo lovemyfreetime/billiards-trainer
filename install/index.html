@@ -1,1 +1,134 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#11151b"><link rel="icon" href="./assets/billiards-trainer-icon.png"><link rel="stylesheet" href="./assets/installer.css"><title>Billiards Trainer 4.12 Installer</title></head><body><div class="shell"><div class="brand"><img src="./assets/billiards-trainer-icon.png" alt="Billiards Trainer icon"><div><h1>Billiards Trainer 4.12</h1><p>Universal installer</p></div></div><div class="detected"><span>Detected:</span> <strong id="detectedDevice">unknown device</strong></div><div class="grid"><div class="card device" data-device="apple"><span class="badge">Apple</span><h2>iPhone / iPad</h2><p>Open the AI Camera web app in Safari and add it to the Home Screen.</p><div class="actions"><a class="btn" href="./apple/">INSTALL</a><button class="btn secondary" onclick="toggleQR('qr-apple')">QR</button><button class="btn ghost" onclick="shareLink('Billiards Trainer Apple','https://lovemyfreetime.github.io/billiards-trainer/install/apple/')">Share</button></div><div id="qr-apple" class="qrbox"><img src="./qr/apple.png" alt="Apple QR"><div class="qrurl">https://lovemyfreetime.github.io/billiards-trainer/install/apple/</div></div></div><div class="card device" data-device="android"><span class="badge">Android</span><h2>Android phone / tablet</h2><p>Install the full-screen Android app directly. No ZIP files, repository browsing, or browser bars.</p><div class="actions"><a class="btn" href="./android/">INSTALL</a><button class="btn secondary" onclick="toggleQR('qr-android')">QR</button><button class="btn ghost" onclick="shareLink('Billiards Trainer Android','https://lovemyfreetime.github.io/billiards-trainer/install/android/')">Share</button></div><div id="qr-android" class="qrbox"><img src="./qr/android.png" alt="Android QR"><div class="qrurl">https://lovemyfreetime.github.io/billiards-trainer/install/android/</div></div></div><div class="card device" data-device="chromebook"><span class="badge">Chromebook</span><h2>Chromebook</h2><p>Open the same hosted AI app and install it from Chrome if desired.</p><div class="actions"><a class="btn" href="./chromebook/">INSTALL</a><button class="btn secondary" onclick="toggleQR('qr-chromebook')">QR</button><button class="btn ghost" onclick="shareLink('Billiards Trainer Chromebook','https://lovemyfreetime.github.io/billiards-trainer/install/chromebook/')">Share</button></div><div id="qr-chromebook" class="qrbox"><img src="./qr/chromebook.png" alt="Chromebook QR"><div class="qrurl">https://lovemyfreetime.github.io/billiards-trainer/install/chromebook/</div></div></div><div class="card device" data-device="windows"><span class="badge">Windows</span><h2>Windows 10 / 11 PC</h2><p>Open the AI Camera Edition and install it as a standalone Windows app from Edge or Chrome.</p><div class="actions"><a class="btn" href="./windows/">INSTALL</a><button class="btn secondary" onclick="toggleQR('qr-windows')">QR</button><button class="btn ghost" onclick="shareLink('Billiards Trainer Windows','https://lovemyfreetime.github.io/billiards-trainer/install/windows/')">Share</button></div><div id="qr-windows" class="qrbox"><img src="./qr/windows.png" alt="Windows QR"><div class="qrurl">https://lovemyfreetime.github.io/billiards-trainer/install/windows/</div></div></div></div><div class="card universal-share"><h2>Universal installer</h2><p>Use one permanent link for any device.</p><div class="actions"><button class="btn secondary" onclick="toggleQR('universalQR')">Show universal QR</button><button class="btn secondary" onclick="copyText('https://lovemyfreetime.github.io/billiards-trainer/install/',this)">Copy universal link</button><button class="btn secondary" onclick="shareLink('Billiards Trainer Installer','https://lovemyfreetime.github.io/billiards-trainer/install/')">Share universal link</button></div><div id="universalQR" class="qrbox"><img src="./qr/universal.png" alt="Universal installer QR"><div class="qrurl">https://lovemyfreetime.github.io/billiards-trainer/install/</div></div></div><footer>Billiards Trainer 4.12 · AI Camera Edition · Permanent installer links</footer></div><script src="./assets/installer.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#11151b">
+  <link rel="icon" href="./assets/billiards-trainer-icon.png">
+  <link rel="stylesheet" href="./assets/installer.css">
+  <title>Billiards Trainer 4.12 Installer</title>
+</head>
+<body>
+  <div class="shell">
+    <header class="brand installer-hero">
+      <img src="./assets/billiards-trainer-icon.png" alt="Billiards Trainer icon">
+      <div class="brand-copy">
+        <h1>Billiards Trainer 4.12</h1>
+        <p class="hero-kicker">Universal Installer</p>
+        <p class="hero-description">A visual billiards training system for learning, teaching and practicing shots, banks, kicks, speed, English and cue-ball paths. Build shots on screen, save layouts, use camera-assisted table setup, or project the trainer onto a real pool table.</p>
+      </div>
+    </header>
+
+    <div class="detected"><span>Detected:</span> <strong id="detectedDevice">unknown device</strong></div>
+
+    <div class="grid installer-grid">
+      <div class="card device" data-device="android">
+        <h2>Android Tablet App Installer</h2>
+        <div class="actions primary-actions">
+          <a class="btn" href="./android/">INSTALL</a>
+          <details class="install-guide">
+            <summary class="btn secondary">INSTALLER INSTRUCTIONS</summary>
+            <div class="guide-body">
+              <ol class="steps compact-steps">
+                <li>Tap <strong>INSTALL</strong> and download Billiards Trainer.</li>
+                <li>If Android blocks the first install, choose <strong>Settings → Allow from this source</strong>.</li>
+                <li>Return to the installer, tap <strong>Install</strong>, then <strong>Open</strong>.</li>
+              </ol>
+              <div class="guide-gallery" data-guide="android"></div>
+            </div>
+          </details>
+        </div>
+        <div class="actions utility-actions">
+          <button class="btn ghost" onclick="toggleQR('qr-android')">QR</button>
+          <button class="btn ghost" onclick="shareLink('Billiards Trainer Android','https://lovemyfreetime.github.io/billiards-trainer/install/android/')">Share</button>
+        </div>
+        <div id="qr-android" class="qrbox"><img src="./qr/android.png" alt="Android QR"><div class="qrurl">https://lovemyfreetime.github.io/billiards-trainer/install/android/</div></div>
+      </div>
+
+      <div class="card device" data-device="apple">
+        <h2>iPad Tablet Installer</h2>
+        <p>Open the app in Safari, then Share → Add to Home Screen.</p>
+        <div class="actions primary-actions">
+          <a class="btn" href="./apple/">INSTALL</a>
+          <details class="install-guide">
+            <summary class="btn secondary">INSTALLER INSTRUCTIONS</summary>
+            <div class="guide-body">
+              <ol class="steps compact-steps">
+                <li>Tap <strong>INSTALL</strong> and open Billiards Trainer in Safari.</li>
+                <li>Tap the Safari <strong>Share</strong> button.</li>
+                <li>Choose <strong>Add to Home Screen</strong>, then tap <strong>Add</strong>.</li>
+              </ol>
+              <div class="guide-gallery" data-guide="apple"></div>
+            </div>
+          </details>
+        </div>
+        <div class="actions utility-actions">
+          <button class="btn ghost" onclick="toggleQR('qr-apple')">QR</button>
+          <button class="btn ghost" onclick="shareLink('Billiards Trainer iPad','https://lovemyfreetime.github.io/billiards-trainer/install/apple/')">Share</button>
+        </div>
+        <div id="qr-apple" class="qrbox"><img src="./qr/apple.png" alt="Apple QR"><div class="qrurl">https://lovemyfreetime.github.io/billiards-trainer/install/apple/</div></div>
+      </div>
+
+      <div class="card device" data-device="chromebook">
+        <h2>Chromebook Installer</h2>
+        <div class="actions primary-actions">
+          <a class="btn" href="./chromebook/">INSTALL</a>
+          <details class="install-guide">
+            <summary class="btn secondary">INSTALLER INSTRUCTIONS</summary>
+            <div class="guide-body">
+              <ol class="steps compact-steps">
+                <li>Tap <strong>INSTALL</strong>.</li>
+                <li>Follow the Chromebook install prompt and confirm the app installation.</li>
+                <li>Open Billiards Trainer from the Chromebook launcher.</li>
+              </ol>
+              <div class="guide-gallery" data-guide="chromebook"></div>
+            </div>
+          </details>
+        </div>
+        <div class="actions utility-actions">
+          <button class="btn ghost" onclick="toggleQR('qr-chromebook')">QR</button>
+          <button class="btn ghost" onclick="shareLink('Billiards Trainer Chromebook','https://lovemyfreetime.github.io/billiards-trainer/install/chromebook/')">Share</button>
+        </div>
+        <div id="qr-chromebook" class="qrbox"><img src="./qr/chromebook.png" alt="Chromebook QR"><div class="qrurl">https://lovemyfreetime.github.io/billiards-trainer/install/chromebook/</div></div>
+      </div>
+
+      <div class="card device" data-device="windows">
+        <h2>Windows Installer</h2>
+        <div class="actions primary-actions">
+          <a class="btn" href="./windows/">INSTALL</a>
+          <details class="install-guide">
+            <summary class="btn secondary">INSTALLER INSTRUCTIONS</summary>
+            <div class="guide-body">
+              <ol class="steps compact-steps">
+                <li>Tap <strong>INSTALL</strong>.</li>
+                <li>Follow the Windows installer prompts.</li>
+                <li>Open Billiards Trainer from the desktop or Start menu.</li>
+              </ol>
+              <div class="guide-gallery" data-guide="windows"></div>
+            </div>
+          </details>
+        </div>
+        <div class="actions utility-actions">
+          <button class="btn ghost" onclick="toggleQR('qr-windows')">QR</button>
+          <button class="btn ghost" onclick="shareLink('Billiards Trainer Windows','https://lovemyfreetime.github.io/billiards-trainer/install/windows/')">Share</button>
+        </div>
+        <div id="qr-windows" class="qrbox"><img src="./qr/windows.png" alt="Windows QR"><div class="qrurl">https://lovemyfreetime.github.io/billiards-trainer/install/windows/</div></div>
+      </div>
+    </div>
+
+    <div class="card universal-share">
+      <h2>Share the Universal Installer</h2>
+      <p>One permanent link for every supported device.</p>
+      <div class="actions">
+        <button class="btn secondary" onclick="toggleQR('universalQR')">Show QR</button>
+        <button class="btn secondary" onclick="copyText('https://lovemyfreetime.github.io/billiards-trainer/install/',this)">Copy Link</button>
+        <button class="btn secondary" onclick="shareLink('Billiards Trainer Installer','https://lovemyfreetime.github.io/billiards-trainer/install/')">Share Link</button>
+      </div>
+      <div id="universalQR" class="qrbox"><img src="./qr/universal.png" alt="Universal installer QR"><div class="qrurl">https://lovemyfreetime.github.io/billiards-trainer/install/</div></div>
+    </div>
+
+    <footer>Billiards Trainer 4.12 · Universal Installer</footer>
+  </div>
+  <script src="./assets/installer.js"></script>
+</body>
+</html>
