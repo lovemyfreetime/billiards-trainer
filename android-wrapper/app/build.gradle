@@ -2,6 +2,12 @@ plugins {
     id 'com.android.application'
 }
 
+def releaseKeystorePath = System.getenv('ANDROID_KEYSTORE_PATH')
+def releaseKeystorePassword = System.getenv('ANDROID_KEYSTORE_PASSWORD')
+def releaseKeyAlias = System.getenv('ANDROID_KEY_ALIAS')
+def releaseKeyPassword = System.getenv('ANDROID_KEY_PASSWORD')
+def wrapperVersionCode = (System.getenv('ANDROID_VERSION_CODE') ?: '2').toInteger()
+
 android {
     namespace 'com.lovemyfreetime.billiardstrainer'
     compileSdk 35
@@ -10,12 +16,24 @@ android {
         applicationId 'com.lovemyfreetime.billiardstrainer'
         minSdk 29
         targetSdk 35
-        versionCode 1
-        versionName '4.12-wrapper-1'
+        versionCode wrapperVersionCode
+        versionName "4.12-wrapper-${wrapperVersionCode}"
+    }
+
+    signingConfigs {
+        release {
+            if (releaseKeystorePath) {
+                storeFile file(releaseKeystorePath)
+                storePassword releaseKeystorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
     }
 
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
