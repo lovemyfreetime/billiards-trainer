@@ -10,20 +10,21 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.view.Gravity;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.webkit.DownloadListener;
 import android.webkit.JavascriptInterface;
-import android.webkit.MimeTypeMap;
+import android.webkit.RenderProcessGoneDetail;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.OutputStream;
@@ -42,12 +43,16 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        getWindow().setStatusBarColor(Color.BLACK);
-        getWindow().setNavigationBarColor(Color.BLACK);
-        enterImmersiveMode();
 
+        try {
+            createAndLoadWebView(savedInstanceState);
+        } catch (Throwable t) {
+            showStartupError(t);
+        }
+    }
+
+    private void createAndLoadWebView(Bundle savedInstanceState) {
         webView = new WebView(this);
         webView.setBackgroundColor(Color.rgb(9, 11, 14));
         setContentView(webView);
@@ -85,7 +90,21 @@ public class MainActivity extends Activity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                enterImmersiveMode();
+                scheduleImmersiveMode();
+            }
+
+            @Override
+            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                try {
+                    if (webView != null) {
+                        webView.destroy();
+                        webView = null;
+                    }
+                    createAndLoadWebView(null);
+                } catch (Throwable t) {
+                    showStartupError(t);
+                }
+                return true;
             }
         });
 
@@ -94,7 +113,7 @@ public class MainActivity extends Activity {
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> callback, FileChooserParams params) {
                 if (fileCallback != null) fileCallback.onReceiveValue(null);
                 fileCallback = callback;
-                launchFileChooser(params);
+                launchFileChooser();
                 return true;
             }
         });
@@ -117,11 +136,32 @@ public class MainActivity extends Activity {
             }
         });
 
-        if (savedInstanceState != null) webView.restoreState(savedInstanceState);
-        else webView.loadUrl(APP_URL);
+        if (savedInstanceState != null) {
+            try {
+                if (webView.restoreState(savedInstanceState) == null) webView.loadUrl(APP_URL);
+            } catch (Throwable ignored) {
+                webView.loadUrl(APP_URL);
+            }
+        } else {
+            webView.loadUrl(APP_URL);
+        }
+
+        scheduleImmersiveMode();
     }
 
-    private void launchFileChooser(WebChromeClient.FileChooserParams params) {
+    private void showStartupError(Throwable t) {
+        TextView tv = new TextView(this);
+        tv.setBackgroundColor(Color.rgb(9, 11, 14));
+        tv.setTextColor(Color.WHITE);
+        tv.setGravity(Gravity.CENTER);
+        tv.setPadding(40, 40, 40, 40);
+        tv.setTextSize(18f);
+        String msg = t == null ? "Unknown startup error" : t.getClass().getSimpleName() + ": " + String.valueOf(t.getMessage());
+        tv.setText("Billiards Trainer could not start.\n\n" + msg + "\n\nPlease update Android System WebView / Chrome and reopen the app.");
+        setContentView(tv);
+    }
+
+    private void launchFileChooser() {
         Intent pick = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         pick.addCategory(Intent.CATEGORY_OPENABLE);
         pick.setType("*/*");
@@ -174,38 +214,55 @@ public class MainActivity extends Activity {
         if (fileCallback != null) fileCallback.onReceiveValue(out);
         fileCallback = null;
         cameraOutputUri = null;
-        enterImmersiveMode();
+        scheduleImmersiveMode();
     }
 
-    private void enterImmersiveMode() {
-        if (android.os.Build.VERSION.SDK_INT >= 30) {
-            WindowInsetsController c = getWindow().getInsetsController();
-            if (c != null) {
-                c.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
-                c.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+    private void scheduleImmersiveMode() {
+        View decor = getWindow().getDecorView();
+        decor.postDelayed(this::enterImmersiveModeSafely, 120);
+    }
+
+    private void enterImmersiveModeSafely() {
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= 30) {
+                WindowInsetsController c = getWindow().getInsetsController();
+                if (c != null) {
+                    c.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
+                    c.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+                }
+            } else {
+                getWindow().getDecorView().setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
+                        View.SYSTEM_UI_FLAG_FULLSCREEN |
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
             }
-        } else {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
-                    View.SYSTEM_UI_FLAG_FULLSCREEN |
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+        } catch (Throwable ignored) {
+            try {
+                getWindow().getDecorView().setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
+                        View.SYSTEM_UI_FLAG_FULLSCREEN |
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            } catch (Throwable ignoredAgain) {}
         }
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) enterImmersiveMode();
+        if (hasFocus) scheduleImmersiveMode();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        enterImmersiveMode();
         if (webView != null) webView.onResume();
+        scheduleImmersiveMode();
     }
 
     @Override
