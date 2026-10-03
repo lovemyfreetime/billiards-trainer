@@ -21,8 +21,9 @@
   #app { display:grid; grid-template-columns:minmax(0,1fr) 330px; height:100vh; }
   #stageWrap { position:relative; min-width:0; min-height:0; background:#0b0d10; }
   #scoreBoard {
-    position:absolute; z-index:8; top:6px; left:50%; transform:translateX(-50%);
-    display:flex; align-items:center; gap:5px; height:32px; padding:3px 7px;
+    /* Center the optional player controls in the top-left table section, between pockets 1 and 2. */
+    position:absolute; z-index:8; top:6px; left:26.5%; transform:translateX(-50%);
+    display:none; align-items:center; gap:5px; height:32px; padding:3px 7px;
     border:1px solid rgba(255,255,255,.28); border-radius:17px;
     background:rgba(8,10,13,.82); box-shadow:0 2px 10px rgba(0,0,0,.45);
     pointer-events:auto; white-space:nowrap;
@@ -33,6 +34,9 @@
   #scoreBoard .scoreNum { width:22px; text-align:center; font-size:13px; font-weight:800; font-variant-numeric:tabular-nums; }
   #scoreBoard .scoreStep { width:24px; padding:0; font-size:15px; }
   #scoreBoard #nextTurn { background:#404955; min-width:46px; }
+  @media (max-width:900px) {
+    #scoreBoard { left:27%; transform:translateX(-50%) scale(.94); transform-origin:center top; }
+  }
   #pocketTray {
     position:absolute; z-index:7; left:50%; bottom:46px; transform:translateX(-50%);
     min-height:28px; max-width:min(82%,980px); display:flex; align-items:center; justify-content:center;
@@ -341,6 +345,18 @@
     border-color:#8dff7b;
     color:#dfffe0;
   }
+  #photoArchiveSelect {
+    min-height:34px;
+    max-width:235px;
+    min-width:150px;
+    padding:0 7px;
+    border:1px solid #46505d;
+    border-radius:6px;
+    background:#0d1217;
+    color:#eef3f7;
+    font-size:10px;
+  }
+  #photoArchiveSelect:disabled { opacity:.55; }
   #photoAddMissed.activeToggle {
     background:#57e948;
     border-color:#a8ff9e;
@@ -1241,7 +1257,7 @@
       <button class="sectionToggle" type="button"><span>OPTIONS</span></button>
       <div class="sectionBody">
         <div class="check">
-          <input id="showScoreBoard" type="checkbox" checked>
+          <input id="showScoreBoard" type="checkbox">
           <label for="showScoreBoard">Show Player 1 / Player 2 controls</label>
         </div>
         <div class="check">
@@ -1257,7 +1273,7 @@
     <div class="photoAnalyzerHeader">
       <div>
         <h2>Analyze Real Pool Table</h2>
-        <div class="photoHint">Runs locally on this device. Nothing is uploaded.</div>
+        <div class="photoHint">Runs locally on this device. Analysis photos are saved locally in this app for recall; nothing is uploaded.</div>
       </div>
       <button id="photoAnalyzerClose" type="button" title="Close">×</button>
     </div>
@@ -1276,6 +1292,10 @@
       <button id="photoAiModeBtn" type="button" title="Use the trained local pool-ball detector + identity classifier; falls back to the original hybrid detector if AI is unavailable">AI: AUTO</button>
       <button id="photoAnalyzeNow" class="visionPrimary" type="button" disabled>ANALYZE BALLS</button>
       <button id="photoAddMissed" type="button" disabled>ADD MISSED BALL</button>
+      <select id="photoArchiveSelect" title="Saved analysis photos on this device" disabled><option value="">No saved photos</option></select>
+      <button id="photoArchiveLoad" type="button" disabled>RECALL PHOTO</button>
+      <button id="photoArchiveDelete" type="button" disabled>DELETE SAVED</button>
+      <button id="photoArchiveExport" type="button" disabled>DOWNLOAD CURRENT</button>
       <div id="photoAnalyzerStatus" class="photoAnalyzerStatus">Choose a photo, take one with CAMERA, or choose a video and capture the frame you want. Then set the four inside playing-surface corners.</div>
     </div>
     <div class="photoAnalyzerBody">
@@ -1299,7 +1319,7 @@
 </div>
 
 <script>
-// AI Camera Edition wrapper: v4.12 trainer, app-mode launch package.
+// AI Camera Edition wrapper: v4.12 trainer, app-mode launch package. v4 adds scoreboard placement/default-off + local analysis-photo recall.
 // v4.12: virtual diamond extensions beyond physical corners; fixes source references that previously clipped at the first visible table boundary.
 // v4.6: next-ball workflow, options panel, head/foot markings and pocket numbers.
 // v2.7: adds an independent second-shot cue-ball planner for run-out position visualization.
@@ -1372,7 +1392,10 @@
                 sizePct: 45,
                 linkedBallId: null
             },
-            setupMode: 'custom', pocketedLog: [], player1Score: 0, player2Score: 0, activePlayer: 1, showScoreBoard: true,
+            setupMode: 'custom', pocketedLog: [], player1Score: 0, player2Score: 0, activePlayer: 1, showScoreBoard: false,
+            // Photo-analyzed layouts are allowed to contain only object balls.  When
+            // true, normalizeBallSet() must not manufacture a default cue ball.
+            allowMissingCueBall: false,
             showBankKickNumbers: false,
             bankKick: {
                 mode: null,
@@ -1492,7 +1515,7 @@
             return;
         const board = $('scoreBoard');
         if (board)
-            board.style.display = S.showScoreBoard === false ? 'none' : 'flex';
+            board.style.display = S.showScoreBoard === true ? 'flex' : 'none';
         $('p1Score').textContent = S.player1Score || 0;
         $('p2Score').textContent = S.player2Score || 0;
         $('p1Turn').classList.toggle('active', S.activePlayer === 1);
@@ -1581,6 +1604,7 @@
             tableW: S.tableW,
             ballR: S.ballR,
             setupMode: S.setupMode,
+            allowMissingCueBall: !!S.allowMissingCueBall,
             balls: JSON.parse(JSON.stringify(S.balls)),
             freeAim: JSON.parse(JSON.stringify(S.freeAim))
         };
@@ -1631,6 +1655,10 @@
         if (Number.isFinite(+d.ballR)) S.ballR = +d.ballR;
         if (d.setupMode) S.setupMode = d.setupMode;
         S.balls = JSON.parse(JSON.stringify(d.balls || []));
+        // Preserve intentionally cue-less photo layouts when they are recalled.
+        // The ball-list fallback also supports any older saved layout that happened
+        // to contain no cue ball before this flag existed.
+        S.allowMissingCueBall = d.allowMissingCueBall === true || !S.balls.some(b => Number(b.id) === 0);
         S.freeAim = d.freeAim ? JSON.parse(JSON.stringify(d.freeAim)) : { x: S.tableL * .55, y: S.tableW * .5 };
 
         S.shot2Enabled = false;
@@ -1736,7 +1764,16 @@
                 if (!Array.isArray(S.pocketedLog))
                     S.pocketedLog = [];
                 if (S.showScoreBoard === undefined)
-                    S.showScoreBoard = true;
+                    S.showScoreBoard = false;
+                // v4 migration: hide the player controls once for existing installs so the
+                // new default-off setting takes effect without clearing the user's other data.
+                try {
+                    const scoreMigrationKey = 'billiardTrainerScoreBoardDefaultOffV4';
+                    if (!localStorage.getItem(scoreMigrationKey)) {
+                        S.showScoreBoard = false;
+                        localStorage.setItem(scoreMigrationKey, '1');
+                    }
+                } catch (e) { }
                 if (S.showBankKickNumbers === undefined)
                     S.showBankKickNumbers = false;
                 if (!S.bankKick || typeof S.bankKick !== 'object')
@@ -1805,8 +1842,14 @@
             b.n = String(b.id);
             return true;
         });
-        if (!S.balls.some(b => b.id === 0))
+        const hasCueBall = S.balls.some(b => b.id === 0);
+        if (hasCueBall) {
+            // Once a real cue ball exists, return to the normal trainer behavior.
+            S.allowMissingCueBall = false;
+        }
+        else if (!S.allowMissingCueBall) {
             S.balls.unshift({ id: 0, n: 'CB', x: S.tableL * .23, y: S.tableW * .5, active: true });
+        }
         const missing = [];
         for (let i = 1; i <= 15; i++)
             if (!seen.has(i))
@@ -5053,7 +5096,7 @@
         $('showGrid').checked = S.showGrid;
         $('showDiamonds').checked = S.showDiamonds;
         $('showTable').checked = S.showTable;
-        $('showScoreBoard').checked = S.showScoreBoard !== false;
+        $('showScoreBoard').checked = S.showScoreBoard === true;
         $('showBankKickNumbers').checked = !!S.showBankKickNumbers;
         updateShot2UIState();
         drawTipControl();
@@ -5789,6 +5832,139 @@
     photoVision.analysisCtx = photoVision.analysisCanvas.getContext('2d', { willReadFrequently:true });
     photoVision.sourceCtx = photoVision.sourceCanvas.getContext('2d', { willReadFrequently:true });
 
+    // ----- Local analysis-photo archive (IndexedDB) -----
+    // Photos stay on this device and are never uploaded. We store the same down-scaled
+    // image used by the analyzer so old table photos can be recalled later without
+    // consuming the much smaller localStorage quota used for trainer settings/layouts.
+    const PHOTO_ARCHIVE_DB = 'BilliardsTrainerPhotoArchiveV1';
+    const PHOTO_ARCHIVE_STORE = 'photos';
+    function pvOpenPhotoArchiveDB(){
+        return new Promise((resolve,reject)=>{
+            if(!('indexedDB' in window)){ reject(new Error('IndexedDB is not available')); return; }
+            const req=indexedDB.open(PHOTO_ARCHIVE_DB,1);
+            req.onupgradeneeded=()=>{
+                const db=req.result;
+                if(!db.objectStoreNames.contains(PHOTO_ARCHIVE_STORE)){
+                    const store=db.createObjectStore(PHOTO_ARCHIVE_STORE,{keyPath:'id'});
+                    store.createIndex('createdAt','createdAt',{unique:false});
+                }
+            };
+            req.onsuccess=()=>resolve(req.result);
+            req.onerror=()=>reject(req.error||new Error('Could not open photo archive'));
+        });
+    }
+    function pvArchiveTx(db,mode,action){
+        return new Promise((resolve,reject)=>{
+            const tx=db.transaction(PHOTO_ARCHIVE_STORE,mode),store=tx.objectStore(PHOTO_ARCHIVE_STORE);
+            let result;
+            try { result=action(store); } catch(e){ reject(e); return; }
+            tx.oncomplete=()=>resolve(result);
+            tx.onerror=()=>reject(tx.error||new Error('Photo archive transaction failed'));
+            tx.onabort=()=>reject(tx.error||new Error('Photo archive transaction aborted'));
+        });
+    }
+    function pvCanvasBlob(canvas,type='image/jpeg',quality=.92){
+        return new Promise(resolve=>canvas.toBlob(resolve,type,quality));
+    }
+    function pvSafePhotoName(name){
+        return String(name||'Pool table photo').replace(/[\\/:*?"<>|]+/g,' ').trim()||'Pool table photo';
+    }
+    function pvArchiveLabel(item){
+        const d=new Date(item.createdAt||Date.now());
+        return d.toLocaleDateString([], {month:'numeric',day:'numeric'})+' '+d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})+' • '+pvSafePhotoName(item.name);
+    }
+    async function pvGetArchivedPhotos(){
+        const db=await pvOpenPhotoArchiveDB();
+        try {
+            const items=await new Promise((resolve,reject)=>{
+                const req=db.transaction(PHOTO_ARCHIVE_STORE,'readonly').objectStore(PHOTO_ARCHIVE_STORE).getAll();
+                req.onsuccess=()=>resolve(Array.isArray(req.result)?req.result:[]);
+                req.onerror=()=>reject(req.error||new Error('Could not read saved photos'));
+            });
+            return items.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+        } finally { db.close(); }
+    }
+    async function pvRefreshArchiveUI(selectId=''){
+        const sel=$('photoArchiveSelect'); if(!sel)return;
+        try {
+            const items=await pvGetArchivedPhotos();
+            const old=selectId||sel.value;
+            sel.innerHTML='';
+            if(!items.length){
+                const o=document.createElement('option');o.value='';o.textContent='No saved photos';sel.appendChild(o);
+                sel.disabled=true;
+            } else {
+                items.forEach(item=>{const o=document.createElement('option');o.value=String(item.id);o.textContent=pvArchiveLabel(item);sel.appendChild(o);});
+                sel.disabled=false;
+                sel.value=items.some(x=>String(x.id)===String(old))?String(old):String(items[0].id);
+            }
+            const has=!!sel.value;
+            if($('photoArchiveLoad')) $('photoArchiveLoad').disabled=!has;
+            if($('photoArchiveDelete')) $('photoArchiveDelete').disabled=!has;
+        } catch(e){
+            console.warn('Photo archive unavailable:',e);
+            sel.innerHTML='<option value="">Saved photos unavailable</option>';sel.disabled=true;
+            if($('photoArchiveLoad')) $('photoArchiveLoad').disabled=true;
+            if($('photoArchiveDelete')) $('photoArchiveDelete').disabled=true;
+        }
+        if($('photoArchiveExport')) $('photoArchiveExport').disabled=!photoVision.imageReady;
+    }
+    async function pvArchiveRawCanvas(sourceName='Pool table photo'){
+        if(!photoVision.rawCanvas.width||!photoVision.rawCanvas.height)return;
+        try {
+            const blob=await pvCanvasBlob(photoVision.rawCanvas,'image/jpeg',.92);
+            if(!blob)return;
+            const now=Date.now(),id=String(now)+'-'+Math.random().toString(36).slice(2,8);
+            const rec={id,createdAt:now,name:pvSafePhotoName(sourceName),width:photoVision.rawCanvas.width,height:photoVision.rawCanvas.height,blob};
+            const db=await pvOpenPhotoArchiveDB();
+            try { await pvArchiveTx(db,'readwrite',store=>store.put(rec)); }
+            finally { db.close(); }
+            await pvRefreshArchiveUI(id);
+        } catch(e){ console.warn('Could not save analysis photo locally:',e); }
+    }
+    async function pvGetArchivedPhoto(id){
+        if(!id)return null;
+        const db=await pvOpenPhotoArchiveDB();
+        try {
+            return await new Promise((resolve,reject)=>{
+                const req=db.transaction(PHOTO_ARCHIVE_STORE,'readonly').objectStore(PHOTO_ARCHIVE_STORE).get(String(id));
+                req.onsuccess=()=>resolve(req.result||null);
+                req.onerror=()=>reject(req.error||new Error('Could not read saved photo'));
+            });
+        } finally { db.close(); }
+    }
+    async function pvLoadArchivedPhoto(){
+        const sel=$('photoArchiveSelect'),id=sel?sel.value:'';
+        if(!id)return;
+        try {
+            const rec=await pvGetArchivedPhoto(id);
+            if(!rec||!rec.blob){pvStatus('That saved photo could not be read.');return;}
+            pvStatus('Loading saved photo…');
+            loadPhotoFile(rec.blob,rec.name||'Saved pool table photo',false);
+        } catch(e){ pvStatus('Saved photo could not be opened on this device.'); console.warn(e); }
+    }
+    async function pvDeleteArchivedPhoto(){
+        const sel=$('photoArchiveSelect'),id=sel?sel.value:'';
+        if(!id)return;
+        const label=sel.options[sel.selectedIndex]?.textContent||'this saved photo';
+        if(!window.confirm('Delete '+label+' from this device?'))return;
+        try {
+            const db=await pvOpenPhotoArchiveDB();
+            try { await pvArchiveTx(db,'readwrite',store=>store.delete(String(id))); }
+            finally { db.close(); }
+            await pvRefreshArchiveUI();
+            pvStatus('Saved analysis photo deleted.');
+        } catch(e){ pvStatus('Could not delete the saved photo.'); console.warn(e); }
+    }
+    async function pvDownloadCurrentPhoto(){
+        if(!photoVision.imageReady||!photoVision.rawCanvas.width)return;
+        const blob=await pvCanvasBlob(photoVision.rawCanvas,'image/jpeg',.94); if(!blob)return;
+        const d=new Date(),stamp=d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'_'+String(d.getHours()).padStart(2,'0')+String(d.getMinutes()).padStart(2,'0')+String(d.getSeconds()).padStart(2,'0');
+        const a=document.createElement('a'),url=URL.createObjectURL(blob);
+        a.href=url;a.download='Billiards_Analysis_'+stamp+'.jpg';document.body.appendChild(a);a.click();a.remove();
+        setTimeout(()=>URL.revokeObjectURL(url),1500);
+    }
+
     // ----- Trained local AI: YOLO26 detector + zoomed identity classifier -----
     // The ONNX model bytes are embedded directly in this HTML. Images never leave this computer.
     // ONNX Runtime Web is loaded on demand; if that runtime cannot be loaded the
@@ -6180,6 +6356,7 @@
         $('photoAnalyzerModal').setAttribute('aria-hidden','false');
         pvRefreshControls();
         renderPhotoAnalyzer();
+        pvRefreshArchiveUI();
         // Warm the local models while the user chooses a photo and aligns corners.
         if(photoVision.aiEnabled) pvEnsureAIModels(false);
     }
@@ -6915,23 +7092,20 @@
         const chosen=photoVision.detections.filter(d=>String(d.id)!=='ignore'),used=new Set(),balls=[];
         for(const d of chosen){const id=Number(d.id);if(!Number.isFinite(id)||id<0||id>15||used.has(id))continue;used.add(id);balls.push({id,n:id===0?'CB':String(id),x:clamp(d.nx*S.tableL,S.ballR,S.tableL-S.ballR),y:clamp(d.ny*S.tableW,S.ballR,S.tableW-S.ballR),active:true});}
         if(!balls.length){pvStatus('No reviewed balls are selected.');return;}
-        // Do not silently manufacture the trainer's default cue ball. That made a
-        // missed/misidentified cue look like a stale cue ball from the previous
-        // layout. Keep the photo analyzer open so the real cue can be selected.
-        if(!balls.some(b=>b.id===0)){
-            pvStatus('Cue Ball is not assigned. Select the real cue ball in the review list (or ADD MISSED BALL) before applying to the table.');
-            toast('Assign the real Cue Ball before applying');
-            return;
-        }
+        const hasCueBall=balls.some(b=>b.id===0);
+        // A photographed layout is valid even when the cue ball is off the table,
+        // missed by the detector, or intentionally not included.  Preserve that
+        // exact state instead of blocking Apply or inventing a default cue ball.
+        S.allowMissingCueBall=!hasCueBall;
         S.balls=balls;S.shot2Enabled=false;S.shot2Initialized=false;S.activeShot=1;S.showShot1=true;S.showShot2=true;S.showCueVisuals=true;S.pocketedLog=[];S.bankKick=JSON.parse(JSON.stringify(defaultState().bankKick));S.freeAim={x:S.tableL*.58,y:S.tableW*.5};
         normalizeBallSet();resetRunHistory();updateUI();updateShot2UIState();refreshPreview();saveState();syncProjector();
         if(saveAfter){
             const now=new Date(),name=$('photoLayoutName').value.trim()||('Photo layout '+now.toLocaleDateString([], {month:'numeric',day:'numeric'})+' '+now.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}));
-            const layouts=readSavedLayouts();layouts.unshift(captureBallLayout(name));writeSavedLayouts(layouts.slice(0,20));updateSavedLayoutUI(true);toast('Photo layout applied + saved: '+name);
-        }else toast('Photo layout applied to table');
+            const layouts=readSavedLayouts();layouts.unshift(captureBallLayout(name));writeSavedLayouts(layouts.slice(0,20));updateSavedLayoutUI(true);toast('Photo layout applied + saved: '+name+(hasCueBall?'':' (no cue ball)'));
+        }else toast('Photo layout applied to table'+(hasCueBall?'':' (no cue ball)'));
         closePhotoAnalyzer();
     }
-    function loadPhotoFile(file){
+    function loadPhotoFile(file, sourceNameOverride = '', archiveAfter = true){
         if(!file)return;
         photoVision.imageReady=false;
         const v=$('photoAnalyzerVideo'),c=$('photoAnalyzerCanvas');
@@ -6958,6 +7132,8 @@
             c.style.display='block';
             $('photoCaptureFrame').style.display='none';
             pvResetAfterImageChange('Photo loaded. Use ROTATE 90° until the head/foot direction matches how you want the layout placed in Billiards Trainer. Then tap four inside playing-surface corners: top-left → top-right → bottom-right → bottom-left.');
+            if($('photoArchiveExport')) $('photoArchiveExport').disabled=false;
+            if(archiveAfter) pvArchiveRawCanvas(sourceNameOverride || file.name || 'Pool table photo');
         };
         img.onerror=()=>{
             URL.revokeObjectURL(url);
@@ -6981,6 +7157,8 @@
         $('photoAnalyzerCanvas').style.display='block';
         $('photoCaptureFrame').style.display='none';
         pvResetAfterImageChange('Frame captured. Use ROTATE 90° until the head/foot direction matches how you want the layout placed in Billiards Trainer. Then tap four inside playing-surface corners: top-left → top-right → bottom-right → bottom-left.');
+        if($('photoArchiveExport')) $('photoArchiveExport').disabled=false;
+        pvArchiveRawCanvas('Video frame');
     }
     function pvCanvasPoint(ev){
         const c=$('photoAnalyzerCanvas'),r=c.getBoundingClientRect(),px=(ev.clientX-r.left)*(c.width/r.width),py=(ev.clientY-r.top)*(c.height/r.height);
@@ -7021,6 +7199,9 @@
             ev.target.value = '';
         });
         $('photoCaptureFrame').addEventListener('click', captureVideoFrame);
+        $('photoArchiveLoad').addEventListener('click', pvLoadArchivedPhoto);
+        $('photoArchiveDelete').addEventListener('click', pvDeleteArchivedPhoto);
+        $('photoArchiveExport').addEventListener('click', pvDownloadCurrentPhoto);
         $('photoResetCorners').addEventListener('click', () => {
             pvResetDetectionsAndCorners();
             renderPhotoAnalyzer();
@@ -7795,8 +7976,16 @@
 
 <script>
 if ('serviceWorker' in navigator) {
+  let swRefreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (swRefreshing) return;
+    swRefreshing = true;
+    window.location.reload();
+  });
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js').catch(err => console.warn('Service worker registration failed:', err));
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(reg => reg.update())
+      .catch(err => console.warn('Service worker registration failed:', err));
   });
 }
 </script>
