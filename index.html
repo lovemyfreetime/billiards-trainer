@@ -5915,7 +5915,17 @@
             const blob=await pvCanvasBlob(photoVision.rawCanvas,'image/jpeg',.92);
             if(!blob)return;
             const now=Date.now(),id=String(now)+'-'+Math.random().toString(36).slice(2,8);
-            const rec={id,createdAt:now,name:pvSafePhotoName(sourceName),width:photoVision.rawCanvas.width,height:photoVision.rawCanvas.height,blob};
+            const safeName=pvSafePhotoName(sourceName);
+            const rec={id,createdAt:now,name:safeName,width:photoVision.rawCanvas.width,height:photoVision.rawCanvas.height,blob};
+            // The native Android wrapper mirrors each analysis image into a normal
+            // Pictures/Billiards Trainer/Analysis Archive folder as well as IndexedDB.
+            // Browser/PWA builds simply skip this bridge and retain the local archive.
+            try {
+                if(window.BilliardsAndroid && typeof window.BilliardsAndroid.archiveJpeg==='function'){
+                    const d=new Date(now),stamp=d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'_'+String(d.getHours()).padStart(2,'0')+String(d.getMinutes()).padStart(2,'0')+String(d.getSeconds()).padStart(2,'0');
+                    window.BilliardsAndroid.archiveJpeg(photoVision.rawCanvas.toDataURL('image/jpeg',.92),'Billiards_Analysis_'+stamp+'_'+safeName+'.jpg');
+                }
+            } catch(e){ console.warn('Android photo archive bridge unavailable:',e); }
             const db=await pvOpenPhotoArchiveDB();
             try { await pvArchiveTx(db,'readwrite',store=>store.put(rec)); }
             finally { db.close(); }
@@ -5958,10 +5968,18 @@
     }
     async function pvDownloadCurrentPhoto(){
         if(!photoVision.imageReady||!photoVision.rawCanvas.width)return;
-        const blob=await pvCanvasBlob(photoVision.rawCanvas,'image/jpeg',.94); if(!blob)return;
         const d=new Date(),stamp=d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'_'+String(d.getHours()).padStart(2,'0')+String(d.getMinutes()).padStart(2,'0')+String(d.getSeconds()).padStart(2,'0');
+        const filename='Billiards_Analysis_'+stamp+'.jpg';
+        // Native wrapper saves directly into the user's normal Pictures/Billiards Trainer folder.
+        try {
+            if(window.BilliardsAndroid && typeof window.BilliardsAndroid.saveJpeg==='function'){
+                window.BilliardsAndroid.saveJpeg(photoVision.rawCanvas.toDataURL('image/jpeg',.94),filename);
+                return;
+            }
+        } catch(e){ console.warn('Android photo save bridge unavailable:',e); }
+        const blob=await pvCanvasBlob(photoVision.rawCanvas,'image/jpeg',.94); if(!blob)return;
         const a=document.createElement('a'),url=URL.createObjectURL(blob);
-        a.href=url;a.download='Billiards_Analysis_'+stamp+'.jpg';document.body.appendChild(a);a.click();a.remove();
+        a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
         setTimeout(()=>URL.revokeObjectURL(url),1500);
     }
 
