@@ -35,13 +35,13 @@ function isStandaloneInstaller(){
   return window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone===true;
 }
 
+function isAndroidNativeWrapper(){
+  try{return !!window.BilliardsAndroid && window.BilliardsAndroid.isWrapper()===true}catch(e){return false}
+}
+
 window.addEventListener('beforeinstallprompt',e=>{
   e.preventDefault();
   deferredInstallerPrompt=e;
-  const btn=document.getElementById('installPresenterBtn');
-  if(btn) btn.textContent='INSTALL FULLSCREEN INSTALLER APP';
-  const hint=document.getElementById('presenterHint');
-  if(hint) hint.textContent='Install once and launch this installer from its own icon with no browser tabs or address bar.';
 });
 
 window.addEventListener('appinstalled',()=>{
@@ -53,6 +53,15 @@ window.addEventListener('appinstalled',()=>{
 });
 
 async function installPresenterApp(btn){
+  const d=currentDevice();
+
+  if(d==='android'){
+    const hint=document.getElementById('presenterHint');
+    if(hint) hint.textContent='Downloading the separate Billiards Trainer Installer app. Install it once, then open it from your app screen for a clean fullscreen presentation.';
+    window.location.href='../downloads/Billiards-Trainer-Installer-Android.apk';
+    return;
+  }
+
   if(isStandaloneInstaller()){
     if(btn) btn.textContent='ALREADY OPEN AS APP';
     return;
@@ -73,7 +82,6 @@ async function installPresenterApp(btn){
     }catch(e){}
   }
 
-  const d=currentDevice();
   if(d==='apple'){
     alert('On iPad: open this page in Safari, tap Share, then Add to Home Screen. The Home Screen version opens without normal browser tabs or the address bar.');
     return;
@@ -82,7 +90,7 @@ async function installPresenterApp(btn){
   try{
     await toggleInstallerFullscreen(document.getElementById('fullscreenPresenterBtn'));
     const hint=document.getElementById('presenterHint');
-    if(hint) hint.textContent='Your browser did not offer the app-install prompt yet, so Fullscreen Presenter was opened instead. Reload once and the install option may become available.';
+    if(hint) hint.textContent='Your browser did not offer the app-install prompt, so Fullscreen Presenter was opened instead.';
   }catch(e){}
 }
 
@@ -104,9 +112,9 @@ async function toggleInstallerFullscreen(btn){
       if(btn) btn.textContent='EXIT FULLSCREEN';
       return;
     }
-    alert('This browser does not support one-tap fullscreen. Add this installer to the Home Screen instead.');
+    alert('This browser does not support one-tap fullscreen. Install the Fullscreen Installer App instead.');
   }catch(e){
-    alert('Fullscreen was blocked by the browser. Add this installer to the Home Screen for a browser-free presentation.');
+    alert('Fullscreen was blocked by the browser. Install the Fullscreen Installer App for a browser-free presentation.');
   }
 }
 
@@ -124,10 +132,17 @@ window.addEventListener('DOMContentLoaded',()=>{
   }
 
   const installBtn=document.getElementById('installPresenterBtn');
-  if(installBtn && isStandaloneInstaller()){
+  const hint=document.getElementById('presenterHint');
+
+  if(isAndroidNativeWrapper()){
+    if(installBtn){installBtn.textContent='FULLSCREEN INSTALLER APP IS OPEN';installBtn.disabled=true;}
+    if(hint) hint.textContent='You are already viewing the Universal Installer inside the fullscreen Android app.';
+  }else if(installBtn && d==='android'){
+    installBtn.textContent='INSTALL FULLSCREEN INSTALLER APP';
+    if(hint) hint.textContent='Installs a separate app named Billiards Trainer Installer. It opens this Universal Installer without Chrome tabs or the address bar.';
+  }else if(installBtn && isStandaloneInstaller()){
     installBtn.textContent='FULLSCREEN INSTALLER INSTALLED';
     installBtn.disabled=true;
-    const hint=document.getElementById('presenterHint');
     if(hint) hint.textContent='You are already running the installer as a standalone app.';
   }else if(installBtn && d==='apple'){
     installBtn.textContent='ADD INSTALLER TO HOME SCREEN';
