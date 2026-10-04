@@ -131,6 +131,23 @@ window.addEventListener('DOMContentLoaded',()=>{
     if(card)card.classList.add('recommended');
   }
 
+  const windowsCard=document.querySelector('[data-device="windows"]');
+  if(windowsCard){
+    const windowsInstall=windowsCard.querySelector('.primary-actions > a.btn');
+    if(windowsInstall){
+      windowsInstall.setAttribute('href','../downloads/Billiards-Trainer-Windows-Setup.exe');
+      windowsInstall.setAttribute('download','');
+    }
+    const windowsGuide=windowsCard.querySelector('.guide-body');
+    if(windowsGuide){
+      windowsGuide.innerHTML=`
+        <div class="visual-step text-only-step"><div class="visual-copy"><strong>Download the installer</strong><span>Tap <b>INSTALL</b>, then open <b>Billiards-Trainer-Windows-Setup.exe</b>.</span></div></div>
+        <div class="visual-step text-only-step"><div class="visual-copy"><strong>If Windows shows a security message</strong><span>This beta is not code-signed yet, so Microsoft Defender SmartScreen may appear. Choose <b>More info</b>, then <b>Run anyway</b>.</span></div></div>
+        <div class="visual-step text-only-step"><div class="visual-copy"><strong>Install</strong><span>Follow the short setup prompts. Desktop and Start-menu shortcuts are created automatically.</span></div></div>
+        <div class="visual-step text-only-step"><div class="visual-copy"><strong>Open Billiards Trainer</strong><span>The app opens maximized in its own clean window with no browser address bar or tabs. Press <b>F11</b> for complete fullscreen.</span></div></div>`;
+    }
+  }
+
   const installBtn=document.getElementById('installPresenterBtn');
   const hint=document.getElementById('presenterHint');
 
