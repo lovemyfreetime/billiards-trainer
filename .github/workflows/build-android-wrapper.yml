@@ -1,10 +1,11 @@
-name: Build Android wrapper APK
+name: Build Android wrapper APKs
 
 on:
   workflow_dispatch:
   push:
     paths:
       - 'android-wrapper/**'
+      - '.github/workflows/build-android-wrapper.yml'
 
 permissions:
   contents: write
@@ -39,20 +40,21 @@ jobs:
           test -n "$ANDROID_KEY_ALIAS" || { echo "ANDROID_KEY_ALIAS secret is missing"; exit 1; }
           test -n "$ANDROID_KEY_PASSWORD" || { echo "ANDROID_KEY_PASSWORD secret is missing"; exit 1; }
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$ANDROID_KEYSTORE_PATH"
-      - name: Build permanently signed release APK
+      - name: Build permanently signed release APKs
         working-directory: android-wrapper
-        run: gradle :app:assembleRelease
-      - name: Publish current Android installer
+        run: gradle :app:assembleTrainerRelease :app:assembleInstallerRelease
+      - name: Publish current Android installers
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin main
           mkdir -p downloads
-          cp android-wrapper/app/build/outputs/apk/release/app-release.apk downloads/Billiards-Trainer-Android.apk
-          git add -f downloads/Billiards-Trainer-Android.apk
+          cp android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk downloads/Billiards-Trainer-Android.apk
+          cp android-wrapper/app/build/outputs/apk/installer/release/app-installer-release.apk downloads/Billiards-Trainer-Installer-Android.apk
+          git add -f downloads/Billiards-Trainer-Android.apk downloads/Billiards-Trainer-Installer-Android.apk
           if git diff --cached --quiet; then
-            echo "Published APK is already current."
+            echo "Published APKs are already current."
           else
-            git commit -m "Publish permanently signed Android installer"
+            git commit -m "Publish signed Android trainer and installer wrappers"
             git push origin HEAD:main
           fi
