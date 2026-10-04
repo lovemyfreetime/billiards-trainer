@@ -18,6 +18,26 @@ android {
         targetSdk 35
         versionCode wrapperVersionCode
         versionName "4.12-wrapper-${wrapperVersionCode}"
+        manifestPlaceholders = [appLabel: 'Billiards Trainer 4.12']
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    flavorDimensions += 'target'
+    productFlavors {
+        trainer {
+            dimension 'target'
+            buildConfigField 'String', 'APP_URL', '"https://lovemyfreetime.github.io/billiards-trainer/"'
+            manifestPlaceholders = [appLabel: 'Billiards Trainer 4.12']
+        }
+        installer {
+            dimension 'target'
+            applicationIdSuffix '.installer'
+            buildConfigField 'String', 'APP_URL', '"https://lovemyfreetime.github.io/billiards-trainer/install/"'
+            manifestPlaceholders = [appLabel: 'Billiards Trainer Installer']
+        }
     }
 
     signingConfigs {
