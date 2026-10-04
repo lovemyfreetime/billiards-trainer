@@ -18,6 +18,7 @@ import android.view.WindowManager;
 import android.webkit.DownloadListener;
 import android.webkit.JavascriptInterface;
 import android.webkit.RenderProcessGoneDetail;
+import android.webkit.URLUtil;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -33,7 +34,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class MainActivity extends Activity {
-    private static final String APP_URL = "https://lovemyfreetime.github.io/billiards-trainer/";
+    private static final String APP_URL = BuildConfig.APP_URL;
     private static final int FILE_CHOOSER_REQUEST = 4201;
 
     private WebView webView;
@@ -127,7 +128,9 @@ public class MainActivity extends Activity {
                     r.setMimeType(mimeType);
                     r.addRequestHeader("User-Agent", userAgent);
                     r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                    r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "BilliardsTrainer_download");
+                    String filename = URLUtil.guessFileName(url, contentDisposition, mimeType);
+                    if (filename == null || filename.trim().isEmpty()) filename = "BilliardsTrainer_download";
+                    r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
                     ((DownloadManager) getSystemService(DOWNLOAD_SERVICE)).enqueue(r);
                     Toast.makeText(MainActivity.this, "Download started", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
