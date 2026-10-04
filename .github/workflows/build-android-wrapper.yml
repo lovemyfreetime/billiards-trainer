@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/android-wrapper/app/billiards-trainer-release.jks
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
       ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
       ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
       ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
@@ -31,30 +32,42 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
+
       - name: Prepare permanent Android signing key
-        env:
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-        run: |
-          test -n "$ANDROID_KEYSTORE_BASE64" || { echo "ANDROID_KEYSTORE_BASE64 secret is missing"; exit 1; }
-          test -n "$ANDROID_KEYSTORE_PASSWORD" || { echo "ANDROID_KEYSTORE_PASSWORD secret is missing"; exit 1; }
-          test -n "$ANDROID_KEY_ALIAS" || { echo "ANDROID_KEY_ALIAS secret is missing"; exit 1; }
-          test -n "$ANDROID_KEY_PASSWORD" || { echo "ANDROID_KEY_PASSWORD secret is missing"; exit 1; }
-          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$ANDROID_KEYSTORE_PATH"
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' && env.ANDROID_KEYSTORE_PASSWORD != '' && env.ANDROID_KEY_ALIAS != '' && env.ANDROID_KEY_PASSWORD != '' }}
+        run: printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$ANDROID_KEYSTORE_PATH"
+
       - name: Build permanently signed release APKs
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' && env.ANDROID_KEYSTORE_PASSWORD != '' && env.ANDROID_KEY_ALIAS != '' && env.ANDROID_KEY_PASSWORD != '' }}
         working-directory: android-wrapper
         run: gradle :app:assembleTrainerRelease :app:assembleInstallerRelease
+
+      - name: Build temporary installer APK
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 == '' || env.ANDROID_KEYSTORE_PASSWORD == '' || env.ANDROID_KEY_ALIAS == '' || env.ANDROID_KEY_PASSWORD == '' }}
+        working-directory: android-wrapper
+        run: gradle :app:assembleInstallerDebug
+
       - name: Publish current Android installers
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin main
           mkdir -p downloads
-          cp android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk downloads/Billiards-Trainer-Android.apk
-          cp android-wrapper/app/build/outputs/apk/installer/release/app-installer-release.apk downloads/Billiards-Trainer-Installer-Android.apk
+
+          if [ -f android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk ]; then
+            cp android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk downloads/Billiards-Trainer-Android.apk
+          fi
+
+          if [ -f android-wrapper/app/build/outputs/apk/installer/release/app-installer-release.apk ]; then
+            cp android-wrapper/app/build/outputs/apk/installer/release/app-installer-release.apk downloads/Billiards-Trainer-Installer-Android.apk
+          else
+            cp android-wrapper/app/build/outputs/apk/installer/debug/app-installer-debug.apk downloads/Billiards-Trainer-Installer-Android.apk
+          fi
+
           git add -f downloads/Billiards-Trainer-Android.apk downloads/Billiards-Trainer-Installer-Android.apk
           if git diff --cached --quiet; then
             echo "Published APKs are already current."
           else
-            git commit -m "Publish signed Android trainer and installer wrappers"
+            git commit -m "Publish Android trainer and installer wrappers"
             git push origin HEAD:main
           fi
