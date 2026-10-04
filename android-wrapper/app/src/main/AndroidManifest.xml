@@ -5,7 +5,7 @@
 
     <application
         android:allowBackup="true"
-        android:label="Billiards Trainer 4.12"
+        android:label="${appLabel}"
         android:icon="@drawable/billiards_trainer_icon"
         android:roundIcon="@drawable/billiards_trainer_icon"
         android:theme="@style/AppTheme"
