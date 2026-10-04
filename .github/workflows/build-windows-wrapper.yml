@@ -1,0 +1,73 @@
+name: Build Windows wrapper installer
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'windows-wrapper/**'
+      - '.github/workflows/build-windows-wrapper.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Create Windows icon
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force windows-wrapper/assets | Out-Null
+          python -m pip install --disable-pip-version-check pillow
+          @'
+          from PIL import Image
+          im = Image.open('icons/icon-512.png').convert('RGBA')
+          im.save('windows-wrapper/assets/billiards-trainer.ico', sizes=[(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)])
+          '@ | python -
+
+      - name: Download Microsoft WebView2 bootstrapper
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri 'https://go.microsoft.com/fwlink/p/?LinkId=2124703' -OutFile 'windows-wrapper/assets/MicrosoftEdgeWebview2Setup.exe'
+
+      - name: Publish self-contained Windows wrapper
+        shell: pwsh
+        run: |
+          dotnet restore windows-wrapper/BilliardsTrainer.Windows.csproj
+          dotnet publish windows-wrapper/BilliardsTrainer.Windows.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -p:ApplicationIcon=assets/billiards-trainer.ico -o windows-wrapper/publish
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress -y
+
+      - name: Build single EXE installer
+        shell: pwsh
+        run: |
+          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' 'windows-wrapper\installer.iss'
+
+      - name: Publish current Windows installer
+        shell: pwsh
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --rebase origin main
+          New-Item -ItemType Directory -Force downloads | Out-Null
+          Copy-Item 'windows-wrapper/output/Billiards-Trainer-Windows-Setup.exe' 'downloads/Billiards-Trainer-Windows-Setup.exe' -Force
+          git add -f downloads/Billiards-Trainer-Windows-Setup.exe
+          if (-not (git diff --cached --quiet)) {
+            git commit -m 'Publish Windows wrapper installer'
+            git push origin HEAD:main
+          } else {
+            Write-Host 'Published Windows installer is already current.'
+          }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Billiards-Trainer-Windows-Setup
+          path: windows-wrapper/output/Billiards-Trainer-Windows-Setup.exe
