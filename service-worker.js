@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-ai-camera-v5';
+const CACHE_NAME = 'billiards-trainer-4-12-ai-camera-v6';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
@@ -31,7 +31,6 @@ async function networkFirst(request) {
     const response = await fetch(request, { cache: 'no-store' });
     if (response && response.status === 200) {
       cache.put(request, response.clone()).catch(() => {});
-      // Keep a reliable offline fallback for app navigations.
       if (request.mode === 'navigate') {
         cache.put('./index.html', response.clone()).catch(() => {});
       }
@@ -49,13 +48,17 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
-  // Never let a previously cached HTML page hide a newly uploaded GitHub index.html.
-  if (event.request.mode === 'navigate' || /\/index\.html$/i.test(url.pathname)) {
+  const isInstallerAsset = /\/install\//i.test(url.pathname) &&
+    (/\.(?:html|css|js|webmanifest)$/i.test(url.pathname) || event.request.mode === 'navigate');
+
+  // Always prefer the network for HTML and installer UI assets so a normal
+  // mobile reload picks up the newest installer without a hard-refresh keyboard shortcut.
+  if (event.request.mode === 'navigate' || /\/index\.html$/i.test(url.pathname) || isInstallerAsset) {
     event.respondWith(networkFirst(event.request));
     return;
   }
 
-  // Assets/models can load from cache immediately and refresh in the background.
+  // Other assets/models can load from cache immediately and refresh in the background.
   event.respondWith(
     caches.open(CACHE_NAME).then(async cache => {
       const cached = await cache.match(event.request);
