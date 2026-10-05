@@ -976,6 +976,38 @@
     box-shadow:0 0 5px rgba(111,255,88,.7);
   }
   body.projector .aimControlRow { display:none !important; }
+
+  /* Community feedback entry point. Hidden until beta-config.js contains a feedback form URL. */
+  [hidden]{display:none!important}
+  #btFeedbackButton{
+    position:fixed; z-index:80; right:14px; bottom:14px;
+    border:1px solid #79e7a8; background:#60d394; color:#07120c;
+    border-radius:999px; padding:9px 13px; font-size:11px; font-weight:850;
+    letter-spacing:.035em; box-shadow:0 8px 24px rgba(0,0,0,.42);
+  }
+  #btFeedbackButton:hover{background:#73e0a2}
+  #btFeedbackModal{
+    position:fixed; inset:0; z-index:200; display:none; align-items:center; justify-content:center;
+    padding:18px; background:rgba(2,5,8,.76); backdrop-filter:blur(7px);
+  }
+  #btFeedbackModal.open{display:flex}
+  .btFeedbackPanel{
+    width:min(680px,96vw); max-height:92vh; overflow:auto;
+    background:#141b24; border:1px solid #3f5a70; border-radius:18px;
+    box-shadow:0 24px 80px rgba(0,0,0,.72); padding:18px;
+  }
+  .btFeedbackHead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:6px}
+  .btFeedbackHead h2{margin:0;font-size:22px;color:#f5f8fb}
+  .btFeedbackClose{width:34px;height:34px;min-width:34px;padding:0;border-radius:50%;font-size:19px;line-height:1}
+  .btFeedbackIntro{margin:0 0 12px;color:#c6d2de;font-size:14px;line-height:1.45}
+  #btFeedbackFrame{display:block;width:100%;height:min(560px,67vh);border:0;border-radius:12px;background:#10161d}
+  body.projector #btFeedbackButton{display:none!important}
+  @media(max-width:700px){
+    #btFeedbackButton{right:9px;bottom:9px;font-size:10px;padding:8px 11px}
+    .btFeedbackPanel{padding:14px}
+    .btFeedbackHead h2{font-size:19px}
+  }
+
 </style>
 </head>
 <body>
@@ -8007,5 +8039,22 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+
+  <button id="btFeedbackButton" type="button" hidden>HELP SHAPE BILLIARDS TRAINER</button>
+  <div id="btFeedbackModal" aria-hidden="true">
+    <div class="btFeedbackPanel" role="dialog" aria-modal="true" aria-labelledby="btFeedbackTitle">
+      <div class="btFeedbackHead">
+        <div>
+          <h2 id="btFeedbackTitle">Help Shape Billiards Trainer</h2>
+        </div>
+        <button id="btFeedbackClose" class="btFeedbackClose" type="button" aria-label="Close feedback">×</button>
+      </div>
+      <p class="btFeedbackIntro">See something you like? Something you'd change? Have an idea for a feature or a better way to teach a shot? I'd like to hear it. Billiards Trainer is being shaped by the people who actually use it.</p>
+      <iframe id="btFeedbackFrame" title="Billiards Trainer feedback form" loading="lazy"></iframe>
+    </div>
+  </div>
+  <script src="./beta-config.js?v=1"></script>
+  <script src="./beta-ui.js?v=1"></script>
+
 </body>
 </html>
