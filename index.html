@@ -3285,6 +3285,27 @@
             wz: k * (                 - tip.sideR * uz)
         };
     }
+    function applyBedImpactImpulse(state, R, restitution, friction) {
+        if (!state || state.vz >= -1e-12)
+            return { hit:false, reboundAngle:0, predictedRange:0, jn:0 };
+        const e = clamp(+restitution || 0, 0, .95);
+        const mu = clamp(+friction || 0, 0, .5);
+        const jn = -(1 + e) * state.vz;
+        state.vz += jn;
+        let ux = state.vx - R * state.wy, uy = state.vy + R * state.wx;
+        let jx = -ux / 3.5, jy = -uy / 3.5;
+        const jm = Math.hypot(jx, jy), lim = mu * Math.abs(jn);
+        if (jm > lim && jm > 1e-12) {
+            const q = lim / jm;
+            jx *= q; jy *= q;
+        }
+        state.vx += jx; state.vy += jy;
+        state.wx += 2.5 * jy / R; state.wy -= 2.5 * jx / R;
+        const vh = Math.hypot(state.vx, state.vy);
+        const reboundAngle = Math.atan2(Math.max(0, state.vz), Math.max(1e-9, vh));
+        const predictedRange = 2 * vh * Math.max(0, state.vz) / APK.gravity;
+        return { hit:true, reboundAngle, predictedRange, jn };
+    }
     function ballBallTangentialImpulse3(ux, uy, uz, jn) {
         const vRel = Math.hypot(ux, uy, uz);
         if (vRel < 1e-12 || Math.abs(jn) < 1e-12)
@@ -3333,6 +3354,21 @@
         near(flat.wx, 0, 1e-10, 'zero-elevation masse component');
         const gear = ballBallTangentialImpulse(0, 0, .5);
         near(gear.jt, 0, 1e-12, 'gearing zero throw');
+
+        // TP B.10 published center-ball rebound benchmarks (e_table=.60, mu=.20,
+        // incoming CB speed 11.194 mph).  These validate the jump-flight boundary.
+        const testSpeed = 11.194 * .44704;
+        const bounceCase = deg => {
+            const th = deg * Math.PI / 180;
+            const q = { vx:testSpeed*Math.cos(th), vy:0, vz:-testSpeed*Math.sin(th), wx:0, wy:0, wz:0 };
+            const r = applyBedImpactImpulse(q, APK.ballRadiusM, .60, .20);
+            return { angle:r.reboundAngle*180/Math.PI, feet:r.predictedRange/.3048 };
+        };
+        const b5 = bounceCase(5), b12 = bounceCase(12);
+        near(b5.angle, 3.091, .006, 'TP B.10 5deg rebound angle');
+        near(b5.feet, .848, .003, 'TP B.10 5deg first-hop distance');
+        near(b12.angle, 7.792, .006, 'TP B.10 12deg rebound angle');
+        near(b12.feet, 1.906, .004, 'TP B.10 12deg first-hop distance');
         return { ok: failures.length === 0, failures };
     }
     window.__BT_PHYSICS_SELF_TEST__ = runPhysicsSelfTests;
@@ -3594,21 +3630,11 @@
         let maxCueHeight = R, airborneDistance = 0, bedBounceCount = 0;
         function bedHit(b, initial = false) {
             if (!airborneMode || b.vz >= -1e-10) return false;
-            const jn = -(1 + S.tableRest) * b.vz;
-            b.vz += jn;
-            let ux = b.vx - R * b.wy, uy = b.vy + R * b.wx;
-            let jx = -ux / 3.5, jy = -uy / 3.5;
-            const jm = Math.hypot(jx, jy), lim = Math.max(0, S.bedImpactMu) * Math.abs(jn);
-            if (jm > lim && jm > 1e-12) { const q = lim / jm; jx *= q; jy *= q; }
-            b.vx += jx; b.vy += jy;
-            b.wx += 2.5 * jy / R; b.wy -= 2.5 * jx / R;
+            const result = applyBedImpactImpulse(b, R, S.tableRest, S.bedImpactMu);
             b.z = R;
-            const vh = Math.hypot(b.vx, b.vy);
-            const angle = Math.atan2(Math.max(0, b.vz), Math.max(1e-9, vh));
-            const predictedRange = 2 * vh * Math.max(0, b.vz) / g;
-            if (predictedRange < .00254 && angle < Math.PI / 180) b.vz = 0;
+            if (result.predictedRange < .00254 && result.reboundAngle < Math.PI / 180) b.vz = 0;
             else if (!initial) bedBounceCount++;
-            return true;
+            return result.hit;
         }
         function canReachCushion(b) {
             if (!airborneMode) return true;
