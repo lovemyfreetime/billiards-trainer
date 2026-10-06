@@ -6405,47 +6405,122 @@
         }
         return list;
     }
+    function pvRotateCanvasQuarter(source,turns=0){
+        turns=((turns%4)+4)%4;
+        if(turns===0)return source;
+        const out=document.createElement('canvas');
+        const swap=turns===1||turns===3;
+        out.width=swap?source.height:source.width;
+        out.height=swap?source.width:source.height;
+        const x=out.getContext('2d',{willReadFrequently:true});
+        x.imageSmoothingEnabled=false;
+        x.save();
+        if(turns===1){x.translate(out.width,0);x.rotate(Math.PI/2);}
+        else if(turns===2){x.translate(out.width,out.height);x.rotate(Math.PI);}
+        else {x.translate(0,out.height);x.rotate(-Math.PI/2);}
+        x.drawImage(source,0,0);
+        x.restore();
+        return out;
+    }
+    function pvPointFromQuarterTurn(p,turns,baseW,baseH){
+        turns=((turns%4)+4)%4;
+        if(turns===0)return {x:p.x,y:p.y};
+        if(turns===1)return {x:p.y,y:baseH-p.x};
+        if(turns===2)return {x:baseW-p.x,y:baseH-p.y};
+        return {x:baseW-p.y,y:p.x};
+    }
+    function pvBoxFromQuarterTurn(box,turns,baseW,baseH){
+        const pts=[
+            pvPointFromQuarterTurn({x:box.x1,y:box.y1},turns,baseW,baseH),
+            pvPointFromQuarterTurn({x:box.x2,y:box.y1},turns,baseW,baseH),
+            pvPointFromQuarterTurn({x:box.x2,y:box.y2},turns,baseW,baseH),
+            pvPointFromQuarterTurn({x:box.x1,y:box.y2},turns,baseW,baseH)
+        ];
+        const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
+        return {
+            x1:Math.max(0,Math.min(baseW-1,Math.min(...xs))),
+            y1:Math.max(0,Math.min(baseH-1,Math.min(...ys))),
+            x2:Math.max(0,Math.min(baseW-1,Math.max(...xs))),
+            y2:Math.max(0,Math.min(baseH-1,Math.max(...ys)))
+        };
+    }
+    async function pvRunAIClassifierRotationEnsemble(crop,detScores){
+        const runs=[];
+        for(let turn=0;turn<4;turn++){
+            const rc=pvRotateCanvasQuarter(crop,turn);
+            runs.push(await pvRunAIClassifier(rc,detScores));
+        }
+        const n=PV_AI_CLASSES.length;
+        const avgCombined=new Array(n).fill(0),avgAdjusted=new Array(n).fill(0),avgProbs=new Array(n).fill(0);
+        for(const r of runs){
+            for(let i=0;i<n;i++){
+                avgCombined[i]+=(r.combined?.[i]||0)/runs.length;
+                avgAdjusted[i]+=(r.adjusted?.[i]||0)/runs.length;
+                avgProbs[i]+=(r.probs?.[i]||0)/runs.length;
+            }
+        }
+        const appearance=pvAnalyzeBallAppearance(crop);
+        const order=avgAdjusted.map((v,i)=>({i,v,raw:avgCombined[i],delta:v-avgCombined[i]})).sort((a,b)=>b.v-a.v);
+        const rawOrder=avgCombined.map((v,i)=>({i,v})).sort((a,b)=>b.v-a.v);
+        return {probs:avgProbs,combined:avgCombined,adjusted:avgAdjusted,appearance,order,rawOrder,top:order[0],rawTop:rawOrder[0]};
+    }
     async function pvDetectWithAI() {
         if(!photoAI.ready)throw new Error('AI models are not ready.');
-        const src=photoVision.analysisCanvas,displaySource=photoVision.sharpen?photoVision.sourceCanvas:photoVision.analysisCanvas;
-        const prep=pvCanvasTensorRGB(src,768,true),inputName=photoAI.detector.inputNames[0],outputName=photoAI.detector.outputNames[0];
-        pvStatus('AI detector is finding pool balls…');
-        const result=await photoAI.detector.run({[inputName]:prep.tensor});
-        const out=result[outputName],dims=out.dims||[],data=out.data;
-        let channels=0,anchors=0,channelFirst=true;
-        if(dims.length===3 && dims[1]===20){channels=20;anchors=dims[2];channelFirst=true;}
-        else if(dims.length===3 && dims[2]===20){channels=20;anchors=dims[1];channelFirst=false;}
-        else throw new Error('Unexpected detector output shape: '+JSON.stringify(dims));
-        function at(c,a){return channelFirst?data[c*anchors+a]:data[a*channels+c];}
+        const src=photoVision.analysisCanvas;
+        const displaySource=photoVision.sharpen?photoVision.sourceCanvas:photoVision.analysisCanvas;
+        const inputName=photoAI.detector.inputNames[0],outputName=photoAI.detector.outputNames[0];
         const raw=[];
-        for(let a=0;a<anchors;a++){
-            let best=-1,bestScore=-Infinity,scores=new Array(16);
-            for(let c=0;c<16;c++){const v=at(4+c,a);scores[c]=v;if(v>bestScore){bestScore=v;best=c;}}
-            if(bestScore<.12)continue;
-            let cx=at(0,a),cy=at(1,a),bw=at(2,a),bh=at(3,a);
-            if(Math.max(Math.abs(cx),Math.abs(cy),Math.abs(bw),Math.abs(bh))<3){cx*=768;cy*=768;bw*=768;bh*=768;}
-            if(!(bw>2&&bh>2))continue;
-            const aspect=Math.min(bw,bh)/Math.max(bw,bh);if(aspect<.42)continue;
-            let x1=(cx-bw/2-prep.padX)/prep.scale,y1=(cy-bh/2-prep.padY)/prep.scale,x2=(cx+bw/2-prep.padX)/prep.scale,y2=(cy+bh/2-prep.padY)/prep.scale;
-            x1=Math.max(0,Math.min(src.width-1,x1));x2=Math.max(0,Math.min(src.width-1,x2));y1=Math.max(0,Math.min(src.height-1,y1));y2=Math.max(0,Math.min(src.height-1,y2));
-            if(x2-x1<4||y2-y1<4)continue;
-            const center={x:(x1+x2)/2,y:(y1+y2)/2},q=imagePointToNormalized(center);
-            // Reject detections centered on the rail/pocket region. Keep a small
-            // tolerance because manually placed photo corners are never pixel-perfect.
-            if(!q||q.x<.004||q.x>.996||q.y<.010||q.y>.990)continue;
-            raw.push({x1,y1,x2,y2,detClass:best,detConfidence:bestScore,detScores:scores,nx:q.x,ny:q.y});
+        const baseW=src.width,baseH=src.height;
+
+        // Rotation ensemble: the trained detector is not perfectly orientation invariant.
+        // Run the exact same retained pixels at 0/90/180/270 degrees, map every
+        // candidate back to the user's current view, then merge duplicates with NMS.
+        for(let turn=0;turn<4;turn++){
+            pvStatus('AI rotation check '+(turn+1)+' / 4…');
+            const detCanvas=pvRotateCanvasQuarter(src,turn);
+            const prep=pvCanvasTensorRGB(detCanvas,768,true);
+            const result=await photoAI.detector.run({[inputName]:prep.tensor});
+            const out=result[outputName],dims=out.dims||[],data=out.data;
+            let channels=0,anchors=0,channelFirst=true;
+            if(dims.length===3 && dims[1]===20){channels=20;anchors=dims[2];channelFirst=true;}
+            else if(dims.length===3 && dims[2]===20){channels=20;anchors=dims[1];channelFirst=false;}
+            else throw new Error('Unexpected detector output shape: '+JSON.stringify(dims));
+            function at(c,a){return channelFirst?data[c*anchors+a]:data[a*channels+c];}
+
+            for(let a=0;a<anchors;a++){
+                let best=-1,bestScore=-Infinity,scores=new Array(16);
+                for(let ci=0;ci<16;ci++){const v=at(4+ci,a);scores[ci]=v;if(v>bestScore){bestScore=v;best=ci;}}
+                if(bestScore<.12)continue;
+                let cx=at(0,a),cy=at(1,a),bw=at(2,a),bh=at(3,a);
+                if(Math.max(Math.abs(cx),Math.abs(cy),Math.abs(bw),Math.abs(bh))<3){cx*=768;cy*=768;bw*=768;bh*=768;}
+                if(!(bw>2&&bh>2))continue;
+                const aspect=Math.min(bw,bh)/Math.max(bw,bh);if(aspect<.42)continue;
+
+                let x1=(cx-bw/2-prep.padX)/prep.scale,y1=(cy-bh/2-prep.padY)/prep.scale;
+                let x2=(cx+bw/2-prep.padX)/prep.scale,y2=(cy+bh/2-prep.padY)/prep.scale;
+                x1=Math.max(0,Math.min(detCanvas.width-1,x1));x2=Math.max(0,Math.min(detCanvas.width-1,x2));
+                y1=Math.max(0,Math.min(detCanvas.height-1,y1));y2=Math.max(0,Math.min(detCanvas.height-1,y2));
+                if(x2-x1<4||y2-y1<4)continue;
+
+                const box=pvBoxFromQuarterTurn({x1,y1,x2,y2},turn,baseW,baseH);
+                if(box.x2-box.x1<4||box.y2-box.y1<4)continue;
+                const center={x:(box.x1+box.x2)/2,y:(box.y1+box.y2)/2};
+                const q=imagePointToNormalized(center);
+                if(!q||q.x<.004||q.x>.996||q.y<.010||q.y>.990)continue;
+                raw.push({...box,detClass:best,detConfidence:bestScore,detScores:scores,nx:q.x,ny:q.y,ttaTurn:turn});
+            }
+            await new Promise(r=>setTimeout(r,0));
         }
-        let candidates=pvNmsCandidates(raw,.44,22);
-        // Keep the strongest centers before the identity pass. We allow a few extras
-        // here, then the legal 16-ball table constraint trims the review list.
+
+        let candidates=pvNmsCandidates(raw,.42,24);
         candidates=candidates.sort((a,b)=>b.detConfidence-a.detConfidence).slice(0,20);
         const identified=[];
         for(let i=0;i<candidates.length;i++){
             pvStatus('AI identity check '+(i+1)+' / '+candidates.length+'…');
-            const d=candidates[i],crop=pvSquareCropCanvas(displaySource,d,.35,224),id=await pvRunAIClassifier(crop,d.detScores);
+            const d=candidates[i],crop=pvSquareCropCanvas(displaySource,d,.35,224);
+            const id=await pvRunAIClassifierRotationEnsemble(crop,d.detScores);
             identified.push({...d,engine:'ai',aiOrder:id.order,aiRawOrder:id.rawOrder,appearance:id.appearance,identityConfidence:id.top?.v||0,confidence:(id.top?.v||0)*.8+d.detConfidence*.2,thumb:pvThumbFromCanvas(crop)});
-            // Yield so the status text and UI remain responsive on older PCs.
-            if(i%3===2)await new Promise(r=>setTimeout(r,0));
+            if(i%2===1)await new Promise(r=>setTimeout(r,0));
         }
         pvResolveUniqueAI(identified);
         identified.sort((a,b)=>(b.detConfidence*.42+b.identityConfidence*.58)-(a.detConfidence*.42+a.identityConfidence*.58));
