@@ -1289,6 +1289,9 @@
           <div class="metric"><span>Tip location</span><b id="tipText">Center</b></div>
           <div class="metric"><span>Predicted cue-ball squirt</span><b id="squirtText">0.00°</b></div>
           <div class="metric"><span>Jump / flight</span><b id="airborneText">—</b></div>
+          <div class="metric"><span>Obstacle clearance</span><b id="clearanceText">—</b></div>
+          <div class="metric"><span>Jump guide</span><b id="jumpGuideText">—</b></div>
+          <div class="metric"><span>Curve / massé</span><b id="masseGuideText">—</b></div>
           <div class="metric"><span>Power feel</span><b id="powerFeelText">—</b></div>
           <div class="metric"><span id="pocketNeedLabel">Pocket speed</span><b id="pocketNeedText">—</b></div>
           <div class="metric"><span id="impactPowerLabel">CB → object ball</span><b id="impactPowerText">—</b></div>
@@ -1298,6 +1301,9 @@
           <div class="metric"><span>Tip location</span><b id="tip2Text">Center</b></div>
           <div class="metric"><span>Predicted cue-ball squirt</span><b id="squirt2Text">0.00°</b></div>
           <div class="metric"><span>Jump / flight</span><b id="airborne2Text">—</b></div>
+          <div class="metric"><span>Obstacle clearance</span><b id="clearance2Text">—</b></div>
+          <div class="metric"><span>Jump guide</span><b id="jumpGuide2Text">—</b></div>
+          <div class="metric"><span>Curve / massé</span><b id="masseGuide2Text">—</b></div>
           <div class="metric"><span>Power feel</span><b id="powerFeel2Text">—</b></div>
           <div class="metric"><span id="pocketNeed2Label">Pocket speed</span><b id="pocketNeed2Text">—</b></div>
           <div class="metric"><span id="impactPower2Label">CB → object ball</span><b id="impactPower2Text">—</b></div>
@@ -3553,9 +3559,12 @@
         const dt = 1 / 600, maxT = 20, maxSteps = Math.ceil(maxT / dt), g = APK.gravity, R = S.ballR;
         const paths = {};
         for (const b of B)
-            paths[b.id] = [{ x: b.x, y: b.y, t: 0 }];
+            paths[b.id] = [{ x: b.x, y: b.y, z: b.z, t: 0 }];
         const frames = [];
         let firstEvent = '—', firstBallContact = null, sampleEvery = 6, frameEvery = 10;
+        let simTime = 0;
+        const landings = [], clearanceMap = new Map();
+        let takeoff = null;
         const lastColl = new Map(), Icoef = 2 / 5; // I = 2/5 mR² for a solid sphere
         function approach(v, target, maxDelta) {
             if (v < target)
@@ -3634,9 +3643,33 @@
             if (!airborneMode || b.vz >= -1e-10) return false;
             const result = applyBedImpactImpulse(b, R, S.tableRest, S.bedImpactMu);
             b.z = R;
+            if (b.id === 0 && result.hit) {
+                if (initial && result.predictedRange >= .00254 && result.reboundAngle >= Math.PI / 180)
+                    takeoff = { x:b.x, y:b.y, t:simTime };
+                else if (!initial)
+                    landings.push({ x:b.x, y:b.y, t:simTime, travel:b.travel, hop:landings.length + 1, reboundAngle:result.reboundAngle, nextRange:result.predictedRange });
+            }
             if (result.predictedRange < .00254 && result.reboundAngle < Math.PI / 180) b.vz = 0;
             else if (!initial) bedBounceCount++;
             return result.hit;
+        }
+        function trackCueClearances() {
+            if (!airborneMode || !cb.active) return;
+            for (const obj of B) {
+                if (!obj.active || obj.id === 0) continue;
+                const h = Math.hypot(cb.x - obj.x, cb.y - obj.y);
+                if (h > 4 * R) continue;
+                const dz = cb.z - obj.z;
+                const surface = Math.hypot(h, dz) - 2 * R;
+                const prev = clearanceMap.get(obj.id);
+                if (!prev || surface < prev.margin) {
+                    clearanceMap.set(obj.id, {
+                        id:obj.id, n:obj.n, margin:surface, horizontal:h,
+                        cueZ:cb.z, objZ:obj.z, cueX:cb.x, cueY:cb.y,
+                        objX:obj.x, objY:obj.y, cueTravel:cb.travel, t:simTime
+                    });
+                }
+            }
         }
         function canReachCushion(b) {
             if (!airborneMode) return true;
@@ -3681,6 +3714,7 @@
         if (airborneMode && cb.vz < 0) bedHit(cb, true);
         for (let step = 0; step < maxSteps; step++) {
             const t = step * dt;
+            simTime = t;
             let moving = false;
             for (const b of B) {
                 if (!b.active) continue;
@@ -3707,6 +3741,7 @@
                 }
             }
             if (airborneMode) {
+                trackCueClearances();
                 for (const b of B) {
                     if (!b.active || canReachCushion(b)) continue;
                     if (b.x < 0 || b.x > S.tableL || b.y < 0 || b.y > S.tableW) {
@@ -3790,7 +3825,7 @@
                                         cuePos: { x: cue.x, y: cue.y }, objPos: { x: obj.x, y: obj.y },
                                         incoming: iv, normal: nc, signedOffset: lateral,
                                         overlap: clamp(100 * (1 - Math.abs(lateral) / (2 * R)), 0, 100),
-                                        cutAngle: ca, distanceBalls: cue.travel / (2 * R)
+                                        cutAngle: ca, distanceBalls: cue.travel / (2 * R), t
                                     };
                                 }
                                 lastColl.set(key, step);
@@ -3878,9 +3913,121 @@
             if (!moving && step > 30)
                 break;
         }
+        const clearances = Array.from(clearanceMap.values());
+        let primaryClearance = null;
+        if (airborneMode) {
+            const lowTargetId = firstBallContact && (!firstBallContact.cueHeight || firstBallContact.cueHeight <= R * 1.08) ? firstBallContact.objId : null;
+            const candidates = clearances.filter(q => q.id !== lowTargetId && q.horizontal <= 2.35 * R);
+            if (candidates.length)
+                primaryClearance = candidates.sort((a,b) => a.margin - b.margin)[0];
+        }
         return { paths, frames, firstEvent, firstBallContact,
-            airborne: airborneMode ? { maxCueHeight: Math.max(0, maxCueHeight - R), airborneDistance, bedBounceCount } : null,
+            airborne: airborneMode ? {
+                maxCueHeight: Math.max(0, maxCueHeight - R), airborneDistance, bedBounceCount,
+                takeoff, landings, clearances, primaryClearance
+            } : null,
             finalBalls: B.map(b => ({ id: b.id, x: b.x, y: b.y, z: b.z, active: b.active })) };
+    }
+    const airborneGuidanceCache = new Map();
+    function clearanceForBall(preview, ballId) {
+        const a = preview && preview.airborne;
+        if (!a || !Array.isArray(a.clearances)) return null;
+        return a.clearances.find(q => q.id === ballId) || null;
+    }
+    function airborneGuidanceKey(which, ballId) {
+        const s = which === 2 ? ensureShot2() : S;
+        const shot = which === 2
+            ? [s.x,s.y,s.freeAim && s.freeAim.x,s.freeAim && s.freeAim.y,s.speed,s.follow,s.sideSpin]
+            : [cueBall() && cueBall().x,cueBall() && cueBall().y,S.freeAim && S.freeAim.x,S.freeAim && S.freeAim.y,S.speed,S.follow,S.sideSpin];
+        const balls = S.balls.filter(b => b.active && !b.marker).map(b => [b.id,+b.x.toFixed(4),+b.y.toFixed(4)]);
+        return JSON.stringify([which,ballId,shot,balls,
+            +S.ballR.toFixed(5),+S.muSlide.toFixed(4),+S.muRoll.toFixed(4),
+            +S.tableRest.toFixed(3),+S.bedImpactMu.toFixed(3),+S.cueEndmassRatio.toFixed(3)]);
+    }
+    function previewAtElevation(which, deg) {
+        const angle = clamp(deg, 0, PHYSICS_MODEL.maxAirborneCueElevationDeg);
+        if (which === 2) {
+            const s = ensureShot2(), old = s.cueElevationDeg;
+            s.cueElevationDeg = angle;
+            let p = null;
+            try { p = simulateShot2(); }
+            finally { s.cueElevationDeg = old; }
+            return p;
+        }
+        const old = S.cueElevationDeg;
+        S.cueElevationDeg = angle;
+        let p = null;
+        try { p = simulate(false); }
+        finally { S.cueElevationDeg = old; }
+        return p;
+    }
+    function approximateMinimumClearElevation(which, ballId) {
+        const key = airborneGuidanceKey(which, ballId);
+        if (airborneGuidanceCache.has(key)) return airborneGuidanceCache.get(key);
+        const targetMargin = .0015; // 1.5 mm practical visual/simulation margin
+        const marginAt = deg => {
+            const p = previewAtElevation(which, deg);
+            const q = clearanceForBall(p, ballId);
+            // If the trajectory no longer enters the obstacle's neighborhood,
+            // it is also a physically clear route.
+            return q ? q.margin : .05;
+        };
+        let lo = 0, hi = PHYSICS_MODEL.maxAirborneCueElevationDeg;
+        const m0 = marginAt(lo);
+        let result = null;
+        if (m0 >= targetMargin) {
+            result = { angle:0, margin:m0, feasible:true };
+        }
+        else {
+            const mh = marginAt(hi);
+            if (mh < targetMargin) {
+                result = { angle:null, margin:mh, feasible:false };
+            }
+            else {
+                for (let i=0;i<8;i++) {
+                    const mid = (lo + hi) / 2;
+                    if (marginAt(mid) >= targetMargin) hi = mid;
+                    else lo = mid;
+                }
+                result = { angle:hi, margin:marginAt(hi), feasible:true };
+            }
+        }
+        if (airborneGuidanceCache.size > 48) airborneGuidanceCache.clear();
+        airborneGuidanceCache.set(key, result);
+        return result;
+    }
+    function cuePathBend(preview, which) {
+        const p = preview && preview.paths && preview.paths[0];
+        if (!p || p.length < 2) return null;
+        const start = p[0];
+        const d = which === 2 ? shot2StrikeDirection() : strikeDirection();
+        const stopT = preview.firstBallContact && Number.isFinite(preview.firstBallContact.t)
+            ? preview.firstBallContact.t : Infinity;
+        let maxAbs = 0, signedAtEnd = 0, travel = 0, prev = start;
+        for (const q of p) {
+            if (q.t > stopT + .012) break;
+            travel += Math.hypot(q.x - prev.x, q.y - prev.y);
+            const off = { x:q.x-start.x, y:q.y-start.y };
+            const lat = cross(d, off);
+            if (Math.abs(lat) >= maxAbs) { maxAbs = Math.abs(lat); signedAtEnd = lat; }
+            prev = q;
+        }
+        return { signed:signedAtEnd, magnitude:maxAbs, travel };
+    }
+    function attachAirborneGuidance(which, preview) {
+        if (!preview || !preview.airborne) return;
+        const a = preview.airborne;
+        const primary = a.primaryClearance;
+        let minClear = null;
+        if (primary) minClear = approximateMinimumClearElevation(which, primary.id);
+        const bend = cuePathBend(preview, which);
+        a.guidance = {
+            primary,
+            minClear,
+            bend,
+            currentElevation: which === 2 ? ensureShot2().cueElevationDeg : S.cueElevationDeg,
+            currentSideSpin: which === 2 ? ensureShot2().sideSpin : S.sideSpin
+        };
     }
     function captureShot2GhostLock() {
         if (!S.shot2Enabled)
@@ -3981,6 +4128,7 @@
     function refreshPreview() {
         S.preview = simulate(false);
         S.firstEvent = S.preview.firstEvent;
+        if (S.airbornePhysics) attachAirborneGuidance(1, S.preview);
         if (S.shot2Enabled) {
             const s2 = ensureShot2();
             syncShot2EndpointFromShot1();
@@ -3999,6 +4147,7 @@
                     s2.preview = simulateShot2();
                 }
             }
+            if (S.airbornePhysics) attachAirborneGuidance(2, s2.preview);
         }
         updateMetrics();
         drawTipControl();
@@ -4264,6 +4413,179 @@
             ctx.lineTo(q.x, q.y);
         }
         ctx.stroke();
+        ctx.restore();
+    }
+    function drawPhysicsPathWithAir(points, map, stroke, width = 2, alpha = 1) {
+        if (!points || points.length < 2) return;
+        const eps = Math.max(.0003, S.ballR * .01);
+        let seg = [points[0]];
+        let air = Number.isFinite(points[0].z) && points[0].z > S.ballR + eps;
+        const flush = () => {
+            if (seg.length >= 2)
+                pathPoly(seg, map, stroke, width, alpha, air ? [7,5] : []);
+        };
+        for (let i=1;i<points.length;i++) {
+            const q = points[i];
+            const qAir = Number.isFinite(q.z) && q.z > S.ballR + eps;
+            if (qAir !== air) {
+                seg.push(q);
+                flush();
+                seg = [q];
+                air = qAir;
+            }
+            else seg.push(q);
+        }
+        flush();
+    }
+    function drawFlightPoint(p, map, label, color, filled = false) {
+        if (!p) return;
+        const q = map(p);
+        ctx.save();
+        ctx.lineWidth = isProjector ? 2.6 : 1.8;
+        ctx.strokeStyle = color;
+        ctx.fillStyle = filled ? color : 'rgba(0,0,0,.72)';
+        ctx.beginPath();
+        ctx.arc(q.x, q.y, isProjector ? 9 : 7, 0, Math.PI*2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(q.x-11,q.y); ctx.lineTo(q.x+11,q.y);
+        ctx.moveTo(q.x,q.y-11); ctx.lineTo(q.x,q.y+11);
+        ctx.stroke();
+        ctx.font = `800 ${isProjector ? 12 : 10}px Segoe UI`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillStyle = color;
+        ctx.fillText(label, q.x, q.y-12);
+        ctx.restore();
+    }
+    function clearanceColor(margin) {
+        if (margin < 0) return '#ff5b5b';
+        if (margin < .002) return '#ffd86b';
+        return '#6fff58';
+    }
+    function drawAirborneTableOverlay(preview, map, which, stroke) {
+        const a = preview && preview.airborne;
+        if (!S.airbornePhysics || !a) return;
+        if (a.takeoff) drawFlightPoint(a.takeoff, map, 'TAKEOFF', stroke, false);
+        if (Array.isArray(a.landings)) {
+            a.landings.slice(0,4).forEach((p,i) => {
+                const label = i === 0 ? 'LAND 1' : `HOP ${i+1}`;
+                drawFlightPoint(p, map, label, i === 0 ? '#ffd86b' : stroke, false);
+            });
+        }
+        const g = a.guidance, primary = g && g.primary;
+        if (primary) {
+            const color = clearanceColor(primary.margin);
+            const q = map({x:primary.objX,y:primary.objY});
+            const mm = Math.abs(primary.margin * 1000);
+            const status = primary.margin >= 0 ? 'CLEARS' : 'CLIPS';
+            const guide = g.minClear && g.minClear.feasible && Number.isFinite(g.minClear.angle)
+                ? ` · min ≈ ${g.minClear.angle.toFixed(1)}°` : '';
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = isProjector ? 3 : 2;
+            ctx.setLineDash(primary.margin >= 0 ? [] : [4,3]);
+            ctx.beginPath();
+            ctx.arc(q.x, q.y, isProjector ? 17 : 14, 0, Math.PI*2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.font = `900 ${isProjector ? 13 : 11}px Segoe UI`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillStyle = color;
+            ctx.fillText(`${status} BALL ${primary.n} ${mm.toFixed(1)} mm${guide}`, q.x, q.y-(isProjector?20:17));
+            ctx.restore();
+        }
+        if (!isProjector && S.activeShot === which)
+            drawFlightSideProfile(preview, which, stroke);
+    }
+    function drawFlightSideProfile(preview, which, stroke) {
+        const a = preview && preview.airborne, path = preview && preview.paths && preview.paths[0];
+        if (!a || !path || path.length < 2) return;
+        const w = canvas.width / DPR, h = canvas.height / DPR;
+        const boxW = Math.min(310, Math.max(235, w * .28));
+        const boxH = 142, x0 = w - boxW - 14, y0 = 14;
+        const padL = 34, padR = 12, padT = 27, padB = 25;
+        const plotW = boxW-padL-padR, plotH = boxH-padT-padB;
+        const pts = [];
+        let travel = 0, prev = path[0], maxZ = S.ballR * 4;
+        const stopT = preview.firstBallContact && Number.isFinite(preview.firstBallContact.t)
+            ? preview.firstBallContact.t + .06 : Infinity;
+        for (const p of path) {
+            if (p.t > stopT && pts.length > 8) break;
+            travel += Math.hypot(p.x-prev.x,p.y-prev.y);
+            const z = Number.isFinite(p.z) ? p.z : S.ballR;
+            pts.push({d:travel,z,t:p.t});
+            maxZ = Math.max(maxZ,z*1.12);
+            prev = p;
+        }
+        const maxD = Math.max(.25, travel);
+        const px = d => x0+padL + clamp(d/maxD,0,1)*plotW;
+        const py = z => y0+padT+plotH - clamp(z/maxZ,0,1)*plotH;
+
+        ctx.save();
+        ctx.fillStyle = 'rgba(4,7,10,.88)';
+        ctx.strokeStyle = 'rgba(255,255,255,.35)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(x0,y0,boxW,boxH,8);
+        ctx.fill(); ctx.stroke();
+
+        ctx.font = '800 10px Segoe UI';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#fff';
+        ctx.fillText(`SIDE PROFILE · SHOT ${which}`,x0+10,y0+13);
+
+        const bedY = py(0);
+        ctx.strokeStyle = 'rgba(255,255,255,.55)';
+        ctx.beginPath(); ctx.moveTo(x0+padL,bedY); ctx.lineTo(x0+boxW-padR,bedY); ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,.65)';
+        ctx.font = '700 9px Segoe UI';
+        ctx.fillText('BED',x0+6,bedY);
+
+        ctx.strokeStyle = stroke; ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        pts.forEach((p,i)=>{ const X=px(p.d),Y=py(p.z); if(i===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); });
+        ctx.stroke();
+
+        const primary = a.guidance && a.guidance.primary;
+        if (primary) {
+            const X = px(Math.min(maxD, primary.cueTravel || 0));
+            const rx = Math.max(5, S.ballR/maxD*plotW);
+            const ry = Math.max(6, S.ballR/maxZ*plotH);
+            ctx.fillStyle = 'rgba(255,216,107,.18)';
+            ctx.strokeStyle = clearanceColor(primary.margin);
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.ellipse(X, py(S.ballR), rx, ry, 0, 0, Math.PI*2);
+            ctx.fill(); ctx.stroke();
+            ctx.fillStyle = clearanceColor(primary.margin);
+            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            ctx.fillText(`BALL ${primary.n}`,X,py(2*S.ballR)-3);
+        }
+
+        if (Array.isArray(a.landings)) {
+            ctx.strokeStyle = '#ffd86b';
+            ctx.fillStyle = '#ffd86b';
+            a.landings.slice(0,4).forEach((p,i)=>{
+                const X=px(Math.min(maxD,p.travel||0));
+                ctx.beginPath(); ctx.moveTo(X,bedY-8); ctx.lineTo(X,bedY+3); ctx.stroke();
+                ctx.textAlign='center';ctx.textBaseline='top';
+                ctx.fillText(i===0?'L1':`H${i+1}`,X,bedY+5);
+            });
+        }
+
+        const g = a.guidance;
+        const summary = [];
+        summary.push(`H ${(a.maxCueHeight*1000).toFixed(0)} mm`);
+        if (g && g.primary) summary.push(`${g.primary.margin>=0?'clear':'clip'} ${Math.abs(g.primary.margin*1000).toFixed(1)} mm`);
+        if (g && g.minClear && g.minClear.feasible && Number.isFinite(g.minClear.angle))
+            summary.push(`min ${g.minClear.angle.toFixed(1)}°`);
+        if (g && g.bend && g.bend.magnitude > .0005)
+            summary.push(`bend ${(g.bend.magnitude*1000).toFixed(0)} mm`);
+        ctx.fillStyle = '#dfefff'; ctx.textAlign='right'; ctx.textBaseline='middle';
+        ctx.fillText(summary.join(' · '),x0+boxW-10,y0+13);
         ctx.restore();
     }
     function logicalCircle(p, r, map, fill, stroke, line = 1, alpha = 1) {
@@ -4772,8 +5094,12 @@
                 continue;
             const hit = S.preview && S.preview.firstBallContact ? S.preview.firstBallContact.objId : -1;
             const col = b.id === 0 ? '#ffffff' : (b.id === hit ? '#ffd86b' : '#68b8ff');
-            pathPoly(p, map, col, isProjector ? 2.8 : 2.2, .92);
+            if (b.id === 0 && S.airbornePhysics && S.preview.airborne)
+                drawPhysicsPathWithAir(p, map, col, isProjector ? 2.8 : 2.2, .96);
+            else
+                pathPoly(p, map, col, isProjector ? 2.8 : 2.2, .92);
         }
+        if (S.airbornePhysics) drawAirborneTableOverlay(S.preview, map, 1, '#ffffff');
     }
     function drawShot2(map) {
         if (!S.shot2Enabled || !S.showShot2)
@@ -4789,8 +5115,13 @@
                 pathPoly(p, map, col, isProjector ? 2.5 : 2, .78);
             }
             const cp = s.preview.paths[0];
-            if (cp)
-                pathPoly(cp, map, '#00e5ff', isProjector ? 3 : 2.4, .95);
+            if (cp) {
+                if (S.airbornePhysics && s.preview.airborne)
+                    drawPhysicsPathWithAir(cp, map, '#00e5ff', isProjector ? 3 : 2.4, .98);
+                else
+                    pathPoly(cp, map, '#00e5ff', isProjector ? 3 : 2.4, .95);
+            }
+            if (S.airbornePhysics) drawAirborneTableOverlay(s.preview, map, 2, '#00e5ff');
         }
         // Always define the cue-stick direction.  The locked-guide branch
         // still needs it below to draw the cue itself.
@@ -5249,10 +5580,31 @@
         $('tipText').textContent = tipDescription();
         $('squirtText').textContent = (cueSquirtAngle() * 180 / Math.PI).toFixed(2) + '°';
         if (S.airbornePhysics && S.preview && S.preview.airborne) {
-            const a = S.preview.airborne;
+            const a = S.preview.airborne, g = a.guidance, q = g && g.primary;
             $('airborneText').textContent = 'H ' + (a.maxCueHeight * 1000).toFixed(1) + ' mm · air ' + a.airborneDistance.toFixed(2) + ' m · ' + a.bedBounceCount + ' hop' + (a.bedBounceCount === 1 ? '' : 's');
+            if (q) {
+                $('clearanceText').textContent = 'Ball ' + q.n + ' · ' + (q.margin >= 0 ? 'CLEARS +' : 'CLIPS −') + Math.abs(q.margin * 1000).toFixed(1) + ' mm';
+                if (g.minClear && g.minClear.feasible && Number.isFinite(g.minClear.angle))
+                    $('jumpGuideText').textContent = g.minClear.angle < .1 ? 'No elevation needed' : 'Ball ' + q.n + ' · ≈' + g.minClear.angle.toFixed(1) + '° minimum';
+                else
+                    $('jumpGuideText').textContent = 'Ball ' + q.n + ' · no clear solution ≤70°';
+            }
+            else {
+                $('clearanceText').textContent = 'No blocker near path';
+                $('jumpGuideText').textContent = '—';
+            }
+            if (g && g.bend && g.bend.magnitude > .0005) {
+                const dir = g.bend.signed >= 0 ? 'R' : 'L';
+                $('masseGuideText').textContent = (g.bend.magnitude * 1000).toFixed(1) + ' mm ' + dir + ' over ' + g.bend.travel.toFixed(2) + ' m · ' + g.currentElevation.toFixed(1) + '°';
+            }
+            else $('masseGuideText').textContent = 'Straight / negligible bend';
         }
-        else $('airborneText').textContent = '—';
+        else {
+            $('airborneText').textContent = '—';
+            $('clearanceText').textContent = '—';
+            $('jumpGuideText').textContent = '—';
+            $('masseGuideText').textContent = '—';
+        }
         const pf = powerFeel();
         $('powerFeelText').textContent = pf.diamonds.toFixed(1) + ' diamonds · ' + formatLagFraction(pf.lagFraction);
         const pa = teachingPowerState(1);
@@ -5280,10 +5632,31 @@
             $('tip2Text').textContent = tipDescriptionValues(s.sideSpin, s.follow);
             $('squirt2Text').textContent = (cueSquirtAngleFor(s.sideSpin, s.follow, S.cueEndmassRatio) * 180 / Math.PI).toFixed(2) + '°';
             if (S.airbornePhysics && s.preview && s.preview.airborne) {
-                const a2 = s.preview.airborne;
+                const a2 = s.preview.airborne, g2 = a2.guidance, q2 = g2 && g2.primary;
                 $('airborne2Text').textContent = 'H ' + (a2.maxCueHeight * 1000).toFixed(1) + ' mm · air ' + a2.airborneDistance.toFixed(2) + ' m · ' + a2.bedBounceCount + ' hop' + (a2.bedBounceCount === 1 ? '' : 's');
+                if (q2) {
+                    $('clearance2Text').textContent = 'Ball ' + q2.n + ' · ' + (q2.margin >= 0 ? 'CLEARS +' : 'CLIPS −') + Math.abs(q2.margin * 1000).toFixed(1) + ' mm';
+                    if (g2.minClear && g2.minClear.feasible && Number.isFinite(g2.minClear.angle))
+                        $('jumpGuide2Text').textContent = g2.minClear.angle < .1 ? 'No elevation needed' : 'Ball ' + q2.n + ' · ≈' + g2.minClear.angle.toFixed(1) + '° minimum';
+                    else
+                        $('jumpGuide2Text').textContent = 'Ball ' + q2.n + ' · no clear solution ≤70°';
+                }
+                else {
+                    $('clearance2Text').textContent = 'No blocker near path';
+                    $('jumpGuide2Text').textContent = '—';
+                }
+                if (g2 && g2.bend && g2.bend.magnitude > .0005) {
+                    const dir2 = g2.bend.signed >= 0 ? 'R' : 'L';
+                    $('masseGuide2Text').textContent = (g2.bend.magnitude * 1000).toFixed(1) + ' mm ' + dir2 + ' over ' + g2.bend.travel.toFixed(2) + ' m · ' + g2.currentElevation.toFixed(1) + '°';
+                }
+                else $('masseGuide2Text').textContent = 'Straight / negligible bend';
             }
-            else $('airborne2Text').textContent = '—';
+            else {
+                $('airborne2Text').textContent = '—';
+                $('clearance2Text').textContent = '—';
+                $('jumpGuide2Text').textContent = '—';
+                $('masseGuide2Text').textContent = '—';
+            }
             $('powerFeel2Text').textContent = pf2.diamonds.toFixed(1) + ' diamonds · ' + formatLagFraction(pf2.lagFraction);
             const pa2 = teachingPowerState(2);
             if (pa2.mode === 'ball') {
@@ -5310,6 +5683,9 @@
         }
         else {
             $('airborne2Text').textContent = '—';
+            $('clearance2Text').textContent = '—';
+            $('jumpGuide2Text').textContent = '—';
+            $('masseGuide2Text').textContent = '—';
             $('pocketNeed2Label').textContent = 'Pocket speed';
             $('impactPower2Label').textContent = 'CB → object ball';
             $('pocketArrival2Label').textContent = 'Object ball → pocket';
