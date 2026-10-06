@@ -4504,8 +4504,9 @@
         const a = preview && preview.airborne, path = preview && preview.paths && preview.paths[0];
         if (!a || !path || path.length < 2) return;
         const w = canvas.width / DPR, h = canvas.height / DPR;
-        const boxW = Math.min(310, Math.max(235, w * .28));
-        const boxH = 142, x0 = w - boxW - 14, y0 = 14;
+        const boxW = Math.min(w - 28, 310, Math.max(235, w * .28));
+        // Pocket 1 side: keep the profile away from the upper-right rail tools.
+        const boxH = 142, x0 = 14, y0 = 14;
         const padL = 34, padR = 12, padT = 27, padB = 25;
         const plotW = boxW-padL-padR, plotH = boxH-padT-padB;
         const pts = [];
@@ -4549,20 +4550,54 @@
         pts.forEach((p,i)=>{ const X=px(p.d),Y=py(p.z); if(i===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); });
         ctx.stroke();
 
+        // Use the same physical radius and plot scales for both balls.
+        const rx = Math.max(3, S.ballR/maxD*plotW);
+        const ry = Math.max(3, S.ballR/maxZ*plotH);
+        function profileBall(X, Z, id, label, outline) {
+            const Y = py(Z);
+            ctx.save();
+            ctx.beginPath();
+            ctx.ellipse(X, Y, rx, ry, 0, 0, Math.PI*2);
+            ctx.fillStyle = id >= 9 && id <= 15 ? '#f7f7f3' : ballBaseColor(id);
+            ctx.fill();
+            if (id >= 9 && id <= 15) {
+                ctx.save();
+                ctx.clip();
+                ctx.fillStyle = ballBaseColor(id);
+                ctx.fillRect(X-rx, Y-ry*.42, rx*2, ry*.84);
+                ctx.restore();
+            }
+            ctx.strokeStyle = outline;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            if (id > 0 && id <= 15) {
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.ellipse(X,Y,Math.min(rx*.65,7),Math.min(ry*.65,7),0,0,Math.PI*2);
+                ctx.fill();
+                ctx.fillStyle = '#111';
+                ctx.font = '800 8px Segoe UI';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(String(id),X,Y);
+            }
+            ctx.fillStyle = outline;
+            ctx.font = '700 9px Segoe UI';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            const labelX = clamp(X, x0+30, x0+boxW-30);
+            ctx.fillText(label,labelX,Math.max(y0+padT+9,Y-ry-3));
+            ctx.restore();
+        }
         const primary = a.guidance && a.guidance.primary;
         if (primary) {
             const X = px(Math.min(maxD, primary.cueTravel || 0));
-            const rx = Math.max(5, S.ballR/maxD*plotW);
-            const ry = Math.max(6, S.ballR/maxZ*plotH);
-            ctx.fillStyle = 'rgba(255,216,107,.18)';
-            ctx.strokeStyle = clearanceColor(primary.margin);
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.ellipse(X, py(S.ballR), rx, ry, 0, 0, Math.PI*2);
-            ctx.fill(); ctx.stroke();
-            ctx.fillStyle = clearanceColor(primary.margin);
-            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-            ctx.fillText(`BALL ${primary.n}`,X,py(2*S.ballR)-3);
+            profileBall(X, primary.objZ || S.ballR, Number(primary.id),
+                `BALL ${primary.n}`, clearanceColor(primary.margin));
+            profileBall(X, primary.cueZ || S.ballR, 0, 'CUE BALL', '#f7f7f3');
+        }
+        else {
+            // Without an obstacle, show the cue ball at the highest sampled point.
+            const apex = pts.reduce((best,p) => p.z > best.z ? p : best, pts[0]);
+            profileBall(px(apex.d),apex.z,0,'CUE BALL','#f7f7f3');
         }
 
         if (Array.isArray(a.landings)) {
