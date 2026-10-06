@@ -557,6 +557,11 @@
   }
   .layoutManageRow select { width:100%; min-width:0; }
   .layoutManageRow button { white-space:nowrap; }
+  .layoutManageSave {
+    width:100%;
+    margin:0 0 6px 0;
+    min-height:34px;
+  }
 
   #teachingCompassToggle {
     position:absolute;
@@ -1249,11 +1254,12 @@
       <div class="layoutManage">
         <div class="layoutManageTitle"><span>SAVED BALL LAYOUTS</span><span id="layoutCount">0 / 20</span></div>
         <input id="layoutNameInput" type="text" maxlength="60" placeholder="Layout name — e.g. Wednesday league 7-ball" aria-label="Saved layout name">
+        <button id="saveLayoutBtn" class="layoutManageSave" type="button">SAVE CURRENT LAYOUT</button>
         <div class="layoutManageRow">
           <select id="layoutSelect" aria-label="Saved ball layouts">
             <option value="">No saved layouts</option>
           </select>
-          <button id="saveLayoutBtn" type="button">Save</button>
+          <button id="loadLayoutBtn" type="button">RECALL</button>
         </div>
       </div>
       <button class="advancedToggle" type="button" data-advanced="tableAdvanced">ADVANCED</button>
@@ -1277,27 +1283,22 @@
       <div class="row"><label>Ball restitution</label><input id="ballRest" type="number" min="0.5" max="1" step="0.005"></div>
       <div class="row"><label>Rail rebound</label><input id="railRest" type="number" min="0.5" max="1" step="0.005"></div>
       <div class="row"><label>Rail tangential damping</label><input id="railTang" type="number" min="0.5" max="1" step="0.005"></div>
-      <div class="check"><input id="showImpact" type="checkbox" checked><label for="showImpact">Impact cue ball + physical overlap band</label></div>
-      <div class="check"><input id="showTipBadge" type="checkbox"><label for="showTipBadge">Cue-tip contact badge near cue ball</label></div>
-      <div class="check"><input id="showPaths" type="checkbox" checked><label for="showPaths">Trajectory preview</label></div>
-      <div class="check"><input id="showGrid" type="checkbox" checked><label for="showGrid">Diamond-connected table grid</label></div>
-      <div class="check"><input id="showDiamonds" type="checkbox" checked><label for="showDiamonds">Rail diamonds</label></div>
-      <div class="check"><input id="showTable" type="checkbox" checked><label for="showTable">Show table / balls</label></div>
       </div>
       </div>
     </div>
 
     <div class="section">
-      <button class="sectionToggle" type="button"><span>OPTIONS</span></button>
+      <button class="sectionToggle" type="button"><span>FEATURES &amp; OPTIONS</span></button>
       <div class="sectionBody">
-        <div class="check">
-          <input id="showScoreBoard" type="checkbox">
-          <label for="showScoreBoard">Show Player 1 / Player 2 controls</label>
-        </div>
-        <div class="check">
-          <input id="showBankKickNumbers" type="checkbox">
-          <label for="showBankKickNumbers">Show bank / kick rail numbers</label>
-        </div>
+        <div class="check"><input id="showAngleLockControl" type="checkbox"><label for="showAngleLockControl">Cue-ball target lock control (Free / Sticky)</label></div>
+        <div class="check"><input id="showImpact" type="checkbox" checked><label for="showImpact">Impact cue ball + physical overlap band</label></div>
+        <div class="check"><input id="showTipBadge" type="checkbox"><label for="showTipBadge">Cue-tip contact badge near cue ball</label></div>
+        <div class="check"><input id="showPaths" type="checkbox" checked><label for="showPaths">Trajectory preview</label></div>
+        <div class="check"><input id="showGrid" type="checkbox" checked><label for="showGrid">Diamond-connected table grid</label></div>
+        <div class="check"><input id="showDiamonds" type="checkbox" checked><label for="showDiamonds">Rail diamonds</label></div>
+        <div class="check"><input id="showTable" type="checkbox" checked><label for="showTable">Show table / balls</label></div>
+        <div class="check"><input id="showScoreBoard" type="checkbox"><label for="showScoreBoard">Show Player 1 / Player 2 controls</label></div>
+        <div class="check"><input id="showBankKickNumbers" type="checkbox"><label for="showBankKickNumbers">Show bank / kick rail numbers</label></div>
       </div>
     </div>
 
@@ -1422,7 +1423,8 @@
             showShot1: true,
             showShot2: true,
             showCueVisuals: true,
-            shot2: { x: 1.05, y: .72, freeAim: { x: 1.70, y: .72 }, angleLock: false, speed: 2.42, follow: 0, sideSpin: 0, preview: null },
+            showAngleLockControl: false,
+            shot2: { x: 1.05, y: .72, freeAim: { x: 1.70, y: .72 }, angleLock: false, autoGhostLock: false, speed: 2.42, follow: 0, sideSpin: 0, preview: null },
             teachingCompass: {
                 enabled: false,
                 x: .90, y: .56,
@@ -1827,11 +1829,20 @@
                     S.showShot2 = true;
                 if (S.showCueVisuals === undefined)
                     S.showCueVisuals = true;
+                if (S.showAngleLockControl !== true)
+                    S.showAngleLockControl = false;
                 if (![1, 2].includes(S.activeShot))
                     S.activeShot = 1;
                 if (!S.shot2 || typeof S.shot2 !== 'object')
                     S.shot2 = defaultState().shot2;
                 S.shot2 = Object.assign(Object.assign(Object.assign({}, defaultState().shot2), S.shot2), { freeAim: Object.assign(Object.assign({}, defaultState().shot2.freeAim), (S.shot2.freeAim || {})), preview: null });
+                if (!S.showAngleLockControl) {
+                    S.angleLock = false;
+                    S.shot2.angleLock = false;
+                    S.shot2.autoGhostLock = false;
+                    S.shot2.ghostLock = null;
+                    S.shot2.ghostLockDirty = false;
+                }
                 if (!S.teachingCompass || typeof S.teachingCompass !== 'object')
                     S.teachingCompass = defaultState().teachingCompass;
                 S.teachingCompass = Object.assign(Object.assign({}, defaultState().teachingCompass), S.teachingCompass);
@@ -2742,7 +2753,7 @@
         if (!S.shot2.freeAim)
             S.shot2.freeAim = { x: S.shot2.x + .6, y: S.shot2.y };
         if (S.shot2.autoGhostLock === undefined)
-            S.shot2.autoGhostLock = true;
+            S.shot2.autoGhostLock = false;
         return S.shot2;
     }
     function shot2Cue() { const s = ensureShot2(); return { id: -2, n: 'CB2', x: s.x, y: s.y, active: true }; }
@@ -2987,7 +2998,7 @@
             }
             const a = Math.atan2(dy, dx) + radians;
             s.freeAim = { x: s.x + Math.cos(a) * r, y: s.y + Math.sin(a) * r };
-            if (s.autoGhostLock !== false) {
+            if (S.showAngleLockControl === true && s.autoGhostLock === true) {
                 s.angleLock = true;
                 s.ghostLockDirty = true;
             }
@@ -3568,7 +3579,7 @@
             // sticky teaching target. This is the behavior the user expects
             // when "locking Shot 2 onto Ball 2": subsequent Shot 1 changes
             // move CB2, not the ghost-ball pivot.
-            if (s2.autoGhostLock !== false && s2.preview && s2.preview.firstBallContact) {
+            if (S.showAngleLockControl === true && s2.autoGhostLock === true && s2.preview && s2.preview.firstBallContact) {
                 s2.angleLock = true;
                 if (s2.ghostLockDirty || !s2.ghostLock) {
                     captureShot2GhostLock();
@@ -5134,6 +5145,7 @@
         $('showGrid').checked = S.showGrid;
         $('showDiamonds').checked = S.showDiamonds;
         $('showTable').checked = S.showTable;
+        $('showAngleLockControl').checked = S.showAngleLockControl === true;
         $('showScoreBoard').checked = S.showScoreBoard === true;
         $('showBankKickNumbers').checked = !!S.showBankKickNumbers;
         updateShot2UIState();
@@ -5166,6 +5178,15 @@
         S.showGrid = $('showGrid').checked;
         S.showDiamonds = $('showDiamonds').checked;
         S.showTable = $('showTable').checked;
+        S.showAngleLockControl = $('showAngleLockControl').checked;
+        if (!S.showAngleLockControl) {
+            S.angleLock = false;
+            const s2 = ensureShot2();
+            s2.angleLock = false;
+            s2.autoGhostLock = false;
+            s2.ghostLock = null;
+            s2.ghostLockDirty = false;
+        }
         updateUI();
         refreshPreview();
     }
@@ -5183,6 +5204,10 @@
         const b = $('angleLock');
         if (!b)
             return;
+        const enabled = S.showAngleLockControl === true;
+        b.style.display = enabled ? '' : 'none';
+        if (!enabled)
+            return;
         const locked = (S.activeShot === 2 && S.shot2Enabled) ? !!ensureShot2().angleLock : !!S.angleLock;
         b.textContent = '∠';
         b.title = (S.activeShot === 2 ? 'Shot 2: ' : 'Shot 1: ') + (locked ? 'ghost-ball target is sticky — click to unlock' : 'ghost-ball target is free — click to lock');
@@ -5191,7 +5216,7 @@
         if ($('aimControls')) $('aimControls').classList.toggle('activeAim', S.activeShot !== 2);
         if ($('aimControls2')) $('aimControls2').classList.toggle('activeAim', S.activeShot === 2 && S.shot2Enabled);
     }
-    function resetLayout() { const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, showScoreBoard: S.showScoreBoard, showBankKickNumbers: S.showBankKickNumbers }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
+    function resetLayout() { const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, showScoreBoard: S.showScoreBoard, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
     function pointerPos(ev) { const r = canvas.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
     canvas.addEventListener('pointerdown', ev => {
         canvas.setPointerCapture(ev.pointerId);
@@ -5341,7 +5366,7 @@
             if (S.activeShot === 2 && S.shot2Enabled) {
                 const s = ensureShot2();
                 s.freeAim = q;
-                if (s.autoGhostLock !== false) {
+                if (S.showAngleLockControl === true && s.autoGhostLock === true) {
                     s.angleLock = true;
                     s.ghostLockDirty = true;
                 }
@@ -5418,7 +5443,7 @@
         else if (drag.kind === 'aim2') {
             const s = ensureShot2();
             s.freeAim = q;
-            if (s.autoGhostLock !== false) {
+            if (S.showAngleLockControl === true && s.autoGhostLock === true) {
                 s.angleLock = true;
                 s.ghostLockDirty = true;
             }
@@ -5475,6 +5500,8 @@
         lockBtn.addEventListener('click', ev => {
             ev.preventDefault();
             ev.stopPropagation();
+            if (S.showAngleLockControl !== true)
+                return;
             if (S.activeShot === 2 && S.shot2Enabled) {
                 const s = ensureShot2();
                 s.angleLock = !s.angleLock;
@@ -5813,11 +5840,10 @@
                 s.speed = 2.42;
                 s.follow = 0;
                 s.sideSpin = 0;
-                // Shot 2 is a planned continuation shot.  As soon as it
-                // acquires an object-ball contact, keep that ghost-ball
-                // center sticky while Shot 1 is adjusted.
-                s.angleLock = true;
-                s.autoGhostLock = true;
+                // Keep the second-shot target free by default. The optional
+                // Free / Sticky lock is exposed from FEATURES & OPTIONS.
+                s.angleLock = false;
+                s.autoGhostLock = false;
                 s.preview = null;
                 s.autoFollow = true;
                 s.ghostLock = null;
@@ -7423,11 +7449,7 @@
         $('photoAnalyzerCanvas').addEventListener('pointercancel', () => {photoVision.cornerDragIndex=-1;});
         $('photoAnalyzerModal').addEventListener('pointerdown', ev => { if(ev.target===$('photoAnalyzerModal')) closePhotoAnalyzer(); });
         $('saveLayoutBtn').addEventListener('click', () => saveBallLayout());
-        $('layoutSelect').addEventListener('change', () => {
-            const id = $('layoutSelect').value;
-            if (id)
-                loadBallLayoutById(id);
-        });
+        $('loadLayoutBtn').addEventListener('click', () => loadSelectedBallLayout());
 
         $('quickLayoutRecall').addEventListener('click', ev => {
             ev.preventDefault();
@@ -7649,7 +7671,7 @@
             updateUI();
             refreshPreview();
         });
-        const changeIds = ['tableL', 'tableW', 'ballD', 'muSlide', 'muRoll', 'muBall', 'ballRest', 'railRest', 'railTang', 'showImpact', 'showTipBadge', 'showPaths', 'showGrid', 'showDiamonds', 'showTable'];
+        const changeIds = ['tableL', 'tableW', 'ballD', 'muSlide', 'muRoll', 'muBall', 'ballRest', 'railRest', 'railTang', 'showImpact', 'showTipBadge', 'showPaths', 'showGrid', 'showDiamonds', 'showTable', 'showAngleLockControl'];
         changeIds.forEach(id => $(id).addEventListener('change', applyUI));
         ['speed', 'follow', 'sideSpin'].forEach(id => $(id).addEventListener('input', applyUI));
         function applyDirectShotInput() {
