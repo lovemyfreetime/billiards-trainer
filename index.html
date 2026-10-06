@@ -1288,6 +1288,7 @@
         <div class="shotMetrics" id="shot1Metrics">
           <div class="metric"><span>Tip location</span><b id="tipText">Center</b></div>
           <div class="metric"><span>Predicted cue-ball squirt</span><b id="squirtText">0.00°</b></div>
+          <div class="metric"><span>Jump / flight</span><b id="airborneText">—</b></div>
           <div class="metric"><span>Power feel</span><b id="powerFeelText">—</b></div>
           <div class="metric"><span id="pocketNeedLabel">Pocket speed</span><b id="pocketNeedText">—</b></div>
           <div class="metric"><span id="impactPowerLabel">CB → object ball</span><b id="impactPowerText">—</b></div>
@@ -1296,6 +1297,7 @@
         <div class="shotMetrics" id="shot2Metrics">
           <div class="metric"><span>Tip location</span><b id="tip2Text">Center</b></div>
           <div class="metric"><span>Predicted cue-ball squirt</span><b id="squirt2Text">0.00°</b></div>
+          <div class="metric"><span>Jump / flight</span><b id="airborne2Text">—</b></div>
           <div class="metric"><span>Power feel</span><b id="powerFeel2Text">—</b></div>
           <div class="metric"><span id="pocketNeed2Label">Pocket speed</span><b id="pocketNeed2Text">—</b></div>
           <div class="metric"><span id="impactPower2Label">CB → object ball</span><b id="impactPower2Text">—</b></div>
@@ -1413,7 +1415,10 @@
       <div class="row"><label>Rail rebound</label><input id="railRest" type="number" min="0.5" max="1" step="0.005"></div>
       <div class="row"><label>Rail tangential damping</label><input id="railTang" type="number" min="0.5" max="1" step="0.005"></div>
       <div class="row"><label>Cue ball / end-mass ratio</label><input id="cueEndmassRatio" type="number" min="8" max="60" step="0.1"></div>
-      <div class="hint">Cue ratio controls squirt: higher = lower deflection. Ball-ball μ remains the APK/high-speed friction floor; low-speed friction rises automatically in the collision model.</div>
+      <div class="check"><input id="airbornePhysics" type="checkbox"><label for="airbornePhysics">3D jump / massé / airborne physics</label></div>
+      <div class="row"><label>Bed vertical restitution</label><input id="tableRest" type="number" min="0" max="0.95" step="0.01"></div>
+      <div class="row"><label>Bed impact friction μ</label><input id="bedImpactMu" type="number" min="0" max="0.5" step="0.01"></div>
+      <div class="hint">Cue ratio controls squirt: higher = lower deflection. 3D airborne mode extends cue elevation to 70° and models the immediate bed rebound, projectile flight, repeated hops, 3D ball collisions, and massé return-to-cloth dynamics. Normal mode stays capped at 15°.</div>
       </div>
       </div>
     </div>
@@ -1543,6 +1548,10 @@
         defaultCueEndmassRatio: 20.151,
         defaultCueElevationDeg: 3.0,
         maxPlanarCueElevationDeg: 15.0,
+        maxAirborneCueElevationDeg: 70.0,
+        defaultTableVerticalRestitution: 0.60,
+        defaultBedImpactFriction: 0.20,
+        cushionNoseHeightD: 0.635,
         ballBallFrictionVelocityBoost: 0.108,
         ballBallFrictionVelocityDecay: 1.088,
         slidingSpinDecayFactor: 0.25
@@ -1601,7 +1610,8 @@
                 solution: null
             },
             muSlide: APK.muSliding, muRoll: APK.muRolling, muBall: APK.muBallBall, ballRest: .96,
-            railRest: .90, railTang: .90, cueEndmassRatio: PHYSICS_MODEL.defaultCueEndmassRatio, showImpact: true, showTipBadge: false, showPaths: true, showGrid: true, showDiamonds: true, showTable: true,
+            railRest: .90, railTang: .90, cueEndmassRatio: PHYSICS_MODEL.defaultCueEndmassRatio,
+            airbornePhysics: false, tableRest: PHYSICS_MODEL.defaultTableVerticalRestitution, bedImpactMu: PHYSICS_MODEL.defaultBedImpactFriction, showImpact: true, showTipBadge: false, showPaths: true, showGrid: true, showDiamonds: true, showTable: true,
             preview: null, firstEvent: '—'
         };
     }
@@ -1989,10 +1999,14 @@
                 if (!S.shot2 || typeof S.shot2 !== 'object')
                     S.shot2 = defaultState().shot2;
                 S.shot2 = Object.assign(Object.assign(Object.assign({}, defaultState().shot2), S.shot2), { freeAim: Object.assign(Object.assign({}, defaultState().shot2.freeAim), (S.shot2.freeAim || {})), preview: null });
+                S.airbornePhysics = S.airbornePhysics === true;
+                S.tableRest = clamp(Number.isFinite(Number(S.tableRest)) ? Number(S.tableRest) : PHYSICS_MODEL.defaultTableVerticalRestitution, 0, .95);
+                S.bedImpactMu = clamp(Number.isFinite(Number(S.bedImpactMu)) ? Number(S.bedImpactMu) : PHYSICS_MODEL.defaultBedImpactFriction, 0, .5);
                 const savedElevation1 = Number(S.cueElevationDeg);
                 const savedElevation2 = Number(S.shot2.cueElevationDeg);
-                S.cueElevationDeg = clamp(Number.isFinite(savedElevation1) ? savedElevation1 : PHYSICS_MODEL.defaultCueElevationDeg, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg);
-                S.shot2.cueElevationDeg = clamp(Number.isFinite(savedElevation2) ? savedElevation2 : PHYSICS_MODEL.defaultCueElevationDeg, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg);
+                const savedElevationMax = S.airbornePhysics ? PHYSICS_MODEL.maxAirborneCueElevationDeg : PHYSICS_MODEL.maxPlanarCueElevationDeg;
+                S.cueElevationDeg = clamp(Number.isFinite(savedElevation1) ? savedElevation1 : PHYSICS_MODEL.defaultCueElevationDeg, 0, savedElevationMax);
+                S.shot2.cueElevationDeg = clamp(Number.isFinite(savedElevation2) ? savedElevation2 : PHYSICS_MODEL.defaultCueElevationDeg, 0, savedElevationMax);
                 S.cueEndmassRatio = clamp(Number(S.cueEndmassRatio) || PHYSICS_MODEL.defaultCueEndmassRatio, 8, 60);
                 if (!S.showAngleLockControl) {
                     S.angleLock = false;
@@ -2914,7 +2928,7 @@
             S.shot2.autoGhostLock = false;
         if (!Number.isFinite(+S.shot2.cueElevationDeg))
             S.shot2.cueElevationDeg = PHYSICS_MODEL.defaultCueElevationDeg;
-        S.shot2.cueElevationDeg = clamp(+S.shot2.cueElevationDeg, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg);
+        S.shot2.cueElevationDeg = clamp(+S.shot2.cueElevationDeg, 0, cueElevationMax());
         return S.shot2;
     }
     function shot2Cue() { const s = ensureShot2(); return { id: -2, n: 'CB2', x: s.x, y: s.y, active: true }; }
@@ -3154,6 +3168,17 @@
     function dot(a, b) { return a.x * b.x + a.y * b.y; }
     function cross(a, b) { return a.x * b.y - a.y * b.x; }
     function norm(v) { const m = Math.hypot(v.x, v.y) || 1; return { x: v.x / m, y: v.y / m }; }
+    function cueElevationMax() {
+        return S.airbornePhysics ? PHYSICS_MODEL.maxAirborneCueElevationDeg : PHYSICS_MODEL.maxPlanarCueElevationDeg;
+    }
+    function syncCueElevationLimits() {
+        if (isProjector) return;
+        const mx = cueElevationMax();
+        ['cueElevation','cueElevation2','tableElevation1','tableElevation2','elevNumber','elev2Number'].forEach(id => {
+            const e = $(id);
+            if (e) e.max = String(mx);
+        });
+    }
     function aimDirection() {
         const cb = cueBall();
         if (!cb)
@@ -3244,6 +3269,57 @@
             wz: -2.5 * tip.sideR * base
         };
     }
+    function cueInitialAngularVelocity3D(aimD, speed, side, follow, elevationDeg) {
+        // Full cue-axis basis for advanced jump/massé shots.
+        // d3 points along the descending cue; t is horizontal left/right; u is
+        // the "up" direction on the cue-ball face.  Torque from the off-center
+        // cue impulse gives omega = (5/2)*(v/R)*(follow*t - side*u).
+        const tip = effectiveTipOffsetValues(side, follow);
+        const R = Math.max(S.ballR, .001);
+        const theta = clamp(+elevationDeg || 0, 0, PHYSICS_MODEL.maxAirborneCueElevationDeg) * Math.PI / 180;
+        const s = Math.sin(theta), co = Math.cos(theta);
+        const tx = -aimD.y, ty = aimD.x;
+        const ux = aimD.x * s, uy = aimD.y * s, uz = co;
+        const k = 2.5 * Math.max(0, speed) / R;
+        return {
+            wx: k * (tip.followR * tx - tip.sideR * ux),
+            wy: k * (tip.followR * ty - tip.sideR * uy),
+            wz: k * (                 - tip.sideR * uz)
+        };
+    }
+    function applyBedImpactImpulse(state, R, restitution, friction) {
+        if (!state || state.vz >= -1e-12)
+            return { hit:false, reboundAngle:0, predictedRange:0, jn:0 };
+        const e = clamp(+restitution || 0, 0, .95);
+        const mu = clamp(+friction || 0, 0, .5);
+        const jn = -(1 + e) * state.vz;
+        state.vz += jn;
+        let ux = state.vx - R * state.wy, uy = state.vy + R * state.wx;
+        let jx = -ux / 3.5, jy = -uy / 3.5;
+        const jm = Math.hypot(jx, jy), lim = mu * Math.abs(jn);
+        if (jm > lim && jm > 1e-12) {
+            const q = lim / jm;
+            jx *= q; jy *= q;
+        }
+        state.vx += jx; state.vy += jy;
+        state.wx += 2.5 * jy / R; state.wy -= 2.5 * jx / R;
+        const vh = Math.hypot(state.vx, state.vy);
+        const reboundAngle = Math.atan2(Math.max(0, state.vz), Math.max(1e-9, vh));
+        const predictedRange = 2 * vh * Math.max(0, state.vz) / APK.gravity;
+        return { hit:true, reboundAngle, predictedRange, jn };
+    }
+    function ballBallTangentialImpulse3(ux, uy, uz, jn) {
+        const vRel = Math.hypot(ux, uy, uz);
+        if (vRel < 1e-12 || Math.abs(jn) < 1e-12)
+            return { jx:0, jy:0, jz:0, muEff:S.muBall, vRel };
+        const floorMu = clamp(+S.muBall || 0, 0, .2);
+        const muEff = clamp(
+            floorMu + PHYSICS_MODEL.ballBallFrictionVelocityBoost * Math.exp(-PHYSICS_MODEL.ballBallFrictionVelocityDecay * vRel),
+            floorMu, .2
+        );
+        const jMag = Math.min(vRel / 7, muEff * Math.abs(jn));
+        return { jx:-jMag*ux/vRel, jy:-jMag*uy/vRel, jz:-jMag*uz/vRel, muEff, vRel };
+    }
     function ballBallTangentialImpulse(relT, relZ, jn) {
         // Contact friction acts in the full tangent plane. relT is horizontal
         // surface slip (CIT/SIT); relZ is vertical surface slip from follow/draw.
@@ -3280,6 +3356,21 @@
         near(flat.wx, 0, 1e-10, 'zero-elevation masse component');
         const gear = ballBallTangentialImpulse(0, 0, .5);
         near(gear.jt, 0, 1e-12, 'gearing zero throw');
+
+        // TP B.10 published center-ball rebound benchmarks (e_table=.60, mu=.20,
+        // incoming CB speed 11.194 mph).  These validate the jump-flight boundary.
+        const testSpeed = 11.194 * .44704;
+        const bounceCase = deg => {
+            const th = deg * Math.PI / 180;
+            const q = { vx:testSpeed*Math.cos(th), vy:0, vz:-testSpeed*Math.sin(th), wx:0, wy:0, wz:0 };
+            const r = applyBedImpactImpulse(q, APK.ballRadiusM, .60, .20);
+            return { angle:r.reboundAngle*180/Math.PI, feet:r.predictedRange/.3048 };
+        };
+        const b5 = bounceCase(5), b12 = bounceCase(12);
+        near(b5.angle, 3.091, .006, 'TP B.10 5deg rebound angle');
+        near(b5.feet, .848, .003, 'TP B.10 5deg first-hop distance');
+        near(b12.angle, 7.792, .006, 'TP B.10 12deg rebound angle');
+        near(b12.feet, 1.906, .004, 'TP B.10 12deg first-hop distance');
         return { ok: failures.length === 0, failures };
     }
     window.__BT_PHYSICS_SELF_TEST__ = runPhysicsSelfTests;
@@ -3414,7 +3505,7 @@
         return { x: origin.x + d.x * m, y: origin.y + d.y * m };
     }
     function cloneBallsForPhysics() {
-        return S.balls.filter(b => b.active && !b.marker).map(b => ({ id: b.id, n: b.n, x: b.x, y: b.y, vx: 0, vy: 0, wx: 0, wy: 0, wz: 0, travel: 0, active: true }));
+        return S.balls.filter(b => b.active && !b.marker).map(b => ({ id: b.id, n: b.n, x: b.x, y: b.y, z: S.ballR, vx: 0, vy: 0, vz: 0, wx: 0, wy: 0, wz: 0, travel: 0, active: true }));
     }
     function pocketCapture(b) {
         const G = pocketModel(), L = G.L, W = G.W, R = G.R;
@@ -3443,15 +3534,22 @@
         if (!cb)
             return { paths: {}, frames: [], firstEvent: '—', firstBallContact: null };
         const aimD = aimDirection(), d = strikeDirection();
-        cb.vx = d.x * S.speed;
-        cb.vy = d.y * S.speed;
-        // Initialize all three angular-velocity components from the physical cue-tip
-        // offset and cue elevation. Translation starts on the squirted line; cloth
-        // friction then evolves that state and produces real swerve during sliding.
-        const cueOmega = cueInitialAngularVelocity(aimD, S.speed, S.sideSpin, S.follow, S.cueElevationDeg);
-        cb.wx = cueOmega.wx;
-        cb.wy = cueOmega.wy;
-        cb.wz = cueOmega.wz;
+        const airborneMode = S.airbornePhysics === true;
+        if (airborneMode) {
+            const theta = clamp(+S.cueElevationDeg || 0, 0, PHYSICS_MODEL.maxAirborneCueElevationDeg) * Math.PI / 180;
+            const horizontalSpeed = S.speed * Math.cos(theta);
+            cb.vx = d.x * horizontalSpeed;
+            cb.vy = d.y * horizontalSpeed;
+            cb.vz = -S.speed * Math.sin(theta);
+            const cueOmega = cueInitialAngularVelocity3D(aimD, S.speed, S.sideSpin, S.follow, S.cueElevationDeg);
+            cb.wx = cueOmega.wx; cb.wy = cueOmega.wy; cb.wz = cueOmega.wz;
+        }
+        else {
+            cb.vx = d.x * S.speed;
+            cb.vy = d.y * S.speed;
+            const cueOmega = cueInitialAngularVelocity(aimD, S.speed, S.sideSpin, S.follow, S.cueElevationDeg);
+            cb.wx = cueOmega.wx; cb.wy = cueOmega.wy; cb.wz = cueOmega.wz;
+        }
         const dt = 1 / 600, maxT = 20, maxSteps = Math.ceil(maxT / dt), g = APK.gravity, R = S.ballR;
         const paths = {};
         for (const b of B)
@@ -3531,6 +3629,20 @@
             const spinDecayTime = PHYSICS_MODEL.slidingSpinDecayFactor * slidingTime + rollingTime;
             b.wz = approach(b.wz, 0, alphaZ * spinDecayTime);
         }
+        let maxCueHeight = R, airborneDistance = 0, bedBounceCount = 0;
+        function bedHit(b, initial = false) {
+            if (!airborneMode || b.vz >= -1e-10) return false;
+            const result = applyBedImpactImpulse(b, R, S.tableRest, S.bedImpactMu);
+            b.z = R;
+            if (result.predictedRange < .00254 && result.reboundAngle < Math.PI / 180) b.vz = 0;
+            else if (!initial) bedBounceCount++;
+            return result.hit;
+        }
+        function canReachCushion(b) {
+            if (!airborneMode) return true;
+            const maxCenterZ = R * (1 + 2 * PHYSICS_MODEL.cushionNoseHeightD);
+            return b.z <= maxCenterZ;
+        }
         function railHit(b, nx, ny, name) {
             // n points inward from the cushion. Screen coordinates use +Y downward.
             // t is the local cushion tangent; positive t = 90deg clockwise from n.
@@ -3566,27 +3678,51 @@
                 firstEvent = `${b.n} → ${name}`;
             return true;
         }
+        if (airborneMode && cb.vz < 0) bedHit(cb, true);
         for (let step = 0; step < maxSteps; step++) {
             const t = step * dt;
             let moving = false;
             for (const b of B) {
-                if (!b.active)
-                    continue;
-                if (Math.hypot(b.vx, b.vy) > 0.002 || Math.abs(b.wz) > 0.05) {
-                    moving = true;
-                    clothStep(b);
+                if (!b.active) continue;
+                if (airborneMode && b.z <= R + 1e-8 && b.vz < -1e-8) bedHit(b);
+                const inAir = airborneMode && (b.z > R + 1e-7 || b.vz > 1e-7);
+                const horizontalSpeed = Math.hypot(b.vx, b.vy);
+                const rotationalSlip = R * Math.hypot(b.wx, b.wy);
+                if (horizontalSpeed > .002 || Math.abs(b.wz) > .05 || rotationalSlip > .002 || inAir || Math.abs(b.vz) > .002) moving = true;
+                if (inAir) {
+                    const dx = b.vx * dt, dy = b.vy * dt;
+                    b.x += dx; b.y += dy;
+                    b.z += b.vz * dt - .5 * g * dt * dt;
+                    b.vz -= g * dt;
+                    b.travel += Math.hypot(dx, dy);
+                    if (b.id === 0) { maxCueHeight = Math.max(maxCueHeight, b.z); airborneDistance += Math.hypot(dx, dy); }
+                    if (b.z <= R && b.vz < 0) { b.z = R; bedHit(b); }
                 }
-                b.travel += Math.hypot(b.vx, b.vy) * dt;
-                b.x += b.vx * dt;
-                b.y += b.vy * dt;
+                else {
+                    b.z = R; b.vz = 0;
+                    if (horizontalSpeed > .002 || Math.abs(b.wz) > .05 || rotationalSlip > .002) clothStep(b);
+                    const dx = b.vx * dt, dy = b.vy * dt;
+                    b.travel += Math.hypot(dx, dy);
+                    b.x += dx; b.y += dy;
+                }
+            }
+            if (airborneMode) {
+                for (const b of B) {
+                    if (!b.active || canReachCushion(b)) continue;
+                    if (b.x < 0 || b.x > S.tableL || b.y < 0 || b.y > S.tableW) {
+                        b.active = false;
+                        b.vx = b.vy = b.vz = b.wx = b.wy = b.wz = 0;
+                        if (firstEvent === '—') firstEvent = `${b.n} jumped off table`;
+                    }
+                }
             }
             // Simplified pocketing before cushion response.
             for (const b of B) {
-                if (b.active && pocketCapture(b)) {
+                const lowEnoughForPocket = !airborneMode || b.z <= R * 1.12;
+                if (b.active && lowEnoughForPocket && pocketCapture(b)) {
                     b.active = false;
-                    b.vx = b.vy = b.wx = b.wy = b.wz = 0;
-                    if (firstEvent === '—')
-                        firstEvent = `${b.n} pocket`;
+                    b.vx = b.vy = b.vz = b.wx = b.wy = b.wz = 0;
+                    if (firstEvent === '—') firstEvent = `${b.n} pocket`;
                 }
             }
             // Cushions. Open spans remove rail collisions inside pocket mouths so a ball can actually enter the opening.
@@ -3594,6 +3730,7 @@
             for (const b of B) {
                 if (!b.active)
                     continue;
+                if (!canReachCushion(b)) continue;
                 if (b.x < R && !inAnySpan(b.y, spans.left)) {
                     b.x = R;
                     railHit(b, 1, 0, 'left rail');
@@ -3616,7 +3753,7 @@
             // treating every pocket as a circular hole.
             const jaws = jawSegments();
             for (const b of B) {
-                if (!b.active)
+                if (!b.active || !canReachCushion(b))
                     continue;
                 for (let ji = 0; ji < jaws.length; ji++)
                     collideWithJaw(b, jaws[ji][0], jaws[ji][1], `pocket jaw`);
@@ -3629,79 +3766,121 @@
                     if (!a.active || !b.active)
                         continue;
                     const dx = b.x - a.x, dy = b.y - a.y;
-                    let dist = Math.hypot(dx, dy);
                     const minD = 2 * R;
-                    if (dist < minD && dist > 1e-9) {
-                        const key = a.id < b.id ? `${a.id}:${b.id}` : `${b.id}:${a.id}`;
-                        const nx = dx / dist, ny = dy / dist, tx = -ny, ty = nx;
-                        const rvx = b.vx - a.vx, rvy = b.vy - a.vy;
-                        const relN = rvx * nx + rvy * ny;
-                        const overlap = minD - dist;
-                        a.x -= nx * overlap * .501;
-                        a.y -= ny * overlap * .501;
-                        b.x += nx * overlap * .501;
-                        b.y += ny * overlap * .501;
-                        if (relN < 0 && (!lastColl.has(key) || step - lastColl.get(key) > 2)) {
-                            if (!firstBallContact && (a.id === 0 || b.id === 0)) {
-                                const cue = a.id === 0 ? a : b, obj = a.id === 0 ? b : a;
-                                const iv = norm({ x: cue.vx, y: cue.vy });
-                                const rv = { x: obj.x - cue.x, y: obj.y - cue.y };
-                                const nc = norm(rv);
-                                const lateral = cross(iv, rv);
-                                const ca = Math.acos(clamp(dot(iv, nc), -1, 1));
-                                firstBallContact = {
-                                    objId: obj.id, objName: obj.n,
-                                    cuePos: { x: cue.x, y: cue.y }, objPos: { x: obj.x, y: obj.y },
-                                    incoming: iv, normal: nc, signedOffset: lateral,
-                                    overlap: clamp(100 * (1 - Math.abs(lateral) / (2 * R)), 0, 100),
-                                    cutAngle: ca, distanceBalls: cue.travel / (2 * R)
-                                };
+                    if (!airborneMode) {
+                        let dist = Math.hypot(dx, dy);
+                        if (dist < minD && dist > 1e-9) {
+                            const key = a.id < b.id ? `${a.id}:${b.id}` : `${b.id}:${a.id}`;
+                            const nx = dx / dist, ny = dy / dist, tx = -ny, ty = nx;
+                            const rvx = b.vx - a.vx, rvy = b.vy - a.vy;
+                            const relN = rvx * nx + rvy * ny;
+                            const overlap = minD - dist;
+                            a.x -= nx * overlap * .501; a.y -= ny * overlap * .501;
+                            b.x += nx * overlap * .501; b.y += ny * overlap * .501;
+                            if (relN < 0 && (!lastColl.has(key) || step - lastColl.get(key) > 2)) {
+                                if (!firstBallContact && (a.id === 0 || b.id === 0)) {
+                                    const cue = a.id === 0 ? a : b, obj = a.id === 0 ? b : a;
+                                    const iv = norm({ x: cue.vx, y: cue.vy });
+                                    const rv = { x: obj.x - cue.x, y: obj.y - cue.y };
+                                    const nc = norm(rv);
+                                    const lateral = cross(iv, rv);
+                                    const ca = Math.acos(clamp(dot(iv, nc), -1, 1));
+                                    firstBallContact = {
+                                        objId: obj.id, objName: obj.n,
+                                        cuePos: { x: cue.x, y: cue.y }, objPos: { x: obj.x, y: obj.y },
+                                        incoming: iv, normal: nc, signedOffset: lateral,
+                                        overlap: clamp(100 * (1 - Math.abs(lateral) / (2 * R)), 0, 100),
+                                        cutAngle: ca, distanceBalls: cue.travel / (2 * R)
+                                    };
+                                }
+                                lastColl.set(key, step);
+                                const jn = -(1 + S.ballRest) * relN / 2;
+                                a.vx -= jn * nx; a.vy -= jn * ny;
+                                b.vx += jn * nx; b.vy += jn * ny;
+                                const relT = (b.vx - a.vx) * tx + (b.vy - a.vy) * ty - R * (a.wz + b.wz);
+                                const relZ = R * ((a.wx + b.wx) * tx + (a.wy + b.wy) * ty);
+                                const tangential = ballBallTangentialImpulse(relT, relZ, jn);
+                                const jt = tangential.jt, jz = tangential.jz;
+                                a.vx -= jt * tx; a.vy -= jt * ty;
+                                b.vx += jt * tx; b.vy += jt * ty;
+                                a.wz -= 2.5 * jt / R; b.wz -= 2.5 * jt / R;
+                                const dwT = 2.5 * jz / R;
+                                a.wx += dwT * tx; a.wy += dwT * ty;
+                                b.wx += dwT * tx; b.wy += dwT * ty;
+                                if (firstEvent === "—") firstEvent = `${a.n} → ${b.n}`;
                             }
-                            lastColl.set(key, step);
-                            const jn = -(1 + S.ballRest) * relN / 2; // mass normalized to 1
-                            a.vx -= jn * nx;
-                            a.vy -= jn * ny;
-                            b.vx += jn * nx;
-                            b.vy += jn * ny;
-                            // Full contact-plane relative surface velocity.
-                            // Horizontal slip creates cut/spin-induced throw; vertical slip
-                            // from follow/draw shares the same finite friction impulse and
-                            // therefore changes throw exactly at the collision, not by
-                            // rotating the object-ball path as a separate visual rule.
-                            const relT = (b.vx - a.vx) * tx + (b.vy - a.vy) * ty - R * (a.wz + b.wz);
-                            const relZ = R * ((a.wx + b.wx) * tx + (a.wy + b.wy) * ty);
-                            const tangential = ballBallTangentialImpulse(relT, relZ, jn);
-                            const jt = tangential.jt, jz = tangential.jz;
-                            a.vx -= jt * tx;
-                            a.vy -= jt * ty;
-                            b.vx += jt * tx;
-                            b.vy += jt * ty;
-                            a.wz -= 2.5 * jt / R;
-                            b.wz -= 2.5 * jt / R;
-                            // Vertical contact friction transfers horizontal-axis spin
-                            // to both balls. This is the follow/draw component of the same
-                            // collision friction that produces object-ball throw.
-                            const dwT = 2.5 * jz / R;
-                            a.wx += dwT * tx;
-                            a.wy += dwT * ty;
-                            b.wx += dwT * tx;
-                            b.wy += dwT * ty;
-                            if (firstEvent === '—')
-                                firstEvent = `${a.n} → ${b.n}`;
+                        }
+                    }
+                    else {
+                        const dz = (b.z || R) - (a.z || R);
+                        let dist = Math.hypot(dx, dy, dz);
+                        if (dist < minD && dist > 1e-9) {
+                            const key = a.id < b.id ? `${a.id}:${b.id}` : `${b.id}:${a.id}`;
+                            const nx = dx / dist, ny = dy / dist, nz = dz / dist;
+                            const rvx = b.vx - a.vx, rvy = b.vy - a.vy, rvz = b.vz - a.vz;
+                            const relN = rvx * nx + rvy * ny + rvz * nz;
+                            const overlap = minD - dist;
+                            a.x -= nx * overlap * .501; a.y -= ny * overlap * .501;
+                            a.z = Math.max(R, a.z - nz * overlap * .501);
+                            b.x += nx * overlap * .501; b.y += ny * overlap * .501;
+                            b.z = Math.max(R, b.z + nz * overlap * .501);
+                            if (relN < 0 && (!lastColl.has(key) || step - lastColl.get(key) > 2)) {
+                                if (!firstBallContact && (a.id === 0 || b.id === 0)) {
+                                    const cue = a.id === 0 ? a : b, obj = a.id === 0 ? b : a;
+                                    const iv = norm({ x: cue.vx, y: cue.vy });
+                                    const horizontalN = norm({ x: obj.x - cue.x, y: obj.y - cue.y });
+                                    const rv = { x: obj.x - cue.x, y: obj.y - cue.y };
+                                    const lateral = cross(iv, rv);
+                                    const ca = Math.acos(clamp(dot(iv, horizontalN), -1, 1));
+                                    firstBallContact = {
+                                        objId: obj.id, objName: obj.n,
+                                        cuePos: { x: cue.x, y: cue.y }, objPos: { x: obj.x, y: obj.y },
+                                        incoming: iv, normal: horizontalN, signedOffset: lateral,
+                                        overlap: clamp(100 * (1 - Math.abs(lateral) / (2 * R)), 0, 100),
+                                        cutAngle: ca, distanceBalls: cue.travel / (2 * R),
+                                        cueHeight: cue.z, verticalNormal: (a.id === 0 ? nz : -nz)
+                                    };
+                                }
+                                lastColl.set(key, step);
+                                const jn = -(1 + S.ballRest) * relN / 2;
+                                a.vx -= jn * nx; a.vy -= jn * ny; a.vz -= jn * nz;
+                                b.vx += jn * nx; b.vy += jn * ny; b.vz += jn * nz;
+                                const swx = a.wx + b.wx, swy = a.wy + b.wy, swz = a.wz + b.wz;
+                                const cx = swy * nz - swz * ny;
+                                const cy = swz * nx - swx * nz;
+                                const cz = swx * ny - swy * nx;
+                                let ux = (b.vx - a.vx) - R * cx;
+                                let uy = (b.vy - a.vy) - R * cy;
+                                let uz = (b.vz - a.vz) - R * cz;
+                                const un = ux * nx + uy * ny + uz * nz;
+                                ux -= un * nx; uy -= un * ny; uz -= un * nz;
+                                const jt = ballBallTangentialImpulse3(ux, uy, uz, jn);
+                                a.vx -= jt.jx; a.vy -= jt.jy; a.vz -= jt.jz;
+                                b.vx += jt.jx; b.vy += jt.jy; b.vz += jt.jz;
+                                const jcx = ny * jt.jz - nz * jt.jy;
+                                const jcy = nz * jt.jx - nx * jt.jz;
+                                const jcz = nx * jt.jy - ny * jt.jx;
+                                const k = -2.5 / R;
+                                a.wx += k * jcx; a.wy += k * jcy; a.wz += k * jcz;
+                                b.wx += k * jcx; b.wy += k * jcy; b.wz += k * jcz;
+                                if (firstEvent === "—") firstEvent = `${a.n} → ${b.n}`;
+                            }
                         }
                     }
                 }
             if (step % sampleEvery === 0) {
                 for (const b of B)
                     if (b.active)
-                        paths[b.id].push({ x: b.x, y: b.y, t });
+                        paths[b.id].push({ x: b.x, y: b.y, z: b.z, t });
             }
             if (makeFrames && step % frameEvery === 0)
-                frames.push(B.map(b => ({ id: b.id, x: b.x, y: b.y, active: b.active })));
+                frames.push(B.map(b => ({ id: b.id, x: b.x, y: b.y, z: b.z, active: b.active })));
             if (!moving && step > 30)
                 break;
         }
-        return { paths, frames, firstEvent, firstBallContact, finalBalls: B.map(b => ({ id: b.id, x: b.x, y: b.y, active: b.active })) };
+        return { paths, frames, firstEvent, firstBallContact,
+            airborne: airborneMode ? { maxCueHeight: Math.max(0, maxCueHeight - R), airborneDistance, bedBounceCount } : null,
+            finalBalls: B.map(b => ({ id: b.id, x: b.x, y: b.y, z: b.z, active: b.active })) };
     }
     function captureShot2GhostLock() {
         if (!S.shot2Enabled)
@@ -5069,6 +5248,11 @@
         $('firstEvent').textContent = friendlyEventText(S.firstEvent);
         $('tipText').textContent = tipDescription();
         $('squirtText').textContent = (cueSquirtAngle() * 180 / Math.PI).toFixed(2) + '°';
+        if (S.airbornePhysics && S.preview && S.preview.airborne) {
+            const a = S.preview.airborne;
+            $('airborneText').textContent = 'H ' + (a.maxCueHeight * 1000).toFixed(1) + ' mm · air ' + a.airborneDistance.toFixed(2) + ' m · ' + a.bedBounceCount + ' hop' + (a.bedBounceCount === 1 ? '' : 's');
+        }
+        else $('airborneText').textContent = '—';
         const pf = powerFeel();
         $('powerFeelText').textContent = pf.diamonds.toFixed(1) + ' diamonds · ' + formatLagFraction(pf.lagFraction);
         const pa = teachingPowerState(1);
@@ -5095,6 +5279,11 @@
             const pf2 = powerFeelForSpeed(s.speed);
             $('tip2Text').textContent = tipDescriptionValues(s.sideSpin, s.follow);
             $('squirt2Text').textContent = (cueSquirtAngleFor(s.sideSpin, s.follow, S.cueEndmassRatio) * 180 / Math.PI).toFixed(2) + '°';
+            if (S.airbornePhysics && s.preview && s.preview.airborne) {
+                const a2 = s.preview.airborne;
+                $('airborne2Text').textContent = 'H ' + (a2.maxCueHeight * 1000).toFixed(1) + ' mm · air ' + a2.airborneDistance.toFixed(2) + ' m · ' + a2.bedBounceCount + ' hop' + (a2.bedBounceCount === 1 ? '' : 's');
+            }
+            else $('airborne2Text').textContent = '—';
             $('powerFeel2Text').textContent = pf2.diamonds.toFixed(1) + ' diamonds · ' + formatLagFraction(pf2.lagFraction);
             const pa2 = teachingPowerState(2);
             if (pa2.mode === 'ball') {
@@ -5120,6 +5309,7 @@
             $('firstEvent2').textContent = friendlyEventText(s.preview && s.preview.firstEvent);
         }
         else {
+            $('airborne2Text').textContent = '—';
             $('pocketNeed2Label').textContent = 'Pocket speed';
             $('impactPower2Label').textContent = 'CB → object ball';
             $('pocketArrival2Label').textContent = 'Object ball → pocket';
@@ -5385,6 +5575,10 @@
         $('railRest').value = S.railRest;
         $('railTang').value = S.railTang;
         $('cueEndmassRatio').value = (+S.cueEndmassRatio).toFixed(3);
+        $('airbornePhysics').checked = S.airbornePhysics === true;
+        $('tableRest').value = (+S.tableRest).toFixed(2);
+        $('bedImpactMu').value = (+S.bedImpactMu).toFixed(2);
+        syncCueElevationLimits();
         $('showImpact').checked = S.showImpact;
         $('showTipBadge').checked = S.showTipBadge;
         $('showPaths').checked = S.showPaths;
@@ -5409,7 +5603,8 @@
         S.speed = +$('speed').value;
         S.follow = +$('follow').value;
         S.sideSpin = +$('sideSpin').value;
-        S.cueElevationDeg = clamp(+$('cueElevation').value, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg);
+        S.airbornePhysics = $('airbornePhysics').checked;
+        S.cueElevationDeg = clamp(+$('cueElevation').value, 0, cueElevationMax());
         S.tableL = +$('tableL').value * inch;
         S.tableW = +$('tableW').value * inch;
         S.ballR = +$('ballD').value * inch / 2;
@@ -5420,6 +5615,13 @@
         S.railRest = +$('railRest').value;
         S.railTang = +$('railTang').value;
         S.cueEndmassRatio = clamp(+$('cueEndmassRatio').value || PHYSICS_MODEL.defaultCueEndmassRatio, 8, 60);
+        S.tableRest = clamp(+$('tableRest').value, 0, .95);
+        S.bedImpactMu = clamp(+$('bedImpactMu').value, 0, .5);
+        if (!S.airbornePhysics) {
+            S.cueElevationDeg = Math.min(S.cueElevationDeg, cueElevationMax());
+            const s2 = ensureShot2();
+            s2.cueElevationDeg = Math.min(s2.cueElevationDeg, cueElevationMax());
+        }
         S.showImpact = $('showImpact').checked;
         S.showTipBadge = $('showTipBadge').checked;
         S.showPaths = $('showPaths').checked;
@@ -5464,7 +5666,7 @@
         if ($('aimControls')) $('aimControls').classList.toggle('activeAim', S.activeShot !== 2);
         if ($('aimControls2')) $('aimControls2').classList.toggle('activeAim', S.activeShot === 2 && S.shot2Enabled);
     }
-    function resetLayout() { const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, showScoreBoard: S.showScoreBoard, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
+    function resetLayout() { const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
     function pointerPos(ev) { const r = canvas.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
     canvas.addEventListener('pointerdown', ev => {
         canvas.setPointerCapture(ev.pointerId);
@@ -5724,6 +5926,49 @@
         syncProjector();
     });
     canvas.addEventListener('pointercancel', () => drag = null);
+    // Mouse-wheel fine controls.  Hovering any shot slider uses the same increment
+    // as its +/- controls, so the mouse can stay over the table or sidebar.
+    function installWheelRange(id) {
+        const el = $(id);
+        if (!el) return;
+        el.addEventListener('wheel', ev => {
+            if (isProjector || el.disabled) return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            const min = Number(el.min), max = Number(el.max);
+            const step = Number(el.step) || .01;
+            const dir = ev.deltaY < 0 ? 1 : -1; // wheel up = increase
+            const decimals = Math.max(0, (String(el.step || '').split('.')[1] || '').length);
+            let next = Number(el.value) + dir * step;
+            next = clamp(next, Number.isFinite(min) ? min : -Infinity, Number.isFinite(max) ? max : Infinity);
+            el.value = decimals ? next.toFixed(decimals) : String(next);
+            el.dispatchEvent(new Event('input', { bubbles:true }));
+        }, { passive:false });
+    }
+    [
+        'speed','follow','sideSpin','cueElevation',
+        'speed2','follow2','sideSpin2','cueElevation2',
+        'tableSpeed1','tableSpeed2',
+        'tableFollow1','tableSpin1','tableElevation1',
+        'tableFollow2','tableSpin2','tableElevation2',
+        'bottomFollow1','bottomSide1','bottomFollow2','bottomSide2'
+    ].forEach(installWheelRange);
+    function installAimRollerWheel(id, shot) {
+        const el = $(id);
+        if (!el) return;
+        el.addEventListener('wheel', ev => {
+            if (isProjector || (shot === 2 && !S.shot2Enabled)) return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            setActiveShot(shot);
+            let notches = ev.deltaMode === 1 ? ev.deltaY / 3 : (ev.deltaMode === 2 ? ev.deltaY : ev.deltaY / 100);
+            notches = clamp(notches, -3, 3);
+            rotateAimMicro(notches * (0.15 * Math.PI / 180));
+        }, { passive:false });
+    }
+    installAimRollerWheel('aimRoller', 1);
+    installAimRollerWheel('aimRoller2', 2);
+
     // Mouse-wheel micro aiming.
     // wheel back/down -> clockwise; wheel forward/up -> counterclockwise.
     // One conventional wheel notch is intentionally tiny: about 0.15 degree.
@@ -8957,7 +9202,7 @@
             resetCuePopupTimer();
         });
         $('tableElevation1').addEventListener('input', () => {
-            S.cueElevationDeg = clamp(+$('tableElevation1').value, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg);
+            S.cueElevationDeg = clamp(+$('tableElevation1').value, 0, cueElevationMax());
             setActiveShot(1);
             updateUI();
             refreshPreview();
@@ -8987,7 +9232,7 @@
             if (!S.shot2Enabled)
                 return;
             const s = ensureShot2();
-            s.cueElevationDeg = clamp(+$('tableElevation2').value, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg);
+            s.cueElevationDeg = clamp(+$('tableElevation2').value, 0, cueElevationMax());
             setActiveShot(2);
             updateUI();
             refreshPreview();
@@ -9021,14 +9266,14 @@
             updateUI();
             refreshPreview();
         });
-        const changeIds = ['tableL', 'tableW', 'ballD', 'muSlide', 'muRoll', 'muBall', 'ballRest', 'railRest', 'railTang', 'cueEndmassRatio', 'showImpact', 'showTipBadge', 'showPaths', 'showGrid', 'showDiamonds', 'showTable', 'showAngleLockControl'];
+        const changeIds = ['tableL', 'tableW', 'ballD', 'muSlide', 'muRoll', 'muBall', 'ballRest', 'railRest', 'railTang', 'cueEndmassRatio', 'airbornePhysics', 'tableRest', 'bedImpactMu', 'showImpact', 'showTipBadge', 'showPaths', 'showGrid', 'showDiamonds', 'showTable', 'showAngleLockControl'];
         changeIds.forEach(id => $(id).addEventListener('change', applyUI));
         ['speed', 'follow', 'sideSpin', 'cueElevation'].forEach(id => $(id).addEventListener('input', applyUI));
         function applyDirectShotInput() {
             S.speed = clamp(parseFloat($('speedNumber').value) || 0.25, 0.25, 6);
             S.follow = clamp((parseFloat($('followNumber').value) || 0) / 100, -1, 1);
             S.sideSpin = clamp((parseFloat($('spinNumber').value) || 0) / 100, -1, 1);
-            S.cueElevationDeg = clamp(parseFloat($('elevNumber').value) || 0, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg);
+            S.cueElevationDeg = clamp(parseFloat($('elevNumber').value) || 0, 0, cueElevationMax());
             updateUI();
             refreshPreview();
         }
@@ -9088,8 +9333,8 @@
         installHoldAdjust('followPlus', () => fineAdjust('follow', 0.01, -1, 1));
         installHoldAdjust('spinMinus', () => fineAdjust('sideSpin', -0.01, -1, 1));
         installHoldAdjust('spinPlus', () => fineAdjust('sideSpin', 0.01, -1, 1));
-        installHoldAdjust('elevMinus', () => fineAdjust('cueElevationDeg', -0.1, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg));
-        installHoldAdjust('elevPlus', () => fineAdjust('cueElevationDeg', 0.1, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg));
+        installHoldAdjust('elevMinus', () => fineAdjust('cueElevationDeg', -0.1, 0, cueElevationMax()));
+        installHoldAdjust('elevPlus', () => fineAdjust('cueElevationDeg', 0.1, 0, cueElevationMax()));
         let tipDrag = false;
         const tc = $('tipCanvas');
         tc.addEventListener('pointerdown', ev => { if (setTipFromPointer(ev)) {
@@ -9111,8 +9356,8 @@
             saveState();
             syncProjector();
         };
-        ['speed2', 'follow2', 'sideSpin2', 'cueElevation2'].forEach(id => $(id).addEventListener('input', () => { const s = ensureShot2(); s.speed = +$('speed2').value; s.follow = +$('follow2').value; s.sideSpin = +$('sideSpin2').value; s.cueElevationDeg = clamp(+$('cueElevation2').value, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg); setActiveShot(2); updateUI(); refreshPreview(); }));
-        function applyDirectShot2Input() { const s = ensureShot2(); s.speed = clamp(parseFloat($('speed2Number').value) || 0.25, 0.25, 6); s.follow = clamp((parseFloat($('follow2Number').value) || 0) / 100, -1, 1); s.sideSpin = clamp((parseFloat($('spin2Number').value) || 0) / 100, -1, 1); s.cueElevationDeg = clamp(parseFloat($('elev2Number').value) || 0, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg); setActiveShot(2); updateUI(); refreshPreview(); }
+        ['speed2', 'follow2', 'sideSpin2', 'cueElevation2'].forEach(id => $(id).addEventListener('input', () => { const s = ensureShot2(); s.speed = +$('speed2').value; s.follow = +$('follow2').value; s.sideSpin = +$('sideSpin2').value; s.cueElevationDeg = clamp(+$('cueElevation2').value, 0, cueElevationMax()); setActiveShot(2); updateUI(); refreshPreview(); }));
+        function applyDirectShot2Input() { const s = ensureShot2(); s.speed = clamp(parseFloat($('speed2Number').value) || 0.25, 0.25, 6); s.follow = clamp((parseFloat($('follow2Number').value) || 0) / 100, -1, 1); s.sideSpin = clamp((parseFloat($('spin2Number').value) || 0) / 100, -1, 1); s.cueElevationDeg = clamp(parseFloat($('elev2Number').value) || 0, 0, cueElevationMax()); setActiveShot(2); updateUI(); refreshPreview(); }
         ['speed2Number', 'follow2Number', 'spin2Number', 'elev2Number'].forEach(id => { $(id).addEventListener('change', applyDirectShot2Input); $(id).addEventListener('keydown', ev => { if (ev.key === 'Enter') {
             ev.preventDefault();
             applyDirectShot2Input();
@@ -9125,8 +9370,8 @@
         installHoldAdjust('follow2Plus', () => fineAdjust2('follow', 0.01, -1, 1));
         installHoldAdjust('spin2Minus', () => fineAdjust2('sideSpin', -0.01, -1, 1));
         installHoldAdjust('spin2Plus', () => fineAdjust2('sideSpin', 0.01, -1, 1));
-        installHoldAdjust('elev2Minus', () => fineAdjust2('cueElevationDeg', -0.1, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg));
-        installHoldAdjust('elev2Plus', () => fineAdjust2('cueElevationDeg', 0.1, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg));
+        installHoldAdjust('elev2Minus', () => fineAdjust2('cueElevationDeg', -0.1, 0, cueElevationMax()));
+        installHoldAdjust('elev2Plus', () => fineAdjust2('cueElevationDeg', 0.1, 0, cueElevationMax()));
         let tip2Drag = false;
         const tc2 = $('tipCanvas2');
         tc2.addEventListener('pointerdown', ev => { setActiveShot(2); if (setTip2FromPointer(ev)) {
