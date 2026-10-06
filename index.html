@@ -470,6 +470,27 @@
     border-top:1px solid #323a44;
     background:#161c23;
   }
+  .photoApplyCue {
+    flex:1 0 100%;
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.35px;
+    color:#dfe6ec;
+  }
+  #photoApplyTable {
+    background:#4aa8ff;
+    border-color:#70b9ff;
+    color:#05121d;
+    font-weight:900;
+  }
+  #photoApplyTable:hover { background:#68b7ff; }
+  #photoApplySave {
+    background:#60d394;
+    border-color:#84e7b5;
+    color:#07120c;
+    font-weight:900;
+  }
+  #photoApplySave:hover { background:#73e0a2; }
   #photoLayoutName {
     flex:1 1 240px;
     min-width:170px;
@@ -1349,8 +1370,9 @@
       </div>
     </div>
     <div class="photoAnalyzerFooter">
+      <div class="photoApplyCue">FINISH — SEND THE REVIEWED LAYOUT TO BILLIARDS TRAINER</div>
       <input id="photoLayoutName" type="text" maxlength="60" placeholder="Layout name — e.g. Wednesday league 7-ball">
-      <button id="photoApplyTable" type="button" disabled>APPLY TO TABLE</button>
+      <button id="photoApplyTable" type="button" disabled>APPLY TO TRAINER TABLE</button>
       <button id="photoApplySave" class="visionPrimary" type="button" disabled>APPLY + SAVE LAYOUT</button>
       <span class="photoHint">If a ball is missed, press ADD MISSED BALL and tap its center in the photo.</span>
     </div>
@@ -6470,6 +6492,13 @@
         $('photoAnalyzeNow').disabled=!photoVision.imageReady;
         $('photoAddMissed').disabled=!photoVision.imageReady;
     }
+    function pvImportScale(w,h){
+        w=Math.max(1,Number(w)||1);
+        h=Math.max(1,Number(h)||1);
+        const maxSide=2560;
+        const maxPixels=4200000;
+        return Math.min(1, maxSide/Math.max(w,h), Math.sqrt(maxPixels/(w*h)));
+    }
     function pvSharpenCanvas(canvas,ctx,amount=.38){
         const w=canvas.width,h=canvas.height;
         if(!w||!h) return;
@@ -6494,33 +6523,61 @@
         const rw=photoVision.rawCanvas.width,rh=photoVision.rawCanvas.height;
         if(!rw || !rh) return;
         const rot=((photoVision.rotation%360)+360)%360;
-        const swap = rot===90 || rot===270;
-        const baseW=swap ? rh : rw, baseH=swap ? rw : rh;
-        const base=document.createElement('canvas');
-        base.width=baseW; base.height=baseH;
-        const bctx=base.getContext('2d',{willReadFrequently:true});
-        bctx.save();
-        if(rot===90){ bctx.translate(baseW,0); bctx.rotate(Math.PI/2); }
-        else if(rot===180){ bctx.translate(baseW,baseH); bctx.rotate(Math.PI); }
-        else if(rot===270){ bctx.translate(0,baseH); bctx.rotate(-Math.PI/2); }
-        bctx.drawImage(photoVision.rawCanvas,0,0,rw,rh);
-        bctx.restore();
-
+        const swap=rot===90 || rot===270;
+        const orientedW=swap ? rh : rw, orientedH=swap ? rw : rh;
         const fine=(photoVision.fineRotation||0)*Math.PI/180;
-        const ac=Math.abs(Math.cos(fine)), as=Math.abs(Math.sin(fine));
-        const outW=Math.max(1,Math.ceil(baseW*ac+baseH*as));
-        const outH=Math.max(1,Math.ceil(baseW*as+baseH*ac));
-        function drawFine(canvas,ctx){
-            canvas.width=outW; canvas.height=outH;
-            ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,outW,outH);
-            ctx.save(); ctx.translate(outW/2,outH/2); ctx.rotate(fine); ctx.drawImage(base,-baseW/2,-baseH/2); ctx.restore();
+
+        function drawQuarterTurn(canvas,ctx,src){
+            canvas.width=orientedW;
+            canvas.height=orientedH;
+            ctx.setTransform(1,0,0,1,0,0);
+            ctx.clearRect(0,0,orientedW,orientedH);
+            ctx.imageSmoothingEnabled=false;
+            ctx.save();
+            if(rot===90){ ctx.translate(orientedW,0); ctx.rotate(Math.PI/2); }
+            else if(rot===180){ ctx.translate(orientedW,orientedH); ctx.rotate(Math.PI); }
+            else if(rot===270){ ctx.translate(0,orientedH); ctx.rotate(-Math.PI/2); }
+            ctx.drawImage(src,0,0,rw,rh);
+            ctx.restore();
         }
-        drawFine(photoVision.analysisCanvas,photoVision.analysisCtx);
-        photoVision.sourceCanvas.width=outW; photoVision.sourceCanvas.height=outH;
-        photoVision.sourceCtx.setTransform(1,0,0,1,0,0); photoVision.sourceCtx.clearRect(0,0,outW,outH);
+
+        if(Math.abs(fine)<1e-8){
+            // 0/90/180/270 degree changes now come straight from the retained raw pixels.
+            drawQuarterTurn(photoVision.analysisCanvas,photoVision.analysisCtx,photoVision.rawCanvas);
+        } else {
+            // Fine straighten must resample. Do one exact quarter-turn first, then
+            // exactly one high-quality interpolation from that image.
+            const oriented=document.createElement('canvas');
+            const octx=oriented.getContext('2d',{willReadFrequently:true});
+            drawQuarterTurn(oriented,octx,photoVision.rawCanvas);
+
+            const ac=Math.abs(Math.cos(fine)),as=Math.abs(Math.sin(fine));
+            const outW=Math.max(1,Math.ceil(orientedW*ac+orientedH*as));
+            const outH=Math.max(1,Math.ceil(orientedW*as+orientedH*ac));
+            photoVision.analysisCanvas.width=outW;
+            photoVision.analysisCanvas.height=outH;
+            const actx=photoVision.analysisCtx;
+            actx.setTransform(1,0,0,1,0,0);
+            actx.clearRect(0,0,outW,outH);
+            actx.imageSmoothingEnabled=true;
+            actx.imageSmoothingQuality='high';
+            actx.save();
+            actx.translate(outW/2,outH/2);
+            actx.rotate(fine);
+            actx.drawImage(oriented,-orientedW/2,-orientedH/2);
+            actx.restore();
+        }
+
+        const outW=photoVision.analysisCanvas.width,outH=photoVision.analysisCanvas.height;
+        photoVision.sourceCanvas.width=outW;
+        photoVision.sourceCanvas.height=outH;
+        photoVision.sourceCtx.setTransform(1,0,0,1,0,0);
+        photoVision.sourceCtx.clearRect(0,0,outW,outH);
+        photoVision.sourceCtx.imageSmoothingEnabled=false;
         photoVision.sourceCtx.drawImage(photoVision.analysisCanvas,0,0);
         if(photoVision.sharpen) pvSharpenCanvas(photoVision.sourceCanvas, photoVision.sourceCtx, .44);
-        photoVision.imageReady=true; pvRefreshControls();
+        photoVision.imageReady=true;
+        pvRefreshControls();
     }
     function pvResetAfterImageChange(msg){
         pvResetDetectionsAndCorners();
@@ -7200,11 +7257,13 @@
         const img=new Image(),url=URL.createObjectURL(file);
         pvStatus('Loading photo…');
         img.onload=()=>{
-            const sc=Math.min(1,1800/Math.max(img.naturalWidth,img.naturalHeight));
+            const sc=pvImportScale(img.naturalWidth,img.naturalHeight);
             photoVision.rawCanvas.width=Math.max(1,Math.round(img.naturalWidth*sc));
             photoVision.rawCanvas.height=Math.max(1,Math.round(img.naturalHeight*sc));
             photoVision.rawCtx.setTransform(1,0,0,1,0,0);
             photoVision.rawCtx.clearRect(0,0,photoVision.rawCanvas.width,photoVision.rawCanvas.height);
+            photoVision.rawCtx.imageSmoothingEnabled=true;
+            photoVision.rawCtx.imageSmoothingQuality='high';
             photoVision.rawCtx.drawImage(img,0,0,photoVision.rawCanvas.width,photoVision.rawCanvas.height);
             photoVision.rotation=0;
             photoVision.fineRotation=0;
@@ -7213,7 +7272,7 @@
             v.style.display='none';
             c.style.display='block';
             $('photoCaptureFrame').style.display='none';
-            pvResetAfterImageChange('Photo loaded. Use ROTATE 90° until the head/foot direction matches how you want the layout placed in Billiards Trainer. Then tap four inside playing-surface corners: top-left → top-right → bottom-right → bottom-left.');
+            pvResetAfterImageChange('Photo loaded at high analysis quality. ROTATE 90° now uses the retained raw image without cumulative blur. Use it until the head/foot direction matches how you want the layout placed in Billiards Trainer. Then tap four inside playing-surface corners: top-left → top-right → bottom-right → bottom-left.');
             if($('photoArchiveExport')) $('photoArchiveExport').disabled=false;
             if(archiveAfter) pvArchiveRawCanvas(sourceNameOverride || file.name || 'Pool table photo');
         };
@@ -7226,11 +7285,13 @@
     function captureVideoFrame(){
         const v=$('photoAnalyzerVideo');
         if(!v.videoWidth)return;
-        const sc=Math.min(1,1800/Math.max(v.videoWidth,v.videoHeight));
-        photoVision.rawCanvas.width=Math.round(v.videoWidth*sc);
-        photoVision.rawCanvas.height=Math.round(v.videoHeight*sc);
+        const sc=pvImportScale(v.videoWidth,v.videoHeight);
+        photoVision.rawCanvas.width=Math.max(1,Math.round(v.videoWidth*sc));
+        photoVision.rawCanvas.height=Math.max(1,Math.round(v.videoHeight*sc));
         photoVision.rawCtx.setTransform(1,0,0,1,0,0);
         photoVision.rawCtx.clearRect(0,0,photoVision.rawCanvas.width,photoVision.rawCanvas.height);
+        photoVision.rawCtx.imageSmoothingEnabled=true;
+        photoVision.rawCtx.imageSmoothingQuality='high';
         photoVision.rawCtx.drawImage(v,0,0,photoVision.rawCanvas.width,photoVision.rawCanvas.height);
         photoVision.rotation=0;
         photoVision.fineRotation=0;
@@ -7238,7 +7299,7 @@
         v.style.display='none';
         $('photoAnalyzerCanvas').style.display='block';
         $('photoCaptureFrame').style.display='none';
-        pvResetAfterImageChange('Frame captured. Use ROTATE 90° until the head/foot direction matches how you want the layout placed in Billiards Trainer. Then tap four inside playing-surface corners: top-left → top-right → bottom-right → bottom-left.');
+        pvResetAfterImageChange('Frame captured at high analysis quality. ROTATE 90° now uses the retained raw frame without cumulative blur. Use it until the head/foot direction matches how you want the layout placed in Billiards Trainer. Then tap four inside playing-surface corners: top-left → top-right → bottom-right → bottom-left.');
         if($('photoArchiveExport')) $('photoArchiveExport').disabled=false;
         pvArchiveRawCanvas('Video frame');
     }
