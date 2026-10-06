@@ -489,6 +489,12 @@
     border:1px solid #333c46;
     border-radius:10px;
     background:#0d1217;
+    transition:background .18s ease,border-color .18s ease,box-shadow .18s ease;
+  }
+  .photoDetectionRow.unassigned {
+    background:#171a1e;
+    border-color:#d6b64b;
+    box-shadow:0 0 0 1px rgba(255,216,107,.18) inset,0 0 12px rgba(255,216,107,.08);
   }
   .photoDetectionDot {
     width:84px;
@@ -7478,6 +7484,7 @@
         if(key==='orange')return {name:'ORANGE FAMILY',ids:legal(['5','13'])};
         if(key==='green')return {name:'GREEN FAMILY',ids:legal(['6','14'])};
         if(key==='black')return {name:'BLACK',ids:'8'};
+        if(key==='unassigned')return {name:'UNASSIGNED / CHECK',ids:'ASSIGN THESE FIRST'};
         return {name:'OTHER / REVIEW',ids:''};
     }
     function pvReviewFamilyForDetection(d){
@@ -7508,31 +7515,52 @@
         return s;
     }
     function pvBuildSmartReviewGroups(list){
+        // Put every unresolved detection in one unmistakable block at the very top.
+        // Assigned balls stay grouped by color family underneath.
+        const unresolved=list.filter(d=>String(d.id)==='ignore');
+        const assigned=list.filter(d=>String(d.id)!=='ignore');
+        const focusKeys=new Set(photoVision.reviewFocusKeys||[]);
+        const focusFamily=photoVision.reviewFocusFamily||'';
+
+        unresolved.forEach(d=>pvReviewKey(d));
+        unresolved.sort((a,b)=>{
+            const af=focusKeys.has(pvReviewKey(a))?1:0,bf=focusKeys.has(pvReviewKey(b))?1:0;
+            if(af!==bf)return bf-af;
+            return pvReviewUrgency(b)-pvReviewUrgency(a);
+        });
+
+        const output=[];
+        if(unresolved.length){
+            output.push({
+                family:'unassigned',
+                items:unresolved,
+                focused:unresolved.some(d=>focusKeys.has(pvReviewKey(d))),
+                score:Number.MAX_SAFE_INTEGER,
+                unresolved:unresolved.length,
+                warning:unresolved.filter(d=>d.duplicateWarning||d.closeCall).length
+            });
+        }
+
         const groups=new Map();
-        for(const d of list){
+        for(const d of assigned){
             const family=pvReviewFamilyForDetection(d);
             if(!groups.has(family))groups.set(family,[]);
             groups.get(family).push(d);
             pvReviewKey(d);
         }
-        const focusKeys=new Set(photoVision.reviewFocusKeys||[]);
-        const focusFamily=photoVision.reviewFocusFamily||'';
-        const output=[...groups.entries()].map(([family,items])=>{
-            const unresolved=items.filter(d=>String(d.id)==='ignore').length;
+        const assignedGroups=[...groups.entries()].map(([family,items])=>{
             const warning=items.filter(d=>d.duplicateWarning||d.closeCall).length;
             const focused=family===focusFamily || items.some(d=>focusKeys.has(pvReviewKey(d)));
-            const score=(focused?10000:0)+unresolved*250+warning*85+items.reduce((s,d)=>s+pvReviewUrgency(d),0);
+            const score=(focused?10000:0)+warning*85+items.reduce((s,d)=>s+pvReviewUrgency(d),0);
             items.sort((a,b)=>{
                 const af=focusKeys.has(pvReviewKey(a))?1:0,bf=focusKeys.has(pvReviewKey(b))?1:0;
                 if(af!==bf)return bf-af;
-                const au=String(a.id)==='ignore'?1:0,bu=String(b.id)==='ignore'?1:0;
-                if(au!==bu)return bu-au;
                 return pvReviewUrgency(b)-pvReviewUrgency(a);
             });
-            return {family,items,focused,score,unresolved,warning};
+            return {family,items,focused,score,unresolved:0,warning};
         });
-        output.sort((a,b)=>b.score-a.score);
-        return output;
+        assignedGroups.sort((a,b)=>b.score-a.score);
+        return output.concat(assignedGroups);
     }
 
     function renderPhotoDetectionList() {
@@ -7542,7 +7570,7 @@
         if(photoVision.detections.length){
             const hint=document.createElement('div');
             hint.className='photoReviewOrderHint';
-            hint.textContent='SMART REVIEW — uncertain and commonly confused balls are kept together. Assigning one updates the order live.';
+            hint.textContent='SMART REVIEW — unassigned balls stay highlighted at the top. Assigned solids use full ball color; stripes use white + their color band.';
             box.appendChild(hint);
         }
 
@@ -7564,8 +7592,28 @@
             for(const d of group.items){
             const reviewKey=pvReviewKey(d);
             const row=document.createElement('div');
-            row.className='photoDetectionRow'+((photoVision.reviewFocusKeys||[]).includes(reviewKey)?' reviewFocus':'');
+            const unassigned=String(d.id)==='ignore';
+            row.className='photoDetectionRow'+(unassigned?' unassigned':'')+((photoVision.reviewFocusKeys||[]).includes(reviewKey)?' reviewFocus':'');
             row.dataset.reviewKey=reviewKey;
+
+            // Visual ball-language for fast scanning: solids fill the card with their
+            // ball color; stripes are white cards with a broad matching color band.
+            if(!unassigned){
+                const n=Number(d.id);
+                const base=n>8?n-8:n;
+                const colors={0:'#f4f4ef',1:'#f4d03f',2:'#2457c5',3:'#c83232',4:'#7040a8',5:'#e67e22',6:'#278a48',7:'#7b2635',8:'#111317'};
+                if(n===0){
+                    row.style.background='#f4f4ef';
+                    row.style.color='#111';
+                }else if(n>=9&&n<=15){
+                    const stripe=colors[base]||'#777';
+                    row.style.background='linear-gradient(to bottom,#f7f7f3 0%,#f7f7f3 27%,'+stripe+' 27%,'+stripe+' 73%,#f7f7f3 73%,#f7f7f3 100%)';
+                    row.style.color=(base===2||base===3||base===4||base===7)?'#fff':'#111';
+                }else{
+                    row.style.background=colors[n]||'#0d1217';
+                    row.style.color=(n===2||n===3||n===4||n===7||n===8)?'#fff':'#111';
+                }
+            }
             const dot=document.createElement('div'); dot.className='photoDetectionDot';
             if(d.thumb) {
                 const im=document.createElement('img');
