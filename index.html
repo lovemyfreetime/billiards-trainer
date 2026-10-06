@@ -6391,6 +6391,7 @@
         const w=crop.width,h=crop.height,px=ctx.getImageData(0,0,w,h).data;
         const cx=w*.5,cy=h*.5,r=Math.min(w,h)*.305,r2=r*r;
         let n=0,white=0,color=0,dark=0,neutral=0,bright=0,satSum=0,valSum=0;
+        let outerN=0,outerWhite=0,outerColor=0;
         let hueX=0,hueY=0,hueWeight=0,colorValSum=0,colorN=0;
         for(let y=0;y<h;y++) for(let x=0;x<w;x++){
             const dx=x+.5-cx,dy=y+.5-cy;if(dx*dx+dy*dy>r2)continue;
@@ -6402,6 +6403,11 @@
             if(sat>.29 && hi>.18)color++;
             if(hi<.23)dark++;
             if(sat<.16)neutral++;
+            if(dx*dx+dy*dy>r2*.42){
+                outerN++;
+                if(hi>.58 && sat<.22)outerWhite++;
+                if(sat>.29 && hi>.18)outerColor++;
+            }
 
             // Hue from HSV. Ignore near-neutral and extremely dark pixels because
             // they carry very little trustworthy color information.
@@ -6432,7 +6438,9 @@
             meanSat:satSum/n,meanVal:valSum/n,
             dominantHue,hueStrength,
             colorMeanVal:colorN?colorValSum/colorN:0,
-            colorPixels:colorN/n
+            colorPixels:colorN/n,
+            outerWhite:outerN?outerWhite/outerN:0,
+            outerColor:outerN?outerColor/outerN:0
         };
     }
     function pvHueDistanceDeg(a,b){
@@ -6458,8 +6466,8 @@
     function pvAppearanceAdjustedScores(combo,appearance) {
         const adjusted=combo.slice();
         const cueLike=appearance.white>.50 && appearance.color<.24 && appearance.meanSat<.25;
-        const stripeLike=appearance.white>.20 && appearance.color>.11;
-        const solidLike=appearance.color>.31 && appearance.white<.34;
+        const stripeLike=(appearance.outerWhite||0)>.17 && appearance.color>.10;
+        const solidLike=appearance.color>.23 && (appearance.outerWhite||0)<.14;
         const hue=appearance.dominantHue;
         const hueEvidence=Math.max(0,Math.min(1,
             ((appearance.colorPixels||appearance.color)-.06)/.22
@@ -6524,6 +6532,50 @@
             adjusted[i]=Math.max(0,Math.min(1,(adjusted[i]+bonus)*hardFactor));
         }
 
+        // Pool-player visual-family pass. The printed number is often the blurriest
+        // part of a broadcast frame, while the ball's color and solid/stripe pattern
+        // are obvious. Keep the correct visual family strongly represented so the
+        // one-of-each resolver can use table context to finish the job.
+        if(strongHue){
+            const visualTargets=[
+                {id:1,h:54},{id:2,h:215},{id:3,h:4},{id:4,h:285},
+                {id:5,h:30},{id:6,h:125},{id:7,h:348}
+            ];
+            const rack=photoVision.rackType||'auto';
+            const maxBall=pvRackMaxBall(rack==='auto'?'8ball':rack);
+            const setFloor=(ballId,floor)=>{
+                if(ballId>maxBall && (rack==='9ball'||rack==='10ball'))return;
+                const idx=PV_AI_CLASSES.findIndex((_,k)=>pvAIClassToBallId(k)===String(ballId));
+                if(idx>=0)adjusted[idx]=Math.max(adjusted[idx],Math.min(.72,floor));
+            };
+            for(const t of visualTargets){
+                const dist=pvHueDistanceDeg(hue,t.h);
+                if(dist>48)continue;
+                let familyFloor=.28 + hueEvidence*.28 + Math.max(0,48-dist)/48*.12;
+                if(solidLike)setFloor(t.id,familyFloor+(dist<24?.06:0));
+                if(stripeLike){
+                    const stripeId=t.id+8;
+                    if(stripeId<=15)setFloor(stripeId,familyFloor+(dist<24?.05:0));
+                }
+                // Red and maroon are neighboring families under camera white balance.
+                // Keep both 3/7 available; global uniqueness and the rest of the rack
+                // can then resolve which is which.
+                if((t.id===3||t.id===7) && dist<32 && solidLike){
+                    setFloor(t.id===3?7:3,Math.max(.34,familyFloor-.06));
+                }
+            }
+
+            // Black and cue ball do not belong to a hue family.
+            if(appearance.dark>.25 && appearance.color<.28){
+                const idx8=PV_AI_CLASSES.findIndex((_,k)=>pvAIClassToBallId(k)==='8');
+                if(idx8>=0)adjusted[idx8]=Math.max(adjusted[idx8],.54);
+            }
+            if(cueLike){
+                const idx0=PV_AI_CLASSES.indexOf('Cue-Ball');
+                if(idx0>=0)adjusted[idx0]=Math.max(adjusted[idx0],.56);
+            }
+        }
+
         // Specific cue-vs-stripe tie breaker.
         const cueIdx=PV_AI_CLASSES.indexOf('Cue-Ball');
         if(cueIdx>=0 && cueLike){
@@ -6561,7 +6613,7 @@
     }
     function pvAppearanceLooksStripe(a){
         a=a||{};
-        return (Number(a.white)||0)>.19 && (Number(a.color)||0)>.10 && (Number(a.meanSat)||0)>.16;
+        return (Number(a.outerWhite)||0)>.17 && (Number(a.color)||0)>.10 && (Number(a.meanSat)||0)>.14;
     }
     function pvInferRackType(list){
         // Be conservative. A late-game table can have only a few balls left, so AUTO
@@ -6699,12 +6751,13 @@
             // A clear relative winner such as 27% / 7% / 2% is useful evidence,
             // even though 27% by itself looks "low". Keep genuinely close calls
             // reviewable instead of forcing them.
-            const candidateUsable =
-                best>=.14 &&
-                (best>=.30 || bestShare>=.47 || bestGap>=.055 || (det>=.42 && bestShare>=.42));
+            const manualRack=['9ball','10ball','8ball'].includes(photoVision.rackType);
+            const candidateUsable = manualRack
+                ? (best>=.075 && (bestShare>=.24 || bestGap>=.012 || det>=.20))
+                : (best>=.14 && (best>=.30 || bestShare>=.47 || bestGap>=.055 || (det>=.42 && bestShare>=.42)));
 
             if(candidateUsable){
-                for(let oi=0;oi<Math.min(10,order.length);oi++){
+                for(let oi=0;oi<Math.min(manualRack?16:10,order.length);oi++){
                     const entry=order[oi],score=Number(entry.v)||0;
                     const id=pvAIClassToBallId(entry.i),bit=idBit.get(id);
                     if(bit===undefined)continue;
@@ -6719,7 +6772,7 @@
                     const absolutePart=score*.44;
                     const detectorPart=det*.10;
                     const rankPenalty=oi*.025;
-                    const utility=absolutePart+relativeBonus+detectorPart+marginBonus-rankPenalty-.245;
+                    const utility=absolutePart+relativeBonus+detectorPart+marginBonus-rankPenalty-(manualRack?.135:.245);
                     if(utility<=0)continue;
                     opts.push({id,bit,score,utility,rank:oi});
                 }
