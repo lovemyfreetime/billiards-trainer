@@ -3641,7 +3641,7 @@
                 if (initial && result.predictedRange >= .00254 && result.reboundAngle >= Math.PI / 180)
                     takeoff = { x:b.x, y:b.y, t:simTime };
                 else if (!initial)
-                    landings.push({ x:b.x, y:b.y, t:simTime, hop:landings.length + 1, reboundAngle:result.reboundAngle, nextRange:result.predictedRange });
+                    landings.push({ x:b.x, y:b.y, t:simTime, travel:b.travel, hop:landings.length + 1, reboundAngle:result.reboundAngle, nextRange:result.predictedRange });
             }
             if (result.predictedRange < .00254 && result.reboundAngle < Math.PI / 180) b.vz = 0;
             else if (!initial) bedBounceCount++;
