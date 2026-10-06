@@ -3704,6 +3704,16 @@
                     b.x += dx; b.y += dy;
                 }
             }
+            if (airborneMode) {
+                for (const b of B) {
+                    if (!b.active || canReachCushion(b)) continue;
+                    if (b.x < 0 || b.x > S.tableL || b.y < 0 || b.y > S.tableW) {
+                        b.active = false;
+                        b.vx = b.vy = b.vz = b.wx = b.wy = b.wz = 0;
+                        if (firstEvent === '—') firstEvent = `${b.n} jumped off table`;
+                    }
+                }
+            }
             // Simplified pocketing before cushion response.
             for (const b of B) {
                 const lowEnoughForPocket = !airborneMode || b.z <= R * 1.12;
@@ -9310,8 +9320,8 @@
         installHoldAdjust('followPlus', () => fineAdjust('follow', 0.01, -1, 1));
         installHoldAdjust('spinMinus', () => fineAdjust('sideSpin', -0.01, -1, 1));
         installHoldAdjust('spinPlus', () => fineAdjust('sideSpin', 0.01, -1, 1));
-        installHoldAdjust('elevMinus', () => fineAdjust('cueElevationDeg', -0.1, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg));
-        installHoldAdjust('elevPlus', () => fineAdjust('cueElevationDeg', 0.1, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg));
+        installHoldAdjust('elevMinus', () => fineAdjust('cueElevationDeg', -0.1, 0, cueElevationMax()));
+        installHoldAdjust('elevPlus', () => fineAdjust('cueElevationDeg', 0.1, 0, cueElevationMax()));
         let tipDrag = false;
         const tc = $('tipCanvas');
         tc.addEventListener('pointerdown', ev => { if (setTipFromPointer(ev)) {
@@ -9347,8 +9357,8 @@
         installHoldAdjust('follow2Plus', () => fineAdjust2('follow', 0.01, -1, 1));
         installHoldAdjust('spin2Minus', () => fineAdjust2('sideSpin', -0.01, -1, 1));
         installHoldAdjust('spin2Plus', () => fineAdjust2('sideSpin', 0.01, -1, 1));
-        installHoldAdjust('elev2Minus', () => fineAdjust2('cueElevationDeg', -0.1, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg));
-        installHoldAdjust('elev2Plus', () => fineAdjust2('cueElevationDeg', 0.1, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg));
+        installHoldAdjust('elev2Minus', () => fineAdjust2('cueElevationDeg', -0.1, 0, cueElevationMax()));
+        installHoldAdjust('elev2Plus', () => fineAdjust2('cueElevationDeg', 0.1, 0, cueElevationMax()));
         let tip2Drag = false;
         const tc2 = $('tipCanvas2');
         tc2.addEventListener('pointerdown', ev => { setActiveShot(2); if (setTip2FromPointer(ev)) {
