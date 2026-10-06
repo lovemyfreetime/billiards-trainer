@@ -5094,8 +5094,12 @@
                 continue;
             const hit = S.preview && S.preview.firstBallContact ? S.preview.firstBallContact.objId : -1;
             const col = b.id === 0 ? '#ffffff' : (b.id === hit ? '#ffd86b' : '#68b8ff');
-            pathPoly(p, map, col, isProjector ? 2.8 : 2.2, .92);
+            if (b.id === 0 && S.airbornePhysics && S.preview.airborne)
+                drawPhysicsPathWithAir(p, map, col, isProjector ? 2.8 : 2.2, .96);
+            else
+                pathPoly(p, map, col, isProjector ? 2.8 : 2.2, .92);
         }
+        if (S.airbornePhysics) drawAirborneTableOverlay(S.preview, map, 1, '#ffffff');
     }
     function drawShot2(map) {
         if (!S.shot2Enabled || !S.showShot2)
@@ -5111,8 +5115,13 @@
                 pathPoly(p, map, col, isProjector ? 2.5 : 2, .78);
             }
             const cp = s.preview.paths[0];
-            if (cp)
-                pathPoly(cp, map, '#00e5ff', isProjector ? 3 : 2.4, .95);
+            if (cp) {
+                if (S.airbornePhysics && s.preview.airborne)
+                    drawPhysicsPathWithAir(cp, map, '#00e5ff', isProjector ? 3 : 2.4, .98);
+                else
+                    pathPoly(cp, map, '#00e5ff', isProjector ? 3 : 2.4, .95);
+            }
+            if (S.airbornePhysics) drawAirborneTableOverlay(s.preview, map, 2, '#00e5ff');
         }
         // Always define the cue-stick direction.  The locked-guide branch
         // still needs it below to draw the cue itself.
