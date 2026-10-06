@@ -7485,6 +7485,7 @@
         if(key==='green')return {name:'GREEN FAMILY',ids:legal(['6','14'])};
         if(key==='black')return {name:'BLACK',ids:'8'};
         if(key==='unassigned')return {name:'UNASSIGNED / CHECK',ids:'ASSIGN THESE FIRST'};
+        if(key==='assigned')return {name:'ASSIGNED',ids:''};
         return {name:'OTHER / REVIEW',ids:''};
     }
     function pvReviewFamilyForDetection(d){
@@ -7515,52 +7516,37 @@
         return s;
     }
     function pvBuildSmartReviewGroups(list){
-        // Put every unresolved detection in one unmistakable block at the very top.
-        // Assigned balls stay grouped by color family underneath.
-        const unresolved=list.filter(d=>String(d.id)==='ignore');
-        const assigned=list.filter(d=>String(d.id)!=='ignore');
-        const focusKeys=new Set(photoVision.reviewFocusKeys||[]);
-        const focusFamily=photoVision.reviewFocusFamily||'';
-
-        unresolved.forEach(d=>pvReviewKey(d));
-        unresolved.sort((a,b)=>{
-            const af=focusKeys.has(pvReviewKey(a))?1:0,bf=focusKeys.has(pvReviewKey(b))?1:0;
-            if(af!==bf)return bf-af;
-            return pvReviewUrgency(b)-pvReviewUrgency(a);
-        });
-
+        // Stable manual-review order: unresolved detections are collected at the
+        // top, while assigned detections stay in their original detection order.
+        // Ball identity/color changes never regroup or reshuffle assigned rows.
+        const unresolved=[];
+        const assigned=[];
+        for(const d of list){
+            pvReviewKey(d);
+            (String(d.id)==='ignore'?unresolved:assigned).push(d);
+        }
         const output=[];
         if(unresolved.length){
             output.push({
                 family:'unassigned',
                 items:unresolved,
-                focused:unresolved.some(d=>focusKeys.has(pvReviewKey(d))),
-                score:Number.MAX_SAFE_INTEGER,
+                focused:false,
+                score:1,
                 unresolved:unresolved.length,
                 warning:unresolved.filter(d=>d.duplicateWarning||d.closeCall).length
             });
         }
-
-        const groups=new Map();
-        for(const d of assigned){
-            const family=pvReviewFamilyForDetection(d);
-            if(!groups.has(family))groups.set(family,[]);
-            groups.get(family).push(d);
-            pvReviewKey(d);
-        }
-        const assignedGroups=[...groups.entries()].map(([family,items])=>{
-            const warning=items.filter(d=>d.duplicateWarning||d.closeCall).length;
-            const focused=family===focusFamily || items.some(d=>focusKeys.has(pvReviewKey(d)));
-            const score=(focused?10000:0)+warning*85+items.reduce((s,d)=>s+pvReviewUrgency(d),0);
-            items.sort((a,b)=>{
-                const af=focusKeys.has(pvReviewKey(a))?1:0,bf=focusKeys.has(pvReviewKey(b))?1:0;
-                if(af!==bf)return bf-af;
-                return pvReviewUrgency(b)-pvReviewUrgency(a);
+        if(assigned.length){
+            output.push({
+                family:'assigned',
+                items:assigned,
+                focused:false,
+                score:0,
+                unresolved:0,
+                warning:0
             });
-            return {family,items,focused,score,unresolved:0,warning};
-        });
-        assignedGroups.sort((a,b)=>b.score-a.score);
-        return output.concat(assignedGroups);
+        }
+        return output;
     }
 
     function renderPhotoDetectionList() {
@@ -7570,14 +7556,14 @@
         if(photoVision.detections.length){
             const hint=document.createElement('div');
             hint.className='photoReviewOrderHint';
-            hint.textContent='SMART REVIEW — unassigned balls stay highlighted at the top. Assigned solids use full ball color; stripes use white + their color band.';
+            hint.textContent='REVIEW — unassigned balls stay highlighted at the top. Assigned balls stay in a stable order underneath.';
             box.appendChild(hint);
         }
 
         const groups=pvBuildSmartReviewGroups(photoVision.detections);
         for(const group of groups){
             const info=pvReviewFamilyLabel(group.family);
-            const showHeader=group.items.length>1 || group.unresolved || group.warning;
+            const showHeader=group.family==='unassigned';
             if(showHeader){
                 const head=document.createElement('div');
                 head.className='photoReviewGroup'+(group.focused?' focus':'');
@@ -7660,10 +7646,11 @@
                 }
                 d.id=next;d.manualIdentity=true;d.duplicateWarning=false;
 
-                // Keep the ball just edited and the ball it displaced together at
-                // the top of the review pane, inside their common confusion family.
-                photoVision.reviewFocusKeys=[pvReviewKey(d),...(other?[pvReviewKey(other)]:[])];
-                photoVision.reviewFocusFamily=pvReviewFamilyForDetection(d);
+                // Do not regroup assigned balls after an edit. If this assignment
+                // displaced another ball, that newly-unassigned row naturally moves
+                // to the unresolved block at the top.
+                photoVision.reviewFocusKeys=[];
+                photoVision.reviewFocusFamily='';
                 renderPhotoDetectionList();renderPhotoAnalyzer();
 
                 requestAnimationFrame(()=>{
