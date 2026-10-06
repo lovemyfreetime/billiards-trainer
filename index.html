@@ -1989,8 +1989,10 @@
                 if (!S.shot2 || typeof S.shot2 !== 'object')
                     S.shot2 = defaultState().shot2;
                 S.shot2 = Object.assign(Object.assign(Object.assign({}, defaultState().shot2), S.shot2), { freeAim: Object.assign(Object.assign({}, defaultState().shot2.freeAim), (S.shot2.freeAim || {})), preview: null });
-                S.cueElevationDeg = clamp(Number(S.cueElevationDeg) || PHYSICS_MODEL.defaultCueElevationDeg, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg);
-                S.shot2.cueElevationDeg = clamp(Number(S.shot2.cueElevationDeg) || PHYSICS_MODEL.defaultCueElevationDeg, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg);
+                const savedElevation1 = Number(S.cueElevationDeg);
+                const savedElevation2 = Number(S.shot2.cueElevationDeg);
+                S.cueElevationDeg = clamp(Number.isFinite(savedElevation1) ? savedElevation1 : PHYSICS_MODEL.defaultCueElevationDeg, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg);
+                S.shot2.cueElevationDeg = clamp(Number.isFinite(savedElevation2) ? savedElevation2 : PHYSICS_MODEL.defaultCueElevationDeg, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg);
                 S.cueEndmassRatio = clamp(Number(S.cueEndmassRatio) || PHYSICS_MODEL.defaultCueEndmassRatio, 8, 60);
                 if (!S.showAngleLockControl) {
                     S.angleLock = false;
