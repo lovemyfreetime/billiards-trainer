@@ -6464,7 +6464,7 @@
         const hueEvidence=Math.max(0,Math.min(1,
             ((appearance.colorPixels||appearance.color)-.06)/.22
         ))*Math.max(0,Math.min(1,((appearance.hueStrength||0)-.18)/.55));
-        const strongHue=hueEvidence>.38 && Number.isFinite(hue);
+        const strongHue=hueEvidence>.22 && Number.isFinite(hue);
 
         for(let i=0;i<adjusted.length;i++){
             const id=pvAIClassToBallId(i);let bonus=0,hardFactor=1;
@@ -6484,18 +6484,19 @@
                 const family=pvPoolColorFamily(num);
                 if(family && strongHue){
                     const dist=pvHueDistanceDeg(hue,family.hue);
-                    if(dist<18) bonus+=.14*hueEvidence;
-                    else if(dist<34) bonus+=.075*hueEvidence;
-                    else if(dist>95) hardFactor*=Math.max(.20,1-.78*hueEvidence);
-                    else if(dist>65) hardFactor*=Math.max(.38,1-.58*hueEvidence);
-                    else if(dist>45) bonus-=.07*hueEvidence;
+                    if(dist<20) bonus+=.055+.22*hueEvidence;
+                    else if(dist<38) bonus+=.025+.11*hueEvidence;
+                    else if(dist>95) hardFactor*=Math.max(.08,1-.95*hueEvidence);
+                    else if(dist>65) hardFactor*=Math.max(.20,1-.78*hueEvidence);
+                    else if(dist>45) bonus-=.11*hueEvidence;
 
-                    // If color evidence is exceptionally clean, make the matching
-                    // solid/stripe pair viable even when the printed number is too
-                    // blurry for the neural classifier to read.
-                    if(hueEvidence>.58 && dist<24){
+                    // Family-first pool logic: if the ball is visibly one color,
+                    // keep that color pair alive even when a blurry number circle
+                    // fools the neural classifier. White coverage then separates
+                    // solid from stripe.
+                    if(hueEvidence>.32 && dist<26){
                         const formMatch=(num>=9&&stripeLike)||(num<=7&&solidLike);
-                        const floor=formMatch?.34:.285;
+                        const floor=formMatch?.42:.34;
                         adjusted[i]=Math.max(adjusted[i],floor);
                     }
 
@@ -6570,13 +6571,14 @@
 
         let stripeLike=0,strong10=0,strongAbove10=0;
         for(const d of list){
-            if(pvAppearanceLooksStripe(d.appearance))stripeLike++;
+            const looksStripe=pvAppearanceLooksStripe(d.appearance);
+            if(looksStripe)stripeLike++;
             const top=d.aiOrder?.[0],second=d.aiOrder?.[1];
             if(!top)continue;
             const id=Number(pvAIClassToBallId(top.i));
             const gap=(Number(top.v)||0)-(Number(second?.v)||0);
-            if(id===10 && top.v>=.36 && gap>.02)strong10++;
-            if(id>=11 && id<=15 && top.v>=.40 && gap>.035)strongAbove10++;
+            if(looksStripe && id===10 && top.v>=.34 && gap>.025)strong10++;
+            if(looksStripe && id>=11 && id<=15 && top.v>=.38 && gap>.035)strongAbove10++;
         }
 
         // Three or more convincing stripes cannot be a normal 9- or 10-ball set.
@@ -6590,7 +6592,10 @@
             return {mode:'10ball',confidence:.78};
 
         // Nine-ball has only one stripe: the 9. On a reasonably populated table,
-        // mostly-solid visual evidence is a strong clue.
+        // mostly-solid visual evidence is a strong clue. This also covers a normal
+        // mid-rack state where one or more balls have already been pocketed.
+        if(n>=6 && n<=10 && strongAbove10===0 && strong10===0 && stripeLike<=1)
+            return {mode:'9ball',confidence:.84};
         if(n>=6 && strongAbove10===0 && strong10===0 && stripeLike<=1)
             return {mode:'9ball',confidence:.76};
 
@@ -6670,94 +6675,128 @@
         return list;
     }
     function pvResolveUniqueAI(list) {
-        // Solve all ball identities together instead of making 16 independent
-        // decisions. Each legal ball identity can be used once, and weak detections
-        // can remain unassigned rather than stealing an identity from a stronger one.
+        // Solve all identities together so each physical ball number is used once.
+        // Four-way rotation averaging makes absolute neural percentages conservative,
+        // so use BOTH absolute score and relative dominance over the alternatives.
         const ids=Array.from({length:16},(_,i)=>String(i));
         const idBit=new Map(ids.map((id,i)=>[id,i]));
         const n=list.length,MAX=1<<16,NEG=-1e15;
         let prev=new Float64Array(MAX);prev.fill(NEG);prev[0]=0;
         const parents=[],choices=[];
+
         for(let di=0;di<n;di++){
-            const d=list[di],best=d.aiOrder[0]?.v||0;
+            const d=list[di],order=d.aiOrder||[];
+            const best=Number(order[0]?.v)||0,second=Number(order[1]?.v)||0,third=Number(order[2]?.v)||0;
+            const topSum=Math.max(.001,best+second+third);
+            const bestShare=best/topSum;
+            const bestGap=best-second;
+            const det=Math.max(0,Math.min(1,Number(d.detConfidence)||0));
             const next=new Float64Array(MAX);next.fill(NEG);
             const par=new Int32Array(MAX);par.fill(-1);
             const choice=new Int8Array(MAX);choice.fill(-2);
             const opts=[];
-            if(best>=.30){
-                for(let oi=0;oi<Math.min(9,d.aiOrder.length);oi++){
-                    const c=d.aiOrder[oi],id=pvAIClassToBallId(c.i),bit=idBit.get(id);
+
+            // A clear relative winner such as 27% / 7% / 2% is useful evidence,
+            // even though 27% by itself looks "low". Keep genuinely close calls
+            // reviewable instead of forcing them.
+            const candidateUsable =
+                best>=.14 &&
+                (best>=.30 || bestShare>=.47 || bestGap>=.055 || (det>=.42 && bestShare>=.42));
+
+            if(candidateUsable){
+                for(let oi=0;oi<Math.min(10,order.length);oi++){
+                    const entry=order[oi],score=Number(entry.v)||0;
+                    const id=pvAIClassToBallId(entry.i),bit=idBit.get(id);
                     if(bit===undefined)continue;
-                    if(c.v<Math.max(.17,best*.46))continue;
-                    const combinedScore=c.v*.88+(d.detConfidence||0)*.12;
-                    // Assignment must earn its way above a modest review threshold.
-                    const utility=combinedScore-.31;
+
+                    const share=score/topSum;
+                    // Keep secondary choices available for the global one-of-each
+                    // solver, but only if they have meaningful support.
+                    if(oi>0 && score<Math.max(.055,best*.20) && share<.10)continue;
+
+                    const marginBonus=oi===0?Math.max(0,bestGap)*.60:0;
+                    const relativeBonus=share*.36;
+                    const absolutePart=score*.44;
+                    const detectorPart=det*.10;
+                    const rankPenalty=oi*.025;
+                    const utility=absolutePart+relativeBonus+detectorPart+marginBonus-rankPenalty-.245;
                     if(utility<=0)continue;
-                    opts.push({id,bit,score:c.v,utility,rank:oi});
+                    opts.push({id,bit,score,utility,rank:oi});
                 }
             }
+
             for(let mask=0;mask<MAX;mask++){
                 const base=prev[mask];if(base<=NEG/2)continue;
-                // Skip this candidate / leave it Unassigned.
                 if(base>next[mask]){next[mask]=base;par[mask]=mask;choice[mask]=-1;}
                 for(const o of opts){
-                    const bm=1<<o.bit;if(mask&bm)continue;const nm=mask|bm,ns=base+o.utility;
+                    const bm=1<<o.bit;if(mask&bm)continue;
+                    const nm=mask|bm,ns=base+o.utility;
                     if(ns>next[nm]){next[nm]=ns;par[nm]=mask;choice[nm]=o.bit;}
                 }
             }
             parents.push(par);choices.push(choice);prev=next;
         }
-        let mask=0,bestTotal=prev[0];for(let m=1;m<MAX;m++)if(prev[m]>bestTotal){bestTotal=prev[m];mask=m;}
+
+        let mask=0,bestTotal=prev[0];
+        for(let m=1;m<MAX;m++)if(prev[m]>bestTotal){bestTotal=prev[m];mask=m;}
         const assigned=new Array(n).fill(null);
         for(let di=n-1;di>=0;di--){
             const ch=choices[di][mask],pm=parents[di][mask];
             if(ch>=0)assigned[di]=String(ch);
             mask=pm>=0?pm:mask;
         }
+
         for(let di=0;di<n;di++){
             const d=list[di],rawTop=d.aiRawOrder?.[0]||null,adjTop=d.aiOrder?.[0]||null,chosen=assigned[di];
             d.rawTopId=rawTop?pvAIClassToBallId(rawTop.i):'ignore';d.rawTopScore=rawTop?.v||0;
             d.adjustedTopId=adjTop?pvAIClassToBallId(adjTop.i):'ignore';d.adjustedTopScore=adjTop?.v||0;
             const second=d.aiOrder?.[1]||null;d.secondId=second?pvAIClassToBallId(second.i):'ignore';d.secondScore=second?.v||0;
+
+            const top3=(d.aiOrder||[]).slice(0,3);
+            const sum3=Math.max(.001,top3.reduce((s,x)=>s+(Number(x.v)||0),0));
+            const dominance=(Number(adjTop?.v)||0)/sum3;
+            d.relativeIdentityConfidence=dominance;
+
             if(chosen===null){
-                d.id='ignore';d.identityConfidence=adjTop?.v||0;d.confidence=Math.min(.49,Math.max(.20,(adjTop?.v||0)*.78+(d.detConfidence||0)*.22));
-                d.constraintAdjusted=false;d.appearanceAdjusted=d.adjustedTopId!==d.rawTopId;d.duplicateWarning=true;d.reviewReason='weak';continue;
+                d.id='ignore';d.identityConfidence=adjTop?.v||0;
+                d.confidence=Math.min(.49,Math.max(.20,(adjTop?.v||0)*.62+(d.detConfidence||0)*.18+dominance*.20));
+                d.constraintAdjusted=false;d.appearanceAdjusted=d.adjustedTopId!==d.rawTopId;
+                d.duplicateWarning=true;d.reviewReason='weak';continue;
             }
-            const chosenEntry=d.aiOrder.find(c=>pvAIClassToBallId(c.i)===chosen);
+
+            const chosenEntry=d.aiOrder.find(x=>pvAIClassToBallId(x.i)===chosen);
             const score=chosenEntry?.v||0,rank=Math.max(0,d.aiOrder.indexOf(chosenEntry));
             d.id=chosen;d.identityConfidence=score;
             d.appearanceAdjusted=d.adjustedTopId!==d.rawTopId;
             d.constraintAdjusted=chosen!==d.adjustedTopId;
-            d.closeCall=((adjTop?.v||0)-(second?.v||0))<.11;
-            d.duplicateWarning=d.appearanceAdjusted||d.constraintAdjusted||d.closeCall||score<.58;
+            const gap=(Number(adjTop?.v)||0)-(Number(second?.v)||0);
+            d.closeCall=gap<.055 && dominance<.58;
+            d.duplicateWarning=d.appearanceAdjusted||d.constraintAdjusted||d.closeCall||(score<.24&&dominance<.55);
             d.reviewReason=d.constraintAdjusted?'global':(d.appearanceAdjusted?'appearance':(d.closeCall?'close':''));
-            d.confidence=Math.max(.20,Math.min(.99,score*.86+(d.detConfidence||0)*.14-(rank>0?.025:0)));
+            d.confidence=Math.max(.20,Math.min(.99,
+                score*.55+(d.detConfidence||0)*.15+dominance*.30-(rank>0?.025:0)
+            ));
         }
 
-        // If the global assignment still found no cue ball, use the photo itself as
-        // a final sanity check. The real cue ball is usually the most white/neutral
-        // ball on the table. Only rescue a stripe/unassigned candidate, and only
-        // when its appearance is clearly cue-like. This catches broadcast frames
-        // where a small shaded cue ball is otherwise mistaken for 15/14/etc.
+        // Final cue-ball sanity check.
         if(!list.some(d=>String(d.id)==='0')){
             const cueRank=list.map((d,idx)=>{
                 const a=d.appearance||{};
-                const cueEntry=(d.aiOrder||[]).find(c=>pvAIClassToBallId(c.i)==='0');
-                const white=Number(a.white)||0, color=Number(a.color)||0, sat=Number(a.meanSat)||0, bright=Number(a.bright)||0;
-                const visual=white*1.18 + bright*.22 - color*.82 - sat*.34;
+                const cueEntry=(d.aiOrder||[]).find(x=>pvAIClassToBallId(x.i)==='0');
+                const white=Number(a.white)||0,color=Number(a.color)||0,sat=Number(a.meanSat)||0,bright=Number(a.bright)||0;
+                const visual=white*1.18+bright*.22-color*.82-sat*.34;
                 const ai=cueEntry?.v||0;
                 const cur=String(d.id),num=Number(cur);
-                const eligible=(cur==='ignore') || (Number.isFinite(num)&&num>=9&&num<=15);
+                const eligible=(cur==='ignore')||(Number.isFinite(num)&&num>=9&&num<=15);
                 return {d,idx,visual,ai,eligible,white,color,sat};
-            }).filter(r=>r.eligible).sort((a,b)=>(b.visual+b.ai*.35)-(a.visual+a.ai*.35));
-            const best=cueRank[0],second=cueRank[1];
+            }).filter(x=>x.eligible).sort((a,b)=>(b.visual+b.ai*.35)-(a.visual+a.ai*.35));
+            const best=cueRank[0],secondCue=cueRank[1];
             if(best){
-                const gap=(best.visual+best.ai*.35)-((second?.visual||-1)+(second?.ai||0)*.35);
-                const cueLike=best.white>.43 && best.color<.30 && best.sat<.31;
-                if(cueLike && (best.visual>.34 || best.ai>.20) && (gap>.055 || best.ai>.28)){
+                const gap=(best.visual+best.ai*.35)-((secondCue?.visual||-1)+(secondCue?.ai||0)*.35);
+                const cueLike=best.white>.43&&best.color<.30&&best.sat<.31;
+                if(cueLike&&(best.visual>.34||best.ai>.20)&&(gap>.055||best.ai>.28)){
                     const d=best.d;
-                    d.id='0';
-                    d.identityConfidence=Math.max(d.identityConfidence||0,best.ai);
+                    d.id='0';d.identityConfidence=Math.max(d.identityConfidence||0,best.ai);
                     d.constraintAdjusted=true;d.appearanceAdjusted=true;d.cueRescued=true;
                     d.duplicateWarning=true;d.reviewReason='cue';
                     d.confidence=Math.max(.52,Math.min(.92,(best.ai*.62)+(Math.max(0,Math.min(1,best.visual))*.38)));
