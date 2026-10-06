@@ -6519,8 +6519,10 @@
         }
 
         // Three or more convincing stripes cannot be a normal 9- or 10-ball set.
-        if(strongAbove10>=1 || stripeLike>=3)
-            return {mode:'8ball',confidence:Math.min(.94,.78+strongAbove10*.08+Math.max(0,stripeLike-2)*.04)};
+        // Do not let one mistaken 10/11/12-style AI read force the whole table into
+        // 8-ball mode; require multiple high-ball clues or matching stripe evidence.
+        if(stripeLike>=3 || strongAbove10>=2 || (strongAbove10>=1 && stripeLike>=2))
+            return {mode:'8ball',confidence:Math.min(.94,.76+strongAbove10*.07+Math.max(0,stripeLike-2)*.05)};
 
         // Ten-ball can show two stripes (9 and 10). Require a positive 10-ball clue.
         if(n>=6 && strong10>=1 && strongAbove10===0 && stripeLike<=2)
@@ -6587,6 +6589,21 @@
                     d.duplicateWarning=true;
                     d.confidence=Math.min(.49,Number(d.confidence)||.49);
                 }
+            }
+        }
+        // Re-check uniqueness after impossible stripe numbers are folded into their
+        // legal color partners (for example 10→2 in a forced 9-ball analysis).
+        const seen=new Map();
+        for(const d of list){
+            if(String(d.id)==='ignore')continue;
+            const id=String(d.id),score=Number(d.confidence)||0;
+            if(!seen.has(id)){seen.set(id,d);continue;}
+            const prev=seen.get(id),prevScore=Number(prev.confidence)||0;
+            if(score>prevScore){
+                prev.id='ignore';prev.duplicateWarning=true;prev.confidence=Math.min(.49,prevScore);
+                seen.set(id,d);
+            }else{
+                d.id='ignore';d.duplicateWarning=true;d.confidence=Math.min(.49,score);
             }
         }
         return list;
