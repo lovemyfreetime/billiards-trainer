@@ -3922,6 +3922,107 @@
             } : null,
             finalBalls: B.map(b => ({ id: b.id, x: b.x, y: b.y, z: b.z, active: b.active })) };
     }
+    const airborneGuidanceCache = new Map();
+    function clearanceForBall(preview, ballId) {
+        const a = preview && preview.airborne;
+        if (!a || !Array.isArray(a.clearances)) return null;
+        return a.clearances.find(q => q.id === ballId) || null;
+    }
+    function airborneGuidanceKey(which, ballId) {
+        const s = which === 2 ? ensureShot2() : S;
+        const shot = which === 2
+            ? [s.x,s.y,s.freeAim && s.freeAim.x,s.freeAim && s.freeAim.y,s.speed,s.follow,s.sideSpin]
+            : [cueBall() && cueBall().x,cueBall() && cueBall().y,S.freeAim && S.freeAim.x,S.freeAim && S.freeAim.y,S.speed,S.follow,S.sideSpin];
+        const balls = S.balls.filter(b => b.active && !b.marker).map(b => [b.id,+b.x.toFixed(4),+b.y.toFixed(4)]);
+        return JSON.stringify([which,ballId,shot,balls,
+            +S.ballR.toFixed(5),+S.muSlide.toFixed(4),+S.muRoll.toFixed(4),
+            +S.tableRest.toFixed(3),+S.bedImpactMu.toFixed(3),+S.cueEndmassRatio.toFixed(3)]);
+    }
+    function previewAtElevation(which, deg) {
+        const angle = clamp(deg, 0, PHYSICS_MODEL.maxAirborneCueElevationDeg);
+        if (which === 2) {
+            const s = ensureShot2(), old = s.cueElevationDeg;
+            s.cueElevationDeg = angle;
+            let p = null;
+            try { p = simulateShot2(); }
+            finally { s.cueElevationDeg = old; }
+            return p;
+        }
+        const old = S.cueElevationDeg;
+        S.cueElevationDeg = angle;
+        let p = null;
+        try { p = simulate(false); }
+        finally { S.cueElevationDeg = old; }
+        return p;
+    }
+    function approximateMinimumClearElevation(which, ballId) {
+        const key = airborneGuidanceKey(which, ballId);
+        if (airborneGuidanceCache.has(key)) return airborneGuidanceCache.get(key);
+        const targetMargin = .0015; // 1.5 mm practical visual/simulation margin
+        const marginAt = deg => {
+            const p = previewAtElevation(which, deg);
+            const q = clearanceForBall(p, ballId);
+            // If the trajectory no longer enters the obstacle's neighborhood,
+            // it is also a physically clear route.
+            return q ? q.margin : .05;
+        };
+        let lo = 0, hi = PHYSICS_MODEL.maxAirborneCueElevationDeg;
+        const m0 = marginAt(lo);
+        let result = null;
+        if (m0 >= targetMargin) {
+            result = { angle:0, margin:m0, feasible:true };
+        }
+        else {
+            const mh = marginAt(hi);
+            if (mh < targetMargin) {
+                result = { angle:null, margin:mh, feasible:false };
+            }
+            else {
+                for (let i=0;i<8;i++) {
+                    const mid = (lo + hi) / 2;
+                    if (marginAt(mid) >= targetMargin) hi = mid;
+                    else lo = mid;
+                }
+                result = { angle:hi, margin:marginAt(hi), feasible:true };
+            }
+        }
+        if (airborneGuidanceCache.size > 48) airborneGuidanceCache.clear();
+        airborneGuidanceCache.set(key, result);
+        return result;
+    }
+    function cuePathBend(preview, which) {
+        const p = preview && preview.paths && preview.paths[0];
+        if (!p || p.length < 2) return null;
+        const start = p[0];
+        const d = which === 2 ? shot2StrikeDirection() : strikeDirection();
+        const stopT = preview.firstBallContact && Number.isFinite(preview.firstBallContact.t)
+            ? preview.firstBallContact.t : Infinity;
+        let maxAbs = 0, signedAtEnd = 0, travel = 0, prev = start;
+        for (const q of p) {
+            if (q.t > stopT + .012) break;
+            travel += Math.hypot(q.x - prev.x, q.y - prev.y);
+            const off = { x:q.x-start.x, y:q.y-start.y };
+            const lat = cross(d, off);
+            if (Math.abs(lat) >= maxAbs) { maxAbs = Math.abs(lat); signedAtEnd = lat; }
+            prev = q;
+        }
+        return { signed:signedAtEnd, magnitude:maxAbs, travel };
+    }
+    function attachAirborneGuidance(which, preview) {
+        if (!preview || !preview.airborne) return;
+        const a = preview.airborne;
+        const primary = a.primaryClearance;
+        let minClear = null;
+        if (primary) minClear = approximateMinimumClearElevation(which, primary.id);
+        const bend = cuePathBend(preview, which);
+        a.guidance = {
+            primary,
+            minClear,
+            bend,
+            currentElevation: which === 2 ? ensureShot2().cueElevationDeg : S.cueElevationDeg,
+            currentSideSpin: which === 2 ? ensureShot2().sideSpin : S.sideSpin
+        };
+    }
     function captureShot2GhostLock() {
         if (!S.shot2Enabled)
             return null;
@@ -4021,6 +4122,7 @@
     function refreshPreview() {
         S.preview = simulate(false);
         S.firstEvent = S.preview.firstEvent;
+        if (S.airbornePhysics) attachAirborneGuidance(1, S.preview);
         if (S.shot2Enabled) {
             const s2 = ensureShot2();
             syncShot2EndpointFromShot1();
@@ -4039,6 +4141,7 @@
                     s2.preview = simulateShot2();
                 }
             }
+            if (S.airbornePhysics) attachAirborneGuidance(2, s2.preview);
         }
         updateMetrics();
         drawTipControl();
