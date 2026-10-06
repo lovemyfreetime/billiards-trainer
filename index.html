@@ -5094,7 +5094,7 @@
             const c2 = s.preview && s.preview.firstBallContact;
             const pf2 = powerFeelForSpeed(s.speed);
             $('tip2Text').textContent = tipDescriptionValues(s.sideSpin, s.follow);
-            $('squirt2Text').textContent = (cueSquirtAngleFor(s.sideSpin) * 180 / Math.PI).toFixed(2) + '°';
+            $('squirt2Text').textContent = (cueSquirtAngleFor(s.sideSpin, s.follow, S.cueEndmassRatio) * 180 / Math.PI).toFixed(2) + '°';
             $('powerFeel2Text').textContent = pf2.diamonds.toFixed(1) + ' diamonds · ' + formatLagFraction(pf2.lagFraction);
             const pa2 = teachingPowerState(2);
             if (pa2.mode === 'ball') {
