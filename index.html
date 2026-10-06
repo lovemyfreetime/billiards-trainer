@@ -6249,61 +6249,154 @@
         tx.imageSmoothingEnabled=true;tx.imageSmoothingQuality='high';tx.drawImage(source,0,0,size,size);return tc.toDataURL('image/jpeg',.90);
     }
     function pvAnalyzeBallAppearance(crop) {
-        // Only inspect the central circular portion of the padded crop. This keeps
-        // table cloth / rail color from influencing the solid/stripe/cue tie-breaker.
+        // Inspect only the center of the padded crop so table cloth / rails do not
+        // dominate the decision. In addition to white/dark/color coverage, measure
+        // the dominant saturated hue. That gives us a simple "common-sense" filter:
+        // a clearly red/orange ball should not be allowed to win as blue or black.
         const ctx=crop.getContext('2d',{willReadFrequently:true});
         const w=crop.width,h=crop.height,px=ctx.getImageData(0,0,w,h).data;
         const cx=w*.5,cy=h*.5,r=Math.min(w,h)*.305,r2=r*r;
         let n=0,white=0,color=0,dark=0,neutral=0,bright=0,satSum=0,valSum=0;
+        let hueX=0,hueY=0,hueWeight=0,colorValSum=0,colorN=0;
         for(let y=0;y<h;y++) for(let x=0;x<w;x++){
             const dx=x+.5-cx,dy=y+.5-cy;if(dx*dx+dy*dy>r2)continue;
             const i=(y*w+x)*4,R=px[i]/255,G=px[i+1]/255,B=px[i+2]/255;
-            const hi=Math.max(R,G,B),lo=Math.min(R,G,B),sat=(hi-lo)/Math.max(.05,hi);
+            const hi=Math.max(R,G,B),lo=Math.min(R,G,B),d=hi-lo,sat=d/Math.max(.05,hi);
             n++;satSum+=sat;valSum+=hi;
             if(hi>.58 && sat<.22)white++;
             if(hi>.74 && sat<.20)bright++;
             if(sat>.29 && hi>.18)color++;
             if(hi<.23)dark++;
             if(sat<.16)neutral++;
+
+            // Hue from HSV. Ignore near-neutral and extremely dark pixels because
+            // they carry very little trustworthy color information.
+            if(sat>.28 && hi>.16 && d>.025){
+                let hue=0;
+                if(hi===R) hue=((G-B)/d)%6;
+                else if(hi===G) hue=(B-R)/d+2;
+                else hue=(R-G)/d+4;
+                hue*=60;if(hue<0)hue+=360;
+                const wt=sat*(.30+.70*hi);
+                const rad=hue*Math.PI/180;
+                hueX+=Math.cos(rad)*wt;
+                hueY+=Math.sin(rad)*wt;
+                hueWeight+=wt;
+                colorValSum+=hi;
+                colorN++;
+            }
         }
         n=Math.max(1,n);
-        return {white:white/n,bright:bright/n,color:color/n,dark:dark/n,neutral:neutral/n,meanSat:satSum/n,meanVal:valSum/n};
+        let dominantHue=null,hueStrength=0;
+        if(hueWeight>0){
+            dominantHue=Math.atan2(hueY,hueX)*180/Math.PI;
+            if(dominantHue<0)dominantHue+=360;
+            hueStrength=Math.min(1,Math.hypot(hueX,hueY)/hueWeight);
+        }
+        return {
+            white:white/n,bright:bright/n,color:color/n,dark:dark/n,neutral:neutral/n,
+            meanSat:satSum/n,meanVal:valSum/n,
+            dominantHue,hueStrength,
+            colorMeanVal:colorN?colorValSum/colorN:0,
+            colorPixels:colorN/n
+        };
+    }
+    function pvHueDistanceDeg(a,b){
+        if(!Number.isFinite(a)||!Number.isFinite(b))return 180;
+        let d=Math.abs(a-b)%360;
+        return Math.min(d,360-d);
+    }
+    function pvPoolColorFamily(num){
+        // Standard American pool-ball color families. Stripe balls share the same
+        // base color as their solid partner, so color narrows identity to a pair.
+        const base=num>8?num-8:num;
+        const targets={
+            1:{name:'yellow',hue:54},
+            2:{name:'blue',hue:215},
+            3:{name:'red',hue:2},
+            4:{name:'purple',hue:285},
+            5:{name:'orange',hue:30},
+            6:{name:'green',hue:125},
+            7:{name:'maroon',hue:350}
+        };
+        return targets[base]||null;
     }
     function pvAppearanceAdjustedScores(combo,appearance) {
         const adjusted=combo.slice();
         const cueLike=appearance.white>.50 && appearance.color<.24 && appearance.meanSat<.25;
         const stripeLike=appearance.white>.20 && appearance.color>.11;
         const solidLike=appearance.color>.31 && appearance.white<.34;
+        const hue=appearance.dominantHue;
+        const hueEvidence=Math.max(0,Math.min(1,
+            ((appearance.colorPixels||appearance.color)-.06)/.22
+        ))*Math.max(0,Math.min(1,((appearance.hueStrength||0)-.18)/.55));
+        const strongHue=hueEvidence>.38 && Number.isFinite(hue);
+
         for(let i=0;i<adjusted.length;i++){
-            const id=pvAIClassToBallId(i);let bonus=0;
+            const id=pvAIClassToBallId(i);let bonus=0,hardFactor=1;
             if(id==='0'){
-                bonus += Math.max(-.055,Math.min(.085,(appearance.white-.40)*.17));
-                if(appearance.color>.30) bonus-=Math.min(.06,(appearance.color-.30)*.18);
-                if(cueLike) bonus+=.035;
+                bonus += Math.max(-.075,Math.min(.10,(appearance.white-.40)*.19));
+                if(appearance.color>.26) bonus-=Math.min(.12,(appearance.color-.26)*.30);
+                if(cueLike) bonus+=.05;
+                // A strongly saturated colored ball is not the cue ball.
+                if(strongHue && appearance.color>.24) hardFactor*=.52;
             } else if(id==='8'){
-                bonus += Math.max(-.035,Math.min(.065,(appearance.dark-.20)*.16));
+                bonus += Math.max(-.05,Math.min(.09,(appearance.dark-.20)*.20));
+                // Black should be dark/neutral. A clearly saturated, reasonably
+                // bright colored ball is almost certainly not the 8.
+                if(strongHue && appearance.color>.22 && appearance.colorMeanVal>.30) hardFactor*=.46;
             } else {
                 const num=+id;
+                const family=pvPoolColorFamily(num);
+                if(family && strongHue){
+                    const dist=pvHueDistanceDeg(hue,family.hue);
+                    if(dist<18) bonus+=.14*hueEvidence;
+                    else if(dist<34) bonus+=.075*hueEvidence;
+                    else if(dist>95) hardFactor*=Math.max(.20,1-.78*hueEvidence);
+                    else if(dist>65) hardFactor*=Math.max(.38,1-.58*hueEvidence);
+                    else if(dist>45) bonus-=.07*hueEvidence;
+
+                    // If color evidence is exceptionally clean, make the matching
+                    // solid/stripe pair viable even when the printed number is too
+                    // blurry for the neural classifier to read.
+                    if(hueEvidence>.58 && dist<24){
+                        const formMatch=(num>=9&&stripeLike)||(num<=7&&solidLike);
+                        const floor=formMatch?.34:.285;
+                        adjusted[i]=Math.max(adjusted[i],floor);
+                    }
+
+                    // Red and maroon share similar hue; brightness helps separate
+                    // 3/11 from 7/15 without making it a hard rule.
+                    const base=num>8?num-8:num;
+                    if(base===3){
+                        if(appearance.colorMeanVal>.55) bonus+=.025;
+                        else if(appearance.colorMeanVal<.36) bonus-=.035;
+                    } else if(base===7){
+                        if(appearance.colorMeanVal<.52) bonus+=.035;
+                        else if(appearance.colorMeanVal>.72) bonus-=.035;
+                    }
+                }
+
                 if(num>=9){
-                    if(stripeLike) bonus+=Math.min(.045,(appearance.white-.18)*.08+(appearance.color-.10)*.045);
-                    if(cueLike) bonus-=.055;
-                    if(appearance.white<.10) bonus-=.025;
+                    if(stripeLike) bonus+=Math.min(.075,(appearance.white-.18)*.12+(appearance.color-.10)*.06);
+                    if(cueLike) bonus-=.075;
+                    if(appearance.white<.08) bonus-=.045;
                 } else if(num>=1 && num<=7){
-                    if(solidLike) bonus+=Math.min(.04,(appearance.color-.28)*.08);
-                    if(appearance.white>.55) bonus-=.035;
+                    if(solidLike) bonus+=Math.min(.065,(appearance.color-.28)*.11);
+                    if(appearance.white>.53) bonus-=.065;
                 }
             }
-            adjusted[i]=Math.max(0,Math.min(1,adjusted[i]+bonus));
+            adjusted[i]=Math.max(0,Math.min(1,(adjusted[i]+bonus)*hardFactor));
         }
-        // Specific cue-vs-stripe tie breaker. It is intentionally modest: it only
-        // changes a close call and cannot overpower a confident numbered-ball read.
+
+        // Specific cue-vs-stripe tie breaker.
         const cueIdx=PV_AI_CLASSES.indexOf('Cue-Ball');
         if(cueIdx>=0 && cueLike){
             let bestStripe=0;
             for(let i=0;i<adjusted.length;i++){
                 const id=+pvAIClassToBallId(i);if(id>=9&&id<=15)bestStripe=Math.max(bestStripe,adjusted[i]);
             }
-            if(bestStripe-adjusted[cueIdx]<.16) adjusted[cueIdx]=Math.min(1,adjusted[cueIdx]+.055);
+            if(bestStripe-adjusted[cueIdx]<.16) adjusted[cueIdx]=Math.min(1,adjusted[cueIdx]+.065);
         }
         return adjusted;
     }
