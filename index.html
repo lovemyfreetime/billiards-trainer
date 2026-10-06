@@ -1288,6 +1288,7 @@
         <div class="shotMetrics" id="shot1Metrics">
           <div class="metric"><span>Tip location</span><b id="tipText">Center</b></div>
           <div class="metric"><span>Predicted cue-ball squirt</span><b id="squirtText">0.00°</b></div>
+          <div class="metric"><span>Jump / flight</span><b id="airborneText">—</b></div>
           <div class="metric"><span>Power feel</span><b id="powerFeelText">—</b></div>
           <div class="metric"><span id="pocketNeedLabel">Pocket speed</span><b id="pocketNeedText">—</b></div>
           <div class="metric"><span id="impactPowerLabel">CB → object ball</span><b id="impactPowerText">—</b></div>
@@ -1296,6 +1297,7 @@
         <div class="shotMetrics" id="shot2Metrics">
           <div class="metric"><span>Tip location</span><b id="tip2Text">Center</b></div>
           <div class="metric"><span>Predicted cue-ball squirt</span><b id="squirt2Text">0.00°</b></div>
+          <div class="metric"><span>Jump / flight</span><b id="airborne2Text">—</b></div>
           <div class="metric"><span>Power feel</span><b id="powerFeel2Text">—</b></div>
           <div class="metric"><span id="pocketNeed2Label">Pocket speed</span><b id="pocketNeed2Text">—</b></div>
           <div class="metric"><span id="impactPower2Label">CB → object ball</span><b id="impactPower2Text">—</b></div>
@@ -5246,6 +5248,11 @@
         $('firstEvent').textContent = friendlyEventText(S.firstEvent);
         $('tipText').textContent = tipDescription();
         $('squirtText').textContent = (cueSquirtAngle() * 180 / Math.PI).toFixed(2) + '°';
+        if (S.airbornePhysics && S.preview && S.preview.airborne) {
+            const a = S.preview.airborne;
+            $('airborneText').textContent = 'H ' + (a.maxCueHeight * 1000).toFixed(1) + ' mm · air ' + a.airborneDistance.toFixed(2) + ' m · ' + a.bedBounceCount + ' hop' + (a.bedBounceCount === 1 ? '' : 's');
+        }
+        else $('airborneText').textContent = '—';
         const pf = powerFeel();
         $('powerFeelText').textContent = pf.diamonds.toFixed(1) + ' diamonds · ' + formatLagFraction(pf.lagFraction);
         const pa = teachingPowerState(1);
@@ -5272,6 +5279,11 @@
             const pf2 = powerFeelForSpeed(s.speed);
             $('tip2Text').textContent = tipDescriptionValues(s.sideSpin, s.follow);
             $('squirt2Text').textContent = (cueSquirtAngleFor(s.sideSpin, s.follow, S.cueEndmassRatio) * 180 / Math.PI).toFixed(2) + '°';
+            if (S.airbornePhysics && s.preview && s.preview.airborne) {
+                const a2 = s.preview.airborne;
+                $('airborne2Text').textContent = 'H ' + (a2.maxCueHeight * 1000).toFixed(1) + ' mm · air ' + a2.airborneDistance.toFixed(2) + ' m · ' + a2.bedBounceCount + ' hop' + (a2.bedBounceCount === 1 ? '' : 's');
+            }
+            else $('airborne2Text').textContent = '—';
             $('powerFeel2Text').textContent = pf2.diamonds.toFixed(1) + ' diamonds · ' + formatLagFraction(pf2.lagFraction);
             const pa2 = teachingPowerState(2);
             if (pa2.mode === 'ball') {
@@ -5297,6 +5309,7 @@
             $('firstEvent2').textContent = friendlyEventText(s.preview && s.preview.firstEvent);
         }
         else {
+            $('airborne2Text').textContent = '—';
             $('pocketNeed2Label').textContent = 'Pocket speed';
             $('impactPower2Label').textContent = 'CB → object ball';
             $('pocketArrival2Label').textContent = 'Object ball → pocket';
