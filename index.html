@@ -1413,7 +1413,10 @@
       <div class="row"><label>Rail rebound</label><input id="railRest" type="number" min="0.5" max="1" step="0.005"></div>
       <div class="row"><label>Rail tangential damping</label><input id="railTang" type="number" min="0.5" max="1" step="0.005"></div>
       <div class="row"><label>Cue ball / end-mass ratio</label><input id="cueEndmassRatio" type="number" min="8" max="60" step="0.1"></div>
-      <div class="hint">Cue ratio controls squirt: higher = lower deflection. Ball-ball μ remains the APK/high-speed friction floor; low-speed friction rises automatically in the collision model.</div>
+      <div class="check"><input id="airbornePhysics" type="checkbox"><label for="airbornePhysics">3D jump / massé / airborne physics</label></div>
+      <div class="row"><label>Bed vertical restitution</label><input id="tableRest" type="number" min="0" max="0.95" step="0.01"></div>
+      <div class="row"><label>Bed impact friction μ</label><input id="bedImpactMu" type="number" min="0" max="0.5" step="0.01"></div>
+      <div class="hint">Cue ratio controls squirt: higher = lower deflection. 3D airborne mode extends cue elevation to 70° and models the immediate bed rebound, projectile flight, repeated hops, 3D ball collisions, and massé return-to-cloth dynamics. Normal mode stays capped at 15°.</div>
       </div>
       </div>
     </div>
@@ -1543,6 +1546,10 @@
         defaultCueEndmassRatio: 20.151,
         defaultCueElevationDeg: 3.0,
         maxPlanarCueElevationDeg: 15.0,
+        maxAirborneCueElevationDeg: 70.0,
+        defaultTableVerticalRestitution: 0.60,
+        defaultBedImpactFriction: 0.20,
+        cushionNoseHeightD: 0.635,
         ballBallFrictionVelocityBoost: 0.108,
         ballBallFrictionVelocityDecay: 1.088,
         slidingSpinDecayFactor: 0.25
@@ -1601,7 +1608,8 @@
                 solution: null
             },
             muSlide: APK.muSliding, muRoll: APK.muRolling, muBall: APK.muBallBall, ballRest: .96,
-            railRest: .90, railTang: .90, cueEndmassRatio: PHYSICS_MODEL.defaultCueEndmassRatio, showImpact: true, showTipBadge: false, showPaths: true, showGrid: true, showDiamonds: true, showTable: true,
+            railRest: .90, railTang: .90, cueEndmassRatio: PHYSICS_MODEL.defaultCueEndmassRatio,
+            airbornePhysics: false, tableRest: PHYSICS_MODEL.defaultTableVerticalRestitution, bedImpactMu: PHYSICS_MODEL.defaultBedImpactFriction, showImpact: true, showTipBadge: false, showPaths: true, showGrid: true, showDiamonds: true, showTable: true,
             preview: null, firstEvent: '—'
         };
     }
@@ -1989,10 +1997,14 @@
                 if (!S.shot2 || typeof S.shot2 !== 'object')
                     S.shot2 = defaultState().shot2;
                 S.shot2 = Object.assign(Object.assign(Object.assign({}, defaultState().shot2), S.shot2), { freeAim: Object.assign(Object.assign({}, defaultState().shot2.freeAim), (S.shot2.freeAim || {})), preview: null });
+                S.airbornePhysics = S.airbornePhysics === true;
+                S.tableRest = clamp(Number.isFinite(Number(S.tableRest)) ? Number(S.tableRest) : PHYSICS_MODEL.defaultTableVerticalRestitution, 0, .95);
+                S.bedImpactMu = clamp(Number.isFinite(Number(S.bedImpactMu)) ? Number(S.bedImpactMu) : PHYSICS_MODEL.defaultBedImpactFriction, 0, .5);
                 const savedElevation1 = Number(S.cueElevationDeg);
                 const savedElevation2 = Number(S.shot2.cueElevationDeg);
-                S.cueElevationDeg = clamp(Number.isFinite(savedElevation1) ? savedElevation1 : PHYSICS_MODEL.defaultCueElevationDeg, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg);
-                S.shot2.cueElevationDeg = clamp(Number.isFinite(savedElevation2) ? savedElevation2 : PHYSICS_MODEL.defaultCueElevationDeg, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg);
+                const savedElevationMax = S.airbornePhysics ? PHYSICS_MODEL.maxAirborneCueElevationDeg : PHYSICS_MODEL.maxPlanarCueElevationDeg;
+                S.cueElevationDeg = clamp(Number.isFinite(savedElevation1) ? savedElevation1 : PHYSICS_MODEL.defaultCueElevationDeg, 0, savedElevationMax);
+                S.shot2.cueElevationDeg = clamp(Number.isFinite(savedElevation2) ? savedElevation2 : PHYSICS_MODEL.defaultCueElevationDeg, 0, savedElevationMax);
                 S.cueEndmassRatio = clamp(Number(S.cueEndmassRatio) || PHYSICS_MODEL.defaultCueEndmassRatio, 8, 60);
                 if (!S.showAngleLockControl) {
                     S.angleLock = false;
@@ -2914,7 +2926,7 @@
             S.shot2.autoGhostLock = false;
         if (!Number.isFinite(+S.shot2.cueElevationDeg))
             S.shot2.cueElevationDeg = PHYSICS_MODEL.defaultCueElevationDeg;
-        S.shot2.cueElevationDeg = clamp(+S.shot2.cueElevationDeg, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg);
+        S.shot2.cueElevationDeg = clamp(+S.shot2.cueElevationDeg, 0, cueElevationMax());
         return S.shot2;
     }
     function shot2Cue() { const s = ensureShot2(); return { id: -2, n: 'CB2', x: s.x, y: s.y, active: true }; }
@@ -3154,6 +3166,17 @@
     function dot(a, b) { return a.x * b.x + a.y * b.y; }
     function cross(a, b) { return a.x * b.y - a.y * b.x; }
     function norm(v) { const m = Math.hypot(v.x, v.y) || 1; return { x: v.x / m, y: v.y / m }; }
+    function cueElevationMax() {
+        return S.airbornePhysics ? PHYSICS_MODEL.maxAirborneCueElevationDeg : PHYSICS_MODEL.maxPlanarCueElevationDeg;
+    }
+    function syncCueElevationLimits() {
+        if (isProjector) return;
+        const mx = cueElevationMax();
+        ['cueElevation','cueElevation2','tableElevation1','tableElevation2','elevNumber','elev2Number'].forEach(id => {
+            const e = $(id);
+            if (e) e.max = String(mx);
+        });
+    }
     function aimDirection() {
         const cb = cueBall();
         if (!cb)
@@ -3243,6 +3266,36 @@
             wy: ty * followRate + aimD.y * masseRate,
             wz: -2.5 * tip.sideR * base
         };
+    }
+    function cueInitialAngularVelocity3D(aimD, speed, side, follow, elevationDeg) {
+        // Full cue-axis basis for advanced jump/massé shots.
+        // d3 points along the descending cue; t is horizontal left/right; u is
+        // the "up" direction on the cue-ball face.  Torque from the off-center
+        // cue impulse gives omega = (5/2)*(v/R)*(follow*t - side*u).
+        const tip = effectiveTipOffsetValues(side, follow);
+        const R = Math.max(S.ballR, .001);
+        const theta = clamp(+elevationDeg || 0, 0, PHYSICS_MODEL.maxAirborneCueElevationDeg) * Math.PI / 180;
+        const s = Math.sin(theta), co = Math.cos(theta);
+        const tx = -aimD.y, ty = aimD.x;
+        const ux = aimD.x * s, uy = aimD.y * s, uz = co;
+        const k = 2.5 * Math.max(0, speed) / R;
+        return {
+            wx: k * (tip.followR * tx - tip.sideR * ux),
+            wy: k * (tip.followR * ty - tip.sideR * uy),
+            wz: k * (                 - tip.sideR * uz)
+        };
+    }
+    function ballBallTangentialImpulse3(ux, uy, uz, jn) {
+        const vRel = Math.hypot(ux, uy, uz);
+        if (vRel < 1e-12 || Math.abs(jn) < 1e-12)
+            return { jx:0, jy:0, jz:0, muEff:S.muBall, vRel };
+        const floorMu = clamp(+S.muBall || 0, 0, .2);
+        const muEff = clamp(
+            floorMu + PHYSICS_MODEL.ballBallFrictionVelocityBoost * Math.exp(-PHYSICS_MODEL.ballBallFrictionVelocityDecay * vRel),
+            floorMu, .2
+        );
+        const jMag = Math.min(vRel / 7, muEff * Math.abs(jn));
+        return { jx:-jMag*ux/vRel, jy:-jMag*uy/vRel, jz:-jMag*uz/vRel, muEff, vRel };
     }
     function ballBallTangentialImpulse(relT, relZ, jn) {
         // Contact friction acts in the full tangent plane. relT is horizontal
@@ -5385,6 +5438,10 @@
         $('railRest').value = S.railRest;
         $('railTang').value = S.railTang;
         $('cueEndmassRatio').value = (+S.cueEndmassRatio).toFixed(3);
+        $('airbornePhysics').checked = S.airbornePhysics === true;
+        $('tableRest').value = (+S.tableRest).toFixed(2);
+        $('bedImpactMu').value = (+S.bedImpactMu).toFixed(2);
+        syncCueElevationLimits();
         $('showImpact').checked = S.showImpact;
         $('showTipBadge').checked = S.showTipBadge;
         $('showPaths').checked = S.showPaths;
@@ -5409,7 +5466,8 @@
         S.speed = +$('speed').value;
         S.follow = +$('follow').value;
         S.sideSpin = +$('sideSpin').value;
-        S.cueElevationDeg = clamp(+$('cueElevation').value, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg);
+        S.airbornePhysics = $('airbornePhysics').checked;
+        S.cueElevationDeg = clamp(+$('cueElevation').value, 0, cueElevationMax());
         S.tableL = +$('tableL').value * inch;
         S.tableW = +$('tableW').value * inch;
         S.ballR = +$('ballD').value * inch / 2;
@@ -5420,6 +5478,13 @@
         S.railRest = +$('railRest').value;
         S.railTang = +$('railTang').value;
         S.cueEndmassRatio = clamp(+$('cueEndmassRatio').value || PHYSICS_MODEL.defaultCueEndmassRatio, 8, 60);
+        S.tableRest = clamp(+$('tableRest').value, 0, .95);
+        S.bedImpactMu = clamp(+$('bedImpactMu').value, 0, .5);
+        if (!S.airbornePhysics) {
+            S.cueElevationDeg = Math.min(S.cueElevationDeg, cueElevationMax());
+            const s2 = ensureShot2();
+            s2.cueElevationDeg = Math.min(s2.cueElevationDeg, cueElevationMax());
+        }
         S.showImpact = $('showImpact').checked;
         S.showTipBadge = $('showTipBadge').checked;
         S.showPaths = $('showPaths').checked;
@@ -5464,7 +5529,7 @@
         if ($('aimControls')) $('aimControls').classList.toggle('activeAim', S.activeShot !== 2);
         if ($('aimControls2')) $('aimControls2').classList.toggle('activeAim', S.activeShot === 2 && S.shot2Enabled);
     }
-    function resetLayout() { const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, showScoreBoard: S.showScoreBoard, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
+    function resetLayout() { const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
     function pointerPos(ev) { const r = canvas.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
     canvas.addEventListener('pointerdown', ev => {
         canvas.setPointerCapture(ev.pointerId);
@@ -5724,6 +5789,49 @@
         syncProjector();
     });
     canvas.addEventListener('pointercancel', () => drag = null);
+    // Mouse-wheel fine controls.  Hovering any shot slider uses the same increment
+    // as its +/- controls, so the mouse can stay over the table or sidebar.
+    function installWheelRange(id) {
+        const el = $(id);
+        if (!el) return;
+        el.addEventListener('wheel', ev => {
+            if (isProjector || el.disabled) return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            const min = Number(el.min), max = Number(el.max);
+            const step = Number(el.step) || .01;
+            const dir = ev.deltaY < 0 ? 1 : -1; // wheel up = increase
+            const decimals = Math.max(0, (String(el.step || '').split('.')[1] || '').length);
+            let next = Number(el.value) + dir * step;
+            next = clamp(next, Number.isFinite(min) ? min : -Infinity, Number.isFinite(max) ? max : Infinity);
+            el.value = decimals ? next.toFixed(decimals) : String(next);
+            el.dispatchEvent(new Event('input', { bubbles:true }));
+        }, { passive:false });
+    }
+    [
+        'speed','follow','sideSpin','cueElevation',
+        'speed2','follow2','sideSpin2','cueElevation2',
+        'tableSpeed1','tableSpeed2',
+        'tableFollow1','tableSpin1','tableElevation1',
+        'tableFollow2','tableSpin2','tableElevation2',
+        'bottomFollow1','bottomSide1','bottomFollow2','bottomSide2'
+    ].forEach(installWheelRange);
+    function installAimRollerWheel(id, shot) {
+        const el = $(id);
+        if (!el) return;
+        el.addEventListener('wheel', ev => {
+            if (isProjector || (shot === 2 && !S.shot2Enabled)) return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            setActiveShot(shot);
+            let notches = ev.deltaMode === 1 ? ev.deltaY / 3 : (ev.deltaMode === 2 ? ev.deltaY : ev.deltaY / 100);
+            notches = clamp(notches, -3, 3);
+            rotateAimMicro(notches * (0.15 * Math.PI / 180));
+        }, { passive:false });
+    }
+    installAimRollerWheel('aimRoller', 1);
+    installAimRollerWheel('aimRoller2', 2);
+
     // Mouse-wheel micro aiming.
     // wheel back/down -> clockwise; wheel forward/up -> counterclockwise.
     // One conventional wheel notch is intentionally tiny: about 0.15 degree.
@@ -8957,7 +9065,7 @@
             resetCuePopupTimer();
         });
         $('tableElevation1').addEventListener('input', () => {
-            S.cueElevationDeg = clamp(+$('tableElevation1').value, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg);
+            S.cueElevationDeg = clamp(+$('tableElevation1').value, 0, cueElevationMax());
             setActiveShot(1);
             updateUI();
             refreshPreview();
@@ -8987,7 +9095,7 @@
             if (!S.shot2Enabled)
                 return;
             const s = ensureShot2();
-            s.cueElevationDeg = clamp(+$('tableElevation2').value, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg);
+            s.cueElevationDeg = clamp(+$('tableElevation2').value, 0, cueElevationMax());
             setActiveShot(2);
             updateUI();
             refreshPreview();
@@ -9021,14 +9129,14 @@
             updateUI();
             refreshPreview();
         });
-        const changeIds = ['tableL', 'tableW', 'ballD', 'muSlide', 'muRoll', 'muBall', 'ballRest', 'railRest', 'railTang', 'cueEndmassRatio', 'showImpact', 'showTipBadge', 'showPaths', 'showGrid', 'showDiamonds', 'showTable', 'showAngleLockControl'];
+        const changeIds = ['tableL', 'tableW', 'ballD', 'muSlide', 'muRoll', 'muBall', 'ballRest', 'railRest', 'railTang', 'cueEndmassRatio', 'airbornePhysics', 'tableRest', 'bedImpactMu', 'showImpact', 'showTipBadge', 'showPaths', 'showGrid', 'showDiamonds', 'showTable', 'showAngleLockControl'];
         changeIds.forEach(id => $(id).addEventListener('change', applyUI));
         ['speed', 'follow', 'sideSpin', 'cueElevation'].forEach(id => $(id).addEventListener('input', applyUI));
         function applyDirectShotInput() {
             S.speed = clamp(parseFloat($('speedNumber').value) || 0.25, 0.25, 6);
             S.follow = clamp((parseFloat($('followNumber').value) || 0) / 100, -1, 1);
             S.sideSpin = clamp((parseFloat($('spinNumber').value) || 0) / 100, -1, 1);
-            S.cueElevationDeg = clamp(parseFloat($('elevNumber').value) || 0, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg);
+            S.cueElevationDeg = clamp(parseFloat($('elevNumber').value) || 0, 0, cueElevationMax());
             updateUI();
             refreshPreview();
         }
@@ -9111,8 +9219,8 @@
             saveState();
             syncProjector();
         };
-        ['speed2', 'follow2', 'sideSpin2', 'cueElevation2'].forEach(id => $(id).addEventListener('input', () => { const s = ensureShot2(); s.speed = +$('speed2').value; s.follow = +$('follow2').value; s.sideSpin = +$('sideSpin2').value; s.cueElevationDeg = clamp(+$('cueElevation2').value, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg); setActiveShot(2); updateUI(); refreshPreview(); }));
-        function applyDirectShot2Input() { const s = ensureShot2(); s.speed = clamp(parseFloat($('speed2Number').value) || 0.25, 0.25, 6); s.follow = clamp((parseFloat($('follow2Number').value) || 0) / 100, -1, 1); s.sideSpin = clamp((parseFloat($('spin2Number').value) || 0) / 100, -1, 1); s.cueElevationDeg = clamp(parseFloat($('elev2Number').value) || 0, 0, PHYSICS_MODEL.maxPlanarCueElevationDeg); setActiveShot(2); updateUI(); refreshPreview(); }
+        ['speed2', 'follow2', 'sideSpin2', 'cueElevation2'].forEach(id => $(id).addEventListener('input', () => { const s = ensureShot2(); s.speed = +$('speed2').value; s.follow = +$('follow2').value; s.sideSpin = +$('sideSpin2').value; s.cueElevationDeg = clamp(+$('cueElevation2').value, 0, cueElevationMax()); setActiveShot(2); updateUI(); refreshPreview(); }));
+        function applyDirectShot2Input() { const s = ensureShot2(); s.speed = clamp(parseFloat($('speed2Number').value) || 0.25, 0.25, 6); s.follow = clamp((parseFloat($('follow2Number').value) || 0) / 100, -1, 1); s.sideSpin = clamp((parseFloat($('spin2Number').value) || 0) / 100, -1, 1); s.cueElevationDeg = clamp(parseFloat($('elev2Number').value) || 0, 0, cueElevationMax()); setActiveShot(2); updateUI(); refreshPreview(); }
         ['speed2Number', 'follow2Number', 'spin2Number', 'elev2Number'].forEach(id => { $(id).addEventListener('change', applyDirectShot2Input); $(id).addEventListener('keydown', ev => { if (ev.key === 'Enter') {
             ev.preventDefault();
             applyDirectShot2Input();
