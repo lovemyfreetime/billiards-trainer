@@ -3467,7 +3467,7 @@
         return { x: origin.x + d.x * m, y: origin.y + d.y * m };
     }
     function cloneBallsForPhysics() {
-        return S.balls.filter(b => b.active && !b.marker).map(b => ({ id: b.id, n: b.n, x: b.x, y: b.y, vx: 0, vy: 0, wx: 0, wy: 0, wz: 0, travel: 0, active: true }));
+        return S.balls.filter(b => b.active && !b.marker).map(b => ({ id: b.id, n: b.n, x: b.x, y: b.y, z: S.ballR, vx: 0, vy: 0, vz: 0, wx: 0, wy: 0, wz: 0, travel: 0, active: true }));
     }
     function pocketCapture(b) {
         const G = pocketModel(), L = G.L, W = G.W, R = G.R;
@@ -3496,15 +3496,22 @@
         if (!cb)
             return { paths: {}, frames: [], firstEvent: '—', firstBallContact: null };
         const aimD = aimDirection(), d = strikeDirection();
-        cb.vx = d.x * S.speed;
-        cb.vy = d.y * S.speed;
-        // Initialize all three angular-velocity components from the physical cue-tip
-        // offset and cue elevation. Translation starts on the squirted line; cloth
-        // friction then evolves that state and produces real swerve during sliding.
-        const cueOmega = cueInitialAngularVelocity(aimD, S.speed, S.sideSpin, S.follow, S.cueElevationDeg);
-        cb.wx = cueOmega.wx;
-        cb.wy = cueOmega.wy;
-        cb.wz = cueOmega.wz;
+        const airborneMode = S.airbornePhysics === true;
+        if (airborneMode) {
+            const theta = clamp(+S.cueElevationDeg || 0, 0, PHYSICS_MODEL.maxAirborneCueElevationDeg) * Math.PI / 180;
+            const horizontalSpeed = S.speed * Math.cos(theta);
+            cb.vx = d.x * horizontalSpeed;
+            cb.vy = d.y * horizontalSpeed;
+            cb.vz = -S.speed * Math.sin(theta);
+            const cueOmega = cueInitialAngularVelocity3D(aimD, S.speed, S.sideSpin, S.follow, S.cueElevationDeg);
+            cb.wx = cueOmega.wx; cb.wy = cueOmega.wy; cb.wz = cueOmega.wz;
+        }
+        else {
+            cb.vx = d.x * S.speed;
+            cb.vy = d.y * S.speed;
+            const cueOmega = cueInitialAngularVelocity(aimD, S.speed, S.sideSpin, S.follow, S.cueElevationDeg);
+            cb.wx = cueOmega.wx; cb.wy = cueOmega.wy; cb.wz = cueOmega.wz;
+        }
         const dt = 1 / 600, maxT = 20, maxSteps = Math.ceil(maxT / dt), g = APK.gravity, R = S.ballR;
         const paths = {};
         for (const b of B)
@@ -3584,6 +3591,30 @@
             const spinDecayTime = PHYSICS_MODEL.slidingSpinDecayFactor * slidingTime + rollingTime;
             b.wz = approach(b.wz, 0, alphaZ * spinDecayTime);
         }
+        let maxCueHeight = R, airborneDistance = 0, bedBounceCount = 0;
+        function bedHit(b, initial = false) {
+            if (!airborneMode || b.vz >= -1e-10) return false;
+            const jn = -(1 + S.tableRest) * b.vz;
+            b.vz += jn;
+            let ux = b.vx - R * b.wy, uy = b.vy + R * b.wx;
+            let jx = -ux / 3.5, jy = -uy / 3.5;
+            const jm = Math.hypot(jx, jy), lim = Math.max(0, S.bedImpactMu) * Math.abs(jn);
+            if (jm > lim && jm > 1e-12) { const q = lim / jm; jx *= q; jy *= q; }
+            b.vx += jx; b.vy += jy;
+            b.wx += 2.5 * jy / R; b.wy -= 2.5 * jx / R;
+            b.z = R;
+            const vh = Math.hypot(b.vx, b.vy);
+            const angle = Math.atan2(Math.max(0, b.vz), Math.max(1e-9, vh));
+            const predictedRange = 2 * vh * Math.max(0, b.vz) / g;
+            if (predictedRange < .00254 && angle < Math.PI / 180) b.vz = 0;
+            else if (!initial) bedBounceCount++;
+            return true;
+        }
+        function canReachCushion(b) {
+            if (!airborneMode) return true;
+            const maxCenterZ = R * (1 + 2 * PHYSICS_MODEL.cushionNoseHeightD);
+            return b.z <= maxCenterZ;
+        }
         function railHit(b, nx, ny, name) {
             // n points inward from the cushion. Screen coordinates use +Y downward.
             // t is the local cushion tangent; positive t = 90deg clockwise from n.
@@ -3619,27 +3650,41 @@
                 firstEvent = `${b.n} → ${name}`;
             return true;
         }
+        if (airborneMode && cb.vz < 0) bedHit(cb, true);
         for (let step = 0; step < maxSteps; step++) {
             const t = step * dt;
             let moving = false;
             for (const b of B) {
-                if (!b.active)
-                    continue;
-                if (Math.hypot(b.vx, b.vy) > 0.002 || Math.abs(b.wz) > 0.05) {
-                    moving = true;
-                    clothStep(b);
+                if (!b.active) continue;
+                if (airborneMode && b.z <= R + 1e-8 && b.vz < -1e-8) bedHit(b);
+                const inAir = airborneMode && (b.z > R + 1e-7 || b.vz > 1e-7);
+                const horizontalSpeed = Math.hypot(b.vx, b.vy);
+                const rotationalSlip = R * Math.hypot(b.wx, b.wy);
+                if (horizontalSpeed > .002 || Math.abs(b.wz) > .05 || rotationalSlip > .002 || inAir || Math.abs(b.vz) > .002) moving = true;
+                if (inAir) {
+                    const dx = b.vx * dt, dy = b.vy * dt;
+                    b.x += dx; b.y += dy;
+                    b.z += b.vz * dt - .5 * g * dt * dt;
+                    b.vz -= g * dt;
+                    b.travel += Math.hypot(dx, dy);
+                    if (b.id === 0) { maxCueHeight = Math.max(maxCueHeight, b.z); airborneDistance += Math.hypot(dx, dy); }
+                    if (b.z <= R && b.vz < 0) { b.z = R; bedHit(b); }
                 }
-                b.travel += Math.hypot(b.vx, b.vy) * dt;
-                b.x += b.vx * dt;
-                b.y += b.vy * dt;
+                else {
+                    b.z = R; b.vz = 0;
+                    if (horizontalSpeed > .002 || Math.abs(b.wz) > .05 || rotationalSlip > .002) clothStep(b);
+                    const dx = b.vx * dt, dy = b.vy * dt;
+                    b.travel += Math.hypot(dx, dy);
+                    b.x += dx; b.y += dy;
+                }
             }
             // Simplified pocketing before cushion response.
             for (const b of B) {
-                if (b.active && pocketCapture(b)) {
+                const lowEnoughForPocket = !airborneMode || b.z <= R * 1.12;
+                if (b.active && lowEnoughForPocket && pocketCapture(b)) {
                     b.active = false;
-                    b.vx = b.vy = b.wx = b.wy = b.wz = 0;
-                    if (firstEvent === '—')
-                        firstEvent = `${b.n} pocket`;
+                    b.vx = b.vy = b.vz = b.wx = b.wy = b.wz = 0;
+                    if (firstEvent === '—') firstEvent = `${b.n} pocket`;
                 }
             }
             // Cushions. Open spans remove rail collisions inside pocket mouths so a ball can actually enter the opening.
@@ -3647,6 +3692,7 @@
             for (const b of B) {
                 if (!b.active)
                     continue;
+                if (!canReachCushion(b)) continue;
                 if (b.x < R && !inAnySpan(b.y, spans.left)) {
                     b.x = R;
                     railHit(b, 1, 0, 'left rail');
@@ -3669,7 +3715,7 @@
             // treating every pocket as a circular hole.
             const jaws = jawSegments();
             for (const b of B) {
-                if (!b.active)
+                if (!b.active || !canReachCushion(b))
                     continue;
                 for (let ji = 0; ji < jaws.length; ji++)
                     collideWithJaw(b, jaws[ji][0], jaws[ji][1], `pocket jaw`);
@@ -3747,14 +3793,16 @@
             if (step % sampleEvery === 0) {
                 for (const b of B)
                     if (b.active)
-                        paths[b.id].push({ x: b.x, y: b.y, t });
+                        paths[b.id].push({ x: b.x, y: b.y, z: b.z, t });
             }
             if (makeFrames && step % frameEvery === 0)
-                frames.push(B.map(b => ({ id: b.id, x: b.x, y: b.y, active: b.active })));
+                frames.push(B.map(b => ({ id: b.id, x: b.x, y: b.y, z: b.z, active: b.active })));
             if (!moving && step > 30)
                 break;
         }
-        return { paths, frames, firstEvent, firstBallContact, finalBalls: B.map(b => ({ id: b.id, x: b.x, y: b.y, active: b.active })) };
+        return { paths, frames, firstEvent, firstBallContact,
+            airborne: airborneMode ? { maxCueHeight: Math.max(0, maxCueHeight - R), airborneDistance, bedBounceCount } : null,
+            finalBalls: B.map(b => ({ id: b.id, x: b.x, y: b.y, z: b.z, active: b.active })) };
     }
     function captureShot2GhostLock() {
         if (!S.shot2Enabled)
