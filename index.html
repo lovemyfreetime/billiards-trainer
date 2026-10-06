@@ -450,6 +450,42 @@
   .photoDetectionSelectWrap {
     min-width:0;
   }
+  .photoLikelyRow {
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:4px;
+    margin:0 0 5px;
+    min-height:20px;
+  }
+  .photoLikelyLabel {
+    margin-right:2px;
+    color:#9faebb;
+    font-size:9px;
+    font-weight:900;
+    letter-spacing:.45px;
+  }
+  .photoLikelyChip {
+    display:inline-flex;
+    align-items:center;
+    gap:3px;
+    padding:2px 6px;
+    border:1px solid #3b4652;
+    border-radius:999px;
+    background:#151b22;
+    color:#cbd6df;
+    font-size:9px;
+    font-weight:800;
+    white-space:nowrap;
+  }
+  .photoLikelyChip.first {
+    border-color:#60d394;
+    background:#1c3a2c;
+    color:#eafff1;
+  }
+  .photoLikelyChip.assigned {
+    box-shadow:0 0 0 1px rgba(74,168,255,.48) inset;
+  }
   .photoDetectionConfidence {
     margin-top:4px;
     font-size:10px;
@@ -6925,6 +6961,29 @@
             }
 
             const mid=document.createElement('div'); mid.className='photoDetectionSelectWrap';
+
+            // Always show the analyzer's best alternatives above the manual dropdown.
+            // These are the appearance-adjusted AI scores before the final one-of-each
+            // table constraint, so the user can see the actual ranked possibilities.
+            const likely=document.createElement('div'); likely.className='photoLikelyRow';
+            const likelyLabel=document.createElement('span'); likelyLabel.className='photoLikelyLabel'; likelyLabel.textContent='MOST LIKELY';
+            likely.appendChild(likelyLabel);
+            const ranked=(d.aiOrder||[]).slice(0,3);
+            if(ranked.length){
+                const total=ranked.reduce((s,r)=>s+Math.max(0,Number(r.v)||0),0)||1;
+                ranked.forEach((r,rank)=>{
+                    const id=pvAIClassToBallId(r.i);
+                    const chip=document.createElement('span');
+                    chip.className='photoLikelyChip'+(rank===0?' first':'')+(String(d.id)===String(id)?' assigned':'');
+                    const pct=Math.max(1,Math.round((Math.max(0,Number(r.v)||0)/total)*100));
+                    chip.textContent=(id==='0'?'CUE':id)+' '+pct+'%';
+                    chip.title='Rank '+(rank+1)+' based on AI + color/appearance analysis';
+                    likely.appendChild(chip);
+                });
+            } else {
+                const chip=document.createElement('span'); chip.className='photoLikelyChip'; chip.textContent='Needs review'; likely.appendChild(chip);
+            }
+
             const sel=document.createElement('select'); sel.innerHTML=pvOptions(d.id);
             sel.onchange=()=>{
                 const next=sel.value;
@@ -6953,7 +7012,7 @@
                 const autoLabel=d.engine==='ai'?'AI ID':'Auto ID';
                 conf.textContent=duplicate ? ('Check identity • '+pct+'%') : (autoLabel+' • '+pct+'%');
             }
-            mid.append(sel,conf);
+            mid.append(likely,sel,conf);
 
             const del=document.createElement('button'); del.type='button'; del.textContent='Delete';
             del.onclick=()=>{photoVision.detections.splice(idx,1);renderPhotoDetectionList();renderPhotoAnalyzer();pvStatus('Reviewing '+photoVision.detections.length+' candidate ball'+(photoVision.detections.length===1?'':'s')+'.');};
