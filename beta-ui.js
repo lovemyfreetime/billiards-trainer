@@ -13,7 +13,6 @@
           const e = new URL("https://tally.so/embed/" + id);
           e.searchParams.set("alignLeft","1");
           e.searchParams.set("hideTitle","1");
-          e.searchParams.set("transparentBackground","1");
           e.searchParams.set("dynamicHeight","1");
           if(source) e.searchParams.set("source",source);
           return e.toString();
@@ -34,6 +33,22 @@
     card.hidden = false;
   }
 
+  function ensureTallyEmbedScript(){
+    if(window.Tally && typeof window.Tally.loadEmbeds === "function"){
+      window.Tally.loadEmbeds();
+      return;
+    }
+    if(document.querySelector('script[data-bt-tally-embed]')) return;
+    const s = document.createElement("script");
+    s.src = "https://tally.so/widgets/embed.js";
+    s.async = true;
+    s.dataset.btTallyEmbed = "1";
+    s.onload = function(){
+      if(window.Tally && typeof window.Tally.loadEmbeds === "function") window.Tally.loadEmbeds();
+    };
+    document.head.appendChild(s);
+  }
+
   function setupFeedback(cfg){
     const btn = document.getElementById("btFeedbackButton");
     const modal = document.getElementById("btFeedbackModal");
@@ -41,7 +56,15 @@
     const frame = document.getElementById("btFeedbackFrame");
     if(!btn || !modal || !close || !frame || !cfg.feedbackFormUrl) return;
 
-    frame.src = embedUrl(cfg.feedbackFormUrl,"trainer");
+    const feedbackUrl = embedUrl(cfg.feedbackFormUrl,"trainer");
+    if(feedbackUrl.indexOf("https://tally.so/embed/") === 0){
+      frame.dataset.tallySrc = feedbackUrl;
+      frame.src = feedbackUrl;
+      frame.setAttribute("scrolling","no");
+      ensureTallyEmbedScript();
+    }else{
+      frame.src = feedbackUrl;
+    }
     btn.hidden = false;
 
     function openModal(){
