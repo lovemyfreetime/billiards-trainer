@@ -3553,9 +3553,12 @@
         const dt = 1 / 600, maxT = 20, maxSteps = Math.ceil(maxT / dt), g = APK.gravity, R = S.ballR;
         const paths = {};
         for (const b of B)
-            paths[b.id] = [{ x: b.x, y: b.y, t: 0 }];
+            paths[b.id] = [{ x: b.x, y: b.y, z: b.z, t: 0 }];
         const frames = [];
         let firstEvent = '—', firstBallContact = null, sampleEvery = 6, frameEvery = 10;
+        let simTime = 0;
+        const landings = [], clearanceMap = new Map();
+        let takeoff = null;
         const lastColl = new Map(), Icoef = 2 / 5; // I = 2/5 mR² for a solid sphere
         function approach(v, target, maxDelta) {
             if (v < target)
@@ -3634,9 +3637,33 @@
             if (!airborneMode || b.vz >= -1e-10) return false;
             const result = applyBedImpactImpulse(b, R, S.tableRest, S.bedImpactMu);
             b.z = R;
+            if (b.id === 0 && result.hit) {
+                if (initial && result.predictedRange >= .00254 && result.reboundAngle >= Math.PI / 180)
+                    takeoff = { x:b.x, y:b.y, t:simTime };
+                else if (!initial)
+                    landings.push({ x:b.x, y:b.y, t:simTime, hop:landings.length + 1, reboundAngle:result.reboundAngle, nextRange:result.predictedRange });
+            }
             if (result.predictedRange < .00254 && result.reboundAngle < Math.PI / 180) b.vz = 0;
             else if (!initial) bedBounceCount++;
             return result.hit;
+        }
+        function trackCueClearances() {
+            if (!airborneMode || !cb.active) return;
+            for (const obj of B) {
+                if (!obj.active || obj.id === 0) continue;
+                const h = Math.hypot(cb.x - obj.x, cb.y - obj.y);
+                if (h > 4 * R) continue;
+                const dz = cb.z - obj.z;
+                const surface = Math.hypot(h, dz) - 2 * R;
+                const prev = clearanceMap.get(obj.id);
+                if (!prev || surface < prev.margin) {
+                    clearanceMap.set(obj.id, {
+                        id:obj.id, n:obj.n, margin:surface, horizontal:h,
+                        cueZ:cb.z, objZ:obj.z, cueX:cb.x, cueY:cb.y,
+                        objX:obj.x, objY:obj.y, cueTravel:cb.travel, t:simTime
+                    });
+                }
+            }
         }
         function canReachCushion(b) {
             if (!airborneMode) return true;
@@ -3681,6 +3708,7 @@
         if (airborneMode && cb.vz < 0) bedHit(cb, true);
         for (let step = 0; step < maxSteps; step++) {
             const t = step * dt;
+            simTime = t;
             let moving = false;
             for (const b of B) {
                 if (!b.active) continue;
@@ -3707,6 +3735,7 @@
                 }
             }
             if (airborneMode) {
+                trackCueClearances();
                 for (const b of B) {
                     if (!b.active || canReachCushion(b)) continue;
                     if (b.x < 0 || b.x > S.tableL || b.y < 0 || b.y > S.tableW) {
@@ -3790,7 +3819,7 @@
                                         cuePos: { x: cue.x, y: cue.y }, objPos: { x: obj.x, y: obj.y },
                                         incoming: iv, normal: nc, signedOffset: lateral,
                                         overlap: clamp(100 * (1 - Math.abs(lateral) / (2 * R)), 0, 100),
-                                        cutAngle: ca, distanceBalls: cue.travel / (2 * R)
+                                        cutAngle: ca, distanceBalls: cue.travel / (2 * R), t
                                     };
                                 }
                                 lastColl.set(key, step);
@@ -3878,8 +3907,19 @@
             if (!moving && step > 30)
                 break;
         }
+        const clearances = Array.from(clearanceMap.values());
+        let primaryClearance = null;
+        if (airborneMode) {
+            const lowTargetId = firstBallContact && (!firstBallContact.cueHeight || firstBallContact.cueHeight <= R * 1.08) ? firstBallContact.objId : null;
+            const candidates = clearances.filter(q => q.id !== lowTargetId && q.horizontal <= 2.35 * R);
+            if (candidates.length)
+                primaryClearance = candidates.sort((a,b) => a.margin - b.margin)[0];
+        }
         return { paths, frames, firstEvent, firstBallContact,
-            airborne: airborneMode ? { maxCueHeight: Math.max(0, maxCueHeight - R), airborneDistance, bedBounceCount } : null,
+            airborne: airborneMode ? {
+                maxCueHeight: Math.max(0, maxCueHeight - R), airborneDistance, bedBounceCount,
+                takeoff, landings, clearances, primaryClearance
+            } : null,
             finalBalls: B.map(b => ({ id: b.id, x: b.x, y: b.y, z: b.z, active: b.active })) };
     }
     function captureShot2GhostLock() {
