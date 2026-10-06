@@ -345,6 +345,30 @@
     border-color:#8dff7b;
     color:#dfffe0;
   }
+  .photoRackControl {
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    min-height:34px;
+    padding:0 8px;
+    border:1px solid #3a444f;
+    border-radius:6px;
+    background:#10151b;
+    color:#d8e0e7;
+    font-size:10px;
+    font-weight:800;
+    white-space:nowrap;
+  }
+  #photoRackType {
+    min-height:28px;
+    max-width:190px;
+    border:1px solid #46505d;
+    border-radius:5px;
+    background:#0d1217;
+    color:#eef3f7;
+    font-size:10px;
+    font-weight:750;
+  }
   #photoArchiveSelect {
     min-height:34px;
     max-width:235px;
@@ -1385,6 +1409,15 @@
       <label class="photoStraightenControl" title="Optional fine rotation before corner calibration">STRAIGHTEN <input id="photoStraighten" type="range" min="-8" max="8" step="0.25" value="0"><span id="photoStraightenValue">0.0°</span></label>
       <label class="photoStraightenControl" title="Nudge the automatically detected playing-surface rail lines inward or outward">RAIL INSET <input id="photoRailInset" type="range" min="-12" max="28" step="1" value="6"><span id="photoRailInsetValue">6px</span></label>
       <button id="photoSharpenBtn" type="button">SHARPEN: OFF</button>
+      <label class="photoRackControl" title="Tell the analyzer which balls can legally be on the table">RACK TYPE
+        <select id="photoRackType">
+          <option value="auto">AUTO — BEST GUESS</option>
+          <option value="9ball">9-BALL — CUE + 1–9</option>
+          <option value="10ball">10-BALL — CUE + 1–10</option>
+          <option value="8ball">8-BALL / FULL SET — 1–15</option>
+          <option value="custom">CUSTOM / DRILL — NO RACK RESTRICTION</option>
+        </select>
+      </label>
       <button id="photoAiModeBtn" type="button" title="Use the trained local pool-ball detector + identity classifier; falls back to the original hybrid detector if AI is unavailable">AI: AUTO</button>
       <button id="photoAnalyzeNow" class="visionPrimary" type="button" disabled>ANALYZE BALLS</button>
       <button id="photoAddMissed" type="button" disabled>ADD MISSED BALL</button>
@@ -5946,6 +5979,10 @@
         sharpen: false,
         aiEnabled: true,
         aiBusy: false,
+        rackType: 'auto',
+        inferredRackType: 'custom',
+        effectiveRackType: 'custom',
+        rackConfidence: 0,
         lastAnalysisEngine: '',
         hoverPoint: null,
         cornerDragIndex: -1,
@@ -6448,6 +6485,112 @@
         const rawOrder=combo.map((v,i)=>({i,v})).sort((a,b)=>b.v-a.v);
         return {probs:cls,combined:combo,adjusted,appearance,order,rawOrder,top:order[0],rawTop:rawOrder[0]};
     }
+    function pvRackTypeLabel(mode){
+        if(mode==='9ball')return '9-Ball';
+        if(mode==='10ball')return '10-Ball';
+        if(mode==='8ball')return '8-Ball / Full Set';
+        if(mode==='custom')return 'Custom / Drill';
+        return 'Auto';
+    }
+    function pvRackMaxBall(mode){
+        if(mode==='9ball')return 9;
+        if(mode==='10ball')return 10;
+        return 15;
+    }
+    function pvAppearanceLooksStripe(a){
+        a=a||{};
+        return (Number(a.white)||0)>.19 && (Number(a.color)||0)>.10 && (Number(a.meanSat)||0)>.16;
+    }
+    function pvInferRackType(list){
+        // Be conservative. A late-game table can have only a few balls left, so AUTO
+        // should only make a rack assumption when the table gives us enough evidence.
+        const n=list.length;
+        if(n<5)return {mode:'custom',confidence:.35};
+
+        let stripeLike=0,strong10=0,strongAbove10=0;
+        for(const d of list){
+            if(pvAppearanceLooksStripe(d.appearance))stripeLike++;
+            const top=d.aiOrder?.[0],second=d.aiOrder?.[1];
+            if(!top)continue;
+            const id=Number(pvAIClassToBallId(top.i));
+            const gap=(Number(top.v)||0)-(Number(second?.v)||0);
+            if(id===10 && top.v>=.36 && gap>.02)strong10++;
+            if(id>=11 && id<=15 && top.v>=.40 && gap>.035)strongAbove10++;
+        }
+
+        // Three or more convincing stripes cannot be a normal 9- or 10-ball set.
+        if(strongAbove10>=1 || stripeLike>=3)
+            return {mode:'8ball',confidence:Math.min(.94,.78+strongAbove10*.08+Math.max(0,stripeLike-2)*.04)};
+
+        // Ten-ball can show two stripes (9 and 10). Require a positive 10-ball clue.
+        if(n>=6 && strong10>=1 && strongAbove10===0 && stripeLike<=2)
+            return {mode:'10ball',confidence:.78};
+
+        // Nine-ball has only one stripe: the 9. On a reasonably populated table,
+        // mostly-solid visual evidence is a strong clue.
+        if(n>=6 && strongAbove10===0 && strong10===0 && stripeLike<=1)
+            return {mode:'9ball',confidence:.76};
+
+        return {mode:'custom',confidence:.46};
+    }
+    function pvApplyRackContext(list){
+        const requested=photoVision.rackType||'auto';
+        const inferred=pvInferRackType(list);
+        photoVision.inferredRackType=inferred.mode;
+        photoVision.rackConfidence=inferred.confidence;
+        const effective=requested==='auto'?inferred.mode:requested;
+        photoVision.effectiveRackType=effective;
+
+        const maxBall=pvRackMaxBall(effective);
+        const restricted=(effective==='9ball'||effective==='10ball');
+        if(!restricted)return;
+
+        const hard=requested!=='auto';
+        for(const d of list){
+            const beforeTop=pvAIClassToBallId(d.aiOrder?.[0]?.i);
+            let order=(d.aiOrder||[]).map(entry=>{
+                const id=Number(pvAIClassToBallId(entry.i));
+                if(Number.isFinite(id) && id>maxBall){
+                    if(hard)return null;
+                    // AUTO is a strong preference, not a blind lock. If the table later
+                    // proves the guess wrong, an unusually strong high-ball candidate can
+                    // still survive for review.
+                    return {...entry,v:(Number(entry.v)||0)*.12,delta:(Number(entry.delta)||0)-.20};
+                }
+                return {...entry};
+            }).filter(Boolean);
+            order.sort((a,b)=>b.v-a.v);
+            d.aiOrder=order;
+            const afterTop=pvAIClassToBallId(d.aiOrder?.[0]?.i);
+            d.rackAdjusted=String(beforeTop)!==String(afterTop);
+            d.rackRule=effective;
+        }
+    }
+    function pvApplyManualRackToHybrid(list){
+        const mode=photoVision.rackType||'auto';
+        if(mode!=='9ball'&&mode!=='10ball')return list;
+        const maxBall=pvRackMaxBall(mode);
+        for(const d of list){
+            const num=Number(d.id);
+            if(Number.isFinite(num)&&num>maxBall){
+                // Pool-color partner: 10→2, 11→3 ... 15→7. This is far more useful
+                // than leaving an impossible stripe number in a manually selected rack.
+                const partner=num-8;
+                if(partner>=1&&partner<=maxBall){
+                    d.id=String(partner);
+                    d.rackAdjusted=true;
+                    d.duplicateWarning=true;
+                    d.confidence=Math.min(.78,Math.max(.52,Number(d.confidence)||.52));
+                }else{
+                    d.id='ignore';
+                    d.rackAdjusted=true;
+                    d.duplicateWarning=true;
+                    d.confidence=Math.min(.49,Number(d.confidence)||.49);
+                }
+            }
+        }
+        return list;
+    }
     function pvResolveUniqueAI(list) {
         // Solve all ball identities together instead of making 16 independent
         // decisions. Each legal ball identity can be used once, and weak detections
@@ -6662,6 +6805,7 @@
             identified.push({...d,engine:'ai',aiOrder:id.order,aiRawOrder:id.rawOrder,appearance:id.appearance,identityConfidence:id.top?.v||0,confidence:(id.top?.v||0)*.8+d.detConfidence*.2,thumb:pvThumbFromCanvas(crop)});
             if(i%2===1)await new Promise(r=>setTimeout(r,0));
         }
+        pvApplyRackContext(identified);
         pvResolveUniqueAI(identified);
         identified.sort((a,b)=>(b.detConfidence*.42+b.identityConfidence*.58)-(a.detConfidence*.42+a.identityConfidence*.58));
         return identified.slice(0,16);
@@ -6691,6 +6835,7 @@
         if(rot) rot.textContent = 'ROTATE 90° • ' + deg + '°';
         if($('photoStraighten')) $('photoStraighten').value=String(photoVision.fineRotation||0);
         if($('photoStraightenValue')) $('photoStraightenValue').textContent=(photoVision.fineRotation||0).toFixed(1)+'°';
+        if($('photoRackType')) $('photoRackType').value=photoVision.rackType||'auto';
         if(sharp){
             sharp.textContent = 'SHARPEN: ' + (photoVision.sharpen ? 'ON' : 'OFF');
             sharp.classList.toggle('activeToggle', !!photoVision.sharpen);
@@ -7002,7 +7147,9 @@
             if(d.engine==='ai' && String(d.id)!=='ignore' && (d.appearanceAdjusted||d.constraintAdjusted)) {
                 const rp=Math.round((d.rawTopScore||0)*100);
                 conf.textContent='AI '+ballName(d.rawTopId)+' '+rp+'% → '+ballName(d.id)+' • '+pct+'%';
-                conf.title=d.cueRescued?'Cue-ball sanity check chose the most white/neutral ball on the table.':(d.constraintAdjusted?'Global one-of-each assignment chose the strongest unique set.':'Appearance tie-breaker adjusted a close AI identity.');
+                conf.title=d.rackAdjusted
+                    ? pvRackTypeLabel(photoVision.effectiveRackType)+' rules removed ball numbers that do not belong in this game.'
+                    : (d.cueRescued?'Cue-ball sanity check chose the most white/neutral ball on the table.':(d.constraintAdjusted?'Global one-of-each assignment chose the strongest unique set.':'Appearance tie-breaker adjusted a close AI identity.'));
             } else if(d.engine==='ai' && String(d.id)==='ignore') {
                 const a=Math.round((d.adjustedTopScore||0)*100),b=Math.round((d.secondScore||0)*100);
                 conf.textContent='Check: '+ballName(d.adjustedTopId)+' '+a+'% / '+ballName(d.secondId)+' '+b+'%';
@@ -7553,13 +7700,20 @@
                 if(!warp){pvStatus('Could not rectify the photo. Reset the corners and try again.');return;}
                 const classWarp=photoVision.sharpen ? warpPhotoTopDown(640,320,true) : warp;
                 detections=detectWarpBalls(warp,classWarp||warp); engine='hybrid';
+                detections=pvApplyManualRackToHybrid(detections||[]);
+                photoVision.inferredRackType='custom';
+                photoVision.effectiveRackType=(photoVision.rackType==='auto')?'custom':photoVision.rackType;
+                photoVision.rackConfidence=(photoVision.rackType==='auto')?0:1;
             }
             photoVision.detections=detections||[];photoVision.lastAnalysisEngine=engine;
             renderPhotoDetectionList();renderPhotoAnalyzer();
             if(photoVision.detections.length){
                 const prefix=engine==='ai'?'Trained AI':'Hybrid fallback';
                 const aiReason=(engine!=='ai' && photoAI.failed && photoAI.error)?(' AI startup: '+photoAI.error):'';
-                pvStatus(prefix+' found '+photoVision.detections.length+' candidate balls. Smart one-of-each assignment + cue/stripe tie-breakers applied; yellow items need review.'+aiReason);
+                const rackNote=photoVision.rackType==='auto'
+                    ? (' Auto rack read: '+pvRackTypeLabel(photoVision.effectiveRackType)+(photoVision.effectiveRackType==='custom'?' — no rack restriction applied.':'.'))
+                    : (' '+pvRackTypeLabel(photoVision.effectiveRackType)+' rules active.');
+                pvStatus(prefix+' found '+photoVision.detections.length+' candidate balls.'+rackNote+' Smart one-of-each + color/stripe rules applied; yellow items need review.'+aiReason);
             } else {
                 pvStatus('No balls were confidently detected. Turn on ADD BALLS and tap missing ball centers manually.');
             }
@@ -7790,6 +7944,24 @@
             } else {
                 pvUpdateAIButton();
                 pvStatus('AI disabled. ANALYZE BALLS will use the original hybrid detector.');
+            }
+        });
+        $('photoRackType').addEventListener('change', () => {
+            photoVision.rackType=$('photoRackType').value||'auto';
+            const label=pvRackTypeLabel(photoVision.rackType);
+            if(photoVision.rackType==='auto'){
+                pvStatus('Rack type set to AUTO. The analyzer will make a conservative pool-game guess from the balls it sees.');
+            } else if(photoVision.rackType==='9ball'){
+                pvStatus('9-Ball selected. Only the cue ball and 1–9 are legal; 10–15 will be removed from AI choices.');
+            } else if(photoVision.rackType==='10ball'){
+                pvStatus('10-Ball selected. Only the cue ball and 1–10 are legal; 11–15 will be removed from AI choices.');
+            } else if(photoVision.rackType==='8ball'){
+                pvStatus('8-Ball / Full Set selected. Cue ball and 1–15 are all legal; solid/stripe and color-family rules stay active.');
+            } else {
+                pvStatus('Custom / Drill selected. No rack-number restriction; color-family and one-of-each rules stay active.');
+            }
+            if(photoVision.imageReady && photoVision.corners.length===4 && photoVision.detections.length){
+                setTimeout(()=>analyzeCurrentPhoto(),80);
             }
         });
         $('photoAnalyzeNow').addEventListener('click', analyzeCurrentPhoto);
