@@ -4415,6 +4415,179 @@
         ctx.stroke();
         ctx.restore();
     }
+    function drawPhysicsPathWithAir(points, map, stroke, width = 2, alpha = 1) {
+        if (!points || points.length < 2) return;
+        const eps = Math.max(.0003, S.ballR * .01);
+        let seg = [points[0]];
+        let air = Number.isFinite(points[0].z) && points[0].z > S.ballR + eps;
+        const flush = () => {
+            if (seg.length >= 2)
+                pathPoly(seg, map, stroke, width, alpha, air ? [7,5] : []);
+        };
+        for (let i=1;i<points.length;i++) {
+            const q = points[i];
+            const qAir = Number.isFinite(q.z) && q.z > S.ballR + eps;
+            if (qAir !== air) {
+                seg.push(q);
+                flush();
+                seg = [q];
+                air = qAir;
+            }
+            else seg.push(q);
+        }
+        flush();
+    }
+    function drawFlightPoint(p, map, label, color, filled = false) {
+        if (!p) return;
+        const q = map(p);
+        ctx.save();
+        ctx.lineWidth = isProjector ? 2.6 : 1.8;
+        ctx.strokeStyle = color;
+        ctx.fillStyle = filled ? color : 'rgba(0,0,0,.72)';
+        ctx.beginPath();
+        ctx.arc(q.x, q.y, isProjector ? 9 : 7, 0, Math.PI*2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(q.x-11,q.y); ctx.lineTo(q.x+11,q.y);
+        ctx.moveTo(q.x,q.y-11); ctx.lineTo(q.x,q.y+11);
+        ctx.stroke();
+        ctx.font = `800 ${isProjector ? 12 : 10}px Segoe UI`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillStyle = color;
+        ctx.fillText(label, q.x, q.y-12);
+        ctx.restore();
+    }
+    function clearanceColor(margin) {
+        if (margin < 0) return '#ff5b5b';
+        if (margin < .002) return '#ffd86b';
+        return '#6fff58';
+    }
+    function drawAirborneTableOverlay(preview, map, which, stroke) {
+        const a = preview && preview.airborne;
+        if (!S.airbornePhysics || !a) return;
+        if (a.takeoff) drawFlightPoint(a.takeoff, map, 'TAKEOFF', stroke, false);
+        if (Array.isArray(a.landings)) {
+            a.landings.slice(0,4).forEach((p,i) => {
+                const label = i === 0 ? 'LAND 1' : `HOP ${i+1}`;
+                drawFlightPoint(p, map, label, i === 0 ? '#ffd86b' : stroke, false);
+            });
+        }
+        const g = a.guidance, primary = g && g.primary;
+        if (primary) {
+            const color = clearanceColor(primary.margin);
+            const q = map({x:primary.objX,y:primary.objY});
+            const mm = Math.abs(primary.margin * 1000);
+            const status = primary.margin >= 0 ? 'CLEARS' : 'CLIPS';
+            const guide = g.minClear && g.minClear.feasible && Number.isFinite(g.minClear.angle)
+                ? ` · min ≈ ${g.minClear.angle.toFixed(1)}°` : '';
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = isProjector ? 3 : 2;
+            ctx.setLineDash(primary.margin >= 0 ? [] : [4,3]);
+            ctx.beginPath();
+            ctx.arc(q.x, q.y, isProjector ? 17 : 14, 0, Math.PI*2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.font = `900 ${isProjector ? 13 : 11}px Segoe UI`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillStyle = color;
+            ctx.fillText(`${status} BALL ${primary.n} ${mm.toFixed(1)} mm${guide}`, q.x, q.y-(isProjector?20:17));
+            ctx.restore();
+        }
+        if (!isProjector && S.activeShot === which)
+            drawFlightSideProfile(preview, which, stroke);
+    }
+    function drawFlightSideProfile(preview, which, stroke) {
+        const a = preview && preview.airborne, path = preview && preview.paths && preview.paths[0];
+        if (!a || !path || path.length < 2) return;
+        const w = canvas.width / DPR, h = canvas.height / DPR;
+        const boxW = Math.min(310, Math.max(235, w * .28));
+        const boxH = 142, x0 = w - boxW - 14, y0 = 14;
+        const padL = 34, padR = 12, padT = 27, padB = 25;
+        const plotW = boxW-padL-padR, plotH = boxH-padT-padB;
+        const pts = [];
+        let travel = 0, prev = path[0], maxZ = S.ballR * 4;
+        const stopT = preview.firstBallContact && Number.isFinite(preview.firstBallContact.t)
+            ? preview.firstBallContact.t + .06 : Infinity;
+        for (const p of path) {
+            if (p.t > stopT && pts.length > 8) break;
+            travel += Math.hypot(p.x-prev.x,p.y-prev.y);
+            const z = Number.isFinite(p.z) ? p.z : S.ballR;
+            pts.push({d:travel,z,t:p.t});
+            maxZ = Math.max(maxZ,z*1.12);
+            prev = p;
+        }
+        const maxD = Math.max(.25, travel);
+        const px = d => x0+padL + clamp(d/maxD,0,1)*plotW;
+        const py = z => y0+padT+plotH - clamp(z/maxZ,0,1)*plotH;
+
+        ctx.save();
+        ctx.fillStyle = 'rgba(4,7,10,.88)';
+        ctx.strokeStyle = 'rgba(255,255,255,.35)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(x0,y0,boxW,boxH,8);
+        ctx.fill(); ctx.stroke();
+
+        ctx.font = '800 10px Segoe UI';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#fff';
+        ctx.fillText(`SIDE PROFILE · SHOT ${which}`,x0+10,y0+13);
+
+        const bedY = py(0);
+        ctx.strokeStyle = 'rgba(255,255,255,.55)';
+        ctx.beginPath(); ctx.moveTo(x0+padL,bedY); ctx.lineTo(x0+boxW-padR,bedY); ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,.65)';
+        ctx.font = '700 9px Segoe UI';
+        ctx.fillText('BED',x0+6,bedY);
+
+        ctx.strokeStyle = stroke; ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        pts.forEach((p,i)=>{ const X=px(p.d),Y=py(p.z); if(i===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); });
+        ctx.stroke();
+
+        const primary = a.guidance && a.guidance.primary;
+        if (primary) {
+            const X = px(Math.min(maxD, primary.cueTravel || 0));
+            const rx = Math.max(5, S.ballR/maxD*plotW);
+            const ry = Math.max(6, S.ballR/maxZ*plotH);
+            ctx.fillStyle = 'rgba(255,216,107,.18)';
+            ctx.strokeStyle = clearanceColor(primary.margin);
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.ellipse(X, py(S.ballR), rx, ry, 0, 0, Math.PI*2);
+            ctx.fill(); ctx.stroke();
+            ctx.fillStyle = clearanceColor(primary.margin);
+            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            ctx.fillText(`BALL ${primary.n}`,X,py(2*S.ballR)-3);
+        }
+
+        if (Array.isArray(a.landings)) {
+            ctx.strokeStyle = '#ffd86b';
+            ctx.fillStyle = '#ffd86b';
+            a.landings.slice(0,4).forEach((p,i)=>{
+                const X=px(Math.min(maxD,p.travel||0));
+                ctx.beginPath(); ctx.moveTo(X,bedY-8); ctx.lineTo(X,bedY+3); ctx.stroke();
+                ctx.textAlign='center';ctx.textBaseline='top';
+                ctx.fillText(i===0?'L1':`H${i+1}`,X,bedY+5);
+            });
+        }
+
+        const g = a.guidance;
+        const summary = [];
+        summary.push(`H ${(a.maxCueHeight*1000).toFixed(0)} mm`);
+        if (g && g.primary) summary.push(`${g.primary.margin>=0?'clear':'clip'} ${Math.abs(g.primary.margin*1000).toFixed(1)} mm`);
+        if (g && g.minClear && g.minClear.feasible && Number.isFinite(g.minClear.angle))
+            summary.push(`min ${g.minClear.angle.toFixed(1)}°`);
+        if (g && g.bend && g.bend.magnitude > .0005)
+            summary.push(`bend ${(g.bend.magnitude*1000).toFixed(0)} mm`);
+        ctx.fillStyle = '#dfefff'; ctx.textAlign='right'; ctx.textBaseline='middle';
+        ctx.fillText(summary.join(' · '),x0+boxW-10,y0+13);
+        ctx.restore();
+    }
     function logicalCircle(p, r, map, fill, stroke, line = 1, alpha = 1) {
         ctx.save();
         ctx.globalAlpha = alpha;
