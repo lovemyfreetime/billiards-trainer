@@ -5983,6 +5983,7 @@
         inferredRackType: 'custom',
         effectiveRackType: 'custom',
         rackConfidence: 0,
+        duplicatesMerged: 0,
         lastAnalysisEngine: '',
         hoverPoint: null,
         cornerDragIndex: -1,
@@ -6301,6 +6302,66 @@
         for(const c of sorted){if(keep.some(k=>iou(c,k)>iouThreshold))continue;keep.push(c);if(keep.length>=maxKeep)break;}
         return keep;
     }
+    function pvDetectionStrength(d){
+        return (Number(d.identityConfidence)||0)*.62
+            +(Number(d.detConfidence)||0)*.72
+            +(Number(d.confidence)||0)*.58
+            +(Number(d.ballness)||0)*.22
+            +(Number(d.circleScore)||0)*.25;
+    }
+    function pvSamePhysicalBall(a,b,strict=.82){
+        if(!a||!b||!Number.isFinite(+a.nx)||!Number.isFinite(+a.ny)||!Number.isFinite(+b.nx)||!Number.isFinite(+b.ny))return false;
+
+        // Compare in real table dimensions rather than screen pixels. Two actual pool
+        // balls cannot occupy centers closer than one ball diameter. We stay well
+        // inside that legal distance so touching/clustered balls are preserved.
+        const tableDx=(+a.nx-+b.nx)*S.tableL;
+        const tableDy=(+a.ny-+b.ny)*S.tableW;
+        const tableDistance=Math.hypot(tableDx,tableDy);
+        const ballDiameter=Math.max(.001,2*S.ballR);
+        if(tableDistance<ballDiameter*strict)return true;
+
+        // Rotation-ensemble boxes can vary in size enough to escape IoU NMS. A very
+        // small center separation compared with both detected box diameters is another
+        // strong sign that the engine is looking at the same physical ball twice.
+        if([a.x1,a.y1,a.x2,a.y2,b.x1,b.y1,b.x2,b.y2].every(Number.isFinite)){
+            const acx=(a.x1+a.x2)/2,acy=(a.y1+a.y2)/2,bcx=(b.x1+b.x2)/2,bcy=(b.y1+b.y2)/2;
+            const ad=(Math.abs(a.x2-a.x1)+Math.abs(a.y2-a.y1))/2;
+            const bd=(Math.abs(b.x2-b.x1)+Math.abs(b.y2-b.y1))/2;
+            const avgD=Math.max(1,(ad+bd)/2);
+            if(Math.hypot(acx-bcx,acy-bcy)<avgD*.48)return true;
+        }
+        return false;
+    }
+    function pvMergeDuplicateEvidence(keep,other){
+        keep.duplicateViews=(Number(keep.duplicateViews)||0)+(Number(other.duplicateViews)||0)+1;
+        keep.detConfidence=Math.max(Number(keep.detConfidence)||0,Number(other.detConfidence)||0);
+        keep.confidence=Math.max(Number(keep.confidence)||0,Number(other.confidence)||0);
+        keep.identityConfidence=Math.max(Number(keep.identityConfidence)||0,Number(other.identityConfidence)||0);
+        if(Array.isArray(keep.detScores)&&Array.isArray(other.detScores)){
+            const n=Math.max(keep.detScores.length,other.detScores.length);
+            const merged=new Array(n);
+            for(let i=0;i<n;i++)merged[i]=Math.max(Number(keep.detScores[i])||0,Number(other.detScores[i])||0);
+            keep.detScores=merged;
+        }
+        return keep;
+    }
+    function pvCollapseSamePhysicalBalls(list,strict=.82){
+        const sorted=(list||[]).slice().sort((a,b)=>pvDetectionStrength(b)-pvDetectionStrength(a));
+        const keep=[];
+        let merged=0;
+        for(const d of sorted){
+            const existing=keep.find(k=>pvSamePhysicalBall(k,d,strict));
+            if(existing){
+                pvMergeDuplicateEvidence(existing,d);
+                merged++;
+            }else{
+                keep.push(d);
+            }
+        }
+        return {items:keep,merged};
+    }
+
     function pvSoftmaxOrProb(values) {
         const a=Array.from(values,Number),sum=a.reduce((s,v)=>s+v,0),mn=Math.min(...a),mx=Math.max(...a);
         if(mn>=0 && mx<=1.0001 && sum>.94 && sum<1.06)return a;
@@ -6813,7 +6874,9 @@
         }
 
         let candidates=pvNmsCandidates(raw,.42,24);
-        candidates=candidates.sort((a,b)=>b.detConfidence-a.detConfidence).slice(0,20);
+        const rawCollapse=pvCollapseSamePhysicalBalls(candidates,.80);
+        photoVision.duplicatesMerged=(photoVision.duplicatesMerged||0)+rawCollapse.merged;
+        candidates=rawCollapse.items.sort((a,b)=>b.detConfidence-a.detConfidence).slice(0,20);
         const identified=[];
         for(let i=0;i<candidates.length;i++){
             pvStatus('AI identity check '+(i+1)+' / '+candidates.length+'…');
@@ -7695,6 +7758,7 @@
         if(photoVision.corners.length!==4){pvStatus('Tap all four playing-surface corners first.');return;}
         if(photoVision.aiBusy)return;
         photoVision.aiBusy=true;
+        photoVision.duplicatesMerged=0;
         const btn=$('photoAnalyzeNow'); if(btn){btn.disabled=true;btn.textContent='ANALYZING…';}
         try {
             let detections=null,engine='hybrid';
@@ -7722,6 +7786,9 @@
                 photoVision.effectiveRackType=(photoVision.rackType==='auto')?'custom':photoVision.rackType;
                 photoVision.rackConfidence=(photoVision.rackType==='auto')?0:1;
             }
+            const finalCollapse=pvCollapseSamePhysicalBalls(detections||[],.80);
+            photoVision.duplicatesMerged=(photoVision.duplicatesMerged||0)+finalCollapse.merged;
+            detections=finalCollapse.items;
             photoVision.detections=detections||[];photoVision.lastAnalysisEngine=engine;
             renderPhotoDetectionList();renderPhotoAnalyzer();
             if(photoVision.detections.length){
@@ -7730,7 +7797,9 @@
                 const rackNote=photoVision.rackType==='auto'
                     ? (' Auto rack read: '+pvRackTypeLabel(photoVision.effectiveRackType)+(photoVision.effectiveRackType==='custom'?' — no rack restriction applied.':'.'))
                     : (' '+pvRackTypeLabel(photoVision.effectiveRackType)+' rules active.');
-                pvStatus(prefix+' found '+photoVision.detections.length+' candidate balls.'+rackNote+' Smart one-of-each + color/stripe rules applied; yellow items need review.'+aiReason);
+                const dupCount=Number(photoVision.duplicatesMerged)||0;
+                const dupNote=dupCount?(' Merged '+dupCount+' duplicate view'+(dupCount===1?'':'s')+' of the same physical ball.'):'';
+                pvStatus(prefix+' found '+photoVision.detections.length+' candidate balls.'+dupNote+rackNote+' Smart one-of-each + color/stripe rules applied; yellow items need review.'+aiReason);
             } else {
                 pvStatus('No balls were confidently detected. Turn on ADD BALLS and tap missing ball centers manually.');
             }
