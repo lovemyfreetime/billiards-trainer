@@ -146,26 +146,29 @@
       <iframe id="btCommunityFrame" title="Stay connected with Billiards Trainer" loading="lazy"></iframe>
     </div>
 
-    <div class="card universal-share">
-      <h2>Share the Universal Installer</h2>
-      <p>One permanent link for every supported device.</p>
-      <div class="actions">
-        <button class="btn secondary" onclick="toggleQR('universalQR')">Show QR</button>
-        <button class="btn secondary" onclick="copyText('https://lovemyfreetime.github.io/billiards-trainer/install/',this)">Copy Link</button>
-        <button class="btn secondary" onclick="shareLink('Billiards Trainer Installer','https://lovemyfreetime.github.io/billiards-trainer/install/')">Share Link</button>
-      </div>
-      <div id="universalQR" class="qrbox"><img src="./qr/universal.png" alt="Universal installer QR"><div class="qrurl">https://lovemyfreetime.github.io/billiards-trainer/install/</div></div>
-
-      <div class="presenter-tools">
-        <h3>Fullscreen Presenter</h3>
-        <p>Use this on your own tablet when showing the installer to people. It removes browser tabs and the address bar for a clean presentation.</p>
-        <div class="actions presenter-actions">
-          <button class="btn presenter-primary" id="installPresenterBtn" onclick="installPresenterApp(this)">INSTALL FULLSCREEN INSTALLER APP</button>
-          <button class="btn secondary" id="fullscreenPresenterBtn" onclick="toggleInstallerFullscreen(this)">PRESENT FULLSCREEN NOW</button>
+    <details class="card universal-share team-tools">
+      <summary class="team-tools-summary">SHARING &amp; PRESENTER TOOLS</summary>
+      <div class="team-tools-body">
+        <h2>Share the Universal Installer</h2>
+        <p>One permanent link for every supported device.</p>
+        <div class="actions">
+          <button class="btn secondary" onclick="toggleQR('universalQR')">Show QR</button>
+          <button class="btn secondary" onclick="copyText('https://lovemyfreetime.github.io/billiards-trainer/install/',this)">Copy Link</button>
+          <button class="btn secondary" onclick="shareLink('Billiards Trainer Installer','https://lovemyfreetime.github.io/billiards-trainer/install/')">Share Link</button>
         </div>
-        <p class="small presenter-hint" id="presenterHint">The installed version opens from its own icon like an app. Fullscreen Now works immediately without installing.</p>
+        <div id="universalQR" class="qrbox"><img src="./qr/universal.png" alt="Universal installer QR"><div class="qrurl">https://lovemyfreetime.github.io/billiards-trainer/install/</div></div>
+
+        <div class="presenter-tools">
+          <h3>Fullscreen Presenter</h3>
+          <p>Use this on your own tablet when showing the installer to people. It removes browser tabs and the address bar for a clean presentation.</p>
+          <div class="actions presenter-actions">
+            <button class="btn presenter-primary" id="installPresenterBtn" onclick="installPresenterApp(this)">INSTALL FULLSCREEN INSTALLER APP</button>
+            <button class="btn secondary" id="fullscreenPresenterBtn" onclick="toggleInstallerFullscreen(this)">PRESENT FULLSCREEN NOW</button>
+          </div>
+          <p class="small presenter-hint" id="presenterHint">The installed version opens from its own icon like an app. Fullscreen Now works immediately without installing.</p>
+        </div>
       </div>
-    </div>
+    </details>
 
     <footer>Billiards Trainer AI Edition 4.12 · Universal Installer</footer>
   </div>
