@@ -6389,7 +6389,7 @@
         // a clearly red/orange ball should not be allowed to win as blue or black.
         const ctx=crop.getContext('2d',{willReadFrequently:true});
         const w=crop.width,h=crop.height,px=ctx.getImageData(0,0,w,h).data;
-        const cx=w*.5,cy=h*.5,r=Math.min(w,h)*.305,r2=r*r;
+        const cx=w*.5,cy=h*.5,r=Math.min(w,h)*.265,r2=r*r;
         let n=0,white=0,color=0,dark=0,neutral=0,bright=0,satSum=0,valSum=0;
         let outerN=0,outerWhite=0,outerColor=0;
         let hueX=0,hueY=0,hueWeight=0,colorValSum=0,colorN=0;
@@ -6403,7 +6403,7 @@
             if(sat>.29 && hi>.18)color++;
             if(hi<.23)dark++;
             if(sat<.16)neutral++;
-            if(dx*dx+dy*dy>r2*.42){
+            if(dx*dx+dy*dy>r2*.46){
                 outerN++;
                 if(hi>.58 && sat<.22)outerWhite++;
                 if(sat>.29 && hi>.18)outerColor++;
@@ -6551,8 +6551,8 @@
             for(const t of visualTargets){
                 const dist=pvHueDistanceDeg(hue,t.h);
                 if(dist>48)continue;
-                let familyFloor=.28 + hueEvidence*.28 + Math.max(0,48-dist)/48*.12;
-                if(solidLike)setFloor(t.id,familyFloor+(dist<24?.06:0));
+                let familyFloor=.30 + hueEvidence*.31 + Math.max(0,48-dist)/48*.14;
+                if(solidLike)setFloor(t.id,familyFloor+(dist<24?.08:0));
                 if(stripeLike){
                     const stripeId=t.id+8;
                     if(stripeId<=15)setFloor(stripeId,familyFloor+(dist<24?.05:0));
