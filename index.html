@@ -3728,65 +3728,105 @@
                     if (!a.active || !b.active)
                         continue;
                     const dx = b.x - a.x, dy = b.y - a.y;
-                    let dist = Math.hypot(dx, dy);
                     const minD = 2 * R;
-                    if (dist < minD && dist > 1e-9) {
-                        const key = a.id < b.id ? `${a.id}:${b.id}` : `${b.id}:${a.id}`;
-                        const nx = dx / dist, ny = dy / dist, tx = -ny, ty = nx;
-                        const rvx = b.vx - a.vx, rvy = b.vy - a.vy;
-                        const relN = rvx * nx + rvy * ny;
-                        const overlap = minD - dist;
-                        a.x -= nx * overlap * .501;
-                        a.y -= ny * overlap * .501;
-                        b.x += nx * overlap * .501;
-                        b.y += ny * overlap * .501;
-                        if (relN < 0 && (!lastColl.has(key) || step - lastColl.get(key) > 2)) {
-                            if (!firstBallContact && (a.id === 0 || b.id === 0)) {
-                                const cue = a.id === 0 ? a : b, obj = a.id === 0 ? b : a;
-                                const iv = norm({ x: cue.vx, y: cue.vy });
-                                const rv = { x: obj.x - cue.x, y: obj.y - cue.y };
-                                const nc = norm(rv);
-                                const lateral = cross(iv, rv);
-                                const ca = Math.acos(clamp(dot(iv, nc), -1, 1));
-                                firstBallContact = {
-                                    objId: obj.id, objName: obj.n,
-                                    cuePos: { x: cue.x, y: cue.y }, objPos: { x: obj.x, y: obj.y },
-                                    incoming: iv, normal: nc, signedOffset: lateral,
-                                    overlap: clamp(100 * (1 - Math.abs(lateral) / (2 * R)), 0, 100),
-                                    cutAngle: ca, distanceBalls: cue.travel / (2 * R)
-                                };
+                    if (!airborneMode) {
+                        let dist = Math.hypot(dx, dy);
+                        if (dist < minD && dist > 1e-9) {
+                            const key = a.id < b.id ? `${a.id}:${b.id}` : `${b.id}:${a.id}`;
+                            const nx = dx / dist, ny = dy / dist, tx = -ny, ty = nx;
+                            const rvx = b.vx - a.vx, rvy = b.vy - a.vy;
+                            const relN = rvx * nx + rvy * ny;
+                            const overlap = minD - dist;
+                            a.x -= nx * overlap * .501; a.y -= ny * overlap * .501;
+                            b.x += nx * overlap * .501; b.y += ny * overlap * .501;
+                            if (relN < 0 && (!lastColl.has(key) || step - lastColl.get(key) > 2)) {
+                                if (!firstBallContact && (a.id === 0 || b.id === 0)) {
+                                    const cue = a.id === 0 ? a : b, obj = a.id === 0 ? b : a;
+                                    const iv = norm({ x: cue.vx, y: cue.vy });
+                                    const rv = { x: obj.x - cue.x, y: obj.y - cue.y };
+                                    const nc = norm(rv);
+                                    const lateral = cross(iv, rv);
+                                    const ca = Math.acos(clamp(dot(iv, nc), -1, 1));
+                                    firstBallContact = {
+                                        objId: obj.id, objName: obj.n,
+                                        cuePos: { x: cue.x, y: cue.y }, objPos: { x: obj.x, y: obj.y },
+                                        incoming: iv, normal: nc, signedOffset: lateral,
+                                        overlap: clamp(100 * (1 - Math.abs(lateral) / (2 * R)), 0, 100),
+                                        cutAngle: ca, distanceBalls: cue.travel / (2 * R)
+                                    };
+                                }
+                                lastColl.set(key, step);
+                                const jn = -(1 + S.ballRest) * relN / 2;
+                                a.vx -= jn * nx; a.vy -= jn * ny;
+                                b.vx += jn * nx; b.vy += jn * ny;
+                                const relT = (b.vx - a.vx) * tx + (b.vy - a.vy) * ty - R * (a.wz + b.wz);
+                                const relZ = R * ((a.wx + b.wx) * tx + (a.wy + b.wy) * ty);
+                                const tangential = ballBallTangentialImpulse(relT, relZ, jn);
+                                const jt = tangential.jt, jz = tangential.jz;
+                                a.vx -= jt * tx; a.vy -= jt * ty;
+                                b.vx += jt * tx; b.vy += jt * ty;
+                                a.wz -= 2.5 * jt / R; b.wz -= 2.5 * jt / R;
+                                const dwT = 2.5 * jz / R;
+                                a.wx += dwT * tx; a.wy += dwT * ty;
+                                b.wx += dwT * tx; b.wy += dwT * ty;
+                                if (firstEvent === "—") firstEvent = `${a.n} → ${b.n}`;
                             }
-                            lastColl.set(key, step);
-                            const jn = -(1 + S.ballRest) * relN / 2; // mass normalized to 1
-                            a.vx -= jn * nx;
-                            a.vy -= jn * ny;
-                            b.vx += jn * nx;
-                            b.vy += jn * ny;
-                            // Full contact-plane relative surface velocity.
-                            // Horizontal slip creates cut/spin-induced throw; vertical slip
-                            // from follow/draw shares the same finite friction impulse and
-                            // therefore changes throw exactly at the collision, not by
-                            // rotating the object-ball path as a separate visual rule.
-                            const relT = (b.vx - a.vx) * tx + (b.vy - a.vy) * ty - R * (a.wz + b.wz);
-                            const relZ = R * ((a.wx + b.wx) * tx + (a.wy + b.wy) * ty);
-                            const tangential = ballBallTangentialImpulse(relT, relZ, jn);
-                            const jt = tangential.jt, jz = tangential.jz;
-                            a.vx -= jt * tx;
-                            a.vy -= jt * ty;
-                            b.vx += jt * tx;
-                            b.vy += jt * ty;
-                            a.wz -= 2.5 * jt / R;
-                            b.wz -= 2.5 * jt / R;
-                            // Vertical contact friction transfers horizontal-axis spin
-                            // to both balls. This is the follow/draw component of the same
-                            // collision friction that produces object-ball throw.
-                            const dwT = 2.5 * jz / R;
-                            a.wx += dwT * tx;
-                            a.wy += dwT * ty;
-                            b.wx += dwT * tx;
-                            b.wy += dwT * ty;
-                            if (firstEvent === '—')
-                                firstEvent = `${a.n} → ${b.n}`;
+                        }
+                    }
+                    else {
+                        const dz = (b.z || R) - (a.z || R);
+                        let dist = Math.hypot(dx, dy, dz);
+                        if (dist < minD && dist > 1e-9) {
+                            const key = a.id < b.id ? `${a.id}:${b.id}` : `${b.id}:${a.id}`;
+                            const nx = dx / dist, ny = dy / dist, nz = dz / dist;
+                            const rvx = b.vx - a.vx, rvy = b.vy - a.vy, rvz = b.vz - a.vz;
+                            const relN = rvx * nx + rvy * ny + rvz * nz;
+                            const overlap = minD - dist;
+                            a.x -= nx * overlap * .501; a.y -= ny * overlap * .501;
+                            a.z = Math.max(R, a.z - nz * overlap * .501);
+                            b.x += nx * overlap * .501; b.y += ny * overlap * .501;
+                            b.z = Math.max(R, b.z + nz * overlap * .501);
+                            if (relN < 0 && (!lastColl.has(key) || step - lastColl.get(key) > 2)) {
+                                if (!firstBallContact && (a.id === 0 || b.id === 0)) {
+                                    const cue = a.id === 0 ? a : b, obj = a.id === 0 ? b : a;
+                                    const iv = norm({ x: cue.vx, y: cue.vy });
+                                    const horizontalN = norm({ x: obj.x - cue.x, y: obj.y - cue.y });
+                                    const rv = { x: obj.x - cue.x, y: obj.y - cue.y };
+                                    const lateral = cross(iv, rv);
+                                    const ca = Math.acos(clamp(dot(iv, horizontalN), -1, 1));
+                                    firstBallContact = {
+                                        objId: obj.id, objName: obj.n,
+                                        cuePos: { x: cue.x, y: cue.y }, objPos: { x: obj.x, y: obj.y },
+                                        incoming: iv, normal: horizontalN, signedOffset: lateral,
+                                        overlap: clamp(100 * (1 - Math.abs(lateral) / (2 * R)), 0, 100),
+                                        cutAngle: ca, distanceBalls: cue.travel / (2 * R),
+                                        cueHeight: cue.z, verticalNormal: (a.id === 0 ? nz : -nz)
+                                    };
+                                }
+                                lastColl.set(key, step);
+                                const jn = -(1 + S.ballRest) * relN / 2;
+                                a.vx -= jn * nx; a.vy -= jn * ny; a.vz -= jn * nz;
+                                b.vx += jn * nx; b.vy += jn * ny; b.vz += jn * nz;
+                                const swx = a.wx + b.wx, swy = a.wy + b.wy, swz = a.wz + b.wz;
+                                const cx = swy * nz - swz * ny;
+                                const cy = swz * nx - swx * nz;
+                                const cz = swx * ny - swy * nx;
+                                let ux = (b.vx - a.vx) - R * cx;
+                                let uy = (b.vy - a.vy) - R * cy;
+                                let uz = (b.vz - a.vz) - R * cz;
+                                const un = ux * nx + uy * ny + uz * nz;
+                                ux -= un * nx; uy -= un * ny; uz -= un * nz;
+                                const jt = ballBallTangentialImpulse3(ux, uy, uz, jn);
+                                a.vx -= jt.jx; a.vy -= jt.jy; a.vz -= jt.jz;
+                                b.vx += jt.jx; b.vy += jt.jy; b.vz += jt.jz;
+                                const jcx = ny * jt.jz - nz * jt.jy;
+                                const jcy = nz * jt.jx - nx * jt.jz;
+                                const jcz = nx * jt.jy - ny * jt.jx;
+                                const k = -2.5 / R;
+                                a.wx += k * jcx; a.wy += k * jcy; a.wz += k * jcz;
+                                b.wx += k * jcx; b.wy += k * jcy; b.wz += k * jcz;
+                                if (firstEvent === "—") firstEvent = `${a.n} → ${b.n}`;
+                            }
                         }
                     }
                 }
