@@ -5912,8 +5912,19 @@
         aiBusy: false,
         lastAnalysisEngine: '',
         hoverPoint: null,
-        cornerDragIndex: -1
+        cornerDragIndex: -1,
+        viewZoom: 1,
+        viewCenterX: null,
+        viewCenterY: null,
+        viewX: 0,
+        viewY: 0,
+        viewW: 0,
+        viewH: 0
     };
+    const pvTouchPointers = new Map();
+    let pvPinchStart = null;
+    let pvGesturePinched = false;
+    let pvTouchCornerCandidate = -1;
     photoVision.rawCtx = photoVision.rawCanvas.getContext('2d', { willReadFrequently:true });
     photoVision.analysisCtx = photoVision.analysisCanvas.getContext('2d', { willReadFrequently:true });
     photoVision.sourceCtx = photoVision.sourceCanvas.getContext('2d', { willReadFrequently:true });
@@ -6655,6 +6666,7 @@
         pvRefreshControls();
     }
     function pvResetAfterImageChange(msg){
+        pvResetView();
         pvResetDetectionsAndCorners();
         renderPhotoAnalyzer();
         pvStatus(msg || 'Photo ready. Tap four inside playing-surface corners: top-left → top-right → bottom-right → bottom-left.');
@@ -6861,6 +6873,82 @@
         $('photoApplyTable').disabled=!ok;
         $('photoApplySave').disabled=!ok;
     }
+    function pvResetView(){
+        photoVision.viewZoom=1;
+        photoVision.viewCenterX=null;
+        photoVision.viewCenterY=null;
+        photoVision.viewX=0;
+        photoVision.viewY=0;
+        photoVision.viewW=0;
+        photoVision.viewH=0;
+        pvPinchStart=null;
+        pvGesturePinched=false;
+        pvTouchPointers.clear();
+        pvTouchCornerCandidate=-1;
+    }
+    function pvClampViewCenter(sw,sh,zoom,cx,cy){
+        const viewW=sw/zoom,viewH=sh/zoom;
+        const minX=viewW/2,maxX=sw-viewW/2,minY=viewH/2,maxY=sh-viewH/2;
+        return {
+            x:Math.max(minX,Math.min(maxX,Number.isFinite(cx)?cx:sw/2)),
+            y:Math.max(minY,Math.min(maxY,Number.isFinite(cy)?cy:sh/2))
+        };
+    }
+    function pvSourceToCanvas(p){
+        return {
+            x:(p.x-photoVision.viewX)*photoVision.displayScaleX,
+            y:(p.y-photoVision.viewY)*photoVision.displayScaleY
+        };
+    }
+    function pvCanvasPixelFromClient(clientX,clientY){
+        const c=$('photoAnalyzerCanvas'),r=c.getBoundingClientRect();
+        return {
+            x:(clientX-r.left)*(c.width/r.width),
+            y:(clientY-r.top)*(c.height/r.height)
+        };
+    }
+    function pvSourcePointFromClient(clientX,clientY){
+        const p=pvCanvasPixelFromClient(clientX,clientY);
+        return {
+            x:photoVision.viewX+p.x/photoVision.displayScaleX,
+            y:photoVision.viewY+p.y/photoVision.displayScaleY
+        };
+    }
+    function pvCornerHitIndex(p){
+        if(photoVision.corners.length!==4)return -1;
+        let best=-1,bestD=1e9;
+        photoVision.corners.forEach((q,i)=>{
+            const a=pvSourceToCanvas(q),b=pvSourceToCanvas(p),d=Math.hypot(a.x-b.x,a.y-b.y);
+            if(d<bestD){bestD=d;best=i;}
+        });
+        return bestD<70?best:-1;
+    }
+    function pvHandlePhotoTap(p){
+        if(photoVision.corners.length<4){
+            photoVision.autoRailRawCorners=null;
+            photoVision.corners.push(p);
+            photoVision.hoverPoint=null;
+            renderPhotoAnalyzer();
+            if(photoVision.corners.length===4){
+                $('photoAnalyzeNow').disabled=false;
+                $('photoAddMissed').disabled=false;
+                pvStatus('Corners set. Pinch with two fingers to zoom/pan for fine alignment, or drag a corner crosshair. Then press ANALYZE BALLS.');
+            } else {
+                const names=['top-right','bottom-right','bottom-left'];
+                pvStatus('Corner '+photoVision.corners.length+' set. Pinch with two fingers to zoom/pan, then tap '+names[photoVision.corners.length-1]+'.');
+            }
+            return;
+        }
+        if(photoVision.addMissedMode){
+            const q=imagePointToNormalized(p);
+            if(q&&q.x>=-.03&&q.x<=1.03&&q.y>=-.03&&q.y<=1.03){
+                photoVision.detections.push({nx:Math.max(0,Math.min(1,q.x)),ny:Math.max(0,Math.min(1,q.y)),id:'ignore',confidence:1,manual:true,duplicateWarning:true});
+                renderPhotoDetectionList();
+                renderPhotoAnalyzer();
+                pvStatus('Manual ball added. Pinch to zoom/pan and keep tapping missing ball centers; then choose identities in the list.');
+            }
+        }
+    }
     function renderPhotoAnalyzer() {
         const c=$('photoAnalyzerCanvas'),x=c.getContext('2d');
         if(!photoVision.imageReady) {
@@ -6871,20 +6959,34 @@
         }
         const sw=photoVision.sourceCanvas.width,sh=photoVision.sourceCanvas.height;
         const scale=Math.min(1100/sw,700/sh,1);
-        c.width=Math.max(1,Math.round(sw*scale)); c.height=Math.max(1,Math.round(sh*scale));
-        photoVision.displayScaleX=c.width/sw; photoVision.displayScaleY=c.height/sh;
-        x.drawImage(photoVision.sourceCanvas,0,0,c.width,c.height);
+        c.width=Math.max(1,Math.round(sw*scale));
+        c.height=Math.max(1,Math.round(sh*scale));
+
+        const zoom=Math.max(1,Math.min(6,Number(photoVision.viewZoom)||1));
+        photoVision.viewZoom=zoom;
+        const center=pvClampViewCenter(sw,sh,zoom,photoVision.viewCenterX,photoVision.viewCenterY);
+        photoVision.viewCenterX=center.x;
+        photoVision.viewCenterY=center.y;
+        const viewW=sw/zoom,viewH=sh/zoom;
+        const viewX=center.x-viewW/2,viewY=center.y-viewH/2;
+        photoVision.viewX=viewX;photoVision.viewY=viewY;photoVision.viewW=viewW;photoVision.viewH=viewH;
+        photoVision.displayScaleX=c.width/viewW;
+        photoVision.displayScaleY=c.height/viewH;
+
+        x.imageSmoothingEnabled=true;
+        x.imageSmoothingQuality='high';
+        x.drawImage(photoVision.sourceCanvas,viewX,viewY,viewW,viewH,0,0,c.width,c.height);
+
         if(photoVision.corners.length) {
             x.save(); x.lineWidth=2; x.strokeStyle='#6fff58'; x.fillStyle='#6fff58'; x.beginPath();
             photoVision.corners.forEach((p,i)=>{
-                const px=p.x*photoVision.displayScaleX,py=p.y*photoVision.displayScaleY;
+                const q=pvSourceToCanvas(p),px=q.x,py=q.y;
                 if(i===0)x.moveTo(px,py);else x.lineTo(px,py);
             });
             if(photoVision.corners.length===4)x.closePath(); x.stroke();
             x.font='900 13px Segoe UI'; x.textAlign='center'; x.textBaseline='middle';
             photoVision.corners.forEach((p,i)=>{
-                const px=p.x*photoVision.displayScaleX,py=p.y*photoVision.displayScaleY;
-                // Long open-center crosshair so the actual rail intersection remains visible.
+                const q=pvSourceToCanvas(p),px=q.x,py=q.y;
                 x.save(); x.shadowColor='rgba(0,0,0,.9)'; x.shadowBlur=3; x.strokeStyle='#ffffff'; x.lineWidth=3;
                 x.beginPath();
                 x.moveTo(px-58,py);x.lineTo(px-8,py);x.moveTo(px+8,py);x.lineTo(px+58,py);
@@ -6895,7 +6997,7 @@
                 x.restore();
             });
             if(photoVision.corners.length<4 && photoVision.hoverPoint){
-                const p=photoVision.hoverPoint,px=p.x*photoVision.displayScaleX,py=p.y*photoVision.displayScaleY;
+                const q=pvSourceToCanvas(photoVision.hoverPoint),px=q.x,py=q.y;
                 x.save();x.shadowColor='rgba(0,0,0,.9)';x.shadowBlur=3;x.strokeStyle='#fff';x.lineWidth=3;
                 x.beginPath();
                 x.moveTo(px-64,py);x.lineTo(px-8,py);x.moveTo(px+8,py);x.lineTo(px+64,py);
@@ -6907,8 +7009,7 @@
             const H=homographyFromPairs([{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1}],photoVision.corners);
             x.save();x.font='800 12px Segoe UI';x.textAlign='center';x.textBaseline='middle';
             photoVision.detections.forEach(d=>{
-                const p=applyHomography(H,d.nx,d.ny);
-                const px=p.x*photoVision.displayScaleX,py=p.y*photoVision.displayScaleY;
+                const p=applyHomography(H,d.nx,d.ny),q=pvSourceToCanvas(p),px=q.x,py=q.y;
                 const rr=Math.max(10,Math.min(c.width,c.height)*.018);
                 const unassigned=String(d.id)==='ignore';
                 x.fillStyle=unassigned?'rgba(255,216,107,.13)':'rgba(0,229,255,.16)';
@@ -6916,6 +7017,21 @@
                 x.beginPath();x.arc(px,py,rr,0,Math.PI*2);x.fill();x.stroke();
                 x.fillStyle='#fff';x.fillText(unassigned?'?':pvLabel(d.id),px,py);
             });
+            x.restore();
+        }
+
+        if(zoom>1.01){
+            x.save();
+            x.fillStyle='rgba(7,12,16,.78)';
+            x.strokeStyle='rgba(255,255,255,.28)';
+            x.lineWidth=1;
+            x.font='800 11px Segoe UI';
+            const label=zoom.toFixed(1)+'×  •  pinch to zoom / pan';
+            const w=x.measureText(label).width+18;
+            x.fillRect(8,8,w,25);
+            x.strokeRect(8.5,8.5,w-1,24);
+            x.fillStyle='#eef5fa';
+            x.fillText(label,17,25);
             x.restore();
         }
     }
@@ -7379,8 +7495,7 @@
         pvArchiveRawCanvas('Video frame');
     }
     function pvCanvasPoint(ev){
-        const c=$('photoAnalyzerCanvas'),r=c.getBoundingClientRect(),px=(ev.clientX-r.left)*(c.width/r.width),py=(ev.clientY-r.top)*(c.height/r.height);
-        return {x:px/photoVision.displayScaleX,y:py/photoVision.displayScaleY};
+        return pvSourcePointFromClient(ev.clientX,ev.clientY);
     }
     function imagePointToNormalized(p){
         if(photoVision.corners.length!==4)return null;
@@ -7457,6 +7572,7 @@
 
             photoVision.rotation = (photoVision.rotation + 90) % 360;
             pvRebuildSourceFromRaw();
+            pvResetView();
             photoVision.detections=[];
             photoVision.addMissedMode=false;
             if(hadCorners) photoVision.corners=rotatedCorners;
@@ -7531,13 +7647,64 @@
             $('photoAddMissed').classList.toggle('activeToggle',photoVision.addMissedMode);
             $('photoAddMissed').textContent=photoVision.addMissedMode?'ADD BALLS: ON':'ADD MISSED BALL';
             pvStatus(photoVision.addMissedMode
-                ? 'ADD BALLS mode is ON — tap every missing ball center. It stays on until you press the button again.'
+                ? 'ADD BALLS mode is ON — pinch with two fingers to zoom/pan, then tap each missing ball center. It stays on until you press the button again.'
                 : 'ADD BALLS mode OFF.');
         });
         $('photoApplyTable').addEventListener('click', () => applyPhotoDetections(false));
         $('photoApplySave').addEventListener('click', () => applyPhotoDetections(true));
         $('photoAnalyzerCanvas').addEventListener('pointermove', ev => {
             if(!photoVision.imageReady)return;
+
+            if(ev.pointerType==='touch'){
+                const t=pvTouchPointers.get(ev.pointerId);
+                if(t){
+                    t.clientX=ev.clientX;t.clientY=ev.clientY;
+                    t.moved=t.moved||Math.hypot(ev.clientX-t.startX,ev.clientY-t.startY)>7;
+                }
+                if(pvTouchPointers.size>=2){
+                    ev.preventDefault();
+                    const pts=[...pvTouchPointers.values()].slice(0,2);
+                    const dx=pts[1].clientX-pts[0].clientX,dy=pts[1].clientY-pts[0].clientY;
+                    const dist=Math.max(10,Math.hypot(dx,dy));
+                    const midX=(pts[0].clientX+pts[1].clientX)/2,midY=(pts[0].clientY+pts[1].clientY)/2;
+                    if(!pvPinchStart){
+                        pvGesturePinched=true;
+                        pvTouchCornerCandidate=-1;
+                        photoVision.cornerDragIndex=-1;
+                        pvPinchStart={
+                            dist,
+                            zoom:photoVision.viewZoom||1,
+                            anchor:pvSourcePointFromClient(midX,midY)
+                        };
+                    }
+                    const sw=photoVision.sourceCanvas.width,sh=photoVision.sourceCanvas.height;
+                    const zoom=Math.max(1,Math.min(6,pvPinchStart.zoom*(dist/pvPinchStart.dist)));
+                    const cp=pvCanvasPixelFromClient(midX,midY);
+                    const canvas=$('photoAnalyzerCanvas');
+                    const viewW=sw/zoom,viewH=sh/zoom;
+                    let viewX=pvPinchStart.anchor.x-(cp.x/canvas.width)*viewW;
+                    let viewY=pvPinchStart.anchor.y-(cp.y/canvas.height)*viewH;
+                    const center=pvClampViewCenter(sw,sh,zoom,viewX+viewW/2,viewY+viewH/2);
+                    photoVision.viewZoom=zoom;
+                    photoVision.viewCenterX=center.x;
+                    photoVision.viewCenterY=center.y;
+                    renderPhotoAnalyzer();
+                    return;
+                }
+
+                if(pvTouchPointers.size===1 && pvTouchCornerCandidate>=0 && t && t.moved){
+                    ev.preventDefault();
+                    photoVision.cornerDragIndex=pvTouchCornerCandidate;
+                    const p=pvCanvasPoint(ev);
+                    photoVision.autoRailRawCorners=null;
+                    photoVision.corners[photoVision.cornerDragIndex]=p;
+                    photoVision.detections=[];
+                    renderPhotoDetectionList();
+                    renderPhotoAnalyzer();
+                }
+                return;
+            }
+
             const p=pvCanvasPoint(ev);
             if(photoVision.cornerDragIndex>=0 && photoVision.corners.length===4){
                 photoVision.autoRailRawCorners=null;
@@ -7547,42 +7714,88 @@
             }
             if(photoVision.corners.length<4){ photoVision.hoverPoint=p; renderPhotoAnalyzer(); }
         });
-        $('photoAnalyzerCanvas').addEventListener('pointerleave', () => {
+
+        $('photoAnalyzerCanvas').addEventListener('pointerleave', ev => {
+            if(ev.pointerType==='touch')return;
             if(photoVision.cornerDragIndex<0 && photoVision.corners.length<4){photoVision.hoverPoint=null;renderPhotoAnalyzer();}
         });
+
         $('photoAnalyzerCanvas').addEventListener('pointerdown', ev => {
-            if(!photoVision.imageReady)return; ev.preventDefault(); const p=pvCanvasPoint(ev);
+            if(!photoVision.imageReady)return;
+            ev.preventDefault();
+            const canvas=$('photoAnalyzerCanvas');
+
+            if(ev.pointerType==='touch'){
+                try{canvas.setPointerCapture?.(ev.pointerId);}catch(e){}
+                const p=pvCanvasPoint(ev);
+                pvTouchPointers.set(ev.pointerId,{clientX:ev.clientX,clientY:ev.clientY,startX:ev.clientX,startY:ev.clientY,sourceStart:p,moved:false});
+                if(pvTouchPointers.size===1){
+                    pvGesturePinched=false;
+                    pvPinchStart=null;
+                    pvTouchCornerCandidate=(photoVision.corners.length===4&&!photoVision.addMissedMode)?pvCornerHitIndex(p):-1;
+                }else if(pvTouchPointers.size===2){
+                    pvGesturePinched=true;
+                    pvTouchCornerCandidate=-1;
+                    photoVision.cornerDragIndex=-1;
+                    const pts=[...pvTouchPointers.values()].slice(0,2);
+                    const dx=pts[1].clientX-pts[0].clientX,dy=pts[1].clientY-pts[0].clientY;
+                    const midX=(pts[0].clientX+pts[1].clientX)/2,midY=(pts[0].clientY+pts[1].clientY)/2;
+                    pvPinchStart={dist:Math.max(10,Math.hypot(dx,dy)),zoom:photoVision.viewZoom||1,anchor:pvSourcePointFromClient(midX,midY)};
+                }
+                return;
+            }
+
+            const p=pvCanvasPoint(ev);
             if(photoVision.corners.length===4 && !photoVision.addMissedMode){
-                let best=-1,bestD=1e9;
-                photoVision.corners.forEach((q,i)=>{const dx=(q.x-p.x)*photoVision.displayScaleX,dy=(q.y-p.y)*photoVision.displayScaleY,d=Math.hypot(dx,dy);if(d<bestD){bestD=d;best=i;}});
-                if(best>=0 && bestD<70){
-                    photoVision.cornerDragIndex=best; $('photoAnalyzerCanvas').setPointerCapture?.(ev.pointerId);
+                const best=pvCornerHitIndex(p);
+                if(best>=0){
+                    photoVision.cornerDragIndex=best; canvas.setPointerCapture?.(ev.pointerId);
                     photoVision.corners[best]=p; photoVision.detections=[]; renderPhotoDetectionList(); renderPhotoAnalyzer(); return;
                 }
             }
-            if(photoVision.corners.length<4){
-                photoVision.autoRailRawCorners=null;
-                photoVision.corners.push(p); photoVision.hoverPoint=null; renderPhotoAnalyzer();
-                if(photoVision.corners.length===4){$('photoAnalyzeNow').disabled=false;$('photoAddMissed').disabled=false;pvStatus('Corners set. Drag any long white crosshair to refine it, then press ANALYZE BALLS.');}
-                else {const names=['top-right','bottom-right','bottom-left'];pvStatus('Corner '+photoVision.corners.length+' set. Move the long white crosshair to '+names[photoVision.corners.length-1]+' and click.');}
+            pvHandlePhotoTap(p);
+        });
+
+        $('photoAnalyzerCanvas').addEventListener('pointerup', ev => {
+            if(ev.pointerType==='touch'){
+                const t=pvTouchPointers.get(ev.pointerId);
+                const shouldTap=!!t && !t.moved && !pvGesturePinched && photoVision.cornerDragIndex<0;
+                const tapPoint=t?.sourceStart;
+                pvTouchPointers.delete(ev.pointerId);
+                try{$('photoAnalyzerCanvas').releasePointerCapture?.(ev.pointerId);}catch(e){}
+
+                if(photoVision.cornerDragIndex>=0 && pvTouchPointers.size<2){
+                    photoVision.cornerDragIndex=-1;
+                    pvTouchCornerCandidate=-1;
+                    renderPhotoAnalyzer();
+                    pvStatus('Corner adjustment saved. Pinch to zoom/pan again if needed, then press ANALYZE BALLS.');
+                }else if(shouldTap && tapPoint){
+                    pvHandlePhotoTap(tapPoint);
+                }
+
+                if(pvTouchPointers.size<2)pvPinchStart=null;
+                if(pvTouchPointers.size===0){
+                    pvGesturePinched=false;
+                    pvTouchCornerCandidate=-1;
+                }
                 return;
             }
-            if(photoVision.addMissedMode){
-                const q=imagePointToNormalized(p);
-                if(q&&q.x>=-.03&&q.x<=1.03&&q.y>=-.03&&q.y<=1.03){
-                    photoVision.detections.push({nx:Math.max(0,Math.min(1,q.x)),ny:Math.max(0,Math.min(1,q.y)),id:'ignore',confidence:1,manual:true,duplicateWarning:true});
-                    renderPhotoDetectionList();renderPhotoAnalyzer();
-                    pvStatus('Manual ball added. ADD BALLS mode stays ON — keep tapping missing balls, then choose identities in the list.');
-                }
-            }
-        });
-        $('photoAnalyzerCanvas').addEventListener('pointerup', ev => {
+
             if(photoVision.cornerDragIndex>=0){
                 photoVision.cornerDragIndex=-1; try{$('photoAnalyzerCanvas').releasePointerCapture?.(ev.pointerId);}catch(e){}
                 renderPhotoAnalyzer(); pvStatus('Corner adjustment saved. Press ANALYZE BALLS.');
             }
         });
-        $('photoAnalyzerCanvas').addEventListener('pointercancel', () => {photoVision.cornerDragIndex=-1;});
+
+        $('photoAnalyzerCanvas').addEventListener('pointercancel', ev => {
+            if(ev.pointerType==='touch'){
+                pvTouchPointers.delete(ev.pointerId);
+                if(pvTouchPointers.size<2)pvPinchStart=null;
+                if(pvTouchPointers.size===0){pvGesturePinched=false;pvTouchCornerCandidate=-1;}
+            }
+            photoVision.cornerDragIndex=-1;
+        });
+
         $('photoAnalyzerModal').addEventListener('pointerdown', ev => { if(ev.target===$('photoAnalyzerModal')) closePhotoAnalyzer(); });
         $('saveLayoutBtn').addEventListener('click', () => saveBallLayout());
         $('loadLayoutBtn').addEventListener('click', () => loadSelectedBallLayout());
