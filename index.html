@@ -5585,7 +5585,7 @@
             if (q) {
                 $('clearanceText').textContent = 'Ball ' + q.n + ' · ' + (q.margin >= 0 ? 'CLEARS +' : 'CLIPS −') + Math.abs(q.margin * 1000).toFixed(1) + ' mm';
                 if (g.minClear && g.minClear.feasible && Number.isFinite(g.minClear.angle))
-                    $('jumpGuideText').textContent = g.minClear.angle < .1 ? 'No elevation needed' : 'Ball ' + q.n + ' · ≈' + g.minClear.angle.toFixed(1) + '° minimum';
+                    $('jumpGuideText').textContent = g.minClear.angle < .1 ? 'No elevation needed' : 'Ball ' + q.n + ' · ' + (Math.abs(g.currentSideSpin) >= .15 && g.minClear.angle > 15 ? 'massé/jump route ≈' : 'jump ≈') + g.minClear.angle.toFixed(1) + '° minimum';
                 else
                     $('jumpGuideText').textContent = 'Ball ' + q.n + ' · no clear solution ≤70°';
             }
@@ -5637,7 +5637,7 @@
                 if (q2) {
                     $('clearance2Text').textContent = 'Ball ' + q2.n + ' · ' + (q2.margin >= 0 ? 'CLEARS +' : 'CLIPS −') + Math.abs(q2.margin * 1000).toFixed(1) + ' mm';
                     if (g2.minClear && g2.minClear.feasible && Number.isFinite(g2.minClear.angle))
-                        $('jumpGuide2Text').textContent = g2.minClear.angle < .1 ? 'No elevation needed' : 'Ball ' + q2.n + ' · ≈' + g2.minClear.angle.toFixed(1) + '° minimum';
+                        $('jumpGuide2Text').textContent = g2.minClear.angle < .1 ? 'No elevation needed' : 'Ball ' + q2.n + ' · ' + (Math.abs(g2.currentSideSpin) >= .15 && g2.minClear.angle > 15 ? 'massé/jump route ≈' : 'jump ≈') + g2.minClear.angle.toFixed(1) + '° minimum';
                     else
                         $('jumpGuide2Text').textContent = 'Ball ' + q2.n + ' · no clear solution ≤70°';
                 }
