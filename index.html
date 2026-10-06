@@ -6726,7 +6726,148 @@
         }
         return list;
     }
+    function pvManualRackAllowedIds(mode){
+        if(mode==='9ball')return Array.from({length:10},(_,i)=>String(i));      // cue + 1..9
+        if(mode==='10ball')return Array.from({length:11},(_,i)=>String(i));     // cue + 1..10
+        if(mode==='8ball')return Array.from({length:16},(_,i)=>String(i));      // cue + 1..15
+        return null;
+    }
+    function pvManualRackIdentityScore(d,id){
+        const a=d.appearance||{};
+        const order=d.aiOrder||[];
+        const aiEntry=order.find(x=>pvAIClassToBallId(x.i)===String(id));
+        const rawEntry=(d.aiRawOrder||[]).find(x=>pvAIClassToBallId(x.i)===String(id));
+        const ai=Math.max(Number(aiEntry?.v)||0,(Number(rawEntry?.v)||0)*.72);
+        const det=Math.max(0,Math.min(1,Number(d.detConfidence)||0));
+
+        const white=Number(a.white)||0;
+        const outerWhite=Number(a.outerWhite)||0;
+        const color=Number(a.color)||0;
+        const dark=Number(a.dark)||0;
+        const neutral=Number(a.neutral)||0;
+        const sat=Number(a.meanSat)||0;
+        const val=Number(a.colorMeanVal)||Number(a.meanVal)||0;
+        const hue=Number(a.dominantHue);
+        const hueStrength=Math.max(0,Math.min(1,Number(a.hueStrength)||0));
+        const colorPixels=Math.max(0,Math.min(1,Number(a.colorPixels)||color));
+        const hueEvidence=Math.max(.08,hueStrength*Math.min(1,colorPixels/.22));
+
+        let score=ai*.48+det*.06;
+
+        if(String(id)==='0'){
+            // Cue ball: white/neutral with very little saturated body color.
+            const cueVisual=Math.max(0,Math.min(1,
+                white*1.15 + (Number(a.bright)||0)*.18 + neutral*.18 - color*.78 - sat*.38
+            ));
+            score+=cueVisual*.62;
+            return score;
+        }
+        if(String(id)==='8'){
+            // Eight ball: dark shell with a white number circle.
+            const blackVisual=Math.max(0,Math.min(1,dark*1.45+neutral*.22-color*.34+white*.08));
+            score+=blackVisual*.62;
+            return score;
+        }
+
+        const num=Number(id);
+        const family=pvPoolColorFamily(num);
+        if(family && Number.isFinite(hue)){
+            const dist=pvHueDistanceDeg(hue,family.hue);
+            const hueMatch=Math.max(0,1-dist/95);
+            score+=hueMatch*hueEvidence*.72;
+
+            // In a known rack, solid/stripe structure is extremely informative.
+            const stripeExpected=num>=9;
+            const stripeVisual=Math.max(0,Math.min(1,(outerWhite-.10)/.28));
+            const solidVisual=Math.max(0,Math.min(1,(.20-outerWhite)/.18));
+            score+=(stripeExpected?stripeVisual:solidVisual)*.28;
+
+            // 3 and 7 are neighboring red-family colors. Use brightness only as a
+            // tie-breaker: bright red leans 3, darker maroon leans 7.
+            const base=num>8?num-8:num;
+            if(base===3)score+=Math.max(0,Math.min(1,(val-.42)/.34))*.11;
+            if(base===7)score+=Math.max(0,Math.min(1,(.62-val)/.34))*.11;
+        }
+        return score;
+    }
+    function pvResolveManualRackAI(list){
+        const allowed=pvManualRackAllowedIds(photoVision.rackType);
+        if(!allowed || !list.length)return false;
+
+        // The user has told us the game. Treat this as reconstructing one legal rack
+        // state, not as a set of unrelated yes/no classifications. Every confirmed
+        // physical ball gets exactly one unique legal identity whenever possible.
+        const m=allowed.length,n=list.length;
+        if(n>m)return false;
+
+        const MAX=1<<m,NEG=-1e15;
+        let prev=new Float64Array(MAX);prev.fill(NEG);prev[0]=0;
+        const parents=[],choices=[];
+
+        for(let di=0;di<n;di++){
+            const next=new Float64Array(MAX);next.fill(NEG);
+            const par=new Int32Array(MAX);par.fill(-1);
+            const choice=new Int8Array(MAX);choice.fill(-1);
+            for(let mask=0;mask<MAX;mask++){
+                const base=prev[mask];if(base<=NEG/2)continue;
+                for(let ai=0;ai<m;ai++){
+                    const bm=1<<ai;if(mask&bm)continue;
+                    const id=allowed[ai];
+                    const s=pvManualRackIdentityScore(list[di],id);
+                    const nm=mask|bm,ns=base+s;
+                    if(ns>next[nm]){next[nm]=ns;par[nm]=mask;choice[nm]=ai;}
+                }
+            }
+            parents.push(par);choices.push(choice);prev=next;
+        }
+
+        let bestMask=-1,bestScore=NEG;
+        for(let mask=0;mask<MAX;mask++){
+            if(prev[mask]>bestScore){bestScore=prev[mask];bestMask=mask;}
+        }
+        if(bestMask<0)return false;
+
+        const assigned=new Array(n).fill(null);
+        let mask=bestMask;
+        for(let di=n-1;di>=0;di--){
+            const ai=choices[di][mask],pm=parents[di][mask];
+            if(ai>=0)assigned[di]=allowed[ai];
+            mask=pm>=0?pm:mask;
+        }
+
+        for(let di=0;di<n;di++){
+            const d=list[di],chosen=assigned[di];
+            const rawTop=d.aiRawOrder?.[0]||null,adjTop=d.aiOrder?.[0]||null;
+            d.rawTopId=rawTop?pvAIClassToBallId(rawTop.i):'ignore';
+            d.rawTopScore=rawTop?.v||0;
+            d.adjustedTopId=adjTop?pvAIClassToBallId(adjTop.i):'ignore';
+            d.adjustedTopScore=adjTop?.v||0;
+            const second=d.aiOrder?.[1]||null;
+            d.secondId=second?pvAIClassToBallId(second.i):'ignore';
+            d.secondScore=second?.v||0;
+
+            d.id=chosen||'ignore';
+            const chosenEntry=(d.aiOrder||[]).find(x=>pvAIClassToBallId(x.i)===chosen);
+            const visualScore=chosen?pvManualRackIdentityScore(d,chosen):0;
+            d.identityConfidence=Number(chosenEntry?.v)||0;
+            d.manualRackResolved=true;
+            d.constraintAdjusted=chosen!==d.adjustedTopId;
+            d.appearanceAdjusted=d.adjustedTopId!==d.rawTopId;
+            d.closeCall=false;
+            d.duplicateWarning=false;
+            d.reviewReason='rack';
+
+            // Confidence reflects combined number/color/rack evidence. Do not leave a
+            // clearly reconstructed legal ball as "Unassigned / Check".
+            d.confidence=Math.max(.72,Math.min(.99,.58+visualScore*.32+(Number(d.detConfidence)||0)*.10));
+        }
+        return true;
+    }
+
     function pvResolveUniqueAI(list) {
+        if(['9ball','10ball','8ball'].includes(photoVision.rackType) && pvResolveManualRackAI(list))
+            return list;
+
         // Solve all identities together so each physical ball number is used once.
         // Four-way rotation averaging makes absolute neural percentages conservative,
         // so use BOTH absolute score and relative dominance over the alternatives.
@@ -7316,7 +7457,10 @@
             const duplicate=d.duplicateWarning===true;
             conf.className='photoDetectionConfidence'+((pct<60||duplicate)?' warn':'');
             const ballName=id=>String(id)==='0'?'Cue':(String(id)==='ignore'?'?':String(id));
-            if(d.engine==='ai' && String(d.id)!=='ignore' && (d.appearanceAdjusted||d.constraintAdjusted)) {
+            if(d.engine==='ai' && d.manualRackResolved && String(d.id)!=='ignore') {
+                conf.textContent=pvRackTypeLabel(photoVision.rackType)+' rack resolved • '+pct+'%';
+                conf.title='Resolved from the selected rack type using visible number/color evidence plus one-of-each pool-ball rules.';
+            } else if(d.engine==='ai' && String(d.id)!=='ignore' && (d.appearanceAdjusted||d.constraintAdjusted)) {
                 const rp=Math.round((d.rawTopScore||0)*100);
                 conf.textContent='AI '+ballName(d.rawTopId)+' '+rp+'% → '+ballName(d.id)+' • '+pct+'%';
                 conf.title=d.rackAdjusted
@@ -7891,7 +8035,11 @@
                     : (' '+pvRackTypeLabel(photoVision.effectiveRackType)+' rules active.');
                 const dupCount=Number(photoVision.duplicatesMerged)||0;
                 const dupNote=dupCount?(' Merged '+dupCount+' duplicate view'+(dupCount===1?'':'s')+' of the same physical ball.'):'';
-                pvStatus(prefix+' found '+photoVision.detections.length+' candidate balls.'+dupNote+rackNote+' Smart one-of-each + color/stripe rules applied; yellow items need review.'+aiReason);
+                const fullyResolved=photoVision.detections.length>0 && photoVision.detections.every(d=>String(d.id)!=='ignore');
+                const resolveNote=fullyResolved && ['9ball','10ball','8ball'].includes(photoVision.rackType)
+                    ? (' All '+photoVision.detections.length+' detected balls assigned to a unique legal identity.')
+                    : ' Smart one-of-each + color/stripe rules applied; yellow items need review.';
+                pvStatus(prefix+' found '+photoVision.detections.length+' candidate balls.'+dupNote+rackNote+resolveNote+aiReason);
             } else {
                 pvStatus('No balls were confidently detected. Turn on ADD BALLS and tap missing ball centers manually.');
             }
