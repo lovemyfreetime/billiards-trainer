@@ -216,6 +216,11 @@
   #liveStatsSection .shotMetricsWrap.focusShot2 #shot2Metrics { display:flex; }
   #liveStatsSection #shot1Metrics[hidden], #liveStatsSection #shot2Metrics[hidden] { display:none; }
   .tableControlGroup { padding:8px; margin-bottom:8px; background:#19232e; border:1px solid #354250; border-radius:7px; }
+  .layoutSetupGroup { padding:6px; }
+  .layoutSetupButtons { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .layoutSetupButtons button { height:42px; padding:4px; font-size:11px; line-height:15px; }
+  .layoutSetupSelect { margin-top:5px; }
+  .layoutSetupSelect select { width:100%; padding:4px 6px; min-height:30px; }
   .tableControlTitle { color:#93c9f5; font-size:11px; font-weight:800; margin-bottom:6px; }
   .shotVisibilityBtn, .cueVisualToggleBtn, .shotStatsToggleBtn {
     width:100%; height:48px; min-height:48px; max-height:48px;
@@ -1430,11 +1435,10 @@
     <div class="section">
       <button class="sectionToggle" type="button"><span>TABLE / BALLS</span></button>
       <div class="sectionBody">
-      <div class="tableControlGroup"><div class="tableControlTitle">LAYOUT SETUP</div>
-      <div class="buttons"><button id="resetLayout">Reset Layout</button></div>
-      <div class="row" style="margin-top:7px">
-        <label for="randomSetup">Random setup</label>
-        <select id="randomSetup">
+      <div class="tableControlGroup layoutSetupGroup"><div class="tableControlTitle">LAYOUT SETUP</div>
+      <div class="buttons layoutSetupButtons"><button id="resetLayout">Reset Layout</button><button id="makeRandomSetup">Create Random Setup</button></div>
+      <div class="layoutSetupSelect">
+        <select id="randomSetup" aria-label="Choose random ball count or rack">
           <option value="1">1 ball</option>
           <option value="2">2 balls</option>
           <option value="3">3 balls</option>
@@ -1450,7 +1454,6 @@
           <option value="rack10">10-ball rack</option>
         </select>
       </div>
-      <div class="buttons"><button id="makeRandomSetup">Create Random Setup</button></div>
       </div>
       <div class="tableControlGroup"><div class="tableControlTitle">BALLS &amp; MARKERS</div>
       <div class="ballManage">
