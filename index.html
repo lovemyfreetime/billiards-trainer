@@ -939,13 +939,12 @@
     accent-color:#6fff58;
     touch-action:none;
   }
-  .speedTickScale { position:absolute; left:20px; right:62px; height:7px; pointer-events:none; }
-  .speedTickScale.lagTicks { top:5px; }
-  .speedTickScale.feelTicks { bottom:5px; }
-  .speedTick { position:absolute; width:2px; height:2px; border-radius:50%; background:#a8c6b0; top:2px; transform:translateX(-50%); }
-  .speedTick.major { width:5px; height:5px; border-radius:0; background:#d0ebcf; top:0; transform:translateX(-50%) rotate(45deg); }
-  .feelTicks .speedTick { background:#82b8d6; }
-  .feelTicks .speedTick.major { background:#b3daf0; }
+  .speedTickScale { position:absolute; left:20px; right:62px; height:0; top:50%; pointer-events:none; z-index:3; }
+  .speedTickScale.feelTicks { display:none; }
+  .speedTick { position:absolute; width:4px; height:4px; background:#82b8d6; border:1px solid #101820; transform:translate(-50%,-50%) rotate(45deg); }
+  .speedTick.medium { width:6px; height:6px; background:#e9ca72; }
+  .speedTick.major { width:8px; height:8px; background:#ef9e59; }
+  .tableSpeedControl input[type=range] { position:relative; z-index:2; }
   .tableSpeedLabel {
     position:absolute;
     right:10px;
@@ -3663,7 +3662,7 @@
                 const pct=positionFor(k*2);
                 if(pct===null) continue;
                 const dot=document.createElement('span');
-                dot.className='speedTick'+(k%4===0?' major':'');
+                dot.className='speedTick'+(k%4===0?' major':k%2===0?' medium':'');
                 dot.style.left=pct+'%';lag.appendChild(dot);
                 // Lower scale: dots at quarter-table (2 diamonds),
                 // diamonds at half-table (4 diamonds) intervals.
