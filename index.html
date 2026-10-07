@@ -160,6 +160,15 @@
   .shotMetricsWrap { display:grid; grid-template-columns:1fr; gap:7px; }
   .shotMetricsWrap.dual { grid-template-columns:1fr 1fr; }
   .shotMetrics { min-width:0; }
+  .liveStatsIntro { color:#aab8c7; font-size:11px; margin-bottom:8px; }
+  #liveStatsSection .shotMetrics { background:#1a222c; border:1px solid #354250; border-radius:8px; padding:7px; box-shadow:0 3px 9px #0003; }
+  #liveStatsSection .statsGroupTitle { margin:10px 0 4px; padding:6px; border-bottom:1px solid #3a4d60; color:#93c9f5; font-size:10px; font-weight:800; letter-spacing:.03em; }
+  #liveStatsSection .metric { padding:6px; border:0; border-radius:4px; gap:7px; font-size:11px; }
+  #liveStatsSection .metric:nth-child(even) { background:#ffffff05; }
+  #liveStatsSection .metric span { color:#bdc8d4; line-height:1.3; }
+  #liveStatsSection .metric b { font-size:11px; line-height:1.3; overflow-wrap:anywhere; }
+  #liveStatsSection #shot2Metrics { border:1px solid #354250; padding:7px; }
+  #liveStatsSection .shotStatsToggleBtn { margin-top:0; }
   .shotVisibilityBtn, .cueVisualToggleBtn, .shotStatsToggleBtn {
     width:100%; height:48px; min-height:48px; max-height:48px;
     box-sizing:border-box; padding:5px 4px; margin-top:6px;
@@ -1311,38 +1320,6 @@
           <button id="toggleCueVisuals2Btn" class="cueVisualToggleBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">CUE BALL 2</span></button>
         </div>
       </div>
-      <div id="shotMetricsWrap" class="shotMetricsWrap">
-        <div class="shotMetrics" id="shot1Metrics">
-          <button id="toggleShotStats1Btn" class="shotStatsToggleBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">SHOT 1 STATS</span></button>
-          <div id="shotStatsBody1" class="shotStatsBody">
-          <div class="metric"><span>Tip location</span><b id="tipText">Center</b></div>
-          <div class="metric"><span>Predicted cue-ball squirt</span><b id="squirtText">0.00°</b></div>
-          <div class="metric"><span>Jump / flight</span><b id="airborneText">—</b></div>
-          <div class="metric"><span>Obstacle clearance</span><b id="clearanceText">—</b></div>
-          <div class="metric"><span>Jump guide</span><b id="jumpGuideText">—</b></div>
-          <div class="metric"><span>Curve / massé</span><b id="masseGuideText">—</b></div>
-          <div class="metric"><span>Power feel</span><b id="powerFeelText">—</b></div>
-          <div class="metric"><span id="pocketNeedLabel">Pocket speed</span><b id="pocketNeedText">—</b></div>
-          <div class="metric"><span id="impactPowerLabel">CB → object ball</span><b id="impactPowerText">—</b></div>
-          <div class="metric"><span id="pocketArrivalLabel">Object ball → pocket</span><b id="pocketArrivalText">—</b></div>
-          </div>
-        </div>
-        <div class="shotMetrics" id="shot2Metrics">
-          <button id="toggleShotStats2Btn" class="shotStatsToggleBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">SHOT 2 STATS</span></button>
-          <div id="shotStatsBody2" class="shotStatsBody">
-          <div class="metric"><span>Tip location</span><b id="tip2Text">Center</b></div>
-          <div class="metric"><span>Predicted cue-ball squirt</span><b id="squirt2Text">0.00°</b></div>
-          <div class="metric"><span>Jump / flight</span><b id="airborne2Text">—</b></div>
-          <div class="metric"><span>Obstacle clearance</span><b id="clearance2Text">—</b></div>
-          <div class="metric"><span>Jump guide</span><b id="jumpGuide2Text">—</b></div>
-          <div class="metric"><span>Curve / massé</span><b id="masseGuide2Text">—</b></div>
-          <div class="metric"><span>Power feel</span><b id="powerFeel2Text">—</b></div>
-          <div class="metric"><span id="pocketNeed2Label">Pocket speed</span><b id="pocketNeed2Text">—</b></div>
-          <div class="metric"><span id="impactPower2Label">CB → object ball</span><b id="impactPower2Text">—</b></div>
-          <div class="metric"><span id="pocketArrival2Label">Object ball → pocket</span><b id="pocketArrival2Text">—</b></div>
-          </div>
-        </div>
-      </div>
       <div class="buttons"><button class="primary" id="animate">Animate + Save Shot</button><button id="undoShot">Undo Last Shot</button></div>
       <div class="row" style="margin-top:7px">
         <label for="randomSetup">Random setup</label>
@@ -1367,25 +1344,56 @@
       </div>
     </div>
 
-    <div class="section">
-      <button class="sectionToggle" type="button"><span>LIVE CONTACT / OVERLAP</span></button>
+    <div class="section" id="liveStatsSection">
+      <button class="sectionToggle" type="button"><span>LIVE STATS</span></button>
       <div class="sectionBody">
-      <div id="liveMetricsWrap" class="liveMetricsWrap">
-        <div class="liveMetrics" id="liveShot1Metrics">
-          <div class="liveShotTitle">SHOT 1</div>
+        <div class="liveStatsIntro">Predicted results for your current setup.</div>
+      <div id="shotMetricsWrap" class="shotMetricsWrap">
+        <div class="shotMetrics" id="shot1Metrics">
+          <button id="toggleShotStats1Btn" class="shotStatsToggleBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">SHOT 1 STATS</span></button>
+          <div id="shotStatsBody1" class="shotStatsBody">
+          <div class="statsGroupTitle">CONTACT &amp; AIM</div>
           <div class="metric"><span>First ball hit</span><b id="firstBall">—</b></div>
           <div class="metric"><span>Cut angle at contact</span><b id="cutAngle">—</b></div>
           <div class="metric"><span>Physical overlap</span><b id="overlap">—</b></div>
           <div class="metric"><span>CB travel to contact</span><b id="distance">—</b></div>
           <div class="metric"><span>First predicted event</span><b id="firstEvent">—</b></div>
+          <div class="statsGroupTitle">CUE &amp; FLIGHT</div>
+          <div class="metric"><span>Tip location</span><b id="tipText">Center</b></div>
+          <div class="metric"><span>Predicted cue-ball squirt</span><b id="squirtText">0.00°</b></div>
+          <div class="metric"><span>Jump / flight</span><b id="airborneText">—</b></div>
+          <div class="metric"><span>Obstacle clearance</span><b id="clearanceText">—</b></div>
+          <div class="metric"><span>Jump guide</span><b id="jumpGuideText">—</b></div>
+          <div class="metric"><span>Curve / massé</span><b id="masseGuideText">—</b></div>
+          <div class="statsGroupTitle">POWER &amp; POCKET</div>
+          <div class="metric"><span>Power feel</span><b id="powerFeelText">—</b></div>
+          <div class="metric"><span id="pocketNeedLabel">Pocket speed</span><b id="pocketNeedText">—</b></div>
+          <div class="metric"><span id="impactPowerLabel">CB → object ball</span><b id="impactPowerText">—</b></div>
+          <div class="metric"><span id="pocketArrivalLabel">Object ball → pocket</span><b id="pocketArrivalText">—</b></div>
+          </div>
         </div>
-        <div class="liveMetrics" id="liveShot2Metrics">
-          <div class="liveShotTitle">SHOT 2</div>
+        <div class="shotMetrics" id="shot2Metrics">
+          <button id="toggleShotStats2Btn" class="shotStatsToggleBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">SHOT 2 STATS</span></button>
+          <div id="shotStatsBody2" class="shotStatsBody">
+          <div class="statsGroupTitle">CONTACT &amp; AIM</div>
           <div class="metric"><span>First ball hit</span><b id="firstBall2">—</b></div>
           <div class="metric"><span>Cut angle at contact</span><b id="cutAngle2">—</b></div>
           <div class="metric"><span>Physical overlap</span><b id="overlap2">—</b></div>
           <div class="metric"><span>CB travel to contact</span><b id="distance2">—</b></div>
           <div class="metric"><span>First predicted event</span><b id="firstEvent2">—</b></div>
+          <div class="statsGroupTitle">CUE &amp; FLIGHT</div>
+          <div class="metric"><span>Tip location</span><b id="tip2Text">Center</b></div>
+          <div class="metric"><span>Predicted cue-ball squirt</span><b id="squirt2Text">0.00°</b></div>
+          <div class="metric"><span>Jump / flight</span><b id="airborne2Text">—</b></div>
+          <div class="metric"><span>Obstacle clearance</span><b id="clearance2Text">—</b></div>
+          <div class="metric"><span>Jump guide</span><b id="jumpGuide2Text">—</b></div>
+          <div class="metric"><span>Curve / massé</span><b id="masseGuide2Text">—</b></div>
+          <div class="statsGroupTitle">POWER &amp; POCKET</div>
+          <div class="metric"><span>Power feel</span><b id="powerFeel2Text">—</b></div>
+          <div class="metric"><span id="pocketNeed2Label">Pocket speed</span><b id="pocketNeed2Text">—</b></div>
+          <div class="metric"><span id="impactPower2Label">CB → object ball</span><b id="impactPower2Text">—</b></div>
+          <div class="metric"><span id="pocketArrival2Label">Object ball → pocket</span><b id="pocketArrival2Text">—</b></div>
+          </div>
         </div>
       </div>
       </div>
@@ -6175,7 +6183,6 @@
         $('shot2Controls').classList.toggle('enabled', on);
         $('tipArea').classList.toggle('dual', on);
         $('shotMetricsWrap').classList.toggle('dual', on);
-        $('liveMetricsWrap').classList.toggle('dual', on);
         document.getElementById('panel').classList.toggle('dualMode', on);
         // Keep the small add/remove Shot 2 control exactly as before.
         $('toggleShot2').textContent = on ? '− SHOT 2' : '+ SHOT 2';
