@@ -6297,6 +6297,55 @@
     }
     function resetLayout() { const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
     function pointerPos(ev) { const r = canvas.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
+    // Touch-only marker manipulation. Capture before normal table aiming/dragging.
+    const zoneTouches = new Map();
+    let zoneGesture = null;
+    function stopZoneEvent(ev) { ev.preventDefault(); ev.stopImmediatePropagation(); }
+    canvas.addEventListener('pointerdown',ev=>{
+        if (isProjector || ev.pointerType!=='touch') return;
+        const p=pointerPos(ev), M=controlMap();
+        if (!zoneGesture) {
+            const zone=S.balls.filter(b=>b.marker&&!b.markerHidden&&b.active!==false)
+                .map(b=>{const q=M.map(b);return {b,d:Math.hypot(p.x-q.x,p.y-q.y),q};})
+                .filter(q=>q.d<=Math.max(18,(Number(q.b.markerDiameterIn)||6)*.0254/2*M.scale))
+                .sort((a,b)=>a.d-b.d)[0];
+            if (!zone) return;
+            zoneGesture={id:zone.b.id,offsetX:p.x-zone.q.x,offsetY:p.y-zone.q.y,pinched:false};
+        }
+        stopZoneEvent(ev);canvas.setPointerCapture(ev.pointerId);
+        zoneTouches.set(ev.pointerId,p);drag=null;
+        if(zoneTouches.size===2) {
+            const points=Array.from(zoneTouches.values());
+            zoneGesture.distance=Math.max(1,Math.hypot(points[0].x-points[1].x,points[0].y-points[1].y));
+            const zone=S.balls.find(b=>b.id===zoneGesture.id);
+            zoneGesture.diameter=Number(zone.markerDiameterIn)||6;
+            zoneGesture.pinched=true;
+        }
+    },{capture:true,passive:false});
+    canvas.addEventListener('pointermove',ev=>{
+        if(!zoneGesture||!zoneTouches.has(ev.pointerId))return;
+        stopZoneEvent(ev);zoneTouches.set(ev.pointerId,pointerPos(ev));
+        const zone=S.balls.find(b=>b.id===zoneGesture.id);
+        if(!zone)return;
+        const points=Array.from(zoneTouches.values());
+        if(points.length===2) {
+            const distance=Math.hypot(points[0].x-points[1].x,points[0].y-points[1].y);
+            zone.markerDiameterIn=clamp(Math.round(zoneGesture.diameter*distance/zoneGesture.distance*100)/100,2.25,36);
+        } else if(points.length===1&&!zoneGesture.pinched) {
+            const q=controlMap().inv({x:points[0].x-zoneGesture.offsetX,y:points[0].y-zoneGesture.offsetY});
+            zone.x=clamp(q.x,S.ballR,S.tableL-S.ballR);
+            zone.y=clamp(q.y,S.ballR,S.tableW-S.ballR);
+        }
+        draw();syncProjector();
+    },{capture:true,passive:false});
+    function endZoneTouch(ev) {
+        if(!zoneTouches.has(ev.pointerId))return;
+        stopZoneEvent(ev);zoneTouches.delete(ev.pointerId);
+        if(!zoneTouches.size){zoneGesture=null;drag=null;saveState();syncProjector();}
+    }
+    canvas.addEventListener('pointerup',endZoneTouch,{capture:true,passive:false});
+    canvas.addEventListener('pointercancel',endZoneTouch,{capture:true,passive:false});
+    canvas.addEventListener('lostpointercapture',endZoneTouch,{capture:true,passive:false});
     canvas.addEventListener('pointerdown', ev => {
         canvas.setPointerCapture(ev.pointerId);
         const p = pointerPos(ev);
