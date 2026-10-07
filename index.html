@@ -161,14 +161,21 @@
   .shotMetricsWrap.dual { grid-template-columns:1fr 1fr; }
   .shotMetrics { min-width:0; }
   .liveStatsIntro { color:#aab8c7; font-size:11px; margin-bottom:8px; }
-  #liveStatsSection .shotMetrics { background:#1a222c; border:1px solid #354250; border-radius:8px; padding:7px; box-shadow:0 3px 9px #0003; }
-  #liveStatsSection .statsGroupTitle { margin:10px 0 4px; padding:6px; border-bottom:1px solid #3a4d60; color:#93c9f5; font-size:10px; font-weight:800; letter-spacing:.03em; }
-  #liveStatsSection .metric { padding:6px; border:0; border-radius:4px; gap:7px; font-size:11px; }
-  #liveStatsSection .metric:nth-child(even) { background:#ffffff05; }
-  #liveStatsSection .metric span { color:#bdc8d4; line-height:1.3; }
-  #liveStatsSection .metric b { font-size:11px; line-height:1.3; overflow-wrap:anywhere; }
-  #liveStatsSection #shot2Metrics { border:1px solid #354250; padding:7px; }
-  #liveStatsSection .shotStatsToggleBtn { margin-top:0; }
+  #liveStatsSection .sectionBody { padding:6px; }
+  #liveStatsSection .liveStatsIntro { font-size:10px; margin-bottom:4px; }
+  #liveStatsSection .shotMetricsWrap { gap:6px; }
+  #liveStatsSection .shotMetrics { background:#151e28; border:1px solid #354250; border-radius:7px; padding:5px; box-shadow:0 2px 6px #0003; }
+  #liveStatsSection .statsGroupTitle { margin:5px 0 2px; padding:4px 5px; background:#30465d; border-radius:3px; color:#e3f2ff; font-size:12px; font-weight:800; letter-spacing:.02em; }
+  #liveStatsSection .metric { padding:3px 5px; margin:0; border:0; border-radius:2px; gap:4px; font-size:10px; background:#192532; }
+  #liveStatsSection .metric:nth-child(even) { background:#293b4c; }
+  #liveStatsSection .metric span { color:#d0dbe7; line-height:1.2; }
+  #liveStatsSection .metric b { font-size:10px; line-height:1.2; overflow-wrap:anywhere; }
+  #liveStatsSection #shot2Metrics { border:1px solid #354250; padding:5px; }
+  #liveStatsSection .statsShotTitle { font-size:12px; font-weight:800; padding:3px 5px 5px; color:#eef6ff; }
+  #liveStatsSection .dual #shot1Metrics { border:2px solid #79c85d; }
+  #liveStatsSection .dual #shot2Metrics { border:2px solid #39bfd4; }
+  #liveStatsSection .dual #shot1Metrics .statsShotTitle { color:#a9ea94; }
+  #liveStatsSection .dual #shot2Metrics .statsShotTitle { color:#8fe6f3; }
   .shotVisibilityBtn, .cueVisualToggleBtn, .shotStatsToggleBtn {
     width:100%; height:48px; min-height:48px; max-height:48px;
     box-sizing:border-box; padding:5px 4px; margin-top:6px;
@@ -1350,7 +1357,7 @@
         <div class="liveStatsIntro">Predicted results for your current setup.</div>
       <div id="shotMetricsWrap" class="shotMetricsWrap">
         <div class="shotMetrics" id="shot1Metrics">
-          <button id="toggleShotStats1Btn" class="shotStatsToggleBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">SHOT 1 STATS</span></button>
+          <div class="statsShotTitle">SHOT 1</div>
           <div id="shotStatsBody1" class="shotStatsBody">
           <div class="statsGroupTitle">CONTACT &amp; AIM</div>
           <div class="metric"><span>First ball hit</span><b id="firstBall">—</b></div>
@@ -1373,7 +1380,7 @@
           </div>
         </div>
         <div class="shotMetrics" id="shot2Metrics">
-          <button id="toggleShotStats2Btn" class="shotStatsToggleBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">SHOT 2 STATS</span></button>
+          <div class="statsShotTitle">SHOT 2</div>
           <div id="shotStatsBody2" class="shotStatsBody">
           <div class="statsGroupTitle">CONTACT &amp; AIM</div>
           <div class="metric"><span>First ball hit</span><b id="firstBall2">—</b></div>
@@ -6194,10 +6201,6 @@
         [1,2].forEach(which => {
             const btn = $('toggleCueVisuals'+which+'Btn');
             updateVisibilityButton(btn.id, cueVisualsVisible(which), 'CUE BALL '+which);
-            const showStats = S['showShotStats'+which] !== false;
-            updateVisibilityButton('toggleShotStats'+which+'Btn', showStats, 'SHOT '+which+' STATS');
-            $('shotStatsBody'+which).hidden = !showStats;
-            $('toggleShotStats'+which+'Btn').setAttribute('aria-expanded', String(showStats));
             btn.disabled = which === 2 && !on;
         });
         $('tipCanvas').classList.toggle('activeShotMarker', S.activeShot === 1);
@@ -9918,12 +9921,6 @@
             draw();
             saveState();
         });
-        [1,2].forEach(which => $('toggleShotStats'+which+'Btn').addEventListener('click', () => {
-            S['showShotStats'+which] = !(S['showShotStats'+which] !== false);
-            updateShot2UIState();
-            saveState();
-            syncProjector();
-        }));
         $('hideShot1Btn').addEventListener('click', () => {
             S.showShot1 = !S.showShot1;
             drawTipControl();
