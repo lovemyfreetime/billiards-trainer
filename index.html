@@ -176,12 +176,12 @@
   #liveStatsSection .dual #shot2Metrics { border:2px solid #39bfd4; }
   #liveStatsSection .dual #shot1Metrics .statsShotTitle { color:#a9ea94; }
   #liveStatsSection .dual #shot2Metrics .statsShotTitle { color:#8fe6f3; }
-  #liveStatsSection.open .shotMetricsWrap { min-height:var(--liveStatsHeight, 650px); }
+  #liveStatsSection.open .shotMetricsWrap { min-height:var(--liveStatsHeight, 560px); }
   #liveStatsSection .shotMetrics { display:flex; flex-direction:column; }
   #liveStatsSection .shotStatsBody { display:grid; flex:1; grid-template-rows:auto repeat(5,minmax(min-content,1fr)) auto repeat(6,minmax(min-content,1fr)) auto repeat(4,minmax(min-content,1fr)); }
-  #liveStatsSection .metric { display:flex; align-items:center; font-size:var(--liveStatsFont,12px); padding:4px 5px; }
-  #liveStatsSection .metric b { font-size:var(--liveStatsFont,12px); }
-  #liveStatsSection .statsGroupTitle { font-size:var(--liveStatsHeading,14px); padding:5px; margin:3px 0; }
+  #liveStatsSection .metric { display:flex; align-items:center; font-size:var(--liveStatsFont,11px); padding:3px 5px; }
+  #liveStatsSection .metric b { font-size:var(--liveStatsFont,11px); }
+  #liveStatsSection .statsGroupTitle { font-size:var(--liveStatsHeading,13px); padding:4px; margin:2px 0; }
   #liveStatsSection .statsShotTitle { font-size:14px; padding:5px; }
   #liveStatsSection .liveStatsIntro { font-size:11px; }
   .shotVisibilityBtn, .cueVisualToggleBtn, .shotStatsToggleBtn {
@@ -6188,10 +6188,10 @@
         const sec = $('liveStatsSection'), panel = $('panel');
         if (!sec || !panel || !sec.classList.contains('open')) return;
         const header = sec.querySelector('.sectionToggle');
-        const available = Math.max(320, panel.clientHeight - header.offsetHeight - 48);
+        const available = Math.max(320, (panel.clientHeight - header.offsetHeight - 70) * .86);
         sec.style.setProperty('--liveStatsHeight', available+'px');
-        sec.style.setProperty('--liveStatsFont', clamp(available/60, 10, 13)+'px');
-        sec.style.setProperty('--liveStatsHeading', clamp(available/50, 12, 15)+'px');
+        sec.style.setProperty('--liveStatsFont', clamp(available/70, 10, 11.5)+'px');
+        sec.style.setProperty('--liveStatsHeading', clamp(available/60, 12, 13)+'px');
     }
     function updateVisibilityButton(id, visible, subject) {
         const btn = $(id);
