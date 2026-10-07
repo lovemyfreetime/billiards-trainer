@@ -2103,7 +2103,7 @@
             if (!seen.has(i))
                 missing.push(i);
         S.nextId = missing.length ? missing[0] : 16;
-        S.markerSeq = Math.max(Number(S.markerSeq) || 1000, maxMarkerId + 1, 1000);
+        S.markerSeq = S.balls.some(b=>b.marker) ? Math.max(Number(S.markerSeq) || 1000, maxMarkerId + 1, 1000) : 1000;
     }
     function randomLooseSetup(count) {
         const cue = cueBall();
@@ -5050,7 +5050,7 @@
             ctx.beginPath();ctx.moveTo(q.x-7,q.y);ctx.lineTo(q.x+7,q.y);
             ctx.moveTo(q.x,q.y-7);ctx.lineTo(q.x,q.y+7);ctx.stroke();
             ctx.font='700 10px Segoe UI';ctx.fillStyle=color;ctx.textAlign='center';
-            ctx.fillText('M'+(b.id-999)+' · '+(Number(b.markerDiameterIn)||6).toFixed(2)+'″',q.x,q.y-11);
+            ctx.fillText('M'+markerNumber(b)+' · '+(Number(b.markerDiameterIn)||6).toFixed(2)+'″',q.x,q.y-11);
             ctx.restore();
             return;
         }
@@ -5625,6 +5625,9 @@
         }
         ctx.restore();
     }
+    function markerNumber(marker) {
+        return S.balls.filter(b=>b.marker).findIndex(b=>b.id===marker.id)+1;
+    }
     function updateMarkerRailControls() {
         if (isProjector) return;
         const bar=$('markerRailControls');
@@ -5655,10 +5658,10 @@
             item.style.left=(fraction*100)+'%';
             item.style.setProperty('--marker-color',{white:'#f7f7f3',red:'#e63b32',pink:'#ff63ad',yellow:'#f3d329'}[b.markerType]||'#fff');
             const title=document.createElement('div');title.className='markerRailTitle';
-            title.textContent='M'+(b.id-999);title.title=b.markerType+' marker '+(b.id-999);
+            title.textContent='M'+markerNumber(b);title.title=b.markerType+' marker '+markerNumber(b);
             const toggle=document.createElement('button');toggle.type='button';
             toggle.textContent=b.markerHidden?'Show':'Hide';
-            toggle.setAttribute('aria-label',toggle.textContent+' marker '+(b.id-999));
+            toggle.setAttribute('aria-label',toggle.textContent+' marker '+markerNumber(b));
             toggle.onclick=()=>{
                 const marker=S.balls.find(q=>q.id===b.id);
                 if (!marker) return;
@@ -5666,7 +5669,7 @@
                 draw();saveState();syncProjector();
             };
             const remove=document.createElement('button');remove.type='button';remove.textContent='Remove';
-            remove.setAttribute('aria-label','Remove marker '+(b.id-999));
+            remove.setAttribute('aria-label','Remove marker '+markerNumber(b));
             remove.onclick=()=>{
                 S.balls=S.balls.filter(q=>q.id!==b.id);
                 updateUI();draw();saveState();syncProjector();
@@ -10159,6 +10162,7 @@
             if (!['white','red','pink','yellow'].includes(type))
                 return false;
             const markers = S.balls.filter(b => b.marker);
+            if (!markers.length) S.markerSeq = 1000;
             const i = markers.length;
             const col = i % 4, row = Math.floor(i / 4) % 3;
             const x = clamp(S.tableL * (.36 + col * .095), S.ballR * 2, S.tableL - S.ballR * 2);
