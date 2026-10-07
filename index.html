@@ -6628,10 +6628,23 @@
         }
         draw();syncProjector();
     },{capture:true,passive:false});
+    function removeMarkerInPocket(id, q) {
+        const marker=S.balls.find(b=>b.id===id && b.marker);
+        if (!marker || !manualPocketAt(q)) return false;
+        S.balls=S.balls.filter(b=>b.id!==id);
+        normalizeBallSet(); updateUI(); refreshPreview();
+        toast('Marker removed');
+        return true;
+    }
     function endZoneTouch(ev) {
         if(!zoneTouches.has(ev.pointerId))return;
+        const gesture=zoneGesture;
         stopZoneEvent(ev);zoneTouches.delete(ev.pointerId);
-        if(!zoneTouches.size){zoneGesture=null;drag=null;saveState();syncProjector();}
+        if(!zoneTouches.size){
+            if(ev.type==='pointerup' && gesture && !gesture.pinched)
+                removeMarkerInPocket(gesture.id,controlMap().inv(pointerPos(ev)));
+            zoneGesture=null;drag=null;saveState();syncProjector();
+        }
     }
     canvas.addEventListener('pointerup',endZoneTouch,{capture:true,passive:false});
     canvas.addEventListener('pointercancel',endZoneTouch,{capture:true,passive:false});
@@ -6875,6 +6888,8 @@
         refreshPreview();
     });
     canvas.addEventListener('pointerup', ev => {
+        if (drag && drag.kind === 'ball')
+            removeMarkerInPocket(drag.id,controlMap().inv(pointerPos(ev)));
         if (drag && (drag.kind === 'ball' || drag.kind === 'ball2')) {
             const q = controlMap().inv(pointerPos(ev));
             const pocket = manualPocketAt(q);
