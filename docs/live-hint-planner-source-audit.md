@@ -77,3 +77,63 @@ Then add worker cancellation/version checks, including moving a blocker during s
 Finally benchmark candidate throughput, time to first useful hint and refined result time on actual Windows and Android devices. Choose beam width and budgets from those measurements; no latency promise is justified yet.
 
 Training is optional later. Log simulated state/action/outcome examples and train a candidate ranker to reduce search cost. Continue verifying finalists with physics. Do not transfer a policy trained with another engine's geometry, speed units or rules without validation.
+
+
+## Second research pass — 2026-10-07
+
+Scope: examined planning-related source in seven additional repositories, read the relevant PickPocket/CueCard papers, and checked primary pocket-acceptance and dataset references. These are source findings, not execution benchmarks. No external engine was installed or run and no trainer runtime code changed.
+
+### Stronger planning research
+
+[PickPocket: Running the Table (AAAI 2006)](https://cdn.aaai.org/AAAI/2006/AAAI06-156.pdf) explicitly varies speed and both tip offsets to generate different position outcomes. It precomputes shot difficulty using four geometry variables and distinguishes corner/side pockets. It compares four-ply probability-weighted search with two-ply noisy sampling; the latter performed better in its experiments. This does not establish that four-shot lookahead is unhelpful in our nine-ball task, but it makes robust continuation testing essential. Generate our own lookup data, tied to our physics and noise assumptions; their values do not transfer.
+
+[CueCard: Analysis of a Winning Computational Billiards Player](https://ai.stanford.edu/~shoham/www%20papers/AASBilliardsAAMAS2009.pdf) samples stroke variations and clusters similar resulting table states before expanding continuations. This reduces duplicate work while preserving more than one possible leave. Its study found that spending a fixed budget on more samples versus deeper search is a genuine tradeoff, not an automatic win for depth. It also tested a faster simulator against the reference simulator before using it. These are architectural references; a public complete CueCard planner was not located in this pass.
+
+### New source audits
+
+**cny123222/AI3603-Billiards** — revision b04878e6e41c916e64255aed4b9d5f6a2511ab7d.
+[Greedy agent](https://github.com/cny123222/AI3603-Billiards/blob/b04878e6e41c916e64255aed4b9d5f6a2511ab7d/agents/greedy_agent.py), [basic agent](https://github.com/cny123222/AI3603-Billiards/blob/b04878e6e41c916e64255aed4b9d5f6a2511ab7d/agents/basic_agent_pro.py), simulation_engine.py.
+Useful implementation examples: staged noisy trials, scratch/foul accounting, angle refinement, bank/kick/combo candidates, and offensive/defensive selection. The inspected force optimizer binary-searches for a minimum potting speed, then adds 15%; it does not optimize a four-shot route. Binary search assumes sufficiently monotonic pot success, which our speed-dependent jaws, throw and rail paths may violate: use a coarse feasible-speed scan plus local refinement instead. The basic agent's main geometric candidates set a=b=0; accepting spin parameters does not prove systematic position-play spin search. Its rules and opponent-ball penalties are eight-ball-specific. No root license found in examined tree. Do not copy code without resolving permission.
+
+**therealMrFunGuy/clubhouse-agent-protocol** — revision 1d204ca34c242ca7f1c72c09488c25eb29d44526.
+[Search example](https://github.com/therealMrFunGuy/clubhouse-agent-protocol/blob/1d204ca34c242ca7f1c72c09488c25eb29d44526/examples/pool-search-agent/agent.mjs), [simulator interface](https://github.com/therealMrFunGuy/clubhouse-agent-protocol/blob/1d204ca34c242ca7f1c72c09488c25eb29d44526/packages/pool-sim/src/index.ts).
+Especially useful JavaScript/TypeScript reference for calling the same physics/rules layer during search and execution. The wrapper clones input balls. Example search tests 240 angles × 3 powers × 3 side-spin values, holding vertical spin at zero. It ranks one-shot outcomes with a small nearest-legal-ball bonus; that bonus does not check next-shot pocketability. No multishot recursion in the inspected example. The package exposes eight/nine-ball rule APIs; full rule correctness was not audited. Package LICENSE is MIT. Its server/protocol/payment integration is unrelated to the trainer; only the local simulation architecture is relevant. Author timing comments are not our benchmarks.
+
+**ekiefl/FastFiz** — revision 6c6df412c8eed82fc6a70732aeffe9b64c8eaa38.
+[AI template](https://github.com/ekiefl/FastFiz/blob/6c6df412c8eed82fc6a70732aeffe9b64c8eaa38/FastFiz-0.2/AI/AI.cpp), FastFiz/Noise.cpp.
+Historical simulation/noise reference. Crucial distinction: the included AI's otherShot() sets DEC_CONCEDE. This source distribution is not the complete CueCard runout agent. Potential offline comparison tool; not a reason to replace the working trainer engine.
+
+**carrotdan/ai-billiard-system** — revision df48dfed15f0d144afaa762c17d86e35454cd8a1.
+[Shot scoring](https://github.com/carrotdan/ai-billiard-system/blob/df48dfed15f0d144afaa762c17d86e35454cd8a1/physics_n_trajectory_simulation/shot_scoring.py).
+Inspected compute_position_value combines collision clearance and distance from pockets at the cue-path endpoint. It does not evaluate potting the next legal ball. compute_pocket_probability is a weighted heuristic, not empirically calibrated probability. Camera/projector integration is potentially useful for a future task, but does not fill our four-ball-planning gap. No license file found in examined tree.
+
+**moeinalva/pool-ai-trainer** — revision ac2c65e3b3ff3a87549f7e6af9e463ccfad0beb6.
+[Notebook](https://github.com/moeinalva/pool-ai-trainer/blob/ac2c65e3b3ff3a87549f7e6af9e463ccfad0beb6/src/pool_ai_trainer.ipynb).
+Source uses geometric candidates and computes power as min(100, int(distance-to-ghost × 1.1)). This is not calibrated physical power or multi-shot English selection. Useful teaching-interface example, low priority for planner development.
+
+**skoo1/Four-Ball_Billiards_ThreeJS** — revision 036052d6edc05122f7806ac0f38e3c9ed7213801.
+[Controller](https://github.com/skoo1/Four-Ball_Billiards_ThreeJS/blob/036052d6edc05122f7806ac0f38e3c9ed7213801/controller.py).
+Has headless simulation/observation interfaces. Inspected AI scans angles in two passes with nominal power 0.6, then adds random aim/power errors. Four-ball here means carom game balls, not four-shot pool lookahead. Reference for simulator interfaces only.
+
+**taichi-dev/difftaichi** — revision 9f4ee522a0a01e6b1aae1d3551c7fd1f6ed56081.
+[Billiards example](https://github.com/taichi-dev/difftaichi/blob/9f4ee522a0a01e6b1aae1d3551c7fd1f6ed56081/examples/billiards.py).
+Optimizes initial cue-ball position and velocity by differentiating a target-position loss through ball collisions. The inspected example lacks pockets, angular spin and cloth dynamics. Changing cue-ball position is also unavailable during ordinary play. Interesting inverse-control research; not an immediate substitute for our engine or discrete pocket/route search.
+
+### Physics and data gaps
+
+[Dr. Dave's primary pocket-size/center resource](https://drdavepoolinfo.com/faq/pocket/size-and-center/) documents that effective pocket acceptance and ideal target vary with approach angle and speed. Implication: enumerate feasible pocket-entry offsets and validate them with our actual jaw geometry; do not always aim at the geometric center or assume more power always improves pot success. The simulator's own pocket behavior still needs validation.
+
+[Billiards Sports Analytics: Datasets and Tasks](https://arxiv.org/html/2407.19686v1) addresses break layouts, trajectories and layout retrieval/generation. It may help build varied benchmarks, but it is not established here as a labeled dataset mapping nine-ball layouts to optimal speed/English and four-shot runs. No suitable ready-to-use expert stroke dataset was verified in this pass.
+
+### Revised design decisions
+
+1. Keep the rolling four-shot objective. Allocate substantial computation to noisy first-shot outcomes and their continuations; do not blindly spend the budget on idealized depth.
+2. Add a skill/tolerance profile for aim, speed and tip-placement perturbations. Initially describe results as simulator robustness; real-player probabilities require calibration.
+3. Maintain multiple plausible resulting layouts. Cluster only compatible states: same remaining balls/legal status, similar positions, and similar next-shot access. Never merge a scratch with a legal outcome or average across a blocker boundary.
+4. Search speed and follow/draw/English jointly with small aim adjustments and pocket-entry offsets. Prefer simpler controls when performance is comparable. Revalidate the full result after each refinement.
+5. Distinguish cue-ball arrival spread from the useful position region. A marker should represent an area from which the required next ball and continuation remain playable. Nearby points may be separated by an obstruction or wrong-side angle.
+6. Return progressively refined hints with explicit depth achieved. Show a verified one/two-shot result while a four-shot search is incomplete; do not label it a completed four-shot plan.
+7. Benchmark three alternatives under equal time budgets: ideal four-shot beam; shallow robust sampling; hybrid four-shot beam with clustered noisy continuations. Measure legal pot rate, four-ball completion, scratches, positional tolerance and latency.
+8. Add failure cases: nearest-ball position but blocked pocket; rail-adjacent cue restricting stroke; overhit jaw rejection; narrow position window; legal extra pot changing ball order; clustered balls; stale result after a manual move.
+
+Priority: own-engine pure simulation/rules interface, candidate refinement, robust continuation search, then marker UI. Lookup tables and learned rankers are accelerators after correctness, keyed to geometry and calibration. Remaining unknowns are device throughput, adequacy of our pocket/rail physics under search, and calibration of difficulty estimates. The new evidence improves the design; it does not yet establish a finished or tested planner.
