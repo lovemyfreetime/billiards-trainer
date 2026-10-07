@@ -160,6 +160,18 @@
   .shotMetricsWrap { display:grid; grid-template-columns:1fr; gap:7px; }
   .shotMetricsWrap.dual { grid-template-columns:1fr 1fr; }
   .shotMetrics { min-width:0; }
+  .shotVisibilityBtn, .cueVisualToggleBtn, .shotStatsToggleBtn {
+    width:100%; height:48px; min-height:48px; max-height:48px;
+    box-sizing:border-box; padding:5px 4px; margin-top:6px;
+    font-size:11px; font-weight:800; line-height:17px;
+  }
+  .visibilityAction, .visibilitySubject { display:block; white-space:nowrap; }
+  .visibilitySubject { font-size:10px; }
+  .visibilityOn { background:#244e70; color:#e4f2ff; border-color:#4297e6; }
+  .visibilityOff { background:#303843; color:#b9c5d3; border-color:#4a5665; }
+  .visibilityOn:hover { background:#2d6087; }
+  .visibilityOff:hover { background:#3b4653; }
+  .shotStatsBody[hidden] { display:none; }
   #shot2Metrics { display:none; border-left:1px solid #39414b; padding-left:7px; }
   .shotMetricsWrap.dual #shot2Metrics { display:block; }
   .shotMetricsWrap.dual .metric { font-size:10px; gap:4px; }
@@ -1289,18 +1301,20 @@
         <div class="tipPane" id="tipPane1">
           <div class="shotPaneTitle">SHOT 1</div>
           <canvas id="tipCanvas" width="300" height="210"></canvas>
-          <button id="hideShot1Btn" class="shotVisibilityBtn" type="button">HIDE SHOT 1 PATH</button>
-          <button id="toggleCueVisuals1Btn" class="cueVisualToggleBtn" type="button">HIDE CUE BALL 1</button>
+          <button id="hideShot1Btn" class="shotVisibilityBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">SHOT 1 PATH</span></button>
+          <button id="toggleCueVisuals1Btn" class="cueVisualToggleBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">CUE BALL 1</span></button>
         </div>
         <div class="tipPane" id="tipPane2">
           <div class="shotPaneTitle">SHOT 2</div>
           <canvas id="tipCanvas2" width="300" height="210"></canvas>
-          <button id="hideShot2Btn" class="shotVisibilityBtn" type="button">HIDE SHOT 2 PATH</button>
-          <button id="toggleCueVisuals2Btn" class="cueVisualToggleBtn" type="button">HIDE CUE BALL 2</button>
+          <button id="hideShot2Btn" class="shotVisibilityBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">SHOT 2 PATH</span></button>
+          <button id="toggleCueVisuals2Btn" class="cueVisualToggleBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">CUE BALL 2</span></button>
         </div>
       </div>
       <div id="shotMetricsWrap" class="shotMetricsWrap">
         <div class="shotMetrics" id="shot1Metrics">
+          <button id="toggleShotStats1Btn" class="shotStatsToggleBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">SHOT 1 STATS</span></button>
+          <div id="shotStatsBody1" class="shotStatsBody">
           <div class="metric"><span>Tip location</span><b id="tipText">Center</b></div>
           <div class="metric"><span>Predicted cue-ball squirt</span><b id="squirtText">0.00°</b></div>
           <div class="metric"><span>Jump / flight</span><b id="airborneText">—</b></div>
@@ -1311,8 +1325,11 @@
           <div class="metric"><span id="pocketNeedLabel">Pocket speed</span><b id="pocketNeedText">—</b></div>
           <div class="metric"><span id="impactPowerLabel">CB → object ball</span><b id="impactPowerText">—</b></div>
           <div class="metric"><span id="pocketArrivalLabel">Object ball → pocket</span><b id="pocketArrivalText">—</b></div>
+          </div>
         </div>
         <div class="shotMetrics" id="shot2Metrics">
+          <button id="toggleShotStats2Btn" class="shotStatsToggleBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">SHOT 2 STATS</span></button>
+          <div id="shotStatsBody2" class="shotStatsBody">
           <div class="metric"><span>Tip location</span><b id="tip2Text">Center</b></div>
           <div class="metric"><span>Predicted cue-ball squirt</span><b id="squirt2Text">0.00°</b></div>
           <div class="metric"><span>Jump / flight</span><b id="airborne2Text">—</b></div>
@@ -1323,6 +1340,7 @@
           <div class="metric"><span id="pocketNeed2Label">Pocket speed</span><b id="pocketNeed2Text">—</b></div>
           <div class="metric"><span id="impactPower2Label">CB → object ball</span><b id="impactPower2Text">—</b></div>
           <div class="metric"><span id="pocketArrival2Label">Object ball → pocket</span><b id="pocketArrival2Text">—</b></div>
+          </div>
         </div>
       </div>
       <div class="buttons"><button class="primary" id="animate">Animate + Save Shot</button><button id="undoShot">Undo Last Shot</button></div>
@@ -1613,6 +1631,8 @@
             showShot1: true,
             showShot2: true,
             showCueVisuals: true,
+            showShotStats1: true,
+            showShotStats2: true,
             showCueVisuals1: true,
             showCueVisuals2: true,
             showAngleLockControl: false,
@@ -6141,6 +6161,13 @@
     function drawTipControl() { if (isProjector)
         return; drawTipDisk($('tipCanvas'), S.sideSpin, S.follow, 1); drawCueElevationInset(1); if (S.shot2Enabled)
         { drawTipDisk($('tipCanvas2'), ensureShot2().sideSpin, ensureShot2().follow, 2); } drawCueElevationInset(2); }
+    function updateVisibilityButton(id, visible, subject) {
+        const btn = $(id);
+        btn.innerHTML = '<span class="visibilityAction">'+(visible ? 'HIDE' : 'SHOW')+'</span><span class="visibilitySubject">'+subject+'</span>';
+        btn.classList.toggle('visibilityOn', visible);
+        btn.classList.toggle('visibilityOff', !visible);
+        btn.setAttribute('aria-pressed', String(visible));
+    }
     function updateShot2UIState() {
         if (isProjector)
             return;
@@ -6153,13 +6180,17 @@
         // Keep the small add/remove Shot 2 control exactly as before.
         $('toggleShot2').textContent = on ? '− SHOT 2' : '+ SHOT 2';
         // Symmetric full-width visibility controls live directly under each cue-ball box.
-        $('hideShot1Btn').textContent = S.showShot1 ? 'HIDE SHOT 1 PATH' : 'SHOW SHOT 1 PATH';
-        $('hideShot2Btn').textContent = S.showShot2 ? 'HIDE SHOT 2 PATH' : 'SHOW SHOT 2 PATH';
+        updateVisibilityButton('hideShot1Btn', S.showShot1, 'SHOT 1 PATH');
+        updateVisibilityButton('hideShot2Btn', S.showShot2, 'SHOT 2 PATH');
         $('hideShot1Btn').disabled = false;
         $('hideShot2Btn').disabled = !on;
         [1,2].forEach(which => {
             const btn = $('toggleCueVisuals'+which+'Btn');
-            btn.textContent = (cueVisualsVisible(which) ? 'HIDE' : 'SHOW') + ' CUE BALL ' + which;
+            updateVisibilityButton(btn.id, cueVisualsVisible(which), 'CUE BALL '+which);
+            const showStats = S['showShotStats'+which] !== false;
+            updateVisibilityButton('toggleShotStats'+which+'Btn', showStats, 'SHOT '+which+' STATS');
+            $('shotStatsBody'+which).hidden = !showStats;
+            $('toggleShotStats'+which+'Btn').setAttribute('aria-expanded', String(showStats));
             btn.disabled = which === 2 && !on;
         });
         $('tipCanvas').classList.toggle('activeShotMarker', S.activeShot === 1);
@@ -9880,6 +9911,12 @@
             draw();
             saveState();
         });
+        [1,2].forEach(which => $('toggleShotStats'+which+'Btn').addEventListener('click', () => {
+            S['showShotStats'+which] = !(S['showShotStats'+which] !== false);
+            updateShot2UIState();
+            saveState();
+            syncProjector();
+        }));
         $('hideShot1Btn').addEventListener('click', () => {
             S.showShot1 = !S.showShot1;
             drawTipControl();
