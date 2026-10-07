@@ -178,6 +178,8 @@
   #liveStatsSection .dual #shot2Metrics .statsShotTitle { color:#8fe6f3; }
   #liveStatsSection.open .shotMetricsWrap { min-height:var(--liveStatsHeight, 560px); }
   #liveStatsSection .shotMetrics { display:flex; flex-direction:column; }
+  #liveStatsSection .shotMetricsWrap:not(.dual) #shot2Metrics { display:none; }
+  #liveStatsSection .shotMetricsWrap.dual #shot2Metrics { display:flex; }
   #liveStatsSection .shotStatsBody { display:grid; flex:1; grid-template-rows:auto repeat(5,minmax(min-content,1fr)) auto repeat(6,minmax(min-content,1fr)) auto repeat(4,minmax(min-content,1fr)); }
   #liveStatsSection .metric { display:flex; align-items:center; font-size:var(--liveStatsFont,11px); padding:3px 5px; }
   #liveStatsSection .metric b { font-size:var(--liveStatsFont,11px); }
@@ -204,7 +206,7 @@
   .visibilityOff { background:#303843; color:#b9c5d3; border-color:#4a5665; }
   .visibilityOn:hover { background:#2d6087; }
   .visibilityOff:hover { background:#3b4653; }
-  .shotStatsBody[hidden] { display:none; }
+  .shotStatsBody[hidden], #liveStatsSection #shot2Metrics[hidden] { display:none; }
   #shot2Metrics { display:none; border-left:1px solid #39414b; padding-left:7px; }
   .shotMetricsWrap.dual #shot2Metrics { display:block; }
   .shotMetricsWrap.dual .metric { font-size:10px; gap:4px; }
@@ -6216,6 +6218,7 @@
         $('shot2Controls').classList.toggle('enabled', on);
         $('tipArea').classList.toggle('dual', on);
         $('shotMetricsWrap').classList.toggle('dual', on);
+        $('shot2Metrics').hidden = !on;
         document.getElementById('panel').classList.toggle('dualMode', on);
         // Keep the small add/remove Shot 2 control exactly as before.
         $('toggleShot2').textContent = on ? '− SHOT 2' : '+ SHOT 2';
