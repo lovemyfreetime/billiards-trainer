@@ -1436,10 +1436,10 @@
       <button class="sectionToggle" type="button"><span>TABLE / BALLS</span></button>
       <div class="sectionBody">
       <div class="tableControlGroup layoutSetupGroup"><div class="tableControlTitle">LAYOUT SETUP</div>
-      <div class="buttons layoutSetupButtons"><button id="resetLayout">Reset Layout</button><button id="makeRandomSetup">Create Random Setup</button></div>
+      <div class="buttons layoutSetupButtons"><button id="resetLayout">Reset Layout</button><button id="makeRandomSetup">Add Balls/Racks</button></div>
+      <div class="buttons"><button id="shuffleTableLayout" type="button">Randomly Shuffle Table Layout</button></div>
       <div class="layoutSetupSelect">
         <select id="randomSetup" aria-label="Choose random ball count or rack">
-          <option value="1">1 ball</option>
           <option value="2">2 balls</option>
           <option value="3">3 balls</option>
           <option value="4">4 balls</option>
@@ -1448,6 +1448,7 @@
           <option value="7">7 balls</option>
           <option value="8">8 balls</option>
           <option value="9">9 balls</option>
+          <option value="15">15 balls</option>
           <option value="rack3">3-ball rack</option>
           <option value="rack8">8-ball rack</option>
           <option value="rack9">9-ball rack</option>
@@ -2401,6 +2402,32 @@
         saveState();
         toast('Randomized 8-ball rack created');
     }
+    function shuffleTableLayout() {
+        const balls = S.balls.filter(b => !b.marker && b.active !== false);
+        const R = S.ballR, L = S.tableL, W = S.tableW, edge = R*3;
+        const positions = [], pockets = [[0,0],[L/2,0],[L,0],[0,W],[L/2,W],[L,W]];
+        for (const ball of balls) {
+            let pos = null;
+            for (let tries=0; tries<2500; tries++) {
+                const x=edge+Math.random()*(L-2*edge), y=edge+Math.random()*(W-2*edge);
+                if (pockets.some(([px,py]) => Math.hypot(x-px,y-py)<R*4.2)) continue;
+                if (positions.some(p => Math.hypot(x-p.x,y-p.y)<R*4.6)) continue;
+                pos={x,y}; break;
+            }
+            if (!pos) { toast('Could not find clear positions. Try shuffling again.'); return; }
+            positions.push(pos);
+        }
+        const before = cleanSnapshot();
+        animation = null;
+        balls.forEach((ball,i) => Object.assign(ball,positions[i]));
+        undoStack.push(before);
+        updateUI();
+        refreshPreview();
+        runHistory.push(cleanSnapshot());
+        saveState();
+        syncProjector();
+        toast('Table layout shuffled');
+    }
     function createRandomSetup() {
         const v = $('randomSetup').value;
         if (v === 'rack3')
@@ -2412,7 +2439,7 @@
         else if (v === 'rack10')
             randomTenBallRack();
         else
-            randomLooseSetup(clamp(parseInt(v, 10) || 1, 1, 9));
+            randomLooseSetup(clamp(parseInt(v, 10) || 2, 2, 15));
     }
     if (!isProjector) {
         restoreState();
@@ -10263,6 +10290,7 @@
         $('animate').onclick = animateShot;
         $('undoShot').onclick = undoLastShot;
         $('makeRandomSetup').onclick = createRandomSetup;
+        $('shuffleTableLayout').onclick = shuffleTableLayout;
         $('resetLayout').onclick = resetLayout;
         $('resetLayoutQuick').onclick = resetLayout;
         document.querySelectorAll('.advancedToggle').forEach(btn => btn.addEventListener('click', () => {
