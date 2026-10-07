@@ -184,6 +184,15 @@
   #liveStatsSection .statsGroupTitle { font-size:var(--liveStatsHeading,13px); padding:4px; margin:2px 0; }
   #liveStatsSection .statsShotTitle { font-size:14px; padding:5px; }
   #liveStatsSection .liveStatsIntro { font-size:11px; }
+  #liveStatsSection .shotMetricsWrap:not(.dual) .metric { font-size:14px; padding:4px 8px; }
+  #liveStatsSection .shotMetricsWrap:not(.dual) .metric b { font-size:14px; }
+  #liveStatsSection .shotMetricsWrap:not(.dual) .statsGroupTitle { font-size:15px; padding:5px 8px; }
+  #liveStatsSection .shotMetricsWrap:not(.dual) .statsShotTitle { font-size:16px; }
+  @media (max-height:700px) {
+    #liveStatsSection .shotMetricsWrap:not(.dual) .metric,
+    #liveStatsSection .shotMetricsWrap:not(.dual) .metric b { font-size:12px; }
+    #liveStatsSection .shotMetricsWrap:not(.dual) .statsGroupTitle { font-size:13px; }
+  }
   .shotVisibilityBtn, .cueVisualToggleBtn, .shotStatsToggleBtn {
     width:100%; height:48px; min-height:48px; max-height:48px;
     box-sizing:border-box; padding:5px 4px; margin-top:6px;
