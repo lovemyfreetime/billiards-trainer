@@ -1289,14 +1289,15 @@
           <div class="shotPaneTitle">SHOT 1</div>
           <canvas id="tipCanvas" width="300" height="210"></canvas>
           <button id="hideShot1Btn" class="shotVisibilityBtn" type="button">HIDE SHOT 1</button>
+          <button id="toggleCueVisuals1Btn" class="cueVisualToggleBtn" type="button">HIDE CUE BALL 1</button>
         </div>
         <div class="tipPane" id="tipPane2">
           <div class="shotPaneTitle">SHOT 2</div>
           <canvas id="tipCanvas2" width="300" height="210"></canvas>
           <button id="hideShot2Btn" class="shotVisibilityBtn" type="button">HIDE SHOT 2</button>
+          <button id="toggleCueVisuals2Btn" class="cueVisualToggleBtn" type="button">HIDE CUE BALL 2</button>
         </div>
       </div>
-      <button id="toggleCueVisualsBtn" class="cueVisualToggleBtn" type="button">HIDE CUE BALLS</button>
       <div id="shotMetricsWrap" class="shotMetricsWrap">
         <div class="shotMetrics" id="shot1Metrics">
           <div class="metric"><span>Tip location</span><b id="tipText">Center</b></div>
@@ -1611,6 +1612,8 @@
             showShot1: true,
             showShot2: true,
             showCueVisuals: true,
+            showCueVisuals1: true,
+            showCueVisuals2: true,
             showAngleLockControl: false,
             shot2: { x: 1.05, y: .72, freeAim: { x: 1.70, y: .72 }, angleLock: false, autoGhostLock: false, speed: 2.42, follow: 0, sideSpin: 0, cueElevationDeg: PHYSICS_MODEL.defaultCueElevationDeg, preview: null },
             teachingCompass: {
@@ -1895,7 +1898,7 @@
         S.activeShot = 1;
         S.showShot1 = true;
         S.showShot2 = true;
-        S.showCueVisuals = true;
+        S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true;
         S.pocketedLog = [];
         S.bankKick = JSON.parse(JSON.stringify(defaultState().bankKick));
         if (S.teachingCompass) {
@@ -2018,6 +2021,8 @@
                     S.showShot2 = true;
                 if (S.showCueVisuals === undefined)
                     S.showCueVisuals = true;
+                if (S.showCueVisuals1 === undefined) S.showCueVisuals1 = S.showCueVisuals;
+                if (S.showCueVisuals2 === undefined) S.showCueVisuals2 = S.showCueVisuals;
                 if (S.showAngleLockControl !== true)
                     S.showAngleLockControl = false;
                 if (![1, 2].includes(S.activeShot))
@@ -3185,6 +3190,9 @@
     }
     function simulateShot2() { if (!S.shot2Enabled)
         return null; return withShot2Context(() => simulate(false)); }
+    function cueVisualsVisible(which) {
+        return S[which === 2 ? 'showCueVisuals2' : 'showCueVisuals1'] !== false;
+    }
     function setActiveShot(n) {
         S.activeShot = (n === 2 && S.shot2Enabled) ? 2 : 1;
         updateShot2UIState();
@@ -5036,7 +5044,7 @@
     function drawBall(b, map, label = true) {
         if (!b.active)
             return;
-        if (b.id === 0 && !S.showCueVisuals)
+        if (b.id === 0 && !cueVisualsVisible(1))
             return;
         const R = S.ballR;
 
@@ -5118,7 +5126,7 @@
         const actualEnd = { x: cb.x + sd.x * S.ballR * 5.2, y: cb.y + sd.y * S.ballR * 5.2 };
         if (Math.abs(S.sideSpin) > .01)
             pathPoly([cb, actualEnd], map, '#ffffff', 1.35, .72, [4, 4]);
-        if (!S.showCueVisuals)
+        if (!cueVisualsVisible(1))
             return;
         const tip = { x: cb.x - d.x * S.ballR * 1.08, y: cb.y - d.y * S.ballR * 1.08 };
         const butt = { x: cb.x - d.x * Math.min(.48, S.tableL * .24), y: cb.y - d.y * Math.min(.48, S.tableL * .24) };
@@ -5173,7 +5181,7 @@
         drawContactOverlay(S.preview, map, { tangentColor: '#6fff58', ghostFill: '#ffffff22', ghostStroke: '#ffffff', contactColor: '#ff5b5b', bandColor: '#ff5b5b', labelColor: '#fff' });
     }
     function drawTipBadge(map) {
-        if (!S.showCueVisuals || !S.showTipBadge)
+        if (!cueVisualsVisible(1) || !S.showTipBadge)
             return;
         const cb = cueBall();
         if (!cb)
@@ -5303,7 +5311,7 @@
         else {
             drawContactOverlay(s.preview, map, { tangentColor: '#6fff58', ghostFill: '#00e5ff22', ghostStroke: '#9df7ff', contactColor: '#00e5ff', bandColor: '#ffd86b', labelColor: '#9df7ff' });
         }
-        if (!S.showCueVisuals)
+        if (!cueVisualsVisible(2))
             return;
         const tip = { x: cb.x - d.x * S.ballR * 1.08, y: cb.y - d.y * S.ballR * 1.08 };
         const butt = { x: cb.x - d.x * Math.min(.48, S.tableL * .24), y: cb.y - d.y * Math.min(.48, S.tableL * .24) };
@@ -5732,11 +5740,8 @@
         }
 
         // Global teaching toggle:
-        // when cue visuals are hidden, suppress the ENTIRE shot presentation for
-        // both shots — cue balls, cue sticks, aim lines, predicted ball paths,
-        // ghost/contact balls, overlap bands and tangent lines.
-        // Object balls and the teaching compass remain visible.
-        if (S.showCueVisuals) {
+        // Shot visibility controls paths and guides independently of cue-ball visibility.
+        {
             if (S.showShot1) {
                 drawPreview(map);
                 drawAim(map);
@@ -5748,7 +5753,7 @@
             for (const b of S.balls) {
                 if (b.marker)
                     continue;
-                if (b.id === 0 && (!S.showCueVisuals || !S.showShot1))
+                if (b.id === 0 && (!cueVisualsVisible(1) || !S.showShot1))
                     continue;
                 drawBall(b, map, true);
             }
@@ -5759,12 +5764,12 @@
                 const b = S.balls.find(x => x.id === ab.id);
                 if (!b || b.marker || !ab.active)
                     continue;
-                if (b.id === 0 && !S.showCueVisuals)
+                if (b.id === 0 && !cueVisualsVisible(1))
                     continue;
                 drawBall(Object.assign(Object.assign({}, b), { x: ab.x, y: ab.y, active: true }), map, false);
             }
         }
-        if (S.showCueVisuals && S.showShot1) {
+        if (S.showShot1) {
             drawImpactOverlay(map);
             drawTipBadge(map);
         }
@@ -6070,7 +6075,7 @@
             inset.setAttribute('aria-label','Side view of cue elevation and cue-ball strike point');
             inset.title = 'Scroll to adjust this shot’s cue elevation';
             inset.addEventListener('wheel', ev => {
-                if (!ev.deltaY || isProjector || !S.airbornePhysics || !S.showCueVisuals ||
+                if (!ev.deltaY || isProjector || !S.airbornePhysics || !cueVisualsVisible(which) ||
                     !$('cueElevationAdvanced'+which).open || (which === 2 && !S.shot2Enabled)) return;
                 ev.preventDefault();
                 ev.stopPropagation();
@@ -6083,7 +6088,7 @@
             face.insertAdjacentElement('afterend',inset);
         }
         if (!inset) return;
-        const visible = S.airbornePhysics && S.showCueVisuals &&
+        const visible = S.airbornePhysics && cueVisualsVisible(which) &&
             $('cueElevationAdvanced'+which).open &&
             (which === 2 ? S.shot2Enabled && S.showShot2 : S.showShot1);
         inset.style.display = visible ? 'block' : 'none';
@@ -6139,7 +6144,11 @@
         $('hideShot2Btn').textContent = S.showShot2 ? 'HIDE SHOT 2' : 'SHOW SHOT 2';
         $('hideShot1Btn').disabled = !on;
         $('hideShot2Btn').disabled = !on;
-        $('toggleCueVisualsBtn').textContent = S.showCueVisuals ? 'HIDE CUE BALLS' : 'SHOW CUE BALLS';
+        [1,2].forEach(which => {
+            const btn = $('toggleCueVisuals'+which+'Btn');
+            btn.textContent = (cueVisualsVisible(which) ? 'HIDE' : 'SHOW') + ' CUE BALL ' + which;
+            btn.disabled = which === 2 && !on;
+        });
         $('tipCanvas').classList.toggle('activeShotMarker', S.activeShot === 1);
         $('tipCanvas2').classList.toggle('activeShotMarker', on && S.activeShot === 2);
         const sp1 = $('tableSpeed1Wrap'), sp2 = $('tableSpeed2Wrap');
@@ -6153,9 +6162,9 @@
         if ($('tableSpeed1Label')) $('tableSpeed1Label').textContent = on ? 'SPEED 1' : 'SPEED';
 
         // Keep the teaching surface clean: hidden shots also hide their
-        // corresponding table-edge controls.  HIDE CUE BALLS hides both.
-        const showBottom1 = !!S.showCueVisuals && !!S.showShot1;
-        const showBottom2 = !!S.showCueVisuals && on && !!S.showShot2;
+        // corresponding table-edge controls.
+        const showBottom1 = !!S.showShot1;
+        const showBottom2 = on && !!S.showShot2;
         if ($('aimControls')) $('aimControls').style.display = showBottom1 ? 'flex' : 'none';
         if ($('tableSpeed1Wrap')) $('tableSpeed1Wrap').style.display = showBottom1 ? 'flex' : 'none';
         if ($('bottomSpin1')) $('bottomSpin1').style.display = showBottom1 ? 'flex' : 'none';
@@ -6354,7 +6363,7 @@
         if ($('aimControls')) $('aimControls').classList.toggle('activeAim', S.activeShot !== 2);
         if ($('aimControls2')) $('aimControls2').classList.toggle('activeAim', S.activeShot === 2 && S.shot2Enabled);
     }
-    function resetLayout() { const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
+    function resetLayout() { const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
     function pointerPos(ev) { const r = canvas.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
     // Touch-only marker manipulation. Capture before normal table aiming/dragging.
     const zoneTouches = new Map();
@@ -6903,7 +6912,7 @@
             S.shot2Enabled = false;
             S.showShot1 = true;
             S.showShot2 = true;
-            S.showCueVisuals = true;
+            S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true;
             S.activeShot = 1;
             S.shot2Initialized = false;
             S.shot2 = {
@@ -9390,7 +9399,7 @@
         // missed by the detector, or intentionally not included.  Preserve that
         // exact state instead of blocking Apply or inventing a default cue ball.
         S.allowMissingCueBall=!hasCueBall;
-        S.balls=balls;S.shot2Enabled=false;S.shot2Initialized=false;S.activeShot=1;S.showShot1=true;S.showShot2=true;S.showCueVisuals=true;S.pocketedLog=[];S.bankKick=JSON.parse(JSON.stringify(defaultState().bankKick));S.freeAim={x:S.tableL*.58,y:S.tableW*.5};
+        S.balls=balls;S.shot2Enabled=false;S.shot2Initialized=false;S.activeShot=1;S.showShot1=true;S.showShot2=true;S.showCueVisuals=true;S.showCueVisuals1=true;S.showCueVisuals2=true;S.pocketedLog=[];S.bankKick=JSON.parse(JSON.stringify(defaultState().bankKick));S.freeAim={x:S.tableL*.58,y:S.tableW*.5};
         normalizeBallSet();resetRunHistory();updateUI();updateShot2UIState();refreshPreview();saveState();syncProjector();
         if(saveAfter){
             const now=new Date(),name=$('photoLayoutName').value.trim()||('Photo layout '+now.toLocaleDateString([], {month:'numeric',day:'numeric'})+' '+now.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}));
@@ -9860,6 +9869,7 @@
             if (!S.shot2Enabled)
                 return;
             S.showShot1 = !S.showShot1;
+            drawTipControl();
             updateShot2UIState();
             draw();
             saveState();
@@ -9869,6 +9879,7 @@
             if (!S.shot2Enabled)
                 return;
             S.showShot2 = !S.showShot2;
+            drawTipControl();
             updateShot2UIState();
             draw();
             saveState();
@@ -10101,14 +10112,17 @@
         $('shot1Controls').addEventListener('pointerdown', () => setActiveShot(1));
         $('tipCanvas').addEventListener('pointerdown', () => setActiveShot(1), true);
         $('toggleShot2').onclick = toggleShot2;
-        $('toggleCueVisualsBtn').onclick = () => {
-            S.showCueVisuals = !S.showCueVisuals;
-            updateUI();
-            updateShot2UIState();
-            draw();
-            saveState();
-            syncProjector();
-        };
+        [1,2].forEach(which => {
+            $('toggleCueVisuals'+which+'Btn').onclick = () => {
+                if (which === 2 && !S.shot2Enabled) return;
+                S['showCueVisuals'+which] = !cueVisualsVisible(which);
+                updateUI();
+                updateShot2UIState();
+                draw();
+                saveState();
+                syncProjector();
+            };
+        });
         ['speed2', 'follow2', 'sideSpin2', 'cueElevation2'].forEach(id => $(id).addEventListener('input', () => { const s = ensureShot2(); s.speed = +$('speed2').value; s.follow = +$('follow2').value; s.sideSpin = +$('sideSpin2').value; s.cueElevationDeg = clamp(+$('cueElevation2').value, 0, cueElevationMax()); setActiveShot(2); updateUI(); refreshPreview(); }));
         function applyDirectShot2Input() { const s = ensureShot2(); s.speed = clamp(parseFloat($('speed2Number').value) || 0.25, 0.25, 6); s.follow = clamp((parseFloat($('follow2Number').value) || 0) / 100, -1, 1); s.sideSpin = clamp((parseFloat($('spin2Number').value) || 0) / 100, -1, 1); s.cueElevationDeg = clamp(parseFloat($('elev2Number').value) || 0, 0, cueElevationMax()); setActiveShot(2); updateUI(); refreshPreview(); }
         ['speed2Number', 'follow2Number', 'spin2Number', 'elev2Number'].forEach(id => { $(id).addEventListener('change', applyDirectShot2Input); $(id).addEventListener('keydown', ev => { if (ev.key === 'Enter') {
