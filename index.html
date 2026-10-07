@@ -106,7 +106,8 @@
     font-weight:800;
   }
   #tipArea.dual .shotVisibilityBtn { display:block; }
-  #hideShot1Btn, #hideShot2Btn { display:none; }
+  #hideShot1Btn { display:block; }
+  #hideShot2Btn { display:none; }
   #tipArea.dual #hideShot1Btn,
   #tipArea.dual #hideShot2Btn { display:block; }
   .section h2 { margin:0; font-size:13px; letter-spacing:.02em; }
@@ -1288,13 +1289,13 @@
         <div class="tipPane" id="tipPane1">
           <div class="shotPaneTitle">SHOT 1</div>
           <canvas id="tipCanvas" width="300" height="210"></canvas>
-          <button id="hideShot1Btn" class="shotVisibilityBtn" type="button">HIDE SHOT 1</button>
+          <button id="hideShot1Btn" class="shotVisibilityBtn" type="button">HIDE SHOT 1 PATH</button>
           <button id="toggleCueVisuals1Btn" class="cueVisualToggleBtn" type="button">HIDE CUE BALL 1</button>
         </div>
         <div class="tipPane" id="tipPane2">
           <div class="shotPaneTitle">SHOT 2</div>
           <canvas id="tipCanvas2" width="300" height="210"></canvas>
-          <button id="hideShot2Btn" class="shotVisibilityBtn" type="button">HIDE SHOT 2</button>
+          <button id="hideShot2Btn" class="shotVisibilityBtn" type="button">HIDE SHOT 2 PATH</button>
           <button id="toggleCueVisuals2Btn" class="cueVisualToggleBtn" type="button">HIDE CUE BALL 2</button>
         </div>
       </div>
@@ -5247,9 +5248,22 @@
         }
         if (S.airbornePhysics) drawAirborneTableOverlay(S.preview, map, 1, '#ffffff');
     }
+    function drawShot2CueBall(map) {
+        if (!S.shot2Enabled || !cueVisualsVisible(2)) return;
+        const s = ensureShot2(), cb = { x:s.x, y:s.y };
+        logicalCircle(cb, S.ballR, map, '#f7f7f3', '#00e5ff', 2.2);
+        const q = map(cb);
+        ctx.save();
+        ctx.fillStyle = '#17343a';
+        ctx.font = '700 10px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('CB2', q.x, q.y);
+        ctx.restore();
+    }
     function drawShot2(map) {
-        if (!S.shot2Enabled || !S.showShot2)
-            return;
+        if (!S.shot2Enabled) return;
+        if (!S.showShot2) { drawShot2CueBall(map); return; }
         const s = ensureShot2(), cb = { x: s.x, y: s.y };
         if (S.showPaths && s.preview) {
             const hit = s.preview.firstBallContact ? s.preview.firstBallContact.objId : -1;
@@ -5325,15 +5339,7 @@
         pathPoly([butt, tip], map, '#267d91', 5, .9);
         pathPoly([{ x: butt.x + d.x * .08, y: butt.y + d.y * .08 }, tip], map, '#dffbff', 2.2, .95);
         logicalCircle(s.freeAim, S.ballR * .26, map, '#8df6ffd9', '#052d33', 1);
-        logicalCircle(cb, S.ballR, map, '#f7f7f3', '#00e5ff', 2.2);
-        const q = map(cb);
-        ctx.save();
-        ctx.fillStyle = '#17343a';
-        ctx.font = '700 10px Segoe UI';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('CB2', q.x, q.y);
-        ctx.restore();
+        drawShot2CueBall(map);
     }
     function drawBankKickGuide(map) {
         var _a;
@@ -5760,7 +5766,7 @@
             for (const b of S.balls) {
                 if (b.marker)
                     continue;
-                if (b.id === 0 && (!cueVisualsVisible(1) || !S.showShot1))
+                if (b.id === 0 && !cueVisualsVisible(1))
                     continue;
                 drawBall(b, map, true);
             }
@@ -6147,9 +6153,9 @@
         // Keep the small add/remove Shot 2 control exactly as before.
         $('toggleShot2').textContent = on ? '− SHOT 2' : '+ SHOT 2';
         // Symmetric full-width visibility controls live directly under each cue-ball box.
-        $('hideShot1Btn').textContent = S.showShot1 ? 'HIDE SHOT 1' : 'SHOW SHOT 1';
-        $('hideShot2Btn').textContent = S.showShot2 ? 'HIDE SHOT 2' : 'SHOW SHOT 2';
-        $('hideShot1Btn').disabled = !on;
+        $('hideShot1Btn').textContent = S.showShot1 ? 'HIDE SHOT 1 PATH' : 'SHOW SHOT 1 PATH';
+        $('hideShot2Btn').textContent = S.showShot2 ? 'HIDE SHOT 2 PATH' : 'SHOW SHOT 2 PATH';
+        $('hideShot1Btn').disabled = false;
         $('hideShot2Btn').disabled = !on;
         [1,2].forEach(which => {
             const btn = $('toggleCueVisuals'+which+'Btn');
@@ -7085,7 +7091,7 @@
             const s = ensureShot2();
             // Every time Shot 2 is ADDED after being removed with the ± SHOT 2 control,
             // calculate Shot 1 again and seed CB2 at Shot 1's CURRENT final resting point.
-            // HIDE / SHOW SHOT 2 is different and still preserves its exact state.
+            // HIDE / SHOW SHOT 2 PATH is different and still preserves its exact state.
             if (!S.shot2Initialized) {
                 const shot1Now = simulate(false);
                 const restingCue = shot1Now.finalBalls &&
@@ -9875,8 +9881,6 @@
             saveState();
         });
         $('hideShot1Btn').addEventListener('click', () => {
-            if (!S.shot2Enabled)
-                return;
             S.showShot1 = !S.showShot1;
             drawTipControl();
             updateShot2UIState();
