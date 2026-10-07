@@ -70,8 +70,8 @@
   h1 .editionSub { display:block; margin-top:2px; font-size:11px; line-height:1.1; font-weight:500; color:var(--muted); letter-spacing:.02em; }
   .sub { color:var(--muted); font-size:12px; margin-bottom:12px; }
   .section { border:1px solid #343942; background:var(--panel2); border-radius:9px; margin:0 0 8px; overflow:hidden; padding:0; }
-  .sectionToggle { width:100%; text-align:left; background:#2b3038; color:#fff; border:0; border-radius:0; padding:9px 10px; font-size:13px; font-weight:700; letter-spacing:.02em; display:flex; justify-content:space-between; align-items:center; }
-  .sectionToggle:hover { background:#343b45; }
+  .sectionToggle { width:100%; text-align:left; background:#344650; color:#fff; border:0; border-radius:0; padding:9px 10px; font-size:13px; font-weight:700; letter-spacing:.02em; display:flex; justify-content:space-between; align-items:center; }
+  .sectionToggle:hover { background:#405762; }
   .sectionToggle::after { content:'+'; font-size:16px; font-weight:700; }
   .section.open .sectionToggle::after { content:'−'; }
   .sectionBody { display:none; padding:10px; }
@@ -1274,14 +1274,14 @@
 <div class="fineRow"><label>Shot speed <span id="speedText"></span></label><button id="speedMinus" type="button">−</button><input id="speed" type="range" min="0.25" max="6" step="0.01" value="2.42"><button id="speedPlus" type="button">+</button><input id="speedNumber" type="number" min="0.25" max="6" step="0.01" inputmode="decimal" aria-label="Shot 1 speed value"></div>
       <div class="fineRow"><label>Follow draw <span id="followText"></span></label><button id="followMinus" type="button">−</button><input id="follow" type="range" min="-1" max="1" step="0.01" value="0"><button id="followPlus" type="button">+</button><input id="followNumber" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 1 follow draw percent"></div>
       <div class="fineRow"><label>Left right spin <span id="spinText"></span></label><button id="spinMinus" type="button">−</button><input id="sideSpin" type="range" min="-1" max="1" step="0.01" value="0"><button id="spinPlus" type="button">+</button><input id="spinNumber" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 1 left right spin percent"></div>
-      <details class="cueElevationAdvanced"><summary style="cursor:pointer;font-size:12px;margin:7px 0">ADVANCED · Cue elevation</summary><div class="fineRow"><label>Cue elevation <span id="elevText"></span></label><button id="elevMinus" type="button">−</button><input id="cueElevation" type="range" min="0" max="15" step="0.1" value="3"><button id="elevPlus" type="button">+</button><input id="elevNumber" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 1 cue elevation degrees"></div></details>
+      <details id="cueElevationAdvanced1" class="cueElevationAdvanced"><summary style="cursor:pointer;font-size:12px;margin:7px 0">ADVANCED · Cue elevation</summary><div class="fineRow"><label>Cue elevation <span id="elevText"></span></label><button id="elevMinus" type="button">−</button><input id="cueElevation" type="range" min="0" max="15" step="0.1" value="3"><button id="elevPlus" type="button">+</button><input id="elevNumber" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 1 cue elevation degrees"></div></details>
       </div>
       <div id="shot2Controls">
         <div class="shotMiniTitle">SHOT 2 CONTROLS</div>
         <div class="fineRow"><label>Shot speed</label><button id="speed2Minus" type="button">−</button><input id="speed2" type="range" min="0.25" max="6" step="0.01" value="2.42"><button id="speed2Plus" type="button">+</button><input id="speed2Number" type="number" min="0.25" max="6" step="0.01" inputmode="decimal" aria-label="Shot 2 speed value"></div>
         <div class="fineRow"><label>Follow draw</label><button id="follow2Minus" type="button">−</button><input id="follow2" type="range" min="-1" max="1" step="0.01" value="0"><button id="follow2Plus" type="button">+</button><input id="follow2Number" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 2 follow draw percent"></div>
         <div class="fineRow"><label>Left right spin</label><button id="spin2Minus" type="button">−</button><input id="sideSpin2" type="range" min="-1" max="1" step="0.01" value="0"><button id="spin2Plus" type="button">+</button><input id="spin2Number" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 2 left right spin percent"></div>
-        <details class="cueElevationAdvanced"><summary style="cursor:pointer;font-size:12px;margin:7px 0">ADVANCED · Cue elevation</summary><div class="fineRow"><label>Cue elevation</label><button id="elev2Minus" type="button">−</button><input id="cueElevation2" type="range" min="0" max="15" step="0.1" value="3"><button id="elev2Plus" type="button">+</button><input id="elev2Number" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 2 cue elevation degrees"></div></details>
+        <details id="cueElevationAdvanced2" class="cueElevationAdvanced"><summary style="cursor:pointer;font-size:12px;margin:7px 0">ADVANCED · Cue elevation</summary><div class="fineRow"><label>Cue elevation</label><button id="elev2Minus" type="button">−</button><input id="cueElevation2" type="range" min="0" max="15" step="0.1" value="3"><button id="elev2Plus" type="button">+</button><input id="elev2Number" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 2 cue elevation degrees"></div></details>
       </div>
       <div id="tipArea">
         <button id="toggleShot2" type="button">+ SHOT 2</button>
@@ -3189,6 +3189,7 @@
         S.activeShot = (n === 2 && S.shot2Enabled) ? 2 : 1;
         updateShot2UIState();
         updateAngleLockButton();
+        draw();
     }
     function len(x, y) { return Math.hypot(x, y); }
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
@@ -6065,13 +6066,28 @@
         if (!inset && S.airbornePhysics) {
             inset = document.createElement('canvas');
             inset.id = id;
-            inset.style.cssText = 'position:static;inset:auto;width:100%;height:110px;border:1px solid #3b424c;border-radius:8px;margin-top:5px;pointer-events:none';
+            inset.style.cssText = 'position:static;inset:auto;width:100%;height:110px;border:1px solid #3b424c;border-radius:8px;margin-top:5px;pointer-events:auto;cursor:ns-resize';
             inset.setAttribute('aria-label','Side view of cue elevation and cue-ball strike point');
+            inset.title = 'Scroll to adjust this shot’s cue elevation';
+            inset.addEventListener('wheel', ev => {
+                if (!ev.deltaY || isProjector || !S.airbornePhysics || !S.showCueVisuals ||
+                    !$('cueElevationAdvanced'+which).open || (which === 2 && !S.shot2Enabled)) return;
+                ev.preventDefault();
+                ev.stopPropagation();
+                const range = $(which === 2 ? 'cueElevation2' : 'cueElevation');
+                const shot = which === 2 ? ensureShot2() : S;
+                range.value = clamp(Math.round((shot.cueElevationDeg + (ev.deltaY < 0 ? 0.1 : -0.1))*10)/10, 0, cueElevationMax());
+                setActiveShot(which);
+                range.dispatchEvent(new Event('input', { bubbles:true }));
+            }, { passive:false });
             face.insertAdjacentElement('afterend',inset);
         }
         if (!inset) return;
-        inset.style.display = S.airbornePhysics ? 'block' : 'none';
-        if (!S.airbornePhysics) return;
+        const visible = S.airbornePhysics && S.showCueVisuals &&
+            $('cueElevationAdvanced'+which).open &&
+            (which === 2 ? S.shot2Enabled && S.showShot2 : S.showShot1);
+        inset.style.display = visible ? 'block' : 'none';
+        if (!visible) return;
         const shot = which === 2 ? ensureShot2() : S;
         const rect = inset.getBoundingClientRect();
         if (rect.width < 30) return;
@@ -6106,7 +6122,7 @@
     }
     function drawTipControl() { if (isProjector)
         return; drawTipDisk($('tipCanvas'), S.sideSpin, S.follow, 1); drawCueElevationInset(1); if (S.shot2Enabled)
-        { drawTipDisk($('tipCanvas2'), ensureShot2().sideSpin, ensureShot2().follow, 2); drawCueElevationInset(2); } }
+        { drawTipDisk($('tipCanvas2'), ensureShot2().sideSpin, ensureShot2().follow, 2); } drawCueElevationInset(2); }
     function updateShot2UIState() {
         if (isProjector)
             return;
@@ -10081,6 +10097,7 @@
             setTipFromPointer(ev); });
         tc.addEventListener('pointerup', () => tipDrag = false);
         tc.addEventListener('pointercancel', () => tipDrag = false);
+        [1,2].forEach(which => $('cueElevationAdvanced'+which).addEventListener('toggle', () => drawCueElevationInset(which)));
         $('shot1Controls').addEventListener('pointerdown', () => setActiveShot(1));
         $('tipCanvas').addEventListener('pointerdown', () => setActiveShot(1), true);
         $('toggleShot2').onclick = toggleShot2;
