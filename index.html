@@ -15,12 +15,15 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
   #markerRailControls { position:absolute;z-index:9;display:none;pointer-events:none; }
-  .markerRailItem { position:absolute;top:0;transform:translateX(-50%);height:100%;text-align:center;background:rgba(12,12,12,.12);border:1px solid var(--marker-color);border-radius:4px;padding:1px 2px;opacity:.20;transition:opacity .15s,background .15s;pointer-events:auto;white-space:nowrap; }
-  .markerRailItem:hover,.markerRailItem:focus-within { opacity:1;background:rgba(12,12,12,.75); }
-  .markerRailTitle { color:var(--marker-color);font-size:9px;line-height:10px;font-weight:800; }
-  .markerRailItem button { padding:1px 3px;font-size:9px;line-height:10px;border-radius:3px; }
-  .markerRailItem button+button { margin-left:2px; }
-  @media (hover:none) { .markerRailItem { opacity:.7; } }
+  .markerRailItem { position:absolute;top:0;transform:translateX(-50%);width:var(--marker-diameter);height:100%;text-align:center;opacity:.12;transition:opacity .15s;pointer-events:auto;white-space:nowrap;touch-action:none;cursor:grab; }
+  .markerRailItem:hover,.markerRailItem:focus-within { opacity:.85; }
+  .markerRailTitle { color:var(--marker-color);font-size:9px;line-height:10px;font-weight:800;cursor:grab; }
+  .markerRailCircle { width:var(--marker-diameter);height:var(--marker-diameter);border:1px solid var(--marker-color);border-radius:50%;overflow:hidden;background:rgba(12,12,12,.25);display:flex;flex-direction:column; }
+  .markerRailCircle button { flex:1;width:100%;min-height:0;padding:0;font-size:7px;line-height:1;border:0;border-radius:0;background:rgba(12,12,12,.2);font-weight:700; }
+  .markerRailCircle button+button { border-top:1px solid var(--marker-color); }
+  .markerRailCircle button:hover { background:rgba(12,12,12,.65); }
+  @media (hover:none) { .markerRailItem { opacity:.5; } }
+
 
 
   :root { color-scheme: dark; --panel:#171a1f; --panel2:#22262d; --text:#eef2f5; --muted:#aeb8c2; --accent:#e8e8e8; }
@@ -5636,14 +5639,18 @@
         bar.style.top=(tl.y-(ORIGINAL_ASSET_GEOM.y0-45)*artworkScale-railHeight/2)+'px';
         bar.style.width=railWidth+'px';
         bar.style.height=railHeight+'px';
+        bar.style.setProperty('--marker-diameter',Math.max(14,railHeight-10)+'px');
         const signature=markers.map(b=>b.id+':'+b.markerType+':'+!!b.markerHidden).join('|');
-        if(bar.dataset.signature===signature) return;
+        if(bar.dataset.signature===signature) {
+            markers.forEach((b,i)=>{if(Number.isFinite(b.markerRailFraction)&&bar.children[i])bar.children[i].style.left=(b.markerRailFraction*100)+'%';});
+            return;
+        }
         bar.dataset.signature=signature;bar.replaceChildren();
         markers.forEach((b,index)=>{
             const item=document.createElement('div');item.className='markerRailItem';
             const slot=index%8, row=Math.floor(index/8);
             const count=Math.ceil((markers.length-slot)/8);
-            const fraction=(slot+(row+1)/(count+1))/8;
+            const fraction=Number.isFinite(b.markerRailFraction)?b.markerRailFraction:(slot+(row+1)/(count+1))/8;
             item.style.left=(fraction*100)+'%';
             item.style.setProperty('--marker-color',{white:'#f7f7f3',red:'#e63b32',pink:'#ff63ad',yellow:'#f3d329'}[b.markerType]||'#fff');
             const title=document.createElement('div');title.className='markerRailTitle';
@@ -5663,7 +5670,39 @@
                 S.balls=S.balls.filter(q=>q.id!==b.id);
                 updateUI();draw();saveState();syncProjector();
             };
-            item.append(title,toggle,remove);bar.appendChild(item);
+            const circle=document.createElement('div');circle.className='markerRailCircle';
+            circle.append(toggle,remove);item.append(title,circle);bar.appendChild(item);
+            let moving=false,startX=0,initialFraction=fraction,pointer=null,suppressClick=false;
+            item.addEventListener('pointerdown',ev=>{
+                if(ev.button!==0)return;
+                ev.stopPropagation();startX=ev.clientX;pointer=ev.pointerId;
+                const marker=S.balls.find(q=>q.id===b.id);
+                initialFraction=Number.isFinite(marker && marker.markerRailFraction)?marker.markerRailFraction:parseFloat(item.style.left)/100;
+                moving=false;suppressClick=false;
+            });
+            item.addEventListener('pointermove',ev=>{
+                if(pointer!==ev.pointerId)return;
+                const dx=ev.clientX-startX;
+                if(!moving&&Math.abs(dx)<5)return;
+                moving=true;suppressClick=true;ev.preventDefault();ev.stopPropagation();
+                item.setPointerCapture(ev.pointerId);item.style.cursor='grabbing';
+                const marker=S.balls.find(q=>q.id===b.id);if(!marker)return;
+                const bounds=bar.getBoundingClientRect(),inset=item.getBoundingClientRect().width/2/Math.max(1,bounds.width);
+                marker.markerRailFraction=clamp(initialFraction+dx/Math.max(1,bounds.width),inset,1-inset);
+                item.style.left=(marker.markerRailFraction*100)+'%';
+            });
+            const finish=ev=>{
+                if(pointer!==ev.pointerId)return;
+                pointer=null;item.style.cursor='grab';
+                if(moving){ev.stopPropagation();saveState();syncProjector();}moving=false;
+            };
+            item.addEventListener('pointerup',finish);
+            item.addEventListener('pointercancel',finish);
+            item.addEventListener('lostpointercapture',finish);
+            item.addEventListener('pointerleave',ev=>{if(!moving)pointer=null;});
+            item.addEventListener('click',ev=>{
+                if(suppressClick){ev.preventDefault();ev.stopImmediatePropagation();suppressClick=false;}
+            },true);
         });
     }
     function draw() {
