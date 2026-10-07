@@ -939,12 +939,12 @@
     accent-color:#6fff58;
     touch-action:none;
   }
-  .speedTickScale { position:absolute; left:20px; right:62px; height:0; top:50%; pointer-events:none; z-index:3; }
+  .speedTickScale { position:absolute; left:20px; right:62px; height:0; top:50%; pointer-events:none; z-index:1; }
   .speedTickScale.feelTicks { display:none; }
-  .speedTick { position:absolute; width:4px; height:4px; background:#82b8d6; border:1px solid #101820; transform:translate(-50%,-50%) rotate(45deg); }
-  .speedTick.medium { width:6px; height:6px; background:#e9ca72; }
-  .speedTick.major { width:8px; height:8px; background:#ef9e59; }
-  .tableSpeedControl input[type=range] { position:relative; z-index:2; }
+  .speedTick { position:absolute; width:2px; height:14px; border-radius:1px; background:#f4f7fb; transform:translate(-50%,-50%); }
+  .speedTick.medium { height:20px; background:#f4f7fb; }
+  .speedTick.major { width:3px; height:32px; background:#4297e6; }
+  .tableSpeedControl input[type=range] { position:relative; z-index:2; background:transparent; }
   .tableSpeedLabel {
     position:absolute;
     right:10px;
