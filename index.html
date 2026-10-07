@@ -1388,6 +1388,85 @@
       </div>
     </div>
 
+    <div class="section">
+      <button class="sectionToggle" type="button"><span>TABLE / BALLS</span></button>
+      <div class="sectionBody">
+      <div class="tableControlGroup layoutSetupGroup"><div class="tableControlTitle">LAYOUT SETUP</div>
+      <div class="buttons layoutSetupReset"><button id="resetLayout">Reset Layout</button></div>
+      <div class="buttons layoutSetupButtons"><button id="makeRandomSetup">Add Balls/Racks</button><button id="shuffleTableLayout" type="button">Randomly Shuffle Table Layout</button></div>
+      <div class="layoutSetupSelect">
+        <select id="randomSetup" aria-label="Choose random ball count or rack">
+          <option value="2">2 balls</option>
+          <option value="3">3 balls</option>
+          <option value="4">4 balls</option>
+          <option value="5">5 balls</option>
+          <option value="6">6 balls</option>
+          <option value="7">7 balls</option>
+          <option value="8">8 balls</option>
+          <option value="9">9 balls</option>
+          <option value="15">15 balls</option>
+          <option value="rack3">3-ball rack</option>
+          <option value="rack8">8-ball rack</option>
+          <option value="rack9">9-ball rack</option>
+          <option value="rack10">10-ball rack</option>
+        </select>
+      </div>
+      </div>
+      <div class="tableControlGroup layoutSetupGroup"><div class="tableControlTitle">BALLS</div>
+        <div class="buttons layoutSetupReset"><button id="addNextBall" type="button">Add Next Ball</button></div>
+        <div class="buttons layoutSetupButtons"><button id="addBall" type="button">Add Ball</button><button id="removeBall" type="button">Remove Ball</button></div>
+        <div class="layoutSetupSelect"><select id="ballSelect" aria-label="Select ball number"><option value="1">Ball 1</option>
+<option value="2">Ball 2</option>
+<option value="3">Ball 3</option>
+<option value="4">Ball 4</option>
+<option value="5">Ball 5</option>
+<option value="6">Ball 6</option>
+<option value="7">Ball 7</option>
+<option value="8">Ball 8</option>
+<option value="9">Ball 9</option>
+<option value="10">Ball 10</option>
+<option value="11">Ball 11</option>
+<option value="12">Ball 12</option>
+<option value="13">Ball 13</option>
+<option value="14">Ball 14</option>
+<option value="15">Ball 15</option></select></div>
+      </div>
+      <div class="tableControlGroup layoutSetupGroup"><div class="tableControlTitle">MARKERS</div>
+        <div class="buttons layoutSetupReset"><button id="addNextMarker" type="button">Add Next Marker</button></div>
+        <div class="buttons layoutSetupButtons"><button id="addMarker" type="button">Add Marker</button><button id="removeMarker" type="button">Remove Marker</button></div>
+        <div class="layoutSetupSelect"><select id="markerSelect" aria-label="Select marker color">
+          <option value="white">White / red dot</option><option value="red">Red / white dot</option>
+          <option value="pink">Pink / white dot</option><option value="yellow">Yellow / white dot</option>
+        </select></div>
+      </div>
+      <div id="markerZoneControls" style="display:none;border:1px solid #41464f;border-radius:7px;padding:8px;margin-top:8px">
+        <label for="markerZoneSelect">Practice target zone</label>
+        <select id="markerZoneSelect" aria-label="Choose individual practice target"></select>
+        <div class="row"><label for="markerDiameter">Diameter (inches)</label><input id="markerDiameterNumber" type="number" min="2.25" max="36" step=".25" value="6"></div>
+        <input id="markerDiameter" type="range" min="2.25" max="36" step=".25" value="6" aria-label="Practice target diameter in inches">
+        <div class="hint">Drag the center to position. Each zone has its own size. Reduce its diameter as control improves.</div>
+      </div>
+      <div class="layoutManage">
+        <div class="layoutManageTitle"><span>SAVED BALL LAYOUTS</span><span id="layoutCount">0 / 20</span></div>
+        <input id="layoutNameInput" type="text" maxlength="60" placeholder="Layout name — e.g. Wednesday league 7-ball" aria-label="Saved layout name">
+        <button id="saveLayoutBtn" class="layoutManageSave" type="button">SAVE CURRENT LAYOUT</button>
+        <div class="layoutManageRow">
+          <select id="layoutSelect" aria-label="Saved ball layouts">
+            <option value="">No saved layouts</option>
+          </select>
+          <button id="loadLayoutBtn" type="button">RECALL</button>
+        </div>
+      </div>
+      <button class="advancedToggle" type="button" data-advanced="tableAdvanced">ADVANCED</button>
+      <div class="advancedBody" id="tableAdvanced">
+        <div class="row"><label>Playing length (in)</label><input id="tableL" type="number" min="60" max="120" step="0.01"></div>
+        <div class="row"><label>Playing width (in)</label><input id="tableW" type="number" min="30" max="60" step="0.01"></div>
+        <div class="row"><label>Ball diameter (in)</label><input id="ballD" type="number" min="1.5" max="3" step="0.001"></div>
+        <div class="buttons"><button data-preset="7d">7' Diamond 80×40</button><button data-preset="7b">7' Bar 78×39</button><button data-preset="8">8' 88×44</button><button data-preset="9">9' 100×50</button></div>
+      </div>
+      </div>
+    </div>
+
     <div class="section" id="liveStatsSection">
       <button class="sectionToggle" type="button"><span>LIVE STATS</span></button>
       <div class="sectionBody">
@@ -1439,87 +1518,6 @@
           <div class="metric"><span id="pocketArrival2Label">Object ball → pocket</span><b id="pocketArrival2Text">—</b></div>
           </div>
         </div>
-      </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <button class="sectionToggle" type="button"><span>TABLE / BALLS</span></button>
-      <div class="sectionBody">
-      <div class="tableControlGroup layoutSetupGroup"><div class="tableControlTitle">LAYOUT SETUP</div>
-      <div class="buttons layoutSetupReset"><button id="resetLayout">Reset Layout</button></div>
-      <div class="buttons layoutSetupButtons"><button id="makeRandomSetup">Add Balls/Racks</button><button id="shuffleTableLayout" type="button">Randomly Shuffle Table Layout</button></div>
-      <div class="layoutSetupSelect">
-        <select id="randomSetup" aria-label="Choose random ball count or rack">
-          <option value="2">2 balls</option>
-          <option value="3">3 balls</option>
-          <option value="4">4 balls</option>
-          <option value="5">5 balls</option>
-          <option value="6">6 balls</option>
-          <option value="7">7 balls</option>
-          <option value="8">8 balls</option>
-          <option value="9">9 balls</option>
-          <option value="15">15 balls</option>
-          <option value="rack3">3-ball rack</option>
-          <option value="rack8">8-ball rack</option>
-          <option value="rack9">9-ball rack</option>
-          <option value="rack10">10-ball rack</option>
-        </select>
-      </div>
-      </div>
-      <div class="tableControlGroup"><div class="tableControlTitle">BALLS &amp; MARKERS</div>
-      <div class="ballManage">
-        <select id="ballSelect" aria-label="Select ball number">
-          <option value="1">Ball 1</option>
-          <option value="2">Ball 2</option>
-          <option value="3">Ball 3</option>
-          <option value="4">Ball 4</option>
-          <option value="5">Ball 5</option>
-          <option value="6">Ball 6</option>
-          <option value="7">Ball 7</option>
-          <option value="8">Ball 8</option>
-          <option value="9">Ball 9</option>
-          <option value="10">Ball 10</option>
-          <option value="11">Ball 11</option>
-          <option value="12">Ball 12</option>
-          <option value="13">Ball 13</option>
-          <option value="14">Ball 14</option>
-          <option value="15">Ball 15</option>
-          <option disabled>──────── Markers ────────</option>
-          <option value="marker:white">Marker • White / red dot</option>
-          <option value="marker:red">Marker • Red / white dot</option>
-          <option value="marker:pink">Marker • Pink / white dot</option>
-          <option value="marker:yellow">Marker • Yellow / white dot</option>
-        </select>
-        <button id="addBall" type="button">Add Ball</button>
-        <button id="removeBall" type="button">Remove Ball</button>
-      </div>
-      <div class="buttons"><button id="addNextBall" type="button">Add Next Ball</button></div>
-      </div>
-      <div id="markerZoneControls" style="display:none;border:1px solid #41464f;border-radius:7px;padding:8px;margin-top:8px">
-        <label for="markerZoneSelect">Practice target zone</label>
-        <select id="markerZoneSelect" aria-label="Choose individual practice target"></select>
-        <div class="row"><label for="markerDiameter">Diameter (inches)</label><input id="markerDiameterNumber" type="number" min="2.25" max="36" step=".25" value="6"></div>
-        <input id="markerDiameter" type="range" min="2.25" max="36" step=".25" value="6" aria-label="Practice target diameter in inches">
-        <div class="hint">Drag the center to position. Each zone has its own size. Reduce its diameter as control improves.</div>
-      </div>
-      <div class="layoutManage">
-        <div class="layoutManageTitle"><span>SAVED BALL LAYOUTS</span><span id="layoutCount">0 / 20</span></div>
-        <input id="layoutNameInput" type="text" maxlength="60" placeholder="Layout name — e.g. Wednesday league 7-ball" aria-label="Saved layout name">
-        <button id="saveLayoutBtn" class="layoutManageSave" type="button">SAVE CURRENT LAYOUT</button>
-        <div class="layoutManageRow">
-          <select id="layoutSelect" aria-label="Saved ball layouts">
-            <option value="">No saved layouts</option>
-          </select>
-          <button id="loadLayoutBtn" type="button">RECALL</button>
-        </div>
-      </div>
-      <button class="advancedToggle" type="button" data-advanced="tableAdvanced">ADVANCED</button>
-      <div class="advancedBody" id="tableAdvanced">
-        <div class="row"><label>Playing length (in)</label><input id="tableL" type="number" min="60" max="120" step="0.01"></div>
-        <div class="row"><label>Playing width (in)</label><input id="tableW" type="number" min="30" max="60" step="0.01"></div>
-        <div class="row"><label>Ball diameter (in)</label><input id="ballD" type="number" min="1.5" max="3" step="0.001"></div>
-        <div class="buttons"><button data-preset="7d">7' Diamond 80×40</button><button data-preset="7b">7' Bar 78×39</button><button data-preset="8">8' 88×44</button><button data-preset="9">9' 100×50</button></div>
       </div>
       </div>
     </div>
@@ -10394,6 +10392,30 @@
         $('markerDiameter').addEventListener('input',ev=>setMarkerDiameter(ev.target.value));
         $('markerDiameterNumber').addEventListener('change',ev=>setMarkerDiameter(ev.target.value));
         $('ballSelect').addEventListener('change', () => updateUI());
+        $('addMarker').onclick = () => {
+            const type = $('markerSelect').value;
+            if (addMarkerBall(type)) toast('Added '+type+' marker');
+        };
+        $('addNextMarker').onclick = () => {
+            const colors = ['white','red','pink','yellow'];
+            const markers = S.balls.filter(b => b.marker);
+            const type = colors[markers.length % colors.length];
+            $('markerSelect').value = type;
+            if (addMarkerBall(type)) toast('Added '+type+' marker');
+        };
+        $('removeMarker').onclick = () => {
+            const type = $('markerSelect').value;
+            const matches = S.balls.filter(b => b.marker && b.markerType === type);
+            if (!matches.length) { toast('No '+type+' marker is on the table'); return; }
+            const id = matches[matches.length-1].id;
+            S.balls = S.balls.filter(b => b.id !== id);
+            normalizeBallSet();
+            updateUI();
+            refreshPreview();
+            if (runHistory.length <= 1) runHistory = [cleanSnapshot()];
+            updateRunCount();
+            toast('Removed '+type+' marker');
+        };
         function addSpecificBallById(id) {
             if (!id || id < 1 || id > 15)
                 return false;
