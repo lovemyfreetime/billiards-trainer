@@ -915,7 +915,7 @@
   .tableSpeedControl {
     position:absolute;
     z-index:8;
-    height:34px;
+    height:44px;
     display:flex;
     align-items:center;
     gap:8px;
@@ -939,6 +939,13 @@
     accent-color:#6fff58;
     touch-action:none;
   }
+  .speedTickScale { position:absolute; left:20px; right:62px; height:7px; pointer-events:none; }
+  .speedTickScale.lagTicks { top:5px; }
+  .speedTickScale.feelTicks { bottom:5px; }
+  .speedTick { position:absolute; width:2px; height:2px; border-radius:50%; background:#a8c6b0; top:2px; transform:translateX(-50%); }
+  .speedTick.major { width:5px; height:5px; border-radius:0; background:#d0ebcf; top:0; transform:translateX(-50%) rotate(45deg); }
+  .feelTicks .speedTick { background:#82b8d6; }
+  .feelTicks .speedTick.major { background:#b3daf0; }
   .tableSpeedLabel {
     position:absolute;
     right:10px;
@@ -1288,10 +1295,14 @@
     </div>
     <div id="bottomSpeedControls">
       <div id="tableSpeed1Wrap" class="tableSpeedControl">
+        <div class="speedTickScale lagTicks" id="lagTicks1" aria-hidden="true"></div>
+        <div class="speedTickScale feelTicks" id="feelTicks1" aria-hidden="true"></div>
         <input id="tableSpeed1" type="range" min="0.25" max="6" step="0.01" value="2.42" aria-label="Shot 1 speed on table edge">
         <span id="tableSpeed1Label" class="tableSpeedLabel">SPEED</span>
       </div>
       <div id="tableSpeed2Wrap" class="tableSpeedControl">
+        <div class="speedTickScale lagTicks" id="lagTicks2" aria-hidden="true"></div>
+        <div class="speedTickScale feelTicks" id="feelTicks2" aria-hidden="true"></div>
         <input id="tableSpeed2" type="range" min="0.25" max="6" step="0.01" value="2.42" aria-label="Shot 2 speed on table edge">
         <span class="tableSpeedLabel">SPEED 2</span>
       </div>
@@ -3624,6 +3635,44 @@
         }
         return travel;
     }
+    let speedTickCalibrationKey = '';
+    function updateSpeedTickScales() {
+        if (isProjector) return;
+        const key = [S.tableL,S.ballR,S.muRoll,S.muSlide,S.railRest].join('|');
+        if (key === speedTickCalibrationKey) return;
+        speedTickCalibrationKey = key;
+        const min=.25, max=6, steps=160, samples=[];
+        for(let i=0;i<=steps;i++) {
+            const speed=min+(max-min)*i/steps;
+            samples.push({speed, diamonds:rollingPowerReferenceDistance(speed)/(S.tableL/8)});
+        }
+        function positionFor(diamonds) {
+            if(diamonds<samples[0].diamonds || diamonds>samples[steps].diamonds) return null;
+            for(let i=1;i<samples.length;i++) if(samples[i].diamonds>=diamonds) {
+                const a=samples[i-1],b=samples[i],f=(diamonds-a.diamonds)/Math.max(1e-9,b.diamonds-a.diamonds);
+                return ((a.speed+(b.speed-a.speed)*f-min)/(max-min))*100;
+            }
+            return null;
+        }
+        for(const which of [1,2]) {
+            const lag=$('lagTicks'+which),feel=$('feelTicks'+which);
+            lag.innerHTML='';feel.innerHTML='';
+            // One lag = 16 diamonds; one eighth lag = 2 diamonds.
+            const limit=Math.min(256,Math.floor(samples[steps].diamonds/2));
+            for(let k=1;k<=limit;k++) {
+                const pct=positionFor(k*2);
+                if(pct===null) continue;
+                const dot=document.createElement('span');
+                dot.className='speedTick'+(k%4===0?' major':'');
+                dot.style.left=pct+'%';lag.appendChild(dot);
+                // Lower scale: dots at quarter-table (2 diamonds),
+                // diamonds at half-table (4 diamonds) intervals.
+                const mark=document.createElement('span');
+                mark.className='speedTick'+(k%2===0?' major':'');
+                mark.style.left=pct+'%';feel.appendChild(mark);
+            }
+        }
+    }
     function powerFeel() {
         const d = rollingPowerReferenceDistance(S.speed);
         const diamond = S.tableL / 8;
@@ -4433,7 +4482,7 @@
         const topInset = halfTop * .18;
         const segmentW = Math.max(150, halfTop - topInset * 2);
         const rotateLeft = leftX + topInset;
-        const railBandTop = Math.min((canvas.height / DPR) - 160, bottomY + 8);
+        const railBandTop = Math.min((canvas.height / DPR) - 170, bottomY + 8);
         const sw = $('compassSizeWrap'), rw = $('compassRotateWrap');
         const aim = $('aimControls'), aim2 = $('aimControls2'), angleBtn = $('angleLock');
         const sp1 = $('tableSpeed1Wrap'), sp2 = $('tableSpeed2Wrap');
@@ -4470,7 +4519,7 @@
         }
         if (spin1) {
             spin1.style.left = leftRailX + 'px';
-            spin1.style.top = (railBandTop + 79) + 'px';
+            spin1.style.top = (railBandTop + 89) + 'px';
             spin1.style.width = halfRailW + 'px';
         }
         if (aim2) {
@@ -4486,7 +4535,7 @@
         }
         if (spin2) {
             spin2.style.left = rightRailX + 'px';
-            spin2.style.top = (railBandTop + 79) + 'px';
+            spin2.style.top = (railBandTop + 89) + 'px';
             spin2.style.width = halfRailW + 'px';
         }
 
@@ -6371,6 +6420,7 @@
             return;
         const inch = .0254;
         $('speed').value = S.speed;
+        updateSpeedTickScales();
         if ($('tableSpeed1')) $('tableSpeed1').value = S.speed;
         $('follow').value = S.follow;
         $('sideSpin').value = S.sideSpin;
