@@ -6056,7 +6056,7 @@
         if (isProjector || !$('markerZoneSelect')) return;
         const sel=$('markerZoneSelect'), previous=sel.value;
         const markers=S.balls.filter(b=>b.marker);
-        $('markerZoneControls').style.display=markers.length?'block':'none';
+        $('markerZoneControls').style.display='none';
         sel.replaceChildren();
         markers.forEach((b,i)=>{
             const option=document.createElement('option');
@@ -6550,6 +6550,19 @@
         if (isProjector)
             return;
         ev.preventDefault();
+        // Only the center handle captures wheel resizing; the rest of the table aims.
+        const M = controlMap(), pointer = pointerPos(ev);
+        const zone = S.balls.filter(b=>b.marker && b.active!==false)
+            .map(b=>{const p=M.map(b);return {b,d:Math.hypot(pointer.x-p.x,pointer.y-p.y)};})
+            .filter(q=>q.d<=14).sort((a,b)=>a.d-b.d)[0];
+        if (zone && ev.deltaY !== 0) {
+            ev.stopPropagation();
+            zone.b.markerDiameterIn=clamp(
+                Math.round(((Number(zone.b.markerDiameterIn)||6)+(ev.deltaY<0?.25:-.25))*100)/100,
+                2.25,36);
+            draw();saveState();syncProjector();
+            return;
+        }
         let notches;
         if (ev.deltaMode === 1)
             notches = ev.deltaY / 3;
