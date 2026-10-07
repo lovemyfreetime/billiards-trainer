@@ -217,10 +217,12 @@
   #liveStatsSection #shot1Metrics[hidden], #liveStatsSection #shot2Metrics[hidden] { display:none; }
   .tableControlGroup { padding:8px; margin-bottom:8px; background:#19232e; border:1px solid #354250; border-radius:7px; }
   .layoutSetupGroup { padding:6px; }
+  .layoutSetupReset { display:grid; grid-template-columns:1fr; margin-bottom:5px; }
+  .layoutSetupReset button { width:100%; min-height:34px; box-sizing:border-box; }
   .layoutSetupButtons { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
-  .layoutSetupButtons button { height:42px; padding:4px; font-size:11px; line-height:15px; }
+  .layoutSetupButtons button { height:48px; width:100%; min-width:0; box-sizing:border-box; padding:4px; font-size:11px; line-height:15px; }
   .layoutSetupSelect { margin-top:5px; }
-  .layoutSetupSelect select { width:100%; padding:4px 6px; min-height:30px; }
+  .layoutSetupSelect select { width:100%; box-sizing:border-box; padding:4px 6px; min-height:30px; }
   .tableControlTitle { color:#93c9f5; font-size:11px; font-weight:800; margin-bottom:6px; }
   .shotVisibilityBtn, .cueVisualToggleBtn, .shotStatsToggleBtn {
     width:100%; height:48px; min-height:48px; max-height:48px;
@@ -1436,8 +1438,8 @@
       <button class="sectionToggle" type="button"><span>TABLE / BALLS</span></button>
       <div class="sectionBody">
       <div class="tableControlGroup layoutSetupGroup"><div class="tableControlTitle">LAYOUT SETUP</div>
-      <div class="buttons layoutSetupButtons"><button id="resetLayout">Reset Layout</button><button id="makeRandomSetup">Add Balls/Racks</button></div>
-      <div class="buttons"><button id="shuffleTableLayout" type="button">Randomly Shuffle Table Layout</button></div>
+      <div class="buttons layoutSetupReset"><button id="resetLayout">Reset Layout</button></div>
+      <div class="buttons layoutSetupButtons"><button id="makeRandomSetup">Add Balls/Racks</button><button id="shuffleTableLayout" type="button">Randomly Shuffle Table Layout</button></div>
       <div class="layoutSetupSelect">
         <select id="randomSetup" aria-label="Choose random ball count or rack">
           <option value="2">2 balls</option>
