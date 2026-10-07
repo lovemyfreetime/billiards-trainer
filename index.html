@@ -5566,14 +5566,14 @@
                     ctx.strokeStyle = '#ff59eb';
                     ctx.lineWidth = 2;
                     ctx.beginPath();
-                    ctx.arc(q.x, q.y, isProjector ? 11 : 9, 0, Math.PI * 2);
+                    ctx.arc(q.x, q.y, isProjector ? 2 : 1.25, 0, Math.PI * 2);
                     ctx.fill();
                     ctx.stroke();
                     ctx.fillStyle = '#fff';
                     ctx.font = `800 ${isProjector ? 11 : 9}px Segoe UI`;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.fillText((sol && sol.autoAim) ? fmtRailNumber(n) : n.toFixed(0), q.x, q.y + .3);
+                    ctx.fillText((sol && sol.autoAim) ? fmtRailNumber(n) : n.toFixed(0), q.x + 10, q.y - 9);
                 }
             }
         }
@@ -5615,21 +5615,21 @@
                 ctx.strokeStyle = '#ff59eb';
                 ctx.lineWidth = 1.5;
                 ctx.beginPath();
-                ctx.arc(q.x, q.y, isProjector ? 9 : 7, 0, Math.PI * 2);
+                ctx.arc(q.x, q.y, isProjector ? 2 : 1.25, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.stroke();
                 ctx.fillStyle = '#fff';
                 ctx.font = `800 ${isProjector ? 10 : 8}px Segoe UI`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(Math.round(n).toString(), q.x, q.y + .2);
+                ctx.fillText(fmtRailNumber(n), q.x + 10, q.y - 9);
             }
             const mx = (sr.x + rb.x + zz.x) / 3, my = (sr.y + rb.y + zz.y) / 3;
             ctx.fillStyle = '#ffb8f6';
             ctx.font = `800 ${isProjector ? 12 : 10}px Segoe UI`;
             ctx.textAlign = 'left';
             ctx.textBaseline = 'bottom';
-            const systemText = `${sol.autoAim ? 'BEST LINE' : 'SYSTEM'} ${fmtRailNumber(sys.sourceNumber)} → ${fmtRailNumber(sys.aimNumber)} → 0`;
+            const systemText = `${sol.autoAim ? 'GEOMETRIC LINE' : 'SYSTEM'} ${fmtRailNumber(sys.sourceNumber)} → ${fmtRailNumber(sys.aimNumber)} → 0`;
             ctx.fillText(systemText, mx + 8, my - 6);
             if (sol.mode === 'bank' && Number.isFinite(sol.followPct)) {
                 ctx.font = `700 ${isProjector ? 10 : 8}px Segoe UI`;
@@ -5654,7 +5654,7 @@
         ctx.strokeStyle = main;
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(b.x, b.y, 10, 0, Math.PI * 2);
+        ctx.arc(b.x, b.y, isProjector ? 2 : 1.25, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
         ctx.fillStyle = '#fff';
@@ -5681,14 +5681,14 @@
                 ctx.strokeStyle = 'rgba(255,255,255,.68)';
                 ctx.lineWidth = 1;
                 ctx.beginPath();
-                ctx.arc(q.x, q.y, 8, 0, Math.PI * 2);
+                ctx.arc(q.x, q.y, isProjector ? 1.5 : 1, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.stroke();
                 ctx.fillStyle = '#fff';
                 ctx.font = '800 8px Segoe UI';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(String(n), q.x, q.y + .2);
+                ctx.fillText(String(n), q.x + 10, q.y - 9);
             }
             ctx.globalAlpha = 1;
         }
