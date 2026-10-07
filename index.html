@@ -4514,7 +4514,7 @@
         const boxW = Math.min(w - 12, 680, Math.max(510, w * .62));
         // Pocket 1 side: keep the profile away from the upper-right rail tools.
         const boxH = 170, x0 = 6, y0 = 14;
-        const padL = 34, padR = 22, padT = 35, padB = 32;
+        const padL = Math.min(125,boxW*.25), padR = 22, padT = 46, padB = 32;
         const plotW = boxW-padL-padR, plotH = boxH-padT-padB;
         const pts = [];
         let travel = 0, prev = path[0], maxZ = S.ballR * 4;
@@ -4605,26 +4605,23 @@
             ctx.font = '700 9px Segoe UI';
             ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
             const labelX = clamp(X, x0+30, x0+boxW-30);
-            ctx.fillText(label,labelX,Math.max(y0+padT+9,Y-ry-3));
+            if (label) ctx.fillText(label,labelX,Math.max(y0+padT+9,Y-ry-3));
             ctx.restore();
         }
         const primary = a.guidance && a.guidance.primary;
         if (primary) {
             const X = px(Math.min(maxD, primary.cueTravel || 0));
             profileBall(X, primary.objZ || S.ballR, Number(primary.id),
-                `BALL ${primary.n}`, clearanceColor(primary.margin));
+                '', clearanceColor(primary.margin));
             profileBall(X, primary.cueZ || S.ballR, 0, 'CUE BALL', '#f7f7f3');
             const clearLabel = `${primary.margin >= 0 ? 'CLEARS +' : 'CLIPS −'}${Math.abs(primary.margin*1000).toFixed(1)} mm`;
             ctx.font = '800 11px Segoe UI';
             ctx.fillStyle = clearanceColor(primary.margin);
-            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-            const labelX = clamp(X + rx + 12, x0+padL, x0+boxW-145);
-            const labelY = clamp(py(((primary.cueZ || S.ballR)+(primary.objZ || S.ballR))/2),y0+padT+14,bedY-14);
-            ctx.fillText(clearLabel,labelX,labelY);
-            ctx.beginPath();
-            ctx.moveTo(X+rx+2,py(primary.cueZ || S.ballR));
-            ctx.lineTo(labelX-4,labelY);
-            ctx.strokeStyle = clearanceColor(primary.margin); ctx.stroke();
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(clearLabel,x0+boxW*.5,y0+29,boxW*.64);
+            ctx.font = '800 10px Segoe UI';
+            ctx.textAlign = 'left';
+            ctx.fillText(`BALL ${primary.n}`,x0+166,y0+13,Math.max(35,boxW-180));
         }
         else {
             // Without an obstacle, show the cue ball at the highest sampled point.
@@ -4644,7 +4641,16 @@
         }
 
         if (contact) {
-            profileBall(px(contactD),S.ballR,contact.objId,`TARGET ${contact.objName}`,'#68b8ff');
+            profileBall(px(contactD),S.ballR,contact.objId,'','#68b8ff');
+            // Separate label lanes keep target/pocket text apart even at close spacing.
+            ctx.font='800 9px Segoe UI';ctx.fillStyle='#68b8ff';
+            ctx.textAlign='center';ctx.textBaseline='middle';
+            const targetLabelX = clamp(px(contactD),x0+padL+30,x0+boxW-40);
+            const targetLabelY = bedY-26;
+            ctx.fillText(`TARGET ${contact.objName}`,targetLabelX,targetLabelY);
+            ctx.strokeStyle='rgba(104,184,255,.6)';ctx.lineWidth=1;
+            ctx.beginPath();ctx.moveTo(targetLabelX,targetLabelY+7);
+            ctx.lineTo(px(contactD),py(S.ballR)-ry-2);ctx.stroke();
             if (pocket) {
                 const X = px(pocketD), Y = py(S.ballR);
                 ctx.save();
@@ -4655,7 +4661,9 @@
                 ctx.beginPath();ctx.ellipse(X,Y,9,7,0,0,Math.PI*2);ctx.fill();ctx.stroke();
                 ctx.font='800 9px Segoe UI';ctx.fillStyle='#68b8ff';
                 ctx.textAlign='right';ctx.textBaseline='bottom';
-                ctx.fillText(`POCKET ${{TL:1,TM:2,TR:3,BR:4,BM:5,BL:6}[pocket.name] || pocket.name}`,Math.min(X+12,x0+boxW-5),Y-12);
+                ctx.fillText(`POCKET ${{TL:1,TM:2,TR:3,BR:4,BM:5,BL:6}[pocket.name] || pocket.name}`,Math.min(X+12,x0+boxW-5),bedY-48);
+                ctx.strokeStyle='rgba(104,184,255,.6)';ctx.lineWidth=1;
+                ctx.beginPath();ctx.moveTo(X,bedY-45);ctx.lineTo(X,Y-8);ctx.stroke();
                 const event = (preview.pocketEvents || []).find(p=>p.id===contact.objId);
                 const arrived = event && Math.hypot(event.x-pocket.x,event.y-pocket.y)<S.ballR*5;
                 const end = preview.finalBalls && preview.finalBalls.find(b=>b.id===contact.objId);
@@ -4682,8 +4690,10 @@
             summary.push(`min ${g.minClear.angle.toFixed(1)}°`);
         if (g && g.bend && g.bend.magnitude > .0005)
             summary.push(`bend ${(g.bend.magnitude*1000).toFixed(0)} mm`);
-        ctx.fillStyle = '#dfefff'; ctx.textAlign='right'; ctx.textBaseline='middle';
-        ctx.fillText(summary.join(' · '),x0+boxW-10,y0+13);
+        ctx.fillStyle = '#dfefff'; ctx.textAlign='left'; ctx.textBaseline='middle';
+        ctx.font='700 9px Segoe UI';
+        const summaryMid = y0+boxH*.5;
+        summary.forEach((line,i)=>ctx.fillText(line,x0+10,summaryMid+(i-(summary.length-1)/2)*14,padL-18));
         ctx.restore();
     }
     function logicalCircle(p, r, map, fill, stroke, line = 1, alpha = 1) {
