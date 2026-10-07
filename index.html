@@ -3563,6 +3563,7 @@
         const frames = [];
         let firstEvent = '—', firstBallContact = null, sampleEvery = 6, frameEvery = 10;
         let simTime = 0;
+        const pocketEvents = [];
         const landings = [], clearanceMap = new Map();
         let takeoff = null;
         const lastColl = new Map(), Icoef = 2 / 5; // I = 2/5 mR² for a solid sphere
@@ -3643,14 +3644,18 @@
             if (!airborneMode || b.vz >= -1e-10) return false;
             const result = applyBedImpactImpulse(b, R, S.tableRest, S.bedImpactMu);
             b.z = R;
+            // Stop sub-millimetre numerical rebounds before they repeat every step.
+            const reboundHeight = b.vz*b.vz/(2*g);
+            const settles = reboundHeight < .0001;
             if (b.id === 0 && result.hit) {
                 if (initial && result.predictedRange >= .00254 && result.reboundAngle >= Math.PI / 180)
                     takeoff = { x:b.x, y:b.y, t:simTime };
-                else if (!initial)
+                else if (!initial && b._flightActive)
                     landings.push({ x:b.x, y:b.y, t:simTime, travel:b.travel, hop:landings.length + 1, reboundAngle:result.reboundAngle, nextRange:result.predictedRange });
             }
-            if (result.predictedRange < .00254 && result.reboundAngle < Math.PI / 180) b.vz = 0;
-            else if (!initial) bedBounceCount++;
+            b._flightActive = !settles;
+            if (settles) b.vz = 0;
+            else if (!initial && b.id === 0) bedBounceCount++;
             return result.hit;
         }
         function trackCueClearances() {
@@ -3755,6 +3760,8 @@
             for (const b of B) {
                 const lowEnoughForPocket = !airborneMode || b.z <= R * 1.12;
                 if (b.active && lowEnoughForPocket && pocketCapture(b)) {
+                    pocketEvents.push({id:b.id,x:b.x,y:b.y,t,speed:Math.hypot(b.vx,b.vy)});
+                    paths[b.id].push({x:b.x,y:b.y,z:b.z,t});
                     b.active = false;
                     b.vx = b.vy = b.vz = b.wx = b.wy = b.wz = 0;
                     if (firstEvent === '—') firstEvent = `${b.n} pocket`;
@@ -3873,7 +3880,7 @@
                                         incoming: iv, normal: horizontalN, signedOffset: lateral,
                                         overlap: clamp(100 * (1 - Math.abs(lateral) / (2 * R)), 0, 100),
                                         cutAngle: ca, distanceBalls: cue.travel / (2 * R),
-                                        cueHeight: cue.z, verticalNormal: (a.id === 0 ? nz : -nz)
+                                        cueHeight: cue.z, verticalNormal: (a.id === 0 ? nz : -nz), t
                                     };
                                 }
                                 lastColl.set(key, step);
@@ -3921,7 +3928,7 @@
             if (candidates.length)
                 primaryClearance = candidates.sort((a,b) => a.margin - b.margin)[0];
         }
-        return { paths, frames, firstEvent, firstBallContact,
+        return { paths, frames, firstEvent, firstBallContact, pocketEvents,
             airborne: airborneMode ? {
                 maxCueHeight: Math.max(0, maxCueHeight - R), airborneDistance, bedBounceCount,
                 takeoff, landings, clearances, primaryClearance
@@ -4470,7 +4477,7 @@
         if (a.takeoff) drawFlightPoint(a.takeoff, map, 'TAKEOFF', stroke, false);
         if (Array.isArray(a.landings)) {
             a.landings.slice(0,4).forEach((p,i) => {
-                const label = i === 0 ? 'LAND 1' : `HOP ${i+1}`;
+                const label = `L${i+1}`;
                 drawFlightPoint(p, map, label, i === 0 ? '#ffd86b' : stroke, false);
             });
         }
@@ -4507,7 +4514,7 @@
         const boxW = Math.min(w - 12, 680, Math.max(510, w * .62));
         // Pocket 1 side: keep the profile away from the upper-right rail tools.
         const boxH = 170, x0 = 6, y0 = 14;
-        const padL = 34, padR = 12, padT = 35, padB = 32;
+        const padL = 34, padR = 22, padT = 35, padB = 32;
         const plotW = boxW-padL-padR, plotH = boxH-padT-padB;
         const pts = [];
         let travel = 0, prev = path[0], maxZ = S.ballR * 4;
@@ -4521,7 +4528,21 @@
             maxZ = Math.max(maxZ,(z+S.ballR)*1.12);
             prev = p;
         }
-        const maxD = Math.max(.25, travel);
+        const contact = preview.firstBallContact;
+        const pocket = contact && inferredPocketForContact(contact);
+        const contactD = contact ? contact.distanceBalls*2*S.ballR : travel;
+        const objectPath = contact && preview.paths[contact.objId];
+        const objPts = [];
+        let objTravel = 0, lastObj = contact && contact.objPos;
+        if (lastObj && objectPath) for (const p of objectPath) {
+            if (p.t < contact.t) continue;
+            objTravel += Math.hypot(p.x-lastObj.x,p.y-lastObj.y);
+            objPts.push({d:contactD+objTravel,z:Number.isFinite(p.z)?p.z:S.ballR});
+            lastObj = p;
+        }
+        const pocketD = pocket ? contactD+pocket.distance : 0;
+        const maxD = Math.max(.25, contact ? contactD : travel, pocketD, ...objPts.map(p=>p.d));
+        const visiblePts = contact ? pts.filter(p=>p.t<=contact.t) : pts;
         const px = d => x0+padL + clamp(d/maxD,0,1)*plotW;
         const py = z => y0+padT+plotH - clamp(z/maxZ,0,1)*plotH;
 
@@ -4547,7 +4568,7 @@
 
         ctx.strokeStyle = stroke; ctx.lineWidth = 2.2;
         ctx.beginPath();
-        pts.forEach((p,i)=>{ const X=px(p.d),Y=py(p.z); if(i===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); });
+        visiblePts.forEach((p,i)=>{ const X=px(p.d),Y=py(p.z); if(i===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); });
         ctx.stroke();
 
         // Use the same physical radius and plot scales for both balls.
@@ -4614,14 +4635,45 @@
         if (Array.isArray(a.landings)) {
             ctx.strokeStyle = '#ffd86b';
             ctx.fillStyle = '#ffd86b';
-            a.landings.forEach((p,i)=>{
+            a.landings.filter(p=>!contact || p.t<=contact.t).slice(0,12).forEach((p,i)=>{
                 const X=px(Math.min(maxD,p.travel||0));
                 ctx.beginPath(); ctx.moveTo(X,bedY-8); ctx.lineTo(X,bedY+3); ctx.stroke();
                 ctx.textAlign='center';ctx.textBaseline='top';
-                ctx.fillText(i===0?'LAND 1':`HOP ${i+1}`,clamp(X,x0+padL+22,x0+boxW-26),bedY+5);
+                ctx.fillText(`L${i+1}`,clamp(X,x0+padL+22,x0+boxW-26),bedY+5);
             });
         }
 
+        if (contact) {
+            profileBall(px(contactD),S.ballR,contact.objId,`TARGET ${contact.objName}`,'#68b8ff');
+            if (pocket) {
+                const X = px(pocketD), Y = py(S.ballR);
+                ctx.save();
+                ctx.setLineDash([4,4]);ctx.strokeStyle='rgba(104,184,255,.5)';
+                ctx.beginPath();ctx.moveTo(px(contactD),Y);ctx.lineTo(X,Y);ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle='#030405';ctx.strokeStyle='#68b8ff';
+                ctx.beginPath();ctx.ellipse(X,Y,9,7,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+                ctx.font='800 9px Segoe UI';ctx.fillStyle='#68b8ff';
+                ctx.textAlign='right';ctx.textBaseline='bottom';
+                ctx.fillText(`POCKET ${{TL:1,TM:2,TR:3,BR:4,BM:5,BL:6}[pocket.name] || pocket.name}`,Math.min(X+12,x0+boxW-5),Y-12);
+                const event = (preview.pocketEvents || []).find(p=>p.id===contact.objId);
+                const arrived = event && Math.hypot(event.x-pocket.x,event.y-pocket.y)<S.ballR*5;
+                const end = preview.finalBalls && preview.finalBalls.find(b=>b.id===contact.objId);
+                const short = !event && end && end.active && objTravel < pocket.distance-S.ballR;
+                const status = arrived ? `IN · ${event.speed.toFixed(2)} m/s` : event ? 'OTHER POCKET' : short ? 'SHORT / STOPPED' : 'MISSED / CONTINUES';
+                ctx.textBaseline='top';
+                ctx.fillStyle=arrived?'#6fff58':'#ffd86b';
+                ctx.fillText(status,x0+boxW-8,bedY+5);
+                ctx.restore();
+            }
+            if (objPts.length>1) {
+                ctx.strokeStyle='#68b8ff';ctx.lineWidth=2;
+                ctx.beginPath();objPts.forEach((p,i)=>{if(i===0)ctx.moveTo(px(p.d),py(p.z));else ctx.lineTo(px(p.d),py(p.z));});ctx.stroke();
+            }
+        }
+        const shot = which===2 ? ensureShot2() : S;
+        ctx.font='700 9px Segoe UI';ctx.fillStyle='#dfefff';ctx.textAlign='left';ctx.textBaseline='middle';
+        ctx.fillText(`POWER ${shot.speed.toFixed(2)} m/s`,x0+10,y0+27);
         const g = a.guidance;
         const summary = [];
         summary.push(`H ${(a.maxCueHeight*1000).toFixed(0)} mm`);
