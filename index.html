@@ -1785,14 +1785,14 @@
     function pocketBallEl(id) {
         const e = document.createElement('div');
         e.className = 'pocketBall' + (id >= 9 ? ' stripe' : '');
-        const c = poolBallColor(id);
+        const c = id === 0 || id === -2 ? '#f4f4f4' : poolBallColor(id);
         if (id >= 9) {
             e.style.background = `linear-gradient(to bottom,#f4f4f4 0 29%,${c} 29% 71%,#f4f4f4 71% 100%)`;
         }
         else {
             e.style.background = c;
         }
-        e.textContent = id;
+        e.textContent = id === 0 ? 'CB1' : id === -2 ? 'CB2' : id;
         return e;
     }
     function updatePocketTray() {
@@ -1802,7 +1802,7 @@
         if (!tray)
             return;
         tray.innerHTML = '';
-        const log = (S.pocketedLog || []).filter(id => id >= 1 && id <= 15);
+        const log = (S.pocketedLog || []).filter(id => id === 0 || id === -2 || (id >= 1 && id <= 15));
         if (!log.length) {
             tray.classList.remove('visible');
             return;
@@ -1837,6 +1837,7 @@
                 tray.appendChild(d);
             }
             addGroup(stripes);
+            addGroup(log.filter(id=>id===0 || id===-2));
         }
         else {
             const g = document.createElement('div');
@@ -6578,6 +6579,13 @@
         if ($('aimControls2')) $('aimControls2').classList.toggle('activeAim', S.activeShot === 2 && S.shot2Enabled);
     }
     function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
+    function onPlayingSurface(q) {
+        return q.x > 0 && q.x < S.tableL && q.y > 0 && q.y < S.tableW;
+    }
+    function manualPocketAt(q) {
+        // Include the visible pocket well outside the cushion nose.
+        return nearestLogicalPocket(q, Math.max(S.ballR * 4.8, .135));
+    }
     function pointerPos(ev) { const r = canvas.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
     // Touch-only marker manipulation. Capture before normal table aiming/dragging.
     const zoneTouches = new Map();
@@ -6741,23 +6749,13 @@
                 return;
             }
         }
-        if (S.shot2Enabled) {
+        // A physical ball takes precedence over an overlapping aim handle.
+        if (!onPlayingSurface(q)) return;
+        if (S.shot2Enabled && cueVisualsVisible(2)) {
             const s = ensureShot2();
-            if (Math.hypot(q.x - s.freeAim.x, q.y - s.freeAim.y) < S.ballR * 1.8) {
-                setActiveShot(2);
-                drag = { kind: 'aim2' };
-                return;
+            if (Math.hypot(q.x-s.x,q.y-s.y)<S.ballR*1.3) {
+                setActiveShot(2); drag={kind:'ball2'}; return;
             }
-            if (Math.hypot(q.x - s.x, q.y - s.y) < S.ballR * 1.7) {
-                setActiveShot(2);
-                drag = { kind: 'ball2' };
-                return;
-            }
-        }
-        if (Math.hypot(q.x - S.freeAim.x, q.y - S.freeAim.y) < S.ballR * 1.8) {
-            setActiveShot(1);
-            drag = { kind: 'aim' };
-            return;
         }
         let best = null, bd = S.ballR * 1.5;
         for (const b of S.balls) {
@@ -6774,6 +6772,19 @@
             drag = { kind: 'ball', id: best.id };
         }
         else {
+        if (S.shot2Enabled) {
+            const s = ensureShot2();
+            if (Math.hypot(q.x - s.freeAim.x, q.y - s.freeAim.y) < S.ballR * 1.8) {
+                setActiveShot(2);
+                drag = { kind: 'aim2' };
+                return;
+            }
+        }
+        if (Math.hypot(q.x - S.freeAim.x, q.y - S.freeAim.y) < S.ballR * 1.8) {
+            setActiveShot(1);
+            drag = { kind: 'aim' };
+            return;
+        }
             if (S.activeShot === 2 && S.shot2Enabled) {
                 const s = ensureShot2();
                 s.freeAim = q;
@@ -6804,6 +6815,8 @@
         if (isProjector)
             return;
         const M = controlMap(), q = M.inv(p), R = S.ballR;
+        if ((drag.kind === 'aim' || drag.kind === 'aim2') && !onPlayingSurface(q)) return;
+        drag.dropPoint = {x:q.x,y:q.y};
         q.x = clamp(q.x, R, S.tableL - R);
         q.y = clamp(q.y, R, S.tableW - R);
         if (drag.kind === 'compassMove') {
@@ -6862,17 +6875,21 @@
         refreshPreview();
     });
     canvas.addEventListener('pointerup', ev => {
-        if (drag && drag.kind === 'ball' && drag.id >= 1 && drag.id <= 15) {
-            const ball = S.balls.find(b => b.id === drag.id && !b.marker);
+        if (drag && (drag.kind === 'ball' || drag.kind === 'ball2')) {
             const q = controlMap().inv(pointerPos(ev));
-            const pocket = nearestLogicalPocket(q, S.ballR * 3.2);
-            if (ball && pocket) {
-                S.balls = S.balls.filter(b => b.id !== ball.id);
-                S.pocketedLog = [...new Set([...(S.pocketedLog || []), ball.id])];
-                normalizeBallSet();
-                updateUI();
-                refreshPreview();
-                toast('Ball '+ball.id+' pocketed');
+            const pocket = manualPocketAt(q);
+            const ball = drag.kind === 'ball' ? S.balls.find(b => b.id === drag.id && !b.marker) : null;
+            if (pocket && (ball || drag.kind === 'ball2')) {
+                animation = null;
+                const id = drag.kind === 'ball2' ? -2 : ball.id;
+                if (id === -2) { S.shot2Enabled=false; S.activeShot=1; }
+                else {
+                    if (id === 0) S.allowMissingCueBall=true;
+                    S.balls=S.balls.filter(b=>b.id!==id);
+                }
+                S.pocketedLog=[...new Set([...(S.pocketedLog||[]),id])];
+                normalizeBallSet(); updateUI(); refreshPreview();
+                toast((id===0?'Cue ball 1':id===-2?'Cue ball 2':'Ball '+id)+' pocketed');
             }
         }
         if (drag && drag.kind === 'compassMove') {
@@ -6950,6 +6967,7 @@
     canvas.addEventListener('wheel', ev => {
         if (isProjector)
             return;
+        if (!onPlayingSurface(controlMap().inv(pointerPos(ev)))) return;
         ev.preventDefault();
         // Only the center handle captures wheel resizing; the rest of the table aims.
         const M = controlMap(), pointer = pointerPos(ev);
