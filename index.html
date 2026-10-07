@@ -4507,9 +4507,16 @@
         if (margin < .002) return '#ffd86b';
         return '#6fff58';
     }
+    function shouldShowFlightOverlay(preview, which) {
+        const a = preview && preview.airborne;
+        if (!S.airbornePhysics || !a || !cueVisualsVisible(which)) return false;
+        if (which === 2 ? !S.shot2Enabled || !S.showShot2 : !S.showShot1) return false;
+        const bend = a.guidance && a.guidance.bend;
+        return a.maxCueHeight > .001 || (bend && bend.magnitude > .001);
+    }
     function drawAirborneTableOverlay(preview, map, which, stroke) {
         const a = preview && preview.airborne;
-        if (!S.airbornePhysics || !a) return;
+        if (!shouldShowFlightOverlay(preview, which)) return;
         if (a.takeoff) drawFlightPoint(a.takeoff, map, 'TAKEOFF', stroke, false);
         if (Array.isArray(a.landings)) {
             a.landings.slice(0,4).forEach((p,i) => {
@@ -4545,7 +4552,7 @@
     }
     function drawFlightSideProfile(preview, which, stroke) {
         const a = preview && preview.airborne, path = preview && preview.paths && preview.paths[0];
-        if (!a || !path || path.length < 2) return;
+        if (!shouldShowFlightOverlay(preview, which) || !path || path.length < 2) return;
         const w = canvas.width / DPR, h = canvas.height / DPR;
         const boxW = Math.min(w - 12, 680, Math.max(510, w * .62));
         // Pocket 1 side: keep the profile away from the upper-right rail tools.
@@ -6363,7 +6370,7 @@
         if ($('aimControls')) $('aimControls').classList.toggle('activeAim', S.activeShot !== 2);
         if ($('aimControls2')) $('aimControls2').classList.toggle('activeAim', S.activeShot === 2 && S.shot2Enabled);
     }
-    function resetLayout() { const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
+    function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
     function pointerPos(ev) { const r = canvas.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
     // Touch-only marker manipulation. Capture before normal table aiming/dragging.
     const zoneTouches = new Map();
@@ -6969,7 +6976,9 @@
         const start = performance.now();
         const fps = 60;
         animation = { current: sim.frames[0] };
+        const runningAnimation = animation;
         function tick(now) {
+            if (animation !== runningAnimation) return;
             idx = Math.min(sim.frames.length - 1, Math.floor((now - start) / (1000 / fps)));
             animation.current = sim.frames[idx];
             draw();
