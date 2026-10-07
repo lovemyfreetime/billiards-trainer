@@ -207,6 +207,14 @@
   #liveStatsSection .shotMetricsWrap:not(.dual) .metric { min-height:40px; }
   #liveStatsSection.open .shotMetricsWrap:not(.dual) { min-height:740px; }
   #liveStatsSection .shotMetricsWrap:not(.dual) .shotStatsBody { grid-template-rows:28px repeat(5,minmax(40px,1fr)) 28px repeat(6,minmax(40px,1fr)) 28px repeat(4,minmax(40px,1fr)); }
+  #liveStatsSection .shotMetricsWrap.dual { min-height:900px; }
+  #liveStatsSection .shotMetricsWrap.dual .shotStatsBody { grid-template-rows:28px repeat(5,minmax(50px,1fr)) 28px repeat(6,minmax(50px,1fr)) 28px repeat(4,minmax(50px,1fr)); }
+  #liveStatsSection .shotMetricsWrap.dual .metric { min-height:50px; }
+  #liveStatsSection .statsShotTitle { display:flex; justify-content:space-between; align-items:center; flex-basis:34px; }
+  #liveStatsSection .statsExpandBtn { width:28px; height:28px; min-width:28px; padding:0; border-radius:50%; background:#244e70; border:1px solid #4297e6; color:#e4f2ff; font-size:18px; line-height:1; }
+  #liveStatsSection .statsExpandBtn[aria-pressed="true"] { background:#4297e6; color:#05121d; }
+  #liveStatsSection .shotMetricsWrap.focusShot2 #shot2Metrics { display:flex; }
+  #liveStatsSection #shot1Metrics[hidden], #liveStatsSection #shot2Metrics[hidden] { display:none; }
   .shotVisibilityBtn, .cueVisualToggleBtn, .shotStatsToggleBtn {
     width:100%; height:48px; min-height:48px; max-height:48px;
     box-sizing:border-box; padding:5px 4px; margin-top:6px;
@@ -1388,7 +1396,7 @@
         <div class="liveStatsIntro">Predicted results for your current setup.</div>
       <div id="shotMetricsWrap" class="shotMetricsWrap">
         <div class="shotMetrics" id="shot1Metrics">
-          <div class="statsShotTitle">SHOT 1</div>
+          <div class="statsShotTitle"><span>SHOT 1</span><button id="expandStats1" class="statsExpandBtn" type="button" aria-label="Enlarge Shot 1 stats" aria-pressed="false">⤢</button></div>
           <div id="shotStatsBody1" class="shotStatsBody">
           <div class="statsGroupTitle">CONTACT &amp; AIM</div>
           <div class="metric"><span>First ball hit</span><b id="firstBall">—</b></div>
@@ -1411,7 +1419,7 @@
           </div>
         </div>
         <div class="shotMetrics" id="shot2Metrics">
-          <div class="statsShotTitle">SHOT 2</div>
+          <div class="statsShotTitle"><span>SHOT 2</span><button id="expandStats2" class="statsExpandBtn" type="button" aria-label="Enlarge Shot 2 stats" aria-pressed="false">⤢</button></div>
           <div id="shotStatsBody2" class="shotStatsBody">
           <div class="statsGroupTitle">CONTACT &amp; AIM</div>
           <div class="metric"><span>First ball hit</span><b id="firstBall2">—</b></div>
@@ -6207,6 +6215,24 @@
     function drawTipControl() { if (isProjector)
         return; drawTipDisk($('tipCanvas'), S.sideSpin, S.follow, 1); drawCueElevationInset(1); if (S.shot2Enabled)
         { drawTipDisk($('tipCanvas2'), ensureShot2().sideSpin, ensureShot2().follow, 2); } drawCueElevationInset(2); }
+    let statsFocus = 0;
+    function updateStatsLayout() {
+        if (!S.shot2Enabled) statsFocus = 0;
+        const wrap = $('shotMetricsWrap'), dual = S.shot2Enabled && statsFocus === 0;
+        wrap.classList.toggle('dual', dual);
+        wrap.classList.toggle('focusShot2', statsFocus === 2);
+        $('shot1Metrics').hidden = statsFocus === 2;
+        $('shot2Metrics').hidden = !S.shot2Enabled || statsFocus === 1;
+        [1,2].forEach(which => {
+            const btn = $('expandStats'+which), expanded = statsFocus === which;
+            btn.hidden = !S.shot2Enabled;
+            btn.textContent = expanded ? '↔' : '⤢';
+            btn.setAttribute('aria-pressed', String(expanded));
+            btn.setAttribute('aria-label', expanded ? 'Restore both shots’ stats' : 'Enlarge Shot '+which+' stats');
+            btn.title = expanded ? 'Restore both shots’ stats' : 'Enlarge Shot '+which+' stats';
+        });
+        fitLiveStats();
+    }
     function fitLiveStats() {
         const sec = $('liveStatsSection'), panel = $('panel');
         if (!sec || !panel || !sec.classList.contains('open')) return;
@@ -6229,8 +6255,7 @@
         const on = !!S.shot2Enabled;
         $('shot2Controls').classList.toggle('enabled', on);
         $('tipArea').classList.toggle('dual', on);
-        $('shotMetricsWrap').classList.toggle('dual', on);
-        $('shot2Metrics').hidden = !on;
+        updateStatsLayout();
         document.getElementById('panel').classList.toggle('dualMode', on);
         // Keep the small add/remove Shot 2 control exactly as before.
         $('toggleShot2').textContent = on ? '− SHOT 2' : '+ SHOT 2';
@@ -9962,6 +9987,10 @@
             draw();
             saveState();
         });
+        [1,2].forEach(which => $('expandStats'+which).addEventListener('click', () => {
+            statsFocus = statsFocus === which ? 0 : which;
+            updateStatsLayout();
+        }));
         $('hideShot1Btn').addEventListener('click', () => {
             S.showShot1 = !S.showShot1;
             drawTipControl();
