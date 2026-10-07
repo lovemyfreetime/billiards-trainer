@@ -215,6 +215,8 @@
   #liveStatsSection .statsExpandBtn[aria-pressed="true"] { background:#4297e6; color:#05121d; }
   #liveStatsSection .shotMetricsWrap.focusShot2 #shot2Metrics { display:flex; }
   #liveStatsSection #shot1Metrics[hidden], #liveStatsSection #shot2Metrics[hidden] { display:none; }
+  .tableControlGroup { padding:8px; margin-bottom:8px; background:#19232e; border:1px solid #354250; border-radius:7px; }
+  .tableControlTitle { color:#93c9f5; font-size:11px; font-weight:800; margin-bottom:6px; }
   .shotVisibilityBtn, .cueVisualToggleBtn, .shotStatsToggleBtn {
     width:100%; height:48px; min-height:48px; max-height:48px;
     box-sizing:border-box; padding:5px 4px; margin-top:6px;
@@ -1356,36 +1358,16 @@
         <div class="tipPane" id="tipPane1">
           <div class="shotPaneTitle">SHOT 1</div>
           <canvas id="tipCanvas" width="300" height="210"></canvas>
-          <button id="hideShot1Btn" class="shotVisibilityBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">SHOT 1 PATH</span></button>
           <button id="toggleCueVisuals1Btn" class="cueVisualToggleBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">CUE BALL 1</span></button>
         </div>
         <div class="tipPane" id="tipPane2">
           <div class="shotPaneTitle">SHOT 2</div>
           <canvas id="tipCanvas2" width="300" height="210"></canvas>
-          <button id="hideShot2Btn" class="shotVisibilityBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">SHOT 2 PATH</span></button>
           <button id="toggleCueVisuals2Btn" class="cueVisualToggleBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">CUE BALL 2</span></button>
         </div>
       </div>
       <div class="buttons"><button class="primary" id="animate">Animate + Save Shot</button><button id="undoShot">Undo Last Shot</button></div>
-      <div class="row" style="margin-top:7px">
-        <label for="randomSetup">Random setup</label>
-        <select id="randomSetup">
-          <option value="1">1 ball</option>
-          <option value="2">2 balls</option>
-          <option value="3">3 balls</option>
-          <option value="4">4 balls</option>
-          <option value="5">5 balls</option>
-          <option value="6">6 balls</option>
-          <option value="7">7 balls</option>
-          <option value="8">8 balls</option>
-          <option value="9">9 balls</option>
-          <option value="rack3">3-ball rack</option>
-          <option value="rack8">8-ball rack</option>
-          <option value="rack9">9-ball rack</option>
-          <option value="rack10">10-ball rack</option>
-        </select>
-      </div>
-      <div class="buttons"><button id="resetLayoutQuick">Reset Layout</button><button id="makeRandomSetup">Create Random Setup</button></div>
+      <div class="buttons"><button id="resetLayoutQuick">Reset Layout</button></div>
       <div class="metric"><span>Shots saved in run</span><b id="runCount">0</b></div>
       </div>
     </div>
@@ -1448,7 +1430,29 @@
     <div class="section">
       <button class="sectionToggle" type="button"><span>TABLE / BALLS</span></button>
       <div class="sectionBody">
-      <div class="buttons"><button id="resetLayout">Reset Layout</button><button id="addNextBall" type="button">Add Next Ball</button></div>
+      <div class="tableControlGroup"><div class="tableControlTitle">LAYOUT SETUP</div>
+      <div class="buttons"><button id="resetLayout">Reset Layout</button></div>
+      <div class="row" style="margin-top:7px">
+        <label for="randomSetup">Random setup</label>
+        <select id="randomSetup">
+          <option value="1">1 ball</option>
+          <option value="2">2 balls</option>
+          <option value="3">3 balls</option>
+          <option value="4">4 balls</option>
+          <option value="5">5 balls</option>
+          <option value="6">6 balls</option>
+          <option value="7">7 balls</option>
+          <option value="8">8 balls</option>
+          <option value="9">9 balls</option>
+          <option value="rack3">3-ball rack</option>
+          <option value="rack8">8-ball rack</option>
+          <option value="rack9">9-ball rack</option>
+          <option value="rack10">10-ball rack</option>
+        </select>
+      </div>
+      <div class="buttons"><button id="makeRandomSetup">Create Random Setup</button></div>
+      </div>
+      <div class="tableControlGroup"><div class="tableControlTitle">BALLS &amp; MARKERS</div>
       <div class="ballManage">
         <select id="ballSelect" aria-label="Select ball number">
           <option value="1">Ball 1</option>
@@ -1474,6 +1478,8 @@
         </select>
         <button id="addBall" type="button">Add Ball</button>
         <button id="removeBall" type="button">Remove Ball</button>
+      </div>
+      <div class="buttons"><button id="addNextBall" type="button">Add Next Ball</button></div>
       </div>
       <div id="markerZoneControls" style="display:none;border:1px solid #41464f;border-radius:7px;padding:8px;margin-top:8px">
         <label for="markerZoneSelect">Practice target zone</label>
@@ -4585,7 +4591,7 @@
     function shouldShowFlightOverlay(preview, which) {
         const a = preview && preview.airborne;
         if (!S.airbornePhysics || !a || !cueVisualsVisible(which)) return false;
-        if (which === 2 ? !S.shot2Enabled || !S.showShot2 : !S.showShot1) return false;
+        if (which === 2 && !S.shot2Enabled) return false;
         const bend = a.guidance && a.guidance.bend;
         return a.maxCueHeight > .001 || (bend && bend.magnitude > .001);
     }
@@ -5337,7 +5343,7 @@
     }
     function drawShot2(map) {
         if (!S.shot2Enabled) return;
-        if (!S.showShot2) { drawShot2CueBall(map); return; }
+        if (!cueVisualsVisible(2)) return;
         const s = ensureShot2(), cb = { x: s.x, y: s.y };
         if (S.showPaths && s.preview) {
             const hit = s.preview.firstBallContact ? s.preview.firstBallContact.objId : -1;
@@ -5829,7 +5835,7 @@
         // Global teaching toggle:
         // Shot visibility controls paths and guides independently of cue-ball visibility.
         {
-            if (S.showShot1) {
+            if (cueVisualsVisible(1)) {
                 drawPreview(map);
                 drawAim(map);
             }
@@ -5856,7 +5862,7 @@
                 drawBall(Object.assign(Object.assign({}, b), { x: ab.x, y: ab.y, active: true }), map, false);
             }
         }
-        if (S.showShot1) {
+        if (cueVisualsVisible(1)) {
             drawImpactOverlay(map);
             drawTipBadge(map);
         }
@@ -6177,7 +6183,7 @@
         if (!inset) return;
         const visible = S.airbornePhysics && cueVisualsVisible(which) &&
             $('cueElevationAdvanced'+which).open &&
-            (which === 2 ? S.shot2Enabled && S.showShot2 : S.showShot1);
+            (which !== 2 || S.shot2Enabled);
         inset.style.display = visible ? 'block' : 'none';
         if (!visible) return;
         const shot = which === 2 ? ensureShot2() : S;
@@ -6260,10 +6266,6 @@
         // Keep the small add/remove Shot 2 control exactly as before.
         $('toggleShot2').textContent = on ? '− SHOT 2' : '+ SHOT 2';
         // Symmetric full-width visibility controls live directly under each cue-ball box.
-        updateVisibilityButton('hideShot1Btn', S.showShot1, 'SHOT 1 PATH');
-        updateVisibilityButton('hideShot2Btn', S.showShot2, 'SHOT 2 PATH');
-        $('hideShot1Btn').disabled = false;
-        $('hideShot2Btn').disabled = !on;
         [1,2].forEach(which => {
             const btn = $('toggleCueVisuals'+which+'Btn');
             updateVisibilityButton(btn.id, cueVisualsVisible(which), 'CUE BALL '+which);
@@ -6283,8 +6285,8 @@
 
         // Keep the teaching surface clean: hidden shots also hide their
         // corresponding table-edge controls.
-        const showBottom1 = !!S.showShot1;
-        const showBottom2 = on && !!S.showShot2;
+        const showBottom1 = cueVisualsVisible(1);
+        const showBottom2 = on && cueVisualsVisible(2);
         if ($('aimControls')) $('aimControls').style.display = showBottom1 ? 'flex' : 'none';
         if ($('tableSpeed1Wrap')) $('tableSpeed1Wrap').style.display = showBottom1 ? 'flex' : 'none';
         if ($('bottomSpin1')) $('bottomSpin1').style.display = showBottom1 ? 'flex' : 'none';
@@ -9991,24 +9993,6 @@
             statsFocus = statsFocus === which ? 0 : which;
             updateStatsLayout();
         }));
-        $('hideShot1Btn').addEventListener('click', () => {
-            S.showShot1 = !S.showShot1;
-            drawTipControl();
-            updateShot2UIState();
-            draw();
-            saveState();
-            syncProjector();
-        });
-        $('hideShot2Btn').addEventListener('click', () => {
-            if (!S.shot2Enabled)
-                return;
-            S.showShot2 = !S.showShot2;
-            drawTipControl();
-            updateShot2UIState();
-            draw();
-            saveState();
-            syncProjector();
-        });
         $('compassSize').addEventListener('input', () => {
             const c = compassState();
             c.sizePct = +$('compassSize').value;
