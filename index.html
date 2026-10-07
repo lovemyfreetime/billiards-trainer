@@ -14,6 +14,12 @@
 <meta name="apple-mobile-web-app-title" content="Billiards Trainer">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
+  #markerRailControls { position:absolute;z-index:9;display:none;gap:6px;overflow-x:auto;padding:3px;pointer-events:auto; }
+  .markerRailItem { flex:0 0 auto;text-align:center;background:#0b0e12e8;border:1px solid var(--marker-color);border-radius:6px;padding:3px; }
+  .markerRailTitle { color:var(--marker-color);font-size:11px;font-weight:800;margin-bottom:2px; }
+  .markerRailItem button { padding:3px 6px;font-size:10px; }
+  .markerRailItem button+button { margin-left:3px; }
+
   :root { color-scheme: dark; --panel:#171a1f; --panel2:#22262d; --text:#eef2f5; --muted:#aeb8c2; --accent:#e8e8e8; }
   * { box-sizing: border-box; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
   input[type=number] { -webkit-user-select:text; user-select:text; -webkit-touch-callout:default; }
@@ -1176,6 +1182,7 @@
         <button id="layoutQuickDelete" type="button">Delete Selected</button>
       </div>
     </div>
+    <div id="markerRailControls" aria-label="Individual marker visibility and removal"></div>
     <button id="kickToolToggle" class="bankKickToggle" type="button" title="One-rail kick guide">KICK</button>
     <button id="bankToolToggle" class="bankKickToggle" type="button" title="One-rail bank guide">BANK</button>
     <button id="teachingCompassToggle" type="button" title="Teaching compass">◎</button>
@@ -5027,6 +5034,7 @@
         const R = S.ballR;
 
         if (b.marker) {
+            if (b.markerHidden) return;
             const color = {white:'#f7f7f3',red:'#e63b32',pink:'#ff63ad',yellow:'#f3d329'}[b.markerType] || '#fff';
             const radius = clamp(Number(b.markerDiameterIn) || 6,2.25,36)*.0254/2;
             logicalCircle(b,radius,map,color,null,1,.20);
@@ -5036,7 +5044,7 @@
             ctx.beginPath();ctx.moveTo(q.x-7,q.y);ctx.lineTo(q.x+7,q.y);
             ctx.moveTo(q.x,q.y-7);ctx.lineTo(q.x,q.y+7);ctx.stroke();
             ctx.font='700 10px Segoe UI';ctx.fillStyle=color;ctx.textAlign='center';
-            ctx.fillText((Number(b.markerDiameterIn)||6).toFixed(2)+'″',q.x,q.y-11);
+            ctx.fillText('M'+(b.id-999)+' · '+(Number(b.markerDiameterIn)||6).toFixed(2)+'″',q.x,q.y-11);
             ctx.restore();
             return;
         }
@@ -5611,7 +5619,44 @@
         }
         ctx.restore();
     }
+    function updateMarkerRailControls() {
+        if (isProjector) return;
+        const bar=$('markerRailControls');
+        if (!bar) return;
+        const markers=S.balls.filter(b=>b.marker);
+        bar.style.display=markers.length?'flex':'none';
+        const M=controlMap(), tl=M.map({x:0,y:0}), tr=M.map({x:S.tableL,y:0});
+        bar.style.left=(tl.x+45)+'px';
+        bar.style.top=(tl.y+14)+'px';
+        bar.style.maxWidth=Math.max(80,tr.x-tl.x-90)+'px';
+        const signature=markers.map(b=>b.id+':'+b.markerType+':'+!!b.markerHidden).join('|');
+        if(bar.dataset.signature===signature) return;
+        bar.dataset.signature=signature;bar.replaceChildren();
+        markers.forEach(b=>{
+            const item=document.createElement('div');item.className='markerRailItem';
+            item.style.setProperty('--marker-color',{white:'#f7f7f3',red:'#e63b32',pink:'#ff63ad',yellow:'#f3d329'}[b.markerType]||'#fff');
+            const title=document.createElement('div');title.className='markerRailTitle';
+            title.textContent='M'+(b.id-999);title.title=b.markerType+' marker '+(b.id-999);
+            const toggle=document.createElement('button');toggle.type='button';
+            toggle.textContent=b.markerHidden?'Show':'Hide';
+            toggle.setAttribute('aria-label',toggle.textContent+' marker '+(b.id-999));
+            toggle.onclick=()=>{
+                const marker=S.balls.find(q=>q.id===b.id);
+                if (!marker) return;
+                marker.markerHidden=!marker.markerHidden;
+                draw();saveState();syncProjector();
+            };
+            const remove=document.createElement('button');remove.type='button';remove.textContent='Remove';
+            remove.setAttribute('aria-label','Remove marker '+(b.id-999));
+            remove.onclick=()=>{
+                S.balls=S.balls.filter(q=>q.id!==b.id);
+                updateUI();draw();saveState();syncProjector();
+            };
+            item.append(title,toggle,remove);bar.appendChild(item);
+        });
+    }
     function draw() {
+        updateMarkerRailControls();
         const w = canvas.width / DPR, h = canvas.height / DPR;
         ctx.clearRect(0, 0, w, h);
         ctx.fillStyle = '#050608';
@@ -6374,6 +6419,7 @@
         }
         let best = null, bd = S.ballR * 1.5;
         for (const b of S.balls) {
+            if (b.markerHidden || b.active===false) continue;
             const d = Math.hypot(q.x - b.x, q.y - b.y);
             if (d < bd) {
                 bd = d;
@@ -6552,7 +6598,7 @@
         ev.preventDefault();
         // Only the center handle captures wheel resizing; the rest of the table aims.
         const M = controlMap(), pointer = pointerPos(ev);
-        const zone = S.balls.filter(b=>b.marker && b.active!==false)
+        const zone = S.balls.filter(b=>b.marker && !b.markerHidden && b.active!==false)
             .map(b=>{const p=M.map(b);return {b,d:Math.hypot(pointer.x-p.x,pointer.y-p.y)};})
             .filter(q=>q.d<=14).sort((a,b)=>a.d-b.d)[0];
         if (zone && ev.deltaY !== 0) {
