@@ -1457,13 +1457,7 @@
           <button id="loadLayoutBtn" type="button">RECALL</button>
         </div>
       </div>
-      <button class="advancedToggle" type="button" data-advanced="tableAdvanced">ADVANCED</button>
-      <div class="advancedBody" id="tableAdvanced">
-        <div class="row"><label>Playing length (in)</label><input id="tableL" type="number" min="60" max="120" step="0.01"></div>
-        <div class="row"><label>Playing width (in)</label><input id="tableW" type="number" min="30" max="60" step="0.01"></div>
-        <div class="row"><label>Ball diameter (in)</label><input id="ballD" type="number" min="1.5" max="3" step="0.001"></div>
-        <div class="buttons"><button data-preset="7d">7' Diamond 80×40</button><button data-preset="7b">7' Bar 78×39</button><button data-preset="8">8' 88×44</button><button data-preset="9">9' 100×50</button></div>
-      </div>
+
       </div>
     </div>
 
@@ -1527,6 +1521,12 @@
       <div class="sectionBody">
       <button class="advancedToggle" type="button" data-advanced="physicsAdvanced">ADVANCED</button>
       <div class="advancedBody" id="physicsAdvanced">
+        <div class="tableControlTitle">TABLE SIZE &amp; BALLS</div>
+        <div class="row"><label>Playing length (in)</label><input id="tableL" type="number" min="60" max="120" step="0.01"></div>
+        <div class="row"><label>Playing width (in)</label><input id="tableW" type="number" min="30" max="60" step="0.01"></div>
+        <div class="row"><label>Ball diameter (in)</label><input id="ballD" type="number" min="1.5" max="3" step="0.001"></div>
+        <div class="buttons"><button data-preset="7d">7' Diamond 80×40</button><button data-preset="7b">7' Bar 78×39</button><button data-preset="8">8' 88×44</button><button data-preset="9">9' 100×50</button></div>
+        <div class="tableControlTitle" style="margin-top:10px">PHYSICS SETTINGS</div>
 <div class="row"><label>Sliding friction μ</label><input id="muSlide" type="number" min="0" max="0.5" step="0.005"></div>
       <div class="row"><label>Rolling friction μ</label><input id="muRoll" type="number" min="0" max="0.1" step="0.001"></div>
       <div class="row"><label>Ball-ball friction μ</label><input id="muBall" type="number" min="0" max="0.2" step="0.001"></div>
