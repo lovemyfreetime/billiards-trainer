@@ -2507,6 +2507,8 @@
     function clearBankKickTool() {
         const t = bankKickState();
         t.mode = null;
+        S.showBankKickNumbers = false;
+        if (!isProjector && $('showBankKickNumbers')) $('showBankKickNumbers').checked=false;
         t.phase = null;
         t.zero = null;
         t.railName = null;
@@ -2976,6 +2978,8 @@
             return;
         }
         t.mode = mode;
+        S.showBankKickNumbers = true;
+        if (!isProjector && $('showBankKickNumbers')) $('showBankKickNumbers').checked=true;
         t.solution = null;
         t.ballId = null;
         t.railName = null;
@@ -5100,7 +5104,10 @@
         // Long rails run 0–80; short rails run 0–40. Major 10-unit references
         // keep their existing labels/diamonds. Every non-multiple-of-10 value
         // gets a smaller dot, so each diamond interval is divided into 10 exact steps.
-        if (S.showBankKickNumbers) {
+        if (S.showBankKickNumbers || bankKickState().mode) {
+            const numberingZero = bankKickState().mode && bankKickState().zero ? bankKickState().zero : {x:0,y:0};
+            const longNumber = x => systemNumberFromZero(numberingZero,{axis:'h'},x);
+            const shortNumber = y => systemNumberFromZero(numberingZero,{axis:'v'},y);
             ctx.save();
             ctx.fillStyle = 'rgba(255,255,255,.80)';
             ctx.font = `800 ${isProjector ? 11 : 9}px Segoe UI`;
@@ -5111,7 +5118,7 @@
                 const x = L * i / 8;
                 for (const y of [yTop, yBot]) {
                     const q = map({ x, y });
-                    ctx.fillText(String(i * 10), q.x, q.y);
+                    ctx.fillText(String(Math.round(longNumber(x))), q.x, q.y);
                 }
             }
             const xLeft = -0.060, xRight = L + 0.060;
@@ -5130,14 +5137,14 @@
                 const x = L * value / 80;
                 for (const y of [yTop, yBot]) {
                     const q = map({ x, y });
-                    ctx.fillText(String(value), q.x, q.y);
+                    ctx.fillText(String(Math.round(longNumber(x))), q.x, q.y);
                 }
             }
             for (let value = 5; value < 40; value += 10) {
                 const y = W * value / 40;
                 for (const x of [xLeft, xRight]) {
                     const q = map({ x, y });
-                    ctx.fillText(String(value), q.x, q.y);
+                    ctx.fillText(String(Math.round(shortNumber(y))), q.x, q.y);
                 }
             }
             ctx.globalAlpha = 1;
