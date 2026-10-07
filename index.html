@@ -4504,10 +4504,10 @@
         const a = preview && preview.airborne, path = preview && preview.paths && preview.paths[0];
         if (!a || !path || path.length < 2) return;
         const w = canvas.width / DPR, h = canvas.height / DPR;
-        const boxW = Math.min(w - 28, 310, Math.max(235, w * .28));
+        const boxW = Math.min(w - 12, 680, Math.max(510, w * .62));
         // Pocket 1 side: keep the profile away from the upper-right rail tools.
-        const boxH = 142, x0 = 14, y0 = 14;
-        const padL = 34, padR = 12, padT = 27, padB = 25;
+        const boxH = 170, x0 = 6, y0 = 14;
+        const padL = 34, padR = 12, padT = 35, padB = 32;
         const plotW = boxW-padL-padR, plotH = boxH-padT-padB;
         const pts = [];
         let travel = 0, prev = path[0], maxZ = S.ballR * 4;
@@ -4518,7 +4518,7 @@
             travel += Math.hypot(p.x-prev.x,p.y-prev.y);
             const z = Number.isFinite(p.z) ? p.z : S.ballR;
             pts.push({d:travel,z,t:p.t});
-            maxZ = Math.max(maxZ,z*1.12);
+            maxZ = Math.max(maxZ,(z+S.ballR)*1.12);
             prev = p;
         }
         const maxD = Math.max(.25, travel);
@@ -4593,6 +4593,17 @@
             profileBall(X, primary.objZ || S.ballR, Number(primary.id),
                 `BALL ${primary.n}`, clearanceColor(primary.margin));
             profileBall(X, primary.cueZ || S.ballR, 0, 'CUE BALL', '#f7f7f3');
+            const clearLabel = `${primary.margin >= 0 ? 'CLEARS +' : 'CLIPS −'}${Math.abs(primary.margin*1000).toFixed(1)} mm`;
+            ctx.font = '800 11px Segoe UI';
+            ctx.fillStyle = clearanceColor(primary.margin);
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            const labelX = clamp(X + rx + 12, x0+padL, x0+boxW-145);
+            const labelY = clamp(py(((primary.cueZ || S.ballR)+(primary.objZ || S.ballR))/2),y0+padT+14,bedY-14);
+            ctx.fillText(clearLabel,labelX,labelY);
+            ctx.beginPath();
+            ctx.moveTo(X+rx+2,py(primary.cueZ || S.ballR));
+            ctx.lineTo(labelX-4,labelY);
+            ctx.strokeStyle = clearanceColor(primary.margin); ctx.stroke();
         }
         else {
             // Without an obstacle, show the cue ball at the highest sampled point.
@@ -4603,11 +4614,11 @@
         if (Array.isArray(a.landings)) {
             ctx.strokeStyle = '#ffd86b';
             ctx.fillStyle = '#ffd86b';
-            a.landings.slice(0,4).forEach((p,i)=>{
+            a.landings.forEach((p,i)=>{
                 const X=px(Math.min(maxD,p.travel||0));
                 ctx.beginPath(); ctx.moveTo(X,bedY-8); ctx.lineTo(X,bedY+3); ctx.stroke();
                 ctx.textAlign='center';ctx.textBaseline='top';
-                ctx.fillText(i===0?'L1':`H${i+1}`,X,bedY+5);
+                ctx.fillText(i===0?'LAND 1':`HOP ${i+1}`,clamp(X,x0+padL+22,x0+boxW-26),bedY+5);
             });
         }
 
@@ -5105,7 +5116,8 @@
         ctx.moveTo(cx, cy - r);
         ctx.lineTo(cx, cy + r);
         ctx.stroke();
-        const safe = PHYSICS_MODEL.maxTipOffsetR * r, px = cx + S.sideSpin * safe, py = cy - S.follow * safe;
+        const tip = effectiveTipOffsetValues(S.sideSpin, S.follow);
+        const px = cx + tip.sideR * r, py = cy - tip.followR * r;
         ctx.fillStyle = '#ff3b3b';
         ctx.beginPath();
         ctx.arc(px, py, 4.5, 0, Math.PI * 2);
@@ -5802,7 +5814,8 @@
         x.fillText('LEFT', cx - R - 7, cy + 4);
         x.textAlign = 'left';
         x.fillText('RIGHT', cx + R + 7, cy + 4);
-        const safe = safeR, px = cx + side * safe, py = cy - follow * safe;
+        const tip = effectiveTipOffsetValues(side, follow);
+        const px = cx + tip.sideR * R, py = cy - tip.followR * R;
         x.fillStyle = '#e82f2f';
         x.strokeStyle = '#fff';
         x.lineWidth = 2;
@@ -5869,9 +5882,63 @@
             x.fillText(b.label, b.x + bw / 2, bottom + 5);
         }
     }
+    function cueSideContact(side, follow, elevationDeg) {
+        const tip = effectiveTipOffsetValues(side, follow);
+        const theta = clamp(+elevationDeg || 0, 0, PHYSICS_MODEL.maxAirborneCueElevationDeg) * Math.PI/180;
+        const co = Math.cos(theta), sn = Math.sin(theta);
+        const rear = Math.sqrt(Math.max(0,1-tip.sideR*tip.sideR-tip.followR*tip.followR));
+        return { x:-rear*co+tip.followR*sn, z:rear*sn+tip.followR*co, co, sn, tip };
+    }
+    function drawCueElevationInset(which) {
+        const face = $(which === 2 ? 'tipCanvas2' : 'tipCanvas');
+        if (!face) return;
+        const id = 'cueElevationView' + which;
+        let inset = $(id);
+        if (!inset && S.airbornePhysics) {
+            inset = document.createElement('canvas');
+            inset.id = id;
+            inset.style.cssText = 'position:static;inset:auto;width:100%;height:110px;border:1px solid #3b424c;border-radius:8px;margin-top:5px;pointer-events:none';
+            inset.setAttribute('aria-label','Side view of cue elevation and cue-ball strike point');
+            face.insertAdjacentElement('afterend',inset);
+        }
+        if (!inset) return;
+        inset.style.display = S.airbornePhysics ? 'block' : 'none';
+        if (!S.airbornePhysics) return;
+        const shot = which === 2 ? ensureShot2() : S;
+        const rect = inset.getBoundingClientRect();
+        if (rect.width < 30) return;
+        const dpr = Math.max(1,Math.min(2,window.devicePixelRatio || 1));
+        const w = rect.width, h = 110;
+        inset.width = Math.round(w*dpr); inset.height = h*dpr;
+        const x = inset.getContext('2d');
+        x.setTransform(dpr,0,0,dpr,0,0);
+        x.fillStyle = '#0b0e12'; x.fillRect(0,0,w,h);
+        const R = Math.min(22,w*.14), cx = w*.66, cy = 72;
+        const contact = cueSideContact(shot.sideSpin,shot.follow,shot.cueElevationDeg);
+        const tipX = cx+R*contact.x, tipY = cy-R*contact.z;
+        const length = Math.min(w*.47, (tipX-8)/Math.max(.01,contact.co), (tipY-24)/Math.max(.01,contact.sn));
+        x.strokeStyle = '#73818e'; x.lineWidth = 1;
+        x.beginPath(); x.moveTo(8,cy+R); x.lineTo(w-8,cy+R); x.stroke();
+        x.fillStyle = '#f7f7f3'; x.strokeStyle = '#aab2bc';
+        x.beginPath(); x.arc(cx,cy,R,0,Math.PI*2); x.fill(); x.stroke();
+        x.setLineDash([3,3]); x.strokeStyle = '#8996a2';
+        x.beginPath(); x.moveTo(tipX,tipY);
+        x.lineTo(tipX+contact.co*R*2.2,tipY+contact.sn*R*2.2); x.stroke();
+        x.setLineDash([]);
+        x.strokeStyle = '#d9ae70'; x.lineWidth = 5; x.lineCap = 'round';
+        x.beginPath(); x.moveTo(tipX-contact.co*length,tipY-contact.sn*length);
+        x.lineTo(tipX,tipY); x.stroke();
+        x.fillStyle = '#e82f2f'; x.beginPath(); x.arc(tipX,tipY,3.5,0,Math.PI*2); x.fill();
+        x.fillStyle = '#ffbe5a'; x.beginPath(); x.arc(cx,cy,2,0,Math.PI*2); x.fill();
+        x.fillStyle = '#dfefff'; x.font = '700 10px Segoe UI';
+        x.textAlign = 'left'; x.textBaseline = 'middle';
+        x.fillText(`SIDE · CUE ${(+shot.cueElevationDeg || 0).toFixed(1)}°`,8,12);
+        x.font = '9px Segoe UI';
+        x.fillText(Math.abs(contact.tip.sideR)>.005 ? 'L/R offset shown on face above' : 'Red: tip contact · gold: ball core',8,h-7);
+    }
     function drawTipControl() { if (isProjector)
-        return; drawTipDisk($('tipCanvas'), S.sideSpin, S.follow, 1); if (S.shot2Enabled)
-        drawTipDisk($('tipCanvas2'), ensureShot2().sideSpin, ensureShot2().follow, 2); }
+        return; drawTipDisk($('tipCanvas'), S.sideSpin, S.follow, 1); drawCueElevationInset(1); if (S.shot2Enabled)
+        { drawTipDisk($('tipCanvas2'), ensureShot2().sideSpin, ensureShot2().follow, 2); drawCueElevationInset(2); } }
     function updateShot2UIState() {
         if (isProjector)
             return;
