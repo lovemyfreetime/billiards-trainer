@@ -4890,7 +4890,12 @@
         const pocketD = pocket ? contactD+pocket.distance : 0;
         const maxD = Math.max(.25, contact ? contactD : travel, pocketD, ...objPts.map(p=>p.d));
         const visiblePts = contact ? pts.filter(p=>p.t<=contact.t) : pts;
-        const px = d => x0+padL + clamp(d/maxD,0,1)*plotW;
+        // Match the horizontal direction of the actual cue strike in the table view.
+        // For mostly vertical shots retain the established left-to-right side view.
+        const cueDir = which === 2 ? shot2StrikeDirection() : strikeDirection();
+        const reverseProfile = Number.isFinite(cueDir.x) && Number.isFinite(cueDir.y)
+            && Math.abs(cueDir.x) > Math.abs(cueDir.y) && cueDir.x < 0;
+        const px = d => x0+padL + (reverseProfile ? 1-clamp(d/maxD,0,1) : clamp(d/maxD,0,1))*plotW;
         const py = z => y0+padT+plotH - clamp(z/maxZ,0,1)*plotH;
 
         ctx.save();
@@ -4987,8 +4992,9 @@
                 ctx.fillStyle='#030405';ctx.strokeStyle='#68b8ff';
                 ctx.beginPath();ctx.ellipse(X,Y,9,7,0,0,Math.PI*2);ctx.fill();ctx.stroke();
                 ctx.font='800 9px Segoe UI';ctx.fillStyle='#68b8ff';
-                ctx.textAlign='right';ctx.textBaseline='bottom';
-                ctx.fillText(`POCKET ${{TL:1,TM:2,TR:3,BR:4,BM:5,BL:6}[pocket.name] || pocket.name}`,Math.min(X+12,x0+boxW-5),bedY-48);
+                ctx.textAlign=reverseProfile?'left':'right';ctx.textBaseline='bottom';
+                const pocketLabelX=reverseProfile ? Math.max(X-12,x0+5) : Math.min(X+12,x0+boxW-5);
+                ctx.fillText(`POCKET ${{TL:1,TM:2,TR:3,BR:4,BM:5,BL:6}[pocket.name] || pocket.name}`,pocketLabelX,bedY-48);
                 ctx.strokeStyle='rgba(104,184,255,.6)';ctx.lineWidth=1;
                 ctx.beginPath();ctx.moveTo(X,bedY-45);ctx.lineTo(X,Y-8);ctx.stroke();
                 const event = (preview.pocketEvents || []).find(p=>p.id===contact.objId);
