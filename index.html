@@ -1578,11 +1578,18 @@
       </div>
       <div class="tableControlGroup layoutSetupGroup"><div class="tableControlTitle">MARKERS</div>
         <div class="buttons layoutSetupReset"><button id="addNextMarker" type="button">Add Next Marker</button></div>
-        <div class="buttons layoutSetupButtons"><button id="addSquareZone" type="button">+ Square (0/4)</button><button id="addTriangleZone" type="button">+ Triangle (0/4)</button></div>
         <div class="buttons layoutSetupButtons"><button id="addMarker" type="button">Add Marker</button><button id="removeMarker" type="button">Remove Marker</button></div>
         <div class="layoutSetupSelect"><select id="markerSelect" aria-label="Select marker color">
           <option value="white">White / red dot</option><option value="red">Red / white dot</option>
           <option value="pink">Pink / white dot</option><option value="yellow">Yellow / white dot</option>
+          <optgroup label="Squares / Rectangles">
+            <option value="square:white">Square · White</option><option value="square:red">Square · Red</option>
+            <option value="square:pink">Square · Pink</option><option value="square:yellow">Square · Yellow</option>
+          </optgroup>
+          <optgroup label="Triangles">
+            <option value="triangle:white">Triangle · White</option><option value="triangle:red">Triangle · Red</option>
+            <option value="triangle:pink">Triangle · Pink</option><option value="triangle:yellow">Triangle · Yellow</option>
+          </optgroup>
         </select></div>
       </div>
       <div id="markerZoneControls" style="display:none;border:1px solid #41464f;border-radius:7px;padding:8px;margin-top:8px">
@@ -2327,7 +2334,12 @@
                 if (b.markerShape !== 'circle') {
                     b.markerWidthIn = clamp(Number(b.markerWidthIn) || 12,2.25,60);
                     b.markerHeightIn = clamp(Number(b.markerHeightIn) || 12,2.25,60);
+                    b.markerAngle = Number.isFinite(+b.markerAngle) ? +b.markerAngle : 0;
                     b.markerLocked = b.markerLocked === true;
+                    if (b.markerShape === 'triangle' &&
+                        (!Array.isArray(b.markerVertices) || b.markerVertices.length !== 3))
+                        b.markerVertices=[[-b.markerWidthIn/2,-b.markerHeightIn/2],
+                            [b.markerWidthIn/2,0],[-b.markerWidthIn/2,b.markerHeightIn/2]];
                 }
                 b.n = 'MARKER';
                 b.active = b.active !== false;
@@ -5384,6 +5396,26 @@
         }
         ctx.closePath();
     }
+    function markerZoneColor(b) {
+        return {white:'#f7f7f3',red:'#e63b32',pink:'#ff63ad',yellow:'#f3d329'}[b.markerType]||'#fff';
+    }
+    function markerZoneFill(b) {
+        return {white:'rgba(247,247,243,.12)',red:'rgba(230,59,50,.18)',
+            pink:'rgba(255,99,173,.18)',yellow:'rgba(243,211,41,.18)'}[b.markerType]||'rgba(255,255,255,.12)';
+    }
+    function markerVerticesInTable(b) {
+        const w=Number(b.markerWidthIn)||12,h=Number(b.markerHeightIn)||12;
+        const v=b.markerShape==='triangle' && Array.isArray(b.markerVertices)&&b.markerVertices.length===3
+            ? b.markerVertices : [[-w/2,-h/2],[w/2,-h/2],[w/2,h/2],[-w/2,h/2]];
+        const theta=Number(b.markerAngle)||0,c=Math.cos(theta),s=Math.sin(theta);
+        return v.map(p=>[p[0]*c-p[1]*s,p[0]*s+p[1]*c]);
+    }
+    function markerRotationHandle(b,map) {
+        const points=markerVerticesInTable(b),angle=Number(b.markerAngle)||0;
+        const radius=Math.max(12,Math.max(...points.map(p=>Math.hypot(...p)))+9);
+        return map({x:b.x+Math.cos(angle-Math.PI/2)*radius*.0254,
+            y:b.y+Math.sin(angle-Math.PI/2)*radius*.0254});
+    }
     function drawBall(b, map, label = true) {
         if (!b.active)
             return;
@@ -5395,35 +5427,26 @@
             if (b.markerHidden) return;
             const color = {white:'#f7f7f3',red:'#e63b32',pink:'#ff63ad',yellow:'#f3d329'}[b.markerType] || '#fff';
             if (b.markerShape === 'square' || b.markerShape === 'triangle') {
-                const q=map(b), unit=map({x:b.x+.0254,y:b.y}).x-q.x;
-                const hw=Math.abs(unit)*(Number(b.markerWidthIn)||12)/2;
-                const hh=Math.abs(unit)*(Number(b.markerHeightIn)||12)/2;
-                const triangle=b.markerShape==='triangle';
-                ctx.save();
-                ctx.fillStyle=triangle?'rgba(255,207,107,.18)':'rgba(116,219,255,.18)';
-                ctx.strokeStyle=triangle?'#ffcf6b':'#74dbff';ctx.lineWidth=2.5;
-                ctx.beginPath();
-                if (triangle) {
-                    ctx.moveTo(q.x-hw,q.y-hh);ctx.lineTo(q.x+hw,q.y);
-                    ctx.lineTo(q.x-hw,q.y+hh);ctx.closePath();
-                } else ctx.rect(q.x-hw,q.y-hh,hw*2,hh*2);
-                ctx.fill();ctx.stroke();
+                const q=map(b), vertices=markerVerticesInTable(b);
+                const pts=vertices.map(v=>map({x:b.x+v[0]*.0254,y:b.y+v[1]*.0254}));
+                const shapeColor=markerZoneColor(b), rotationHandle=markerRotationHandle(b,map);
+                ctx.save();ctx.strokeStyle=shapeColor;ctx.fillStyle=markerZoneFill(b);
+                ctx.lineWidth=2.5;ctx.beginPath();
+                pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+                ctx.closePath();ctx.fill();ctx.stroke();
                 ctx.beginPath();ctx.moveTo(q.x-6,q.y);ctx.lineTo(q.x+6,q.y);
                 ctx.moveTo(q.x,q.y-6);ctx.lineTo(q.x,q.y+6);ctx.stroke();
-                if (!b.markerLocked && !isProjector) {
-                    const handles=triangle
-                      ? [[q.x-hw,q.y-hh],[q.x+hw,q.y],[q.x-hw,q.y+hh]]
-                      : [[q.x-hw,q.y-hh],[q.x+hw,q.y-hh],[q.x+hw,q.y+hh],[q.x-hw,q.y+hh]];
-                    ctx.fillStyle='#fff';ctx.lineWidth=1.5;
-                    for(const [hx,hy] of handles){
-                        ctx.fillRect(hx-5,hy-5,10,10);
-                        ctx.strokeRect(hx-5,hy-5,10,10);
-                    }
+                if(!b.markerLocked && !isProjector){
+                    ctx.fillStyle='#fff';
+                    pts.forEach(p=>{ctx.fillRect(p.x-5,p.y-5,10,10);ctx.strokeRect(p.x-5,p.y-5,10,10);});
+                    ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(rotationHandle.x,rotationHandle.y);
+                    ctx.strokeStyle=shapeColor;ctx.stroke();
+                    ctx.beginPath();ctx.arc(rotationHandle.x,rotationHandle.y,7,0,Math.PI*2);
+                    ctx.fillStyle='#6fff58';ctx.fill();ctx.stroke();
                 }
-                ctx.fillStyle=triangle?'#ffcf6b':'#74dbff';
-                ctx.font='700 11px Segoe UI';ctx.textAlign='center';
-                ctx.fillText('M'+markerNumber(b)+' '+(b.markerLocked?'🔒':''),
-                    q.x,q.y-hh-12);
+                ctx.fillStyle=shapeColor;ctx.font='700 11px Segoe UI';ctx.textAlign='center';
+                ctx.fillText('M'+markerNumber(b)+(b.markerLocked?' LOCKED':''),
+                    q.x,Math.min(...pts.map(p=>p.y))-12);
                 ctx.restore();return;
             }
             const radius = clamp(Number(b.markerDiameterIn) || 6,2.25,36)*.0254/2;
@@ -6045,7 +6068,7 @@
             const count=Math.ceil((markers.length-slot)/8);
             const fraction=Number.isFinite(b.markerRailFraction)?b.markerRailFraction:(slot+(row+1)/(count+1))/8;
             item.style.left=(fraction*100)+'%';
-            item.style.setProperty('--marker-color',b.markerShape==='square'?'#74dbff':b.markerShape==='triangle'?'#ffcf6b':({white:'#f7f7f3',red:'#e63b32',pink:'#ff63ad',yellow:'#f3d329'}[b.markerType]||'#fff'));
+            item.style.setProperty('--marker-color',markerZoneColor(b));
             const title=document.createElement('div');title.className='markerRailTitle';
             title.textContent='M'+markerNumber(b)+(b.markerShape==='square'?' □':b.markerShape==='triangle'?' △':'');
             title.title=(b.markerShape||b.markerType)+' marker '+markerNumber(b);
@@ -6608,8 +6631,6 @@
         const sel=$('markerZoneSelect'), previous=sel.value;
         const markers=S.balls.filter(b=>b.marker);
         $('markerZoneControls').style.display='none';
-        if ($('addSquareZone')) $('addSquareZone').textContent='+ Square ('+markers.filter(b=>b.markerShape==='square').length+'/4)';
-        if ($('addTriangleZone')) $('addTriangleZone').textContent='+ Triangle ('+markers.filter(b=>b.markerShape==='triangle').length+'/4)';
         sel.replaceChildren();
         markers.forEach((b,i)=>{
             const option=document.createElement('option');
@@ -10672,51 +10693,63 @@
             updateRunCount();
             return true;
         }
-        function addShapeZone(shape) {
-            if (!['square','triangle'].includes(shape)) return;
+        function markerSelection(){
+            const raw=$('markerSelect').value;
+            if(raw.includes(':')){const [shape,color]=raw.split(':');return {shape,color};}
+            return {shape:'circle',color:raw};
+        }
+        function addSelectedMarker(shape,color){
+            if(!['white','red','pink','yellow'].includes(color))return false;
+            if(shape==='circle')return addMarkerBall(color);
+            if(!['square','triangle'].includes(shape))return false;
             const count=S.balls.filter(b=>b.marker&&b.markerShape===shape).length;
-            if(count>=4){toast('Maximum four '+shape+' zones');return;}
+            if(count>=4){toast('Maximum four '+shape+' zones');return false;}
             const existing=S.balls.filter(b=>b.marker);
-            if(!existing.length)S.markerSeq=1000;
-            const idx=existing.length, col=idx%4,row=Math.floor(idx/4)%3;
+            const idx=existing.length,col=idx%4,row=Math.floor(idx/4)%3;
             const id=Math.max(1000,Number(S.markerSeq)||1000);S.markerSeq=id+1;
-            S.balls.push({id,n:'MARKER',marker:true,markerType:'white',markerShape:shape,
-                markerWidthIn:12,markerHeightIn:12,markerLocked:false,markerDiameterIn:6,
+            S.balls.push({id,n:'MARKER',marker:true,markerType:color,markerShape:shape,
+                markerWidthIn:12,markerHeightIn:12,markerAngle:0,
+                markerVertices:shape==='triangle'?[[-6,-6],[6,0],[-6,6]]:undefined,
+                markerLocked:false,markerDiameterIn:6,
                 x:clamp(S.tableL*(.36+col*.095),.2,S.tableL-.2),
                 y:clamp(S.tableW*(.28+row*.19),.2,S.tableW-.2),active:true});
             normalizeBallSet();updateUI();refreshPreview();
             if(runHistory.length<=1)runHistory=[cleanSnapshot()];
-            updateRunCount();toast('Added adjustable '+shape+' zone · resize by dragging white corners, then Lock on the rail');
+            updateRunCount();return true;
         }
-        $('addSquareZone').onclick=()=>addShapeZone('square');
-        $('addTriangleZone').onclick=()=>addShapeZone('triangle');
+        function rememberMarker(shape,color){
+            S.lastMarkerShape=shape;S.lastMarkerColor=color;saveState();
+        }
         $('markerZoneSelect').addEventListener('change',updateMarkerZoneControls);
         $('markerDiameter').addEventListener('input',ev=>setMarkerDiameter(ev.target.value));
         $('markerDiameterNumber').addEventListener('change',ev=>setMarkerDiameter(ev.target.value));
         $('ballSelect').addEventListener('change', () => updateUI());
         $('addMarker').onclick = () => {
-            const type = $('markerSelect').value;
-            if (addMarkerBall(type)) toast('Added '+type+' marker');
+            const {shape,color}=markerSelection();
+            if(addSelectedMarker(shape,color)){
+                rememberMarker(shape,color);toast('Added '+color+' '+shape+' marker');
+            }
         };
         $('addNextMarker').onclick = () => {
-            const colors = ['white','red','pink','yellow'];
-            const markers = S.balls.filter(b => b.marker);
-            const type = colors[markers.length % colors.length];
-            $('markerSelect').value = type;
-            if (addMarkerBall(type)) toast('Added '+type+' marker');
+            const colors=['white','red','pink','yellow'];
+            const shape=['circle','square','triangle'].includes(S.lastMarkerShape)
+                ? S.lastMarkerShape : markerSelection().shape;
+            const last=colors.indexOf(S.lastMarkerColor);
+            const color=colors[(last+1)%colors.length];
+            if(addSelectedMarker(shape,color)){
+                $('markerSelect').value=shape==='circle'?color:shape+':'+color;
+                rememberMarker(shape,color);
+                toast('Added next '+color+' '+shape+' marker');
+            }
         };
         $('removeMarker').onclick = () => {
-            const type = $('markerSelect').value;
-            const matches = S.balls.filter(b => b.marker && b.markerType === type);
-            if (!matches.length) { toast('No '+type+' marker is on the table'); return; }
-            const id = matches[matches.length-1].id;
-            S.balls = S.balls.filter(b => b.id !== id);
-            normalizeBallSet();
-            updateUI();
-            refreshPreview();
-            if (runHistory.length <= 1) runHistory = [cleanSnapshot()];
-            updateRunCount();
-            toast('Removed '+type+' marker');
+            const {shape,color}=markerSelection();
+            const matches=S.balls.filter(b=>b.marker&&(b.markerShape||'circle')===shape&&b.markerType===color);
+            if(!matches.length){toast('No '+color+' '+shape+' marker on table');return;}
+            S.balls=S.balls.filter(b=>b.id!==matches[matches.length-1].id);
+            normalizeBallSet();updateUI();refreshPreview();
+            if(runHistory.length<=1)runHistory=[cleanSnapshot()];
+            updateRunCount();toast('Removed '+color+' '+shape+' marker');
         };
         function addSpecificBallById(id) {
             if (!id || id < 1 || id > 15)
