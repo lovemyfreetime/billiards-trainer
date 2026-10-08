@@ -1274,6 +1274,24 @@
 .photoReview #photoDetectionList > .photoHint { font-size:15px; line-height:1.5; color:#cedbe5; }
 .photoApplyCue { font-size:15px; line-height:1.45; letter-spacing:.2px; }
 @media(max-width:700px){ .photoSavedGroup { width:100%; } .photoAnalyzerToolbar #photoArchiveSelect { width:100%; max-width:100%; } }
+
+/* Compact, always-visible photo setup / AI / saved-image toolbar. */
+.photoAnalyzerToolbar { align-items:flex-end; gap:8px; padding:7px 10px; }
+.photoAnalyzerToolbar .photoToolGroup { padding-right:8px; }
+.photoAnalyzerToolbar .photoToolHeading { margin-bottom:4px; }
+.photoAnalyzerToolbar .photoToolActions { gap:5px; }
+.photoAnalyzerToolbar #photoRackType { width:125px; min-width:125px; max-width:125px; }
+.photoAnalyzerToolbar .photoSavedGroup { width:auto; max-width:100%; flex:0 1 auto; border-right:0; }
+.photoAnalyzerToolbar #photoArchiveSelect { width:330px; max-width:100%; font-size:14px; }
+.photoAnalyzerToolbar .photoArchiveActions { flex-wrap:wrap; align-items:flex-end; }
+.photoAnalyzerToolbar .photoArchiveFileActions { display:flex; flex-direction:column; gap:0; min-width:0; }
+.photoAnalyzerToolbar .photoArchiveFileActions .photoToolHeading { font-size:12px; margin:0 0 4px; }
+.photoAnalyzerToolbar .photoArchiveFileActions button { padding:7px 10px; }
+@media(max-width:700px){
+ .photoAnalyzerToolbar .photoSavedGroup { width:100%; }
+ .photoAnalyzerToolbar #photoArchiveSelect { width:min(330px, 100%); max-width:100%; }
+ .photoAnalyzerToolbar { max-height:35vh; overflow-y:auto; }
+}
 </style>
 </head>
 <body>
@@ -1624,19 +1642,27 @@
         <button id="photoAutoRailsBtn" type="button">Auto Corners</button>
         <button id="photoResetCorners" type="button">Reset Corners</button>
         <select id="photoRackType" aria-label="Rack type" title="Rack type">
-          <option value="auto">Rack: Auto</option><option value="9ball">9-Ball</option><option value="10ball">10-Ball</option><option value="8ball">8-Ball / Full Set</option><option value="custom">Custom / Drill</option>
+          <option value="auto">Rack: Auto</option><option value="9ball">9-Ball</option><option value="10ball">10-Ball</option><option value="8ball">8-Ball</option><option value="custom">Custom</option>
         </select>
         <button id="photoAnalyzeNow" class="visionPrimary" type="button" disabled>Analyze Balls</button>
         <button id="photoAddMissed" type="button" disabled>Add Missed Ball</button>
+        <button id="photoAiModeBtn" type="button" title="Toggle AI ball detection">AI: AUTO</button>
       </div></div>
-      <details class="photoToolGroup photoSavedGroup"><summary>Saved Images</summary><div class="photoToolActions">
-        <select id="photoArchiveSelect" aria-label="Saved images on this device" disabled><option value="">No saved images</option></select>
-        <button id="photoArchiveLoad" type="button" disabled>Open</button>
-        <button id="photoArchiveDelete" type="button" disabled>Remove</button>
-        <button id="photoArchiveSave" type="button" disabled>Save Image</button>
-        <button id="photoArchiveExport" type="button" disabled>Download Image</button>
-      </div></details>
-      <details class="photoToolGroup"><summary>Detection Options</summary><div class="photoToolActions"><button id="photoAiModeBtn" type="button">AI: AUTO</button></div></details>
+      <div class="photoToolGroup photoSavedGroup">
+        <label class="photoToolHeading" for="photoArchiveSelect">Saved Images</label>
+        <div class="photoToolActions photoArchiveActions">
+          <select id="photoArchiveSelect" aria-label="Saved images on this device" disabled><option value="">No saved images</option></select>
+          <button id="photoArchiveLoad" type="button" disabled>Open</button>
+          <button id="photoArchiveDelete" type="button" disabled>Remove</button>
+          <div class="photoArchiveFileActions">
+            <span class="photoToolHeading">Image</span>
+            <div class="photoToolActions">
+              <button id="photoArchiveSave" type="button" disabled>Save</button>
+              <button id="photoArchiveExport" type="button" disabled>Download</button>
+            </div>
+          </div>
+        </div>
+      </div>
       <div id="photoAnalyzerStatus" class="photoAnalyzerStatus" role="status" aria-live="polite">Choose an image or use Camera, then set the four inside playing-surface corners.</div>
     </div>
     <div class="photoAnalyzerBody">
