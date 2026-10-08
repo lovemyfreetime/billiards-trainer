@@ -944,6 +944,8 @@
   .speedTick { position:absolute; width:2px; height:14px; border-radius:1px; background:#f4f7fb; transform:translate(-50%,-50%); }
   .speedTick.medium { height:20px; background:#f4f7fb; }
   .speedTick.major { width:3px; height:32px; background:#4297e6; }
+  /* Show only the blue calibrated major ticks on both shot-speed sliders. */
+  .speedTickScale.lagTicks .speedTick:not(.major) { display:none; }
   .tableSpeedControl input[type=range] { position:relative; z-index:2; background:transparent; }
   .tableSpeedLabel {
     position:absolute;
@@ -4607,7 +4609,11 @@
         const topInset = halfTop * .18;
         const segmentW = Math.max(150, halfTop - topInset * 2);
         const rotateLeft = leftX + topInset;
-        const railBandTop = Math.min((canvas.height / DPR) - 170, bottomY + 8);
+        // Position the first aim bar below the outside bottom rail, keeping both spin rows visible.
+        // The playable-surface corner (bottomY) is inside the outer wood rail.
+        const viewportH = canvas.height / DPR;
+        const outerRailClearance = Math.max(36, Math.min(66, tableH * .11));
+        const railBandTop = Math.max(0, Math.min(viewportH - 126, bottomY + outerRailClearance));
         const sw = $('compassSizeWrap'), rw = $('compassRotateWrap');
         const aim = $('aimControls'), aim2 = $('aimControls2'), angleBtn = $('angleLock');
         const sp1 = $('tableSpeed1Wrap'), sp2 = $('tableSpeed2Wrap');
@@ -4850,8 +4856,8 @@
         const w = canvas.width / DPR, h = canvas.height / DPR;
         const boxW = Math.min(w - 12, 680, Math.max(510, w * .62));
         // Pocket 1 side: keep the profile away from the upper-right rail tools.
-        const boxH = 170, x0 = 6, y0 = 14;
-        const padL = Math.min(125,boxW*.25), padR = 22, padT = 46, padB = 32;
+        const boxH = 132, x0 = 6, y0 = 8;
+        const padL = Math.min(125,boxW*.25), padR = 22, padT = 36, padB = 22;
         const plotW = boxW-padL-padR, plotH = boxH-padT-padB;
         const pts = [];
         let travel = 0, prev = path[0], maxZ = S.ballR * 4;
