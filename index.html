@@ -7001,9 +7001,8 @@
         // Editable practice zones use their own drag handle selection.
         const shapeZone=S.balls.filter(b=>b.marker&&!b.markerHidden&&!b.markerLocked &&
                 (b.markerShape==='square'||b.markerShape==='triangle')).slice().reverse().find(b=>{
-            const hx=(Number(b.markerWidthIn)||12)*.0254/2;
-            const hy=(Number(b.markerHeightIn)||12)*.0254/2;
-            return Math.abs(q.x-b.x)<=hx && Math.abs(q.y-b.y)<=hy;
+            // Center handles remain easy to grab even on rotated / irregular shapes.
+            return Math.hypot(q.x-b.x,q.y-b.y)<Math.max(S.ballR*1.8,.035);
         });
         if(shapeZone){
             drag={kind:'ball',id:shapeZone.id};
@@ -7223,54 +7222,63 @@
     installAimRollerWheel('aimRoller', 1);
     installAimRollerWheel('aimRoller2', 2);
 
-    // Corner / vertex drags resize editable rectangular and triangular shot zones.
-    // Capture phase prevents ordinary aiming and ball drags from taking the pointer.
+    // Adjustable shot-zone vertices and rotation handle; rail Lock disables all edits.
     let shapeResize=null;
     canvas.addEventListener('pointerdown',ev=>{
         if(isProjector || (ev.button!==0 && ev.pointerType!=='touch'))return;
         const p=pointerPos(ev),M=controlMap();
-        for(const b of S.balls.filter(b=>b.marker&&!b.markerHidden&&!b.markerLocked&&
-                (b.markerShape==='square'||b.markerShape==='triangle')).slice().reverse()){
-            const center=M.map(b);
-            const scale=Math.abs(M.map({x:b.x+.0254,y:b.y}).x-center.x);
-            const hw=(Number(b.markerWidthIn)||12)*scale/2;
-            const hh=(Number(b.markerHeightIn)||12)*scale/2;
-            const corners=b.markerShape==='triangle'
-                ? [[-1,-1],[1,0],[-1,1]]
-                : [[-1,-1],[1,-1],[1,1],[-1,1]];
-            const handle=corners.find(([sx,sy])=>Math.hypot(p.x-center.x-sx*hw,p.y-center.y-sy*hh)<=14);
-            if(!handle)continue;
-            ev.preventDefault();ev.stopImmediatePropagation();
-            canvas.setPointerCapture(ev.pointerId);
-            shapeResize={id:b.id,pointerId:ev.pointerId,corner:handle,
-                anchorX:b.x,anchorY:b.y,initialW:Number(b.markerWidthIn)||12,
-                initialH:Number(b.markerHeightIn)||12};
-            drag=null;
-            return;
+        for(const zone of S.balls.filter(q=>q.marker&&!q.markerHidden&&!q.markerLocked&&
+            (q.markerShape==='square'||q.markerShape==='triangle')).slice().reverse()){
+            const center=M.map(zone);
+            const rotate=markerRotationHandle(zone,M.map);
+            let kind=null,index=-1;
+            if(Math.hypot(p.x-rotate.x,p.y-rotate.y)<15)kind='rotate';
+            else {
+                const pts=markerVerticesInTable(zone).map(v=>M.map({x:zone.x+v[0]*.0254,y:zone.y+v[1]*.0254}));
+                index=pts.findIndex(q=>Math.hypot(p.x-q.x,p.y-q.y)<14);
+                if(index>=0)kind=zone.markerShape==='triangle'?'vertex':'corner';
+            }
+            if(!kind)continue;
+            ev.preventDefault();ev.stopImmediatePropagation();canvas.setPointerCapture(ev.pointerId);
+            const q=M.inv(p);
+            shapeResize={id:zone.id,pointerId:ev.pointerId,kind,index,
+                angleAtStart:Number(zone.markerAngle)||0,
+                pointerAngle:Math.atan2(q.y-zone.y,q.x-zone.x),
+                initialW:Number(zone.markerWidthIn)||12,initialH:Number(zone.markerHeightIn)||12};
+            drag=null;return;
         }
     },{capture:true,passive:false});
     canvas.addEventListener('pointermove',ev=>{
-        if(!shapeResize || shapeResize.pointerId!==ev.pointerId)return;
+        if(!shapeResize||shapeResize.pointerId!==ev.pointerId)return;
         ev.preventDefault();ev.stopImmediatePropagation();
-        const b=S.balls.find(b=>b.id===shapeResize.id);if(!b)return;
-        const q=controlMap().inv(pointerPos(ev));
-        const sx=shapeResize.corner[0],sy=shapeResize.corner[1];
-        // Hold the opposite corner fixed; dragging the selected handle changes
-        // dimensions and center simultaneously. The tip of a triangle can extend its length.
-        const oldW=shapeResize.initialW*.0254, oldH=shapeResize.initialH*.0254;
-        const fixedX=shapeResize.anchorX-sx*oldW/2;
-        const fixedY=shapeResize.anchorY-sy*oldH/2;
-        const w=clamp(Math.abs(q.x-fixedX)*39.37007874,2.25,60);
-        const h=sy===0 ? shapeResize.initialH : clamp(Math.abs(q.y-fixedY)*39.37007874,2.25,60);
-        b.markerWidthIn=w;b.markerHeightIn=h;
-        b.x=clamp(fixedX+sx*w*.0254/2,0,S.tableL);
-        b.y=clamp(sy===0?shapeResize.anchorY:fixedY+sy*h*.0254/2,0,S.tableW);
+        const zone=S.balls.find(q=>q.id===shapeResize.id);if(!zone)return;
+        const q=controlMap().inv(pointerPos(ev)),g=shapeResize;
+        if(g.kind==='rotate'){
+            zone.markerAngle=g.angleAtStart+Math.atan2(q.y-zone.y,q.x-zone.x)-g.pointerAngle;
+        } else {
+            const angle=Number(zone.markerAngle)||0;
+            const dx=(q.x-zone.x)/.0254,dy=(q.y-zone.y)/.0254;
+            const localX=dx*Math.cos(angle)+dy*Math.sin(angle);
+            const localY=-dx*Math.sin(angle)+dy*Math.cos(angle);
+            if(g.kind==='vertex'){
+                // A triangle has three independent local vertices, so dragging one
+                // can make any scalene or asymmetric triangular practice zone.
+                if(!Array.isArray(zone.markerVertices)||zone.markerVertices.length!==3)
+                    zone.markerVertices=[[-6,-6],[6,0],[-6,6]];
+                zone.markerVertices[g.index]=[
+                    clamp(localX,-60,60),clamp(localY,-60,60)];
+            } else {
+                // Rectangles retain perpendicular edges after any rotation.
+                zone.markerWidthIn=clamp(Math.abs(localX)*2,2.25,60);
+                zone.markerHeightIn=clamp(Math.abs(localY)*2,2.25,60);
+            }
+        }
         draw();syncProjector();
     },{capture:true,passive:false});
     const endShapeResize=ev=>{
-        if(!shapeResize || shapeResize.pointerId!==ev.pointerId)return;
+        if(!shapeResize||shapeResize.pointerId!==ev.pointerId)return;
         ev.preventDefault();ev.stopImmediatePropagation();
-        shapeResize=null;saveState();syncProjector();draw();
+        shapeResize=null;draw();saveState();syncProjector();
     };
     canvas.addEventListener('pointerup',endShapeResize,{capture:true,passive:false});
     canvas.addEventListener('pointercancel',endShapeResize,{capture:true,passive:false});
