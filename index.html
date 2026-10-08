@@ -5411,10 +5411,16 @@
         return v.map(p=>[p[0]*c-p[1]*s,p[0]*s+p[1]*c]);
     }
     function markerRotationHandle(b,map) {
-        const points=markerVerticesInTable(b),angle=Number(b.markerAngle)||0;
-        const radius=Math.max(12,Math.max(...points.map(p=>Math.hypot(...p)))+9);
-        return map({x:b.x+Math.cos(angle-Math.PI/2)*radius*.0254,
-            y:b.y+Math.sin(angle-Math.PI/2)*radius*.0254});
+        // Keep the rotation grip just inside a corner, even on very large zones.
+        const center=map(b);
+        const vertices=markerVerticesInTable(b).map(v=>
+            map({x:b.x+v[0]*.0254,y:b.y+v[1]*.0254}));
+        const corner=vertices.slice().sort((a,c)=>(a.y-c.y)||(c.x-a.x))[0];
+        const dx=center.x-corner.x,dy=center.y-corner.y;
+        const length=Math.hypot(dx,dy);
+        const inset=Math.min(29,length*.48);
+        return length>1 ? {x:corner.x+dx/length*inset,y:corner.y+dy/length*inset}
+            : {x:center.x,y:center.y};
     }
     function drawBall(b, map, label = true) {
         if (!b.active)
@@ -5439,10 +5445,12 @@
                 if(!b.markerLocked && !isProjector){
                     ctx.fillStyle='#fff';
                     pts.forEach(p=>{ctx.fillRect(p.x-5,p.y-5,10,10);ctx.strokeRect(p.x-5,p.y-5,10,10);});
-                    ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(rotationHandle.x,rotationHandle.y);
-                    ctx.strokeStyle=shapeColor;ctx.stroke();
+                    // Small green rotation grip near a corner; no long leader line.
                     ctx.beginPath();ctx.arc(rotationHandle.x,rotationHandle.y,7,0,Math.PI*2);
+                    ctx.strokeStyle='#0b1613';ctx.lineWidth=2;
                     ctx.fillStyle='#6fff58';ctx.fill();ctx.stroke();
+                    ctx.font='bold 10px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';
+                    ctx.fillStyle='#071407';ctx.fillText('↻',rotationHandle.x,rotationHandle.y+.5);
                 }
                 ctx.fillStyle=shapeColor;ctx.font='700 11px Segoe UI';ctx.textAlign='center';
                 ctx.fillText('M'+markerNumber(b)+(b.markerLocked?' LOCKED':''),
