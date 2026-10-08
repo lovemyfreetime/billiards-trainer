@@ -1312,6 +1312,26 @@
   .photoAnalyzerToolbar .photoSetupGroup .photoToolActions,
   .photoAnalyzerToolbar .photoSavedGroup .photoArchiveActions { flex-wrap:nowrap; }
 }
+
+/* Fit Saved Images and the final Download button without a page-wide slider. */
+.photoAnalyzerToolbar { flex-wrap:wrap !important; overflow-x:hidden !important; overflow-y:visible !important; }
+.photoAnalyzerToolbar .photoSavedGroup { flex:0 1 auto; min-width:0; }
+.photoAnalyzerToolbar #photoArchiveSelect {
+  width:195px !important;
+  min-width:0 !important;
+  max-width:195px !important;
+  text-overflow:ellipsis;
+}
+.photoAnalyzerToolbar .photoArchiveActions { flex-wrap:wrap; }
+.photoAnalyzerToolbar .photoArchiveFileActions { flex-shrink:0; }
+@media(min-width:1100px){
+  .photoAnalyzerToolbar .photoSetupGroup .photoToolActions,
+  .photoAnalyzerToolbar .photoSavedGroup .photoArchiveActions { flex-wrap:nowrap; }
+}
+@media(max-width:700px){
+  .photoAnalyzerToolbar { max-height:35vh; overflow-y:auto !important; }
+  .photoAnalyzerToolbar #photoArchiveSelect { width:min(195px, 100%) !important; max-width:100% !important; }
+}
 </style>
 </head>
 <body>
