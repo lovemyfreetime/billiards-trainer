@@ -1259,6 +1259,21 @@
   .photoAnalyzerStatus { flex-basis:100%; }
   @media(max-width:700px){.photoSetupGroup,.photoSavedGroup{width:100%;border-right:0}.photoAnalyzerToolbar{max-height:40vh;padding:8px}.photoAnalyzerToolbar #photoArchiveSelect{width:100%}}
 
+
+/* Photo analysis: clearer hierarchy and readable instructions. */
+.photoAnalyzerHeader { background:#174b82; border-bottom:2px solid #4aa8ff; }
+.photoAnalyzerHeader h2 { font-size:19px; line-height:1.3; color:#fff; }
+.photoAnalyzerToolbar #photoRotateBtn { display:none !important; }
+/* Retain live status for assistive technology without the tiny changing text below controls. */
+.photoAnalyzerToolbar .photoAnalyzerStatus { position:absolute !important; width:1px !important; height:1px !important; padding:0 !important; margin:-1px !important; overflow:hidden !important; clip:rect(0,0,0,0) !important; white-space:nowrap !important; border:0 !important; }
+.photoAnalyzerToolbar #photoArchiveSelect { width:440px; max-width:min(440px, 100%); min-width:0; font-size:14px; }
+.photoSavedGroup { width:min(100%, 620px); max-width:100%; }
+.photoReview h3 { font-size:17px; line-height:1.4; }
+.photoReviewInstruction { font-size:14px; line-height:1.45; color:#dce7f1; margin:0 0 10px; }
+.photoMissedBallInstruction { font-weight:650; color:#c8def1; }
+.photoReview #photoDetectionList > .photoHint { font-size:15px; line-height:1.5; color:#cedbe5; }
+.photoApplyCue { font-size:15px; line-height:1.45; letter-spacing:.2px; }
+@media(max-width:700px){ .photoSavedGroup { width:100%; } .photoAnalyzerToolbar #photoArchiveSelect { width:100%; max-width:100%; } }
 </style>
 </head>
 <body>
@@ -1592,7 +1607,7 @@
     <div class="photoAnalyzerHeader">
       <div>
         <h2>Analyze Real Pool Table</h2>
-        <div class="photoHint">Runs locally on this device. Use Save Image to keep a photo on this device; nothing is uploaded.</div>
+        
       </div>
       <button id="photoAnalyzerClose" type="button" title="Close">×</button>
     </div>
@@ -1605,7 +1620,7 @@
         <button id="photoCaptureFrame" type="button" hidden style="display:none">Use Snapshot</button>
       </div></div>
       <div class="photoToolGroup photoSetupGroup"><span class="photoToolHeading">TABLE SETUP</span><div class="photoToolActions">
-        <button id="photoRotateBtn" type="button">Rotate 90°</button>
+        <button id="photoRotateBtn" type="button" hidden style="display:none" aria-hidden="true" tabindex="-1">Rotate 90°</button>
         <button id="photoAutoRailsBtn" type="button">Auto Corners</button>
         <button id="photoResetCorners" type="button">Reset Corners</button>
         <select id="photoRackType" aria-label="Rack type" title="Rack type">
@@ -1620,7 +1635,7 @@
         <button id="photoArchiveDelete" type="button" disabled>Remove</button>
         <button id="photoArchiveSave" type="button" disabled>Save Image</button>
         <button id="photoArchiveExport" type="button" disabled>Download Image</button>
-      </div><div class="photoHint">Save keeps the original image in this app. Download makes a separate file. Remove deletes the selected in-app copy.</div></details>
+      </div></details>
       <details class="photoToolGroup"><summary>Detection Options</summary><div class="photoToolActions"><button id="photoAiModeBtn" type="button">AI: AUTO</button></div></details>
       <div id="photoAnalyzerStatus" class="photoAnalyzerStatus" role="status" aria-live="polite">Choose an image or use Camera, then set the four inside playing-surface corners.</div>
     </div>
@@ -1631,16 +1646,16 @@
       </div>
       <div class="photoReview">
         <h3>Detected Balls</h3>
-        <div class="photoHint" style="margin-bottom:8px">Review the identity of each ball before applying. Correct a wrong ball or delete a false detection.</div>
+        <div class="photoReviewInstruction">Review the identity of each ball before applying. Correct a wrong ball or delete a false detection.</div><div class="photoReviewInstruction photoMissedBallInstruction">If a ball is missed, press ADD MISSED BALL and tap its center in the photo.</div>
         <div id="photoDetectionList"></div>
       </div>
     </div>
     <div class="photoAnalyzerFooter">
-      <div class="photoApplyCue">FINISH — SEND THE REVIEWED LAYOUT TO BILLIARDS TRAINER</div>
+      <div class="photoApplyCue">FINISH — SEND THE REVIEWED TABLE LAYOUT TO BILLIARDS TRAINER</div>
       <input id="photoLayoutName" type="text" maxlength="60" placeholder="Layout name — e.g. Wednesday league 7-ball">
       <button id="photoApplyTable" type="button" disabled>APPLY TO TRAINER TABLE</button>
       <button id="photoApplySave" class="visionPrimary" type="button" disabled>APPLY + SAVE LAYOUT</button>
-      <span class="photoHint">If a ball is missed, press ADD MISSED BALL and tap its center in the photo.</span>
+      
     </div>
   </div>
 </div>
