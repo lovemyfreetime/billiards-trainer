@@ -5440,8 +5440,11 @@
                 ctx.lineWidth=2.5;ctx.beginPath();
                 pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
                 ctx.closePath();ctx.fill();ctx.stroke();
-                ctx.beginPath();ctx.moveTo(q.x-6,q.y);ctx.lineTo(q.x+6,q.y);
-                ctx.moveTo(q.x,q.y-6);ctx.lineTo(q.x,q.y+6);ctx.stroke();
+                // Clear center crosshair on every editable shape, including irregular triangles.
+                ctx.save();ctx.strokeStyle=shapeColor;ctx.lineWidth=2.3;
+                ctx.beginPath();ctx.moveTo(q.x-9,q.y);ctx.lineTo(q.x+9,q.y);
+                ctx.moveTo(q.x,q.y-9);ctx.lineTo(q.x,q.y+9);ctx.stroke();
+                ctx.restore();
                 if(!b.markerLocked && !isProjector){
                     ctx.fillStyle='#fff';
                     pts.forEach(p=>{ctx.fillRect(p.x-5,p.y-5,10,10);ctx.strokeRect(p.x-5,p.y-5,10,10);});
@@ -7308,6 +7311,47 @@
             zone.b.markerDiameterIn=clamp(
                 Math.round(((Number(zone.b.markerDiameterIn)||6)+(ev.deltaY<0?.25:-.25))*100)/100,
                 2.25,36);
+            draw();saveState();syncProjector();
+            return;
+        }
+        // Hover over an editable square or triangle to proportionally size the whole
+        // zone. Preserve irregular triangle proportions and any rotation.
+        const shapeZone=S.balls.filter(b=>b.marker&&!b.markerHidden&&!b.markerLocked&&
+                b.active!==false&&(b.markerShape==='square'||b.markerShape==='triangle'))
+            .slice().reverse().find(b=>{
+                const verts=markerVerticesInTable(b).map(v=>M.map({
+                    x:b.x+v[0]*.0254,y:b.y+v[1]*.0254
+                }));
+                // Ray-casting hit test includes the entire visible zone rather than
+                // just its center; handle-edge tolerance makes thin zones usable.
+                let inside=false;
+                for(let i=0,j=verts.length-1;i<verts.length;j=i++){
+                    const a=verts[i],c=verts[j];
+                    if((a.y>pointer.y)!==(c.y>pointer.y)&&
+                        pointer.x<(c.x-a.x)*(pointer.y-a.y)/(c.y-a.y)+a.x)inside=!inside;
+                }
+                return inside || Math.hypot(pointer.x-M.map(b).x,pointer.y-M.map(b).y)<14;
+            });
+        if(shapeZone && ev.deltaY!==0){
+            ev.stopPropagation();
+            const step=ev.deltaMode===1?ev.deltaY/3:
+                ev.deltaMode===2?ev.deltaY:ev.deltaY/100;
+            const factor=Math.pow(1.05,-clamp(step,-3,3));
+            const b=shapeZone;
+            if(b.markerShape==='triangle'){
+                const verts=b.markerVertices;
+                if(Array.isArray(verts)&&verts.length===3){
+                    const maxSize=Math.max(...verts.flat().map(Math.abs));
+                    const actualFactor=Math.min(factor,60/Math.max(.01,maxSize));
+                    const scale=Math.max(actualFactor,.25/Math.max(.01,maxSize));
+                    b.markerVertices=verts.map(v=>v.map(n=>Math.round(n*scale*1000)/1000));
+                }
+            }else{
+                const width=Number(b.markerWidthIn)||12,height=Number(b.markerHeightIn)||12;
+                const actualFactor=clamp(factor,2.25/Math.min(width,height),60/Math.max(width,height));
+                b.markerWidthIn=Math.round(width*actualFactor*1000)/1000;
+                b.markerHeightIn=Math.round(height*actualFactor*1000)/1000;
+            }
             draw();saveState();syncProjector();
             return;
         }
