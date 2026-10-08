@@ -1292,6 +1292,26 @@
  .photoAnalyzerToolbar #photoArchiveSelect { width:min(330px, 100%); max-width:100%; }
  .photoAnalyzerToolbar { max-height:35vh; overflow-y:auto; }
 }
+
+/* Keep photo controls on one compact row at desktop widths, maximizing canvas height. */
+@media(min-width:901px){
+  .photoAnalyzerToolbar { flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; align-items:center; }
+  .photoAnalyzerToolbar > .photoToolGroup { flex:0 0 auto; }
+  .photoAnalyzerToolbar .photoSetupGroup .photoToolActions,
+  .photoAnalyzerToolbar .photoSavedGroup .photoArchiveActions { flex-wrap:nowrap; }
+  .photoAnalyzerToolbar .photoSavedGroup { margin-left:0; }
+}
+.photoAnalyzerToolbar #photoTakeImage { display:none !important; }
+.photoAnalyzerToolbar #photoRackType { width:112px; min-width:112px; max-width:112px; padding-left:7px; padding-right:5px; }
+.photoAnalyzerToolbar .photoArchiveFileActions { flex-shrink:0; }
+.photoAnalyzerToolbar .photoSavedGroup { margin-top:0; }
+/* Limit toolbar vertical footprint while retaining usable controls on small screens. */
+@media(min-width:701px) and (max-width:900px){
+  .photoAnalyzerToolbar { flex-wrap:nowrap; overflow-x:auto; align-items:center; }
+  .photoAnalyzerToolbar > .photoToolGroup { flex:0 0 auto; }
+  .photoAnalyzerToolbar .photoSetupGroup .photoToolActions,
+  .photoAnalyzerToolbar .photoSavedGroup .photoArchiveActions { flex-wrap:nowrap; }
+}
 </style>
 </head>
 <body>
@@ -1630,9 +1650,9 @@
       <button id="photoAnalyzerClose" type="button" title="Close">×</button>
     </div>
     <div class="photoAnalyzerToolbar">
-      <div class="photoToolGroup"><span class="photoToolHeading">IMAGE / CAMERA</span><div class="photoToolActions">
+      <div class="photoToolGroup"><span class="photoToolHeading">IMAGE</span><div class="photoToolActions">
         <button id="photoChooseImage" class="visionPrimary" type="button">Choose Image</button>
-        <button id="photoTakeImage" type="button">Camera</button>
+        <button id="photoTakeImage" type="button" hidden style="display:none" tabindex="-1" aria-hidden="true">Camera</button>
         <input id="photoFileInput" type="file" accept="image/*">
         <input id="cameraFileInput" type="file" accept="image/*" capture="environment">
         <button id="photoCaptureFrame" type="button" hidden style="display:none">Use Snapshot</button>
@@ -1663,7 +1683,7 @@
           </div>
         </div>
       </div>
-      <div id="photoAnalyzerStatus" class="photoAnalyzerStatus" role="status" aria-live="polite">Choose an image or use Camera, then set the four inside playing-surface corners.</div>
+      <div id="photoAnalyzerStatus" class="photoAnalyzerStatus" role="status" aria-live="polite">Choose an image, then set the four inside playing-surface corners.</div>
     </div>
     <div class="photoAnalyzerBody">
       <div class="photoCanvasWrap">
