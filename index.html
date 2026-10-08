@@ -4255,10 +4255,14 @@
         const clearances = Array.from(clearanceMap.values());
         let primaryClearance = null;
         if (airborneMode) {
-            const lowTargetId = firstBallContact && (!firstBallContact.cueHeight || firstBallContact.cueHeight <= R * 1.08) ? firstBallContact.objId : null;
-            const candidates = clearances.filter(q => q.id !== lowTargetId && q.horizontal <= 2.35 * R);
-            if (candidates.length)
-                primaryClearance = candidates.sort((a,b) => a.margin - b.margin)[0];
+            // The side profile should follow the FIRST obstacle encountered by the cue ball.
+            // Picking the smallest margin instead can switch to a later target ball; excluding
+            // low first contacts can also make the actual blocking ball disappear.
+            const candidates = clearances.filter(q => q.horizontal <= 2.35 * R);
+            if (candidates.length) {
+                candidates.sort((a,b) => a.cueTravel - b.cueTravel || a.t - b.t || a.margin - b.margin);
+                primaryClearance = candidates[0];
+            }
         }
         return { paths, frames, firstEvent, firstBallContact, pocketEvents,
             airborne: airborneMode ? {
@@ -4951,26 +4955,6 @@
             if (label) ctx.fillText(label,labelX,Math.max(y0+padT+9,Y-ry-3));
             ctx.restore();
         }
-        const primary = a.guidance && a.guidance.primary;
-        if (primary) {
-            const X = px(Math.min(maxD, primary.cueTravel || 0));
-            profileBall(X, primary.objZ || S.ballR, Number(primary.id),
-                '', clearanceColor(primary.margin));
-            profileBall(X, primary.cueZ || S.ballR, 0, 'CUE BALL', '#f7f7f3');
-            const clearLabel = `${primary.margin >= 0 ? 'CLEARS +' : 'CLIPS −'}${Math.abs(primary.margin*1000).toFixed(1)} mm`;
-            ctx.font = '800 11px Segoe UI';
-            ctx.fillStyle = clearanceColor(primary.margin);
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(clearLabel,x0+boxW*.5,y0+29,boxW*.64);
-            ctx.font = '800 10px Segoe UI';
-            ctx.textAlign = 'left';
-            ctx.fillText(`BALL ${primary.n}`,x0+166,y0+13,Math.max(35,boxW-180));
-        }
-        else {
-            // Without an obstacle, show the cue ball at the highest sampled point.
-            const apex = pts.reduce((best,p) => p.z > best.z ? p : best, pts[0]);
-            profileBall(px(apex.d),apex.z,0,'CUE BALL','#f7f7f3');
-        }
 
         if (Array.isArray(a.landings)) {
             ctx.strokeStyle = '#ffd86b';
@@ -5022,6 +5006,29 @@
                 ctx.beginPath();objPts.forEach((p,i)=>{if(i===0)ctx.moveTo(px(p.d),py(p.z));else ctx.lineTo(px(p.d),py(p.z));});ctx.stroke();
             }
         }
+        // Draw the obstacle last so target and pocket annotations cannot obscure it.
+        const primary = a.guidance && a.guidance.primary;
+        if (primary) {
+            const X = px(Math.min(maxD, primary.cueTravel || 0));
+            profileBall(X, primary.objZ || S.ballR, Number(primary.id),
+                '', clearanceColor(primary.margin));
+            profileBall(X, primary.cueZ || S.ballR, 0, 'CUE BALL', '#f7f7f3');
+            const clearLabel = `${primary.margin >= 0 ? 'CLEARS +' : 'CLIPS −'}${Math.abs(primary.margin*1000).toFixed(1)} mm`;
+            ctx.font = '800 11px Segoe UI';
+            ctx.fillStyle = clearanceColor(primary.margin);
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(clearLabel,x0+boxW*.5,y0+29,boxW*.64);
+            ctx.font = '800 10px Segoe UI';
+            ctx.textAlign = 'left';
+            ctx.fillText(`BALL ${primary.n}`,x0+166,y0+13,Math.max(35,boxW-180));
+        }
+        else {
+            // Without an obstacle, show the cue ball at the highest sampled point.
+            const apex = pts.reduce((best,p) => p.z > best.z ? p : best, pts[0]);
+            profileBall(px(apex.d),apex.z,0,'CUE BALL','#f7f7f3');
+        }
+
+
         const shot = which===2 ? ensureShot2() : S;
         ctx.font='700 9px Segoe UI';ctx.fillStyle='#dfefff';ctx.textAlign='left';ctx.textBaseline='middle';
         ctx.fillText(`POWER ${shot.speed.toFixed(2)} m/s`,x0+10,y0+27);
