@@ -6045,7 +6045,7 @@
             const count=Math.ceil((markers.length-slot)/8);
             const fraction=Number.isFinite(b.markerRailFraction)?b.markerRailFraction:(slot+(row+1)/(count+1))/8;
             item.style.left=(fraction*100)+'%';
-            item.style.setProperty('--marker-color',{white:'#f7f7f3',red:'#e63b32',pink:'#ff63ad',yellow:'#f3d329'}[b.markerType]||'#fff');
+            item.style.setProperty('--marker-color',b.markerShape==='square'?'#74dbff':b.markerShape==='triangle'?'#ffcf6b':({white:'#f7f7f3',red:'#e63b32',pink:'#ff63ad',yellow:'#f3d329'}[b.markerType]||'#fff'));
             const title=document.createElement('div');title.className='markerRailTitle';
             title.textContent='M'+markerNumber(b)+(b.markerShape==='square'?' □':b.markerShape==='triangle'?' △':'');
             title.title=(b.markerShape||b.markerType)+' marker '+markerNumber(b);
