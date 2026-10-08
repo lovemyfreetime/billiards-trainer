@@ -1332,6 +1332,38 @@
   .photoAnalyzerToolbar { max-height:35vh; overflow-y:auto !important; }
   .photoAnalyzerToolbar #photoArchiveSelect { width:min(195px, 100%) !important; max-width:100% !important; }
 }
+
+/* Consistent heading typography and exact vertical alignment of photo toolbar buttons. */
+.photoAnalyzerToolbar { align-items:stretch !important; }
+.photoAnalyzerToolbar > .photoToolGroup {
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  align-self:stretch;
+}
+.photoAnalyzerToolbar .photoToolHeading,
+.photoAnalyzerToolbar .photoSavedGroup > label.photoToolHeading {
+  display:block;
+  flex:0 0 auto;
+  margin:0 0 6px !important;
+  padding:0;
+  font:700 12px/18px system-ui,sans-serif !important;
+  letter-spacing:0;
+  color:#b9cadb;
+}
+.photoAnalyzerToolbar > .photoToolGroup > .photoToolActions {
+  margin-top:0;
+  align-items:center;
+}
+.photoAnalyzerToolbar .photoArchiveActions { flex-wrap:wrap; }
+.photoAnalyzerToolbar #photoArchiveSelect {
+  width:240px !important;
+  max-width:240px !important;
+  min-width:0 !important;
+}
+@media(max-width:700px) {
+  .photoAnalyzerToolbar #photoArchiveSelect { width:min(240px, 100%) !important; max-width:100% !important; }
+}
 </style>
 </head>
 <body>
@@ -1670,7 +1702,7 @@
       <button id="photoAnalyzerClose" type="button" title="Close">×</button>
     </div>
     <div class="photoAnalyzerToolbar">
-      <div class="photoToolGroup"><span class="photoToolHeading">IMAGE</span><div class="photoToolActions">
+      <div class="photoToolGroup"><span class="photoToolHeading">IMAGE / CAMERA</span><div class="photoToolActions">
         <button id="photoChooseImage" class="visionPrimary" type="button">Choose Image</button>
         <button id="photoTakeImage" type="button" hidden style="display:none" tabindex="-1" aria-hidden="true">Camera</button>
         <input id="photoFileInput" type="file" accept="image/*">
@@ -1689,18 +1721,13 @@
         <button id="photoAiModeBtn" type="button" title="Toggle AI ball detection">AI: AUTO</button>
       </div></div>
       <div class="photoToolGroup photoSavedGroup">
-        <label class="photoToolHeading" for="photoArchiveSelect">Saved Images</label>
+        <label class="photoToolHeading" for="photoArchiveSelect">SAVED IMAGES</label>
         <div class="photoToolActions photoArchiveActions">
           <select id="photoArchiveSelect" aria-label="Saved images on this device" disabled><option value="">No saved images</option></select>
           <button id="photoArchiveLoad" type="button" disabled>Open</button>
           <button id="photoArchiveDelete" type="button" disabled>Remove</button>
-          <div class="photoArchiveFileActions">
-            <span class="photoToolHeading">Image</span>
-            <div class="photoToolActions">
-              <button id="photoArchiveSave" type="button" disabled>Save</button>
-              <button id="photoArchiveExport" type="button" disabled>Download</button>
-            </div>
-          </div>
+          <button id="photoArchiveSave" type="button" disabled>Save</button>
+          <button id="photoArchiveExport" type="button" disabled>Download</button>
         </div>
       </div>
       <div id="photoAnalyzerStatus" class="photoAnalyzerStatus" role="status" aria-live="polite">Choose an image, then set the four inside playing-surface corners.</div>
