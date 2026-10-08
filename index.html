@@ -1376,6 +1376,9 @@
   border-radius:4px;
   font-weight:850;
 }
+
+/* Extra rail action for resizable zone markers; retain circular controls. */
+.markerRailCircle:has(button:nth-child(3)) button { font-size:clamp(7px,var(--marker-font),10px); }
 </style>
 </head>
 <body>
@@ -1575,6 +1578,7 @@
       </div>
       <div class="tableControlGroup layoutSetupGroup"><div class="tableControlTitle">MARKERS</div>
         <div class="buttons layoutSetupReset"><button id="addNextMarker" type="button">Add Next Marker</button></div>
+        <div class="buttons layoutSetupButtons"><button id="addSquareZone" type="button">+ Square (0/4)</button><button id="addTriangleZone" type="button">+ Triangle (0/4)</button></div>
         <div class="buttons layoutSetupButtons"><button id="addMarker" type="button">Add Marker</button><button id="removeMarker" type="button">Remove Marker</button></div>
         <div class="layoutSetupSelect"><select id="markerSelect" aria-label="Select marker color">
           <option value="white">White / red dot</option><option value="red">Red / white dot</option>
@@ -2319,6 +2323,12 @@
                 if (!['white','red','pink','yellow'].includes(b.markerType))
                     b.markerType = 'white';
                 b.markerDiameterIn = clamp(Number(b.markerDiameterIn) || 6,2.25,36);
+                b.markerShape = ['square','triangle'].includes(b.markerShape) ? b.markerShape : 'circle';
+                if (b.markerShape !== 'circle') {
+                    b.markerWidthIn = clamp(Number(b.markerWidthIn) || 12,2.25,60);
+                    b.markerHeightIn = clamp(Number(b.markerHeightIn) || 12,2.25,60);
+                    b.markerLocked = b.markerLocked === true;
+                }
                 b.n = 'MARKER';
                 b.active = b.active !== false;
                 return true;
@@ -5384,6 +5394,38 @@
         if (b.marker) {
             if (b.markerHidden) return;
             const color = {white:'#f7f7f3',red:'#e63b32',pink:'#ff63ad',yellow:'#f3d329'}[b.markerType] || '#fff';
+            if (b.markerShape === 'square' || b.markerShape === 'triangle') {
+                const q=map(b), unit=map({x:b.x+.0254,y:b.y}).x-q.x;
+                const hw=Math.abs(unit)*(Number(b.markerWidthIn)||12)/2;
+                const hh=Math.abs(unit)*(Number(b.markerHeightIn)||12)/2;
+                const triangle=b.markerShape==='triangle';
+                ctx.save();
+                ctx.fillStyle=triangle?'rgba(255,207,107,.18)':'rgba(116,219,255,.18)';
+                ctx.strokeStyle=triangle?'#ffcf6b':'#74dbff';ctx.lineWidth=2.5;
+                ctx.beginPath();
+                if (triangle) {
+                    ctx.moveTo(q.x-hw,q.y-hh);ctx.lineTo(q.x+hw,q.y);
+                    ctx.lineTo(q.x-hw,q.y+hh);ctx.closePath();
+                } else ctx.rect(q.x-hw,q.y-hh,hw*2,hh*2);
+                ctx.fill();ctx.stroke();
+                ctx.beginPath();ctx.moveTo(q.x-6,q.y);ctx.lineTo(q.x+6,q.y);
+                ctx.moveTo(q.x,q.y-6);ctx.lineTo(q.x,q.y+6);ctx.stroke();
+                if (!b.markerLocked && !isProjector) {
+                    const handles=triangle
+                      ? [[q.x-hw,q.y-hh],[q.x+hw,q.y],[q.x-hw,q.y+hh]]
+                      : [[q.x-hw,q.y-hh],[q.x+hw,q.y-hh],[q.x+hw,q.y+hh],[q.x-hw,q.y+hh]];
+                    ctx.fillStyle='#fff';ctx.lineWidth=1.5;
+                    for(const [hx,hy] of handles){
+                        ctx.fillRect(hx-5,hy-5,10,10);
+                        ctx.strokeRect(hx-5,hy-5,10,10);
+                    }
+                }
+                ctx.fillStyle=triangle?'#ffcf6b':'#74dbff';
+                ctx.font='700 11px Segoe UI';ctx.textAlign='center';
+                ctx.fillText('M'+markerNumber(b)+' '+(b.markerLocked?'🔒':''),
+                    q.x,q.y-hh-12);
+                ctx.restore();return;
+            }
             const radius = clamp(Number(b.markerDiameterIn) || 6,2.25,36)*.0254/2;
             logicalCircle(b,radius,map,color,null,1,.20);
             logicalCircle(b,radius,map,null,color,2,.9);
@@ -5991,7 +6033,7 @@
         bar.style.height=railHeight+'px';
         bar.style.setProperty('--marker-diameter',railHeight+'px');
         bar.style.setProperty('--marker-font',Math.max(7,Math.min(10,railHeight*.22))+'px');
-        const signature=markers.map(b=>b.id+':'+b.markerType+':'+!!b.markerHidden).join('|');
+        const signature=markers.map(b=>b.id+':'+b.markerType+':'+(b.markerShape||'circle')+':'+!!b.markerHidden+':'+!!b.markerLocked).join('|');
         if(bar.dataset.signature===signature) {
             markers.forEach((b,i)=>{if(Number.isFinite(b.markerRailFraction)&&bar.children[i])bar.children[i].style.left=(b.markerRailFraction*100)+'%';});
             return;
@@ -6005,7 +6047,8 @@
             item.style.left=(fraction*100)+'%';
             item.style.setProperty('--marker-color',{white:'#f7f7f3',red:'#e63b32',pink:'#ff63ad',yellow:'#f3d329'}[b.markerType]||'#fff');
             const title=document.createElement('div');title.className='markerRailTitle';
-            title.textContent='M'+markerNumber(b);title.title=b.markerType+' marker '+markerNumber(b);
+            title.textContent='M'+markerNumber(b)+(b.markerShape==='square'?' □':b.markerShape==='triangle'?' △':'');
+            title.title=(b.markerShape||b.markerType)+' marker '+markerNumber(b);
             const toggle=document.createElement('button');toggle.type='button';
             toggle.textContent=b.markerHidden?'Show':'Hide';
             toggle.setAttribute('aria-label',toggle.textContent+' marker '+markerNumber(b));
@@ -6022,7 +6065,20 @@
                 updateUI();draw();saveState();syncProjector();
             };
             const circle=document.createElement('div');circle.className='markerRailCircle';
-            circle.append(toggle,remove);item.append(title,circle);bar.appendChild(item);
+            circle.append(toggle,remove);
+            if (b.markerShape==='square'||b.markerShape==='triangle') {
+                const lock=document.createElement('button');lock.type='button';
+                lock.textContent=b.markerLocked?'Unlock':'Lock';
+                lock.title=b.markerLocked?'Unlock shape for dragging/resizing':'Lock shape position and size';
+                lock.setAttribute('aria-label',lock.textContent+' marker '+markerNumber(b));
+                lock.onclick=()=>{
+                    const marker=S.balls.find(q=>q.id===b.id);if(!marker)return;
+                    marker.markerLocked=!marker.markerLocked;
+                    draw();saveState();syncProjector();
+                };
+                circle.append(lock);
+            }
+            item.append(title,circle);bar.appendChild(item);
             let moving=false,startX=0,initialFraction=fraction,pointer=null,suppressClick=false;
             item.addEventListener('pointerdown',ev=>{
                 if(ev.button!==0)return;
@@ -6552,6 +6608,8 @@
         const sel=$('markerZoneSelect'), previous=sel.value;
         const markers=S.balls.filter(b=>b.marker);
         $('markerZoneControls').style.display='none';
+        if ($('addSquareZone')) $('addSquareZone').textContent='+ Square ('+markers.filter(b=>b.markerShape==='square').length+'/4)';
+        if ($('addTriangleZone')) $('addTriangleZone').textContent='+ Triangle ('+markers.filter(b=>b.markerShape==='triangle').length+'/4)';
         sel.replaceChildren();
         markers.forEach((b,i)=>{
             const option=document.createElement('option');
@@ -6752,7 +6810,7 @@
         if (isProjector || ev.pointerType!=='touch') return;
         const p=pointerPos(ev), M=controlMap();
         if (!zoneGesture) {
-            const zone=S.balls.filter(b=>b.marker&&!b.markerHidden&&b.active!==false)
+            const zone=S.balls.filter(b=>b.marker&&!b.markerHidden&&b.active!==false&&b.markerShape!=='square'&&b.markerShape!=='triangle')
                 .map(b=>{const q=M.map(b);return {b,d:Math.hypot(p.x-q.x,p.y-q.y),q};})
                 .filter(q=>q.d<=Math.max(18,(Number(q.b.markerDiameterIn)||6)*.0254/2*M.scale))
                 .sort((a,b)=>a.d-b.d)[0];
@@ -6919,7 +6977,18 @@
                 return;
             }
         }
-        // A physical ball takes precedence over an overlapping aim handle.
+        // Editable practice zones use their own drag handle selection.
+        const shapeZone=S.balls.filter(b=>b.marker&&!b.markerHidden&&!b.markerLocked &&
+                (b.markerShape==='square'||b.markerShape==='triangle')).slice().reverse().find(b=>{
+            const hx=(Number(b.markerWidthIn)||12)*.0254/2;
+            const hy=(Number(b.markerHeightIn)||12)*.0254/2;
+            return Math.abs(q.x-b.x)<=hx && Math.abs(q.y-b.y)<=hy;
+        });
+        if(shapeZone){
+            drag={kind:'ball',id:shapeZone.id};
+            return;
+        }
+                // A physical ball takes precedence over an overlapping aim handle.
         if (!onPlayingSurface(q)) return;
         if (S.shot2Enabled && cueVisualsVisible(2)) {
             const s = ensureShot2();
@@ -6929,7 +6998,7 @@
         }
         let best = null, bd = S.ballR * 1.5;
         for (const b of S.balls) {
-            if (b.markerHidden || b.active===false) continue;
+            if (b.markerHidden || b.active===false || (b.marker && b.markerLocked)) continue;
             const d = Math.hypot(q.x - b.x, q.y - b.y);
             if (d < bd) {
                 bd = d;
@@ -7133,7 +7202,58 @@
     installAimRollerWheel('aimRoller', 1);
     installAimRollerWheel('aimRoller2', 2);
 
-    // Mouse-wheel micro aiming.
+    // Corner / vertex drags resize editable rectangular and triangular shot zones.
+    // Capture phase prevents ordinary aiming and ball drags from taking the pointer.
+    let shapeResize=null;
+    canvas.addEventListener('pointerdown',ev=>{
+        if(isProjector || (ev.button!==0 && ev.pointerType!=='touch'))return;
+        const p=pointerPos(ev),M=controlMap();
+        for(const b of S.balls.filter(b=>b.marker&&!b.markerHidden&&!b.markerLocked&&
+                (b.markerShape==='square'||b.markerShape==='triangle')).slice().reverse()){
+            const center=M.map(b);
+            const scale=Math.abs(M.map({x:b.x+.0254,y:b.y}).x-center.x);
+            const hw=(Number(b.markerWidthIn)||12)*scale/2;
+            const hh=(Number(b.markerHeightIn)||12)*scale/2;
+            const corners=b.markerShape==='triangle'
+                ? [[-1,-1],[1,0],[-1,1]]
+                : [[-1,-1],[1,-1],[1,1],[-1,1]];
+            const handle=corners.find(([sx,sy])=>Math.hypot(p.x-center.x-sx*hw,p.y-center.y-sy*hh)<=14);
+            if(!handle)continue;
+            ev.preventDefault();ev.stopImmediatePropagation();
+            canvas.setPointerCapture(ev.pointerId);
+            shapeResize={id:b.id,pointerId:ev.pointerId,corner:handle,
+                anchorX:b.x,anchorY:b.y,initialW:Number(b.markerWidthIn)||12,
+                initialH:Number(b.markerHeightIn)||12};
+            drag=null;
+            return;
+        }
+    },{capture:true,passive:false});
+    canvas.addEventListener('pointermove',ev=>{
+        if(!shapeResize || shapeResize.pointerId!==ev.pointerId)return;
+        ev.preventDefault();ev.stopImmediatePropagation();
+        const b=S.balls.find(b=>b.id===shapeResize.id);if(!b)return;
+        const q=controlMap().inv(pointerPos(ev));
+        const sx=shapeResize.corner[0],sy=shapeResize.corner[1];
+        // Hold the opposite corner fixed; dragging the selected handle changes
+        // dimensions and center simultaneously. The tip of a triangle can extend its length.
+        const oldW=shapeResize.initialW*.0254, oldH=shapeResize.initialH*.0254;
+        const fixedX=shapeResize.anchorX-sx*oldW/2;
+        const fixedY=shapeResize.anchorY-sy*oldH/2;
+        const w=clamp(Math.abs(q.x-fixedX)*39.37007874,2.25,60);
+        const h=sy===0 ? shapeResize.initialH : clamp(Math.abs(q.y-fixedY)*39.37007874,2.25,60);
+        b.markerWidthIn=w;b.markerHeightIn=h;
+        b.x=clamp(fixedX+sx*w*.0254/2,0,S.tableL);
+        b.y=clamp(sy===0?shapeResize.anchorY:fixedY+sy*h*.0254/2,0,S.tableW);
+        draw();syncProjector();
+    },{capture:true,passive:false});
+    const endShapeResize=ev=>{
+        if(!shapeResize || shapeResize.pointerId!==ev.pointerId)return;
+        ev.preventDefault();ev.stopImmediatePropagation();
+        shapeResize=null;saveState();syncProjector();draw();
+    };
+    canvas.addEventListener('pointerup',endShapeResize,{capture:true,passive:false});
+    canvas.addEventListener('pointercancel',endShapeResize,{capture:true,passive:false});
+        // Mouse-wheel micro aiming.
     // wheel back/down -> clockwise; wheel forward/up -> counterclockwise.
     // One conventional wheel notch is intentionally tiny: about 0.15 degree.
     canvas.addEventListener('wheel', ev => {
@@ -7143,7 +7263,7 @@
         ev.preventDefault();
         // Only the center handle captures wheel resizing; the rest of the table aims.
         const M = controlMap(), pointer = pointerPos(ev);
-        const zone = S.balls.filter(b=>b.marker && !b.markerHidden && b.active!==false)
+        const zone = S.balls.filter(b=>b.marker && !b.markerHidden && b.active!==false && b.markerShape!=='square' && b.markerShape!=='triangle')
             .map(b=>{const p=M.map(b);return {b,d:Math.hypot(pointer.x-p.x,pointer.y-p.y)};})
             .filter(q=>q.d<=14).sort((a,b)=>a.d-b.d)[0];
         if (zone && ev.deltaY !== 0) {
@@ -10552,6 +10672,24 @@
             updateRunCount();
             return true;
         }
+        function addShapeZone(shape) {
+            if (!['square','triangle'].includes(shape)) return;
+            const count=S.balls.filter(b=>b.marker&&b.markerShape===shape).length;
+            if(count>=4){toast('Maximum four '+shape+' zones');return;}
+            const existing=S.balls.filter(b=>b.marker);
+            if(!existing.length)S.markerSeq=1000;
+            const idx=existing.length, col=idx%4,row=Math.floor(idx/4)%3;
+            const id=Math.max(1000,Number(S.markerSeq)||1000);S.markerSeq=id+1;
+            S.balls.push({id,n:'MARKER',marker:true,markerType:'white',markerShape:shape,
+                markerWidthIn:12,markerHeightIn:12,markerLocked:false,markerDiameterIn:6,
+                x:clamp(S.tableL*(.36+col*.095),.2,S.tableL-.2),
+                y:clamp(S.tableW*(.28+row*.19),.2,S.tableW-.2),active:true});
+            normalizeBallSet();updateUI();refreshPreview();
+            if(runHistory.length<=1)runHistory=[cleanSnapshot()];
+            updateRunCount();toast('Added adjustable '+shape+' zone · resize by dragging white corners, then Lock on the rail');
+        }
+        $('addSquareZone').onclick=()=>addShapeZone('square');
+        $('addTriangleZone').onclick=()=>addShapeZone('triangle');
         $('markerZoneSelect').addEventListener('change',updateMarkerZoneControls);
         $('markerDiameter').addEventListener('input',ev=>setMarkerDiameter(ev.target.value));
         $('markerDiameterNumber').addEventListener('change',ev=>setMarkerDiameter(ev.target.value));
