@@ -1244,6 +1244,21 @@
     .btFeedbackHead h2{font-size:19px}
   }
 
+
+  .photoAnalyzerToolbar { align-items:flex-start; gap:10px; max-height:36vh; overflow:auto; }
+  .photoToolGroup { min-width:0; padding:0 10px 0 0; border-right:1px solid #394653; }
+  .photoToolHeading,.photoToolGroup summary { display:block; color:#b9cadb; font-size:12px; font-weight:700; margin:0 0 6px; }
+  .photoToolGroup summary { cursor:pointer; display:list-item; margin-left:16px; }
+  .photoToolActions { display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+  .photoAnalyzerToolbar button,.photoAnalyzerToolbar select { min-height:38px; padding:7px 10px; font:600 13px system-ui,sans-serif; border-radius:6px; }
+  .photoAnalyzerToolbar #photoRackType,.photoAnalyzerToolbar #photoArchiveSelect { font:600 13px system-ui,sans-serif; min-height:38px; padding:7px 10px; background:#202c39; color:#eef3f7; border:1px solid #526478; }
+  .photoAnalyzerToolbar #photoRackType { width:175px; max-width:100%; }
+  .photoAnalyzerToolbar #photoArchiveSelect { width:260px; min-width:0; max-width:100%; }
+  .photoSavedGroup { max-width:100%; }
+  .photoSavedGroup .photoHint { margin-top:6px; max-width:520px; }
+  .photoAnalyzerStatus { flex-basis:100%; }
+  @media(max-width:700px){.photoSetupGroup,.photoSavedGroup{width:100%;border-right:0}.photoAnalyzerToolbar{max-height:40vh;padding:8px}.photoAnalyzerToolbar #photoArchiveSelect{width:100%}}
+
 </style>
 </head>
 <body>
@@ -1259,7 +1274,7 @@
     </div>
     <div id="pocketTray"></div>
     <label id="cameraCaptureBtn" for="cameraFileInput" title="Take a pool-table photo with this device camera" aria-label="Open camera">📷</label>
-    <button id="analyzePhotoBtn" type="button" title="Analyze a real pool-table photo or choose a frame from a video">ANALYZE PHOTO / VIDEO</button>
+    <button id="analyzePhotoBtn" type="button" title="Open image analysis or take a camera photo">IMAGE / CAMERA</button>
     <button id="quickLayoutRecall" type="button" title="Save or recall a ball layout">▦</button>
     <div id="layoutQuickPanel" aria-label="Saved ball layouts">
       <div class="layoutQuickHeader">
@@ -1577,39 +1592,37 @@
     <div class="photoAnalyzerHeader">
       <div>
         <h2>Analyze Real Pool Table</h2>
-        <div class="photoHint">Runs locally on this device. Analysis photos are saved locally in this app for recall; nothing is uploaded.</div>
+        <div class="photoHint">Runs locally on this device. Use Save Image to keep a photo on this device; nothing is uploaded.</div>
       </div>
       <button id="photoAnalyzerClose" type="button" title="Close">×</button>
     </div>
     <div class="photoAnalyzerToolbar">
-      <label for="photoFileInput" class="visionPrimary" style="display:inline-flex;align-items:center;padding:0 10px;border:1px solid #8dff7b;border-radius:6px;cursor:pointer;font-weight:800;font-size:11px;min-height:34px;">CHOOSE PHOTO / VIDEO</label>
-      <input id="photoFileInput" type="file" accept="image/*,video/*">
-      <label for="cameraFileInput" class="photoCameraLabel" title="Take a still photo with the rear camera">📷 CAMERA</label>
-      <input id="cameraFileInput" type="file" accept="image/*" capture="environment">
-      <button id="photoCaptureFrame" type="button" style="display:none">USE VIDEO FRAME</button>
-      <button id="photoResetCorners" type="button">RESET CORNERS</button>
-      <button id="photoAutoRailsBtn" type="button">AUTO RAIL CORNERS</button>
-      <button id="photoRotateBtn" type="button">ROTATE 90° • 0°</button>
-      <label class="photoStraightenControl" title="Optional fine rotation before corner calibration">STRAIGHTEN <input id="photoStraighten" type="range" min="-8" max="8" step="0.25" value="0"><span id="photoStraightenValue">0.0°</span></label>
-      <label class="photoStraightenControl" title="Nudge the automatically detected playing-surface rail lines inward or outward">RAIL INSET <input id="photoRailInset" type="range" min="-12" max="28" step="1" value="6"><span id="photoRailInsetValue">6px</span></label>
-      <button id="photoSharpenBtn" type="button">SHARPEN: OFF</button>
-      <label class="photoRackControl" title="Tell the analyzer which balls can legally be on the table">RACK TYPE
-        <select id="photoRackType">
-          <option value="auto">AUTO — BEST GUESS</option>
-          <option value="9ball">9-BALL — CUE + 1–9</option>
-          <option value="10ball">10-BALL — CUE + 1–10</option>
-          <option value="8ball">8-BALL / FULL SET — 1–15</option>
-          <option value="custom">CUSTOM / DRILL — NO RACK RESTRICTION</option>
+      <div class="photoToolGroup"><span class="photoToolHeading">IMAGE / CAMERA</span><div class="photoToolActions">
+        <button id="photoChooseImage" class="visionPrimary" type="button">Choose Image</button>
+        <button id="photoTakeImage" type="button">Camera</button>
+        <input id="photoFileInput" type="file" accept="image/*">
+        <input id="cameraFileInput" type="file" accept="image/*" capture="environment">
+        <button id="photoCaptureFrame" type="button" hidden style="display:none">Use Snapshot</button>
+      </div></div>
+      <div class="photoToolGroup photoSetupGroup"><span class="photoToolHeading">TABLE SETUP</span><div class="photoToolActions">
+        <button id="photoRotateBtn" type="button">Rotate 90°</button>
+        <button id="photoAutoRailsBtn" type="button">Auto Corners</button>
+        <button id="photoResetCorners" type="button">Reset Corners</button>
+        <select id="photoRackType" aria-label="Rack type" title="Rack type">
+          <option value="auto">Rack: Auto</option><option value="9ball">9-Ball</option><option value="10ball">10-Ball</option><option value="8ball">8-Ball / Full Set</option><option value="custom">Custom / Drill</option>
         </select>
-      </label>
-      <button id="photoAiModeBtn" type="button" title="Use the trained local pool-ball detector + identity classifier; falls back to the original hybrid detector if AI is unavailable">AI: AUTO</button>
-      <button id="photoAnalyzeNow" class="visionPrimary" type="button" disabled>ANALYZE BALLS</button>
-      <button id="photoAddMissed" type="button" disabled>ADD MISSED BALL</button>
-      <select id="photoArchiveSelect" title="Saved analysis photos on this device" disabled><option value="">No saved photos</option></select>
-      <button id="photoArchiveLoad" type="button" disabled>RECALL PHOTO</button>
-      <button id="photoArchiveDelete" type="button" disabled>DELETE SAVED</button>
-      <button id="photoArchiveExport" type="button" disabled>DOWNLOAD CURRENT</button>
-      <div id="photoAnalyzerStatus" class="photoAnalyzerStatus">Choose a photo, take one with CAMERA, or choose a video and capture the frame you want. Then set the four inside playing-surface corners.</div>
+        <button id="photoAnalyzeNow" class="visionPrimary" type="button" disabled>Analyze Balls</button>
+        <button id="photoAddMissed" type="button" disabled>Add Missed Ball</button>
+      </div></div>
+      <details class="photoToolGroup photoSavedGroup"><summary>Saved Images</summary><div class="photoToolActions">
+        <select id="photoArchiveSelect" aria-label="Saved images on this device" disabled><option value="">No saved images</option></select>
+        <button id="photoArchiveLoad" type="button" disabled>Open</button>
+        <button id="photoArchiveDelete" type="button" disabled>Remove</button>
+        <button id="photoArchiveSave" type="button" disabled>Save Image</button>
+        <button id="photoArchiveExport" type="button" disabled>Download Image</button>
+      </div><div class="photoHint">Save keeps the original image in this app. Download makes a separate file. Remove deletes the selected in-app copy.</div></details>
+      <details class="photoToolGroup"><summary>Detection Options</summary><div class="photoToolActions"><button id="photoAiModeBtn" type="button">AI: AUTO</button></div></details>
+      <div id="photoAnalyzerStatus" class="photoAnalyzerStatus" role="status" aria-live="polite">Choose an image or use Camera, then set the four inside playing-surface corners.</div>
     </div>
     <div class="photoAnalyzerBody">
       <div class="photoCanvasWrap">
@@ -7403,6 +7416,7 @@
         sourceCanvas: document.createElement('canvas'),
         sourceCtx: null,
         imageReady: false,
+        sourceName:'Pool table photo', archiveId:null, imageVersion:0, archiveBusy:false,
         corners: [],
         detections: [],
         addMissedMode: false,
@@ -7410,7 +7424,7 @@
         displayScaleY: 1,
         rotation: 0,
         fineRotation: 0,
-        railInset: 6,
+        railInset: 0,
         autoRailRawCorners: null,
         sharpen: false,
         aiEnabled: true,
@@ -7474,7 +7488,8 @@
         return new Promise(resolve=>canvas.toBlob(resolve,type,quality));
     }
     function pvSafePhotoName(name){
-        return String(name||'Pool table photo').replace(/[\\/:*?"<>|]+/g,' ').trim()||'Pool table photo';
+        return String(name||'Pool table photo').replace(/(?:Billiards_(?:Analysis|Camera)_\d{8}_\d{6}_?)+/gi,'')
+            .replace(/(?:\.(?:jpe?g|png|webp))+$/gi,'').replace(/[\\/:*?"<>|]+/g,' ').trim().slice(0,100)||'Pool table photo';
     }
     function pvArchiveLabel(item){
         const d=new Date(item.createdAt||Date.now());
@@ -7501,7 +7516,7 @@
                 const o=document.createElement('option');o.value='';o.textContent='No saved photos';sel.appendChild(o);
                 sel.disabled=true;
             } else {
-                items.forEach(item=>{const o=document.createElement('option');o.value=String(item.id);o.textContent=pvArchiveLabel(item);sel.appendChild(o);});
+                items.forEach(item=>{const o=document.createElement('option');o.value=String(item.id);o.textContent=pvArchiveLabel(item);o.title=o.textContent;sel.appendChild(o);});
                 sel.disabled=false;
                 sel.value=items.some(x=>String(x.id)===String(old))?String(old):String(items[0].id);
             }
@@ -7516,28 +7531,23 @@
         }
         if($('photoArchiveExport')) $('photoArchiveExport').disabled=!photoVision.imageReady;
     }
-    async function pvArchiveRawCanvas(sourceName='Pool table photo'){
-        if(!photoVision.rawCanvas.width||!photoVision.rawCanvas.height)return;
+    async function pvArchiveRawCanvas(){
+        if(!photoVision.imageReady||photoVision.archiveBusy)return;
+        if(photoVision.archiveId){pvStatus('This image is already saved in this app.');return;}
+        const version=photoVision.imageVersion,name=photoVision.sourceName;
+        photoVision.archiveBusy=true;
+        const button=$('photoArchiveSave');button.disabled=true;button.textContent='Saving…';
         try {
             const blob=await pvCanvasBlob(photoVision.rawCanvas,'image/jpeg',.92);
-            if(!blob)return;
+            if(!blob)throw new Error('Could not encode image');
+            if(version!==photoVision.imageVersion)return;
             const now=Date.now(),id=String(now)+'-'+Math.random().toString(36).slice(2,8);
-            const safeName=pvSafePhotoName(sourceName);
-            const rec={id,createdAt:now,name:safeName,width:photoVision.rawCanvas.width,height:photoVision.rawCanvas.height,blob};
-            // The native Android wrapper mirrors each analysis image into a normal
-            // Pictures/Billiards Trainer/Analysis Archive folder as well as IndexedDB.
-            // Browser/PWA builds simply skip this bridge and retain the local archive.
-            try {
-                if(window.BilliardsAndroid && typeof window.BilliardsAndroid.archiveJpeg==='function'){
-                    const d=new Date(now),stamp=d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'_'+String(d.getHours()).padStart(2,'0')+String(d.getMinutes()).padStart(2,'0')+String(d.getSeconds()).padStart(2,'0');
-                    window.BilliardsAndroid.archiveJpeg(photoVision.rawCanvas.toDataURL('image/jpeg',.92),'Billiards_Analysis_'+stamp+'_'+safeName+'.jpg');
-                }
-            } catch(e){ console.warn('Android photo archive bridge unavailable:',e); }
+            const rec={id,createdAt:now,name:pvSafePhotoName(name),width:photoVision.rawCanvas.width,height:photoVision.rawCanvas.height,blob};
             const db=await pvOpenPhotoArchiveDB();
-            try { await pvArchiveTx(db,'readwrite',store=>store.put(rec)); }
-            finally { db.close(); }
-            await pvRefreshArchiveUI(id);
-        } catch(e){ console.warn('Could not save analysis photo locally:',e); }
+            try {await pvArchiveTx(db,'readwrite',store=>store.put(rec));}finally{db.close();}
+            if(version===photoVision.imageVersion){photoVision.archiveId=id;await pvRefreshArchiveUI(id);pvStatus('Image saved in this app on this device.');}
+        } catch(e){pvStatus('Image could not be saved. Device storage may be unavailable or full; try Download Image.');console.warn(e);}
+        finally{photoVision.archiveBusy=false;button.disabled=!photoVision.imageReady;button.textContent=photoVision.archiveId?'Saved':'Save Image';}
     }
     async function pvGetArchivedPhoto(id){
         if(!id)return null;
@@ -7557,21 +7567,25 @@
             const rec=await pvGetArchivedPhoto(id);
             if(!rec||!rec.blob){pvStatus('That saved photo could not be read.');return;}
             pvStatus('Loading saved photo…');
-            loadPhotoFile(rec.blob,rec.name||'Saved pool table photo',false);
+            loadPhotoFile(rec.blob,rec.name||'Saved pool table photo',false,id);
         } catch(e){ pvStatus('Saved photo could not be opened on this device.'); console.warn(e); }
     }
     async function pvDeleteArchivedPhoto(){
         const sel=$('photoArchiveSelect'),id=sel?sel.value:'';
         if(!id)return;
         const label=sel.options[sel.selectedIndex]?.textContent||'this saved photo';
-        if(!window.confirm('Delete '+label+' from this device?'))return;
+        const button=$('photoArchiveDelete');
+        if(button.dataset.confirmId!==id){button.dataset.confirmId=id;button.textContent='Confirm Remove';pvStatus('Press Confirm Remove to delete the selected in-app image. Downloaded files will remain.');return;}
+        button.disabled=true;
         try {
             const db=await pvOpenPhotoArchiveDB();
             try { await pvArchiveTx(db,'readwrite',store=>store.delete(String(id))); }
             finally { db.close(); }
+            if(photoVision.archiveId===id){photoVision.archiveId=null;$('photoArchiveSave').textContent='Save Image';}
+            button.dataset.confirmId='';button.textContent='Remove';
             await pvRefreshArchiveUI();
-            pvStatus('Saved analysis photo deleted.');
-        } catch(e){ pvStatus('Could not delete the saved photo.'); console.warn(e); }
+            pvStatus('Selected image removed from the in-app archive.');
+        } catch(e){button.disabled=false;pvStatus('Could not remove the saved image.');console.warn(e);}
     }
     async function pvDownloadCurrentPhoto(){
         if(!photoVision.imageReady||!photoVision.rawCanvas.width)return;
@@ -8908,37 +8922,9 @@
         return s;
     }
     function pvBuildSmartReviewGroups(list){
-        // Stable manual-review order: unresolved detections are collected at the
-        // top, while assigned detections stay in their original detection order.
-        // Ball identity/color changes never regroup or reshuffle assigned rows.
-        const unresolved=[];
-        const assigned=[];
-        for(const d of list){
-            pvReviewKey(d);
-            (String(d.id)==='ignore'?unresolved:assigned).push(d);
-        }
-        const output=[];
-        if(unresolved.length){
-            output.push({
-                family:'unassigned',
-                items:unresolved,
-                focused:false,
-                score:1,
-                unresolved:unresolved.length,
-                warning:unresolved.filter(d=>d.duplicateWarning||d.closeCall).length
-            });
-        }
-        if(assigned.length){
-            output.push({
-                family:'assigned',
-                items:assigned,
-                focused:false,
-                score:0,
-                unresolved:0,
-                warning:0
-            });
-        }
-        return output;
+        // Array order is the review order. Identity edits never move a detection.
+        list.forEach(pvReviewKey);
+        return [{family:'assigned',items:list,focused:false,score:0,unresolved:0,warning:0}];
     }
 
     function renderPhotoDetectionList() {
@@ -8948,7 +8934,7 @@
         if(photoVision.detections.length){
             const hint=document.createElement('div');
             hint.className='photoReviewOrderHint';
-            hint.textContent='REVIEW — unassigned balls stay highlighted at the top. Assigned balls stay in a stable order underneath.';
+            hint.textContent='Rows stay in place. Highlighted balls still need an assignment.';
             box.appendChild(hint);
         }
 
@@ -9038,21 +9024,14 @@
                 }
                 d.id=next;d.manualIdentity=true;d.duplicateWarning=false;
 
-                // Do not regroup assigned balls after an edit. If this assignment
-                // displaced another ball, that newly-unassigned row naturally moves
-                // to the unresolved block at the top.
+                const pane=document.querySelector('.photoReview');
+                const scrollTop=pane?pane.scrollTop:0;
                 photoVision.reviewFocusKeys=[];
                 photoVision.reviewFocusFamily='';
                 renderPhotoDetectionList();renderPhotoAnalyzer();
-
-                requestAnimationFrame(()=>{
-                    const pane=document.querySelector('.photoReview');
-                    const focus=box.querySelector('[data-review-key="'+pvReviewKey(d)+'"]');
-                    if(pane&&focus){
-                        const top=focus.offsetTop-70;
-                        pane.scrollTo({top:Math.max(0,top),behavior:'smooth'});
-                    }
-                });
+                if(pane)pane.scrollTop=scrollTop;
+                const replacement=box.querySelector('[data-review-key="'+pvReviewKey(d)+'"] select');
+                if(replacement)replacement.focus({preventScroll:true});
             };
             const conf=document.createElement('div');
             const pct=Math.round((d.confidence||0)*100);
@@ -9676,19 +9655,19 @@
         }else toast('Photo layout applied to table'+(hasCueBall?'':' (no cue ball)'));
         closePhotoAnalyzer();
     }
-    function loadPhotoFile(file, sourceNameOverride = '', archiveAfter = true){
+    function loadPhotoFile(file, sourceNameOverride = '', archiveAfter = false, archiveId = null){
         if(!file)return;
+        const imageVersion=++photoVision.imageVersion;
         photoVision.imageReady=false;
+        photoVision.archiveId=null;
+        $('photoArchiveSave').disabled=true;
+        $('photoArchiveExport').disabled=true;
         const v=$('photoAnalyzerVideo'),c=$('photoAnalyzerCanvas');
-        if(file.type&&file.type.startsWith('video/')){
-            v.src=URL.createObjectURL(file);v.style.display='block';c.style.display='none';$('photoCaptureFrame').style.display='inline-block';
-            pvResetDetectionsAndCorners();
-            v.onloadedmetadata=()=>pvStatus('Video loaded. Scrub/play to the frame you want, pause there, then press USE VIDEO FRAME. The analyzer works on that captured frame rather than continuously tracking the whole video.');
-            return;
-        }
+        if(file.type&&file.type.startsWith('video/')){pvStatus('Choose a still image or take a camera photo.');return;}
         const img=new Image(),url=URL.createObjectURL(file);
         pvStatus('Loading photo…');
         img.onload=()=>{
+            if(imageVersion!==photoVision.imageVersion){URL.revokeObjectURL(url);return;}
             const sc=pvImportScale(img.naturalWidth,img.naturalHeight);
             photoVision.rawCanvas.width=Math.max(1,Math.round(img.naturalWidth*sc));
             photoVision.rawCanvas.height=Math.max(1,Math.round(img.naturalHeight*sc));
@@ -9706,9 +9685,13 @@
             $('photoCaptureFrame').style.display='none';
             pvResetAfterImageChange('Photo loaded at high analysis quality. ROTATE 90° now uses the retained raw image without cumulative blur. Use it until the head/foot direction matches how you want the layout placed in Billiards Trainer. Then tap four inside playing-surface corners: top-left → top-right → bottom-right → bottom-left.');
             if($('photoArchiveExport')) $('photoArchiveExport').disabled=false;
-            if(archiveAfter) pvArchiveRawCanvas(sourceNameOverride || file.name || 'Pool table photo');
+            photoVision.sourceName=pvSafePhotoName(sourceNameOverride || file.name || 'Pool table photo');
+            photoVision.archiveId=archiveId;
+            $('photoArchiveSave').disabled=false;
+            $('photoArchiveSave').textContent=archiveId?'Saved':'Save Image';
         };
         img.onerror=()=>{
+            if(imageVersion!==photoVision.imageVersion){URL.revokeObjectURL(url);return;}
             URL.revokeObjectURL(url);
             pvStatus('That image format could not be opened here. Try JPG, PNG, WEBP, or a screenshot of the photo.');
         };
@@ -9773,37 +9756,22 @@
             ev.target.value = '';
         });
         $('photoCaptureFrame').addEventListener('click', captureVideoFrame);
+        $('photoChooseImage').addEventListener('click',()=>$('photoFileInput').click());
+        $('photoTakeImage').addEventListener('click',()=>$('cameraFileInput').click());
+        $('photoArchiveSave').addEventListener('click',pvArchiveRawCanvas);
+        $('photoArchiveSelect').addEventListener('change',()=>{const b=$('photoArchiveDelete');b.dataset.confirmId='';b.textContent='Remove';});
         $('photoArchiveLoad').addEventListener('click', pvLoadArchivedPhoto);
         $('photoArchiveDelete').addEventListener('click', pvDeleteArchivedPhoto);
         $('photoArchiveExport').addEventListener('click', pvDownloadCurrentPhoto);
         $('photoResetCorners').addEventListener('click', () => {
             pvResetDetectionsAndCorners();
             renderPhotoAnalyzer();
-            pvStatus(photoVision.imageReady?'Corners reset. Move the long white crosshair to the inside playing-surface corner and click: top-left → top-right → bottom-right → bottom-left.':'Choose a photo or video first.');
+            pvStatus(photoVision.imageReady?'Corners reset. Move the long white crosshair to the inside playing-surface corner and click: top-left → top-right → bottom-right → bottom-left.':'Choose an image or use Camera first.');
         });
         $('photoAutoRailsBtn').addEventListener('click', () => { pvAutoFindRailCorners(); });
-        $('photoStraighten').addEventListener('input', () => {
-            const v=Number($('photoStraighten').value)||0;
-            $('photoStraightenValue').textContent=v.toFixed(1)+'°';
-        });
-        $('photoStraighten').addEventListener('change', () => {
-            const v=Number($('photoStraighten').value)||0;
-            if(Math.abs(v-(photoVision.fineRotation||0))<.001)return;
-            photoVision.fineRotation=v;
-            pvRebuildSourceFromRaw();
-            pvResetAfterImageChange('Straighten set to '+v.toFixed(1)+'°. Now place the four inside playing-surface corners or use AUTO RAIL CORNERS.');
-        });
-        $('photoRailInset').addEventListener('input', ev => {
-            photoVision.railInset=parseInt(ev.target.value,10)||0;
-            $('photoRailInsetValue').textContent=photoVision.railInset+'px';
-            if(photoVision.autoRailRawCorners){
-                pvApplyAutoRailInset();
-                pvStatus('Rail inset adjusted to '+photoVision.railInset+'px. All four auto-detected rail noses moved together.');
-            }
-        });
         $('photoRotateBtn').addEventListener('click', () => {
             const hasRaw = photoVision.rawCanvas.width && photoVision.rawCanvas.height;
-            if(!hasRaw){ pvStatus('Choose a photo or capture a video frame first.'); return; }
+            if(!hasRaw){ pvStatus('Choose an image or use Camera first.'); return; }
 
             const oldW=photoVision.sourceCanvas.width, oldH=photoVision.sourceCanvas.height;
             const hadCorners=photoVision.corners.length===4;
@@ -9830,36 +9798,6 @@
                 $('photoAnalyzeNow').disabled=true;
                 $('photoAddMissed').disabled=true;
                 pvStatus('Rotated to '+photoVision.rotation+'°. Tap four inside playing-surface corners: top-left → top-right → bottom-right → bottom-left.');
-            }
-        });
-        $('photoSharpenBtn').addEventListener('click', () => {
-            const hasRaw = photoVision.rawCanvas.width && photoVision.rawCanvas.height;
-            photoVision.sharpen = !photoVision.sharpen;
-            pvRefreshControls();
-            if(!hasRaw){ return; }
-
-            const hadCorners=photoVision.corners.length===4;
-            const hadAnalysis=photoVision.detections.length>0;
-            pvRebuildSourceFromRaw();
-            renderPhotoAnalyzer();
-
-            if(hadCorners){
-                $('photoAnalyzeNow').disabled=false;
-                $('photoAddMissed').disabled=false;
-                if(hadAnalysis){
-                    pvStatus(photoVision.sharpen
-                        ? 'Sharpen ON. Ball centers stay fixed; refreshing identification + larger sharpened thumbnails…'
-                        : 'Sharpen OFF. Ball centers stay fixed; refreshing identification…');
-                    analyzeCurrentPhoto();
-                } else {
-                    pvStatus(photoVision.sharpen
-                        ? 'Sharpen ON. Corners preserved — press ANALYZE BALLS when ready.'
-                        : 'Sharpen OFF. Corners preserved — press ANALYZE BALLS when ready.');
-                }
-            } else {
-                pvStatus(photoVision.sharpen
-                    ? 'Sharpen ON. Tap four playing-surface corners when ready.'
-                    : 'Sharpen OFF. Tap four playing-surface corners when ready.');
             }
         });
         $('photoAiModeBtn').addEventListener('click', () => {
@@ -10759,3 +10697,4 @@ if ('serviceWorker' in navigator) {
 
 </body>
 </html>
+
