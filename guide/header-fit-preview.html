@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Billiards Guide — horizontal header fit test</title>
+<link rel="stylesheet" href="./guide.css">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0d131a;color:#f2f5f7;font:14px system-ui,sans-serif}
+.notice{background:#1b2b32;padding:10px 16px;font-size:12px;color:#c2dedc}
+.window{max-width:1490px;margin:auto}.titlebar{height:59px;background:#205385;display:flex;align-items:center;gap:8px;padding:3px 12px;position:relative;overflow:visible}
+.titlebar h2{font-size:18px;margin:0;white-space:nowrap;flex:0 0 auto}
+#bt-guide-root.btg-header-mode{margin-left:auto;width:auto;max-width:650px;flex:1 1 600px}
+.guide-launch{flex:none;border:2px solid #a4e5b9;border-radius:50%;background:#00965d;color:white;width:42px;height:42px;font-size:23px;cursor:pointer}
+.close{width:34px;height:34px;border:0;border-radius:50%;background:#293d52;color:white;font-size:20px}
+.toolbar{height:84px;background:#17222d;display:flex;align-items:center;gap:8px;padding:10px;overflow:hidden}
+.toolbar button{border:1px solid #506578;background:#273543;color:white;border-radius:5px;padding:10px 12px;white-space:nowrap}
+.toolbar .green{background:#66f45d;color:#111;border:0}
+.main{display:grid;grid-template-columns:73% 27%;min-height:500px}
+.photo{display:grid;place-items:center;background:#090b10;color:#79848f;font-size:21px;border:1px solid #344555}
+.side{background:#17222d;padding:16px;border-left:1px solid #344555}
+.side h3{margin-top:0}
+.controls{display:flex;justify-content:space-between;align-items:center;margin:12px 0}
+.controls button{padding:8px;background:#283747;color:white;border:1px solid #516578;border-radius:5px}
+@media(max-width:1150px){.titlebar h2{font-size:15px}#bt-guide-root.btg-header-mode{max-width:570px}.toolbar{font-size:11px}}
+</style></head><body>
+<div class="notice">INTERACTIVE FIT TEST — simulated Analyze page; this is NOT the live trainer. Toggle the green circle and expand the green arrow to test spacing.</div>
+<div class="window">
+ <header class="titlebar">
+  <h2>Analyze Real Pool Table</h2>
+  <div id="bt-guide-root" class="btg-header-mode"></div>
+  <button class="guide-launch" id="guide-launch" aria-label="Open or close Guide">🎓</button>
+  <button class="close" aria-label="Close analysis preview">×</button>
+ </header>
+ <div class="toolbar">
+  <strong>IMAGE / CAMERA</strong><button class="green" data-guide-topic="image-intro">Choose Image</button>
+  <strong>TABLE SETUP</strong><button data-guide-topic="corners">Auto Corners</button><button>Reset Corners</button>
+  <button>Rack: Auto ▾</button><button class="green">Analyze Balls</button><button>Add Missed Ball</button>
+  <strong>SAVED IMAGES</strong><button>Open</button><button>Save</button>
+ </div>
+ <div class="main">
+  <div class="photo">Choose a pool-table photo or video frame</div>
+  <aside class="side"><h3>Detected Balls</h3><p>Review the identity of each ball before applying.</p>
+  <div class="controls"><span>Shot speed</span><button data-guide-topic="shot-speed">5.06</button></div>
+  <div class="controls"><span>Follow / Draw</span><button>0</button></div></aside>
+ </div>
+</div>
+<script src="./guide.js"></script>
+<script>
+const guide=BilliardsGuide.mount(document.getElementById('bt-guide-root'),{topics:[
+{id:'image-intro',title:'Image analysis introduction',category:'explore',level:0,summary:'Learn to analyze a photograph.',text:'Select Choose Image to begin.'},
+{id:'corners',title:'Aligning a photographed table',category:'start',level:0,summary:'Identify the table corners.',text:'Use Auto Corners and inspect the results.'},
+{id:'shot-speed',title:'Shot Speed',category:'fundamentals',level:0,summary:'Control cue-ball speed.',text:'Adjust shot speed to see how the paths change.'}
+]});
+document.getElementById('guide-launch').addEventListener('click',()=>{const b=document.querySelector('#bt-guide-root .btg-toolbar button');if(b)b.click()});
+</script></body></html>
