@@ -37,3 +37,15 @@ body.btg-inspection:before{content:"";position:fixed;inset:0;pointer-events:none
 #bt-guide-root:not(.btg-header-mode):not(:has(.btg-details-open)) .btg-topic{display:none}
 #bt-guide-root:not(.btg-header-mode):not(:has(.btg-details-open)) .btg-categories{display:none}
 @media(max-width:1000px){#bt-guide-root.btg-header-mode .btg-toolbar button{font-size:10px;padding:3px}#bt-guide-root.btg-header-mode .btg-level input{width:40px}}
+
+/* Header-fit corrections: expansion belongs to inner Guide root, not host. */
+#bt-guide-root.btg-header-mode{height:54px}
+#bt-guide-root.btg-header-mode>div{display:flex;flex-direction:row;align-items:center}
+#bt-guide-root.btg-header-mode>div.btg-details-open .btg-categories{display:flex;position:absolute;left:0;right:0;top:100%;background:#14252b;border:1px solid #466269;padding:8px;z-index:33;flex-wrap:wrap}
+#bt-guide-root.btg-header-mode>div.btg-details-open .btg-topic{position:absolute;top:calc(100% + 43px);left:0;right:0;overflow:visible;padding:10px;background:#1b3036;border:1px solid #466269;z-index:33}
+#bt-guide-root.btg-header-mode>div.btg-details-open .btg-topic strong,#bt-guide-root.btg-header-mode>div.btg-details-open .btg-topic p{display:block}
+#bt-guide-root.btg-header-mode>div.btg-details-open .btg-expansion-tab{top:calc(100% + 43px);z-index:34}
+#bt-guide-root.btg-header-mode .btg-topic{min-width:80px;flex:1 1 80px}
+#bt-guide-root.btg-header-mode .btg-toolbar{flex-shrink:1}
+#bt-guide-root.btg-header-mode .btg-toolbar button{min-width:23px}
+#bt-guide-root.btg-header-mode .btg-expansion-tab{cursor:pointer}
