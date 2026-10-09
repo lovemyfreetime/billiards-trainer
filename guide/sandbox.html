@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guide inspection sandbox — not the live trainer</title>
+<link rel="stylesheet" href="./guide.css">
+<style>body{font:15px system-ui;background:#182126;color:white;margin:20px}.mock{padding:18px;background:#25363d;border-radius:9px;margin-top:14px}button{padding:10px;margin:4px}#bt-guide-root{max-width:780px}.result{font-weight:bold}</style></head>
+<body><h1>Guide safety sandbox</h1>
+<p>This page is separate from the trainer. Turn Guide ON and attempt to change the mock controls. The count must remain unchanged. Turn Guide OFF to verify normal interaction.</p>
+<div id="bt-guide-root"></div>
+<div class="mock"><button id="mapped" data-guide-topic="ghost-ball-quick">Ghost Ball (mapped)</button>
+<button id="unmapped">Unmapped control</button>
+<label>Shot speed <input id="speed" type="range" min="0" max="100" value="50"></label>
+<div>Trainer click count: <span class="result" id="count">0</span></div>
+<div>Shot speed: <span class="result" id="value">50</span></div></div>
+<script src="./guide.js"></script>
+<script>
+let count=0;
+for(const id of ['mapped','unmapped'])document.getElementById(id).addEventListener('click',()=>{document.getElementById('count').textContent=++count});
+document.getElementById('speed').addEventListener('input',e=>document.getElementById('value').textContent=e.target.value);
+BilliardsGuide.mount(document.getElementById('bt-guide-root'),{topics:[{id:'ghost-ball-quick',title:'Ghost Ball',category:'explore',level:0,summary:'Inspect the ghost-ball aiming reference.',text:'A short explanation of ghost-ball aiming.'}]});
+</script></body></html>
