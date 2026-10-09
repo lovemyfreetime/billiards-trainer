@@ -36,7 +36,7 @@ function mount(host,options={}){
    'touchstart','touchmove','touchend','mousedown','mouseup','dragstart','drag','dragend',
    'dragover','drop','input','change','keydown','keyup','keypress'];
  function shield(e){
-   if(!state.enabled||host.contains(e.target)||e.target.closest?.('[data-btg-allow]'))return;
+   if(!state.enabled||!host.getClientRects().length||!host.closest('#photoAnalyzerModal')?.classList.contains('open')||host.contains(e.target)||e.target.closest?.('[data-btg-allow]'))return;
    // Do not block browser-level keyboard shortcuts when focus is outside the page.
    // Prevent default browser scrolling and existing trainer shortcuts in inspection mode.
    const target=e.target instanceof Element?e.target:null;
