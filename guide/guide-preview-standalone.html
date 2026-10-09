@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guide inspection sandbox — not the live trainer</title>
+<style>/* Guide foundation — isolated, opt-in. No trainer styles modified. */
+#bt-guide-root{font:12px system-ui,sans-serif;color:#eaf1ee;background:#151c20;border:1px solid #43545a;border-radius:9px;padding:8px;max-width:100%;box-sizing:border-box}
+#bt-guide-root *{box-sizing:border-box}
+#bt-guide-root button,#bt-guide-root select{font:inherit;color:inherit;background:#27333a;border:1px solid #53646c;border-radius:5px;padding:5px;cursor:pointer}
+#bt-guide-root button:focus-visible,#bt-guide-root select:focus-visible{outline:2px solid #9cd7ff}
+#bt-guide-root .btg-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:6px}
+#bt-guide-root .btg-level{display:flex;align-items:center;gap:4px;white-space:nowrap}
+#bt-guide-root .btg-level input{width:65px;accent-color:#9cd7ff}
+#bt-guide-root .btg-categories button[aria-pressed=true]{background:#38576b}
+#bt-guide-root .btg-topic{background:#202b30;border-radius:6px;padding:8px}
+#bt-guide-root .btg-topic strong{display:block;font-size:13px;margin-bottom:4px}
+#bt-guide-root .btg-topic p{margin:0 0 6px}
+#bt-guide-root .btg-expanded{max-height:240px;overflow:auto;white-space:pre-wrap;padding:8px;background:#243139;margin-top:6px;border-radius:6px}
+#bt-guide-root [hidden]{display:none!important}
+body.btg-inspection:before{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(147,190,155,.035);z-index:2147483000}
+.btg-highlight{outline:2px solid #9ed9ff!important;outline-offset:3px;box-shadow:0 0 14px 4px rgba(112,196,255,.28)!important}
+</style>
+<style>body{font:15px system-ui;background:#182126;color:white;margin:20px}.mock{padding:18px;background:#25363d;border-radius:9px;margin-top:14px}button{padding:10px;margin:4px}#bt-guide-root{max-width:780px}.result{font-weight:bold}</style></head>
+<body><h1>Guide safety sandbox</h1>
+<p>This page is separate from the trainer. Turn Guide ON and attempt to change the mock controls. The count must remain unchanged. Turn Guide OFF to verify normal interaction.</p>
+<div id="bt-guide-root"></div>
+<div class="mock"><button id="mapped" data-guide-topic="ghost-ball-quick">Ghost Ball (mapped)</button>
+<button id="unmapped">Unmapped control</button>
+<label>Shot speed <input id="speed" type="range" min="0" max="100" value="50"></label>
+<div>Trainer click count: <span class="result" id="count">0</span></div>
+<div>Shot speed: <span class="result" id="value">50</span></div></div>
+<script>/* Billiards Trainer Guide foundation — intentionally opt-in and independent.
+   Mount with BilliardsGuide.mount(element, {topics, resolveTarget}).
+   No click interception until an explicitly mapped target is registered. */
+(function(global){
+'use strict';
+const STORE='billiards-guide-v1';
+const CATEGORIES=[['explore','Explore'],['start','Get Started'],['fundamentals','Fundamentals'],['physics','Physics & Tools'],['drills','Drills'],['exercises','Exercises']];
+const LEVELS=['Beginner','Intermediate','Advanced'];
+function safeLoad(){try{return JSON.parse(localStorage.getItem(STORE))||{}}catch(_){return {}}}
+function mount(host,options={}){
+ if(!host || host.dataset.guideMounted) throw Error('Guide needs an unused host element');
+ host.dataset.guideMounted='1';host.id=host.id||'bt-guide-root';
+ const saved=safeLoad();
+ let state=Object.assign({enabled:false,level:0,category:'explore',topicId:null,expanded:null,position:0},saved);
+ let audio=new Audio();audio.preload='none';
+ const topics=Array.isArray(options.topics)?options.topics:[];
+ const root=document.createElement('div');host.append(root);
+ let active=null;
+ function save(){try{localStorage.setItem(STORE,JSON.stringify(state))}catch(_){}}
+ function stop(){audio.pause();audio.currentTime=0;state.position=0;save()}
+ function selected(){return topics.find(t=>t.id===state.topicId)||null}
+ function choose(id){audio.pause();audio.removeAttribute('src');audio.load();state.topicId=id;state.position=0;save();render()}
+ function play(){const t=selected();if(!t||!t.audio)return;
+   if(!audio.getAttribute('src')||audio.dataset.topic!==t.id){audio.src=t.audio;audio.dataset.topic=t.id;audio.load();audio.addEventListener('loadedmetadata',function once(){audio.removeEventListener('loadedmetadata',once);if(state.position>0)audio.currentTime=Math.min(state.position,audio.duration||state.position)})}
+   audio.play().catch(()=>{});}
+ function setEnabled(value){state.enabled=value;audio.pause();state.position=audio.currentTime||state.position;document.body.classList.toggle('btg-inspection',value);if(!value)clearHighlight();save();render()}
+ function clearHighlight(){if(active){active.classList.remove('btg-highlight');active=null}}
+ function inspectTarget(e){if(!state.enabled||state.category!=='explore'||host.contains(e.target))return;
+   const el=e.target.closest('[data-guide-topic]');if(el===active)return;clearHighlight();if(el&&topics.some(t=>t.id===el.dataset.guideTopic)){active=el;active.classList.add('btg-highlight')}}
+ function intercept(e){if(!state.enabled||state.category!=='explore'||host.contains(e.target))return;
+   const el=e.target.closest('[data-guide-topic]');if(!el)return;
+   e.preventDefault();e.stopImmediatePropagation();if(e.type==='click'){choose(el.dataset.guideTopic);play()}}
+ // Capture trainer input before existing application handlers can mutate state.
+ // Guide controls remain interactive; mapped trainer controls trigger narration only.
+ const blockedEvents=['pointerdown','pointerup','click','dblclick','contextmenu','wheel',
+   'touchstart','touchmove','touchend','mousedown','mouseup','dragstart','drag','dragend',
+   'dragover','drop','input','change','keydown','keyup','keypress'];
+ function shield(e){
+   if(!state.enabled||host.contains(e.target))return;
+   // Do not block browser-level keyboard shortcuts when focus is outside the page.
+   // Prevent default browser scrolling and existing trainer shortcuts in inspection mode.
+   const target=e.target instanceof Element?e.target:null;
+   const mapped=target?.closest('[data-guide-topic]');
+   if(e.type==='click'&&mapped&&topics.some(t=>t.id===mapped.dataset.guideTopic)){
+     choose(mapped.dataset.guideTopic);play();
+   }
+   if(e.cancelable)e.preventDefault();
+   e.stopImmediatePropagation();
+ }
+ blockedEvents.forEach(name=>document.addEventListener(name,shield,{capture:true,passive:false}));
+ function render(){
+  const t=selected(),available=topics.filter(x=>(x.category||'explore')===state.category&&(x.level||0)<=state.level);
+  root.innerHTML='';
+  const toolbar=document.createElement('div');toolbar.className='btg-row';
+  function btn(label,fn){const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',fn);toolbar.append(b);return b}
+  btn(state.enabled?'Guide ON':'Guide OFF',()=>setEnabled(!state.enabled));
+  if(state.enabled){
+   btn('■',()=>{stop();render()}).title='Stop';
+   btn(audio.paused?'▶':'Ⅱ',()=>{if(audio.paused)play();else audio.pause();render()}).title='Play / Pause';
+   btn('◀',()=>{audio.currentTime=Math.max(0,(audio.currentTime||0)-10)}).title='Back 10 seconds';
+   btn('▶▶',()=>{audio.currentTime=Math.min(audio.duration||Infinity,(audio.currentTime||0)+10)}).title='Forward 10 seconds';
+   const level=document.createElement('label');level.className='btg-level';level.textContent=LEVELS[state.level];
+   const range=document.createElement('input');range.type='range';range.min='0';range.max='2';range.step='1';range.value=state.level;
+   range.setAttribute('aria-label','Guide skill level');range.addEventListener('input',()=>{state.level=Number(range.value);save();render()});level.append(range);toolbar.append(level);
+   btn('Read',()=>{state.expanded=state.expanded==='read'?null:'read';save();render()});
+   btn('More',()=>{state.expanded=state.expanded==='more'?null:'more';save();render()});
+   btn('Reset',()=>{if(!confirm('Reset Guide session? The table will not change.'))return;stop();state={enabled:true,level:0,category:'explore',topicId:null,expanded:null,position:0};save();render()});
+  }
+  root.append(toolbar);if(!state.enabled)return;
+  const cats=document.createElement('div');cats.className='btg-row btg-categories';
+  for(const [id,label] of CATEGORIES){const b=document.createElement('button');b.textContent=label;b.setAttribute('aria-pressed',String(state.category===id));b.onclick=()=>{state.category=id;save();render()};cats.append(b)}root.append(cats);
+  const topic=document.createElement('div');topic.className='btg-topic';
+  const title=document.createElement('strong');title.textContent=t?.title||'Select a lesson or inspect a feature';topic.append(title);
+  const summary=document.createElement('p');summary.textContent=t?.summary||'Point to a mapped control, then click or tap to hear its explanation.';topic.append(summary);
+  const select=document.createElement('select');select.setAttribute('aria-label','Select Guide lesson');
+  const blank=document.createElement('option');blank.value='';blank.textContent='Choose a topic';select.append(blank);
+  for(const entry of available){const o=document.createElement('option');o.value=entry.id;o.textContent=entry.title;select.append(o)}
+  select.value=available.some(x=>x.id===state.topicId)?state.topicId:'';
+  select.onchange=()=>choose(select.value||null);topic.append(select);
+  if(state.expanded){const detail=document.createElement('div');detail.className='btg-expanded';detail.textContent=state.expanded==='read'?(t?.text||'No narration text assigned.'):(t?.resources?.length?t.resources.map(x=>x.title+' — '+x.url).join('\n'):'Resources will be added here.');topic.append(detail)}
+  root.append(topic);
+ }
+ audio.addEventListener('timeupdate',()=>{state.position=audio.currentTime;save()});
+ audio.addEventListener('ended',()=>render());
+ document.addEventListener('pointerover',inspectTarget,true);
+ // Shield is enabled only when Guide is ON; validate against real trainer interactions before integration.
+ render();
+ return {destroy(){audio.pause();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
+}
+global.BilliardsGuide={mount,CATEGORIES,LEVELS};
+})(window);
+</script>
+<script>
+let count=0;
+for(const id of ['mapped','unmapped'])document.getElementById(id).addEventListener('click',()=>{document.getElementById('count').textContent=++count});
+document.getElementById('speed').addEventListener('input',e=>document.getElementById('value').textContent=e.target.value);
+BilliardsGuide.mount(document.getElementById('bt-guide-root'),{topics:[{id:'ghost-ball-quick',title:'Ghost Ball',category:'explore',level:0,summary:'Inspect the ghost-ball aiming reference.',text:'A short explanation of ghost-ball aiming.'}]});
+</script></body></html>
