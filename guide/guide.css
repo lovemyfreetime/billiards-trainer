@@ -1,0 +1,16 @@
+/* Guide foundation — isolated, opt-in. No trainer styles modified. */
+#bt-guide-root{font:12px system-ui,sans-serif;color:#eaf1ee;background:#151c20;border:1px solid #43545a;border-radius:9px;padding:8px;max-width:100%;box-sizing:border-box}
+#bt-guide-root *{box-sizing:border-box}
+#bt-guide-root button,#bt-guide-root select{font:inherit;color:inherit;background:#27333a;border:1px solid #53646c;border-radius:5px;padding:5px;cursor:pointer}
+#bt-guide-root button:focus-visible,#bt-guide-root select:focus-visible{outline:2px solid #9cd7ff}
+#bt-guide-root .btg-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:6px}
+#bt-guide-root .btg-level{display:flex;align-items:center;gap:4px;white-space:nowrap}
+#bt-guide-root .btg-level input{width:65px;accent-color:#9cd7ff}
+#bt-guide-root .btg-categories button[aria-pressed=true]{background:#38576b}
+#bt-guide-root .btg-topic{background:#202b30;border-radius:6px;padding:8px}
+#bt-guide-root .btg-topic strong{display:block;font-size:13px;margin-bottom:4px}
+#bt-guide-root .btg-topic p{margin:0 0 6px}
+#bt-guide-root .btg-expanded{max-height:240px;overflow:auto;white-space:pre-wrap;padding:8px;background:#243139;margin-top:6px;border-radius:6px}
+#bt-guide-root [hidden]{display:none!important}
+body.btg-inspection:before{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(147,190,155,.035);z-index:2147483000}
+.btg-highlight{outline:2px solid #9ed9ff!important;outline-offset:3px;box-shadow:0 0 14px 4px rgba(112,196,255,.28)!important}
