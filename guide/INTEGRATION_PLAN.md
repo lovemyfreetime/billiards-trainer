@@ -1,3 +1,15 @@
+# DESIGN FREEZE — Restore the October 9 Approved Pool Guide Preview
+
+The approved visual design is the exact standalone artifact `Billiards_Guide_Layout_Preview.html` (SHA-256 `cff695780efbba4435919b79086906785dcbb2518d56cd6fab0040ef87642255`), recovered from the conversation and preserved independently as `Guide_Approved_Design_Restored.html`.
+
+**Do not use later floating-left, wrapping, single-row-only or generic Guide sandbox designs as a visual reference.** The approved pool Guide is compact and positioned in the top-right black area under IMAGE / CAMERA and beside the Jump visualization, with three tight rows: (1) Guide ON, Stop, Play/Pause, Previous, Next, tiny skill slider, Read, More, Reset; (2) six category pills; (3) short topic and description. An optional lesson drawer expands *down* from this control area and may overlap the table only when explicitly expanded. The default control box must not cover the table's playing surface. Colors are dark charcoal, blue-gray borders, restrained green Guide ON, light blue hover, very faint green inspection tint.
+
+Reference CSS geometry in standalone preview (relative to its 1488px screenshot frame): panel `left:47.5%;top:7.7%;width:28.1%` with 5px padding, ~4px button spacing, 24px playback icons. Never expand the box to a wide unstructured panel.
+
+This is a **design acceptance reference**, not proof that the original trainer integration or audio interaction has been tested. Restore its layout first and compare screenshots before modifying controls or adding features. The production branch is immutable without approval.
+
+---
+
 # Interactive Guide — integration checklist
 
 Development branch: `development/interactive-guide`. Production `main` must remain unchanged until user acceptance.
