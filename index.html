@@ -1380,6 +1380,16 @@
 /* Extra rail action for resizable zone markers; retain circular controls. */
 .markerRailCircle:has(button:nth-child(3)) button { font-size:clamp(7px,var(--marker-font),10px); }
 </style>
+<link rel="stylesheet" href="./guide/guide.css?v=integration1">
+<style>
+/* Isolated Guide integration on Analyze page; existing trainer styling preserved. */
+.photoAnalyzerHeader{background:#205385;min-height:60px;position:relative;overflow:visible;justify-content:flex-start}
+.photoAnalyzerHeader .btg-analyze-title{flex:0 0 auto;white-space:nowrap}
+.photoAnalyzerHeader #bt-guide-root{margin-left:auto;flex:1 1 500px;max-width:710px}
+#btg-analyze-launch{flex:0 0 42px;width:42px;height:42px;border-radius:50%;border:2px solid #a4e5b9;background:#078d56;color:white;font-size:23px;padding:0;cursor:pointer}
+.photoAnalyzerHeader #photoAnalyzerClose{flex:0 0 32px}
+@media(max-width:950px){.photoAnalyzerHeader .btg-analyze-title h2{font-size:12px}.photoAnalyzerHeader #bt-guide-root{min-width:0}}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1719,10 +1729,9 @@
 <div id="photoAnalyzerModal" aria-hidden="true">
   <div class="photoAnalyzerPanel">
     <div class="photoAnalyzerHeader">
-      <div>
-        <h2>Analyze Real Pool Table</h2>
-        
-      </div>
+      <div class="btg-analyze-title"><h2>Analyze Real Pool Table</h2></div>
+      <div id="bt-guide-root" class="btg-header-mode" aria-label="Interactive Trainer Guide"></div>
+      <button id="btg-analyze-launch" type="button" title="Toggle Guide" aria-label="Toggle Guide">🎓</button>
       <button id="photoAnalyzerClose" type="button" title="Close">×</button>
     </div>
     <div class="photoAnalyzerToolbar">
@@ -11064,6 +11073,8 @@ if ('serviceWorker' in navigator) {
       <iframe id="btFeedbackFrame" title="Billiards Trainer feedback form" loading="lazy" scrolling="no"></iframe>
     </div>
   </div>
+  <script src="./guide/guide.js?v=integration1"></script>
+  <script src="./guide/analyze-integration.js?v=integration1"></script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=2"></script>
 
