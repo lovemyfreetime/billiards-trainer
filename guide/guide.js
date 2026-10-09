@@ -11,7 +11,7 @@ function mount(host,options={}){
  if(!host || host.dataset.guideMounted) throw Error('Guide needs an unused host element');
  host.dataset.guideMounted='1';host.id=host.id||'bt-guide-root';
  const saved=safeLoad();
- let state=Object.assign({enabled:false,level:0,category:'explore',topicId:null,expanded:null,position:0},saved);
+ let state=Object.assign({enabled:false,level:0,category:'explore',topicId:null,expanded:null,position:0,detailsOpen:false},saved);
  let audio=new Audio();audio.preload='none';
  const topics=Array.isArray(options.topics)?options.topics:[];
  const root=document.createElement('div');host.append(root);
@@ -51,7 +51,7 @@ function mount(host,options={}){
  function render(){
   const t=selected(),available=topics.filter(x=>(x.category||'explore')===state.category&&(x.level||0)<=state.level);
   root.innerHTML='';
-  const toolbar=document.createElement('div');toolbar.className='btg-row';
+  const toolbar=document.createElement('div');toolbar.className='btg-row btg-toolbar';
   function btn(label,fn){const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',fn);toolbar.append(b);return b}
   btn(state.enabled?'Guide ON':'Guide OFF',()=>setEnabled(!state.enabled));
   if(state.enabled){
@@ -66,7 +66,7 @@ function mount(host,options={}){
    btn('More',()=>{state.expanded=state.expanded==='more'?null:'more';save();render()});
    btn('Reset',()=>{if(!confirm('Reset Guide session? The table will not change.'))return;stop();state={enabled:true,level:0,category:'explore',topicId:null,expanded:null,position:0};save();render()});
   }
-  root.append(toolbar);if(!state.enabled)return;
+  root.append(toolbar);if(!state.enabled){root.classList.remove('btg-details-open');return;}
   const cats=document.createElement('div');cats.className='btg-row btg-categories';
   for(const [id,label] of CATEGORIES){const b=document.createElement('button');b.textContent=label;b.setAttribute('aria-pressed',String(state.category===id));b.onclick=()=>{state.category=id;save();render()};cats.append(b)}root.append(cats);
   const topic=document.createElement('div');topic.className='btg-topic';
@@ -79,6 +79,13 @@ function mount(host,options={}){
   select.onchange=()=>choose(select.value||null);topic.append(select);
   if(state.expanded){const detail=document.createElement('div');detail.className='btg-expanded';detail.textContent=state.expanded==='read'?(t?.text||'No narration text assigned.'):(t?.resources?.length?t.resources.map(x=>x.title+' — '+x.url).join('\n'):'Resources will be added here.');topic.append(detail)}
   root.append(topic);
+  const toggle=document.createElement('button');toggle.type='button';toggle.className='btg-expansion-tab';
+  toggle.textContent=state.detailsOpen?'⌃':'⌄';
+  toggle.setAttribute('aria-label',state.detailsOpen?'Collapse Guide details':'Expand Guide details');
+  toggle.setAttribute('aria-expanded',String(!!state.detailsOpen));
+  toggle.addEventListener('click',()=>{state.detailsOpen=!state.detailsOpen;save();render()});
+  root.append(toggle);
+  root.classList.toggle('btg-details-open',!!state.detailsOpen);
  }
  audio.addEventListener('timeupdate',()=>{state.position=audio.currentTime;save()});
  audio.addEventListener('ended',()=>render());
