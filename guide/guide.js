@@ -30,8 +30,24 @@ function mount(host,options={}){
  function intercept(e){if(!state.enabled||state.category!=='explore'||host.contains(e.target))return;
    const el=e.target.closest('[data-guide-topic]');if(!el)return;
    e.preventDefault();e.stopImmediatePropagation();if(e.type==='click'){choose(el.dataset.guideTopic);play()}}
- // A dedicated full-page inspection shield is required before mounting into the live trainer.
- // This foundation only handles explicitly tagged targets; it must not be considered read-only protection.
+ // Capture trainer input before existing application handlers can mutate state.
+ // Guide controls remain interactive; mapped trainer controls trigger narration only.
+ const blockedEvents=['pointerdown','pointerup','click','dblclick','contextmenu','wheel',
+   'touchstart','touchmove','touchend','mousedown','mouseup','dragstart','drag','dragend',
+   'dragover','drop','input','change','keydown','keyup','keypress'];
+ function shield(e){
+   if(!state.enabled||host.contains(e.target))return;
+   // Do not block browser-level keyboard shortcuts when focus is outside the page.
+   // Prevent default browser scrolling and existing trainer shortcuts in inspection mode.
+   const target=e.target instanceof Element?e.target:null;
+   const mapped=target?.closest('[data-guide-topic]');
+   if(e.type==='click'&&mapped&&topics.some(t=>t.id===mapped.dataset.guideTopic)){
+     choose(mapped.dataset.guideTopic);play();
+   }
+   if(e.cancelable)e.preventDefault();
+   e.stopImmediatePropagation();
+ }
+ blockedEvents.forEach(name=>document.addEventListener(name,shield,{capture:true,passive:false}));
  function render(){
   const t=selected(),available=topics.filter(x=>(x.category||'explore')===state.category&&(x.level||0)<=state.level);
   root.innerHTML='';
@@ -67,9 +83,9 @@ function mount(host,options={}){
  audio.addEventListener('timeupdate',()=>{state.position=audio.currentTime;save()});
  audio.addEventListener('ended',()=>render());
  document.addEventListener('pointerover',inspectTarget,true);
- // Do not intercept live trainer events until a complete non-mutating shield is tested.
+ // Shield is enabled only when Guide is ON; validate against real trainer interactions before integration.
  render();
- return {destroy(){audio.pause();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
+ return {destroy(){audio.pause();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
 }
 global.BilliardsGuide={mount,CATEGORIES,LEVELS};
 })(window);
