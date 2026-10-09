@@ -1,3 +1,15 @@
+## RECOVERED FUNCTIONAL CHECKPOINT — AUTOPLAY PREVIEW
+
+The later working standalone `Billiards_Guide_Autoplay_Preview/Guide_Preview.html` has been recovered from prior generated artifacts alongside the original approved `Billiards_Guide_Layout_Preview.html`. Both plus the complete 253-MP3 library are preserved together in `Billiards_Guide_Approved_Layout_Autoplay_Recovery.zip` (SHA-256 `db637e04deaf0fe6fd908809f6c587c9502b598690f8dd53abe8301383fa871d`). This archive is a conversation artifact, **not** yet checked into the repository.
+
+Recovered and source-inspected: category autoplay with A toggle, six categories, previous/next navigation, play/pause/stop, 253 matching MP3 paths, 253 lesson records with transcripts and summaries, Read changes on lesson transition, More placeholder, skill slider, state persistence, green expansion tab, Analyze screenshot switch and green Analyze launcher. Original approved compact POOL UI should stay visually identical to early layout, not be replaced with later enlarged/floating overlays.
+
+Later approved Analyze-specific adaptation is separate: Guide fits fully inside blue header, beginning after title and ending immediately before green circle; details expand below. Do not apply that single-row Analyze header layout to pool-page compact three-row Guide.
+
+**Status:** Recovered preview's ZIP integrity and JS syntax verified, but real app integration and browser interactions NOT verified. The current development branch's existing Guide implementation does not yet contain the recovered 253-file preview player. Treat any claims of real trainer autoplay/mapping as pending. Preserve production `main` and the user-confirmed IMAGE/CAMERA navigation fix.
+
+---
+
 # DESIGN FREEZE — Restore the October 9 Approved Pool Guide Preview
 
 The approved visual design is the exact standalone artifact `Billiards_Guide_Layout_Preview.html` (SHA-256 `cff695780efbba4435919b79086906785dcbb2518d56cd6fab0040ef87642255`), recovered from the conversation and preserved independently as `Guide_Approved_Design_Restored.html`.
