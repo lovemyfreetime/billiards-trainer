@@ -86,6 +86,12 @@ function mount(host,options={}){
   toggle.addEventListener('click',()=>{state.detailsOpen=!state.detailsOpen;save();render()});
   root.append(toggle);
   root.classList.toggle('btg-details-open',!!state.detailsOpen);
+  // Keep the green pull tab below the expanded lesson card, never over categories.
+  if(state.detailsOpen && host.classList.contains('btg-header-mode')){
+   const alignTab=()=>{if(!toggle.isConnected)return;toggle.style.top=(topic.offsetTop+topic.offsetHeight)+'px';toggle.style.transform='translateX(-50%)'};
+   alignTab();
+   requestAnimationFrame(alignTab);
+  }
  }
  audio.addEventListener('timeupdate',()=>{state.position=audio.currentTime;save()});
  audio.addEventListener('ended',()=>render());
