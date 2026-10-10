@@ -33,7 +33,7 @@ function mount(host,options={}){
    audio.play().catch(()=>{});}
  function setEnabled(value){state.enabled=value;audio.pause();state.position=audio.currentTime||state.position;document.body.classList.toggle('btg-inspection',value);if(!value)clearHighlight();save();render()}
  function clearHighlight(){if(active){active.classList.remove('btg-highlight');active=null}}
- function inspectTarget(e){if(!state.enabled||!isActive()||state.category!=='explore'||host.contains(e.target))return;
+ function inspectTarget(e){if(!state.enabled||!isActive()||host.contains(e.target))return;
    const el=e.target.closest('[data-guide-topic]');if(el===active)return;clearHighlight();if(el&&topics.some(t=>t.id===mappedTopic(e))){active=el;active.classList.add('btg-highlight')}}
  function intercept(e){if(!state.enabled||state.category!=='explore'||host.contains(e.target))return;
    const el=e.target.closest('[data-guide-topic]');if(!el)return;
@@ -43,13 +43,20 @@ function mount(host,options={}){
  const blockedEvents=['pointerdown','pointermove','pointerup','click','dblclick','contextmenu','wheel',
    'touchstart','touchmove','touchend','mousedown','mousemove','mouseup','dragstart','drag','dragend',
    'dragover','drop','input','change','keydown','keyup','keypress'];
+ let disabledActivation=null;
  function shield(e){
    if(!state.enabled||!host.getClientRects().length||!isActive()||host.contains(e.target)||e.target.closest?.('[data-btg-allow]'))return;
    // Do not block browser-level keyboard shortcuts when focus is outside the page.
    // Prevent default browser scrolling and existing trainer shortcuts in inspection mode.
    const target=e.target instanceof Element?e.target:null;
    const topicId=mappedTopic(e);
-   if(e.type==='click'&&topics.some(t=>t.id===topicId)){
+   const disabledControl=target?.closest('button:disabled,input:disabled,select:disabled,textarea:disabled');
+   // Native disabled controls suppress click, but still expose pointer events.
+   // Narrate on pointerup without enabling or invoking the trainer control.
+   const disabledRelease=e.type==='pointerup'&&e.button===0&&disabledControl;
+   const duplicateClick=e.type==='click'&&disabledActivation&&disabledActivation.control===disabledControl&&Date.now()-disabledActivation.time<500;
+   if((disabledRelease||(e.type==='click'&&!duplicateClick))&&topics.some(t=>t.id===topicId)){
+     if(disabledRelease)disabledActivation={control:disabledControl,time:Date.now()};
      choose(topicId);play();
    }
    // Disclosure controls only change which controls are visible, so inspection
