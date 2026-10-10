@@ -13,15 +13,20 @@ function mount(host,options={}){
  const saved=safeLoad();
  let state=Object.assign({enabled:false,level:0,category:'explore',topicId:null,expanded:null,position:0,detailsOpen:false},saved);
  let audio=new Audio();audio.preload='none';
+ // A topic may reference one MP3 or an ordered sequence of existing MP3s.
+ let sequenceIndex=0;
+ function audioFiles(t){return t?(Array.isArray(t.audio)?t.audio.filter(Boolean):(t.audio?[t.audio]:[])):[]}
+ function loadSequenceTrack(t,index){const files=audioFiles(t);if(!files.length||index>=files.length)return false;
+   sequenceIndex=index;audio.src=files[index];audio.dataset.topic=t.id;audio.load();return true;}
  const topics=Array.isArray(options.topics)?options.topics:[];
  const root=document.createElement('div');host.append(root);
  let active=null;
  function save(){try{localStorage.setItem(STORE,JSON.stringify(state))}catch(_){}}
- function stop(){audio.pause();audio.currentTime=0;state.position=0;save()}
+ function stop(){audio.pause();audio.currentTime=0;sequenceIndex=0;state.position=0;save()}
  function selected(){return topics.find(t=>t.id===state.topicId)||null}
- function choose(id){audio.pause();audio.removeAttribute('src');audio.load();state.topicId=id;state.position=0;save();render()}
- function play(){const t=selected();if(!t||!t.audio)return;
-   if(!audio.getAttribute('src')||audio.dataset.topic!==t.id){audio.src=t.audio;audio.dataset.topic=t.id;audio.load();audio.addEventListener('loadedmetadata',function once(){audio.removeEventListener('loadedmetadata',once);if(state.position>0)audio.currentTime=Math.min(state.position,audio.duration||state.position)})}
+ function choose(id){audio.pause();audio.removeAttribute('src');audio.load();sequenceIndex=0;state.topicId=id;state.position=0;save();render()}
+ function play(){const t=selected();if(!audioFiles(t).length)return;
+   if(!audio.getAttribute('src')||audio.dataset.topic!==t.id)loadSequenceTrack(t,0);
    audio.play().catch(()=>{});}
  function setEnabled(value){state.enabled=value;audio.pause();state.position=audio.currentTime||state.position;document.body.classList.toggle('btg-inspection',value);if(!value)clearHighlight();save();render()}
  function clearHighlight(){if(active){active.classList.remove('btg-highlight');active=null}}
@@ -94,7 +99,7 @@ function mount(host,options={}){
   }
  }
  audio.addEventListener('timeupdate',()=>{state.position=audio.currentTime;save()});
- audio.addEventListener('ended',()=>render());
+ audio.addEventListener('ended',()=>{const t=selected();if(t&&sequenceIndex+1<audioFiles(t).length){loadSequenceTrack(t,sequenceIndex+1);audio.play().catch(()=>{});}else{sequenceIndex=0;state.position=0;save();render();}});
  document.addEventListener('pointerover',inspectTarget,true);
  // Shield is enabled only when Guide is ON; validate against real trainer interactions before integration.
  render();
