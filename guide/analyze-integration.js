@@ -12,12 +12,15 @@ function init(){
   {id:'image-choose',audio:'./guide/audio/photo-choose-image-quick.mp3',title:'Choose Image',category:'start',level:0,summary:'Load a photograph of the table.',text:'Choose Image opens a photograph for analysis.'},
   {id:'image-corners',audio:['./guide/audio/photo-auto-corners-quick.mp3','./guide/audio/photo-table-boundaries-quick.mp3'],title:'Aligning a photographed table',category:'fundamentals',level:0,summary:'Align the photograph to the table corners.',text:'Use Auto Corners and review the alignment before analyzing balls.'},
   {id:'image-balls',audio:['./guide/audio/photo-ball-detection-quick.mp3','./guide/audio/photo-verify-identities-quick.mp3'],title:'Analyze Balls',category:'fundamentals',level:0,summary:'Review the detected balls and correct mistakes.',text:'Analyze Balls identifies candidate ball positions; verify them before applying.'},
-  {id:'image-apply',audio:['./guide/audio/photo-transfer-layout-quick.mp3','./guide/audio/photo-apply-save-layout-quick.mp3'],title:'Apply to Trainer',category:'exercises',level:0,summary:'Transfer the reviewed layout to the trainer.',text:'Apply the reviewed layout when you are satisfied with its accuracy.'}
+  {id:'image-apply',audio:'./guide/audio/photo-transfer-layout-quick.mp3',title:'Apply to Trainer',category:'exercises',level:0,summary:'Transfer the reviewed layout to the trainer.',text:'Apply the reviewed layout when you are satisfied with its accuracy.'},
+  {id:'image-apply-save',audio:'./guide/audio/photo-apply-save-layout-quick.mp3',title:'Apply + Save Layout',category:'exercises',level:0,summary:'Transfer the reviewed layout and save it for practice.',text:'Apply the reviewed layout and save it under the layout name.'}
  ];
  const mapping=[
   ['photoChooseImage','image-choose'],
-  ['photoAutoCorners','image-corners'],
-  ['photoAnalyzeBalls','image-balls']
+  ['photoAutoRailsBtn','image-corners'],
+  ['photoAnalyzeNow','image-balls'],
+  ['photoApplyTable','image-apply'],
+  ['photoApplySave','image-apply-save']
  ];
  for(const [id,topic] of mapping){const el=document.getElementById(id);if(el)el.dataset.guideTopic=topic;}
  const guide=BilliardsGuide.mount(host,{topics});
