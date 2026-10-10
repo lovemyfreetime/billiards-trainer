@@ -1,0 +1,170 @@
+[
+  {
+    "filename": "photo-image-camera-section-quick.mp3",
+    "title": "Image / Camera heading",
+    "control": "Analyze: IMAGE / CAMERA heading",
+    "current_topic": "image-choose",
+    "status": "script-ready; MP3 not generated",
+    "narration": "This section is where you choose the photograph you want to analyze. Select Choose Image to load a picture of the table. For a new camera photo, return to the pool-table screen and use the camera button beside Image Camera. Include the whole playing surface and use a clear, evenly lit image."
+  },
+  {
+    "filename": "photo-table-setup-section-quick.mp3",
+    "title": "Table Setup heading",
+    "control": "Analyze: TABLE SETUP heading",
+    "current_topic": "image-corners",
+    "status": "script-ready; MP3 not generated",
+    "narration": "Table Setup turns your photograph into a usable ball layout. Start with Auto Corners and check the table alignment. Choose the rack type, then select Analyze Balls. Review the detected balls, add any missed balls, and correct their identities before applying the layout."
+  },
+  {
+    "filename": "photo-reset-corners-quick.mp3",
+    "title": "Reset Corners",
+    "control": "Analyze: photoResetCorners",
+    "current_topic": "image-corners",
+    "status": "script-ready; MP3 not generated",
+    "narration": "Reset Corners clears the table reference points and detected balls so you can align the photograph again. Move the crosshair to each inside playing-surface corner and click in order: top left, top right, bottom right, then bottom left. Analyze the balls again after the alignment is correct."
+  },
+  {
+    "filename": "photo-ai-mode-quick.mp3",
+    "title": "AI detection mode",
+    "control": "Analyze: photoAiModeBtn",
+    "current_topic": "image-ai-mode",
+    "status": "script-ready; MP3 not generated",
+    "narration": "The AI button enables or disables the trained ball detector. Ready means the models are loaded. Auto or Loading means they are preparing. Retry restarts a failed load. With AI off, Analyze Balls uses the original detector. Review the detected identities and positions before applying your layout."
+  },
+  {
+    "filename": "photo-saved-image-select-quick.mp3",
+    "title": "Saved Images dropdown",
+    "control": "Analyze: photoArchiveSelect and SAVED IMAGES heading",
+    "current_topic": "photo-saved-images-quick",
+    "status": "script-ready; MP3 not generated",
+    "narration": "Saved Images lists the photographs saved inside this app on this device. Choose the photograph you want to work with, then select Open. Choosing an entry in the list does not open it by itself."
+  },
+  {
+    "filename": "photo-open-saved-image-quick.mp3",
+    "title": "Open saved image",
+    "control": "Analyze: photoArchiveLoad",
+    "current_topic": "photo-saved-images-quick",
+    "status": "script-ready; MP3 not generated",
+    "narration": "Open loads the photograph selected in Saved Images into the analysis workspace. Check the table corners and analyze the balls again. Saved Images stores the photograph; a saved trainer layout is kept separately."
+  },
+  {
+    "filename": "photo-remove-saved-image-quick.mp3",
+    "title": "Remove saved image",
+    "control": "Analyze: photoArchiveDelete",
+    "current_topic": "photo-saved-images-quick",
+    "status": "script-ready; MP3 not generated",
+    "narration": "Remove deletes the selected photograph from the app’s saved images on this device. The button changes to Confirm Remove. Press it again to complete the removal. Copies you already downloaded remain on your device."
+  },
+  {
+    "filename": "photo-save-image-quick.mp3",
+    "title": "Save current image",
+    "control": "Analyze: photoArchiveSave",
+    "current_topic": "photo-saved-images-quick",
+    "status": "script-ready; MP3 not generated",
+    "narration": "Save keeps the current photograph inside the app on this device so you can open it again from Saved Images. The button shows Saved when the image is already stored. To save the reviewed ball arrangement as a trainer layout, use Apply and Save Layout instead."
+  },
+  {
+    "filename": "photo-download-image-quick.mp3",
+    "title": "Download current image",
+    "control": "Analyze: photoArchiveExport",
+    "current_topic": "photo-saved-images-quick",
+    "status": "script-ready; MP3 not generated",
+    "narration": "Download saves a JPEG copy of the current source photograph to your device. This gives you a separate image file you can keep or share. It does not save the detected ball arrangement as a trainer layout."
+  },
+  {
+    "filename": "photo-layout-name-quick.mp3",
+    "title": "Layout name",
+    "control": "Analyze: photoLayoutName",
+    "current_topic": "image-apply-save",
+    "status": "script-ready; MP3 not generated",
+    "narration": "Enter a descriptive name for the reviewed ball arrangement, then choose Apply and Save Layout. Use a name that helps you recognize the practice situation later, such as a bank-shot setup or a three-ball runout."
+  },
+  {
+    "filename": "explorer-mode-quick.mp3",
+    "title": "Explorer launcher",
+    "control": "Both pages: Explorer circle",
+    "current_topic": "new",
+    "status": "script-ready; MP3 not generated",
+    "narration": "Explorer is your tour of the trainer’s controls and layout. Turn it on, point to a button, field, ball, or visual reference, then click or tap to hear its explanation. While Explorer is on, those actions explain the feature without changing your setup. Turn Explorer off to use the controls normally."
+  },
+  {
+    "filename": "guide-lessons-mode-quick.mp3",
+    "title": "Guide launcher",
+    "control": "Both pages: Guide circle",
+    "current_topic": "new",
+    "status": "script-ready; MP3 not generated",
+    "narration": "Guide contains techniques, practice ideas, drills, and exercises. Choose a category and lesson, then press Play. Read shows the lesson’s narration. The trainer controls remain available while you study. For a tour of what each control does, use the separate Explorer button."
+  },
+  {
+    "filename": "get-started-launcher-quick.mp3",
+    "title": "Get Started launcher",
+    "control": "Pool page: Get Started circle",
+    "current_topic": "new",
+    "status": "script-ready; MP3 not generated",
+    "narration": "Get Started opens the introductory lesson list. Begin with the first lesson or choose the topic you need. The lessons introduce your first aiming adjustments, shot execution, and practice sequence. Use the A button if you want the next lesson to play automatically."
+  },
+  {
+    "filename": "guide-autoplay-quick.mp3",
+    "title": "Autoplay A",
+    "control": "Both Guide players: A button",
+    "current_topic": "new",
+    "status": "script-ready; MP3 not generated",
+    "narration": "The A button turns autoplay on or off. Green means on, and gray means off. With autoplay on, the next lesson in the current category and skill-level list starts after the current lesson finishes. Playback stops at the end of that list. Select a lesson and press Play to begin."
+  },
+  {
+    "filename": "photo-close-analysis-quick.mp3",
+    "title": "Close Analyze",
+    "control": "Analyze: Close X",
+    "current_topic": "new",
+    "status": "script-ready; MP3 not generated",
+    "narration": "The X closes the analysis workspace and returns you to the pool-table screen. To transfer your reviewed ball arrangement before leaving, select Apply to Trainer Table. Use Apply and Save Layout if you also want to keep that arrangement for future practice."
+  },
+  {
+    "filename": "guide-learning-pace-v2.mp3",
+    "title": "Learning at your own pace",
+    "control": "Get Started: replace guide-learning-pace-quick",
+    "current_topic": "guide-learning-pace-quick",
+    "status": "script-ready; MP3 not generated",
+    "narration": "You do not need to complete every lesson before using the trainer. Use Explorer when you want to learn a control. Open Guide for techniques and practice ideas. Experiment with shots and return to any lesson whenever it helps."
+  },
+  {
+    "filename": "guide-control-help-v2.mp3",
+    "title": "Understanding controls",
+    "control": "Get Started: replace guide-control-help-quick",
+    "current_topic": "guide-control-help-quick",
+    "status": "script-ready; MP3 not generated",
+    "narration": "When you are unsure what a control does, turn on Explorer. Point to the control and click or tap to hear its explanation. Turn Explorer off when you are ready to adjust the control and try it yourself."
+  },
+  {
+    "filename": "guide-visual-help-v2.mp3",
+    "title": "Understanding visual references",
+    "control": "Get Started: replace guide-visual-help-quick",
+    "current_topic": "guide-visual-help-quick",
+    "status": "script-ready; MP3 not generated",
+    "narration": "The trainer displays visual references for aiming, ball contact, and cue-ball movement. Turn on Explorer and click a reference to learn what it represents. Use Guide for lessons that show how to apply those ideas in practice."
+  },
+  {
+    "filename": "guide-context-help-v2.mp3",
+    "title": "Help for a specific feature",
+    "control": "Get Started: replace guide-context-help-quick",
+    "current_topic": "guide-context-help-quick",
+    "status": "script-ready; MP3 not generated",
+    "narration": "Explorer explains the feature you click, whether it is a shot-speed control, tangent line, or layout tool. Guide provides the related techniques, drills, and exercises. Choose the tool that matches what you want to learn."
+  },
+  {
+    "filename": "guide-learning-level-v2.mp3",
+    "title": "Skill level",
+    "control": "Both players: skill-level slider; replace guide-learning-level-quick",
+    "current_topic": "guide-learning-level-quick",
+    "status": "script-ready; MP3 not generated",
+    "narration": "The skill-level slider changes which lessons are available. Begin at Beginner for the introductory explanations. Move to Intermediate or Advanced to include more detailed lessons. Choose a lesson from the updated list and study it at your own pace."
+  },
+  {
+    "filename": "guide-playback-controls-v2.mp3",
+    "title": "Playback controls",
+    "control": "Both players: Stop, Play/Pause, Back, Forward; replace guide-playback-controls-quick",
+    "current_topic": "guide-playback-controls-quick",
+    "status": "script-ready; MP3 not generated",
+    "narration": "Play starts the selected lesson, and Pause holds your place. Stop returns the lesson to its beginning. Back and Forward move ten seconds through the recording. The A button turns automatic playback of the next lesson on or off. Read displays the narration text."
+  }
+]

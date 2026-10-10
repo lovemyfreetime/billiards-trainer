@@ -1380,7 +1380,7 @@
 /* Extra rail action for resizable zone markers; retain circular controls. */
 .markerRailCircle:has(button:nth-child(3)) button { font-size:clamp(7px,var(--marker-font),10px); }
 </style>
-<link rel="stylesheet" href="./guide/guide.css?v=pool-mapping1">
+<link rel="stylesheet" href="./guide/guide.css?v=explorer3">
 <style>
 /* Isolated Guide integration on Analyze page; existing trainer styling preserved. */
 .photoAnalyzerHeader{background:#205385;min-height:60px;position:relative;overflow:visible;justify-content:flex-start}
@@ -1505,7 +1505,13 @@
     <div id="toast"></div>
   </div>
   <aside id="panel">
-    <h1>Billiards Trainer<span class="editionSub">AI Camera Edition</span></h1>
+    <div class="btg-pool-title"><h1>Billiards Trainer<span class="editionSub">AI Camera Edition</span></h1>
+      <div id="btg-pool-launchers" aria-label="Learning tools">
+        <button id="btg-pool-start" class="btg-launcher" type="button" title="Get Started" aria-label="Get Started" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg></button>
+        <button id="btg-pool-guide" class="btg-launcher" type="button" title="Guide: techniques and drills" aria-label="Toggle Guide" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 8l10-5 10 5-10 5zM6 10v6c3 3 9 3 12 0v-6M22 8v9"/></svg></button>
+        <button id="btg-pool-explore" class="btg-launcher" type="button" title="Explorer: click a control to hear its explanation" aria-label="Toggle Explorer" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></button>
+      </div>
+    </div>
 
     <div class="section open">
       <button class="sectionToggle" type="button"><span>SHOT</span></button>
@@ -1731,7 +1737,8 @@
     <div class="photoAnalyzerHeader">
       <div class="btg-analyze-title"><h2>Analyze Real Pool Table</h2></div>
       <div id="bt-guide-root" class="btg-header-mode" aria-label="Interactive Trainer Guide"></div>
-      <button id="btg-analyze-launch" type="button" title="Toggle Guide" aria-label="Toggle Guide">🎓</button>
+      <button id="btg-analyze-launch" type="button" title="Toggle Guide" aria-label="Toggle Guide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 8l10-5 10 5-10 5zM6 10v6c3 3 9 3 12 0v-6M22 8v9"/></svg></button>
+      <button id="btg-analyze-explore" class="btg-launcher" type="button" title="Explorer: click a control to hear its explanation" aria-label="Toggle Explorer" aria-pressed="false" data-btg-allow="1"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></button>
       <button id="photoAnalyzerClose" type="button" title="Close">×</button>
     </div>
     <div class="photoAnalyzerToolbar">
@@ -11117,10 +11124,10 @@ if ('serviceWorker' in navigator) {
       <iframe id="btFeedbackFrame" title="Billiards Trainer feedback form" loading="lazy" scrolling="no"></iframe>
     </div>
   </div>
-  <link rel="stylesheet" href="./guide/pool-guide.css?v=pool-mapping1">
-  <script src="./guide/guide.js?v=analyze-mapping2"></script>
-  <script src="./guide/pool-integration.js?v=pool-mapping1"></script>
-  <script src="./guide/analyze-integration.js?v=analyze-mapping2"></script>
+  <link rel="stylesheet" href="./guide/pool-guide.css?v=explorer3">
+  <script src="./guide/guide.js?v=explorer3"></script>
+  <script src="./guide/pool-integration.js?v=explorer3"></script>
+  <script src="./guide/analyze-integration.js?v=explorer3"></script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=2"></script>
 

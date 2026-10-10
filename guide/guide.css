@@ -49,3 +49,19 @@ body.btg-inspection:before{content:"";position:fixed;inset:0;pointer-events:none
 .btg-root.btg-header-mode .btg-toolbar{flex-shrink:1}
 .btg-root.btg-header-mode .btg-toolbar button{min-width:23px}
 .btg-root.btg-header-mode .btg-expansion-tab{cursor:pointer}
+
+/* Explorer owns inspection; Guide and Get Started own the lesson player. */
+.btg-root[hidden]{display:none!important}
+.btg-root .btg-autoplay{background:#424950;color:#bfc7cd}
+.btg-root .btg-autoplay[aria-pressed=true]{background:#078d56;color:white;border-color:#65caa0}
+.btg-launcher{width:30px;height:30px;border-radius:50%;padding:0;display:inline-flex;align-items:center;justify-content:center;background:#303b43;color:#eef3f7;border:1px solid #7a939c;font-size:17px;cursor:pointer;flex:0 0 auto}
+.btg-launcher[aria-pressed=true],#btg-analyze-launch[aria-pressed=true]{background:#078d56;border-color:#a4e5b9}
+.btg-pool-title{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-bottom:8px}
+.btg-pool-title h1{margin:0;flex:1;min-width:0;font-size:16px}
+#btg-pool-launchers{display:flex;gap:4px;flex:0 0 auto}
+#btg-analyze-launch{margin-left:auto;background:#303b43}
+#btg-analyze-explore{width:42px;height:42px;font-size:25px;border-width:2px}
+.photoAnalyzerHeader #bt-guide-root{flex:0 1 auto;width:max-content;max-width:710px}
+.btg-root.btg-header-mode .btg-topic select{width:auto;max-width:min(320px,100%)}
+
+.btg-launcher svg,#btg-analyze-launch svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}

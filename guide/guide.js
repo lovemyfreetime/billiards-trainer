@@ -12,7 +12,10 @@ function mount(host,options={}){
  host.classList.add('btg-root');
  const STORE=options.storageKey||'billiards-guide-v1';
  const saved=safeLoad(STORE);
- let state=Object.assign({enabled:false,level:0,category:'explore',topicId:null,expanded:null,position:0,detailsOpen:false},saved);
+ let state=Object.assign({enabled:false,level:0,category:'fundamentals',topicId:null,expanded:null,position:0,detailsOpen:false,autoplay:false,exploring:false},saved);
+ state.exploring=false;
+ if(state.category==='explore')state.category='fundamentals';
+ let speech=null;
  let audio=new Audio();audio.preload='none';
  // A topic may reference one MP3 or an ordered sequence of existing MP3s.
  let sequenceIndex=0;
@@ -25,19 +28,35 @@ function mount(host,options={}){
  function isActive(){return options.isActive?options.isActive():!!host.closest('#photoAnalyzerModal')?.classList.contains('open')}
  function mappedTopic(e){const el=e.target instanceof Element?e.target.closest('[data-guide-topic]'):null;return options.resolveTopic?.(e,el)||el?.dataset.guideTopic}
  function save(){try{localStorage.setItem(STORE,JSON.stringify(state))}catch(_){}}
- function stop(){audio.pause();const t=selected();if(audioFiles(t).length)loadSequenceTrack(t,0);else audio.currentTime=0;sequenceIndex=0;state.position=0;save()}
+ function cancelSpeech(){if(speech){global.speechSynthesis?.cancel();speech=null}}
+ function stop(){cancelSpeech();audio.pause();const t=selected();if(audioFiles(t).length)loadSequenceTrack(t,0);else audio.currentTime=0;sequenceIndex=0;state.position=0;save()}
  function selected(){return topics.find(t=>t.id===state.topicId)||null}
- function choose(id){audio.pause();audio.removeAttribute('src');audio.load();sequenceIndex=0;state.topicId=id;state.position=0;save();render()}
- function play(){const t=selected();if(!audioFiles(t).length)return;
+ function choose(id){cancelSpeech();audio.pause();audio.removeAttribute('src');audio.load();sequenceIndex=0;state.topicId=id;state.position=0;save();render()}
+ function play(){let t=selected();if(!t&&state.enabled){t=availableLessons()[0];if(t)choose(t.id)}if(!t)return;
+   if(t.deviceSpeech){
+    cancelSpeech();
+    if(global.speechSynthesis&&global.SpeechSynthesisUtterance){
+     speech=new SpeechSynthesisUtterance(t.text);speech.onend=()=>{speech=null;advanceLesson();};
+     global.speechSynthesis.speak(speech);
+    }
+    return;
+   }
+   if(!audioFiles(t).length)return;
    if(!audio.getAttribute('src')||audio.dataset.topic!==t.id)loadSequenceTrack(t,0);
    audio.play().catch(()=>{});}
- function setEnabled(value){state.enabled=value;audio.pause();state.position=audio.currentTime||state.position;document.body.classList.toggle('btg-inspection',value);if(!value)clearHighlight();save();render()}
+ function syncInspection(){document.body.classList.toggle('btg-inspection',!!document.querySelector('.btg-exploring'))}
+ function setEnabled(value){cancelSpeech();audio.pause();state.enabled=!!value;if(value){state.exploring=false;if(!availableLessons().some(t=>t.id===state.topicId))state.topicId=null;}clearHighlight();save();render()}
+ function setExploring(value){cancelSpeech();audio.pause();state.exploring=!!value;if(value)state.enabled=false;clearHighlight();save();render()}
+ function openCategory(category){if(state.category!==category)state.topicId=null;state.category=category;state.detailsOpen=true;setEnabled(true)}
+ function availableLessons(){return topics.filter(x=>!x.explorerOnly&&(x.category||'explore')===state.category&&(x.level||0)<=state.level)}
+ function advanceLesson(){
+  if(!state.autoplay||!state.enabled||state.exploring){render();return;}
+  const available=availableLessons(),index=available.findIndex(t=>t.id===state.topicId);
+  if(index>=0&&index+1<available.length){choose(available[index+1].id);play();}else render();
+ }
  function clearHighlight(){if(active){active.classList.remove('btg-highlight');active=null}}
- function inspectTarget(e){if(!state.enabled||!isActive()||host.contains(e.target))return;
+ function inspectTarget(e){if(!state.exploring||!isActive()||host.contains(e.target))return;
    const el=e.target.closest('[data-guide-topic]');if(el===active)return;clearHighlight();if(el&&topics.some(t=>t.id===mappedTopic(e))){active=el;active.classList.add('btg-highlight')}}
- function intercept(e){if(!state.enabled||state.category!=='explore'||host.contains(e.target))return;
-   const el=e.target.closest('[data-guide-topic]');if(!el)return;
-   e.preventDefault();e.stopImmediatePropagation();if(e.type==='click'){choose(el.dataset.guideTopic);play()}}
  // Capture trainer input before existing application handlers can mutate state.
  // Guide controls remain interactive; mapped trainer controls trigger narration only.
  const blockedEvents=['pointerdown','pointermove','pointerup','click','dblclick','contextmenu','wheel',
@@ -45,7 +64,7 @@ function mount(host,options={}){
    'dragover','drop','input','change','keydown','keyup','keypress'];
  let disabledActivation=null;
  function shield(e){
-   if(!state.enabled||!host.getClientRects().length||!isActive()||host.contains(e.target)||e.target.closest?.('[data-btg-allow]'))return;
+   if(!state.exploring||!isActive()||host.contains(e.target)||e.target.closest?.('[data-btg-allow]'))return;
    // Do not block browser-level keyboard shortcuts when focus is outside the page.
    // Prevent default browser scrolling and existing trainer shortcuts in inspection mode.
    const target=e.target instanceof Element?e.target:null;
@@ -67,31 +86,34 @@ function mount(host,options={}){
  }
  blockedEvents.forEach(name=>document.addEventListener(name,shield,{capture:true,passive:false}));
  function render(){
-  const t=selected(),available=topics.filter(x=>((state.category==='explore'&&options.exploreTopicIds)?options.exploreTopicIds.includes(x.id):(x.category||'explore')===state.category)&&(x.level||0)<=state.level);
+  const t=selected(),available=availableLessons();
+  host.hidden=!state.enabled;host.classList.toggle('btg-exploring',!!state.exploring);syncInspection();
+  options.onStateChange?.({...state});
   root.innerHTML='';
   host.classList.toggle('btg-enabled',!!state.enabled);
   const toolbar=document.createElement('div');toolbar.className='btg-row btg-toolbar';
   function btn(label,fn){const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',fn);toolbar.append(b);return b}
-  const launcher=btn(state.enabled?'Guide ON':(options.poolMode?'🎓':'Guide OFF'),()=>setEnabled(!state.enabled));
-  launcher.setAttribute('aria-label',state.enabled?'Turn Guide off':'Turn Guide on');
   if(state.enabled){
    btn('■',()=>{stop();render()}).title='Stop';
-   btn(audio.paused?'▶':'Ⅱ',()=>{if(audio.paused)play();else audio.pause();render()}).title='Play / Pause';
+   btn(audio.paused&&!speech?'▶':'Ⅱ',()=>{if(speech)cancelSpeech();else if(audio.paused)play();else audio.pause();render()}).title='Play / Pause';
    btn('◀',()=>{audio.currentTime=Math.max(0,(audio.currentTime||0)-10)}).title='Back 10 seconds';
    btn('▶▶',()=>{audio.currentTime=Math.min(audio.duration||Infinity,(audio.currentTime||0)+10)}).title='Forward 10 seconds';
+   const autoplay=btn('A',()=>{state.autoplay=!state.autoplay;save();render()});
+   autoplay.title='Autoplay next lesson';autoplay.className='btg-autoplay';
+   autoplay.setAttribute('aria-label','Autoplay next lesson');autoplay.setAttribute('aria-pressed',String(!!state.autoplay));
    const level=document.createElement('label');level.className='btg-level';level.textContent=LEVELS[state.level];
    const range=document.createElement('input');range.type='range';range.min='0';range.max='2';range.step='1';range.value=state.level;
    range.setAttribute('aria-label','Guide skill level');range.addEventListener('input',()=>{state.level=Number(range.value);save();render()});level.append(range);toolbar.append(level);
    btn('Read',()=>{state.expanded=state.expanded==='read'?null:'read';if(state.expanded)state.detailsOpen=true;save();render()});
    btn('More',()=>{state.expanded=state.expanded==='more'?null:'more';if(state.expanded)state.detailsOpen=true;save();render()});
-   btn('Reset',()=>{if(!confirm('Reset Guide session? The table will not change.'))return;stop();state={enabled:true,level:0,category:'explore',topicId:null,expanded:null,position:0};save();render()});
+   btn('Reset',()=>{if(!confirm('Reset Guide session? The table will not change.'))return;stop();state={enabled:true,exploring:false,autoplay:false,level:0,category:'fundamentals',topicId:null,expanded:null,detailsOpen:false,position:0};save();render()});
   }
   root.append(toolbar);if(!state.enabled){root.classList.remove('btg-details-open');return;}
   const cats=document.createElement('div');cats.className='btg-row btg-categories';
-  for(const [id,label] of CATEGORIES){const b=document.createElement('button');b.textContent=label;b.setAttribute('aria-pressed',String(state.category===id));b.onclick=()=>{state.category=id;save();render()};cats.append(b)}root.append(cats);
+  for(const [id,label] of CATEGORIES.filter(([id])=>id!=='explore'&&id!=='start')){const b=document.createElement('button');b.textContent=label;b.setAttribute('aria-pressed',String(state.category===id));b.onclick=()=>{stop();state.category=id;state.topicId=null;save();render()};cats.append(b)}if(state.category!=='start')root.append(cats);
   const topic=document.createElement('div');topic.className='btg-topic';
-  const title=document.createElement('strong');title.textContent=t?.title||'Select a lesson or inspect a feature';topic.append(title);
-  const summary=document.createElement('p');summary.textContent=t?.summary||'Point to a mapped control, then click or tap to hear its explanation.';topic.append(summary);
+  const title=document.createElement('strong');title.textContent=t?.title||(state.category==='start'?'Get Started':'Select a lesson');topic.append(title);
+  const summary=document.createElement('p');summary.textContent=t?.summary||(state.category==='start'?'Choose an introductory lesson, then press Play.':'Choose a technique, practice lesson, or drill, then press Play.');topic.append(summary);
   const select=document.createElement('select');select.setAttribute('aria-label','Select Guide lesson');
   const blank=document.createElement('option');blank.value='';blank.textContent='Choose a topic';select.append(blank);
   for(const entry of available){const o=document.createElement('option');o.value=entry.id;o.textContent=entry.title;select.append(o)}
@@ -119,11 +141,11 @@ function mount(host,options={}){
  audio.addEventListener('timeupdate',()=>{state.position=audio.currentTime;save()});
  audio.addEventListener('play',render);
  audio.addEventListener('pause',render);
- audio.addEventListener('ended',()=>{const t=selected();if(t&&sequenceIndex+1<audioFiles(t).length){loadSequenceTrack(t,sequenceIndex+1);audio.play().catch(()=>{});}else{sequenceIndex=0;state.position=0;save();render();}});
+ audio.addEventListener('ended',()=>{const t=selected();if(t&&sequenceIndex+1<audioFiles(t).length){loadSequenceTrack(t,sequenceIndex+1);audio.play().catch(()=>{});}else{sequenceIndex=0;state.position=0;save();advanceLesson();}});
  document.addEventListener('pointerover',inspectTarget,true);
- // Shield is enabled only when Guide is ON; validate against real trainer interactions before integration.
+ // Explorer alone enables the inspection shield; validate against real trainer interactions before integration.
  render();
- return {setEnabled,destroy(){audio.pause();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
+ return {setEnabled,setExploring,openCategory,destroy(){cancelSpeech();audio.pause();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
 }
 global.BilliardsGuide={mount,CATEGORIES,LEVELS};
 })(window);

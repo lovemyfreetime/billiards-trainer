@@ -33,8 +33,19 @@ async function init(){
  // Elevation side views and marker visibility buttons are created by the trainer.
  const observer=new MutationObserver(mapControls);
  observer.observe(document.getElementById('app'),{childList:true,subtree:true});
+ const launchers=document.getElementById('btg-pool-launchers');
+ const guideButton=document.getElementById('btg-pool-guide');
+ const exploreButton=document.getElementById('btg-pool-explore');
+ const startButton=document.getElementById('btg-pool-start');
+ launchers.dataset.btgAllow='1';
  const ids=[...new Set([...Object.values(catalog.assignments),...Object.values(catalog.sections),...catalog.canvasTopics,catalog.powerMeterTopic])];
+ for(const topic of catalog.topics)topic.explorerOnly=topic.category==='explore'||(topic.category!=='start'&&ids.includes(topic.id));
  const guide=BilliardsGuide.mount(host,{
+  onStateChange(state){
+   guideButton.setAttribute('aria-pressed',String(state.enabled&&state.category!=='start'));
+   startButton.setAttribute('aria-pressed',String(state.enabled&&state.category==='start'));
+   exploreButton.setAttribute('aria-pressed',String(state.exploring));
+  },
   poolMode:true,storageKey:'billiards-pool-guide-v1',topics:catalog.topics,exploreTopicIds:ids,
   isActive:()=>!modal.classList.contains('open'),
   resolveTopic(event,element){
@@ -64,9 +75,12 @@ async function init(){
    return event.type==='wheel'&&!!target.closest('#panel')&&!target.closest('input,canvas');
   }
  });
- for(const id of ['analyzePhotoBtn','cameraCaptureBtn'])document.getElementById(id)?.addEventListener('click',()=>guide.setEnabled(false),true);
+ guideButton.addEventListener('click',()=>{if(guide.getState().enabled&&guide.getState().category!=='start')guide.setEnabled(false);else guide.openCategory('fundamentals')});
+ exploreButton.addEventListener('click',()=>guide.setExploring(!guide.getState().exploring));
+ startButton.addEventListener('click',()=>{if(guide.getState().enabled&&guide.getState().category==='start')guide.setEnabled(false);else guide.openCategory('start')});
+ for(const id of ['analyzePhotoBtn','cameraCaptureBtn'])document.getElementById(id)?.addEventListener('click',()=>{guide.setEnabled(false);guide.setExploring(false)},true);
  // Also pause if Analyze is opened through another trainer action.
- const modalObserver=new MutationObserver(()=>{if(modal.classList.contains('open')&&guide.getState().enabled)guide.setEnabled(false)});
+ const modalObserver=new MutationObserver(()=>{if(modal.classList.contains('open')){guide.setEnabled(false);guide.setExploring(false)}});
  modalObserver.observe(modal,{attributes:true,attributeFilter:['class']});
  window.billiardsPoolGuide=guide;
  window.billiardsPoolAudioMap=catalog;

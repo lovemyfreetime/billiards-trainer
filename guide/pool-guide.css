@@ -2,8 +2,7 @@
 #bt-guide-pool-root{position:absolute;right:14px;top:53px;width:418px;max-width:calc(100% - 28px);padding:5px;z-index:25;background:#10191bea;border:1px solid #3b5a61;border-radius:9px;box-shadow:0 0 12px #0009;font-size:11px}
 #bt-guide-pool-root .btg-row{gap:3px;margin-bottom:4px;flex-wrap:nowrap}
 #bt-guide-pool-root button{font-size:10px;padding:3px 5px;border-radius:12px;white-space:nowrap}
-#bt-guide-pool-root .btg-toolbar>button:first-child{background:#137d55;border-color:#2aa76d;font-weight:700}
-#bt-guide-pool-root .btg-toolbar>button:nth-child(n+2):nth-child(-n+5){width:24px;height:24px;padding:2px;border-radius:50%}
+#bt-guide-pool-root .btg-toolbar>button:nth-child(-n+5){width:24px;height:24px;padding:2px;border-radius:50%}
 #bt-guide-pool-root .btg-level{font-size:8px;flex-direction:column;gap:0;min-width:49px}
 #bt-guide-pool-root .btg-level input{width:49px;height:8px}
 #bt-guide-pool-root .btg-categories{display:flex;overflow-x:auto;scrollbar-width:none}
@@ -19,3 +18,8 @@
 #bt-guide-pool-root:not(.btg-enabled) .btg-toolbar>button{pointer-events:auto;width:32px;height:32px;font-size:17px;border-radius:50%;padding:0}
 #bt-guide-pool-root:not(.btg-enabled) .btg-toolbar{margin:0}
 @media(max-width:800px){#bt-guide-pool-root{right:8px;max-width:calc(100% - 16px)}#bt-guide-pool-root .btg-toolbar{gap:2px}#bt-guide-pool-root button{font-size:9px;padding:3px}#bt-guide-pool-root .btg-level{min-width:38px}#bt-guide-pool-root .btg-level input{width:38px}}
+
+#bt-guide-pool-root .btg-categories{display:flex!important}
+#bt-guide-pool-root .btg-topic{display:flex!important}
+#bt-guide-pool-root .btg-toolbar .btg-autoplay{background:#424950}
+#bt-guide-pool-root .btg-toolbar .btg-autoplay[aria-pressed=true]{background:#078d56}

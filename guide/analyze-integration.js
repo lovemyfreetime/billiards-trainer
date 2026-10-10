@@ -1,13 +1,16 @@
 /* Analyze Guide: existing recordings and approved narration transcripts. */
 (function(){
 'use strict';
-function init(){
+async function init(){
  const host=document.getElementById('bt-guide-root');
  const launcher=document.getElementById('btg-analyze-launch');
  const modal=document.getElementById('photoAnalyzerModal');
  if(!host||!launcher||!modal||!window.BilliardsGuide)return;
  launcher.dataset.btgAllow='1';
  document.getElementById('photoAnalyzerClose').dataset.btgAllow='1';
+ const explorer=document.getElementById('btg-analyze-explore');
+ explorer.dataset.btgAllow='1';
+ host.addEventListener('keydown',event=>event.stopPropagation());
  const topics=[
   {
     "id": "analysis-overview-quick",
@@ -309,7 +312,7 @@ function init(){
   "photoRackType": "photo-rack-analyze-quick",
   "photoAnalyzeNow": "image-balls",
   "photoAddMissed": "photo-add-missed-ball-quick",
-  "photoAiModeBtn": "image-balls",
+  "photoAiModeBtn": "image-ai-mode",
   "photoArchiveSelect": "photo-saved-images-quick",
   "photoArchiveLoad": "photo-saved-images-quick",
   "photoArchiveDelete": "photo-saved-images-quick",
@@ -321,6 +324,12 @@ function init(){
   "photoAnalyzerCanvas": "photo-zoom-pan-quick",
   "photoAnalyzerVideo": "photo-camera-snapshot-quick"
 };
+ topics.push({id:'image-ai-mode',title:'AI detection mode',category:'explore',level:0,audio:[],deviceSpeech:true,
+  summary:'Enable or disable the trained ball detector.',
+  text:'The AI button enables or disables the trained ball detector. Ready means the models are loaded. Auto or Loading means they are preparing. Retry restarts a failed load. With AI off, Analyze Balls uses the original detector. Review the detected identities and positions before applying your layout.'});
+ // Auto Corners already covers the reset action; keep its explanation focused.
+ const corners=topics.find(t=>t.id==='image-corners');
+ corners.audio=corners.audio.slice(0,1);corners.text=corners.text.split('\n\n')[0];
  function applyMappings(){
   for(const [id,topic] of Object.entries(assignments)){
    const el=document.getElementById(id);if(el)el.dataset.guideTopic=topic;
@@ -333,24 +342,36 @@ function init(){
    '.photoLikelyRow, .photoDetectionConfidence':'photo-ball-suggestions-advanced',
    '.photoReviewInstruction':'photo-assign-ball-quick',
    '.photoMissedBallInstruction':'photo-add-missed-ball-quick',
-   '.photoToolHeading':'photo-saved-images-quick'
+   '.photoSavedGroup .photoToolHeading':'photo-saved-images-quick',
+   '.photoSetupGroup .photoToolHeading':'image-corners',
+   '.photoToolGroup:first-child .photoToolHeading':'image-choose'
   };
   for(const [selector,topic] of Object.entries(selectors))
    modal.querySelectorAll(selector).forEach(el=>{el.dataset.guideTopic=topic;});
  }
  applyMappings();
+ topics.forEach(t=>{t.explorerOnly=true});
+ const response=await fetch('./guide/pool-audio-map.json?v=pool-mapping1');
+ if(!response.ok)throw Error('Analyze Guide lessons could not load');
+ const training=await response.json();
+ const controlTopics=new Set([...Object.values(training.assignments),...Object.values(training.sections),...training.canvasTopics,training.powerMeterTopic]);
+ topics.push(...training.topics.filter(t=>['fundamentals','physics','drills','exercises'].includes(t.category)&&!controlTopics.has(t.id)));
+ host.dataset.btgAllow='1';
  const guide=BilliardsGuide.mount(host,{
   topics,exploreTopicIds:topics.map(t=>t.id),
+  onStateChange(state){launcher.setAttribute('aria-pressed',String(state.enabled));explorer.setAttribute('aria-pressed',String(state.exploring));},
   allowNavigation(e){
    if(e.type==='keydown'&&e.key==='Tab')return true;
    return e.type==='wheel'&&!!e.target.closest('.photoReview')&&!e.target.closest('input,select,button');
   }
  });
  new MutationObserver(applyMappings).observe(document.getElementById('photoDetectionList'),{childList:true,subtree:true});
- new MutationObserver(()=>{if(!modal.classList.contains('open'))guide.setEnabled(false);}).observe(modal,{attributes:true,attributeFilter:['class']});
- launcher.addEventListener('click',()=>host.querySelector('.btg-toolbar button')?.click());
+ new MutationObserver(()=>{if(!modal.classList.contains('open')){guide.setEnabled(false);guide.setExploring(false)}}).observe(modal,{attributes:true,attributeFilter:['class']});
+ launcher.addEventListener('click',()=>guide.setEnabled(!guide.getState().enabled));
+ explorer.addEventListener('click',()=>guide.setExploring(!guide.getState().exploring));
  window.billiardsAnalyzeGuide=guide;
  window.billiardsAnalyzeAudioMap={topics,assignments};
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+function start(){init().catch(error=>console.error('Analyze Guide:',error))}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
