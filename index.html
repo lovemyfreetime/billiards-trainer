@@ -1380,7 +1380,7 @@
 /* Extra rail action for resizable zone markers; retain circular controls. */
 .markerRailCircle:has(button:nth-child(3)) button { font-size:clamp(7px,var(--marker-font),10px); }
 </style>
-<link rel="stylesheet" href="./guide/guide.css?v=integration1">
+<link rel="stylesheet" href="./guide/guide.css?v=pool-mapping1">
 <style>
 /* Isolated Guide integration on Analyze page; existing trainer styling preserved. */
 .photoAnalyzerHeader{background:#205385;min-height:60px;position:relative;overflow:visible;justify-content:flex-start}
@@ -6847,6 +6847,50 @@
         return nearestLogicalPocket(q, Math.max(S.ballR * 4.8, .135));
     }
     function pointerPos(ev) { const r = canvas.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
+    // Read-only Guide hit testing uses the trainer's actual drawing geometry.
+    // A canvas element contains many different targets, so it cannot inherit
+    // one cue-ball explanation for every ball, pocket, and trajectory.
+    window.billiardsGuideTableTopicAt = (clientX, clientY) => {
+        if (isProjector) return null;
+        const p = pointerPos({clientX, clientY}), M = controlMap(), q = M.inv(p);
+        const near = (a, pixels = 14) => { const b = M.map(a); return Math.hypot(p.x - b.x, p.y - b.y) <= pixels; };
+        const onSegment = (a, b, pixels = 4) => {
+            const x = M.map(a), y = M.map(b), dx = y.x - x.x, dy = y.y - x.y;
+            const t = clamp(((p.x-x.x)*dx+(p.y-x.y)*dy)/(dx*dx+dy*dy||1),0,1);
+            return Math.hypot(p.x-x.x-t*dx,p.y-x.y-t*dy) <= pixels;
+        };
+        if (manualPocketAt(q)) return 'pocket-targeting-quick';
+        {
+            if (S.shot2Enabled && cueVisualsVisible(2) && S.shot2 && near(S.shot2, S.ballR*M.scale)) return 'shot-two-planning-quick';
+            for (const b of S.balls.filter(b=>b.active!==false&&!b.markerHidden).slice().reverse()) {
+                if (b.id===0&&!cueVisualsVisible(1)) continue;
+                if (!b.marker) { if (near(b,S.ballR*M.scale)) return b.id===0?'cue-ball-placement-quick':'ball-placement-quick'; continue; }
+                if (b.markerShape==='square'||b.markerShape==='triangle') {
+                    const handle=markerRotationHandle(b,M.map);
+                    if (!b.markerLocked&&Math.hypot(p.x-handle.x,p.y-handle.y)<14) return 'marker-rotation-quick';
+                    const vertices=markerVerticesInTable(b).map(v=>({x:b.x+v[0]*.0254,y:b.y+v[1]*.0254}));
+                    if (!b.markerLocked&&vertices.some(v=>near(v,14))) return 'marker-resizing-quick';
+                    if (near(b,14)||vertices.some((v,i)=>onSegment(v,vertices[(i+1)%vertices.length],5))) return 'table-markers-quick';
+                } else if (near(b,(Number(b.markerDiameterIn)||6)*.0254/2*M.scale)) return 'table-markers-quick';
+            }
+        }
+        const previews=cueVisualsVisible(1)?[S.preview]:[];
+        if (S.shot2Enabled&&cueVisualsVisible(2)&&S.shot2?.preview) previews.push(S.shot2.preview);
+        if (S.showImpact) for (const preview of previews) {
+            const contact=preview?.firstBallContact;if (!contact) continue;
+            if (near(contact.cuePos,S.ballR*M.scale)) return 'ghost-ball-quick';
+            const tangent=clippedLineThroughRect(contact.cuePos,{x:-contact.normal.y,y:contact.normal.x},S.tableL,S.tableW);
+            if (tangent&&onSegment(tangent[0],tangent[1])) return 'tangent-line-quick';
+        }
+        const cb=cueBall();
+        if (cb&&cueVisualsVisible(1)&&onSegment(cb,extendedAimEnd(cb,aimDirection()))) return 'aiming-line-quick';
+        if (S.showPaths) for (const preview of previews) for (const [id,points] of Object.entries(preview?.paths||{})) {
+            if (Number(id)===0&&!cueVisualsVisible(1)&&preview===S.preview) continue;
+            for (let i=1;i<points.length;i++) if (onSegment(points[i-1],points[i])) return 'trajectory-lines-quick';
+        }
+        if (!onPlayingSurface(q)) return 'cushion-response-quick';
+        return 'table-orientation-quick';
+    };
     // Touch-only marker manipulation. Capture before normal table aiming/dragging.
     const zoneTouches = new Map();
     let zoneGesture = null;
@@ -11073,7 +11117,9 @@ if ('serviceWorker' in navigator) {
       <iframe id="btFeedbackFrame" title="Billiards Trainer feedback form" loading="lazy" scrolling="no"></iframe>
     </div>
   </div>
-  <script src="./guide/guide.js?v=integration1"></script>
+  <link rel="stylesheet" href="./guide/pool-guide.css?v=pool-mapping1">
+  <script src="./guide/guide.js?v=pool-mapping1"></script>
+  <script src="./guide/pool-integration.js?v=pool-mapping1"></script>
   <script src="./guide/analyze-integration.js?v=integration1"></script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=2"></script>

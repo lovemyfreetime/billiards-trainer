@@ -1,0 +1,2226 @@
+{
+  "source": "Billiards_Guide_Audio_Mapping_Review.xlsx; approved existing narration text",
+  "topics": [
+    {
+      "id": "aiming-line-quick",
+      "title": "Aiming line",
+      "audio": "./guide/audio/aiming-line-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "The aiming line shows the direction of your current shot. Change your aim and watch the line move across the table. Use it to explore how small adjustments change the intended contact with an object ball.",
+      "summary": "The aiming line shows the direction of your current shot."
+    },
+    {
+      "id": "ghost-ball-quick",
+      "title": "Ghost ball",
+      "audio": "./guide/audio/ghost-ball-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "The ghost ball shows the cue-ball position needed at contact to send an object ball toward the chosen pocket. Use it as an aiming reference, then adjust the shot and examine the result.",
+      "summary": "The ghost ball shows the cue-ball position needed at contact to send an object ball toward the chosen pocket."
+    },
+    {
+      "id": "tangent-line-quick",
+      "title": "Tangent line",
+      "audio": "./guide/audio/tangent-line-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "The tangent line helps you study the cue ball’s initial direction after an angled collision when it arrives sliding without forward or backward roll. Follow and draw can change the path that develops afterward.",
+      "summary": "The tangent line helps you study the cue ball’s initial direction after an angled collision when it arrives sliding without forward or backward roll."
+    },
+    {
+      "id": "diamond-grid-quick",
+      "title": "Diamond references",
+      "audio": "./guide/audio/diamond-grid-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "The diamonds around the rails provide reference points for planning bank and kick shots. Compare the route you expect with the shot simulation, then adjust the aiming point as needed.",
+      "summary": "The diamonds around the rails provide reference points for planning bank and kick shots."
+    },
+    {
+      "id": "trajectory-lines-quick",
+      "title": "Trajectory guides",
+      "audio": "./guide/audio/trajectory-lines-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Trajectory guides help you visualize possible ball paths. Change the aim, speed, or spin and notice how the ball movement changes. Use them to compare different shot choices.",
+      "summary": "Trajectory guides help you visualize possible ball paths."
+    },
+    {
+      "id": "pocket-targeting-quick",
+      "title": "Pocket targeting",
+      "audio": "./guide/audio/pocket-targeting-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "Choose the pocket you want to approach, then use the aiming references to study the required object-ball path. A different pocket can change the cut angle and the cue-ball position you create.",
+      "summary": "Choose the pocket you want to approach, then use the aiming references to study the required object-ball path."
+    },
+    {
+      "id": "table-markers-quick",
+      "title": "Table markers",
+      "audio": "./guide/audio/table-markers-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Markers let you highlight useful points and areas on the table while studying a shot. Place a marker where you want to focus your attention, then use it as a reference while you experiment.",
+      "summary": "Markers let you highlight useful points and areas on the table while studying a shot."
+    },
+    {
+      "id": "marker-resizing-quick",
+      "title": "Resizing markers",
+      "audio": "./guide/audio/marker-resizing-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "To resize a marker, hover over it and use the mouse wheel when that marker supports wheel resizing. Adjust the size until the marker highlights the area you want without covering the shot.",
+      "summary": "To resize a marker, hover over it and use the mouse wheel when that marker supports wheel resizing."
+    },
+    {
+      "id": "marker-rotation-quick",
+      "title": "Rotating markers",
+      "audio": "./guide/audio/marker-rotation-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Some marker shapes can be rotated using their corner handles. Use a handle to change the orientation so the marker matches the angle or area you want to illustrate.",
+      "summary": "Some marker shapes can be rotated using their corner handles."
+    },
+    {
+      "id": "table-orientation-quick",
+      "title": "Table orientation",
+      "audio": "./guide/audio/table-orientation-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Take a moment to identify the pockets, rails, and diamonds around the table. These references make it easier to describe shot locations and compare different routes.",
+      "summary": "Take a moment to identify the pockets, rails, and diamonds around the table."
+    },
+    {
+      "id": "navigation-overview-quick",
+      "title": "Finding your way around",
+      "audio": "./guide/audio/navigation-overview-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "The trainer brings shot controls, visual guides, layouts, image analysis, and physics settings together around the practice table. Start with the table, and open another section when you need a particular tool.",
+      "summary": "The trainer brings shot controls, visual guides, layouts, image analysis, and physics settings together around the practice table."
+    },
+    {
+      "id": "shot-controls-overview-quick",
+      "title": "Shot controls overview",
+      "audio": "./guide/audio/shot-controls-overview-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "The shot controls let you explore speed, follow, draw, English, and other aspects of the stroke. Change one setting at a time to see how it affects the result.",
+      "summary": "The shot controls let you explore speed, follow, draw, English, and other aspects of the stroke."
+    },
+    {
+      "id": "physics-calibration-overview-quick",
+      "title": "Physics and calibration overview",
+      "audio": "./guide/audio/physics-calibration-overview-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Physics and Calibration lets you explore how table and ball behavior affects a shot. Rolling friction and sliding friction are among the settings available. Adjust a parameter, repeat a shot, and compare the outcome.",
+      "summary": "Physics and Calibration lets you explore how table and ball behavior affects a shot."
+    },
+    {
+      "id": "execute-shot-quick",
+      "title": "Execute Shot",
+      "audio": "./guide/audio/execute-shot-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "When your shot is ready, select Execute Shot. The trainer simulates the active shot and shows how the balls move. If you have planned another shot, you can inspect the new position before executing again.",
+      "summary": "When your shot is ready, select Execute Shot."
+    },
+    {
+      "id": "reset-restore-overview-quick",
+      "title": "Restoring a practice arrangement",
+      "audio": "./guide/audio/reset-restore-overview-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Repeating a shot is easier when you begin from the same arrangement. Use the appropriate restore or reset option for your layout, then change one shot setting and compare the results. Check the control’s effect before using it on a layout you want to keep.",
+      "summary": "Repeating a shot is easier when you begin from the same arrangement."
+    },
+    {
+      "id": "player-turn-overview-quick",
+      "title": "Players and turns",
+      "audio": "./guide/audio/player-turn-overview-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "When working with player or turn information, use the table display to keep track of whose shot you are studying. The trainer’s main learning tools still work best when you focus on the current shot and the position it creates.",
+      "summary": "When working with player or turn information, use the table display to keep track of whose shot you are studying."
+    },
+    {
+      "id": "bank-kick-overview-quick",
+      "title": "Banks and kicks",
+      "audio": "./guide/audio/bank-kick-overview-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "In a bank shot, the object ball rebounds from a cushion on its way toward a pocket. In a kick shot, the cue ball contacts a cushion before reaching the object ball. Use the rail and diamond references to explore both routes.",
+      "summary": "In a bank shot, the object ball rebounds from a cushion on its way toward a pocket."
+    },
+    {
+      "id": "load-selected-layout-quick",
+      "title": "Load Selected",
+      "audio": "./guide/audio/load-selected-layout-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Choose a saved layout from the drop-down list, then select Load Selected. The trainer loads that arrangement so you can practice the same situation again. Save any current arrangement you want to keep before loading another one.",
+      "summary": "Choose a saved layout from the drop-down list, then select Load Selected."
+    },
+    {
+      "id": "rename-selected-layout-quick",
+      "title": "Rename Selected",
+      "audio": "./guide/audio/rename-selected-layout-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "To give a saved arrangement a more useful name, select it from the list, enter the new name, and choose Rename Selected. A clear name makes it easier to find your favorite drills later.",
+      "summary": "To give a saved arrangement a more useful name, select it from the list, enter the new name, and choose Rename Selected."
+    },
+    {
+      "id": "delete-selected-layout-quick",
+      "title": "Delete Selected",
+      "audio": "./guide/audio/delete-selected-layout-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "When you no longer need a saved arrangement, select it and choose Delete Selected. Check that you have selected the correct layout before deleting it.",
+      "summary": "When you no longer need a saved arrangement, select it and choose Delete Selected."
+    },
+    {
+      "id": "shot-one-fundamentals-quick",
+      "title": "Shot 1 fundamentals",
+      "audio": "./guide/audio/shot-one-fundamentals-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Shot 1 is the active shot you are preparing to execute. Adjust its aiming direction, speed, and spin, then study the path before selecting Execute Shot.",
+      "summary": "Shot 1 is the active shot you are preparing to execute."
+    },
+    {
+      "id": "shot-two-planning-quick",
+      "title": "Shot 2 planning",
+      "audio": "./guide/audio/shot-two-planning-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Shot 2 lets you plan the following shot before executing the current one. Position the second planned cue ball and set its aim and shot controls. You can revisit either plan before executing.",
+      "summary": "Shot 2 lets you plan the following shot before executing the current one."
+    },
+    {
+      "id": "hide-cue-ball-guides-quick",
+      "title": "Hide Cue Ball 1 and Cue Ball 2",
+      "audio": "./guide/audio/hide-cue-ball-guides-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "When planning two shots, the aiming lines and guides can overlap. Select Hide Cue Ball 1 or Hide Cue Ball 2 to temporarily clear that shot’s visual guides. This lets you focus on the other shot while making adjustments. Select Show to bring the hidden guides back.",
+      "summary": "When planning two shots, the aiming lines and guides can overlap."
+    },
+    {
+      "id": "shot-speed-controls-quick",
+      "title": "Shot speed",
+      "audio": "./guide/audio/shot-speed-controls-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Use shot speed to explore how strongly the cue ball travels. Start at a moderate speed, execute the shot, then restore the arrangement and try a small adjustment. Notice where the cue ball finishes.",
+      "summary": "Use shot speed to explore how strongly the cue ball travels."
+    },
+    {
+      "id": "shot-speed-fine-adjustment-quick",
+      "title": "Fine speed adjustment",
+      "audio": "./guide/audio/shot-speed-fine-adjustment-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "For small speed changes, use the available fine-adjustment controls. On a computer, you can also hover over the speed control and use the mouse wheel. Compare the result after each adjustment.",
+      "summary": "For small speed changes, use the available fine-adjustment controls."
+    },
+    {
+      "id": "follow-control-quick",
+      "title": "Follow",
+      "audio": "./guide/audio/follow-control-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Follow gives the cue ball forward rotation. On a suitable shot, this can carry the cue ball forward after contact. Try changing the amount of follow while keeping the starting arrangement the same.",
+      "summary": "Follow gives the cue ball forward rotation."
+    },
+    {
+      "id": "draw-control-quick",
+      "title": "Draw",
+      "audio": "./guide/audio/draw-control-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Draw gives the cue ball backspin. When enough backspin remains at contact, the cue ball can travel backward after striking the object ball. Compare different amounts of draw and shot speed.",
+      "summary": "Draw gives the cue ball backspin."
+    },
+    {
+      "id": "english-control-quick",
+      "title": "Left and right English",
+      "audio": "./guide/audio/english-control-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "English is sidespin. Adjust left or right English to explore how the cue ball responds, especially after contacting a cushion. Watch for changes in the route, not just the final stopping point.",
+      "summary": "English is sidespin."
+    },
+    {
+      "id": "shot-control-wheel-quick",
+      "title": "Mouse-wheel shot controls",
+      "audio": "./guide/audio/shot-control-wheel-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "On a computer, hover over supported speed or spin controls and use the mouse wheel for small adjustments. This can make it easier to compare nearby settings without dragging a slider.",
+      "summary": "On a computer, hover over supported speed or spin controls and use the mouse wheel for small adjustments."
+    },
+    {
+      "id": "cue-tip-position-quick",
+      "title": "Cue-tip position",
+      "audio": "./guide/audio/cue-tip-position-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "The cue-tip position helps illustrate where the cue contacts the cue ball. Explore how moving away from center relates to follow, draw, or English, and compare the resulting paths.",
+      "summary": "The cue-tip position helps illustrate where the cue contacts the cue ball."
+    },
+    {
+      "id": "lock-cue-control-quick",
+      "title": "Lock Cue",
+      "audio": "./guide/audio/lock-cue-control-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Lock Cue helps preserve your current cue orientation while you work with other settings. Use it when you want to avoid changing your aiming direction accidentally, then unlock the cue when you are ready to adjust the aim.",
+      "summary": "Lock Cue helps preserve your current cue orientation while you work with other settings."
+    },
+    {
+      "id": "cue-elevation-control-quick",
+      "title": "Cue elevation",
+      "audio": "./guide/audio/cue-elevation-control-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Cue elevation changes the angle of the cue relative to the table. Explore how higher elevation influences the shot, especially when studying jumps or mass-ay. Make small adjustments and watch the trajectory.",
+      "summary": "Cue elevation changes the angle of the cue relative to the table."
+    },
+    {
+      "id": "jump-height-quick",
+      "title": "Jump height",
+      "audio": "./guide/audio/jump-height-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "For a jump shot, examine how high the cue ball rises along its path. The maximum height is not necessarily the height at the obstacle, so check the trajectory where the obstacle actually sits.",
+      "summary": "For a jump shot, examine how high the cue ball rises along its path."
+    },
+    {
+      "id": "jump-obstacle-clearance-quick",
+      "title": "Obstacle clearance",
+      "audio": "./guide/audio/jump-obstacle-clearance-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "When attempting to jump an obstructing ball, examine the cue-ball path at the obstacle’s location. A shot clears the obstacle only if the cue ball is high enough at that point, not simply because it reaches a high point elsewhere.",
+      "summary": "When attempting to jump an obstructing ball, examine the cue-ball path at the obstacle’s location."
+    },
+    {
+      "id": "jump-landing-point-quick",
+      "title": "Landing point",
+      "audio": "./guide/audio/jump-landing-point-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "The predicted landing point shows where the airborne cue ball returns to the cloth. Compare landing position as you change elevation and speed, then consider how the cue ball may continue moving after it lands.",
+      "summary": "The predicted landing point shows where the airborne cue ball returns to the cloth."
+    },
+    {
+      "id": "masse-shot-controls-quick",
+      "title": "Massé shot controls",
+      "audio": "./guide/audio/masse-shot-controls-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "A mass-ay shot uses cue elevation and off-center spin to create a curved cue-ball path. Explore the curve by changing one setting at a time, and compare it with a cushion route around the same obstacle.",
+      "summary": "A mass-ay shot uses cue elevation and off-center spin to create a curved cue-ball path."
+    },
+    {
+      "id": "execute-shot-sequence-quick",
+      "title": "Execute Shot one at a time",
+      "audio": "./guide/audio/execute-shot-sequence-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Select Execute Shot to simulate the active shot. If you have planned Shot 2, the trainer advances to that next planned cue ball after the current shot. Inspect the position before selecting Execute Shot again.",
+      "summary": "Select Execute Shot to simulate the active shot."
+    },
+    {
+      "id": "shot-two-leapfrog-quick",
+      "title": "Continue planning beyond two shots",
+      "audio": "./guide/audio/shot-two-leapfrog-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "After your planned Shot 2 becomes the active cue ball, you can add another Shot 2 before continuing. Repeat this process to plan an entire runout, executing one shot at a time.",
+      "summary": "After your planned Shot 2 becomes the active cue ball, you can add another Shot 2 before continuing."
+    },
+    {
+      "id": "shot-controls-undo-revise-quick",
+      "title": "Undo and revise",
+      "audio": "./guide/audio/shot-controls-undo-revise-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "If a shot creates a difficult position, use Undo Last Shot to return to an earlier decision. Adjust the aim, speed, or spin, then execute again to explore a better outcome. You can step backward through a full rack.",
+      "summary": "If a shot creates a difficult position, use Undo Last Shot to return to an earlier decision."
+    },
+    {
+      "id": "shot-value-entry-quick",
+      "title": "Three ways to adjust shot values",
+      "audio": "./guide/audio/shot-value-entry-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Adjust shot speed, follow and draw, or left and right spin by moving the slider, tapping the minus or plus buttons, or selecting the number box and typing an exact value. Exact values make it easy to repeat a shot and compare results.",
+      "summary": "Adjust shot speed, follow and draw, or left and right spin by moving the slider, tapping the minus or plus buttons, or selecting the number box and typing an exact value."
+    },
+    {
+      "id": "cue-ball-diagram-direct-tip-quick",
+      "title": "Direct cue-tip contact",
+      "audio": "./guide/audio/cue-ball-diagram-direct-tip-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "The cue-ball diagram is interactive. Click or touch the ball to position the red cue-tip contact marker. Move above center for follow, below center for draw, or to either side for English. Combine directions to explore different spin settings.",
+      "summary": "The cue-ball diagram is interactive."
+    },
+    {
+      "id": "cue-ball-pocket-power-meters-quick",
+      "title": "C and P power meters",
+      "audio": "./guide/audio/cue-ball-pocket-power-meters-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "The two meters beside the cue-ball diagram show power along the shot. C is the cue ball’s power reaching the object ball. P is the object ball’s power toward the pocket. The white horizontal line marks the power needed at each stage. If a meter is well below that line, the shot may not have enough power to reach its intended destination.",
+      "summary": "The two meters beside the cue-ball diagram show power along the shot."
+    },
+    {
+      "id": "exercise-cue-pocket-threshold",
+      "title": "Power meter",
+      "audio": "./guide/audio/exercise-cue-pocket-threshold.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Set up a straight shot and gradually reduce shot speed until one power meter falls below the white line. Increase speed a little at a time and watch the C and P readings. Find a speed that supplies enough power while keeping the cue ball under control.",
+      "summary": "Set up a straight shot and gradually reduce shot speed until one power meter falls below the white line."
+    },
+    {
+      "id": "jump-masse-open-controls-quick",
+      "title": "Opening 3D jump and massé controls",
+      "audio": "./guide/audio/jump-masse-open-controls-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Select 3D Jump / mass-ay Features to open the cue-elevation controls and side-view diagram. Adjust the cue angle with the slider, minus or plus buttons, or by entering a number directly. The side view shows the cue stick, red tip-contact point, and gold ball center.",
+      "summary": "Select 3D Jump / mass-ay Features to open the cue-elevation controls and side-view diagram."
+    },
+    {
+      "id": "jump-masse-elevation-technique-advanced",
+      "title": "Cue elevation for advanced shots",
+      "audio": "./guide/audio/jump-masse-elevation-technique-advanced.mp3",
+      "category": "physics",
+      "level": 2,
+      "text": "Ordinary strokes use a cue close to level. Jump and mass-ay shots use considerably greater elevation. For a jump, explore elevation and speed to lift the cue ball over an obstacle. For mass-ay, combine elevation and off-center tip contact to bend the cue-ball path. Use the side view together with the overhead route.",
+      "summary": "Ordinary strokes use a cue close to level."
+    },
+    {
+      "id": "contact-point-geometry-quick",
+      "title": "Contact point",
+      "audio": "./guide/audio/contact-point-geometry-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "The contact point is where the cue ball touches the object ball. Changing that point changes the direction the object ball travels. Use the visual guides to compare the contact point with the pocket you want to reach.",
+      "summary": "The contact point is where the cue ball touches the object ball."
+    },
+    {
+      "id": "cut-angle-geometry-quick",
+      "title": "Cut angle",
+      "audio": "./guide/audio/cut-angle-geometry-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "A cut shot sends the object ball away from the cue ball’s incoming direction. As the cut becomes thinner, the required contact point moves farther toward the edge of the object ball. Compare several angles and observe the change.",
+      "summary": "A cut shot sends the object ball away from the cue ball’s incoming direction."
+    },
+    {
+      "id": "ball-overlap-quick",
+      "title": "Ball overlap",
+      "audio": "./guide/audio/ball-overlap-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "Ball overlap describes how much of the object ball the cue ball covers along the aiming line. A fuller hit has more overlap, while a thinner cut has less. Use overlap as another way to understand the contact angle.",
+      "summary": "Ball overlap describes how much of the object ball the cue ball covers along the aiming line."
+    },
+    {
+      "id": "ghost-ball-geometry-quick",
+      "title": "Ghost-ball position",
+      "audio": "./guide/audio/ghost-ball-geometry-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "Imagine the cue ball at the instant it contacts the object ball. The ghost-ball guide shows that position. For balls of equal size, the centers are one ball diameter apart at contact. Aim through that position to study the intended object-ball path.",
+      "summary": "Imagine the cue ball at the instant it contacts the object ball."
+    },
+    {
+      "id": "collision-line-quick",
+      "title": "Collision line",
+      "audio": "./guide/audio/collision-line-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "The collision line connects the centers of the two balls at impact. For an ideal collision, the object ball initially moves along this line. Use it to see why even a small change in contact position can change the shot.",
+      "summary": "The collision line connects the centers of the two balls at impact."
+    },
+    {
+      "id": "tangent-line-geometry-quick",
+      "title": "The tangent line",
+      "audio": "./guide/audio/tangent-line-geometry-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "For a cut shot with a sliding cue ball, the cue ball initially leaves the collision close to a line perpendicular to the object ball’s path. This is the tangent line. Follow and draw can bend the cue ball away from that initial direction.",
+      "summary": "For a cut shot with a sliding cue ball, the cue ball initially leaves the collision close to a line perpendicular to the object ball’s path."
+    },
+    {
+      "id": "ninety-degree-rule-quick",
+      "title": "The ninety-degree rule",
+      "audio": "./guide/audio/ninety-degree-rule-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "The ninety-degree rule is a useful guide for a stun cut shot. Immediately after impact, the cue ball and object ball tend to separate along directions close to a right angle. Real shots can vary with spin, friction, and collision conditions.",
+      "summary": "The ninety-degree rule is a useful guide for a stun cut shot."
+    },
+    {
+      "id": "thirty-degree-rule-quick",
+      "title": "The thirty-degree rule",
+      "audio": "./guide/audio/thirty-degree-rule-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "When the cue ball is rolling naturally into many ordinary cut shots, it often travels forward at an angle near thirty degrees from its original path after contact. Use this as a practical reference while comparing different cut angles.",
+      "summary": "When the cue ball is rolling naturally into many ordinary cut shots, it often travels forward at an angle near thirty degrees from its original path after contact."
+    },
+    {
+      "id": "bank-shot-geometry-quick",
+      "title": "Bank-shot geometry",
+      "audio": "./guide/audio/bank-shot-geometry-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "A bank shot sends the object ball to a cushion before it reaches a pocket. Start by identifying the intended rail contact point, then compare the incoming and outgoing paths. Speed, spin, and cushion response can change the rebound.",
+      "summary": "A bank shot sends the object ball to a cushion before it reaches a pocket."
+    },
+    {
+      "id": "kick-shot-geometry-quick",
+      "title": "Kick-shot geometry",
+      "audio": "./guide/audio/kick-shot-geometry-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "A kick shot sends the cue ball into a cushion before contacting an object ball. Study the cue ball’s route to the rail and its route away from the rail. Use the diamond references to help estimate where to aim.",
+      "summary": "A kick shot sends the cue ball into a cushion before contacting an object ball."
+    },
+    {
+      "id": "incidence-reflection-quick",
+      "title": "Angle of incidence and reflection",
+      "audio": "./guide/audio/incidence-reflection-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "A simple starting point for cushion shots is to compare the incoming angle with the outgoing angle. Speed, spin, and cushion response all influence the outgoing angle.",
+      "summary": "A simple starting point for cushion shots is to compare the incoming angle with the outgoing angle."
+    },
+    {
+      "id": "diamond-system-geometry-quick",
+      "title": "Diamond references",
+      "audio": "./guide/audio/diamond-system-geometry-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "The diamonds along the rails provide repeatable reference points for planning banks and kicks. Use them to compare aiming lines and rail contact points. With practice, they can help you recognize useful routes across the table.",
+      "summary": "The diamonds along the rails provide repeatable reference points for planning banks and kicks."
+    },
+    {
+      "id": "mirror-aiming-quick",
+      "title": "Mirror aiming",
+      "audio": "./guide/audio/mirror-aiming-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "One way to visualize a simple bank is to imagine the target reflected across the cushion. Draw a line toward that reflected target to estimate a rail contact point. Then use the trainer to see how the cushion changes the actual path.",
+      "summary": "One way to visualize a simple bank is to imagine the target reflected across the cushion."
+    },
+    {
+      "id": "rail-contact-point-quick",
+      "title": "Choosing the rail contact point",
+      "audio": "./guide/audio/rail-contact-point-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "For a bank or kick, identify where the moving ball should meet the cushion. Adjust the aim and execute the shot, then compare the actual rebound with your intended route. Small changes at the rail can create large differences farther down the table.",
+      "summary": "For a bank or kick, identify where the moving ball should meet the cushion."
+    },
+    {
+      "id": "cushion-response-geometry-quick",
+      "title": "Cushion response",
+      "audio": "./guide/audio/cushion-response-geometry-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "A cushion changes a ball’s direction and speed. The rebound depends on how the ball arrives, including its speed and rotation. Compare otherwise similar shots at different speeds to see how the outgoing path changes.",
+      "summary": "A cushion changes a ball’s direction and speed."
+    },
+    {
+      "id": "rail-english-geometry-quick",
+      "title": "English off a cushion",
+      "audio": "./guide/audio/rail-english-geometry-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "Left or right English can change how the cue ball rebounds from a cushion. Set up the same rail shot without sidespin, then repeat it with left and right English. Compare the outgoing paths rather than assuming every rail behaves the same.",
+      "summary": "Left or right English can change how the cue ball rebounds from a cushion."
+    },
+    {
+      "id": "multiple-rail-routes-quick",
+      "title": "Multiple-rail routes",
+      "audio": "./guide/audio/multiple-rail-routes-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "Some shots use two or more cushions to reach a target. Break the route into individual rail contacts and study each change in direction. Start with a simple two-rail path before experimenting with more complicated routes.",
+      "summary": "Some shots use two or more cushions to reach a target."
+    },
+    {
+      "id": "exercise-geometry-route-comparison",
+      "title": "Geometry practice challenge",
+      "audio": "./guide/audio/exercise-geometry-route-comparison.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Set up an object ball with a clear pocketing route. First study a direct shot, then arrange a bank shot and a kick shot to reach a target. Compare the aiming references and cushion paths. Restore the layout between attempts so the differences are easier to observe.",
+      "summary": "Set up an object ball with a clear pocketing route."
+    },
+    {
+      "id": "compass-tool-intro-quick",
+      "title": "Compass tool — introduction",
+      "audio": "./guide/audio/compass-tool-intro-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "The compass is a visual reference you can place over the table to study directions and angles. Open it from the circular icon along the top toolbar. Use the compass to compare possible lines without changing the actual shot setup.",
+      "summary": "The compass is a visual reference you can place over the table to study directions and angles."
+    },
+    {
+      "id": "compass-rotate-size-quick",
+      "title": "Compass tool — rotate and resize",
+      "audio": "./guide/audio/compass-rotate-size-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "With the compass visible, use Rotate to change its orientation and Size to change the diameter of the reference circle. Adjust the guide until it lines up with the route or angle you want to examine.",
+      "summary": "With the compass visible, use Rotate to change its orientation and Size to change the diameter of the reference circle."
+    },
+    {
+      "id": "compass-reference-advanced",
+      "title": "Compass tool — advanced note",
+      "audio": "./guide/audio/compass-reference-advanced.mp3",
+      "category": "explore",
+      "level": 2,
+      "text": "The compass provides a geometric overlay for comparing directions and angles. It provides an adjustable geometric reference. Check the shot trajectory and Live Stats separately when you need the trainer's calculated result.",
+      "summary": "The compass provides a geometric overlay for comparing directions and angles."
+    },
+    {
+      "id": "ball-placement-quick",
+      "title": "Placing and moving balls",
+      "audio": "./guide/audio/ball-placement-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Place a ball on the table and move it to create the shot you want to study. Small changes in ball position can produce very different aiming angles and cue-ball routes. Try adjusting one ball at a time so you can see what changes.",
+      "summary": "Place a ball on the table and move it to create the shot you want to study."
+    },
+    {
+      "id": "cue-ball-placement-quick",
+      "title": "Positioning the cue ball",
+      "audio": "./guide/audio/cue-ball-placement-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "Move the cue ball to choose your starting position. Notice how the aiming line and available shots change as you reposition it. Try several starting points before deciding which shot to practice.",
+      "summary": "Move the cue ball to choose your starting position."
+    },
+    {
+      "id": "add-object-ball-quick",
+      "title": "Adding an object ball",
+      "audio": "./guide/audio/add-object-ball-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Add an object ball to build a practice layout. Start with one target, then add more balls to create a sequence. You can use these arrangements to practice both pocketing and cue-ball position.",
+      "summary": "Add an object ball to build a practice layout."
+    },
+    {
+      "id": "remove-ball-layout-quick",
+      "title": "Removing a ball",
+      "audio": "./guide/audio/remove-ball-layout-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Remove a ball when you want to simplify a layout or change the problem you are studying. Compare the table before and after the change to see which shot routes become available.",
+      "summary": "Remove a ball when you want to simplify a layout or change the problem you are studying."
+    },
+    {
+      "id": "practice-layout-quick",
+      "title": "Creating a simple practice layout",
+      "audio": "./guide/audio/practice-layout-quick.mp3",
+      "category": "drills",
+      "level": 0,
+      "text": "Begin with the cue ball and one object ball. Choose a pocket, adjust their positions, and execute the shot. Once that feels comfortable, add a second object ball and plan where the cue ball should finish.",
+      "summary": "Begin with the cue ball and one object ball."
+    },
+    {
+      "id": "random-layouts-quick",
+      "title": "Random ball arrangements",
+      "audio": "./guide/audio/random-layouts-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "A random arrangement gives you a fresh table to study. Examine the positions before shooting and identify a practical opening shot. Use the layout to practice adapting your plan instead of repeating the same pattern.",
+      "summary": "A random arrangement gives you a fresh table to study."
+    },
+    {
+      "id": "three-ball-layout-quick",
+      "title": "Three-ball practice",
+      "audio": "./guide/audio/three-ball-layout-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "A three-ball layout is a useful starting point for runout planning. Decide the order of your shots, plan the first two positions, and extend the sequence as you go. Review the results and try a different pattern if needed.",
+      "summary": "A three-ball layout is a useful starting point for runout planning."
+    },
+    {
+      "id": "eight-ball-layout-quick",
+      "title": "Eight-ball rack practice",
+      "audio": "./guide/audio/eight-ball-layout-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Use an eight-ball rack to explore patterns and position play. As the table opens up, think about which balls are easy to reach and which may become problems later. Plan within the rules of the game you are practicing.",
+      "summary": "Use an eight-ball rack to explore patterns and position play."
+    },
+    {
+      "id": "nine-ball-layout-quick",
+      "title": "Nine-ball rack practice",
+      "audio": "./guide/audio/nine-ball-layout-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Use a nine-ball rack to practice connecting shots in the required ball order. Before each shot, think about the angle you need on the next ball. A successful shot should also help prepare the next one.",
+      "summary": "Use a nine-ball rack to practice connecting shots in the required ball order."
+    },
+    {
+      "id": "ten-ball-layout-quick",
+      "title": "Ten-ball rack practice",
+      "audio": "./guide/audio/ten-ball-layout-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "A ten-ball rack gives you another way to practice ordered runouts. Study the remaining balls, plan your next cue-ball position, and use Shot 2 to extend the sequence as you execute each shot.",
+      "summary": "A ten-ball rack gives you another way to practice ordered runouts."
+    },
+    {
+      "id": "pocketed-balls-layout-quick",
+      "title": "Pocketed-ball tracking",
+      "audio": "./guide/audio/pocketed-balls-layout-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "As balls are pocketed, the table changes. Watch which balls remain available and adjust your plan to fit the new arrangement. The important question is not only which ball went in, but what opportunity the shot created.",
+      "summary": "As balls are pocketed, the table changes."
+    },
+    {
+      "id": "restore-layout-practice-quick",
+      "title": "Restoring a practice arrangement",
+      "audio": "./guide/audio/restore-layout-practice-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "To compare two approaches fairly, begin each attempt from the same ball positions. Restore the arrangement using the appropriate layout controls, then change just one setting such as speed, spin, or aim. Compare the outcomes.",
+      "summary": "To compare two approaches fairly, begin each attempt from the same ball positions."
+    },
+    {
+      "id": "save-layout-concept-quick",
+      "title": "Saving a useful layout",
+      "audio": "./guide/audio/save-layout-concept-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "When you create a useful practice arrangement, keeping a copy makes it easier to revisit the same challenge. Check the available layout controls before saving or restoring your work so you do not unintentionally replace the arrangement you want to keep.",
+      "summary": "When you create a useful practice arrangement, keeping a copy makes it easier to revisit the same challenge."
+    },
+    {
+      "id": "repeat-layout-shot-quick",
+      "title": "Repeating a shot",
+      "audio": "./guide/audio/repeat-layout-shot-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Repeating the same shot is one of the fastest ways to understand it. Return the balls to the same positions, execute the shot, and study the result. Then adjust one variable and compare the next attempt.",
+      "summary": "Repeating the same shot is one of the fastest ways to understand it."
+    },
+    {
+      "id": "reset-layout-concept-quick",
+      "title": "Resetting a practice session",
+      "audio": "./guide/audio/reset-layout-concept-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "When you are ready to begin a new exercise, use the appropriate table controls to return to a known starting arrangement. Before resetting, make sure there is nothing in your current layout you still want to revisit.",
+      "summary": "When you are ready to begin a new exercise, use the appropriate table controls to return to a known starting arrangement."
+    },
+    {
+      "id": "build-runout-layout-quick",
+      "title": "Building a runout layout",
+      "audio": "./guide/audio/build-runout-layout-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Arrange several object balls and choose a realistic order to pocket them. Plan Shot 1 and Shot 2, execute the active shot, and add another Shot 2 to continue. Use Undo Last Shot whenever you want to revisit an earlier position.",
+      "summary": "Arrange several object balls and choose a realistic order to pocket them."
+    },
+    {
+      "id": "exercise-change-one-ball",
+      "title": "Exercise: change one ball",
+      "audio": "./guide/audio/exercise-change-one-ball.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Set up a simple cut shot and execute it. Restore the starting arrangement, then move the object ball slightly while keeping the cue ball in place. Adjust your aim and execute again. Notice how the contact point and required cut angle change.",
+      "summary": "Set up a simple cut shot and execute it."
+    },
+    {
+      "id": "exercise-layout-runout-review",
+      "title": "Exercise: build and review a rack",
+      "audio": "./guide/audio/exercise-layout-runout-review.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Choose a rack or create a multi-ball layout. Work through your planned sequence, extending Shot 2 as you go. When you finish, use Undo Last Shot to move backward through the rack and identify one positional decision you could improve.",
+      "summary": "Choose a rack or create a multi-ball layout."
+    },
+    {
+      "id": "save-recall-layout-intro-quick",
+      "title": "Save / Recall Layout — introduction",
+      "audio": "./guide/audio/save-recall-layout-intro-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Use Save / Recall Layout when you want to keep a useful table arrangement and return to it later. Open the layout window from the grid-style icon at the top of the table. You can name an arrangement, save it, and choose a previously saved layout from the list.",
+      "summary": "Use Save / Recall Layout when you want to keep a useful table arrangement and return to it later."
+    },
+    {
+      "id": "save-current-layout-quick",
+      "title": "Save Current",
+      "audio": "./guide/audio/save-current-layout-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Arrange the balls the way you want to practice, enter a descriptive name, and select Save Current. This gives you a layout you can return to for repeated attempts.",
+      "summary": "Arrange the balls the way you want to practice, enter a descriptive name, and select Save Current."
+    },
+    {
+      "id": "exercise-save-recall-layout",
+      "title": "— save, change, and recall",
+      "audio": "./guide/audio/exercise-save-recall-layout.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Set up a simple shot and save the layout with a name you will recognize. Move one of the balls to create a different shot. Now open Save / Recall Layout, select your saved arrangement, and load it. Compare the restored setup with your original practice shot.",
+      "summary": "Set up a simple shot and save the layout with a name you will recognize."
+    },
+    {
+      "id": "table-balls-saved-layouts-quick",
+      "title": "Saved Ball Layouts inside Table / Balls",
+      "audio": "./guide/audio/table-balls-saved-layouts-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Open Table / Balls and find Saved Ball Layouts. Enter a descriptive name to save the current arrangement, or choose a saved layout to recall it for another practice attempt. The saved-layout controls let you manage your collection of practice setups.",
+      "summary": "Open Table / Balls and find Saved Ball Layouts."
+    },
+    {
+      "id": "table-balls-recall-layout-quick",
+      "title": "Recalling a saved ball layout",
+      "audio": "./guide/audio/table-balls-recall-layout-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Choose the arrangement you want from Saved Ball Layouts and recall it to restore the saved ball positions and table dimensions. Loading a saved arrangement starts a fresh shot sequence, so save any current setup you want to keep first.",
+      "summary": "Choose the arrangement you want from Saved Ball Layouts and recall it to restore the saved ball positions and table dimensions."
+    },
+    {
+      "id": "table-balls-controls-overview-quick",
+      "title": "Ball and marker controls overview",
+      "audio": "./guide/audio/table-balls-controls-overview-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Use Table / Balls to set up the practice table. Choose ball numbers, add or remove balls, select a rack or random arrangement, and place markers to highlight important positions. Marker shapes include circles, squares, and triangles, with controls to adjust their size and orientation.",
+      "summary": "Use Table / Balls to set up the practice table."
+    },
+    {
+      "id": "exercise-table-speed",
+      "title": "Table Speed",
+      "audio": "./guide/audio/exercise-table-speed.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Position the cue ball with an unobstructed path. Choose a moderate shot speed and execute the shot. Observe how far the ball travels before stopping. Restore the starting position, then open Physics & Calibration and adjust the rolling friction setting. Execute Shot again using the same speed. Compare the distances and notice how rolling friction influences table speed.",
+      "summary": "Position the cue ball with an unobstructed path."
+    },
+    {
+      "id": "physics-calibration-intro-quick",
+      "title": "Physics and Calibration overview",
+      "audio": "./guide/audio/physics-calibration-intro-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Physics & Calibration starts with carefully tested defaults that work well right out of the box. You can practice without changing anything. Advanced controls are there when you want to fine-tune a particular table or study the physics in more detail.",
+      "summary": "Physics & Calibration starts with carefully tested defaults that work well right out of the box."
+    },
+    {
+      "id": "calibration-expectations-advanced",
+      "title": "What calibration can and cannot do",
+      "audio": "./guide/audio/calibration-expectations-advanced.mp3",
+      "category": "physics",
+      "level": 2,
+      "text": "The default calibration settings have been carefully tested and are ready for practice. Advanced calibration is available when you want to explore individual physical settings or fine-tune the trainer for a particular table.",
+      "summary": "The default calibration settings have been carefully tested and are ready for practice."
+    },
+    {
+      "id": "rolling-friction-quick",
+      "title": "Rolling friction and table speed",
+      "audio": "./guide/audio/rolling-friction-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Rolling friction influences how quickly a rolling ball slows down. Lower rolling resistance generally allows the ball to travel farther. Higher rolling resistance generally shortens its travel. Compare identical shots after each adjustment.",
+      "summary": "Rolling friction influences how quickly a rolling ball slows down."
+    },
+    {
+      "id": "sliding-friction-quick",
+      "title": "Sliding friction",
+      "audio": "./guide/audio/sliding-friction-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Sliding friction affects how a ball changes from sliding to rolling. It also influences how long backspin or forward spin persists while the cue ball travels. Compare stop, follow, and draw shots to see the difference.",
+      "summary": "Sliding friction affects how a ball changes from sliding to rolling."
+    },
+    {
+      "id": "rolling-sliding-comparison-advanced",
+      "title": "Rolling versus sliding",
+      "audio": "./guide/audio/rolling-sliding-comparison-advanced.mp3",
+      "category": "explore",
+      "level": 2,
+      "text": "A cue ball may initially skid across the cloth before reaching natural roll. Sliding friction governs the interaction during that transition, while rolling resistance influences its later slowdown. The two settings affect different parts of the same shot.",
+      "summary": "A cue ball may initially skid across the cloth before reaching natural roll."
+    },
+    {
+      "id": "natural-roll-quick",
+      "title": "Natural roll",
+      "audio": "./guide/audio/natural-roll-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Natural roll occurs when the cue ball rotates forward at a rate that matches its movement across the cloth. Watch the cue ball after a moderate shot and notice how its travel changes as it settles into rolling motion.",
+      "summary": "Natural roll occurs when the cue ball rotates forward at a rate that matches its movement across the cloth."
+    },
+    {
+      "id": "physics-shot-speed-quick",
+      "title": "Shot speed and distance",
+      "audio": "./guide/audio/physics-shot-speed-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Shot speed determines how much motion you give the cue ball. Use the same layout and change only the speed control. Execute Shot after each adjustment and compare both the cue ball and object ball travel.",
+      "summary": "Shot speed determines how much motion you give the cue ball."
+    },
+    {
+      "id": "ball-collision-quick",
+      "title": "Cue ball collisions",
+      "audio": "./guide/audio/ball-collision-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "When the cue ball strikes an object ball, the collision changes the direction and speed of both balls. The contact point matters: a full hit behaves differently from a thin cut. Use the guides to compare their paths.",
+      "summary": "When the cue ball strikes an object ball, the collision changes the direction and speed of both balls."
+    },
+    {
+      "id": "collision-restitution-advanced",
+      "title": "Collision energy and restitution",
+      "audio": "./guide/audio/collision-restitution-advanced.mp3",
+      "category": "physics",
+      "level": 2,
+      "text": "Ball collisions do not transfer energy perfectly. Restitution describes how strongly balls separate after contact. Small changes in collision behavior can affect object-ball travel and the cue ball’s remaining speed.",
+      "summary": "Ball collisions do not transfer energy perfectly."
+    },
+    {
+      "id": "physics-follow-quick",
+      "title": "Follow through contact",
+      "audio": "./guide/audio/physics-follow-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Forward rotation can carry the cue ball beyond the contact point after it strikes an object ball. Try a straight shot with moderate follow, then compare it with the same shot using less forward rotation.",
+      "summary": "Forward rotation can carry the cue ball beyond the contact point after it strikes an object ball."
+    },
+    {
+      "id": "physics-draw-quick",
+      "title": "Draw through contact",
+      "audio": "./guide/audio/physics-draw-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Backspin can make the cue ball return after contact, especially on a nearly straight shot. Repeat the same layout while adjusting draw and speed. Watch whether the cue ball still has backspin when it reaches the object ball.",
+      "summary": "Backspin can make the cue ball return after contact, especially on a nearly straight shot."
+    },
+    {
+      "id": "physics-stun-quick",
+      "title": "Stop and stun",
+      "audio": "./guide/audio/physics-stun-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "A stun shot reaches the object ball while the cue ball is sliding, with little forward or backward rotation. On a straight, full hit, this can produce a stop shot. On a cut, the cue ball initially follows the tangent line.",
+      "summary": "A stun shot reaches the object ball while the cue ball is sliding, with little forward or backward rotation."
+    },
+    {
+      "id": "physics-english-quick",
+      "title": "Side spin or English",
+      "audio": "./guide/audio/physics-english-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Left and right English change how the cue ball interacts with cushions and can influence its route after contact. Compare shots with no English, then left English, then right English, keeping other settings the same.",
+      "summary": "Left and right English change how the cue ball interacts with cushions and can influence its route after contact."
+    },
+    {
+      "id": "spin-transfer-advanced",
+      "title": "Spin transfer",
+      "audio": "./guide/audio/spin-transfer-advanced.mp3",
+      "category": "physics",
+      "level": 2,
+      "text": "Friction at ball-to-ball contact can transfer some rotational influence during a collision. The effect is usually smaller than the primary change in direction caused by the contact geometry, but it can matter on certain shots.",
+      "summary": "Friction at ball-to-ball contact can transfer some rotational influence during a collision."
+    },
+    {
+      "id": "cue-ball-squirt-quick",
+      "title": "Cue ball deflection or squirt",
+      "audio": "./guide/audio/cue-ball-squirt-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Striking the cue ball away from its vertical center can change its initial direction. This effect is often called squirt or cue-ball deflection. Compare the aiming line and predicted route when you add side spin.",
+      "summary": "Striking the cue ball away from its vertical center can change its initial direction."
+    },
+    {
+      "id": "cue-ball-swerve-advanced",
+      "title": "Swerve and cloth interaction",
+      "audio": "./guide/audio/cue-ball-swerve-advanced.mp3",
+      "category": "fundamentals",
+      "level": 2,
+      "text": "With cue elevation and side spin, the cue ball can curve as it travels over the cloth. This is called swerve. Its amount depends on speed, elevation, spin, and the frictional interaction with the cloth.",
+      "summary": "With cue elevation and side spin, the cue ball can curve as it travels over the cloth."
+    },
+    {
+      "id": "cushion-response-quick",
+      "title": "Cushion rebounds",
+      "audio": "./guide/audio/cushion-response-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "A cushion changes the cue ball’s direction, and its rebound depends on the incoming angle, speed, and spin. Start with no English, then add side spin to compare the resulting paths.",
+      "summary": "A cushion changes the cue ball’s direction, and its rebound depends on the incoming angle, speed, and spin."
+    },
+    {
+      "id": "rail-speed-loss-advanced",
+      "title": "Rail speed loss",
+      "audio": "./guide/audio/rail-speed-loss-advanced.mp3",
+      "category": "physics",
+      "level": 2,
+      "text": "Cushion contact generally reduces ball speed. The exact rebound also depends on the cushion’s response and the ball’s rotation. Multiple-rail routes compound these effects, so compare them at consistent speeds.",
+      "summary": "Cushion contact generally reduces ball speed."
+    },
+    {
+      "id": "cue-elevation-quick",
+      "title": "Cue elevation",
+      "audio": "./guide/audio/cue-elevation-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Cue elevation changes how the tip approaches the cue ball. Raising the cue can help create jump or mass-ay effects, and changes the ball’s height and path. Check obstacle clearance as you adjust the shot. Watch the path.",
+      "summary": "Cue elevation changes how the tip approaches the cue ball."
+    },
+    {
+      "id": "jump-trajectory-quick",
+      "title": "Jump trajectory",
+      "audio": "./guide/audio/jump-trajectory-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "For a jump shot, look at the height of the cue ball along its route. A useful jump must rise high enough at the obstacle and land in a workable area. Adjust elevation, speed, and tip contact to compare results.",
+      "summary": "For a jump shot, look at the height of the cue ball along its route."
+    },
+    {
+      "id": "physics-jump-clearance-quick",
+      "title": "Clearing an obstacle",
+      "audio": "./guide/audio/physics-jump-clearance-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Place an object ball between the cue ball and your target. As you change the jump settings, check the cue ball’s predicted height where it crosses the obstacle. A path that passes over the ball is different from one that collides with it.",
+      "summary": "Place an object ball between the cue ball and your target."
+    },
+    {
+      "id": "physics-jump-landing-quick",
+      "title": "Landing position",
+      "audio": "./guide/audio/physics-jump-landing-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "The landing point matters as much as clearing the obstacle. A jump that lands too early can strike the blocking ball, while a late landing can make the next contact difficult. Compare the landing position before selecting Execute Shot.",
+      "summary": "The landing point matters as much as clearing the obstacle."
+    },
+    {
+      "id": "jump-model-limitations-advanced",
+      "title": "Understanding jump trajectory",
+      "audio": "./guide/audio/jump-model-limitations-advanced.mp3",
+      "category": "physics",
+      "level": 2,
+      "text": "Use the jump trajectory to study how cue elevation, tip contact, and speed affect the height and landing point of the cue ball.",
+      "summary": "Use the jump trajectory to study how cue elevation, tip contact, and speed affect the height and landing point of the cue ball."
+    },
+    {
+      "id": "masse-physics-quick",
+      "title": "Massé shot",
+      "audio": "./guide/audio/masse-physics-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "A mass-ay shot uses elevated cue delivery and off-center spin to curve the cue ball around an obstacle. Explore how elevation, side spin, and speed change the curve. These shots are sensitive, so make small adjustments.",
+      "summary": "A mass-ay shot uses elevated cue delivery and off-center spin to curve the cue ball around an obstacle."
+    },
+    {
+      "id": "masse-versus-jump-advanced",
+      "title": "Massé versus jump",
+      "audio": "./guide/audio/masse-versus-jump-advanced.mp3",
+      "category": "physics",
+      "level": 2,
+      "text": "A jump route aims to carry the cue ball above an obstacle. A mass-ay route bends the ball’s path around it through elevated, off-center contact and interaction with the cloth. Compare clearance and landing for a jump with lateral curvature for a mass-ay.",
+      "summary": "A jump route aims to carry the cue ball above an obstacle."
+    },
+    {
+      "id": "table-geometry-calibration-quick",
+      "title": "Table dimensions and ball geometry",
+      "audio": "./guide/audio/table-geometry-calibration-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Accurate table and ball dimensions help the aiming guides match the layout. If you adjust a geometry setting, verify it against the table you are trying to model before interpreting small differences in a shot.",
+      "summary": "Accurate table and ball dimensions help the aiming guides match the layout."
+    },
+    {
+      "id": "physics-measurements-quick",
+      "title": "Reading physical measurements",
+      "audio": "./guide/audio/physics-measurements-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Use the displayed measurements as guides to the simulated shot. When height or clearance is shown in inches, compare the values with the ball’s approximate size and the space available around an obstacle.",
+      "summary": "Use the displayed measurements as guides to the simulated shot."
+    },
+    {
+      "id": "real-table-calibration-quick",
+      "title": "Calibrating against a real table",
+      "audio": "./guide/audio/real-table-calibration-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Choose a simple repeatable shot on a real table. Match the starting ball positions in the trainer, execute the shot, and compare where the balls stop. Adjust one relevant calibration setting, then try again.",
+      "summary": "Choose a simple repeatable shot on a real table."
+    },
+    {
+      "id": "one-variable-calibration-quick",
+      "title": "Change one variable at a time",
+      "audio": "./guide/audio/one-variable-calibration-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "To understand a result, change only one control between attempts. If you change speed, spin, and friction together, you will not know which change caused the difference. Keep the layout and other settings consistent.",
+      "summary": "To understand a result, change only one control between attempts."
+    },
+    {
+      "id": "calibration-notes-quick",
+      "title": "Save your calibration observations",
+      "audio": "./guide/audio/calibration-notes-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "As you compare simulated and real shots, keep a simple record of the layout, shot speed, spin, and calibration settings. Note what improved and what did not. Repeatable observations are more useful than a single lucky match.",
+      "summary": "As you compare simulated and real shots, keep a simple record of the layout, shot speed, spin, and calibration settings."
+    },
+    {
+      "id": "exercise-table-speed-calibration-variation",
+      "title": "table speed",
+      "audio": "./guide/audio/exercise-table-speed-calibration-variation.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Position the cue ball with an unobstructed path. Choose a moderate shot speed and execute the shot. Observe how far the ball travels before stopping. Restore the starting position, then open Physics & Calibration and adjust the rolling friction setting. Execute Shot again using the same speed. Compare the distances and notice how rolling friction influences table speed.",
+      "summary": "Position the cue ball with an unobstructed path."
+    },
+    {
+      "id": "exercise-sliding-friction",
+      "title": "sliding friction",
+      "audio": "./guide/audio/exercise-sliding-friction.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Set up a straight shot and use the same shot speed each time. Compare a stop shot with a follow shot, then adjust sliding friction and repeat. Observe how the cue ball’s behavior changes as it approaches and passes the object ball.",
+      "summary": "Set up a straight shot and use the same shot speed each time."
+    },
+    {
+      "id": "exercise-speed-ladder",
+      "title": "speed ladder",
+      "audio": "./guide/audio/exercise-speed-ladder.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Place the cue ball on a clear path. Execute Shot at a low speed, restore the position, then repeat at medium and higher speeds. Compare stopping distances. Try to predict the next distance before running each shot.",
+      "summary": "Place the cue ball on a clear path."
+    },
+    {
+      "id": "exercise-physics-stop-follow-draw",
+      "title": "stop, follow, draw",
+      "audio": "./guide/audio/exercise-physics-stop-follow-draw.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Use one straight-shot layout. First attempt a stop shot, then restore the layout for a follow shot, and finally try draw. Change only the relevant spin and speed controls. Compare the cue ball’s path after impact.",
+      "summary": "Use one straight-shot layout."
+    },
+    {
+      "id": "exercise-rail-english",
+      "title": "rail and English",
+      "audio": "./guide/audio/exercise-rail-english.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Aim the cue ball toward a cushion at a moderate angle. Execute Shot with no English, then repeat with left English and right English. Compare the rebound directions while keeping the starting position and speed unchanged.",
+      "summary": "Aim the cue ball toward a cushion at a moderate angle."
+    },
+    {
+      "id": "exercise-squirt-comparison",
+      "title": "squirt comparison",
+      "audio": "./guide/audio/exercise-squirt-comparison.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Choose a long, nearly straight shot. Start with center-ball contact, then add left or right English. Observe any change in the initial cue-ball direction. Adjust the aim and compare the resulting contact point.",
+      "summary": "Choose a long, nearly straight shot."
+    },
+    {
+      "id": "exercise-jump-clearance",
+      "title": "jump clearance",
+      "audio": "./guide/audio/exercise-jump-clearance.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Place a blocking ball between the cue ball and your target. Adjust elevation and speed until the trajectory clears the blocker. Check the landing point as well, then execute the shot and review the result.",
+      "summary": "Place a blocking ball between the cue ball and your target."
+    },
+    {
+      "id": "exercise-jump-landing",
+      "title": "jump landing",
+      "audio": "./guide/audio/exercise-jump-landing.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Set up a jump over an obstacle with open cloth beyond it. Choose a desired landing area. Change one jump setting at a time and compare the landing point. Try to clear the obstacle while landing as close as possible to the chosen area.",
+      "summary": "Set up a jump over an obstacle with open cloth beyond it."
+    },
+    {
+      "id": "exercise-masse-route",
+      "title": "massé route",
+      "audio": "./guide/audio/exercise-masse-route.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Arrange a blocking ball so a direct path is unavailable. Experiment with cue elevation and side spin to create a mass-ay route around it. Compare the curve at several speeds, then execute a promising shot.",
+      "summary": "Arrange a blocking ball so a direct path is unavailable."
+    },
+    {
+      "id": "exercise-calibration-real-table",
+      "title": "real-table comparison",
+      "audio": "./guide/audio/exercise-calibration-real-table.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Choose a simple shot you can repeat on a real table. Record the starting positions and approximate stopping points. Recreate the arrangement in the trainer, execute the shot, and compare. Adjust one calibration setting and repeat to see whether the match improves.",
+      "summary": "Choose a simple shot you can repeat on a real table."
+    },
+    {
+      "id": "calibration-table-ball-dimensions-quick",
+      "title": "Table and ball geometry settings",
+      "audio": "./guide/audio/calibration-table-ball-dimensions-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Open Physics / Calibration to set the playing length, width, and ball diameter in inches. Choose a table-size preset when appropriate, or enter the dimensions of the table you are studying.",
+      "summary": "Open Physics / Calibration to set the playing length, width, and ball diameter in inches."
+    },
+    {
+      "id": "calibration-friction-restitution-advanced",
+      "title": "Surface and collision settings",
+      "audio": "./guide/audio/calibration-friction-restitution-advanced.mp3",
+      "category": "physics",
+      "level": 2,
+      "text": "Sliding friction affects how the cue ball transitions from sliding to rolling. Rolling friction influences how far balls travel. Ball-to-ball friction, restitution, rail rebound, and rail tangential damping let you study collision and cushion behavior.",
+      "summary": "Sliding friction affects how the cue ball transitions from sliding to rolling."
+    },
+    {
+      "id": "calibration-jump-physics-controls-advanced",
+      "title": "Advanced jump physics settings",
+      "audio": "./guide/audio/calibration-jump-physics-controls-advanced.mp3",
+      "category": "physics",
+      "level": 2,
+      "text": "Physics / Calibration also contains the 3D jump, mass-ay, and airborne physics setting, along with bed vertical restitution and bed impact friction. Use these settings to study elevated shots and how the cue ball interacts with the table surface.",
+      "summary": "Physics / Calibration also contains the 3D jump, mass-ay, and airborne physics setting, along with bed vertical restitution and bed impact friction."
+    },
+    {
+      "id": "continuous-runout-master-quick",
+      "title": "Continuous runout planning — canonical narration",
+      "audio": "./guide/audio/continuous-runout-master-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "The trainer allows you to plan and execute an entire runout, one shot at a time. Begin by setting up Shot 1 and Shot 2. When you select Execute Shot, only the active shot is executed. Your next planned cue ball then becomes the active cue ball. Before continuing, you can add another Shot 2 to plan the following shot. Repeat this process as you work through the rack. At any point, Undo Last Shot lets you return to earlier shots, review your decisions, and explore better positions.",
+      "summary": "The trainer allows you to plan and execute an entire runout, one shot at a time."
+    },
+    {
+      "id": "two-shot-execution-quick",
+      "title": "Two-shot execution",
+      "audio": "./guide/audio/two-shot-execution-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "When you've planned both shots, select Execute Shot to simulate the first shot. After the first object ball is pocketed, the trainer advances to your second planned shot. The second cue ball becomes the active cue ball, ready for the next stroke. Select Execute Shot again to simulate the second shot.",
+      "summary": "When you've planned both shots, select Execute Shot to simulate the first shot."
+    },
+    {
+      "id": "continuous-runout-quick",
+      "title": "Continuous runout",
+      "audio": "./guide/audio/continuous-runout-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "You can use Shot 1 and Shot 2 to plan more than two shots. After executing the first shot, your second cue ball becomes the active cue ball. Before executing again, add another Shot 2 to plan the following shot. Repeat this process to work through an entire runout, one shot at a time.",
+      "summary": "You can use Shot 1 and Shot 2 to plan more than two shots."
+    },
+    {
+      "id": "undo-last-shot-quick",
+      "title": "Undo Last Shot — full-rack history",
+      "audio": "./guide/audio/undo-last-shot-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Undo Last Shot allows you to move backward through your completed shots, one at a time. The trainer remembers the sequence through a full rack. You can return to an earlier shot, examine the position you created, make adjustments, and explore a better way to continue your runout.",
+      "summary": "Undo Last Shot allows you to move backward through your completed shots, one at a time."
+    },
+    {
+      "id": "runout-improvement-quick",
+      "title": "Runout improvement",
+      "audio": "./guide/audio/runout-improvement-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "When planning a runout, don't judge a shot only by whether the ball goes into the pocket. Look at the position it creates for the next shot. If the sequence becomes difficult, use Undo Last Shot to revisit the earlier decision. Experiment until you find a more reliable path through the remaining balls.",
+      "summary": "When planning a runout, don't judge a shot only by whether the ball goes into the pocket."
+    },
+    {
+      "id": "full-runout-review-quick",
+      "title": "Reviewing an entire runout",
+      "audio": "./guide/audio/full-runout-review-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "After completing a runout, use Undo Last Shot to review the sequence in reverse. Examine each cue-ball position and consider whether a different speed, spin, or route would have made the next shot easier. You can work backward through the entire rack and revisit the decisions that shaped your runout.",
+      "summary": "After completing a runout, use Undo Last Shot to review the sequence in reverse."
+    },
+    {
+      "id": "runout-decision-review-advanced",
+      "title": "Improving an earlier decision",
+      "audio": "./guide/audio/runout-decision-review-advanced.mp3",
+      "category": "explore",
+      "level": 2,
+      "text": "A difficult position late in a runout often begins with an earlier positional decision. By stepping backward through the shot history, you can identify where the sequence became less favorable. Revisit that shot, explore alternative cue-ball routes, and evaluate how the improved position affects the remaining sequence.",
+      "summary": "A difficult position late in a runout often begins with an earlier positional decision."
+    },
+    {
+      "id": "exercise-full-rack-review",
+      "title": "Full Rack Runout Analysis",
+      "audio": "./guide/audio/exercise-full-rack-review.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Set up a full rack and work through your planned runout. Use Shot 2 to continually extend your sequence as each shot is executed. After completing the rack, use Undo Last Shot repeatedly to travel backward through your entire shot history. Find a shot where better cue-ball positioning could have simplified the runout. Adjust that shot and explore an improved sequence from that point forward.",
+      "summary": "Set up a full rack and work through your planned runout."
+    },
+    {
+      "id": "practice-shot-two-quick",
+      "title": "Practicing with Shot 2",
+      "audio": "./guide/audio/practice-shot-two-quick.mp3",
+      "category": "drills",
+      "level": 0,
+      "text": "Plan your first shot, then add Shot 2 to examine the next opportunity. Execute Shot to complete the first stroke. The second planned cue ball becomes the active cue ball. Before continuing, you can add another Shot 2 to extend your plan. This allows you to build a longer sequence, one shot at a time.",
+      "summary": "Plan your first shot, then add Shot 2 to examine the next opportunity."
+    },
+    {
+      "id": "practice-undo-history-quick",
+      "title": "Practicing with Undo Last Shot",
+      "audio": "./guide/audio/practice-undo-history-quick.mp3",
+      "category": "drills",
+      "level": 0,
+      "text": "Undo Last Shot lets you revisit previous shots in your sequence. You can work backward through an entire rack, one shot at a time. Use this feature to identify a difficult position, return to the shot that created it, and explore a better approach before continuing.",
+      "summary": "Undo Last Shot lets you revisit previous shots in your sequence."
+    },
+    {
+      "id": "exercise-three-ball-runout",
+      "title": "The Three-Ball Runout",
+      "audio": "./guide/audio/exercise-three-ball-runout.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Place three object balls on the table and choose your pocketing order. Plan Shot 1 and Shot 2, then execute the first shot. Add another Shot 2 before continuing. Complete the three-ball sequence, then use Undo Last Shot to revisit any position you would like to improve.",
+      "summary": "Place three object balls on the table and choose your pocketing order."
+    },
+    {
+      "id": "exercise-full-rack-training",
+      "title": "Full-Rack Runout Review",
+      "audio": "./guide/audio/exercise-full-rack-training.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Begin with a full rack and plan your runout. Use Shot 2 to continually extend the sequence as you execute each shot. When you've finished, use Undo Last Shot to work backward through the rack. Identify an earlier position that could have been improved, adjust the shot, and explore a better route through the remaining balls.",
+      "summary": "Begin with a full rack and plan your runout."
+    },
+    {
+      "id": "obstacle-route-choice-quick",
+      "title": "Choosing a jump or massé route",
+      "audio": "./guide/audio/obstacle-route-choice-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "When an obstacle blocks the cue ball, consider whether it's better to travel around it or over it. A kick shot uses one or more cushions, a mass-ay shot curves around an obstacle, and a jump shot travels through the air. Compare the difficulty and control offered by each approach.",
+      "summary": "When an obstacle blocks the cue ball, consider whether it's better to travel around it or over it."
+    },
+    {
+      "id": "exercise-jump-kick-masse",
+      "title": "Jump, Kick, or Massé",
+      "audio": "./guide/audio/exercise-jump-kick-masse.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Place an obstacle between the cue ball and the target ball. First, explore a kick shot using a cushion. Next, examine a mass-ay shot, using cue elevation and sidespin to curve the cue ball around the obstacle. Finally, investigate a jump shot that carries the cue ball over the obstacle. Compare the three techniques and consider which offers the best control.",
+      "summary": "Place an obstacle between the cue ball and the target ball."
+    },
+    {
+      "id": "exercise-runout-improvement",
+      "title": "The Runout Improvement Challenge",
+      "audio": "./guide/audio/exercise-runout-improvement.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Choose a rack or practice layout and work through the complete sequence. After finishing, use Undo Last Shot to review your decisions. Find an earlier shot where a different cue-ball position could have improved the remaining pattern. Change that shot and work forward again. Repeat until you develop a more comfortable and reliable runout.",
+      "summary": "Choose a rack or practice layout and work through the complete sequence."
+    },
+    {
+      "id": "pattern-play-quick",
+      "title": "Understanding pattern play",
+      "audio": "./guide/audio/pattern-play-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Pattern play means choosing an order of shots that makes the table easier to complete. Instead of focusing only on the next ball, look at the remaining balls and consider how each shot connects to the next. A good pattern reduces difficult angles, unnecessary cue-ball travel, and complicated position shots.",
+      "summary": "Pattern play means choosing an order of shots that makes the table easier to complete."
+    },
+    {
+      "id": "final-ball-backward-planning-quick",
+      "title": "Planning backward from the final ball",
+      "audio": "./guide/audio/final-ball-backward-planning-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "One effective way to plan a runout is to begin with the final ball. Decide which pocket you want to use and where the cue ball should be for that shot. Then identify the shot that will create that position. Continue working backward until you have a practical plan for the entire sequence.",
+      "summary": "One effective way to plan a runout is to begin with the final ball."
+    },
+    {
+      "id": "problem-balls-quick",
+      "title": "Recognizing problem balls",
+      "audio": "./guide/audio/problem-balls-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Some balls are more difficult than others because they're blocked, close to a cushion, or poorly positioned for a pocket. These are often called problem balls. Identify them early and decide how you'll handle them before removing the easier balls that might help you reach a better position.",
+      "summary": "Some balls are more difficult than others because they're blocked, close to a cushion, or poorly positioned for a pocket."
+    },
+    {
+      "id": "cue-ball-traffic-quick",
+      "title": "Managing cue-ball traffic",
+      "audio": "./guide/audio/cue-ball-traffic-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "A crowded table creates obstacles for the cue ball. Before choosing a route, look at the other balls and consider where the cue ball can travel safely. Sometimes a short, controlled path is better than a longer route that passes through several obstacles.",
+      "summary": "A crowded table creates obstacles for the cue ball."
+    },
+    {
+      "id": "route-selection-quick",
+      "title": "Choosing between simple and complex routes",
+      "audio": "./guide/audio/route-selection-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "There may be several ways to move the cue ball into position. You could use natural roll, follow, draw, or one or more cushions. Compare the available routes and consider which gives you the greatest margin for error. The simplest reliable route is often the best choice.",
+      "summary": "There may be several ways to move the cue ball into position."
+    },
+    {
+      "id": "position-recovery-quick",
+      "title": "Recovering from poor position",
+      "audio": "./guide/audio/position-recovery-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Not every shot leaves the cue ball exactly where you wanted. When the position becomes difficult, examine the remaining options before making your next decision. You may need to choose a different pocket, use a cushion, or adjust your original pattern. The goal is to recover without creating an even more difficult shot.",
+      "summary": "Not every shot leaves the cue ball exactly where you wanted."
+    },
+    {
+      "id": "safety-play-quick",
+      "title": "Understanding safety play",
+      "audio": "./guide/audio/safety-play-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Sometimes the best decision isn't to pocket a ball. A safety shot is designed to leave your opponent with a difficult opportunity. You might move the cue ball behind another ball, increase the distance to the target, or leave an unfavorable angle. Safety play is an important part of competitive billiards.",
+      "summary": "Sometimes the best decision isn't to pocket a ball."
+    },
+    {
+      "id": "defensive-cue-ball-route-quick",
+      "title": "Planning a defensive cue-ball route",
+      "audio": "./guide/audio/defensive-cue-ball-route-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "When planning a safety, decide where you want the cue ball to finish. Look for areas where another ball blocks a direct route to the target. Then explore the speed and contact angle needed to move the cue ball into that area. Use the trainer to study the geometry before executing the shot.",
+      "summary": "When planning a safety, decide where you want the cue ball to finish."
+    },
+    {
+      "id": "safety-escape-quick",
+      "title": "Escaping from a safety",
+      "audio": "./guide/audio/safety-escape-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "When another ball blocks your direct path, you may need to use a cushion to reach the target. Examine the available rail routes and use the diamond references to estimate a contact point. Experiment with speed and English to find a practical escape.",
+      "summary": "When another ball blocks your direct path, you may need to use a cushion to reach the target."
+    },
+    {
+      "id": "undo-strategic-review-quick",
+      "title": "Recognizing when to use Undo Last Shot",
+      "audio": "./guide/audio/undo-strategic-review-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "If a runout becomes difficult, the problem may have started several shots earlier. Use Undo Last Shot to work backward through your sequence. Look for the point where a different cue-ball position could have created an easier next shot. Then adjust that earlier decision and explore a better route forward.",
+      "summary": "If a runout becomes difficult, the problem may have started several shots earlier."
+    },
+    {
+      "id": "runout-quality-quick",
+      "title": "Evaluating the quality of a runout",
+      "audio": "./guide/audio/runout-quality-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "A successful runout isn't measured only by whether every ball was pocketed. Consider how well you controlled the cue ball, how often you faced difficult shots, and whether your pattern gave you comfortable positions. Review the sequence and look for opportunities to make the runout simpler and more repeatable.",
+      "summary": "A successful runout isn't measured only by whether every ball was pocketed."
+    },
+    {
+      "id": "structured-practice-intro-quick",
+      "title": "Introduction to structured practice",
+      "audio": "./guide/audio/structured-practice-intro-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "The best way to improve your billiards game is to practice with a purpose. Rather than taking random shots, choose a specific skill to develop. The trainer lets you repeat arrangements, compare different techniques, and learn how small adjustments affect the outcome.",
+      "summary": "The best way to improve your billiards game is to practice with a purpose."
+    },
+    {
+      "id": "practice-aiming-quick",
+      "title": "Learning to aim accurately",
+      "audio": "./guide/audio/practice-aiming-quick.mp3",
+      "category": "drills",
+      "level": 0,
+      "text": "Begin with a simple straight shot. Place the cue ball and object ball in line with a pocket. Use the aiming guides to examine the contact point, then select Execute Shot. Once you're comfortable, move the cue ball slightly to create a cut angle. Repeat with progressively more difficult angles.",
+      "summary": "Begin with a simple straight shot."
+    },
+    {
+      "id": "practice-speed-control-quick",
+      "title": "Developing speed control",
+      "audio": "./guide/audio/practice-speed-control-quick.mp3",
+      "category": "drills",
+      "level": 0,
+      "text": "Speed control determines where the cue ball finishes. Set up a shot with a clear path and choose a stopping area. Execute Shot and observe the result. Restore the arrangement, make a small speed adjustment, and try again. Your goal is to learn how different stroke speeds affect travel distance.",
+      "summary": "Speed control determines where the cue ball finishes."
+    },
+    {
+      "id": "practice-stop-shot-quick",
+      "title": "Understanding stop shots",
+      "audio": "./guide/audio/practice-stop-shot-quick.mp3",
+      "category": "drills",
+      "level": 0,
+      "text": "A stop shot occurs when the cue ball strikes an object ball straight on while sliding without forward or backward rotation. Ideally, the cue ball stops near the collision point as the object ball moves away. Experiment with speed and spin to learn how to create this result.",
+      "summary": "A stop shot occurs when the cue ball strikes an object ball straight on while sliding without forward or backward rotation."
+    },
+    {
+      "id": "practice-follow-shot-quick",
+      "title": "Practicing follow shots",
+      "audio": "./guide/audio/practice-follow-shot-quick.mp3",
+      "category": "drills",
+      "level": 0,
+      "text": "Set up a straight shot and apply forward rotation to the cue ball. Execute Shot and observe how the cue ball continues after contacting the object ball. Repeat with different amounts of follow and speed. Try to control how far the cue ball travels beyond the contact point.",
+      "summary": "Set up a straight shot and apply forward rotation to the cue ball."
+    },
+    {
+      "id": "practice-draw-shot-quick",
+      "title": "Practicing draw shots",
+      "audio": "./guide/audio/practice-draw-shot-quick.mp3",
+      "category": "drills",
+      "level": 0,
+      "text": "Set up a straight shot and apply backspin. Execute Shot and observe whether the cue ball returns toward its starting position. Adjust the amount of draw and shot speed, then repeat. Try to bring the cue ball back to a specific area of the table.",
+      "summary": "Set up a straight shot and apply backspin."
+    },
+    {
+      "id": "practice-cut-angles-quick",
+      "title": "Practicing cut angles",
+      "audio": "./guide/audio/practice-cut-angles-quick.mp3",
+      "category": "drills",
+      "level": 0,
+      "text": "Place an object ball near the center of the table and select a pocket. Move the cue ball to create different cut angles. Use the ghost-ball guide to study the required contact point, then execute each shot. Compare how the aiming position changes as the cut becomes thinner.",
+      "summary": "Place an object ball near the center of the table and select a pocket."
+    },
+    {
+      "id": "practice-tangent-line-quick",
+      "title": "Practicing the tangent line",
+      "audio": "./guide/audio/practice-tangent-line-quick.mp3",
+      "category": "drills",
+      "level": 0,
+      "text": "Set up a cut shot and examine the tangent-line guide. Try a stun shot so the cue ball is sliding when it contacts the object ball. Execute Shot and observe the cue ball's initial direction after impact. Repeat with different cut angles to develop a feel for the tangent line.",
+      "summary": "Set up a cut shot and examine the tangent-line guide."
+    },
+    {
+      "id": "practice-bank-shots-quick",
+      "title": "Practicing bank shots",
+      "audio": "./guide/audio/practice-bank-shots-quick.mp3",
+      "category": "drills",
+      "level": 0,
+      "text": "Choose an object ball and a pocket that requires a bank shot. Use the cushion and diamond references to estimate the rail contact point. Execute Shot and observe the rebound. Adjust your aim and speed, then repeat until you develop a more consistent banking approach.",
+      "summary": "Choose an object ball and a pocket that requires a bank shot."
+    },
+    {
+      "id": "practice-kick-shots-quick",
+      "title": "Practicing kick shots",
+      "audio": "./guide/audio/practice-kick-shots-quick.mp3",
+      "category": "drills",
+      "level": 0,
+      "text": "A kick shot sends the cue ball into a cushion before it contacts the object ball. Place an object ball where a direct shot is difficult. Use the diamond references to plan a one-rail route, then execute the shot. Experiment with the rail contact point and speed to improve your accuracy.",
+      "summary": "A kick shot sends the cue ball into a cushion before it contacts the object ball."
+    },
+    {
+      "id": "practice-english-quick",
+      "title": "Practicing English",
+      "audio": "./guide/audio/practice-english-quick.mp3",
+      "category": "drills",
+      "level": 0,
+      "text": "Set up a shot where the cue ball will contact a cushion. Begin without sidespin and observe the rebound. Restore the arrangement and add left English, then right English. Compare the results and notice how sidespin changes the cue ball's path.",
+      "summary": "Set up a shot where the cue ball will contact a cushion."
+    },
+    {
+      "id": "practice-position-play-quick",
+      "title": "Practicing cue-ball position",
+      "audio": "./guide/audio/practice-position-play-quick.mp3",
+      "category": "drills",
+      "level": 0,
+      "text": "Place two object balls on the table and choose the order you want to pocket them. Before executing the first shot, decide where the cue ball should finish for the second. Use speed and spin to explore different routes. Your goal is to create a comfortable next shot, not simply pocket the first ball.",
+      "summary": "Place two object balls on the table and choose the order you want to pocket them."
+    },
+    {
+      "id": "exercise-straight-shot-ladder",
+      "title": "The Straight-Shot Ladder",
+      "audio": "./guide/audio/exercise-straight-shot-ladder.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Begin with the cue ball and object ball aligned toward a pocket. Execute the shot, then restore the arrangement. Gradually increase the distance between the balls while keeping the shot straight. Repeat at several distances, paying attention to aiming accuracy and shot speed.",
+      "summary": "Begin with the cue ball and object ball aligned toward a pocket."
+    },
+    {
+      "id": "exercise-stop-follow-draw",
+      "title": "Stop, Follow, Draw",
+      "audio": "./guide/audio/exercise-stop-follow-draw.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Set up a straight shot. First, adjust the stroke to produce a stop shot. Restore the arrangement and try a follow shot. Finally, apply backspin to produce draw. Compare the cue ball's position after each shot and observe how its rotation changes the result.",
+      "summary": "Set up a straight shot."
+    },
+    {
+      "id": "exercise-three-position-zones",
+      "title": "Three Position Zones",
+      "audio": "./guide/audio/exercise-three-position-zones.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Set up a shot with an object ball near a pocket. Choose three different areas where you'd like the cue ball to finish. Try to reach the first area using speed control, the second using follow or draw, and the third using a cushion route. Compare the difficulty and consistency of each approach.",
+      "summary": "Set up a shot with an object ball near a pocket."
+    },
+    {
+      "id": "first-session-welcome",
+      "title": "First-session welcome",
+      "audio": "./guide/audio/first-session-welcome.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "Welcome to the Billiards Trainer. In the next few minutes, you'll learn how to aim a shot, adjust cue-ball movement, and plan more than one shot ahead. You can follow along with this short introduction or explore the trainer on your own. The guide will be here whenever you need it.",
+      "summary": "Welcome to the Billiards Trainer."
+    },
+    {
+      "id": "first-session-execute",
+      "title": "Executing your first shot",
+      "audio": "./guide/audio/first-session-execute.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "You're ready to try your first shot. Select Execute Shot and watch the shot. Notice how the object ball travels toward the pocket and where the cue ball finishes. This is the foundation of the trainer: make a decision, execute the shot, and study the result.",
+      "summary": "You're ready to try your first shot."
+    },
+    {
+      "id": "first-session-shot-two",
+      "title": "Introducing Shot 2",
+      "audio": "./guide/audio/first-session-shot-two.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "Shot 2 allows you to plan your next shot before executing the current one. Add a second planned cue ball and position it for the next object ball. You can adjust its aiming direction, speed, and spin while keeping your first shot ready.",
+      "summary": "Shot 2 allows you to plan your next shot before executing the current one."
+    },
+    {
+      "id": "first-session-two-shot-execution",
+      "title": "Executing a two-shot sequence",
+      "audio": "./guide/audio/first-session-two-shot-execution.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "With both shots planned, select Execute Shot. The trainer executes the first shot and advances to the second planned shot. That second cue ball becomes your active cue ball. You can examine its position, make adjustments, and select Execute Shot again when you're ready.",
+      "summary": "With both shots planned, select Execute Shot."
+    },
+    {
+      "id": "first-session-extend-runout",
+      "title": "Extending the sequence",
+      "audio": "./guide/audio/first-session-extend-runout.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "You aren't limited to planning only two shots. After executing a shot, the next planned cue ball becomes active. Before continuing, you can add another Shot 2. Repeat this process to plan and execute an entire runout, one shot at a time.",
+      "summary": "You aren't limited to planning only two shots."
+    },
+    {
+      "id": "first-session-undo",
+      "title": "Discovering Undo Last Shot",
+      "audio": "./guide/audio/first-session-undo.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "One of the trainer's most useful features is Undo Last Shot. It allows you to step backward through your completed shots, even through a full rack. Return to an earlier shot, examine the position you created, and try a different approach. You can learn from the decisions you made without starting the entire layout over.",
+      "summary": "One of the trainer's most useful features is Undo Last Shot."
+    },
+    {
+      "id": "first-session-complete",
+      "title": "Completing the introduction",
+      "audio": "./guide/audio/first-session-complete.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "You've completed your introduction to the Billiards Trainer. You now know how to aim, adjust shot speed and spin, execute shots, plan ahead, and revisit earlier decisions. Continue exploring the table, or open the guide whenever you want to learn a new technique. Enjoy your practice.",
+      "summary": "You've completed your introduction to the Billiards Trainer."
+    },
+    {
+      "id": "guide-welcome-quick",
+      "title": "Welcome to the Billiards Trainer",
+      "audio": "./guide/audio/guide-welcome-quick.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "Welcome to the Billiards Trainer. This interactive learning environment helps you explore shot geometry, cue-ball control, and the physics of billiards. Whether you're learning the fundamentals or improving advanced techniques, you can practice at your own pace and explore the results of different shots.",
+      "summary": "Welcome to the Billiards Trainer."
+    },
+    {
+      "id": "guide-learning-pace-quick",
+      "title": "Learning at your own pace",
+      "audio": "./guide/audio/guide-learning-pace-quick.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "You don't need to complete every lesson before using the trainer. Explore the table, experiment with shots, and open the guide whenever you want an explanation. You can return to any topic as often as you like.",
+      "summary": "You don't need to complete every lesson before using the trainer."
+    },
+    {
+      "id": "guide-quick-help-quick",
+      "title": "Quick Help",
+      "audio": "./guide/audio/guide-quick-help-quick.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "Quick Help provides a short explanation of a feature or technique. Use it when you want to understand a control without leaving your practice session. Each explanation focuses on what the feature does and how you can use it.",
+      "summary": "Quick Help provides a short explanation of a feature or technique."
+    },
+    {
+      "id": "guide-advanced-help-quick",
+      "title": "Advanced explanations",
+      "audio": "./guide/audio/guide-advanced-help-quick.mp3",
+      "category": "start",
+      "level": 2,
+      "text": "Some topics include an advanced explanation that explores the underlying geometry, physics, or strategy in greater detail. Start with the quick explanation, then choose the advanced lesson whenever you want to understand more.",
+      "summary": "Some topics include an advanced explanation that explores the underlying geometry, physics, or strategy in greater detail."
+    },
+    {
+      "id": "guide-audio-learning-quick",
+      "title": "Learning by listening",
+      "audio": "./guide/audio/guide-audio-learning-quick.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "The guide includes spoken explanations so you can learn while looking at the table. Listen to a lesson, examine the visual guides, and experiment with the controls. You can also read the accompanying text whenever you prefer.",
+      "summary": "The guide includes spoken explanations so you can learn while looking at the table."
+    },
+    {
+      "id": "guide-learn-by-doing-quick",
+      "title": "Learning by doing",
+      "audio": "./guide/audio/guide-learn-by-doing-quick.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "Many lessons include a practice exercise. After listening to an explanation, try the technique yourself. Adjust the shot, select Execute Shot, and observe the result. Repeating the exercise helps turn an explanation into a skill you can use.",
+      "summary": "Many lessons include a practice exercise."
+    },
+    {
+      "id": "guide-return-to-table-quick",
+      "title": "Returning to the table",
+      "audio": "./guide/audio/guide-return-to-table-quick.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "You can return to the table whenever you're ready to practice. The guide is there to support your learning, not interrupt it. Explore a topic, try the technique, and come back for more instruction whenever you need it.",
+      "summary": "You can return to the table whenever you're ready to practice."
+    },
+    {
+      "id": "guide-control-help-quick",
+      "title": "Understanding a control",
+      "audio": "./guide/audio/guide-control-help-quick.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "When you're unsure what a control does, open its explanation. The guide will describe its purpose and how it affects your shot. You can then return to the table and experiment with the control to see the difference.",
+      "summary": "When you're unsure what a control does, open its explanation."
+    },
+    {
+      "id": "guide-visual-help-quick",
+      "title": "Understanding the visual guides",
+      "audio": "./guide/audio/guide-visual-help-quick.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "The trainer displays visual references to help you understand aiming, ball contact, and cue-ball movement. If a line or marker is unfamiliar, use the guide to learn what it represents. Understanding these visual references will help you interpret the shot.",
+      "summary": "The trainer displays visual references to help you understand aiming, ball contact, and cue-ball movement."
+    },
+    {
+      "id": "guide-review-lesson-quick",
+      "title": "Reviewing a lesson",
+      "audio": "./guide/audio/guide-review-lesson-quick.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "You can revisit a lesson whenever you need a refresher. Review the explanation, listen again, or repeat the practice exercise. Learning a technique often takes several attempts, and you can return to it as many times as you like.",
+      "summary": "You can revisit a lesson whenever you need a refresher."
+    },
+    {
+      "id": "guide-playback-controls-quick",
+      "title": "Audio playback controls",
+      "audio": "./guide/audio/guide-playback-controls-quick.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "You can listen to a lesson whenever you're ready. Use the playback controls to pause, ree-ZOOM, or replay the explanation. You can also read the text without listening to the audio.",
+      "summary": "You can listen to a lesson whenever you're ready."
+    },
+    {
+      "id": "guide-learning-level-quick",
+      "title": "Choosing a learning level",
+      "audio": "./guide/audio/guide-learning-level-quick.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "Start with Quick Help for a simple explanation. When you're ready to explore the technique in more detail, choose Advanced. Both levels cover the same subject, but the advanced lesson provides additional technical insight.",
+      "summary": "Start with Quick Help for a simple explanation."
+    },
+    {
+      "id": "guide-context-help-quick",
+      "title": "Contextual help",
+      "audio": "./guide/audio/guide-context-help-quick.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "You can open help for the feature you're currently exploring. Whether you're adjusting shot speed, studying a tangent line, or planning a runout, the guide can explain that specific topic without requiring you to work through unrelated lessons.",
+      "summary": "You can open help for the feature you're currently exploring."
+    },
+    {
+      "id": "first-session-table",
+      "title": "Getting comfortable with the table",
+      "audio": "./guide/audio/first-session-table.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "This is your practice table. You can position balls, explore aiming angles, and examine the paths they may take. The visual guides help you understand what happens when the cue ball contacts another ball. Start by looking at the cue ball and the object ball in front of you.",
+      "summary": "This is your practice table."
+    },
+    {
+      "id": "first-session-aiming",
+      "title": "Aiming your first shot",
+      "audio": "./guide/audio/first-session-aiming.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "Let's aim your first shot. Select a position on the table to change the cue ball's aiming direction. Watch how the aiming guides respond. If you're using a mouse, you can also use the scroll wheel for precise adjustments. Try aligning the shot toward the object ball.",
+      "summary": "Let's aim your first shot."
+    },
+    {
+      "id": "first-session-ghost-ball",
+      "title": "Understanding the ghost ball",
+      "audio": "./guide/audio/first-session-ghost-ball.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "The ghost ball shows where the center of the cue ball needs to be when it contacts the object ball. It's a useful reference for understanding the correct aiming angle. Examine the ghost-ball position and adjust your aim until the object ball is directed toward the pocket.",
+      "summary": "The ghost ball shows where the center of the cue ball needs to be when it contacts the object ball."
+    },
+    {
+      "id": "first-session-speed",
+      "title": "Adjusting shot speed",
+      "audio": "./guide/audio/first-session-speed.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "Shot speed affects how the balls move and where the cue ball finishes. Find the speed control and try a small adjustment. For your first shot, use a moderate speed. Later, you'll explore how speed helps control your position for the next shot.",
+      "summary": "Shot speed affects how the balls move and where the cue ball finishes."
+    },
+    {
+      "id": "first-session-experiment",
+      "title": "Changing the result",
+      "audio": "./guide/audio/first-session-experiment.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "Now let's see how a small change affects the shot. Return to the starting arrangement and adjust the speed or aiming direction. Execute Shot again and compare the result. Experimenting with one change at a time is one of the best ways to understand what the cue ball is doing.",
+      "summary": "Now let's see how a small change affects the shot."
+    },
+    {
+      "id": "first-session-follow-draw",
+      "title": "Introduction to follow and draw",
+      "audio": "./guide/audio/first-session-follow-draw.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "Follow and draw help control the cue ball after contact. Follow adds forward rotation, while draw adds backspin. Try a straight shot using follow, then repeat it using draw. Watch how the cue ball behaves differently after striking the object ball.",
+      "summary": "Follow and draw help control the cue ball after contact."
+    },
+    {
+      "id": "first-session-position-play",
+      "title": "Thinking about the next shot",
+      "audio": "./guide/audio/first-session-position-play.mp3",
+      "category": "start",
+      "level": 0,
+      "text": "Pocketing a ball is only part of the game. You also want to leave the cue ball in a good position for your next shot. Place two object balls on the table and decide which one you'll pocket first. Then consider where the cue ball should finish to make the second shot easier.",
+      "summary": "Pocketing a ball is only part of the game."
+    },
+    {
+      "id": "features-options-overview-quick",
+      "title": "Features and Options overview",
+      "audio": "./guide/audio/features-options-overview-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Open Features & Options to customize the table display and the aiming aids. You can adjust target lock, cue-ball contact guides, the cue-tip badge, trajectory previews, the diamond-connected grid, rail diamonds, and table or ball visibility.",
+      "summary": "Open Features & Options to customize the table display and the aiming aids."
+    },
+    {
+      "id": "features-options-player-guides-quick",
+      "title": "Additional display and player options",
+      "audio": "./guide/audio/features-options-player-guides-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Features & Options also includes Player 1 and Player 2 controls and the bank and kick rail-number display. Switch the guides on when they help with your current lesson, and turn them off when you want a cleaner table.",
+      "summary": "Features & Options also includes Player 1 and Player 2 controls and the bank and kick rail-number display."
+    },
+    {
+      "id": "help-shape-billiards-trainer-quick",
+      "title": "Help Shape Billiards Trainer invitation",
+      "audio": "./guide/audio/help-shape-billiards-trainer-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "We’d love to hear what you think of Billiards Trainer. Open Help Shape Billiards Trainer near the bottom of Features & Options. Tell us what you’d change or add, include your email if you’d like a response, and select Share Your Feedback. Your ideas help improve the trainer for everyone.",
+      "summary": "We’d love to hear what you think of Billiards Trainer."
+    },
+    {
+      "id": "live-stats-overview-quick",
+      "title": "Live Stats overview",
+      "audio": "./guide/audio/live-stats-overview-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Live Stats shows shot information for your current shot setup. As you change your aim, speed, spin, or cue elevation, use these readings to understand how the shot will behave.",
+      "summary": "Live Stats shows shot information for your current shot setup."
+    },
+    {
+      "id": "live-stats-shot-one-quick",
+      "title": "Shot 1 predictions",
+      "audio": "./guide/audio/live-stats-shot-one-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "The Shot 1 panel describes the currently configured shot. Read it before selecting Execute Shot to check the contact, cue-ball behavior, and object-ball travel.",
+      "summary": "The Shot 1 panel describes the currently configured shot."
+    },
+    {
+      "id": "live-stats-contact-aim-quick",
+      "title": "Contact & Aim",
+      "audio": "./guide/audio/live-stats-contact-aim-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "Contact and Aim explains which ball the cue ball will hit first, the angle of that contact, and how much the balls overlap. Use it to check whether your aiming adjustment produces the contact you intended.",
+      "summary": "Contact and Aim explains which ball the cue ball will hit first, the angle of that contact, and how much the balls overlap."
+    },
+    {
+      "id": "live-stats-first-ball-quick",
+      "title": "First ball hit",
+      "audio": "./guide/audio/live-stats-first-ball-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "First ball hit identifies the object ball the trainer shows the cue ball to contact first. Check this reading when several balls are close together or when you are planning a kick.",
+      "summary": "First ball hit identifies the object ball the trainer shows the cue ball to contact first."
+    },
+    {
+      "id": "live-stats-cut-angle-quick",
+      "title": "Cut angle",
+      "audio": "./guide/audio/live-stats-cut-angle-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "Cut angle at contact describes how far the collision is from a straight-on hit. A zero-degree cut is straight on. Larger cut angles represent thinner contact between the balls.",
+      "summary": "Cut angle at contact describes how far the collision is from a straight-on hit."
+    },
+    {
+      "id": "live-stats-overlap-quick",
+      "title": "Physical overlap",
+      "audio": "./guide/audio/live-stats-overlap-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "Physical overlap shows how much the two balls overlap along the collision line. One hundred percent represents a full-ball hit. Smaller percentages indicate a thinner hit.",
+      "summary": "Physical overlap shows how much the two balls overlap along the collision line."
+    },
+    {
+      "id": "live-stats-contact-travel-quick",
+      "title": "Travel to contact",
+      "audio": "./guide/audio/live-stats-contact-travel-quick.mp3",
+      "category": "fundamentals",
+      "level": 0,
+      "text": "Cue-ball travel to contact shows the distance the cue ball travels before its predicted contact. The display expresses that distance in ball diameters, so you can compare short and long approaches.",
+      "summary": "Cue-ball travel to contact shows the distance the cue ball travels before its predicted contact."
+    },
+    {
+      "id": "live-stats-first-event-quick",
+      "title": "First predicted event",
+      "audio": "./guide/audio/live-stats-first-event-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "First predicted event names the first major interaction the trainer shows, such as the cue ball contacting an object ball. It is a useful check that the route begins the way you planned.",
+      "summary": "First predicted event names the first major interaction the trainer shows, such as the cue ball contacting an object ball."
+    },
+    {
+      "id": "live-stats-cue-flight-quick",
+      "title": "Cue & Flight",
+      "audio": "./guide/audio/live-stats-cue-flight-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Cue and Flight describes the cue-tip contact and any predicted deviation or airborne behavior. This group becomes especially useful when experimenting with English, elevated cues, jumps, or mass-ay.",
+      "summary": "Cue and Flight describes the cue-tip contact and any predicted deviation or airborne behavior."
+    },
+    {
+      "id": "live-stats-tip-location-quick",
+      "title": "Tip location",
+      "audio": "./guide/audio/live-stats-tip-location-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "Tip location describes where the cue tip is set to strike the cue ball. Compare this reading with your follow, draw, and left-right settings before executing the shot.",
+      "summary": "Tip location describes where the cue tip is set to strike the cue ball."
+    },
+    {
+      "id": "live-stats-squirt-quick",
+      "title": "Predicted squirt",
+      "audio": "./guide/audio/live-stats-squirt-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Predicted cue-ball squirt shows the initial sideways deflection associated with off-center cue contact. Compare the value as you change left or right English, and watch how the aiming path responds.",
+      "summary": "Predicted cue-ball squirt shows the initial sideways deflection associated with off-center cue contact."
+    },
+    {
+      "id": "live-stats-jump-clearance-quick",
+      "title": "Jump and clearance",
+      "audio": "./guide/audio/live-stats-jump-clearance-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Jump and flight, obstacle clearance, and jump guide provide readings for elevated shots when applicable. Use them together to check whether the cue ball will rise, clear a blocking ball, and return to the cloth. A dash means the panel is not showing a result for that item in the current setup.",
+      "summary": "Jump and flight, obstacle clearance, and jump guide provide readings for elevated shots when applicable."
+    },
+    {
+      "id": "live-stats-masse-quick",
+      "title": "Curve and massé",
+      "audio": "./guide/audio/live-stats-masse-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Curve and mass-ay describes predicted cue-ball curvature when your settings produce that type of shot. Compare the reading with the path drawn on the table as you adjust elevation, spin, and speed.",
+      "summary": "Curve and mass-ay describes predicted cue-ball curvature when your settings produce that type of shot."
+    },
+    {
+      "id": "live-stats-power-pocket-quick",
+      "title": "Power & Pocket",
+      "audio": "./guide/audio/live-stats-power-pocket-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Power and Pocket helps connect shot speed with ball travel. It includes a power feel reference, pocket speed, and speed readings for the cue ball and object ball.",
+      "summary": "Power and Pocket helps connect shot speed with ball travel."
+    },
+    {
+      "id": "live-stats-power-feel-quick",
+      "title": "Power feel and pocket speed",
+      "audio": "./guide/audio/live-stats-power-feel-quick.mp3",
+      "category": "physics",
+      "level": 0,
+      "text": "Power feel and pocket speed provide references for how strongly the shot is set and how the object ball will approach the pocket. Use the diamond and lag references to compare shot strength and pocket speed.",
+      "summary": "Power feel and pocket speed provide references for how strongly the shot is set and how the object ball will approach the pocket."
+    },
+    {
+      "id": "live-stats-ball-speeds-advanced",
+      "title": "Ball speeds",
+      "audio": "./guide/audio/live-stats-ball-speeds-advanced.mp3",
+      "category": "physics",
+      "level": 2,
+      "text": "The cue-ball-to-object-ball speed row displays speed readings associated with the approach and collision, while the object-ball-to-pocket row shows the ball speed toward the pocket. Values shown in meters per second help you compare ball speeds. Interpret them alongside friction, cut angle, and the resulting ball path.",
+      "summary": "The cue-ball-to-object-ball speed row displays speed readings associated with the approach and collision, while the object-ball-to-pocket row shows the ball speed toward the pocket."
+    },
+    {
+      "id": "exercise-live-stats-cut-overlap",
+      "title": "Live adjustment",
+      "audio": "./guide/audio/exercise-live-stats-cut-overlap.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Set up a straight shot and open Live Stats. Notice the cut angle and physical overlap. Move the aim slightly to create a thinner contact, then watch both readings change. Return to a full-ball hit and compare the paths before selecting Execute Shot.",
+      "summary": "Set up a straight shot and open Live Stats."
+    },
+    {
+      "id": "exercise-live-stats-speed-spin",
+      "title": "Speed and spin",
+      "audio": "./guide/audio/exercise-live-stats-speed-spin.mp3",
+      "category": "exercises",
+      "level": 0,
+      "text": "Set up a repeatable shot and open Live Stats. First adjust shot speed and compare the power and ball-speed predictions. Then restore the starting setup, change left or right English, and examine predicted squirt. Change only one setting at a time so the differences are easier to understand.",
+      "summary": "Set up a repeatable shot and open Live Stats."
+    },
+    {
+      "id": "live-stats-cp-meter-cross-reference-quick",
+      "title": "Power meters and Live Stats",
+      "audio": "./guide/audio/live-stats-cp-meter-cross-reference-quick.mp3",
+      "category": "explore",
+      "level": 0,
+      "text": "The C and P power meters beside the cue-ball diagram give you a quick visual check. For more detail, open Live Stats and compare the power and pocket readings as you change shot speed, aim, or spin.",
+      "summary": "The C and P power meters beside the cue-ball diagram give you a quick visual check."
+    },
+    {
+      "id": "pool-follow-control-quick-draw-control-quick",
+      "title": "Follow / Draw",
+      "audio": [
+        "./guide/audio/follow-control-quick.mp3",
+        "./guide/audio/draw-control-quick.mp3"
+      ],
+      "category": "explore",
+      "level": 0,
+      "text": "Follow gives the cue ball forward rotation. On a suitable shot, this can carry the cue ball forward after contact. Try changing the amount of follow while keeping the starting arrangement the same.\n\nDraw gives the cue ball backspin. When enough backspin remains at contact, the cue ball can travel backward after striking the object ball. Compare different amounts of draw and shot speed.",
+      "summary": "Compare forward rotation and backspin."
+    },
+    {
+      "id": "pool-ghost-ball-quick-ball-overlap-quick",
+      "title": "Impact cue ball / overlap",
+      "audio": [
+        "./guide/audio/ghost-ball-quick.mp3",
+        "./guide/audio/ball-overlap-quick.mp3"
+      ],
+      "category": "explore",
+      "level": 0,
+      "text": "The ghost ball shows the cue-ball position needed at contact to send an object ball toward the chosen pocket. Use it as an aiming reference, then adjust the shot and examine the result.\n\nBall overlap describes how much of the object ball the cue ball covers along the aiming line. A fuller hit has more overlap, while a thinner cut has less. Use overlap as another way to understand the contact angle.",
+      "summary": "Inspect the impact cue ball and physical overlap."
+    }
+  ],
+  "assignments": {
+    "speed": "shot-speed-controls-quick",
+    "speed2": "shot-speed-controls-quick",
+    "tableSpeed1": "shot-speed-controls-quick",
+    "tableSpeed2": "shot-speed-controls-quick",
+    "speedMinus": "shot-speed-controls-quick",
+    "speedPlus": "shot-speed-controls-quick",
+    "speed2Minus": "shot-speed-controls-quick",
+    "speed2Plus": "shot-speed-controls-quick",
+    "speedNumber": "shot-speed-controls-quick",
+    "speed2Number": "shot-speed-controls-quick",
+    "follow": "pool-follow-control-quick-draw-control-quick",
+    "follow2": "pool-follow-control-quick-draw-control-quick",
+    "tableFollow1": "pool-follow-control-quick-draw-control-quick",
+    "tableFollow2": "pool-follow-control-quick-draw-control-quick",
+    "bottomFollow1": "pool-follow-control-quick-draw-control-quick",
+    "bottomFollow2": "pool-follow-control-quick-draw-control-quick",
+    "followMinus": "pool-follow-control-quick-draw-control-quick",
+    "followPlus": "pool-follow-control-quick-draw-control-quick",
+    "follow2Minus": "pool-follow-control-quick-draw-control-quick",
+    "follow2Plus": "pool-follow-control-quick-draw-control-quick",
+    "followNumber": "pool-follow-control-quick-draw-control-quick",
+    "follow2Number": "pool-follow-control-quick-draw-control-quick",
+    "sideSpin": "english-control-quick",
+    "sideSpin2": "english-control-quick",
+    "tableSpin1": "english-control-quick",
+    "tableSpin2": "english-control-quick",
+    "bottomSide1": "english-control-quick",
+    "bottomSide2": "english-control-quick",
+    "spinMinus": "english-control-quick",
+    "spinPlus": "english-control-quick",
+    "spin2Minus": "english-control-quick",
+    "spin2Plus": "english-control-quick",
+    "spinNumber": "english-control-quick",
+    "spin2Number": "english-control-quick",
+    "cueElevation": "cue-elevation-control-quick",
+    "cueElevation2": "cue-elevation-control-quick",
+    "tableElevation1": "cue-elevation-control-quick",
+    "tableElevation2": "cue-elevation-control-quick",
+    "elevMinus": "cue-elevation-control-quick",
+    "elevPlus": "cue-elevation-control-quick",
+    "elev2Minus": "cue-elevation-control-quick",
+    "elev2Plus": "cue-elevation-control-quick",
+    "elevNumber": "cue-elevation-control-quick",
+    "elev2Number": "cue-elevation-control-quick",
+    "cueElevationView1": "cue-elevation-control-quick",
+    "cueElevationView2": "cue-elevation-control-quick",
+    "aimRoller": "aiming-line-quick",
+    "aimRoller2": "aiming-line-quick",
+    "angleLock": "lock-cue-control-quick",
+    "animate": "execute-shot-sequence-quick",
+    "toggleShot2": "shot-two-planning-quick",
+    "undoShot": "undo-last-shot-quick",
+    "resetLayout": "reset-layout-concept-quick",
+    "resetLayoutQuick": "reset-layout-concept-quick",
+    "tipCanvas": "cue-ball-diagram-direct-tip-quick",
+    "tipCanvas2": "cue-ball-diagram-direct-tip-quick",
+    "toggleCueVisuals1Btn": "hide-cue-ball-guides-quick",
+    "toggleCueVisuals2Btn": "hide-cue-ball-guides-quick",
+    "jumpMasseFeatures": "jump-masse-open-controls-quick",
+    "airbornePhysics": "jump-masse-open-controls-quick",
+    "makeRandomSetup": "random-layouts-quick",
+    "shuffleTableLayout": "random-layouts-quick",
+    "randomSetup": "random-layouts-quick",
+    "addNextBall": "add-object-ball-quick",
+    "addBall": "add-object-ball-quick",
+    "removeBall": "remove-ball-layout-quick",
+    "ballSelect": "ball-placement-quick",
+    "addNextMarker": "table-markers-quick",
+    "addMarker": "table-markers-quick",
+    "removeMarker": "table-markers-quick",
+    "markerSelect": "table-markers-quick",
+    "markerZoneSelect": "table-markers-quick",
+    "markerRailControls": "table-markers-quick",
+    "markerDiameter": "marker-resizing-quick",
+    "markerDiameterNumber": "marker-resizing-quick",
+    "quickLayoutRecall": "save-recall-layout-intro-quick",
+    "layoutQuickSelect": "save-recall-layout-intro-quick",
+    "layoutSelect": "save-recall-layout-intro-quick",
+    "layoutQuickName": "save-recall-layout-intro-quick",
+    "layoutNameInput": "save-recall-layout-intro-quick",
+    "layoutQuickSave": "save-current-layout-quick",
+    "saveLayoutBtn": "save-current-layout-quick",
+    "layoutQuickLoad": "load-selected-layout-quick",
+    "loadLayoutBtn": "load-selected-layout-quick",
+    "layoutQuickRename": "rename-selected-layout-quick",
+    "layoutQuickDelete": "delete-selected-layout-quick",
+    "bankToolToggle": "bank-shot-geometry-quick",
+    "kickToolToggle": "kick-shot-geometry-quick",
+    "teachingCompassToggle": "compass-tool-intro-quick",
+    "compassSize": "compass-rotate-size-quick",
+    "compassRotate": "compass-rotate-size-quick",
+    "pocketTray": "pocketed-balls-layout-quick",
+    "p1Turn": "player-turn-overview-quick",
+    "p2Turn": "player-turn-overview-quick",
+    "p1Minus": "player-turn-overview-quick",
+    "p1Plus": "player-turn-overview-quick",
+    "p2Minus": "player-turn-overview-quick",
+    "p2Plus": "player-turn-overview-quick",
+    "nextTurn": "player-turn-overview-quick",
+    "showScoreBoard": "player-turn-overview-quick",
+    "tableL": "calibration-table-ball-dimensions-quick",
+    "tableW": "calibration-table-ball-dimensions-quick",
+    "ballD": "calibration-table-ball-dimensions-quick",
+    "muSlide": "sliding-friction-quick",
+    "muRoll": "rolling-friction-quick",
+    "muBall": "calibration-friction-restitution-advanced",
+    "railTang": "calibration-friction-restitution-advanced",
+    "ballRest": "collision-restitution-advanced",
+    "railRest": "cushion-response-quick",
+    "cueEndmassRatio": "cue-ball-squirt-quick",
+    "tableRest": "calibration-jump-physics-controls-advanced",
+    "bedImpactMu": "calibration-jump-physics-controls-advanced",
+    "jumpUnits": "physics-measurements-quick",
+    "showAngleLockControl": "features-options-overview-quick",
+    "showTipBadge": "features-options-overview-quick",
+    "showTable": "features-options-overview-quick",
+    "showImpact": "pool-ghost-ball-quick-ball-overlap-quick",
+    "showPaths": "trajectory-lines-quick",
+    "showGrid": "diamond-grid-quick",
+    "showDiamonds": "diamond-grid-quick",
+    "showBankKickNumbers": "features-options-player-guides-quick",
+    "expandStats1": "live-stats-overview-quick",
+    "expandStats2": "live-stats-overview-quick",
+    "btFeedbackButton": "help-shape-billiards-trainer-quick",
+    "cueRailBtn": "shot-controls-overview-quick",
+    "firstBall": "live-stats-first-ball-quick",
+    "firstBall2": "live-stats-first-ball-quick",
+    "cutAngle": "live-stats-cut-angle-quick",
+    "cutAngle2": "live-stats-cut-angle-quick",
+    "overlap": "live-stats-overlap-quick",
+    "overlap2": "live-stats-overlap-quick",
+    "distance": "live-stats-contact-travel-quick",
+    "distance2": "live-stats-contact-travel-quick",
+    "firstEvent": "live-stats-first-event-quick",
+    "firstEvent2": "live-stats-first-event-quick",
+    "tipText": "live-stats-tip-location-quick",
+    "tip2Text": "live-stats-tip-location-quick",
+    "squirtText": "live-stats-squirt-quick",
+    "squirt2Text": "live-stats-squirt-quick",
+    "airborneText": "live-stats-jump-clearance-quick",
+    "airborne2Text": "live-stats-jump-clearance-quick",
+    "clearanceText": "live-stats-jump-clearance-quick",
+    "clearance2Text": "live-stats-jump-clearance-quick",
+    "jumpGuideText": "live-stats-jump-clearance-quick",
+    "jumpGuide2Text": "live-stats-jump-clearance-quick",
+    "masseGuideText": "live-stats-masse-quick",
+    "masseGuide2Text": "live-stats-masse-quick",
+    "powerFeelText": "live-stats-power-feel-quick",
+    "powerFeel2Text": "live-stats-power-feel-quick",
+    "pocketNeedText": "live-stats-power-feel-quick",
+    "pocketNeed2Text": "live-stats-power-feel-quick",
+    "impactPowerText": "live-stats-ball-speeds-advanced",
+    "impactPower2Text": "live-stats-ball-speeds-advanced",
+    "pocketArrivalText": "live-stats-ball-speeds-advanced",
+    "pocketArrival2Text": "live-stats-ball-speeds-advanced",
+    "canvas": "table-orientation-quick"
+  },
+  "sections": {
+    "SHOT": "shot-controls-overview-quick",
+    "TABLE / BALLS": "table-balls-controls-overview-quick",
+    "LIVE STATS": "live-stats-overview-quick",
+    "PHYSICS / CALIBRATION": "physics-calibration-intro-quick",
+    "FEATURES & OPTIONS": "features-options-overview-quick"
+  },
+  "powerMeterTopic": "cue-ball-pocket-power-meters-quick",
+  "canvasTopics": [
+    "cue-ball-placement-quick",
+    "shot-two-planning-quick",
+    "ball-placement-quick",
+    "pocket-targeting-quick",
+    "marker-rotation-quick",
+    "marker-resizing-quick",
+    "table-markers-quick",
+    "ghost-ball-quick",
+    "tangent-line-quick",
+    "aiming-line-quick",
+    "trajectory-lines-quick",
+    "cushion-response-quick",
+    "table-orientation-quick"
+  ]
+}
