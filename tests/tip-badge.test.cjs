@@ -3,7 +3,7 @@ const source=fs.readFileSync('index.html','utf8');
 const listeners={};const canvas={addEventListener(t,f){(listeners[t]??=[]).push(f)},setPointerCapture(){}};
 const S={showTipBadge:true,shot2Enabled:true,sideSpin:.4,follow:.2,shot2:{x:200,y:200,sideSpin:0,follow:0}};
 let active=1,saves=0,refreshes=0;
-const context={S,canvas,isProjector:false,PHYSICS_MODEL:{maxTipOffsetR:.5},cueVisualsVisible:()=>true,cueBall:()=>({x:50,y:100}),ensureShot2:()=>S.shot2,controlMap:()=>({map:p=>p}),pointerPos:e=>({x:e.clientX,y:e.clientY}),clamp:(n,a,b)=>Math.max(a,Math.min(b,n)),setActiveShot:n=>active=n,updateUI(){},refreshPreview(){refreshes++},saveState(){saves++},syncProjector(){}};
+const context={window:{},document:{body:{classList:{contains:()=>false}}},S,canvas,isProjector:false,PHYSICS_MODEL:{maxTipOffsetR:.5},cueVisualsVisible:()=>true,cueBall:()=>({x:50,y:100}),ensureShot2:()=>S.shot2,controlMap:()=>({map:p=>p}),pointerPos:e=>({x:e.clientX,y:e.clientY}),clamp:(n,a,b)=>Math.max(a,Math.min(b,n)),setActiveShot:n=>active=n,updateUI(){},refreshPreview(){refreshes++},saveState(){saves++},syncProjector(){}};
 const geom=source.slice(source.indexOf('    function tipBadgeGeometry('),source.indexOf('    function drawTipBadge('));
 const handler=source.slice(source.indexOf('    // The on-table tip disks'),source.indexOf('    // Touch-only marker manipulation'));
 vm.runInNewContext(geom+handler,context);
@@ -17,3 +17,18 @@ emit('pointerdown',252,141);assert.equal(active,2);assert.equal(S.shot2.follow,1
 assert.equal(saves,2);assert(refreshes>=4);
 S.showTipBadge=false;assert(!emit('pointerdown',102,52),'Hidden badge cannot steal table touches');
 console.log('Live tip badges: center, spin signs, shared physical limits, Shot 2 targeting, release/cancel, persistence and ordinary table taps passed.');
+
+// Fixed phone controls use their own viewport position, never the cue-ball position.
+const disk={hidden:false,getBoundingClientRect:()=>({left:300,top:600,width:60,height:64})};
+context.$=()=>disk;canvas.getBoundingClientRect=()=>({left:10,top:50});
+context.pointerPos=e=>({x:e.clientX-10,y:e.clientY-50});
+context.document.body.classList.contains=()=>true;S.showTipBadge=true;
+context.window.billiardsFixedTipInput({clientX:330,clientY:627},1,'move');
+assert.equal(S.sideSpin,0);assert.equal(S.follow,0);
+context.window.billiardsFixedTipInput({clientX:340,clientY:627},1,'move');assert.equal(S.sideSpin,1);
+context.window.billiardsFixedTipInput({clientX:330,clientY:617},2,'move');assert.equal(S.shot2.follow,1);assert.equal(active,2);
+const finalFollow=S.shot2.follow;disk.hidden=true;
+context.window.billiardsFixedTipInput({clientX:330,clientY:637},2,'move');assert.equal(S.shot2.follow,finalFollow);
+assert(!emit('pointerdown',102,52),'Phone floating badges do not intercept table touches');
+context.window.billiardsFixedTipInput({},1,'end');assert.equal(saves,3);
+console.log('Fixed phone controls: viewport coordinates, center/spin, separate shot state, hidden controls and persistence passed.');

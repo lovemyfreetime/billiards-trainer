@@ -1401,7 +1401,7 @@
 
 .bt-file-library{width:100%;min-width:0;margin-top:8px}.bt-saved-files{display:flex;flex-wrap:wrap;align-items:end;gap:5px}.bt-saved-files label{display:flex;flex:1 1 180px;flex-direction:column;gap:4px;font-size:11px;min-width:0}.bt-saved-files select{width:100%;min-width:0}.bt-saved-files button{white-space:nowrap}.bt-file-status{font-size:11px;margin-top:4px}.photoAnalyzerFooter .bt-file-library{flex-basis:100%;margin-top:2px}.photoAnalyzerHeader #btg-analyze-start,.photoAnalyzerHeader #btg-analyze-explore{width:30px;height:30px;flex:0 0 30px;font-size:17px;border-width:1px;align-self:center}.photoAnalyzerHeader{gap:4px!important}
 </style>
-<link rel="stylesheet" href="./phone-play.css?v=5">
+<link rel="stylesheet" href="./phone-play.css?v=6">
 </head>
 <body>
 <div id="app">
@@ -5883,12 +5883,8 @@
         const q = map(cb), r = isProjector ? 24 : 22;
         return {which, r, cx:q.x + 52, cy:q.y - 48};
     }
-    function drawTipBadge(map) {
-        for (const which of [1, 2]) {
-            const badge = tipBadgeGeometry(map, which);
-            if (!badge) continue;
-            const {r, cx, cy} = badge;
-            const values = which === 2 ? ensureShot2() : S;
+    function drawTipBadgeDisk(ctx, badge, values, label) {
+        const {r, cx, cy} = badge;
         ctx.save();
         ctx.globalAlpha = .95;
         ctx.fillStyle = '#101318cc';
@@ -5921,9 +5917,25 @@
             ctx.fillStyle = '#fff';
             ctx.font = '600 9px Segoe UI';
             ctx.textAlign = 'center';
-            ctx.fillText(which === 2 ? 'TIP 2' : 'TIP', cx, cy + r + 15);
+            ctx.fillText(label, cx, cy + r + 13);
         }
         ctx.restore();
+    }
+    function drawTipBadge(map) {
+        const fixed = !isProjector && document.body.classList.contains('phone-layout');
+        for (const which of [1, 2]) {
+            const badge = tipBadgeGeometry(map, which);
+            const disk = $('phoneTip' + which);
+            // On phones, keep the controls below their respective slider sets.
+            if (disk) disk.hidden = !fixed || !badge;
+            if (!badge) continue;
+            const values = which === 2 ? ensureShot2() : S;
+            if (fixed) {
+                if (!disk) continue;
+                disk.width = Math.round(60 * DPR); disk.height = Math.round(64 * DPR);
+                const c = disk.getContext('2d'); c.setTransform(DPR,0,0,DPR,0,0);
+                drawTipBadgeDisk(c, {r:20,cx:30,cy:27}, values, 'CB ' + which);
+            } else drawTipBadgeDisk(ctx, badge, values, which === 2 ? 'TIP 2' : 'TIP');
         }
     }
     function drawPreview(map) {
@@ -7145,7 +7157,7 @@
     window.billiardsGuideTableTopicAt = (clientX, clientY) => {
         if (isProjector) return null;
         const p = pointerPos({clientX, clientY}), M = controlMap(), q = M.inv(p);
-        if ([1,2].some(which => { const b=tipBadgeGeometry(M.map,which); return b && Math.hypot(p.x-b.cx,p.y-b.cy)<=b.r+6; })) return 'cue-ball-diagram-direct-tip-quick';
+        if (!document.body.classList.contains('phone-layout') && [1,2].some(which => { const b=tipBadgeGeometry(M.map,which); return b && Math.hypot(p.x-b.cx,p.y-b.cy)<=b.r+6; })) return 'cue-ball-diagram-direct-tip-quick';
         const near = (a, pixels = 14) => { const b = M.map(a); return Math.hypot(p.x - b.x, p.y - b.y) <= pixels; };
         const onSegment = (a, b, pixels = 4) => {
             const x = M.map(a), y = M.map(b), dx = y.x - x.x, dy = y.y - x.y;
@@ -7197,9 +7209,19 @@
         setActiveShot(badge.which);
         updateUI(); refreshPreview();
     }
+    window.billiardsFixedTipInput = (ev, which, phase) => {
+        if (isProjector || !document.body.classList.contains('phone-layout')) return;
+        if (phase === 'end') { saveState(); syncProjector(); return; }
+        const disk = $('phoneTip' + which);
+        if (!disk || disk.hidden || (which === 2 && !S.shot2Enabled)) return;
+        const rect = disk.getBoundingClientRect(), base = canvas.getBoundingClientRect();
+        updateTipBadge(ev, {which, r:20 * rect.width / 60,
+            cx:rect.left - base.left + rect.width / 2,
+            cy:rect.top - base.top + rect.height * 27 / 64});
+    };
     function stopTipBadgeEvent(ev) { ev.preventDefault(); ev.stopImmediatePropagation(); }
     canvas.addEventListener('pointerdown', ev => {
-        if (isProjector || (ev.button != null && ev.button !== 0)) return;
+        if (isProjector || document.body.classList.contains('phone-layout') || (ev.button != null && ev.button !== 0)) return;
         const p = pointerPos(ev), map = controlMap().map;
         const badge = [2, 1].map(which => tipBadgeGeometry(map, which))
             .find(b => b && Math.hypot(p.x - b.cx, p.y - b.cy) <= b.r + 6);
@@ -11867,7 +11889,7 @@ if ('serviceWorker' in navigator) {
     </div>
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=fit5">
-  <script src="./phone-play.js?v=5"></script>
+  <script src="./phone-play.js?v=6"></script>
   <script src="./guide/guide.js?v=practice-links9"></script>
   <script src="./guide/pool-integration.js?v=practice-links7"></script>
   <script src="./guide/analyze-integration.js?v=start-audio6"></script>

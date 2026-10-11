@@ -41,6 +41,29 @@
     button.addEventListener('click', () => { if (source && !source.disabled) source.click(); });
     actions.append(button);
   }
+  for (const which of [1,2]) {
+    const disk = document.createElement('canvas');
+    disk.id = 'phoneTip' + which; disk.className = 'phoneTipControl'; disk.hidden = true;
+    disk.width = 60; disk.height = 64;
+    disk.setAttribute('aria-label','Cue ball ' + which + ': touch to set follow, draw and English');
+    disk.dataset.guideTopic = 'cue-ball-diagram-direct-tip-quick';
+    let pointer = null;
+    disk.addEventListener('pointerdown', event => {
+      if(event.button != null && event.button !== 0) return;
+      pointer = event.pointerId; disk.setPointerCapture(pointer);
+      event.preventDefault(); event.stopPropagation();
+      window.billiardsFixedTipInput?.(event,which,'move');
+    });
+    disk.addEventListener('pointermove', event => {
+      if(pointer !== event.pointerId) return;
+      event.preventDefault(); window.billiardsFixedTipInput?.(event,which,'move');
+    });
+    for(const type of ['pointerup','pointercancel','lostpointercapture']) disk.addEventListener(type,event => {
+      if(pointer !== event.pointerId) return;
+      pointer=null; window.billiardsFixedTipInput?.(event,which,'end');
+    });
+    document.body.append(disk);
+  }
   const notice = document.createElement('div'); notice.id = 'phoneNotice'; notice.setAttribute('role','status');
   const message = document.createElement('span');
   const closeNotice = document.createElement('button'); closeNotice.type = 'button'; closeNotice.textContent = '×'; closeNotice.setAttribute('aria-label','Dismiss fullscreen tip');
@@ -180,7 +203,7 @@
   document.addEventListener('pointerup', event => {
     if(!startupFullscreen || fullscreenElement() || navigator.standalone) return;
     const target=event.target;
-    if(!target?.closest?.('#stageWrap,#phoneActions')) return;
+    if(!target?.closest?.('#stageWrap,#phoneActions,.phoneTipControl')) return;
     startupFullscreen=false;
     enterFullscreen(true);
   },true);
@@ -206,7 +229,7 @@
   window.visualViewport?.addEventListener('resize',refreshSize);
   // Suppress pen/touch long-press menus only on gameplay surfaces.
   for(const type of ['contextmenu','selectstart','dragstart']) document.addEventListener(type,event => {
-    if(event.target?.closest?.('#stageWrap,#phoneActions,#phoneHeader')) event.preventDefault();
+    if(event.target?.closest?.('#stageWrap,#phoneActions,#phoneHeader,.phoneTipControl')) event.preventDefault();
   },{capture:true});
   layout();
 })();

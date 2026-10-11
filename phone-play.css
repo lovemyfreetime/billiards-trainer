@@ -104,3 +104,20 @@ body.phone-layout #phoneActions button { min-height:34px; font-size:11px; paddin
   -webkit-touch-callout:none; -webkit-user-select:none; user-select:none;
 }
 #stageWrap canvas { touch-action:none; }
+
+/* Fixed cue-tip controls sit under the side sliders, outside the table. */
+.phoneTipControl { display:none; }
+body.phone-layout .phoneTipControl:not([hidden]) {
+ display:block; position:fixed; z-index:46; width:60px; height:64px;
+ bottom:calc(4px + env(safe-area-inset-bottom)); touch-action:none;
+ -webkit-touch-callout:none; user-select:none; cursor:crosshair;
+}
+body.phone-layout #phoneTip1 { left:calc(26px + env(safe-area-inset-left)); }
+body.phone-layout #phoneTip2 { right:calc(26px + env(safe-area-inset-right)); }
+body.phone-layout .aimControlRow,body.phone-layout .tableSpeedControl,body.phone-layout .bottomSpinGroup {
+ height:calc(100% - 72px) !important;
+}
+@media(orientation:landscape) {
+ body.phone-layout #phoneTip1 { left:calc(50px + env(safe-area-inset-left)); }
+ body.phone-layout #phoneTip2 { right:calc(50px + env(safe-area-inset-right)); }
+}
