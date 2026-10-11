@@ -1810,7 +1810,7 @@
 </div>
 
 <link rel="stylesheet" href="./photo-calibration.css?v=5">
-<script src="./photo-calibration.js?v=1"></script>
+<script src="./photo-calibration.js?v=2"></script>
 <script src="./photo-table-spots.js?v=2"></script>
 <script>
 // AI Camera Edition wrapper: v4.12 trainer, app-mode launch package. v4 adds scoreboard placement/default-off + local analysis-photo recall.
@@ -9132,7 +9132,7 @@
         const cal=pvCalibration();if(!cal)return;
         x.save();x.beginPath();
         photoVision.corners.forEach((p,i)=>{const q=pvSourceToCanvas(p);i?x.lineTo(q.x,q.y):x.moveTo(q.x,q.y);});x.closePath();x.clip();
-        photoCal.references(x,p=>pvSourceToCanvas(photoCal.apply(cal.H,p)),.14);
+        photoCal.references(x,p=>pvSourceToCanvas(photoCal.apply(cal.H,p)),.065);
         x.restore();
         x.save();x.font='700 11px Segoe UI';x.textAlign='center';x.textBaseline='middle';
         photoVision.refinements.forEach(r=>{const q=pvSourceToCanvas(r.image);x.fillStyle='#071013';x.strokeStyle='#ffd86b';x.lineWidth=2;x.beginPath();x.arc(q.x,q.y,7,0,Math.PI*2);x.fill();x.stroke();});
@@ -9534,6 +9534,17 @@
             strip.appendChild(ball);
         }
     }
+    function pvEnsureDetectionThumb(d){
+        if(d.thumb||!photoVision.imageReady)return;
+        const H=pvCalibration()?.H,source=photoVision.sourceCanvas;
+        if(!H||!source?.width)return;
+        const p=applyHomography(H,d.nx,d.ny);
+        const a=applyHomography(H,d.nx+S.ballR/S.tableL,d.ny);
+        const b=applyHomography(H,d.nx,d.ny+S.ballR/S.tableW);
+        const radius=Math.max(3,Math.hypot(a.x-p.x,a.y-p.y),Math.hypot(b.x-p.x,b.y-p.y));
+        const crop=pvSquareCropCanvas(source,{x1:p.x-radius,y1:p.y-radius,x2:p.x+radius,y2:p.y+radius},.25,128);
+        d.thumb=pvThumbFromCanvas(crop);
+    }
     function renderPhotoDetectionList() {
         renderPhotoBallSummary();
         const box=$('photoDetectionList');
@@ -9586,6 +9597,7 @@
                     row.style.color=(n===2||n===3||n===4||n===7||n===8)?'#fff':'#111';
                 }
             }
+            pvEnsureDetectionThumb(d);
             const dot=document.createElement('div'); dot.className='photoDetectionDot';
             if(d.thumb) {
                 const im=document.createElement('img');

@@ -70,6 +70,10 @@
     for(let i=1;i<8;i++)path([{x:i/8,y:0},{x:i/8,y:1}]);
     for(let j=1;j<4;j++)path([{x:0,y:j/4},{x:1,y:j/4}]);
     path([{x:.75,y:.5},{x:.84,y:.5-.18},{x:.84,y:.5+.18},{x:.75,y:.5}]);
+    // Half-diamond lines divide each diamond square into four smaller squares.
+    ctx.strokeStyle='rgba(255,255,255,'+(alpha*.65)+')';ctx.setLineDash([2,4]);
+    for(let i=1;i<16;i+=2)path([{x:i/16,y:0},{x:i/16,y:1}]);
+    for(let j=1;j<8;j+=2)path([{x:0,y:j/8},{x:1,y:j/8}]);
     ctx.restore();
   }
   const api={pockets,region,anchors,diamonds,fit,apply,inverse,validQuad,references};
