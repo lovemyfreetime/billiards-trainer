@@ -1401,7 +1401,7 @@
 
 .bt-file-library{width:100%;min-width:0;margin-top:8px}.bt-saved-files{display:flex;flex-wrap:wrap;align-items:end;gap:5px}.bt-saved-files label{display:flex;flex:1 1 180px;flex-direction:column;gap:4px;font-size:11px;min-width:0}.bt-saved-files select{width:100%;min-width:0}.bt-saved-files button{white-space:nowrap}.bt-file-status{font-size:11px;margin-top:4px}.photoAnalyzerFooter .bt-file-library{flex-basis:100%;margin-top:2px}.photoAnalyzerHeader #btg-analyze-start,.photoAnalyzerHeader #btg-analyze-explore{width:30px;height:30px;flex:0 0 30px;font-size:17px;border-width:1px;align-self:center}.photoAnalyzerHeader{gap:4px!important}
 </style>
-<link rel="stylesheet" href="./phone-play.css?v=1">
+<link rel="stylesheet" href="./phone-play.css?v=2">
 </head>
 <body>
 <div id="app">
@@ -4776,7 +4776,8 @@
     if (window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(resize)).observe(stage);
     function controlMap() {
         const w = canvas.width / DPR, h = canvas.height / DPR, pad = 34;
-        const scale = Math.min((w - pad * 2) / S.tableL, (h - pad * 2) / S.tableW);
+        const sidePad = document.body.classList.contains('phone-layout') ? 140 : pad;
+        const scale = Math.max(.01, Math.min((w - sidePad * 2) / S.tableL, (h - pad * 2) / S.tableW));
         const tw = S.tableL * scale, th = S.tableW * scale, ox = (w - tw) / 2, oy = (h - th) / 2;
         return { map: p => ({ x: ox + p.x * scale, y: oy + p.y * scale }), inv: p => ({ x: (p.x - ox) / scale, y: (p.y - oy) / scale }), scale, corners: [{ x: ox, y: oy }, { x: ox + tw, y: oy }, { x: ox + tw, y: oy + th }, { x: ox, y: oy + th }] };
     }
@@ -4865,6 +4866,9 @@
     function positionRailControls() {
         if (isProjector || !canvas || !canvas.width)
             return;
+        if (document.body.classList.contains('phone-layout')) {
+            document.querySelectorAll('.speedTickScale .speedTick').forEach(tick => tick.style.setProperty('--phone-tick', tick.style.left || '50%'));
+        }
         const M = controlMap();
         if (!M || !M.corners)
             return;
@@ -5125,9 +5129,17 @@
         const a = preview && preview.airborne, path = preview && preview.paths && preview.paths[0];
         if (!shouldShowFlightOverlay(preview, which) || !path || path.length < 2) return;
         const w = canvas.width / DPR, h = canvas.height / DPR;
-        const boxW = Math.min(w - 12, 680, Math.max(510, w * .62));
+        const phoneCanvas = $('phoneFlightCanvas');
+        const phoneProfile = document.body.classList.contains('phone-layout') && w >= 650 && phoneCanvas;
+        const profileCtx = phoneProfile ? phoneCanvas.getContext('2d') : ctx;
+        const boxW = phoneProfile ? Math.min(510,w-240) : Math.min(w - 12, 680, Math.max(510, w * .62));
         // Pocket 1 side: keep the profile away from the upper-right rail tools.
-        const boxH = 132, x0 = 6, y0 = 8;
+        const boxH = phoneProfile ? 112 : 132, x0 = phoneProfile ? 0 : 6, y0 = phoneProfile ? 0 : 8;
+        if (phoneProfile) {
+            phoneCanvas.width = Math.round(boxW*DPR); phoneCanvas.height = Math.round(boxH*DPR);
+            phoneCanvas.style.width = boxW+'px'; phoneCanvas.style.height = boxH+'px'; phoneCanvas.style.display = 'block';
+            profileCtx.setTransform(DPR,0,0,DPR,0,0);
+        }
         const padL = Math.min(125,boxW*.25), padR = 22, padT = 36, padB = 22;
         const plotW = boxW-padL-padR, plotH = boxH-padT-padB;
         const pts = [];
@@ -5165,118 +5177,118 @@
         const px = d => x0+padL + (reverseProfile ? 1-clamp(d/maxD,0,1) : clamp(d/maxD,0,1))*plotW;
         const py = z => y0+padT+plotH - clamp(z/maxZ,0,1)*plotH;
 
-        ctx.save();
-        ctx.fillStyle = 'rgba(4,7,10,.88)';
-        ctx.strokeStyle = 'rgba(255,255,255,.35)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.roundRect(x0,y0,boxW,boxH,8);
-        ctx.fill(); ctx.stroke();
+        profileCtx.save();
+        profileCtx.fillStyle = 'rgba(4,7,10,.88)';
+        profileCtx.strokeStyle = 'rgba(255,255,255,.35)';
+        profileCtx.lineWidth = 1;
+        profileCtx.beginPath();
+        profileCtx.roundRect(x0,y0,boxW,boxH,8);
+        profileCtx.fill(); profileCtx.stroke();
 
-        ctx.font = '800 10px Segoe UI';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#fff';
-        ctx.fillText(`SIDE PROFILE · SHOT ${which}`,x0+10,y0+13);
+        profileCtx.font = '800 10px Segoe UI';
+        profileCtx.textAlign = 'left'; profileCtx.textBaseline = 'middle';
+        profileCtx.fillStyle = '#fff';
+        profileCtx.fillText(`SIDE PROFILE · SHOT ${which}`,x0+10,y0+13);
 
         const bedY = py(0);
-        ctx.strokeStyle = 'rgba(255,255,255,.55)';
-        ctx.beginPath(); ctx.moveTo(x0+padL,bedY); ctx.lineTo(x0+boxW-padR,bedY); ctx.stroke();
-        ctx.fillStyle = 'rgba(255,255,255,.65)';
-        ctx.font = '700 9px Segoe UI';
-        ctx.fillText('BED',x0+6,bedY);
+        profileCtx.strokeStyle = 'rgba(255,255,255,.55)';
+        profileCtx.beginPath(); profileCtx.moveTo(x0+padL,bedY); profileCtx.lineTo(x0+boxW-padR,bedY); profileCtx.stroke();
+        profileCtx.fillStyle = 'rgba(255,255,255,.65)';
+        profileCtx.font = '700 9px Segoe UI';
+        profileCtx.fillText('BED',x0+6,bedY);
 
-        ctx.strokeStyle = stroke; ctx.lineWidth = 2.2;
-        ctx.beginPath();
-        visiblePts.forEach((p,i)=>{ const X=px(p.d),Y=py(p.z); if(i===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); });
-        ctx.stroke();
+        profileCtx.strokeStyle = stroke; profileCtx.lineWidth = 2.2;
+        profileCtx.beginPath();
+        visiblePts.forEach((p,i)=>{ const X=px(p.d),Y=py(p.z); if(i===0)profileCtx.moveTo(X,Y); else profileCtx.lineTo(X,Y); });
+        profileCtx.stroke();
 
         // Use the same physical radius and plot scales for both balls.
         const rx = Math.max(3, S.ballR/maxD*plotW);
         const ry = Math.max(3, S.ballR/maxZ*plotH);
         function profileBall(X, Z, id, label, outline) {
             const Y = py(Z);
-            ctx.save();
-            ctx.beginPath();
-            ctx.ellipse(X, Y, rx, ry, 0, 0, Math.PI*2);
-            ctx.fillStyle = id >= 9 && id <= 15 ? '#f7f7f3' : ballBaseColor(id);
-            ctx.fill();
+            profileCtx.save();
+            profileCtx.beginPath();
+            profileCtx.ellipse(X, Y, rx, ry, 0, 0, Math.PI*2);
+            profileCtx.fillStyle = id >= 9 && id <= 15 ? '#f7f7f3' : ballBaseColor(id);
+            profileCtx.fill();
             if (id >= 9 && id <= 15) {
-                ctx.save();
-                ctx.clip();
-                ctx.fillStyle = ballBaseColor(id);
-                ctx.fillRect(X-rx, Y-ry*.42, rx*2, ry*.84);
-                ctx.restore();
+                profileCtx.save();
+                profileCtx.clip();
+                profileCtx.fillStyle = ballBaseColor(id);
+                profileCtx.fillRect(X-rx, Y-ry*.42, rx*2, ry*.84);
+                profileCtx.restore();
             }
-            ctx.strokeStyle = outline;
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
+            profileCtx.strokeStyle = outline;
+            profileCtx.lineWidth = 1.5;
+            profileCtx.stroke();
             if (id > 0 && id <= 15) {
-                ctx.fillStyle = '#fff';
-                ctx.beginPath();
-                ctx.ellipse(X,Y,Math.min(rx*.65,7),Math.min(ry*.65,7),0,0,Math.PI*2);
-                ctx.fill();
-                ctx.fillStyle = '#111';
-                ctx.font = '800 8px Segoe UI';
-                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                ctx.fillText(String(id),X,Y);
+                profileCtx.fillStyle = '#fff';
+                profileCtx.beginPath();
+                profileCtx.ellipse(X,Y,Math.min(rx*.65,7),Math.min(ry*.65,7),0,0,Math.PI*2);
+                profileCtx.fill();
+                profileCtx.fillStyle = '#111';
+                profileCtx.font = '800 8px Segoe UI';
+                profileCtx.textAlign = 'center'; profileCtx.textBaseline = 'middle';
+                profileCtx.fillText(String(id),X,Y);
             }
-            ctx.fillStyle = outline;
-            ctx.font = '700 9px Segoe UI';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            profileCtx.fillStyle = outline;
+            profileCtx.font = '700 9px Segoe UI';
+            profileCtx.textAlign = 'center'; profileCtx.textBaseline = 'bottom';
             const labelX = clamp(X, x0+30, x0+boxW-30);
-            if (label) ctx.fillText(label,labelX,Math.max(y0+padT+9,Y-ry-3));
-            ctx.restore();
+            if (label) profileCtx.fillText(label,labelX,Math.max(y0+padT+9,Y-ry-3));
+            profileCtx.restore();
         }
 
         if (Array.isArray(a.landings)) {
-            ctx.strokeStyle = '#ffd86b';
-            ctx.fillStyle = '#ffd86b';
+            profileCtx.strokeStyle = '#ffd86b';
+            profileCtx.fillStyle = '#ffd86b';
             a.landings.filter(p=>!contact || p.t<=contact.t).slice(0,12).forEach((p,i)=>{
                 const X=px(Math.min(maxD,p.travel||0));
-                ctx.beginPath(); ctx.moveTo(X,bedY-8); ctx.lineTo(X,bedY+3); ctx.stroke();
-                ctx.textAlign='center';ctx.textBaseline='top';
-                ctx.fillText(`L${i+1}`,clamp(X,x0+padL+22,x0+boxW-26),bedY+5);
+                profileCtx.beginPath(); profileCtx.moveTo(X,bedY-8); profileCtx.lineTo(X,bedY+3); profileCtx.stroke();
+                profileCtx.textAlign='center';profileCtx.textBaseline='top';
+                profileCtx.fillText(`L${i+1}`,clamp(X,x0+padL+22,x0+boxW-26),bedY+5);
             });
         }
 
         if (contact) {
             profileBall(px(contactD),S.ballR,contact.objId,'','#68b8ff');
             // Separate label lanes keep target/pocket text apart even at close spacing.
-            ctx.font='800 9px Segoe UI';ctx.fillStyle='#68b8ff';
-            ctx.textAlign='center';ctx.textBaseline='middle';
+            profileCtx.font='800 9px Segoe UI';profileCtx.fillStyle='#68b8ff';
+            profileCtx.textAlign='center';profileCtx.textBaseline='middle';
             const targetLabelX = clamp(px(contactD),x0+padL+30,x0+boxW-40);
             const targetLabelY = bedY-26;
-            ctx.fillText(`TARGET ${contact.objName}`,targetLabelX,targetLabelY);
-            ctx.strokeStyle='rgba(104,184,255,.6)';ctx.lineWidth=1;
-            ctx.beginPath();ctx.moveTo(targetLabelX,targetLabelY+7);
-            ctx.lineTo(px(contactD),py(S.ballR)-ry-2);ctx.stroke();
+            profileCtx.fillText(`TARGET ${contact.objName}`,targetLabelX,targetLabelY);
+            profileCtx.strokeStyle='rgba(104,184,255,.6)';profileCtx.lineWidth=1;
+            profileCtx.beginPath();profileCtx.moveTo(targetLabelX,targetLabelY+7);
+            profileCtx.lineTo(px(contactD),py(S.ballR)-ry-2);profileCtx.stroke();
             if (pocket) {
                 const X = px(pocketD), Y = py(S.ballR);
-                ctx.save();
-                ctx.setLineDash([4,4]);ctx.strokeStyle='rgba(104,184,255,.5)';
-                ctx.beginPath();ctx.moveTo(px(contactD),Y);ctx.lineTo(X,Y);ctx.stroke();
-                ctx.setLineDash([]);
-                ctx.fillStyle='#030405';ctx.strokeStyle='#68b8ff';
-                ctx.beginPath();ctx.ellipse(X,Y,9,7,0,0,Math.PI*2);ctx.fill();ctx.stroke();
-                ctx.font='800 9px Segoe UI';ctx.fillStyle='#68b8ff';
-                ctx.textAlign=reverseProfile?'left':'right';ctx.textBaseline='bottom';
+                profileCtx.save();
+                profileCtx.setLineDash([4,4]);profileCtx.strokeStyle='rgba(104,184,255,.5)';
+                profileCtx.beginPath();profileCtx.moveTo(px(contactD),Y);profileCtx.lineTo(X,Y);profileCtx.stroke();
+                profileCtx.setLineDash([]);
+                profileCtx.fillStyle='#030405';profileCtx.strokeStyle='#68b8ff';
+                profileCtx.beginPath();profileCtx.ellipse(X,Y,9,7,0,0,Math.PI*2);profileCtx.fill();profileCtx.stroke();
+                profileCtx.font='800 9px Segoe UI';profileCtx.fillStyle='#68b8ff';
+                profileCtx.textAlign=reverseProfile?'left':'right';profileCtx.textBaseline='bottom';
                 const pocketLabelX=reverseProfile ? Math.max(X-12,x0+5) : Math.min(X+12,x0+boxW-5);
-                ctx.fillText(`POCKET ${{TL:1,TM:2,TR:3,BR:4,BM:5,BL:6}[pocket.name] || pocket.name}`,pocketLabelX,bedY-48);
-                ctx.strokeStyle='rgba(104,184,255,.6)';ctx.lineWidth=1;
-                ctx.beginPath();ctx.moveTo(X,bedY-45);ctx.lineTo(X,Y-8);ctx.stroke();
+                profileCtx.fillText(`POCKET ${{TL:1,TM:2,TR:3,BR:4,BM:5,BL:6}[pocket.name] || pocket.name}`,pocketLabelX,bedY-48);
+                profileCtx.strokeStyle='rgba(104,184,255,.6)';profileCtx.lineWidth=1;
+                profileCtx.beginPath();profileCtx.moveTo(X,bedY-45);profileCtx.lineTo(X,Y-8);profileCtx.stroke();
                 const event = (preview.pocketEvents || []).find(p=>p.id===contact.objId);
                 const arrived = event && Math.hypot(event.x-pocket.x,event.y-pocket.y)<S.ballR*5;
                 const end = preview.finalBalls && preview.finalBalls.find(b=>b.id===contact.objId);
                 const short = !event && end && end.active && objTravel < pocket.distance-S.ballR;
                 const status = arrived ? `IN · ${event.speed.toFixed(2)} m/s` : event ? 'OTHER POCKET' : short ? 'SHORT / STOPPED' : 'MISSED / CONTINUES';
-                ctx.textBaseline='top';
-                ctx.fillStyle=arrived?'#6fff58':'#ffd86b';
-                ctx.fillText(status,x0+boxW-8,bedY+5);
-                ctx.restore();
+                profileCtx.textBaseline='top';
+                profileCtx.fillStyle=arrived?'#6fff58':'#ffd86b';
+                profileCtx.fillText(status,x0+boxW-8,bedY+5);
+                profileCtx.restore();
             }
             if (objPts.length>1) {
-                ctx.strokeStyle='#68b8ff';ctx.lineWidth=2;
-                ctx.beginPath();objPts.forEach((p,i)=>{if(i===0)ctx.moveTo(px(p.d),py(p.z));else ctx.lineTo(px(p.d),py(p.z));});ctx.stroke();
+                profileCtx.strokeStyle='#68b8ff';profileCtx.lineWidth=2;
+                profileCtx.beginPath();objPts.forEach((p,i)=>{if(i===0)profileCtx.moveTo(px(p.d),py(p.z));else profileCtx.lineTo(px(p.d),py(p.z));});profileCtx.stroke();
             }
         }
         // Draw the obstacle last so target and pocket annotations cannot obscure it.
@@ -5287,13 +5299,13 @@
                 '', clearanceColor(primary.margin));
             profileBall(X, primary.cueZ || S.ballR, 0, 'CUE BALL', '#f7f7f3');
             const clearLabel = `${primary.margin >= 0 ? 'CLEARS +' : 'CLIPS −'}${jumpLength(Math.abs(primary.margin), S.jumpUnits === 'mm' ? 1 : 2)}`;
-            ctx.font = '800 11px Segoe UI';
-            ctx.fillStyle = clearanceColor(primary.margin);
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(clearLabel,x0+boxW*.5,y0+29,boxW*.64);
-            ctx.font = '800 10px Segoe UI';
-            ctx.textAlign = 'left';
-            ctx.fillText(`BALL ${primary.n}`,x0+166,y0+13,Math.max(35,boxW-180));
+            profileCtx.font = '800 11px Segoe UI';
+            profileCtx.fillStyle = clearanceColor(primary.margin);
+            profileCtx.textAlign = 'center'; profileCtx.textBaseline = 'middle';
+            profileCtx.fillText(clearLabel,x0+boxW*.5,y0+29,boxW*.64);
+            profileCtx.font = '800 10px Segoe UI';
+            profileCtx.textAlign = 'left';
+            profileCtx.fillText(`BALL ${primary.n}`,x0+166,y0+13,Math.max(35,boxW-180));
         }
         else {
             // Without an obstacle, show the cue ball at the highest sampled point.
@@ -5303,8 +5315,8 @@
 
 
         const shot = which===2 ? ensureShot2() : S;
-        ctx.font='700 9px Segoe UI';ctx.fillStyle='#dfefff';ctx.textAlign='left';ctx.textBaseline='middle';
-        ctx.fillText(`POWER ${shot.speed.toFixed(2)} m/s`,x0+10,y0+27);
+        profileCtx.font='700 9px Segoe UI';profileCtx.fillStyle='#dfefff';profileCtx.textAlign='left';profileCtx.textBaseline='middle';
+        profileCtx.fillText(`POWER ${shot.speed.toFixed(2)} m/s`,x0+10,y0+27);
         const g = a.guidance;
         const summary = [];
         summary.push(`H ${jumpLength(a.maxCueHeight, S.jumpUnits === 'mm' ? 0 : 2)}`);
@@ -5313,11 +5325,11 @@
             summary.push(`min ${g.minClear.angle.toFixed(1)}°`);
         if (g && g.bend && g.bend.magnitude > .0005)
             summary.push(`bend ${jumpLength(g.bend.magnitude, S.jumpUnits === 'mm' ? 0 : 2)}`);
-        ctx.fillStyle = '#dfefff'; ctx.textAlign='left'; ctx.textBaseline='middle';
-        ctx.font='700 9px Segoe UI';
+        profileCtx.fillStyle = '#dfefff'; profileCtx.textAlign='left'; profileCtx.textBaseline='middle';
+        profileCtx.font='700 9px Segoe UI';
         const summaryMid = y0+boxH*.5;
-        summary.forEach((line,i)=>ctx.fillText(line,x0+10,summaryMid+(i-(summary.length-1)/2)*14,padL-18));
-        ctx.restore();
+        summary.forEach((line,i)=>profileCtx.fillText(line,x0+10,summaryMid+(i-(summary.length-1)/2)*14,padL-18));
+        profileCtx.restore();
     }
     function logicalCircle(p, r, map, fill, stroke, line = 1, alpha = 1) {
         ctx.save();
@@ -6385,6 +6397,7 @@
         });
     }
     function draw() {
+        if ($('phoneFlightCanvas')) $('phoneFlightCanvas').style.display = 'none';
         updateMarkerRailControls();
         const w = canvas.width / DPR, h = canvas.height / DPR;
         ctx.clearRect(0, 0, w, h);
@@ -7701,21 +7714,22 @@
                     return;
                 setActiveShot(shotNo);
                 rollerDrag = true;
-                rollerLastX = ev.clientX;
+                rollerLastX = document.body.classList.contains('phone-layout') ? ev.clientY : ev.clientX;
                 roller.setPointerCapture(ev.pointerId);
                 ev.preventDefault();
             });
             roller.addEventListener('pointermove', ev => {
                 if (!rollerDrag)
                     return;
-                const dx = ev.clientX - rollerLastX;
-                rollerLastX = ev.clientX;
+                const vertical = document.body.classList.contains('phone-layout');
+                const dx = (vertical ? ev.clientY : ev.clientX) - rollerLastX;
+                rollerLastX = document.body.classList.contains('phone-layout') ? ev.clientY : ev.clientX;
                 if (Math.abs(dx) < 0.01)
                     return;
                 setActiveShot(shotNo);
                 rotateAimMicro((dx / 12) * (0.15 * Math.PI / 180));
                 rollerVisual = (rollerVisual + dx) % 12;
-                ticks.style.transform = 'translateX(' + rollerVisual + 'px)';
+                ticks.style.transform = (vertical ? 'translateY(' : 'translateX(') + rollerVisual + 'px)';
                 ev.preventDefault();
             });
             const endRoller = () => {
@@ -11776,7 +11790,7 @@ if ('serviceWorker' in navigator) {
     </div>
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=fit5">
-  <script src="./phone-play.js?v=1"></script>
+  <script src="./phone-play.js?v=2"></script>
   <script src="./guide/guide.js?v=practice-links9"></script>
   <script src="./guide/pool-integration.js?v=practice-links7"></script>
   <script src="./guide/analyze-integration.js?v=start-audio6"></script>

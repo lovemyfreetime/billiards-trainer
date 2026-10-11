@@ -36,6 +36,13 @@ function fixture(mobile=true){
  const f=fixture();assert(f.body.classList.contains('phone-layout'));assert.equal(f.ids.title.parentNode.id,'phoneHeader');assert.equal(f.ids.panel.inert,true);
  await f.get('phoneControls').click();assert(f.body.classList.contains('phone-controls-open'));assert.equal(f.ids.panel.inert,false);
  await f.get('phoneDismiss').click();assert(!f.body.classList.contains('phone-controls-open'));
+ f.ids.panel.scrollHeight=2000; f.ids.panel.clientHeight=300; f.ids.panel.scrollTop=0;
+ const rail=f.get('phonePanelScroll');rail.clientHeight=300;rail.getBoundingClientRect=()=>({top:50});rail.setPointerCapture=()=>{};
+ const pointer=(y)=>({clientY:y,pointerId:1,preventDefault(){},stopPropagation(){}});
+ await rail.emit('pointerdown',pointer(60));await rail.emit('pointermove',pointer(160));await rail.emit('pointerup');
+ assert(f.ids.panel.scrollTop>500,'Dragging the separate rail scrolls the panel');
+ const before=f.ids.panel.scrollTop;await rail.emit('wheel',{deltaY:100,preventDefault(){}});assert.equal(f.ids.panel.scrollTop,before+100);
+ await rail.emit('keydown',{key:'Home',preventDefault(){},stopPropagation(){}});assert.equal(f.ids.panel.scrollTop,0);
  const actions=f.get('phoneActions').children;await actions[0].click();assert.equal(f.ids.animate.calls,1);
  f.ids.animate.disabled=true;await actions[0].click();assert.equal(f.ids.animate.calls,1);
  await f.get('btg-fullscreen').click();assert(f.get('phoneNotice').classList.contains('visible'));assert.equal(f.get('btg-fullscreen').getAttribute('aria-pressed'),'true');
@@ -51,3 +58,19 @@ function fixture(mobile=true){
  const d=fixture(false);assert(!d.body.classList.contains('phone-layout'));assert.equal(d.ids.title.parentNode,d.ids.panel);
  console.log('Phone controls, accessible hidden panel, action routing, native fullscreen, rejection fallback, Escape, and desktop restoration passed.');
 })().catch(e=>{console.error(e);process.exit(1)});
+
+// Moving the aim roller vertically on a phone must retain the desktop sensitivity.
+const source=fs.readFileSync('index.html','utf8');
+const start=source.indexOf('        function bindAimRoller(');
+const stop=source.indexOf("        bindAimRoller('aimRoller', 1)",start);
+for(const vertical of [true,false]) {
+ const roller=new Element();const ticks=new Element();roller.querySelector=()=>ticks;roller.setPointerCapture=()=>{};
+ let rotation=0;
+ const context={$:()=>roller,S:{shot2Enabled:true},document:{body:{classList:{contains:()=>vertical}}},setActiveShot(){},rotateAimMicro:r=>rotation+=r,setTimeout(){}};
+ vm.runInNewContext(source.slice(start,stop)+';bindAimRoller("aimRoller",1)',context);
+ const event=(x,y)=>({clientX:x,clientY:y,pointerId:1,preventDefault(){}});
+ roller.emit('pointerdown',event(10,10));roller.emit('pointermove',event(vertical?10:22,vertical?22:10));
+ assert(Math.abs(rotation-.15*Math.PI/180)<1e-12);
+ assert(ticks.style.transform.startsWith(vertical?'translateY':'translateX'));
+}
+console.log('Separate rail scrolling and phone/desktop aim gesture sensitivity passed.');

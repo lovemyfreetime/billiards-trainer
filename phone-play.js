@@ -36,7 +36,61 @@
   const closeNotice = document.createElement('button'); closeNotice.type = 'button'; closeNotice.textContent = '×'; closeNotice.setAttribute('aria-label','Dismiss fullscreen tip');
   closeNotice.addEventListener('click', () => notice.classList.remove('visible'));
   notice.append(message,closeNotice);
-  document.body.append(header,dismiss,actions,notice);
+  const flightCanvas = document.createElement('canvas'); flightCanvas.id = 'phoneFlightCanvas'; flightCanvas.setAttribute('aria-hidden','true');
+  const scrollRail = document.createElement('div'); scrollRail.id = 'phonePanelScroll'; scrollRail.tabIndex = 0;
+  scrollRail.setAttribute('role','scrollbar'); scrollRail.setAttribute('aria-label','Scroll controls');
+  scrollRail.setAttribute('aria-controls','panel'); scrollRail.setAttribute('aria-orientation','vertical'); scrollRail.setAttribute('aria-valuemin','0');
+  const scrollThumb = document.createElement('div'); scrollThumb.id = 'phonePanelScrollThumb'; scrollRail.append(scrollThumb);
+  document.body.append(header,dismiss,actions,notice,flightCanvas,scrollRail);
+  function scrollGeometry() {
+    const height = scrollRail.clientHeight || 0;
+    const max = Math.max(0,panel.scrollHeight-panel.clientHeight);
+    const thumb = Math.min(height,Math.max(24,height*panel.clientHeight/Math.max(1,panel.scrollHeight)));
+    return {height,max,thumb,travel:Math.max(0,height-thumb)};
+  }
+  function syncScroll() {
+    const g = scrollGeometry();
+    scrollThumb.style.height = g.thumb+'px';
+    scrollThumb.style.top = (g.max ? g.travel*panel.scrollTop/g.max : 0)+'px';
+    scrollRail.setAttribute('aria-valuemax',String(Math.round(g.max)));
+    scrollRail.setAttribute('aria-valuenow',String(Math.round(panel.scrollTop || 0)));
+  }
+  let railDrag = null;
+  scrollRail.addEventListener('pointerdown',event => {
+    const g = scrollGeometry(); if(!g.max || !g.travel) return;
+    const y = event.clientY-scrollRail.getBoundingClientRect().top;
+    const thumbY = g.travel*panel.scrollTop/g.max;
+    if(y < thumbY || y > thumbY+g.thumb) panel.scrollTop=Math.max(0,Math.min(g.max,(y-g.thumb/2)*g.max/g.travel));
+    railDrag = {y:event.clientY,scroll:panel.scrollTop};
+    scrollRail.setPointerCapture(event.pointerId); event.preventDefault(); event.stopPropagation(); syncScroll();
+  });
+  scrollRail.addEventListener('pointermove',event => {
+    if(!railDrag) return; const g=scrollGeometry();
+    if(g.travel) panel.scrollTop=Math.max(0,Math.min(g.max,railDrag.scroll+(event.clientY-railDrag.y)*g.max/g.travel));
+    event.preventDefault(); syncScroll();
+  });
+  for(const type of ['pointerup','pointercancel','lostpointercapture'])scrollRail.addEventListener(type,()=>{railDrag=null});
+  scrollRail.addEventListener('wheel',event => {panel.scrollTop+=event.deltaY; event.preventDefault(); syncScroll()}, {passive:false});
+  scrollRail.addEventListener('keydown',event => {
+    const steps={ArrowDown:40,ArrowUp:-40,PageDown:panel.clientHeight*.8,PageUp:-panel.clientHeight*.8};
+    if(event.key in steps)panel.scrollTop+=steps[event.key];
+    else if(event.key==='Home')panel.scrollTop=0;
+    else if(event.key==='End')panel.scrollTop=panel.scrollHeight;
+    else return;
+    event.preventDefault(); event.stopPropagation(); syncScroll();
+  });
+  panel.addEventListener('scroll',syncScroll);
+  new MutationObserver(syncScroll).observe(panel,{childList:true,subtree:true,attributes:true});
+  if(window.ResizeObserver)new ResizeObserver(syncScroll).observe(panel);
+  let observedGuide = null;
+  const guideResize = window.ResizeObserver ? new ResizeObserver(() => syncGuideSpace()) : null;
+  function syncGuideSpace() {
+    const guide = document.getElementById('bt-guide-pool-root');
+    if(guide && guide !== observedGuide && guideResize) {guideResize.disconnect(); guideResize.observe(guide); observedGuide=guide}
+    const height = phone.matches && guide?.classList.contains('btg-enabled') ? guide.getBoundingClientRect().height : 0;
+    document.documentElement.style.setProperty('--phone-guide-height',height+'px');
+  }
+  new MutationObserver(syncGuideSpace).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
   const fullscreen = document.createElement('button');
   fullscreen.id = 'btg-fullscreen'; fullscreen.type = 'button'; fullscreen.className = 'btg-launcher';
   fullscreen.title = 'Fullscreen table'; fullscreen.setAttribute('aria-label','Enter fullscreen'); fullscreen.setAttribute('aria-pressed','false');
@@ -54,6 +108,7 @@
     controls.setAttribute('aria-expanded', String(open && phone.matches));
     controls.textContent = open && phone.matches ? 'Close' : 'Controls';
     panel.inert = phone.matches && !open;
+    syncScroll();
     if (!open && panel.contains(document.activeElement)) controls.focus();
   }
   function layout() {
@@ -62,6 +117,8 @@
     else { if(title.parentNode !== panel) home.after(title); }
     setControls(false);
     refreshSize();
+    syncGuideSpace();
+    flightCanvas.style.display='none';
     window.dispatchEvent(new Event('resize'));
   }
   function syncFullscreen() {
@@ -104,7 +161,7 @@
   document.addEventListener('fullscreenchange',syncFullscreen);
   document.addEventListener('webkitfullscreenchange',syncFullscreen);
   if(phone.addEventListener) phone.addEventListener('change',layout); else phone.addListener(layout);
-  window.addEventListener('resize', refreshSize);
+  window.addEventListener('resize', () => {refreshSize(); syncScroll(); syncGuideSpace()});
   window.visualViewport?.addEventListener('resize',refreshSize);
   layout();
 })();
