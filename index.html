@@ -1401,7 +1401,7 @@
 
 .bt-file-library{width:100%;min-width:0;margin-top:8px}.bt-saved-files{display:flex;flex-wrap:wrap;align-items:end;gap:5px}.bt-saved-files label{display:flex;flex:1 1 180px;flex-direction:column;gap:4px;font-size:11px;min-width:0}.bt-saved-files select{width:100%;min-width:0}.bt-saved-files button{white-space:nowrap}.bt-file-status{font-size:11px;margin-top:4px}.photoAnalyzerFooter .bt-file-library{flex-basis:100%;margin-top:2px}.photoAnalyzerHeader #btg-analyze-start,.photoAnalyzerHeader #btg-analyze-explore{width:30px;height:30px;flex:0 0 30px;font-size:17px;border-width:1px;align-self:center}.photoAnalyzerHeader{gap:4px!important}
 </style>
-<link rel="stylesheet" href="./phone-play.css?v=6">
+<link rel="stylesheet" href="./phone-play.css?v=7">
 </head>
 <body>
 <div id="app">
@@ -5924,7 +5924,9 @@
     function drawTipBadge(map) {
         const fixed = !isProjector && document.body.classList.contains('phone-layout');
         for (const which of [1, 2]) {
-            const badge = tipBadgeGeometry(map, which);
+            const badge = fixed
+                ? ((which === 1 ? !!cueBall() : !!S.shot2Enabled) ? {which} : null)
+                : tipBadgeGeometry(map, which);
             const disk = $('phoneTip' + which);
             // On phones, keep the controls below their respective slider sets.
             if (disk) disk.hidden = !fixed || !badge;
@@ -6504,10 +6506,8 @@
                 drawBall(Object.assign(Object.assign({}, b), { x: ab.x, y: ab.y, active: true }), map, false);
             }
         }
-        if (cueVisualsVisible(1)) {
-            drawImpactOverlay(map);
-            drawTipBadge(map);
-        }
+        if (cueVisualsVisible(1)) drawImpactOverlay(map);
+        drawTipBadge(map);
         drawBankKickGuide(map);
         drawTeachingCompass(map);
         drawCalibration(M);
@@ -11889,7 +11889,7 @@ if ('serviceWorker' in navigator) {
     </div>
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=fit5">
-  <script src="./phone-play.js?v=6"></script>
+  <script src="./phone-play.js?v=7"></script>
   <script src="./guide/guide.js?v=practice-links9"></script>
   <script src="./guide/pool-integration.js?v=practice-links7"></script>
   <script src="./guide/analyze-integration.js?v=start-audio6"></script>

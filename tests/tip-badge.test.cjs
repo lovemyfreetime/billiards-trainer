@@ -32,3 +32,13 @@ context.window.billiardsFixedTipInput({clientX:330,clientY:637},2,'move');assert
 assert(!emit('pointerdown',102,52),'Phone floating badges do not intercept table touches');
 context.window.billiardsFixedTipInput({},1,'end');assert.equal(saves,3);
 console.log('Fixed phone controls: viewport coordinates, center/spin, separate shot state, hidden controls and persistence passed.');
+
+// Startup hides floating badges by default; fixed phone controls must still render.
+const renderSource=source.slice(source.indexOf('    function drawTipBadge(map)'),source.indexOf('    function drawPreview(map)'));
+const paint={setTransform(){}};const disks={1:{getContext:()=>paint},2:{getContext:()=>paint}};
+let rendered=[];const renderContext={S:{showTipBadge:false,shot2Enabled:true},DPR:2,isProjector:false,document:{body:{classList:{contains:()=>true}}},$:id=>disks[id.endsWith('1')?1:2],cueBall:()=>({x:1,y:1}),ensureShot2:()=>({}),drawTipBadgeDisk:(ctx,badge,values,label)=>rendered.push(label),tipBadgeGeometry:()=>{throw Error('Phone controls must not depend on floating badge preference')}};
+vm.runInNewContext(renderSource+';drawTipBadge(p=>p)',renderContext);
+assert.equal(disks[1].hidden,false);assert.equal(disks[2].hidden,false);assert.deepEqual(rendered,['CB 1','CB 2']);
+rendered=[];renderContext.S.shot2Enabled=false;vm.runInNewContext('drawTipBadge(p=>p)',renderContext);
+assert.equal(disks[1].hidden,false);assert.equal(disks[2].hidden,true);assert.deepEqual(rendered,['CB 1']);
+console.log('Default startup renders fixed CB1 with badge setting off; CB2 appears only when Shot 2 is enabled.');
