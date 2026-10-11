@@ -1817,7 +1817,7 @@
 
 <link rel="stylesheet" href="./photo-calibration.css?v=8">
 <script src="./photo-calibration.js?v=3"></script>
-<script src="./trainer-layout-files.js?v=1"></script>
+<script src="./trainer-layout-files.js?v=2"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
 <script src="./photo-table-spots.js?v=2"></script>
 <script>
@@ -2170,6 +2170,7 @@
                    ' ' + when.toLocaleTimeString([], { hour:'numeric', minute:'2-digit' });
         }
 
+        S.lastLayoutName=name;saveState();
         layouts.unshift(captureBallLayout(name));
         writeSavedLayouts(layouts.slice(0, 20));
 
@@ -2314,6 +2315,7 @@
         state.pocketedLog=(Array.isArray(state.pocketedLog)?state.pocketedLog:[]).filter(id=>id>=1&&id<=15&&!state.balls.some(b=>b.id===id));
         animation=null;S=state;normalizeBallSet();resetRunHistory();
         if(file.kind==='session'&&file.history.length){runHistory=file.history.filter(h=>h&&Array.isArray(h.balls)&&h.tableL===S.tableL&&h.tableW===S.tableW).slice(-30).map(h=>{try{const v=window.BilliardsLayoutFiles.parse(JSON.stringify({layout:h})).layout;return {...window.BilliardsLayoutFiles.settings(h,defaults),tableL:v.tableL,tableW:v.tableW,ballR:v.ballR,balls:v.balls,allowMissingCueBall:v.allowMissingCueBall,preview:null};}catch(e){return null;}}).filter(Boolean);if(!runHistory.length)runHistory=[cleanSnapshot()];}
+        undoStack=runHistory.slice(0,-1).map(h=>JSON.parse(JSON.stringify(h)));
         $('layoutNameInput').value=d.name;$('layoutQuickName').value=d.name;
         updateUI();updateShot2UIState();updateRunCount();refreshPreview();saveState();syncProjector();
         if(saveAfter)saveBallLayout(d.name);
@@ -2774,7 +2776,7 @@
     if (!isProjector) {
         restoreState();
         normalizeBallSet();
-        try{const saved=JSON.parse(localStorage.getItem('billiardTrainerProgress')||'null');if(saved?.history?.length)runHistory=saved.history.filter(h=>h&&Array.isArray(h.balls)&&h.tableL===S.tableL&&h.tableW===S.tableW).slice(-30);}catch(e){}
+        try{const saved=JSON.parse(localStorage.getItem('billiardTrainerProgress')||'null');if(saved?.history?.length)runHistory=saved.history.filter(h=>h&&Array.isArray(h.balls)&&h.tableL===S.tableL&&h.tableW===S.tableW).slice(-30);undoStack=runHistory.slice(0,-1).map(h=>JSON.parse(JSON.stringify(h)));}catch(e){}
 
     }
     function pocketModel() {

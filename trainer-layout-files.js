@@ -28,7 +28,7 @@ function parse(text){
 }
 function settings(raw,defaults){
  if(!raw||typeof raw!=='object'||Array.isArray(raw))return defaults;
- const out={...defaults};for(const key of Object.keys(defaults)){const v=raw[key],d=defaults[key];if(v===undefined)continue;if(Array.isArray(d)){if(Array.isArray(v))out[key]=v;}else if(d&&typeof d==='object'){out[key]=settings(v,d);}else if(d===null){out[key]=null;}else if(typeof v===typeof d&&(typeof v!=='number'||Number.isFinite(v)))out[key]=v;}return out;
+ const out={...defaults};for(const key of Object.keys(defaults)){const v=raw[key],d=defaults[key];if(v===undefined)continue;if(Array.isArray(d)){if(Array.isArray(v))out[key]=v;}else if(d&&typeof d==='object'){out[key]=settings(v,d);}else if(d===null){out[key]=clean(v);}else if(typeof v===typeof d&&(typeof v!=='number'||Number.isFinite(v)))out[key]=v;}return out;
 }
 function create(layout,state=null,history=[]){return JSON.parse(JSON.stringify({format:'billiards-trainer',version:1,kind:state?'session':'layout',name:layout.name||'Shared table',savedAt:new Date().toISOString(),layout,...(state?{state,history:history.slice(-30)}: {})},(key,value)=>key==='preview'?null:value));}
 const api={parse,create,settings};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.BilliardsLayoutFiles=api;
