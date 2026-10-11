@@ -2,11 +2,11 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const html=fs.readFileSync(require('node:path').join(__dirname,'../index.html'),'utf8');
 function source(name){const start=html.indexOf('    function '+name+'(');assert.ok(start>0);return html.slice(start,html.indexOf('\n    function ',start+10));}
 const balls=[{id:'ignore',nx:.1,ny:.2},{id:'ignore',nx:.6,ny:.5},{id:'8',nx:.8,ny:.7}];
-const state={corners:[{},{},{},{}],detections:balls,viewZoom:1};
+const state={corners:[{},{},{},{}],detections:balls,viewZoom:1,displayScaleX:1,displayScaleY:1};
 let focused=0,listRenders=0,photoRenders=0;
 const row={getBoundingClientRect:()=>({top:600}),querySelector:()=>({focus(opts){assert.equal(opts.preventScroll,true);focused++;}})};
 const pane={scrollTop:0,getBoundingClientRect:()=>({top:100}),querySelector:()=>({getBoundingClientRect:()=>({height:90})})};
-const env={photoVision:state,pvReviewSeq:1,pvCalibration:()=>({H:[]}),applyHomography:(_,x,y)=>({x:x*1000,y:y*500}),pvSourceToCanvas:p=>p,
+const env={S:{ballR:.02,tableL:1,tableW:1},photoVision:state,pvReviewSeq:1,pvCalibration:()=>({H:[]}),applyHomography:(_,x,y)=>({x:x*1000,y:y*500}),pvSourceToCanvas:p=>p,
  $:id=>id==='photoAnalyzerCanvas'?{width:1000,getBoundingClientRect:()=>({width:500})}:{querySelector:selector=>{assert.ok(selector.includes(state.reviewFocusKeys[0]));return row;}},
  document:{querySelector:()=>pane},renderPhotoDetectionList(){listRenders++;},renderPhotoAnalyzer(){photoRenders++;}};
 vm.createContext(env);for(const name of ['pvReviewKey','pvPhotoMarkerRadius','pvPhotoDetectionHit','pvFocusPhotoDetection'])vm.runInContext(source(name),env);

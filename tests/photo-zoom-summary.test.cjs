@@ -28,6 +28,6 @@ state.detections[1].id='11';env.renderPhotoBallSummary();
 assert.deepEqual(strip.children.map(n=>n.textContent),['C','11','?']);assert.ok(strip.children[1].className.includes('stripe'));
 state.detections[2].id='1';env.renderPhotoBallSummary();assert.equal(count.textContent,'3 detected · 3 assigned');
 state.detections.splice(0,1);env.renderPhotoBallSummary();assert.equal(count.textContent,'2 detected · 2 assigned');
-assert.deepEqual(strip.children.map(n=>n.textContent),['11','1']);
+assert.deepEqual(strip.children.map(n=>n.textContent),['1','11']);
 state.detections=[];env.renderPhotoBallSummary();assert.equal(count.textContent,'0 detected · 0 assigned');assert.equal(strip.children.length,0);
 console.log('Photo wheel zoom preserves the cursor anchor and calibration; ball summary tracks assignments, stripes, deletions and reset.');

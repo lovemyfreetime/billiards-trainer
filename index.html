@@ -1790,6 +1790,8 @@
       <div class="photoCanvasWrap">
         <canvas id="photoAnalyzerCanvas" width="960" height="540"></canvas>
         <video id="photoAnalyzerVideo" controls playsinline></video>
+        <input id="photoPanX" class="photoPanBar" type="range" min="0" max="1000" value="500" aria-label="Pan image left or right" title="Pan left / right — drag or use the wheel" hidden>
+        <input id="photoPanY" class="photoPanBar" type="range" min="0" max="1000" value="500" aria-label="Pan image up or down" title="Pan up / down — drag or use the wheel" hidden>
       </div>
       <div class="photoReview">
         <div class="photoReviewSummary"><h3>Detected Balls</h3><div id="photoBallCount" role="status" aria-live="polite">0 detected</div><div id="photoBallStrip" aria-label="Detected balls: select to review"></div></div>
@@ -1807,7 +1809,7 @@
   </div>
 </div>
 
-<link rel="stylesheet" href="./photo-calibration.css?v=4">
+<link rel="stylesheet" href="./photo-calibration.css?v=5">
 <script src="./photo-calibration.js?v=1"></script>
 <script src="./photo-table-spots.js?v=2"></script>
 <script>
@@ -9517,7 +9519,7 @@
         count.textContent=total+' detected · '+assigned.length+' assigned'+(unassigned?' · '+unassigned+' to review':'');
         strip.replaceChildren();
         const colors=['#f4f4ef','#f4d03f','#2457c5','#c83232','#7040a8','#e67e22','#278a48','#7b2635','#111317'];
-        for(const d of photoVision.detections){
+        for(const d of photoVision.detections.slice().sort((a,b)=>(String(a.id)==='ignore'?99:Number(a.id))-(String(b.id)==='ignore'?99:Number(b.id)))){
             const unassigned=!assigned.includes(d),n=Number(d.id),base=n>8?n-8:n,ball=document.createElement('button');
             const key=pvReviewKey(d);
             ball.type='button';ball.dataset.reviewKey=key;
@@ -9683,6 +9685,7 @@
         $('photoApplySave').disabled=!ok;
     }
     function pvResetView(){
+        pvPhotoPanDrag=null;
         photoVision.viewZoom=1;
         photoVision.viewCenterX=null;
         photoVision.viewCenterY=null;
@@ -9745,18 +9748,58 @@
         });
         return bestD<70?best:-1;
     }
-    function pvPhotoMarkerRadius(){
-        const c=$('photoAnalyzerCanvas'),r=c.getBoundingClientRect();
-        return 18*(r.width?c.width/r.width:1);
+    function pvPhotoMarkerRadius(d){
+        if(d&&[d.x1,d.y1,d.x2,d.y2].every(Number.isFinite)){
+            return Math.max(2,(Math.abs(d.x2-d.x1)*photoVision.displayScaleX+Math.abs(d.y2-d.y1)*photoVision.displayScaleY)/4);
+        }
+        const H=pvCalibration()?.H;
+        if(!H||!d)return 2;
+        const p=pvSourceToCanvas(applyHomography(H,d.nx,d.ny));
+        const a=pvSourceToCanvas(applyHomography(H,d.nx+S.ballR/S.tableL,d.ny));
+        const b=pvSourceToCanvas(applyHomography(H,d.nx,d.ny+S.ballR/S.tableW));
+        return Math.max(2,(Math.hypot(a.x-p.x,a.y-p.y)+Math.hypot(b.x-p.x,b.y-p.y))/2);
+    }
+    let pvPhotoPanDrag=null;
+    function pvPanPhotoBy(dx,dy){
+        const c=photoVision.sourceCanvas,z=photoVision.viewZoom||1;
+        const center=pvClampViewCenter(c.width,c.height,z,photoVision.viewCenterX+dx,photoVision.viewCenterY+dy);
+        photoVision.viewCenterX=center.x;photoVision.viewCenterY=center.y;renderPhotoAnalyzer();
+    }
+    function pvPhotoPanFromClient(start,clientX,clientY){
+        const r=$('photoAnalyzerCanvas').getBoundingClientRect(),c=photoVision.sourceCanvas,z=photoVision.viewZoom||1;
+        const center=pvClampViewCenter(c.width,c.height,z,start.centerX-(clientX-start.startX)*c.width/z/r.width,start.centerY-(clientY-start.startY)*c.height/z/r.height);
+        photoVision.viewCenterX=center.x;photoVision.viewCenterY=center.y;renderPhotoAnalyzer();
+    }
+    function pvUpdatePanBars(){
+        const c=photoVision.sourceCanvas,z=photoVision.viewZoom||1;
+        for(const [id,axis,size] of [['photoPanX','X',c.width],['photoPanY','Y',c.height]]){
+            const bar=$(id);if(!bar)continue;
+            bar.hidden=!photoVision.imageReady||z<=1.01;
+            const span=size-size/z;
+            bar.value=span?Math.round((photoVision['viewCenter'+axis]-size/z/2)/span*1000):500;
+        }
+        $('photoAnalyzerCanvas').style.cursor=z>1.01&&!photoVision.addMissedMode&&!photoVision.refining?'grab':'crosshair';
+    }
+    function pvSetPanBar(axis,value){
+        const c=photoVision.sourceCanvas,z=photoVision.viewZoom||1,size=axis==='X'?c.width:c.height;
+        photoVision['viewCenter'+axis]=size/z/2+Math.max(0,Math.min(1000,Number(value)))/1000*(size-size/z);
+        renderPhotoAnalyzer();
+    }
+    function pvPanBarWheel(ev,axis){
+        if(!photoVision.imageReady||(photoVision.viewZoom||1)<=1)return;
+        ev.preventDefault();ev.stopPropagation();
+        const c=photoVision.sourceCanvas,z=photoVision.viewZoom,delta=(ev.deltaY||ev.deltaX)*(ev.deltaMode===1?16:ev.deltaMode===2?400:1);
+        const shift=Math.max(-240,Math.min(240,delta))/400*(axis==='X'?c.width:c.height)/z;
+        pvPanPhotoBy(axis==='X'?shift:0,axis==='Y'?shift:0);
     }
     function pvPhotoDetectionHit(p){
         if(photoVision.corners.length!==4)return null;
         const H=pvCalibration()?.H;if(!H)return null;
-        const q=pvSourceToCanvas(p),radius=pvPhotoMarkerRadius()+6;
-        let best=null,distance=radius;
+        const q=pvSourceToCanvas(p),c=$('photoAnalyzerCanvas'),r=c.getBoundingClientRect(),padding=8*(r.width?c.width/r.width:1);
+        let best=null,distance=Infinity;
         for(const d of photoVision.detections){
             const point=pvSourceToCanvas(applyHomography(H,d.nx,d.ny)),dist=Math.hypot(q.x-point.x,q.y-point.y);
-            if(dist<distance){best=d;distance=dist;}
+            if(dist<pvPhotoMarkerRadius(d)+padding&&dist<distance){best=d;distance=dist;}
         }
         return best;
     }
@@ -9834,6 +9877,7 @@
         photoVision.viewX=viewX;photoVision.viewY=viewY;photoVision.viewW=viewW;photoVision.viewH=viewH;
         photoVision.displayScaleX=c.width/viewW;
         photoVision.displayScaleY=c.height/viewH;
+        pvUpdatePanBars();
 
         x.imageSmoothingEnabled=true;
         x.imageSmoothingQuality='high';
@@ -9874,14 +9918,14 @@
             x.save();x.textAlign='center';x.textBaseline='middle';
             photoVision.detections.forEach(d=>{
                 const p=applyHomography(H,d.nx,d.ny),q=pvSourceToCanvas(p),px=q.x,py=q.y;
-                const rr=pvPhotoMarkerRadius();
+                const rr=pvPhotoMarkerRadius(d);
                 const selected=(photoVision.reviewFocusKeys||[]).includes(pvReviewKey(d));
-                x.font='900 '+Math.round(rr*1.05)+'px Segoe UI';
+                x.font='900 '+Math.max(9,Math.round(rr*(String(d.id)==='0'?.8:1.05)))+'px Segoe UI';
                 const unassigned=String(d.id)==='ignore';
-                x.fillStyle=unassigned?'rgba(55,40,5,.85)':'rgba(5,22,30,.85)';
+                x.fillStyle=unassigned?'rgba(255,216,107,.08)':'rgba(0,229,255,.06)';
                 x.strokeStyle=selected?'#60d394':unassigned?'#ffd86b':'#00e5ff';x.lineWidth=selected?4:2;
                 x.beginPath();x.arc(px,py,rr,0,Math.PI*2);x.fill();x.stroke();
-                x.fillStyle='#fff';x.fillText(unassigned?'?':pvLabel(d.id),px,py);
+                x.fillStyle='#fff';x.shadowColor='rgba(0,0,0,.9)';x.shadowBlur=2;x.fillText(unassigned?'?':pvLabel(d.id),px,py);x.shadowBlur=0;
             });
             x.restore();
         }
@@ -10526,10 +10570,19 @@
         });
         $('photoApplyTable').addEventListener('click', () => applyPhotoDetections(false));
         $('photoApplySave').addEventListener('click', () => applyPhotoDetections(true));
+        for(const [id,axis] of [['photoPanX','X'],['photoPanY','Y']]){
+            $(id).addEventListener('input',ev=>pvSetPanBar(axis,ev.target.value));
+            $(id).addEventListener('wheel',ev=>pvPanBarWheel(ev,axis),{passive:false});
+        }
         $('photoAnalyzerCanvas').addEventListener('wheel',pvPhotoWheelZoom,{passive:false});
         $('photoAnalyzerCanvas').addEventListener('pointermove', ev => {
             if(!photoVision.imageReady)return;
-
+            if(ev.pointerType!=='touch'&&pvPhotoPanDrag){
+                const t=pvPhotoPanDrag;
+                t.moved=t.moved||Math.hypot(ev.clientX-t.startX,ev.clientY-t.startY)>5;
+                if(t.moved){ev.preventDefault();pvPhotoPanFromClient(t,ev.clientX,ev.clientY);$('photoAnalyzerCanvas').style.cursor='grabbing';}
+                return;
+            }
             if(ev.pointerType==='touch'){
                 const t=pvTouchPointers.get(ev.pointerId);
                 if(t){
@@ -10577,6 +10630,9 @@
                     renderPhotoDetectionList();
                     renderPhotoAnalyzer();pvUpdateCalibrationDiagram();
                 }
+                if(pvTouchPointers.size===1&&t&&t.moved&&pvTouchCornerCandidate<0&&(photoVision.viewZoom||1)>1&&!photoVision.addMissedMode&&!photoVision.refining){
+                    ev.preventDefault();pvPhotoPanFromClient(t,ev.clientX,ev.clientY);
+                }
                 return;
             }
 
@@ -10603,7 +10659,7 @@
             if(ev.pointerType==='touch'){
                 try{canvas.setPointerCapture?.(ev.pointerId);}catch(e){}
                 const p=pvCanvasPoint(ev);
-                pvTouchPointers.set(ev.pointerId,{clientX:ev.clientX,clientY:ev.clientY,startX:ev.clientX,startY:ev.clientY,sourceStart:p,moved:false});
+                pvTouchPointers.set(ev.pointerId,{clientX:ev.clientX,clientY:ev.clientY,startX:ev.clientX,startY:ev.clientY,sourceStart:p,moved:false,centerX:photoVision.viewCenterX,centerY:photoVision.viewCenterY});
                 if(pvTouchPointers.size===1){
                     pvGesturePinched=false;
                     pvPinchStart=null;
@@ -10622,17 +10678,26 @@
 
             const p=pvCanvasPoint(ev);
             if(photoVision.corners.length===4 && !photoVision.addMissedMode && !photoVision.refining){
-                if(pvPhotoDetectionHit(p)){pvHandlePhotoTap(p);return;}
-                const best=pvCornerHitIndex(p);
+                const best=pvPhotoDetectionHit(p)?-1:pvCornerHitIndex(p);
                 if(best>=0){
                     photoVision.cornerDragIndex=best; canvas.setPointerCapture?.(ev.pointerId);
                     photoVision.corners[best]=p; photoVision.detections=[]; renderPhotoDetectionList(); renderPhotoAnalyzer();pvUpdateCalibrationDiagram(); return;
                 }
             }
+            if((photoVision.viewZoom||1)>1&&!photoVision.addMissedMode&&!photoVision.refining&&photoVision.corners.length===4){
+                pvPhotoPanDrag={startX:ev.clientX,startY:ev.clientY,centerX:photoVision.viewCenterX,centerY:photoVision.viewCenterY,sourceStart:p,moved:false};
+                canvas.setPointerCapture?.(ev.pointerId);return;
+            }
             pvHandlePhotoTap(p);
         });
 
         $('photoAnalyzerCanvas').addEventListener('pointerup', ev => {
+            if(ev.pointerType!=='touch'&&pvPhotoPanDrag){
+                const t=pvPhotoPanDrag;pvPhotoPanDrag=null;
+                try{$('photoAnalyzerCanvas').releasePointerCapture?.(ev.pointerId);}catch(e){}
+                if(!t.moved)pvHandlePhotoTap(t.sourceStart);else renderPhotoAnalyzer();
+                return;
+            }
             if(ev.pointerType==='touch'){
                 const t=pvTouchPointers.get(ev.pointerId);
                 const shouldTap=!!t && !t.moved && !pvGesturePinched && photoVision.cornerDragIndex<0;
@@ -10650,6 +10715,11 @@
                 }
 
                 if(pvTouchPointers.size<2)pvPinchStart=null;
+                if(pvTouchPointers.size===1&&pvGesturePinched){
+                    const remaining=[...pvTouchPointers.values()][0];
+                    remaining.startX=remaining.clientX;remaining.startY=remaining.clientY;
+                    remaining.centerX=photoVision.viewCenterX;remaining.centerY=photoVision.viewCenterY;remaining.moved=true;
+                }
                 if(pvTouchPointers.size===0){
                     pvGesturePinched=false;
                     pvTouchCornerCandidate=-1;
@@ -10664,6 +10734,7 @@
         });
 
         $('photoAnalyzerCanvas').addEventListener('pointercancel', ev => {
+            pvPhotoPanDrag=null;
             if(ev.pointerType==='touch'){
                 pvTouchPointers.delete(ev.pointerId);
                 if(pvTouchPointers.size<2)pvPinchStart=null;
