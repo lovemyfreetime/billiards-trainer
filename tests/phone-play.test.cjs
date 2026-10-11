@@ -84,3 +84,15 @@ for(const vertical of [true,false]) {
  assert(ticks.style.transform.startsWith(vertical?'translateY':'translateX'));
 }
 console.log('Separate rail scrolling and phone/desktop aim gesture sensitivity passed.');
+
+// Phone layout selectors must target the real table container in the app.
+const css=fs.readFileSync('phone-play.css','utf8');
+const stageRules=[...css.matchAll(/body\.phone-layout:not\(\.projector\) #([\w-]+)\s*\{([^}]+)\}/g)]
+ .filter(m=>/position:absolute|--phone-guide-height/.test(m[2]));
+assert(stageRules.length>=3,'Landscape, guide and portrait table positioning rules exist');
+for(const rule of stageRules) {
+ assert.equal(rule[1],'stageWrap','Table positioning uses the actual container ID');
+ assert(source.includes('id="'+rule[1]+'"'),'Positioned container exists in app markup');
+}
+assert(!css.includes('#stageWrapWrap'),'No doubled table-container selector');
+console.log('Phone table positioning targets the real stage in base, guide and portrait layouts.');
