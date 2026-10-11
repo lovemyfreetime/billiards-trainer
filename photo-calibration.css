@@ -43,3 +43,5 @@
 .photoSummaryBall{padding:0;cursor:pointer;appearance:none;line-height:1;transition:box-shadow .12s}
 .photoSummaryBall.unassigned{border-color:#ffd86b;color:#fff}
 .photoSummaryBall[aria-pressed=true],.photoSummaryBall:focus-visible{outline:2px solid #60d394;outline-offset:2px}
+
+.photoDetectionRow.reviewFocus{outline:2px solid #60d394;outline-offset:-2px}
