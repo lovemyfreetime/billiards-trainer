@@ -1,10 +1,11 @@
-const CACHE_NAME = 'billiards-trainer-4-12-ai-camera-v38';
+const CACHE_NAME = 'billiards-trainer-4-12-ai-camera-v39';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
   './manifest.webmanifest',
   './photo-calibration.js?v=3',
   './photo-table-spots.js?v=2',
+  './photo-cloth-filter.js?v=1',
   './photo-calibration.css?v=8',
   './photo-ball-crops.js?v=1',
   './trainer-layout-files.js?v=2',
