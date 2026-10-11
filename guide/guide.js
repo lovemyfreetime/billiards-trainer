@@ -128,7 +128,7 @@ function mount(host,options={}){
   toggle.textContent=host.classList.contains('btg-header-mode')?(state.detailsOpen?'×':'+'):(state.detailsOpen?'⌃':'⌄');
   toggle.setAttribute('aria-label',state.detailsOpen?'Close Guide details':'Open Guide details');
   toggle.setAttribute('aria-expanded',String(!!state.detailsOpen));
-  toggle.addEventListener('click',()=>{state.detailsOpen=!state.detailsOpen;save();render()});
+  toggle.addEventListener('click',()=>{state.detailsOpen=!state.detailsOpen;if(state.detailsOpen&&host.classList.contains('btg-header-mode')&&!state.expanded)state.expanded='read';save();render()});
   root.append(toggle);
   if(host.classList.contains('btg-header-mode')){root.insertBefore(select,topic);topic.hidden=!state.detailsOpen;}
   root.classList.toggle('btg-details-open',!!state.detailsOpen);

@@ -71,3 +71,5 @@
 .photoSummaryBall.empty{opacity:.13;background:transparent;border:1px dashed #fff;pointer-events:none}
 .photoDetectionDot{width:68px!important;height:68px!important;min-width:68px!important;flex:0 0 68px!important}
 .photoDetectionDot img{width:100%;height:100%;object-fit:cover}
+
+.photoAnalyzerToolbar .photoCornerControls button{width:auto}
