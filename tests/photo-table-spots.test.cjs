@@ -44,3 +44,17 @@ for(const H of [[1500,0,70,0,760,70,0,0,1],[1250,280,70,-80,560,120,.25,.13,1],[
  }
 }
 console.log('Native pixel adapter passed: perspective and rotated views reject a small spot and retain a full-sized eight ball at the identical location.');
+// Regression for pale/wide adhesive spots: the face is bright enough that a
+// fixed white threshold used to merge it into the central dot.
+const pale=image(19,3.8,true,[185,165,145]);
+for(let y=0;y<96;y++)for(let x=0;x<96;x++){
+ const r=Math.hypot(x-47.5,y-47.5);if(r>17.8&&r<=19)pale.data.set([228,222,212,255],(y*96+x)*4);
+}
+assert.equal(filter.inspect(pale,48).isSpot,true,'wide pale disc with bright rim');
+assert.equal(filter.inspect(image(19,3.8,false,[20,20,22]),48).isSpot,false,'slightly smaller dark eight ball');
+assert.equal(filter.inspect(image(19,3.8,false,[185,185,185]),48).isSpot,false,'bright ball body without an adhesive rim');
+const offset=image(12),shifted=image(0,0,false,[12,145,190],false);
+for(let y=0;y<96;y++)for(let x=0;x<88;x++)shifted.data.set(offset.data.subarray((y*96+x)*4,(y*96+x+1)*4),(y*96+x+8)*4);
+assert.equal(filter.inspect(shifted,48).isSpot,true,'detector center displaced from the white dot');
+assert.equal(filter.nearSpot(.30,.60),true,'imprecise perspective alignment');
+console.log('Pale/wide and displaced spots rejected; smaller dark eight balls and bright ball bodies retained.');
