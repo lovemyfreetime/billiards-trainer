@@ -70,7 +70,7 @@ async function init(){
    }
    if(disclosure)return true;
    // Keep screen navigation available. Guide is paused before opening Analyze.
-   if(target.closest('#analyzePhotoBtn,#cameraCaptureBtn,#btg-analyze-launch,#photoAnalyzerClose'))return true;
+   if(target.closest('#analyzePhotoBtn,#cameraCaptureBtn'))return false;
    // Scroll through the side panel without adjusting a slider underneath the pointer.
    return event.type==='wheel'&&!!target.closest('#panel')&&!target.closest('input,canvas');
   }
@@ -78,7 +78,7 @@ async function init(){
  guideButton.addEventListener('click',()=>{if(guide.getState().enabled&&guide.getState().category!=='start')guide.setEnabled(false);else guide.openCategory('fundamentals')});
  exploreButton.addEventListener('click',()=>guide.setExploring(!guide.getState().exploring));
  startButton.addEventListener('click',()=>{if(guide.getState().enabled&&guide.getState().category==='start')guide.setEnabled(false);else guide.openCategory('start')});
- for(const id of ['analyzePhotoBtn','cameraCaptureBtn'])document.getElementById(id)?.addEventListener('click',()=>{guide.setEnabled(false);guide.setExploring(false)},true);
+ for(const id of ['analyzePhotoBtn','cameraCaptureBtn'])document.getElementById(id)?.addEventListener('click',()=>{if(!guide.getState().exploring){guide.setEnabled(false);guide.setExploring(false)}},true);
  // Also pause if Analyze is opened through another trainer action.
  const modalObserver=new MutationObserver(()=>{if(modal.classList.contains('open')){guide.setEnabled(false);guide.setExploring(false)}});
  modalObserver.observe(modal,{attributes:true,attributeFilter:['class']});

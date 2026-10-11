@@ -53,9 +53,10 @@
     position:absolute; z-index:7; left:50%; bottom:8px; transform:translateX(-50%);
     min-height:28px; max-width:min(82%,980px); display:flex; align-items:center; justify-content:center;
     gap:5px; padding:2px 8px; border-radius:14px; background:rgba(8,10,13,.56);
-    pointer-events:none; opacity:0; transition:opacity .15s;
+    pointer-events:auto; opacity:0; transition:opacity .15s;
   }
   #pocketTray.visible { opacity:1; }
+  #pocketTray:not(.visible){pointer-events:none}
   .pocketGroup { display:flex; align-items:center; gap:4px; }
   .pocketDivider { width:1px; height:20px; background:rgba(255,255,255,.35); margin:0 4px; }
   .pocketBall {
@@ -1582,7 +1583,7 @@
       <div class="tableControlGroup layoutSetupGroup"><div class="tableControlTitle">BALLS</div>
         <div class="buttons layoutSetupReset"><button id="addNextBall" type="button">Add Next Ball</button></div>
         <div class="buttons layoutSetupButtons"><button id="addBall" type="button">Add Ball</button><button id="removeBall" type="button">Remove Ball</button></div>
-        <div class="layoutSetupSelect"><select id="ballSelect" aria-label="Select ball number"><option value="1">Ball 1</option>
+        <div class="layoutSetupSelect"><select id="ballSelect" aria-label="Select ball number"><option value="0">Cue Ball</option><option value="1">Ball 1</option>
 <option value="2">Ball 2</option>
 <option value="3">Ball 3</option>
 <option value="4">Ball 4</option>
@@ -1624,6 +1625,7 @@
       <div class="layoutManage">
         <div class="layoutManageTitle"><span>SAVED BALL LAYOUTS</span><span id="layoutCount">0 / 20</span></div>
         <input id="layoutNameInput" type="text" maxlength="60" placeholder="Layout name — e.g. Wednesday league 7-ball" aria-label="Saved layout name">
+        <div class="buttons"><button id="trainerLoadFile" type="button">Load Table File</button><button id="trainerSaveFile" type="button">Save Table File</button></div><div class="buttons"><button id="trainerSaveSession" type="button">Save Session File</button><button id="sessionFolder" type="button">Session Folder</button></div><div id="sessionFolderStatus" class="hint">Your latest table is remembered automatically on this device. Session files also keep settings and shot history.</div><input id="trainerLayoutFileInput" type="file" accept=".json,.billiards" hidden>
         <button id="saveLayoutBtn" class="layoutManageSave" type="button">SAVE CURRENT LAYOUT</button>
         <div class="layoutManageRow">
           <select id="layoutSelect" aria-label="Saved ball layouts">
@@ -1805,6 +1807,7 @@
     <div class="photoAnalyzerFooter">
       <div class="photoApplyCue">FINISH — SEND THE REVIEWED TABLE LAYOUT TO BILLIARDS TRAINER</div>
       <input id="photoLayoutName" type="text" maxlength="60" placeholder="Layout name — e.g. Wednesday league 7-ball">
+      <button id="photoLoadTableFile" type="button">Load Table File</button><button id="photoSaveTableFile" type="button">Save Table File</button><input id="photoLayoutFileInput" type="file" accept=".json,.billiards" hidden>
       <button id="photoApplyTable" type="button" disabled>APPLY TO TRAINER TABLE</button>
       <button id="photoApplySave" class="visionPrimary" type="button" disabled>APPLY + SAVE LAYOUT</button>
       
@@ -1814,6 +1817,7 @@
 
 <link rel="stylesheet" href="./photo-calibration.css?v=8">
 <script src="./photo-calibration.js?v=3"></script>
+<script src="./trainer-layout-files.js?v=1"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
 <script src="./photo-table-spots.js?v=2"></script>
 <script>
@@ -1977,7 +1981,24 @@
             e.style.background = c;
         }
         e.textContent = id === 0 ? 'CB1' : id === -2 ? 'CB2' : id;
+        installPocketBallReturn(e,id);
         return e;
+    }
+    function returnPocketBall(id,q=null){
+        if(id<1||id>15||S.balls.some(b=>b.id===id))return;
+        if(!q){for(let y=1;y<10&&!q;y++)for(let x=1;x<18;x++){const p={x:S.tableL*x/18,y:S.tableW*y/10};if(S.balls.every(b=>b.marker||Math.hypot(b.x-p.x,b.y-p.y)>S.ballR*2.2)){q=p;break;}}}
+        if(!q||!onPlayingSurface(q)||manualPocketAt(q)||S.balls.some(b=>!b.marker&&Math.hypot(b.x-q.x,b.y-q.y)<S.ballR*2)){toast('Drop on clear table cloth to return the ball');return;}
+        S.balls.push({id,n:String(id),x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR),active:true});S.pocketedLog=(S.pocketedLog||[]).filter(n=>n!==id);
+        normalizeBallSet();updateUI();refreshPreview();saveState();syncProjector();toast('Ball '+id+' returned to play');
+    }
+    function installPocketBallReturn(e,id){
+        e.setAttribute('role','button');e.tabIndex=0;e.setAttribute('aria-label','Return ball '+id+' to table');e.title='Drag Ball '+id+' onto clear table cloth, or click to return';e.style.touchAction='none';e.style.cursor='grab';
+        let start=null,ghost=null,moved=false;
+        const clear=()=>{ghost?.remove();ghost=null;start=null;};
+        e.addEventListener('pointerdown',ev=>{if(ev.button!==0)return;ev.preventDefault();ev.stopPropagation();start={x:ev.clientX,y:ev.clientY};moved=false;e.setPointerCapture(ev.pointerId);});
+        e.addEventListener('pointermove',ev=>{if(!start)return;moved=moved||Math.hypot(ev.clientX-start.x,ev.clientY-start.y)>5;if(!moved)return;if(!ghost){ghost=e.cloneNode(true);ghost.removeAttribute('id');ghost.style.cssText+=';position:fixed;z-index:9999;pointer-events:none;opacity:.9;';document.body.appendChild(ghost);}ghost.style.left=(ev.clientX-12)+'px';ghost.style.top=(ev.clientY-12)+'px';});
+        e.addEventListener('pointerup',ev=>{if(!start)return;ev.preventDefault();ev.stopPropagation();const r=canvas.getBoundingClientRect(),inside=ev.clientX>=r.left&&ev.clientX<=r.right&&ev.clientY>=r.top&&ev.clientY<=r.bottom,q=inside?controlMap().inv(pointerPos(ev)):null;const wasMoved=moved;clear();if(!wasMoved)returnPocketBall(id);else if(q)returnPocketBall(id,q);});
+        e.addEventListener('pointercancel',clear);e.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();returnPocketBall(id);}});
     }
     function updatePocketTray() {
         if (isProjector)
@@ -1986,7 +2007,7 @@
         if (!tray)
             return;
         tray.innerHTML = '';
-        const log = (S.pocketedLog || []).filter(id => id === 0 || id === -2 || (id >= 1 && id <= 15));
+        const log = (S.pocketedLog || []).filter(id => id >= 1 && id <= 15);
         if (!log.length) {
             tray.classList.remove('visible');
             return;
@@ -2263,8 +2284,102 @@
         updateSavedLayoutUI(true);
     }
 
+    let sessionFolder=null,sessionFolderTimer=null,sessionFolderWriting=false,sessionFolderDirty=false,lastSavedHistory=null,lastSavedHistoryLength=-1,lastSavedHistoryEnd=null;
+    function tableFileName(){return ($('layoutNameInput')?.value||$('layoutQuickName')?.value||S.lastLayoutName||'Training session').trim();}
+    function portableTableFile(session=false,analysis=false){
+        let layout=captureBallLayout(analysis?$('photoLayoutName').value.trim()||'Analyzed table':tableFileName());
+        if(analysis){
+            const loaded=photoVision.loadedTableFile?.layout;
+            if(loaded)layout={...loaded,name:$('photoLayoutName').value.trim()||loaded.name};
+            layout.balls=photoVision.detections.filter(d=>String(d.id)!=='ignore').map(d=>({id:Number(d.id),n:Number(d.id)===0?'CB':String(d.id),x:d.nx*layout.tableL,y:d.ny*layout.tableW,active:true}));
+            layout.allowMissingCueBall=!layout.balls.some(b=>b.id===0);
+        }
+        if(!layout.balls.length)throw Error('There are no assigned balls to save.');
+        return window.BilliardsLayoutFiles.create(layout,session?cleanSnapshot():null,session?runHistory:[]);
+    }
+    function downloadTableFile(session=false,analysis=false){
+        try{
+            const file=portableTableFile(session,analysis),blob=new Blob([JSON.stringify(file,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+            a.href=url;a.download=(file.name.replace(/[^a-z0-9 _-]/gi,'').trim()||'Table')+(session?'.session':'')+'.billiards.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);
+            toast(session?'Session file downloaded':'Table file downloaded');
+        }catch(e){toast(e.message);}
+    }
+    function applyTableFile(file,saveAfter=false,detections=null){
+        const d=file.layout,defaults=defaultState(),state={...defaults};
+        if(file.kind==='session'&&file.state)Object.assign(state,window.BilliardsLayoutFiles.settings(file.state,defaults));
+        state.lastLayoutName=d.name;state.tableL=d.tableL;state.tableW=d.tableW;state.ballR=d.ballR;state.setupMode=d.setupMode||'custom';
+        state.balls=detections?detections.filter(b=>String(b.id)!=='ignore').map(b=>({id:Number(b.id),n:Number(b.id)===0?'CB':String(b.id),x:b.nx*d.tableL,y:b.ny*d.tableW,active:true})).concat(d.balls.filter(b=>b.marker)):JSON.parse(JSON.stringify(d.balls));
+        state.allowMissingCueBall=!state.balls.some(b=>b.id===0);
+        state.freeAim=d.freeAim||state.freeAim;state.preview=null;
+        state.pocketedLog=(Array.isArray(state.pocketedLog)?state.pocketedLog:[]).filter(id=>id>=1&&id<=15&&!state.balls.some(b=>b.id===id));
+        animation=null;S=state;normalizeBallSet();resetRunHistory();
+        if(file.kind==='session'&&file.history.length){runHistory=file.history.filter(h=>h&&Array.isArray(h.balls)&&h.tableL===S.tableL&&h.tableW===S.tableW).slice(-30).map(h=>{try{const v=window.BilliardsLayoutFiles.parse(JSON.stringify({layout:h})).layout;return {...window.BilliardsLayoutFiles.settings(h,defaults),tableL:v.tableL,tableW:v.tableW,ballR:v.ballR,balls:v.balls,allowMissingCueBall:v.allowMissingCueBall,preview:null};}catch(e){return null;}}).filter(Boolean);if(!runHistory.length)runHistory=[cleanSnapshot()];}
+        $('layoutNameInput').value=d.name;$('layoutQuickName').value=d.name;
+        updateUI();updateShot2UIState();updateRunCount();refreshPreview();saveState();syncProjector();
+        if(saveAfter)saveBallLayout(d.name);
+        toast((file.kind==='session'?'Session resumed: ':'Table loaded: ')+d.name);
+    }
+    function stageTableFile(file){
+        photoVision.loadedTableFile=file;photoVision.imageVersion++;photoVision.archiveId=null;photoVision.sourceName=file.layout.name;photoVision.rotation=0;photoVision.fineRotation=0;photoVision.sharpen=false;
+        const d=file.layout,w=1200,h=Math.round(w*d.tableW/d.tableL)+80;
+        for(const [canvas,ctx]of [[photoVision.rawCanvas,photoVision.rawCtx],[photoVision.sourceCanvas,photoVision.sourceCtx],[photoVision.analysisCanvas,photoVision.analysisCtx]]){
+            canvas.width=w+80;canvas.height=h;ctx.fillStyle='#101820';ctx.fillRect(0,0,canvas.width,h);ctx.fillStyle='#185869';ctx.fillRect(40,40,w,h-80);
+            for(const b of d.balls.filter(b=>!b.marker)){
+                const x=40+b.x/d.tableL*w,y=40+b.y/d.tableW*(h-80),r=d.ballR/d.tableL*w;
+                ctx.fillStyle=b.id===0?'#f4f4ed':poolBallColor(b.id>8?b.id-8:b.id);ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y,r*.55,0,Math.PI*2);ctx.fill();ctx.fillStyle='#111';ctx.font='bold '+Math.max(9,r)+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(b.id===0?'C':b.id,x,y);
+            }
+        }
+        photoVision.imageReady=true;photoVision.regionEnd='full';photoVision.refinements=[];photoVision.refining=false;photoVision.pendingDiamond=null;photoVision.calibrationCache=null;photoVision.corners=[{x:40,y:40},{x:40+w,y:40},{x:40+w,y:h-40},{x:40,y:h-40}];
+        photoVision.detections=d.balls.filter(b=>!b.marker).map(b=>({id:String(b.id),nx:b.x/d.tableL,ny:b.y/d.tableW,confidence:1,manual:true,engine:'file'}));
+        $('photoLayoutName').value=d.name;$('photoAnalyzerVideo').style.display='none';$('photoAnalyzerCanvas').style.display='block';$('photoCalibrationPanel').hidden=true;$('photoFineTune').setAttribute('aria-expanded','false');$('photoReviewPane').classList.remove('calibrating');
+        pvResetView();renderPhotoDetectionList();renderPhotoAnalyzer();pvUpdateCalibrationDiagram();$('photoAnalyzeNow').disabled=true;$('photoAddMissed').disabled=false;
+        pvStatus('Table file loaded: '+d.name+'. Review, then Apply to Trainer Table or Apply + Save.');
+    }
+    async function readTableFile(input,analysis){
+        const f=input.files?.[0];input.value='';if(!f)return;
+        try{if(f.size>2000000)throw Error('Layout file is too large.');const file=window.BilliardsLayoutFiles.parse(await f.text());if(analysis)stageTableFile(file);else applyTableFile(file);}
+        catch(e){toast('Could not load table: '+e.message);if(analysis)pvStatus('Could not load table: '+e.message);}
+    }
+    function sessionFolderStore(value){
+        return new Promise((resolve,reject)=>{const r=indexedDB.open('billiards-session-folder',1);r.onupgradeneeded=()=>r.result.createObjectStore('handles');r.onerror=()=>reject(r.error);r.onsuccess=()=>{const db=r.result,tx=db.transaction('handles',value?'readwrite':'readonly'),req=value?tx.objectStore('handles').put(value,'folder'):tx.objectStore('handles').get('folder');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);tx.oncomplete=()=>db.close();};});
+    }
+    async function writeSessionFolder(){
+        if(!sessionFolder)return;
+        if(sessionFolderWriting){sessionFolderDirty=true;return;}
+        sessionFolderWriting=true;
+        try{const f=await sessionFolder.getFileHandle('Billiards-Latest-Session.billiards.json',{create:true}),w=await f.createWritable();await w.write(JSON.stringify(portableTableFile(true),null,2));await w.close();$('sessionFolderStatus').textContent='Latest session saved in '+sessionFolder.name;}
+        catch(e){$('sessionFolderStatus').textContent='Folder save paused. Choose Session Folder to reconnect.';}
+        finally{sessionFolderWriting=false;if(sessionFolderDirty){sessionFolderDirty=false;scheduleSessionFolder();}}
+    }
+    function scheduleSessionFolder(){if(!sessionFolder)return;clearTimeout(sessionFolderTimer);sessionFolderTimer=setTimeout(writeSessionFolder,800);}
+    async function chooseSessionFolder(){
+        if(!window.showDirectoryPicker){downloadTableFile(true);return;}
+        try{
+            const folder=await window.showDirectoryPicker({mode:'readwrite'});
+            let previous=null;try{const f=await (await folder.getFileHandle('Billiards-Latest-Session.billiards.json')).getFile();previous=window.BilliardsLayoutFiles.parse(await f.text());}catch(e){if(e.name!=='NotFoundError')throw e;}
+            sessionFolder=folder;await sessionFolderStore(folder);if(previous)applyTableFile(previous);await writeSessionFolder();
+        }catch(e){if(e.name!=='AbortError')toast('Session folder: '+e.message);}
+    }
+    async function reconnectSessionFolder(){
+        if(!window.showDirectoryPicker)return;
+        try{const f=await sessionFolderStore();if(f&&await f.queryPermission({mode:'readwrite'})==='granted'){sessionFolder=f;$('sessionFolderStatus').textContent='Session folder connected: '+f.name;}else if(f)$('sessionFolderStatus').textContent='Choose Session Folder to reconnect '+f.name;}catch(e){}
+    }
+    function setupTableFiles(){
+        $('trainerLoadFile').onclick=()=>$('trainerLayoutFileInput').click();$('trainerSaveFile').onclick=()=>downloadTableFile();$('trainerSaveSession').onclick=()=>downloadTableFile(true);
+        $('photoLoadTableFile').onclick=()=>$('photoLayoutFileInput').click();$('photoSaveTableFile').onclick=()=>downloadTableFile(false,true);
+        $('trainerLayoutFileInput').onchange=()=>readTableFile($('trainerLayoutFileInput'),false);$('photoLayoutFileInput').onchange=()=>readTableFile($('photoLayoutFileInput'),true);
+        $('sessionFolder').onclick=chooseSessionFolder;if(!window.showDirectoryPicker)$('sessionFolder').hidden=true;
+        reconnectSessionFolder();
+        document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){saveState();if(sessionFolder)writeSessionFolder();}});
+        window.addEventListener('pagehide',saveState);
+    }
+
     function saveState() { try {
         localStorage.setItem('billiardTrainerState', JSON.stringify(Object.assign(Object.assign({}, S), { preview: null })));
+        if(runHistory.length&&(lastSavedHistory!==runHistory||lastSavedHistoryLength!==runHistory.length||lastSavedHistoryEnd!==runHistory.at(-1))){
+            localStorage.setItem('billiardTrainerProgress',JSON.stringify({history:runHistory.slice(-30)},(key,value)=>key==='preview'?null:value));lastSavedHistory=runHistory;lastSavedHistoryLength=runHistory.length;lastSavedHistoryEnd=runHistory.at(-1);
+        }
+        scheduleSessionFolder();
     }
     catch (e) { } }
     function restoreState() {
@@ -2659,6 +2774,8 @@
     if (!isProjector) {
         restoreState();
         normalizeBallSet();
+        try{const saved=JSON.parse(localStorage.getItem('billiardTrainerProgress')||'null');if(saved?.history?.length)runHistory=saved.history.filter(h=>h&&Array.isArray(h.balls)&&h.tableL===S.tableL&&h.tableW===S.tableW).slice(-30);}catch(e){}
+
     }
     function pocketModel() {
         const R = S.ballR, D = 2 * R, L = S.tableL, W = S.tableW;
@@ -6763,7 +6880,7 @@
                 const id = parseInt(choice, 10);
                 const exists = S.balls.some(b => b.id === id);
                 $('addBall').disabled = exists;
-                $('removeBall').disabled = !exists;
+                $('removeBall').disabled = !exists || id===0;
                 $('addBall').textContent = 'Add Ball';
                 $('removeBall').textContent = 'Remove Ball';
             }
@@ -6872,6 +6989,14 @@
         if ($('aimControls2')) $('aimControls2').classList.toggle('activeAim', S.activeShot === 2 && S.shot2Enabled);
     }
     function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
+    function keepCueOnTable(q){
+        const gap=Math.max(S.ballR*2.2,.065),p={x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR)};
+        for(const pocket of logicalPockets())if(Math.hypot(p.x-pocket.x,p.y-pocket.y)<gap){
+            if(pocket.x===0)p.x=gap;else if(pocket.x===S.tableL)p.x=S.tableL-gap;else p.y=pocket.y===0?gap:S.tableW-gap;
+            if(pocket.x===0||pocket.x===S.tableL)p.y=pocket.y===0?gap:S.tableW-gap;
+        }
+        return p;
+    }
     function onPlayingSurface(q) {
         return q.x > 0 && q.x < S.tableL && q.y > 0 && q.y < S.tableW;
     }
@@ -7206,6 +7331,7 @@
         else if (drag.kind === 'ball') {
             const b = S.balls.find(x => x.id === drag.id);
             if (b) {
+                if(b.id===0)Object.assign(q,keepCueOnTable(q));
                 if (b.id === 0 && S.angleLock) {
                     const dx = q.x - b.x, dy = q.y - b.y;
                     S.freeAim = { x: S.freeAim.x + dx, y: S.freeAim.y + dy };
@@ -7217,6 +7343,7 @@
         else if (drag.kind === 'aim')
             S.freeAim = q;
         else if (drag.kind === 'ball2') {
+            Object.assign(q,keepCueOnTable(q));
             const s = ensureShot2();
             s.autoFollow = false;
             s.x = q.x;
@@ -7241,7 +7368,7 @@
             const q = controlMap().inv(pointerPos(ev));
             const pocket = manualPocketAt(q);
             const ball = drag.kind === 'ball' ? S.balls.find(b => b.id === drag.id && !b.marker) : null;
-            if (pocket && (ball || drag.kind === 'ball2')) {
+            if (pocket && ball && ball.id>=1 && ball.id<=15) {
                 animation = null;
                 const id = drag.kind === 'ball2' ? -2 : ball.id;
                 if (id === -2) { S.shot2Enabled=false; S.activeShot=1; }
@@ -10421,6 +10548,7 @@
         }
     }
     function applyPhotoDetections(saveAfter){
+        if(photoVision.loadedTableFile){applyTableFile(photoVision.loadedTableFile,saveAfter,photoVision.detections);closePhotoAnalyzer();return;}
         const chosen=photoVision.detections.filter(d=>String(d.id)!=='ignore'),used=new Set(),balls=[];
         for(const d of chosen){const id=Number(d.id);if(!Number.isFinite(id)||id<0||id>15||used.has(id))continue;used.add(id);balls.push({id,n:id===0?'CB':String(id),x:clamp(d.nx*S.tableL,S.ballR,S.tableL-S.ballR),y:clamp(d.ny*S.tableW,S.ballR,S.tableW-S.ballR),active:true});}
         if(!balls.length){pvStatus('No reviewed balls are selected.');return;}
@@ -10438,6 +10566,7 @@
         closePhotoAnalyzer();
     }
     function loadPhotoFile(file, sourceNameOverride = '', archiveAfter = false, archiveId = null){
+        photoVision.loadedTableFile=null;
         if(!file)return;
         const imageVersion=++photoVision.imageVersion;
         photoVision.imageReady=false;
@@ -10811,6 +10940,7 @@
         });
 
         $('photoAnalyzerModal').addEventListener('pointerdown', ev => { if(ev.target===$('photoAnalyzerModal')) closePhotoAnalyzer(); });
+        setupTableFiles();
         $('saveLayoutBtn').addEventListener('click', () => saveBallLayout());
         $('loadLayoutBtn').addEventListener('click', () => loadSelectedBallLayout());
 
@@ -11291,7 +11421,7 @@
             updateRunCount();toast('Removed '+color+' '+shape+' marker');
         };
         function addSpecificBallById(id) {
-            if (!id || id < 1 || id > 15)
+            if (!Number.isInteger(id) || id < 0 || id > 15)
                 return false;
             if (S.balls.some(b => b.id === id))
                 return false;
@@ -11299,7 +11429,8 @@
             const col = present % 5, row = Math.floor(present / 5) % 3;
             const x = clamp(S.tableL * (.55 + col * .055), S.ballR * 2, S.tableL - S.ballR * 2);
             const y = clamp(S.tableW * (.22 + row * .20), S.ballR * 2, S.tableW - S.ballR * 2);
-            S.balls.push({ id, n: String(id), x, y, active: true });
+            S.balls.push({ id, n: id===0?'CB':String(id), x, y, active: true });
+            S.pocketedLog=(S.pocketedLog||[]).filter(n=>n!==id);
             normalizeBallSet();
             if ($('ballSelect'))
                 $('ballSelect').value = String(id);
@@ -11347,7 +11478,7 @@
                 return;
             }
             const id = selectedObjectBallId();
-            if (!id || id < 1 || id > 15)
+            if (!Number.isInteger(id) || id < 0 || id > 15)
                 return;
             if (S.balls.some(b => b.id === id)) {
                 toast('Ball ' + id + ' is already on the table');
@@ -11541,12 +11672,12 @@ if ('serviceWorker' in navigator) {
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=explorer3">
   <script src="./guide/guide.js?v=explorer5"></script>
-  <script src="./guide/pool-integration.js?v=explorer3"></script>
+  <script src="./guide/pool-integration.js?v=explorer4"></script>
   <script src="./guide/analyze-integration.js?v=explorer3"></script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=2"></script>
 
-  <script src="./guide/explore-inspector-dev.js?v=1"></script>
+
 </body>
 </html>
 
