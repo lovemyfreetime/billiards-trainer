@@ -1809,6 +1809,7 @@
 
 <link rel="stylesheet" href="./photo-calibration.css?v=2">
 <script src="./photo-calibration.js?v=1"></script>
+<script src="./photo-table-spots.js?v=1"></script>
 <script>
 // AI Camera Edition wrapper: v4.12 trainer, app-mode launch package. v4 adds scoreboard placement/default-off + local analysis-photo recall.
 // v4.12: virtual diamond extensions beyond physical corners; fixes source references that previously clipped at the first visible table boundary.
@@ -8982,6 +8983,7 @@
         const rawCollapse=pvCollapseSamePhysicalBalls(candidates,.80);
         photoVision.duplicatesMerged=(photoVision.duplicatesMerged||0)+rawCollapse.merged;
         candidates=rawCollapse.items.sort((a,b)=>b.detConfidence-a.detConfidence).slice(0,20);
+        candidates=candidates.filter(d=>!pvIsTableSpot(d.nx,d.ny));
         const identified=[];
         for(let i=0;i<candidates.length;i++){
             pvStatus('AI identity check '+(i+1)+' / '+candidates.length+'…');
@@ -9030,6 +9032,32 @@
             return target?'Tap the inside cushion edge aligned with '+target.label+' in the photograph.':'Select a visible diamond on the diagram, then tap its aligned inside cushion edge in the photo.';
         }
         return 'Outline complete. Analyze Balls, or optionally Refine Alignment with visible diamonds.';
+    }
+    function pvIsTableSpot(nx,ny){
+        const filter=window.BilliardsTableSpots,fit=pvCalibration();
+        if(!filter||!fit||!filter.nearSpot(nx,ny))return false;
+        // A small rectified patch from native pixels measures physical size even
+        // when the photo is oblique, rotated, or shows only part of the table.
+        const size=96,dx=2*S.ballR/S.tableL,dy=2*S.ballR/S.tableW;
+        const corners=[[-1,-1],[1,-1],[1,1],[-1,1]].map(([x,y])=>applyHomography(fit.H,nx+x*dx,ny+y*dy));
+        if(corners.some(p=>!Number.isFinite(p.x)||!Number.isFinite(p.y)))return false;
+        const canvas=photoVision.analysisCanvas;
+        const x0=Math.max(0,Math.floor(Math.min(...corners.map(p=>p.x)))-1),y0=Math.max(0,Math.floor(Math.min(...corners.map(p=>p.y)))-1);
+        const x1=Math.min(canvas.width,Math.ceil(Math.max(...corners.map(p=>p.x)))+2),y1=Math.min(canvas.height,Math.ceil(Math.max(...corners.map(p=>p.y)))+2);
+        // Do not guess from a clipped or under-resolved marking.
+        if(x1-x0<8||y1-y0<8||x1<=x0||y1<=y0)return false;
+        const src=photoVision.analysisCtx.getImageData(x0,y0,x1-x0,y1-y0),data=new Uint8ClampedArray(size*size*4);
+        for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+            const p=applyHomography(fit.H,nx+(2*x/(size-1)-1)*dx,ny+(2*y/(size-1)-1)*dy);
+            if(p.x<x0||p.y<y0||p.x>=x1-1||p.y>=y1-1)return false;
+            const sx=p.x-x0,sy=p.y-y0,ix=Math.floor(sx),iy=Math.floor(sy),fx=sx-ix,fy=sy-iy,oi=(y*size+x)*4;
+            for(let k=0;k<3;k++){
+                const at=(xx,yy)=>src.data[(yy*src.width+xx)*4+k];
+                data[oi+k]=(at(ix,iy)*(1-fx)+at(ix+1,iy)*fx)*(1-fy)+(at(ix,iy+1)*(1-fx)+at(ix+1,iy+1)*fx)*fy;
+            }
+            data[oi+3]=255;
+        }
+        return filter.inspect({width:size,height:size,data},size/2).isSpot;
     }
     function pvUpdateCalibrationDiagram(){
         const svg=$('photoCalibrationDiagram');if(!svg)return;
@@ -10073,6 +10101,8 @@
             if(cl.id==='ignore' && qa.ballness<.34 && circle.score<.42)continue;
             if(qa.ballness<.23 && circle.score<.40)continue;
             if(String(cl.id)==='0' && qa.ballness<.32 && circle.score<.38 && (cl.confidence||0)<.90)continue;
+            const globalX=pvRegion().x0+(cx/(w-1))*(pvRegion().x1-pvRegion().x0);
+            if(pvIsTableSpot(globalX,cy/(h-1)))continue;
 
             const tc=document.createElement('canvas');
             tc.width=128;tc.height=128;
