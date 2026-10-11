@@ -1565,7 +1565,7 @@
       <div class="sectionBody">
       <div class="tableControlGroup layoutSetupGroup" id="fullRackGroup"><div class="tableControlTitle">PICK AND PLAY FULL RACKS</div>
         <div class="layoutSetupSelect"><select id="fullRackSelect" aria-label="Pick and play full rack">
-          <option value="rack3">3-Ball</option><option value="rack8" selected>8-Ball</option><option value="rack9">9-Ball</option><option value="rack10">10-Ball</option><option value="ultimate8">Ultimate 8 Ball</option>
+          <option value="rack3">3-Ball</option><option value="rack6">6-Ball</option><option value="rack7">7-Ball</option><option value="rack8" selected>8-Ball</option><option value="rack9">9-Ball</option><option value="rack10">10-Ball</option><option value="ultimate8">Ultimate 8 Ball</option><option value="straight14">Straight Pool — 14 Balls (Open Front)</option>
         </select></div>
         <div class="fullRackStart"><button id="startFullRack" type="button">Start</button></div>
       </div>
@@ -2783,10 +2783,54 @@
         }));
         finishRackSetup(balls, 'Ultimate 8 Ball ready — 8 ball on the foot spot', '8ball');
     }
+    function sixBallRack() {
+        const R = S.ballR, L = S.tableL, W = S.tableW;
+        const dx = Math.sqrt(3) * R, apexX = L * .75, apexY = W * .5;
+        const others = shuffleRackIds([2, 3, 4, 5]);
+        const rows = [[1], [others[0], others[1]], [others[2], 6, others[3]]];
+        const balls = [{ id: 0, n: 'CB', x: L * .25, y: W * .5, active: true }];
+        rows.forEach((ids, row) => ids.forEach((id, k) => {
+            balls.push({ id, n: String(id), x: apexX + row * dx,
+                y: apexY + (k - row / 2) * 2 * R, active: true });
+        }));
+        finishRackSetup(balls, '6-ball rack ready', '6ball');
+    }
+    function sevenBallRack() {
+        const R = S.ballR, L = S.tableL, W = S.tableW;
+        const centerX = L * .75 + 2 * R, centerY = W * .5;
+        const balls = [{ id: 0, n: 'CB', x: L * .25, y: W * .5, active: true }];
+        // Start at the break-facing apex; advance clockwise around the hexagon.
+        for (let id = 1; id <= 6; id++) {
+            const angle = Math.PI + (id - 1) * Math.PI / 3;
+            balls.push({ id, n: String(id), x: centerX + 2 * R * Math.cos(angle),
+                y: centerY + 2 * R * Math.sin(angle), active: true });
+        }
+        balls.push({ id: 7, n: '7', x: centerX, y: centerY, active: true });
+        finishRackSetup(balls, '7-ball hexagonal rack ready', '7ball');
+    }
+    function straightPoolOpenRack() {
+        const R = S.ballR, L = S.tableL, W = S.tableW;
+        const dx = Math.sqrt(3) * R, apexX = L * .75, apexY = W * .5;
+        const ids = shuffleRackIds(Array.from({ length: 14 }, (_, i) => i + 1));
+        const balls = [{ id: 0, n: 'CB', x: L * .25, y: W * .5, active: true }];
+        // Leave the apex empty for a continuing straight-pool rack.
+        for (let row = 1; row < 5; row++) {
+            for (let k = 0; k <= row; k++) {
+                const id = ids.shift();
+                balls.push({ id, n: String(id), x: apexX + row * dx,
+                    y: apexY + (k - row / 2) * 2 * R, active: true });
+            }
+        }
+        finishRackSetup(balls, 'Straight pool: 14 balls ready, front position open', 'straight');
+    }
     function startFullRack() {
         const v = $('fullRackSelect').value;
         if (v === 'rack3')
             randomThreeBallRack();
+        else if (v === 'rack6')
+            sixBallRack();
+        else if (v === 'rack7')
+            sevenBallRack();
         else if (v === 'rack8')
             randomEightBallRack();
         else if (v === 'rack9')
@@ -2795,6 +2839,8 @@
             randomTenBallRack();
         else if (v === 'ultimate8')
             ultimateEightBallRack();
+        else if (v === 'straight14')
+            straightPoolOpenRack();
         syncProjector();
     }
     function createRandomSetup() {
@@ -11729,7 +11775,7 @@ if ('serviceWorker' in navigator) {
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=fit5">
   <script src="./guide/guide.js?v=start-auto8"></script>
-  <script src="./guide/pool-integration.js?v=full-racks5"></script>
+  <script src="./guide/pool-integration.js?v=full-racks6"></script>
   <script src="./guide/analyze-integration.js?v=start-audio6"></script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=2"></script>

@@ -173,7 +173,7 @@
     "control": "fullRackSelect; fullRackGroup",
     "current_topic": "main-pick-and-play-full-racks",
     "status": "script-ready; MP3 not generated; device speech fallback",
-    "narration": "Pick and Play Full Racks prepares a complete game rack. Choose 3-Ball, 8-Ball, 9-Ball, 10-Ball, or Ultimate 8 Ball from the menu, then press Start. Ultimate 8 Ball uses the fixed numbered arrangement and puts the eight ball exactly on the foot spot."
+    "narration": "Pick and Play Full Racks prepares a complete game rack. Choose 3-Ball, 6-Ball, 7-Ball, 8-Ball, 9-Ball, 10-Ball, Ultimate 8 Ball, or Straight Pool from the menu, then press Start. Six Ball uses a small triangle. Seven Ball places the seven in the center of a hexagon. Straight Pool prepares fourteen balls with the front position open. Add a single ball if you want a separate break ball, then drag it and the cue ball to your preferred positions. Ultimate 8 Ball uses the fixed numbered arrangement and puts the eight ball exactly on the foot spot."
   },
   {
     "filename": "main-start-full-rack.mp3",
@@ -181,7 +181,7 @@
     "control": "startFullRack",
     "current_topic": "main-start-full-rack",
     "status": "script-ready; MP3 not generated; device speech fallback",
-    "narration": "Start replaces the current table with the selected full rack and begins a fresh practice run. It prepares the balls for your break. Use Execute Shot when you are ready to shoot."
+    "narration": "Start replaces the current table with the selected full rack and begins a fresh practice run. It prepares the selected rack, including the fourteen-ball straight-pool rack with its front position open. Use Execute Shot when you are ready to shoot."
   },
   {
     "filename": "main-random-ball-count.mp3",
