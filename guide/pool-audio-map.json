@@ -494,7 +494,17 @@
       "category": "fundamentals",
       "level": 0,
       "text": "A kick shot sends the cue ball into a cushion before contacting an object ball. Study the cue ball’s route to the rail and its route away from the rail. Use the diamond references to help estimate where to aim.",
-      "summary": "A kick shot sends the cue ball into a cushion before contacting an object ball."
+      "summary": "A kick shot sends the cue ball into a cushion before contacting an object ball.",
+      "resources": [
+        {
+          "title": "Diamond System Formula — Kick Shots (Cue Craft Pro)",
+          "url": "https://www.youtube.com/watch?v=GBFhoRZdGMI"
+        },
+        {
+          "title": "Corner-5 Three-Rail System (DrDaveBilliards)",
+          "url": "https://www.youtube.com/watch?v=G4dv9ekF3FY"
+        }
+      ]
     },
     {
       "id": "incidence-reflection-quick",
@@ -1340,7 +1350,13 @@
       "category": "exercises",
       "level": 0,
       "text": "Choose a rack or practice layout and work through the complete sequence. After finishing, use Undo Last Shot to review your decisions. Find an earlier shot where a different cue-ball position could have improved the remaining pattern. Change that shot and work forward again. Repeat until you develop a more comfortable and reliable runout.",
-      "summary": "Choose a rack or practice layout and work through the complete sequence."
+      "summary": "Choose a rack or practice layout and work through the complete sequence.",
+      "resources": [
+        {
+          "title": "Progressive Difficulty Drill (Sharivari)",
+          "url": "https://www.youtube.com/watch?v=fNNtQM8WZcY"
+        }
+      ]
     },
     {
       "id": "pattern-play-quick",
@@ -1448,7 +1464,21 @@
       "category": "explore",
       "level": 0,
       "text": "The best way to improve your billiards game is to practice with a purpose. Rather than taking random shots, choose a specific skill to develop. The trainer lets you repeat arrangements, compare different techniques, and learn how small adjustments affect the outcome.",
-      "summary": "The best way to improve your billiards game is to practice with a purpose."
+      "summary": "The best way to improve your billiards game is to practice with a purpose.",
+      "resources": [
+        {
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
+          "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
+        },
+        {
+          "title": "Rock Around the Clock — Positional Play (Niels Feijen)",
+          "url": "https://www.youtube.com/watch?v=DAFJPeTSGOE"
+        },
+        {
+          "title": "Progressive Difficulty Drill (Sharivari)",
+          "url": "https://www.youtube.com/watch?v=fNNtQM8WZcY"
+        }
+      ]
     },
     {
       "id": "practice-aiming-quick",
@@ -1466,7 +1496,13 @@
       "category": "drills",
       "level": 0,
       "text": "Speed control determines where the cue ball finishes. Set up a shot with a clear path and choose a stopping area. Execute Shot and observe the result. Restore the arrangement, make a small speed adjustment, and try again. Your goal is to learn how different stroke speeds affect travel distance.",
-      "summary": "Speed control determines where the cue ball finishes."
+      "summary": "Speed control determines where the cue ball finishes.",
+      "resources": [
+        {
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
+          "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
+        }
+      ]
     },
     {
       "id": "practice-stop-shot-quick",
@@ -1475,7 +1511,13 @@
       "category": "drills",
       "level": 0,
       "text": "A stop shot occurs when the cue ball strikes an object ball straight on while sliding without forward or backward rotation. Ideally, the cue ball stops near the collision point as the object ball moves away. Experiment with speed and spin to learn how to create this result.",
-      "summary": "A stop shot occurs when the cue ball strikes an object ball straight on while sliding without forward or backward rotation."
+      "summary": "A stop shot occurs when the cue ball strikes an object ball straight on while sliding without forward or backward rotation.",
+      "resources": [
+        {
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
+          "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
+        }
+      ]
     },
     {
       "id": "practice-follow-shot-quick",
@@ -1484,7 +1526,13 @@
       "category": "drills",
       "level": 0,
       "text": "Set up a straight shot and apply forward rotation to the cue ball. Execute Shot and observe how the cue ball continues after contacting the object ball. Repeat with different amounts of follow and speed. Try to control how far the cue ball travels beyond the contact point.",
-      "summary": "Set up a straight shot and apply forward rotation to the cue ball."
+      "summary": "Set up a straight shot and apply forward rotation to the cue ball.",
+      "resources": [
+        {
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
+          "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
+        }
+      ]
     },
     {
       "id": "practice-draw-shot-quick",
@@ -1493,7 +1541,13 @@
       "category": "drills",
       "level": 0,
       "text": "Set up a straight shot and apply backspin. Execute Shot and observe whether the cue ball returns toward its starting position. Adjust the amount of draw and shot speed, then repeat. Try to bring the cue ball back to a specific area of the table.",
-      "summary": "Set up a straight shot and apply backspin."
+      "summary": "Set up a straight shot and apply backspin.",
+      "resources": [
+        {
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
+          "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
+        }
+      ]
     },
     {
       "id": "practice-cut-angles-quick",
@@ -1529,7 +1583,17 @@
       "category": "drills",
       "level": 0,
       "text": "A kick shot sends the cue ball into a cushion before it contacts the object ball. Place an object ball where a direct shot is difficult. Use the diamond references to plan a one-rail route, then execute the shot. Experiment with the rail contact point and speed to improve your accuracy.",
-      "summary": "A kick shot sends the cue ball into a cushion before it contacts the object ball."
+      "summary": "A kick shot sends the cue ball into a cushion before it contacts the object ball.",
+      "resources": [
+        {
+          "title": "Diamond System Formula — Kick Shots (Cue Craft Pro)",
+          "url": "https://www.youtube.com/watch?v=GBFhoRZdGMI"
+        },
+        {
+          "title": "Corner-5 Three-Rail System (DrDaveBilliards)",
+          "url": "https://www.youtube.com/watch?v=G4dv9ekF3FY"
+        }
+      ]
     },
     {
       "id": "practice-english-quick",
@@ -1547,7 +1611,13 @@
       "category": "drills",
       "level": 0,
       "text": "Place two object balls on the table and choose the order you want to pocket them. Before executing the first shot, decide where the cue ball should finish for the second. Use speed and spin to explore different routes. Your goal is to create a comfortable next shot, not simply pocket the first ball.",
-      "summary": "Place two object balls on the table and choose the order you want to pocket them."
+      "summary": "Place two object balls on the table and choose the order you want to pocket them.",
+      "resources": [
+        {
+          "title": "Rock Around the Clock — Positional Play (Niels Feijen)",
+          "url": "https://www.youtube.com/watch?v=DAFJPeTSGOE"
+        }
+      ]
     },
     {
       "id": "exercise-straight-shot-ladder",
@@ -1574,7 +1644,17 @@
       "category": "exercises",
       "level": 0,
       "text": "Set up a shot with an object ball near a pocket. Choose three different areas where you'd like the cue ball to finish. Try to reach the first area using speed control, the second using follow or draw, and the third using a cushion route. Compare the difficulty and consistency of each approach.",
-      "summary": "Set up a shot with an object ball near a pocket."
+      "summary": "Set up a shot with an object ball near a pocket.",
+      "resources": [
+        {
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
+          "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
+        },
+        {
+          "title": "Rock Around the Clock — Positional Play (Niels Feijen)",
+          "url": "https://www.youtube.com/watch?v=DAFJPeTSGOE"
+        }
+      ]
     },
     {
       "id": "first-session-welcome",
@@ -2070,6 +2150,278 @@
       "level": 0,
       "text": "Choose how many numbered object balls to place randomly, then press Add Groups of Balls. Full racks are available separately in Pick and Play Full Racks.",
       "summary": "Choose how many numbered object balls to place randomly, then press Add Groups of Balls."
+    },
+    {
+      "id": "practice-session-introduction",
+      "title": "Practice pathway",
+      "group": "Practice Foundations",
+      "category": "drills",
+      "level": 0,
+      "audio": null,
+      "recordingStatus": "pending",
+      "plannedAudio": "./guide/audio/practice-session-introduction.mp3",
+      "summary": "Build accuracy, position, and recovery in a consistent order.",
+      "text": "Start with cue ball speed and contact, then target landing, pattern play, and kick routes. Finish with a scored benchmark. Open More for the matching video. Watch the creator demonstrate the layout, then build your own practice table. Save a starting layout before changing it so you can repeat the same test. Count pocketing, cue ball position, and legal contact separately. Your score should show what improved and what still needs work.",
+      "practice": {
+        "Goal": "Build accuracy, position, and recovery in a consistent order.",
+        "Setup": "Save one repeatable starting layout.",
+        "Measure": "Record a baseline score before making the drill harder.",
+        "Trainer": "Use Save Table File to keep or share the starting layout."
+      },
+      "resources": [
+        {
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
+          "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
+        },
+        {
+          "title": "Rock Around the Clock — Positional Play (Niels Feijen)",
+          "url": "https://www.youtube.com/watch?v=DAFJPeTSGOE"
+        },
+        {
+          "title": "Diamond System Formula — Kick Shots (Cue Craft Pro)",
+          "url": "https://www.youtube.com/watch?v=GBFhoRZdGMI"
+        },
+        {
+          "title": "Progressive Difficulty Drill (Sharivari)",
+          "url": "https://www.youtube.com/watch?v=fNNtQM8WZcY"
+        },
+        {
+          "title": "Corner-5 Three-Rail System (DrDaveBilliards)",
+          "url": "https://www.youtube.com/watch?v=G4dv9ekF3FY"
+        },
+        {
+          "title": "Zero-X Billiards — channel link",
+          "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA"
+        }
+      ]
+    },
+    {
+      "id": "practice-speed-contact-baseline",
+      "title": "Speed and contact baseline",
+      "group": "Practice Foundations",
+      "category": "drills",
+      "level": 0,
+      "audio": null,
+      "recordingStatus": "pending",
+      "plannedAudio": "./guide/audio/practice-speed-contact-baseline.mp3",
+      "summary": "Separate aim errors from cue ball control errors.",
+      "text": "Begin with a straight shot and center cue tip contact. Find the speed that produces a stop shot, then move the contact point higher for follow and lower for draw. Keep the object ball and pocket fixed while changing one setting at a time. Next, use a cut shot to compare the tangent line with the cue ball route. Before each shot, name the landing point you expect. Repeat each setup five times and record whether the cue ball finished short, long, left, or right.",
+      "practice": {
+        "Goal": "Separate aim errors from cue ball control errors.",
+        "Setup": "One object ball, one pocket, and a repeatable cue ball starting point.",
+        "Measure": "Repeat each setting five times and identify the direction of the miss.",
+        "Trainer": "Use cue tip contact, shot speed, tangent line, and Undo Last Shot."
+      },
+      "resources": [
+        {
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
+          "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
+        }
+      ]
+    },
+    {
+      "id": "practice-target-landing",
+      "title": "Target landing precision",
+      "group": "Cue Ball Control",
+      "category": "drills",
+      "level": 0,
+      "audio": null,
+      "recordingStatus": "pending",
+      "plannedAudio": "./guide/audio/practice-target-landing.mp3",
+      "summary": "Control the cue ball stopping point after pocketing.",
+      "text": "Set up a repeatable object ball shot and choose a small cue ball landing zone. Begin with a generous target, then reduce it as your control improves. For this practice plan, use a three inch target and count a success only when the object ball is pocketed and the cue ball center finishes inside the target. Shoot ten attempts. Change only speed, then contact height, then the cut angle. Aim for eight successes out of ten before making the target smaller. Open More for Dr. Dave’s target practice demonstration.",
+      "practice": {
+        "Goal": "Control the cue ball stopping point after pocketing.",
+        "Setup": "Use a three inch target, starting with an easier size if needed.",
+        "Measure": "Pocket the ball and land the cue ball center inside the target on 8 of 10 attempts.",
+        "Trainer": "Use a table marker for the landing zone; save the layout and use Undo to repeat it."
+      },
+      "resources": [
+        {
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
+          "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
+        }
+      ]
+    },
+    {
+      "id": "practice-rock-around-clock",
+      "title": "Rock Around the Clock",
+      "group": "Pattern Play",
+      "category": "drills",
+      "level": 0,
+      "audio": null,
+      "recordingStatus": "pending",
+      "plannedAudio": "./guide/audio/practice-rock-around-clock.mp3",
+      "summary": "Plan the next shot before shooting the current one.",
+      "text": "Open More and use Niels Feijen’s demonstration to set up Rock Around the Clock. Save the starting layout. Before every shot, choose the next object ball, its pocket, and the cue ball landing zone that leaves a useful angle. Prefer a route with room for a small speed error. Track pocketing and position separately. Complete one rotation first, then work toward three consecutive rotations without disturbing another ball. When you miss position, repeat the previous shot and compare a simpler route before changing the whole pattern.",
+      "practice": {
+        "Goal": "Plan the next shot before shooting the current one.",
+        "Setup": "Use the linked demonstration for the creator’s ball layout and sequence.",
+        "Measure": "For this plan, complete 3 consecutive rotations without disturbing a secondary ball.",
+        "Trainer": "Use Shot 2 to preview the next shot and Undo Last Shot to revisit a position error."
+      },
+      "resources": [
+        {
+          "title": "Rock Around the Clock — Positional Play (Niels Feijen)",
+          "url": "https://www.youtube.com/watch?v=DAFJPeTSGOE"
+        }
+      ]
+    },
+    {
+      "id": "practice-one-rail-kick",
+      "title": "One-rail kick reference",
+      "group": "Kick Systems",
+      "category": "drills",
+      "level": 0,
+      "audio": null,
+      "recordingStatus": "pending",
+      "plannedAudio": "./guide/audio/practice-one-rail-kick.mp3",
+      "summary": "Build a reliable diamond reference before adding rails.",
+      "text": "Place an object ball behind a blocker so the cue ball needs one cushion to reach it. Open More for the diamond system tutorial. Identify the cue ball start, the rail aim point, and the intended object ball contact. Keep speed and spin consistent while testing the route. Repeat five attempts, moving the rail aim point by a small amount when the contact misses. Record the adjustment that works, then test a second starting location. Count legal object ball contact according to the game you are practicing.",
+      "practice": {
+        "Goal": "Build a reliable diamond reference before adding rails.",
+        "Setup": "One blocker, one target object ball, and a clear one-rail route.",
+        "Measure": "Make legal target contact on at least 4 of 5 attempts from each tested start.",
+        "Trainer": "Use the kick tool, diamonds, and a saved layout to compare aim points."
+      },
+      "resources": [
+        {
+          "title": "Diamond System Formula — Kick Shots (Cue Craft Pro)",
+          "url": "https://www.youtube.com/watch?v=GBFhoRZdGMI"
+        }
+      ]
+    },
+    {
+      "id": "practice-two-rail-kick",
+      "title": "Two-rail kick extension",
+      "group": "Kick Systems",
+      "category": "drills",
+      "level": 0,
+      "audio": null,
+      "recordingStatus": "pending",
+      "plannedAudio": "./guide/audio/practice-two-rail-kick.mp3",
+      "summary": "Extend a calibrated route to a second cushion.",
+      "text": "Begin with a two cushion route that has space for the cue ball to travel. Mark the first rail aim point and predict the second rail contact before shooting. Keep the same speed and spin for each attempt. If the first contact is wrong, adjust the aim point. If the first contact is right but the final contact misses, examine the second rail route and speed. Record five attempts from the same start, then move the cue ball to a new starting diamond. Open More for the linked kick reference.",
+      "practice": {
+        "Goal": "Extend a calibrated route to a second cushion.",
+        "Setup": "Choose a repeatable two-rail route with no unintended ball contact.",
+        "Measure": "Make legal target contact on at least 4 of 5 attempts before moving the starting point.",
+        "Trainer": "Use diamond and half-diamond references and compare the two rail contact points."
+      },
+      "resources": [
+        {
+          "title": "Diamond System Formula — Kick Shots (Cue Craft Pro)",
+          "url": "https://www.youtube.com/watch?v=GBFhoRZdGMI"
+        }
+      ]
+    },
+    {
+      "id": "practice-corner-five",
+      "title": "Corner-5 three-rail route",
+      "group": "Kick Systems",
+      "category": "drills",
+      "level": 0,
+      "audio": null,
+      "recordingStatus": "pending",
+      "plannedAudio": "./guide/audio/practice-corner-five.mp3",
+      "summary": "Use one consistent numbering system for a three-rail route.",
+      "text": "Open More for Dr. Dave’s Corner-5 demonstration. Follow its starting, aiming, and arrival number scales together. Identify all three cushion contacts before you shoot. Start with a clear route, consistent speed, and the spin shown in the lesson. Compare the predicted arrival with the actual arrival, then make a small adjustment and repeat. Once the route is calibrated, add a target object ball and a blocker for escape practice. Test five different starting positions and record legal object ball contact separately from the final cue ball position.",
+      "practice": {
+        "Goal": "Use one consistent numbering system for a three-rail route.",
+        "Setup": "Use the linked lesson for the Corner-5 numbering and reference route.",
+        "Measure": "For this plan, make legal target contact on 4 of 5 selected escape attempts.",
+        "Trainer": "Mark rail references on the Trainer; record the adjustment for each start."
+      },
+      "resources": [
+        {
+          "title": "Corner-5 Three-Rail System (DrDaveBilliards)",
+          "url": "https://www.youtube.com/watch?v=G4dv9ekF3FY"
+        }
+      ]
+    },
+    {
+      "id": "practice-progressive-benchmark",
+      "title": "Progressive difficulty benchmark",
+      "group": "Practice Benchmarks",
+      "category": "drills",
+      "level": 0,
+      "audio": null,
+      "recordingStatus": "pending",
+      "plannedAudio": "./guide/audio/practice-progressive-benchmark.mp3",
+      "summary": "Increase difficulty only after a repeatable result.",
+      "text": "Open More for Sharivari’s progressive difficulty drill and use the demonstrated setup. Save the starting layout and record your first score. For your Trainer adaptation, begin with a comfortable position zone. After a successful set, reduce the zone or increase the shot difficulty, changing one condition at a time. Count both the pocketed ball and the required cue ball position. If the same error repeats, return to the last successful level. Record the highest level you can repeat, rather than only your best isolated attempt.",
+      "practice": {
+        "Goal": "Increase difficulty only after a repeatable result.",
+        "Setup": "Use the linked demonstration, then define your Trainer target zone.",
+        "Measure": "Complete a repeatable successful set before reducing the margin.",
+        "Trainer": "Save one layout per difficulty level, with the level included in its name."
+      },
+      "resources": [
+        {
+          "title": "Progressive Difficulty Drill (Sharivari)",
+          "url": "https://www.youtube.com/watch?v=fNNtQM8WZcY"
+        }
+      ]
+    },
+    {
+      "id": "exercise-focused-practice-session",
+      "title": "105-minute practice session",
+      "group": "Practice Sessions",
+      "category": "exercises",
+      "level": 0,
+      "audio": null,
+      "recordingStatus": "pending",
+      "plannedAudio": "./guide/audio/exercise-focused-practice-session.mp3",
+      "summary": "Follow a measurable three-phase practice plan.",
+      "text": "Use this one hundred and five minute practice plan. Spend thirty minutes on speed and target landing, aiming for eight successful pocket and position results out of ten with a three inch target. Spend forty five minutes on Rock Around the Clock, first completing one rotation and then working toward three consecutive rotations without disturbing another ball. Spend thirty minutes on kick escapes, starting with one rail and adding two and three rails as control improves. Test five selected escapes and aim for four legal contacts. Record the result at the end of each phase. If time runs out, save your layout and score, then continue there next session.",
+      "practice": {
+        "Goal": "Follow a measurable three-phase practice plan.",
+        "Setup": "30 minutes target landing; 45 minutes pattern play; 30 minutes kick escapes.",
+        "Measure": "Targets are goals for this Trainer plan, not prerequisites or creator certification.",
+        "Trainer": "Name saved layouts by phase and difficulty so the next session starts in the same place."
+      },
+      "resources": [
+        {
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
+          "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
+        },
+        {
+          "title": "Rock Around the Clock — Positional Play (Niels Feijen)",
+          "url": "https://www.youtube.com/watch?v=DAFJPeTSGOE"
+        },
+        {
+          "title": "Diamond System Formula — Kick Shots (Cue Craft Pro)",
+          "url": "https://www.youtube.com/watch?v=GBFhoRZdGMI"
+        },
+        {
+          "title": "Corner-5 Three-Rail System (DrDaveBilliards)",
+          "url": "https://www.youtube.com/watch?v=G4dv9ekF3FY"
+        }
+      ]
+    },
+    {
+      "id": "exercise-practice-review",
+      "title": "Review, save, and repeat",
+      "group": "Practice Sessions",
+      "category": "exercises",
+      "level": 0,
+      "audio": null,
+      "recordingStatus": "pending",
+      "plannedAudio": "./guide/audio/exercise-practice-review.mp3",
+      "summary": "Turn a practice result into the next session’s starting point.",
+      "text": "At the end of practice, record attempts, pocketed balls, successful position results, and legal kick contacts. Note the most common miss and the single adjustment that helped. Save the table with a name that includes the drill, difficulty, and date. Download its table file if you want to share the same layout with an instructor or student. Begin your next session with that saved layout and the same scoring conditions. Improve the weakest result first, then increase the challenge once you can repeat the improvement.",
+      "practice": {
+        "Goal": "Turn a practice result into the next session’s starting point.",
+        "Setup": "Keep a simple score record and the matching starting layout.",
+        "Measure": "Compare results under the same conditions in the next session.",
+        "Trainer": "Save or download the layout; load it again on either Trainer or Analyze."
+      },
+      "resources": [
+        {
+          "title": "Progressive Difficulty Drill (Sharivari)",
+          "url": "https://www.youtube.com/watch?v=fNNtQM8WZcY"
+        }
+      ]
     }
   ],
   "assignments": {
@@ -2255,5 +2607,11 @@
     "trajectory-lines-quick",
     "cushion-response-quick",
     "table-orientation-quick"
+  ],
+  "resources": [
+    {
+      "title": "Zero-X Billiards — tutorials and drills",
+      "url": "https://www.youtube.com/@ZeroXBilliards"
+    }
   ]
 }

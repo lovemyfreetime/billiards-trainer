@@ -4,7 +4,7 @@
 async function init(){
  const stage=document.getElementById('stageWrap');
  if(!stage||!window.BilliardsGuide||document.body.classList.contains('projector'))return;
- const response=await fetch('./guide/pool-audio-map.json?v=pool-mapping3');
+ const response=await fetch('./guide/pool-audio-map.json?v=practice-links4');
  if(!response.ok)throw Error('Pool Guide audio map could not load');
  const catalog=await response.json();
  const host=document.createElement('div');
@@ -46,7 +46,7 @@ async function init(){
    startButton.setAttribute('aria-pressed',String(state.enabled&&state.category==='start'));
    exploreButton.setAttribute('aria-pressed',String(state.exploring));
   },
-  poolMode:true,storageKey:'billiards-pool-guide-v1',topics:catalog.topics,exploreTopicIds:ids,
+  poolMode:true,storageKey:'billiards-pool-guide-v1',topics:catalog.topics,resources:catalog.resources,exploreTopicIds:ids,
   isActive:()=>!modal.classList.contains('open'),
   resolveTopic(event,element){
    const target=event.target;

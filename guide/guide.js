@@ -111,7 +111,9 @@ function mount(host,options={}){
   if(state.enabled){
    btn('⏮',()=>skipRecording(-1)).title='Previous audio file / lesson';
    btn('■',()=>{stop();render()}).title='Stop';
-   btn(audio.paused&&!speech?'▶':'Ⅱ',()=>{if(speech)cancelSpeech();else if(audio.paused)play();else audio.pause();render()}).title='Play / Pause';
+   const playButton=btn(audio.paused&&!speech?'▶':'Ⅱ',()=>{if(speech)cancelSpeech();else if(audio.paused)play();else audio.pause();render()});
+   playButton.disabled=t?.recordingStatus==='pending';
+   playButton.title=playButton.disabled?'Audio recording pending — use Read and More':'Play / Pause';
    btn('◀◀',()=>{audio.currentTime=Math.max(0,(audio.currentTime||0)-10)}).title='Back 10 seconds';
    btn('▶▶',()=>{audio.currentTime=Math.min(audio.duration||Infinity,(audio.currentTime||0)+10)}).title='Forward 10 seconds';
    btn('⏭',()=>skipRecording(1)).title='Next audio file / lesson';
@@ -133,7 +135,9 @@ function mount(host,options={}){
   const summary=document.createElement('p');summary.textContent=t?.summary||(state.category==='start'?'Choose an introductory lesson, then press Play.':'Choose a technique, practice lesson, or drill, then press Play.');topic.append(summary);
   const select=document.createElement('select');select.setAttribute('aria-label','Select Guide lesson');
   const blank=document.createElement('option');blank.value='';blank.textContent='Choose a topic';select.append(blank);
-  for(const entry of available){const o=document.createElement('option');o.value=entry.id;o.textContent=entry.title;select.append(o)}
+  const lessonGroups=new Map();
+  for(const entry of available){const o=document.createElement('option');o.value=entry.id;o.textContent=entry.title;
+   let parent=select;if(entry.group){if(!lessonGroups.has(entry.group)){const group=document.createElement('optgroup');group.label=entry.group;lessonGroups.set(entry.group,group);select.append(group)}parent=lessonGroups.get(entry.group)}parent.append(o)}
   select.className='btg-lesson-select';
   const measure=document.createElement('canvas').getContext('2d');if(measure){measure.font=options.poolMode?'11px system-ui':'12px system-ui';select.style.width=Math.ceil(Math.max(...Array.from(select.options,o=>measure.measureText(o.textContent).width))+44)+'px';}
   select.value=available.some(x=>x.id===state.topicId)?state.topicId:'';
@@ -141,7 +145,19 @@ function mount(host,options={}){
   const drawer=options.poolMode?document.createElement('div'):topic;
   if(options.poolMode){drawer.className='btg-pool-drawer';root.append(drawer)}
   drawer.append(select);
-  if(state.expanded&&state.detailsOpen){const detail=document.createElement('div');detail.className='btg-expanded';detail.textContent=state.expanded==='read'?(t?.text||'No narration text assigned.'):(t?.resources?.length?t.resources.map(x=>x.title+' — '+x.url).join('\n'):'Resources will be added here.');drawer.append(detail)}
+  if(state.expanded&&state.detailsOpen){const detail=document.createElement('div');detail.className='btg-expanded';
+   if(t?.recordingStatus==='pending'){const status=document.createElement('p');status.className='btg-recording-status';status.textContent='Audio recording pending. Instructions and links are ready.';detail.append(status)}
+   if(state.expanded==='read'){const text=document.createElement('p');text.textContent=t?.text||'No narration text assigned.';detail.append(text)}
+   else{
+    for(const [label,value] of Object.entries(t?.practice||{})){const p=document.createElement('p'),strong=document.createElement('strong');strong.textContent=label+': ';p.append(strong,document.createTextNode(value));detail.append(p)}
+    const resources=[...(t?.resources||[]),...(state.category==='start'?[]:options.resources||[])];
+    const seen=new Set();const list=document.createElement('ul');list.className='btg-resource-links';
+    for(const resource of resources){let url;try{url=new URL(resource.url);if(!['https:','http:'].includes(url.protocol)||seen.has(url.href))continue;}catch(_){continue}seen.add(url.href);
+     const item=document.createElement('li'),link=document.createElement('a');link.href=url.href;link.target='_blank';link.rel='noopener noreferrer';link.textContent=resource.title||url.hostname;item.append(link);list.append(item)}
+    if(list.children.length){const title=document.createElement('strong');title.textContent='Pool & Billiards Tutorials';detail.append(title,list);const note=document.createElement('p');note.className='btg-resource-note';note.textContent='YouTube links open in a new tab and require internet.';detail.append(note)}
+    else if(!t?.practice){detail.textContent='Resources will be added here.'}
+   }
+   drawer.append(detail)}
   if(!options.poolMode)root.append(topic);
   const toggle=document.createElement('button');toggle.type='button';toggle.className='btg-expansion-tab';
   toggle.textContent=(options.poolMode||host.classList.contains('btg-header-mode'))?(state.detailsOpen?'×':'+'):(state.detailsOpen?'⌃':'⌄');

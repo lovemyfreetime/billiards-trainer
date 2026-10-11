@@ -11,6 +11,11 @@
 .btg-root .btg-topic strong{display:block;font-size:13px;margin-bottom:4px}
 .btg-root .btg-topic p{margin:0 0 6px}
 .btg-root .btg-expanded{max-height:240px;overflow:auto;white-space:pre-wrap;padding:8px;background:#243139;margin-top:6px;border-radius:6px}
+.btg-root .btg-resource-links{white-space:normal;margin:6px 0;padding-left:20px}
+.btg-root .btg-resource-links li{margin:6px 0}
+.btg-root .btg-resource-links a{color:#a7dcff;text-decoration:underline;overflow-wrap:anywhere}
+.btg-root .btg-resource-links a:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.btg-root .btg-resource-note,.btg-root .btg-recording-status{font-size:11px;color:#d1d9df}
 .btg-root [hidden]{display:none!important}
 body.btg-inspection:before{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(147,190,155,.035);z-index:2147483000}
 .btg-highlight{outline:2px solid #9ed9ff!important;outline-offset:3px;box-shadow:0 0 14px 4px rgba(112,196,255,.28)!important}
