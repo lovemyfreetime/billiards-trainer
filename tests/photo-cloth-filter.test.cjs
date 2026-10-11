@@ -2,6 +2,7 @@ const assert=require('node:assert/strict'),F=require('../photo-cloth-filter'),fs
 function patch(ball=null,{gradient=false,line=false,noise=0,neighbor=false}={}){const width=96,height=96,data=new Uint8ClampedArray(width*height*4);for(let y=0;y<height;y++)for(let x=0;x<width;x++){const i=(y*width+x)*4,n=noise?((x*17+y*23)%7-3)*noise:0,v=gradient?(x-48)*.25+(y-48)*.13:0;let p=[25+v+n,112+v+n,155+v+n];if(ball&&Math.hypot(x-47.5,y-47.5)<24)p=ball;if(line&&Math.abs(y-48)<1)p=[235,235,235];if(neighbor&&Math.hypot(x-85,y-48)<19)p=[235,235,235];data.set([...p,255],i);}return {width,height,data};}
 assert.equal(F.inspect(patch(),48).isCloth,true);
 assert.equal(F.inspect(patch(null,{gradient:true,noise:1}),48).isCloth,true,'Textured cloth and a gentle lighting gradient');
+assert.equal(F.inspect(patch(null,{gradient:true,noise:8}),48).isCloth,true,'Coarser felt texture is still cloth');
 for(const color of [[235,235,225],[20,20,20],[230,45,40],[30,60,160],[30,115,125]])assert.equal(F.inspect(patch(color),48).isCloth,false,'Real ball '+color);
 assert.equal(F.inspect(patch(null,{line:true}),48).isCloth,false,'White string line is uncertain, not empty cloth');
 assert.equal(F.inspect(patch(null,{neighbor:true}),48).isCloth,false,'Mixed neighboring background');

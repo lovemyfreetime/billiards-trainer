@@ -1823,7 +1823,7 @@
 <script src="./trainer-saved-files.js?v=1"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
 <script src="./photo-table-spots.js?v=2"></script>
-<script src="./photo-cloth-filter.js?v=1"></script>
+<script src="./photo-cloth-filter.js?v=2"></script>
 <script>
 // AI Camera Edition wrapper: v4.12 trainer, app-mode launch package. v4 adds scoreboard placement/default-off + local analysis-photo recall.
 // v4.12: virtual diamond extensions beyond physical corners; fixes source references that previously clipped at the first visible table boundary.
@@ -9212,7 +9212,7 @@
         const x0=Math.max(0,Math.floor(Math.min(...corners.map(p=>p.x)))-1),y0=Math.max(0,Math.floor(Math.min(...corners.map(p=>p.y)))-1);
         const x1=Math.min(canvas.width,Math.ceil(Math.max(...corners.map(p=>p.x)))+2),y1=Math.min(canvas.height,Math.ceil(Math.max(...corners.map(p=>p.y)))+2);
         // Do not guess from a clipped or under-resolved marking.
-        if(x1-x0<24||y1-y0<24||x1<=x0||y1<=y0)return false;
+        if(x1-x0<16||y1-y0<16||x1<=x0||y1<=y0)return false;
         const src=photoVision.analysisCtx.getImageData(x0,y0,x1-x0,y1-y0),data=new Uint8ClampedArray(size*size*4);
         for(let y=0;y<size;y++)for(let x=0;x<size;x++){
             const p=applyHomography(fit.H,nx+(2*x/(size-1)-1)*dx,ny+(2*y/(size-1)-1)*dy);
