@@ -1387,7 +1387,7 @@
 /* Extra rail action for resizable zone markers; retain circular controls. */
 .markerRailCircle:has(button:nth-child(3)) button { font-size:clamp(7px,var(--marker-font),10px); }
 </style>
-<link rel="stylesheet" href="./guide/guide.css?v=custom1-explorer3">
+<link rel="stylesheet" href="./guide/guide.css?v=saved-files4">
 <style>
 /* Isolated Guide integration on Analyze page; existing trainer styling preserved. */
 .photoAnalyzerHeader{background:#205385;min-height:60px;position:relative;overflow:visible;justify-content:flex-start}
@@ -1396,6 +1396,8 @@
 #btg-analyze-launch{flex:0 0 42px;width:42px;height:42px;border-radius:50%;border:2px solid #a4e5b9;background:#078d56;color:white;font-size:23px;padding:0;cursor:pointer}
 .photoAnalyzerHeader #photoAnalyzerClose{flex:0 0 32px}
 @media(max-width:950px){.photoAnalyzerHeader .btg-analyze-title h2{font-size:12px}.photoAnalyzerHeader #bt-guide-root{min-width:0}}
+
+.bt-file-library{width:100%;min-width:0;margin-top:8px}.bt-saved-files{display:flex;flex-wrap:wrap;align-items:end;gap:5px}.bt-saved-files label{display:flex;flex:1 1 180px;flex-direction:column;gap:4px;font-size:11px;min-width:0}.bt-saved-files select{width:100%;min-width:0}.bt-saved-files button{white-space:nowrap}.bt-file-status{font-size:11px;margin-top:4px}.photoAnalyzerFooter .bt-file-library{flex-basis:100%;margin-top:2px}.photoAnalyzerHeader #btg-analyze-start,.photoAnalyzerHeader #btg-analyze-explore{width:30px;height:30px;flex:0 0 30px;font-size:17px;border-width:1px;align-self:center}.photoAnalyzerHeader{gap:4px!important}
 </style>
 </head>
 <body>
@@ -1625,7 +1627,7 @@
       <div class="layoutManage">
         <div class="layoutManageTitle"><span>SAVED BALL LAYOUTS</span><span id="layoutCount">0 / 20</span></div>
         <input id="layoutNameInput" type="text" maxlength="60" placeholder="Layout name — e.g. Wednesday league 7-ball" aria-label="Saved layout name">
-        <div class="buttons"><button id="trainerLoadFile" type="button">Load Table File</button><button id="trainerSaveFile" type="button">Save Table File</button></div><div class="buttons"><button id="trainerSaveSession" type="button">Save Session File</button><button id="sessionFolder" type="button">Session Folder</button></div><div id="sessionFolderStatus" class="hint">Your latest table is remembered automatically on this device. Session files also keep settings and shot history.</div><input id="trainerLayoutFileInput" type="file" accept=".json,.billiards" hidden>
+        <div class="buttons"><button id="trainerLoadFile" type="button">Load Table File</button><button id="trainerSaveFile" type="button">Save Table File</button></div><div class="buttons"><button id="trainerSaveSession" type="button">Save Session File</button><button id="sessionFolder" type="button" title="Choose a folder for automatic saving; browse its JSON files in Saved Files below">Auto-save Folder</button></div><div id="sessionFolderStatus" class="hint">Your latest table is remembered automatically. Auto-save Folder selects a folder, not a file. Saved Files below lists your JSON tables and sessions.</div><input id="trainerLayoutFileInput" type="file" accept=".json,.billiards" hidden>
         <button id="saveLayoutBtn" class="layoutManageSave" type="button">SAVE CURRENT LAYOUT</button>
         <div class="layoutManageRow">
           <select id="layoutSelect" aria-label="Saved ball layouts">
@@ -1746,7 +1748,6 @@
       <div class="btg-analyze-title"><h2>Analyze Real Pool Table</h2></div>
       <div id="bt-guide-root" class="btg-header-mode" aria-label="Interactive Trainer Guide"></div>
       <button id="btg-analyze-start" class="btg-launcher" type="button" title="Get Started: Analyze a real table" aria-label="Get Started: Analyze a real table" aria-pressed="false" data-btg-allow="1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg></button>
-      <button id="btg-analyze-launch" type="button" title="Toggle Guide" aria-label="Toggle Guide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 8l10-5 10 5-10 5zM6 10v6c3 3 9 3 12 0v-6M22 8v9"/></svg></button>
       <button id="btg-analyze-explore" class="btg-launcher" type="button" title="Explorer: click a control to hear its explanation" aria-label="Toggle Explorer" aria-pressed="false" data-btg-allow="1"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></button>
       <button id="photoAnalyzerClose" type="button" title="Close">×</button>
     </div>
@@ -1805,7 +1806,7 @@
         <div id="photoDetectionList"></div>
       </div>
     </div>
-    <div class="photoAnalyzerFooter">
+    <div class="photoAnalyzerFooter" id="photoFilesFooter">
       <div class="photoApplyCue">FINISH — SEND THE REVIEWED TABLE LAYOUT TO BILLIARDS TRAINER</div>
       <input id="photoLayoutName" type="text" maxlength="60" placeholder="Layout name — e.g. Wednesday league 7-ball">
       <button id="photoLoadTableFile" type="button">Load Table File</button><button id="photoSaveTableFile" type="button">Save Table File</button><input id="photoLayoutFileInput" type="file" accept=".json,.billiards" hidden>
@@ -1819,6 +1820,7 @@
 <link rel="stylesheet" href="./photo-calibration.css?v=8">
 <script src="./photo-calibration.js?v=3"></script>
 <script src="./trainer-layout-files.js?v=2"></script>
+<script src="./trainer-saved-files.js?v=1"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
 <script src="./photo-table-spots.js?v=2"></script>
 <script>
@@ -2302,7 +2304,7 @@
     function downloadTableFile(session=false,analysis=false){
         try{
             const file=portableTableFile(session,analysis),blob=new Blob([JSON.stringify(file,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
-            a.href=url;a.download=(file.name.replace(/[^a-z0-9 _-]/gi,'').trim()||'Table')+(session?'.session':'')+'.billiards.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);
+            a.href=url;a.download=(file.name.replace(/[^a-z0-9 _-]/gi,'').trim()||'Table')+(session?'.session':'')+'.billiards.json';a.click();window.BilliardsSavedFiles?.remember(file,a.download).catch(()=>toast('File downloaded; could not keep a browser copy.'));setTimeout(()=>URL.revokeObjectURL(url),10000);
             toast(session?'Session file downloaded':'Table file downloaded');
         }catch(e){toast(e.message);}
     }
@@ -2340,7 +2342,7 @@
     }
     async function readTableFile(input,analysis){
         const f=input.files?.[0];input.value='';if(!f)return;
-        try{if(f.size>2000000)throw Error('Layout file is too large.');const file=window.BilliardsLayoutFiles.parse(await f.text());if(analysis)stageTableFile(file);else applyTableFile(file);}
+        try{if(f.size>2000000)throw Error('Layout file is too large.');const file=window.BilliardsLayoutFiles.parse(await f.text());window.BilliardsSavedFiles?.remember(file,f.name).catch(()=>{});if(analysis)stageTableFile(file);else applyTableFile(file);}
         catch(e){toast('Could not load table: '+e.message);if(analysis)pvStatus('Could not load table: '+e.message);}
     }
     function sessionFolderStore(value){
@@ -2350,8 +2352,8 @@
         if(!sessionFolder)return;
         if(sessionFolderWriting){sessionFolderDirty=true;return;}
         sessionFolderWriting=true;
-        try{const f=await sessionFolder.getFileHandle('Billiards-Latest-Session.billiards.json',{create:true}),w=await f.createWritable();await w.write(JSON.stringify(portableTableFile(true),null,2));await w.close();$('sessionFolderStatus').textContent='Latest session saved in '+sessionFolder.name;}
-        catch(e){$('sessionFolderStatus').textContent='Folder save paused. Choose Session Folder to reconnect.';}
+        try{const f=await sessionFolder.getFileHandle('Billiards-Latest-Session.billiards.json',{create:true}),w=await f.createWritable();await w.write(JSON.stringify(portableTableFile(true),null,2));await w.close();window.BilliardsSavedFiles?.remember(portableTableFile(true),'Billiards-Latest-Session.billiards.json').catch(()=>{});$('sessionFolderStatus').textContent='Latest session saved in '+sessionFolder.name;}
+        catch(e){$('sessionFolderStatus').textContent='Folder save paused. Choose Auto-save Folder to reconnect.';}
         finally{sessionFolderWriting=false;if(sessionFolderDirty){sessionFolderDirty=false;scheduleSessionFolder();}}
     }
     function scheduleSessionFolder(){if(!sessionFolder)return;clearTimeout(sessionFolderTimer);sessionFolderTimer=setTimeout(writeSessionFolder,800);}
@@ -2360,18 +2362,19 @@
         try{
             const folder=await window.showDirectoryPicker({id:'billiards-download-sessions',startIn:'downloads',mode:'readwrite'});
             let previous=null;try{const f=await (await folder.getFileHandle('Billiards-Latest-Session.billiards.json')).getFile();previous=window.BilliardsLayoutFiles.parse(await f.text());}catch(e){if(e.name!=='NotFoundError')throw e;}
-            sessionFolder=folder;await sessionFolderStore(folder);if(previous)applyTableFile(previous);await writeSessionFolder();
+            sessionFolder=folder;await sessionFolderStore(folder);if(previous)applyTableFile(previous);await writeSessionFolder();await window.BilliardsSavedFiles?.scanFolder(folder);
         }catch(e){if(e.name!=='AbortError')toast('Session folder: '+e.message);}
     }
     async function reconnectSessionFolder(){
         if(!window.showDirectoryPicker)return;
-        try{const f=await sessionFolderStore();if(f&&await f.queryPermission({mode:'readwrite'})==='granted'){sessionFolder=f;$('sessionFolderStatus').textContent='Session folder connected: '+f.name;}else if(f)$('sessionFolderStatus').textContent='Choose Session Folder to reconnect '+f.name;}catch(e){}
+        try{const f=await sessionFolderStore();if(f&&await f.queryPermission({mode:'readwrite'})==='granted'){sessionFolder=f;$('sessionFolderStatus').textContent='Auto-save folder connected: '+f.name;await window.BilliardsSavedFiles?.scanFolder(f);}else if(f)$('sessionFolderStatus').textContent='Choose Auto-save Folder to reconnect '+f.name;}catch(e){}
     }
     function setupTableFiles(){
         $('trainerLoadFile').onclick=()=>$('trainerLayoutFileInput').click();$('trainerSaveFile').onclick=()=>downloadTableFile();$('trainerSaveSession').onclick=()=>downloadTableFile(true);
         $('photoLoadTableFile').onclick=()=>$('photoLayoutFileInput').click();$('photoSaveTableFile').onclick=()=>downloadTableFile(false,true);
         $('trainerLayoutFileInput').onchange=()=>readTableFile($('trainerLayoutFileInput'),false);$('photoLayoutFileInput').onchange=()=>readTableFile($('photoLayoutFileInput'),true);
         $('sessionFolder').onclick=chooseSessionFolder;if(!window.showDirectoryPicker)$('sessionFolder').hidden=true;
+        window.BilliardsSavedFiles?.mount({targets:[[$('sessionFolderStatus').parentElement,false],[$('photoFilesFooter'),true]],onLoad:(file,analysis)=>analysis?stageTableFile(file):applyTableFile(file),getFolder:()=>sessionFolder,chooseFolder:chooseSessionFolder});
         reconnectSessionFolder();
         document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){saveState();if(sessionFolder)writeSessionFolder();}});
         window.addEventListener('pagehide',saveState);
@@ -11673,10 +11676,10 @@ if ('serviceWorker' in navigator) {
       <iframe id="btFeedbackFrame" title="Billiards Trainer feedback form" loading="lazy" scrolling="no"></iframe>
     </div>
   </div>
-  <link rel="stylesheet" href="./guide/pool-guide.css?v=compact4">
-  <script src="./guide/guide.js?v=compact6"></script>
+  <link rel="stylesheet" href="./guide/pool-guide.css?v=fit5">
+  <script src="./guide/guide.js?v=skip7"></script>
   <script src="./guide/pool-integration.js?v=explorer4"></script>
-  <script src="./guide/analyze-integration.js?v=start4"></script>
+  <script src="./guide/analyze-integration.js?v=start-only5"></script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=2"></script>
 

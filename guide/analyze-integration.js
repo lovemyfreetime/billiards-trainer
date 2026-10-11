@@ -3,11 +3,9 @@
 'use strict';
 async function init(){
  const host=document.getElementById('bt-guide-root');
- const launcher=document.getElementById('btg-analyze-launch');
  const started=document.getElementById('btg-analyze-start');
  const modal=document.getElementById('photoAnalyzerModal');
- if(!host||!launcher||!modal||!window.BilliardsGuide)return;
- launcher.dataset.btgAllow='1';
+ if(!host||!started||!modal||!window.BilliardsGuide)return;
  if(started)started.dataset.btgAllow='1';
  document.getElementById('photoAnalyzerClose').dataset.btgAllow='1';
  const explorer=document.getElementById('btg-analyze-explore');
@@ -415,18 +413,13 @@ async function init(){
     "level": 0,
     "audio": [],
     "summary": "Keep a layout or continue a session.",
-    "text": "Save Table File downloads a shareable .billiards.json layout. Someone else can use Load Table File on either page. Loading on Analyze stages the layout for review; then choose Apply to Trainer Table or Apply and Save. Save Session File on the trainer includes the session state. Session Folder, where supported, keeps the latest session in a folder you choose. Keep downloaded files so you can reopen them later."
+    "text": "Save Table File downloads a shareable .billiards.json layout. Someone else can use Load Table File on either page. Loading on Analyze stages the layout for review; then choose Apply to Trainer Table or Apply and Save. Save Session File on the trainer includes the session state. Auto-save Folder, where supported, keeps the latest session in a folder you choose. Saved Files lists layouts and sessions saved or imported on this device. Use Add Files to include earlier downloads, or Refresh Folder to read the connected folder."
   }
 ]);
- const response=await fetch('./guide/pool-audio-map.json?v=pool-mapping1');
- if(!response.ok)throw Error('Analyze Guide lessons could not load');
- const training=await response.json();
- const controlTopics=new Set([...Object.values(training.assignments),...Object.values(training.sections),...training.canvasTopics,training.powerMeterTopic]);
- topics.push(...training.topics.filter(t=>['fundamentals','physics','drills','exercises'].includes(t.category)&&!controlTopics.has(t.id)));
  host.dataset.btgAllow='1';
  const guide=BilliardsGuide.mount(host,{
-  topics,exploreTopicIds:topics.map(t=>t.id),
-  onStateChange(state){launcher.setAttribute('aria-pressed',String(state.enabled&&state.category!=='start'));started?.setAttribute('aria-pressed',String(state.enabled&&state.category==='start'));explorer.setAttribute('aria-pressed',String(state.exploring));},
+  topics,initialCategory:'start',storageKey:'billiards-analyze-start-v1',startOnly:true,exploreTopicIds:topics.map(t=>t.id),
+  onStateChange(state){started?.setAttribute('aria-pressed',String(state.enabled&&state.category==='start'));explorer.setAttribute('aria-pressed',String(state.exploring));},
   allowNavigation(e){
    if(e.type==='keydown'&&e.key==='Tab')return true;
    return e.type==='wheel'&&!!e.target.closest('.photoReview')&&!e.target.closest('input,select,button');
@@ -434,7 +427,6 @@ async function init(){
  });
  new MutationObserver(applyMappings).observe(document.getElementById('photoDetectionList'),{childList:true,subtree:true});
  new MutationObserver(()=>{if(!modal.classList.contains('open')){guide.setEnabled(false);guide.setExploring(false)}}).observe(modal,{attributes:true,attributeFilter:['class']});
- launcher.addEventListener('click',()=>{const s=guide.getState();if(s.enabled&&s.category!=='start')guide.setEnabled(false);else guide.openCategory('fundamentals')});
  started?.addEventListener('click',()=>{const s=guide.getState();if(s.enabled&&s.category==='start')guide.setEnabled(false);else guide.openCategory('start')});
  explorer.addEventListener('click',()=>guide.setExploring(!guide.getState().exploring));
  window.billiardsAnalyzeGuide=guide;

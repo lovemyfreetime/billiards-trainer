@@ -76,3 +76,8 @@ body.btg-inspection:before{content:"";position:fixed;inset:0;pointer-events:none
 #bt-guide-root.btg-header-mode .btg-topic{display:none}
 #bt-guide-root.btg-header-mode>div.btg-details-open .btg-topic{display:block;position:absolute;top:100%;left:0;right:0;margin:0;z-index:33}
 #bt-guide-root.btg-header-mode .btg-expansion-tab,#bt-guide-root.btg-header-mode>div.btg-details-open .btg-expansion-tab{position:static;transform:none!important;border:1px solid #7a939c;border-radius:50%;width:28px;height:28px;flex:0 0 28px;background:#27333a;line-height:1;font-size:22px;padding:0}
+
+/* Lesson menus fit their longest title, with room for the dropdown arrow. */
+#bt-guide-root.btg-header-mode>div>select.btg-lesson-select{flex:0 1 auto;max-width:100%;min-width:95px}
+.photoAnalyzerHeader #bt-guide-root{flex:0 1 auto!important;max-width:calc(100% - 110px)!important;width:max-content}
+.photoAnalyzerHeader #btg-analyze-start{margin-left:auto}

@@ -1,8 +1,8 @@
 /* Approved compact three-row pool Guide, above the playing surface. */
-#bt-guide-pool-root{position:absolute;right:14px;top:53px;width:418px;max-width:calc(100% - 28px);padding:5px;z-index:25;background:#10191bea;border:1px solid #3b5a61;border-radius:9px;box-shadow:0 0 12px #0009;font-size:11px}
+#bt-guide-pool-root{position:absolute;right:14px;top:53px;width:max-content;max-width:calc(100% - 28px);padding:5px;z-index:25;background:#10191bea;border:1px solid #3b5a61;border-radius:9px;box-shadow:0 0 12px #0009;font-size:11px}
 #bt-guide-pool-root .btg-row{gap:3px;margin-bottom:4px;flex-wrap:nowrap}
 #bt-guide-pool-root button{font-size:10px;padding:3px 5px;border-radius:12px;white-space:nowrap}
-#bt-guide-pool-root .btg-toolbar>button:nth-child(-n+5){width:24px;height:24px;padding:2px;border-radius:50%}
+#bt-guide-pool-root .btg-toolbar>button:nth-child(-n+7){width:24px;height:24px;padding:2px;border-radius:50%}
 #bt-guide-pool-root .btg-level{font-size:8px;flex-direction:column;gap:0;min-width:49px}
 #bt-guide-pool-root .btg-level input{width:49px;height:8px}
 #bt-guide-pool-root .btg-categories{display:flex;overflow-x:auto;scrollbar-width:none}
@@ -29,3 +29,6 @@
 #bt-guide-pool-root .btg-pool-drawer select{padding:4px 6px}
 #bt-guide-pool-root .btg-toolbar .btg-expansion-tab{position:static;transform:none;flex:0 0 24px;width:24px;height:24px;margin:0;padding:0;border:1px solid #64838b;border-radius:50%;background:#27333a;line-height:22px;font-size:18px}
 #bt-guide-pool-root .btg-pool-drawer .btg-expanded{max-height:45vh;overflow:auto;padding:8px;margin-top:5px;background:#1f3034;border-radius:5px;white-space:pre-wrap}
+
+#bt-guide-pool-root .btg-pool-drawer select.btg-lesson-select{max-width:100%;width:auto}
+#bt-guide-pool-root .btg-pool-drawer .btg-expanded{max-width:510px}
