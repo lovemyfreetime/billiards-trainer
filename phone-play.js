@@ -19,15 +19,25 @@
   dismiss.setAttribute('aria-label', 'Close controls'); dismiss.tabIndex = -1;
   const actions = document.createElement('nav');
   actions.id = 'phoneActions'; actions.setAttribute('aria-label', 'Table actions');
-  for (const [id, label] of [['animate', 'Execute Shot'], ['undoShot', 'Undo'], ['resetLayoutQuick', 'Reset Layout']]) {
+  for (const [id, label] of [['animate', 'Execute Shot'], ['undoShot', 'Undo'], ['resetLayoutQuick', 'Reset'], ['toggleShot2', '+ Shot 2'], ['toggleCueVisuals1Btn', 'Hide CB 1'], ['toggleCueVisuals2Btn', 'Hide CB 2']]) {
     const source = document.getElementById(id);
     const button = document.createElement('button');
     button.type = 'button'; button.textContent = label;
     button.dataset.trainerAction = id;
     if (id === 'animate') button.classList.add('primary');
-    const sync = () => { button.disabled = !!source?.disabled; if(source?.dataset.guideTopic) button.dataset.guideTopic=source.dataset.guideTopic; };
+    const sync = () => {
+      button.disabled = !source || !!source.disabled;
+      if(source?.dataset.guideTopic) button.dataset.guideTopic=source.dataset.guideTopic;
+      if(id === 'toggleShot2') button.textContent = source?.textContent?.includes('−') ? '− Shot 2' : '+ Shot 2';
+      if(id.startsWith('toggleCueVisuals')) {
+        const visible = source?.getAttribute('aria-pressed') !== 'false';
+        button.textContent = (visible ? 'Hide' : 'Show') + (id.includes('1') ? ' CB 1' : ' CB 2');
+        button.setAttribute('aria-pressed',String(visible));
+        button.setAttribute('aria-label',(visible ? 'Hide' : 'Show') + (id.includes('1') ? ' cue ball 1' : ' cue ball 2'));
+      }
+    };
     sync();
-    if (source) new MutationObserver(sync).observe(source, {attributes:true,attributeFilter:['disabled','data-guide-topic']});
+    if (source) new MutationObserver(sync).observe(source, {attributes:true,attributeFilter:['disabled','data-guide-topic','aria-pressed'],childList:true,characterData:true,subtree:true});
     button.addEventListener('click', () => { if (source && !source.disabled) source.click(); });
     actions.append(button);
   }
@@ -153,7 +163,30 @@
       : 'Table view is ready. For a view without browser bars, add this app to your Home Screen and open its icon. Turn your phone sideways for a larger table.';
     notice.classList.add('visible');
   }
+  let startupFullscreen = true;
+  async function enterFullscreen(automatic = false) {
+    const root = document.documentElement;
+    const request = root.requestFullscreen || root.webkitRequestFullscreen;
+    if(!request) { if(!automatic) showFallback(); return; }
+    try {
+      await request.call(root);
+      startupFullscreen = false;
+      if(phone.matches && screen.orientation?.lock) { try { await screen.orientation.lock('landscape'); } catch (_) {} }
+      syncFullscreen();
+    } catch (_) { if(!automatic) showFallback(); }
+  }
+  // Browser fullscreen needs a trusted gesture. Use the first gameplay release,
+  // after its aiming/dragging operation, rather than resizing during a drag.
+  document.addEventListener('pointerup', event => {
+    if(!startupFullscreen || fullscreenElement() || navigator.standalone) return;
+    const target=event.target;
+    if(!target?.closest?.('#stageWrap,#phoneActions')) return;
+    startupFullscreen=false;
+    enterFullscreen(true);
+  },true);
+  // Cancel automatic entry if the user explicitly leaves fullscreen.
   fullscreen.addEventListener('click', async () => {
+    startupFullscreen=false;
     if(fullscreenElement()) {
       const exit = document.exitFullscreen || document.webkitExitFullscreen;
       try { await exit.call(document); } catch (_) { message.textContent='Use your browser’s fullscreen exit control.'; notice.classList.add('visible'); }
@@ -161,23 +194,19 @@
     }
     if(fallback) { fallback=false; notice.classList.remove('visible'); syncFullscreen(); return; }
     setControls(false);
-    const root = document.documentElement;
-    const request = root.requestFullscreen || root.webkitRequestFullscreen;
-    if(!request) { showFallback(); return; }
-    try {
-      await request.call(root);
-      // Locking is optional; the layout also works when the user rotates manually.
-      if(phone.matches && screen.orientation?.lock) { try { await screen.orientation.lock('landscape'); } catch (_) {} }
-      syncFullscreen();
-    } catch (_) { showFallback(); }
+    await enterFullscreen();
   });
   controls.addEventListener('click', () => setControls(!document.body.classList.contains('phone-controls-open')));
   dismiss.addEventListener('click', () => { setControls(false); controls.focus(); });
-  document.addEventListener('keydown', event => { if(event.key==='Escape') { setControls(false); fallback=false; notice.classList.remove('visible'); syncFullscreen(); } });
+  document.addEventListener('keydown', event => { if(event.key==='Escape') { startupFullscreen=false; setControls(false); fallback=false; notice.classList.remove('visible'); syncFullscreen(); } });
   document.addEventListener('fullscreenchange',syncFullscreen);
   document.addEventListener('webkitfullscreenchange',syncFullscreen);
   if(phone.addEventListener) phone.addEventListener('change',layout); else phone.addListener(layout);
   window.addEventListener('resize', () => {refreshSize(); syncScroll(); syncGuideSpace()});
   window.visualViewport?.addEventListener('resize',refreshSize);
+  // Suppress pen/touch long-press menus only on gameplay surfaces.
+  for(const type of ['contextmenu','selectstart','dragstart']) document.addEventListener(type,event => {
+    if(event.target?.closest?.('#stageWrap,#phoneActions,#phoneHeader')) event.preventDefault();
+  },{capture:true});
   layout();
 })();
