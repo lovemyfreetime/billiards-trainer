@@ -1812,7 +1812,7 @@
   </div>
 </div>
 
-<link rel="stylesheet" href="./photo-calibration.css?v=7">
+<link rel="stylesheet" href="./photo-calibration.css?v=8">
 <script src="./photo-calibration.js?v=3"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
 <script src="./photo-table-spots.js?v=2"></script>
@@ -9544,16 +9544,19 @@
         strip.replaceChildren();
         if(!total)return;
         const colors=['#f4f4ef','#f4d03f','#2457c5','#c83232','#7040a8','#e67e22','#278a48','#7b2635','#111317'];
-        const specials=photoVision.detections.filter(d=>Number(d.id)===8||String(d.id)==='ignore');
-        const slots=Array(21).fill(null);slots[6]=photoVision.detections.find(d=>String(d.id)==='0')||null;
-        for(let n=1;n<=7;n++){slots[6+n]=photoVision.detections.find(d=>String(d.id)===String(n))||null;slots[13+n]=photoVision.detections.find(d=>String(d.id)===String(n+8))||null;}
-        specials.slice(0,6).forEach((d,i)=>slots[i]=d);slots.push(...specials.slice(6));
-        for(const d of slots){
-            if(!d){const blank=document.createElement('span');blank.className='photoSummaryBall empty';blank.setAttribute('aria-hidden','true');strip.appendChild(blank);continue;}
+        const solids=Array.from({length:8},(_,i)=>photoVision.detections.find(d=>String(d.id)===String(i+1))||null);
+        const stripes=Array.from({length:7},(_,i)=>photoVision.detections.find(d=>String(d.id)===String(i+9))||null);
+        const questions=photoVision.detections.filter(d=>!assigned.includes(d));
+        const cue=photoVision.detections.find(d=>String(d.id)==='0');
+        const slots=solids.concat(stripes,questions,cue?[cue]:[]);
+        for(let i=0;i<slots.length;i++){
+            const d=slots[i],row=i<8?1:i<15?2:3+Math.floor((i-15)/8),column=i<8?i+1:i<15?i-7:1+(i-15)%8;
+            if(!d){const blank=document.createElement('span');blank.className='photoSummaryBall empty';blank.style.gridRow=String(row);blank.style.gridColumn=String(column);blank.setAttribute('aria-hidden','true');strip.appendChild(blank);continue;}
             const unassigned=!assigned.includes(d),n=Number(d.id),base=n>8?n-8:n,ball=document.createElement('button');
             const key=pvReviewKey(d);
             ball.type='button';ball.dataset.reviewKey=key;
-            ball.className='photoSummaryBall'+(unassigned?' unassigned':n>8?' stripe':'');
+            ball.className='photoSummaryBall'+(unassigned?' unassigned':n===0?' cue':n>8?' stripe':'');
+            if(n!==0||unassigned){ball.style.gridRow=String(row);ball.style.gridColumn=String(column);}
             ball.style.setProperty('--ball-color',unassigned?'#665323':colors[base]);
             ball.style.color=unassigned?'#fff':n>8||[0,1,5].includes(n)?'#101317':'#fff';
             ball.textContent=unassigned?'?':n===0?'C':String(n);

@@ -24,11 +24,16 @@ assert.equal(JSON.stringify([state.corners,state.detections]),original,'Zoom nev
 state.imageReady=false;env.pvPhotoWheelZoom(event);assert.equal(state.viewZoom,1);
 env.renderPhotoBallSummary();assert.equal(count.textContent,'3 detected · 2 assigned · 1 to review');
 assert.deepEqual(strip.children.filter(n=>n.textContent).map(n=>n.textContent),['8','?','C']);
-assert.equal(strip.children[6].textContent,'C','Cue sits above the 7 / 15 column');
+assert.equal(strip.children[7].textContent,'8','Eight ends the solids row');
+assert.ok(strip.children.at(-1).className.includes('cue'));assert.equal(strip.children[15].style.gridRow,'3','Questions sit below stripes');
 state.detections[1].id='11';env.renderPhotoBallSummary();
-assert.deepEqual(strip.children.filter(n=>n.textContent).map(n=>n.textContent),['?','C','11']);assert.ok(strip.children[16].className.includes('stripe'));
+assert.deepEqual(strip.children.filter(n=>n.textContent).map(n=>n.textContent),['11','?','C']);assert.ok(strip.children[10].className.includes('stripe'));
 state.detections[2].id='1';env.renderPhotoBallSummary();assert.equal(count.textContent,'3 detected · 3 assigned');
 state.detections.splice(0,1);env.renderPhotoBallSummary();assert.equal(count.textContent,'2 detected · 2 assigned');
 assert.deepEqual(strip.children.filter(n=>n.textContent).map(n=>n.textContent),['1','11']);
+state.detections=Array.from({length:16},(_,id)=>({id:String(id)}));env.renderPhotoBallSummary();
+assert.deepEqual(strip.children.slice(0,8).map(n=>n.textContent),['1','2','3','4','5','6','7','8']);
+assert.deepEqual(strip.children.slice(8,15).map(n=>n.textContent),['9','10','11','12','13','14','15']);
+assert.equal(strip.children.at(-1).textContent,'C');
 state.detections=[];env.renderPhotoBallSummary();assert.equal(count.textContent,'0 detected · 0 assigned');assert.equal(strip.children.length,0);
 console.log('Photo wheel zoom preserves the cursor anchor and calibration; ball summary tracks assignments, stripes, deletions and reset.');
