@@ -357,7 +357,7 @@ async function init(){
     "title": "1. Choose a photo",
     "category": "start",
     "level": 0,
-    "audio": [],
+    "audio": ["./guide/audio/photo-analysis-intro-quick.mp3", "./guide/audio/photo-choose-image-quick.mp3", "./guide/audio/photo-lighting-quick.mp3"],
     "summary": "Bring a real table into the analyzer.",
     "text": "Choose Image opens a photograph from your device. Keep the original portrait or landscape orientation. Use a sharp photograph showing the cloth, the balls, and enough rail or pocket references to mark the visible area. You do not need to show the entire table."
   },
@@ -366,7 +366,7 @@ async function init(){
     "title": "2. Choose the visible table area",
     "category": "start",
     "level": 0,
-    "audio": [],
+    "audio": ["./guide/audio/photo-camera-angle-quick.mp3", "./guide/audio/photo-perspective-quick.mp3"],
     "summary": "Match coverage to what the photograph shows.",
     "text": "Open Fine-Tune Corner. Choose full table, left half, right half, or another available coverage. Use Custom for a middle section or quarter region. Move the boundary lines on the table diagram to the matching diamond positions. Pocket numbers always run clockwise from pocket 1; pocket 2 and pocket 5 are the middle pockets."
   },
@@ -375,7 +375,7 @@ async function init(){
     "title": "3. Mark and refine alignment",
     "category": "start",
     "level": 0,
-    "audio": [],
+    "audio": ["./guide/audio/photo-auto-corners-quick.mp3", "./guide/audio/photo-table-boundaries-quick.mp3"],
     "summary": "Connect photo references to the trainer table.",
     "text": "Use Auto Corners as a starting point when appropriate, or Reset Corners and mark the four boundary points in the prompted order. For a partial image, these points describe the selected region rather than the whole table. Fine-Tune Corner lets you add visible pocket and diamond references. Mark the exact reference requested; a diamond is not a pocket. Add clear references on both rail directions when possible."
   },
@@ -384,7 +384,7 @@ async function init(){
     "title": "4. Analyze and review balls",
     "category": "start",
     "level": 0,
-    "audio": [],
+    "audio": ["./guide/audio/photo-rack-analyze-quick.mp3", "./guide/audio/photo-ball-detection-quick.mp3", "./guide/audio/photo-verify-identities-quick.mp3", "./guide/audio/photo-assign-ball-quick.mp3", "./guide/audio/photo-false-detection-quick.mp3", "./guide/audio/photo-missed-ball-quick.mp3"],
     "summary": "Confirm every detected ball.",
     "text": "Run Analyze after setting the table alignment. Review the detected count and the ball icons. Solids run from 1 to 8, stripes from 9 to 15, the cue ball is above the 8, and question marks appear below. Click a photo marker or a summary icon to reach its list entry. Assign uncertain balls, correct numbers, and remove false detections before applying the layout."
   },
@@ -393,7 +393,7 @@ async function init(){
     "title": "5. Zoom and check placement",
     "category": "start",
     "level": 0,
-    "audio": [],
+    "audio": ["./guide/audio/photo-zoom-pan-quick.mp3"],
     "summary": "Look closely at uncertain detections.",
     "text": "Use the mouse wheel over the photograph to zoom. Drag the zoomed image to see another area, or use the thin side and bottom pan bars. Compare the original photo with each ball thumbnail and its marker. Check that table spots have not been assigned as balls and that nearby balls remain separate."
   },
@@ -402,7 +402,7 @@ async function init(){
     "title": "6. Name and apply the layout",
     "category": "start",
     "level": 0,
-    "audio": [],
+    "audio": ["./guide/audio/photo-transfer-layout-quick.mp3", "./guide/audio/photo-apply-save-layout-quick.mp3"],
     "summary": "Move the reviewed layout to the trainer.",
     "text": "Enter a Layout Name. Apply to Trainer Table transfers the reviewed ball positions to the main table. Apply and Save also stores the named layout. Check the resulting positions on the trainer; the selected photo region is placed in its proper position on the full table."
   },
@@ -411,7 +411,7 @@ async function init(){
     "title": "7. Save, share, and resume",
     "category": "start",
     "level": 0,
-    "audio": [],
+    "audio": ["./guide/audio/save-recall-layout-intro-quick.mp3"],
     "summary": "Keep a layout or continue a session.",
     "text": "Save Table File downloads a shareable .billiards.json layout. Someone else can use Load Table File on either page. Loading on Analyze stages the layout for review; then choose Apply to Trainer Table or Apply and Save. Save Session File on the trainer includes the session state. Auto-save Folder, where supported, keeps the latest session in a folder you choose. Saved Files lists layouts and sessions saved or imported on this device. Use Add Files to include earlier downloads, or Refresh Folder to read the connected folder."
   }
