@@ -21,3 +21,20 @@
 .photoCornerControls{display:inline-grid;grid-template-columns:1fr;gap:4px;flex:0 0 auto}
 .photoCornerControls button{width:100%;min-width:0;box-sizing:border-box}
 #photoFineTune[aria-expanded=true]{background:#286057;border-color:#71bfae}
+
+/* One baseline for the photo actions; Fine Tune occupies the space above Reset. */
+.photoAnalyzerToolbar{display:flex;flex-wrap:wrap!important;align-items:center!important;gap:5px;padding:28px 8px 7px!important;max-height:none;overflow:visible!important}
+.photoAnalyzerToolbar>.photoToolGroup,.photoAnalyzerToolbar .photoToolActions{display:contents!important}
+.photoAnalyzerToolbar .photoToolHeading{display:none!important}
+.photoAnalyzerToolbar button,.photoAnalyzerToolbar select{height:32px;min-height:32px;padding:5px 8px;font:600 12px system-ui,sans-serif;white-space:nowrap;flex:0 0 auto;box-sizing:border-box}
+.photoAnalyzerToolbar #photoRackType{width:100px;min-width:100px;max-width:100px;height:32px;min-height:32px;font-size:12px;padding:5px 6px}
+.photoAnalyzerToolbar #photoArchiveSelect{width:155px!important;max-width:155px!important;height:32px;min-height:32px;font-size:12px;padding:5px 6px}
+.photoAnalyzerToolbar .photoCornerControls{position:relative;display:flex;align-items:center;height:32px;flex:0 0 auto}
+.photoAnalyzerToolbar #photoFineTune{position:absolute;top:-24px;left:50%;transform:translateX(-50%);width:76px;height:22px;min-height:22px;padding:2px 6px;font-size:11px}
+.photoReviewSummary{position:sticky;top:-10px;z-index:2;margin:-10px -10px 10px;padding:10px;background:#151b23;border-bottom:1px solid #394653}
+.photoReviewSummary h3{margin:0 0 3px}
+#photoBallCount{font-size:12px;color:#c6d5df;margin:0 0 7px}
+#photoBallStrip{display:flex;flex-wrap:wrap;gap:5px}
+.photoSummaryBall{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;flex:0 0 34px;border-radius:50%;background:var(--ball-color);border:2px solid #ffffff25;box-shadow:inset -3px -4px 6px #0004;font:800 14px system-ui,sans-serif;box-sizing:border-box}
+.photoSummaryBall.stripe{background:linear-gradient(#f5f5ef 0 27%,var(--ball-color) 27% 73%,#f5f5ef 73%);text-shadow:0 1px 1px #fff8}
+@media(max-width:700px){.photoAnalyzerToolbar{gap:5px}.photoReviewSummary{top:-10px}.photoSummaryBall{width:32px;height:32px;flex-basis:32px}}

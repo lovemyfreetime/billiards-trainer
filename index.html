@@ -1792,7 +1792,7 @@
         <video id="photoAnalyzerVideo" controls playsinline></video>
       </div>
       <div class="photoReview">
-        <h3>Detected Balls</h3>
+        <div class="photoReviewSummary"><h3>Detected Balls</h3><div id="photoBallCount" role="status" aria-live="polite">0 detected</div><div id="photoBallStrip" aria-label="Assigned balls"></div></div>
         <div class="photoReviewInstruction">Review the identity of each ball before applying. Correct a wrong ball or delete a false detection.</div><div class="photoReviewInstruction photoMissedBallInstruction">If a ball is missed, press ADD MISSED BALL and tap its center in the photo.</div>
         <div id="photoDetectionList"></div>
       </div>
@@ -1807,7 +1807,7 @@
   </div>
 </div>
 
-<link rel="stylesheet" href="./photo-calibration.css?v=2">
+<link rel="stylesheet" href="./photo-calibration.css?v=3">
 <script src="./photo-calibration.js?v=1"></script>
 <script src="./photo-table-spots.js?v=2"></script>
 <script>
@@ -9509,7 +9509,27 @@
         return [{family:'assigned',items:list,focused:false,score:0,unresolved:0,warning:0}];
     }
 
+    function renderPhotoBallSummary(){
+        const strip=$('photoBallStrip'),count=$('photoBallCount');
+        if(!strip||!count)return;
+        const assigned=photoVision.detections.filter(d=>d.id!=='ignore'&&/^(?:[0-9]|1[0-5])$/.test(String(d.id)));
+        const total=photoVision.detections.length,unassigned=total-assigned.length;
+        count.textContent=total+' detected · '+assigned.length+' assigned'+(unassigned?' · '+unassigned+' to review':'');
+        strip.replaceChildren();
+        const colors=['#f4f4ef','#f4d03f','#2457c5','#c83232','#7040a8','#e67e22','#278a48','#7b2635','#111317'];
+        for(const d of assigned){
+            const n=Number(d.id),base=n>8?n-8:n,ball=document.createElement('span');
+            ball.className='photoSummaryBall'+(n>8?' stripe':'');
+            ball.style.setProperty('--ball-color',colors[base]);
+            ball.style.color=n>8||[0,1,5].includes(n)?'#101317':'#fff';
+            ball.textContent=n===0?'C':String(n);
+            ball.title=n===0?'Cue ball':'Ball '+n;
+            ball.setAttribute('role','img');ball.setAttribute('aria-label',ball.title);
+            strip.appendChild(ball);
+        }
+    }
     function renderPhotoDetectionList() {
+        renderPhotoBallSummary();
         const box=$('photoDetectionList');
         box.innerHTML='';
 
@@ -9678,6 +9698,19 @@
             x:Math.max(minX,Math.min(maxX,Number.isFinite(cx)?cx:sw/2)),
             y:Math.max(minY,Math.min(maxY,Number.isFinite(cy)?cy:sh/2))
         };
+    }
+    function pvPhotoWheelZoom(ev){
+        if(!photoVision.imageReady||!ev.deltaY)return;
+        ev.preventDefault();ev.stopPropagation();
+        const canvas=$('photoAnalyzerCanvas'),sw=photoVision.sourceCanvas.width,sh=photoVision.sourceCanvas.height;
+        const anchor=pvSourcePointFromClient(ev.clientX,ev.clientY),cp=pvCanvasPixelFromClient(ev.clientX,ev.clientY);
+        const delta=ev.deltaY*(ev.deltaMode===1?16:ev.deltaMode===2?canvas.height:1);
+        const zoom=Math.max(1,Math.min(6,(photoVision.viewZoom||1)*Math.exp(-Math.max(-240,Math.min(240,delta))*.0018)));
+        const viewW=sw/zoom,viewH=sh/zoom;
+        const center=pvClampViewCenter(sw,sh,zoom,anchor.x+(0.5-cp.x/canvas.width)*viewW,anchor.y+(0.5-cp.y/canvas.height)*viewH);
+        photoVision.viewZoom=zoom;photoVision.viewCenterX=center.x;photoVision.viewCenterY=center.y;
+        photoVision.hoverPoint=null;
+        renderPhotoAnalyzer();
     }
     function pvSourceToCanvas(p){
         return {
@@ -10449,6 +10482,7 @@
         });
         $('photoApplyTable').addEventListener('click', () => applyPhotoDetections(false));
         $('photoApplySave').addEventListener('click', () => applyPhotoDetections(true));
+        $('photoAnalyzerCanvas').addEventListener('wheel',pvPhotoWheelZoom,{passive:false});
         $('photoAnalyzerCanvas').addEventListener('pointermove', ev => {
             if(!photoVision.imageReady)return;
 
