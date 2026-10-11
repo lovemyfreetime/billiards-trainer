@@ -16,6 +16,8 @@ function mount(host,options={}){
  state.exploring=false;
  if(state.category==='explore')state.category='fundamentals';
  if(options.initialCategory)state.category=options.initialCategory;
+ // Opening Get Started is a user gesture: do not restore an idle open player.
+ if(state.category==='start'){state.enabled=false;state.autoplay=true;}
  let speech=null;
  let audio=new Audio();audio.preload='none';audio.loop=false;
  // A topic may reference one MP3 or an ordered sequence of existing MP3s.
