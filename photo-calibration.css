@@ -1,6 +1,6 @@
 .photoAnalyzerPanel{grid-template-rows:auto auto auto minmax(160px,1fr) auto;overflow-y:auto}
-.photoCalibration{display:flex;flex-wrap:wrap;gap:12px;padding:8px 12px;background:#142126;border-top:1px solid #31434a;align-items:center}
-.photoCalibrationControls{flex:1 1 210px;max-width:330px;font-size:12px}
+.photoCalibration{display:flex;flex-wrap:wrap;gap:8px;padding:4px 10px;background:#142126;border-top:1px solid #31434a;align-items:center}
+.photoCalibrationControls{flex:1 1 210px;max-width:280px;font-size:12px}
 .photoCalibrationControls label{display:flex;align-items:center;gap:8px;margin:5px 0}
 .photoCalibrationControls select{flex:1;min-width:0;font-size:12px}
 .photoCalibrationControls input[type=range]{flex:1;min-width:75px}
@@ -12,6 +12,12 @@
 #photoCalibrationDiagram text{font-family:Segoe UI,Arial,sans-serif;font-size:10px;fill:#d1e2e5;pointer-events:none}
 #photoCalibrationDiagram .calDiamond{cursor:pointer;outline:none}
 #photoCalibrationDiagram .calDiamond:focus circle{stroke:#fff;stroke-width:3}
-#photoCalibrationHint{font-size:11px;color:#b6cbd0;line-height:1.4;min-height:30px}
-@media(max-width:700px){.photoCalibration{gap:6px}.photoCalibrationControls{max-width:none}.photoCalibrationMap{max-width:none;flex-basis:240px}}
+#photoCalibrationHint{font-size:11px;color:#b6cbd0;line-height:1.4;min-height:0}
+@media(max-width:700px){.photoCalibration{gap:6px}.photoCalibrationControls{max-width:none}.photoCalibrationMap{max-width:280px;flex-basis:220px}}
 @media(max-height:700px) and (min-width:701px){.photoCalibrationMap{max-width:260px}.photoCalibration{padding-top:4px;padding-bottom:4px}}
+
+.photoAnalyzerHeader{grid-row:1}.photoAnalyzerToolbar{grid-row:2}.photoCalibration{grid-row:3}.photoAnalyzerBody{grid-row:4}.photoAnalyzerFooter{grid-row:5}
+.photoCalibration[hidden]{display:none}
+.photoCornerControls{display:inline-grid;grid-template-columns:1fr;gap:4px;flex:0 0 auto}
+.photoCornerControls button{width:100%;min-width:0;box-sizing:border-box}
+#photoFineTune[aria-expanded=true]{background:#286057;border-color:#71bfae}

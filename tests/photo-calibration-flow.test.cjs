@@ -13,6 +13,8 @@ vm.runInContext('const photoCal=window.BilliardsPhotoCalibration;',sandbox);
 for(const name of ['pvStatus','pvResetDetectionsAndCorners','pvHandlePhotoTap','applyHomography','warpPhotoTopDown'])vm.runInContext(source(name),sandbox);
 vm.runInContext(source('imagePointToNormalized','    // ================== END PHOTO ANALYZER'),sandbox);
 sandbox.pvSetupCalibration();assert.equal($('photoRefineAlignment').disabled,true);
+$('photoCalibrationPanel').hidden=true;$('photoFineTune').events.click();assert.equal($('photoCalibrationPanel').hidden,false);assert.equal($('photoFineTune')['aria-expanded'],'true');
+state.refining=true;state.pendingDiamond='top-1';$('photoFineTune').events.click();assert.equal($('photoCalibrationPanel').hidden,true);assert.equal(state.refining,false);assert.equal(state.pendingDiamond,null);
 const H=[720,80,100,30,380,90,.1,.1,1];
 for(const end of ['full','head','foot']){
  $('photoRegion').value=end;$('photoRegion').events.change();
