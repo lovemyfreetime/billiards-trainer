@@ -514,6 +514,12 @@
     padding:10px;
   }
   #photoAnalyzerCanvas {
+    /* The trainer's global canvas rule fills its parent; photos must not. */
+    position:relative;
+    inset:auto;
+    width:auto;
+    height:auto;
+    flex:none;
     max-width:100%;
     max-height:calc(100vh - 170px);
     border:1px solid #39424d;
@@ -9151,8 +9157,10 @@
     function pvImportScale(w,h){
         w=Math.max(1,Number(w)||1);
         h=Math.max(1,Number(h)||1);
-        const maxSide=2560;
-        const maxPixels=4200000;
+        // Keep ordinary camera photos at native resolution, independently of
+        // the smaller preview. Bound unusually large imports for mobile memory.
+        const maxSide=8192;
+        const maxPixels=16000000;
         return Math.min(1, maxSide/Math.max(w,h), Math.sqrt(maxPixels/(w*h)));
     }
     function pvSharpenCanvas(canvas,ctx,amount=.38){
@@ -9224,14 +9232,27 @@
             actx.restore();
         }
 
-        const outW=photoVision.analysisCanvas.width,outH=photoVision.analysisCanvas.height;
-        photoVision.sourceCanvas.width=outW;
-        photoVision.sourceCanvas.height=outH;
-        photoVision.sourceCtx.setTransform(1,0,0,1,0,0);
-        photoVision.sourceCtx.clearRect(0,0,outW,outH);
-        photoVision.sourceCtx.imageSmoothingEnabled=false;
-        photoVision.sourceCtx.drawImage(photoVision.analysisCanvas,0,0);
-        if(photoVision.sharpen) pvSharpenCanvas(photoVision.sourceCanvas, photoVision.sourceCtx, .44);
+        // Share the unmodified analysis pixels for display. Only allocate a
+        // separate full-size copy when the optional sharpening is enabled.
+        if(!photoVision.sharpenCanvas){
+            photoVision.sharpenCanvas=photoVision.sourceCanvas;
+            photoVision.sharpenCtx=photoVision.sourceCtx;
+        }
+        if(photoVision.sharpen){
+            const sc=photoVision.sharpenCanvas,sctx=photoVision.sharpenCtx;
+            sc.width=photoVision.analysisCanvas.width;
+            sc.height=photoVision.analysisCanvas.height;
+            sctx.setTransform(1,0,0,1,0,0);
+            sctx.imageSmoothingEnabled=false;
+            sctx.drawImage(photoVision.analysisCanvas,0,0);
+            pvSharpenCanvas(sc,sctx,.44);
+            photoVision.sourceCanvas=sc;
+            photoVision.sourceCtx=sctx;
+        }else{
+            photoVision.sharpenCanvas.width=photoVision.sharpenCanvas.height=1;
+            photoVision.sourceCanvas=photoVision.analysisCanvas;
+            photoVision.sourceCtx=photoVision.analysisCtx;
+        }
         photoVision.imageReady=true;
         pvRefreshControls();
     }
