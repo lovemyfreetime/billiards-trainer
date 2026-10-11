@@ -5769,7 +5769,7 @@
             ctx.save();
             logicalCirclePath(b, R, map);
             ctx.clip();
-            const y1 = b.y - R * .38, y2 = b.y + R * .38;
+            const y1 = b.y - R * .65, y2 = b.y + R * .65;
             const p1 = map({ x: b.x - R * 1.15, y: y1 }), p2 = map({ x: b.x + R * 1.15, y: y1 }), p3 = map({ x: b.x + R * 1.15, y: y2 }), p4 = map({ x: b.x - R * 1.15, y: y2 });
             ctx.fillStyle = ballBaseColor(b.id);
             ctx.beginPath();
@@ -5794,21 +5794,21 @@
                 ctx.fillText('CB', q.x, q.y);
             }
             else {
-                // White number spot on all 1-15 balls.
-                const edge = map({ x: b.x + R * .33, y: b.y });
-                const spotR = Math.max(6, Math.hypot(edge.x - q.x, edge.y - q.y));
-                ctx.fillStyle = '#f8f8f5';
-                ctx.beginPath();
-                ctx.arc(q.x, q.y, spotR, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = '#bbb';
-                ctx.lineWidth = .7;
-                ctx.stroke();
-                ctx.fillStyle = '#111';
-                ctx.font = `700 ${Math.max(8, spotR * 1.15)}px Segoe UI`;
+                // Keep the ball color visible at phone scale; white numbers sit
+                // directly on the solid color or the stripe, with a dark outline.
+                const edge = map({ x: b.x + R, y: b.y });
+                const radius = Math.hypot(edge.x - q.x, edge.y - q.y);
+                ctx.save();
+                ctx.font = `700 ${Math.max(7, radius * 1.2)}px Segoe UI`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
+                ctx.strokeStyle = '#000c';
+                ctx.lineWidth = 1.5;
+                ctx.lineJoin = 'round';
+                ctx.strokeText(String(b.id), q.x, q.y + .3);
+                ctx.fillStyle = '#fff';
                 ctx.fillText(String(b.id), q.x, q.y + .3);
+                ctx.restore();
             }
         }
     }
