@@ -1,11 +1,12 @@
-const CACHE_NAME = 'billiards-trainer-4-12-ai-camera-v31';
+const CACHE_NAME = 'billiards-trainer-4-12-ai-camera-v32';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
   './manifest.webmanifest',
-  './photo-calibration.js?v=2',
+  './photo-calibration.js?v=3',
   './photo-table-spots.js?v=2',
-  './photo-calibration.css?v=5'
+  './photo-calibration.css?v=6',
+  './photo-ball-crops.js?v=1'
 ];
 
 self.addEventListener('install', event => {
@@ -56,7 +57,7 @@ self.addEventListener('fetch', event => {
 
   // Always prefer the network for HTML and installer UI assets so a normal
   // mobile reload picks up the newest installer without a hard-refresh keyboard shortcut.
-  if (event.request.mode === 'navigate' || /\/index\.html$/i.test(url.pathname) || isInstallerAsset) {
+  if (event.request.mode === 'navigate' || /\/index\.html$/i.test(url.pathname) || isInstallerAsset || /\/(?:photo-[^/]+\.(?:css|js)|guide\/guide\.(?:css|js))$/i.test(url.pathname)) {
     event.respondWith(networkFirst(event.request));
     return;
   }

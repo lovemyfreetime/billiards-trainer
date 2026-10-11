@@ -2,11 +2,18 @@
 (function(root){
   'use strict';
   const pockets=[{x:0,y:0},{x:.5,y:0},{x:1,y:0},{x:1,y:1},{x:.5,y:1},{x:0,y:1}];
-  function region(end='full',diamonds=4){
+  function region(end='full',diamonds=4,custom){
+    if(end==='custom')return customRegion(custom);
     const span=end==='full'?1:Math.max(2,Math.min(8,Math.round(Number(diamonds)||4)))/8;
     return {x0:end==='foot'?1-span:0,x1:end==='foot'?1:span};
   }
-  function anchors(r){return [{x:r.x0,y:0},{x:r.x1,y:0},{x:r.x1,y:1},{x:r.x0,y:1}];}
+  function customRegion(r={x0:.25,x1:.75,y0:0,y1:1}){
+    const snap=(v,n,f)=>Math.max(0,Math.min(1,Math.round((Number.isFinite(Number(v))?Number(v):f)*n)/n));
+    let x0=snap(r.x0,16,.25),x1=snap(r.x1,16,.75),y0=snap(r.y0,8,0),y1=snap(r.y1,8,1);
+    x0=Math.min(x0,15/16);x1=Math.max(x0+1/16,x1);y0=Math.min(y0,7/8);y1=Math.max(y0+1/8,y1);
+    return {x0,x1,y0,y1};
+  }
+  function anchors(r){return [{x:r.x0,y:r.y0??0},{x:r.x1,y:r.y0??0},{x:r.x1,y:r.y1??1},{x:r.x0,y:r.y1??1}];}
   function diamonds(){
     const result=[];
     for(let i=1;i<8;i++)if(i!==4){
@@ -76,7 +83,7 @@
     for(let j=1;j<8;j+=2)path([{x:0,y:j/8},{x:1,y:j/8}]);
     ctx.restore();
   }
-  const api={pockets,region,anchors,diamonds,fit,apply,inverse,validQuad,references};
+  const api={pockets,region,customRegion,anchors,diamonds,fit,apply,inverse,validQuad,references};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   else root.BilliardsPhotoCalibration=api;
 })(typeof window!=='undefined'?window:globalThis);

@@ -65,3 +65,14 @@ body.btg-inspection:before{content:"";position:fixed;inset:0;pointer-events:none
 .btg-root.btg-header-mode .btg-topic select{width:auto;max-width:min(320px,100%)}
 
 .btg-launcher svg,#btg-analyze-launch svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}
+
+/* Analyze: categories remain in the header; the round last button opens text. */
+.photoAnalyzerHeader{align-items:stretch!important}
+.photoAnalyzerHeader #bt-guide-root{flex:1 1 auto;max-width:none!important;height:auto;min-height:54px;margin:-10px 0!important;padding:8px 5px;border-radius:0}
+#bt-guide-root.btg-header-mode>div{gap:4px;flex-wrap:wrap}
+#bt-guide-root.btg-header-mode .btg-categories,#bt-guide-root.btg-header-mode>div.btg-details-open .btg-categories{display:flex;position:static;flex-wrap:nowrap;gap:3px;padding:0;margin:0;border:0;flex:0 0 auto;background:transparent}
+#bt-guide-root .btg-categories button{font-size:10px;padding:3px;white-space:nowrap}
+#bt-guide-root.btg-header-mode>div>select{flex:1;min-width:95px;width:120px;font-size:11px;height:28px}
+#bt-guide-root.btg-header-mode .btg-topic{display:none}
+#bt-guide-root.btg-header-mode>div.btg-details-open .btg-topic{display:block;position:absolute;top:100%;left:0;right:0;margin:0;z-index:33}
+#bt-guide-root.btg-header-mode .btg-expansion-tab,#bt-guide-root.btg-header-mode>div.btg-details-open .btg-expansion-tab{position:static;transform:none!important;border:1px solid #7a939c;border-radius:50%;width:28px;height:28px;flex:0 0 28px;background:#27333a;line-height:1;font-size:22px;padding:0}

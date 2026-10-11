@@ -53,3 +53,21 @@
 .photoPanBar[hidden]{display:none}
 #photoPanX{left:10px;bottom:5px;width:calc(100% - 38px);height:16px;min-height:0}
 #photoPanY{right:5px;top:10px;width:16px;height:calc(100% - 38px);min-height:0;writing-mode:vertical-lr;direction:ltr}
+
+/* Calibration replaces the review sidebar without reducing the photo viewport. */
+.photoAnalyzerPanel{grid-template-rows:auto auto minmax(160px,1fr) auto}
+.photoAnalyzerBody{grid-row:3}.photoAnalyzerFooter{grid-row:4}
+.photoAnalyzerToolbar{padding-top:7px!important}
+.photoAnalyzerToolbar .photoCornerControls{display:contents}
+.photoAnalyzerToolbar #photoFineTune{position:static;transform:none;width:auto;height:32px;min-height:32px;font-size:12px;padding:5px 8px}
+.photoReview.calibrating>.photoReviewSummary,.photoReview.calibrating>.photoReviewInstruction,.photoReview.calibrating>#photoDetectionList{display:none}
+.photoReview .photoCalibration{display:flex;flex-direction:column;align-items:stretch;padding:0;border:0;gap:12px;background:transparent}
+.photoReview .photoCalibration[hidden]{display:none}
+.photoCalibrationMap,.photoCalibrationControls{flex:none;max-width:none}
+#photoCalibrationDiagram{touch-action:none}
+#photoCalibrationDiagram [data-boundary]{cursor:grab}
+#photoCustomBounds[hidden]{display:none}#photoCustomBounds p{font-size:11px;color:#b6cbd0}
+#photoBallStrip{display:grid;grid-template-columns:repeat(7,34px);gap:5px}
+.photoSummaryBall.empty{opacity:.13;background:transparent;border:1px dashed #fff;pointer-events:none}
+.photoDetectionDot{width:68px!important;height:68px!important;min-width:68px!important;flex:0 0 68px!important}
+.photoDetectionDot img{width:100%;height:100%;object-fit:cover}

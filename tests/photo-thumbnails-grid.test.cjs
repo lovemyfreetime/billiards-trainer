@@ -2,7 +2,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const html=fs.readFileSync(require('node:path').join(__dirname,'../index.html'),'utf8');
 function source(name){const start=html.indexOf('    function '+name+'(');assert.ok(start>0);return html.slice(start,html.indexOf('\n    function ',start+10));}
 const photo={width:2000,height:1000},crops=[];
-const env={photoVision:{imageReady:true,sourceCanvas:photo,viewZoom:1},S:{ballR:.02,tableL:1,tableW:.5},pvCalibration:()=>({H:[]}),applyHomography:(_,x,y)=>({x:x*2000,y:y*1000}),
+const env={window:{},photoVision:{imageReady:true,sourceCanvas:photo,viewZoom:1},S:{ballR:.02,tableL:1,tableW:.5},pvCalibration:()=>({H:[]}),applyHomography:(_,x,y)=>({x:x*2000,y:y*1000}),
  pvSquareCropCanvas(src,box,pad,size){assert.equal(src,photo);crops.push({box,pad,size});return {photo,box};},pvThumbFromCanvas:crop=>'photo:'+crop.box.x1};
 vm.createContext(env);vm.runInContext(source('pvEnsureDetectionThumb'),env);
 const d={id:'ignore',nx:.4,ny:.5};env.pvEnsureDetectionThumb(d);assert.ok(Math.abs(Number(d.thumb.slice(6))-760)<1e-8);

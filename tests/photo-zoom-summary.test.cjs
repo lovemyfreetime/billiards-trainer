@@ -23,11 +23,12 @@ assert.equal(state.viewZoom,1);assert.equal(state.viewCenterX,1000);assert.equal
 assert.equal(JSON.stringify([state.corners,state.detections]),original,'Zoom never alters calibration or ball positions');
 state.imageReady=false;env.pvPhotoWheelZoom(event);assert.equal(state.viewZoom,1);
 env.renderPhotoBallSummary();assert.equal(count.textContent,'3 detected · 2 assigned · 1 to review');
-assert.deepEqual(strip.children.map(n=>n.textContent),['C','8','?']);
+assert.deepEqual(strip.children.filter(n=>n.textContent).map(n=>n.textContent),['8','?','C']);
+assert.equal(strip.children[6].textContent,'C','Cue sits above the 7 / 15 column');
 state.detections[1].id='11';env.renderPhotoBallSummary();
-assert.deepEqual(strip.children.map(n=>n.textContent),['C','11','?']);assert.ok(strip.children[1].className.includes('stripe'));
+assert.deepEqual(strip.children.filter(n=>n.textContent).map(n=>n.textContent),['?','C','11']);assert.ok(strip.children[16].className.includes('stripe'));
 state.detections[2].id='1';env.renderPhotoBallSummary();assert.equal(count.textContent,'3 detected · 3 assigned');
 state.detections.splice(0,1);env.renderPhotoBallSummary();assert.equal(count.textContent,'2 detected · 2 assigned');
-assert.deepEqual(strip.children.map(n=>n.textContent),['1','11']);
+assert.deepEqual(strip.children.filter(n=>n.textContent).map(n=>n.textContent),['1','11']);
 state.detections=[];env.renderPhotoBallSummary();assert.equal(count.textContent,'0 detected · 0 assigned');assert.equal(strip.children.length,0);
 console.log('Photo wheel zoom preserves the cursor anchor and calibration; ball summary tracks assignments, stripes, deletions and reset.');

@@ -125,14 +125,15 @@ function mount(host,options={}){
   if(state.expanded){const detail=document.createElement('div');detail.className='btg-expanded';detail.textContent=state.expanded==='read'?(t?.text||'No narration text assigned.'):(t?.resources?.length?t.resources.map(x=>x.title+' — '+x.url).join('\n'):'Resources will be added here.');drawer.append(detail)}
   root.append(topic);
   const toggle=document.createElement('button');toggle.type='button';toggle.className='btg-expansion-tab';
-  toggle.textContent=state.detailsOpen?'⌃':'⌄';
-  toggle.setAttribute('aria-label',state.detailsOpen?'Collapse Guide details':'Expand Guide details');
+  toggle.textContent=host.classList.contains('btg-header-mode')?(state.detailsOpen?'×':'+'):(state.detailsOpen?'⌃':'⌄');
+  toggle.setAttribute('aria-label',state.detailsOpen?'Close Guide details':'Open Guide details');
   toggle.setAttribute('aria-expanded',String(!!state.detailsOpen));
   toggle.addEventListener('click',()=>{state.detailsOpen=!state.detailsOpen;save();render()});
   root.append(toggle);
+  if(host.classList.contains('btg-header-mode')){root.insertBefore(select,topic);topic.hidden=!state.detailsOpen;}
   root.classList.toggle('btg-details-open',!!state.detailsOpen);
   // Keep the green pull tab below the expanded lesson card, never over categories.
-  if(state.detailsOpen && (host.classList.contains('btg-header-mode')||options.poolMode)){
+  if(state.detailsOpen && options.poolMode){
    const alignTab=()=>{if(!toggle.isConnected)return;const card=options.poolMode?drawer:topic;toggle.style.top=(card.offsetTop+card.offsetHeight)+'px';toggle.style.transform='translateX(-50%)'};
    alignTab();
    requestAnimationFrame(alignTab);

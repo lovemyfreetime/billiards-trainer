@@ -38,3 +38,10 @@ for(const end of ['full','head','foot']){
 sandbox.pvResetDetectionsAndCorners();for(const p of [{x:0,y:0},{x:100,y:100},{x:100,y:0},{x:0,y:100}])sandbox.pvHandlePhotoTap(p);
 assert.equal($('photoAnalyzeNow').disabled,true);assert.equal($('photoRefineAlignment').disabled,true);
 console.log('UI handler flow passed: region changes → clockwise marks → cropped warp → full-table ball coordinates → diamond refinement → clear/reset.');
+
+$('photoRegion').value='custom';$('photoRegion').events.change();
+state.customBounds={x0:0,x1:.5,y0:0,y1:.5};sandbox.pvResetDetectionsAndCorners();
+for(const p of C.anchors(sandbox.pvRegion()))sandbox.pvHandlePhotoTap(C.apply(H,p));
+const cropped=sandbox.warpPhotoTopDown(80,40);assert.equal(cropped.canvas.width,40);assert.equal(cropped.canvas.height,20);
+state.addMissedMode=true;sandbox.pvHandlePhotoTap(C.apply(H,{x:.3,y:.35}));assert.ok(Math.abs(state.detections[0].ny-.35)<1e-7);
+assert.ok(sandbox.pvCalibrationReferences().some(d=>d.id==='pocket-2'));console.log('Quarter-photo handler preserves global Y and cropped warp dimensions; middle pockets available as references.');
