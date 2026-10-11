@@ -97,6 +97,22 @@
   fullscreen.dataset.btgAllow = '1';
   fullscreen.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3H3v6M15 3h6v6M21 15v6h-6M3 15v6h6"/></svg>';
   launchers.append(fullscreen);
+  const readouts = [];
+  for(const [id,kind] of [['tableSpeed1','speed'],['tableSpeed2','speed'],['bottomFollow1','percent'],['bottomFollow2','percent'],['bottomSide1','percent'],['bottomSide2','percent']]) {
+    const input=document.getElementById(id); if(!input)continue;
+    const output=document.createElement('output');output.id=id+'Readout';output.className='phoneSliderValue';
+    output.setAttribute('for',id);output.setAttribute('aria-label',input.getAttribute('aria-label')+' value');
+    input.parentNode.append(output);readouts.push({input,output,kind});
+  }
+  window.billiardsPhoneReadouts = () => {
+    for(const {input,output,kind} of readouts) {
+      const value=Number(input.value)||0;
+      const text=kind==='speed'?value.toFixed(2):((value>0?'+':'')+Math.round(value*100)+'%');
+      if(output.textContent!==text)output.textContent=text;
+    }
+  };
+  for(const {input} of readouts)input.addEventListener('input',window.billiardsPhoneReadouts);
+  window.billiardsPhoneReadouts();
   const phone = matchMedia('(max-width:600px), (max-width:1000px) and (max-height:500px) and (pointer:coarse)');
   let fallback = false;
   const fullscreenElement = () => document.fullscreenElement || document.webkitFullscreenElement;

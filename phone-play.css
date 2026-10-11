@@ -77,3 +77,22 @@ body.phone-layout.phone-controls-open #phonePanelScroll { display:block; positio
  body.phone-layout #bt-guide-pool-root { top:calc(52px + env(safe-area-inset-top)); max-width:calc(100% - 12px); }
  body.phone-layout:not(.projector) #stageWrap { top:calc(52px + var(--phone-guide-height,0px) + env(safe-area-inset-top)); }
 }
+
+/* Live values and wider finger clearance on the landscape phone controls. */
+.phoneSliderValue { display:none; }
+body.phone-layout .phoneSliderValue { display:block; position:absolute; top:20px; left:0; right:0; text-align:center; font-size:10px; line-height:14px; font-weight:800; font-variant-numeric:tabular-nums; color:#fff; pointer-events:none; }
+body.phone-layout .tableSpeedControl,body.phone-layout .miniSpinControl { padding-top:42px; }
+body.phone-layout .speedTickScale { top:44px; }
+body.phone-layout .bottomSpinGroup { gap:18px; }
+body.phone-layout:not(.projector) #phoneActions { left:var(--phone-table-left,160px); right:auto; width:var(--phone-table-width,calc(100% - 320px)); padding:4px 0 calc(4px + env(safe-area-inset-bottom)); }
+body.phone-layout #phoneActions button { max-width:none; min-width:0; padding:6px 3px; }
+@media(orientation:landscape) {
+ body.phone-layout .aimControlRow,body.phone-layout .tableSpeedControl,body.phone-layout .bottomSpinGroup { width:36px !important; }
+ body.phone-layout #aimControls { left:6px !important; }
+ body.phone-layout #tableSpeed1Wrap { left:62px !important; }
+ body.phone-layout #bottomSpin1 { left:118px !important; }
+ body.phone-layout #aimControls2 { left:calc(100% - 154px) !important; }
+ body.phone-layout #tableSpeed2Wrap { left:calc(100% - 98px) !important; }
+ body.phone-layout #bottomSpin2 { left:calc(100% - 42px) !important; }
+ body.phone-layout .aimRollerControl,body.phone-layout .miniSpinControl { width:36px; }
+}
