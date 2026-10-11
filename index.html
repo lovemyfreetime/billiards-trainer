@@ -1792,7 +1792,7 @@
         <video id="photoAnalyzerVideo" controls playsinline></video>
       </div>
       <div class="photoReview">
-        <div class="photoReviewSummary"><h3>Detected Balls</h3><div id="photoBallCount" role="status" aria-live="polite">0 detected</div><div id="photoBallStrip" aria-label="Assigned balls"></div></div>
+        <div class="photoReviewSummary"><h3>Detected Balls</h3><div id="photoBallCount" role="status" aria-live="polite">0 detected</div><div id="photoBallStrip" aria-label="Detected balls: select to review"></div></div>
         <div class="photoReviewInstruction">Review the identity of each ball before applying. Correct a wrong ball or delete a false detection.</div><div class="photoReviewInstruction photoMissedBallInstruction">If a ball is missed, press ADD MISSED BALL and tap its center in the photo.</div>
         <div id="photoDetectionList"></div>
       </div>
@@ -1807,7 +1807,7 @@
   </div>
 </div>
 
-<link rel="stylesheet" href="./photo-calibration.css?v=3">
+<link rel="stylesheet" href="./photo-calibration.css?v=4">
 <script src="./photo-calibration.js?v=1"></script>
 <script src="./photo-table-spots.js?v=2"></script>
 <script>
@@ -9517,14 +9517,18 @@
         count.textContent=total+' detected · '+assigned.length+' assigned'+(unassigned?' · '+unassigned+' to review':'');
         strip.replaceChildren();
         const colors=['#f4f4ef','#f4d03f','#2457c5','#c83232','#7040a8','#e67e22','#278a48','#7b2635','#111317'];
-        for(const d of assigned){
-            const n=Number(d.id),base=n>8?n-8:n,ball=document.createElement('span');
-            ball.className='photoSummaryBall'+(n>8?' stripe':'');
-            ball.style.setProperty('--ball-color',colors[base]);
-            ball.style.color=n>8||[0,1,5].includes(n)?'#101317':'#fff';
-            ball.textContent=n===0?'C':String(n);
-            ball.title=n===0?'Cue ball':'Ball '+n;
-            ball.setAttribute('role','img');ball.setAttribute('aria-label',ball.title);
+        for(const d of photoVision.detections){
+            const unassigned=!assigned.includes(d),n=Number(d.id),base=n>8?n-8:n,ball=document.createElement('button');
+            const key=pvReviewKey(d);
+            ball.type='button';ball.dataset.reviewKey=key;
+            ball.className='photoSummaryBall'+(unassigned?' unassigned':n>8?' stripe':'');
+            ball.style.setProperty('--ball-color',unassigned?'#665323':colors[base]);
+            ball.style.color=unassigned?'#fff':n>8||[0,1,5].includes(n)?'#101317':'#fff';
+            ball.textContent=unassigned?'?':n===0?'C':String(n);
+            ball.title=unassigned?'Unassigned ball '+(photoVision.detections.indexOf(d)+1)+' — review':n===0?'Cue ball':'Ball '+n;
+            ball.setAttribute('aria-label',ball.title+' — show in photo and review list');
+            ball.setAttribute('aria-pressed',String((photoVision.reviewFocusKeys||[]).includes(key)));
+            ball.onclick=()=>pvFocusPhotoDetection(d);
             strip.appendChild(ball);
         }
     }
@@ -9741,6 +9745,39 @@
         });
         return bestD<70?best:-1;
     }
+    function pvPhotoMarkerRadius(){
+        const c=$('photoAnalyzerCanvas'),r=c.getBoundingClientRect();
+        return 18*(r.width?c.width/r.width:1);
+    }
+    function pvPhotoDetectionHit(p){
+        if(photoVision.corners.length!==4)return null;
+        const H=pvCalibration()?.H;if(!H)return null;
+        const q=pvSourceToCanvas(p),radius=pvPhotoMarkerRadius()+6;
+        let best=null,distance=radius;
+        for(const d of photoVision.detections){
+            const point=pvSourceToCanvas(applyHomography(H,d.nx,d.ny)),dist=Math.hypot(q.x-point.x,q.y-point.y);
+            if(dist<distance){best=d;distance=dist;}
+        }
+        return best;
+    }
+    function pvFocusPhotoDetection(d){
+        if(!photoVision.detections.includes(d))return;
+        const key=pvReviewKey(d);
+        photoVision.reviewFocusKeys=[key];
+        const H=pvCalibration()?.H;
+        if(H){
+            const p=applyHomography(H,d.nx,d.ny);
+            photoVision.viewZoom=Math.max(2.5,photoVision.viewZoom||1);
+            photoVision.viewCenterX=p.x;photoVision.viewCenterY=p.y;
+        }
+        renderPhotoDetectionList();renderPhotoAnalyzer();
+        const pane=document.querySelector('.photoReview'),row=$('photoDetectionList').querySelector('[data-review-key="'+key+'"]');
+        if(pane&&row){
+            const header=pane.querySelector('.photoReviewSummary');
+            pane.scrollTop+=row.getBoundingClientRect().top-pane.getBoundingClientRect().top-(header?header.getBoundingClientRect().height:0)-8;
+            row.querySelector('select')?.focus({preventScroll:true});
+        }
+    }
     function pvHandlePhotoTap(p){
         if(photoVision.refining){
             const diamond=photoCal.diamonds().find(d=>d.id===photoVision.pendingDiamond);
@@ -9757,6 +9794,11 @@
             photoVision.hoverPoint=null;
             renderPhotoAnalyzer();
             pvCalibrationChanged();pvStatus(pvCalibrationPrompt());
+            return;
+        }
+        if(!photoVision.addMissedMode){
+            const detection=pvPhotoDetectionHit(p);
+            if(detection)pvFocusPhotoDetection(detection);
             return;
         }
         if(photoVision.addMissedMode){
@@ -9829,13 +9871,15 @@
         }
         if(photoVision.corners.length===4 && photoVision.detections.length) {
             const H=pvCalibration()?.H;if(!H)return;
-            x.save();x.font='800 12px Segoe UI';x.textAlign='center';x.textBaseline='middle';
+            x.save();x.textAlign='center';x.textBaseline='middle';
             photoVision.detections.forEach(d=>{
                 const p=applyHomography(H,d.nx,d.ny),q=pvSourceToCanvas(p),px=q.x,py=q.y;
-                const rr=Math.max(10,Math.min(c.width,c.height)*.018);
+                const rr=pvPhotoMarkerRadius();
+                const selected=(photoVision.reviewFocusKeys||[]).includes(pvReviewKey(d));
+                x.font='900 '+Math.round(rr*1.05)+'px Segoe UI';
                 const unassigned=String(d.id)==='ignore';
-                x.fillStyle=unassigned?'rgba(255,216,107,.13)':'rgba(0,229,255,.16)';
-                x.strokeStyle=unassigned?'#ffd86b':'#00e5ff';x.lineWidth=2;
+                x.fillStyle=unassigned?'rgba(55,40,5,.85)':'rgba(5,22,30,.85)';
+                x.strokeStyle=selected?'#60d394':unassigned?'#ffd86b':'#00e5ff';x.lineWidth=selected?4:2;
                 x.beginPath();x.arc(px,py,rr,0,Math.PI*2);x.fill();x.stroke();
                 x.fillStyle='#fff';x.fillText(unassigned?'?':pvLabel(d.id),px,py);
             });
@@ -9848,7 +9892,7 @@
             x.strokeStyle='rgba(255,255,255,.28)';
             x.lineWidth=1;
             x.font='800 11px Segoe UI';
-            const label=zoom.toFixed(1)+'×  •  pinch to zoom / pan';
+            const label=zoom.toFixed(1)+'×  •  wheel / pinch to zoom';
             const w=x.measureText(label).width+18;
             x.fillRect(8,8,w,25);
             x.strokeRect(8.5,8.5,w-1,24);
@@ -10563,7 +10607,7 @@
                 if(pvTouchPointers.size===1){
                     pvGesturePinched=false;
                     pvPinchStart=null;
-                    pvTouchCornerCandidate=(photoVision.corners.length===4&&!photoVision.addMissedMode&&!photoVision.refining)?pvCornerHitIndex(p):-1;
+                    pvTouchCornerCandidate=(photoVision.corners.length===4&&!photoVision.addMissedMode&&!photoVision.refining&&!pvPhotoDetectionHit(p))?pvCornerHitIndex(p):-1;
                 }else if(pvTouchPointers.size===2){
                     pvGesturePinched=true;
                     pvTouchCornerCandidate=-1;
@@ -10578,6 +10622,7 @@
 
             const p=pvCanvasPoint(ev);
             if(photoVision.corners.length===4 && !photoVision.addMissedMode && !photoVision.refining){
+                if(pvPhotoDetectionHit(p)){pvHandlePhotoTap(p);return;}
                 const best=pvCornerHitIndex(p);
                 if(best>=0){
                     photoVision.cornerDragIndex=best; canvas.setPointerCapture?.(ev.pointerId);

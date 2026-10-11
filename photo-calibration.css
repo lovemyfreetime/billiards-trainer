@@ -38,3 +38,8 @@
 .photoSummaryBall{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;flex:0 0 34px;border-radius:50%;background:var(--ball-color);border:2px solid #ffffff25;box-shadow:inset -3px -4px 6px #0004;font:800 14px system-ui,sans-serif;box-sizing:border-box}
 .photoSummaryBall.stripe{background:linear-gradient(#f5f5ef 0 27%,var(--ball-color) 27% 73%,#f5f5ef 73%);text-shadow:0 1px 1px #fff8}
 @media(max-width:700px){.photoAnalyzerToolbar{gap:5px}.photoReviewSummary{top:-10px}.photoSummaryBall{width:32px;height:32px;flex-basis:32px}}
+
+/* Review shortcuts remain visible above the scrolling rows. */
+.photoSummaryBall{padding:0;cursor:pointer;appearance:none;line-height:1;transition:box-shadow .12s}
+.photoSummaryBall.unassigned{border-color:#ffd86b;color:#fff}
+.photoSummaryBall[aria-pressed=true],.photoSummaryBall:focus-visible{outline:2px solid #60d394;outline-offset:2px}
