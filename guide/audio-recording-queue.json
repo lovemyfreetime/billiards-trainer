@@ -189,6 +189,6 @@
     "control": "makeRandomSetup; randomSetup",
     "current_topic": "main-random-ball-count",
     "status": "script-ready; MP3 not generated; device speech fallback",
-    "narration": "Choose how many numbered object balls to place randomly, then press Add Balls. Full racks are available separately in Pick and Play Full Racks."
+    "narration": "Choose how many numbered object balls to place randomly, then press Add Groups of Balls. Full racks are available separately in Pick and Play Full Racks."
   }
 ]
