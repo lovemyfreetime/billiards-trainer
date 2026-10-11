@@ -5134,13 +5134,13 @@
         const profileCtx = phoneProfile ? phoneCanvas.getContext('2d') : ctx;
         const boxW = phoneProfile ? Math.min(510,w-240) : Math.min(w - 12, 680, Math.max(510, w * .62));
         // Pocket 1 side: keep the profile away from the upper-right rail tools.
-        const boxH = phoneProfile ? 112 : 132, x0 = phoneProfile ? 0 : 6, y0 = phoneProfile ? 0 : 8;
+        const boxH = phoneProfile ? 50 : 132, x0 = phoneProfile ? 0 : 6, y0 = phoneProfile ? 0 : 8;
         if (phoneProfile) {
             phoneCanvas.width = Math.round(boxW*DPR); phoneCanvas.height = Math.round(boxH*DPR);
             phoneCanvas.style.width = boxW+'px'; phoneCanvas.style.height = boxH+'px'; phoneCanvas.style.display = 'block';
             profileCtx.setTransform(DPR,0,0,DPR,0,0);
         }
-        const padL = Math.min(125,boxW*.25), padR = 22, padT = 36, padB = 22;
+        const padL = phoneProfile ? 8 : Math.min(125,boxW*.25), padR = phoneProfile ? 8 : 22, padT = phoneProfile ? 19 : 36, padB = phoneProfile ? 5 : 22;
         const plotW = boxW-padL-padR, plotH = boxH-padT-padB;
         const pts = [];
         let travel = 0, prev = path[0], maxZ = S.ballR * 4;
@@ -5176,6 +5176,35 @@
             && Math.abs(cueDir.x) > Math.abs(cueDir.y) && cueDir.x < 0;
         const px = d => x0+padL + (reverseProfile ? 1-clamp(d/maxD,0,1) : clamp(d/maxD,0,1))*plotW;
         const py = z => y0+padT+plotH - clamp(z/maxZ,0,1)*plotH;
+
+        if (phoneProfile) {
+            // The phone profile fits entirely inside the 52px header.
+            profileCtx.save();
+            profileCtx.fillStyle = 'rgba(4,7,10,.94)';
+            profileCtx.fillRect(0,0,boxW,boxH);
+            const shot = which === 2 ? ensureShot2() : S;
+            const primary = a.guidance && a.guidance.primary;
+            const detail = primary
+                ? `${primary.margin >= 0 ? 'CLEARS' : 'CLIPS'} ${jumpLength(Math.abs(primary.margin),2)}`
+                : `H ${jumpLength(a.maxCueHeight,2)}`;
+            profileCtx.font = '700 10px Segoe UI'; profileCtx.fillStyle = '#eef3f7';
+            profileCtx.textAlign = 'left'; profileCtx.textBaseline = 'middle';
+            profileCtx.fillText(`SHOT ${which} · ${shot.speed.toFixed(2)} m/s · ${detail}`,8,9,boxW-16);
+            profileCtx.strokeStyle = '#768895'; profileCtx.lineWidth = 1;
+            profileCtx.beginPath(); profileCtx.moveTo(8,py(0)); profileCtx.lineTo(boxW-8,py(0)); profileCtx.stroke();
+            profileCtx.strokeStyle = stroke; profileCtx.lineWidth = 2;
+            profileCtx.beginPath();
+            visiblePts.forEach((p,i) => {if(i===0)profileCtx.moveTo(px(p.d),py(p.z));else profileCtx.lineTo(px(p.d),py(p.z));});
+            profileCtx.stroke();
+            if(primary) {
+                const x = px(Math.min(maxD,primary.cueTravel || 0));
+                for(const [z,fill] of [[primary.objZ || S.ballR,'#ffd86b'],[primary.cueZ || S.ballR,'#f7f7f3']]) {
+                    profileCtx.beginPath(); profileCtx.arc(x,py(z),3,0,Math.PI*2); profileCtx.fillStyle=fill; profileCtx.fill();
+                }
+            }
+            profileCtx.restore();
+            return;
+        }
 
         profileCtx.save();
         profileCtx.fillStyle = 'rgba(4,7,10,.88)';
