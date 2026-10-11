@@ -96,3 +96,10 @@ for(const rule of stageRules) {
 }
 assert(!css.includes('#stageWrapWrap'),'No doubled table-container selector');
 console.log('Phone table positioning targets the real stage in base, guide and portrait layouts.');
+
+// The global canvas rule uses inset:0. Fixed cue disks must clear all four edges
+// before choosing bottom + left/right, or the browser pins them to the top.
+const fixedDiskRule=css.match(/body\.phone-layout \.phoneTipControl:not\(\[hidden\]\)\s*\{([^}]+)\}/)[1];
+assert(/inset:\s*auto\s*;/.test(fixedDiskRule),'Fixed controls override the global canvas inset');
+assert(/bottom:\s*calc\(4px/.test(fixedDiskRule),'Fixed controls anchor below the sliders');
+console.log('Fixed cue disks clear inherited top/left/right constraints before bottom anchoring.');

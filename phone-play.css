@@ -108,7 +108,7 @@ body.phone-layout #phoneActions button { min-height:34px; font-size:11px; paddin
 /* Fixed cue-tip controls sit under the side sliders, outside the table. */
 .phoneTipControl { display:none; }
 body.phone-layout .phoneTipControl:not([hidden]) {
- display:block; position:fixed; z-index:46; width:60px; height:64px;
+ display:block; position:fixed; inset:auto; z-index:46; width:60px; height:64px;
  bottom:calc(4px + env(safe-area-inset-bottom)); touch-action:none;
  -webkit-touch-callout:none; user-select:none; cursor:crosshair;
 }
