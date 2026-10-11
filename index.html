@@ -1745,6 +1745,7 @@
     <div class="photoAnalyzerHeader">
       <div class="btg-analyze-title"><h2>Analyze Real Pool Table</h2></div>
       <div id="bt-guide-root" class="btg-header-mode" aria-label="Interactive Trainer Guide"></div>
+      <button id="btg-analyze-start" class="btg-launcher" type="button" title="Get Started: Analyze a real table" aria-label="Get Started: Analyze a real table" aria-pressed="false" data-btg-allow="1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg></button>
       <button id="btg-analyze-launch" type="button" title="Toggle Guide" aria-label="Toggle Guide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 8l10-5 10 5-10 5zM6 10v6c3 3 9 3 12 0v-6M22 8v9"/></svg></button>
       <button id="btg-analyze-explore" class="btg-launcher" type="button" title="Explorer: click a control to hear its explanation" aria-label="Toggle Explorer" aria-pressed="false" data-btg-allow="1"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></button>
       <button id="photoAnalyzerClose" type="button" title="Close">×</button>
@@ -2357,7 +2358,7 @@
     async function chooseSessionFolder(){
         if(!window.showDirectoryPicker){downloadTableFile(true);return;}
         try{
-            const folder=await window.showDirectoryPicker({mode:'readwrite'});
+            const folder=await window.showDirectoryPicker({id:'billiards-download-sessions',startIn:'downloads',mode:'readwrite'});
             let previous=null;try{const f=await (await folder.getFileHandle('Billiards-Latest-Session.billiards.json')).getFile();previous=window.BilliardsLayoutFiles.parse(await f.text());}catch(e){if(e.name!=='NotFoundError')throw e;}
             sessionFolder=folder;await sessionFolderStore(folder);if(previous)applyTableFile(previous);await writeSessionFolder();
         }catch(e){if(e.name!=='AbortError')toast('Session folder: '+e.message);}
@@ -11672,10 +11673,10 @@ if ('serviceWorker' in navigator) {
       <iframe id="btFeedbackFrame" title="Billiards Trainer feedback form" loading="lazy" scrolling="no"></iframe>
     </div>
   </div>
-  <link rel="stylesheet" href="./guide/pool-guide.css?v=explorer3">
-  <script src="./guide/guide.js?v=explorer5"></script>
+  <link rel="stylesheet" href="./guide/pool-guide.css?v=compact4">
+  <script src="./guide/guide.js?v=compact6"></script>
   <script src="./guide/pool-integration.js?v=explorer4"></script>
-  <script src="./guide/analyze-integration.js?v=explorer3"></script>
+  <script src="./guide/analyze-integration.js?v=start4"></script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=2"></script>
 

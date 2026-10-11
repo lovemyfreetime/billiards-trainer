@@ -23,3 +23,9 @@
 #bt-guide-pool-root .btg-topic{display:flex!important}
 #bt-guide-pool-root .btg-toolbar .btg-autoplay{background:#424950}
 #bt-guide-pool-root .btg-toolbar .btg-autoplay[aria-pressed=true]{background:#078d56}
+
+/* Compact controls keep the lesson picker visible; only reading adds height. */
+#bt-guide-pool-root .btg-pool-drawer{position:static;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none}
+#bt-guide-pool-root .btg-pool-drawer select{padding:4px 6px}
+#bt-guide-pool-root .btg-toolbar .btg-expansion-tab{position:static;transform:none;flex:0 0 24px;width:24px;height:24px;margin:0;padding:0;border:1px solid #64838b;border-radius:50%;background:#27333a;line-height:22px;font-size:18px}
+#bt-guide-pool-root .btg-pool-drawer .btg-expanded{max-height:45vh;overflow:auto;padding:8px;margin-top:5px;background:#1f3034;border-radius:5px;white-space:pre-wrap}

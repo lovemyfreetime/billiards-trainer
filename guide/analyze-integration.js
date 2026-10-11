@@ -4,9 +4,11 @@
 async function init(){
  const host=document.getElementById('bt-guide-root');
  const launcher=document.getElementById('btg-analyze-launch');
+ const started=document.getElementById('btg-analyze-start');
  const modal=document.getElementById('photoAnalyzerModal');
  if(!host||!launcher||!modal||!window.BilliardsGuide)return;
  launcher.dataset.btgAllow='1';
+ if(started)started.dataset.btgAllow='1';
  document.getElementById('photoAnalyzerClose').dataset.btgAllow='1';
  const explorer=document.getElementById('btg-analyze-explore');
  explorer.dataset.btgAllow='1';
@@ -351,6 +353,71 @@ async function init(){
  }
  applyMappings();
  topics.forEach(t=>{t.explorerOnly=true});
+ topics.push(...[
+  {
+    "id": "analyze-start-choose-photo",
+    "title": "1. Choose a photo",
+    "category": "start",
+    "level": 0,
+    "audio": [],
+    "summary": "Bring a real table into the analyzer.",
+    "text": "Choose Image opens a photograph from your device. Keep the original portrait or landscape orientation. Use a sharp photograph showing the cloth, the balls, and enough rail or pocket references to mark the visible area. You do not need to show the entire table."
+  },
+  {
+    "id": "analyze-start-coverage",
+    "title": "2. Choose the visible table area",
+    "category": "start",
+    "level": 0,
+    "audio": [],
+    "summary": "Match coverage to what the photograph shows.",
+    "text": "Open Fine-Tune Corner. Choose full table, left half, right half, or another available coverage. Use Custom for a middle section or quarter region. Move the boundary lines on the table diagram to the matching diamond positions. Pocket numbers always run clockwise from pocket 1; pocket 2 and pocket 5 are the middle pockets."
+  },
+  {
+    "id": "analyze-start-corners",
+    "title": "3. Mark and refine alignment",
+    "category": "start",
+    "level": 0,
+    "audio": [],
+    "summary": "Connect photo references to the trainer table.",
+    "text": "Use Auto Corners as a starting point when appropriate, or Reset Corners and mark the four boundary points in the prompted order. For a partial image, these points describe the selected region rather than the whole table. Fine-Tune Corner lets you add visible pocket and diamond references. Mark the exact reference requested; a diamond is not a pocket. Add clear references on both rail directions when possible."
+  },
+  {
+    "id": "analyze-start-analyze",
+    "title": "4. Analyze and review balls",
+    "category": "start",
+    "level": 0,
+    "audio": [],
+    "summary": "Confirm every detected ball.",
+    "text": "Run Analyze after setting the table alignment. Review the detected count and the ball icons. Solids run from 1 to 8, stripes from 9 to 15, the cue ball is above the 8, and question marks appear below. Click a photo marker or a summary icon to reach its list entry. Assign uncertain balls, correct numbers, and remove false detections before applying the layout."
+  },
+  {
+    "id": "analyze-start-inspect",
+    "title": "5. Zoom and check placement",
+    "category": "start",
+    "level": 0,
+    "audio": [],
+    "summary": "Look closely at uncertain detections.",
+    "text": "Use the mouse wheel over the photograph to zoom. Drag the zoomed image to see another area, or use the thin side and bottom pan bars. Compare the original photo with each ball thumbnail and its marker. Check that table spots have not been assigned as balls and that nearby balls remain separate."
+  },
+  {
+    "id": "analyze-start-apply",
+    "title": "6. Name and apply the layout",
+    "category": "start",
+    "level": 0,
+    "audio": [],
+    "summary": "Move the reviewed layout to the trainer.",
+    "text": "Enter a Layout Name. Apply to Trainer Table transfers the reviewed ball positions to the main table. Apply and Save also stores the named layout. Check the resulting positions on the trainer; the selected photo region is placed in its proper position on the full table."
+  },
+  {
+    "id": "analyze-start-share",
+    "title": "7. Save, share, and resume",
+    "category": "start",
+    "level": 0,
+    "audio": [],
+    "summary": "Keep a layout or continue a session.",
+    "text": "Save Table File downloads a shareable .billiards.json layout. Someone else can use Load Table File on either page. Loading on Analyze stages the layout for review; then choose Apply to Trainer Table or Apply and Save. Save Session File on the trainer includes the session state. Session Folder, where supported, keeps the latest session in a folder you choose. Keep downloaded files so you can reopen them later."
+  }
+]);
  const response=await fetch('./guide/pool-audio-map.json?v=pool-mapping1');
  if(!response.ok)throw Error('Analyze Guide lessons could not load');
  const training=await response.json();
@@ -359,7 +426,7 @@ async function init(){
  host.dataset.btgAllow='1';
  const guide=BilliardsGuide.mount(host,{
   topics,exploreTopicIds:topics.map(t=>t.id),
-  onStateChange(state){launcher.setAttribute('aria-pressed',String(state.enabled));explorer.setAttribute('aria-pressed',String(state.exploring));},
+  onStateChange(state){launcher.setAttribute('aria-pressed',String(state.enabled&&state.category!=='start'));started?.setAttribute('aria-pressed',String(state.enabled&&state.category==='start'));explorer.setAttribute('aria-pressed',String(state.exploring));},
   allowNavigation(e){
    if(e.type==='keydown'&&e.key==='Tab')return true;
    return e.type==='wheel'&&!!e.target.closest('.photoReview')&&!e.target.closest('input,select,button');
@@ -367,7 +434,8 @@ async function init(){
  });
  new MutationObserver(applyMappings).observe(document.getElementById('photoDetectionList'),{childList:true,subtree:true});
  new MutationObserver(()=>{if(!modal.classList.contains('open')){guide.setEnabled(false);guide.setExploring(false)}}).observe(modal,{attributes:true,attributeFilter:['class']});
- launcher.addEventListener('click',()=>guide.setEnabled(!guide.getState().enabled));
+ launcher.addEventListener('click',()=>{const s=guide.getState();if(s.enabled&&s.category!=='start')guide.setEnabled(false);else guide.openCategory('fundamentals')});
+ started?.addEventListener('click',()=>{const s=guide.getState();if(s.enabled&&s.category==='start')guide.setEnabled(false);else guide.openCategory('start')});
  explorer.addEventListener('click',()=>guide.setExploring(!guide.getState().exploring));
  window.billiardsAnalyzeGuide=guide;
  window.billiardsAnalyzeAudioMap={topics,assignments};

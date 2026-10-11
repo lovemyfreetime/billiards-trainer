@@ -47,7 +47,7 @@ function mount(host,options={}){
  function syncInspection(){document.body.classList.toggle('btg-inspection',!!document.querySelector('.btg-exploring'))}
  function setEnabled(value){cancelSpeech();audio.pause();state.enabled=!!value;if(value){state.exploring=false;if(!availableLessons().some(t=>t.id===state.topicId))state.topicId=null;}clearHighlight();save();render()}
  function setExploring(value){cancelSpeech();audio.pause();state.exploring=!!value;if(value)state.enabled=false;clearHighlight();save();render()}
- function openCategory(category){if(state.category!==category)state.topicId=null;state.category=category;state.detailsOpen=true;setEnabled(true)}
+ function openCategory(category){if(state.category!==category)state.topicId=null;state.category=category;state.detailsOpen=false;state.expanded=null;setEnabled(true)}
  function availableLessons(){return topics.filter(x=>!x.explorerOnly&&(x.category||'explore')===state.category&&(x.level||0)<=state.level)}
  function advanceLesson(){
   if(!state.autoplay||!state.enabled||state.exploring){render();return;}
@@ -104,9 +104,9 @@ function mount(host,options={}){
    const level=document.createElement('label');level.className='btg-level';level.textContent=LEVELS[state.level];
    const range=document.createElement('input');range.type='range';range.min='0';range.max='2';range.step='1';range.value=state.level;
    range.setAttribute('aria-label','Guide skill level');range.addEventListener('input',()=>{state.level=Number(range.value);save();render()});level.append(range);toolbar.append(level);
-   btn('Read',()=>{state.expanded=state.expanded==='read'?null:'read';if(state.expanded)state.detailsOpen=true;save();render()});
-   btn('More',()=>{state.expanded=state.expanded==='more'?null:'more';if(state.expanded)state.detailsOpen=true;save();render()});
-   btn('Reset',()=>{if(!confirm('Reset Guide session? The table will not change.'))return;stop();state={enabled:true,exploring:false,autoplay:false,level:0,category:'fundamentals',topicId:null,expanded:null,detailsOpen:false,position:0};save();render()});
+   btn('Read',()=>{state.expanded=state.expanded==='read'?null:'read';state.detailsOpen=!!state.expanded;save();render()});
+   btn('More',()=>{state.expanded=state.expanded==='more'?null:'more';state.detailsOpen=!!state.expanded;save();render()});
+   btn('Reset',()=>{if(!confirm('Reset Guide session? The table will not change.'))return;stop();state={enabled:true,exploring:false,autoplay:false,level:0,category:state.category==='start'?'start':'fundamentals',topicId:null,expanded:null,detailsOpen:false,position:0};save();render()});
   }
   root.append(toolbar);if(!state.enabled){root.classList.remove('btg-details-open');return;}
   const cats=document.createElement('div');cats.className='btg-row btg-categories';
@@ -120,24 +120,19 @@ function mount(host,options={}){
   select.value=available.some(x=>x.id===state.topicId)?state.topicId:'';
   select.onchange=()=>choose(select.value||null);
   const drawer=options.poolMode?document.createElement('div'):topic;
-  if(options.poolMode){drawer.className='btg-pool-drawer';drawer.hidden=!state.detailsOpen;root.append(drawer)}
+  if(options.poolMode){drawer.className='btg-pool-drawer';root.append(drawer)}
   drawer.append(select);
-  if(state.expanded){const detail=document.createElement('div');detail.className='btg-expanded';detail.textContent=state.expanded==='read'?(t?.text||'No narration text assigned.'):(t?.resources?.length?t.resources.map(x=>x.title+' — '+x.url).join('\n'):'Resources will be added here.');drawer.append(detail)}
-  root.append(topic);
+  if(state.expanded&&state.detailsOpen){const detail=document.createElement('div');detail.className='btg-expanded';detail.textContent=state.expanded==='read'?(t?.text||'No narration text assigned.'):(t?.resources?.length?t.resources.map(x=>x.title+' — '+x.url).join('\n'):'Resources will be added here.');drawer.append(detail)}
+  if(!options.poolMode)root.append(topic);
   const toggle=document.createElement('button');toggle.type='button';toggle.className='btg-expansion-tab';
-  toggle.textContent=host.classList.contains('btg-header-mode')?(state.detailsOpen?'×':'+'):(state.detailsOpen?'⌃':'⌄');
+  toggle.textContent=(options.poolMode||host.classList.contains('btg-header-mode'))?(state.detailsOpen?'×':'+'):(state.detailsOpen?'⌃':'⌄');
   toggle.setAttribute('aria-label',state.detailsOpen?'Close Guide details':'Open Guide details');
   toggle.setAttribute('aria-expanded',String(!!state.detailsOpen));
-  toggle.addEventListener('click',()=>{state.detailsOpen=!state.detailsOpen;if(state.detailsOpen&&host.classList.contains('btg-header-mode')&&!state.expanded)state.expanded='read';save();render()});
-  root.append(toggle);
+  toggle.addEventListener('click',()=>{state.detailsOpen=!state.detailsOpen;if(state.detailsOpen&&!state.expanded)state.expanded='read';if(!state.detailsOpen)state.expanded=null;save();render()});
+  if(options.poolMode)toolbar.append(toggle);else root.append(toggle);
   if(host.classList.contains('btg-header-mode')){root.insertBefore(select,topic);topic.hidden=!state.detailsOpen;}
   root.classList.toggle('btg-details-open',!!state.detailsOpen);
-  // Keep the green pull tab below the expanded lesson card, never over categories.
-  if(state.detailsOpen && options.poolMode){
-   const alignTab=()=>{if(!toggle.isConnected)return;const card=options.poolMode?drawer:topic;toggle.style.top=(card.offsetTop+card.offsetHeight)+'px';toggle.style.transform='translateX(-50%)'};
-   alignTab();
-   requestAnimationFrame(alignTab);
-  }
+
  }
  audio.addEventListener('timeupdate',()=>{state.position=audio.currentTime;save()});
  audio.addEventListener('play',render);
