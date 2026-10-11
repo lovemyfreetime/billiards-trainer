@@ -4,7 +4,7 @@
 async function init(){
  const stage=document.getElementById('stageWrap');
  if(!stage||!window.BilliardsGuide||document.body.classList.contains('projector'))return;
- const response=await fetch('./guide/pool-audio-map.json?v=pool-mapping1');
+ const response=await fetch('./guide/pool-audio-map.json?v=pool-mapping2');
  if(!response.ok)throw Error('Pool Guide audio map could not load');
  const catalog=await response.json();
  const host=document.createElement('div');

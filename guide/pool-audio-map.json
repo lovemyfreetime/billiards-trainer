@@ -2040,6 +2040,36 @@
       "level": 0,
       "text": "The ghost ball shows the cue-ball position needed at contact to send an object ball toward the chosen pocket. Use it as an aiming reference, then adjust the shot and examine the result.\n\nBall overlap describes how much of the object ball the cue ball covers along the aiming line. A fuller hit has more overlap, while a thinner cut has less. Use overlap as another way to understand the contact angle.",
       "summary": "Inspect the impact cue ball and physical overlap."
+    },
+    {
+      "id": "main-pick-and-play-full-racks",
+      "title": "Pick and Play Full Racks",
+      "audio": [],
+      "deviceSpeech": true,
+      "category": "explore",
+      "level": 0,
+      "text": "Pick and Play Full Racks prepares a complete game rack. Choose 3-Ball, 8-Ball, 9-Ball, 10-Ball, or Ultimate 8 Ball from the menu, then press Start. Ultimate 8 Ball uses the fixed numbered arrangement and puts the eight ball exactly on the foot spot.",
+      "summary": "Pick and Play Full Racks prepares a complete game rack."
+    },
+    {
+      "id": "main-start-full-rack",
+      "title": "Start selected full rack",
+      "audio": [],
+      "deviceSpeech": true,
+      "category": "explore",
+      "level": 0,
+      "text": "Start replaces the current table with the selected full rack and begins a fresh practice run. It prepares the balls for your break. Use Execute Shot when you are ready to shoot.",
+      "summary": "Start replaces the current table with the selected full rack and begins a fresh practice run."
+    },
+    {
+      "id": "main-random-ball-count",
+      "title": "Choose random ball count",
+      "audio": [],
+      "deviceSpeech": true,
+      "category": "explore",
+      "level": 0,
+      "text": "Choose how many numbered object balls to place randomly, then press Add Balls. Full racks are available separately in Pick and Play Full Racks.",
+      "summary": "Choose how many numbered object balls to place randomly, then press Add Balls."
     }
   ],
   "assignments": {
@@ -2103,9 +2133,9 @@
     "toggleCueVisuals2Btn": "hide-cue-ball-guides-quick",
     "jumpMasseFeatures": "jump-masse-open-controls-quick",
     "airbornePhysics": "jump-masse-open-controls-quick",
-    "makeRandomSetup": "random-layouts-quick",
+    "makeRandomSetup": "main-random-ball-count",
     "shuffleTableLayout": "random-layouts-quick",
-    "randomSetup": "random-layouts-quick",
+    "randomSetup": "main-random-ball-count",
     "addNextBall": "add-object-ball-quick",
     "addBall": "add-object-ball-quick",
     "removeBall": "remove-ball-layout-quick",
@@ -2198,7 +2228,10 @@
     "impactPower2Text": "live-stats-ball-speeds-advanced",
     "pocketArrivalText": "live-stats-ball-speeds-advanced",
     "pocketArrival2Text": "live-stats-ball-speeds-advanced",
-    "canvas": "table-orientation-quick"
+    "canvas": "table-orientation-quick",
+    "fullRackSelect": "main-pick-and-play-full-racks",
+    "startFullRack": "main-start-full-rack",
+    "fullRackGroup": "main-pick-and-play-full-racks"
   },
   "sections": {
     "SHOT": "shot-controls-overview-quick",

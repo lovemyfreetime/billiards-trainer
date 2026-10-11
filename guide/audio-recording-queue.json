@@ -166,5 +166,29 @@
     "current_topic": "guide-playback-controls-quick",
     "status": "script-ready; MP3 not generated",
     "narration": "Play starts the selected lesson, and Pause holds your place. Stop returns the lesson to its beginning. Back and Forward move ten seconds through the recording. The A button turns automatic playback of the next lesson on or off. Read displays the narration text."
+  },
+  {
+    "filename": "main-pick-and-play-full-racks.mp3",
+    "title": "Pick and Play Full Racks",
+    "control": "fullRackSelect; fullRackGroup",
+    "current_topic": "main-pick-and-play-full-racks",
+    "status": "script-ready; MP3 not generated; device speech fallback",
+    "narration": "Pick and Play Full Racks prepares a complete game rack. Choose 3-Ball, 8-Ball, 9-Ball, 10-Ball, or Ultimate 8 Ball from the menu, then press Start. Ultimate 8 Ball uses the fixed numbered arrangement and puts the eight ball exactly on the foot spot."
+  },
+  {
+    "filename": "main-start-full-rack.mp3",
+    "title": "Start selected full rack",
+    "control": "startFullRack",
+    "current_topic": "main-start-full-rack",
+    "status": "script-ready; MP3 not generated; device speech fallback",
+    "narration": "Start replaces the current table with the selected full rack and begins a fresh practice run. It prepares the balls for your break. Use Execute Shot when you are ready to shoot."
+  },
+  {
+    "filename": "main-random-ball-count.mp3",
+    "title": "Choose random ball count",
+    "control": "makeRandomSetup; randomSetup",
+    "current_topic": "main-random-ball-count",
+    "status": "script-ready; MP3 not generated; device speech fallback",
+    "narration": "Choose how many numbered object balls to place randomly, then press Add Balls. Full racks are available separately in Pick and Play Full Racks."
   }
 ]

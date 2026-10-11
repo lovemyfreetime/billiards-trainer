@@ -233,6 +233,8 @@
   .layoutSetupButtons button { height:48px; width:100%; min-width:0; box-sizing:border-box; padding:4px; font-size:11px; line-height:15px; }
   .layoutSetupSelect { margin-top:5px; }
   .layoutSetupSelect select { width:100%; box-sizing:border-box; padding:4px 6px; min-height:30px; }
+  .fullRackStart { display:flex; justify-content:center; margin-top:8px; }
+  .fullRackStart button { min-width:110px; min-height:34px; }
   .tableControlTitle { color:#93c9f5; font-size:11px; font-weight:800; margin-bottom:6px; }
   .shotVisibilityBtn, .cueVisualToggleBtn, .shotStatsToggleBtn {
     width:100%; height:48px; min-height:48px; max-height:48px;
@@ -1561,11 +1563,17 @@
     <div class="section">
       <button class="sectionToggle" type="button"><span>TABLE / BALLS</span></button>
       <div class="sectionBody">
+      <div class="tableControlGroup layoutSetupGroup" id="fullRackGroup"><div class="tableControlTitle">PICK AND PLAY FULL RACKS</div>
+        <div class="layoutSetupSelect"><select id="fullRackSelect" aria-label="Pick and play full rack">
+          <option value="rack3">3-Ball</option><option value="rack8" selected>8-Ball</option><option value="rack9">9-Ball</option><option value="rack10">10-Ball</option><option value="ultimate8">Ultimate 8 Ball</option>
+        </select></div>
+        <div class="fullRackStart"><button id="startFullRack" type="button">Start</button></div>
+      </div>
       <div class="tableControlGroup layoutSetupGroup"><div class="tableControlTitle">LAYOUT SETUP</div>
       <div class="buttons layoutSetupReset"><button id="resetLayout">Reset Layout</button></div>
-      <div class="buttons layoutSetupButtons"><button id="makeRandomSetup">Add Balls/Racks</button><button id="shuffleTableLayout" type="button">Randomly Shuffle Table Layout</button></div>
+      <div class="buttons layoutSetupButtons"><button id="makeRandomSetup">Add Balls</button><button id="shuffleTableLayout" type="button">Randomly Shuffle Table Layout</button></div>
       <div class="layoutSetupSelect">
-        <select id="randomSetup" aria-label="Choose random ball count or rack">
+        <select id="randomSetup" aria-label="Choose random ball count">
           <option value="2">2 balls</option>
           <option value="3">3 balls</option>
           <option value="4">4 balls</option>
@@ -1575,10 +1583,6 @@
           <option value="8">8 balls</option>
           <option value="9">9 balls</option>
           <option value="15">15 balls</option>
-          <option value="rack3">3-ball rack</option>
-          <option value="rack8">8-ball rack</option>
-          <option value="rack9">9-ball rack</option>
-          <option value="rack10">10-ball rack</option>
         </select>
       </div>
       </div>
@@ -2765,8 +2769,22 @@
         syncProjector();
         toast('Table layout shuffled');
     }
-    function createRandomSetup() {
-        const v = $('randomSetup').value;
+    function ultimateEightBallRack() {
+        const R = S.ballR, L = S.tableL, W = S.tableW;
+        const dx = Math.sqrt(3) * R;
+        // The reference rack is read row-by-row from the break end.
+        // Its third-row center (the 8) occupies the foot spot, not its apex.
+        const apexX = L * .75 - 2 * dx, apexY = W * .5;
+        const rows = [[1], [11, 5], [2, 8, 10], [9, 7, 14, 4], [6, 15, 13, 3, 12]];
+        const balls = [{ id: 0, n: 'CB', x: L * .25, y: W * .5, active: true }];
+        rows.forEach((ids, row) => ids.forEach((id, k) => {
+            balls.push({ id, n: String(id), x: apexX + row * dx,
+                y: apexY + (k - row / 2) * 2 * R, active: true });
+        }));
+        finishRackSetup(balls, 'Ultimate 8 Ball ready — 8 ball on the foot spot', '8ball');
+    }
+    function startFullRack() {
+        const v = $('fullRackSelect').value;
         if (v === 'rack3')
             randomThreeBallRack();
         else if (v === 'rack8')
@@ -2775,8 +2793,12 @@
             randomNineBallRack();
         else if (v === 'rack10')
             randomTenBallRack();
-        else
-            randomLooseSetup(clamp(parseInt(v, 10) || 2, 2, 15));
+        else if (v === 'ultimate8')
+            ultimateEightBallRack();
+        syncProjector();
+    }
+    function createRandomSetup() {
+        randomLooseSetup(clamp(parseInt($('randomSetup').value, 10) || 2, 2, 15));
     }
     if (!isProjector) {
         restoreState();
@@ -11339,6 +11361,7 @@
         $('undoShot').onclick = undoLastShot;
         $('resetLayoutQuick').onclick = resetLayout;
         $('makeRandomSetup').onclick = createRandomSetup;
+        $('startFullRack').onclick = startFullRack;
         $('shuffleTableLayout').onclick = shuffleTableLayout;
         $('resetLayout').onclick = resetLayout;
         document.querySelectorAll('.advancedToggle').forEach(btn => btn.addEventListener('click', () => {
@@ -11706,7 +11729,7 @@ if ('serviceWorker' in navigator) {
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=fit5">
   <script src="./guide/guide.js?v=start-auto8"></script>
-  <script src="./guide/pool-integration.js?v=explorer4"></script>
+  <script src="./guide/pool-integration.js?v=full-racks5"></script>
   <script src="./guide/analyze-integration.js?v=start-audio6"></script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=2"></script>
