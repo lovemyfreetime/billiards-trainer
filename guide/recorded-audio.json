@@ -290,7 +290,7 @@
       "topic": {
         "id": "main-shot-1-speed-slider",
         "title": "Shot 1 — Speed slider",
-        "audio": "./guide/audio/main-shot-1-speed-slider.mp3",
+        "audio": "./guide/audio/main-shot-1-speed-slider.mp3?v=chase-playback-v2",
         "text": "Adjust Shot 1 stroke speed. Values are in meters per second.",
         "summary": "Adjust Shot 1 stroke speed.",
         "category": "reference",
@@ -714,7 +714,7 @@
       "topic": {
         "id": "main-shot-2-speed-slider",
         "title": "Shot 2 — Speed slider",
-        "audio": "./guide/audio/main-shot-2-speed-slider.mp3",
+        "audio": "./guide/audio/main-shot-2-speed-slider.mp3?v=chase-playback-v2",
         "text": "Adjust Shot 2 stroke speed. Values are in meters per second.",
         "summary": "Adjust Shot 2 stroke speed.",
         "category": "reference",

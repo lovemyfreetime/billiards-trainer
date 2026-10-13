@@ -325,7 +325,7 @@ async function init(){
   "photoAnalyzerCanvas": "photo-zoom-pan-quick",
   "photoAnalyzerVideo": "photo-camera-snapshot-quick"
 };
- topics.push({id:'image-ai-mode',title:'AI detection mode',category:'explore',level:0,audio:[],deviceSpeech:true,
+ topics.push({id:'image-ai-mode',title:'AI detection mode',category:'explore',level:0,audio:['./guide/audio/analyze-ai-detector-mode-and-readiness.mp3'],
   summary:'Enable or disable the trained ball detector.',
   text:'The AI button enables or disables the trained ball detector. Ready means the models are loaded. Auto or Loading means they are preparing. Retry restarts a failed load. With AI off, Analyze Balls uses the original detector. Review the detected identities and positions before applying your layout.'});
  // Auto Corners already covers the reset action; keep its explanation focused.

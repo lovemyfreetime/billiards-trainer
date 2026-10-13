@@ -2,12 +2,13 @@
 (function(global){
 'use strict';
 let pending;
-function load(){return pending||(pending=fetch('./guide/recorded-audio.json?v=audio360').then(r=>{if(!r.ok)throw Error('Recorded audio catalog unavailable');return r.json()}));}
+function load(){return pending||(pending=fetch('./guide/recorded-audio.json?v=chase-playback-v2').then(r=>{if(!r.ok)throw Error('Recorded audio catalog unavailable');return r.json()}));}
 function merge(topics,data,page){
  for(const record of data.records){
   if(record.page!==page&&record.page!=='Shared')continue;
   const index=topics.findIndex(t=>t.id===record.topic.id);
   if(index<0)topics.push({...record.topic});else topics[index]={...topics[index],...record.topic};
+  delete topics[index<0?topics.length-1:index].deviceSpeech;
  }
 }
 function map(data,page){

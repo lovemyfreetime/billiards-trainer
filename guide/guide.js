@@ -17,9 +17,9 @@ function mount(host,options={}){
  if(state.category==='explore')state.category='fundamentals';
  if(options.initialCategory)state.category=options.initialCategory;
  // Opening Get Started is a user gesture: do not restore an idle open player.
- if(state.category==='start'){state.enabled=false;state.autoplay=true;}
- let speech=null;
- let audio=new Audio();audio.preload='none';audio.loop=false;
+ state.autoplay=state.category==='start';
+ if(state.category==='start')state.enabled=false;
+ let audio=new Audio();audio.preload='none';audio.loop=false;audio.volume=.8;
  // A topic may reference one MP3 or an ordered sequence of existing MP3s.
  let sequenceIndex=0;
  function audioFiles(t){return t?(Array.isArray(t.audio)?t.audio.filter(Boolean):(t.audio?[t.audio]:[])):[]}
@@ -31,28 +31,20 @@ function mount(host,options={}){
  function isActive(){return options.isActive?options.isActive():!!host.closest('#photoAnalyzerModal')?.classList.contains('open')}
  function mappedTopic(e){const el=e.target instanceof Element?e.target.closest('[data-guide-topic]'):null;return options.resolveTopic?.(e,el)||el?.dataset.guideTopic}
  function save(){try{localStorage.setItem(STORE,JSON.stringify(state))}catch(_){}}
- function cancelSpeech(){if(speech){global.speechSynthesis?.cancel();speech=null}}
- function stop(){cancelSpeech();audio.pause();const t=selected();if(audioFiles(t).length)loadSequenceTrack(t,0);else audio.currentTime=0;sequenceIndex=0;state.position=0;save()}
+ function stop(){audio.pause();const t=selected();if(audioFiles(t).length)loadSequenceTrack(t,0);else audio.currentTime=0;sequenceIndex=0;state.position=0;save()}
  function selected(){return topics.find(t=>t.id===state.topicId)||null}
- function choose(id){cancelSpeech();audio.pause();audio.removeAttribute('src');audio.load();sequenceIndex=0;state.topicId=id;state.position=0;save();render()}
+ function choose(id){audio.pause();audio.removeAttribute('src');audio.load();sequenceIndex=0;state.topicId=id;state.position=0;save();render()}
  function play(){let t=selected();if(!t&&state.enabled){t=availableLessons()[0];if(t)choose(t.id)}if(!t)return;
-   if(t.deviceSpeech){
-    cancelSpeech();
-    if(global.speechSynthesis&&global.SpeechSynthesisUtterance){
-     speech=new SpeechSynthesisUtterance(t.text);speech.onend=()=>{speech=null;advanceLesson();};
-     global.speechSynthesis.speak(speech);
-    }
-    return;
-   }
    if(!audioFiles(t).length)return;
    if(!audio.getAttribute('src')||audio.dataset.topic!==t.id)loadSequenceTrack(t,0);
    audio.play().catch(()=>{});}
  function syncInspection(){document.body.classList.toggle('btg-inspection',!!document.querySelector('.btg-exploring'))}
- function setEnabled(value){cancelSpeech();audio.pause();state.enabled=!!value;if(value){state.exploring=false;if(!availableLessons().some(t=>t.id===state.topicId))state.topicId=null;}clearHighlight();save();render()}
- function setExploring(value){cancelSpeech();audio.pause();state.exploring=!!value;if(value)state.enabled=false;clearHighlight();save();render()}
+ function setEnabled(value){audio.pause();state.enabled=!!value;if(value){state.exploring=false;if(!availableLessons().some(t=>t.id===state.topicId))state.topicId=null;}clearHighlight();save();render()}
+ function setExploring(value){audio.pause();state.exploring=!!value;if(value)state.enabled=false;clearHighlight();save();render()}
  function openCategory(category){
   if(state.category!==category)state.topicId=null;state.category=category;state.detailsOpen=false;state.expanded=null;
-  if(category==='start'){state.autoplay=true;state.topicId=null;state.position=0;sequenceIndex=0;}
+  state.autoplay=category==='start';
+  if(category==='start'){state.topicId=null;state.position=0;sequenceIndex=0;}
   setEnabled(true);
   if(category==='start'){const first=availableLessons()[0];if(first){choose(first.id);play();}}
  }
@@ -63,7 +55,7 @@ function mount(host,options={}){
   if(index>=0&&index+1<available.length){choose(available[index+1].id);play();}else{audio.pause();state.position=0;save();render();}
  }
  function skipRecording(direction){
-  const current=selected(),playing=!audio.paused||!!speech;cancelSpeech();audio.pause();
+  const current=selected(),playing=!audio.paused;audio.pause();
   const target=sequenceIndex+direction;
   if(current&&target>=0&&target<audioFiles(current).length){loadSequenceTrack(current,target);state.position=0;save();if(playing)audio.play().catch(()=>{});render();return;}
   const available=availableLessons(),index=available.findIndex(t=>t.id===state.topicId),next=index<0?(direction>0?0:available.length-1):index+direction;
@@ -111,8 +103,8 @@ function mount(host,options={}){
   if(state.enabled){
    btn('⏮',()=>skipRecording(-1)).title='Previous audio file / lesson';
    btn('■',()=>{stop();render()}).title='Stop';
-   const playButton=btn(audio.paused&&!speech?'▶':'Ⅱ',()=>{if(speech)cancelSpeech();else if(audio.paused)play();else audio.pause();render()});
-   playButton.disabled=t?.recordingStatus==='pending';
+   const playButton=btn(audio.paused?'▶':'Ⅱ',()=>{if(audio.paused)play();else audio.pause();render()});
+   playButton.disabled=!t||!audioFiles(t).length||t.recordingStatus==='pending';
    playButton.title=playButton.disabled?'Audio recording pending — use Read and More':'Play / Pause';
    btn('◀◀',()=>{audio.currentTime=Math.max(0,(audio.currentTime||0)-10)}).title='Back 10 seconds';
    btn('▶▶',()=>{audio.currentTime=Math.min(audio.duration||Infinity,(audio.currentTime||0)+10)}).title='Forward 10 seconds';
@@ -129,10 +121,10 @@ function mount(host,options={}){
   }
   root.append(toolbar);if(!state.enabled){root.classList.remove('btg-details-open');return;}
   const cats=document.createElement('div');cats.className='btg-row btg-categories';
-  for(const [id,label] of CATEGORIES.filter(([id])=>id!=='explore'&&id!=='start')){const b=document.createElement('button');b.textContent=label;b.setAttribute('aria-pressed',String(state.category===id));b.onclick=()=>{stop();state.category=id;state.topicId=null;save();render()};cats.append(b)}if(state.category!=='start')root.append(cats);
+  for(const [id,label] of CATEGORIES.filter(([id])=>id!=='explore'&&id!=='start')){const b=document.createElement('button');b.textContent=label;b.setAttribute('aria-pressed',String(state.category===id));b.onclick=()=>{stop();openCategory(id);const first=availableLessons()[0];if(first){choose(first.id);play()}};cats.append(b)}if(state.category!=='start')root.append(cats);
   const topic=document.createElement('div');topic.className='btg-topic';
   const title=document.createElement('strong');title.textContent=t?.title||(state.category==='start'?'Get Started':'Select a lesson');topic.append(title);
-  const summary=document.createElement('p');summary.textContent=t?.summary||(state.category==='start'?'Choose an introductory lesson, then press Play.':'Choose a technique, practice lesson, or drill, then press Play.');topic.append(summary);
+  const summary=document.createElement('p');summary.textContent=t?.summary||(state.category==='start'?'Choose an introductory lesson to start its audio.':'Choose a technique, practice lesson, or drill to start its audio.');topic.append(summary);
   const select=document.createElement('select');select.setAttribute('aria-label','Select Guide lesson');
   const blank=document.createElement('option');blank.value='';blank.textContent='Choose a topic';select.append(blank);
   const lessonGroups=new Map();
@@ -141,7 +133,7 @@ function mount(host,options={}){
   select.className='btg-lesson-select';
   const measure=document.createElement('canvas').getContext('2d');if(measure){measure.font=options.poolMode?'11px system-ui':'12px system-ui';select.style.width=Math.ceil(Math.max(...Array.from(select.options,o=>measure.measureText(o.textContent).width))+44)+'px';}
   select.value=available.some(x=>x.id===state.topicId)?state.topicId:'';
-  select.onchange=()=>choose(select.value||null);
+  select.onchange=()=>{choose(select.value||null);if(select.value)play()};
   const drawer=options.poolMode?document.createElement('div'):topic;
   if(options.poolMode){drawer.className='btg-pool-drawer';root.append(drawer)}
   drawer.append(select);
@@ -177,7 +169,7 @@ function mount(host,options={}){
  document.addEventListener('pointerover',inspectTarget,true);
  // Explorer alone enables the inspection shield; validate against real trainer interactions before integration.
  render();
- return {setEnabled,setExploring,openCategory,destroy(){cancelSpeech();audio.pause();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
+ return {setEnabled,setExploring,openCategory,destroy(){audio.pause();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
 }
 global.BilliardsGuide={mount,CATEGORIES,LEVELS};
 })(window);
