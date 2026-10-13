@@ -611,5 +611,10 @@
   "./guide/audio/trajectory-lines-quick.mp3",
   "./guide/audio/two-shot-execution-quick.mp3",
   "./guide/audio/undo-last-shot-quick.mp3",
-  "./guide/audio/undo-strategic-review-quick.mp3"
+  "./guide/audio/undo-strategic-review-quick.mp3",
+  "./guide/audio/welcome-fundamentals.mp3",
+  "./guide/audio/welcome-physics.mp3",
+  "./guide/audio/welcome-drills.mp3",
+  "./guide/audio/welcome-exercises.mp3",
+  "./guide/audio/welcome-more.mp3"
 ]

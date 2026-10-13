@@ -29,3 +29,7 @@ Browser regression checks cover Guide/Get Started autoplay separation, automatic
 ## Comparison method
 
 The offline Resemblyzer speaker encoder compares recordings against logged Chase reference files. The screening threshold is the reference set's first percentile minus a 0.06 margin. No recordings fell below it. Model source: https://github.com/resemble-ai/Resemblyzer
+
+## Category welcomes added after the comparison audit
+
+Five new category welcomes were generated with API voice ID `chase`, Simba 3.2 and SSML +30%. They passed MP3 codec and positive-duration validation. The previous comparison covered 613 files; the app now contains 618 files, including these five directly confirmed Chase recordings. Production records for the additions are in VOICE_AUDIT.json.

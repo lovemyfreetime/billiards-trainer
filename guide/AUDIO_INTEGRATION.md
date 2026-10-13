@@ -1,6 +1,6 @@
 # Completed audio integration
 
-The development Guide includes 360 completed Chase recordings. Every recording has a selectable lesson, transcript, and local MP3 path. The original recordings remain available.
+The development Guide includes 365 completed Chase recordings. Every recording has a selectable lesson, transcript, and local MP3 path. The original recordings remain available.
 
 - Explorer uses dedicated control narration on the table and Analyze pages, including AI Ready, Table Setup, Image / Camera, individual saved-image actions, shot readouts, and C/P power meters.
 - Explorer provides the control reference. Its recordings remain registered without a Controls tab in the lesson player.
@@ -21,3 +21,7 @@ This change updates the development branch's web app. Previously downloaded Wind
 ## Features and Options mapping update
 
 Each of the nine Features and Options items has a dedicated recording. Checkbox inputs, their labels, and their surrounding rows now use the same topic. Browser tests exercise both the checkbox and label for all nine items, verify the corresponding MP3 actually plays, and verify the checkbox value remains unchanged in Explorer. The Resources tab shows the two official Zero-X links for each recommendation; the redundant global channel link has been removed.
+
+## Category welcomes and resource topics
+
+Fundamentals, Physics and Tools, Drills, Exercises, and Resources each play a short Chase welcome inviting selection from the dropdown. The welcomes do not replace lessons or appear as resource destinations. A manual Resource selection plays its MP3 and opens the matching verified YouTube destination in a new tab. More displays only its resource links. Topic links are embedded on the official Zero-X lessons page and their titles/authorship were verified with YouTube oEmbed. Details and narration are in Category-Welcomes-and-Resources.md.

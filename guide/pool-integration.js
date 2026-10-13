@@ -5,7 +5,7 @@ async function init(){
  const recorded=await BilliardsRecordedAudio.load();
  const stage=document.getElementById('stageWrap');
  if(!stage||!window.BilliardsGuide||document.body.classList.contains('projector'))return;
- const response=await fetch('./guide/pool-audio-map.json?v=guide-menu-v3');
+ const response=await fetch('./guide/pool-audio-map.json?v=group-welcomes-v4');
  if(!response.ok)throw Error('Pool Guide audio map could not load');
  const catalog=await response.json();
  BilliardsRecordedAudio.merge(catalog.topics,recorded,'Main');

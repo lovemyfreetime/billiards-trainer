@@ -3,9 +3,10 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
 (async()=>{
  await new Promise((resolve,reject)=>{server.stdout.once('data',resolve);server.once('error',reject);server.once('exit',code=>reject(Error('Test server exited '+code)))});
  const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_EXECUTABLE_PATH||undefined,args:['--no-sandbox','--disable-dev-shm-usage','--single-process','--disable-gpu','--disable-software-rasterizer','--no-zygote']});
- const context=await browser.newContext();const page=await context.newPage();const errors=[];page.setDefaultNavigationTimeout(120000);
+ const context=await browser.newContext();
+ await context.route('https://www.youtube.com/**',route=>route.fulfill({status:200,contentType:'text/html',body:'<title>Verified resource navigation test</title>'}));const page=await context.newPage();const errors=[];page.setDefaultNavigationTimeout(120000);
  page.on('pageerror',e=>errors.push(e.message));
- await page.addInitScript(()=>{window.__spokenText=[];window.speechSynthesis.speak=utterance=>window.__spokenText.push(utterance.text);window.__playedAudio=[];const NativeAudio=window.Audio;window.Audio=new Proxy(NativeAudio,{construct(target,args){const audio=new target(...args);window.__playedAudio.push(audio);return audio}})});
+ await page.addInitScript(()=>{window.__openedResources=[];const nativeOpen=window.open.bind(window);window.open=(url,...args)=>{window.__openedResources.push(url);return nativeOpen(url,...args)};window.__spokenText=[];window.speechSynthesis.speak=utterance=>window.__spokenText.push(utterance.text);window.__playedAudio=[];const NativeAudio=window.Audio;window.Audio=new Proxy(NativeAudio,{construct(target,args){const audio=new target(...args);window.__playedAudio.push(audio);return audio}})});
  await page.goto('http://127.0.0.1:8765',{waitUntil:'domcontentloaded'});
  if(!await page.evaluate(()=>!!navigator.serviceWorker.controller))await page.waitForNavigation({waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.billiardsPoolGuide&&window.billiardsAnalyzeGuide);
@@ -20,12 +21,21 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
    image:document.querySelector('.photoToolGroup:first-child .photoToolHeading').dataset.guideTopic,
    run:document.querySelector('#startFullRack').dataset.guideTopic};
  });
- assert.equal(result.count,360);assert.deepEqual(result.missing,[]);assert.deepEqual(result.invalid,[]);
+ assert.equal(result.count,365);assert.deepEqual(result.missing,[]);assert.deepEqual(result.invalid,[]);
  assert.equal(result.ai,'analyze-ai-detector-mode-and-readiness');assert.equal(result.setup,'analyze-table-setup-heading');assert.equal(result.image,'analyze-image-camera-heading');assert.equal(result.run,'main-start-full-rack');
  await page.click('#btg-pool-start');
  assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().autoplay),true);
  await page.click('#btg-pool-guide');
  assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().autoplay),false);
+ const welcomes=[['Fundamentals','fundamentals'],['Physics & Tools','physics'],['Drills','drills'],['Exercises','exercises'],['Resources','more']];
+ for(const [label,id] of welcomes){
+  await page.locator('#bt-guide-pool-root .btg-categories button').filter({hasText:new RegExp('^'+label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'$')}).click();
+  assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().topicId),'welcome-'+id);
+  assert.equal(await page.locator('#bt-guide-pool-root select').inputValue(),'');
+  assert.equal(await page.locator('#bt-guide-pool-root select option[value^="welcome-"]').count(),0);
+  await page.waitForFunction(id=>window.__playedAudio.some(a=>a.src.includes('welcome-'+id+'.mp3')&&!a.paused&&a.currentTime>0),id);
+ }
+ assert.equal(await page.evaluate(()=>window.__openedResources.length),0,'Welcomes never open a resource');
  await page.locator('#bt-guide-pool-root .btg-categories button').filter({hasText:/^Drills$/}).click();
  const groups=await page.locator('#bt-guide-pool-root optgroup').evaluateAll(nodes=>nodes.map(n=>n.label));
  for(const g of ['Cue Ball Control','Positional Patterns','Rail Navigation','Kicking Systems'])assert.ok(groups.includes(g),g);
@@ -42,9 +52,19 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await page.screenshot({path:'../audio-drill-menu-preview.png',fullPage:false});
  await page.locator('#bt-guide-pool-root .btg-categories button').filter({hasText:/^Resources$/}).click();
  assert.equal(await page.locator('#bt-guide-pool-root select option[value^="recommend-zero-x-"]').count(),5);
+ const popupPromise=context.waitForEvent('page');
  await page.locator('#bt-guide-pool-root select').selectOption('recommend-zero-x-overview');
+ const popup=await popupPromise;await popup.waitForLoadState('domcontentloaded');
+ assert.ok(popup.url().includes('UCYuUos0iwnvdBL8URuNvrNA'));await popup.close();
  if(await page.evaluate(()=>billiardsPoolGuide.getState().expanded!=='more'))await page.locator('#bt-guide-pool-root button').filter({hasText:/^More$/}).click();
  assert.equal(await page.locator('#bt-guide-pool-root .btg-resource-links a').count(),2);
+ assert.equal(await page.locator('#bt-guide-pool-root .btg-expanded p, #bt-guide-pool-root .btg-expanded strong').count(),0,'Resource More contains links only');
+ for(const [id,video] of [['recommend-zero-x-center-ball','5_mC1ZePXpA'],['recommend-zero-x-position-play','Cya-0vjQ_7Y'],['recommend-zero-x-eight-ball-patterns','V0dAZInUiTE'],['recommend-zero-x-defense-recovery','UcTAFFQOHm0']]){
+  const nextPopup=context.waitForEvent('page');await page.locator('#bt-guide-pool-root select').selectOption(id);
+  const resourcePage=await nextPopup;await resourcePage.waitForLoadState('domcontentloaded');assert.ok(resourcePage.url().includes('v='+video));await resourcePage.close();
+  await page.waitForFunction(id=>window.__playedAudio.some(a=>a.src.includes(id+'.mp3')&&!a.paused&&a.currentTime>0),id);
+  assert.ok((await page.locator('#bt-guide-pool-root .btg-resource-links a').first().getAttribute('href')).includes('v='+video));
+ }
  assert.equal(await page.locator('#bt-guide-pool-root .btg-categories button').filter({hasText:/^Controls$/}).count(),0);
  await page.click('#btg-pool-explore');
  const rackSection=page.locator('#panel .section').filter({has:page.locator('#fullRackSelect')});
@@ -93,6 +113,6 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await page.screenshot({path:'../audio-integration-preview.png',fullPage:false});
  assert.equal(await page.evaluate(()=>window.__spokenText.length),0);
  assert.deepEqual(errors,[]);
- console.log(JSON.stringify({records:result.count,drillGroups:groups,allAudioFetches:'360 successful',offlineReload:'passed',mp3Playback:'decoded and advancing',dedicatedMappings:result,browserErrors:errors,featuresAndOptions:'9 controls and 9 labels play their dedicated MP3 without mutation',controlsTab:'removed',zeroXLinks:2}));
+ console.log(JSON.stringify({records:result.count,drillGroups:groups,allAudioFetches:'365 successful',welcomes:'5 category MP3s play',resourcePopups:'5 verified destinations open',offlineReload:'passed',mp3Playback:'decoded and advancing',dedicatedMappings:result,browserErrors:errors,featuresAndOptions:'9 controls and 9 labels play their dedicated MP3 without mutation',controlsTab:'removed',zeroXLinks:2}));
  await browser.close();server.kill();
 })().catch(e=>{console.error(e);server.kill();process.exit(1)});

@@ -8163,7 +8163,8 @@
         "verification": "Previously supplied channel reference"
       }
     ],
-    "source": "User request: spoken recommendations for Tor Lowry / Zero-X Billiards"
+    "source": "User request: spoken recommendations for Tor Lowry / Zero-X Billiards",
+    "resourceUrl": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA"
   },
   {
     "id": "recommend-zero-x-center-ball",
@@ -8179,18 +8180,18 @@
     "recording_status": "Recorded",
     "resources": [
       {
-        "title": "Zero-X Billiards official free lessons",
-        "url": "https://www.zerox-billiards.com/free-pool-lessons",
-        "verification": "Verified on official Zero-X site"
+        "title": "Zero-X: Center Ball Drills",
+        "url": "https://www.youtube.com/watch?v=5_mC1ZePXpA",
+        "verification": "Video embedded beside this lesson title on Zero-X official free pool lessons page"
       },
       {
         "title": "Zero-X Billiards official YouTube channel",
-        "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA",
-        "verification": "Previously supplied channel reference"
+        "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA"
       }
     ],
     "source": "User request: spoken recommendations for Tor Lowry / Zero-X Billiards",
-    "link_note": "The supplied 11418-placeholder URL is a placeholder. Use the verified official lessons page until an exact video is confirmed."
+    "link_note": "The supplied 11418-placeholder URL is a placeholder. Use the verified official lessons page until an exact video is confirmed.",
+    "resourceUrl": "https://www.youtube.com/watch?v=5_mC1ZePXpA"
   },
   {
     "id": "recommend-zero-x-position-play",
@@ -8206,14 +8207,13 @@
     "recording_status": "Recorded",
     "resources": [
       {
-        "title": "Zero-X Billiards official free lessons",
-        "url": "https://www.zerox-billiards.com/free-pool-lessons",
-        "verification": "Verified on official Zero-X site"
+        "title": "Zero-X: Half Table Position — Three Balls, Part 1",
+        "url": "https://www.youtube.com/watch?v=Cya-0vjQ_7Y",
+        "verification": "Video embedded beside this lesson title on Zero-X official free pool lessons page"
       },
       {
         "title": "Zero-X Billiards official YouTube channel",
-        "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA",
-        "verification": "Previously supplied channel reference"
+        "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA"
       }
     ],
     "source": "User request: spoken recommendations for Tor Lowry / Zero-X Billiards",
@@ -8221,7 +8221,8 @@
       "title": "Principles of Position Play – Shot by Shot Analysis",
       "url": "https://www.youtube.com/watch?v=d0Wn5VnE70E",
       "verification": "Not independently verified; preserved as a supplied reference, not promoted as a verified resource"
-    }
+    },
+    "resourceUrl": "https://www.youtube.com/watch?v=Cya-0vjQ_7Y"
   },
   {
     "id": "recommend-zero-x-eight-ball-patterns",
@@ -8237,14 +8238,13 @@
     "recording_status": "Recorded",
     "resources": [
       {
-        "title": "Zero-X Billiards official free lessons",
-        "url": "https://www.zerox-billiards.com/free-pool-lessons",
-        "verification": "Verified on official Zero-X site"
+        "title": "Zero-X: 8-Ball Pattern Run Outs",
+        "url": "https://www.youtube.com/watch?v=V0dAZInUiTE",
+        "verification": "Video embedded beside this lesson title on Zero-X official free pool lessons page"
       },
       {
         "title": "Zero-X Billiards official YouTube channel",
-        "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA",
-        "verification": "Previously supplied channel reference"
+        "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA"
       }
     ],
     "source": "User request: spoken recommendations for Tor Lowry / Zero-X Billiards",
@@ -8252,7 +8252,8 @@
       "title": "Drills to Quickly Improve Your 8-Ball Patterns",
       "url": "https://www.youtube.com/watch?v=V0dAZInUiTE",
       "verification": "Not independently verified; preserved as a supplied reference, not promoted as a verified resource"
-    }
+    },
+    "resourceUrl": "https://www.youtube.com/watch?v=V0dAZInUiTE"
   },
   {
     "id": "recommend-zero-x-defense-recovery",
@@ -8268,14 +8269,13 @@
     "recording_status": "Recorded",
     "resources": [
       {
-        "title": "Zero-X Billiards official free lessons",
-        "url": "https://www.zerox-billiards.com/free-pool-lessons",
-        "verification": "Verified on official Zero-X site"
+        "title": "Zero-X: Pool Defense — Lock Up Your Opponent, Part 1",
+        "url": "https://www.youtube.com/watch?v=UcTAFFQOHm0",
+        "verification": "Video embedded beside this lesson title on Zero-X official free pool lessons page"
       },
       {
         "title": "Zero-X Billiards official YouTube channel",
-        "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA",
-        "verification": "Previously supplied channel reference"
+        "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA"
       }
     ],
     "source": "User request: spoken recommendations for Tor Lowry / Zero-X Billiards",
@@ -8283,7 +8283,8 @@
       "title": "60 Recovery Shots You Must Master",
       "url": "https://www.youtube.com/watch?v=udVDEjNE47o",
       "verification": "Not independently verified; preserved as a supplied reference, not promoted as a verified resource"
-    }
+    },
+    "resourceUrl": "https://www.youtube.com/watch?v=UcTAFFQOHm0"
   },
   {
     "id": "drill-stop-shot",
@@ -8413,6 +8414,71 @@
       "Guide > More > Practice Drills > Kicking Systems > Two-Rail Corner Kick"
     ],
     "narration": "Two-Rail Corner Kick. Stand at the head end, looking toward the foot. Place the cue ball one diamond from the head cushion and one and a quarter diamonds from the right long rail. Put the 1-ball one diamond from the foot cushion and three quarters of a diamond from the right long rail. Place the 8-ball level with the side pockets, one diamond from the right rail. Put balls two and three on the same line, two ball widths to either side of the 8-ball toward the head and foot ends. This blocks the direct shot. Place yellow marker A at the right cushion on the foot string, with its center one ball radius inside the cloth. Place yellow marker B half a diamond left of the foot-right corner, also one ball radius inside the foot cushion. Use moderate speed and no side spin. Aim the cue ball center toward A. Look for right cushion, then foot cushion near B, then contact with the 1-ball. Make small aiming adjustments and count five successful escapes.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "welcome-fundamentals",
+    "page": "Shared",
+    "section": "Fundamentals",
+    "title": "Welcome to Fundamentals",
+    "file": "welcome-fundamentals.mp3",
+    "kind": "Category welcome",
+    "targets": [
+      "Guide > Fundamentals"
+    ],
+    "narration": "Welcome to Fundamentals. Explore aiming, cue ball control, and the basics of a dependable stroke. Open the drop-down menu and choose a topic you want to practice. Listen to the lesson and follow along at your own pace.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "welcome-physics",
+    "page": "Shared",
+    "section": "Physics and Tools",
+    "title": "Welcome to Physics and Tools",
+    "file": "welcome-physics.mp3",
+    "kind": "Category welcome",
+    "targets": [
+      "Guide > Physics and Tools"
+    ],
+    "narration": "Welcome to Physics and Tools. Explore how speed, spin, and contact affect a shot, and learn to use the table’s visual tools. Choose a topic from the drop-down menu, then try the idea on the table and compare the result.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "welcome-drills",
+    "page": "Shared",
+    "section": "Drills",
+    "title": "Welcome to Drills",
+    "file": "welcome-drills.mp3",
+    "kind": "Category welcome",
+    "targets": [
+      "Guide > Drills"
+    ],
+    "narration": "Welcome to Drills. Choose a drill from the drop-down menu and listen to its setup instructions. Place the balls and markers, then work through the shots at your own pace. Repeat the same arrangement to build control and compare your results.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "welcome-exercises",
+    "page": "Shared",
+    "section": "Exercises",
+    "title": "Welcome to Exercises",
+    "file": "welcome-exercises.mp3",
+    "kind": "Category welcome",
+    "targets": [
+      "Guide > Exercises"
+    ],
+    "narration": "Welcome to Exercises. Explore short challenges that connect aiming, cue ball control, and planning your next shot. Choose an exercise from the drop-down menu, listen to its instructions, and work through it on the table. Repeat it whenever you want to sharpen that skill.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "welcome-more",
+    "page": "Shared",
+    "section": "Resources",
+    "title": "Welcome to Resources",
+    "file": "welcome-more.mp3",
+    "kind": "Category welcome",
+    "targets": [
+      "Guide > Resources"
+    ],
+    "narration": "Welcome to Resources. Explore videos we’ve found helpful in advancing our games. Choose a topic from the drop-down menu to hear its introduction and open the matching YouTube page. Use More for the links to that resource.",
     "recording_status": "Recorded"
   }
 ]

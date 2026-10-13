@@ -48,8 +48,13 @@ function mount(host,options={}){
   if(category==='start'){state.topicId=null;state.position=0;sequenceIndex=0;}
   setEnabled(true);
   if(category==='start'){const first=availableLessons()[0];if(first){choose(first.id);play();}}
+  else{const welcome=topics.find(t=>t.category===category&&t.categoryWelcome);if(welcome){choose(welcome.id);play();}}
  }
- function availableLessons(){return topics.filter(x=>!x.explorerOnly&&(x.category||'explore')===state.category&&(state.category==='start'||(x.level||0)<=state.level))}
+ function availableLessons(){return topics.filter(x=>!x.categoryWelcome&&!x.explorerOnly&&(x.category||'explore')===state.category&&(state.category==='start'||(x.level||0)<=state.level))}
+ function openResource(t){
+  if(state.category!=='more'||!t?.resourceUrl)return;
+  try{const url=new URL(t.resourceUrl);if(['https:','http:'].includes(url.protocol))global.open(url.href,'_blank','noopener,noreferrer');}catch(_){}
+ }
  function advanceLesson(){
   if(!state.autoplay||!state.enabled||state.exploring){render();return;}
   const available=availableLessons(),index=available.findIndex(t=>t.id===state.topicId);
@@ -117,12 +122,12 @@ function mount(host,options={}){
    const range=document.createElement('input');range.type='range';range.min='0';range.max='2';range.step='1';range.value=state.level;
    range.setAttribute('aria-label','Guide skill level');range.addEventListener('input',()=>{state.level=Number(range.value);save();render()});level.append(range);toolbar.append(level);}
    btn('Read',()=>{state.expanded=state.expanded==='read'?null:'read';state.detailsOpen=!!state.expanded;save();render()});
-   btn('More',()=>{state.expanded=state.expanded==='more'?null:'more';state.detailsOpen=!!state.expanded;save();render()});
+   const moreButton=btn('More',()=>{state.expanded=state.expanded==='more'?null:'more';state.detailsOpen=!!state.expanded;save();render()});moreButton.disabled=state.category==='more'&&!t?.resources?.length;
    btn('Reset',()=>{if(!confirm('Reset Guide session? The table will not change.'))return;stop();state={enabled:true,exploring:false,autoplay:state.category==='start',level:0,category:options.startOnly||state.category==='start'?'start':'fundamentals',topicId:null,expanded:null,detailsOpen:false,position:0};save();render();if(state.category==='start')openCategory('start')});
   }
   root.append(toolbar);if(!state.enabled){root.classList.remove('btg-details-open');return;}
   const cats=document.createElement('div');cats.className='btg-row btg-categories';
-  for(const [id,label] of CATEGORIES.filter(([id])=>id!=='explore'&&id!=='start')){const b=document.createElement('button');b.textContent=label;b.setAttribute('aria-pressed',String(state.category===id));b.onclick=()=>{stop();openCategory(id);const first=availableLessons()[0];if(first){choose(first.id);play()}};cats.append(b)}if(state.category!=='start')root.append(cats);
+  for(const [id,label] of CATEGORIES.filter(([id])=>id!=='explore'&&id!=='start')){const b=document.createElement('button');b.textContent=label;b.setAttribute('aria-pressed',String(state.category===id));b.onclick=()=>{stop();openCategory(id)};cats.append(b)}if(state.category!=='start')root.append(cats);
   const topic=document.createElement('div');topic.className='btg-topic';
   const title=document.createElement('strong');title.textContent=t?.title||(state.category==='start'?'Get Started':'Select a lesson');topic.append(title);
   const summary=document.createElement('p');summary.textContent=t?.summary||(state.category==='start'?'Choose an introductory lesson to start its audio.':'Choose a technique, practice lesson, or drill to start its audio.');topic.append(summary);
@@ -134,7 +139,7 @@ function mount(host,options={}){
   select.className='btg-lesson-select';
   const measure=document.createElement('canvas').getContext('2d');if(measure){measure.font=options.poolMode?'11px system-ui':'12px system-ui';select.style.width=Math.ceil(Math.max(...Array.from(select.options,o=>measure.measureText(o.textContent).width))+44)+'px';}
   select.value=available.some(x=>x.id===state.topicId)?state.topicId:'';
-  select.onchange=()=>{choose(select.value||null);if(select.value)play()};
+  select.onchange=()=>{const id=select.value;choose(id||null);if(id){play();openResource(selected())}};
   const drawer=options.poolMode?document.createElement('div'):topic;
   if(options.poolMode){drawer.className='btg-pool-drawer';root.append(drawer)}
   drawer.append(select);
@@ -142,13 +147,13 @@ function mount(host,options={}){
    if(t?.recordingStatus==='pending'){const status=document.createElement('p');status.className='btg-recording-status';status.textContent='Audio recording pending. Instructions and links are ready.';detail.append(status)}
    if(state.expanded==='read'){const text=document.createElement('p');text.textContent=t?.text||'No narration text assigned.';detail.append(text)}
    else{
-    for(const [label,value] of Object.entries(t?.practice||{})){const p=document.createElement('p'),strong=document.createElement('strong');strong.textContent=label+': ';p.append(strong,document.createTextNode(value));detail.append(p)}
+    for(const [label,value] of Object.entries(state.category==='more'?{}:t?.practice||{})){const p=document.createElement('p'),strong=document.createElement('strong');strong.textContent=label+': ';p.append(strong,document.createTextNode(value));detail.append(p)}
     const resources=[...(t?.resources||[]),...(state.category==='start'?[]:options.resources||[])];
     const seen=new Set();const list=document.createElement('ul');list.className='btg-resource-links';
     for(const resource of resources){let url;try{url=new URL(resource.url);if(!['https:','http:'].includes(url.protocol)||seen.has(url.href))continue;}catch(_){continue}seen.add(url.href);
      const item=document.createElement('li'),link=document.createElement('a');link.href=url.href;link.target='_blank';link.rel='noopener noreferrer';link.textContent=resource.title||url.hostname;item.append(link);list.append(item)}
-    if(list.children.length){const title=document.createElement('strong');title.textContent='Pool & Billiards Tutorials';detail.append(title,list);const note=document.createElement('p');note.className='btg-resource-note';note.textContent='YouTube links open in a new tab and require internet.';detail.append(note)}
-    else if(!t?.practice){detail.textContent='Resources will be added here.'}
+    if(list.children.length){if(state.category==='more')detail.append(list);else{const title=document.createElement('strong');title.textContent='Pool & Billiards Tutorials';detail.append(title,list);const note=document.createElement('p');note.className='btg-resource-note';note.textContent='YouTube links open in a new tab and require internet.';detail.append(note)}}
+    else if(state.category!=='more'&&!t?.practice){detail.textContent='Resources will be added here.'}
    }
    drawer.append(detail)}
   if(!options.poolMode)root.append(topic);

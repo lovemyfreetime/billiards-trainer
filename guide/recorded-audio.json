@@ -6764,7 +6764,7 @@
         "summary": "We’ve found Tor Lowry’s Zero X Billiards videos helpful in advancing our games, and we recommend them as a companion to your practice in the Trainer.",
         "category": "more",
         "level": 0,
-        "group": "More recommendations",
+        "group": "Zero-X Billiards",
         "recordingStatus": "recorded",
         "explorerOnly": false,
         "resources": [
@@ -6778,7 +6778,8 @@
             "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA",
             "verification": "Previously supplied channel reference"
           }
-        ]
+        ],
+        "resourceUrl": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA"
       },
       "page": "Main",
       "targets": [
@@ -6795,21 +6796,21 @@
         "summary": "We’ve found Tor Lowry’s center ball lessons helpful for improving pocketing and cue ball control, and we recommend them for building a dependable foundation.",
         "category": "more",
         "level": 0,
-        "group": "More recommendations",
+        "group": "Zero-X Billiards",
         "recordingStatus": "recorded",
         "explorerOnly": false,
         "resources": [
           {
-            "title": "Zero-X Billiards official free lessons",
-            "url": "https://www.zerox-billiards.com/free-pool-lessons",
-            "verification": "Verified on official Zero-X site"
+            "title": "Zero-X: Center Ball Drills",
+            "url": "https://www.youtube.com/watch?v=5_mC1ZePXpA",
+            "verification": "Video embedded beside this lesson title on Zero-X official free pool lessons page"
           },
           {
             "title": "Zero-X Billiards official YouTube channel",
-            "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA",
-            "verification": "Previously supplied channel reference"
+            "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA"
           }
-        ]
+        ],
+        "resourceUrl": "https://www.youtube.com/watch?v=5_mC1ZePXpA"
       },
       "page": "Main",
       "targets": [
@@ -6826,21 +6827,21 @@
         "summary": "We’ve found Tor Lowry’s position play lessons helpful in advancing our games, particularly when planning how one shot prepares the next.",
         "category": "more",
         "level": 0,
-        "group": "More recommendations",
+        "group": "Zero-X Billiards",
         "recordingStatus": "recorded",
         "explorerOnly": false,
         "resources": [
           {
-            "title": "Zero-X Billiards official free lessons",
-            "url": "https://www.zerox-billiards.com/free-pool-lessons",
-            "verification": "Verified on official Zero-X site"
+            "title": "Zero-X: Half Table Position — Three Balls, Part 1",
+            "url": "https://www.youtube.com/watch?v=Cya-0vjQ_7Y",
+            "verification": "Video embedded beside this lesson title on Zero-X official free pool lessons page"
           },
           {
             "title": "Zero-X Billiards official YouTube channel",
-            "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA",
-            "verification": "Previously supplied channel reference"
+            "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA"
           }
-        ]
+        ],
+        "resourceUrl": "https://www.youtube.com/watch?v=Cya-0vjQ_7Y"
       },
       "page": "Main",
       "targets": [
@@ -6857,21 +6858,21 @@
         "summary": "We’ve found Tor Lowry’s eight ball pattern lessons helpful in improving our planning through a full rack, and we recommend them when individual shots feel comfortable but the runout becomes difficult.",
         "category": "more",
         "level": 0,
-        "group": "More recommendations",
+        "group": "Zero-X Billiards",
         "recordingStatus": "recorded",
         "explorerOnly": false,
         "resources": [
           {
-            "title": "Zero-X Billiards official free lessons",
-            "url": "https://www.zerox-billiards.com/free-pool-lessons",
-            "verification": "Verified on official Zero-X site"
+            "title": "Zero-X: 8-Ball Pattern Run Outs",
+            "url": "https://www.youtube.com/watch?v=V0dAZInUiTE",
+            "verification": "Video embedded beside this lesson title on Zero-X official free pool lessons page"
           },
           {
             "title": "Zero-X Billiards official YouTube channel",
-            "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA",
-            "verification": "Previously supplied channel reference"
+            "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA"
           }
-        ]
+        ],
+        "resourceUrl": "https://www.youtube.com/watch?v=V0dAZInUiTE"
       },
       "page": "Main",
       "targets": [
@@ -6888,21 +6889,21 @@
         "summary": "We’ve found Tor Lowry’s defensive lessons helpful in advancing our games, especially when a shot leaves us without ideal position.",
         "category": "more",
         "level": 0,
-        "group": "More recommendations",
+        "group": "Zero-X Billiards",
         "recordingStatus": "recorded",
         "explorerOnly": false,
         "resources": [
           {
-            "title": "Zero-X Billiards official free lessons",
-            "url": "https://www.zerox-billiards.com/free-pool-lessons",
-            "verification": "Verified on official Zero-X site"
+            "title": "Zero-X: Pool Defense — Lock Up Your Opponent, Part 1",
+            "url": "https://www.youtube.com/watch?v=UcTAFFQOHm0",
+            "verification": "Video embedded beside this lesson title on Zero-X official free pool lessons page"
           },
           {
             "title": "Zero-X Billiards official YouTube channel",
-            "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA",
-            "verification": "Previously supplied channel reference"
+            "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA"
           }
-        ]
+        ],
+        "resourceUrl": "https://www.youtube.com/watch?v=UcTAFFQOHm0"
       },
       "page": "Main",
       "targets": [
@@ -7159,6 +7160,91 @@
         "Guide > More > Practice Drills > Kicking Systems > Two-Rail Corner Kick"
       ],
       "kind": "Drill"
+    },
+    {
+      "page": "Shared",
+      "kind": "Category welcome",
+      "targets": [],
+      "topic": {
+        "id": "welcome-fundamentals",
+        "title": "Welcome to Fundamentals",
+        "category": "fundamentals",
+        "categoryWelcome": true,
+        "level": 0,
+        "audio": "./guide/audio/welcome-fundamentals.mp3",
+        "text": "Welcome to Fundamentals. Explore aiming, cue ball control, and the basics of a dependable stroke. Open the drop-down menu and choose a topic you want to practice. Listen to the lesson and follow along at your own pace.",
+        "summary": "Choose a topic from the drop-down menu to begin.",
+        "recordingStatus": "recorded",
+        "explorerOnly": false
+      }
+    },
+    {
+      "page": "Shared",
+      "kind": "Category welcome",
+      "targets": [],
+      "topic": {
+        "id": "welcome-physics",
+        "title": "Welcome to Physics and Tools",
+        "category": "physics",
+        "categoryWelcome": true,
+        "level": 0,
+        "audio": "./guide/audio/welcome-physics.mp3",
+        "text": "Welcome to Physics and Tools. Explore how speed, spin, and contact affect a shot, and learn to use the table’s visual tools. Choose a topic from the drop-down menu, then try the idea on the table and compare the result.",
+        "summary": "Choose a topic from the drop-down menu to begin.",
+        "recordingStatus": "recorded",
+        "explorerOnly": false
+      }
+    },
+    {
+      "page": "Shared",
+      "kind": "Category welcome",
+      "targets": [],
+      "topic": {
+        "id": "welcome-drills",
+        "title": "Welcome to Drills",
+        "category": "drills",
+        "categoryWelcome": true,
+        "level": 0,
+        "audio": "./guide/audio/welcome-drills.mp3",
+        "text": "Welcome to Drills. Choose a drill from the drop-down menu and listen to its setup instructions. Place the balls and markers, then work through the shots at your own pace. Repeat the same arrangement to build control and compare your results.",
+        "summary": "Choose a topic from the drop-down menu to begin.",
+        "recordingStatus": "recorded",
+        "explorerOnly": false
+      }
+    },
+    {
+      "page": "Shared",
+      "kind": "Category welcome",
+      "targets": [],
+      "topic": {
+        "id": "welcome-exercises",
+        "title": "Welcome to Exercises",
+        "category": "exercises",
+        "categoryWelcome": true,
+        "level": 0,
+        "audio": "./guide/audio/welcome-exercises.mp3",
+        "text": "Welcome to Exercises. Explore short challenges that connect aiming, cue ball control, and planning your next shot. Choose an exercise from the drop-down menu, listen to its instructions, and work through it on the table. Repeat it whenever you want to sharpen that skill.",
+        "summary": "Choose a topic from the drop-down menu to begin.",
+        "recordingStatus": "recorded",
+        "explorerOnly": false
+      }
+    },
+    {
+      "page": "Shared",
+      "kind": "Category welcome",
+      "targets": [],
+      "topic": {
+        "id": "welcome-more",
+        "title": "Welcome to Resources",
+        "category": "more",
+        "categoryWelcome": true,
+        "level": 0,
+        "audio": "./guide/audio/welcome-more.mp3",
+        "text": "Welcome to Resources. Explore videos we’ve found helpful in advancing our games. Choose a topic from the drop-down menu to hear its introduction and open the matching YouTube page. Use More for the links to that resource.",
+        "summary": "Choose a topic from the drop-down menu to begin.",
+        "recordingStatus": "recorded",
+        "explorerOnly": false
+      }
     }
   ]
 }
