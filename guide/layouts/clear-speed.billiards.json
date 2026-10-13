@@ -1,0 +1,44 @@
+{
+  "format": "billiards-trainer",
+  "version": 1,
+  "kind": "layout",
+  "name": "Cue-ball speed — clear table",
+  "layout": {
+    "name": "Cue-ball speed — clear table",
+    "tableL": 2.54,
+    "tableW": 1.27,
+    "ballR": 0.028575,
+    "setupMode": "custom",
+    "allowMissingCueBall": false,
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 0.47625,
+        "y": 0.635,
+        "active": true
+      },
+      {
+        "id": 1000,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "white",
+        "markerShape": "circle",
+        "markerDiameterIn": 6,
+        "markerWidthIn": 6,
+        "markerHeightIn": 6,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 1.27,
+        "y": 0.635,
+        "active": true
+      }
+    ],
+    "freeAim": {
+      "x": 2.38125,
+      "y": 0.635
+    }
+  },
+  "practiceNote": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+  "diamondOrientation": "x across 0–4; y head-to-foot 0–8. App coordinates x=head-to-foot, y=across."
+}

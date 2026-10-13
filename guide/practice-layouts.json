@@ -1,0 +1,861 @@
+{
+  "layouts": {
+    "drill-stop-shot": {
+      "title": "Stop Shot Calibration",
+      "url": "./guide/layouts/drill-stop-shot.billiards.json",
+      "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+    },
+    "drill-stun-tangent": {
+      "title": "90-Degree Stun Tangent Line",
+      "url": "./guide/layouts/drill-stun-tangent.billiards.json",
+      "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+    },
+    "drill-speed-ladder": {
+      "title": "Speed Ladder — Four Zones",
+      "url": "./guide/layouts/drill-speed-ladder.billiards.json",
+      "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+    },
+    "drill-l-pattern": {
+      "title": "L-Drill — Five-Ball Rotation",
+      "url": "./guide/layouts/drill-l-pattern.billiards.json",
+      "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+    },
+    "drill-t-pattern": {
+      "title": "T-Drill — Center and Foot String",
+      "url": "./guide/layouts/drill-t-pattern.billiards.json",
+      "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+    },
+    "drill-wagon-wheel": {
+      "title": "Wagon Wheel — Six Target Zones",
+      "url": "./guide/layouts/drill-wagon-wheel.billiards.json",
+      "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+    },
+    "drill-two-rail-recovery": {
+      "title": "Two-Rail Center Recovery",
+      "url": "./guide/layouts/drill-two-rail-recovery.billiards.json",
+      "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+    },
+    "drill-scratch-avoidance": {
+      "title": "Side Pocket Scratch Avoidance",
+      "url": "./guide/layouts/drill-scratch-avoidance.billiards.json",
+      "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+    },
+    "drill-mirror-kick": {
+      "title": "One-Rail Mirror Kick",
+      "url": "./guide/layouts/drill-mirror-kick.billiards.json",
+      "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+    },
+    "drill-two-rail-kick": {
+      "title": "Two-Rail Corner Kick",
+      "url": "./guide/layouts/drill-two-rail-kick.billiards.json",
+      "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+    },
+    "first-shot": {
+      "title": "First shot — straight-in",
+      "url": "./guide/layouts/first-shot.billiards.json",
+      "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+    },
+    "cut-shot": {
+      "title": "Cut shot — right side pocket",
+      "url": "./guide/layouts/cut-shot.billiards.json",
+      "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+    },
+    "position-two-balls": {
+      "title": "First shot and next-ball position",
+      "url": "./guide/layouts/position-two-balls.billiards.json",
+      "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+    },
+    "clear-speed": {
+      "title": "Cue-ball speed — clear table",
+      "url": "./guide/layouts/clear-speed.billiards.json",
+      "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+    },
+    "rail-spin": {
+      "title": "Rail rebound and English",
+      "url": "./guide/layouts/rail-spin.billiards.json",
+      "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+    },
+    "jump-obstacle": {
+      "title": "Jump clearance and landing",
+      "url": "./guide/layouts/jump-obstacle.billiards.json",
+      "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+    },
+    "blocked-route": {
+      "title": "Blocked route — kick, jump, or massé",
+      "url": "./guide/layouts/blocked-route.billiards.json",
+      "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+    },
+    "bank-shot": {
+      "title": "One-rail bank starter",
+      "url": "./guide/layouts/bank-shot.billiards.json",
+      "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+    },
+    "three-ball": {
+      "title": "Three-ball runout starter",
+      "url": "./guide/layouts/three-ball.billiards.json",
+      "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+    },
+    "three-zones": {
+      "title": "Three cue-ball position zones",
+      "url": "./guide/layouts/three-zones.billiards.json",
+      "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+    },
+    "three-rail": {
+      "title": "Three-rail escape starter",
+      "url": "./guide/layouts/three-rail.billiards.json",
+      "note": "Trainer three-rail example. Use the linked Corner-5 video for the creator’s number scales and exact starting references."
+    },
+    "pattern-clock": {
+      "title": "Pattern rotation — Trainer starter",
+      "url": "./guide/layouts/pattern-clock.billiards.json",
+      "note": "Trainer rotation adaptation. Use the linked Niels Feijen video to match his demonstrated layout and sequence."
+    },
+    "progressive-target": {
+      "title": "Progressive target — Trainer starter",
+      "url": "./guide/layouts/progressive-target.billiards.json",
+      "note": "Trainer progression starter; shrink the target or move the cue ball. The linked Sharivari video supplies the creator’s demonstrated drill."
+    },
+    "defense-starter": {
+      "title": "Attack or safety — comparison starter",
+      "url": "./guide/layouts/defense-starter.billiards.json",
+      "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+    },
+    "rack-8ball": {
+      "title": "8-ball full rack",
+      "url": "./guide/layouts/rack-8ball.billiards.json",
+      "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+    },
+    "rack-9ball": {
+      "title": "9-ball full rack",
+      "url": "./guide/layouts/rack-9ball.billiards.json",
+      "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+    },
+    "straight-distance-1": {
+      "title": "Straight-shot ladder — distance 1",
+      "url": "./guide/layouts/straight-distance-1.billiards.json",
+      "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+    },
+    "straight-distance-2": {
+      "title": "Straight-shot ladder — distance 2",
+      "url": "./guide/layouts/straight-distance-2.billiards.json",
+      "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+    },
+    "straight-distance-3": {
+      "title": "Straight-shot ladder — distance 3",
+      "url": "./guide/layouts/straight-distance-3.billiards.json",
+      "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+    }
+  },
+  "topics": {
+    "drill-stop-shot": [
+      {
+        "title": "Stop Shot Calibration",
+        "url": "./guide/layouts/drill-stop-shot.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      }
+    ],
+    "drill-stun-tangent": [
+      {
+        "title": "90-Degree Stun Tangent Line",
+        "url": "./guide/layouts/drill-stun-tangent.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      }
+    ],
+    "drill-speed-ladder": [
+      {
+        "title": "Speed Ladder — Four Zones",
+        "url": "./guide/layouts/drill-speed-ladder.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      }
+    ],
+    "drill-l-pattern": [
+      {
+        "title": "L-Drill — Five-Ball Rotation",
+        "url": "./guide/layouts/drill-l-pattern.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      }
+    ],
+    "drill-t-pattern": [
+      {
+        "title": "T-Drill — Center and Foot String",
+        "url": "./guide/layouts/drill-t-pattern.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      }
+    ],
+    "drill-wagon-wheel": [
+      {
+        "title": "Wagon Wheel — Six Target Zones",
+        "url": "./guide/layouts/drill-wagon-wheel.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      }
+    ],
+    "drill-two-rail-recovery": [
+      {
+        "title": "Two-Rail Center Recovery",
+        "url": "./guide/layouts/drill-two-rail-recovery.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      }
+    ],
+    "drill-scratch-avoidance": [
+      {
+        "title": "Side Pocket Scratch Avoidance",
+        "url": "./guide/layouts/drill-scratch-avoidance.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      }
+    ],
+    "drill-mirror-kick": [
+      {
+        "title": "One-Rail Mirror Kick",
+        "url": "./guide/layouts/drill-mirror-kick.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      }
+    ],
+    "drill-two-rail-kick": [
+      {
+        "title": "Two-Rail Corner Kick",
+        "url": "./guide/layouts/drill-two-rail-kick.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      }
+    ],
+    "practice-layout-quick": [
+      {
+        "title": "First shot and next-ball position",
+        "url": "./guide/layouts/position-two-balls.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "practice-position-play-quick": [
+      {
+        "title": "First shot and next-ball position",
+        "url": "./guide/layouts/position-two-balls.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "practice-shot-two-quick": [
+      {
+        "title": "First shot and next-ball position",
+        "url": "./guide/layouts/position-two-balls.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "first-session-shot-two": [
+      {
+        "title": "First shot and next-ball position",
+        "url": "./guide/layouts/position-two-balls.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "first-session-two-shot-execution": [
+      {
+        "title": "First shot and next-ball position",
+        "url": "./guide/layouts/position-two-balls.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "first-session-position-play": [
+      {
+        "title": "First shot and next-ball position",
+        "url": "./guide/layouts/position-two-balls.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "first-session-extend-runout": [
+      {
+        "title": "First shot and next-ball position",
+        "url": "./guide/layouts/position-two-balls.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "first-session-undo": [
+      {
+        "title": "First shot and next-ball position",
+        "url": "./guide/layouts/position-two-balls.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "practice-aiming-quick": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "practice-stop-shot-quick": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "practice-follow-shot-quick": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "practice-draw-shot-quick": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "practice-speed-contact-baseline": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-cue-pocket-threshold": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-save-recall-layout": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-sliding-friction": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-physics-stop-follow-draw": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-stop-follow-draw": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-squirt-comparison": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-live-stats-cut-overlap": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-live-stats-speed-spin": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "first-session-table": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "first-session-aiming": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "first-session-ghost-ball": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "first-session-speed": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "first-session-execute": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "first-session-experiment": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "first-session-follow-draw": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "ghost-ball-quick": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "ghost-ball-geometry-quick": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "cue-ball-placement-quick": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "pocket-targeting-quick": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "collision-line-quick": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-calibration-real-table": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "practice-cut-angles-quick": [
+      {
+        "title": "Cut shot — right side pocket",
+        "url": "./guide/layouts/cut-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "practice-tangent-line-quick": [
+      {
+        "title": "Cut shot — right side pocket",
+        "url": "./guide/layouts/cut-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-change-one-ball": [
+      {
+        "title": "Cut shot — right side pocket",
+        "url": "./guide/layouts/cut-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "practice-speed-control-quick": [
+      {
+        "title": "Cue-ball speed — clear table",
+        "url": "./guide/layouts/clear-speed.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-table-speed": [
+      {
+        "title": "Cue-ball speed — clear table",
+        "url": "./guide/layouts/clear-speed.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-table-speed-calibration-variation": [
+      {
+        "title": "Cue-ball speed — clear table",
+        "url": "./guide/layouts/clear-speed.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-speed-ladder": [
+      {
+        "title": "Cue-ball speed — clear table",
+        "url": "./guide/layouts/clear-speed.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "practice-english-quick": [
+      {
+        "title": "Rail rebound and English",
+        "url": "./guide/layouts/rail-spin.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "rail-english-geometry-quick": [
+      {
+        "title": "Rail rebound and English",
+        "url": "./guide/layouts/rail-spin.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-rail-english": [
+      {
+        "title": "Rail rebound and English",
+        "url": "./guide/layouts/rail-spin.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "physics-jump-clearance-quick": [
+      {
+        "title": "Jump clearance and landing",
+        "url": "./guide/layouts/jump-obstacle.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-jump-clearance": [
+      {
+        "title": "Jump clearance and landing",
+        "url": "./guide/layouts/jump-obstacle.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-jump-landing": [
+      {
+        "title": "Jump clearance and landing",
+        "url": "./guide/layouts/jump-obstacle.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-masse-route": [
+      {
+        "title": "Blocked route — kick, jump, or massé",
+        "url": "./guide/layouts/blocked-route.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-jump-kick-masse": [
+      {
+        "title": "Blocked route — kick, jump, or massé",
+        "url": "./guide/layouts/blocked-route.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "practice-bank-shots-quick": [
+      {
+        "title": "One-rail bank starter",
+        "url": "./guide/layouts/bank-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "practice-kick-shots-quick": [
+      {
+        "title": "One-Rail Mirror Kick",
+        "url": "./guide/layouts/drill-mirror-kick.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      }
+    ],
+    "practice-one-rail-kick": [
+      {
+        "title": "One-Rail Mirror Kick",
+        "url": "./guide/layouts/drill-mirror-kick.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      }
+    ],
+    "practice-two-rail-kick": [
+      {
+        "title": "Two-Rail Corner Kick",
+        "url": "./guide/layouts/drill-two-rail-kick.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      }
+    ],
+    "practice-corner-five": [
+      {
+        "title": "Three-rail escape starter",
+        "url": "./guide/layouts/three-rail.billiards.json",
+        "note": "Trainer three-rail example. Use the linked Corner-5 video for the creator’s number scales and exact starting references."
+      }
+    ],
+    "practice-rock-around-clock": [
+      {
+        "title": "Pattern rotation — Trainer starter",
+        "url": "./guide/layouts/pattern-clock.billiards.json",
+        "note": "Trainer rotation adaptation. Use the linked Niels Feijen video to match his demonstrated layout and sequence."
+      }
+    ],
+    "practice-progressive-benchmark": [
+      {
+        "title": "Progressive target — Trainer starter",
+        "url": "./guide/layouts/progressive-target.billiards.json",
+        "note": "Trainer progression starter; shrink the target or move the cue ball. The linked Sharivari video supplies the creator’s demonstrated drill."
+      }
+    ],
+    "practice-target-landing": [
+      {
+        "title": "Stop Shot Calibration",
+        "url": "./guide/layouts/drill-stop-shot.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      }
+    ],
+    "practice-session-introduction": [
+      {
+        "title": "Stop Shot Calibration",
+        "url": "./guide/layouts/drill-stop-shot.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      },
+      {
+        "title": "Pattern rotation — Trainer starter",
+        "url": "./guide/layouts/pattern-clock.billiards.json",
+        "note": "Trainer rotation adaptation. Use the linked Niels Feijen video to match his demonstrated layout and sequence."
+      },
+      {
+        "title": "One-Rail Mirror Kick",
+        "url": "./guide/layouts/drill-mirror-kick.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      },
+      {
+        "title": "Two-Rail Corner Kick",
+        "url": "./guide/layouts/drill-two-rail-kick.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      },
+      {
+        "title": "Three-rail escape starter",
+        "url": "./guide/layouts/three-rail.billiards.json",
+        "note": "Trainer three-rail example. Use the linked Corner-5 video for the creator’s number scales and exact starting references."
+      }
+    ],
+    "exercise-focused-practice-session": [
+      {
+        "title": "Stop Shot Calibration",
+        "url": "./guide/layouts/drill-stop-shot.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      },
+      {
+        "title": "Pattern rotation — Trainer starter",
+        "url": "./guide/layouts/pattern-clock.billiards.json",
+        "note": "Trainer rotation adaptation. Use the linked Niels Feijen video to match his demonstrated layout and sequence."
+      },
+      {
+        "title": "One-Rail Mirror Kick",
+        "url": "./guide/layouts/drill-mirror-kick.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      },
+      {
+        "title": "Two-Rail Corner Kick",
+        "url": "./guide/layouts/drill-two-rail-kick.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      },
+      {
+        "title": "Three-rail escape starter",
+        "url": "./guide/layouts/three-rail.billiards.json",
+        "note": "Trainer three-rail example. Use the linked Corner-5 video for the creator’s number scales and exact starting references."
+      }
+    ],
+    "exercise-practice-review": [
+      {
+        "title": "Progressive target — Trainer starter",
+        "url": "./guide/layouts/progressive-target.billiards.json",
+        "note": "Trainer progression starter; shrink the target or move the cue ball. The linked Sharivari video supplies the creator’s demonstrated drill."
+      }
+    ],
+    "exercise-three-ball-runout": [
+      {
+        "title": "Three-ball runout starter",
+        "url": "./guide/layouts/three-ball.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-layout-runout-review": [
+      {
+        "title": "8-ball full rack",
+        "url": "./guide/layouts/rack-8ball.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      },
+      {
+        "title": "9-ball full rack",
+        "url": "./guide/layouts/rack-9ball.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      },
+      {
+        "title": "Three-ball runout starter",
+        "url": "./guide/layouts/three-ball.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-full-rack-review": [
+      {
+        "title": "8-ball full rack",
+        "url": "./guide/layouts/rack-8ball.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      },
+      {
+        "title": "9-ball full rack",
+        "url": "./guide/layouts/rack-9ball.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      },
+      {
+        "title": "Three-ball runout starter",
+        "url": "./guide/layouts/three-ball.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-full-rack-training": [
+      {
+        "title": "8-ball full rack",
+        "url": "./guide/layouts/rack-8ball.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      },
+      {
+        "title": "9-ball full rack",
+        "url": "./guide/layouts/rack-9ball.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      },
+      {
+        "title": "Three-ball runout starter",
+        "url": "./guide/layouts/three-ball.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-runout-improvement": [
+      {
+        "title": "8-ball full rack",
+        "url": "./guide/layouts/rack-8ball.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      },
+      {
+        "title": "9-ball full rack",
+        "url": "./guide/layouts/rack-9ball.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      },
+      {
+        "title": "Three-ball runout starter",
+        "url": "./guide/layouts/three-ball.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "practice-undo-history-quick": [
+      {
+        "title": "8-ball full rack",
+        "url": "./guide/layouts/rack-8ball.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      },
+      {
+        "title": "9-ball full rack",
+        "url": "./guide/layouts/rack-9ball.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      },
+      {
+        "title": "Three-ball runout starter",
+        "url": "./guide/layouts/three-ball.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-straight-shot-ladder": [
+      {
+        "title": "Straight-shot ladder — distance 1",
+        "url": "./guide/layouts/straight-distance-1.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      },
+      {
+        "title": "Straight-shot ladder — distance 2",
+        "url": "./guide/layouts/straight-distance-2.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      },
+      {
+        "title": "Straight-shot ladder — distance 3",
+        "url": "./guide/layouts/straight-distance-3.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-three-position-zones": [
+      {
+        "title": "Three cue-ball position zones",
+        "url": "./guide/layouts/three-zones.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "exercise-geometry-route-comparison": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      },
+      {
+        "title": "One-rail bank starter",
+        "url": "./guide/layouts/bank-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      },
+      {
+        "title": "One-Rail Mirror Kick",
+        "url": "./guide/layouts/drill-mirror-kick.billiards.json",
+        "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+      }
+    ],
+    "defensive-cue-ball-route-quick": [
+      {
+        "title": "Attack or safety — comparison starter",
+        "url": "./guide/layouts/defense-starter.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "recommend-zero-x-defense-recovery": [
+      {
+        "title": "Attack or safety — comparison starter",
+        "url": "./guide/layouts/defense-starter.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "recommend-zero-x-center-ball": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "recommend-zero-x-position-play": [
+      {
+        "title": "First shot and next-ball position",
+        "url": "./guide/layouts/position-two-balls.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "recommend-zero-x-eight-ball-patterns": [
+      {
+        "title": "8-ball full rack",
+        "url": "./guide/layouts/rack-8ball.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ],
+    "recommend-zero-x-overview": [
+      {
+        "title": "First shot — straight-in",
+        "url": "./guide/layouts/first-shot.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      },
+      {
+        "title": "Three-ball runout starter",
+        "url": "./guide/layouts/three-ball.billiards.json",
+        "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+      }
+    ]
+  }
+}

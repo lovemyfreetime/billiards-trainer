@@ -30,7 +30,7 @@ function mount(host,options={}){
    sequenceIndex=index;audio.src=files[index];audio.dataset.topic=t.id;audio.load();audio.currentTime=0;return true;}
  const topics=Array.isArray(options.topics)?options.topics:[];
  const root=document.createElement('div');host.append(root);
- let active=null;
+ let active=null,selectBrowsing=false;
  function isActive(){return options.isActive?options.isActive():!!host.closest('#photoAnalyzerModal')?.classList.contains('open')}
  function mappedTopic(e){const el=e.target instanceof Element?e.target.closest('[data-guide-topic]'):null;return options.resolveTopic?.(e,el)||el?.dataset.guideTopic}
  function save(){try{localStorage.setItem(STORE,JSON.stringify(state))}catch(_){}}
@@ -45,6 +45,7 @@ function mount(host,options={}){
  function setEnabled(value){pendingResource=null;playback.release();state.enabled=!!value;if(value){state.exploring=false;if(!availableLessons().some(t=>t.id===state.topicId))state.topicId=null;}clearHighlight();save();render()}
  function setExploring(value){pendingResource=null;playback.release();state.exploring=!!value;if(value)state.enabled=false;clearHighlight();save();render()}
  function openCategory(category){
+  selectBrowsing=false;
   if(state.category!==category)state.topicId=null;state.category=category;state.detailsOpen=false;state.expanded=null;
   state.autoplay=category==='start';
   if(category==='start'){state.topicId=null;state.position=0;sequenceIndex=0;}
@@ -53,6 +54,7 @@ function mount(host,options={}){
   else{const welcome=topics.find(t=>t.category===category&&t.categoryWelcome&&!t.guideWelcome);if(welcome){choose(welcome.id);play();}}
  }
  function openGuide(){
+  selectBrowsing=false;
   state.category='fundamentals';state.topicId=null;state.position=0;sequenceIndex=0;
   state.detailsOpen=false;state.expanded=null;state.autoplay=false;setEnabled(true);
   const welcome=topics.find(t=>t.guideWelcome);
@@ -111,14 +113,44 @@ function mount(host,options={}){
    e.stopImmediatePropagation();
  }
  blockedEvents.forEach(name=>document.addEventListener(name,shield,{capture:true,passive:false}));
+ function patchNode(old,node){
+  const key=n=>n.nodeType===1?(n.dataset.layoutUrl||n.dataset.action||n.tagName):n.nodeType;
+  if(old.nodeType!==node.nodeType||key(old)!==key(node)){old.replaceWith(node);return;}
+  if(node.nodeType!==1){if(old.textContent!==node.textContent)old.textContent=node.textContent;return;}
+  for(const a of [...old.attributes])if(!node.hasAttribute(a.name))old.removeAttribute(a.name);
+  for(const a of [...node.attributes])if(old.getAttribute(a.name)!==a.value)old.setAttribute(a.name,a.value);
+  if(node.tagName==='SELECT'){
+   if(old.innerHTML!==node.innerHTML)old.replaceChildren(...node.childNodes);
+   if(!selectBrowsing)old.value=node.value;
+   return;
+  }
+  if(node.tagName==='INPUT')old.value=node.value;
+  const scroll=old.scrollTop;
+  const incoming=[...node.childNodes];
+  for(let i=0;i<incoming.length;i++){if(old.childNodes[i])patchNode(old.childNodes[i],incoming[i]);else old.append(incoming[i]);}
+  while(old.childNodes.length>incoming.length)old.lastChild.remove();
+  old.scrollTop=scroll;
+ }
+ function setupActions(container,t){
+  if(!t?.setups?.length||!options.loadLayout)return;
+  const group=document.createElement('div');group.className='btg-setup-actions';
+  for(const setup of t.setups){
+   const item=document.createElement('div');const button=document.createElement('button');button.type='button';button.dataset.layoutUrl=setup.url;
+   button.textContent=t.setups.length===1?'Load / reset starting layout':'Load / reset: '+setup.title;
+   button.onclick=async()=>{button.disabled=true;try{await options.loadLayout(setup.url);}catch(error){global.alert(error.message);}finally{button.disabled=false;}};
+   const download=document.createElement('a');download.href=setup.url;download.download=setup.url.split('/').pop();download.textContent='Download setup file';
+   item.append(button,download);group.append(item);
+  }
+  const note=document.createElement('p');note.className='btg-setup-note';note.textContent=t.setups.map(x=>x.note).filter((x,i,a)=>a.indexOf(x)===i).join(' ');group.append(note);container.append(group);
+ }
  function render(){
   const t=selected(),available=availableLessons();
   host.hidden=!state.enabled;host.classList.toggle('btg-exploring',!!state.exploring);syncInspection();
   options.onStateChange?.({...state});
-  root.innerHTML='';
+  const view=document.createElement('div');
   host.classList.toggle('btg-enabled',!!state.enabled);
   const toolbar=document.createElement('div');toolbar.className='btg-row btg-toolbar';
-  function btn(label,fn){const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',fn);toolbar.append(b);return b}
+  function btn(label,fn){const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',fn);b.dataset.action=label==='▶'||label==='Ⅱ'?'play-pause':label;toolbar.append(b);return b}
   if(state.enabled){
    btn('⏮',()=>skipRecording(-1)).title='Previous audio file / lesson';
    btn('■',()=>{stop();render()}).title='Stop';
@@ -131,6 +163,7 @@ function mount(host,options={}){
    const autoplay=btn('A',()=>{state.autoplay=!state.autoplay;save();render()});
    autoplay.title='Autoplay next lesson';autoplay.className='btg-autoplay';
    autoplay.setAttribute('aria-label','Autoplay next lesson');autoplay.setAttribute('aria-pressed',String(!!state.autoplay));
+   if(t?.setups?.length&&options.loadLayout)btn('Balls',()=>{options.loadLayout(selected().setups[0].url).catch(error=>global.alert(error.message));}).title='Load / reset starting ball layout';
    if(state.category!=='start'){const level=document.createElement('label');level.className='btg-level';level.textContent=LEVELS[state.level];
    const range=document.createElement('input');range.type='range';range.min='0';range.max='2';range.step='1';range.value=state.level;
    range.setAttribute('aria-label','Guide skill level');range.addEventListener('input',()=>{state.level=Number(range.value);save();render()});level.append(range);toolbar.append(level);}
@@ -138,9 +171,9 @@ function mount(host,options={}){
    const moreButton=btn('More',()=>{state.expanded=state.expanded==='more'?null:'more';state.detailsOpen=!!state.expanded;save();render()});moreButton.disabled=state.category==='more'&&!t?.resources?.length;
    btn('Reset',()=>{if(!confirm('Reset Guide session? The table will not change.'))return;stop();state={enabled:true,exploring:false,autoplay:state.category==='start',level:0,category:options.startOnly||state.category==='start'?'start':'fundamentals',topicId:null,expanded:null,detailsOpen:false,position:0};save();render();if(state.category==='start')openCategory('start')});
   }
-  root.append(toolbar);if(!state.enabled){root.classList.remove('btg-details-open');return;}
+  view.append(toolbar);if(!state.enabled){root.classList.remove('btg-details-open');patchNode(root,view);return;}
   const cats=document.createElement('div');cats.className='btg-row btg-categories';
-  for(const [id,label] of CATEGORIES.filter(([id])=>id!=='explore'&&id!=='start')){const b=document.createElement('button');b.textContent=label;b.setAttribute('aria-pressed',String(state.category===id));b.onclick=()=>{stop();openCategory(id)};cats.append(b)}if(state.category!=='start')root.append(cats);
+  for(const [id,label] of CATEGORIES.filter(([id])=>id!=='explore'&&id!=='start')){const b=document.createElement('button');b.textContent=label;b.setAttribute('aria-pressed',String(state.category===id));b.onclick=()=>{stop();openCategory(id)};cats.append(b)}if(state.category!=='start')view.append(cats);
   const topic=document.createElement('div');topic.className='btg-topic';
   const title=document.createElement('strong');title.textContent=t?.title||(state.category==='start'?'Get Started':'Select a lesson');topic.append(title);
   const summary=document.createElement('p');summary.textContent=t?.summary||(state.category==='start'?'Choose an introductory lesson to start its audio.':'Choose a technique, practice lesson, or drill to start its audio.');topic.append(summary);
@@ -152,32 +185,39 @@ function mount(host,options={}){
   select.className='btg-lesson-select';
   const measure=document.createElement('canvas').getContext('2d');if(measure){measure.font=options.poolMode?'11px system-ui':'12px system-ui';select.style.width=Math.ceil(Math.max(...Array.from(select.options,o=>measure.measureText(o.textContent).width))+44)+'px';}
   select.value=available.some(x=>x.id===state.topicId)?state.topicId:'';
-  select.onchange=()=>{const id=select.value;choose(id||null);if(id){const t=selected();if(state.category==='more'&&t?.resourceUrl)pendingResource=t.id;play();}};
+  select.onfocus=()=>{selectBrowsing=true};select.onpointerdown=()=>{selectBrowsing=true};
+  select.onblur=()=>{selectBrowsing=false;select.value=availableLessons().some(x=>x.id===state.topicId)?state.topicId:''};
+  select.onkeydown=e=>{if(e.key==='Escape'){selectBrowsing=false;select.value=state.topicId||''}else selectBrowsing=true};
+  select.onchange=()=>{selectBrowsing=false;const id=select.value;choose(id||null);if(id){const t=selected();if(state.category==='more'&&t?.resourceUrl)pendingResource=t.id;play();}};
   const drawer=options.poolMode?document.createElement('div'):topic;
-  if(options.poolMode){drawer.className='btg-pool-drawer';root.append(drawer)}
-  drawer.append(select);
+  if(options.poolMode){drawer.className='btg-pool-drawer';view.append(drawer)}
+  const playingTitle=document.createElement('strong');playingTitle.className='btg-current-lesson';playingTitle.textContent=t?.title||'Choose a topic';playingTitle.setAttribute('aria-live','polite');drawer.append(playingTitle,select);
   if(state.expanded&&state.detailsOpen){const detail=document.createElement('div');detail.className='btg-expanded';
+   setupActions(detail,t);
    if(t?.recordingStatus==='pending'){const status=document.createElement('p');status.className='btg-recording-status';status.textContent='Audio recording pending. Instructions and links are ready.';detail.append(status)}
    if(state.expanded==='read'){const text=document.createElement('p');text.textContent=t?.text||'No narration text assigned.';detail.append(text)}
-   else{
+   if(state.expanded!=='read'){
     for(const [label,value] of Object.entries(state.category==='more'?{}:t?.practice||{})){const p=document.createElement('p'),strong=document.createElement('strong');strong.textContent=label+': ';p.append(strong,document.createTextNode(value));detail.append(p)}
+   }
+   {
     const resources=[...(t?.resources||[]),...(state.category==='start'?[]:options.resources||[])];
     const seen=new Set();const list=document.createElement('ul');list.className='btg-resource-links';
     for(const resource of resources){let url;try{url=new URL(resource.url);if(!['https:','http:'].includes(url.protocol)||seen.has(url.href))continue;}catch(_){continue}seen.add(url.href);
      const item=document.createElement('li'),link=document.createElement('a');link.href=url.href;link.target='_blank';link.rel='noopener noreferrer';link.textContent=resource.title||url.hostname;item.append(link);list.append(item)}
     if(list.children.length){if(state.category==='more')detail.append(list);else{const title=document.createElement('strong');title.textContent='Pool & Billiards Tutorials';detail.append(title,list);const note=document.createElement('p');note.className='btg-resource-note';note.textContent='YouTube links open in a new tab and require internet.';detail.append(note)}}
-    else if(state.category!=='more'&&!t?.practice){detail.textContent='Resources will be added here.'}
+    else if(state.expanded!=='read'&&state.category!=='more'&&!t?.practice&&!t?.setups?.length){detail.textContent='Resources will be added here.'}
    }
    drawer.append(detail)}
-  if(!options.poolMode)root.append(topic);
+  if(!options.poolMode)view.append(topic);
   const toggle=document.createElement('button');toggle.type='button';toggle.className='btg-expansion-tab';
   toggle.textContent=(options.poolMode||host.classList.contains('btg-header-mode'))?(state.detailsOpen?'×':'+'):(state.detailsOpen?'⌃':'⌄');
   toggle.title=state.detailsOpen?'Close reading area':'Open reading area';
   toggle.setAttribute('aria-label',state.detailsOpen?'Close Guide details':'Open Guide details');
   toggle.setAttribute('aria-expanded',String(!!state.detailsOpen));
   toggle.addEventListener('click',()=>{state.detailsOpen=!state.detailsOpen;if(state.detailsOpen&&!state.expanded)state.expanded='read';if(!state.detailsOpen)state.expanded=null;save();render()});
-  if(options.poolMode)toolbar.append(toggle);else root.append(toggle);
-  if(host.classList.contains('btg-header-mode')){root.insertBefore(select,topic);topic.hidden=!state.detailsOpen;}
+  if(options.poolMode)toolbar.append(toggle);else view.append(toggle);
+  if(host.classList.contains('btg-header-mode')){view.insertBefore(select,topic);topic.hidden=!state.detailsOpen;}
+  view.className=root.className;patchNode(root,view);
   root.classList.toggle('btg-details-open',!!state.detailsOpen);
 
  }

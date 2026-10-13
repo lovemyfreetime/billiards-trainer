@@ -66,9 +66,35 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().autoplay),false);
  await page.waitForFunction(()=>window.__playedAudio.some(a=>a.src.includes('drill-stop-shot.mp3')&&!a.paused&&a.currentTime>0));
  await page.locator('#bt-guide-pool-root button[title="Stop"]').click();
+ assert.equal(await page.locator('#bt-guide-pool-root .btg-setup-actions button').count(),1,'Read contains starting-layout shortcut');
+ await page.evaluate(()=>{const original=JSON.parse(localStorage.getItem('billiardTrainerState'));window.beforeControls={speed:original.speed,follow:original.follow,muRoll:original.muRoll};});
+ await page.locator('#bt-guide-pool-root .btg-setup-actions button').click();
+ const expectedLayout=await page.evaluate(async()=>{const r=await fetch('./guide/layouts/drill-stop-shot.billiards.json');return (await r.json()).layout});
+ const table=await page.evaluate(()=>JSON.parse(localStorage.getItem('billiardTrainerState')));
+ const beforeControls=await page.evaluate(()=>beforeControls);for(const key of Object.keys(beforeControls))assert.equal(table[key],beforeControls[key],'Practice reset preserves '+key);
+ for(const b of expectedLayout.balls){const actual=table.balls.find(x=>x.id===b.id);assert.ok(actual);assert.ok(Math.abs(actual.x-b.x)<1e-8&&Math.abs(actual.y-b.y)<1e-8);}
+ assert.ok(await page.locator('#bt-guide-pool-root button').filter({hasText:/^Balls$/}).count());
  await page.locator('#bt-guide-pool-root button').filter({hasText:/^More$/}).click();
+ assert.equal(await page.locator('#bt-guide-pool-root .btg-setup-actions button').count(),1,'More contains starting-layout shortcut');
+ await page.locator('#bt-guide-pool-root .btg-setup-actions button').click();
+
  assert.ok((await page.locator('#bt-guide-pool-root .btg-expanded').innerText()).includes('Orientation'));
  await page.screenshot({path:'../audio-drill-menu-preview.png',fullPage:false});
+ await page.locator('#bt-guide-pool-root select').selectOption('practice-target-landing');
+ await page.locator('#bt-guide-pool-root button').filter({hasText:/^Read$/}).click();
+ assert.ok((await page.locator('#bt-guide-pool-root .btg-resource-links a').first().getAttribute('href')).includes('-WdC_7MN0qI'),'Read links directly to Dr Dave');
+ await page.locator('#bt-guide-pool-root button').filter({hasText:/^More$/}).click();
+ assert.ok((await page.locator('#bt-guide-pool-root .btg-resource-links a').first().getAttribute('href')).includes('-WdC_7MN0qI'),'More links directly to Dr Dave');
+ await page.locator('#bt-guide-pool-root button[title="Autoplay next lesson"]').click();
+ await page.waitForFunction(()=>window.__playedAudio.some(a=>a.dataset.topic==='practice-target-landing'&&!a.paused&&a.currentTime>0));
+ await page.evaluate(()=>{window.picker=document.querySelector('#bt-guide-pool-root select');window.detail=document.querySelector('#bt-guide-pool-root .btg-expanded');picker.focus();window.browsedValue=picker.value;});
+ // Use a natural end: old VBR MP3 tail seeking can wait for nonexistent padding.
+ await page.waitForFunction(()=>billiardsPoolGuide.getState().topicId==='practice-rock-around-clock',{},{timeout:45000});
+ assert.equal(await page.evaluate(()=>document.querySelector('#bt-guide-pool-root select')===picker&&picker.isConnected&&picker.value===browsedValue&&document.activeElement===picker),true,'Auto leaves native picker and browsing value untouched');
+ assert.equal(await page.evaluate(()=>document.querySelector('#bt-guide-pool-root .btg-expanded')===detail),true,'Reading area stays mounted');
+ assert.ok((await page.locator('#bt-guide-pool-root .btg-current-lesson').innerText()).includes('Rock Around the Clock'),'Current title updates independently');
+ await page.locator('#bt-guide-pool-root select').selectOption('drill-stop-shot');
+ assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().topicId),'drill-stop-shot','Browsed selection still works');
  await page.locator('#bt-guide-pool-root .btg-categories button').filter({hasText:/^Resources$/}).click();
  assert.equal(await page.locator('#bt-guide-pool-root select option[value^="recommend-zero-x-"]').count(),5);
  async function finishResource(id,destination){
@@ -97,7 +123,7 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await finishResource('recommend-zero-x-overview','UCYuUos0iwnvdBL8URuNvrNA');
  if(await page.evaluate(()=>billiardsPoolGuide.getState().expanded!=='more'))await page.locator('#bt-guide-pool-root button').filter({hasText:/^More$/}).click();
  assert.equal(await page.locator('#bt-guide-pool-root .btg-resource-links a').count(),2);
- assert.equal(await page.locator('#bt-guide-pool-root .btg-expanded p, #bt-guide-pool-root .btg-expanded strong').count(),0,'Resource More contains links only');
+ assert.equal(await page.locator('#bt-guide-pool-root .btg-expanded > p, #bt-guide-pool-root .btg-expanded > strong').count(),0,'Resource More has no unrelated practice text');
  for(const [id,video] of [['recommend-zero-x-center-ball','5_mC1ZePXpA'],['recommend-zero-x-position-play','Cya-0vjQ_7Y'],['recommend-zero-x-eight-ball-patterns','V0dAZInUiTE'],['recommend-zero-x-defense-recovery','UcTAFFQOHm0']]){
   await finishResource(id,'v='+video);
   assert.ok((await page.locator('#bt-guide-pool-root .btg-resource-links a').first().getAttribute('href')).includes('v='+video));
@@ -137,6 +163,11 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await page.click('#btg-analyze-explore');
  await page.locator('#photoChooseImage').click();
  assert.equal(await page.evaluate(()=>billiardsAnalyzeGuide.getState().topicId),'analyze-choose-table-image');
+ const setups=await page.evaluate(async()=>{
+  const data=await BilliardsPracticeLayouts.load();const failures=[];
+  for(const [id,entry] of Object.entries(data.layouts)){try{const res=await fetch(entry.url);const parsed=BilliardsLayoutFiles.parse(await res.text());if(!parsed.layout.balls.some(b=>b.id===0))failures.push(id);}catch(e){failures.push(id+':'+e.message)}}
+  return {files:Object.keys(data.layouts).length,topics:Object.keys(data.topics).length,failures};
+ });assert.equal(setups.files,29);assert.equal(setups.topics,85);assert.deepEqual(setups.failures,[]);
  const clips=await page.evaluate(async()=>{
   const data=await BilliardsRecordedAudio.load();let failed=[];
   for(let i=0;i<data.records.length;i+=12){await Promise.all(data.records.slice(i,i+12).map(async r=>{const res=await fetch(r.topic.audio);if(!res.ok||(await res.arrayBuffer()).byteLength<100)failed.push(r.topic.id)}))}
@@ -146,10 +177,11 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await context.setOffline(true);
  await page.reload({waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.billiardsPoolGuide&&window.billiardsAnalyzeGuide);
- const offline=await page.evaluate(async()=>{const res=await fetch('./guide/audio/drill-two-rail-kick.mp3');return res.ok&&(await res.arrayBuffer()).byteLength>100});assert.ok(offline);
+ const offlineLayout=await page.evaluate(async()=>{const res=await fetch('./guide/layouts/drill-stop-shot.billiards.json');return res.ok&&(await res.json()).layout.balls.length===3});assert.ok(offlineLayout);
+ const offline=await page.evaluate(async()=>{const res=await fetch('./guide/audio/drill-two-rail-kick.mp3?v=practice-ready-v8');return res.ok&&(await res.arrayBuffer()).byteLength>100});assert.ok(offline);
  await page.screenshot({path:'../audio-integration-preview.png',fullPage:false});
  assert.equal(await page.evaluate(()=>window.__spokenText.length),0);
  assert.deepEqual(errors,[]);
- console.log(JSON.stringify({records:result.count,drillGroups:groups,allAudioFetches:'366 successful',welcomes:'Guide intro autoplays on open/reopen, Play/Pause and Read work, Auto advances into selected category; 5 category MP3s play',resourcePopups:'5 verified destinations open only after real audio ended; Stop cancels navigation',offlineReload:'passed',mp3Playback:'decoded and advancing',dedicatedMappings:result,browserErrors:errors,featuresAndOptions:'9 controls and 9 labels play their dedicated MP3 without mutation',controlsTab:'removed',zeroXLinks:2}));
+ console.log(JSON.stringify({records:result.count,drillGroups:groups,allAudioFetches:'366 successful',welcomes:'Guide intro autoplays on open/reopen, Play/Pause and Read work, Auto advances into selected category; 5 category MP3s play',resourcePopups:'5 verified destinations open only after real audio ended; Stop cancels navigation',offlineReload:'passed, including native saved setup',practiceSetups:'29 files mapped to 85 topics; Read, More, and Balls load/reset work',dropdown:'remains mounted and focused while Auto advances; current title updates independently',mp3Playback:'decoded and advancing',dedicatedMappings:result,browserErrors:errors,featuresAndOptions:'9 controls and 9 labels play their dedicated MP3 without mutation',controlsTab:'removed',zeroXLinks:2}));
  await browser.close();server.kill();
 })().catch(e=>{console.error(e);server.kill();process.exit(1)});

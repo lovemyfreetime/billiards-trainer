@@ -1,0 +1,88 @@
+{
+  "format": "billiards-trainer",
+  "version": 1,
+  "kind": "layout",
+  "name": "Three-rail escape starter",
+  "layout": {
+    "name": "Three-rail escape starter",
+    "tableL": 2.54,
+    "tableW": 1.27,
+    "ballR": 0.028575,
+    "setupMode": "custom",
+    "allowMissingCueBall": false,
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 0.635,
+        "y": 0.9525,
+        "active": true
+      },
+      {
+        "id": 8,
+        "n": "8",
+        "x": 1.11125,
+        "y": 0.79375,
+        "active": true
+      },
+      {
+        "id": 1,
+        "n": "1",
+        "x": 1.5875,
+        "y": 0.635,
+        "active": true
+      },
+      {
+        "id": 1000,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "yellow",
+        "markerShape": "circle",
+        "markerDiameterIn": 3,
+        "markerWidthIn": 3,
+        "markerHeightIn": 3,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 1.5875,
+        "y": 0.028575,
+        "active": true
+      },
+      {
+        "id": 1001,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "yellow",
+        "markerShape": "circle",
+        "markerDiameterIn": 3,
+        "markerWidthIn": 3,
+        "markerHeightIn": 3,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 2.511425,
+        "y": 0.9525,
+        "active": true
+      },
+      {
+        "id": 1002,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "yellow",
+        "markerShape": "circle",
+        "markerDiameterIn": 3,
+        "markerWidthIn": 3,
+        "markerHeightIn": 3,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 2.2225,
+        "y": 1.241425,
+        "active": true
+      }
+    ],
+    "freeAim": {
+      "x": 1.5875,
+      "y": 0.028575
+    }
+  },
+  "practiceNote": "Trainer three-rail example. Use the linked Corner-5 video for the creator’s number scales and exact starting references.",
+  "diamondOrientation": "x across 0–4; y head-to-foot 0–8. App coordinates x=head-to-foot, y=across."
+}

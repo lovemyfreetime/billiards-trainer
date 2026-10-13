@@ -1,16 +1,18 @@
-const CACHE_NAME = 'billiards-trainer-4-12-guide-welcome-v7-v58';
+const CACHE_NAME = 'billiards-trainer-4-12-practice-ready-v8-v58';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
-  './guide/audio-startup.js?v=guide-welcome-v7',
-  './guide/guide.js?v=guide-welcome-v7',
-  './guide/guide.css?v=practice-links5',
+  './guide/audio-startup.js?v=practice-ready-v8',
+  './guide/practice-layouts.js?v=practice-ready-v8',
+  './guide/practice-layouts.json?v=practice-ready-v8',
+  './guide/guide.js?v=practice-ready-v8',
+  './guide/guide.css?v=practice-ready-v8',
   './guide/pool-guide.css?v=fit5',
-  './guide/recorded-audio.js?v=guide-welcome-v7',
-  './guide/recorded-audio.json?v=guide-welcome-v7',
-  './guide/pool-integration.js?v=guide-welcome-v7',
-  './guide/pool-audio-map.json?v=guide-welcome-v7',
-  './guide/analyze-integration.js?v=guide-welcome-v7',
+  './guide/recorded-audio.js?v=practice-ready-v8',
+  './guide/recorded-audio.json?v=practice-ready-v8',
+  './guide/pool-integration.js?v=practice-ready-v8',
+  './guide/pool-audio-map.json?v=practice-ready-v8',
+  './guide/analyze-integration.js?v=practice-ready-v8',
   './manifest.webmanifest',
   './phone-play.css?v=8',
   './phone-play.js?v=8',
@@ -31,7 +33,7 @@ self.addEventListener('install', event => {
         const cache=await caches.open(CACHE_NAME);
         const response=await fetch('./guide/audio-assets.json');
         if(!response.ok)throw Error('Audio asset list unavailable');
-        const assets=await response.json();let next=0;
+        const assets=await response.json();const layouts=await fetch('./guide/practice-layouts.json?v=practice-ready-v8').then(r=>r.json());assets.push(...Object.values(layouts.layouts).map(x=>x.url));let next=0;
         await Promise.all(Array.from({length:6},async()=>{while(next<assets.length){const asset=assets[next++];await cache.add(asset);}}));
       })
       .then(() => self.skipWaiting())

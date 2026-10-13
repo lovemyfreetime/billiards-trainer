@@ -429,7 +429,9 @@ async function init(){
  'analyze-start-share':['analyze-save-analyzed-layout-json-file','analyze-load-shared-table-file-into-analyze']};
  const selected=(steps[t.id]||[]).map(id=>topics.find(x=>x.id===id)).filter(Boolean);if(selected.length){t.audio=selected.map(x=>x.audio);t.text=selected.map(x=>x.text).join('\n\n');}}}
  host.dataset.btgAllow='1';
+ await BilliardsPracticeLayouts.attach(topics);
  const guide=BilliardsGuide.mount(host,{
+  loadLayout:BilliardsPracticeLayouts.apply,
   resolveTopic(e,el){return BilliardsRecordedAudio.resolve(e,recorded,'Analyze')||el?.dataset.guideTopic},
   topics,initialCategory:'start',storageKey:'billiards-analyze-start-v1',startOnly:true,exploreTopicIds:topics.map(t=>t.id),
   onStateChange(state){started?.setAttribute('aria-pressed',String(state.enabled&&state.category==='start'));explorer.setAttribute('aria-pressed',String(state.exploring));},

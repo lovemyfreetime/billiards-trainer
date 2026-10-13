@@ -5,7 +5,7 @@ async function init(){
  const recorded=await BilliardsRecordedAudio.load();
  const stage=document.getElementById('stageWrap');
  if(!stage||!window.BilliardsGuide||document.body.classList.contains('projector'))return;
- const response=await fetch('./guide/pool-audio-map.json?v=guide-welcome-v7');
+ const response=await fetch('./guide/pool-audio-map.json?v=practice-ready-v8');
  if(!response.ok)throw Error('Pool Guide audio map could not load');
  const catalog=await response.json();
  BilliardsRecordedAudio.merge(catalog.topics,recorded,'Main');
@@ -44,7 +44,9 @@ async function init(){
  launchers.dataset.btgAllow='1';
  const ids=[...new Set([...Object.values(catalog.assignments),...Object.values(catalog.sections),...catalog.canvasTopics,catalog.powerMeterTopic])];
  for(const topic of catalog.topics)topic.explorerOnly=topic.category==='reference'||topic.category==='explore'||(topic.category!=='start'&&topic.category!=='reference'&&ids.includes(topic.id));
+ await BilliardsPracticeLayouts.attach(catalog.topics);
  const guide=BilliardsGuide.mount(host,{
+  loadLayout:BilliardsPracticeLayouts.apply,
   onStateChange(state){
    guideButton.setAttribute('aria-pressed',String(state.enabled&&state.category!=='start'));
    startButton.setAttribute('aria-pressed',String(state.enabled&&state.category==='start'));

@@ -1,0 +1,87 @@
+{
+  "reference": "practice-target-landing",
+  "target_wpm": 174.3730407523511,
+  "method": "Pitch-preserving atempo; unchanged Chase recording; text word count divided by total recording duration.",
+  "files": [
+    {
+      "file": "drill-stop-shot.mp3",
+      "tempo": 0.7097680250783699,
+      "before_seconds": 30.528,
+      "after_seconds": 43.056,
+      "before_wpm": 245.67610062893084,
+      "after_wpm": 174.19175027870682
+    },
+    {
+      "file": "drill-stun-tangent.mp3",
+      "tempo": 0.7197310435691245,
+      "before_seconds": 34.176,
+      "after_seconds": 47.52,
+      "before_wpm": 242.2752808988764,
+      "after_wpm": 174.24242424242425
+    },
+    {
+      "file": "drill-speed-ladder.mp3",
+      "tempo": 0.7767073443797582,
+      "before_seconds": 37.416,
+      "after_seconds": 48.192,
+      "before_wpm": 224.50288646568313,
+      "after_wpm": 174.30278884462152
+    },
+    {
+      "file": "drill-l-pattern.mp3",
+      "tempo": 0.7075937736460923,
+      "before_seconds": 35.304,
+      "after_seconds": 49.92,
+      "before_wpm": 246.43099932019035,
+      "after_wpm": 174.27884615384613
+    },
+    {
+      "file": "drill-t-pattern.mp3",
+      "tempo": 0.6907109892023684,
+      "before_seconds": 34.224,
+      "after_seconds": 49.584,
+      "before_wpm": 252.4544179523142,
+      "after_wpm": 174.24975798644724
+    },
+    {
+      "file": "drill-wagon-wheel.mp3",
+      "tempo": 0.6459222637230708,
+      "before_seconds": 41.784,
+      "after_seconds": 64.728,
+      "before_wpm": 269.95979322228607,
+      "after_wpm": 174.26770485724882
+    },
+    {
+      "file": "drill-two-rail-recovery.mp3",
+      "tempo": 0.7180656728535667,
+      "before_seconds": 34.344,
+      "after_seconds": 47.88,
+      "before_wpm": 242.83717679944095,
+      "after_wpm": 174.18546365914784
+    },
+    {
+      "file": "drill-scratch-avoidance.mp3",
+      "tempo": 0.7498040752351097,
+      "before_seconds": 38.184,
+      "after_seconds": 50.952,
+      "before_wpm": 232.55813953488374,
+      "after_wpm": 174.28167687235046
+    },
+    {
+      "file": "drill-mirror-kick.mp3",
+      "tempo": 0.7520984573502723,
+      "before_seconds": 39.336,
+      "after_seconds": 52.32,
+      "before_wpm": 231.84868822452714,
+      "after_wpm": 174.3119266055046
+    },
+    {
+      "file": "drill-two-rail-kick.mp3",
+      "tempo": 0.7251513349908117,
+      "before_seconds": 43.416,
+      "after_seconds": 59.904,
+      "before_wpm": 240.4643449419569,
+      "after_wpm": 174.27884615384613
+    }
+  ]
+}

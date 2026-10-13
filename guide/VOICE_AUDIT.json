@@ -5015,7 +5015,33 @@
       "model": "simba-3.2",
       "rate": "+30%",
       "request_id": "a0948dba-a394-4c9a-8f5e-b41cc629b397"
+    },
+    {
+      "file": "recommend-zero-x-defense-recovery.mp3",
+      "seconds": 19.248,
+      "bytes": 308013,
+      "billable_characters": 458,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "d92a123f-8eea-46d9-bfb5-40c049f95104"
     }
   ],
-  "current_recording_count": 619
+  "current_recording_count": 619,
+  "pitch_preserving_tempo_adjustments": {
+    "files": [
+      "drill-stop-shot.mp3",
+      "drill-stun-tangent.mp3",
+      "drill-speed-ladder.mp3",
+      "drill-l-pattern.mp3",
+      "drill-t-pattern.mp3",
+      "drill-wagon-wheel.mp3",
+      "drill-two-rail-recovery.mp3",
+      "drill-scratch-avoidance.mp3",
+      "drill-mirror-kick.mp3",
+      "drill-two-rail-kick.mp3"
+    ],
+    "reference": "practice-target-landing.mp3",
+    "report": "AUDIO_PACING.json"
+  }
 }
