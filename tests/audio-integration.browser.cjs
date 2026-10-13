@@ -40,18 +40,35 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await page.locator('#bt-guide-pool-root button').filter({hasText:/^More$/}).click();
  assert.ok((await page.locator('#bt-guide-pool-root .btg-expanded').innerText()).includes('Orientation'));
  await page.screenshot({path:'../audio-drill-menu-preview.png',fullPage:false});
- await page.locator('#bt-guide-pool-root .btg-categories button').filter({hasText:/^More Resources$/}).click();
+ await page.locator('#bt-guide-pool-root .btg-categories button').filter({hasText:/^Resources$/}).click();
  assert.equal(await page.locator('#bt-guide-pool-root select option[value^="recommend-zero-x-"]').count(),5);
  await page.locator('#bt-guide-pool-root select').selectOption('recommend-zero-x-overview');
  if(await page.evaluate(()=>billiardsPoolGuide.getState().expanded!=='more'))await page.locator('#bt-guide-pool-root button').filter({hasText:/^More$/}).click();
- assert.ok(await page.locator('#bt-guide-pool-root .btg-resource-links a').count());
- await page.locator('#bt-guide-pool-root .btg-categories button').filter({hasText:/^Controls$/}).click();
- await page.locator('#bt-guide-pool-root select').selectOption('main-pick-and-play-full-racks');
+ assert.equal(await page.locator('#bt-guide-pool-root .btg-resource-links a').count(),2);
+ assert.equal(await page.locator('#bt-guide-pool-root .btg-categories button').filter({hasText:/^Controls$/}).count(),0);
+ await page.click('#btg-pool-explore');
+ const rackSection=page.locator('#panel .section').filter({has:page.locator('#fullRackSelect')});
+ if(!await page.locator('#fullRackSelect').isVisible())await rackSection.locator('.sectionToggle').click();
+ await page.locator('#fullRackSelect').click();
  await page.waitForFunction(()=>window.__playedAudio.some(a=>a.src.includes('main-pick-and-play-full-racks.mp3')&&!a.paused&&a.currentTime>0));
  assert.equal(await page.evaluate(()=>window.__spokenText.length),0);
- for(const id of ['main-shot-1-speed-slider','main-shot-2-speed-slider','main-start-full-rack'])await page.locator('#bt-guide-pool-root select').selectOption(id);
- await page.waitForFunction(()=>window.__playedAudio.some(a=>a.src.includes('main-start-full-rack.mp3')&&!a.paused&&a.currentTime>0));
+ const expected={showAngleLockControl:'main-show-cue-target-lock-control',showImpact:'main-show-impact-cue-ball-and-overlap',showTipBadge:'main-show-cue-tip-contact-badge',showPaths:'main-show-trajectory-preview',showGrid:'main-show-diamond-connected-grid',showDiamonds:'main-show-rail-diamonds',showTable:'main-show-table-and-balls',showScoreBoard:'main-show-player-controls',showBankKickNumbers:'main-show-bank-and-kick-rail-numbers'};
+ const features=page.locator('#panel .section').filter({hasText:'FEATURES & OPTIONS'});
+ if(!await page.locator('#showAngleLockControl').isVisible())await features.locator('.sectionToggle').click();
+ assert.equal(await features.locator('input').count(),Object.keys(expected).length);
+ for(const [id,topic] of Object.entries(expected)){
+  const input=page.locator('#'+id),label=page.locator('label[for="'+id+'"]');
+  assert.equal(await input.getAttribute('data-guide-topic'),topic);
+  assert.equal(await label.getAttribute('data-guide-topic'),topic);
+  const before=await input.isChecked();
+  for(const target of [input,label]){
+   await target.click();assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().topicId),topic);
+   await page.waitForFunction(id=>window.__playedAudio.some(a=>a.src.includes(id+'.mp3')&&!a.paused&&a.currentTime>0),topic);
+   assert.equal(await input.isChecked(),before,'Explorer must not toggle '+id);
+  }
+ }
  const playback=await page.evaluate(()=>({active:window.__playedAudio.filter(a=>!a.paused).length,volumes:window.__playedAudio.map(a=>a.volume)}));assert.equal(playback.active,1);assert.ok(playback.volumes.every(v=>v===.8));
+ await page.click('#btg-pool-explore');
  await page.click('#analyzePhotoBtn');
  await page.waitForSelector('#photoAnalyzerModal.open');
  await page.click('#btg-analyze-start');
@@ -76,6 +93,6 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await page.screenshot({path:'../audio-integration-preview.png',fullPage:false});
  assert.equal(await page.evaluate(()=>window.__spokenText.length),0);
  assert.deepEqual(errors,[]);
- console.log(JSON.stringify({records:result.count,drillGroups:groups,allAudioFetches:'360 successful',offlineReload:'passed',mp3Playback:'decoded and advancing',dedicatedMappings:result,browserErrors:errors}));
+ console.log(JSON.stringify({records:result.count,drillGroups:groups,allAudioFetches:'360 successful',offlineReload:'passed',mp3Playback:'decoded and advancing',dedicatedMappings:result,browserErrors:errors,featuresAndOptions:'9 controls and 9 labels play their dedicated MP3 without mutation',controlsTab:'removed',zeroXLinks:2}));
  await browser.close();server.kill();
 })().catch(e=>{console.error(e);server.kill();process.exit(1)});

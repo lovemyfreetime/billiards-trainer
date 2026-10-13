@@ -3,7 +3,7 @@
    No click interception until an explicitly mapped target is registered. */
 (function(global){
 'use strict';
-const CATEGORIES=[['explore','Explore'],['start','Get Started'],['fundamentals','Fundamentals'],['physics','Physics & Tools'],['drills','Drills'],['exercises','Exercises'],['reference','Controls'],['more','More Resources']];
+const CATEGORIES=[['explore','Explore'],['start','Get Started'],['fundamentals','Fundamentals'],['physics','Physics & Tools'],['drills','Drills'],['exercises','Exercises'],['more','Resources']];
 const LEVELS=['Beginner','Intermediate','Advanced'];
 function safeLoad(key){try{return JSON.parse(localStorage.getItem(key))||{}}catch(_){return {}}}
 function mount(host,options={}){
@@ -15,6 +15,7 @@ function mount(host,options={}){
  let state=Object.assign({enabled:false,level:0,category:'fundamentals',topicId:null,expanded:null,position:0,detailsOpen:false,autoplay:false,exploring:false},saved);
  state.exploring=false;
  if(state.category==='explore')state.category='fundamentals';
+ if(state.category==='reference'){state.category='fundamentals';state.topicId=null;}
  if(options.initialCategory)state.category=options.initialCategory;
  // Opening Get Started is a user gesture: do not restore an idle open player.
  state.autoplay=state.category==='start';

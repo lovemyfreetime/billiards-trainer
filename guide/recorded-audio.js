@@ -2,7 +2,7 @@
 (function(global){
 'use strict';
 let pending;
-function load(){return pending||(pending=fetch('./guide/recorded-audio.json?v=chase-playback-v2').then(r=>{if(!r.ok)throw Error('Recorded audio catalog unavailable');return r.json()}));}
+function load(){return pending||(pending=fetch('./guide/recorded-audio.json?v=guide-menu-v3').then(r=>{if(!r.ok)throw Error('Recorded audio catalog unavailable');return r.json()}));}
 function merge(topics,data,page){
  for(const record of data.records){
   if(record.page!==page&&record.page!=='Shared')continue;
@@ -23,6 +23,9 @@ function map(data,page){
    try{document.querySelectorAll(selector).forEach(el=>{
     if(text&&el.textContent.trim().replace(/\s+/g,' ')!==text[1])return;
     el.dataset.guideTopic=record.topic.id;
+    // Labels and whitespace in a checkbox row must narrate the same item.
+    if(el.id){document.querySelectorAll('label[for="'+CSS.escape(el.id)+'"]').forEach(label=>{label.dataset.guideTopic=record.topic.id});}
+    const check=el.closest('.check');if(check)check.dataset.guideTopic=record.topic.id;
    });}catch(_){} // Documentary targets are not all CSS selectors.
   }
  }

@@ -353,7 +353,7 @@ async function init(){
   BilliardsRecordedAudio.map(recorded,'Analyze');
  }
  applyMappings();
- topics.forEach(t=>{t.explorerOnly=t.category==='explore'});
+ topics.forEach(t=>{t.explorerOnly=t.category==='reference'||t.category==='explore'});
  topics.push(...[
   {
     "id": "analyze-start-choose-photo",
