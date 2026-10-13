@@ -52,17 +52,35 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await page.screenshot({path:'../audio-drill-menu-preview.png',fullPage:false});
  await page.locator('#bt-guide-pool-root .btg-categories button').filter({hasText:/^Resources$/}).click();
  assert.equal(await page.locator('#bt-guide-pool-root select option[value^="recommend-zero-x-"]').count(),5);
- const popupPromise=context.waitForEvent('page');
+ async function finishResource(id,destination){
+  const before=await page.evaluate(()=>window.__openedResources.length);
+  await page.locator('#bt-guide-pool-root select').selectOption(id);
+  await page.waitForFunction(id=>window.__playedAudio.some(a=>a.dataset.topic===id&&!a.paused&&a.currentTime>0),id);
+  const time=await page.evaluate(id=>window.__playedAudio.find(a=>a.dataset.topic===id).currentTime,id);
+  assert.ok(time<2,'New selection starts at the beginning');
+  assert.equal(await page.evaluate(()=>window.__openedResources.length),before,'No website before narration ends');
+  // Seek close to the end, then let real playback emit ended.
+  const popupPromise=context.waitForEvent('page');
+  await page.evaluate(id=>{const a=window.__playedAudio.find(a=>a.dataset.topic===id);a.currentTime=a.duration-.2},id);
+  const popup=await popupPromise;await popup.waitForLoadState('domcontentloaded');
+  assert.ok(popup.url().includes(destination));await popup.close();
+  assert.equal(await page.evaluate(id=>window.__playedAudio.find(a=>a.dataset.topic===id).ended,id),true);
+ }
+ // Stop cancels the delayed navigation; replaying after Stop does not navigate.
  await page.locator('#bt-guide-pool-root select').selectOption('recommend-zero-x-overview');
- const popup=await popupPromise;await popup.waitForLoadState('domcontentloaded');
- assert.ok(popup.url().includes('UCYuUos0iwnvdBL8URuNvrNA'));await popup.close();
+ await page.waitForFunction(()=>window.__playedAudio.some(a=>a.dataset.topic==='recommend-zero-x-overview'&&!a.paused&&a.currentTime>0));
+ await page.locator('#bt-guide-pool-root button[title="Stop"]').click();
+ await page.locator('#bt-guide-pool-root button[title="Play / Pause"]').click();
+ await page.waitForFunction(()=>window.__playedAudio.some(a=>a.dataset.topic==='recommend-zero-x-overview'&&!a.paused&&a.currentTime>0));
+ await page.evaluate(()=>{const a=window.__playedAudio.find(a=>a.dataset.topic==='recommend-zero-x-overview');a.currentTime=a.duration-.2});
+ await page.waitForFunction(()=>window.__playedAudio.some(a=>a.dataset.topic==='recommend-zero-x-overview'&&a.ended));
+ assert.equal(await page.evaluate(()=>window.__openedResources.length),0,'Stop cancels website opening');
+ await finishResource('recommend-zero-x-overview','UCYuUos0iwnvdBL8URuNvrNA');
  if(await page.evaluate(()=>billiardsPoolGuide.getState().expanded!=='more'))await page.locator('#bt-guide-pool-root button').filter({hasText:/^More$/}).click();
  assert.equal(await page.locator('#bt-guide-pool-root .btg-resource-links a').count(),2);
  assert.equal(await page.locator('#bt-guide-pool-root .btg-expanded p, #bt-guide-pool-root .btg-expanded strong').count(),0,'Resource More contains links only');
  for(const [id,video] of [['recommend-zero-x-center-ball','5_mC1ZePXpA'],['recommend-zero-x-position-play','Cya-0vjQ_7Y'],['recommend-zero-x-eight-ball-patterns','V0dAZInUiTE'],['recommend-zero-x-defense-recovery','UcTAFFQOHm0']]){
-  const nextPopup=context.waitForEvent('page');await page.locator('#bt-guide-pool-root select').selectOption(id);
-  const resourcePage=await nextPopup;await resourcePage.waitForLoadState('domcontentloaded');assert.ok(resourcePage.url().includes('v='+video));await resourcePage.close();
-  await page.waitForFunction(id=>window.__playedAudio.some(a=>a.src.includes(id+'.mp3')&&!a.paused&&a.currentTime>0),id);
+  await finishResource(id,'v='+video);
   assert.ok((await page.locator('#bt-guide-pool-root .btg-resource-links a').first().getAttribute('href')).includes('v='+video));
  }
  assert.equal(await page.locator('#bt-guide-pool-root .btg-categories button').filter({hasText:/^Controls$/}).count(),0);
@@ -113,6 +131,6 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await page.screenshot({path:'../audio-integration-preview.png',fullPage:false});
  assert.equal(await page.evaluate(()=>window.__spokenText.length),0);
  assert.deepEqual(errors,[]);
- console.log(JSON.stringify({records:result.count,drillGroups:groups,allAudioFetches:'365 successful',welcomes:'5 category MP3s play',resourcePopups:'5 verified destinations open',offlineReload:'passed',mp3Playback:'decoded and advancing',dedicatedMappings:result,browserErrors:errors,featuresAndOptions:'9 controls and 9 labels play their dedicated MP3 without mutation',controlsTab:'removed',zeroXLinks:2}));
+ console.log(JSON.stringify({records:result.count,drillGroups:groups,allAudioFetches:'365 successful',welcomes:'5 category MP3s play',resourcePopups:'5 verified destinations open only after real audio ended; Stop cancels navigation',offlineReload:'passed',mp3Playback:'decoded and advancing',dedicatedMappings:result,browserErrors:errors,featuresAndOptions:'9 controls and 9 labels play their dedicated MP3 without mutation',controlsTab:'removed',zeroXLinks:2}));
  await browser.close();server.kill();
 })().catch(e=>{console.error(e);server.kill();process.exit(1)});

@@ -1,15 +1,15 @@
-const CACHE_NAME = 'billiards-trainer-4-12-group-welcomes-v4-v58';
+const CACHE_NAME = 'billiards-trainer-4-12-resource-finish-v5-v58';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
-  './guide/guide.js?v=group-welcomes-v4',
+  './guide/guide.js?v=resource-finish-v5',
   './guide/guide.css?v=practice-links5',
   './guide/pool-guide.css?v=fit5',
-  './guide/recorded-audio.js?v=group-welcomes-v4',
-  './guide/recorded-audio.json?v=group-welcomes-v4',
-  './guide/pool-integration.js?v=group-welcomes-v4',
-  './guide/pool-audio-map.json?v=group-welcomes-v4',
-  './guide/analyze-integration.js?v=group-welcomes-v4',
+  './guide/recorded-audio.js?v=resource-finish-v5',
+  './guide/recorded-audio.json?v=resource-finish-v5',
+  './guide/pool-integration.js?v=resource-finish-v5',
+  './guide/pool-audio-map.json?v=resource-finish-v5',
+  './guide/analyze-integration.js?v=resource-finish-v5',
   './manifest.webmanifest',
   './phone-play.css?v=8',
   './phone-play.js?v=8',

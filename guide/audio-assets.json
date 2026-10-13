@@ -551,11 +551,11 @@
   "./guide/audio/rail-speed-loss-advanced.mp3",
   "./guide/audio/random-layouts-quick.mp3",
   "./guide/audio/real-table-calibration-quick.mp3",
-  "./guide/audio/recommend-zero-x-center-ball.mp3",
-  "./guide/audio/recommend-zero-x-defense-recovery.mp3",
-  "./guide/audio/recommend-zero-x-eight-ball-patterns.mp3",
-  "./guide/audio/recommend-zero-x-overview.mp3",
-  "./guide/audio/recommend-zero-x-position-play.mp3",
+  "./guide/audio/recommend-zero-x-center-ball.mp3?v=resource-finish-v5",
+  "./guide/audio/recommend-zero-x-defense-recovery.mp3?v=resource-finish-v5",
+  "./guide/audio/recommend-zero-x-eight-ball-patterns.mp3?v=resource-finish-v5",
+  "./guide/audio/recommend-zero-x-overview.mp3?v=resource-finish-v5",
+  "./guide/audio/recommend-zero-x-position-play.mp3?v=resource-finish-v5",
   "./guide/audio/remove-ball-layout-quick.mp3",
   "./guide/audio/rename-selected-layout-quick.mp3",
   "./guide/audio/repeat-layout-shot-quick.mp3",
@@ -616,5 +616,5 @@
   "./guide/audio/welcome-physics.mp3",
   "./guide/audio/welcome-drills.mp3",
   "./guide/audio/welcome-exercises.mp3",
-  "./guide/audio/welcome-more.mp3"
+  "./guide/audio/welcome-more.mp3?v=resource-finish-v5"
 ]

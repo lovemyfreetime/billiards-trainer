@@ -4994,6 +4994,17 @@
       "model": "simba-3.2",
       "rate": "+30%",
       "request_id": "6bbdcdad-aafe-4061-b5fa-d57526d07051"
+    },
+    {
+      "file": "welcome-more.mp3",
+      "seconds": 15.312,
+      "bytes": 245037,
+      "billable_characters": 307,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "0b39c23c-b5a5-4473-b2c4-2c7ec670f094",
+      "note": "Replacement Resources welcome; 350 ms silent lead-in added after generation."
     }
   ],
   "current_recording_count": 618

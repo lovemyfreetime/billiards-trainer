@@ -6759,7 +6759,7 @@
       "topic": {
         "id": "recommend-zero-x-overview",
         "title": "Tor Lowry and Zero-X Billiards",
-        "audio": "./guide/audio/recommend-zero-x-overview.mp3",
+        "audio": "./guide/audio/recommend-zero-x-overview.mp3?v=resource-finish-v5",
         "text": "We’ve found Tor Lowry’s Zero X Billiards videos helpful in advancing our games, and we recommend them as a companion to your practice in the Trainer. His lessons cover fundamentals, cue ball control, position play, patterns, and defense. Choose a topic that matches what you are practicing. Watch the demonstration, then recreate a manageable layout in the Trainer. Open More for the official channel and training resources.",
         "summary": "We’ve found Tor Lowry’s Zero X Billiards videos helpful in advancing our games, and we recommend them as a companion to your practice in the Trainer.",
         "category": "more",
@@ -6791,7 +6791,7 @@
       "topic": {
         "id": "recommend-zero-x-center-ball",
         "title": "Zero-X: center-ball fundamentals",
-        "audio": "./guide/audio/recommend-zero-x-center-ball.mp3",
+        "audio": "./guide/audio/recommend-zero-x-center-ball.mp3?v=resource-finish-v5",
         "text": "We’ve found Tor Lowry’s center ball lessons helpful for improving pocketing and cue ball control, and we recommend them for building a dependable foundation. Start with the vertical center line, then explore stop, follow, and draw without adding side spin. Keep the same layout and change one setting at a time. Watch his demonstration before practicing, and compare your expected landing point with the result. Open More for Zero X’s official lessons.",
         "summary": "We’ve found Tor Lowry’s center ball lessons helpful for improving pocketing and cue ball control, and we recommend them for building a dependable foundation.",
         "category": "more",
@@ -6822,7 +6822,7 @@
       "topic": {
         "id": "recommend-zero-x-position-play",
         "title": "Zero-X: position play",
-        "audio": "./guide/audio/recommend-zero-x-position-play.mp3",
+        "audio": "./guide/audio/recommend-zero-x-position-play.mp3?v=resource-finish-v5",
         "text": "We’ve found Tor Lowry’s position play lessons helpful in advancing our games, particularly when planning how one shot prepares the next. We recommend watching for the intended angle, cue ball route, and landing area. Pause the demonstration and plan the next position yourself. In the Trainer, use Shot 2 to compare routes, then save the layout and repeat the approach that gives you more room for error. Open More for the Zero X resources.",
         "summary": "We’ve found Tor Lowry’s position play lessons helpful in advancing our games, particularly when planning how one shot prepares the next.",
         "category": "more",
@@ -6853,7 +6853,7 @@
       "topic": {
         "id": "recommend-zero-x-eight-ball-patterns",
         "title": "Zero-X: eight-ball patterns",
-        "audio": "./guide/audio/recommend-zero-x-eight-ball-patterns.mp3",
+        "audio": "./guide/audio/recommend-zero-x-eight-ball-patterns.mp3?v=resource-finish-v5",
         "text": "We’ve found Tor Lowry’s eight ball pattern lessons helpful in improving our planning through a full rack, and we recommend them when individual shots feel comfortable but the runout becomes difficult. Study the order of play, the useful angles, and how problems are addressed before they restrict your choices. Begin with a small group of balls in the Trainer and plan a clear route through them. Save the starting layout to compare different patterns. Open More for the Zero X lessons.",
         "summary": "We’ve found Tor Lowry’s eight ball pattern lessons helpful in improving our planning through a full rack, and we recommend them when individual shots feel comfortable but the runout becomes difficult.",
         "category": "more",
@@ -6884,7 +6884,7 @@
       "topic": {
         "id": "recommend-zero-x-defense-recovery",
         "title": "Zero-X: defense and recovery",
-        "audio": "./guide/audio/recommend-zero-x-defense-recovery.mp3",
+        "audio": "./guide/audio/recommend-zero-x-defense-recovery.mp3?v=resource-finish-v5",
         "text": "We’ve found Tor Lowry’s defensive lessons helpful in advancing our games, especially when a shot leaves us without ideal position. We recommend studying how cue ball control and ball placement can limit an opponent’s options. Recreate a simple situation in the Trainer and compare an attacking route with a defensive route. Judge both the object ball result and the position you leave. Open More for Zero X’s official lessons on defense and related skills.",
         "summary": "We’ve found Tor Lowry’s defensive lessons helpful in advancing our games, especially when a shot leaves us without ideal position.",
         "category": "more",
@@ -7239,8 +7239,8 @@
         "category": "more",
         "categoryWelcome": true,
         "level": 0,
-        "audio": "./guide/audio/welcome-more.mp3",
-        "text": "Welcome to Resources. Explore videos we’ve found helpful in advancing our games. Choose a topic from the drop-down menu to hear its introduction and open the matching YouTube page. Use More for the links to that resource.",
+        "audio": "./guide/audio/welcome-more.mp3?v=resource-finish-v5",
+        "text": "We’ve found Tor Lowry’s Zero X Billiards lessons helpful in advancing our games. Welcome to Resources. Explore his training videos and websites. Choose a topic from the drop-down menu to hear its introduction. When the audio finishes, the matching website will open. Use More for the links to that resource.",
         "summary": "Choose a topic from the drop-down menu to begin.",
         "recordingStatus": "recorded",
         "explorerOnly": false

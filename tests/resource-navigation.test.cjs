@@ -1,0 +1,14 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const src=fs.readFileSync('guide/guide.js','utf8');
+const start=src.indexOf(' function openResource(t)'),end=src.indexOf(' function advanceLesson()',start);
+let opened=[],navigated=[],popup={opener:'original'};
+const context={state:{category:'more'},URL,global:{open:url=>{opened.push(url);return popup},location:{assign:url=>navigated.push(url)}}};
+vm.createContext(context);vm.runInContext(src.slice(start,end),context);
+context.openResource({resourceUrl:'https://www.youtube.com/@ZeroXBilliards'});
+assert.equal(opened.length,1);assert.equal(popup.opener,null);assert.equal(navigated.length,0);
+popup=null;context.openResource({resourceUrl:'https://www.youtube.com/@ZeroXBilliards'});assert.equal(navigated.length,1,'Blocked popup falls back to same-tab navigation');
+context.openResource({resourceUrl:'javascript:alert(1)'});assert.equal(opened.length,2);
+context.state.category='drills';context.openResource({resourceUrl:'https://www.youtube.com/@ZeroXBilliards'});assert.equal(opened.length,2);
+assert.ok(src.includes('if(!audio.ended||!t||audio.dataset.topic!==t.id)return;'));
+assert.ok(!src.includes('play();openResource(selected())'));
+console.log('Safe resource URLs, opener isolation, and blocked-tab fallback verified.');

@@ -1,6 +1,6 @@
 # Category welcomes and Resources navigation
 
-Five short welcomes use Chase (United States), Simba 3.2, SSML +30%. Each category opens with its welcome and an unselected lesson dropdown. Get Started retains its existing introduction and autoplay. Selecting a Resource topic plays the recommendation and opens its verified primary YouTube destination from that user gesture. More displays only that topic’s resource links.
+Five short welcomes use Chase (United States), Simba 3.2, SSML +30%. Each category opens with its welcome and an unselected lesson dropdown. Get Started retains its existing introduction and autoplay. Selecting a Resource topic plays the recommendation and opens its verified primary YouTube destination after the narration finishes. A blocked new tab falls back to the current tab; Stop or a new selection cancels pending navigation. More displays only that topic’s resource links.
 
 ## Welcome to Fundamentals
 
@@ -30,7 +30,7 @@ Welcome to Exercises. Explore short challenges that connect aiming, cue ball con
 
 Audio: `welcome-more.mp3`
 
-Welcome to Resources. Explore videos we’ve found helpful in advancing our games. Choose a topic from the drop-down menu to hear its introduction and open the matching YouTube page. Use More for the links to that resource.
+We’ve found Tor Lowry’s Zero X Billiards lessons helpful in advancing our games. Welcome to Resources. Explore his training videos and websites. Choose a topic from the drop-down menu to hear its introduction. When the audio finishes, the matching website will open. Use More for the links to that resource.
 
 ## Verified resource destinations
 
@@ -45,3 +45,5 @@ Welcome to Resources. Explore videos we’ve found helpful in advancing our game
 Primary source: https://www.zerox-billiards.com/free-pool-lessons
 
 Browser verification intercepts external YouTube requests in the test context to check popup destinations without playing another soundtrack. The destination titles/authors were verified separately against YouTube’s public oEmbed endpoint.
+
+Resource recordings include a 350 ms silent lead-in so playback devices can wake before the first word. Every topic selection reloads its first track at zero.

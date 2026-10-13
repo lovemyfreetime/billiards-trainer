@@ -2,7 +2,7 @@
 (function(global){
 'use strict';
 let pending;
-function load(){return pending||(pending=fetch('./guide/recorded-audio.json?v=group-welcomes-v4').then(r=>{if(!r.ok)throw Error('Recorded audio catalog unavailable');return r.json()}));}
+function load(){return pending||(pending=fetch('./guide/recorded-audio.json?v=resource-finish-v5').then(r=>{if(!r.ok)throw Error('Recorded audio catalog unavailable');return r.json()}));}
 function merge(topics,data,page){
  for(const record of data.records){
   if(record.page!==page&&record.page!=='Shared')continue;
