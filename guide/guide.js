@@ -3,7 +3,7 @@
    No click interception until an explicitly mapped target is registered. */
 (function(global){
 'use strict';
-const CATEGORIES=[['explore','Explore'],['start','Get Started'],['fundamentals','Fundamentals'],['physics','Physics & Tools'],['drills','Drills'],['exercises','Exercises']];
+const CATEGORIES=[['explore','Explore'],['start','Get Started'],['fundamentals','Fundamentals'],['physics','Physics & Tools'],['drills','Drills'],['exercises','Exercises'],['reference','Controls'],['more','More Resources']];
 const LEVELS=['Beginner','Intermediate','Advanced'];
 function safeLoad(key){try{return JSON.parse(localStorage.getItem(key))||{}}catch(_){return {}}}
 function mount(host,options={}){

@@ -1,7 +1,15 @@
-const CACHE_NAME = 'billiards-trainer-4-12-ai-camera-v56';
+const CACHE_NAME = 'billiards-trainer-4-12-audio360-v57';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
+  './guide/guide.js?v=audio360',
+  './guide/guide.css?v=practice-links5',
+  './guide/pool-guide.css?v=fit5',
+  './guide/recorded-audio.js?v=audio360',
+  './guide/recorded-audio.json?v=audio360',
+  './guide/pool-integration.js?v=audio360',
+  './guide/pool-audio-map.json?v=audio360',
+  './guide/analyze-integration.js?v=audio360',
   './manifest.webmanifest',
   './phone-play.css?v=8',
   './phone-play.js?v=8',
@@ -18,6 +26,13 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => Promise.all(APP_SHELL.map(url => cache.add(url).catch(() => null))))
+      .then(async () => {
+        const cache=await caches.open(CACHE_NAME);
+        const response=await fetch('./guide/audio-assets.json');
+        if(!response.ok)throw Error('Audio asset list unavailable');
+        const assets=await response.json();let next=0;
+        await Promise.all(Array.from({length:6},async()=>{while(next<assets.length){const asset=assets[next++];await cache.add(asset);}}));
+      })
       .then(() => self.skipWaiting())
   );
 });

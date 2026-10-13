@@ -2,6 +2,7 @@
 (function(){
 'use strict';
 async function init(){
+ const recorded=await BilliardsRecordedAudio.load();
  const host=document.getElementById('bt-guide-root');
  const started=document.getElementById('btg-analyze-start');
  const modal=document.getElementById('photoAnalyzerModal');
@@ -330,6 +331,7 @@ async function init(){
  // Auto Corners already covers the reset action; keep its explanation focused.
  const corners=topics.find(t=>t.id==='image-corners');
  corners.audio=corners.audio.slice(0,1);corners.text=corners.text.split('\n\n')[0];
+ BilliardsRecordedAudio.merge(topics,recorded,'Analyze');
  function applyMappings(){
   for(const [id,topic] of Object.entries(assignments)){
    const el=document.getElementById(id);if(el)el.dataset.guideTopic=topic;
@@ -348,9 +350,10 @@ async function init(){
   };
   for(const [selector,topic] of Object.entries(selectors))
    modal.querySelectorAll(selector).forEach(el=>{el.dataset.guideTopic=topic;});
+  BilliardsRecordedAudio.map(recorded,'Analyze');
  }
  applyMappings();
- topics.forEach(t=>{t.explorerOnly=true});
+ topics.forEach(t=>{t.explorerOnly=t.category==='explore'});
  topics.push(...[
   {
     "id": "analyze-start-choose-photo",
@@ -416,8 +419,18 @@ async function init(){
     "text": "Save Table File downloads a shareable .billiards.json layout. Someone else can use Load Table File on either page. Loading on Analyze stages the layout for review; then choose Apply to Trainer Table or Apply and Save. Save Session File on the trainer includes the session state. Auto-save Folder, where supported, keeps the latest session in a folder you choose. Saved Files lists layouts and sessions saved or imported on this device. Use Add Files to include earlier downloads, or Refresh Folder to read the connected folder."
   }
 ]);
+ for(const t of topics){if(t.category==='start'){const steps={
+ 'analyze-start-choose-photo':['analyze-choose-table-image','analyze-image-camera-heading'],
+ 'analyze-start-coverage':['analyze-coverage-full','analyze-coverage-custom'],
+ 'analyze-start-corners':['analyze-auto-corners','analyze-mark-four-corners','analyze-open-or-close-fine-tune-corner'],
+ 'analyze-start-analyze':['analyze-analyze-balls','analyze-assign-identity','analyze-delete-candidate'],
+ 'analyze-start-inspect':['analyze-photo-wheel-zoom','analyze-photo-drag-pan'],
+ 'analyze-start-apply':['analyze-name-analyzed-table-layout','analyze-apply-to-trainer-table'],
+ 'analyze-start-share':['analyze-save-analyzed-layout-json-file','analyze-load-shared-table-file-into-analyze']};
+ const selected=(steps[t.id]||[]).map(id=>topics.find(x=>x.id===id)).filter(Boolean);if(selected.length){t.audio=selected.map(x=>x.audio);t.text=selected.map(x=>x.text).join('\n\n');}}}
  host.dataset.btgAllow='1';
  const guide=BilliardsGuide.mount(host,{
+  resolveTopic(e,el){return BilliardsRecordedAudio.resolve(e,recorded,'Analyze')||el?.dataset.guideTopic},
   topics,initialCategory:'start',storageKey:'billiards-analyze-start-v1',startOnly:true,exploreTopicIds:topics.map(t=>t.id),
   onStateChange(state){started?.setAttribute('aria-pressed',String(state.enabled&&state.category==='start'));explorer.setAttribute('aria-pressed',String(state.exploring));},
   allowNavigation(e){

@@ -7164,7 +7164,7 @@
             const t = clamp(((p.x-x.x)*dx+(p.y-x.y)*dy)/(dx*dx+dy*dy||1),0,1);
             return Math.hypot(p.x-x.x-t*dx,p.y-x.y-t*dy) <= pixels;
         };
-        if (manualPocketAt(q)) return 'pocket-targeting-quick';
+        const guidePocket=manualPocketAt(q); if (guidePocket) return 'main-pocket-'+({TL:1,TM:2,TR:3,BR:4,BM:5,BL:6}[guidePocket.name]);
         {
             if (S.shot2Enabled && cueVisualsVisible(2) && S.shot2 && near(S.shot2, S.ballR*M.scale)) return 'shot-two-planning-quick';
             for (const b of S.balls.filter(b=>b.active!==false&&!b.markerHidden).slice().reverse()) {
@@ -9432,8 +9432,8 @@
         s+='<path d="M288 116L317 87L317 145Z" stroke="#fff" fill="none" opacity=".10"/>';
         s+='<rect x="'+px(r.x0)+'" y="'+py(r.y0??0)+'" width="'+((r.x1-r.x0)*320)+'" height="'+((r.y1??1)-(r.y0??0))*160+'" fill="#58dbb1" fill-opacity=".09" stroke="#58dbb1" stroke-width="2"/>';
         s+='<text x="88" y="100" text-anchor="middle">HEAD / BREAK</text><text x="88" y="115" text-anchor="middle">KITCHEN</text><text x="328" y="100" text-anchor="middle">FOOT / RACK</text>';
-        [['R1',128,15],['R2',288,15],['R3',392,116],['R4',288,222],['R5',128,222],['R6',24,116]].forEach(([t,x,y])=>{s+='<text x="'+x+'" y="'+y+'" text-anchor="middle">'+t+'</text>';});
-        photoCal.pockets.forEach((p,i)=>{s+='<circle cx="'+px(p.x)+'" cy="'+py(p.y)+'" r="8" fill="#070c0e" stroke="#89a4aa"/><text x="'+px(p.x)+'" y="'+(py(p.y)+(p.y?23:-12))+'" text-anchor="middle">P'+(i+1)+'</text>';});
+        [['R1',128,15],['R2',288,15],['R3',392,116],['R4',288,222],['R5',128,222],['R6',24,116]].forEach(([t,x,y])=>{s+='<text data-rail="'+t.slice(1)+'" x="'+x+'" y="'+y+'" text-anchor="middle">'+t+'</text>';});
+        photoCal.pockets.forEach((p,i)=>{s+='<circle data-pocket="'+(i+1)+'" cx="'+px(p.x)+'" cy="'+py(p.y)+'" r="8" fill="#070c0e" stroke="#89a4aa"/><text data-pocket="'+(i+1)+'" x="'+px(p.x)+'" y="'+(py(p.y)+(p.y?23:-12))+'" text-anchor="middle">P'+(i+1)+'</text>';});
         pvCalibrationReferences().forEach(d=>{
             const available=d.x>=r.x0&&d.x<=r.x1&&d.y>=(r.y0??0)&&d.y<=(r.y1??1),marked=photoVision.refinements.some(q=>q.id===d.id),pending=d.id===photoVision.pendingDiamond;
             const x=px(d.x)+(d.x===0?-12:d.x===1?12:0),y=py(d.y)+(d.y===0?-12:d.y===1?12:0);
@@ -10849,6 +10849,18 @@
     function pvCanvasPoint(ev){
         return pvSourcePointFromClient(ev.clientX,ev.clientY);
     }
+    // Read-only hit testing for dedicated Analyze narration; no image mutation.
+    window.billiardsGuidePhotoTopicAt = (clientX, clientY) => {
+        if (!photoVision.imageReady) return 'analyze-choose-table-image';
+        const p=pvSourcePointFromClient(clientX,clientY);
+        if (photoVision.addMissedMode) return 'analyze-place-missed-ball';
+        if (photoVision.pendingDiamond) return 'analyze-place-diamond-reference';
+        const detection=pvPhotoDetectionHit(p);
+        if (detection) return detection.id==='ignore'?'analyze-photo-question-marker':'analyze-photo-ball-marker';
+        if (photoVision.corners.length===4 && pvCornerHitIndex(p)>=0) return 'analyze-drag-calibration-corner';
+        if (photoVision.corners.length<4) return 'analyze-mark-four-corners';
+        return (photoVision.viewZoom||1)>1?'analyze-photo-drag-pan':'analyze-photo-wheel-zoom';
+    };
     function imagePointToNormalized(p){
         if(photoVision.corners.length!==4)return null;
         const H=pvCalibration()?.inverse;
@@ -11890,9 +11902,10 @@ if ('serviceWorker' in navigator) {
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=fit5">
   <script src="./phone-play.js?v=8"></script>
-  <script src="./guide/guide.js?v=practice-links9"></script>
-  <script src="./guide/pool-integration.js?v=practice-links7"></script>
-  <script src="./guide/analyze-integration.js?v=start-audio6"></script>
+  <script src="./guide/guide.js?v=audio360"></script>
+  <script src="./guide/recorded-audio.js?v=audio360"></script>
+  <script src="./guide/pool-integration.js?v=audio360"></script>
+  <script src="./guide/analyze-integration.js?v=audio360"></script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=2"></script>
 

@@ -2,11 +2,13 @@
 (function(){
 'use strict';
 async function init(){
+ const recorded=await BilliardsRecordedAudio.load();
  const stage=document.getElementById('stageWrap');
  if(!stage||!window.BilliardsGuide||document.body.classList.contains('projector'))return;
- const response=await fetch('./guide/pool-audio-map.json?v=practice-links4');
+ const response=await fetch('./guide/pool-audio-map.json?v=audio360');
  if(!response.ok)throw Error('Pool Guide audio map could not load');
  const catalog=await response.json();
+ BilliardsRecordedAudio.merge(catalog.topics,recorded,'Main');
  const host=document.createElement('div');
  host.id='bt-guide-pool-root';host.className='btg-pool-mode';
  host.setAttribute('aria-label','Pool table audio Guide');stage.append(host);
@@ -28,7 +30,9 @@ async function init(){
   const advanced=document.querySelector('[data-advanced="physicsAdvanced"]');
   if(advanced)advanced.dataset.guideTopic='physics-calibration-intro-quick';
   for(const button of document.querySelectorAll('[data-preset]'))button.dataset.guideTopic='calibration-table-ball-dimensions-quick';
+  BilliardsRecordedAudio.map(recorded,'Main');
  }
+ BilliardsRecordedAudio.map(recorded,'Main');
  mapControls();
  // Elevation side views and marker visibility buttons are created by the trainer.
  const observer=new MutationObserver(mapControls);
@@ -39,7 +43,7 @@ async function init(){
  const startButton=document.getElementById('btg-pool-start');
  launchers.dataset.btgAllow='1';
  const ids=[...new Set([...Object.values(catalog.assignments),...Object.values(catalog.sections),...catalog.canvasTopics,catalog.powerMeterTopic])];
- for(const topic of catalog.topics)topic.explorerOnly=topic.category==='explore'||(topic.category!=='start'&&ids.includes(topic.id));
+ for(const topic of catalog.topics)topic.explorerOnly=topic.category==='explore'||(topic.category!=='start'&&topic.category!=='reference'&&ids.includes(topic.id));
  const guide=BilliardsGuide.mount(host,{
   onStateChange(state){
    guideButton.setAttribute('aria-pressed',String(state.enabled&&state.category!=='start'));
@@ -49,13 +53,14 @@ async function init(){
   poolMode:true,storageKey:'billiards-pool-guide-v1',topics:catalog.topics,resources:catalog.resources,exploreTopicIds:ids,
   isActive:()=>!modal.classList.contains('open'),
   resolveTopic(event,element){
+   const direct=BilliardsRecordedAudio.resolve(event,recorded,'Main');if(direct)return direct;
    const target=event.target;
-   if(target?.id==='canvas')return window.billiardsGuideTableTopicAt?.(event.clientX,event.clientY)||'table-orientation-quick';
+   if(target?.id==='canvas')return BilliardsRecordedAudio.tableTopic(window.billiardsGuideTableTopicAt?.(event.clientX,event.clientY))||'main-empty-cloth';
    if(target?.id==='tipCanvas'||target?.id==='tipCanvas2'){
     const rect=target.getBoundingClientRect();
     const meterWidth=Math.max(30,Math.min(44,rect.width*.20));
     const ballAreaWidth=rect.width-meterWidth-8;
-    if(Number.isFinite(event.clientX)&&event.clientX-rect.left>=ballAreaWidth)return catalog.powerMeterTopic;
+    if(Number.isFinite(event.clientX)&&event.clientX-rect.left>=ballAreaWidth)return target.id==='tipCanvas2'?'main-shot-2-power-meter-c':'main-shot-1-power-meter-c';
    }
    return element?.dataset.guideTopic;
   },

@@ -1,0 +1,76 @@
+{
+  "parent": "More > Practice Drills",
+  "status": "Proposed; not integrated into live app",
+  "groups": [
+    {
+      "title": "Cue Ball Control",
+      "items": [
+        {
+          "title": "Stop Shot Calibration",
+          "audio": "drill-stop-shot.mp3",
+          "layout_id": "drill-stop-shot"
+        },
+        {
+          "title": "90-Degree Stun Tangent Line",
+          "audio": "drill-stun-tangent.mp3",
+          "layout_id": "drill-stun-tangent"
+        },
+        {
+          "title": "Speed Ladder \u2014 Four Zones",
+          "audio": "drill-speed-ladder.mp3",
+          "layout_id": "drill-speed-ladder"
+        }
+      ]
+    },
+    {
+      "title": "Positional Patterns",
+      "items": [
+        {
+          "title": "L-Drill \u2014 Five-Ball Rotation",
+          "audio": "drill-l-pattern.mp3",
+          "layout_id": "drill-l-pattern"
+        },
+        {
+          "title": "T-Drill \u2014 Center and Foot String",
+          "audio": "drill-t-pattern.mp3",
+          "layout_id": "drill-t-pattern"
+        },
+        {
+          "title": "Wagon Wheel \u2014 Six Target Zones",
+          "audio": "drill-wagon-wheel.mp3",
+          "layout_id": "drill-wagon-wheel"
+        }
+      ]
+    },
+    {
+      "title": "Rail Navigation",
+      "items": [
+        {
+          "title": "Two-Rail Center Recovery",
+          "audio": "drill-two-rail-recovery.mp3",
+          "layout_id": "drill-two-rail-recovery"
+        },
+        {
+          "title": "Side Pocket Scratch Avoidance",
+          "audio": "drill-scratch-avoidance.mp3",
+          "layout_id": "drill-scratch-avoidance"
+        }
+      ]
+    },
+    {
+      "title": "Kicking Systems",
+      "items": [
+        {
+          "title": "One-Rail Mirror Kick",
+          "audio": "drill-mirror-kick.mp3",
+          "layout_id": "drill-mirror-kick"
+        },
+        {
+          "title": "Two-Rail Corner Kick",
+          "audio": "drill-two-rail-kick.mp3",
+          "layout_id": "drill-two-rail-kick"
+        }
+      ]
+    }
+  ]
+}
