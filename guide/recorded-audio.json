@@ -7245,6 +7245,24 @@
         "recordingStatus": "recorded",
         "explorerOnly": false
       }
+    },
+    {
+      "page": "Shared",
+      "kind": "Guide welcome",
+      "targets": [],
+      "topic": {
+        "id": "welcome-guide",
+        "title": "Welcome to the Guide",
+        "category": "fundamentals",
+        "categoryWelcome": true,
+        "guideWelcome": true,
+        "level": 0,
+        "audio": "./guide/audio/welcome-guide.mp3",
+        "text": "Welcome to the Guide. Use Play and Pause to listen at your own pace. Turn on Auto to play through the lessons in your selected category without choosing each one. Tap Read to follow along with the narration. Reading while you listen can help you get more from each lesson. Open More for additional resources and links related to that topic. Explore Fundamentals, Physics and Tools, Drills, Exercises, and Resources. Tap any category, then choose a topic from its drop-down menu. Pick something that interests you, listen, and try it on the table.",
+        "summary": "Play, Pause, Auto, Read, More, and the lesson categories.",
+        "recordingStatus": "recorded",
+        "explorerOnly": false
+      }
     }
   ]
 }

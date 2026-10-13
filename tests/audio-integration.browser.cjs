@@ -21,12 +21,31 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
    image:document.querySelector('.photoToolGroup:first-child .photoToolHeading').dataset.guideTopic,
    run:document.querySelector('#startFullRack').dataset.guideTopic};
  });
- assert.equal(result.count,365);assert.deepEqual(result.missing,[]);assert.deepEqual(result.invalid,[]);
+ assert.equal(result.count,366);assert.deepEqual(result.missing,[]);assert.deepEqual(result.invalid,[]);
  assert.equal(result.ai,'analyze-ai-detector-mode-and-readiness');assert.equal(result.setup,'analyze-table-setup-heading');assert.equal(result.image,'analyze-image-camera-heading');assert.equal(result.run,'main-start-full-rack');
  await page.click('#btg-pool-start');
  assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().autoplay),true);
  await page.click('#btg-pool-guide');
  assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().autoplay),false);
+ assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().topicId),'welcome-guide');
+ await page.waitForFunction(()=>window.__playedAudio.some(a=>a.dataset.topic==='welcome-guide'&&!a.paused&&a.currentTime>0));
+ await page.locator('#bt-guide-pool-root button[title="Play / Pause"]').click();
+ const pausedAt=await page.evaluate(()=>window.__playedAudio.find(a=>a.dataset.topic==='welcome-guide').currentTime);
+ assert.equal(await page.evaluate(()=>window.__playedAudio.find(a=>a.dataset.topic==='welcome-guide').paused),true);
+ await page.locator('#bt-guide-pool-root button[title="Play / Pause"]').click();
+ await page.waitForFunction(time=>window.__playedAudio.some(a=>a.dataset.topic==='welcome-guide'&&!a.paused&&a.currentTime>time),pausedAt);
+ await page.locator('#bt-guide-pool-root button').filter({hasText:/^Read$/}).click();
+ const welcomeText=await page.locator('#bt-guide-pool-root .btg-expanded').innerText();
+ for(const word of ['Play and Pause','Auto','Read','More','Fundamentals','Physics and Tools','Drills','Exercises','Resources'])assert.ok(welcomeText.includes(word));
+ await page.locator('#bt-guide-pool-root button[title="Autoplay next lesson"]').click();
+ await page.evaluate(()=>{const a=window.__playedAudio.find(a=>a.dataset.topic==='welcome-guide');a.currentTime=a.duration-.1});
+ await page.waitForFunction(()=>billiardsPoolGuide.getState().topicId!=='welcome-guide');
+ assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().topicId===billiardsPoolAudioMap.topics.find(t=>!t.categoryWelcome&&!t.explorerOnly&&t.category==='fundamentals'&&(t.level||0)===0).id),true,'Auto begins category lessons after welcome');
+ await page.click('#btg-pool-guide');await page.click('#btg-pool-guide');
+ assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().topicId),'welcome-guide');
+ assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().autoplay),false);
+ await page.waitForFunction(()=>window.__playedAudio.some(a=>a.dataset.topic==='welcome-guide'&&!a.paused&&a.currentTime>0&&a.currentTime<2));
+
  const welcomes=[['Fundamentals','fundamentals'],['Physics & Tools','physics'],['Drills','drills'],['Exercises','exercises'],['Resources','more']];
  for(const [label,id] of welcomes){
   await page.locator('#bt-guide-pool-root .btg-categories button').filter({hasText:new RegExp('^'+label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'$')}).click();
@@ -131,6 +150,6 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await page.screenshot({path:'../audio-integration-preview.png',fullPage:false});
  assert.equal(await page.evaluate(()=>window.__spokenText.length),0);
  assert.deepEqual(errors,[]);
- console.log(JSON.stringify({records:result.count,drillGroups:groups,allAudioFetches:'365 successful',welcomes:'5 category MP3s play',resourcePopups:'5 verified destinations open only after real audio ended; Stop cancels navigation',offlineReload:'passed',mp3Playback:'decoded and advancing',dedicatedMappings:result,browserErrors:errors,featuresAndOptions:'9 controls and 9 labels play their dedicated MP3 without mutation',controlsTab:'removed',zeroXLinks:2}));
+ console.log(JSON.stringify({records:result.count,drillGroups:groups,allAudioFetches:'366 successful',welcomes:'Guide intro autoplays on open/reopen, Play/Pause and Read work, Auto advances into selected category; 5 category MP3s play',resourcePopups:'5 verified destinations open only after real audio ended; Stop cancels navigation',offlineReload:'passed',mp3Playback:'decoded and advancing',dedicatedMappings:result,browserErrors:errors,featuresAndOptions:'9 controls and 9 labels play their dedicated MP3 without mutation',controlsTab:'removed',zeroXLinks:2}));
  await browser.close();server.kill();
 })().catch(e=>{console.error(e);server.kill();process.exit(1)});

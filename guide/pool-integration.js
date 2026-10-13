@@ -5,7 +5,7 @@ async function init(){
  const recorded=await BilliardsRecordedAudio.load();
  const stage=document.getElementById('stageWrap');
  if(!stage||!window.BilliardsGuide||document.body.classList.contains('projector'))return;
- const response=await fetch('./guide/pool-audio-map.json?v=audio-start-v6');
+ const response=await fetch('./guide/pool-audio-map.json?v=guide-welcome-v7');
  if(!response.ok)throw Error('Pool Guide audio map could not load');
  const catalog=await response.json();
  BilliardsRecordedAudio.merge(catalog.topics,recorded,'Main');
@@ -80,7 +80,7 @@ async function init(){
    return event.type==='wheel'&&!!target.closest('#panel')&&!target.closest('input,canvas');
   }
  });
- guideButton.addEventListener('click',()=>{if(guide.getState().enabled&&guide.getState().category!=='start')guide.setEnabled(false);else guide.openCategory('fundamentals')});
+ guideButton.addEventListener('click',()=>{if(guide.getState().enabled&&guide.getState().category!=='start')guide.setEnabled(false);else guide.openGuide()});
  exploreButton.addEventListener('click',()=>guide.setExploring(!guide.getState().exploring));
  startButton.addEventListener('click',()=>{if(guide.getState().enabled&&guide.getState().category==='start')guide.setEnabled(false);else guide.openCategory('start')});
  for(const id of ['analyzePhotoBtn','cameraCaptureBtn'])document.getElementById(id)?.addEventListener('click',()=>{if(!guide.getState().exploring){guide.setEnabled(false);guide.setExploring(false)}},true);

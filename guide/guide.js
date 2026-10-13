@@ -50,7 +50,13 @@ function mount(host,options={}){
   if(category==='start'){state.topicId=null;state.position=0;sequenceIndex=0;}
   setEnabled(true);
   if(category==='start'){const first=availableLessons()[0];if(first){choose(first.id);play();}}
-  else{const welcome=topics.find(t=>t.category===category&&t.categoryWelcome);if(welcome){choose(welcome.id);play();}}
+  else{const welcome=topics.find(t=>t.category===category&&t.categoryWelcome&&!t.guideWelcome);if(welcome){choose(welcome.id);play();}}
+ }
+ function openGuide(){
+  state.category='fundamentals';state.topicId=null;state.position=0;sequenceIndex=0;
+  state.detailsOpen=false;state.expanded=null;state.autoplay=false;setEnabled(true);
+  const welcome=topics.find(t=>t.guideWelcome);
+  if(welcome){choose(welcome.id);play();}else openCategory('fundamentals');
  }
  function availableLessons(){return topics.filter(x=>!x.categoryWelcome&&!x.explorerOnly&&(x.category||'explore')===state.category&&(state.category==='start'||(x.level||0)<=state.level))}
  function openResource(t){
@@ -64,7 +70,8 @@ function mount(host,options={}){
  function advanceLesson(){
   if(!state.autoplay||!state.enabled||state.exploring){render();return;}
   const available=availableLessons(),index=available.findIndex(t=>t.id===state.topicId);
-  if(index>=0&&index+1<available.length){choose(available[index+1].id);play();}else{playback.pause();state.position=0;save();render();}
+  if(index<0&&selected()?.categoryWelcome&&available.length){choose(available[0].id);play();}
+  else if(index>=0&&index+1<available.length){choose(available[index+1].id);play();}else{playback.pause();state.position=0;save();render();}
  }
  function skipRecording(direction){
   const current=selected(),playing=!audio.paused;pendingResource=null;playback.pause();
@@ -185,7 +192,7 @@ function mount(host,options={}){
  document.addEventListener('pointerover',inspectTarget,true);
  // Explorer alone enables the inspection shield; validate against real trainer interactions before integration.
  render();
- return {setEnabled,setExploring,openCategory,destroy(){pendingResource=null;playback.destroy();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
+ return {setEnabled,setExploring,openCategory,openGuide,destroy(){pendingResource=null;playback.destroy();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
 }
 global.BilliardsGuide={mount,CATEGORIES,LEVELS};
 })(window);

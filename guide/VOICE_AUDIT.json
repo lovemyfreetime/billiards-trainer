@@ -5005,7 +5005,17 @@
       "rate": "+30%",
       "request_id": "0b39c23c-b5a5-4473-b2c4-2c7ec670f094",
       "note": "Replacement Resources welcome; 350 ms silent lead-in added after generation."
+    },
+    {
+      "file": "welcome-guide.mp3",
+      "seconds": 23.208,
+      "bytes": 371373,
+      "billable_characters": 546,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "a0948dba-a394-4c9a-8f5e-b41cc629b397"
     }
   ],
-  "current_recording_count": 618
+  "current_recording_count": 619
 }

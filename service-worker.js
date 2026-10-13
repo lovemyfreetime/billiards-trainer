@@ -1,16 +1,16 @@
-const CACHE_NAME = 'billiards-trainer-4-12-audio-start-v6-v58';
+const CACHE_NAME = 'billiards-trainer-4-12-guide-welcome-v7-v58';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
-  './guide/audio-startup.js?v=audio-start-v6',
-  './guide/guide.js?v=audio-start-v6',
+  './guide/audio-startup.js?v=guide-welcome-v7',
+  './guide/guide.js?v=guide-welcome-v7',
   './guide/guide.css?v=practice-links5',
   './guide/pool-guide.css?v=fit5',
-  './guide/recorded-audio.js?v=audio-start-v6',
-  './guide/recorded-audio.json?v=audio-start-v6',
-  './guide/pool-integration.js?v=audio-start-v6',
-  './guide/pool-audio-map.json?v=audio-start-v6',
-  './guide/analyze-integration.js?v=audio-start-v6',
+  './guide/recorded-audio.js?v=guide-welcome-v7',
+  './guide/recorded-audio.json?v=guide-welcome-v7',
+  './guide/pool-integration.js?v=guide-welcome-v7',
+  './guide/pool-audio-map.json?v=guide-welcome-v7',
+  './guide/analyze-integration.js?v=guide-welcome-v7',
   './manifest.webmanifest',
   './phone-play.css?v=8',
   './phone-play.js?v=8',

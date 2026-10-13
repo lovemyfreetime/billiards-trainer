@@ -8480,5 +8480,18 @@
     ],
     "narration": "We’ve found Tor Lowry’s Zero X Billiards lessons helpful in advancing our games. Welcome to Resources. Explore his training videos and websites. Choose a topic from the drop-down menu to hear its introduction. When the audio finishes, the matching website will open. Use More for the links to that resource.",
     "recording_status": "Recorded"
+  },
+  {
+    "id": "welcome-guide",
+    "page": "Shared",
+    "section": "Guide welcome",
+    "title": "Welcome to the Guide",
+    "file": "welcome-guide.mp3",
+    "kind": "Guide welcome",
+    "targets": [
+      "Guide launcher"
+    ],
+    "narration": "Welcome to the Guide. Use Play and Pause to listen at your own pace. Turn on Auto to play through the lessons in your selected category without choosing each one. Tap Read to follow along with the narration. Reading while you listen can help you get more from each lesson. Open More for additional resources and links related to that topic. Explore Fundamentals, Physics and Tools, Drills, Exercises, and Resources. Tap any category, then choose a topic from its drop-down menu. Pick something that interests you, listen, and try it on the table.",
+    "recording_status": "Recorded"
   }
 ]

@@ -1,6 +1,6 @@
 # Category welcomes and Resources navigation
 
-Five short welcomes use Chase (United States), Simba 3.2, SSML +30%. Each category opens with its welcome and an unselected lesson dropdown. Get Started retains its existing introduction and autoplay. Selecting a Resource topic plays the recommendation and opens its verified primary YouTube destination after the narration finishes. A blocked new tab falls back to the current tab; Stop or a new selection cancels pending navigation. More displays only that topic’s resource links.
+The Guide introduction and five category welcomes use Chase (United States), Simba 3.2, SSML +30%. Each category opens with its welcome and an unselected lesson dropdown. Get Started retains its existing introduction and autoplay. Selecting a Resource topic plays the recommendation and opens its verified primary YouTube destination after the narration finishes. A blocked new tab falls back to the current tab; Stop or a new selection cancels pending navigation. More displays only that topic’s resource links.
 
 ## Welcome to Fundamentals
 
@@ -47,3 +47,11 @@ Primary source: https://www.zerox-billiards.com/free-pool-lessons
 Browser verification intercepts external YouTube requests in the test context to check popup destinations without playing another soundtrack. The destination titles/authors were verified separately against YouTube’s public oEmbed endpoint.
 
 Resource recordings include a 350 ms silent lead-in so playback devices can wake before the first word. Every topic selection reloads its first track at zero.
+
+## Welcome to the Guide
+
+Audio: `welcome-guide.mp3`
+
+Welcome to the Guide. Use Play and Pause to listen at your own pace. Turn on Auto to play through the lessons in your selected category without choosing each one. Tap Read to follow along with the narration. Reading while you listen can help you get more from each lesson. Open More for additional resources and links related to that topic. Explore Fundamentals, Physics and Tools, Drills, Exercises, and Resources. Tap any category, then choose a topic from its drop-down menu. Pick something that interests you, listen, and try it on the table.
+
+The Guide launcher plays this introduction on every open, from zero, with continuous Auto off. Enabling Auto during a welcome starts the first eligible lesson when the welcome finishes and continues through the selected category. Category buttons retain their dedicated welcomes.
