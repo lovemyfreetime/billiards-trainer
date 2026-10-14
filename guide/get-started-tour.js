@@ -4,7 +4,7 @@
 async function mount(guide){
  const bridge=global.billiardsTourBridge,host=document.getElementById('bt-guide-pool-root');
  if(!bridge||!guide||!host)return null;
- const response=await fetch('./guide/get-started-tour.json?v=lesson-countdown-v22');
+ const response=await fetch('./guide/get-started-tour.json?v=lesson-countdown-v23');
  if(!response.ok)throw Error('Get Started lessons unavailable');
  const {steps,transition}=await response.json(),seconds=transition?.seconds||10;
  let index=0,original=null,profile=null,checkpoint=null,loading=false,practicing=false,phase='listening',deadline=0,timer=null,advanceTimer=null,voiceTimer=null,epoch=0;
