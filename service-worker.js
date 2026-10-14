@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-guide-attention-v14-v59';
+const CACHE_NAME = 'billiards-trainer-4-12-analyze-welcome-v15-v60';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
@@ -13,6 +13,7 @@ const APP_SHELL = [
   './guide/pool-integration.js?v=presets-recovery-v13',
   './guide/pool-audio-map.json?v=walkthrough-v11',
   './guide/analyze-integration.js?v=presets-recovery-v13',
+  './guide/analyze-welcome.js?v=analyze-welcome-v15',
   './guide/analyze-walkthrough.js?v=presets-recovery-v13',
   './manifest.webmanifest',
   './phone-play.css?v=8',
@@ -20,7 +21,7 @@ const APP_SHELL = [
   './photo-calibration.js?v=walkthrough-v11',
   './photo-table-spots.js?v=3',
   './photo-cloth-filter.js?v=2',
-  './photo-calibration.css?v=presets-recovery-v13',
+  './photo-calibration.css?v=analyze-welcome-v15',
   './photo-ball-crops.js?v=1',
   './trainer-layout-files.js?v=2',
   './trainer-saved-files.js?v=1'

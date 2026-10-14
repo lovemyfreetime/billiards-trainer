@@ -1763,6 +1763,10 @@
       <p id="photoWalkthroughText" aria-live="polite"></p><div id="photoWalkthroughDetail" role="status"></div><div id="photoWalkthroughRecovery" class="photoWalkthroughButtons" hidden><button id="photoWalkthroughTryImage" type="button">Try Another Image</button><button id="photoWalkthroughAdjust" type="button">Adjust Corners</button><button id="photoWalkthroughRetry" type="button">Analyze Again</button><button id="photoWalkthroughAdd" type="button">Add Missed Ball</button></div>
     </section>
     <div class="photoAnalyzerToolbar">
+      <section id="photoAnalyzerWelcome" class="photoAnalyzerWelcome" aria-label="About image practice" data-btg-allow="1" hidden>
+        <strong>Bring a real shot into practice</strong><button id="photoWelcomePlay" type="button">Play welcome</button><button id="photoWelcomeStop" type="button">Dismiss</button>
+        <details id="photoWelcomeRead"><summary>Read welcome</summary><p id="photoWelcomeText"></p></details>
+      </section>
       <div class="photoToolGroup"><span class="photoToolHeading">IMAGE / CAMERA</span><div class="photoToolActions">
         <button id="photoChooseImage" class="visionPrimary" type="button">Choose Image</button>
         <button id="photoTakeImage" type="button" hidden style="display:none" tabindex="-1" aria-hidden="true">Camera</button>
@@ -1831,7 +1835,7 @@
   </div>
 </div>
 
-<link rel="stylesheet" href="./photo-calibration.css?v=presets-recovery-v13">
+<link rel="stylesheet" href="./photo-calibration.css?v=analyze-welcome-v15">
 <script src="./photo-calibration.js?v=walkthrough-v11"></script>
 <script src="./trainer-layout-files.js?v=2"></script>
 <script src="./trainer-saved-files.js?v=1"></script>
@@ -9576,6 +9580,7 @@
     function openPhotoAnalyzer() {
         $('photoAnalyzerModal').classList.add('open');
         $('photoAnalyzerModal').setAttribute('aria-hidden','false');
+        renderPhotoBallSummary();
         pvRefreshControls();
         pvUpdateCalibrationDiagram();
         renderPhotoAnalyzer();
@@ -9950,7 +9955,6 @@
         const total=photoVision.detections.length,unassigned=total-assigned.length;
         count.textContent=total+' detected · '+assigned.length+' assigned'+(unassigned?' · '+unassigned+' to review':'');
         strip.replaceChildren();
-        if(!total)return;
         const colors=['#f4f4ef','#f4d03f','#2457c5','#c83232','#7040a8','#e67e22','#278a48','#7b2635','#111317'];
         const solids=Array.from({length:8},(_,i)=>photoVision.detections.find(d=>String(d.id)===String(i+1))||null);
         const stripes=Array.from({length:7},(_,i)=>photoVision.detections.find(d=>String(d.id)===String(i+9))||null);
@@ -9959,7 +9963,13 @@
         const slots=solids.concat(stripes,questions,cue?[cue]:[]);
         for(let i=0;i<slots.length;i++){
             const d=slots[i],row=i<8?1:i<15?2:3+Math.floor((i-15)/8),column=i<8?i+1:i<15?i-7:1+(i-15)%8;
-            if(!d){const blank=document.createElement('span');blank.className='photoSummaryBall empty';blank.style.gridRow=String(row);blank.style.gridColumn=String(column);blank.setAttribute('aria-hidden','true');strip.appendChild(blank);continue;}
+            if(!d){
+                const n=i+1,base=n>8?n-8:n,names=['White','Yellow','Blue','Red','Purple','Orange','Green','Maroon','Black'];
+                const blank=document.createElement('span');blank.className='photoSummaryBall empty'+(n>8?' stripe':'');blank.dataset.referenceBall=String(n);
+                blank.style.gridRow=String(row);blank.style.gridColumn=String(column);blank.style.setProperty('--ball-color',colors[base]);
+                blank.style.color=n>8||[1,5].includes(n)?'#101317':'#fff';blank.textContent=String(n);
+                blank.title='Reference: '+names[base]+' '+(n>8?'stripe':'solid')+' '+n+' — not assigned';blank.setAttribute('aria-label',blank.title);strip.appendChild(blank);continue;
+            }
             const unassigned=!assigned.includes(d),n=Number(d.id),base=n>8?n-8:n,ball=document.createElement('button');
             const key=pvReviewKey(d);
             ball.type='button';ball.dataset.reviewKey=key;
@@ -11990,6 +12000,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/recorded-audio.js?v=presets-recovery-v13"></script>
   <script src="./guide/pool-integration.js?v=presets-recovery-v13"></script>
   <script src="./guide/analyze-integration.js?v=presets-recovery-v13"></script>
+  <script src="./guide/analyze-welcome.js?v=analyze-welcome-v15"></script>
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
