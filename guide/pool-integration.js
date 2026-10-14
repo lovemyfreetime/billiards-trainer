@@ -5,7 +5,7 @@ async function init(){
  const recorded=await BilliardsRecordedAudio.load();
  const stage=document.getElementById('stageWrap');
  if(!stage||!window.BilliardsGuide||document.body.classList.contains('projector'))return;
- const response=await fetch('./guide/pool-audio-map.json?v=interactive-start-v20');
+ const response=await fetch('./guide/pool-audio-map.json?v=compact-start-v21');
  if(!response.ok)throw Error('Pool Guide audio map could not load');
  const catalog=await response.json();
  BilliardsRecordedAudio.merge(catalog.topics,recorded,'Main');
@@ -48,6 +48,10 @@ async function init(){
  let tour=null;
  const guide=BilliardsGuide.mount(host,{
   loadLayout:BilliardsPracticeLayouts.apply,
+  onTopicChange:topic=>tour?.select(topic),
+  onTryShot:()=>tour?.tryShot(),
+  getPracticeSetups:()=>tour?.setups()||[],
+  loadPracticeSetup:url=>tour.load(url),
   onStateChange(state){
    guideButton.setAttribute('aria-pressed',String(state.enabled&&state.category!=='start'));
    startButton.setAttribute('aria-pressed',String(!!tour?.getState().active||(state.enabled&&state.category==='start')));
@@ -85,6 +89,7 @@ async function init(){
  });
  guideButton.addEventListener('click',()=>{if(guide.getState().enabled&&guide.getState().category!=='start')guide.setEnabled(false);else guide.openGuide()});
  exploreButton.addEventListener('click',()=>guide.setExploring(!guide.getState().exploring));
+ window.billiardsPoolAudioMap=catalog;
  tour=await BilliardsGetStartedTour.mount(guide);
  window.billiardsGetStartedTour=tour;
  startButton.addEventListener('click',()=>tour?tour.start():guide.openCategory('start'));

@@ -38,7 +38,7 @@ function mount(host,options={}){
  function save(){try{localStorage.setItem(STORE,JSON.stringify(state))}catch(_){}}
  function stop(){pendingResource=null;playback.pause();const t=selected();if(audioFiles(t).length)loadSequenceTrack(t,0);else audio.currentTime=0;sequenceIndex=0;state.position=0;save()}
  function selected(){return topics.find(t=>t.id===state.topicId)||null}
- function choose(id){pendingResource=null;playback.pause();audio.removeAttribute('src');audio.load();sequenceIndex=0;state.topicId=id;state.position=0;save();render()}
+ function choose(id){playback.pause();if(options.onTopicChange?.(topics.find(t=>t.id===id)||null)===false){render();return false;}pendingResource=null;audio.removeAttribute('src');audio.load();sequenceIndex=0;state.topicId=id;state.position=0;save();render();return true}
  function play(){let t=selected();if(!t&&state.enabled){t=availableLessons()[0];if(t)choose(t.id)}if(!t)return;
    if(!audioFiles(t).length)return;
    if(!audio.getAttribute('src')||audio.dataset.topic!==t.id)loadSequenceTrack(t,0);
@@ -133,6 +133,7 @@ function mount(host,options={}){
   while(old.childNodes.length>incoming.length)old.lastChild.remove();
   old.scrollTop=scroll;
  }
+ function practice(){playback.pause();state.detailsOpen=false;state.expanded=null;options.onTryShot?.();save();render()}
  function setupActions(container,t){
   if(!t?.setups?.length||!options.loadLayout)return;
   const group=document.createElement('div');group.className='btg-setup-actions';
@@ -166,13 +167,14 @@ function mount(host,options={}){
    const autoplay=btn('A',()=>{state.autoplay=!state.autoplay;save();render()});
    autoplay.title='Autoplay next lesson';autoplay.className='btg-autoplay';
    autoplay.setAttribute('aria-label','Autoplay next lesson');autoplay.setAttribute('aria-pressed',String(!!state.autoplay));
-   if(t?.setups?.length&&options.loadLayout)btn('Balls',()=>{options.loadLayout(selected().setups[0].url).catch(error=>global.alert(error.message));}).title='Load / reset starting ball layout';
+   if(state.category==='start'&&options.onTryShot)btn('Try the Shot',practice).title='Pause narration and practice this shot';
+   if(state.category!=='start'&&t?.setups?.length&&options.loadLayout)btn('Balls',()=>{options.loadLayout(selected().setups[0].url).catch(error=>global.alert(error.message));}).title='Load / reset starting ball layout';
    if(state.category!=='start'){const level=document.createElement('label');level.className='btg-level';level.textContent=LEVELS[state.level];
    const range=document.createElement('input');range.type='range';range.min='0';range.max='2';range.step='1';range.value=state.level;
    range.setAttribute('aria-label','Guide skill level');range.addEventListener('input',()=>{state.level=Number(range.value);save();render()});level.append(range);toolbar.append(level);}
    btn('Read',()=>{state.expanded=state.expanded==='read'?null:'read';state.detailsOpen=!!state.expanded;save();render()});
    const moreButton=btn('More',()=>{state.expanded=state.expanded==='more'?null:'more';state.detailsOpen=!!state.expanded;save();render()});moreButton.disabled=state.category==='more'&&!t?.resources?.length;
-   btn('Reset',()=>{if(!confirm('Reset Guide session? The table will not change.'))return;stop();state={enabled:true,exploring:false,autoplay:state.category==='start',level:0,category:options.startOnly||state.category==='start'?'start':'fundamentals',topicId:null,expanded:null,detailsOpen:false,position:0};save();render();if(state.category==='start')openCategory('start')});
+   if(state.category!=='start')btn('Reset',()=>{if(!confirm('Reset Guide session? The table will not change.'))return;stop();state={enabled:true,exploring:false,autoplay:state.category==='start',level:0,category:options.startOnly||state.category==='start'?'start':'fundamentals',topicId:null,expanded:null,detailsOpen:false,position:0};save();render();if(state.category==='start')openCategory('start')});
   }
   view.append(toolbar);if(!state.enabled){root.classList.remove('btg-details-open');patchNode(root,view);return;}
   const cats=document.createElement('div');cats.className='btg-row btg-categories';
@@ -191,16 +193,26 @@ function mount(host,options={}){
   select.onfocus=()=>{selectBrowsing=true};select.onpointerdown=()=>{selectBrowsing=true};
   select.onblur=()=>{selectBrowsing=false;select.value=availableLessons().some(x=>x.id===state.topicId)?state.topicId:''};
   select.onkeydown=e=>{if(e.key==='Escape'){selectBrowsing=false;select.value=state.topicId||''}else selectBrowsing=true};
-  select.onchange=()=>{selectBrowsing=false;const id=select.value;choose(id||null);if(id){const t=selected();if(state.category==='more'&&t?.resourceUrl)pendingResource=t.id;play();}};
+  select.onchange=()=>{selectBrowsing=false;const id=select.value;const accepted=choose(id||null);if(accepted!==false&&id){const t=selected();if(state.category==='more'&&t?.resourceUrl)pendingResource=t.id;play();}};
   const drawer=options.poolMode?document.createElement('div'):topic;
   if(options.poolMode){drawer.className='btg-pool-drawer';view.append(drawer)}
   const playingTitle=document.createElement('strong');playingTitle.className='btg-current-lesson';playingTitle.textContent=t?.title||'Choose a topic';playingTitle.setAttribute('aria-live','polite');drawer.append(playingTitle,select);
   if(state.expanded&&state.detailsOpen){const detail=document.createElement('div');detail.className='btg-expanded';
-   setupActions(detail,t);
+   if(state.category!=='start')setupActions(detail,t);
+   if(state.category==='start'&&state.expanded==='more'){
+    const library=document.createElement('div');library.className='btg-practice-library';
+    for(const setup of options.getPracticeSetups?.()||[]){
+     const item=document.createElement('div'),title=document.createElement('strong');title.textContent=setup.title;
+     const load=document.createElement('button');load.type='button';load.dataset.layoutUrl=setup.url;load.textContent='Load layout';load.onclick=()=>{options.loadPracticeSetup(setup.url).catch(error=>global.alert(error.message));};
+     const download=document.createElement('a');download.href=setup.url;download.download=setup.url.split('/').pop();download.textContent='Download layout';
+     const recording=document.createElement('a');recording.href=setup.audio;recording.download=setup.audio.split('/').pop();recording.textContent='Download MP3';
+     item.append(title,load,download,recording);library.append(item);
+    }detail.append(library);
+   }
    if(t?.recordingStatus==='pending'){const status=document.createElement('p');status.className='btg-recording-status';status.textContent='Audio recording pending. Instructions and links are ready.';detail.append(status)}
    if(state.expanded==='read'){const text=document.createElement('p');text.textContent=t?.text||'No narration text assigned.';detail.append(text)}
    if(state.expanded!=='read'){
-    for(const [label,value] of Object.entries(state.category==='more'?{}:t?.practice||{})){const p=document.createElement('p'),strong=document.createElement('strong');strong.textContent=label+': ';p.append(strong,document.createTextNode(value));detail.append(p)}
+    for(const [label,value] of Object.entries(state.category==='more'||state.category==='start'?{}:t?.practice||{})){const p=document.createElement('p'),strong=document.createElement('strong');strong.textContent=label+': ';p.append(strong,document.createTextNode(value));detail.append(p)}
    }
    {
     const resources=[...(t?.resources||[]),...(state.category==='start'?[]:options.resources||[])];
@@ -208,7 +220,7 @@ function mount(host,options={}){
     for(const resource of resources){let url;try{url=new URL(resource.url);if(!['https:','http:'].includes(url.protocol)||seen.has(url.href))continue;}catch(_){continue}seen.add(url.href);
      const item=document.createElement('li'),link=document.createElement('a');link.href=url.href;link.target='_blank';link.rel='noopener noreferrer';link.textContent=resource.title||url.hostname;item.append(link);list.append(item)}
     if(list.children.length){if(state.category==='more')detail.append(list);else{const title=document.createElement('strong');title.textContent='Pool & Billiards Tutorials';detail.append(title,list);const note=document.createElement('p');note.className='btg-resource-note';note.textContent='YouTube links open in a new tab and require internet.';detail.append(note)}}
-    else if(state.expanded!=='read'&&state.category!=='more'&&!t?.practice&&!t?.setups?.length){detail.textContent='Resources will be added here.'}
+    else if(state.expanded!=='read'&&state.category!=='more'&&state.category!=='start'&&!t?.practice&&!t?.setups?.length){detail.textContent='Resources will be added here.'}
    }
    drawer.append(detail)}
   if(!options.poolMode)view.append(topic);
@@ -236,7 +248,7 @@ function mount(host,options={}){
  document.addEventListener('pointerover',inspectTarget,true);
  // Explorer alone enables the inspection shield; validate against real trainer interactions before integration.
  render();
- return {setEnabled,setExploring,openCategory,openGuide,destroy(){narrationPlaying=false;host.classList.remove('btg-narrating');pendingResource=null;playback.destroy();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
+ return {setEnabled,setExploring,openCategory,openGuide,tryShot:practice,pause(){playback.pause();render()},selectTopic(id){choose(id);},destroy(){narrationPlaying=false;host.classList.remove('btg-narrating');pendingResource=null;playback.destroy();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
 }
 global.BilliardsGuide={mount,CATEGORIES,LEVELS};
 })(window);
