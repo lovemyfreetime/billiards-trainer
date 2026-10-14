@@ -25,7 +25,7 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  assert.equal(result.ai,'analyze-ai-detector-mode-and-readiness');assert.equal(result.setup,'analyze-table-setup-heading');assert.equal(result.image,'analyze-image-camera-heading');assert.equal(result.run,'main-start-full-rack');
  await page.click('#btg-pool-start');
  assert.equal(await page.evaluate(()=>billiardsGetStartedTour.getState().active),true);
- await page.click('#bt-tour-exit');
+ await page.click('#btg-pool-start');
  await page.click('#btg-pool-guide');
  assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().autoplay),false);
  assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().topicId),'welcome-guide');
@@ -234,8 +234,8 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await context.setOffline(true);
  await page.reload({waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.billiardsPoolGuide&&window.billiardsAnalyzeGuide);
- await page.click('#btg-pool-start');assert.equal(await page.evaluate(()=>billiardsGetStartedTour.getState().active),true);await page.click('#bt-tour-exit');
- const offlineTour=await page.evaluate(async()=>{const data=await fetch('./guide/get-started-tour.json?v=interactive-start-v20').then(r=>r.json());return Promise.all(data.steps.map(s=>fetch(s.layout).then(r=>r.ok)))});assert.ok(offlineTour.every(Boolean),'All eight practice sessions are cached offline');
+ await page.click('#btg-pool-start');assert.equal(await page.evaluate(()=>billiardsGetStartedTour.getState().active),true);await page.click('#btg-pool-start');
+ const offlineTour=await page.evaluate(async()=>{const data=await fetch('./guide/get-started-tour.json?v=compact-start-v21').then(r=>r.json());return Promise.all(data.steps.map(s=>fetch(s.layout).then(r=>r.ok)))});assert.ok(offlineTour.every(Boolean),'All eight practice sessions are cached offline');
  const offlineLayout=await page.evaluate(async()=>{const res=await fetch('./guide/layouts/drill-stop-shot.billiards.json');return res.ok&&(await res.json()).layout.balls.length===3});assert.ok(offlineLayout);
  const offline=await page.evaluate(async()=>{const res=await fetch('./guide/audio/drill-two-rail-kick.mp3?v=practice-ready-v8');return res.ok&&(await res.arrayBuffer()).byteLength>100});assert.ok(offline);
  await page.screenshot({path:'../audio-integration-preview.png',fullPage:false});

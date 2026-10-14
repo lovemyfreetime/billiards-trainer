@@ -1,26 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-let now=0,nextId=0,timers=new Map(),plays=0,contexts=0;
-const audio={currentTime:0,paused:true,pause(){this.paused=true},play(){plays++;this.paused=false;return Promise.resolve()}};
-class AudioContext{
- constructor(){contexts++;this.state='running';this.sampleRate=24000;this.destination={}}
- createMediaElementSource(){return {connect(){},disconnect(){}}}
- createBuffer(){return {}}
- createBufferSource(){return {connect(){},start(){},stop(){}}}
- resume(){this.state='running';return Promise.resolve()}
- suspend(){this.state='suspended';return Promise.resolve()}
- close(){return Promise.resolve()}
-}
-const env={window:{AudioContext},Date:{now:()=>now},setTimeout(fn,delay){timers.set(++nextId,{fn,delay});return nextId},clearTimeout(id){timers.delete(id)}};
+let plays=0,contexts=0,resolvePlay;
+const audio={currentTime:0,paused:true,volume:.8,playbackRate:1,pause(){this.paused=true},play(){plays++;this.paused=false;return new Promise(resolve=>resolvePlay=resolve)}};
+const env={window:{AudioContext:class{constructor(){contexts++;throw Error('Custom audio processing must not be used')}}}};
 vm.createContext(env);vm.runInContext(fs.readFileSync('guide/audio-startup.js','utf8'),env);
-async function settle(){await Promise.resolve();await Promise.resolve()}
-function warm(){now+=1000;for(const [id,t] of [...timers])if(t.delay<=1000){timers.delete(id);t.fn()}}
-(async()=>{
- const p=env.window.BilliardsAudioStartup.create(audio);
- const first=p.play();await settle();assert.equal(plays,0);assert.equal(audio.currentTime,0);assert.equal(p.starting,true);
- warm();await first;assert.equal(plays,1);assert.equal(contexts,1);
- p.pause();audio.currentTime=8;await p.play();assert.equal(audio.currentTime,8,'Resume preserves playback position');assert.equal(contexts,1,'Output reused between tracks');
- p.release();audio.currentTime=0;const cancelled=p.play();await settle();p.pause();warm();await cancelled;assert.equal(plays,2,'Cancelled startup never plays');
- const replay=p.play();await settle();warm();await replay;assert.equal(plays,3);p.destroy();
- env.window.AudioContext=undefined;const fallback=env.window.BilliardsAudioStartup.create(audio);await fallback.play();assert.equal(plays,4,'Unsupported Web Audio retains native playback');fallback.destroy();
- console.log('Output warmup holds narration at zero; resume, output reuse, cancellation and native fallback passed.');
-})().catch(e=>{console.error(e);process.exitCode=1});
+(async()=>{const output=env.window.BilliardsAudioStartup.create(audio);const first=output.play();assert.equal(plays,1,'Native playback starts directly');assert.equal(output.starting,true);resolvePlay();await first;assert.equal(output.starting,false);audio.currentTime=8;output.pause();const resumed=output.play();resolvePlay();await resumed;assert.equal(audio.currentTime,8);assert.equal(audio.volume,.8);assert.equal(audio.playbackRate,1);const pending=output.play();output.pause();resolvePlay();await pending;assert.equal(output.starting,false);assert.equal(audio.paused,true);assert.equal(contexts,0);output.release();output.destroy();console.log('Native audio preserves position, volume and speed; cancellation works; no Web Audio processing is created.');})().catch(e=>{console.error(e);process.exitCode=1});

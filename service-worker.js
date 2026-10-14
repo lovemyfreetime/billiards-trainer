@@ -1,21 +1,21 @@
-const CACHE_NAME = 'billiards-trainer-4-12-interactive-start-v20-v65';
+const CACHE_NAME = 'billiards-trainer-4-12-compact-start-v21-v66';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
-  './guide/audio-startup.js?v=walkthrough-v11',
+  './guide/audio-startup.js?v=native-audio-v21',
   './guide/practice-layouts.js?v=walkthrough-v11',
   './guide/practice-layouts.json?v=walkthrough-v11',
-  './guide/guide.js?v=guide-attention-v14',
+  './guide/guide.js?v=compact-start-v21',
   './guide/guide.css?v=guide-attention-v14',
   './guide/pool-guide.css?v=fit5',
   './guide/recorded-audio.js?v=presets-recovery-v13',
   './guide/recorded-audio.json?v=presets-recovery-v13',
-  './guide/get-started-tour.js?v=interactive-start-v20',
-  './guide/get-started-tour.css?v=interactive-start-v20',
-  './guide/get-started-tour.json?v=interactive-start-v20',
-  './guide/pool-integration.js?v=interactive-start-v20',
-  './guide/pool-audio-map.json?v=interactive-start-v20',
-  './guide/analyze-integration.js?v=interactive-start-v20',
+  './guide/get-started-tour.js?v=compact-start-v21',
+  './guide/get-started-tour.css?v=compact-start-v21',
+  './guide/get-started-tour.json?v=compact-start-v21',
+  './guide/pool-integration.js?v=compact-start-v21',
+  './guide/pool-audio-map.json?v=compact-start-v21',
+  './guide/analyze-integration.js?v=compact-start-v21',
   './guide/analyze-welcome.js?v=analyze-welcome-v16',
   './guide/analyze-walkthrough.js?v=presets-recovery-v13',
   './manifest.webmanifest',
@@ -38,7 +38,7 @@ self.addEventListener('install', event => {
         const cache=await caches.open(CACHE_NAME);
         const response=await fetch('./guide/audio-assets.json');
         if(!response.ok)throw Error('Audio asset list unavailable');
-        const assets=await response.json();const layouts=await fetch('./guide/practice-layouts.json?v=walkthrough-v11').then(r=>r.json());assets.push(...Object.values(layouts.layouts).map(x=>x.url));const tour=await fetch('./guide/get-started-tour.json?v=interactive-start-v20').then(r=>r.json());for(const step of tour.steps){assets.push(step.layout);if(step.recordingStatus==='recorded')assets.push(step.audio);}const uniqueAssets=[...new Set(assets)];let next=0;
+        const assets=await response.json();const layouts=await fetch('./guide/practice-layouts.json?v=walkthrough-v11').then(r=>r.json());assets.push(...Object.values(layouts.layouts).map(x=>x.url));const tour=await fetch('./guide/get-started-tour.json?v=compact-start-v21').then(r=>r.json());for(const step of tour.steps){assets.push(step.layout);if(step.recordingStatus==='recorded')assets.push(step.audio);}const uniqueAssets=[...new Set(assets)];let next=0;
         await Promise.all(Array.from({length:6},async()=>{while(next<uniqueAssets.length){const asset=uniqueAssets[next++];await cache.add(asset);}}));
       })
       .then(() => self.skipWaiting())

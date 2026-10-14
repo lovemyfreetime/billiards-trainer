@@ -1,30 +1,11 @@
-# Interactive Get Started
+# Get Started practice lessons
 
-Get Started loads eight practice checkpoints on the live trainer table. Take the Wheel pauses narration without rebuilding the table. Try Again and the table Reset controls restore the current lesson checkpoint. Back, Next Lesson and the lesson selector change checkpoints only when a shot has finished. Narration ending never advances the lesson automatically.
+Get Started uses the existing compact Guide player above the table. The familiar play/pause, skip, Auto, Read, More and lesson selector remain. Try the Shot pauses narration and closes details so the player can practice on the live table. Selecting a lesson loads its calibrated setup. Auto advances through the eight recordings and stops after the final lesson; using the table pauses narration.
 
-Exit & Restore restores the player's original table, shot settings and Undo history. Finish & Keep Table retains the final practice table. An unfinished tour can be resumed after reload. Save Practice File exports the current lesson's starting checkpoint, including the Undo exercise's real shot history.
+More lists all eight lessons. Each has Load layout, Download layout, and Download MP3. Loading uses the selected table size and live solver. Downloaded native session files use 9-foot dimensions and retain shot settings and history, including the Undo exercise. The table Reset restores the selected lesson checkpoint while Get Started is open. Closing the player keeps the practice table.
 
-## Recording handoff
+All eight supplied MP3s are used unchanged, with normal playback speed. The shared audio helper uses native HTML media playback; it does not create AudioContexts, extra gain, compressors, warmup sources, or resampling graphs. This applies to Guide, Explorer, Analyze welcome and Walkthrough narration too.
 
-The eight supplied scripts are in `get-started-tour.json`, in lesson order. Record each as a separate Chase MP3 at one consistent speaking rate. Add these files under `guide/audio/`:
+The supplied scripts, recording URLs and normalized setups are in `get-started-tour.json`. Follow/draw percentages are converted to fractions for the engine. The draw setup tunes speed for a safe target on the chosen table size. Shot 2 transfers the planner to the actual first-shot leave and waits for another Execute Shot. The Undo lesson starts after a genuinely committed miss.
 
-| Lesson | File |
-| --- | --- |
-| Welcome to Focused Practice | get-started-01.mp3 |
-| Set Up and Aim Precisely | get-started-02.mp3 |
-| Speed, Tip Contact, and English | get-started-03.mp3 |
-| Execute and Compare Variations | get-started-04.mp3 |
-| Plan and Execute Shot 2 | get-started-05.mp3 |
-| Full Racks and Runout Planning | get-started-06.mp3 |
-| Undo and Reset the Layout | get-started-07.mp3 |
-| Guide and Explorer | get-started-08.mp3 |
-
-After checking each recording against its script, set that step's `recordingStatus` to `recorded`. Update its matching start topic's audio array/status in `pool-audio-map.json`, add the recording to `audio-assets.json`, and bump the service-worker cache version. All eight lessons use the supplied manual recordings. Pending slots display the exact narration as text and do not use older audio or browser text-to-speech.
-
-## Engine behavior
-
-Coordinates use the head-to-foot axis for X and the table width for Y. The presets use actual corner/side pockets and standard ball radius. The draw exercise tunes speed against the live solver for a safe target on the selected table size; follow/draw percentages are converted to state fractions. Shot 2 starts at the predicted leave, transfers to the actual leave after the first stroke, and waits for a second Execute Shot. The Undo exercise starts after a genuinely committed missed shot.
-
-The eight portable session checkpoints are `layouts/get-started-01.billiards.json` through `get-started-08.billiards.json`, exported at 9-foot dimensions and cached for offline use. Loading the interactive tour adapts its setups to the player's selected table size.
-
-Run `node tests/focused-get-started.browser.cjs` with Playwright/Chromium available. It checks all eight presets on four table sizes, shot execution, Shot 2 handoff, Undo/Retry, downloads, reload, original-state restoration, and mobile layout.
+`tests/focused-get-started.browser.cjs` verifies the compact interface, all eight recordings, all eight More entries and downloads, calibrated shots on four table sizes, Shot 2, Undo, final Auto stop and phone width. `tests/audio-startup.test.cjs` and `tests/audio-startup.browser.cjs` verify native playback without custom audio processing.
