@@ -1,6 +1,6 @@
 # Get Started practice lessons
 
-Get Started uses the existing compact Guide player above the table. The familiar play/pause, skip, Auto, Read, More and lesson selector remain. Try the Shot pauses narration and closes details so the player can practice on the live table. Selecting a lesson loads its calibrated setup. After a Get Started narration, Auto displays a large ten-second countdown before loading the next lesson. The first table gesture is consumed as a pause/handoff without changing aim or ball positions; subsequent gestures control the table. Practicing cancels the countdown and shows a large Next Lesson button in the same player. The last lesson never counts down or wraps. Selecting another topic, closing the player, switching Auto off, and browsing Read/More cancel pending transitions.
+Get Started uses the existing compact Guide player above the table. The familiar play/pause, skip, Auto, Read, More and lesson selector remain. Try the Shot pauses narration and closes details so the player can practice on the live table. Selecting a lesson loads its calibrated setup. After a Get Started narration, Auto displays a circular ten-second countdown beside the lesson selector before loading the next lesson. The first table gesture is consumed as a pause/handoff without changing aim or ball positions; subsequent gestures control the table. Practicing cancels the countdown and shows a Next Lesson button in that same compact row, without opening details or adding a footer panel. The last lesson never counts down or wraps. Selecting another topic, closing the player, switching Auto off, and browsing Read/More cancel pending transitions.
 
 More lists all eight lessons. Each has Load layout, Download layout, and Download MP3. Loading uses the selected table size and live solver. Downloaded native session files use 9-foot dimensions and retain shot settings and history, including the Undo exercise. The table Reset restores the selected lesson checkpoint while Get Started is open. Closing the player keeps the practice table.
 
@@ -12,7 +12,7 @@ The supplied scripts, recording URLs and normalized setups are in `get-started-t
 
 ## Between-lesson Chase prompt
 
-The countdown works now. Its supplied Chase recording is `guide/audio/get-started-next-lesson.mp3` and is connected. The recording says: “Next lesson in ten seconds. Tap the table to try this shot.” The approved file is included in the offline cache without alteration. The counter begins when the prompt actually starts playing; a blocked or unavailable recording falls back to the visual countdown. Tapping to practice stops the prompt and countdown.
+The countdown works now. Its supplied Chase recording is `guide/audio/get-started-next-lesson-shortly.mp3` and is connected. The recording says: “Next lesson will start shortly. Tap the table to try this shot.” The approved file is included in the offline cache without alteration. The counter begins when the prompt actually starts playing; a blocked or unavailable recording falls back to the visual countdown. Tapping to practice stops the prompt and countdown.
 
 `tests/lesson-countdown.browser.cjs` verifies real ten-to-zero timing, mouse/touch first-gesture gating, second-gesture aiming, cancellation, Next Lesson, final stop, phone layout, and optional transition-voice behavior.
 

@@ -4,21 +4,22 @@
 async function mount(guide){
  const bridge=global.billiardsTourBridge,host=document.getElementById('bt-guide-pool-root');
  if(!bridge||!guide||!host)return null;
- const response=await fetch('./guide/get-started-tour.json?v=lesson-countdown-v23');
+ const response=await fetch('./guide/get-started-tour.json?v=inline-countdown-v24');
  if(!response.ok)throw Error('Get Started lessons unavailable');
  const {steps,transition}=await response.json(),seconds=transition?.seconds||10;
  let index=0,original=null,profile=null,checkpoint=null,loading=false,practicing=false,phase='listening',deadline=0,timer=null,advanceTimer=null,voiceTimer=null,epoch=0;
  const announcement=new Audio();announcement.preload='auto';announcement.volume=.8;announcement.dataset.getStartedTransition='1';
  const voice=global.BilliardsAudioStartup.create(announcement);
  const footer=document.createElement('div');footer.className='btg-practice-next';footer.hidden=true;
- footer.innerHTML='<div class="btg-countdown"><span>Next lesson in</span><strong role="timer" aria-live="off">10</strong><span>Tap the table to try this shot.</span></div><button type="button" class="btg-next-lesson">Next Lesson ▶</button><p class="btg-last-lesson">Final lesson — keep practicing, or choose another topic.</p>';
- host.append(footer);const counter=footer.querySelector('[role="timer"]'),nextButton=footer.querySelector('button');
+ footer.innerHTML='<div class="btg-countdown"><span>Next lesson in</span><strong role="timer" aria-live="off">10</strong><span>Tap the table to try this shot.</span></div><button type="button" class="btg-next-lesson">Next Lesson ▶</button><p class="btg-last-lesson">Final lesson</p>';
+ function placeControls(){const slot=host.querySelector('[data-guide-slot="practice"]');if(slot&&footer.parentNode!==slot)slot.append(footer);}
+ placeControls();const counter=footer.querySelector('[role="timer"]'),nextButton=footer.querySelector('button');
  const active=()=>{const s=guide.getState();return s.enabled&&s.category==='start'};
  const hasNext=()=>index+1<steps.length;
  const topicId=i=>global.billiardsPoolAudioMap?.topics.filter(t=>t.category==='start'&&!t.explorerOnly)[i]?.id;
  function cancel(){epoch++;clearInterval(timer);clearTimeout(advanceTimer);clearTimeout(voiceTimer);timer=advanceTimer=voiceTimer=null;deadline=0;voice.pause();}
  function render(){
-  footer.hidden=!active()||phase==='listening';footer.dataset.phase=phase;
+  footer.hidden=!active()||phase==='listening';footer.dataset.phase=phase;placeControls();
   const counting=phase==='countdown'||phase==='announcing';footer.querySelector('.btg-countdown').hidden=!counting;nextButton.hidden=counting||!hasNext();footer.querySelector('.btg-last-lesson').hidden=counting||hasNext();
   const remaining=deadline?Math.max(0,Math.ceil((deadline-performance.now())/1000)):seconds;
   if(counter.textContent!==String(remaining))counter.textContent=remaining;
@@ -95,7 +96,7 @@ async function mount(guide){
  document.addEventListener('input',event=>{if(active()&&!event.target.closest('#bt-guide-pool-root'))hold();},true);
  document.addEventListener('click',event=>{if(active()&&event.target.closest('#resetLayoutQuick,#resetLayout')){event.preventDefault();event.stopImmediatePropagation();retry();}},true);
  for(const event of ['billiards:shot-complete','billiards:undo-complete'])global.addEventListener(event,()=>{if(active()&&!loading)render();});
- return {start,select,tryShot,retry,setups,load,listening,sync,ended,hold,next,pause(){hold()},exit(){guide.setEnabled(false);if(original)bridge.restore(original);},getState:()=>({active:active(),index,stepId:steps[index].id,loading,practicing,phase,remaining:deadline?Math.max(0,Math.ceil((deadline-performance.now())/1000)):null}),steps,transition};
+ return {placeControls,start,select,tryShot,retry,setups,load,listening,sync,ended,hold,next,pause(){hold()},exit(){guide.setEnabled(false);if(original)bridge.restore(original);},getState:()=>({active:active(),index,stepId:steps[index].id,loading,practicing,phase,remaining:deadline?Math.max(0,Math.ceil((deadline-performance.now())/1000)):null}),steps,transition};
 }
 global.BilliardsGetStartedTour={mount};
 })(window);
