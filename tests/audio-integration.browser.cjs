@@ -18,13 +18,14 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
   return {count:records.length,missing:missing.map(r=>r.topic.id),invalid,
    ai:document.querySelector('#photoAiModeBtn').dataset.guideTopic,
    setup:document.querySelector('.photoSetupGroup .photoToolHeading').dataset.guideTopic,
-   image:document.querySelector('.photoToolGroup:first-child .photoToolHeading').dataset.guideTopic,
+   image:document.getElementById('photoChooseImage').closest('.photoToolGroup').querySelector('.photoToolHeading').dataset.guideTopic,
    run:document.querySelector('#startFullRack').dataset.guideTopic};
  });
  assert.equal(result.count,385);assert.deepEqual(result.missing,[]);assert.deepEqual(result.invalid,[]);
  assert.equal(result.ai,'analyze-ai-detector-mode-and-readiness');assert.equal(result.setup,'analyze-table-setup-heading');assert.equal(result.image,'analyze-image-camera-heading');assert.equal(result.run,'main-start-full-rack');
  await page.click('#btg-pool-start');
- assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().autoplay),true);
+ assert.equal(await page.evaluate(()=>billiardsGetStartedTour.getState().active),true);
+ await page.click('#bt-tour-exit');
  await page.click('#btg-pool-guide');
  assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().autoplay),false);
  assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().topicId),'welcome-guide');
@@ -38,7 +39,7 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  const welcomeText=await page.locator('#bt-guide-pool-root .btg-expanded').innerText();
  for(const word of ['Play and Pause','Auto','Read','More','Fundamentals','Physics and Tools','Drills','Exercises','Resources'])assert.ok(welcomeText.includes(word));
  await page.locator('#bt-guide-pool-root button[title="Autoplay next lesson"]').click();
- await page.evaluate(()=>{const a=window.__playedAudio.find(a=>a.dataset.topic==='welcome-guide');a.currentTime=a.duration-.1});
+ await page.evaluate(()=>{const a=window.__playedAudio.find(a=>a.dataset.topic==='welcome-guide');a.playbackRate=8});
  await page.waitForFunction(()=>billiardsPoolGuide.getState().topicId!=='welcome-guide');
  assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().topicId===billiardsPoolAudioMap.topics.find(t=>!t.categoryWelcome&&!t.explorerOnly&&t.category==='fundamentals'&&(t.level||0)===0).id),true,'Auto begins category lessons after welcome');
  await page.click('#btg-pool-guide');await page.click('#btg-pool-guide');
@@ -106,7 +107,7 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
   assert.equal(await page.evaluate(()=>window.__openedResources.length),before,'No website before narration ends');
   // Seek close to the end, then let real playback emit ended.
   const popupPromise=context.waitForEvent('page');
-  await page.evaluate(id=>{const a=window.__playedAudio.find(a=>a.dataset.topic===id);a.currentTime=a.duration-.2},id);
+  await page.evaluate(id=>{const a=window.__playedAudio.find(a=>a.dataset.topic===id);a.playbackRate=8},id);
   const popup=await popupPromise;await popup.waitForLoadState('domcontentloaded');
   assert.ok(popup.url().includes(destination));await popup.close();
   assert.equal(await page.evaluate(id=>window.__playedAudio.find(a=>a.dataset.topic===id).ended,id),true);
@@ -117,7 +118,7 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await page.locator('#bt-guide-pool-root button[title="Stop"]').click();
  await page.locator('#bt-guide-pool-root button[title="Play / Pause"]').click();
  await page.waitForFunction(()=>window.__playedAudio.some(a=>a.dataset.topic==='recommend-zero-x-overview'&&!a.paused&&a.currentTime>0));
- await page.evaluate(()=>{const a=window.__playedAudio.find(a=>a.dataset.topic==='recommend-zero-x-overview');a.currentTime=a.duration-.2});
+ await page.evaluate(()=>{const a=window.__playedAudio.find(a=>a.dataset.topic==='recommend-zero-x-overview');a.playbackRate=8});
  await page.waitForFunction(()=>window.__playedAudio.some(a=>a.dataset.topic==='recommend-zero-x-overview'&&a.ended));
  assert.equal(await page.evaluate(()=>window.__openedResources.length),0,'Stop cancels website opening');
  await finishResource('recommend-zero-x-overview','UCYuUos0iwnvdBL8URuNvrNA');
@@ -233,6 +234,8 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await context.setOffline(true);
  await page.reload({waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.billiardsPoolGuide&&window.billiardsAnalyzeGuide);
+ await page.click('#btg-pool-start');assert.equal(await page.evaluate(()=>billiardsGetStartedTour.getState().active),true);await page.click('#bt-tour-exit');
+ const offlineTour=await page.evaluate(async()=>{const data=await fetch('./guide/get-started-tour.json?v=interactive-start-v18').then(r=>r.json());return Promise.all(data.steps.map(s=>fetch(s.layout).then(r=>r.ok)))});assert.ok(offlineTour.every(Boolean),'All eight practice sessions are cached offline');
  const offlineLayout=await page.evaluate(async()=>{const res=await fetch('./guide/layouts/drill-stop-shot.billiards.json');return res.ok&&(await res.json()).layout.balls.length===3});assert.ok(offlineLayout);
  const offline=await page.evaluate(async()=>{const res=await fetch('./guide/audio/drill-two-rail-kick.mp3?v=practice-ready-v8');return res.ok&&(await res.arrayBuffer()).byteLength>100});assert.ok(offline);
  await page.screenshot({path:'../audio-integration-preview.png',fullPage:false});

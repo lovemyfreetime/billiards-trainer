@@ -2344,6 +2344,61 @@
         if(saveAfter)saveBallLayout(d.name);
         toast((file.kind==='session'?'Session resumed: ':'Table loaded: ')+d.name);
     }
+    // Get Started uses the same table, solver, shot commit, and Undo history as normal play.
+    window.billiardsTourBridge=(()=>{
+        const copy=v=>JSON.parse(JSON.stringify(v,(key,value)=>key==='preview'?null:value));
+        function capture(){return {state:copy(S),undo:copy(undoStack),history:copy(runHistory),name:$('layoutNameInput').value,quickName:$('layoutQuickName').value};}
+        function refresh(){normalizeBallSet();updateUI();updateShot2UIState();updateRunCount();refreshPreview();saveState();syncProjector();}
+        function restore(saved){if(!saved?.state)return false;animation=null;S=copy(saved.state);undoStack=copy(saved.undo||[]);runHistory=copy(saved.history||[saved.state]);$('layoutNameInput').value=saved.name||'';$('layoutQuickName').value=saved.quickName||'';refresh();return true;}
+        function aimAt(id,pocket,from=cueBall()){
+            const ball=S.balls.find(b=>b.id===id),px=pocket[0]*S.tableL,py=pocket[1]*S.tableW;
+            const d=norm({x:px-ball.x,y:py-ball.y});return {x:ball.x-d.x*2*S.ballR,y:ball.y-d.y*2*S.ballR};
+        }
+        function openControls(id){const el=$(id);el?.closest('.section')?.classList.add('open');}
+        function apply(step,profile){
+            if(animation)return false;
+            S=defaultState();S.tableL=profile.tableL;S.tableW=profile.tableW;S.ballR=.028575;
+            const R=S.ballR,L=S.tableL,W=S.tableW;
+            S.balls=step.balls.map(([id,x,y])=>({id,n:id===0?'CB':String(id),x:clamp(x*L,R,L-R),y:clamp(y*W,R,W-R),active:true}));
+            S.speed=step.speed;S.follow=step.followPercent/100;S.sideSpin=step.sidePercent/100;
+            S.showPaths=true;S.showImpact=true;S.showTipBadge=true;S.lastLayoutName='Get Started — '+step.title;S.setupMode='custom';
+            if(step.id==='practice-2')S.pocketedLog=[1,2,3,4,5,6,7];
+            if(step.id==='practice-6'){
+                const ids=[1,2,3,4,9,5,6,7,8],rows=[1,2,3,2,1];let k=0;
+                S.balls=[{id:0,n:'CB',x:L*.2,y:W*.4,active:true}];
+                for(let row=0;row<5;row++)for(let col=0;col<rows[row];col++)S.balls.push({id:ids[k],n:String(ids[k++]),x:L*.75+row*Math.sqrt(3)*R,y:W*.5+(col-(rows[row]-1)/2)*2*R,active:true});
+                S.setupMode='9ball';$('fullRackSelect').value='rack9';openControls('fullRackSelect');
+            }
+            S.freeAim=aimAt(step.target,step.pocket);
+            if(step.id==='practice-3'){
+                // Percent UI -> fraction state; tune the real solver to a safe draw target.
+                const goal=Math.min(.3048,W*.3);let lo=1.5,hi=3.6;
+                for(let i=0;i<10;i++){
+                    S.speed=(lo+hi)/2;const sim=simulate(false),cb=sim.finalBalls.find(b=>b.id===0),hit=sim.firstBallContact;
+                    const draw=hit?((cb.x-hit.cuePos.x)*-hit.incoming.x+(cb.y-hit.cuePos.y)*-hit.incoming.y):0;
+                    if(!cb.active||draw>goal)hi=S.speed;else lo=S.speed;
+                }
+                S.speed=Math.round((lo+hi)/2*100)/100;
+                const sim=simulate(false),cb=sim.finalBalls.find(b=>b.id===0);
+                if(cb?.active)S.balls.push({id:1000,n:'MARKER',marker:true,markerType:'white',markerShape:'circle',markerDiameterIn:6,markerWidthIn:6,markerHeightIn:6,markerAngle:0,markerLocked:true,x:cb.x,y:cb.y,active:true});
+            }
+            if(step.id==='practice-5'){
+                const sim=simulate(false),rest=sim.finalBalls.find(b=>b.id===0&&b.active);
+                if(rest){S.shot2Enabled=true;S.shot2Initialized=true;S.shot2={...defaultState().shot2,x:rest.x,y:rest.y,freeAim:aimAt(3,[1,0]),speed:2,follow:0,sideSpin:0};S.activeShot=1;}
+            }
+            openControls('speed');
+            undoStack=[];runHistory=[cleanSnapshot()];
+            if(step.id==='practice-7'){
+                const cb=cueBall(),r=Math.hypot(S.freeAim.x-cb.x,S.freeAim.y-cb.y),a=Math.atan2(S.freeAim.y-cb.y,S.freeAim.x-cb.x)+3*Math.PI/180;
+                S.freeAim={x:cb.x+Math.cos(a)*r,y:cb.y+Math.sin(a)*r};
+                const before=cleanSnapshot();runHistory=[copy(before)];commitAnimatedShot(simulate(true),before);
+            }
+            $('layoutNameInput').value=S.lastLayoutName;$('layoutQuickName').value=S.lastLayoutName;refresh();return true;
+        }
+        function snapshot(){return {busy:!!animation,undoCount:undoStack.length,shots:Math.max(0,runHistory.length-1),pocketed:[...(S.pocketedLog||[])],shot2Enabled:S.shot2Enabled,speed:S.speed,followPercent:Math.round(S.follow*100),sidePercent:Math.round(S.sideSpin*100),tableL:S.tableL,tableW:S.tableW};}
+        return {capture,restore,apply,snapshot,exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},predict(){const p=simulate(false);return {pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact};}};
+    })();
+
     window.billiardsGuideApplyLayout=file=>{applyTableFile(file,false,null,true);if($('photoAnalyzerModal').classList.contains('open'))closePhotoAnalyzer();};
     function stageTableFile(file){
         photoVision.imageError='';photoVision.analysisError='';
@@ -7993,6 +8048,7 @@
         refreshPreview();
         saveState();
         syncProjector();
+        window.dispatchEvent(new CustomEvent('billiards:shot-complete',{detail:{removed:[...removed],shot2Handoff:!!shot2Handoff}}));
         if (shot2Handoff) {
             if (removed.length)
                 toast('Shot saved · Shot 2 applied · pocketed ' + removed.join(', '));
@@ -8046,6 +8102,7 @@
         saveState();
         syncProjector();
         toast('Last shot restored');
+        window.dispatchEvent(new CustomEvent('billiards:undo-complete'));
     }
     function saveRun() {
         if (!runHistory.length)
@@ -11998,8 +12055,10 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <script src="./guide/guide.js?v=guide-attention-v14"></script>
   <script src="./guide/recorded-audio.js?v=presets-recovery-v13"></script>
-  <script src="./guide/pool-integration.js?v=focused-start-v17"></script>
-  <script src="./guide/analyze-integration.js?v=presets-recovery-v13"></script>
+  <link rel="stylesheet" href="./guide/get-started-tour.css?v=interactive-start-v18">
+  <script src="./guide/get-started-tour.js?v=interactive-start-v18"></script>
+  <script src="./guide/pool-integration.js?v=interactive-start-v18"></script>
+  <script src="./guide/analyze-integration.js?v=interactive-start-v18"></script>
   <script src="./guide/analyze-welcome.js?v=analyze-welcome-v16"></script>
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>

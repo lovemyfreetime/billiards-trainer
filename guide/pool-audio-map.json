@@ -1658,141 +1658,120 @@
     },
     {
       "id": "first-session-welcome",
-      "title": "1. Welcome to focused practice",
+      "title": "1. Welcome to Focused Practice",
       "category": "start",
       "level": 2,
-      "audio": [
-        "./guide/audio/guide-welcome-quick.mp3"
-      ],
-      "text": "Welcome to the Billiards Trainer. This interactive learning environment helps you explore shot geometry, cue-ball control, and the physics of billiards. Whether you're learning the fundamentals or improving advanced techniques, you can practice at your own pace and explore the results of different shots.",
-      "summary": "Welcome to focused practice",
+      "audio": [],
+      "text": "Welcome to the Billiards Trainer\u2014your digital practice arena. Master shot geometry, unlock cue-ball control, and explore real billiard physics. From core fundamentals to pro runouts, step up to the table and practice on your terms.",
+      "summary": "Pocket the 1-ball, then look at your cue-ball leave.",
       "sourceTopicIds": [
         "guide-welcome-quick"
-      ]
+      ],
+      "recordingStatus": "pending"
     },
     {
       "id": "first-session-aiming",
-      "title": "2. Set up and aim precisely",
+      "title": "2. Set Up and Aim Precisely",
       "category": "start",
       "level": 2,
-      "audio": [
-        "./guide/audio/main-object-ball-move.mp3",
-        "./guide/audio/main-cue-ball-move.mp3",
-        "./guide/audio/main-aim-drag-wheel.mp3",
-        "./guide/audio/main-shot-1-micro-aim.mp3",
-        "./guide/audio/main-ghost-ball.mp3"
-      ],
-      "text": "Drag a numbered ball to a practice position. Dropping into a pocket removes it to the pocketed strip.\n\nDrag the cue ball to place it.\n\nChange the active shot direction on the table with a drag or wheel adjustment.\n\nMake small adjustments to Shot 1 aiming direction by dragging the roller or using the mouse wheel.\n\nThis shows the cue-ball position at predicted object-ball contact.",
-      "summary": "Set up and aim precisely",
+      "audio": [],
+      "text": "Setting up a shot takes seconds. Drag any ball onto the table, or flick it into a pocket to clear the cloth. Place your cue ball, sweep to aim, and use the roller for pinpoint adjustments. The ghost ball reveals your exact line of contact before you shoot.",
+      "summary": "Try the aim roller. Pocket the 8, or return a ball from the tray.",
       "sourceTopicIds": [
         "main-object-ball-move",
         "main-cue-ball-move",
         "main-aim-drag-wheel",
         "main-shot-1-micro-aim",
         "main-ghost-ball"
-      ]
+      ],
+      "recordingStatus": "pending"
     },
     {
       "id": "first-session-speed",
-      "title": "3. Speed, tip contact, and English",
+      "title": "3. Speed, Tip Contact, and English",
       "category": "start",
       "level": 2,
-      "audio": [
-        "./guide/audio/main-shot-1-speed-slider.mp3?v=chase-playback-v2",
-        "./guide/audio/main-shot-1-cue-tip-contact.mp3",
-        "./guide/audio/main-shot-1-follow-draw-slider.mp3",
-        "./guide/audio/main-shot-1-english-slider.mp3"
-      ],
-      "text": "Adjust Shot 1 stroke speed. Values are in meters per second.\n\nClick, touch, or drag on the cue-ball diagram to place Shot 1 cue-tip contact.\n\nAdjust Shot 1 forward rotation above zero and backspin below zero. Values are in percent.\n\nAdjust Shot 1 left and right English. Values are in percent.",
-      "summary": "Speed, tip contact, and English",
+      "audio": [],
+      "text": "Take total command of the cue ball. Dial in your stroke speed, then tap or drag the cue-ball diagram to lock your tip contact. Add follow, dig in for draw, or apply English to shape your trajectory off the rails.",
+      "summary": "Try the preset draw. Try Again, change only the speed or tip contact, and compare.",
       "sourceTopicIds": [
         "main-shot-1-speed-slider",
         "main-shot-1-cue-tip-contact",
         "main-shot-1-follow-draw-slider",
         "main-shot-1-english-slider"
-      ]
+      ],
+      "recordingStatus": "pending"
     },
     {
       "id": "first-session-execute",
-      "title": "4. Execute and compare variations",
+      "title": "4. Execute and Compare Variations",
       "category": "start",
       "level": 2,
-      "audio": [
-        "./guide/audio/main-execute-the-active-shot.mp3",
-        "./guide/audio/first-session-experiment.mp3"
-      ],
-      "text": "Run the active shot's simulation.\n\nNow let's see how a small change affects the shot. Return to the starting arrangement and adjust the speed or aiming direction. Execute Shot again and compare the result. Experimenting with one change at a time is one of the best ways to understand what the cue ball is doing.",
-      "summary": "Execute and compare variations",
+      "audio": [],
+      "text": "Hit Execute Shot to unleash the physics engine. Want to see how a slight adjustment changes the leave? Reset the shot, tweak your speed or angle, and shoot again. Changing one variable at a time is the fastest way to understand how the cue ball behaves.",
+      "summary": "Shoot the 4. Try Again, change one setting, and compare the leave.",
       "sourceTopicIds": [
         "main-execute-the-active-shot",
         "first-session-experiment"
-      ]
+      ],
+      "recordingStatus": "pending"
     },
     {
       "id": "first-session-shot-two",
-      "title": "5. Plan and execute Shot 2",
+      "title": "5. Plan and Execute Shot 2",
       "category": "start",
       "level": 2,
-      "audio": [
-        "./guide/audio/first-session-shot-two.mp3",
-        "./guide/audio/first-session-two-shot-execution.mp3"
-      ],
-      "text": "Shot 2 allows you to plan your next shot before executing the current one. Add a second planned cue ball and position it for the next object ball. You can adjust its aiming direction, speed, and spin while keeping your first shot ready.\n\nWith both shots planned, select Execute Shot. The trainer executes the first shot and advances to the second planned shot. That second cue ball becomes your active cue ball. You can examine its position, make adjustments, and select Execute Shot again when you're ready.",
-      "summary": "Plan and execute Shot 2",
+      "audio": [],
+      "text": "Great pool is played two shots ahead. With Shot 2, plan your next ball before shooting your first. Set your landing zone, angle in on your target, and press Execute Shot. The trainer fires the opener and transitions straight into shot two\u2014ready for your next strike.",
+      "summary": "Execute Shot plays the 2. Press it again to play the second plan on the 3.",
       "sourceTopicIds": [
         "first-session-shot-two",
         "first-session-two-shot-execution"
-      ]
+      ],
+      "recordingStatus": "pending"
     },
     {
       "id": "first-session-extend-runout",
-      "title": "6. Full racks and runout planning",
+      "title": "6. Full Racks and Runout Planning",
       "category": "start",
       "level": 2,
-      "audio": [
-        "./guide/audio/main-pick-and-play-full-racks.mp3",
-        "./guide/audio/main-start-full-rack.mp3",
-        "./guide/audio/first-session-extend-runout.mp3"
-      ],
-      "text": "Pick and Play Full Racks prepares a complete game rack. Choose 3-Ball, 6-Ball, 7-Ball, 8-Ball, 9-Ball, 10-Ball, Ultimate 8 Ball, or Straight Pool from the menu, then press Start. Six Ball uses a small triangle. Seven Ball places the seven in the center of a hexagon. Straight Pool prepares fourteen balls with the front position open. Add a single ball if you want a separate break ball, then drag it and the cue ball to your preferred positions. Ultimate 8 Ball uses the fixed numbered arrangement and puts the eight ball exactly on the foot spot.\n\nStart replaces the current table with the selected full rack and begins a fresh practice run. It prepares the selected rack, including the fourteen-ball straight-pool rack with its front position open. Use Execute Shot when you are ready to shoot.\n\nYou aren't limited to planning only two shots. After executing a shot, the next planned cue ball becomes active. Before continuing, you can add another Shot 2. Repeat this process to plan and execute an entire runout, one shot at a time.",
-      "summary": "Full racks and runout planning",
+      "audio": [],
+      "text": "Step up to full-table strategy. Open Pick and Play Full Racks to load official layouts like 8-Ball, 9-Ball, or Straight Pool. Map out your patterns ball-by-ball. Add Shot 2 after each execution to plan a complete, unbroken runout from the break right through to the money ball.",
+      "summary": "A 9-ball break is ready. Shoot, plan a runout, or choose another full rack.",
       "sourceTopicIds": [
         "main-pick-and-play-full-racks",
         "main-start-full-rack",
         "first-session-extend-runout"
-      ]
+      ],
+      "recordingStatus": "pending"
     },
     {
       "id": "first-session-undo",
-      "title": "7. Undo and reset the layout",
+      "title": "7. Undo and Reset the Layout",
       "category": "start",
       "level": 2,
-      "audio": [
-        "./guide/audio/first-session-undo.mp3",
-        "./guide/audio/main-reset-practice-layout.mp3"
-      ],
-      "text": "One of the trainer's most useful features is Undo Last Shot. It allows you to step backward through your completed shots, even through a full rack. Return to an earlier shot, examine the position you created, and try a different approach. You can learn from the decisions you made without starting the entire layout over.\n\nRestore the practice layout and restart its run history.",
-      "summary": "Undo and reset the layout",
+      "audio": [],
+      "text": "Mistakes are where mastery happens. Hit Undo Last Shot to roll back time at any point in your run. Inspect what went wrong, test a new angle or tip placement, and solve the layout without having to rebuild the entire table from scratch.",
+      "summary": "A real missed shot is saved. Use Undo Last Shot, adjust the aim, then shoot again.",
       "sourceTopicIds": [
         "first-session-undo",
         "main-reset-practice-layout"
-      ]
+      ],
+      "recordingStatus": "pending"
     },
     {
       "id": "get-started-explore",
       "title": "8. Guide and Explorer",
       "category": "start",
       "level": 2,
-      "audio": [
-        "./guide/audio/main-open-technique-guide.mp3",
-        "./guide/audio/main-main-explorer-mode.mp3"
-      ],
-      "text": "Open the Guide for Fundamentals, Physics and Tools, Drills, and Exercises. Choose a category and a topic from the menu. Select the Guide launcher again to close it.\n\nTurn Explorer on, then select a button or an area to hear its explanation. The selected area is highlighted. Turn Explorer off to use the controls normally.",
-      "summary": "Guide and Explorer",
+      "audio": [],
+      "text": "Need drills or deep technical breakdowns? Open the Guide for lessons on fundamentals and table physics. Or flip on Explorer Mode and tap any control on your screen to learn what it does. Dive in, explore the table, and start training smarter.",
+      "summary": "Take the Wheel enables Explorer here. Turn Explorer off to use controls and shoot.",
       "sourceTopicIds": [
         "main-open-technique-guide",
         "main-main-explorer-mode"
-      ]
+      ],
+      "recordingStatus": "pending"
     },
     {
       "id": "features-options-overview-quick",
