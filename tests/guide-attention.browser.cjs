@@ -20,9 +20,9 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await host.locator('[data-action="■"]').click();await glowing(false);
  await host.locator('.btg-categories button').filter({hasText:/^Drills$/}).click();await playing();
  const lesson=await host.locator('select option').evaluateAll(opts=>opts.find(o=>o.value).value);await host.locator('select').selectOption(lesson);await playing();
- await host.locator('[data-action="A"]').click();await host.locator('select').focus();await page.evaluate(()=>{window.__select=document.querySelector('#bt-guide-pool-root select');const a=__audio.find(a=>!a.paused&&a.dataset.topic);a.currentTime=a.duration-.1});
+ await host.locator('[data-action="A"]').click();await host.locator('select').focus();await page.evaluate(()=>{window.__select=document.querySelector('#bt-guide-pool-root select');const a=__audio.find(a=>!a.paused&&a.dataset.topic);a.playbackRate=8});
  await page.waitForFunction(id=>billiardsPoolGuide.getState().topicId!==id,lesson);await playing();assert.equal(await page.evaluate(()=>__select===document.querySelector('#bt-guide-pool-root select')),true);
  await page.click('#btg-pool-guide');await page.waitForFunction(()=>!document.getElementById('bt-guide-pool-root').classList.contains('btg-narrating'));
- await page.click('#btg-pool-start');await playing();await host.locator('[data-action="■"]').click();await glowing(false);
- console.log('Guide attention: real welcome/lesson/Get Started playback, pause/resume/stop, buffering, Auto dropdown continuity, and reduced motion passed.');await browser.close();
+ await page.click('#btg-pool-start');assert.equal(await page.locator('#bt-get-started-tour').isVisible(),true);assert.equal(await page.locator('#bt-tour-play').isDisabled(),true);await page.click('#bt-tour-exit');assert.equal(await host.evaluate(el=>el.classList.contains('btg-narrating')),false);
+ console.log('Guide attention: real welcome/lesson playback and interactive Get Started, pause/resume/stop, buffering, Auto dropdown continuity, and reduced motion passed.');await browser.close();
 })().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>{server.kill();process.exit(process.exitCode||0)});

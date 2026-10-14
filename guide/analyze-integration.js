@@ -349,6 +349,8 @@ async function init(){
   for(const [selector,topic] of Object.entries(selectors))
    modal.querySelectorAll(selector).forEach(el=>{el.dataset.guideTopic=topic;});
   BilliardsRecordedAudio.map(recorded,'Analyze');
+  // The welcome section can precede this group; it is no longer first-child.
+  modal.querySelector('#photoChooseImage')?.closest('.photoToolGroup')?.querySelector('.photoToolHeading')?.setAttribute('data-guide-topic','analyze-image-camera-heading');
  }
  applyMappings();
  topics.forEach(t=>{t.explorerOnly=t.category==='reference'||t.category==='explore'});

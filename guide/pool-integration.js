@@ -5,7 +5,7 @@ async function init(){
  const recorded=await BilliardsRecordedAudio.load();
  const stage=document.getElementById('stageWrap');
  if(!stage||!window.BilliardsGuide||document.body.classList.contains('projector'))return;
- const response=await fetch('./guide/pool-audio-map.json?v=focused-start-v17');
+ const response=await fetch('./guide/pool-audio-map.json?v=interactive-start-v18');
  if(!response.ok)throw Error('Pool Guide audio map could not load');
  const catalog=await response.json();
  BilliardsRecordedAudio.merge(catalog.topics,recorded,'Main');
@@ -45,11 +45,12 @@ async function init(){
  const ids=[...new Set([...Object.values(catalog.assignments),...Object.values(catalog.sections),...catalog.canvasTopics,catalog.powerMeterTopic])];
  for(const topic of catalog.topics)topic.explorerOnly=topic.category==='reference'||topic.category==='explore'||(topic.category!=='start'&&topic.category!=='reference'&&ids.includes(topic.id));
  await BilliardsPracticeLayouts.attach(catalog.topics);
+ let tour=null;
  const guide=BilliardsGuide.mount(host,{
   loadLayout:BilliardsPracticeLayouts.apply,
   onStateChange(state){
    guideButton.setAttribute('aria-pressed',String(state.enabled&&state.category!=='start'));
-   startButton.setAttribute('aria-pressed',String(state.enabled&&state.category==='start'));
+   startButton.setAttribute('aria-pressed',String(!!tour?.getState().active||(state.enabled&&state.category==='start')));
    exploreButton.setAttribute('aria-pressed',String(state.exploring));
   },
   poolMode:true,storageKey:'billiards-pool-guide-v1',topics:catalog.topics,resources:catalog.resources,exploreTopicIds:ids,
@@ -84,10 +85,12 @@ async function init(){
  });
  guideButton.addEventListener('click',()=>{if(guide.getState().enabled&&guide.getState().category!=='start')guide.setEnabled(false);else guide.openGuide()});
  exploreButton.addEventListener('click',()=>guide.setExploring(!guide.getState().exploring));
- startButton.addEventListener('click',()=>{if(guide.getState().enabled&&guide.getState().category==='start')guide.setEnabled(false);else guide.openCategory('start')});
+ tour=await BilliardsGetStartedTour.mount(guide);
+ window.billiardsGetStartedTour=tour;
+ startButton.addEventListener('click',()=>tour?tour.start():guide.openCategory('start'));
  for(const id of ['analyzePhotoBtn','cameraCaptureBtn'])document.getElementById(id)?.addEventListener('click',()=>{if(!guide.getState().exploring){guide.setEnabled(false);guide.setExploring(false)}},true);
  // Also pause if Analyze is opened through another trainer action.
- const modalObserver=new MutationObserver(()=>{if(modal.classList.contains('open')){guide.setEnabled(false);guide.setExploring(false)}});
+ const modalObserver=new MutationObserver(()=>{if(modal.classList.contains('open')){tour?.pause();guide.setEnabled(false);guide.setExploring(false)}});
  modalObserver.observe(modal,{attributes:true,attributeFilter:['class']});
  window.billiardsPoolGuide=guide;
  window.billiardsPoolAudioMap=catalog;

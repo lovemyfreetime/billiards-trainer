@@ -1,0 +1,417 @@
+{
+  "format": "billiards-trainer",
+  "version": 1,
+  "kind": "session",
+  "name": "Get Started — Full Racks and Runout Planning",
+  "savedAt": "2026-10-14T20:22:27.279Z",
+  "layout": {
+    "id": 1792009347377,
+    "savedAt": 1792009347279,
+    "name": "Get Started — Full Racks and Runout Planning",
+    "tableL": 2.54,
+    "tableW": 1.27,
+    "ballR": 0.028575,
+    "setupMode": "9ball",
+    "allowMissingCueBall": false,
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 0.508,
+        "y": 0.508,
+        "active": true
+      },
+      {
+        "id": 1,
+        "n": "1",
+        "x": 1.905,
+        "y": 0.635,
+        "active": true
+      },
+      {
+        "id": 2,
+        "n": "2",
+        "x": 1.9544933518262806,
+        "y": 0.606425,
+        "active": true
+      },
+      {
+        "id": 3,
+        "n": "3",
+        "x": 1.9544933518262806,
+        "y": 0.663575,
+        "active": true
+      },
+      {
+        "id": 4,
+        "n": "4",
+        "x": 2.0039867036525614,
+        "y": 0.57785,
+        "active": true
+      },
+      {
+        "id": 9,
+        "n": "9",
+        "x": 2.0039867036525614,
+        "y": 0.635,
+        "active": true
+      },
+      {
+        "id": 5,
+        "n": "5",
+        "x": 2.0039867036525614,
+        "y": 0.69215,
+        "active": true
+      },
+      {
+        "id": 6,
+        "n": "6",
+        "x": 2.053480055478842,
+        "y": 0.606425,
+        "active": true
+      },
+      {
+        "id": 7,
+        "n": "7",
+        "x": 2.053480055478842,
+        "y": 0.663575,
+        "active": true
+      },
+      {
+        "id": 8,
+        "n": "8",
+        "x": 2.1029734073051225,
+        "y": 0.635,
+        "active": true
+      }
+    ],
+    "freeAim": {
+      "x": 1.84785,
+      "y": 0.635
+    }
+  },
+  "state": {
+    "tableL": 2.54,
+    "tableW": 1.27,
+    "ballR": 0.028575,
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 0.508,
+        "y": 0.508,
+        "active": true
+      },
+      {
+        "id": 1,
+        "n": "1",
+        "x": 1.905,
+        "y": 0.635,
+        "active": true
+      },
+      {
+        "id": 2,
+        "n": "2",
+        "x": 1.9544933518262806,
+        "y": 0.606425,
+        "active": true
+      },
+      {
+        "id": 3,
+        "n": "3",
+        "x": 1.9544933518262806,
+        "y": 0.663575,
+        "active": true
+      },
+      {
+        "id": 4,
+        "n": "4",
+        "x": 2.0039867036525614,
+        "y": 0.57785,
+        "active": true
+      },
+      {
+        "id": 9,
+        "n": "9",
+        "x": 2.0039867036525614,
+        "y": 0.635,
+        "active": true
+      },
+      {
+        "id": 5,
+        "n": "5",
+        "x": 2.0039867036525614,
+        "y": 0.69215,
+        "active": true
+      },
+      {
+        "id": 6,
+        "n": "6",
+        "x": 2.053480055478842,
+        "y": 0.606425,
+        "active": true
+      },
+      {
+        "id": 7,
+        "n": "7",
+        "x": 2.053480055478842,
+        "y": 0.663575,
+        "active": true
+      },
+      {
+        "id": 8,
+        "n": "8",
+        "x": 2.1029734073051225,
+        "y": 0.635,
+        "active": true
+      }
+    ],
+    "nextId": 10,
+    "markerSeq": 1000,
+    "freeAim": {
+      "x": 1.84785,
+      "y": 0.635
+    },
+    "angleLock": false,
+    "speed": 6,
+    "follow": 0,
+    "sideSpin": 0,
+    "cueElevationDeg": 3,
+    "shot2Enabled": false,
+    "activeShot": 1,
+    "shot2Initialized": false,
+    "showShot1": true,
+    "showShot2": true,
+    "showCueVisuals": true,
+    "showShotStats1": true,
+    "showShotStats2": true,
+    "showCueVisuals1": true,
+    "showCueVisuals2": true,
+    "showAngleLockControl": false,
+    "shot2": {
+      "x": 1.05,
+      "y": 0.72,
+      "freeAim": {
+        "x": 1.7,
+        "y": 0.72
+      },
+      "angleLock": false,
+      "autoGhostLock": false,
+      "speed": 2.42,
+      "follow": 0,
+      "sideSpin": 0,
+      "cueElevationDeg": 3,
+      "preview": null
+    },
+    "teachingCompass": {
+      "enabled": false,
+      "x": 0.9,
+      "y": 0.56,
+      "angle": 0,
+      "sizePct": 45,
+      "linkedBallId": null
+    },
+    "setupMode": "9ball",
+    "pocketedLog": [],
+    "player1Score": 0,
+    "player2Score": 0,
+    "activePlayer": 1,
+    "showScoreBoard": false,
+    "allowMissingCueBall": false,
+    "showBankKickNumbers": false,
+    "bankKick": {
+      "mode": null,
+      "phase": null,
+      "zero": null,
+      "railName": null,
+      "railU": null,
+      "autoAim": true,
+      "ballId": null,
+      "solution": null
+    },
+    "muSlide": 0.25,
+    "muRoll": 0.01,
+    "muBall": 0.01,
+    "ballRest": 0.96,
+    "railRest": 0.9,
+    "railTang": 0.9,
+    "cueEndmassRatio": 20.151,
+    "cuePreset": "standard",
+    "jumpUnits": "in",
+    "airbornePhysics": false,
+    "tableRest": 0.6,
+    "bedImpactMu": 0.2,
+    "showImpact": true,
+    "showTipBadge": true,
+    "showPaths": true,
+    "showGrid": true,
+    "showDiamonds": true,
+    "showTable": true,
+    "preview": null,
+    "firstEvent": "CB → 1",
+    "lastLayoutName": "Get Started — Full Racks and Runout Planning"
+  },
+  "history": [
+    {
+      "tableL": 2.54,
+      "tableW": 1.27,
+      "ballR": 0.028575,
+      "balls": [
+        {
+          "id": 0,
+          "n": "CB",
+          "x": 0.508,
+          "y": 0.508,
+          "active": true
+        },
+        {
+          "id": 1,
+          "n": "1",
+          "x": 1.905,
+          "y": 0.635,
+          "active": true
+        },
+        {
+          "id": 2,
+          "n": "2",
+          "x": 1.9544933518262806,
+          "y": 0.606425,
+          "active": true
+        },
+        {
+          "id": 3,
+          "n": "3",
+          "x": 1.9544933518262806,
+          "y": 0.663575,
+          "active": true
+        },
+        {
+          "id": 4,
+          "n": "4",
+          "x": 2.0039867036525614,
+          "y": 0.57785,
+          "active": true
+        },
+        {
+          "id": 9,
+          "n": "9",
+          "x": 2.0039867036525614,
+          "y": 0.635,
+          "active": true
+        },
+        {
+          "id": 5,
+          "n": "5",
+          "x": 2.0039867036525614,
+          "y": 0.69215,
+          "active": true
+        },
+        {
+          "id": 6,
+          "n": "6",
+          "x": 2.053480055478842,
+          "y": 0.606425,
+          "active": true
+        },
+        {
+          "id": 7,
+          "n": "7",
+          "x": 2.053480055478842,
+          "y": 0.663575,
+          "active": true
+        },
+        {
+          "id": 8,
+          "n": "8",
+          "x": 2.1029734073051225,
+          "y": 0.635,
+          "active": true
+        }
+      ],
+      "nextId": 3,
+      "markerSeq": 1000,
+      "freeAim": {
+        "x": 1.84785,
+        "y": 0.635
+      },
+      "angleLock": false,
+      "speed": 6,
+      "follow": 0,
+      "sideSpin": 0,
+      "cueElevationDeg": 3,
+      "shot2Enabled": false,
+      "activeShot": 1,
+      "shot2Initialized": false,
+      "showShot1": true,
+      "showShot2": true,
+      "showCueVisuals": true,
+      "showShotStats1": true,
+      "showShotStats2": true,
+      "showCueVisuals1": true,
+      "showCueVisuals2": true,
+      "showAngleLockControl": false,
+      "shot2": {
+        "x": 1.05,
+        "y": 0.72,
+        "freeAim": {
+          "x": 1.7,
+          "y": 0.72
+        },
+        "angleLock": false,
+        "autoGhostLock": false,
+        "speed": 2.42,
+        "follow": 0,
+        "sideSpin": 0,
+        "cueElevationDeg": 3,
+        "preview": null
+      },
+      "teachingCompass": {
+        "enabled": false,
+        "x": 0.9,
+        "y": 0.56,
+        "angle": 0,
+        "sizePct": 45,
+        "linkedBallId": null
+      },
+      "setupMode": "9ball",
+      "pocketedLog": [],
+      "player1Score": 0,
+      "player2Score": 0,
+      "activePlayer": 1,
+      "showScoreBoard": false,
+      "allowMissingCueBall": false,
+      "showBankKickNumbers": false,
+      "bankKick": {
+        "mode": null,
+        "phase": null,
+        "zero": null,
+        "railName": null,
+        "railU": null,
+        "autoAim": true,
+        "ballId": null,
+        "solution": null
+      },
+      "muSlide": 0.25,
+      "muRoll": 0.01,
+      "muBall": 0.01,
+      "ballRest": 0.96,
+      "railRest": 0.9,
+      "railTang": 0.9,
+      "cueEndmassRatio": 20.151,
+      "cuePreset": "standard",
+      "jumpUnits": "in",
+      "airbornePhysics": false,
+      "tableRest": 0.6,
+      "bedImpactMu": 0.2,
+      "showImpact": true,
+      "showTipBadge": true,
+      "showPaths": true,
+      "showGrid": true,
+      "showDiamonds": true,
+      "showTable": true,
+      "preview": null,
+      "firstEvent": "—",
+      "lastLayoutName": "Get Started — Full Racks and Runout Planning"
+    }
+  ]
+}
