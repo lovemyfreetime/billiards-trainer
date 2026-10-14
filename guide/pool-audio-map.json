@@ -1762,28 +1762,32 @@
       "title": "7. Undo and Reset the Layout",
       "category": "start",
       "level": 2,
-      "audio": [],
+      "audio": [
+        "./guide/audio/get-started-07.mp3"
+      ],
       "text": "Mistakes are where mastery happens. Hit Undo Last Shot to roll back time at any point in your run. Inspect what went wrong, test a new angle or tip placement, and solve the layout without having to rebuild the entire table from scratch.",
       "summary": "A real missed shot is saved. Use Undo Last Shot, adjust the aim, then shoot again.",
       "sourceTopicIds": [
         "first-session-undo",
         "main-reset-practice-layout"
       ],
-      "recordingStatus": "pending"
+      "recordingStatus": "recorded"
     },
     {
       "id": "get-started-explore",
       "title": "8. Guide and Explorer",
       "category": "start",
       "level": 2,
-      "audio": [],
+      "audio": [
+        "./guide/audio/get-started-08.mp3"
+      ],
       "text": "Need drills or deep technical breakdowns? Open the Guide for lessons on fundamentals and table physics. Or flip on Explorer Mode and tap any control on your screen to learn what it does. Dive in, explore the table, and start training smarter.",
       "summary": "Take the Wheel enables Explorer here. Turn Explorer off to use controls and shoot.",
       "sourceTopicIds": [
         "main-open-technique-guide",
         "main-main-explorer-mode"
       ],
-      "recordingStatus": "pending"
+      "recordingStatus": "recorded"
     },
     {
       "id": "features-options-overview-quick",

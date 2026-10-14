@@ -237,7 +237,7 @@
         "resetLayoutQuick"
       ],
       "audio": "./guide/audio/get-started-07.mp3",
-      "recordingStatus": "pending",
+      "recordingStatus": "recorded",
       "layout": "./guide/layouts/get-started-07.billiards.json"
     },
     {
@@ -291,7 +291,7 @@
         "tipCanvas"
       ],
       "audio": "./guide/audio/get-started-08.mp3",
-      "recordingStatus": "pending",
+      "recordingStatus": "recorded",
       "layout": "./guide/layouts/get-started-08.billiards.json"
     }
   ]
