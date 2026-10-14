@@ -89,7 +89,7 @@ function mount(bridge){
  $('photoWalkthroughReplay').addEventListener('click',narrate);
  $('photoWalkthroughMute').addEventListener('click',()=>{muted=!muted;$('photoWalkthroughMute').textContent=muted?'Audio Off':'Audio On';$('photoWalkthroughMute').setAttribute('aria-pressed',String(muted));if(muted)stopAudio();else narrate();});
  $('photoWalkthroughStop').addEventListener('click',stop);
- for(const id of ['btg-analyze-start','btg-analyze-explore','photoAnalyzerClose'])$(id).addEventListener('click',stop,true);
+ for(const id of ['btg-analyze-explore','photoAnalyzerClose'])$(id).addEventListener('click',stop,true);
  $('photoAnalyzerModal').addEventListener('click',event=>{
   if(!machine.state().active)return;
   const id=event.target.closest('button,select')?.id;

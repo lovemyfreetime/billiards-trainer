@@ -4,10 +4,8 @@
 async function init(){
  const recorded=await BilliardsRecordedAudio.load();
  const host=document.getElementById('bt-guide-root');
- const started=document.getElementById('btg-analyze-start');
  const modal=document.getElementById('photoAnalyzerModal');
- if(!host||!started||!modal||!window.BilliardsGuide)return;
- if(started)started.dataset.btgAllow='1';
+ if(!host||!modal||!window.BilliardsGuide)return;
  document.getElementById('photoAnalyzerClose').dataset.btgAllow='1';
  const explorer=document.getElementById('btg-analyze-explore');
  explorer.dataset.btgAllow='1';
@@ -434,7 +432,7 @@ async function init(){
   loadLayout:BilliardsPracticeLayouts.apply,
   resolveTopic(e,el){return BilliardsRecordedAudio.resolve(e,recorded,'Analyze')||el?.dataset.guideTopic},
   topics,initialCategory:'start',storageKey:'billiards-analyze-start-v1',startOnly:true,exploreTopicIds:topics.map(t=>t.id),
-  onStateChange(state){started?.setAttribute('aria-pressed',String(state.enabled&&state.category==='start'));explorer.setAttribute('aria-pressed',String(state.exploring));},
+  onStateChange(state){explorer.setAttribute('aria-pressed',String(state.exploring));},
   allowNavigation(e){
    if(e.type==='keydown'&&e.key==='Tab')return true;
    return e.type==='wheel'&&!!e.target.closest('.photoReview')&&!e.target.closest('input,select,button');
@@ -442,7 +440,6 @@ async function init(){
  });
  new MutationObserver(applyMappings).observe(document.getElementById('photoDetectionList'),{childList:true,subtree:true});
  new MutationObserver(()=>{if(!modal.classList.contains('open')){guide.setEnabled(false);guide.setExploring(false)}}).observe(modal,{attributes:true,attributeFilter:['class']});
- started?.addEventListener('click',()=>{const s=guide.getState();if(s.enabled&&s.category==='start')guide.setEnabled(false);else guide.openCategory('start')});
  explorer.addEventListener('click',()=>guide.setExploring(!guide.getState().exploring));
  window.billiardsAnalyzeGuide=guide;
  window.billiardsAnalyzeAudioMap={topics,assignments};

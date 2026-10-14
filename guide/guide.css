@@ -85,7 +85,7 @@ body.btg-inspection:before{content:"";position:fixed;inset:0;pointer-events:none
 /* Lesson menus fit their longest title, with room for the dropdown arrow. */
 #bt-guide-root.btg-header-mode>div>select.btg-lesson-select{flex:0 1 auto;max-width:100%;min-width:95px}
 .photoAnalyzerHeader #bt-guide-root{flex:0 1 auto!important;max-width:calc(100% - 110px)!important;width:max-content}
-.photoAnalyzerHeader #btg-analyze-start{margin-left:auto}
+.photoAnalyzerHeader #photoWalkthroughBtn{margin-left:auto}
 
 .btg-current-lesson{display:block;font-size:11px;color:#c4ded4;margin:2px 0 4px;max-width:510px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .btg-setup-actions{margin:6px 0 10px;white-space:normal}.btg-setup-actions>div{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:5px 0}.btg-setup-actions a,.btg-resource-links a{color:#9fe2c4}.btg-setup-note{font-size:11px;color:#b7c8c2}

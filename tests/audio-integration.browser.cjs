@@ -212,16 +212,7 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await page.waitForFunction(()=>billiardsAnalyzeWalkthrough.getState().id==='review');await page.click('#photoWalkthroughNext');await page.click('#photoWalkthroughNext');await page.click('#photoApplyTable');
  await page.waitForFunction(()=>billiardsAnalyzeWalkthrough.getState().id==='complete');
  await page.click('#analyzePhotoBtn');
- await page.click('#btg-analyze-start');
- await page.waitForFunction(()=>billiardsAnalyzeGuide.getState().category==='start');
- assert.ok((await page.locator('#bt-guide-root select').inputValue()).startsWith('analyze-start-'));
- assert.equal(await page.evaluate(()=>billiardsAnalyzeGuide.getState().autoplay),true);
- await page.locator('#bt-guide-root select').selectOption('analyze-start-corners');
- await page.waitForFunction(()=>window.__playedAudio.some(a=>a.src.includes('analyze-corner-setup-walkthrough.mp3')&&!a.paused&&a.currentTime>0));
- await page.locator('#bt-guide-root button').filter({hasText:/^Read$/}).click();
- assert.ok((await page.locator('#bt-guide-root .btg-expanded').innerText()).includes('portrait and landscape images'));
- await page.locator('#bt-guide-root select').selectOption('analyze-start-inspect');
- await page.waitForFunction(()=>window.__playedAudio.some(a=>a.src.includes('analyze-photo-wheel-zoom.mp3')&&!a.paused&&a.currentTime>0));
+ assert.equal(await page.locator('#btg-analyze-start').count(),0);
  await page.click('#btg-analyze-explore');
  await page.locator('#photoFindCorners').click();
  await page.waitForFunction(()=>billiardsAnalyzeGuide.getState().topicId==='analyze-find-add-corners');

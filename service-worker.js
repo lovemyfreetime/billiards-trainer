@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-walkthrough-v11-v58';
+const CACHE_NAME = 'billiards-trainer-4-12-walkthrough-only-v12-v58';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
@@ -6,14 +6,14 @@ const APP_SHELL = [
   './guide/practice-layouts.js?v=walkthrough-v11',
   './guide/practice-layouts.json?v=walkthrough-v11',
   './guide/guide.js?v=walkthrough-v11',
-  './guide/guide.css?v=walkthrough-v11',
+  './guide/guide.css?v=walkthrough-only-v12',
   './guide/pool-guide.css?v=fit5',
   './guide/recorded-audio.js?v=walkthrough-v11',
   './guide/recorded-audio.json?v=walkthrough-v11',
   './guide/pool-integration.js?v=walkthrough-v11',
   './guide/pool-audio-map.json?v=walkthrough-v11',
-  './guide/analyze-integration.js?v=walkthrough-v11',
-  './guide/analyze-walkthrough.js?v=walkthrough-v11',
+  './guide/analyze-integration.js?v=walkthrough-only-v12',
+  './guide/analyze-walkthrough.js?v=walkthrough-only-v12',
   './manifest.webmanifest',
   './phone-play.css?v=8',
   './phone-play.js?v=8',

@@ -1,6 +1,6 @@
 # Analyze image walkthrough
 
-Walkthrough sits beside Get Started on the blue header, followed by the AI status button. AI retains its detector toggle/retry behavior. Get Started remains available for the original narrated overview.
+Walkthrough is the guided entry point on the Analyze blue header, followed by the AI status button. The redundant Analyze Get Started launcher has been removed. AI retains its detector toggle/retry behavior. The main Trainer Get Started launcher remains available.
 
 A compact instruction strip highlights the relevant controls and plays a dedicated Chase recording for each step. Back revisits earlier steps, Next confirms choices, Replay starts the current recording at zero, Audio On/Off changes narration, and Stop ends the walkthrough. It does not block other controls.
 

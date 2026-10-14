@@ -1389,7 +1389,7 @@
 /* Extra rail action for resizable zone markers; retain circular controls. */
 .markerRailCircle:has(button:nth-child(3)) button { font-size:clamp(7px,var(--marker-font),10px); }
 </style>
-<link rel="stylesheet" href="./guide/guide.css?v=walkthrough-v11">
+<link rel="stylesheet" href="./guide/guide.css?v=walkthrough-only-v12">
 <style>
 /* Isolated Guide integration on Analyze page; existing trainer styling preserved. */
 .photoAnalyzerHeader{background:#205385;min-height:60px;position:relative;overflow:visible;justify-content:flex-start}
@@ -1399,7 +1399,7 @@
 .photoAnalyzerHeader #photoAnalyzerClose{flex:0 0 32px}
 @media(max-width:950px){.photoAnalyzerHeader .btg-analyze-title h2{font-size:12px}.photoAnalyzerHeader #bt-guide-root{min-width:0}}
 
-.bt-file-library{width:100%;min-width:0;margin-top:8px}.bt-saved-files{display:flex;flex-wrap:wrap;align-items:end;gap:5px}.bt-saved-files label{display:flex;flex:1 1 180px;flex-direction:column;gap:4px;font-size:11px;min-width:0}.bt-saved-files select{width:100%;min-width:0}.bt-saved-files button{white-space:nowrap}.bt-file-status{font-size:11px;margin-top:4px}.photoAnalyzerFooter .bt-file-library{flex-basis:100%;margin-top:2px}.photoAnalyzerHeader #btg-analyze-start,.photoAnalyzerHeader #btg-analyze-explore{width:30px;height:30px;flex:0 0 30px;font-size:17px;border-width:1px;align-self:center}.photoAnalyzerHeader{gap:4px!important}
+.bt-file-library{width:100%;min-width:0;margin-top:8px}.bt-saved-files{display:flex;flex-wrap:wrap;align-items:end;gap:5px}.bt-saved-files label{display:flex;flex:1 1 180px;flex-direction:column;gap:4px;font-size:11px;min-width:0}.bt-saved-files select{width:100%;min-width:0}.bt-saved-files button{white-space:nowrap}.bt-file-status{font-size:11px;margin-top:4px}.photoAnalyzerFooter .bt-file-library{flex-basis:100%;margin-top:2px}.photoAnalyzerHeader #btg-analyze-explore{width:30px;height:30px;flex:0 0 30px;font-size:17px;border-width:1px;align-self:center}.photoAnalyzerHeader{gap:4px!important}
 </style>
 <link rel="stylesheet" href="./phone-play.css?v=8">
 </head>
@@ -1752,7 +1752,6 @@
     <div class="photoAnalyzerHeader">
       <div class="btg-analyze-title"><h2>Analyze Real Pool Table</h2></div>
       <div id="bt-guide-root" class="btg-header-mode" aria-label="Interactive Trainer Guide"></div>
-      <button id="btg-analyze-start" class="btg-launcher" type="button" title="Get Started: Analyze a real table" aria-label="Get Started: Analyze a real table" aria-pressed="false" data-btg-allow="1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg></button>
       <button id="photoWalkthroughBtn" type="button" aria-pressed="false" aria-controls="photoWalkthroughPanel" data-btg-allow="1">Walkthrough</button>
       <button id="photoAiModeBtn" type="button" title="Toggle AI ball detection">AI: AUTO</button>
       <button id="btg-analyze-explore" class="btg-launcher" type="button" title="Explorer: click a control to hear its explanation" aria-label="Toggle Explorer" aria-pressed="false" data-btg-allow="1"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></button>
@@ -11976,8 +11975,8 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/guide.js?v=walkthrough-v11"></script>
   <script src="./guide/recorded-audio.js?v=walkthrough-v11"></script>
   <script src="./guide/pool-integration.js?v=walkthrough-v11"></script>
-  <script src="./guide/analyze-integration.js?v=walkthrough-v11"></script>
-  <script src="./guide/analyze-walkthrough.js?v=walkthrough-v11"></script>
+  <script src="./guide/analyze-integration.js?v=walkthrough-only-v12"></script>
+  <script src="./guide/analyze-walkthrough.js?v=walkthrough-only-v12"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=2"></script>
