@@ -41,7 +41,7 @@
         "animate"
       ],
       "audio": "./guide/audio/get-started-01.mp3",
-      "recordingStatus": "pending",
+      "recordingStatus": "recorded",
       "layout": "./guide/layouts/get-started-01.billiards.json"
     },
     {
@@ -75,7 +75,7 @@
         "pocketTray"
       ],
       "audio": "./guide/audio/get-started-02.mp3",
-      "recordingStatus": "pending",
+      "recordingStatus": "recorded",
       "layout": "./guide/layouts/get-started-02.billiards.json"
     },
     {
@@ -110,7 +110,7 @@
         "sideSpin"
       ],
       "audio": "./guide/audio/get-started-03.mp3",
-      "recordingStatus": "pending",
+      "recordingStatus": "recorded",
       "layout": "./guide/layouts/get-started-03.billiards.json"
     },
     {
@@ -143,7 +143,7 @@
         "resetLayoutQuick"
       ],
       "audio": "./guide/audio/get-started-04.mp3",
-      "recordingStatus": "pending",
+      "recordingStatus": "recorded",
       "layout": "./guide/layouts/get-started-04.billiards.json"
     },
     {
@@ -181,7 +181,7 @@
         "animate"
       ],
       "audio": "./guide/audio/get-started-05.mp3",
-      "recordingStatus": "pending",
+      "recordingStatus": "recorded",
       "layout": "./guide/layouts/get-started-05.billiards.json"
     },
     {
@@ -204,7 +204,7 @@
         "animate"
       ],
       "audio": "./guide/audio/get-started-06.mp3",
-      "recordingStatus": "pending",
+      "recordingStatus": "recorded",
       "layout": "./guide/layouts/get-started-06.billiards.json"
     },
     {

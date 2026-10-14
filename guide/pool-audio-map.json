@@ -1661,20 +1661,24 @@
       "title": "1. Welcome to Focused Practice",
       "category": "start",
       "level": 2,
-      "audio": [],
+      "audio": [
+        "./guide/audio/get-started-01.mp3"
+      ],
       "text": "Welcome to the Billiards Trainer\u2014your digital practice arena. Master shot geometry, unlock cue-ball control, and explore real billiard physics. From core fundamentals to pro runouts, step up to the table and practice on your terms.",
       "summary": "Pocket the 1-ball, then look at your cue-ball leave.",
       "sourceTopicIds": [
         "guide-welcome-quick"
       ],
-      "recordingStatus": "pending"
+      "recordingStatus": "recorded"
     },
     {
       "id": "first-session-aiming",
       "title": "2. Set Up and Aim Precisely",
       "category": "start",
       "level": 2,
-      "audio": [],
+      "audio": [
+        "./guide/audio/get-started-02.mp3"
+      ],
       "text": "Setting up a shot takes seconds. Drag any ball onto the table, or flick it into a pocket to clear the cloth. Place your cue ball, sweep to aim, and use the roller for pinpoint adjustments. The ghost ball reveals your exact line of contact before you shoot.",
       "summary": "Try the aim roller. Pocket the 8, or return a ball from the tray.",
       "sourceTopicIds": [
@@ -1684,14 +1688,16 @@
         "main-shot-1-micro-aim",
         "main-ghost-ball"
       ],
-      "recordingStatus": "pending"
+      "recordingStatus": "recorded"
     },
     {
       "id": "first-session-speed",
       "title": "3. Speed, Tip Contact, and English",
       "category": "start",
       "level": 2,
-      "audio": [],
+      "audio": [
+        "./guide/audio/get-started-03.mp3"
+      ],
       "text": "Take total command of the cue ball. Dial in your stroke speed, then tap or drag the cue-ball diagram to lock your tip contact. Add follow, dig in for draw, or apply English to shape your trajectory off the rails.",
       "summary": "Try the preset draw. Try Again, change only the speed or tip contact, and compare.",
       "sourceTopicIds": [
@@ -1700,42 +1706,48 @@
         "main-shot-1-follow-draw-slider",
         "main-shot-1-english-slider"
       ],
-      "recordingStatus": "pending"
+      "recordingStatus": "recorded"
     },
     {
       "id": "first-session-execute",
       "title": "4. Execute and Compare Variations",
       "category": "start",
       "level": 2,
-      "audio": [],
+      "audio": [
+        "./guide/audio/get-started-04.mp3"
+      ],
       "text": "Hit Execute Shot to unleash the physics engine. Want to see how a slight adjustment changes the leave? Reset the shot, tweak your speed or angle, and shoot again. Changing one variable at a time is the fastest way to understand how the cue ball behaves.",
       "summary": "Shoot the 4. Try Again, change one setting, and compare the leave.",
       "sourceTopicIds": [
         "main-execute-the-active-shot",
         "first-session-experiment"
       ],
-      "recordingStatus": "pending"
+      "recordingStatus": "recorded"
     },
     {
       "id": "first-session-shot-two",
       "title": "5. Plan and Execute Shot 2",
       "category": "start",
       "level": 2,
-      "audio": [],
+      "audio": [
+        "./guide/audio/get-started-05.mp3"
+      ],
       "text": "Great pool is played two shots ahead. With Shot 2, plan your next ball before shooting your first. Set your landing zone, angle in on your target, and press Execute Shot. The trainer fires the opener and transitions straight into shot two\u2014ready for your next strike.",
       "summary": "Execute Shot plays the 2. Press it again to play the second plan on the 3.",
       "sourceTopicIds": [
         "first-session-shot-two",
         "first-session-two-shot-execution"
       ],
-      "recordingStatus": "pending"
+      "recordingStatus": "recorded"
     },
     {
       "id": "first-session-extend-runout",
       "title": "6. Full Racks and Runout Planning",
       "category": "start",
       "level": 2,
-      "audio": [],
+      "audio": [
+        "./guide/audio/get-started-06.mp3"
+      ],
       "text": "Step up to full-table strategy. Open Pick and Play Full Racks to load official layouts like 8-Ball, 9-Ball, or Straight Pool. Map out your patterns ball-by-ball. Add Shot 2 after each execution to plan a complete, unbroken runout from the break right through to the money ball.",
       "summary": "A 9-ball break is ready. Shoot, plan a runout, or choose another full rack.",
       "sourceTopicIds": [
@@ -1743,7 +1755,7 @@
         "main-start-full-rack",
         "first-session-extend-runout"
       ],
-      "recordingStatus": "pending"
+      "recordingStatus": "recorded"
     },
     {
       "id": "first-session-undo",

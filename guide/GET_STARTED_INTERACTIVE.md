@@ -19,7 +19,7 @@ The eight supplied scripts are in `get-started-tour.json`, in lesson order. Reco
 | Undo and Reset the Layout | get-started-07.mp3 |
 | Guide and Explorer | get-started-08.mp3 |
 
-After checking each recording against its script, set that step's `recordingStatus` to `recorded`. Update its matching start topic's audio array/status in `pool-audio-map.json`, add the recording to `audio-assets.json`, and bump the service-worker cache version. Pending slots display the exact narration as text and do not use older audio or browser text-to-speech.
+After checking each recording against its script, set that step's `recordingStatus` to `recorded`. Update its matching start topic's audio array/status in `pool-audio-map.json`, add the recording to `audio-assets.json`, and bump the service-worker cache version. Lessons 1–6 use the supplied manual recordings. Lessons 7–8 are pending. Pending slots display the exact narration as text and do not use older audio or browser text-to-speech.
 
 ## Engine behavior
 
