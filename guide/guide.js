@@ -24,6 +24,8 @@ function mount(host,options={}){
  const playback=global.BilliardsAudioStartup.create(audio);
  // A topic may reference one MP3 or an ordered sequence of existing MP3s.
  let sequenceIndex=0;
+ let narrationPlaying=false;
+ function syncNarrationAttention(){host.classList.toggle('btg-narrating',!!state.enabled&&narrationPlaying&&!audio.paused&&!audio.ended);}
  let pendingResource=null;
  function audioFiles(t){return t?(Array.isArray(t.audio)?t.audio.filter(Boolean):(t.audio?[t.audio]:[])):[]}
  function loadSequenceTrack(t,index){const files=audioFiles(t);if(!files.length||index>=files.length)return false;
@@ -145,6 +147,7 @@ function mount(host,options={}){
  }
  function render(){
   const t=selected(),available=availableLessons();
+  syncNarrationAttention();
   host.hidden=!state.enabled;host.classList.toggle('btg-exploring',!!state.exploring);syncInspection();
   options.onStateChange?.({...state});
   const view=document.createElement('div');
@@ -222,8 +225,9 @@ function mount(host,options={}){
 
  }
  audio.addEventListener('timeupdate',()=>{state.position=audio.currentTime;save()});
- audio.addEventListener('playing',render);
- audio.addEventListener('pause',render);
+ audio.addEventListener('playing',()=>{narrationPlaying=true;render()});
+ audio.addEventListener('pause',()=>{narrationPlaying=false;render()});
+ for(const event of ['waiting','ended','emptied','error','loadstart'])audio.addEventListener(event,()=>{narrationPlaying=false;syncNarrationAttention()});
  audio.addEventListener('ended',()=>{const t=selected();
   if(!audio.ended||!t||audio.dataset.topic!==t.id)return;
   if(sequenceIndex+1<audioFiles(t).length){loadSequenceTrack(t,sequenceIndex+1);playback.play().catch(()=>{});}
@@ -232,7 +236,7 @@ function mount(host,options={}){
  document.addEventListener('pointerover',inspectTarget,true);
  // Explorer alone enables the inspection shield; validate against real trainer interactions before integration.
  render();
- return {setEnabled,setExploring,openCategory,openGuide,destroy(){pendingResource=null;playback.destroy();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
+ return {setEnabled,setExploring,openCategory,openGuide,destroy(){narrationPlaying=false;host.classList.remove('btg-narrating');pendingResource=null;playback.destroy();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
 }
 global.BilliardsGuide={mount,CATEGORIES,LEVELS};
 })(window);

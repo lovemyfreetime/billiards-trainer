@@ -1,12 +1,12 @@
-const CACHE_NAME = 'billiards-trainer-4-12-presets-recovery-v13-v58';
+const CACHE_NAME = 'billiards-trainer-4-12-guide-attention-v14-v59';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
   './guide/audio-startup.js?v=walkthrough-v11',
   './guide/practice-layouts.js?v=walkthrough-v11',
   './guide/practice-layouts.json?v=walkthrough-v11',
-  './guide/guide.js?v=walkthrough-v11',
-  './guide/guide.css?v=presets-recovery-v13',
+  './guide/guide.js?v=guide-attention-v14',
+  './guide/guide.css?v=guide-attention-v14',
   './guide/pool-guide.css?v=fit5',
   './guide/recorded-audio.js?v=presets-recovery-v13',
   './guide/recorded-audio.json?v=presets-recovery-v13',
