@@ -121,6 +121,8 @@ function mount(host,options={}){
   if(node.nodeType!==1){if(old.textContent!==node.textContent)old.textContent=node.textContent;return;}
   for(const a of [...old.attributes])if(!node.hasAttribute(a.name))old.removeAttribute(a.name);
   for(const a of [...node.attributes])if(old.getAttribute(a.name)!==a.value)old.setAttribute(a.name,a.value);
+  // The practice adapter owns this live slot; preserve its timer/button nodes.
+  if(node.dataset.guideSlot==='practice')return;
   if(node.tagName==='SELECT'){
    if(old.innerHTML!==node.innerHTML)old.replaceChildren(...node.childNodes);
    if(!selectBrowsing)old.value=node.value;
@@ -196,7 +198,8 @@ function mount(host,options={}){
   select.onchange=()=>{selectBrowsing=false;const id=select.value;const accepted=choose(id||null);if(accepted!==false&&id){const t=selected();if(state.category==='more'&&t?.resourceUrl)pendingResource=t.id;play();}};
   const drawer=options.poolMode?document.createElement('div'):topic;
   if(options.poolMode){drawer.className='btg-pool-drawer';view.append(drawer)}
-  const playingTitle=document.createElement('strong');playingTitle.className='btg-current-lesson';playingTitle.textContent=t?.title||'Choose a topic';playingTitle.setAttribute('aria-live','polite');drawer.append(playingTitle,select);
+  const playingTitle=document.createElement('strong');playingTitle.className='btg-current-lesson';playingTitle.textContent=t?.title||'Choose a topic';playingTitle.setAttribute('aria-live','polite');drawer.append(playingTitle);
+  if(options.poolMode&&state.category==='start'){const row=document.createElement('div');row.className='btg-lesson-row';const slot=document.createElement('div');slot.className='btg-practice-slot';slot.dataset.guideSlot='practice';row.append(select,slot);drawer.append(row)}else drawer.append(select);
   if(state.expanded&&state.detailsOpen){const detail=document.createElement('div');detail.className='btg-expanded';
    if(state.category!=='start')setupActions(detail,t);
    if(state.category==='start'&&state.expanded==='more'){
@@ -234,6 +237,7 @@ function mount(host,options={}){
   if(host.classList.contains('btg-header-mode')){view.insertBefore(select,topic);topic.hidden=!state.detailsOpen;}
   view.className=root.className;patchNode(root,view);
   root.classList.toggle('btg-details-open',!!state.detailsOpen);
+  options.onRendered?.();
 
  }
  audio.addEventListener('timeupdate',()=>{state.position=audio.currentTime;save()});
