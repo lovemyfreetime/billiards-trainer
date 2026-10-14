@@ -1,8 +1,8 @@
 # Analyze page welcome
 
-Welcome to Analyze Real Pool Table. Bring a real shot into practice. Take an image of a difficult shot on your own table, an interesting layout someone else is playing, or a clear frame from an instructor or professional match on YouTube or Billiards TV. Bring that image into the Trainer to work on the same arrangement. Explore different angles, speed, and spin, then reset the layout and try again. It is a great way to practice a shot that challenged you, follow along with a lesson, or see how you would approach the table a professional played. A clear overhead view works best. Review the ball numbers and positions before applying the layout. Ready to try it? Tap Walkthrough. It will guide you from choosing an image to placing your reviewed layout on the Trainer table.
+Welcome to Table Analysis. Turn any real-world layout into a playable practice drill. Snap a photo of your table or grab a screenshot from a pro match, confirm the ball positions, and load it straight onto the cloth. Tap Walkthrough to get started.
 
-Recording: Speechify Reader export, Chase US male (voice confirmed in playback and download dialog), 2026-10-14. Reader setting 1.2×. Export duration 41.88 seconds; pitch-preserving atempo 0.8884115506944604 matched to the existing Target Landing Precision reference at 174.3730407523511 words per minute. Final MP3 47.184 seconds, 174.21 WPM. Playback volume 0.8, shared output warmup.
+Recording: user-approved replacement uploaded as `_Welcome to Table Analysis..mp3` on 2026-10-14. Original file bytes preserved without speed, pitch, or volume processing. Duration: 14.424 seconds. SHA-256: 3b30437bbf15180bb821b93e611aab13488bd8369991723cea98db48dc37c7a3. Playback volume remains 0.8 with the shared output warmup.
 
 Opens automatically on each Analyze page entry. Pause/resume, replay at end, Dismiss, and Read welcome are available. Entering a task, Walkthrough, Explorer, or closing the page stops the welcome.
 
