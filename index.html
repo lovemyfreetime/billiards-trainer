@@ -12024,8 +12024,15 @@
 <script>
 if ('serviceWorker' in navigator) {
   let swRefreshing = false;
+  let swHadController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (swRefreshing) return;
+    // Initial cache activation needs no reload. Never interrupt narration or a shot.
+    if (!swHadController) { swHadController = true; return; }
+    const guideState = window.billiardsPoolGuide?.getState();
+    if (guideState?.enabled || guideState?.exploring ||
+        document.getElementById('photoAnalyzerModal')?.classList.contains('open') ||
+        window.billiardsTourBridge?.snapshot().busy) return;
     swRefreshing = true;
     window.location.reload();
   });
@@ -12051,14 +12058,14 @@ if ('serviceWorker' in navigator) {
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=fit5">
   <script src="./phone-play.js?v=8"></script>
-  <script src="./guide/audio-startup.js?v=native-audio-v21"></script>
+  <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
-  <script src="./guide/guide.js?v=compact-start-v21"></script>
+  <script src="./guide/guide.js?v=lesson-countdown-v22"></script>
   <script src="./guide/recorded-audio.js?v=presets-recovery-v13"></script>
-  <link rel="stylesheet" href="./guide/get-started-tour.css?v=compact-start-v21">
-  <script src="./guide/get-started-tour.js?v=compact-start-v21"></script>
-  <script src="./guide/pool-integration.js?v=compact-start-v21"></script>
-  <script src="./guide/analyze-integration.js?v=compact-start-v21"></script>
+  <link rel="stylesheet" href="./guide/get-started-tour.css?v=lesson-countdown-v22">
+  <script src="./guide/get-started-tour.js?v=lesson-countdown-v22"></script>
+  <script src="./guide/pool-integration.js?v=lesson-countdown-v22"></script>
+  <script src="./guide/analyze-integration.js?v=lesson-countdown-v22"></script>
   <script src="./guide/analyze-welcome.js?v=analyze-welcome-v16"></script>
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>

@@ -5,7 +5,7 @@ async function init(){
  const recorded=await BilliardsRecordedAudio.load();
  const stage=document.getElementById('stageWrap');
  if(!stage||!window.BilliardsGuide||document.body.classList.contains('projector'))return;
- const response=await fetch('./guide/pool-audio-map.json?v=compact-start-v21');
+ const response=await fetch('./guide/pool-audio-map.json?v=lesson-countdown-v22');
  if(!response.ok)throw Error('Pool Guide audio map could not load');
  const catalog=await response.json();
  BilliardsRecordedAudio.merge(catalog.topics,recorded,'Main');
@@ -50,9 +50,13 @@ async function init(){
   loadLayout:BilliardsPracticeLayouts.apply,
   onTopicChange:topic=>tour?.select(topic),
   onTryShot:()=>tour?.tryShot(),
+  onPlaybackStart:()=>tour?.listening(),
+  onPlaybackStop:()=>tour?.hold(false),
+  onLessonEnd:(topic,state)=>tour?.ended(topic,state),
   getPracticeSetups:()=>tour?.setups()||[],
   loadPracticeSetup:url=>tour.load(url),
   onStateChange(state){
+   tour?.sync(state);
    guideButton.setAttribute('aria-pressed',String(state.enabled&&state.category!=='start'));
    startButton.setAttribute('aria-pressed',String(!!tour?.getState().active||(state.enabled&&state.category==='start')));
    exploreButton.setAttribute('aria-pressed',String(state.exploring));

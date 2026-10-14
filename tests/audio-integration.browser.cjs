@@ -8,7 +8,7 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>{window.__openedResources=[];const nativeOpen=window.open.bind(window);window.open=(url,...args)=>{window.__openedResources.push(url);return nativeOpen(url,...args)};window.__spokenText=[];window.speechSynthesis.speak=utterance=>window.__spokenText.push(utterance.text);window.__playedAudio=[];const NativeAudio=window.Audio;window.Audio=new Proxy(NativeAudio,{construct(target,args){const audio=new target(...args);window.__playedAudio.push(audio);return audio}})});
  await page.goto('http://127.0.0.1:8765',{waitUntil:'domcontentloaded'});
- if(!await page.evaluate(()=>!!navigator.serviceWorker.controller))await page.waitForNavigation({waitUntil:'domcontentloaded'});
+ await page.waitForFunction(()=>navigator.serviceWorker.controller,{},{timeout:120000});
  await page.waitForFunction(()=>window.billiardsPoolGuide&&window.billiardsAnalyzeGuide);
  const result=await page.evaluate(async()=>{
   const records=(await BilliardsRecordedAudio.load()).records;
@@ -235,7 +235,7 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await page.reload({waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.billiardsPoolGuide&&window.billiardsAnalyzeGuide);
  await page.click('#btg-pool-start');assert.equal(await page.evaluate(()=>billiardsGetStartedTour.getState().active),true);await page.click('#btg-pool-start');
- const offlineTour=await page.evaluate(async()=>{const data=await fetch('./guide/get-started-tour.json?v=compact-start-v21').then(r=>r.json());return Promise.all(data.steps.map(s=>fetch(s.layout).then(r=>r.ok)))});assert.ok(offlineTour.every(Boolean),'All eight practice sessions are cached offline');
+ const offlineTour=await page.evaluate(async()=>{const data=await fetch('./guide/get-started-tour.json?v=lesson-countdown-v22').then(r=>r.json());return Promise.all(data.steps.map(s=>fetch(s.layout).then(r=>r.ok)))});assert.ok(offlineTour.every(Boolean),'All eight practice sessions are cached offline');
  const offlineLayout=await page.evaluate(async()=>{const res=await fetch('./guide/layouts/drill-stop-shot.billiards.json');return res.ok&&(await res.json()).layout.balls.length===3});assert.ok(offlineLayout);
  const offline=await page.evaluate(async()=>{const res=await fetch('./guide/audio/drill-two-rail-kick.mp3?v=practice-ready-v8');return res.ok&&(await res.arrayBuffer()).byteLength>100});assert.ok(offline);
  await page.screenshot({path:'../audio-integration-preview.png',fullPage:false});
