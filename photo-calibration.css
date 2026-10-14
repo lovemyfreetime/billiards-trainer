@@ -87,3 +87,23 @@
 #photoCalibrationDiagram[viewBox="0 0 236 416"]{max-height:45vh;width:auto;max-width:100%;margin:auto}
 
 #photoFootSpotHint{font-size:12px;line-height:1.4;color:#c7d8df;padding:4px 0;}
+
+.photoAnalyzerHeader #photoWalkthroughBtn,.photoAnalyzerHeader #photoAiModeBtn{flex:0 0 auto;min-height:32px;padding:5px 9px;border:1px solid #7096b4;background:#233c52;color:#fff;border-radius:6px;font:600 12px system-ui;}
+#photoWalkthroughBtn[aria-pressed="true"]{background:#176b57;}
+#photoWalkthroughPanel[hidden]{display:none;}
+#photoWalkthroughPanel{flex:0 0 auto;background:#163d46;color:#edf8f7;border-bottom:1px solid #548f91;padding:8px 12px;font:13px/1.4 system-ui;}
+.photoWalkthroughRow,.photoWalkthroughButtons{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.photoWalkthroughRow{justify-content:space-between;}
+#photoWalkthroughPanel button{padding:5px 9px;border:1px solid #7eabb0;border-radius:5px;background:#214c55;color:#fff;cursor:pointer;font:600 12px system-ui;}
+#photoWalkthroughPanel button:disabled{opacity:.5;cursor:default;}
+#photoWalkthroughPanel p{margin:6px 0;}
+#photoWalkthroughDetail{font-size:12px;color:#d2ece8;}
+.walkthroughTarget{outline:2px solid #ffd36b!important;outline-offset:2px;}
+@media(max-width:700px){.photoAnalyzerHeader{flex-wrap:wrap;gap:5px;}#photoWalkthroughPanel{font-size:12px;padding:6px 9px;}}
+/* Place the instruction strip above the actions instead of in an implicit bottom row. */
+.photoAnalyzerPanel{grid-template-rows:auto auto auto minmax(160px,1fr) auto;}
+#photoWalkthroughPanel{grid-row:2;}
+.photoAnalyzerToolbar{grid-row:3;}
+.photoAnalyzerBody{grid-row:4;}
+.photoAnalyzerFooter{grid-row:5;}
+@media(min-width:1200px){.photoAnalyzerToolbar button,.photoAnalyzerToolbar select{padding-left:6px;padding-right:6px;}.photoAnalyzerToolbar #photoArchiveSelect{width:140px!important;max-width:140px!important;}}

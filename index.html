@@ -1389,7 +1389,7 @@
 /* Extra rail action for resizable zone markers; retain circular controls. */
 .markerRailCircle:has(button:nth-child(3)) button { font-size:clamp(7px,var(--marker-font),10px); }
 </style>
-<link rel="stylesheet" href="./guide/guide.css?v=table-orientation-v10">
+<link rel="stylesheet" href="./guide/guide.css?v=walkthrough-v11">
 <style>
 /* Isolated Guide integration on Analyze page; existing trainer styling preserved. */
 .photoAnalyzerHeader{background:#205385;min-height:60px;position:relative;overflow:visible;justify-content:flex-start}
@@ -1753,9 +1753,15 @@
       <div class="btg-analyze-title"><h2>Analyze Real Pool Table</h2></div>
       <div id="bt-guide-root" class="btg-header-mode" aria-label="Interactive Trainer Guide"></div>
       <button id="btg-analyze-start" class="btg-launcher" type="button" title="Get Started: Analyze a real table" aria-label="Get Started: Analyze a real table" aria-pressed="false" data-btg-allow="1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg></button>
+      <button id="photoWalkthroughBtn" type="button" aria-pressed="false" aria-controls="photoWalkthroughPanel" data-btg-allow="1">Walkthrough</button>
+      <button id="photoAiModeBtn" type="button" title="Toggle AI ball detection">AI: AUTO</button>
       <button id="btg-analyze-explore" class="btg-launcher" type="button" title="Explorer: click a control to hear its explanation" aria-label="Toggle Explorer" aria-pressed="false" data-btg-allow="1"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></button>
       <button id="photoAnalyzerClose" type="button" title="Close">×</button>
     </div>
+    <section id="photoWalkthroughPanel" aria-label="Analyze image walkthrough" data-btg-allow="1" hidden>
+      <div class="photoWalkthroughRow"><strong id="photoWalkthroughTitle"></strong><div class="photoWalkthroughButtons"><button id="photoWalkthroughBack" type="button">Back</button><button id="photoWalkthroughNext" type="button">Next</button><button id="photoWalkthroughReplay" type="button">Replay</button><button id="photoWalkthroughMute" type="button" aria-pressed="false">Audio On</button><button id="photoWalkthroughStop" type="button">Stop</button></div></div>
+      <p id="photoWalkthroughText" aria-live="polite"></p><div id="photoWalkthroughDetail" role="status"></div>
+    </section>
     <div class="photoAnalyzerToolbar">
       <div class="photoToolGroup"><span class="photoToolHeading">IMAGE / CAMERA</span><div class="photoToolActions">
         <button id="photoChooseImage" class="visionPrimary" type="button">Choose Image</button>
@@ -1775,7 +1781,6 @@
         </select>
         <button id="photoAnalyzeNow" class="visionPrimary" type="button" disabled>Analyze Balls</button>
         <button id="photoAddMissed" type="button" disabled>Add Missed Ball</button>
-        <button id="photoAiModeBtn" type="button" title="Toggle AI ball detection">AI: AUTO</button>
       </div></div>
       <div class="photoToolGroup photoSavedGroup">
         <label class="photoToolHeading" for="photoArchiveSelect">SAVED IMAGES</label>
@@ -1826,8 +1831,8 @@
   </div>
 </div>
 
-<link rel="stylesheet" href="./photo-calibration.css?v=table-orientation-v10">
-<script src="./photo-calibration.js?v=table-orientation-v10"></script>
+<link rel="stylesheet" href="./photo-calibration.css?v=walkthrough-v11">
+<script src="./photo-calibration.js?v=walkthrough-v11"></script>
 <script src="./trainer-layout-files.js?v=2"></script>
 <script src="./trainer-saved-files.js?v=1"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
@@ -10794,7 +10799,7 @@
             const finalCollapse=pvCollapseSamePhysicalBalls(detections||[],.80);
             photoVision.duplicatesMerged=(photoVision.duplicatesMerged||0)+finalCollapse.merged;
             detections=pvFilterDuplicateReviews(finalCollapse.items);
-            photoVision.detections=detections||[];photoVision.lastAnalysisEngine=engine;
+            photoVision.detections=detections||[];photoVision.lastAnalysisEngine=engine;photoVision.analysisRevision=(photoVision.analysisRevision||0)+1;
             renderPhotoDetectionList();renderPhotoAnalyzer();
             if(photoVision.detections.length){
                 const prefix=engine==='ai'?'Trained AI':'Hybrid fallback';
@@ -10820,7 +10825,7 @@
         }
     }
     function applyPhotoDetections(saveAfter){
-        if(photoVision.loadedTableFile){applyTableFile(photoVision.loadedTableFile,saveAfter,photoVision.detections);closePhotoAnalyzer();return;}
+        if(photoVision.loadedTableFile){applyTableFile(photoVision.loadedTableFile,saveAfter,photoVision.detections);window.billiardsAnalyzeWalkthrough?.applied();closePhotoAnalyzer();return;}
         const chosen=photoVision.detections.filter(d=>String(d.id)!=='ignore'),used=new Set(),balls=[];
         for(const d of chosen){const id=Number(d.id);if(!Number.isFinite(id)||id<0||id>15||used.has(id))continue;used.add(id);balls.push({id,n:id===0?'CB':String(id),x:clamp(d.nx*S.tableL,S.ballR,S.tableL-S.ballR),y:clamp(d.ny*S.tableW,S.ballR,S.tableW-S.ballR),active:true});}
         if(!balls.length){pvStatus('No reviewed balls are selected.');return;}
@@ -10835,8 +10840,17 @@
             const now=new Date(),name=$('photoLayoutName').value.trim()||('Photo layout '+now.toLocaleDateString([], {month:'numeric',day:'numeric'})+' '+now.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}));
             const layouts=readSavedLayouts();layouts.unshift(captureBallLayout(name));writeSavedLayouts(layouts.slice(0,20));updateSavedLayoutUI(true);toast('Photo layout applied + saved: '+name+(hasCueBall?'':' (no cue ball)'));
         }else toast('Photo layout applied to table'+(hasCueBall?'':' (no cue ball)'));
-        closePhotoAnalyzer();
+        window.billiardsAnalyzeWalkthrough?.applied();closePhotoAnalyzer();
     }
+    window.billiardsWalkthroughBridge={openCalibration(){pvSetCalibrationVisible(true);pvUpdateCalibrationDiagram();},snapshot(){
+        const ids=photoVision.detections.map(d=>String(d.id)),assigned=ids.filter(id=>id!=='ignore'),unique=new Set(assigned).size===assigned.length;
+        const reviewReady=assigned.length>0&&assigned.length===ids.length&&unique;
+        return {imageReady:photoVision.imageReady,imageVersion:photoVision.imageVersion,loadedTableFile:photoVision.loadedTableFile,
+            cornersValid:!!pvCalibration(),busy:!!photoVision.aiBusy,analysisRevision:photoVision.analysisRevision||0,reviewReady,
+            archiveBusy:!!photoVision.archiveBusy,imageSaved:!!photoVision.archiveId,
+            cornerHint:pvCalibrationPrompt(),orientationHint:$('photoOrientationHint').textContent,footSpotHint:$('photoFootSpotHint').textContent,
+            reviewHint:!ids.length?'No balls found yet. Add missed balls or return to Analyze.':!unique?'Correct duplicate identities before continuing.':assigned.length<ids.length?'Assign every remaining question mark or delete that false detection.':assigned.length+' unique balls assigned. Check their positions, then Next.'};
+    }};
     function loadPhotoFile(file, sourceNameOverride = '', archiveAfter = false, archiveId = null){
         photoVision.loadedTableFile=null;
         if(!file)return;
@@ -11957,12 +11971,14 @@ if ('serviceWorker' in navigator) {
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=fit5">
   <script src="./phone-play.js?v=8"></script>
-  <script src="./guide/audio-startup.js?v=table-orientation-v10"></script>
-  <script src="./guide/practice-layouts.js?v=table-orientation-v10"></script>
-  <script src="./guide/guide.js?v=table-orientation-v10"></script>
-  <script src="./guide/recorded-audio.js?v=table-orientation-v10"></script>
-  <script src="./guide/pool-integration.js?v=table-orientation-v10"></script>
-  <script src="./guide/analyze-integration.js?v=table-orientation-v10"></script>
+  <script src="./guide/audio-startup.js?v=walkthrough-v11"></script>
+  <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
+  <script src="./guide/guide.js?v=walkthrough-v11"></script>
+  <script src="./guide/recorded-audio.js?v=walkthrough-v11"></script>
+  <script src="./guide/pool-integration.js?v=walkthrough-v11"></script>
+  <script src="./guide/analyze-integration.js?v=walkthrough-v11"></script>
+  <script src="./guide/analyze-walkthrough.js?v=walkthrough-v11"></script>
+  <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=2"></script>
 

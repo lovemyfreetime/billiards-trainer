@@ -5165,9 +5165,119 @@
       "model": "simba-3.2",
       "rate": "+30%",
       "request_id": "e3bacc7a-62fb-4827-9f20-a7512c780af4"
+    },
+    {
+      "file": "analyze-walkthrough-choose.mp3",
+      "seconds": 11.76,
+      "bytes": 188205,
+      "billable_characters": 199,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "efa9692b-da83-450d-8d2c-db7daa3f1f9d"
+    },
+    {
+      "file": "analyze-walkthrough-picker.mp3",
+      "seconds": 10.824,
+      "bytes": 173229,
+      "billable_characters": 188,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "b1db3aae-acf3-4516-bd43-b41d757c2eda"
+    },
+    {
+      "file": "analyze-walkthrough-find.mp3",
+      "seconds": 9.864,
+      "bytes": 157869,
+      "billable_characters": 179,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "a9c194dc-27bf-4764-991f-97395dcc79c8"
+    },
+    {
+      "file": "analyze-walkthrough-corners.mp3",
+      "seconds": 16.896,
+      "bytes": 270381,
+      "billable_characters": 345,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "17b1a92f-de61-4e06-9796-16730e8ca8fd"
+    },
+    {
+      "file": "analyze-walkthrough-orientation.mp3",
+      "seconds": 13.344,
+      "bytes": 213549,
+      "billable_characters": 268,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "f427b0f8-9340-401d-b3bc-29ab8359a33a"
+    },
+    {
+      "file": "analyze-walkthrough-rack.mp3",
+      "seconds": 9.456,
+      "bytes": 151341,
+      "billable_characters": 179,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "f6847f29-a840-4c14-85ec-09430c194907"
+    },
+    {
+      "file": "analyze-walkthrough-analyze.mp3",
+      "seconds": 9.168,
+      "bytes": 146733,
+      "billable_characters": 176,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "be288c86-09a6-4566-99f4-f701df64c2fe"
+    },
+    {
+      "file": "analyze-walkthrough-review.mp3",
+      "seconds": 16.608,
+      "bytes": 265773,
+      "billable_characters": 308,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "bdb33577-b2bc-41f2-8ae1-b3d2debbcfda"
+    },
+    {
+      "file": "analyze-walkthrough-save.mp3",
+      "seconds": 14.28,
+      "bytes": 228525,
+      "billable_characters": 262,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "1d1956bf-04f1-4c44-8cca-33e003127cf2"
+    },
+    {
+      "file": "analyze-walkthrough-apply.mp3",
+      "seconds": 11.112,
+      "bytes": 177837,
+      "billable_characters": 212,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "1403983f-2e15-4ed3-a106-bbbd07c429d0"
+    },
+    {
+      "file": "analyze-walkthrough-complete.mp3",
+      "seconds": 8.304,
+      "bytes": 132909,
+      "billable_characters": 164,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "9d49aa4a-083d-4f8f-8644-5c668a87713f"
     }
   ],
-  "current_recording_count": 623,
+  "current_recording_count": 634,
   "pitch_preserving_tempo_adjustments": {
     "files": [
       "drill-stop-shot.mp3",
@@ -5272,6 +5382,66 @@
         "file": "analyze-analyze-balls.mp3",
         "tempo": 0.8865492492987957,
         "seconds": 13.104
+      }
+    ]
+  },
+  "walkthrough_pacing": {
+    "target_wpm": 174.3730407523511,
+    "files": [
+      {
+        "file": "analyze-walkthrough-choose.mp3",
+        "tempo": 0.9764890282131661,
+        "seconds": 12.096
+      },
+      {
+        "file": "analyze-walkthrough-picker.mp3",
+        "tempo": 0.8501863932898416,
+        "seconds": 12.768
+      },
+      {
+        "file": "analyze-walkthrough-find.mp3",
+        "tempo": 0.9555642633228841,
+        "seconds": 10.368
+      },
+      {
+        "file": "analyze-walkthrough-corners.mp3",
+        "tempo": 0.8466111771700356,
+        "seconds": 19.992
+      },
+      {
+        "file": "analyze-walkthrough-orientation.mp3",
+        "tempo": 0.8430557448548452,
+        "seconds": 15.864
+      },
+      {
+        "file": "analyze-walkthrough-rack.mp3",
+        "tempo": 0.8082703300756039,
+        "seconds": 11.736
+      },
+      {
+        "file": "analyze-walkthrough-analyze.mp3",
+        "tempo": 0.9187655388606637,
+        "seconds": 10.032
+      },
+      {
+        "file": "analyze-walkthrough-review.mp3",
+        "tempo": 0.9282011092355921,
+        "seconds": 17.928
+      },
+      {
+        "file": "analyze-walkthrough-save.mp3",
+        "tempo": 0.9021909499795557,
+        "seconds": 15.864
+      },
+      {
+        "file": "analyze-walkthrough-apply.mp3",
+        "tempo": 0.8728077607387953,
+        "seconds": 12.768
+      },
+      {
+        "file": "analyze-walkthrough-complete.mp3",
+        "tempo": 0.8044409613375131,
+        "seconds": 10.368
       }
     ]
   }

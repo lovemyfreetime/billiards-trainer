@@ -21,7 +21,7 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
    image:document.querySelector('.photoToolGroup:first-child .photoToolHeading').dataset.guideTopic,
    run:document.querySelector('#startFullRack').dataset.guideTopic};
  });
- assert.equal(result.count,370);assert.deepEqual(result.missing,[]);assert.deepEqual(result.invalid,[]);
+ assert.equal(result.count,381);assert.deepEqual(result.missing,[]);assert.deepEqual(result.invalid,[]);
  assert.equal(result.ai,'analyze-ai-detector-mode-and-readiness');assert.equal(result.setup,'analyze-table-setup-heading');assert.equal(result.image,'analyze-image-camera-heading');assert.equal(result.run,'main-start-full-rack');
  await page.click('#btg-pool-start');
  assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().autoplay),true);
@@ -181,6 +181,37 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
   const count=await page.locator('#photoBallCount').innerText();await page.locator('#photoAnalyzerCanvas').click({position:{x:box.width/2,y:box.height/2}});assert.equal(await page.locator('#photoBallCount').innerText(),count,'Second tap adds no extra ball');
   await page.click('#photoResetCorners');assert.equal(await page.locator('#photoAnalyzeNow').isDisabled(),true);
  }
+ // Walkthrough: real image loading, alignment, analysis, review and both Apply routes.
+ const headerIds=await page.locator('.photoAnalyzerHeader button').evaluateAll(nodes=>nodes.map(n=>n.id));
+ assert.ok(headerIds.indexOf('photoAiModeBtn')===headerIds.indexOf('photoWalkthroughBtn')+1);
+ assert.equal(await page.locator('.photoAnalyzerToolbar #photoAiModeBtn').count(),0);
+ await page.click('#photoWalkthroughBtn');assert.equal(await page.evaluate(()=>billiardsAnalyzeWalkthrough.getState().id),'choose');
+ const chooserPromise=page.waitForEvent('filechooser');await page.click('#photoChooseImage');const chooser=await chooserPromise;
+ assert.equal(await page.evaluate(()=>billiardsAnalyzeWalkthrough.getState().id),'picker');
+ const walkImage=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=1000;c.height=500;const x=c.getContext('2d');x.fillStyle='#171717';x.fillRect(0,0,1000,500);x.fillStyle='#187b56';x.fillRect(70,70,860,360);return c.toDataURL('image/png').split(',')[1];});
+ await chooser.setFiles({name:'walkthrough-table.png',mimeType:'image/png',buffer:Buffer.from(walkImage,'base64')});
+ await page.waitForFunction(()=>billiardsAnalyzeWalkthrough.getState().id==='find');
+ await page.click('#photoFindCorners');await page.waitForFunction(()=>billiardsAnalyzeWalkthrough.getState().id==='corners');
+ await page.click('#photoAutoRailsBtn');await page.waitForFunction(()=>billiardsAnalyzeWalkthrough.getState().id==='orientation');
+ await page.click('#photoWalkthroughBack');await page.waitForTimeout(350);assert.equal(await page.evaluate(()=>billiardsAnalyzeWalkthrough.getState().id),'corners');
+ await page.click('#photoWalkthroughNext');await page.click('#photoWalkthroughNext');assert.equal(await page.evaluate(()=>billiardsAnalyzeWalkthrough.getState().id),'rack');
+ await page.locator('#photoRackType').selectOption('9ball');await page.waitForFunction(()=>billiardsAnalyzeWalkthrough.getState().id==='analyze');
+ await page.click('#photoAnalyzeNow');await page.waitForFunction(()=>billiardsAnalyzeWalkthrough.getState().id==='review');
+ assert.equal(await page.locator('#photoWalkthroughNext').isDisabled(),true);
+ await page.click('#photoAddMissed');const walkBox=await page.locator('#photoAnalyzerCanvas').boundingBox();await page.locator('#photoAnalyzerCanvas').click({position:{x:walkBox.width/2,y:walkBox.height/2}});
+ await page.locator('#photoDetectionList select').first().selectOption('0');await page.waitForFunction(()=>!document.querySelector('#photoWalkthroughNext').disabled);
+ await page.click('#photoWalkthroughNext');assert.equal(await page.evaluate(()=>billiardsAnalyzeWalkthrough.getState().id),'save');
+ await page.click('#photoArchiveSave');await page.waitForFunction(()=>billiardsWalkthroughBridge.snapshot().imageSaved&&!billiardsWalkthroughBridge.snapshot().archiveBusy);
+ await page.click('#photoWalkthroughNext');assert.equal(await page.evaluate(()=>billiardsAnalyzeWalkthrough.getState().id),'apply');
+ await page.locator('#photoLayoutName').fill('Walkthrough verified layout');await page.click('#photoApplySave');
+ await page.waitForFunction(()=>billiardsAnalyzeWalkthrough.getState().id==='complete');assert.equal(await page.locator('#photoAnalyzerModal').isVisible(),false);
+ await page.waitForFunction(()=>window.__playedAudio.some(a=>a.dataset.walkthroughStep==='complete'&&!a.paused&&a.currentTime>0));
+ await page.click('#analyzePhotoBtn');await page.click('#photoWalkthroughBtn');
+ const nativeFile=await page.evaluate(async()=>{const d=await BilliardsPracticeLayouts.load();return fetch(Object.values(d.layouts)[0].url).then(r=>r.text())});
+ await page.locator('#photoLayoutFileInput').setInputFiles({name:'repeat-drill.billiards.json',mimeType:'application/json',buffer:Buffer.from(nativeFile)});
+ await page.waitForFunction(()=>billiardsAnalyzeWalkthrough.getState().id==='review');await page.click('#photoWalkthroughNext');await page.click('#photoWalkthroughNext');await page.click('#photoApplyTable');
+ await page.waitForFunction(()=>billiardsAnalyzeWalkthrough.getState().id==='complete');
+ await page.click('#analyzePhotoBtn');
  await page.click('#btg-analyze-start');
  await page.waitForFunction(()=>billiardsAnalyzeGuide.getState().category==='start');
  assert.ok((await page.locator('#bt-guide-root select').inputValue()).startsWith('analyze-start-'));
@@ -216,6 +247,6 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await page.screenshot({path:'../audio-integration-preview.png',fullPage:false});
  assert.equal(await page.evaluate(()=>window.__spokenText.length),0);
  assert.deepEqual(errors,[]);
- console.log(JSON.stringify({records:result.count,drillGroups:groups,allAudioFetches:'370 successful',welcomes:'Guide intro autoplays on open/reopen, Play/Pause and Read work, Auto advances into selected category; 5 category MP3s play',resourcePopups:'5 verified destinations open only after real audio ended; Stop cancels navigation',offlineReload:'passed, including native saved setup',practiceSetups:'29 files mapped to 85 topics; Read, More, and Balls load/reset work',dropdown:'remains mounted and focused while Auto advances; current title updates independently',mp3Playback:'decoded and advancing',dedicatedMappings:result,browserErrors:errors,featuresAndOptions:'9 controls and 9 labels play their dedicated MP3 without mutation',controlsTab:'removed',zeroXLinks:2}));
+ console.log(JSON.stringify({walkthrough:'image load → corners → orientation → rack → analysis → review → optional save → Apply; native layout shortcut and Back verified',records:result.count,drillGroups:groups,allAudioFetches:'381 successful',welcomes:'Guide intro autoplays on open/reopen, Play/Pause and Read work, Auto advances into selected category; 5 category MP3s play',resourcePopups:'5 verified destinations open only after real audio ended; Stop cancels navigation',offlineReload:'passed, including native saved setup',practiceSetups:'29 files mapped to 85 topics; Read, More, and Balls load/reset work',dropdown:'remains mounted and focused while Auto advances; current title updates independently',mp3Playback:'decoded and advancing',dedicatedMappings:result,browserErrors:errors,featuresAndOptions:'9 controls and 9 labels play their dedicated MP3 without mutation',controlsTab:'removed',zeroXLinks:2}));
  await browser.close();server.kill();
 })().catch(e=>{console.error(e);server.kill();process.exit(1)});

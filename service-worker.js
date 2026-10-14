@@ -1,25 +1,26 @@
-const CACHE_NAME = 'billiards-trainer-4-12-table-orientation-v10-v58';
+const CACHE_NAME = 'billiards-trainer-4-12-walkthrough-v11-v58';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
-  './guide/audio-startup.js?v=table-orientation-v10',
-  './guide/practice-layouts.js?v=table-orientation-v10',
-  './guide/practice-layouts.json?v=table-orientation-v10',
-  './guide/guide.js?v=table-orientation-v10',
-  './guide/guide.css?v=table-orientation-v10',
+  './guide/audio-startup.js?v=walkthrough-v11',
+  './guide/practice-layouts.js?v=walkthrough-v11',
+  './guide/practice-layouts.json?v=walkthrough-v11',
+  './guide/guide.js?v=walkthrough-v11',
+  './guide/guide.css?v=walkthrough-v11',
   './guide/pool-guide.css?v=fit5',
-  './guide/recorded-audio.js?v=table-orientation-v10',
-  './guide/recorded-audio.json?v=table-orientation-v10',
-  './guide/pool-integration.js?v=table-orientation-v10',
-  './guide/pool-audio-map.json?v=table-orientation-v10',
-  './guide/analyze-integration.js?v=table-orientation-v10',
+  './guide/recorded-audio.js?v=walkthrough-v11',
+  './guide/recorded-audio.json?v=walkthrough-v11',
+  './guide/pool-integration.js?v=walkthrough-v11',
+  './guide/pool-audio-map.json?v=walkthrough-v11',
+  './guide/analyze-integration.js?v=walkthrough-v11',
+  './guide/analyze-walkthrough.js?v=walkthrough-v11',
   './manifest.webmanifest',
   './phone-play.css?v=8',
   './phone-play.js?v=8',
-  './photo-calibration.js?v=table-orientation-v10',
+  './photo-calibration.js?v=walkthrough-v11',
   './photo-table-spots.js?v=3',
   './photo-cloth-filter.js?v=2',
-  './photo-calibration.css?v=table-orientation-v10',
+  './photo-calibration.css?v=walkthrough-v11',
   './photo-ball-crops.js?v=1',
   './trainer-layout-files.js?v=2',
   './trainer-saved-files.js?v=1'
@@ -33,7 +34,7 @@ self.addEventListener('install', event => {
         const cache=await caches.open(CACHE_NAME);
         const response=await fetch('./guide/audio-assets.json');
         if(!response.ok)throw Error('Audio asset list unavailable');
-        const assets=await response.json();const layouts=await fetch('./guide/practice-layouts.json?v=table-orientation-v10').then(r=>r.json());assets.push(...Object.values(layouts.layouts).map(x=>x.url));let next=0;
+        const assets=await response.json();const layouts=await fetch('./guide/practice-layouts.json?v=walkthrough-v11').then(r=>r.json());assets.push(...Object.values(layouts.layouts).map(x=>x.url));let next=0;
         await Promise.all(Array.from({length:6},async()=>{while(next<assets.length){const asset=assets[next++];await cache.add(asset);}}));
       })
       .then(() => self.skipWaiting())

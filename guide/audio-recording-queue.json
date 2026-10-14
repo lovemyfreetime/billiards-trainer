@@ -8543,5 +8543,128 @@
     ],
     "narration": "Flip Ends swaps the head and foot ends of the table diagram. Use it when the head, break, or kitchen end is shown at the opposite end from your image. Existing corner positions stay in place, but their numbered table references change. Review the alignment and select Analyze Balls again.",
     "recording_status": "Recorded"
+  },
+  {
+    "id": "analyze-walkthrough-choose",
+    "page": "Analyze",
+    "section": "Walkthrough",
+    "title": "Walkthrough: Choose an image",
+    "file": "analyze-walkthrough-choose.mp3",
+    "kind": "Control",
+    "targets": [
+      "#photoWalkthroughBtn"
+    ],
+    "narration": "Tap Choose Image to begin. You can also open a saved image, load a saved table file, or use the current image. Back revisits a step. Next confirms choices. The walkthrough waits for required actions.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "analyze-walkthrough-picker",
+    "page": "Analyze",
+    "section": "Walkthrough",
+    "title": "Walkthrough: Select and open",
+    "file": "analyze-walkthrough-picker.mp3",
+    "kind": "Walkthrough step",
+    "targets": [],
+    "narration": "Select your image and choose Open in the device window. For a saved image, select its name and tap Open. For a table file, select the file and open it. We will continue when it has loaded.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "analyze-walkthrough-find",
+    "page": "Analyze",
+    "section": "Walkthrough",
+    "title": "Walkthrough: Open corner setup",
+    "file": "analyze-walkthrough-find.mp3",
+    "kind": "Walkthrough step",
+    "targets": [],
+    "narration": "Your image is loaded. Tap Find / Add Corners to open the table diagram. For a partial table image, choose the matching coverage in Custom Table Layouts before marking the corners.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "analyze-walkthrough-corners",
+    "page": "Analyze",
+    "section": "Walkthrough",
+    "title": "Walkthrough: Identify four corners",
+    "file": "analyze-walkthrough-corners.mp3",
+    "kind": "Walkthrough step",
+    "targets": [],
+    "narration": "Match each highlighted numbered reference on the diagram to the inside cushion edge in your image. Notice the orientation: Top or Bottom is portrait; Left or Right is landscape. For a full table in Auto, pocket one becomes top right in portrait and top left in landscape. Corner Sensing can estimate a full-table outline. Check all four markers.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "analyze-walkthrough-orientation",
+    "page": "Analyze",
+    "section": "Walkthrough",
+    "title": "Walkthrough: Confirm orientation",
+    "file": "analyze-walkthrough-orientation.mp3",
+    "kind": "Walkthrough step",
+    "targets": [],
+    "narration": "Check the head, break, and kitchen end against your image. Choose Top or Bottom for portrait, or Left or Right for landscape. Use Flip Ends if reversed. Check the foot spot message and the four numbered markers. Tap Next when the orientation and alignment are correct.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "analyze-walkthrough-rack",
+    "page": "Analyze",
+    "section": "Walkthrough",
+    "title": "Walkthrough: Confirm rack type",
+    "file": "analyze-walkthrough-rack.mp3",
+    "kind": "Walkthrough step",
+    "targets": [],
+    "narration": "Leave Rack on Auto, or select the game shown in your image. Use Custom for a drill or an unusual arrangement. Select a different rack type, or tap Next to keep the current choice.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "analyze-walkthrough-analyze",
+    "page": "Analyze",
+    "section": "Walkthrough",
+    "title": "Walkthrough: Analyze the balls",
+    "file": "analyze-walkthrough-analyze.mp3",
+    "kind": "Walkthrough step",
+    "targets": [],
+    "narration": "Tap Analyze Balls. The walkthrough waits for analysis to finish. AI Ready shows the detector status; if the trained detector is unavailable, the app can use its local fallback.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "analyze-walkthrough-review",
+    "page": "Analyze",
+    "section": "Walkthrough",
+    "title": "Walkthrough: Review every ball",
+    "file": "analyze-walkthrough-review.mp3",
+    "kind": "Walkthrough step",
+    "targets": [],
+    "narration": "Check every ball number and position. Tap an image marker or ball icon to find its review entry. Correct identities and delete false detections. Add Missed Ball places one ball per activation. Zoom and pan to check closely. Tap Next when all remaining balls have unique identities and the layout looks right.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "analyze-walkthrough-save",
+    "page": "Analyze",
+    "section": "Walkthrough",
+    "title": "Walkthrough: Keep an image or file?",
+    "file": "analyze-walkthrough-save.mp3",
+    "kind": "Walkthrough step",
+    "targets": [],
+    "narration": "Saving here is optional. Save Image keeps the image on this device. Download saves an image copy. Save Table File downloads a shareable layout. These are separate from saving a named Trainer layout. Choose any you want, then tap Next, or simply tap Next to skip.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "analyze-walkthrough-apply",
+    "page": "Analyze",
+    "section": "Walkthrough",
+    "title": "Walkthrough: Send the layout to Trainer",
+    "file": "analyze-walkthrough-apply.mp3",
+    "kind": "Walkthrough step",
+    "targets": [],
+    "narration": "Choose Apply to Trainer Table to practice now. Or enter a layout name and choose Apply plus Save Layout to keep it for reuse on this device. The walkthrough finishes only after the layout is successfully applied.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "analyze-walkthrough-complete",
+    "page": "Analyze",
+    "section": "Walkthrough",
+    "title": "Walkthrough: Ready to practice",
+    "file": "analyze-walkthrough-complete.mp3",
+    "kind": "Walkthrough step",
+    "targets": [],
+    "narration": "Your reviewed layout is now on the Trainer table. If you chose Apply plus Save, the named layout is also saved on this device. You can now practice the arrangement.",
+    "recording_status": "Recorded"
   }
 ]

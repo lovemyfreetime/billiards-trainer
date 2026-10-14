@@ -1,0 +1,11 @@
+# Analyze image walkthrough
+
+Walkthrough sits beside Get Started on the blue header, followed by the AI status button. AI retains its detector toggle/retry behavior. Get Started remains available for the original narrated overview.
+
+A compact instruction strip highlights the relevant controls and plays a dedicated Chase recording for each step. Back revisits earlier steps, Next confirms choices, Replay starts the current recording at zero, Audio On/Off changes narration, and Stop ends the walkthrough. It does not block other controls.
+
+The flow waits for real image loading, a usable four-corner calibration, explicit orientation confirmation, rack selection or confirmation, completed analysis, reviewed unique identities, optional saves, and successful application. Choosing a new image restarts loading. Invalid or reset corners return to alignment. Changed or duplicate identities return to review. Choosing a saved table file skips image calibration and detection. Starting stops Get Started/Explorer narration; switching to either guide mode stops the walkthrough. Closing Analyze cancels it. Completion narration plays after the successful transfer closes Analyze.
+
+Save Image uses the device image archive; Download copies the image; Save Table File exports the reviewed layout. Apply + Save creates a named saved Trainer layout. Image saves are optional, and Next waits while an image save is busy. The walkthrough never triggers a save or applies a layout itself.
+
+The device file picker is outside the app: the walkthrough explains Select/Open and waits for the app's loaded state, without guessing which filename was chosen. Physical head/foot orientation and whether a ball identity is correct still require user confirmation. The rack menu advances on a changed selection, or Next keeps the current choice.

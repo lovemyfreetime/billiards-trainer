@@ -621,5 +621,16 @@
   "./guide/audio/welcome-fundamentals.mp3",
   "./guide/audio/welcome-guide.mp3",
   "./guide/audio/welcome-more.mp3?v=resource-finish-v5",
-  "./guide/audio/welcome-physics.mp3"
+  "./guide/audio/welcome-physics.mp3",
+  "./guide/audio/analyze-walkthrough-choose.mp3",
+  "./guide/audio/analyze-walkthrough-picker.mp3",
+  "./guide/audio/analyze-walkthrough-find.mp3",
+  "./guide/audio/analyze-walkthrough-corners.mp3",
+  "./guide/audio/analyze-walkthrough-orientation.mp3",
+  "./guide/audio/analyze-walkthrough-rack.mp3",
+  "./guide/audio/analyze-walkthrough-analyze.mp3",
+  "./guide/audio/analyze-walkthrough-review.mp3",
+  "./guide/audio/analyze-walkthrough-save.mp3",
+  "./guide/audio/analyze-walkthrough-apply.mp3",
+  "./guide/audio/analyze-walkthrough-complete.mp3"
 ]
