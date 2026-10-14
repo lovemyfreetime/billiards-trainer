@@ -4048,7 +4048,7 @@
     "id": "analyze-choose-table-image",
     "page": "Analyze",
     "section": "Image selection and setup",
-    "title": "Choose table image",
+    "title": "Choose image",
     "file": "analyze-choose-table-image.mp3",
     "brief": "Choose a photo from this device. Explain portrait and landscape support, preserving image proportions, and photographing the visible table section.",
     "targets": [
@@ -4067,13 +4067,13 @@
     "recording_status": "Recorded",
     "source": "index.html:1756",
     "current_audio_present": true,
-    "narration": "Choose a image from this device. Portrait and landscape images retain their proportions. image the table region you can see clearly, then choose matching coverage and calibrate its corners."
+    "narration": "Choose an image from this device. Portrait and landscape images keep their original proportions. Identify the head or kitchen end and the foot or rack end of the table. Then select Find / Add Corners to match the numbered reference points in the table diagram to your image."
   },
   {
     "id": "analyze-auto-corners",
     "page": "Analyze",
     "section": "Image selection and setup",
-    "title": "Auto Corners",
+    "title": "Corner sensing",
     "file": "analyze-auto-corners.mp3",
     "brief": "Estimate the four calibration corners automatically. Review the result and adjust the marked corners before analysis.",
     "targets": [
@@ -4093,13 +4093,13 @@
     "recording_status": "Recorded",
     "source": "index.html:1764",
     "current_audio_present": true,
-    "narration": "Estimate the four calibration corners automatically. Review the result and adjust the marked corners before analysis."
+    "narration": "Corner Sensing estimates the four inside playing-surface corners in a full-table image. It orders them along the table’s long direction, including portrait images. Check the numbered diagram against the image and confirm the head and foot ends. Drag a marker to correct its position. If the orientation is wrong, select Reset Corners and use Find / Add Corners to mark the references yourself. For a partial table, choose its coverage in Custom Table Layouts and mark the highlighted points manually."
   },
   {
     "id": "analyze-open-or-close-fine-tune-corner",
     "page": "Analyze",
     "section": "Image selection and setup",
-    "title": "Open or close Fine Tune Corner",
+    "title": "Custom table layouts",
     "file": "analyze-open-or-close-fine-tune-corner.mp3",
     "brief": "Show the alignment controls in the detected-balls sidebar. Explain choosing photo coverage and refining diamonds while keeping the large image visible.",
     "targets": [
@@ -4114,13 +4114,13 @@
     "recording_status": "Recorded",
     "source": "index.html:1765",
     "current_audio_present": false,
-    "narration": "Open Fine-Tune Corner in the detected-balls sidebar. Choose the image region and refine its alignment with diamond references while keeping the large image visible. Select it again to close the controls."
+    "narration": "Custom Table Layouts opens the table-region and alignment controls beside your image. Choose full, half, quarter, or custom coverage to match the part of the table you can see. Match the highlighted boundary points, then refine the alignment with visible pocket and diamond references. Select Custom Table Layouts again to close this panel."
   },
   {
     "id": "analyze-reset-corners",
     "page": "Analyze",
     "section": "Image selection and setup",
-    "title": "Reset Corners",
+    "title": "Reset corners",
     "file": "analyze-reset-corners.mp3",
     "brief": "Clear corner calibration and mark the four corners of the selected region again in clockwise order. Explain that region corners may be diamond-defined rather than actual pockets.",
     "targets": [
@@ -4140,7 +4140,7 @@
     "recording_status": "Recorded",
     "source": "index.html:1765",
     "current_audio_present": true,
-    "narration": "Clear the corner calibration and mark the selected region again, clockwise from top left. In a partial-table image, these corners may be known diamond positions rather than actual pockets."
+    "narration": "Reset Corners clears the marked corners and their alignment references. Select Find / Add Corners to start marking again. Follow the highlighted numbered points in the table diagram, rather than the corners of your screen. For partial coverage, use the matching region boundaries, which may be diamond intersections instead of pockets."
   },
   {
     "id": "analyze-choose-analysis-rack-type",
@@ -4216,7 +4216,7 @@
     "recording_status": "Recorded",
     "source": "index.html:1770",
     "current_audio_present": true,
-    "narration": "Activate Add Missed Ball, then tap the center of a ball the detector missed. Assign its identity in the review list. Turn add mode off when you finish adding entries."
+    "narration": "Select Add Missed Ball, then tap the center of one ball the detector missed. The tool turns off automatically after placing that ball. Assign its identity in the review list. Select Add Missed Ball again whenever you need to add another."
   },
   {
     "id": "analyze-ai-detector-mode-and-readiness",
@@ -5385,7 +5385,7 @@
     "id": "analyze-mark-four-corners",
     "page": "Analyze",
     "section": "Fine Tune and calibration",
-    "title": "Mark four photo region corners",
+    "title": "Mark four corner references",
     "file": "analyze-mark-four-corners.mp3",
     "brief": "Mark the selected region clockwise from top-left, then top-right, bottom-right, bottom-left. Full table anchors are P1, P3, P4, P6. Explain closure and partial-view anchors.",
     "targets": [
@@ -5404,7 +5404,7 @@
     "recording_status": "Recorded",
     "source": "index.html (runtime photo controls)",
     "current_audio_present": true,
-    "narration": "Mark the selected region clockwise from top-left, then top-right, bottom-right, bottom-left. Full table anchors are P1, P3, P4, P6."
+    "narration": "Use the numbered table diagram to guide your four taps. For a full table, begin at the head-end corner shown as pocket one. The second point is at the other end of that same long rail, pocket three. Cross the foot-end short rail to pocket four, then return along the other long rail to pocket six. Match these physical references wherever they appear in your image. Do not use a fixed top-left, top-right screen order. For partial coverage, follow the four highlighted region points instead."
   },
   {
     "id": "analyze-drag-calibration-corner",
@@ -5873,7 +5873,7 @@
     "recording_status": "Recorded",
     "source": "index.html (runtime photo controls)",
     "current_audio_present": true,
-    "narration": "After Add Missed Ball is active, tap the missing ball center to create an entry, then assign its identity."
+    "narration": "Tap the center of the one missed ball you want to add. After that entry is placed, adding turns off automatically. Assign the ball’s identity in the review list. To add another ball, select Add Missed Ball again."
   },
   {
     "id": "analyze-analysis-status",
@@ -7809,7 +7809,7 @@
     "id": "analyze-table-setup-heading",
     "page": "Analyze",
     "section": "Status areas",
-    "title": "Table setup heading",
+    "title": "Table setup",
     "file": "analyze-table-setup-heading.mp3",
     "brief": "Describe the setup area containing calibration, rack choice, and analysis controls.",
     "targets": [
@@ -7824,7 +7824,7 @@
     "recording_status": "Recorded",
     "source": "index.html (runtime photo controls)",
     "current_audio_present": false,
-    "narration": "Table Setup groups the corner calibration, fine tuning, rack choice, and ball-analysis controls."
+    "narration": "Table Setup groups Find / Add Corners, Reset Corners, Custom Table Layouts, and Corner Sensing, followed by rack choice and ball-analysis controls. Mark the table region and review its alignment before analyzing the balls."
   },
   {
     "id": "analyze-saved-images-heading",
@@ -8492,6 +8492,30 @@
       "Guide launcher"
     ],
     "narration": "Welcome to the Guide. Use Play and Pause to listen at your own pace. Turn on Auto to play through the lessons in your selected category without choosing each one. Tap Read to follow along with the narration. Reading while you listen can help you get more from each lesson. Open More for additional resources and links related to that topic. Explore Fundamentals, Physics and Tools, Drills, Exercises, and Resources. Tap any category, then choose a topic from its drop-down menu. Pick something that interests you, listen, and try it on the table.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "analyze-find-add-corners",
+    "page": "Analyze",
+    "section": "Table Setup",
+    "title": "Find / Add Corners",
+    "file": "analyze-find-add-corners.mp3",
+    "kind": "Control",
+    "targets": [
+      "#photoFindCorners"
+    ],
+    "narration": "Find / Add Corners opens the numbered table diagram for manual marking. Match the highlighted reference to the same point in your image and tap it. Continue through all four references. Portrait and landscape images use the same table references, even though they appear in different places on the screen. If four corners are already marked, drag their markers to adjust them, or use Reset Corners to start again.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "analyze-corner-setup-walkthrough",
+    "page": "Analyze",
+    "section": "Table Setup",
+    "title": "Set the table corners",
+    "file": "analyze-corner-setup-walkthrough.mp3",
+    "kind": "Get Started lesson",
+    "targets": [],
+    "narration": "After choosing an image, select Find / Add Corners. The small table diagram highlights the next point to mark. Match that point to the same physical corner or boundary in your image. For a full table, start at the head-end corner shown as pocket one. Follow the same long rail to pocket three at the foot end. Cross the foot-end short rail to pocket four, then return along the other long rail to pocket six. This table-based order works for portrait and landscape images; the first two points follow a long rail, rather than the top edge of the screen. Use Reset Corners if you need to begin again. Use Custom Table Layouts for partial coverage and diamond references. Corner Sensing can estimate a full-table outline, but check its numbered orientation before continuing. Once the outline matches, select Analyze Balls.",
     "recording_status": "Recorded"
   }
 ]

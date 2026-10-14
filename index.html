@@ -1389,7 +1389,7 @@
 /* Extra rail action for resizable zone markers; retain circular controls. */
 .markerRailCircle:has(button:nth-child(3)) button { font-size:clamp(7px,var(--marker-font),10px); }
 </style>
-<link rel="stylesheet" href="./guide/guide.css?v=practice-ready-v8">
+<link rel="stylesheet" href="./guide/guide.css?v=corner-guide-v9">
 <style>
 /* Isolated Guide integration on Analyze page; existing trainer styling preserved. */
 .photoAnalyzerHeader{background:#205385;min-height:60px;position:relative;overflow:visible;justify-content:flex-start}
@@ -1766,8 +1766,10 @@
       </div></div>
       <div class="photoToolGroup photoSetupGroup"><span class="photoToolHeading">TABLE SETUP</span><div class="photoToolActions">
         <button id="photoRotateBtn" type="button" hidden style="display:none" aria-hidden="true" tabindex="-1">Rotate 90°</button>
-        <button id="photoAutoRailsBtn" type="button">Auto Corners</button>
-        <div class="photoCornerControls"><button id="photoFineTune" type="button" aria-expanded="false" aria-controls="photoCalibrationPanel" title="Open Fine Tune">Fine-Tune Corner</button><button id="photoResetCorners" type="button">Reset Corners</button></div>
+        <button id="photoFindCorners" type="button">Find / Add Corners</button>
+        <button id="photoResetCorners" type="button">Reset Corners</button>
+        <button id="photoFineTune" type="button" aria-expanded="false" aria-controls="photoCalibrationPanel" title="Open Custom Table Layouts">Custom Table Layouts</button>
+        <button id="photoAutoRailsBtn" type="button">Corner Sensing</button>
         <select id="photoRackType" aria-label="Rack type" title="Rack type">
           <option value="auto">Rack: Auto</option><option value="9ball">9-Ball</option><option value="10ball">10-Ball</option><option value="8ball">8-Ball</option><option value="custom">Custom</option>
         </select>
@@ -1823,7 +1825,7 @@
 </div>
 
 <link rel="stylesheet" href="./photo-calibration.css?v=8">
-<script src="./photo-calibration.js?v=3"></script>
+<script src="./photo-calibration.js?v=corner-guide-v9"></script>
 <script src="./trainer-layout-files.js?v=2"></script>
 <script src="./trainer-saved-files.js?v=1"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
@@ -9350,8 +9352,8 @@
         renderPhotoDetectionList();renderPhotoAnalyzer();pvUpdateCalibrationDiagram();
     }
     function pvCalibrationPrompt(){
-        if(!photoVision.imageReady)return 'Choose an image, then mark the highlighted reference points clockwise.';
-        if(photoVision.corners.length<4)return 'Tap '+pvAnchorLabel(photoVision.corners.length)+' in the photo ('+(photoVision.corners.length+1)+' of 4). Orient by pocket number, not by the photo edges.';
+        if(!photoVision.imageReady)return 'Choose an image, then use Find / Add Corners to match the numbered table-diagram points.';
+        if(photoVision.corners.length<4)return 'Tap '+pvAnchorLabel(photoVision.corners.length)+' in the image ('+(photoVision.corners.length+1)+' of 4). Match the highlighted diagram point, not the screen corner. The first two points follow one long rail.';
         if(!pvCalibration())return 'The four points must form a table section without crossing. Drag a marker or reset the points.';
         if(photoVision.refining){
             const target=pvCalibrationReferences().find(d=>d.id===photoVision.pendingDiamond);
@@ -9464,7 +9466,7 @@
             const panel=$('photoCalibrationPanel');panel.hidden=!panel.hidden;
             $('photoFineTune').setAttribute('aria-expanded',String(!panel.hidden));
             $('photoReviewPane').classList.toggle('calibrating',!panel.hidden);
-            $('photoFineTune').title=panel.hidden?'Open Fine Tune':'Close Fine Tune';
+            $('photoFineTune').title=panel.hidden?'Open Custom Table Layouts':'Close Custom Table Layouts';
             if(panel.hidden){photoVision.refining=false;photoVision.pendingDiamond=null;renderPhotoAnalyzer();}
             pvUpdateCalibrationDiagram();
             if(panel.hidden)pvStatus(pvCalibrationPrompt());
@@ -9474,6 +9476,15 @@
             photoVision.regionDiamonds=Number($('photoRegionExtent').value)||4;
             pvResetDetectionsAndCorners();renderPhotoAnalyzer();pvStatus(pvCalibrationPrompt());
         }
+        $('photoFindCorners').addEventListener('click',()=>{
+            if(!photoVision.imageReady){pvStatus('Choose an image first, then select Find / Add Corners.');return;}
+            photoVision.refining=false;photoVision.pendingDiamond=null;photoVision.addMissedMode=false;
+            $('photoAddMissed').classList.remove('activeToggle');$('photoAddMissed').textContent='Add Missed Ball';
+            $('photoCalibrationPanel').hidden=false;$('photoReviewPane').classList.add('calibrating');
+            $('photoFineTune').setAttribute('aria-expanded','true');$('photoFineTune').title='Close Custom Table Layouts';
+            pvUpdateCalibrationDiagram();renderPhotoAnalyzer();
+            pvStatus(photoVision.corners.length===4?'Four corners are already marked. Drag a corner to adjust it, or use Reset Corners to start again.':pvCalibrationPrompt());
+        });
         $('photoRegion').addEventListener('change',()=>{if($('photoRegion').value!=='full'&&photoVision.regionEnd==='full')$('photoRegionExtent').value='4';changeRegion();});
         $('photoRegionExtent').addEventListener('input',changeRegion);
         $('photoRefineAlignment').addEventListener('click',()=>{
@@ -9737,7 +9748,7 @@
     }
 
     function pvAutoFindRailCorners(){
-        if(!photoVision.imageReady){pvStatus('Choose a photo or video frame first.');return false;}
+        if(!photoVision.imageReady){pvStatus('Choose an image first.');return false;}
         const canvas=photoVision.analysisCanvas,ctx=photoVision.analysisCtx,w=canvas.width,h=canvas.height;
         if(!w||!h)return false;
         const img=ctx.getImageData(0,0,w,h),d=img.data;
@@ -9771,19 +9782,20 @@
         }
         const T=pvFitLineXY(top,true),B=pvFitLineXY(bottom,true),L=pvFitLineXY(left,false),R=pvFitLineXY(right,false);
         const tl=pvIntersectRailLines(T,L),tr=pvIntersectRailLines(T,R),br=pvIntersectRailLines(B,R),bl=pvIntersectRailLines(B,L);
-        const corners=[tl,tr,br,bl];
+        let corners=[tl,tr,br,bl];
         if(corners.some(p=>!p||!Number.isFinite(p.x)||!Number.isFinite(p.y)||p.x<0||p.y<0||p.x>w||p.y>h)){
-            pvStatus('AUTO RAIL CORNERS could not confidently find all four rail intersections. Use the large white crosshairs manually.');
+            pvStatus('Corner Sensing could not confidently find all four rail intersections. Use the large white crosshairs manually.');
             return false;
         }
         const area=Math.abs(corners.reduce((s,p,i)=>{const q=corners[(i+1)%4];return s+p.x*q.y-q.x*p.y;},0))/2;
-        if(area<w*h*.25){pvStatus('AUTO RAIL CORNERS found an implausibly small table. Use manual crosshairs for this image.');return false;}
+        if(area<w*h*.25){pvStatus('Corner Sensing found an implausibly small table. Use manual crosshairs for this image.');return false;}
+        corners=photoCal.orderDetectedCorners(corners);
         photoVision.autoRailRawCorners=corners.map(p=>({x:p.x,y:p.y}));
         photoVision.corners=pvInsetQuad(photoVision.autoRailRawCorners,photoVision.railInset||0);
         photoVision.detections=[];
         renderPhotoDetectionList();renderPhotoAnalyzer();
         $('photoAnalyzeNow').disabled=false;$('photoAddMissed').disabled=false;
-        pvStatus('Bed-cloth boundary fitted. Use RAIL INSET to nudge all four rail noses together, or drag a white crosshair, then ANALYZE BALLS.');
+        pvStatus('Corner Sensing estimated the playing-surface boundary. Check its numbered points against the table diagram, including the head and foot ends. Drag a marker to correct it, or use Reset Corners and Find / Add Corners.');
         return true;
     }
 
@@ -10261,9 +10273,10 @@
             const q=imagePointToNormalized(p);
             if(q&&q.x>=pvRegion().x0&&q.x<=pvRegion().x1&&q.y>=(pvRegion().y0??0)&&q.y<=(pvRegion().y1??1)){
                 photoVision.detections.push({nx:Math.max(0,Math.min(1,q.x)),ny:Math.max(0,Math.min(1,q.y)),id:'ignore',confidence:1,manual:true,duplicateWarning:true});
+                photoVision.addMissedMode=false;$('photoAddMissed').classList.remove('activeToggle');$('photoAddMissed').textContent='Add Missed Ball';
                 renderPhotoDetectionList();
                 renderPhotoAnalyzer();
-                pvStatus('Manual ball added. Pinch to zoom/pan and keep tapping missing ball centers; then choose identities in the list.');
+                pvStatus('One ball added. Assign its identity in the review list. Select Add Missed Ball again to place another.');
             }
         }
     }
@@ -10813,7 +10826,7 @@
             v.style.display='none';
             c.style.display='block';
             $('photoCaptureFrame').style.display='none';
-            pvResetAfterImageChange('Photo loaded at high analysis quality. ROTATE 90° now uses the retained raw image without cumulative blur. Use it until the head/foot direction matches how you want the layout placed in Billiards Trainer. Then tap four inside playing-surface corners: top-left → top-right → bottom-right → bottom-left.');
+            pvResetAfterImageChange('Image ready. Select Find / Add Corners and match the highlighted numbered points in the table diagram. The first two points follow one long rail. Use Custom Table Layouts for partial coverage.');
             if($('photoArchiveExport')) $('photoArchiveExport').disabled=false;
             photoVision.sourceName=pvSafePhotoName(sourceNameOverride || file.name || 'Pool table photo');
             photoVision.archiveId=archiveId;
@@ -10844,7 +10857,7 @@
         v.style.display='none';
         $('photoAnalyzerCanvas').style.display='block';
         $('photoCaptureFrame').style.display='none';
-        pvResetAfterImageChange('Frame captured at high analysis quality. ROTATE 90° now uses the retained raw frame without cumulative blur. Use it until the head/foot direction matches how you want the layout placed in Billiards Trainer. Then tap four inside playing-surface corners: top-left → top-right → bottom-right → bottom-left.');
+        pvResetAfterImageChange('Image ready. Select Find / Add Corners and match the highlighted numbered points in the table diagram. The first two points follow one long rail. Use Custom Table Layouts for partial coverage.');
         if($('photoArchiveExport')) $('photoArchiveExport').disabled=false;
         pvArchiveRawCanvas('Video frame');
     }
@@ -10912,7 +10925,7 @@
             pvStatus(pvCalibrationPrompt());
         });
         $('photoAutoRailsBtn').addEventListener('click', () => {
-            if(photoVision.regionEnd!=='full'){pvStatus('Auto Corners needs the full table. For a partial photo, mark the four highlighted section points.');return;}
+            if(photoVision.regionEnd!=='full'){pvStatus('Corner Sensing needs a full-table image. For partial coverage, use Custom Table Layouts and Find / Add Corners.');return;}
             photoVision.refinements=[];photoVision.refining=false;photoVision.pendingDiamond=null;photoVision.calibrationCache=null;pvAutoFindRailCorners();pvUpdateCalibrationDiagram();
         });
         $('photoRotateBtn').addEventListener('click', () => {
@@ -10944,7 +10957,7 @@
             } else {
                 $('photoAnalyzeNow').disabled=true;
                 $('photoAddMissed').disabled=true;
-                pvStatus('Rotated to '+photoVision.rotation+'°. Tap four inside playing-surface corners: top-left → top-right → bottom-right → bottom-left.');
+                pvStatus('Rotated to '+photoVision.rotation+'°. Match the four highlighted reference points in the table diagram.');
             }
         });
         $('photoAiModeBtn').addEventListener('click', () => {
@@ -10990,10 +11003,10 @@
             photoVision.refining=false;photoVision.pendingDiamond=null;pvUpdateCalibrationDiagram();
             photoVision.addMissedMode=!photoVision.addMissedMode;
             $('photoAddMissed').classList.toggle('activeToggle',photoVision.addMissedMode);
-            $('photoAddMissed').textContent=photoVision.addMissedMode?'ADD BALLS: ON':'ADD MISSED BALL';
+            $('photoAddMissed').textContent=photoVision.addMissedMode?'Place One Ball':'Add Missed Ball';
             pvStatus(photoVision.addMissedMode
-                ? 'ADD BALLS mode is ON — pinch with two fingers to zoom/pan, then tap each missing ball center. It stays on until you press the button again.'
-                : 'ADD BALLS mode OFF.');
+                ? 'Tap the center of one missed ball. Adding turns off automatically after placing it.'
+                : 'Add Missed Ball cancelled.');
         });
         $('photoApplyTable').addEventListener('click', () => applyPhotoDetections(false));
         $('photoApplySave').addEventListener('click', () => applyPhotoDetections(true));
@@ -11904,12 +11917,12 @@ if ('serviceWorker' in navigator) {
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=fit5">
   <script src="./phone-play.js?v=8"></script>
-  <script src="./guide/audio-startup.js?v=practice-ready-v8"></script>
-  <script src="./guide/practice-layouts.js?v=practice-ready-v8"></script>
-  <script src="./guide/guide.js?v=practice-ready-v8"></script>
-  <script src="./guide/recorded-audio.js?v=practice-ready-v8"></script>
-  <script src="./guide/pool-integration.js?v=practice-ready-v8"></script>
-  <script src="./guide/analyze-integration.js?v=practice-ready-v8"></script>
+  <script src="./guide/audio-startup.js?v=corner-guide-v9"></script>
+  <script src="./guide/practice-layouts.js?v=corner-guide-v9"></script>
+  <script src="./guide/guide.js?v=corner-guide-v9"></script>
+  <script src="./guide/recorded-audio.js?v=corner-guide-v9"></script>
+  <script src="./guide/pool-integration.js?v=corner-guide-v9"></script>
+  <script src="./guide/analyze-integration.js?v=corner-guide-v9"></script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=2"></script>
 

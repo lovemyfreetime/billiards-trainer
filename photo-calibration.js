@@ -14,6 +14,14 @@
     return {x0,x1,y0,y1};
   }
   function anchors(r){return [{x:r.x0,y:r.y0??0},{x:r.x1,y:r.y0??0},{x:r.x1,y:r.y1??1},{x:r.x0,y:r.y1??1}];}
+  function orderDetectedCorners(points){
+    if(!Array.isArray(points)||points.length!==4||points.some(p=>!p||!Number.isFinite(p.x)||!Number.isFinite(p.y)))return points;
+    const length=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+    const horizontal=length(points[0],points[1])+length(points[2],points[3]);
+    const vertical=length(points[1],points[2])+length(points[3],points[0]);
+    // Estimates start at image TL/TR/BR/BL; anchor 1→2 must span a long rail.
+    return vertical>horizontal?[points[1],points[2],points[3],points[0]]:points.slice();
+  }
   function diamonds(){
     const result=[];
     for(let i=1;i<8;i++)if(i!==4){
@@ -83,7 +91,7 @@
     for(let j=1;j<8;j+=2)path([{x:0,y:j/8},{x:1,y:j/8}]);
     ctx.restore();
   }
-  const api={pockets,region,customRegion,anchors,diamonds,fit,apply,inverse,validQuad,references};
+  const api={orderDetectedCorners,pockets,region,customRegion,anchors,diamonds,fit,apply,inverse,validQuad,references};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   else root.BilliardsPhotoCalibration=api;
 })(typeof window!=='undefined'?window:globalThis);

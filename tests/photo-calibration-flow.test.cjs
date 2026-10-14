@@ -3,10 +3,10 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const C=require('../photo-calibration.js');
 const html=fs.readFileSync(require('node:path').join(__dirname,'../index.html'),'utf8');
 function source(name,next){const start=html.indexOf('    function '+name+'(');assert.ok(start>0);return html.slice(start,html.indexOf(next||'\n    function ',start+10));}
-const controls=new Map();function $(id){if(!controls.has(id))controls.set(id,{id,value:'',innerHTML:'',textContent:'',disabled:false,hidden:false,events:{},classList:{remove(){},toggle(){}},setAttribute(k,v){this[k]=v},addEventListener(k,f){this.events[k]=f}});return controls.get(id);}
+const controls=new Map();function $(id){if(!controls.has(id))controls.set(id,{id,value:'',innerHTML:'',textContent:'',disabled:false,hidden:false,events:{},classList:{remove(){},add(){},toggle(){}},setAttribute(k,v){this[k]=v},addEventListener(k,f){this.events[k]=f}});return controls.get(id);}
 const image={width:1000,height:700},pixels=new Uint8ClampedArray(image.width*image.height*4).fill(90);
 const state={imageReady:true,regionEnd:'full',regionDiamonds:4,corners:[],refinements:[],refining:false,pendingDiamond:null,calibrationCache:null,detections:[],imageVersion:1,sourceCanvas:image,analysisCanvas:image,sourceCtx:{getImageData:()=>({data:pixels})},analysisCtx:{getImageData:()=>({data:pixels})}};
-const sandbox={window:{BilliardsPhotoCalibration:C},photoVision:state,S:{tableL:2,tableW:1},$,console,renderPhotoDetectionList(){},renderPhotoAnalyzer(){},pvSourceToCanvas:p=>p,document:{createElement:()=>({getContext:()=>({createImageData:(w,h)=>({data:new Uint8ClampedArray(w*h*4)}),putImageData(){}})})}};
+const sandbox={window:{BilliardsPhotoCalibration:C},photoVision:state,S:{tableL:2,tableW:1},$,console,renderPhotoDetectionList(){},renderPhotoAnalyzer(){},pvPhotoDetectionHit(){return null},pvSourceToCanvas:p=>p,document:{createElement:()=>({getContext:()=>({createImageData:(w,h)=>({data:new Uint8ClampedArray(w*h*4)}),putImageData(){}})})}};
 vm.createContext(sandbox);
 vm.runInContext(source('pvRegion','    function pvStatus(').replace(/const photoCal[^\n]+\n/,''),sandbox); // These functions refer to the declared module below.
 vm.runInContext('const photoCal=window.BilliardsPhotoCalibration;',sandbox);
@@ -14,6 +14,7 @@ for(const name of ['pvStatus','pvResetDetectionsAndCorners','pvHandlePhotoTap','
 vm.runInContext(source('imagePointToNormalized','    // ================== END PHOTO ANALYZER'),sandbox);
 sandbox.pvSetupCalibration();assert.equal($('photoRefineAlignment').disabled,true);
 $('photoCalibrationPanel').hidden=true;$('photoFineTune').events.click();assert.equal($('photoCalibrationPanel').hidden,false);assert.equal($('photoFineTune')['aria-expanded'],'true');
+$('photoFindCorners').events.click();assert.equal($('photoCalibrationPanel').hidden,false);assert.equal(state.corners.length,0);
 state.refining=true;state.pendingDiamond='top-1';$('photoFineTune').events.click();assert.equal($('photoCalibrationPanel').hidden,true);assert.equal(state.refining,false);assert.equal(state.pendingDiamond,null);
 const H=[720,80,100,30,380,90,.1,.1,1];
 for(const end of ['full','head','foot']){
@@ -24,7 +25,7 @@ for(const end of ['full','head','foot']){
  assert.equal($('photoAnalyzeNow').disabled,false);assert.equal($('photoRefineAlignment').disabled,false);
  const ball={x:(r.x0+r.x1)/2,y:.6},photo=C.apply(H,ball),q=sandbox.imagePointToNormalized(photo);
  assert.ok(Math.hypot(q.x-ball.x,q.y-ball.y)<1e-7);
- state.addMissedMode=true;sandbox.pvHandlePhotoTap(photo);assert.equal(state.detections.length,1);assert.ok(Math.abs(state.detections[0].nx-ball.x)<1e-7);
+ state.addMissedMode=true;sandbox.pvHandlePhotoTap(photo);assert.equal(state.detections.length,1);assert.equal(state.addMissedMode,false);sandbox.pvHandlePhotoTap(photo);assert.equal(state.detections.length,1,'A second tap does not add another ball');assert.ok(Math.abs(state.detections[0].nx-ball.x)<1e-7);
  const warp=sandbox.warpPhotoTopDown(80,40);assert.equal(warp.canvas.width,Math.round(80*(r.x1-r.x0)));assert.equal(warp.canvas.height,40);
  $('photoRefineAlignment').events.click();assert.equal(state.refining,true);assert.equal(state.addMissedMode,false);
  const diamond=C.diamonds().find(p=>p.x>=r.x0&&p.x<=r.x1);sandbox.pvSelectDiamond(diamond.id);sandbox.pvHandlePhotoTap(C.apply(H,diamond));

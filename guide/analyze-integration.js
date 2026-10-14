@@ -234,7 +234,7 @@ async function init(){
       "./guide/audio/photo-table-boundaries-quick.mp3"
     ],
     "summary": "Aligning a photographed table",
-    "text": "After selecting Choose Image, try Auto Corners. If the corners are misplaced, set them manually in pocket order: pocket 1, then pocket 3, pocket 4, and pocket 6. The last side connects back to pocket 1. This keeps the photograph aligned with the trainer’s pocket numbering. Use Reset Corners if you need to start over.\n\nBefore working with individual balls, check that the table boundaries in the image match the actual playing surface. If the alignment looks wrong, correct the available table reference points before transferring the layout."
+    "text": "After selecting Choose Image, try Corner Sensing. If the corners are misplaced, set them manually by matching the highlighted diagram points: pocket 1, then pocket 3, pocket 4, and pocket 6. The first two points follow one long rail in either portrait or landscape. The last side connects back to pocket 1. This keeps the photograph aligned with the trainer’s pocket numbering. Use Reset Corners if you need to start over.\n\nBefore working with individual balls, check that the table boundaries in the image match the actual playing surface. If the alignment looks wrong, correct the available table reference points before transferring the layout."
   },
   {
     "id": "photo-rack-analyze-quick",
@@ -328,7 +328,7 @@ async function init(){
  topics.push({id:'image-ai-mode',title:'AI detection mode',category:'explore',level:0,audio:['./guide/audio/analyze-ai-detector-mode-and-readiness.mp3'],
   summary:'Enable or disable the trained ball detector.',
   text:'The AI button enables or disables the trained ball detector. Ready means the models are loaded. Auto or Loading means they are preparing. Retry restarts a failed load. With AI off, Analyze Balls uses the original detector. Review the detected identities and positions before applying your layout.'});
- // Auto Corners already covers the reset action; keep its explanation focused.
+ // Corner Sensing already covers the reset action; keep its explanation focused.
  const corners=topics.find(t=>t.id==='image-corners');
  corners.audio=corners.audio.slice(0,1);corners.text=corners.text.split('\n\n')[0];
  BilliardsRecordedAudio.merge(topics,recorded,'Analyze');
@@ -371,7 +371,7 @@ async function init(){
     "level": 0,
     "audio": ["./guide/audio/photo-camera-angle-quick.mp3", "./guide/audio/photo-perspective-quick.mp3"],
     "summary": "Match coverage to what the photograph shows.",
-    "text": "Open Fine-Tune Corner. Choose full table, left half, right half, or another available coverage. Use Custom for a middle section or quarter region. Move the boundary lines on the table diagram to the matching diamond positions. Pocket numbers always run clockwise from pocket 1; pocket 2 and pocket 5 are the middle pockets."
+    "text": "Open Custom Table Layouts. Choose full table, left half, right half, or another available coverage. Use Custom for a middle section or quarter region. Move the boundary lines on the table diagram to the matching diamond positions. Pocket numbers always run clockwise from pocket 1; pocket 2 and pocket 5 are the middle pockets."
   },
   {
     "id": "analyze-start-corners",
@@ -380,7 +380,7 @@ async function init(){
     "level": 0,
     "audio": ["./guide/audio/photo-auto-corners-quick.mp3", "./guide/audio/photo-table-boundaries-quick.mp3"],
     "summary": "Connect photo references to the trainer table.",
-    "text": "Use Auto Corners as a starting point when appropriate, or Reset Corners and mark the four boundary points in the prompted order. For a partial image, these points describe the selected region rather than the whole table. Fine-Tune Corner lets you add visible pocket and diamond references. Mark the exact reference requested; a diamond is not a pocket. Add clear references on both rail directions when possible."
+    "text": "Use Corner Sensing as a starting point when appropriate, or Reset Corners and mark the four boundary points in the prompted order. For a partial image, these points describe the selected region rather than the whole table. Custom Table Layouts lets you add visible pocket and diamond references. Mark the exact reference requested; a diamond is not a pocket. Add clear references on both rail directions when possible."
   },
   {
     "id": "analyze-start-analyze",
@@ -422,7 +422,7 @@ async function init(){
  for(const t of topics){if(t.category==='start'){const steps={
  'analyze-start-choose-photo':['analyze-choose-table-image','analyze-image-camera-heading'],
  'analyze-start-coverage':['analyze-coverage-full','analyze-coverage-custom'],
- 'analyze-start-corners':['analyze-auto-corners','analyze-mark-four-corners','analyze-open-or-close-fine-tune-corner'],
+ 'analyze-start-corners':['analyze-corner-setup-walkthrough'],
  'analyze-start-analyze':['analyze-analyze-balls','analyze-assign-identity','analyze-delete-candidate'],
  'analyze-start-inspect':['analyze-photo-wheel-zoom','analyze-photo-drag-pan'],
  'analyze-start-apply':['analyze-name-analyzed-table-layout','analyze-apply-to-trainer-table'],

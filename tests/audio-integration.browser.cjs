@@ -21,7 +21,7 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
    image:document.querySelector('.photoToolGroup:first-child .photoToolHeading').dataset.guideTopic,
    run:document.querySelector('#startFullRack').dataset.guideTopic};
  });
- assert.equal(result.count,366);assert.deepEqual(result.missing,[]);assert.deepEqual(result.invalid,[]);
+ assert.equal(result.count,368);assert.deepEqual(result.missing,[]);assert.deepEqual(result.invalid,[]);
  assert.equal(result.ai,'analyze-ai-detector-mode-and-readiness');assert.equal(result.setup,'analyze-table-setup-heading');assert.equal(result.image,'analyze-image-camera-heading');assert.equal(result.run,'main-start-full-rack');
  await page.click('#btg-pool-start');
  assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().autoplay),true);
@@ -154,13 +154,36 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await page.click('#btg-pool-explore');
  await page.click('#analyzePhotoBtn');
  await page.waitForSelector('#photoAnalyzerModal.open');
+ const cornerOrder=await page.locator('.photoAnalyzerToolbar button').evaluateAll(nodes=>nodes.filter(n=>['photoChooseImage','photoFindCorners','photoResetCorners','photoFineTune','photoAutoRailsBtn'].includes(n.id)).map(n=>[n.id,n.textContent]));
+ assert.deepEqual(cornerOrder,[['photoChooseImage','Choose Image'],['photoFindCorners','Find / Add Corners'],['photoResetCorners','Reset Corners'],['photoFineTune','Custom Table Layouts'],['photoAutoRailsBtn','Corner Sensing']]);
+ for(const [width,height] of [[500,1000],[1000,500]]){
+  const data=await page.evaluate(({width,height})=>{const c=document.createElement('canvas');c.width=width;c.height=height;const ctx=c.getContext('2d');ctx.fillStyle='#171717';ctx.fillRect(0,0,width,height);ctx.fillStyle='#187b56';ctx.fillRect(70,70,width-140,height-140);return c.toDataURL('image/png').split(',')[1]},{width,height});
+  await page.locator('#photoFileInput').setInputFiles({name:'table-'+width+'x'+height+'.png',mimeType:'image/png',buffer:Buffer.from(data,'base64')});
+  await page.waitForFunction(({width,height})=>{const c=document.querySelector('#photoAnalyzerCanvas');return !document.querySelector('#photoArchiveSave').disabled&&Math.abs(c.width/c.height-width/height)<.01},{width,height}).catch(async e=>{console.log(await page.evaluate(()=>({status:document.querySelector('#photoAnalyzerStatus').textContent,state:billiardsAnalyzeGuide.getState(),canvas:[photoAnalyzerCanvas.width,photoAnalyzerCanvas.height]})),errors);throw e});
+  await page.click('#photoFindCorners');assert.equal(await page.locator('#photoCalibrationPanel').isVisible(),true);
+  assert.ok((await page.locator('#photoAnalyzerStatus').innerText()).includes('first two points follow one long rail'));
+  await page.click('#photoAutoRailsBtn');await page.waitForFunction(()=>!document.querySelector('#photoAnalyzeNow').disabled);
+  assert.ok((await page.locator('#photoAnalyzerStatus').innerText()).includes('Corner Sensing estimated'));
+  await page.click('#photoAddMissed');assert.equal(await page.locator('#photoAddMissed').innerText(),'Place One Ball');
+  const box=await page.locator('#photoAnalyzerCanvas').boundingBox();await page.locator('#photoAnalyzerCanvas').click({position:{x:box.width/2,y:box.height/2}});
+  assert.equal(await page.locator('#photoAddMissed').innerText(),'Add Missed Ball');
+  const count=await page.locator('#photoBallCount').innerText();await page.locator('#photoAnalyzerCanvas').click({position:{x:box.width/2,y:box.height/2}});assert.equal(await page.locator('#photoBallCount').innerText(),count,'Second tap adds no extra ball');
+  await page.click('#photoResetCorners');assert.equal(await page.locator('#photoAnalyzeNow').isDisabled(),true);
+ }
  await page.click('#btg-analyze-start');
  await page.waitForFunction(()=>billiardsAnalyzeGuide.getState().category==='start');
  assert.ok((await page.locator('#bt-guide-root select').inputValue()).startsWith('analyze-start-'));
  assert.equal(await page.evaluate(()=>billiardsAnalyzeGuide.getState().autoplay),true);
+ await page.locator('#bt-guide-root select').selectOption('analyze-start-corners');
+ await page.waitForFunction(()=>window.__playedAudio.some(a=>a.src.includes('analyze-corner-setup-walkthrough.mp3')&&!a.paused&&a.currentTime>0));
+ await page.locator('#bt-guide-root button').filter({hasText:/^Read$/}).click();
+ assert.ok((await page.locator('#bt-guide-root .btg-expanded').innerText()).includes('portrait and landscape images'));
  await page.locator('#bt-guide-root select').selectOption('analyze-start-inspect');
  await page.waitForFunction(()=>window.__playedAudio.some(a=>a.src.includes('analyze-photo-wheel-zoom.mp3')&&!a.paused&&a.currentTime>0));
  await page.click('#btg-analyze-explore');
+ await page.locator('#photoFindCorners').click();
+ await page.waitForFunction(()=>billiardsAnalyzeGuide.getState().topicId==='analyze-find-add-corners');
+ await page.waitForFunction(()=>window.__playedAudio.some(a=>a.src.includes('analyze-find-add-corners.mp3')&&!a.paused&&a.currentTime>0));
  await page.locator('#photoChooseImage').click();
  assert.equal(await page.evaluate(()=>billiardsAnalyzeGuide.getState().topicId),'analyze-choose-table-image');
  const setups=await page.evaluate(async()=>{
@@ -182,6 +205,6 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await page.screenshot({path:'../audio-integration-preview.png',fullPage:false});
  assert.equal(await page.evaluate(()=>window.__spokenText.length),0);
  assert.deepEqual(errors,[]);
- console.log(JSON.stringify({records:result.count,drillGroups:groups,allAudioFetches:'366 successful',welcomes:'Guide intro autoplays on open/reopen, Play/Pause and Read work, Auto advances into selected category; 5 category MP3s play',resourcePopups:'5 verified destinations open only after real audio ended; Stop cancels navigation',offlineReload:'passed, including native saved setup',practiceSetups:'29 files mapped to 85 topics; Read, More, and Balls load/reset work',dropdown:'remains mounted and focused while Auto advances; current title updates independently',mp3Playback:'decoded and advancing',dedicatedMappings:result,browserErrors:errors,featuresAndOptions:'9 controls and 9 labels play their dedicated MP3 without mutation',controlsTab:'removed',zeroXLinks:2}));
+ console.log(JSON.stringify({records:result.count,drillGroups:groups,allAudioFetches:'368 successful',welcomes:'Guide intro autoplays on open/reopen, Play/Pause and Read work, Auto advances into selected category; 5 category MP3s play',resourcePopups:'5 verified destinations open only after real audio ended; Stop cancels navigation',offlineReload:'passed, including native saved setup',practiceSetups:'29 files mapped to 85 topics; Read, More, and Balls load/reset work',dropdown:'remains mounted and focused while Auto advances; current title updates independently',mp3Playback:'decoded and advancing',dedicatedMappings:result,browserErrors:errors,featuresAndOptions:'9 controls and 9 labels play their dedicated MP3 without mutation',controlsTab:'removed',zeroXLinks:2}));
  await browser.close();server.kill();
 })().catch(e=>{console.error(e);server.kill();process.exit(1)});

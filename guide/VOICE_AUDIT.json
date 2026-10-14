@@ -5025,9 +5025,109 @@
       "model": "simba-3.2",
       "rate": "+30%",
       "request_id": "d92a123f-8eea-46d9-bfb5-40c049f95104"
+    },
+    {
+      "file": "analyze-choose-table-image.mp3",
+      "seconds": 14.52,
+      "bytes": 232365,
+      "billable_characters": 274,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "3464148b-0330-4ba3-ade7-953873a4ca33"
+    },
+    {
+      "file": "analyze-auto-corners.mp3",
+      "seconds": 21.24,
+      "bytes": 339885,
+      "billable_characters": 500,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "2593b306-e175-41ce-b8d2-9a8786bdf88c"
+    },
+    {
+      "file": "analyze-open-or-close-fine-tune-corner.mp3",
+      "seconds": 16.632,
+      "bytes": 266157,
+      "billable_characters": 340,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "b01d0690-10af-482d-865e-bf3fc3b07ab7"
+    },
+    {
+      "file": "analyze-reset-corners.mp3",
+      "seconds": 14.952,
+      "bytes": 239277,
+      "billable_characters": 335,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "f7e762ce-fb8e-4180-8403-ffa800c7f260"
+    },
+    {
+      "file": "analyze-mark-four-corners.mp3",
+      "seconds": 21.336,
+      "bytes": 341421,
+      "billable_characters": 491,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "ffaa7c39-5e5d-4791-8411-2de4a6bcda39"
+    },
+    {
+      "file": "analyze-table-setup-heading.mp3",
+      "seconds": 11.76,
+      "bytes": 188205,
+      "billable_characters": 222,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "845ab527-cc71-4838-b416-6e8ba2cd6811"
+    },
+    {
+      "file": "analyze-find-add-corners.mp3",
+      "seconds": 19.248,
+      "bytes": 308013,
+      "billable_characters": 413,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "415abe42-e3cf-409b-a396-4575133be8e4"
+    },
+    {
+      "file": "analyze-corner-setup-walkthrough.mp3",
+      "seconds": 36.864,
+      "bytes": 589869,
+      "billable_characters": 821,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "c4cfaef0-6912-486e-a219-d8edf376079f"
+    },
+    {
+      "file": "analyze-add-missed-ball.mp3",
+      "seconds": 12.624,
+      "bytes": 202029,
+      "billable_characters": 237,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "4d434d15-0649-48bf-8863-52e48bef670b"
+    },
+    {
+      "file": "analyze-place-missed-ball.mp3",
+      "seconds": 11.256,
+      "bytes": 180141,
+      "billable_characters": 212,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "0668f3ea-58a0-4ad7-9f0b-e4e0777fd7e5"
     }
   ],
-  "current_recording_count": 619,
+  "current_recording_count": 621,
   "pitch_preserving_tempo_adjustments": {
     "files": [
       "drill-stop-shot.mp3",
@@ -5043,5 +5143,71 @@
     ],
     "reference": "practice-target-landing.mp3",
     "report": "AUDIO_PACING.json"
+  },
+  "corner_guide_pacing": {
+    "reference": "practice-target-landing.mp3",
+    "target_wpm": 174.3730407523511,
+    "files": [
+      {
+        "file": "analyze-choose-table-image.mp3",
+        "tempo": 0.8791307471264368,
+        "before_seconds": 14.52,
+        "after_seconds": 16.56
+      },
+      {
+        "file": "analyze-auto-corners.mp3",
+        "tempo": 0.7716007053291536,
+        "before_seconds": 21.24,
+        "after_seconds": 27.576
+      },
+      {
+        "file": "analyze-reset-corners.mp3",
+        "tempo": 0.8520345442252136,
+        "before_seconds": 14.952,
+        "after_seconds": 17.592
+      },
+      {
+        "file": "analyze-open-or-close-fine-tune-corner.mp3",
+        "tempo": 0.9120039037085232,
+        "before_seconds": 16.632,
+        "after_seconds": 18.288
+      },
+      {
+        "file": "analyze-mark-four-corners.mp3",
+        "tempo": 0.7294947446063065,
+        "before_seconds": 21.336,
+        "after_seconds": 29.28
+      },
+      {
+        "file": "analyze-table-setup-heading.mp3",
+        "tempo": 1.0052092937488477,
+        "before_seconds": 11.76,
+        "after_seconds": 11.736
+      },
+      {
+        "file": "analyze-find-add-corners.mp3",
+        "tempo": 0.8107082822225252,
+        "before_seconds": 19.248,
+        "after_seconds": 23.784
+      },
+      {
+        "file": "analyze-corner-setup-walkthrough.mp3",
+        "tempo": 0.7652485445588894,
+        "before_seconds": 36.864,
+        "after_seconds": 48.216
+      },
+      {
+        "file": "analyze-add-missed-ball.mp3",
+        "tempo": 0.8948314091291384,
+        "before_seconds": 12.624,
+        "after_seconds": 14.16
+      },
+      {
+        "file": "analyze-place-missed-ball.mp3",
+        "tempo": 0.8608521696089755,
+        "before_seconds": 11.256,
+        "after_seconds": 13.104
+      }
+    ]
   }
 }
