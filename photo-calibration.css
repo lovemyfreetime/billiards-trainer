@@ -1,0 +1,112 @@
+.photoAnalyzerPanel{grid-template-rows:auto auto auto minmax(160px,1fr) auto;overflow-y:auto}
+.photoCalibration{display:flex;flex-wrap:wrap;gap:8px;padding:4px 10px;background:#142126;border-top:1px solid #31434a;align-items:center}
+.photoCalibrationControls{flex:1 1 210px;max-width:280px;font-size:12px}
+.photoCalibrationControls label{display:flex;align-items:center;gap:8px;margin:5px 0}
+.photoCalibrationControls select{flex:1;min-width:0;font-size:12px}
+.photoCalibrationControls input[type=range]{flex:1;min-width:75px}
+.photoCalibrationControls output{min-width:100px;color:#b5d1d6;font-size:11px}
+.photoCalibrationControls button{font-size:12px;padding:5px 8px}
+#photoRefineClear{margin-left:5px}
+.photoCalibrationMap{flex:1 1 260px;max-width:330px}
+#photoCalibrationDiagram{width:100%;height:auto;display:block;overflow:visible;touch-action:manipulation}
+#photoCalibrationDiagram text{font-family:Segoe UI,Arial,sans-serif;font-size:10px;fill:#d1e2e5;pointer-events:none}
+#photoCalibrationDiagram .calDiamond{cursor:pointer;outline:none}
+#photoCalibrationDiagram .calDiamond:focus circle{stroke:#fff;stroke-width:3}
+#photoCalibrationHint{font-size:11px;color:#b6cbd0;line-height:1.4;min-height:0}
+@media(max-width:700px){.photoCalibration{gap:6px}.photoCalibrationControls{max-width:none}.photoCalibrationMap{max-width:280px;flex-basis:220px}}
+@media(max-height:700px) and (min-width:701px){.photoCalibrationMap{max-width:260px}.photoCalibration{padding-top:4px;padding-bottom:4px}}
+
+.photoAnalyzerHeader{grid-row:1}.photoAnalyzerToolbar{grid-row:2}.photoCalibration{grid-row:3}.photoAnalyzerBody{grid-row:4}.photoAnalyzerFooter{grid-row:5}
+.photoCalibration[hidden]{display:none}
+.photoCornerControls{display:inline-grid;grid-template-columns:1fr;gap:4px;flex:0 0 auto}
+.photoCornerControls button{width:100%;min-width:0;box-sizing:border-box}
+#photoFineTune[aria-expanded=true]{background:#286057;border-color:#71bfae}
+
+/* One baseline for the photo actions; Fine Tune occupies the space above Reset. */
+.photoAnalyzerToolbar{display:flex;flex-wrap:wrap!important;align-items:center!important;gap:5px;padding:28px 8px 7px!important;max-height:none;overflow:visible!important}
+.photoAnalyzerToolbar>.photoToolGroup,.photoAnalyzerToolbar .photoToolActions{display:contents!important}
+.photoAnalyzerToolbar .photoToolHeading{display:none!important}
+.photoAnalyzerToolbar button,.photoAnalyzerToolbar select{height:32px;min-height:32px;padding:5px 8px;font:600 12px system-ui,sans-serif;white-space:nowrap;flex:0 0 auto;box-sizing:border-box}
+.photoAnalyzerToolbar #photoRackType{width:100px;min-width:100px;max-width:100px;height:32px;min-height:32px;font-size:12px;padding:5px 6px}
+.photoAnalyzerToolbar #photoArchiveSelect{width:155px!important;max-width:155px!important;height:32px;min-height:32px;font-size:12px;padding:5px 6px}
+.photoAnalyzerToolbar .photoCornerControls{position:relative;display:flex;align-items:center;height:32px;flex:0 0 auto}
+.photoAnalyzerToolbar #photoFineTune{position:absolute;top:-24px;left:50%;transform:translateX(-50%);width:76px;height:22px;min-height:22px;padding:2px 6px;font-size:11px}
+.photoReviewSummary{position:sticky;top:-10px;z-index:2;margin:-10px -10px 10px;padding:10px;background:#151b23;border-bottom:1px solid #394653}
+.photoReviewSummary h3{margin:0 0 3px}
+#photoBallCount{font-size:12px;color:#c6d5df;margin:0 0 7px}
+#photoBallStrip{display:flex;flex-wrap:wrap;gap:5px}
+.photoSummaryBall{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;flex:0 0 34px;border-radius:50%;background:var(--ball-color);border:2px solid #ffffff25;box-shadow:inset -3px -4px 6px #0004;font:800 14px system-ui,sans-serif;box-sizing:border-box}
+.photoSummaryBall.stripe{background:linear-gradient(#f5f5ef 0 27%,var(--ball-color) 27% 73%,#f5f5ef 73%);text-shadow:0 1px 1px #fff8}
+@media(max-width:700px){.photoAnalyzerToolbar{gap:5px}.photoReviewSummary{top:-10px}.photoSummaryBall{width:32px;height:32px;flex-basis:32px}}
+
+/* Review shortcuts remain visible above the scrolling rows. */
+.photoSummaryBall{padding:0;cursor:pointer;appearance:none;line-height:1;transition:box-shadow .12s}
+.photoSummaryBall.unassigned{border-color:#ffd86b;color:#fff}
+.photoSummaryBall[aria-pressed=true],.photoSummaryBall:focus-visible{outline:2px solid #60d394;outline-offset:2px}
+
+.photoDetectionRow.reviewFocus{outline:2px solid #60d394;outline-offset:-2px}
+
+.photoCanvasWrap{overflow:hidden;padding:10px 28px 28px 10px;min-height:160px}
+#photoAnalyzerCanvas{max-height:100%}
+.photoPanBar{position:absolute;z-index:3;margin:0;padding:0;accent-color:#79aab8;opacity:.75;cursor:pointer}
+.photoPanBar:hover,.photoPanBar:focus-visible{opacity:1}
+.photoPanBar[hidden]{display:none}
+#photoPanX{left:10px;bottom:5px;width:calc(100% - 38px);height:16px;min-height:0}
+#photoPanY{right:5px;top:10px;width:16px;height:calc(100% - 38px);min-height:0;writing-mode:vertical-lr;direction:ltr}
+
+/* Calibration replaces the review sidebar without reducing the photo viewport. */
+.photoAnalyzerPanel{grid-template-rows:auto auto minmax(160px,1fr) auto}
+.photoAnalyzerBody{grid-row:3}.photoAnalyzerFooter{grid-row:4}
+.photoAnalyzerToolbar{padding-top:7px!important}
+.photoAnalyzerToolbar .photoCornerControls{display:contents}
+.photoAnalyzerToolbar #photoFineTune{position:static;transform:none;width:auto;height:32px;min-height:32px;font-size:12px;padding:5px 8px}
+.photoReview.calibrating>.photoReviewSummary,.photoReview.calibrating>.photoReviewInstruction,.photoReview.calibrating>#photoDetectionList{display:none}
+.photoReview .photoCalibration{display:flex;flex-direction:column;align-items:stretch;padding:0;border:0;gap:12px;background:transparent}
+.photoReview .photoCalibration[hidden]{display:none}
+.photoCalibrationMap,.photoCalibrationControls{flex:none;max-width:none}
+#photoCalibrationDiagram{touch-action:none}
+#photoCalibrationDiagram [data-boundary]{cursor:grab}
+#photoCustomBounds[hidden]{display:none}#photoCustomBounds p{font-size:11px;color:#b6cbd0}
+#photoBallStrip{display:grid;grid-template-columns:repeat(7,34px);gap:5px}
+.photoSummaryBall.empty{opacity:.13;background:transparent;border:1px dashed #fff;pointer-events:none}
+.photoDetectionDot{width:68px!important;height:68px!important;min-width:68px!important;flex:0 0 68px!important}
+.photoDetectionDot img{width:100%;height:100%;object-fit:cover}
+
+.photoAnalyzerToolbar .photoCornerControls button{width:auto}
+
+/* Count + cue, followed by eight solids, seven stripes, then review balls. */
+#photoBallCount{min-height:34px;line-height:34px;margin-bottom:5px;padding-right:39px}
+#photoBallStrip{position:relative;grid-template-columns:repeat(8,34px)}
+.photoSummaryBall.cue{position:absolute;top:-39px;left:273px}
+.photoSummaryBall.empty{visibility:hidden}
+@media(max-width:700px){#photoBallStrip{grid-template-columns:repeat(8,32px)}.photoSummaryBall.cue{left:259px;top:-38px}#photoBallCount{min-height:33px;line-height:33px}}
+
+/* These controls now sit in the main action row. */
+.photoAnalyzerToolbar #photoFineTune{position:static;transform:none;width:auto;height:32px;min-height:32px;padding:5px 8px;font-size:12px}
+#photoOrientationHint{font-size:11px;line-height:1.4;color:#bdd8d2;margin:5px 0}
+#photoCalibrationDiagram[viewBox="0 0 236 416"]{max-height:45vh;width:auto;max-width:100%;margin:auto}
+
+#photoFootSpotHint{font-size:12px;line-height:1.4;color:#c7d8df;padding:4px 0;}
+
+.photoAnalyzerHeader #photoWalkthroughBtn,.photoAnalyzerHeader #photoAiModeBtn{flex:0 0 auto;min-height:32px;padding:5px 9px;border:1px solid #7096b4;background:#233c52;color:#fff;border-radius:6px;font:600 12px system-ui;}
+#photoWalkthroughBtn[aria-pressed="true"]{background:#176b57;}
+#photoWalkthroughPanel[hidden]{display:none;}
+#photoWalkthroughPanel{flex:0 0 auto;background:#163d46;color:#edf8f7;border-bottom:1px solid #548f91;padding:8px 12px;font:13px/1.4 system-ui;}
+.photoWalkthroughRow,.photoWalkthroughButtons{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.photoWalkthroughRow{justify-content:space-between;}
+#photoWalkthroughPanel button{padding:5px 9px;border:1px solid #7eabb0;border-radius:5px;background:#214c55;color:#fff;cursor:pointer;font:600 12px system-ui;}
+#photoWalkthroughPanel button:disabled{opacity:.5;cursor:default;}
+#photoWalkthroughPanel p{margin:6px 0;}
+#photoWalkthroughDetail{font-size:12px;color:#d2ece8;}
+.walkthroughTarget{outline:2px solid #ffd36b!important;outline-offset:2px;}
+@media(max-width:700px){.photoAnalyzerHeader{flex-wrap:wrap;gap:5px;}#photoWalkthroughPanel{font-size:12px;padding:6px 9px;}}
+/* Place the instruction strip above the actions instead of in an implicit bottom row. */
+.photoAnalyzerPanel{grid-template-rows:auto auto auto minmax(160px,1fr) auto;}
+#photoWalkthroughPanel{grid-row:2;}
+.photoAnalyzerToolbar{grid-row:3;}
+.photoAnalyzerBody{grid-row:4;}
+.photoAnalyzerFooter{grid-row:5;}
+@media(min-width:1200px){.photoAnalyzerToolbar button,.photoAnalyzerToolbar select{padding-left:6px;padding-right:6px;}.photoAnalyzerToolbar #photoArchiveSelect{width:140px!important;max-width:140px!important;}}
+
+#photoWalkthroughRecovery[hidden],#cueEndmassRow[hidden]{display:none!important;}
+#photoWalkthroughRecovery{margin-top:6px;}

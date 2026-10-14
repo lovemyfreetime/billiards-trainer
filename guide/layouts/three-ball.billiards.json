@@ -1,0 +1,50 @@
+{
+  "format": "billiards-trainer",
+  "version": 1,
+  "kind": "layout",
+  "name": "Three-ball runout starter",
+  "layout": {
+    "name": "Three-ball runout starter",
+    "tableL": 2.54,
+    "tableW": 1.27,
+    "ballR": 0.028575,
+    "setupMode": "custom",
+    "allowMissingCueBall": false,
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 0.635,
+        "y": 0.635,
+        "active": true
+      },
+      {
+        "id": 1,
+        "n": "1",
+        "x": 1.27,
+        "y": 0.9525,
+        "active": true
+      },
+      {
+        "id": 2,
+        "n": "2",
+        "x": 1.74625,
+        "y": 0.3175,
+        "active": true
+      },
+      {
+        "id": 3,
+        "n": "3",
+        "x": 2.06375,
+        "y": 0.9525,
+        "active": true
+      }
+    ],
+    "freeAim": {
+      "x": 1.27,
+      "y": 0.89535
+    }
+  },
+  "practiceNote": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+  "diamondOrientation": "x across 0–4; y head-to-foot 0–8. App coordinates x=head-to-foot, y=across."
+}

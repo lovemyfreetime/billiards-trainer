@@ -1,0 +1,23 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const html=fs.readFileSync(require('node:path').join(__dirname,'../index.html'),'utf8');
+function source(name){const start=html.indexOf('    function '+name+'(');assert.ok(start>0);return html.slice(start,html.indexOf('\n    function ',start+10));}
+const state={imageReady:true,sourceCanvas:{width:2000,height:1000},viewZoom:2,viewCenterX:1000,viewCenterY:500,displayScaleX:.5,displayScaleY:.5};
+const canvas={width:1000,style:{},getBoundingClientRect:()=>({width:500,height:250})},bars={photoPanX:{},photoPanY:{}};
+let renders=0,prevented=0;
+const env={photoVision:state,S:{ballR:.02,tableL:1,tableW:.5},$:id=>bars[id]||canvas,renderPhotoAnalyzer(){renders++;},pvCalibration:()=>({H:[]}),applyHomography:(_,x,y)=>({x:x*2000,y:y*1000}),pvSourceToCanvas:p=>({x:p.x*state.displayScaleX,y:p.y*state.displayScaleY})};
+vm.createContext(env);for(const name of ['pvClampViewCenter','pvPhotoMarkerRadius','pvPanPhotoBy','pvPhotoPanFromClient','pvUpdatePanBars','pvSetPanBar','pvPanBarWheel'])vm.runInContext(source(name),env);
+const ball={x1:100,y1:100,x2:140,y2:140,nx:.4,ny:.4};
+const small=env.pvPhotoMarkerRadius(ball);assert.equal(small,10);
+state.displayScaleX=2;state.displayScaleY=2;assert.equal(env.pvPhotoMarkerRadius(ball),40,'Marker scales with the actual image ball');
+const manual=env.pvPhotoMarkerRadius({nx:.5,ny:.5});assert.ok(manual>0);
+env.pvUpdatePanBars();assert.equal(bars.photoPanX.hidden,false);assert.equal(bars.photoPanX.value,500);
+env.pvPhotoPanFromClient({startX:100,startY:100,centerX:1000,centerY:500},200,150);
+assert.equal(state.viewCenterX,800);assert.equal(state.viewCenterY,400,'Dragging follows the cursor at the current zoom');
+env.pvSetPanBar('X',0);assert.equal(state.viewCenterX,500);env.pvSetPanBar('X',1000);assert.equal(state.viewCenterX,1500);
+env.pvSetPanBar('Y',0);assert.equal(state.viewCenterY,250);env.pvSetPanBar('Y',1000);assert.equal(state.viewCenterY,750);
+env.pvPanBarWheel({deltaY:-100,deltaMode:0,preventDefault(){prevented++;},stopPropagation(){}},'Y');
+assert.equal(state.viewCenterY,625);assert.equal(state.viewZoom,2,'Panning bars never change zoom');assert.equal(prevented,1);
+env.pvPanPhotoBy(1e6,1e6);assert.equal(state.viewCenterX,1500);assert.equal(state.viewCenterY,750);
+state.viewZoom=1;env.pvUpdatePanBars();assert.equal(bars.photoPanX.hidden,true);assert.equal(bars.photoPanY.hidden,true);
+assert.ok(renders>=7);
+console.log('Photo markers follow ball size; drag and bar panning honor zoom and clamp to the original photo.');

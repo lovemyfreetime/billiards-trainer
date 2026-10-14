@@ -53,9 +53,10 @@
     position:absolute; z-index:7; left:50%; bottom:8px; transform:translateX(-50%);
     min-height:28px; max-width:min(82%,980px); display:flex; align-items:center; justify-content:center;
     gap:5px; padding:2px 8px; border-radius:14px; background:rgba(8,10,13,.56);
-    pointer-events:none; opacity:0; transition:opacity .15s;
+    pointer-events:auto; opacity:0; transition:opacity .15s;
   }
   #pocketTray.visible { opacity:1; }
+  #pocketTray:not(.visible){pointer-events:none}
   .pocketGroup { display:flex; align-items:center; gap:4px; }
   .pocketDivider { width:1px; height:20px; background:rgba(255,255,255,.35); margin:0 4px; }
   .pocketBall {
@@ -232,6 +233,8 @@
   .layoutSetupButtons button { height:48px; width:100%; min-width:0; box-sizing:border-box; padding:4px; font-size:11px; line-height:15px; }
   .layoutSetupSelect { margin-top:5px; }
   .layoutSetupSelect select { width:100%; box-sizing:border-box; padding:4px 6px; min-height:30px; }
+  .fullRackStart { display:flex; justify-content:center; margin-top:8px; }
+  .fullRackStart button { min-width:110px; min-height:34px; }
   .tableControlTitle { color:#93c9f5; font-size:11px; font-weight:800; margin-bottom:6px; }
   .shotVisibilityBtn, .cueVisualToggleBtn, .shotStatsToggleBtn {
     width:100%; height:48px; min-height:48px; max-height:48px;
@@ -514,6 +517,12 @@
     padding:10px;
   }
   #photoAnalyzerCanvas {
+    /* The trainer's global canvas rule fills its parent; photos must not. */
+    position:relative;
+    inset:auto;
+    width:auto;
+    height:auto;
+    flex:none;
     max-width:100%;
     max-height:calc(100vh - 170px);
     border:1px solid #39424d;
@@ -1380,6 +1389,19 @@
 /* Extra rail action for resizable zone markers; retain circular controls. */
 .markerRailCircle:has(button:nth-child(3)) button { font-size:clamp(7px,var(--marker-font),10px); }
 </style>
+<link rel="stylesheet" href="./guide/guide.css?v=presets-recovery-v13">
+<style>
+/* Isolated Guide integration on Analyze page; existing trainer styling preserved. */
+.photoAnalyzerHeader{background:#205385;min-height:60px;position:relative;overflow:visible;justify-content:flex-start}
+.photoAnalyzerHeader .btg-analyze-title{flex:0 0 auto;white-space:nowrap}
+.photoAnalyzerHeader #bt-guide-root{margin-left:auto;flex:1 1 500px;max-width:710px}
+#btg-analyze-launch{flex:0 0 42px;width:42px;height:42px;border-radius:50%;border:2px solid #a4e5b9;background:#078d56;color:white;font-size:23px;padding:0;cursor:pointer}
+.photoAnalyzerHeader #photoAnalyzerClose{flex:0 0 32px}
+@media(max-width:950px){.photoAnalyzerHeader .btg-analyze-title h2{font-size:12px}.photoAnalyzerHeader #bt-guide-root{min-width:0}}
+
+.bt-file-library{width:100%;min-width:0;margin-top:8px}.bt-saved-files{display:flex;flex-wrap:wrap;align-items:end;gap:5px}.bt-saved-files label{display:flex;flex:1 1 180px;flex-direction:column;gap:4px;font-size:11px;min-width:0}.bt-saved-files select{width:100%;min-width:0}.bt-saved-files button{white-space:nowrap}.bt-file-status{font-size:11px;margin-top:4px}.photoAnalyzerFooter .bt-file-library{flex-basis:100%;margin-top:2px}.photoAnalyzerHeader #btg-analyze-explore{width:30px;height:30px;flex:0 0 30px;font-size:17px;border-width:1px;align-self:center}.photoAnalyzerHeader{gap:4px!important}
+</style>
+<link rel="stylesheet" href="./phone-play.css?v=8">
 </head>
 <body>
 <div id="app">
@@ -1495,7 +1517,13 @@
     <div id="toast"></div>
   </div>
   <aside id="panel">
-    <h1>Billiards Trainer<span class="editionSub">AI Camera Edition</span></h1>
+    <div class="btg-pool-title"><h1>Billiards Trainer<span class="editionSub">AI Camera Edition</span></h1>
+      <div id="btg-pool-launchers" aria-label="Learning tools">
+        <button id="btg-pool-start" class="btg-launcher" type="button" title="Get Started" aria-label="Get Started" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg></button>
+        <button id="btg-pool-guide" class="btg-launcher" type="button" title="Guide: techniques and drills" aria-label="Toggle Guide" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 8l10-5 10 5-10 5zM6 10v6c3 3 9 3 12 0v-6M22 8v9"/></svg></button>
+        <button id="btg-pool-explore" class="btg-launcher" type="button" title="Explorer: click a control to hear its explanation" aria-label="Toggle Explorer" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></button>
+      </div>
+    </div>
 
     <div class="section open">
       <button class="sectionToggle" type="button"><span>SHOT</span></button>
@@ -1536,11 +1564,17 @@
     <div class="section">
       <button class="sectionToggle" type="button"><span>TABLE / BALLS</span></button>
       <div class="sectionBody">
+      <div class="tableControlGroup layoutSetupGroup" id="fullRackGroup"><div class="tableControlTitle">PICK AND PLAY FULL RACKS</div>
+        <div class="layoutSetupSelect"><select id="fullRackSelect" aria-label="Pick and play full rack">
+          <option value="rack3">3-Ball</option><option value="rack6">6-Ball</option><option value="rack7">7-Ball</option><option value="rack8" selected>8-Ball</option><option value="rack9">9-Ball</option><option value="rack10">10-Ball</option><option value="ultimate8">Ultimate 8 Ball</option><option value="straight14">Straight Pool — 14 Balls (Open Front)</option>
+        </select></div>
+        <div class="fullRackStart"><button id="startFullRack" type="button">Start</button></div>
+      </div>
       <div class="tableControlGroup layoutSetupGroup"><div class="tableControlTitle">LAYOUT SETUP</div>
       <div class="buttons layoutSetupReset"><button id="resetLayout">Reset Layout</button></div>
-      <div class="buttons layoutSetupButtons"><button id="makeRandomSetup">Add Balls/Racks</button><button id="shuffleTableLayout" type="button">Randomly Shuffle Table Layout</button></div>
+      <div class="buttons layoutSetupButtons"><button id="makeRandomSetup">Add Groups of Balls</button><button id="shuffleTableLayout" type="button">Randomly Shuffle Table Layout</button></div>
       <div class="layoutSetupSelect">
-        <select id="randomSetup" aria-label="Choose random ball count or rack">
+        <select id="randomSetup" aria-label="Choose random ball count">
           <option value="2">2 balls</option>
           <option value="3">3 balls</option>
           <option value="4">4 balls</option>
@@ -1550,17 +1584,13 @@
           <option value="8">8 balls</option>
           <option value="9">9 balls</option>
           <option value="15">15 balls</option>
-          <option value="rack3">3-ball rack</option>
-          <option value="rack8">8-ball rack</option>
-          <option value="rack9">9-ball rack</option>
-          <option value="rack10">10-ball rack</option>
         </select>
       </div>
       </div>
-      <div class="tableControlGroup layoutSetupGroup"><div class="tableControlTitle">BALLS</div>
+      <div class="tableControlGroup layoutSetupGroup"><div class="tableControlTitle">Add A Single Ball</div>
         <div class="buttons layoutSetupReset"><button id="addNextBall" type="button">Add Next Ball</button></div>
         <div class="buttons layoutSetupButtons"><button id="addBall" type="button">Add Ball</button><button id="removeBall" type="button">Remove Ball</button></div>
-        <div class="layoutSetupSelect"><select id="ballSelect" aria-label="Select ball number"><option value="1">Ball 1</option>
+        <div class="layoutSetupSelect"><select id="ballSelect" aria-label="Select ball number"><option value="0">Cue Ball</option><option value="1">Ball 1</option>
 <option value="2">Ball 2</option>
 <option value="3">Ball 3</option>
 <option value="4">Ball 4</option>
@@ -1602,6 +1632,7 @@
       <div class="layoutManage">
         <div class="layoutManageTitle"><span>SAVED BALL LAYOUTS</span><span id="layoutCount">0 / 20</span></div>
         <input id="layoutNameInput" type="text" maxlength="60" placeholder="Layout name — e.g. Wednesday league 7-ball" aria-label="Saved layout name">
+        <div class="buttons"><button id="trainerLoadFile" type="button">Load Table File</button><button id="trainerSaveFile" type="button">Save Table File</button></div><div class="buttons"><button id="trainerSaveSession" type="button">Save Session File</button><button id="sessionFolder" type="button" title="Choose a folder for automatic saving; browse its JSON files in Saved Files below">Auto-save Folder</button></div><div id="sessionFolderStatus" class="hint">Your latest table is remembered automatically. Auto-save Folder selects a folder, not a file. Saved Files below lists your JSON tables and sessions.</div><input id="trainerLayoutFileInput" type="file" accept=".json,.billiards" hidden>
         <button id="saveLayoutBtn" class="layoutManageSave" type="button">SAVE CURRENT LAYOUT</button>
         <div class="layoutManageRow">
           <select id="layoutSelect" aria-label="Saved ball layouts">
@@ -1686,7 +1717,8 @@
       <div class="row"><label>Ball restitution</label><input id="ballRest" type="number" min="0.5" max="1" step="0.005"></div>
       <div class="row"><label>Rail rebound</label><input id="railRest" type="number" min="0.5" max="1" step="0.005"></div>
       <div class="row"><label>Rail tangential damping</label><input id="railTang" type="number" min="0.5" max="1" step="0.005"></div>
-      <div class="row"><label>Cue ball / end-mass ratio</label><input id="cueEndmassRatio" type="number" min="8" max="60" step="0.1"></div>
+      <div class="row"><label for="cueShaftPreset">Cue / Shaft Preset</label><select id="cueShaftPreset"><option value="standard">Standard shaft</option><option value="low">Low-deflection shaft</option><option value="custom">Custom</option></select></div>
+      <div class="row" id="cueEndmassRow" hidden><label for="cueEndmassRatio">Cue ball / end-mass ratio</label><input id="cueEndmassRatio" type="number" min="8" max="60" step="0.1"></div>
       <div class="check"><input id="airbornePhysics" type="checkbox"><label for="airbornePhysics">3D jump / massé / airborne physics</label></div>
       <div class="row"><label>Bed vertical restitution</label><input id="tableRest" type="number" min="0" max="0.95" step="0.01"></div>
       <div class="row"><label>Bed impact friction μ</label><input id="bedImpactMu" type="number" min="0" max="0.5" step="0.01"></div>
@@ -1719,12 +1751,17 @@
 <div id="photoAnalyzerModal" aria-hidden="true">
   <div class="photoAnalyzerPanel">
     <div class="photoAnalyzerHeader">
-      <div>
-        <h2>Analyze Real Pool Table</h2>
-        
-      </div>
+      <div class="btg-analyze-title"><h2>Analyze Real Pool Table</h2></div>
+      <div id="bt-guide-root" class="btg-header-mode" aria-label="Interactive Trainer Guide"></div>
+      <button id="photoWalkthroughBtn" type="button" aria-pressed="false" aria-controls="photoWalkthroughPanel" data-btg-allow="1">Walkthrough</button>
+      <button id="photoAiModeBtn" type="button" title="Toggle AI ball detection">AI: AUTO</button>
+      <button id="btg-analyze-explore" class="btg-launcher" type="button" title="Explorer: click a control to hear its explanation" aria-label="Toggle Explorer" aria-pressed="false" data-btg-allow="1"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></button>
       <button id="photoAnalyzerClose" type="button" title="Close">×</button>
     </div>
+    <section id="photoWalkthroughPanel" aria-label="Analyze image walkthrough" data-btg-allow="1" hidden>
+      <div class="photoWalkthroughRow"><strong id="photoWalkthroughTitle"></strong><div class="photoWalkthroughButtons"><button id="photoWalkthroughBack" type="button">Back</button><button id="photoWalkthroughNext" type="button">Next</button><button id="photoWalkthroughReplay" type="button">Replay</button><button id="photoWalkthroughMute" type="button" aria-pressed="false">Audio On</button><button id="photoWalkthroughStop" type="button">Stop</button></div></div>
+      <p id="photoWalkthroughText" aria-live="polite"></p><div id="photoWalkthroughDetail" role="status"></div><div id="photoWalkthroughRecovery" class="photoWalkthroughButtons" hidden><button id="photoWalkthroughTryImage" type="button">Try Another Image</button><button id="photoWalkthroughAdjust" type="button">Adjust Corners</button><button id="photoWalkthroughRetry" type="button">Analyze Again</button><button id="photoWalkthroughAdd" type="button">Add Missed Ball</button></div>
+    </section>
     <div class="photoAnalyzerToolbar">
       <div class="photoToolGroup"><span class="photoToolHeading">IMAGE / CAMERA</span><div class="photoToolActions">
         <button id="photoChooseImage" class="visionPrimary" type="button">Choose Image</button>
@@ -1735,14 +1772,15 @@
       </div></div>
       <div class="photoToolGroup photoSetupGroup"><span class="photoToolHeading">TABLE SETUP</span><div class="photoToolActions">
         <button id="photoRotateBtn" type="button" hidden style="display:none" aria-hidden="true" tabindex="-1">Rotate 90°</button>
-        <button id="photoAutoRailsBtn" type="button">Auto Corners</button>
+        <button id="photoFindCorners" type="button">Find / Add Corners</button>
         <button id="photoResetCorners" type="button">Reset Corners</button>
+        <button id="photoFineTune" type="button" aria-expanded="false" aria-controls="photoCalibrationPanel" title="Open Custom Table Layouts">Custom Table Layouts</button>
+        <button id="photoAutoRailsBtn" type="button">Corner Sensing</button>
         <select id="photoRackType" aria-label="Rack type" title="Rack type">
           <option value="auto">Rack: Auto</option><option value="9ball">9-Ball</option><option value="10ball">10-Ball</option><option value="8ball">8-Ball</option><option value="custom">Custom</option>
         </select>
         <button id="photoAnalyzeNow" class="visionPrimary" type="button" disabled>Analyze Balls</button>
         <button id="photoAddMissed" type="button" disabled>Add Missed Ball</button>
-        <button id="photoAiModeBtn" type="button" title="Toggle AI ball detection">AI: AUTO</button>
       </div></div>
       <div class="photoToolGroup photoSavedGroup">
         <label class="photoToolHeading" for="photoArchiveSelect">SAVED IMAGES</label>
@@ -1760,16 +1798,32 @@
       <div class="photoCanvasWrap">
         <canvas id="photoAnalyzerCanvas" width="960" height="540"></canvas>
         <video id="photoAnalyzerVideo" controls playsinline></video>
+        <input id="photoPanX" class="photoPanBar" type="range" min="0" max="1000" value="500" aria-label="Pan image left or right" title="Pan left / right — drag or use the wheel" hidden>
+        <input id="photoPanY" class="photoPanBar" type="range" min="0" max="1000" value="500" aria-label="Pan image up or down" title="Pan up / down — drag or use the wheel" hidden>
       </div>
-      <div class="photoReview">
-        <h3>Detected Balls</h3>
+      <div class="photoReview" id="photoReviewPane">
+    <div id="photoCalibrationPanel" class="photoCalibration" aria-label="Photo table alignment" hidden>
+      <div class="photoCalibrationMap"><svg id="photoCalibrationDiagram" viewBox="0 0 416 236" aria-label="Table orientation: pockets P1–P6 and rails R1–R6 clockwise"></svg><div id="photoCalibrationHint" role="status" aria-live="polite"></div></div>
+      <div class="photoCalibrationControls">
+        <label for="photoOrientation">Head / Kitchen End <select id="photoOrientation"><option value="auto">Auto — estimate orientation</option><option value="top">Top · portrait</option><option value="bottom">Bottom · portrait</option><option value="left">Left · landscape</option><option value="right">Right · landscape</option></select></label>
+        <button id="photoFlipEnds" type="button">Flip Ends</button><div id="photoOrientationHint" role="status"></div><div id="photoFootSpotHint" role="status">Foot spot check: set all four corners first.</div>
+        <label for="photoRegion">Photo section <select id="photoRegion"><option value="full">Full table</option><option value="head">Head / Kitchen end · left</option><option value="foot">Foot / Rack end · right</option><option value="custom">Custom · middle / quarter region</option></select></label>
+        <label for="photoRegionExtent">Coverage <input id="photoRegionExtent" type="range" min="2" max="8" step="1" value="8" disabled aria-label="Section coverage in diamond intervals"><output id="photoRegionExtentLabel" for="photoRegionExtent">Full table</output></label>
+        <div id="photoCustomBounds" hidden><p>Drag the four green boundaries on the diagram, or adjust below. Lines snap to half diamonds.</p><label>Left<input id="photoBoundx0" type="range" min="0" max="16" step="1" aria-label="Custom left boundary"></label><label>Right<input id="photoBoundx1" type="range" min="0" max="16" step="1" aria-label="Custom right boundary"></label><label>Top<input id="photoBoundy0" type="range" min="0" max="8" step="1" aria-label="Custom top boundary"></label><label>Bottom<input id="photoBoundy1" type="range" min="0" max="8" step="1" aria-label="Custom bottom boundary"></label></div>
+        <button id="photoRefineAlignment" type="button" disabled aria-pressed="false">Refine Alignment</button><button id="photoRefineClear" type="button" hidden>Clear Diamonds</button>
+      </div>
+
+    </div>
+
+        <div class="photoReviewSummary"><h3>Detected Balls</h3><div id="photoBallCount" role="status" aria-live="polite">0 detected</div><div id="photoBallStrip" aria-label="Detected balls: select to review"></div></div>
         <div class="photoReviewInstruction">Review the identity of each ball before applying. Correct a wrong ball or delete a false detection.</div><div class="photoReviewInstruction photoMissedBallInstruction">If a ball is missed, press ADD MISSED BALL and tap its center in the photo.</div>
         <div id="photoDetectionList"></div>
       </div>
     </div>
-    <div class="photoAnalyzerFooter">
+    <div class="photoAnalyzerFooter" id="photoFilesFooter">
       <div class="photoApplyCue">FINISH — SEND THE REVIEWED TABLE LAYOUT TO BILLIARDS TRAINER</div>
       <input id="photoLayoutName" type="text" maxlength="60" placeholder="Layout name — e.g. Wednesday league 7-ball">
+      <button id="photoLoadTableFile" type="button">Load Table File</button><button id="photoSaveTableFile" type="button">Save Table File</button><input id="photoLayoutFileInput" type="file" accept=".json,.billiards" hidden>
       <button id="photoApplyTable" type="button" disabled>APPLY TO TRAINER TABLE</button>
       <button id="photoApplySave" class="visionPrimary" type="button" disabled>APPLY + SAVE LAYOUT</button>
       
@@ -1777,6 +1831,13 @@
   </div>
 </div>
 
+<link rel="stylesheet" href="./photo-calibration.css?v=presets-recovery-v13">
+<script src="./photo-calibration.js?v=walkthrough-v11"></script>
+<script src="./trainer-layout-files.js?v=2"></script>
+<script src="./trainer-saved-files.js?v=1"></script>
+<script src="./photo-ball-crops.js?v=1"></script>
+<script src="./photo-table-spots.js?v=3"></script>
+<script src="./photo-cloth-filter.js?v=2"></script>
 <script>
 // AI Camera Edition wrapper: v4.12 trainer, app-mode launch package. v4 adds scoreboard placement/default-off + local analysis-photo recall.
 // v4.12: virtual diamond extensions beyond physical corners; fixes source references that previously clipped at the first visible table boundary.
@@ -1888,7 +1949,7 @@
                 solution: null
             },
             muSlide: APK.muSliding, muRoll: APK.muRolling, muBall: APK.muBallBall, ballRest: .96,
-            railRest: .90, railTang: .90, cueEndmassRatio: PHYSICS_MODEL.defaultCueEndmassRatio,
+            railRest: .90, railTang: .90, cueEndmassRatio: PHYSICS_MODEL.defaultCueEndmassRatio, cuePreset: 'standard',
             jumpUnits: 'in', airbornePhysics: false, tableRest: PHYSICS_MODEL.defaultTableVerticalRestitution, bedImpactMu: PHYSICS_MODEL.defaultBedImpactFriction, showImpact: true, showTipBadge: false, showPaths: true, showGrid: true, showDiamonds: true, showTable: true,
             preview: null, firstEvent: '—'
         };
@@ -1938,7 +1999,24 @@
             e.style.background = c;
         }
         e.textContent = id === 0 ? 'CB1' : id === -2 ? 'CB2' : id;
+        installPocketBallReturn(e,id);
         return e;
+    }
+    function returnPocketBall(id,q=null){
+        if(id<1||id>15||S.balls.some(b=>b.id===id))return;
+        if(!q){for(let y=1;y<10&&!q;y++)for(let x=1;x<18;x++){const p={x:S.tableL*x/18,y:S.tableW*y/10};if(S.balls.every(b=>b.marker||Math.hypot(b.x-p.x,b.y-p.y)>S.ballR*2.2)){q=p;break;}}}
+        if(!q||!onPlayingSurface(q)||manualPocketAt(q)||S.balls.some(b=>!b.marker&&Math.hypot(b.x-q.x,b.y-q.y)<S.ballR*2)){toast('Drop on clear table cloth to return the ball');return;}
+        S.balls.push({id,n:String(id),x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR),active:true});S.pocketedLog=(S.pocketedLog||[]).filter(n=>n!==id);
+        normalizeBallSet();updateUI();refreshPreview();saveState();syncProjector();toast('Ball '+id+' returned to play');
+    }
+    function installPocketBallReturn(e,id){
+        e.setAttribute('role','button');e.tabIndex=0;e.setAttribute('aria-label','Return ball '+id+' to table');e.title='Drag Ball '+id+' onto clear table cloth, or click to return';e.style.touchAction='none';e.style.cursor='grab';
+        let start=null,ghost=null,moved=false;
+        const clear=()=>{ghost?.remove();ghost=null;start=null;};
+        e.addEventListener('pointerdown',ev=>{if(ev.button!==0)return;ev.preventDefault();ev.stopPropagation();start={x:ev.clientX,y:ev.clientY};moved=false;e.setPointerCapture(ev.pointerId);});
+        e.addEventListener('pointermove',ev=>{if(!start)return;moved=moved||Math.hypot(ev.clientX-start.x,ev.clientY-start.y)>5;if(!moved)return;if(!ghost){ghost=e.cloneNode(true);ghost.removeAttribute('id');ghost.style.cssText+=';position:fixed;z-index:9999;pointer-events:none;opacity:.9;';document.body.appendChild(ghost);}ghost.style.left=(ev.clientX-12)+'px';ghost.style.top=(ev.clientY-12)+'px';});
+        e.addEventListener('pointerup',ev=>{if(!start)return;ev.preventDefault();ev.stopPropagation();const r=canvas.getBoundingClientRect(),inside=ev.clientX>=r.left&&ev.clientX<=r.right&&ev.clientY>=r.top&&ev.clientY<=r.bottom,q=inside?controlMap().inv(pointerPos(ev)):null;const wasMoved=moved;clear();if(!wasMoved)returnPocketBall(id);else if(q)returnPocketBall(id,q);});
+        e.addEventListener('pointercancel',clear);e.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();returnPocketBall(id);}});
     }
     function updatePocketTray() {
         if (isProjector)
@@ -1947,7 +2025,7 @@
         if (!tray)
             return;
         tray.innerHTML = '';
-        const log = (S.pocketedLog || []).filter(id => id === 0 || id === -2 || (id >= 1 && id <= 15));
+        const log = (S.pocketedLog || []).filter(id => id >= 1 && id <= 15);
         if (!log.length) {
             tray.classList.remove('visible');
             return;
@@ -2110,6 +2188,7 @@
                    ' ' + when.toLocaleTimeString([], { hour:'numeric', minute:'2-digit' });
         }
 
+        S.lastLayoutName=name;saveState();
         layouts.unshift(captureBallLayout(name));
         writeSavedLayouts(layouts.slice(0, 20));
 
@@ -2224,8 +2303,107 @@
         updateSavedLayoutUI(true);
     }
 
+    let sessionFolder=null,sessionFolderTimer=null,sessionFolderWriting=false,sessionFolderDirty=false,lastSavedHistory=null,lastSavedHistoryLength=-1,lastSavedHistoryEnd=null;
+    function tableFileName(){return ($('layoutNameInput')?.value||$('layoutQuickName')?.value||S.lastLayoutName||'Training session').trim();}
+    function portableTableFile(session=false,analysis=false){
+        let layout=captureBallLayout(analysis?$('photoLayoutName').value.trim()||'Analyzed table':tableFileName());
+        if(analysis){
+            const loaded=photoVision.loadedTableFile?.layout;
+            if(loaded)layout={...loaded,name:$('photoLayoutName').value.trim()||loaded.name};
+            layout.balls=photoVision.detections.filter(d=>String(d.id)!=='ignore').map(d=>({id:Number(d.id),n:Number(d.id)===0?'CB':String(d.id),x:d.nx*layout.tableL,y:d.ny*layout.tableW,active:true}));
+            layout.allowMissingCueBall=!layout.balls.some(b=>b.id===0);
+        }
+        if(!layout.balls.length)throw Error('There are no assigned balls to save.');
+        return window.BilliardsLayoutFiles.create(layout,session?cleanSnapshot():null,session?runHistory:[]);
+    }
+    function downloadTableFile(session=false,analysis=false){
+        try{
+            const file=portableTableFile(session,analysis),blob=new Blob([JSON.stringify(file,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+            a.href=url;a.download=(file.name.replace(/[^a-z0-9 _-]/gi,'').trim()||'Table')+(session?'.session':'')+'.billiards.json';a.click();window.BilliardsSavedFiles?.remember(file,a.download).catch(()=>toast('File downloaded; could not keep a browser copy.'));setTimeout(()=>URL.revokeObjectURL(url),10000);
+            toast(session?'Session file downloaded':'Table file downloaded');
+        }catch(e){toast(e.message);}
+    }
+    function applyTableFile(file,saveAfter=false,detections=null,preserveControls=false){
+        const d=file.layout,defaults=defaultState(),state=preserveControls?window.BilliardsLayoutFiles.settings(cleanSnapshot(),defaults):{...defaults};
+        if(preserveControls){state.shot2Enabled=false;state.shot2Initialized=false;state.activeShot=1;state.pocketedLog=[];state.bankKick=JSON.parse(JSON.stringify(defaults.bankKick));}
+        if(file.kind==='session'&&file.state)Object.assign(state,window.BilliardsLayoutFiles.settings(file.state,defaults));
+        state.lastLayoutName=d.name;state.tableL=d.tableL;state.tableW=d.tableW;state.ballR=d.ballR;state.setupMode=d.setupMode||'custom';
+        state.balls=detections?detections.filter(b=>String(b.id)!=='ignore').map(b=>({id:Number(b.id),n:Number(b.id)===0?'CB':String(b.id),x:b.nx*d.tableL,y:b.ny*d.tableW,active:true})).concat(d.balls.filter(b=>b.marker)):JSON.parse(JSON.stringify(d.balls));
+        state.allowMissingCueBall=!state.balls.some(b=>b.id===0);
+        state.freeAim=d.freeAim||state.freeAim;state.preview=null;
+        state.pocketedLog=(Array.isArray(state.pocketedLog)?state.pocketedLog:[]).filter(id=>id>=1&&id<=15&&!state.balls.some(b=>b.id===id));
+        animation=null;S=state;normalizeBallSet();resetRunHistory();
+        if(file.kind==='session'&&file.history.length){runHistory=file.history.filter(h=>h&&Array.isArray(h.balls)&&h.tableL===S.tableL&&h.tableW===S.tableW).slice(-30).map(h=>{try{const v=window.BilliardsLayoutFiles.parse(JSON.stringify({layout:h})).layout;return {...window.BilliardsLayoutFiles.settings(h,defaults),tableL:v.tableL,tableW:v.tableW,ballR:v.ballR,balls:v.balls,allowMissingCueBall:v.allowMissingCueBall,preview:null};}catch(e){return null;}}).filter(Boolean);if(!runHistory.length)runHistory=[cleanSnapshot()];}
+        undoStack=runHistory.slice(0,-1).map(h=>JSON.parse(JSON.stringify(h)));
+        $('layoutNameInput').value=d.name;$('layoutQuickName').value=d.name;
+        updateUI();updateShot2UIState();updateRunCount();refreshPreview();saveState();syncProjector();
+        if(saveAfter)saveBallLayout(d.name);
+        toast((file.kind==='session'?'Session resumed: ':'Table loaded: ')+d.name);
+    }
+    window.billiardsGuideApplyLayout=file=>{applyTableFile(file,false,null,true);if($('photoAnalyzerModal').classList.contains('open'))closePhotoAnalyzer();};
+    function stageTableFile(file){
+        photoVision.imageError='';photoVision.analysisError='';
+        photoVision.loadedTableFile=file;photoVision.imageVersion++;photoVision.archiveId=null;photoVision.sourceName=file.layout.name;photoVision.rotation=0;photoVision.fineRotation=0;photoVision.sharpen=false;
+        const d=file.layout,w=1200,h=Math.round(w*d.tableW/d.tableL)+80;
+        for(const [canvas,ctx]of [[photoVision.rawCanvas,photoVision.rawCtx],[photoVision.sourceCanvas,photoVision.sourceCtx],[photoVision.analysisCanvas,photoVision.analysisCtx]]){
+            canvas.width=w+80;canvas.height=h;ctx.fillStyle='#101820';ctx.fillRect(0,0,canvas.width,h);ctx.fillStyle='#185869';ctx.fillRect(40,40,w,h-80);
+            for(const b of d.balls.filter(b=>!b.marker)){
+                const x=40+b.x/d.tableL*w,y=40+b.y/d.tableW*(h-80),r=d.ballR/d.tableL*w;
+                ctx.fillStyle=b.id===0?'#f4f4ed':poolBallColor(b.id>8?b.id-8:b.id);ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y,r*.55,0,Math.PI*2);ctx.fill();ctx.fillStyle='#111';ctx.font='bold '+Math.max(9,r)+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(b.id===0?'C':b.id,x,y);
+            }
+        }
+        photoVision.imageReady=true;photoVision.regionEnd='full';photoVision.refinements=[];photoVision.refining=false;photoVision.pendingDiamond=null;photoVision.calibrationCache=null;photoVision.corners=[{x:40,y:40},{x:40+w,y:40},{x:40+w,y:h-40},{x:40,y:h-40}];
+        photoVision.detections=d.balls.filter(b=>!b.marker).map(b=>({id:String(b.id),nx:b.x/d.tableL,ny:b.y/d.tableW,confidence:1,manual:true,engine:'file'}));
+        $('photoLayoutName').value=d.name;$('photoAnalyzerVideo').style.display='none';$('photoAnalyzerCanvas').style.display='block';$('photoCalibrationPanel').hidden=true;$('photoFineTune').setAttribute('aria-expanded','false');$('photoReviewPane').classList.remove('calibrating');
+        pvResetView();renderPhotoDetectionList();renderPhotoAnalyzer();pvUpdateCalibrationDiagram();$('photoAnalyzeNow').disabled=true;$('photoAddMissed').disabled=false;
+        pvStatus('Table file loaded: '+d.name+'. Review, then Apply to Trainer Table or Apply + Save.');
+    }
+    async function readTableFile(input,analysis){
+        const f=input.files?.[0];input.value='';if(!f)return;
+        try{if(f.size>2000000)throw Error('Layout file is too large.');const file=window.BilliardsLayoutFiles.parse(await f.text());window.BilliardsSavedFiles?.remember(file,f.name).catch(()=>{});if(analysis)stageTableFile(file);else applyTableFile(file);}
+        catch(e){toast('Could not load table: '+e.message);if(analysis)pvStatus('Could not load table: '+e.message);}
+    }
+    function sessionFolderStore(value){
+        return new Promise((resolve,reject)=>{const r=indexedDB.open('billiards-session-folder',1);r.onupgradeneeded=()=>r.result.createObjectStore('handles');r.onerror=()=>reject(r.error);r.onsuccess=()=>{const db=r.result,tx=db.transaction('handles',value?'readwrite':'readonly'),req=value?tx.objectStore('handles').put(value,'folder'):tx.objectStore('handles').get('folder');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);tx.oncomplete=()=>db.close();};});
+    }
+    async function writeSessionFolder(){
+        if(!sessionFolder)return;
+        if(sessionFolderWriting){sessionFolderDirty=true;return;}
+        sessionFolderWriting=true;
+        try{const f=await sessionFolder.getFileHandle('Billiards-Latest-Session.billiards.json',{create:true}),w=await f.createWritable();await w.write(JSON.stringify(portableTableFile(true),null,2));await w.close();window.BilliardsSavedFiles?.remember(portableTableFile(true),'Billiards-Latest-Session.billiards.json').catch(()=>{});$('sessionFolderStatus').textContent='Latest session saved in '+sessionFolder.name;}
+        catch(e){$('sessionFolderStatus').textContent='Folder save paused. Choose Auto-save Folder to reconnect.';}
+        finally{sessionFolderWriting=false;if(sessionFolderDirty){sessionFolderDirty=false;scheduleSessionFolder();}}
+    }
+    function scheduleSessionFolder(){if(!sessionFolder)return;clearTimeout(sessionFolderTimer);sessionFolderTimer=setTimeout(writeSessionFolder,800);}
+    async function chooseSessionFolder(){
+        if(!window.showDirectoryPicker){downloadTableFile(true);return;}
+        try{
+            const folder=await window.showDirectoryPicker({id:'billiards-download-sessions',startIn:'downloads',mode:'readwrite'});
+            let previous=null;try{const f=await (await folder.getFileHandle('Billiards-Latest-Session.billiards.json')).getFile();previous=window.BilliardsLayoutFiles.parse(await f.text());}catch(e){if(e.name!=='NotFoundError')throw e;}
+            sessionFolder=folder;await sessionFolderStore(folder);if(previous)applyTableFile(previous);await writeSessionFolder();await window.BilliardsSavedFiles?.scanFolder(folder);
+        }catch(e){if(e.name!=='AbortError')toast('Session folder: '+e.message);}
+    }
+    async function reconnectSessionFolder(){
+        if(!window.showDirectoryPicker)return;
+        try{const f=await sessionFolderStore();if(f&&await f.queryPermission({mode:'readwrite'})==='granted'){sessionFolder=f;$('sessionFolderStatus').textContent='Auto-save folder connected: '+f.name;await window.BilliardsSavedFiles?.scanFolder(f);}else if(f)$('sessionFolderStatus').textContent='Choose Auto-save Folder to reconnect '+f.name;}catch(e){}
+    }
+    function setupTableFiles(){
+        $('trainerLoadFile').onclick=()=>$('trainerLayoutFileInput').click();$('trainerSaveFile').onclick=()=>downloadTableFile();$('trainerSaveSession').onclick=()=>downloadTableFile(true);
+        $('photoLoadTableFile').onclick=()=>$('photoLayoutFileInput').click();$('photoSaveTableFile').onclick=()=>downloadTableFile(false,true);
+        $('trainerLayoutFileInput').onchange=()=>readTableFile($('trainerLayoutFileInput'),false);$('photoLayoutFileInput').onchange=()=>readTableFile($('photoLayoutFileInput'),true);
+        $('sessionFolder').onclick=chooseSessionFolder;if(!window.showDirectoryPicker)$('sessionFolder').hidden=true;
+        window.BilliardsSavedFiles?.mount({targets:[[$('sessionFolderStatus').parentElement,false],[$('photoFilesFooter'),true]],onLoad:(file,analysis)=>analysis?stageTableFile(file):applyTableFile(file),getFolder:()=>sessionFolder,chooseFolder:chooseSessionFolder});
+        reconnectSessionFolder();
+        document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){saveState();if(sessionFolder)writeSessionFolder();}});
+        window.addEventListener('pagehide',saveState);
+    }
+
     function saveState() { try {
         localStorage.setItem('billiardTrainerState', JSON.stringify(Object.assign(Object.assign({}, S), { preview: null })));
+        if(runHistory.length&&(lastSavedHistory!==runHistory||lastSavedHistoryLength!==runHistory.length||lastSavedHistoryEnd!==runHistory.at(-1))){
+            localStorage.setItem('billiardTrainerProgress',JSON.stringify({history:runHistory.slice(-30)},(key,value)=>key==='preview'?null:value));lastSavedHistory=runHistory;lastSavedHistoryLength=runHistory.length;lastSavedHistoryEnd=runHistory.at(-1);
+        }
+        scheduleSessionFolder();
     }
     catch (e) { } }
     function restoreState() {
@@ -2604,22 +2782,88 @@
         syncProjector();
         toast('Table layout shuffled');
     }
-    function createRandomSetup() {
-        const v = $('randomSetup').value;
+    function ultimateEightBallRack() {
+        const R = S.ballR, L = S.tableL, W = S.tableW;
+        const dx = Math.sqrt(3) * R;
+        // The reference rack is read row-by-row from the break end.
+        // Its third-row center (the 8) occupies the foot spot, not its apex.
+        const apexX = L * .75 - 2 * dx, apexY = W * .5;
+        const rows = [[1], [11, 5], [2, 8, 10], [9, 7, 14, 4], [6, 15, 13, 3, 12]];
+        const balls = [{ id: 0, n: 'CB', x: L * .25, y: W * .5, active: true }];
+        rows.forEach((ids, row) => ids.forEach((id, k) => {
+            balls.push({ id, n: String(id), x: apexX + row * dx,
+                y: apexY + (k - row / 2) * 2 * R, active: true });
+        }));
+        finishRackSetup(balls, 'Ultimate 8 Ball ready — 8 ball on the foot spot', '8ball');
+    }
+    function sixBallRack() {
+        const R = S.ballR, L = S.tableL, W = S.tableW;
+        const dx = Math.sqrt(3) * R, apexX = L * .75, apexY = W * .5;
+        const others = shuffleRackIds([2, 3, 4, 5]);
+        const rows = [[1], [others[0], others[1]], [others[2], 6, others[3]]];
+        const balls = [{ id: 0, n: 'CB', x: L * .25, y: W * .5, active: true }];
+        rows.forEach((ids, row) => ids.forEach((id, k) => {
+            balls.push({ id, n: String(id), x: apexX + row * dx,
+                y: apexY + (k - row / 2) * 2 * R, active: true });
+        }));
+        finishRackSetup(balls, '6-ball rack ready', '6ball');
+    }
+    function sevenBallRack() {
+        const R = S.ballR, L = S.tableL, W = S.tableW;
+        const centerX = L * .75 + 2 * R, centerY = W * .5;
+        const balls = [{ id: 0, n: 'CB', x: L * .25, y: W * .5, active: true }];
+        // Start at the break-facing apex; advance clockwise around the hexagon.
+        for (let id = 1; id <= 6; id++) {
+            const angle = Math.PI + (id - 1) * Math.PI / 3;
+            balls.push({ id, n: String(id), x: centerX + 2 * R * Math.cos(angle),
+                y: centerY + 2 * R * Math.sin(angle), active: true });
+        }
+        balls.push({ id: 7, n: '7', x: centerX, y: centerY, active: true });
+        finishRackSetup(balls, '7-ball hexagonal rack ready', '7ball');
+    }
+    function straightPoolOpenRack() {
+        const R = S.ballR, L = S.tableL, W = S.tableW;
+        const dx = Math.sqrt(3) * R, apexX = L * .75, apexY = W * .5;
+        const ids = shuffleRackIds(Array.from({ length: 14 }, (_, i) => i + 1));
+        const balls = [{ id: 0, n: 'CB', x: L * .25, y: W * .5, active: true }];
+        // Leave the apex empty for a continuing straight-pool rack.
+        for (let row = 1; row < 5; row++) {
+            for (let k = 0; k <= row; k++) {
+                const id = ids.shift();
+                balls.push({ id, n: String(id), x: apexX + row * dx,
+                    y: apexY + (k - row / 2) * 2 * R, active: true });
+            }
+        }
+        finishRackSetup(balls, 'Straight pool: 14 balls ready, front position open', 'straight');
+    }
+    function startFullRack() {
+        const v = $('fullRackSelect').value;
         if (v === 'rack3')
             randomThreeBallRack();
+        else if (v === 'rack6')
+            sixBallRack();
+        else if (v === 'rack7')
+            sevenBallRack();
         else if (v === 'rack8')
             randomEightBallRack();
         else if (v === 'rack9')
             randomNineBallRack();
         else if (v === 'rack10')
             randomTenBallRack();
-        else
-            randomLooseSetup(clamp(parseInt(v, 10) || 2, 2, 15));
+        else if (v === 'ultimate8')
+            ultimateEightBallRack();
+        else if (v === 'straight14')
+            straightPoolOpenRack();
+        syncProjector();
+    }
+    function createRandomSetup() {
+        randomLooseSetup(clamp(parseInt($('randomSetup').value, 10) || 2, 2, 15));
     }
     if (!isProjector) {
         restoreState();
         normalizeBallSet();
+        try{const saved=JSON.parse(localStorage.getItem('billiardTrainerProgress')||'null');if(saved?.history?.length)runHistory=saved.history.filter(h=>h&&Array.isArray(h.balls)&&h.tableL===S.tableL&&h.tableW===S.tableW).slice(-30);undoStack=runHistory.slice(0,-1).map(h=>JSON.parse(JSON.stringify(h)));}catch(e){}
+
     }
     function pocketModel() {
         const R = S.ballR, D = 2 * R, L = S.tableL, W = S.tableW;
@@ -3271,6 +3515,12 @@
         }
         const limit = PHYSICS_MODEL.maxTipOffsetR;
         return { side: s, follow: f, sideR: s * limit, followR: f * limit };
+    }
+    function currentCuePreset(){
+        const ratio=Number(S.cueEndmassRatio);
+        if(S.cuePreset==='custom')return 'custom';
+        const preset=Math.abs(ratio-20.151)<.0005?'standard':Math.abs(ratio-29.158)<.0005?'low':'custom';
+        S.cuePreset=preset;return preset;
     }
     function cueSquirtAngleFor(side, follow = 0, cueEndmassRatio = S.cueEndmassRatio) {
         // Rigid cue/ball impact model (TP A.31): squirt is an immediate deflection
@@ -4541,9 +4791,11 @@
         positionRailControls();
     }
     window.addEventListener('resize', resize);
+    if (window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(resize)).observe(stage);
     function controlMap() {
         const w = canvas.width / DPR, h = canvas.height / DPR, pad = 34;
-        const scale = Math.min((w - pad * 2) / S.tableL, (h - pad * 2) / S.tableW);
+        const sidePad = document.body.classList.contains('phone-layout') ? (w < 600 ? 140 : 190) : pad;
+        const scale = Math.max(.01, Math.min((w - sidePad * 2) / S.tableL, (h - pad * 2) / S.tableW));
         const tw = S.tableL * scale, th = S.tableW * scale, ox = (w - tw) / 2, oy = (h - th) / 2;
         return { map: p => ({ x: ox + p.x * scale, y: oy + p.y * scale }), inv: p => ({ x: (p.x - ox) / scale, y: (p.y - oy) / scale }), scale, corners: [{ x: ox, y: oy }, { x: ox + tw, y: oy }, { x: ox + tw, y: oy + th }, { x: ox, y: oy + th }] };
     }
@@ -4632,6 +4884,9 @@
     function positionRailControls() {
         if (isProjector || !canvas || !canvas.width)
             return;
+        if (document.body.classList.contains('phone-layout')) {
+            document.querySelectorAll('.speedTickScale .speedTick').forEach(tick => tick.style.setProperty('--phone-tick', tick.style.left || '50%'));
+        }
         const M = controlMap();
         if (!M || !M.corners)
             return;
@@ -4639,6 +4894,14 @@
         const leftX = c[0].x, rightX = c[1].x, topY = c[0].y, bottomY = c[3].y;
         const tableH = Math.max(1, bottomY - topY);
         const tableW = Math.max(1, rightX - leftX);
+        if (document.body.classList.contains('phone-layout')) {
+            const A = ORIGINAL_ASSET_GEOM, rect = stage.getBoundingClientRect();
+            const outerLeft = rect.left + leftX - tableW*A.x0/(A.x1-A.x0);
+            const outerWidth = tableW*A.width/(A.x1-A.x0);
+            document.documentElement.style.setProperty('--phone-table-left',outerLeft+'px');
+            document.documentElement.style.setProperty('--phone-table-width',outerWidth+'px');
+        }
+        window.billiardsPhoneReadouts?.();
         const halfTop = tableW / 2;
         const sideInset = tableH * .18;
         const sideTop = topY + sideInset;
@@ -4892,10 +5155,18 @@
         const a = preview && preview.airborne, path = preview && preview.paths && preview.paths[0];
         if (!shouldShowFlightOverlay(preview, which) || !path || path.length < 2) return;
         const w = canvas.width / DPR, h = canvas.height / DPR;
-        const boxW = Math.min(w - 12, 680, Math.max(510, w * .62));
+        const phoneCanvas = $('phoneFlightCanvas');
+        const phoneProfile = document.body.classList.contains('phone-layout') && w >= 650 && phoneCanvas;
+        const profileCtx = phoneProfile ? phoneCanvas.getContext('2d') : ctx;
+        const boxW = phoneProfile ? Math.min(510,w-240) : Math.min(w - 12, 680, Math.max(510, w * .62));
         // Pocket 1 side: keep the profile away from the upper-right rail tools.
-        const boxH = 132, x0 = 6, y0 = 8;
-        const padL = Math.min(125,boxW*.25), padR = 22, padT = 36, padB = 22;
+        const boxH = phoneProfile ? 50 : 132, x0 = phoneProfile ? 0 : 6, y0 = phoneProfile ? 0 : 8;
+        if (phoneProfile) {
+            phoneCanvas.width = Math.round(boxW*DPR); phoneCanvas.height = Math.round(boxH*DPR);
+            phoneCanvas.style.width = boxW+'px'; phoneCanvas.style.height = boxH+'px'; phoneCanvas.style.display = 'block';
+            profileCtx.setTransform(DPR,0,0,DPR,0,0);
+        }
+        const padL = phoneProfile ? 8 : Math.min(125,boxW*.25), padR = phoneProfile ? 8 : 22, padT = phoneProfile ? 19 : 36, padB = phoneProfile ? 5 : 22;
         const plotW = boxW-padL-padR, plotH = boxH-padT-padB;
         const pts = [];
         let travel = 0, prev = path[0], maxZ = S.ballR * 4;
@@ -4932,118 +5203,147 @@
         const px = d => x0+padL + (reverseProfile ? 1-clamp(d/maxD,0,1) : clamp(d/maxD,0,1))*plotW;
         const py = z => y0+padT+plotH - clamp(z/maxZ,0,1)*plotH;
 
-        ctx.save();
-        ctx.fillStyle = 'rgba(4,7,10,.88)';
-        ctx.strokeStyle = 'rgba(255,255,255,.35)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.roundRect(x0,y0,boxW,boxH,8);
-        ctx.fill(); ctx.stroke();
+        if (phoneProfile) {
+            // The phone profile fits entirely inside the 52px header.
+            profileCtx.save();
+            profileCtx.fillStyle = 'rgba(4,7,10,.94)';
+            profileCtx.fillRect(0,0,boxW,boxH);
+            const shot = which === 2 ? ensureShot2() : S;
+            const primary = a.guidance && a.guidance.primary;
+            const detail = primary
+                ? `${primary.margin >= 0 ? 'CLEARS' : 'CLIPS'} ${jumpLength(Math.abs(primary.margin),2)}`
+                : `H ${jumpLength(a.maxCueHeight,2)}`;
+            profileCtx.font = '700 10px Segoe UI'; profileCtx.fillStyle = '#eef3f7';
+            profileCtx.textAlign = 'left'; profileCtx.textBaseline = 'middle';
+            profileCtx.fillText(`SHOT ${which} · ${shot.speed.toFixed(2)} m/s · ${detail}`,8,9,boxW-16);
+            profileCtx.strokeStyle = '#768895'; profileCtx.lineWidth = 1;
+            profileCtx.beginPath(); profileCtx.moveTo(8,py(0)); profileCtx.lineTo(boxW-8,py(0)); profileCtx.stroke();
+            profileCtx.strokeStyle = stroke; profileCtx.lineWidth = 2;
+            profileCtx.beginPath();
+            visiblePts.forEach((p,i) => {if(i===0)profileCtx.moveTo(px(p.d),py(p.z));else profileCtx.lineTo(px(p.d),py(p.z));});
+            profileCtx.stroke();
+            if(primary) {
+                const x = px(Math.min(maxD,primary.cueTravel || 0));
+                for(const [z,fill] of [[primary.objZ || S.ballR,'#ffd86b'],[primary.cueZ || S.ballR,'#f7f7f3']]) {
+                    profileCtx.beginPath(); profileCtx.arc(x,py(z),3,0,Math.PI*2); profileCtx.fillStyle=fill; profileCtx.fill();
+                }
+            }
+            profileCtx.restore();
+            return;
+        }
 
-        ctx.font = '800 10px Segoe UI';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#fff';
-        ctx.fillText(`SIDE PROFILE · SHOT ${which}`,x0+10,y0+13);
+        profileCtx.save();
+        profileCtx.fillStyle = 'rgba(4,7,10,.88)';
+        profileCtx.strokeStyle = 'rgba(255,255,255,.35)';
+        profileCtx.lineWidth = 1;
+        profileCtx.beginPath();
+        profileCtx.roundRect(x0,y0,boxW,boxH,8);
+        profileCtx.fill(); profileCtx.stroke();
+
+        profileCtx.font = '800 10px Segoe UI';
+        profileCtx.textAlign = 'left'; profileCtx.textBaseline = 'middle';
+        profileCtx.fillStyle = '#fff';
+        profileCtx.fillText(`SIDE PROFILE · SHOT ${which}`,x0+10,y0+13);
 
         const bedY = py(0);
-        ctx.strokeStyle = 'rgba(255,255,255,.55)';
-        ctx.beginPath(); ctx.moveTo(x0+padL,bedY); ctx.lineTo(x0+boxW-padR,bedY); ctx.stroke();
-        ctx.fillStyle = 'rgba(255,255,255,.65)';
-        ctx.font = '700 9px Segoe UI';
-        ctx.fillText('BED',x0+6,bedY);
+        profileCtx.strokeStyle = 'rgba(255,255,255,.55)';
+        profileCtx.beginPath(); profileCtx.moveTo(x0+padL,bedY); profileCtx.lineTo(x0+boxW-padR,bedY); profileCtx.stroke();
+        profileCtx.fillStyle = 'rgba(255,255,255,.65)';
+        profileCtx.font = '700 9px Segoe UI';
+        profileCtx.fillText('BED',x0+6,bedY);
 
-        ctx.strokeStyle = stroke; ctx.lineWidth = 2.2;
-        ctx.beginPath();
-        visiblePts.forEach((p,i)=>{ const X=px(p.d),Y=py(p.z); if(i===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); });
-        ctx.stroke();
+        profileCtx.strokeStyle = stroke; profileCtx.lineWidth = 2.2;
+        profileCtx.beginPath();
+        visiblePts.forEach((p,i)=>{ const X=px(p.d),Y=py(p.z); if(i===0)profileCtx.moveTo(X,Y); else profileCtx.lineTo(X,Y); });
+        profileCtx.stroke();
 
         // Use the same physical radius and plot scales for both balls.
         const rx = Math.max(3, S.ballR/maxD*plotW);
         const ry = Math.max(3, S.ballR/maxZ*plotH);
         function profileBall(X, Z, id, label, outline) {
             const Y = py(Z);
-            ctx.save();
-            ctx.beginPath();
-            ctx.ellipse(X, Y, rx, ry, 0, 0, Math.PI*2);
-            ctx.fillStyle = id >= 9 && id <= 15 ? '#f7f7f3' : ballBaseColor(id);
-            ctx.fill();
+            profileCtx.save();
+            profileCtx.beginPath();
+            profileCtx.ellipse(X, Y, rx, ry, 0, 0, Math.PI*2);
+            profileCtx.fillStyle = id >= 9 && id <= 15 ? '#f7f7f3' : ballBaseColor(id);
+            profileCtx.fill();
             if (id >= 9 && id <= 15) {
-                ctx.save();
-                ctx.clip();
-                ctx.fillStyle = ballBaseColor(id);
-                ctx.fillRect(X-rx, Y-ry*.42, rx*2, ry*.84);
-                ctx.restore();
+                profileCtx.save();
+                profileCtx.clip();
+                profileCtx.fillStyle = ballBaseColor(id);
+                profileCtx.fillRect(X-rx, Y-ry*.42, rx*2, ry*.84);
+                profileCtx.restore();
             }
-            ctx.strokeStyle = outline;
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
+            profileCtx.strokeStyle = outline;
+            profileCtx.lineWidth = 1.5;
+            profileCtx.stroke();
             if (id > 0 && id <= 15) {
-                ctx.fillStyle = '#fff';
-                ctx.beginPath();
-                ctx.ellipse(X,Y,Math.min(rx*.65,7),Math.min(ry*.65,7),0,0,Math.PI*2);
-                ctx.fill();
-                ctx.fillStyle = '#111';
-                ctx.font = '800 8px Segoe UI';
-                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                ctx.fillText(String(id),X,Y);
+                profileCtx.fillStyle = '#fff';
+                profileCtx.beginPath();
+                profileCtx.ellipse(X,Y,Math.min(rx*.65,7),Math.min(ry*.65,7),0,0,Math.PI*2);
+                profileCtx.fill();
+                profileCtx.fillStyle = '#111';
+                profileCtx.font = '800 8px Segoe UI';
+                profileCtx.textAlign = 'center'; profileCtx.textBaseline = 'middle';
+                profileCtx.fillText(String(id),X,Y);
             }
-            ctx.fillStyle = outline;
-            ctx.font = '700 9px Segoe UI';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            profileCtx.fillStyle = outline;
+            profileCtx.font = '700 9px Segoe UI';
+            profileCtx.textAlign = 'center'; profileCtx.textBaseline = 'bottom';
             const labelX = clamp(X, x0+30, x0+boxW-30);
-            if (label) ctx.fillText(label,labelX,Math.max(y0+padT+9,Y-ry-3));
-            ctx.restore();
+            if (label) profileCtx.fillText(label,labelX,Math.max(y0+padT+9,Y-ry-3));
+            profileCtx.restore();
         }
 
         if (Array.isArray(a.landings)) {
-            ctx.strokeStyle = '#ffd86b';
-            ctx.fillStyle = '#ffd86b';
+            profileCtx.strokeStyle = '#ffd86b';
+            profileCtx.fillStyle = '#ffd86b';
             a.landings.filter(p=>!contact || p.t<=contact.t).slice(0,12).forEach((p,i)=>{
                 const X=px(Math.min(maxD,p.travel||0));
-                ctx.beginPath(); ctx.moveTo(X,bedY-8); ctx.lineTo(X,bedY+3); ctx.stroke();
-                ctx.textAlign='center';ctx.textBaseline='top';
-                ctx.fillText(`L${i+1}`,clamp(X,x0+padL+22,x0+boxW-26),bedY+5);
+                profileCtx.beginPath(); profileCtx.moveTo(X,bedY-8); profileCtx.lineTo(X,bedY+3); profileCtx.stroke();
+                profileCtx.textAlign='center';profileCtx.textBaseline='top';
+                profileCtx.fillText(`L${i+1}`,clamp(X,x0+padL+22,x0+boxW-26),bedY+5);
             });
         }
 
         if (contact) {
             profileBall(px(contactD),S.ballR,contact.objId,'','#68b8ff');
             // Separate label lanes keep target/pocket text apart even at close spacing.
-            ctx.font='800 9px Segoe UI';ctx.fillStyle='#68b8ff';
-            ctx.textAlign='center';ctx.textBaseline='middle';
+            profileCtx.font='800 9px Segoe UI';profileCtx.fillStyle='#68b8ff';
+            profileCtx.textAlign='center';profileCtx.textBaseline='middle';
             const targetLabelX = clamp(px(contactD),x0+padL+30,x0+boxW-40);
             const targetLabelY = bedY-26;
-            ctx.fillText(`TARGET ${contact.objName}`,targetLabelX,targetLabelY);
-            ctx.strokeStyle='rgba(104,184,255,.6)';ctx.lineWidth=1;
-            ctx.beginPath();ctx.moveTo(targetLabelX,targetLabelY+7);
-            ctx.lineTo(px(contactD),py(S.ballR)-ry-2);ctx.stroke();
+            profileCtx.fillText(`TARGET ${contact.objName}`,targetLabelX,targetLabelY);
+            profileCtx.strokeStyle='rgba(104,184,255,.6)';profileCtx.lineWidth=1;
+            profileCtx.beginPath();profileCtx.moveTo(targetLabelX,targetLabelY+7);
+            profileCtx.lineTo(px(contactD),py(S.ballR)-ry-2);profileCtx.stroke();
             if (pocket) {
                 const X = px(pocketD), Y = py(S.ballR);
-                ctx.save();
-                ctx.setLineDash([4,4]);ctx.strokeStyle='rgba(104,184,255,.5)';
-                ctx.beginPath();ctx.moveTo(px(contactD),Y);ctx.lineTo(X,Y);ctx.stroke();
-                ctx.setLineDash([]);
-                ctx.fillStyle='#030405';ctx.strokeStyle='#68b8ff';
-                ctx.beginPath();ctx.ellipse(X,Y,9,7,0,0,Math.PI*2);ctx.fill();ctx.stroke();
-                ctx.font='800 9px Segoe UI';ctx.fillStyle='#68b8ff';
-                ctx.textAlign=reverseProfile?'left':'right';ctx.textBaseline='bottom';
+                profileCtx.save();
+                profileCtx.setLineDash([4,4]);profileCtx.strokeStyle='rgba(104,184,255,.5)';
+                profileCtx.beginPath();profileCtx.moveTo(px(contactD),Y);profileCtx.lineTo(X,Y);profileCtx.stroke();
+                profileCtx.setLineDash([]);
+                profileCtx.fillStyle='#030405';profileCtx.strokeStyle='#68b8ff';
+                profileCtx.beginPath();profileCtx.ellipse(X,Y,9,7,0,0,Math.PI*2);profileCtx.fill();profileCtx.stroke();
+                profileCtx.font='800 9px Segoe UI';profileCtx.fillStyle='#68b8ff';
+                profileCtx.textAlign=reverseProfile?'left':'right';profileCtx.textBaseline='bottom';
                 const pocketLabelX=reverseProfile ? Math.max(X-12,x0+5) : Math.min(X+12,x0+boxW-5);
-                ctx.fillText(`POCKET ${{TL:1,TM:2,TR:3,BR:4,BM:5,BL:6}[pocket.name] || pocket.name}`,pocketLabelX,bedY-48);
-                ctx.strokeStyle='rgba(104,184,255,.6)';ctx.lineWidth=1;
-                ctx.beginPath();ctx.moveTo(X,bedY-45);ctx.lineTo(X,Y-8);ctx.stroke();
+                profileCtx.fillText(`POCKET ${{TL:1,TM:2,TR:3,BR:4,BM:5,BL:6}[pocket.name] || pocket.name}`,pocketLabelX,bedY-48);
+                profileCtx.strokeStyle='rgba(104,184,255,.6)';profileCtx.lineWidth=1;
+                profileCtx.beginPath();profileCtx.moveTo(X,bedY-45);profileCtx.lineTo(X,Y-8);profileCtx.stroke();
                 const event = (preview.pocketEvents || []).find(p=>p.id===contact.objId);
                 const arrived = event && Math.hypot(event.x-pocket.x,event.y-pocket.y)<S.ballR*5;
                 const end = preview.finalBalls && preview.finalBalls.find(b=>b.id===contact.objId);
                 const short = !event && end && end.active && objTravel < pocket.distance-S.ballR;
                 const status = arrived ? `IN · ${event.speed.toFixed(2)} m/s` : event ? 'OTHER POCKET' : short ? 'SHORT / STOPPED' : 'MISSED / CONTINUES';
-                ctx.textBaseline='top';
-                ctx.fillStyle=arrived?'#6fff58':'#ffd86b';
-                ctx.fillText(status,x0+boxW-8,bedY+5);
-                ctx.restore();
+                profileCtx.textBaseline='top';
+                profileCtx.fillStyle=arrived?'#6fff58':'#ffd86b';
+                profileCtx.fillText(status,x0+boxW-8,bedY+5);
+                profileCtx.restore();
             }
             if (objPts.length>1) {
-                ctx.strokeStyle='#68b8ff';ctx.lineWidth=2;
-                ctx.beginPath();objPts.forEach((p,i)=>{if(i===0)ctx.moveTo(px(p.d),py(p.z));else ctx.lineTo(px(p.d),py(p.z));});ctx.stroke();
+                profileCtx.strokeStyle='#68b8ff';profileCtx.lineWidth=2;
+                profileCtx.beginPath();objPts.forEach((p,i)=>{if(i===0)profileCtx.moveTo(px(p.d),py(p.z));else profileCtx.lineTo(px(p.d),py(p.z));});profileCtx.stroke();
             }
         }
         // Draw the obstacle last so target and pocket annotations cannot obscure it.
@@ -5054,13 +5354,13 @@
                 '', clearanceColor(primary.margin));
             profileBall(X, primary.cueZ || S.ballR, 0, 'CUE BALL', '#f7f7f3');
             const clearLabel = `${primary.margin >= 0 ? 'CLEARS +' : 'CLIPS −'}${jumpLength(Math.abs(primary.margin), S.jumpUnits === 'mm' ? 1 : 2)}`;
-            ctx.font = '800 11px Segoe UI';
-            ctx.fillStyle = clearanceColor(primary.margin);
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(clearLabel,x0+boxW*.5,y0+29,boxW*.64);
-            ctx.font = '800 10px Segoe UI';
-            ctx.textAlign = 'left';
-            ctx.fillText(`BALL ${primary.n}`,x0+166,y0+13,Math.max(35,boxW-180));
+            profileCtx.font = '800 11px Segoe UI';
+            profileCtx.fillStyle = clearanceColor(primary.margin);
+            profileCtx.textAlign = 'center'; profileCtx.textBaseline = 'middle';
+            profileCtx.fillText(clearLabel,x0+boxW*.5,y0+29,boxW*.64);
+            profileCtx.font = '800 10px Segoe UI';
+            profileCtx.textAlign = 'left';
+            profileCtx.fillText(`BALL ${primary.n}`,x0+166,y0+13,Math.max(35,boxW-180));
         }
         else {
             // Without an obstacle, show the cue ball at the highest sampled point.
@@ -5070,8 +5370,8 @@
 
 
         const shot = which===2 ? ensureShot2() : S;
-        ctx.font='700 9px Segoe UI';ctx.fillStyle='#dfefff';ctx.textAlign='left';ctx.textBaseline='middle';
-        ctx.fillText(`POWER ${shot.speed.toFixed(2)} m/s`,x0+10,y0+27);
+        profileCtx.font='700 9px Segoe UI';profileCtx.fillStyle='#dfefff';profileCtx.textAlign='left';profileCtx.textBaseline='middle';
+        profileCtx.fillText(`POWER ${shot.speed.toFixed(2)} m/s`,x0+10,y0+27);
         const g = a.guidance;
         const summary = [];
         summary.push(`H ${jumpLength(a.maxCueHeight, S.jumpUnits === 'mm' ? 0 : 2)}`);
@@ -5080,11 +5380,11 @@
             summary.push(`min ${g.minClear.angle.toFixed(1)}°`);
         if (g && g.bend && g.bend.magnitude > .0005)
             summary.push(`bend ${jumpLength(g.bend.magnitude, S.jumpUnits === 'mm' ? 0 : 2)}`);
-        ctx.fillStyle = '#dfefff'; ctx.textAlign='left'; ctx.textBaseline='middle';
-        ctx.font='700 9px Segoe UI';
+        profileCtx.fillStyle = '#dfefff'; profileCtx.textAlign='left'; profileCtx.textBaseline='middle';
+        profileCtx.font='700 9px Segoe UI';
         const summaryMid = y0+boxH*.5;
-        summary.forEach((line,i)=>ctx.fillText(line,x0+10,summaryMid+(i-(summary.length-1)/2)*14,padL-18));
-        ctx.restore();
+        summary.forEach((line,i)=>profileCtx.fillText(line,x0+10,summaryMid+(i-(summary.length-1)/2)*14,padL-18));
+        profileCtx.restore();
     }
     function logicalCircle(p, r, map, fill, stroke, line = 1, alpha = 1) {
         ctx.save();
@@ -5173,6 +5473,7 @@
                 seg(a, b);
             ctx.restore();
         }
+        window.BilliardsPhotoCalibration.references(ctx,p=>map({x:p.x*L,y:p.y*W}),.065);
         // Standard diamond grid: 8 intervals along the long rails and 4 across.
         if (S.showGrid) {
             ctx.save();
@@ -5182,7 +5483,7 @@
             // are exactly halfway between diamonds for finer ball positioning.
             for (let i = 1; i < 16; i++) {
                 const x = L * i / 16, a = map({ x, y: 0 }), b = map({ x, y: W });
-                ctx.strokeStyle = (i % 2 === 0) ? 'rgba(255,255,255,.18)' : 'rgba(255,255,255,.095)';
+                ctx.strokeStyle = (i % 2 === 0) ? 'rgba(255,255,255,.055)' : 'rgba(255,255,255,.025)';
                 ctx.beginPath();
                 ctx.moveTo(a.x, a.y);
                 ctx.lineTo(b.x, b.y);
@@ -5190,7 +5491,7 @@
             }
             for (let j = 1; j < 8; j++) {
                 const y = W * j / 8, a = map({ x: 0, y }), b = map({ x: L, y });
-                ctx.strokeStyle = (j % 2 === 0) ? 'rgba(255,255,255,.18)' : 'rgba(255,255,255,.095)';
+                ctx.strokeStyle = (j % 2 === 0) ? 'rgba(255,255,255,.055)' : 'rgba(255,255,255,.025)';
                 ctx.beginPath();
                 ctx.moveTo(a.x, a.y);
                 ctx.lineTo(b.x, b.y);
@@ -5235,15 +5536,17 @@
                 ctx.arc(q.x, q.y, isProjector ? 4.6 : 4.0, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.stroke();
-                ctx.globalAlpha = .74;
+                ctx.globalAlpha = Math.min(alpha,.45);
                 ctx.fillStyle = '#fff';
                 ctx.font = `700 ${isProjector ? 10 : 8}px Segoe UI`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'bottom';
                 ctx.fillText(label, q.x, q.y - (isProjector ? 7 : 6));
             }
-            spot({ x: headX, y: W / 2 }, 'HEAD');
-            spot({ x: footX, y: W / 2 }, 'FOOT', .92);
+            spot({ x: headX, y: W / 2 }, 'HEAD / BREAK', .35);
+            spot({ x: footX, y: W / 2 }, 'FOOT / RACK', .35);
+            ctx.globalAlpha=.45;ctx.font='700 9px Segoe UI';ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';
+            [[1,.25,-.025],[2,.75,-.025],[3,1.017,.5],[4,.75,1.025],[5,.25,1.025],[6,-.017,.5]].forEach(([n,x,y])=>{const q=map({x:x*L,y:y*W});ctx.fillText('R'+n,q.x,q.y);});
             // Pocket numbers sit on the rail-cap area rather than the playing cloth.
             // Clockwise from the head-end upper corner.
             const off = 0.036;
@@ -5484,7 +5787,7 @@
             ctx.save();
             logicalCirclePath(b, R, map);
             ctx.clip();
-            const y1 = b.y - R * .38, y2 = b.y + R * .38;
+            const y1 = b.y - R * .65, y2 = b.y + R * .65;
             const p1 = map({ x: b.x - R * 1.15, y: y1 }), p2 = map({ x: b.x + R * 1.15, y: y1 }), p3 = map({ x: b.x + R * 1.15, y: y2 }), p4 = map({ x: b.x - R * 1.15, y: y2 });
             ctx.fillStyle = ballBaseColor(b.id);
             ctx.beginPath();
@@ -5509,21 +5812,21 @@
                 ctx.fillText('CB', q.x, q.y);
             }
             else {
-                // White number spot on all 1-15 balls.
-                const edge = map({ x: b.x + R * .33, y: b.y });
-                const spotR = Math.max(6, Math.hypot(edge.x - q.x, edge.y - q.y));
-                ctx.fillStyle = '#f8f8f5';
-                ctx.beginPath();
-                ctx.arc(q.x, q.y, spotR, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = '#bbb';
-                ctx.lineWidth = .7;
-                ctx.stroke();
-                ctx.fillStyle = '#111';
-                ctx.font = `700 ${Math.max(8, spotR * 1.15)}px Segoe UI`;
+                // Keep the ball color visible at phone scale; white numbers sit
+                // directly on the solid color or the stripe, with a dark outline.
+                const edge = map({ x: b.x + R, y: b.y });
+                const radius = Math.hypot(edge.x - q.x, edge.y - q.y);
+                ctx.save();
+                ctx.font = `700 ${Math.max(7, radius * 1.2)}px Segoe UI`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
+                ctx.strokeStyle = '#000c';
+                ctx.lineWidth = 1.5;
+                ctx.lineJoin = 'round';
+                ctx.strokeText(String(b.id), q.x, q.y + .3);
+                ctx.fillStyle = '#fff';
                 ctx.fillText(String(b.id), q.x, q.y + .3);
+                ctx.restore();
             }
         }
     }
@@ -5591,14 +5894,15 @@
     function drawImpactOverlay(map) {
         drawContactOverlay(S.preview, map, { tangentColor: '#6fff58', ghostFill: '#ffffff22', ghostStroke: '#ffffff', contactColor: '#ff5b5b', bandColor: '#ff5b5b', labelColor: '#fff' });
     }
-    function drawTipBadge(map) {
-        if (!cueVisualsVisible(1) || !S.showTipBadge)
-            return;
-        const cb = cueBall();
-        if (!cb)
-            return;
-        const q = map(cb);
-        const r = isProjector ? 24 : 22, cx = q.x + 52, cy = q.y - 48;
+    function tipBadgeGeometry(map, which = 1) {
+        if (!S.showTipBadge || !cueVisualsVisible(which) || (which === 2 && !S.shot2Enabled)) return null;
+        const cb = which === 2 ? ensureShot2() : cueBall();
+        if (!cb) return null;
+        const q = map(cb), r = isProjector ? 24 : 22;
+        return {which, r, cx:q.x + 52, cy:q.y - 48};
+    }
+    function drawTipBadgeDisk(ctx, badge, values, label) {
+        const {r, cx, cy} = badge;
         ctx.save();
         ctx.globalAlpha = .95;
         ctx.fillStyle = '#101318cc';
@@ -5619,7 +5923,7 @@
         ctx.moveTo(cx, cy - r);
         ctx.lineTo(cx, cy + r);
         ctx.stroke();
-        const tip = effectiveTipOffsetValues(S.sideSpin, S.follow);
+        const tip = effectiveTipOffsetValues(values.sideSpin, values.follow);
         const px = cx + tip.sideR * r, py = cy - tip.followR * r;
         ctx.fillStyle = '#ff3b3b';
         ctx.beginPath();
@@ -5631,9 +5935,28 @@
             ctx.fillStyle = '#fff';
             ctx.font = '600 9px Segoe UI';
             ctx.textAlign = 'center';
-            ctx.fillText('TIP', cx, cy + r + 15);
+            ctx.fillText(label, cx, cy + r + 13);
         }
         ctx.restore();
+    }
+    function drawTipBadge(map) {
+        const fixed = !isProjector && document.body.classList.contains('phone-layout');
+        for (const which of [1, 2]) {
+            const badge = fixed
+                ? ((which === 1 ? !!cueBall() : !!S.shot2Enabled) ? {which} : null)
+                : tipBadgeGeometry(map, which);
+            const disk = $('phoneTip' + which);
+            // On phones, keep the controls below their respective slider sets.
+            if (disk) disk.hidden = !fixed || !badge;
+            if (!badge) continue;
+            const values = which === 2 ? ensureShot2() : S;
+            if (fixed) {
+                if (!disk) continue;
+                disk.width = Math.round(60 * DPR); disk.height = Math.round(64 * DPR);
+                const c = disk.getContext('2d'); c.setTransform(DPR,0,0,DPR,0,0);
+                drawTipBadgeDisk(c, {r:20,cx:30,cy:27}, values, 'CB ' + which);
+            } else drawTipBadgeDisk(ctx, badge, values, which === 2 ? 'TIP 2' : 'TIP');
+        }
     }
     function drawPreview(map) {
         if (!S.showPaths || !S.preview)
@@ -6149,6 +6472,8 @@
         });
     }
     function draw() {
+        window.billiardsPhoneReadouts?.();
+        if ($('phoneFlightCanvas')) $('phoneFlightCanvas').style.display = 'none';
         updateMarkerRailControls();
         const w = canvas.width / DPR, h = canvas.height / DPR;
         ctx.clearRect(0, 0, w, h);
@@ -6199,10 +6524,8 @@
                 drawBall(Object.assign(Object.assign({}, b), { x: ab.x, y: ab.y, active: true }), map, false);
             }
         }
-        if (cueVisualsVisible(1)) {
-            drawImpactOverlay(map);
-            drawTipBadge(map);
-        }
+        if (cueVisualsVisible(1)) drawImpactOverlay(map);
+        drawTipBadge(map);
         drawBankKickGuide(map);
         drawTeachingCompass(map);
         drawCalibration(M);
@@ -6721,7 +7044,7 @@
                 const id = parseInt(choice, 10);
                 const exists = S.balls.some(b => b.id === id);
                 $('addBall').disabled = exists;
-                $('removeBall').disabled = !exists;
+                $('removeBall').disabled = !exists || id===0;
                 $('addBall').textContent = 'Add Ball';
                 $('removeBall').textContent = 'Remove Ball';
             }
@@ -6736,6 +7059,7 @@
         $('railRest').value = S.railRest;
         $('railTang').value = S.railTang;
         $('cueEndmassRatio').value = (+S.cueEndmassRatio).toFixed(3);
+        $('cueShaftPreset').value=currentCuePreset();$('cueEndmassRow').hidden=S.cuePreset!=='custom';
         $('airbornePhysics').checked = S.airbornePhysics === true;
          $('jumpUnits').value = S.jumpUnits === 'mm' ? 'mm' : 'in';
         $('tableRest').value = (+S.tableRest).toFixed(2);
@@ -6829,7 +7153,15 @@
         if ($('aimControls')) $('aimControls').classList.toggle('activeAim', S.activeShot !== 2);
         if ($('aimControls2')) $('aimControls2').classList.toggle('activeAim', S.activeShot === 2 && S.shot2Enabled);
     }
-    function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
+    function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, cuePreset:S.cuePreset, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
+    function keepCueOnTable(q){
+        const gap=Math.max(S.ballR*2.2,.065),p={x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR)};
+        for(const pocket of logicalPockets())if(Math.hypot(p.x-pocket.x,p.y-pocket.y)<gap){
+            if(pocket.x===0)p.x=gap;else if(pocket.x===S.tableL)p.x=S.tableL-gap;else p.y=pocket.y===0?gap:S.tableW-gap;
+            if(pocket.x===0||pocket.x===S.tableL)p.y=pocket.y===0?gap:S.tableW-gap;
+        }
+        return p;
+    }
     function onPlayingSurface(q) {
         return q.x > 0 && q.x < S.tableL && q.y > 0 && q.y < S.tableW;
     }
@@ -6838,6 +7170,93 @@
         return nearestLogicalPocket(q, Math.max(S.ballR * 4.8, .135));
     }
     function pointerPos(ev) { const r = canvas.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
+    // Read-only Guide hit testing uses the trainer's actual drawing geometry.
+    // A canvas element contains many different targets, so it cannot inherit
+    // one cue-ball explanation for every ball, pocket, and trajectory.
+    window.billiardsGuideTableTopicAt = (clientX, clientY) => {
+        if (isProjector) return null;
+        const p = pointerPos({clientX, clientY}), M = controlMap(), q = M.inv(p);
+        if (!document.body.classList.contains('phone-layout') && [1,2].some(which => { const b=tipBadgeGeometry(M.map,which); return b && Math.hypot(p.x-b.cx,p.y-b.cy)<=b.r+6; })) return 'cue-ball-diagram-direct-tip-quick';
+        const near = (a, pixels = 14) => { const b = M.map(a); return Math.hypot(p.x - b.x, p.y - b.y) <= pixels; };
+        const onSegment = (a, b, pixels = 4) => {
+            const x = M.map(a), y = M.map(b), dx = y.x - x.x, dy = y.y - x.y;
+            const t = clamp(((p.x-x.x)*dx+(p.y-x.y)*dy)/(dx*dx+dy*dy||1),0,1);
+            return Math.hypot(p.x-x.x-t*dx,p.y-x.y-t*dy) <= pixels;
+        };
+        const guidePocket=manualPocketAt(q); if (guidePocket) return 'main-pocket-'+({TL:1,TM:2,TR:3,BR:4,BM:5,BL:6}[guidePocket.name]);
+        {
+            if (S.shot2Enabled && cueVisualsVisible(2) && S.shot2 && near(S.shot2, S.ballR*M.scale)) return 'shot-two-planning-quick';
+            for (const b of S.balls.filter(b=>b.active!==false&&!b.markerHidden).slice().reverse()) {
+                if (b.id===0&&!cueVisualsVisible(1)) continue;
+                if (!b.marker) { if (near(b,S.ballR*M.scale)) return b.id===0?'cue-ball-placement-quick':'ball-placement-quick'; continue; }
+                if (b.markerShape==='square'||b.markerShape==='triangle') {
+                    const handle=markerRotationHandle(b,M.map);
+                    if (!b.markerLocked&&Math.hypot(p.x-handle.x,p.y-handle.y)<14) return 'marker-rotation-quick';
+                    const vertices=markerVerticesInTable(b).map(v=>({x:b.x+v[0]*.0254,y:b.y+v[1]*.0254}));
+                    if (!b.markerLocked&&vertices.some(v=>near(v,14))) return 'marker-resizing-quick';
+                    if (near(b,14)||vertices.some((v,i)=>onSegment(v,vertices[(i+1)%vertices.length],5))) return 'table-markers-quick';
+                } else if (near(b,(Number(b.markerDiameterIn)||6)*.0254/2*M.scale)) return 'table-markers-quick';
+            }
+        }
+        const previews=cueVisualsVisible(1)?[S.preview]:[];
+        if (S.shot2Enabled&&cueVisualsVisible(2)&&S.shot2?.preview) previews.push(S.shot2.preview);
+        if (S.showImpact) for (const preview of previews) {
+            const contact=preview?.firstBallContact;if (!contact) continue;
+            if (near(contact.cuePos,S.ballR*M.scale)) return 'ghost-ball-quick';
+            const tangent=clippedLineThroughRect(contact.cuePos,{x:-contact.normal.y,y:contact.normal.x},S.tableL,S.tableW);
+            if (tangent&&onSegment(tangent[0],tangent[1])) return 'tangent-line-quick';
+        }
+        const cb=cueBall();
+        if (cb&&cueVisualsVisible(1)&&onSegment(cb,extendedAimEnd(cb,aimDirection()))) return 'aiming-line-quick';
+        if (S.showPaths) for (const preview of previews) for (const [id,points] of Object.entries(preview?.paths||{})) {
+            if (Number(id)===0&&!cueVisualsVisible(1)&&preview===S.preview) continue;
+            for (let i=1;i<points.length;i++) if (onSegment(points[i-1],points[i])) return 'trajectory-lines-quick';
+        }
+        if (!onPlayingSurface(q)) return 'cushion-response-quick';
+        return 'table-orientation-quick';
+    };
+    // The on-table tip disks share the sidebar's physical tip-offset limit.
+    let tipBadgeDrag = null;
+    function updateTipBadge(ev, badge) {
+        const p = pointerPos(ev), safeR = badge.r * PHYSICS_MODEL.maxTipOffsetR;
+        let x = p.x - badge.cx, y = badge.cy - p.y;
+        const mag = Math.hypot(x, y);
+        if (mag > safeR) { x *= safeR / mag; y *= safeR / mag; }
+        const values = badge.which === 2 ? ensureShot2() : S;
+        values.sideSpin = Math.round(clamp(x / safeR, -1, 1) * 100) / 100;
+        values.follow = Math.round(clamp(y / safeR, -1, 1) * 100) / 100;
+        setActiveShot(badge.which);
+        updateUI(); refreshPreview();
+    }
+    window.billiardsFixedTipInput = (ev, which, phase) => {
+        if (isProjector || !document.body.classList.contains('phone-layout')) return;
+        if (phase === 'end') { saveState(); syncProjector(); return; }
+        const disk = $('phoneTip' + which);
+        if (!disk || disk.hidden || (which === 2 && !S.shot2Enabled)) return;
+        const rect = disk.getBoundingClientRect(), base = canvas.getBoundingClientRect();
+        updateTipBadge(ev, {which, r:20 * rect.width / 60,
+            cx:rect.left - base.left + rect.width / 2,
+            cy:rect.top - base.top + rect.height * 27 / 64});
+    };
+    function stopTipBadgeEvent(ev) { ev.preventDefault(); ev.stopImmediatePropagation(); }
+    canvas.addEventListener('pointerdown', ev => {
+        if (isProjector || document.body.classList.contains('phone-layout') || (ev.button != null && ev.button !== 0)) return;
+        const p = pointerPos(ev), map = controlMap().map;
+        const badge = [2, 1].map(which => tipBadgeGeometry(map, which))
+            .find(b => b && Math.hypot(p.x - b.cx, p.y - b.cy) <= b.r + 6);
+        if (!badge) return;
+        tipBadgeDrag = {...badge, pointerId:ev.pointerId};
+        stopTipBadgeEvent(ev); canvas.setPointerCapture(ev.pointerId);
+        updateTipBadge(ev, tipBadgeDrag);
+    }, {capture:true, passive:false});
+    canvas.addEventListener('pointermove', ev => {
+        if (!tipBadgeDrag || ev.pointerId !== tipBadgeDrag.pointerId) return;
+        stopTipBadgeEvent(ev); updateTipBadge(ev, tipBadgeDrag);
+    }, {capture:true, passive:false});
+    for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) canvas.addEventListener(type, ev => {
+        if (!tipBadgeDrag || ev.pointerId !== tipBadgeDrag.pointerId) return;
+        stopTipBadgeEvent(ev); tipBadgeDrag = null; saveState(); syncProjector();
+    }, {capture:true, passive:false});
     // Touch-only marker manipulation. Capture before normal table aiming/dragging.
     const zoneTouches = new Map();
     let zoneGesture = null;
@@ -7120,6 +7539,7 @@
         else if (drag.kind === 'ball') {
             const b = S.balls.find(x => x.id === drag.id);
             if (b) {
+                if(b.id===0)Object.assign(q,keepCueOnTable(q));
                 if (b.id === 0 && S.angleLock) {
                     const dx = q.x - b.x, dy = q.y - b.y;
                     S.freeAim = { x: S.freeAim.x + dx, y: S.freeAim.y + dy };
@@ -7131,6 +7551,7 @@
         else if (drag.kind === 'aim')
             S.freeAim = q;
         else if (drag.kind === 'ball2') {
+            Object.assign(q,keepCueOnTable(q));
             const s = ensureShot2();
             s.autoFollow = false;
             s.x = q.x;
@@ -7155,7 +7576,7 @@
             const q = controlMap().inv(pointerPos(ev));
             const pocket = manualPocketAt(q);
             const ball = drag.kind === 'ball' ? S.balls.find(b => b.id === drag.id && !b.marker) : null;
-            if (pocket && (ball || drag.kind === 'ball2')) {
+            if (pocket && ball && ball.id>=1 && ball.id<=15) {
                 animation = null;
                 const id = drag.kind === 'ball2' ? -2 : ball.id;
                 if (id === -2) { S.shot2Enabled=false; S.activeShot=1; }
@@ -7411,21 +7832,22 @@
                     return;
                 setActiveShot(shotNo);
                 rollerDrag = true;
-                rollerLastX = ev.clientX;
+                rollerLastX = document.body.classList.contains('phone-layout') ? ev.clientY : ev.clientX;
                 roller.setPointerCapture(ev.pointerId);
                 ev.preventDefault();
             });
             roller.addEventListener('pointermove', ev => {
                 if (!rollerDrag)
                     return;
-                const dx = ev.clientX - rollerLastX;
-                rollerLastX = ev.clientX;
+                const vertical = document.body.classList.contains('phone-layout');
+                const dx = (vertical ? ev.clientY : ev.clientX) - rollerLastX;
+                rollerLastX = document.body.classList.contains('phone-layout') ? ev.clientY : ev.clientX;
                 if (Math.abs(dx) < 0.01)
                     return;
                 setActiveShot(shotNo);
                 rotateAimMicro((dx / 12) * (0.15 * Math.PI / 180));
                 rollerVisual = (rollerVisual + dx) % 12;
-                ticks.style.transform = 'translateX(' + rollerVisual + 'px)';
+                ticks.style.transform = (vertical ? 'translateY(' : 'translateX(') + rollerVisual + 'px)';
                 ev.preventDefault();
             });
             const endRoller = () => {
@@ -7760,6 +8182,8 @@
         imageReady: false,
         sourceName:'Pool table photo', archiveId:null, imageVersion:0, archiveBusy:false,
         corners: [],
+        orientation:'auto',
+        regionEnd: 'full', regionDiamonds: 4, customBounds: {x0:.25,x1:.75,y0:0,y1:1}, refinements: [], refining: false, pendingDiamond: null, calibrationCache: null,
         detections: [],
         addMissedMode: false,
         displayScaleX: 1,
@@ -8892,7 +9316,7 @@
                 if(box.x2-box.x1<4||box.y2-box.y1<4)continue;
                 const center={x:(box.x1+box.x2)/2,y:(box.y1+box.y2)/2};
                 const q=imagePointToNormalized(center);
-                if(!q||q.x<.004||q.x>.996||q.y<.010||q.y>.990)continue;
+                if(!q||q.x<pvRegion().x0+.004||q.x>pvRegion().x1-.004||q.y<(pvRegion().y0??0)+.010||q.y>(pvRegion().y1??1)-.010)continue;
                 raw.push({...box,detClass:best,detConfidence:bestScore,detScores:scores,nx:q.x,ny:q.y,ttaTurn:turn});
             }
             await new Promise(r=>setTimeout(r,0));
@@ -8902,6 +9326,7 @@
         const rawCollapse=pvCollapseSamePhysicalBalls(candidates,.80);
         photoVision.duplicatesMerged=(photoVision.duplicatesMerged||0)+rawCollapse.merged;
         candidates=rawCollapse.items.sort((a,b)=>b.detConfidence-a.detConfidence).slice(0,20);
+        candidates=candidates.filter(d=>!pvIsTableSpot(d.nx,d.ny));
         const identified=[];
         for(let i=0;i<candidates.length;i++){
             pvStatus('AI identity check '+(i+1)+' / '+candidates.length+'…');
@@ -8916,6 +9341,235 @@
         return identified.slice(0,16);
     }
 
+    const photoCal=window.BilliardsPhotoCalibration;
+    function pvRegion(){return photoCal.region(photoVision.regionEnd,photoVision.regionDiamonds,photoVision.customBounds);}
+    function pvCalibrationReferences(){return photoCal.diamonds().concat(photoCal.pockets.map((p,i)=>({...p,id:'pocket-'+(i+1),label:'P'+(i+1)})));}
+    function pvAnchorPoints(){return photoCal.anchors(pvRegion());}
+    function pvAnchorLabel(i){
+        const p=pvAnchorPoints()[i];
+        const pocket=photoCal.pockets.findIndex(q=>q.x===p.x&&q.y===p.y);
+        return pocket>=0?'P'+(pocket+1)+(p.x===.5?' · cushion line at middle pocket':' · inside corner'):'grid intersection · '+(p.x*8)+' length diamonds / '+(p.y*4)+' width diamonds';
+    }
+    function pvCalibration(){
+        if(photoVision.corners.length!==4||!photoCal.validQuad(photoVision.corners))return null;
+        const key=JSON.stringify([pvRegion(),photoVision.corners,photoVision.refinements]);
+        if(photoVision.calibrationCache?.key===key)return photoVision.calibrationCache.value;
+        const src=pvAnchorPoints().concat(photoVision.refinements.map(r=>r.table)),dst=photoVision.corners.concat(photoVision.refinements.map(r=>r.image));
+        const value=photoCal.fit(src,dst);
+        // Reject a projective horizon crossing the selected playing surface.
+        if(value){const z=pvAnchorPoints().map(p=>value.H[6]*p.x+value.H[7]*p.y+value.H[8]);if(!z.every(v=>v>1e-9)&&!z.every(v=>v< -1e-9))return null;}
+        photoVision.calibrationCache={key,value};
+        return value;
+    }
+    function pvCalibrationChanged(){
+        photoVision.detections=[];photoVision.hoverPoint=null;photoVision.calibrationCache=null;
+        const valid=!!pvCalibration();
+        $('photoAnalyzeNow').disabled=!valid;$('photoAddMissed').disabled=!valid;
+        renderPhotoDetectionList();renderPhotoAnalyzer();pvUpdateCalibrationDiagram();
+    }
+    function pvCalibrationPrompt(){
+        if(!photoVision.imageReady)return 'Choose an image, then use Find / Add Corners to match the numbered table-diagram points.';
+        if(photoVision.corners.length<4)return 'Tap '+pvAnchorLabel(photoVision.corners.length)+' in the image ('+(photoVision.corners.length+1)+' of 4). Match the highlighted diagram point, not the screen corner. The first two points follow one long rail.';
+        if(!pvCalibration())return 'The four points must form a table section without crossing. Drag a marker or reset the points.';
+        if(photoVision.refining){
+            const target=pvCalibrationReferences().find(d=>d.id===photoVision.pendingDiamond);
+            return target?'Tap the inside cushion edge aligned with '+target.label+' in the photograph.':'Select a visible pocket or diamond on the diagram, then tap its matching inside cushion reference in the photo.';
+        }
+        return 'Outline complete. Analyze Balls, or optionally Refine Alignment with visible diamonds.';
+    }
+    function pvIsTableSpot(nx,ny,rackCheck=false){
+        const filter=window.BilliardsTableSpots,fit=pvCalibration();
+        if(!filter||!fit||!filter.nearSpot(nx,ny))return false;
+        // A small rectified patch from native pixels measures physical size even
+        // when the photo is oblique, rotated, or shows only part of the table.
+        const size=96,dx=2*S.ballR/S.tableL,dy=2*S.ballR/S.tableW;
+        const corners=[[-1,-1],[1,-1],[1,1],[-1,1]].map(([x,y])=>applyHomography(fit.H,nx+x*dx,ny+y*dy));
+        if(corners.some(p=>!Number.isFinite(p.x)||!Number.isFinite(p.y)))return false;
+        const canvas=photoVision.analysisCanvas;
+        const x0=Math.max(0,Math.floor(Math.min(...corners.map(p=>p.x)))-1),y0=Math.max(0,Math.floor(Math.min(...corners.map(p=>p.y)))-1);
+        const x1=Math.min(canvas.width,Math.ceil(Math.max(...corners.map(p=>p.x)))+2),y1=Math.min(canvas.height,Math.ceil(Math.max(...corners.map(p=>p.y)))+2);
+        // Do not guess from a clipped or under-resolved marking.
+        if(x1-x0<8||y1-y0<8||x1<=x0||y1<=y0)return false;
+        const src=photoVision.analysisCtx.getImageData(x0,y0,x1-x0,y1-y0),data=new Uint8ClampedArray(size*size*4);
+        for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+            const p=applyHomography(fit.H,nx+(2*x/(size-1)-1)*dx,ny+(2*y/(size-1)-1)*dy);
+            if(p.x<x0||p.y<y0||p.x>=x1-1||p.y>=y1-1)return false;
+            const sx=p.x-x0,sy=p.y-y0,ix=Math.floor(sx),iy=Math.floor(sy),fx=sx-ix,fy=sy-iy,oi=(y*size+x)*4;
+            for(let k=0;k<3;k++){
+                const at=(xx,yy)=>src.data[(yy*src.width+xx)*4+k];
+                data[oi+k]=(at(ix,iy)*(1-fx)+at(ix+1,iy)*fx)*(1-fy)+(at(ix,iy+1)*(1-fx)+at(ix+1,iy+1)*fx)*fy;
+            }
+            data[oi+3]=255;
+        }
+        return (rackCheck?filter.inspectRackMark:filter.inspect)({width:size,height:size,data},size/2).isSpot;
+    }
+    function pvCheckFootSpot(){
+        const hint=$('photoFootSpotHint'),filter=window.BilliardsTableSpots,fit=pvCalibration();
+        if(!hint)return;
+        if(!photoVision.imageReady||!fit){hint.textContent='Foot spot check: set all four corners first.';return;}
+        if(!filter?.inspectRackMark)return;
+        const region=pvRegion(),key=JSON.stringify([photoVision.imageVersion,fit.H,region]);
+        if(photoVision.footSpotCheck?.key===key){hint.textContent=photoVision.footSpotCheck.message;return;}
+        const check=x=>{
+            const dx=2*S.ballR/S.tableL,dy=2*S.ballR/S.tableW;
+            if(x-dx<region.x0||x+dx>region.x1||.5-dy<(region.y0??0)||.5+dy>(region.y1??1))return null;
+            for(const ox of [0,-.012,.012])for(const oy of [0,-.024,.024])if(pvIsTableSpot(x+ox,.5+oy,true))return true;
+            return false;
+        };
+        const foot=check(.75),head=check(.25),message=filter.rackCheckMessage(foot,head);
+        photoVision.footSpotCheck={key,foot,head,message};hint.textContent=message;
+    }
+    function pvIsEmptyCloth(nx,ny){
+        const filter=window.BilliardsClothFilter,fit=pvCalibration();
+        if(!filter||!fit)return false;
+        // A small rectified patch from native pixels measures physical size even
+        // when the photo is oblique, rotated, or shows only part of the table.
+        const size=96,dx=2*S.ballR/S.tableL,dy=2*S.ballR/S.tableW;
+        const corners=[[-1,-1],[1,-1],[1,1],[-1,1]].map(([x,y])=>applyHomography(fit.H,nx+x*dx,ny+y*dy));
+        if(corners.some(p=>!Number.isFinite(p.x)||!Number.isFinite(p.y)))return false;
+        const canvas=photoVision.analysisCanvas;
+        const x0=Math.max(0,Math.floor(Math.min(...corners.map(p=>p.x)))-1),y0=Math.max(0,Math.floor(Math.min(...corners.map(p=>p.y)))-1);
+        const x1=Math.min(canvas.width,Math.ceil(Math.max(...corners.map(p=>p.x)))+2),y1=Math.min(canvas.height,Math.ceil(Math.max(...corners.map(p=>p.y)))+2);
+        // Do not guess from a clipped or under-resolved marking.
+        if(x1-x0<16||y1-y0<16||x1<=x0||y1<=y0)return false;
+        const src=photoVision.analysisCtx.getImageData(x0,y0,x1-x0,y1-y0),data=new Uint8ClampedArray(size*size*4);
+        for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+            const p=applyHomography(fit.H,nx+(2*x/(size-1)-1)*dx,ny+(2*y/(size-1)-1)*dy);
+            if(p.x<x0||p.y<y0||p.x>=x1-1||p.y>=y1-1)return false;
+            const sx=p.x-x0,sy=p.y-y0,ix=Math.floor(sx),iy=Math.floor(sy),fx=sx-ix,fy=sy-iy,oi=(y*size+x)*4;
+            for(let k=0;k<3;k++){
+                const at=(xx,yy)=>src.data[(yy*src.width+xx)*4+k];
+                data[oi+k]=(at(ix,iy)*(1-fx)+at(ix+1,iy)*fx)*(1-fy)+(at(ix,iy+1)*(1-fx)+at(ix+1,iy+1)*fx)*fy;
+            }
+            data[oi+3]=255;
+        }
+        return filter.inspect({width:size,height:size,data},size/2).isCloth;
+    }
+    function pvImageOrientation(){return photoVision.orientation&&photoVision.orientation!=='auto'?photoVision.orientation:photoVision.imageReady?(photoVision.regionEnd==='full'?photoCal.estimateOrientation(photoVision.corners,photoVision.sourceCanvas.width,photoVision.sourceCanvas.height):photoCal.headDirection(photoVision.corners,photoVision.sourceCanvas.width,photoVision.sourceCanvas.height)):'top';}
+    function pvSetCalibrationVisible(open){
+        $('photoCalibrationPanel').hidden=!open;$('photoFineTune').setAttribute('aria-expanded',String(open));
+        $('photoFineTune').title=open?'Close Custom Table Layouts':'Open Custom Table Layouts';$('photoReviewPane').classList.toggle('calibrating',open);
+        if(!open){photoVision.refining=false;photoVision.pendingDiamond=null;}
+    }
+    function pvChangeOrientation(value){
+        photoVision.orientation=value;const direction=pvImageOrientation();
+        if(photoVision.corners.length===4){photoVision.corners=photoCal.cornersForHead(photoVision.corners,direction);photoVision.autoRailRawCorners=null;}
+        else if(photoVision.corners.length){photoVision.corners=[];}
+        photoVision.refinements=[];photoVision.pendingDiamond=null;photoVision.refining=false;
+        pvCalibrationChanged();pvStatus('Head / kitchen end set to '+direction+'. Check the numbered references; previous ball analysis has been cleared.');
+    }
+    function pvUpdateCalibrationDiagram(){
+        const svg=$('photoCalibrationDiagram');if(!svg)return;
+        pvCheckFootSpot();
+        const direction=pvImageOrientation();$('photoOrientation').value=photoVision.orientation||'auto';
+        $('photoOrientationHint').textContent=!photoVision.imageReady?'Portrait reference view. Choose an image to estimate its orientation.':(photoVision.orientation==='auto'?'Estimated ': 'Selected ')+(direction==='top'||direction==='bottom'?'portrait':'landscape')+' — head / kitchen at '+direction+'. Confirm the real table ends; use Flip Ends if reversed.';
+        const r=pvRegion(),px=x=>48+x*320,py=y=>36+y*160;
+        const size=Math.round((r.x1-r.x0)*8),names={2:'Quarter table',4:'Half table',6:'Three-quarter table',8:'Full table'};
+        $('photoRegion').value=photoVision.regionEnd;
+        $('photoRegionExtent').disabled=['full','custom'].includes(photoVision.regionEnd);
+        $('photoCustomBounds').hidden=photoVision.regionEnd!=='custom';
+        if(photoVision.regionEnd==='custom')for(const key of ['x0','x1','y0','y1'])$('photoBound'+key).value=String(r[key]*(key[0]==='x'?16:8));
+        $('photoRegionExtent').value=String(size);
+        $('photoRegionExtentLabel').textContent=photoVision.regionEnd==='custom'?'Custom · '+Math.round((r.x1-r.x0)*(r.y1-r.y0)*100)+'% of table':names[size]||size+' / 8 diamonds';
+        $('photoRefineAlignment').disabled=photoVision.corners.length!==4||!pvCalibration();
+        $('photoRefineAlignment').textContent=photoVision.refining?'Done Refining':'Refine Alignment';
+        $('photoRefineAlignment').setAttribute('aria-pressed',String(photoVision.refining));
+        $('photoRefineClear').hidden=!photoVision.refinements.length;
+        const fit=pvCalibration();
+        $('photoCalibrationHint').textContent=pvCalibrationPrompt()+(photoVision.refinements.length?' '+photoVision.refinements.length+' references marked · fit '+(fit?fit.rms.toFixed(1):'—')+' image px.':'');
+        let s='<rect x="48" y="36" width="320" height="160" rx="3" fill="#183b40" stroke="#64828a"/>';
+        s+='<rect x="48" y="36" width="80" height="160" fill="#fff" opacity=".045"/>';
+        for(let i=1;i<8;i++)s+='<path d="M'+px(i/8)+' 36V196" stroke="#fff" opacity=".08"/>';
+        for(let j=1;j<4;j++)s+='<path d="M48 '+py(j/4)+'H368" stroke="#fff" opacity=".08"/>';
+        s+='<path d="M288 116L317 87L317 145Z" stroke="#fff" fill="none" opacity=".10"/>';
+        s+='<rect x="'+px(r.x0)+'" y="'+py(r.y0??0)+'" width="'+((r.x1-r.x0)*320)+'" height="'+((r.y1??1)-(r.y0??0))*160+'" fill="#58dbb1" fill-opacity=".09" stroke="#58dbb1" stroke-width="2"/>';
+        s+='<text x="88" y="100" text-anchor="middle">HEAD / BREAK</text><text x="88" y="115" text-anchor="middle">KITCHEN</text><text x="328" y="100" text-anchor="middle">FOOT / RACK</text>';
+        [['R1',128,15],['R2',288,15],['R3',392,116],['R4',288,222],['R5',128,222],['R6',24,116]].forEach(([t,x,y])=>{s+='<text data-rail="'+t.slice(1)+'" x="'+x+'" y="'+y+'" text-anchor="middle">'+t+'</text>';});
+        photoCal.pockets.forEach((p,i)=>{s+='<circle data-pocket="'+(i+1)+'" cx="'+px(p.x)+'" cy="'+py(p.y)+'" r="8" fill="#070c0e" stroke="#89a4aa"/><text data-pocket="'+(i+1)+'" x="'+px(p.x)+'" y="'+(py(p.y)+(p.y?23:-12))+'" text-anchor="middle">P'+(i+1)+'</text>';});
+        pvCalibrationReferences().forEach(d=>{
+            const available=d.x>=r.x0&&d.x<=r.x1&&d.y>=(r.y0??0)&&d.y<=(r.y1??1),marked=photoVision.refinements.some(q=>q.id===d.id),pending=d.id===photoVision.pendingDiamond;
+            const x=px(d.x)+(d.x===0?-12:d.x===1?12:0),y=py(d.y)+(d.y===0?-12:d.y===1?12:0);
+            const active=photoVision.refining&&available;
+            s+='<g class="calDiamond" data-diamond="'+d.id+'" role="button" tabindex="'+(active?'0':'-1')+'" aria-label="'+d.label+(marked?' marked':'')+'" aria-disabled="'+!active+'"><circle cx="'+x+'" cy="'+y+'" r="10" fill="transparent"/><path d="M'+x+' '+(y-4)+'l4 4-4 4-4-4Z" fill="'+(pending?'#ffd86b':marked?'#6fff58':'#c1d3d7')+'" opacity="'+(available?'1':'.22')+'"/></g>';
+        });
+        pvAnchorPoints().forEach((p,i)=>{
+            const done=i<photoVision.corners.length,active=i===photoVision.corners.length;
+            s+='<circle cx="'+px(p.x)+'" cy="'+py(p.y)+'" r="'+(active?10:7)+'" fill="'+(active?'#ffd86b':done?'#6fff58':'#658089')+'"/><text x="'+px(p.x)+'" y="'+(py(p.y)+4)+'" text-anchor="middle" style="fill:#071013;font-weight:900">'+(i+1)+'</text>';
+        });
+        if(photoVision.regionEnd==='custom')for(const key of ['x0','x1','y0','y1']){
+            const vertical=key[0]==='x',v=r[key],x=vertical?px(v):208,y=vertical?116:py(v);
+            const path=vertical?'M'+px(v)+' 36V196':'M48 '+py(v)+'H368';
+            s+='<g data-boundary="'+key+'" role="slider" tabindex="0" aria-label="Custom '+key+' boundary" aria-valuemin="0" aria-valuemax="'+(vertical?16:8)+'" aria-valuenow="'+v*(vertical?16:8)+'"><path d="'+path+'" stroke="transparent" stroke-width="16"/><path d="'+path+'" stroke="#58dbb1" stroke-width="2"/><circle cx="'+x+'" cy="'+y+'" r="6" fill="#58dbb1"/></g>';
+        }
+        const oriented=photoCal.orientDiagram(s,direction);svg.setAttribute('viewBox',oriented.viewBox);svg.innerHTML=oriented.markup;
+    }
+    function pvSelectDiamond(id){
+        if(!photoVision.refining)return;
+        const d=pvCalibrationReferences().find(d=>d.id===id),r=pvRegion();
+        if(!d||d.x<r.x0||d.x>r.x1||d.y<(r.y0??0)||d.y>(r.y1??1))return;
+        photoVision.pendingDiamond=id;pvUpdateCalibrationDiagram();pvStatus(pvCalibrationPrompt());
+    }
+    function pvSetupCalibration(){
+        $('photoFineTune').addEventListener('click',()=>{
+            const panel=$('photoCalibrationPanel');panel.hidden=!panel.hidden;
+            $('photoFineTune').setAttribute('aria-expanded',String(!panel.hidden));
+            $('photoReviewPane').classList.toggle('calibrating',!panel.hidden);
+            $('photoFineTune').title=panel.hidden?'Open Custom Table Layouts':'Close Custom Table Layouts';
+            if(panel.hidden){photoVision.refining=false;photoVision.pendingDiamond=null;renderPhotoAnalyzer();}
+            pvUpdateCalibrationDiagram();
+            if(panel.hidden)pvStatus(pvCalibrationPrompt());
+        });
+        function changeRegion(){
+            photoVision.regionEnd=$('photoRegion').value;
+            photoVision.regionDiamonds=Number($('photoRegionExtent').value)||4;
+            pvResetDetectionsAndCorners();renderPhotoAnalyzer();pvStatus(pvCalibrationPrompt());
+        }
+        $('photoFindCorners').addEventListener('click',()=>{
+            if(!photoVision.imageReady){pvStatus('Choose an image first, then select Find / Add Corners.');return;}
+            photoVision.refining=false;photoVision.pendingDiamond=null;photoVision.addMissedMode=false;
+            $('photoAddMissed').classList.remove('activeToggle');$('photoAddMissed').textContent='Add Missed Ball';
+            $('photoCalibrationPanel').hidden=false;$('photoReviewPane').classList.add('calibrating');
+            $('photoFineTune').setAttribute('aria-expanded','true');$('photoFineTune').title='Close Custom Table Layouts';
+            pvUpdateCalibrationDiagram();renderPhotoAnalyzer();
+            pvStatus(photoVision.corners.length===4?'Four corners are already marked. Drag a corner to adjust it, or use Reset Corners to start again.':pvCalibrationPrompt());
+        });
+        $('photoOrientation').addEventListener('change',()=>pvChangeOrientation($('photoOrientation').value));
+        $('photoFlipEnds').addEventListener('click',()=>pvChangeOrientation({top:'bottom',bottom:'top',left:'right',right:'left'}[pvImageOrientation()]));
+        $('photoRegion').addEventListener('change',()=>{if($('photoRegion').value!=='full'&&photoVision.regionEnd==='full')$('photoRegionExtent').value='4';changeRegion();});
+        $('photoRegionExtent').addEventListener('input',changeRegion);
+        $('photoRefineAlignment').addEventListener('click',()=>{
+            photoVision.refining=!photoVision.refining;photoVision.pendingDiamond=null;photoVision.addMissedMode=false;
+            $('photoAddMissed').classList.remove('activeToggle');$('photoAddMissed').textContent='Add Missed Ball';
+            pvUpdateCalibrationDiagram();pvStatus(pvCalibrationPrompt());renderPhotoAnalyzer();
+        });
+        $('photoRefineClear').addEventListener('click',()=>{photoVision.refinements=[];photoVision.pendingDiamond=null;pvCalibrationChanged();pvStatus(pvCalibrationPrompt());});
+        $('photoCalibrationDiagram').addEventListener('click',e=>{const t=e.target.closest('[data-diamond]');if(t)pvSelectDiamond(t.dataset.diamond);});
+        $('photoCalibrationDiagram').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const t=e.target.closest('[data-diamond]');if(t){e.preventDefault();pvSelectDiamond(t.dataset.diamond);}}});
+        function setBoundary(key,value){
+            const r={...pvRegion()},n=key[0]==='x'?16:8,other=key[0]+(key[1]==='0'?'1':'0');
+            r[key]=key[1]==='0'?Math.min(value,r[other]-1/n):Math.max(value,r[other]+1/n);
+            photoVision.customBounds=photoCal.customRegion(r);pvResetDetectionsAndCorners();renderPhotoAnalyzer();pvStatus(pvCalibrationPrompt());
+        }
+        for(const key of ['x0','x1','y0','y1'])$('photoBound'+key).addEventListener('input',()=>setBoundary(key,Number($('photoBound'+key).value)/(key[0]==='x'?16:8)));
+        const diagram=$('photoCalibrationDiagram');let dragging=null;
+        diagram.addEventListener('pointerdown',e=>{const t=e.target.closest('[data-boundary]');if(!t)return;e.preventDefault();dragging=t.dataset.boundary;diagram.setPointerCapture(e.pointerId);});
+        diagram.addEventListener('pointermove',e=>{if(!dragging)return;const point=diagram.createSVGPoint();point.x=e.clientX;point.y=e.clientY;const local=point.matrixTransform(document.getElementById('photoCalibrationGeometry').getScreenCTM().inverse()),n=dragging[0]==='x'?16:8,v=dragging[0]==='x'?(local.x-48)/320:(local.y-36)/160;setBoundary(dragging,Math.round(v*n)/n);});
+        diagram.addEventListener('pointerup',()=>{dragging=null;});diagram.addEventListener('pointercancel',()=>{dragging=null;});
+        diagram.addEventListener('keydown',e=>{const t=e.target.closest('[data-boundary]');if(t&&['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();const key=t.dataset.boundary,dx=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0,dy=e.key==='ArrowDown'?1:e.key==='ArrowUp'?-1:0,dir=pvImageOrientation(),local=dir==='top'?[dy,-dx]:dir==='bottom'?[-dy,dx]:dir==='right'?[-dx,-dy]:[dx,dy],delta=local[key[0]==='x'?0:1];if(delta)setBoundary(key,pvRegion()[key]+delta/(key[0]==='x'?16:8));}});
+        pvUpdateCalibrationDiagram();
+    }
+    function pvDrawPhotoReferences(x){
+        const cal=pvCalibration();if(!cal)return;
+        x.save();x.beginPath();
+        photoVision.corners.forEach((p,i)=>{const q=pvSourceToCanvas(p);i?x.lineTo(q.x,q.y):x.moveTo(q.x,q.y);});x.closePath();x.clip();
+        photoCal.references(x,p=>pvSourceToCanvas(photoCal.apply(cal.H,p)),.065);
+        x.restore();
+        x.save();x.font='700 11px Segoe UI';x.textAlign='center';x.textBaseline='middle';
+        photoVision.refinements.forEach(r=>{const q=pvSourceToCanvas(r.image);x.fillStyle='#071013';x.strokeStyle='#ffd86b';x.lineWidth=2;x.beginPath();x.arc(q.x,q.y,7,0,Math.PI*2);x.fill();x.stroke();});
+        if(photoVision.refining&&photoVision.pendingDiamond){const d=pvCalibrationReferences().find(d=>d.id===photoVision.pendingDiamond),q=pvSourceToCanvas(photoCal.apply(cal.H,d));x.strokeStyle='#ffd86b';x.setLineDash([3,3]);x.beginPath();x.arc(q.x,q.y,14,0,Math.PI*2);x.stroke();}
+        x.restore();
+    }
+
     function pvStatus(msg) {
         if ($('photoAnalyzerStatus')) $('photoAnalyzerStatus').textContent = msg;
     }
@@ -8923,6 +9577,7 @@
         $('photoAnalyzerModal').classList.add('open');
         $('photoAnalyzerModal').setAttribute('aria-hidden','false');
         pvRefreshControls();
+        pvUpdateCalibrationDiagram();
         renderPhotoAnalyzer();
         pvRefreshArchiveUI();
         // Warm the local models while the user chooses a photo and aligns corners.
@@ -8949,19 +9604,23 @@
     }
     function pvResetDetectionsAndCorners() {
         photoVision.corners=[];
+        photoVision.refinements=[];photoVision.refining=false;photoVision.pendingDiamond=null;photoVision.calibrationCache=null;
         photoVision.detections=[];
         photoVision.addMissedMode=false;
         photoVision.hoverPoint=null;
         photoVision.cornerDragIndex=-1;
         renderPhotoDetectionList();
-        $('photoAnalyzeNow').disabled=!photoVision.imageReady;
-        $('photoAddMissed').disabled=!photoVision.imageReady;
+        $('photoAnalyzeNow').disabled=true;
+        $('photoAddMissed').disabled=true;
+        pvUpdateCalibrationDiagram();
     }
     function pvImportScale(w,h){
         w=Math.max(1,Number(w)||1);
         h=Math.max(1,Number(h)||1);
-        const maxSide=2560;
-        const maxPixels=4200000;
+        // Keep ordinary camera photos at native resolution, independently of
+        // the smaller preview. Bound unusually large imports for mobile memory.
+        const maxSide=8192;
+        const maxPixels=16000000;
         return Math.min(1, maxSide/Math.max(w,h), Math.sqrt(maxPixels/(w*h)));
     }
     function pvSharpenCanvas(canvas,ctx,amount=.38){
@@ -9033,22 +9692,36 @@
             actx.restore();
         }
 
-        const outW=photoVision.analysisCanvas.width,outH=photoVision.analysisCanvas.height;
-        photoVision.sourceCanvas.width=outW;
-        photoVision.sourceCanvas.height=outH;
-        photoVision.sourceCtx.setTransform(1,0,0,1,0,0);
-        photoVision.sourceCtx.clearRect(0,0,outW,outH);
-        photoVision.sourceCtx.imageSmoothingEnabled=false;
-        photoVision.sourceCtx.drawImage(photoVision.analysisCanvas,0,0);
-        if(photoVision.sharpen) pvSharpenCanvas(photoVision.sourceCanvas, photoVision.sourceCtx, .44);
+        // Share the unmodified analysis pixels for display. Only allocate a
+        // separate full-size copy when the optional sharpening is enabled.
+        if(!photoVision.sharpenCanvas){
+            photoVision.sharpenCanvas=photoVision.sourceCanvas;
+            photoVision.sharpenCtx=photoVision.sourceCtx;
+        }
+        if(photoVision.sharpen){
+            const sc=photoVision.sharpenCanvas,sctx=photoVision.sharpenCtx;
+            sc.width=photoVision.analysisCanvas.width;
+            sc.height=photoVision.analysisCanvas.height;
+            sctx.setTransform(1,0,0,1,0,0);
+            sctx.imageSmoothingEnabled=false;
+            sctx.drawImage(photoVision.analysisCanvas,0,0);
+            pvSharpenCanvas(sc,sctx,.44);
+            photoVision.sourceCanvas=sc;
+            photoVision.sourceCtx=sctx;
+        }else{
+            photoVision.sharpenCanvas.width=photoVision.sharpenCanvas.height=1;
+            photoVision.sourceCanvas=photoVision.analysisCanvas;
+            photoVision.sourceCtx=photoVision.analysisCtx;
+        }
         photoVision.imageReady=true;
         pvRefreshControls();
     }
     function pvResetAfterImageChange(msg){
+        photoVision.orientation='auto';
         pvResetView();
         pvResetDetectionsAndCorners();
         renderPhotoAnalyzer();
-        pvStatus(msg || 'Photo ready. Tap four inside playing-surface corners: top-left → top-right → bottom-right → bottom-left.');
+        pvStatus(pvCalibrationPrompt());
     }
     function pvRotatePointCW(p,oldW,oldH){
         return {x:oldH-p.y,y:p.x};
@@ -9126,7 +9799,7 @@
     }
 
     function pvAutoFindRailCorners(){
-        if(!photoVision.imageReady){pvStatus('Choose a photo or video frame first.');return false;}
+        if(!photoVision.imageReady){pvStatus('Choose an image first.');return false;}
         const canvas=photoVision.analysisCanvas,ctx=photoVision.analysisCtx,w=canvas.width,h=canvas.height;
         if(!w||!h)return false;
         const img=ctx.getImageData(0,0,w,h),d=img.data;
@@ -9160,19 +9833,20 @@
         }
         const T=pvFitLineXY(top,true),B=pvFitLineXY(bottom,true),L=pvFitLineXY(left,false),R=pvFitLineXY(right,false);
         const tl=pvIntersectRailLines(T,L),tr=pvIntersectRailLines(T,R),br=pvIntersectRailLines(B,R),bl=pvIntersectRailLines(B,L);
-        const corners=[tl,tr,br,bl];
+        let corners=[tl,tr,br,bl];
         if(corners.some(p=>!p||!Number.isFinite(p.x)||!Number.isFinite(p.y)||p.x<0||p.y<0||p.x>w||p.y>h)){
-            pvStatus('AUTO RAIL CORNERS could not confidently find all four rail intersections. Use the large white crosshairs manually.');
+            pvStatus('Corner Sensing could not confidently find all four rail intersections. Use the large white crosshairs manually.');
             return false;
         }
         const area=Math.abs(corners.reduce((s,p,i)=>{const q=corners[(i+1)%4];return s+p.x*q.y-q.x*p.y;},0))/2;
-        if(area<w*h*.25){pvStatus('AUTO RAIL CORNERS found an implausibly small table. Use manual crosshairs for this image.');return false;}
+        if(area<w*h*.25){pvStatus('Corner Sensing found an implausibly small table. Use manual crosshairs for this image.');return false;}
+        corners=photoVision.orientation&&photoVision.orientation!=='auto'?photoCal.cornersForHead(corners,photoVision.orientation):photoCal.orderDetectedCorners(corners);
         photoVision.autoRailRawCorners=corners.map(p=>({x:p.x,y:p.y}));
         photoVision.corners=pvInsetQuad(photoVision.autoRailRawCorners,photoVision.railInset||0);
         photoVision.detections=[];
         renderPhotoDetectionList();renderPhotoAnalyzer();
         $('photoAnalyzeNow').disabled=false;$('photoAddMissed').disabled=false;
-        pvStatus('Bed-cloth boundary fitted. Use RAIL INSET to nudge all four rail noses together, or drag a white crosshair, then ANALYZE BALLS.');
+        pvStatus('Corner Sensing estimated the playing-surface boundary. Check its numbered points against the table diagram, including the head and foot ends. Drag a marker to correct it, or use Reset Corners and Find / Add Corners.');
         return true;
     }
 
@@ -9269,7 +9943,74 @@
         return [{family:'assigned',items:list,focused:false,score:0,unresolved:0,warning:0}];
     }
 
+    function renderPhotoBallSummary(){
+        const strip=$('photoBallStrip'),count=$('photoBallCount');
+        if(!strip||!count)return;
+        const assigned=photoVision.detections.filter(d=>d.id!=='ignore'&&/^(?:[0-9]|1[0-5])$/.test(String(d.id)));
+        const total=photoVision.detections.length,unassigned=total-assigned.length;
+        count.textContent=total+' detected · '+assigned.length+' assigned'+(unassigned?' · '+unassigned+' to review':'');
+        strip.replaceChildren();
+        if(!total)return;
+        const colors=['#f4f4ef','#f4d03f','#2457c5','#c83232','#7040a8','#e67e22','#278a48','#7b2635','#111317'];
+        const solids=Array.from({length:8},(_,i)=>photoVision.detections.find(d=>String(d.id)===String(i+1))||null);
+        const stripes=Array.from({length:7},(_,i)=>photoVision.detections.find(d=>String(d.id)===String(i+9))||null);
+        const questions=photoVision.detections.filter(d=>!assigned.includes(d));
+        const cue=photoVision.detections.find(d=>String(d.id)==='0');
+        const slots=solids.concat(stripes,questions,cue?[cue]:[]);
+        for(let i=0;i<slots.length;i++){
+            const d=slots[i],row=i<8?1:i<15?2:3+Math.floor((i-15)/8),column=i<8?i+1:i<15?i-7:1+(i-15)%8;
+            if(!d){const blank=document.createElement('span');blank.className='photoSummaryBall empty';blank.style.gridRow=String(row);blank.style.gridColumn=String(column);blank.setAttribute('aria-hidden','true');strip.appendChild(blank);continue;}
+            const unassigned=!assigned.includes(d),n=Number(d.id),base=n>8?n-8:n,ball=document.createElement('button');
+            const key=pvReviewKey(d);
+            ball.type='button';ball.dataset.reviewKey=key;
+            ball.className='photoSummaryBall'+(unassigned?' unassigned':n===0?' cue':n>8?' stripe':'');
+            if(n!==0||unassigned){ball.style.gridRow=String(row);ball.style.gridColumn=String(column);}
+            ball.style.setProperty('--ball-color',unassigned?'#665323':colors[base]);
+            ball.style.color=unassigned?'#fff':n>8||[0,1,5].includes(n)?'#101317':'#fff';
+            ball.textContent=unassigned?'?':n===0?'C':String(n);
+            ball.title=unassigned?'Unassigned ball '+(photoVision.detections.indexOf(d)+1)+' — review':n===0?'Cue ball':'Ball '+n;
+            ball.setAttribute('aria-label',ball.title+' — show in photo and review list');
+            ball.setAttribute('aria-pressed',String((photoVision.reviewFocusKeys||[]).includes(key)));
+            ball.onclick=()=>pvFocusPhotoDetection(d);
+            strip.appendChild(ball);
+        }
+    }
+    function pvPhotoBody(d){
+        const key=[d.nx,d.ny,photoVision.imageVersion,JSON.stringify(pvCalibration()?.H)].join(',');
+        if(d.photoBodyKey===key)return d.photoBody;
+        d.photoBodyKey=key;
+        const H=pvCalibration()?.H,source=photoVision.analysisCanvas;
+        if(!H||!source?.width||!window.BilliardsBallCrops)return null;
+        const p=applyHomography(H,d.nx,d.ny),a=applyHomography(H,d.nx+S.ballR/S.tableL,d.ny),b=applyHomography(H,d.nx,d.ny+S.ballR/S.tableW);
+        const radius=Math.max(3,Math.hypot(a.x-p.x,a.y-p.y),Math.hypot(b.x-p.x,b.y-p.y));
+        const crop=pvSquareCropCanvas(source,{x1:p.x-radius,y1:p.y-radius,x2:p.x+radius,y2:p.y+radius},1,160);
+        const body=window.BilliardsBallCrops.inspect(crop.getContext('2d').getImageData(0,0,160,160));
+        // pvSquareCropCanvas uses a square expanded by padding on each side.
+        const side=radius*6,scale=side/160;
+        d.photoBody=body?{cx:p.x-side/2+body.cx*scale,cy:p.y-side/2+body.cy*scale,r:body.r*scale,centered:body.centered}:null;
+        return d.photoBody;
+    }
+    function pvFilterDuplicateReviews(list){
+        const assigned=list.filter(d=>String(d.id)!=='ignore').map(pvPhotoBody).filter(Boolean);
+        return list.filter(d=>d.manual||String(d.id)!=='ignore'||(!pvIsEmptyCloth(d.nx,d.ny)&&!window.BilliardsBallCrops?.duplicate(pvPhotoBody(d),assigned)));
+    }
+    function pvEnsureDetectionThumb(d){
+        if(d.photoThumbNormalized||!photoVision.imageReady)return;
+        if(d.thumb&&!window.BilliardsBallCrops)return;
+        const H=pvCalibration()?.H,source=photoVision.sourceCanvas;
+        if(!H||!source?.width)return;
+        const p=applyHomography(H,d.nx,d.ny);
+        const a=applyHomography(H,d.nx+S.ballR/S.tableL,d.ny);
+        const b=applyHomography(H,d.nx,d.ny+S.ballR/S.tableW);
+        const radius=Math.max(3,Math.hypot(a.x-p.x,a.y-p.y),Math.hypot(b.x-p.x,b.y-p.y));
+        const body=window.BilliardsBallCrops?pvPhotoBody(d):null;
+        const center=body?.centered?{x:body.cx,y:body.cy}:p,r=body?.centered?body.r:radius;
+        const crop=pvSquareCropCanvas(source,{x1:center.x-r,y1:center.y-r,x2:center.x+r,y2:center.y+r},.12,128);
+        d.thumb=pvThumbFromCanvas(crop);d.photoThumbNormalized=true;
+    }
     function renderPhotoDetectionList() {
+        if(photoVision.imageReady)photoVision.detections=photoVision.detections.filter(d=>d.manual||String(d.id)!=='ignore'||!pvIsEmptyCloth(d.nx,d.ny));
+        renderPhotoBallSummary();
         const box=$('photoDetectionList');
         box.innerHTML='';
 
@@ -9320,6 +10061,7 @@
                     row.style.color=(n===2||n===3||n===4||n===7||n===8)?'#fff':'#111';
                 }
             }
+            pvEnsureDetectionThumb(d);
             const dot=document.createElement('div'); dot.className='photoDetectionDot';
             if(d.thumb) {
                 const im=document.createElement('img');
@@ -9419,6 +10161,7 @@
         $('photoApplySave').disabled=!ok;
     }
     function pvResetView(){
+        pvPhotoPanDrag=null;
         photoVision.viewZoom=1;
         photoVision.viewCenterX=null;
         photoVision.viewCenterY=null;
@@ -9438,6 +10181,19 @@
             x:Math.max(minX,Math.min(maxX,Number.isFinite(cx)?cx:sw/2)),
             y:Math.max(minY,Math.min(maxY,Number.isFinite(cy)?cy:sh/2))
         };
+    }
+    function pvPhotoWheelZoom(ev){
+        if(!photoVision.imageReady||!ev.deltaY)return;
+        ev.preventDefault();ev.stopPropagation();
+        const canvas=$('photoAnalyzerCanvas'),sw=photoVision.sourceCanvas.width,sh=photoVision.sourceCanvas.height;
+        const anchor=pvSourcePointFromClient(ev.clientX,ev.clientY),cp=pvCanvasPixelFromClient(ev.clientX,ev.clientY);
+        const delta=ev.deltaY*(ev.deltaMode===1?16:ev.deltaMode===2?canvas.height:1);
+        const zoom=Math.max(1,Math.min(6,(photoVision.viewZoom||1)*Math.exp(-Math.max(-240,Math.min(240,delta))*.0018)));
+        const viewW=sw/zoom,viewH=sh/zoom;
+        const center=pvClampViewCenter(sw,sh,zoom,anchor.x+(0.5-cp.x/canvas.width)*viewW,anchor.y+(0.5-cp.y/canvas.height)*viewH);
+        photoVision.viewZoom=zoom;photoVision.viewCenterX=center.x;photoVision.viewCenterY=center.y;
+        photoVision.hoverPoint=null;
+        renderPhotoAnalyzer();
     }
     function pvSourceToCanvas(p){
         return {
@@ -9468,29 +10224,111 @@
         });
         return bestD<70?best:-1;
     }
+    function pvPhotoMarkerRadius(d){
+        if(d&&[d.x1,d.y1,d.x2,d.y2].every(Number.isFinite)){
+            return Math.max(2,(Math.abs(d.x2-d.x1)*photoVision.displayScaleX+Math.abs(d.y2-d.y1)*photoVision.displayScaleY)/4);
+        }
+        const H=pvCalibration()?.H;
+        if(!H||!d)return 2;
+        const p=pvSourceToCanvas(applyHomography(H,d.nx,d.ny));
+        const a=pvSourceToCanvas(applyHomography(H,d.nx+S.ballR/S.tableL,d.ny));
+        const b=pvSourceToCanvas(applyHomography(H,d.nx,d.ny+S.ballR/S.tableW));
+        return Math.max(2,(Math.hypot(a.x-p.x,a.y-p.y)+Math.hypot(b.x-p.x,b.y-p.y))/2);
+    }
+    let pvPhotoPanDrag=null;
+    function pvPanPhotoBy(dx,dy){
+        const c=photoVision.sourceCanvas,z=photoVision.viewZoom||1;
+        const center=pvClampViewCenter(c.width,c.height,z,photoVision.viewCenterX+dx,photoVision.viewCenterY+dy);
+        photoVision.viewCenterX=center.x;photoVision.viewCenterY=center.y;renderPhotoAnalyzer();
+    }
+    function pvPhotoPanFromClient(start,clientX,clientY){
+        const r=$('photoAnalyzerCanvas').getBoundingClientRect(),c=photoVision.sourceCanvas,z=photoVision.viewZoom||1;
+        const center=pvClampViewCenter(c.width,c.height,z,start.centerX-(clientX-start.startX)*c.width/z/r.width,start.centerY-(clientY-start.startY)*c.height/z/r.height);
+        photoVision.viewCenterX=center.x;photoVision.viewCenterY=center.y;renderPhotoAnalyzer();
+    }
+    function pvUpdatePanBars(){
+        const c=photoVision.sourceCanvas,z=photoVision.viewZoom||1;
+        for(const [id,axis,size] of [['photoPanX','X',c.width],['photoPanY','Y',c.height]]){
+            const bar=$(id);if(!bar)continue;
+            bar.hidden=!photoVision.imageReady||z<=1.01;
+            const span=size-size/z;
+            bar.value=span?Math.round((photoVision['viewCenter'+axis]-size/z/2)/span*1000):500;
+        }
+        $('photoAnalyzerCanvas').style.cursor=z>1.01&&!photoVision.addMissedMode&&!photoVision.refining?'grab':'crosshair';
+    }
+    function pvSetPanBar(axis,value){
+        const c=photoVision.sourceCanvas,z=photoVision.viewZoom||1,size=axis==='X'?c.width:c.height;
+        photoVision['viewCenter'+axis]=size/z/2+Math.max(0,Math.min(1000,Number(value)))/1000*(size-size/z);
+        renderPhotoAnalyzer();
+    }
+    function pvPanBarWheel(ev,axis){
+        if(!photoVision.imageReady||(photoVision.viewZoom||1)<=1)return;
+        ev.preventDefault();ev.stopPropagation();
+        const c=photoVision.sourceCanvas,z=photoVision.viewZoom,delta=(ev.deltaY||ev.deltaX)*(ev.deltaMode===1?16:ev.deltaMode===2?400:1);
+        const shift=Math.max(-240,Math.min(240,delta))/400*(axis==='X'?c.width:c.height)/z;
+        pvPanPhotoBy(axis==='X'?shift:0,axis==='Y'?shift:0);
+    }
+    function pvPhotoDetectionHit(p){
+        if(photoVision.corners.length!==4)return null;
+        const H=pvCalibration()?.H;if(!H)return null;
+        const q=pvSourceToCanvas(p),c=$('photoAnalyzerCanvas'),r=c.getBoundingClientRect(),padding=8*(r.width?c.width/r.width:1);
+        let best=null,distance=Infinity;
+        for(const d of photoVision.detections){
+            const point=pvSourceToCanvas(applyHomography(H,d.nx,d.ny)),dist=Math.hypot(q.x-point.x,q.y-point.y);
+            if(dist<pvPhotoMarkerRadius(d)+padding&&dist<distance){best=d;distance=dist;}
+        }
+        return best;
+    }
+    function pvFocusPhotoDetection(d){
+        if(!photoVision.detections.includes(d))return;
+        const key=pvReviewKey(d);
+        photoVision.reviewFocusKeys=[key];
+        const H=pvCalibration()?.H;
+        if(H){
+            const p=applyHomography(H,d.nx,d.ny);
+            photoVision.viewZoom=Math.max(2.5,photoVision.viewZoom||1);
+            photoVision.viewCenterX=p.x;photoVision.viewCenterY=p.y;
+        }
+        renderPhotoDetectionList();renderPhotoAnalyzer();
+        const pane=document.querySelector('.photoReview'),row=$('photoDetectionList').querySelector('[data-review-key="'+key+'"]');
+        if(pane&&row){
+            const header=pane.querySelector('.photoReviewSummary');
+            pane.scrollTop+=row.getBoundingClientRect().top-pane.getBoundingClientRect().top-(header?header.getBoundingClientRect().height:0)-8;
+            row.querySelector('select')?.focus({preventScroll:true});
+        }
+    }
     function pvHandlePhotoTap(p){
+        if(photoVision.refining){
+            const diamond=pvCalibrationReferences().find(d=>d.id===photoVision.pendingDiamond);
+            if(!diamond){pvStatus(pvCalibrationPrompt());return;}
+            const old=photoVision.refinements.slice();
+            photoVision.refinements=old.filter(r=>r.id!==diamond.id).concat({id:diamond.id,table:{x:diamond.x,y:diamond.y},image:{x:p.x,y:p.y}});
+            photoVision.calibrationCache=null;
+            if(!pvCalibration()){photoVision.refinements=old;photoVision.calibrationCache=null;pvStatus('That point could not produce a usable alignment. Check the selected diamond and tap again.');return;}
+            photoVision.pendingDiamond=null;pvCalibrationChanged();pvStatus(pvCalibrationPrompt());return;
+        }
         if(photoVision.corners.length<4){
             photoVision.autoRailRawCorners=null;
             photoVision.corners.push(p);
+            if(photoVision.corners.length===4&&photoVision.regionEnd==='full'&&(!photoVision.orientation||photoVision.orientation==='auto')){const direction=photoCal.estimateOrientation(photoVision.corners,photoVision.sourceCanvas.width,photoVision.sourceCanvas.height);photoVision.corners=photoCal.cornersForHead(photoVision.corners,direction);}
             photoVision.hoverPoint=null;
             renderPhotoAnalyzer();
-            if(photoVision.corners.length===4){
-                $('photoAnalyzeNow').disabled=false;
-                $('photoAddMissed').disabled=false;
-                pvStatus('Corners set. Pinch with two fingers to zoom/pan for fine alignment, or drag a corner crosshair. Then press ANALYZE BALLS.');
-            } else {
-                const names=['top-right','bottom-right','bottom-left'];
-                pvStatus('Corner '+photoVision.corners.length+' set. Pinch with two fingers to zoom/pan, then tap '+names[photoVision.corners.length-1]+'.');
-            }
+            pvCalibrationChanged();pvStatus(pvCalibrationPrompt());
+            return;
+        }
+        if(!photoVision.addMissedMode){
+            const detection=pvPhotoDetectionHit(p);
+            if(detection)pvFocusPhotoDetection(detection);
             return;
         }
         if(photoVision.addMissedMode){
             const q=imagePointToNormalized(p);
-            if(q&&q.x>=-.03&&q.x<=1.03&&q.y>=-.03&&q.y<=1.03){
+            if(q&&q.x>=pvRegion().x0&&q.x<=pvRegion().x1&&q.y>=(pvRegion().y0??0)&&q.y<=(pvRegion().y1??1)){
                 photoVision.detections.push({nx:Math.max(0,Math.min(1,q.x)),ny:Math.max(0,Math.min(1,q.y)),id:'ignore',confidence:1,manual:true,duplicateWarning:true});
+                photoVision.addMissedMode=false;$('photoAddMissed').classList.remove('activeToggle');$('photoAddMissed').textContent='Add Missed Ball';
                 renderPhotoDetectionList();
                 renderPhotoAnalyzer();
-                pvStatus('Manual ball added. Pinch to zoom/pan and keep tapping missing ball centers; then choose identities in the list.');
+                pvStatus('One ball added. Assign its identity in the review list. Select Add Missed Ball again to place another.');
             }
         }
     }
@@ -9517,11 +10355,13 @@
         photoVision.viewX=viewX;photoVision.viewY=viewY;photoVision.viewW=viewW;photoVision.viewH=viewH;
         photoVision.displayScaleX=c.width/viewW;
         photoVision.displayScaleY=c.height/viewH;
+        pvUpdatePanBars();
 
         x.imageSmoothingEnabled=true;
         x.imageSmoothingQuality='high';
         x.drawImage(photoVision.sourceCanvas,viewX,viewY,viewW,viewH,0,0,c.width,c.height);
 
+        pvDrawPhotoReferences(x);
         if(photoVision.corners.length) {
             x.save(); x.lineWidth=2; x.strokeStyle='#6fff58'; x.fillStyle='#6fff58'; x.beginPath();
             photoVision.corners.forEach((p,i)=>{
@@ -9539,6 +10379,7 @@
                 x.shadowBlur=0;
                 x.fillStyle='rgba(0,0,0,.75)';x.beginPath();x.arc(px+20,py+20,9,0,Math.PI*2);x.fill();
                 x.strokeStyle='#fff';x.lineWidth=1.5;x.stroke();x.fillStyle='#fff';x.font='900 10px Segoe UI';x.fillText(String(i+1),px+20,py+20);
+                x.font='700 11px Segoe UI';x.textAlign='left';x.fillText(pvAnchorLabel(i),px+34,py+20);
                 x.restore();
             });
             if(photoVision.corners.length<4 && photoVision.hoverPoint){
@@ -9551,16 +10392,18 @@
             x.restore();
         }
         if(photoVision.corners.length===4 && photoVision.detections.length) {
-            const H=homographyFromPairs([{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1}],photoVision.corners);
-            x.save();x.font='800 12px Segoe UI';x.textAlign='center';x.textBaseline='middle';
+            const H=pvCalibration()?.H;if(!H)return;
+            x.save();x.textAlign='center';x.textBaseline='middle';
             photoVision.detections.forEach(d=>{
                 const p=applyHomography(H,d.nx,d.ny),q=pvSourceToCanvas(p),px=q.x,py=q.y;
-                const rr=Math.max(10,Math.min(c.width,c.height)*.018);
+                const rr=pvPhotoMarkerRadius(d);
+                const selected=(photoVision.reviewFocusKeys||[]).includes(pvReviewKey(d));
+                x.font='900 '+Math.max(9,Math.round(rr*(String(d.id)==='0'?.8:1.05)))+'px Segoe UI';
                 const unassigned=String(d.id)==='ignore';
-                x.fillStyle=unassigned?'rgba(255,216,107,.13)':'rgba(0,229,255,.16)';
-                x.strokeStyle=unassigned?'#ffd86b':'#00e5ff';x.lineWidth=2;
+                x.fillStyle=unassigned?'rgba(255,216,107,.08)':'rgba(0,229,255,.06)';
+                x.strokeStyle=selected?'#60d394':unassigned?'#ffd86b':'#00e5ff';x.lineWidth=selected?4:2;
                 x.beginPath();x.arc(px,py,rr,0,Math.PI*2);x.fill();x.stroke();
-                x.fillStyle='#fff';x.fillText(unassigned?'?':pvLabel(d.id),px,py);
+                x.fillStyle='#fff';x.shadowColor='rgba(0,0,0,.9)';x.shadowBlur=2;x.fillText(unassigned?'?':pvLabel(d.id),px,py);x.shadowBlur=0;
             });
             x.restore();
         }
@@ -9571,7 +10414,7 @@
             x.strokeStyle='rgba(255,255,255,.28)';
             x.lineWidth=1;
             x.font='800 11px Segoe UI';
-            const label=zoom.toFixed(1)+'×  •  pinch to zoom / pan';
+            const label=zoom.toFixed(1)+'×  •  wheel / pinch to zoom';
             const w=x.measureText(label).width+18;
             x.fillRect(8,8,w,25);
             x.strokeRect(8.5,8.5,w-1,24);
@@ -9606,8 +10449,10 @@
     }
     function warpPhotoTopDown(outW=640,outH=320,useSharpened=false) {
         if(photoVision.corners.length!==4)return null;
-        const H=homographyFromPairs([{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1}],photoVision.corners);
+        const H=pvCalibration()?.H;
         if(!H)return null;
+        const region=pvRegion(),span=region.x1-region.x0;
+        outH=Math.max(2,Math.round(outW*S.tableW/S.tableL*((region.y1??1)-(region.y0??0))));outW=Math.max(1,Math.round(outW*span));
         const baseCanvas=useSharpened?photoVision.sourceCanvas:photoVision.analysisCanvas;
         const baseCtx=useSharpened?photoVision.sourceCtx:photoVision.analysisCtx;
         const src=baseCtx.getImageData(0,0,baseCanvas.width,baseCanvas.height);
@@ -9615,7 +10460,7 @@
         const ox=out.getContext('2d',{willReadFrequently:true}),img=ox.createImageData(outW,outH);
         const sd=src.data,od=img.data,sw=src.width,sh=src.height;
         for(let y=0;y<outH;y++)for(let x=0;x<outW;x++){
-            const p=applyHomography(H,x/(outW-1),y/(outH-1));
+            const p=applyHomography(H,region.x0+span*x/(outW-1),(region.y0??0)+((region.y1??1)-(region.y0??0))*y/(outH-1));
             const sx=Math.max(0,Math.min(sw-1,Math.round(p.x))),sy=Math.max(0,Math.min(sh-1,Math.round(p.y)));
             const si=(sy*sw+sx)*4,oi=(y*outW+x)*4;
             od[oi]=sd[si];od[oi+1]=sd[si+1];od[oi+2]=sd[si+2];od[oi+3]=255;
@@ -9783,7 +10628,8 @@
         }
         const cr=pvMedian(rs),cg=pvMedian(gs),cb=pvMedian(bs),cloth=pvHSV(cr,cg,cb);
         const clothRGB={r:cr,g:cg,b:cb};
-        const dw=320,dh=160,mask=new Uint8Array(dw*dh);
+        const span=pvRegion().x1-pvRegion().x0;
+        const dw=Math.round(320*span),dh=Math.max(2,Math.round(320*S.tableW/S.tableL*((pvRegion().y1??1)-(pvRegion().y0??0)))),mask=new Uint8Array(dw*dh);
         for(let y=0;y<dh;y++){
             const sy=Math.min(h-1,Math.floor(y*h/dh));
             for(let x=0;x<dw;x++){
@@ -9809,7 +10655,7 @@
             cur=n;
         }
         const seen=new Uint8Array(cur.length),comps=[];
-        const expectedDia = Math.max(5, dw*((2*S.ballR)/S.tableL));
+        const expectedDia = Math.max(5, dw*((2*S.ballR)/(S.tableL*span)));
         for(let y=1;y<dh-1;y++) for(let x=1;x<dw-1;x++){
             const ix=y*dw+x;
             if(!cur[ix]||seen[ix])continue;
@@ -9840,7 +10686,7 @@
             if(merged.some(m=>Math.hypot(m.x-c.x,m.y-c.y)<expectedDia*.55))continue;
             merged.push(c);
         }
-        const radiusPx=Math.max(6,(w*((2*S.ballR)/S.tableL))/2),out=[];
+        const radiusPx=Math.max(6,(w*((2*S.ballR)/(S.tableL*span)))/2),out=[];
         for(const c of merged.slice(0,28)){
             const cx=Math.round(c.x*w/dw),cy=Math.round(c.y*h/dh);
             const classImg=classWarp.image;
@@ -9854,6 +10700,8 @@
             if(cl.id==='ignore' && qa.ballness<.34 && circle.score<.42)continue;
             if(qa.ballness<.23 && circle.score<.40)continue;
             if(String(cl.id)==='0' && qa.ballness<.32 && circle.score<.38 && (cl.confidence||0)<.90)continue;
+            const globalX=pvRegion().x0+(cx/(w-1))*(pvRegion().x1-pvRegion().x0);
+            if(pvIsTableSpot(globalX,(pvRegion().y0??0)+cy/(h-1)*((pvRegion().y1??1)-(pvRegion().y0??0))))continue;
 
             const tc=document.createElement('canvas');
             tc.width=128;tc.height=128;
@@ -9921,8 +10769,12 @@
         return finalList;
     }
     async function analyzeCurrentPhoto(){
-        if(photoVision.corners.length!==4){pvStatus('Tap all four playing-surface corners first.');return;}
+        pvSetCalibrationVisible(false);
+        if(!pvCalibration()){photoVision.analysisError='The table outline needs correction. Adjust the four corners, then analyze again.';pvStatus(pvCalibrationPrompt());return;}
+        photoVision.analysisError='';
+        photoVision.refining=false;photoVision.pendingDiamond=null;pvUpdateCalibrationDiagram();
         if(photoVision.aiBusy)return;
+        const calibrationAtStart=JSON.stringify([photoVision.imageVersion,pvRegion(),photoVision.corners,photoVision.refinements]);
         photoVision.aiBusy=true;
         photoVision.duplicatesMerged=0;
         const btn=$('photoAnalyzeNow'); if(btn){btn.disabled=true;btn.textContent='ANALYZING…';}
@@ -9944,18 +10796,19 @@
                 pvStatus(photoVision.aiEnabled?'AI returned no usable balls; running the original hybrid detector…':'Running original hybrid detector…');
                 await new Promise(r=>setTimeout(r,10));
                 const warp=warpPhotoTopDown(640,320,false);
-                if(!warp){pvStatus('Could not rectify the photo. Reset the corners and try again.');return;}
+                if(!warp){photoVision.analysisError='The table could not be aligned. Adjust the corners, then analyze again.';pvStatus(photoVision.analysisError);return;}
                 const classWarp=photoVision.sharpen ? warpPhotoTopDown(640,320,true) : warp;
-                detections=detectWarpBalls(warp,classWarp||warp); engine='hybrid';
+                detections=detectWarpBalls(warp,classWarp||warp).map(d=>({...d,nx:pvRegion().x0+d.nx*(pvRegion().x1-pvRegion().x0),ny:(pvRegion().y0??0)+d.ny*((pvRegion().y1??1)-(pvRegion().y0??0))})); engine='hybrid';
                 detections=pvApplyManualRackToHybrid(detections||[]);
                 photoVision.inferredRackType='custom';
                 photoVision.effectiveRackType=(photoVision.rackType==='auto')?'custom':photoVision.rackType;
                 photoVision.rackConfidence=(photoVision.rackType==='auto')?0:1;
             }
+            if(calibrationAtStart!==JSON.stringify([photoVision.imageVersion,pvRegion(),photoVision.corners,photoVision.refinements])){photoVision.analysisError='Alignment changed during analysis. Analyze again using the current corners.';pvStatus(photoVision.analysisError);return;}
             const finalCollapse=pvCollapseSamePhysicalBalls(detections||[],.80);
             photoVision.duplicatesMerged=(photoVision.duplicatesMerged||0)+finalCollapse.merged;
-            detections=finalCollapse.items;
-            photoVision.detections=detections||[];photoVision.lastAnalysisEngine=engine;
+            detections=pvFilterDuplicateReviews(finalCollapse.items);
+            photoVision.detections=detections||[];photoVision.lastAnalysisEngine=engine;photoVision.analysisRevision=(photoVision.analysisRevision||0)+1;
             renderPhotoDetectionList();renderPhotoAnalyzer();
             if(photoVision.detections.length){
                 const prefix=engine==='ai'?'Trained AI':'Hybrid fallback';
@@ -9971,16 +10824,19 @@
                     : ' Smart one-of-each + color/stripe rules applied; yellow items need review.';
                 pvStatus(prefix+' found '+photoVision.detections.length+' candidate balls.'+dupNote+rackNote+resolveNote+aiReason);
             } else {
-                pvStatus('No balls were confidently detected. Turn on ADD BALLS and tap missing ball centers manually.');
+                pvStatus('No balls were confidently detected. Select Add Missed Ball to place one ball at a time.');
             }
             $('photoAddMissed').disabled=false;
+        } catch(error){
+            photoVision.analysisError='Analysis could not finish. Check the corners and try Analyze Again, or choose another image.';pvStatus(photoVision.analysisError);console.warn('Image analysis failed:',error);
         } finally {
             photoVision.aiBusy=false;
-            if(btn){btn.disabled=photoVision.corners.length!==4;btn.textContent='ANALYZE BALLS';}
+            if(btn){btn.disabled=!pvCalibration();btn.textContent='ANALYZE BALLS';}
             pvUpdateAIButton();
         }
     }
     function applyPhotoDetections(saveAfter){
+        if(photoVision.loadedTableFile){applyTableFile(photoVision.loadedTableFile,saveAfter,photoVision.detections);window.billiardsAnalyzeWalkthrough?.applied();closePhotoAnalyzer();return;}
         const chosen=photoVision.detections.filter(d=>String(d.id)!=='ignore'),used=new Set(),balls=[];
         for(const d of chosen){const id=Number(d.id);if(!Number.isFinite(id)||id<0||id>15||used.has(id))continue;used.add(id);balls.push({id,n:id===0?'CB':String(id),x:clamp(d.nx*S.tableL,S.ballR,S.tableL-S.ballR),y:clamp(d.ny*S.tableW,S.ballR,S.tableW-S.ballR),active:true});}
         if(!balls.length){pvStatus('No reviewed balls are selected.');return;}
@@ -9995,17 +10851,27 @@
             const now=new Date(),name=$('photoLayoutName').value.trim()||('Photo layout '+now.toLocaleDateString([], {month:'numeric',day:'numeric'})+' '+now.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}));
             const layouts=readSavedLayouts();layouts.unshift(captureBallLayout(name));writeSavedLayouts(layouts.slice(0,20));updateSavedLayoutUI(true);toast('Photo layout applied + saved: '+name+(hasCueBall?'':' (no cue ball)'));
         }else toast('Photo layout applied to table'+(hasCueBall?'':' (no cue ball)'));
-        closePhotoAnalyzer();
+        window.billiardsAnalyzeWalkthrough?.applied();closePhotoAnalyzer();
     }
+    window.billiardsWalkthroughBridge={clearErrors(){photoVision.imageError='';photoVision.analysisError='';},openCalibration(){pvSetCalibrationVisible(true);pvUpdateCalibrationDiagram();},snapshot(){
+        const ids=photoVision.detections.map(d=>String(d.id)),assigned=ids.filter(id=>id!=='ignore'),unique=new Set(assigned).size===assigned.length;
+        const reviewReady=assigned.length>0&&assigned.length===ids.length&&unique;
+        return {imageReady:photoVision.imageReady,imageVersion:photoVision.imageVersion,loadedTableFile:photoVision.loadedTableFile,
+            cornersValid:!!pvCalibration(),busy:!!photoVision.aiBusy,analysisRevision:photoVision.analysisRevision||0,reviewReady,
+            imageError:photoVision.imageError||'',analysisError:photoVision.analysisError||'',detectionCount:photoVision.detections.length,archiveBusy:!!photoVision.archiveBusy,imageSaved:!!photoVision.archiveId,
+            cornerHint:pvCalibrationPrompt(),orientationHint:$('photoOrientationHint').textContent,footSpotHint:$('photoFootSpotHint').textContent,
+            reviewHint:!ids.length?'No balls found yet. Add missed balls or return to Analyze.':!unique?'Correct duplicate identities before continuing.':assigned.length<ids.length?'Assign every remaining question mark or delete that false detection.':assigned.length+' unique balls assigned. Check their positions, then Next.'};
+    }};
     function loadPhotoFile(file, sourceNameOverride = '', archiveAfter = false, archiveId = null){
+        photoVision.loadedTableFile=null;
         if(!file)return;
         const imageVersion=++photoVision.imageVersion;
-        photoVision.imageReady=false;
+        photoVision.imageReady=false;photoVision.imageError='';photoVision.analysisError='';
         photoVision.archiveId=null;
         $('photoArchiveSave').disabled=true;
         $('photoArchiveExport').disabled=true;
         const v=$('photoAnalyzerVideo'),c=$('photoAnalyzerCanvas');
-        if(file.type&&file.type.startsWith('video/')){pvStatus('Choose a still image or take a camera photo.');return;}
+        if(file.type&&file.type.startsWith('video/')){photoVision.imageError='Choose a still image instead of a video file. PNG, JPG, or WEBP works here.';pvStatus(photoVision.imageError);return;}
         const img=new Image(),url=URL.createObjectURL(file);
         pvStatus('Loading photo…');
         img.onload=()=>{
@@ -10025,7 +10891,7 @@
             v.style.display='none';
             c.style.display='block';
             $('photoCaptureFrame').style.display='none';
-            pvResetAfterImageChange('Photo loaded at high analysis quality. ROTATE 90° now uses the retained raw image without cumulative blur. Use it until the head/foot direction matches how you want the layout placed in Billiards Trainer. Then tap four inside playing-surface corners: top-left → top-right → bottom-right → bottom-left.');
+            pvResetAfterImageChange('Image ready. Select Find / Add Corners and match the highlighted numbered points in the table diagram. The first two points follow one long rail. Use Custom Table Layouts for partial coverage.');
             if($('photoArchiveExport')) $('photoArchiveExport').disabled=false;
             photoVision.sourceName=pvSafePhotoName(sourceNameOverride || file.name || 'Pool table photo');
             photoVision.archiveId=archiveId;
@@ -10035,7 +10901,7 @@
         img.onerror=()=>{
             if(imageVersion!==photoVision.imageVersion){URL.revokeObjectURL(url);return;}
             URL.revokeObjectURL(url);
-            pvStatus('That image format could not be opened here. Try JPG, PNG, WEBP, or a screenshot of the photo.');
+            photoVision.imageError='This image could not be opened. Try another image in PNG, JPG, or WEBP format.';pvStatus(photoVision.imageError);
         };
         img.src=url;
     }
@@ -10056,21 +10922,34 @@
         v.style.display='none';
         $('photoAnalyzerCanvas').style.display='block';
         $('photoCaptureFrame').style.display='none';
-        pvResetAfterImageChange('Frame captured at high analysis quality. ROTATE 90° now uses the retained raw frame without cumulative blur. Use it until the head/foot direction matches how you want the layout placed in Billiards Trainer. Then tap four inside playing-surface corners: top-left → top-right → bottom-right → bottom-left.');
+        pvResetAfterImageChange('Image ready. Select Find / Add Corners and match the highlighted numbered points in the table diagram. The first two points follow one long rail. Use Custom Table Layouts for partial coverage.');
         if($('photoArchiveExport')) $('photoArchiveExport').disabled=false;
         pvArchiveRawCanvas('Video frame');
     }
     function pvCanvasPoint(ev){
         return pvSourcePointFromClient(ev.clientX,ev.clientY);
     }
+    // Read-only hit testing for dedicated Analyze narration; no image mutation.
+    window.billiardsGuidePhotoTopicAt = (clientX, clientY) => {
+        if (!photoVision.imageReady) return 'analyze-choose-table-image';
+        const p=pvSourcePointFromClient(clientX,clientY);
+        if (photoVision.addMissedMode) return 'analyze-place-missed-ball';
+        if (photoVision.pendingDiamond) return 'analyze-place-diamond-reference';
+        const detection=pvPhotoDetectionHit(p);
+        if (detection) return detection.id==='ignore'?'analyze-photo-question-marker':'analyze-photo-ball-marker';
+        if (photoVision.corners.length===4 && pvCornerHitIndex(p)>=0) return 'analyze-drag-calibration-corner';
+        if (photoVision.corners.length<4) return 'analyze-mark-four-corners';
+        return (photoVision.viewZoom||1)>1?'analyze-photo-drag-pan':'analyze-photo-wheel-zoom';
+    };
     function imagePointToNormalized(p){
         if(photoVision.corners.length!==4)return null;
-        const H=homographyFromPairs(photoVision.corners,[{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1}]);
+        const H=pvCalibration()?.inverse;
         return H?applyHomography(H,p.x,p.y):null;
     }
     // ================== END PHOTO ANALYZER ==================
 
     if (!isProjector) {
+        pvSetupCalibration();
         updateSavedLayoutUI();
         document.addEventListener('pointerdown', ev => {
             const p = $('layoutQuickPanel');
@@ -10108,9 +10987,12 @@
         $('photoResetCorners').addEventListener('click', () => {
             pvResetDetectionsAndCorners();
             renderPhotoAnalyzer();
-            pvStatus(photoVision.imageReady?'Corners reset. Move the long white crosshair to the inside playing-surface corner and click: top-left → top-right → bottom-right → bottom-left.':'Choose an image or use Camera first.');
+            pvStatus(pvCalibrationPrompt());
         });
-        $('photoAutoRailsBtn').addEventListener('click', () => { pvAutoFindRailCorners(); });
+        $('photoAutoRailsBtn').addEventListener('click', () => {
+            if(photoVision.regionEnd!=='full'){pvStatus('Corner Sensing needs a full-table image. For partial coverage, use Custom Table Layouts and Find / Add Corners.');return;}
+            photoVision.refinements=[];photoVision.refining=false;photoVision.pendingDiamond=null;photoVision.calibrationCache=null;pvAutoFindRailCorners();pvUpdateCalibrationDiagram();
+        });
         $('photoRotateBtn').addEventListener('click', () => {
             const hasRaw = photoVision.rawCanvas.width && photoVision.rawCanvas.height;
             if(!hasRaw){ pvStatus('Choose an image or use Camera first.'); return; }
@@ -10118,7 +11000,7 @@
             const oldW=photoVision.sourceCanvas.width, oldH=photoVision.sourceCanvas.height;
             const hadCorners=photoVision.corners.length===4;
             const rotatedCorners=hadCorners
-                ? pvOrderCornersVisual(photoVision.corners.map(p=>pvRotatePointCW(p,oldW,oldH)))
+                ? photoVision.corners.map(p=>pvRotatePointCW(p,oldW,oldH))
                 : [];
 
             photoVision.rotation = (photoVision.rotation + 90) % 360;
@@ -10126,6 +11008,7 @@
             pvResetView();
             photoVision.detections=[];
             photoVision.addMissedMode=false;
+            photoVision.refinements=photoVision.refinements.map(r=>({...r,image:pvRotatePointCW(r.image,oldW,oldH)}));photoVision.calibrationCache=null;
             if(hadCorners) photoVision.corners=rotatedCorners;
             else photoVision.corners=[];
             renderPhotoDetectionList();
@@ -10139,7 +11022,7 @@
             } else {
                 $('photoAnalyzeNow').disabled=true;
                 $('photoAddMissed').disabled=true;
-                pvStatus('Rotated to '+photoVision.rotation+'°. Tap four inside playing-surface corners: top-left → top-right → bottom-right → bottom-left.');
+                pvStatus('Rotated to '+photoVision.rotation+'°. Match the four highlighted reference points in the table diagram.');
             }
         });
         $('photoAiModeBtn').addEventListener('click', () => {
@@ -10182,18 +11065,29 @@
         $('photoAnalyzeNow').addEventListener('click', analyzeCurrentPhoto);
         $('photoAddMissed').addEventListener('click', () => {
             if(photoVision.corners.length!==4)return;
+            photoVision.refining=false;photoVision.pendingDiamond=null;pvUpdateCalibrationDiagram();
             photoVision.addMissedMode=!photoVision.addMissedMode;
             $('photoAddMissed').classList.toggle('activeToggle',photoVision.addMissedMode);
-            $('photoAddMissed').textContent=photoVision.addMissedMode?'ADD BALLS: ON':'ADD MISSED BALL';
+            $('photoAddMissed').textContent=photoVision.addMissedMode?'Place One Ball':'Add Missed Ball';
             pvStatus(photoVision.addMissedMode
-                ? 'ADD BALLS mode is ON — pinch with two fingers to zoom/pan, then tap each missing ball center. It stays on until you press the button again.'
-                : 'ADD BALLS mode OFF.');
+                ? 'Tap the center of one missed ball. Adding turns off automatically after placing it.'
+                : 'Add Missed Ball cancelled.');
         });
         $('photoApplyTable').addEventListener('click', () => applyPhotoDetections(false));
         $('photoApplySave').addEventListener('click', () => applyPhotoDetections(true));
+        for(const [id,axis] of [['photoPanX','X'],['photoPanY','Y']]){
+            $(id).addEventListener('input',ev=>pvSetPanBar(axis,ev.target.value));
+            $(id).addEventListener('wheel',ev=>pvPanBarWheel(ev,axis),{passive:false});
+        }
+        $('photoAnalyzerCanvas').addEventListener('wheel',pvPhotoWheelZoom,{passive:false});
         $('photoAnalyzerCanvas').addEventListener('pointermove', ev => {
             if(!photoVision.imageReady)return;
-
+            if(ev.pointerType!=='touch'&&pvPhotoPanDrag){
+                const t=pvPhotoPanDrag;
+                t.moved=t.moved||Math.hypot(ev.clientX-t.startX,ev.clientY-t.startY)>5;
+                if(t.moved){ev.preventDefault();pvPhotoPanFromClient(t,ev.clientX,ev.clientY);$('photoAnalyzerCanvas').style.cursor='grabbing';}
+                return;
+            }
             if(ev.pointerType==='touch'){
                 const t=pvTouchPointers.get(ev.pointerId);
                 if(t){
@@ -10239,7 +11133,10 @@
                     photoVision.corners[photoVision.cornerDragIndex]=p;
                     photoVision.detections=[];
                     renderPhotoDetectionList();
-                    renderPhotoAnalyzer();
+                    renderPhotoAnalyzer();pvUpdateCalibrationDiagram();
+                }
+                if(pvTouchPointers.size===1&&t&&t.moved&&pvTouchCornerCandidate<0&&(photoVision.viewZoom||1)>1&&!photoVision.addMissedMode&&!photoVision.refining){
+                    ev.preventDefault();pvPhotoPanFromClient(t,ev.clientX,ev.clientY);
                 }
                 return;
             }
@@ -10248,7 +11145,7 @@
             if(photoVision.cornerDragIndex>=0 && photoVision.corners.length===4){
                 photoVision.autoRailRawCorners=null;
                 photoVision.corners[photoVision.cornerDragIndex]=p; photoVision.detections=[];
-                renderPhotoDetectionList(); renderPhotoAnalyzer();
+                renderPhotoDetectionList(); renderPhotoAnalyzer();pvUpdateCalibrationDiagram();
                 return;
             }
             if(photoVision.corners.length<4){ photoVision.hoverPoint=p; renderPhotoAnalyzer(); }
@@ -10267,11 +11164,11 @@
             if(ev.pointerType==='touch'){
                 try{canvas.setPointerCapture?.(ev.pointerId);}catch(e){}
                 const p=pvCanvasPoint(ev);
-                pvTouchPointers.set(ev.pointerId,{clientX:ev.clientX,clientY:ev.clientY,startX:ev.clientX,startY:ev.clientY,sourceStart:p,moved:false});
+                pvTouchPointers.set(ev.pointerId,{clientX:ev.clientX,clientY:ev.clientY,startX:ev.clientX,startY:ev.clientY,sourceStart:p,moved:false,centerX:photoVision.viewCenterX,centerY:photoVision.viewCenterY});
                 if(pvTouchPointers.size===1){
                     pvGesturePinched=false;
                     pvPinchStart=null;
-                    pvTouchCornerCandidate=(photoVision.corners.length===4&&!photoVision.addMissedMode)?pvCornerHitIndex(p):-1;
+                    pvTouchCornerCandidate=(photoVision.corners.length===4&&!photoVision.addMissedMode&&!photoVision.refining&&!pvPhotoDetectionHit(p))?pvCornerHitIndex(p):-1;
                 }else if(pvTouchPointers.size===2){
                     pvGesturePinched=true;
                     pvTouchCornerCandidate=-1;
@@ -10285,17 +11182,27 @@
             }
 
             const p=pvCanvasPoint(ev);
-            if(photoVision.corners.length===4 && !photoVision.addMissedMode){
-                const best=pvCornerHitIndex(p);
+            if(photoVision.corners.length===4 && !photoVision.addMissedMode && !photoVision.refining){
+                const best=pvPhotoDetectionHit(p)?-1:pvCornerHitIndex(p);
                 if(best>=0){
                     photoVision.cornerDragIndex=best; canvas.setPointerCapture?.(ev.pointerId);
-                    photoVision.corners[best]=p; photoVision.detections=[]; renderPhotoDetectionList(); renderPhotoAnalyzer(); return;
+                    photoVision.corners[best]=p; photoVision.detections=[]; renderPhotoDetectionList(); renderPhotoAnalyzer();pvUpdateCalibrationDiagram(); return;
                 }
+            }
+            if((photoVision.viewZoom||1)>1&&!photoVision.addMissedMode&&!photoVision.refining&&photoVision.corners.length===4){
+                pvPhotoPanDrag={startX:ev.clientX,startY:ev.clientY,centerX:photoVision.viewCenterX,centerY:photoVision.viewCenterY,sourceStart:p,moved:false};
+                canvas.setPointerCapture?.(ev.pointerId);return;
             }
             pvHandlePhotoTap(p);
         });
 
         $('photoAnalyzerCanvas').addEventListener('pointerup', ev => {
+            if(ev.pointerType!=='touch'&&pvPhotoPanDrag){
+                const t=pvPhotoPanDrag;pvPhotoPanDrag=null;
+                try{$('photoAnalyzerCanvas').releasePointerCapture?.(ev.pointerId);}catch(e){}
+                if(!t.moved)pvHandlePhotoTap(t.sourceStart);else renderPhotoAnalyzer();
+                return;
+            }
             if(ev.pointerType==='touch'){
                 const t=pvTouchPointers.get(ev.pointerId);
                 const shouldTap=!!t && !t.moved && !pvGesturePinched && photoVision.cornerDragIndex<0;
@@ -10307,12 +11214,17 @@
                     photoVision.cornerDragIndex=-1;
                     pvTouchCornerCandidate=-1;
                     renderPhotoAnalyzer();
-                    pvStatus('Corner adjustment saved. Pinch to zoom/pan again if needed, then press ANALYZE BALLS.');
+                    pvUpdateCalibrationDiagram();pvStatus(pvCalibrationPrompt());
                 }else if(shouldTap && tapPoint){
                     pvHandlePhotoTap(tapPoint);
                 }
 
                 if(pvTouchPointers.size<2)pvPinchStart=null;
+                if(pvTouchPointers.size===1&&pvGesturePinched){
+                    const remaining=[...pvTouchPointers.values()][0];
+                    remaining.startX=remaining.clientX;remaining.startY=remaining.clientY;
+                    remaining.centerX=photoVision.viewCenterX;remaining.centerY=photoVision.viewCenterY;remaining.moved=true;
+                }
                 if(pvTouchPointers.size===0){
                     pvGesturePinched=false;
                     pvTouchCornerCandidate=-1;
@@ -10322,11 +11234,12 @@
 
             if(photoVision.cornerDragIndex>=0){
                 photoVision.cornerDragIndex=-1; try{$('photoAnalyzerCanvas').releasePointerCapture?.(ev.pointerId);}catch(e){}
-                renderPhotoAnalyzer(); pvStatus('Corner adjustment saved. Press ANALYZE BALLS.');
+                renderPhotoAnalyzer(); pvUpdateCalibrationDiagram();pvStatus(pvCalibrationPrompt());
             }
         });
 
         $('photoAnalyzerCanvas').addEventListener('pointercancel', ev => {
+            pvPhotoPanDrag=null;
             if(ev.pointerType==='touch'){
                 pvTouchPointers.delete(ev.pointerId);
                 if(pvTouchPointers.size<2)pvPinchStart=null;
@@ -10336,6 +11249,7 @@
         });
 
         $('photoAnalyzerModal').addEventListener('pointerdown', ev => { if(ev.target===$('photoAnalyzerModal')) closePhotoAnalyzer(); });
+        setupTableFiles();
         $('saveLayoutBtn').addEventListener('click', () => saveBallLayout());
         $('loadLayoutBtn').addEventListener('click', () => loadSelectedBallLayout());
 
@@ -10563,6 +11477,8 @@
             refreshPreview();
         });
         const changeIds = ['tableL', 'tableW', 'ballD', 'muSlide', 'muRoll', 'muBall', 'ballRest', 'railRest', 'railTang', 'cueEndmassRatio', 'airbornePhysics', 'jumpUnits', 'tableRest', 'bedImpactMu', 'showImpact', 'showTipBadge', 'showPaths', 'showGrid', 'showDiamonds', 'showTable', 'showAngleLockControl'];
+        $('cueShaftPreset').addEventListener('change',()=>{S.cuePreset=$('cueShaftPreset').value;if(S.cuePreset==='standard')S.cueEndmassRatio=20.151;if(S.cuePreset==='low')S.cueEndmassRatio=29.158;updateUI();refreshPreview();saveState();});
+        $('cueEndmassRatio').addEventListener('change',()=>{S.cuePreset='custom';});
         changeIds.forEach(id => $(id).addEventListener('change', applyUI));
         ['speed', 'follow', 'sideSpin', 'cueElevation'].forEach(id => $(id).addEventListener('input', applyUI));
         function applyDirectShotInput() {
@@ -10700,6 +11616,7 @@
         $('undoShot').onclick = undoLastShot;
         $('resetLayoutQuick').onclick = resetLayout;
         $('makeRandomSetup').onclick = createRandomSetup;
+        $('startFullRack').onclick = startFullRack;
         $('shuffleTableLayout').onclick = shuffleTableLayout;
         $('resetLayout').onclick = resetLayout;
         document.querySelectorAll('.advancedToggle').forEach(btn => btn.addEventListener('click', () => {
@@ -10816,7 +11733,7 @@
             updateRunCount();toast('Removed '+color+' '+shape+' marker');
         };
         function addSpecificBallById(id) {
-            if (!id || id < 1 || id > 15)
+            if (!Number.isInteger(id) || id < 0 || id > 15)
                 return false;
             if (S.balls.some(b => b.id === id))
                 return false;
@@ -10824,7 +11741,8 @@
             const col = present % 5, row = Math.floor(present / 5) % 3;
             const x = clamp(S.tableL * (.55 + col * .055), S.ballR * 2, S.tableL - S.ballR * 2);
             const y = clamp(S.tableW * (.22 + row * .20), S.ballR * 2, S.tableW - S.ballR * 2);
-            S.balls.push({ id, n: String(id), x, y, active: true });
+            S.balls.push({ id, n: id===0?'CB':String(id), x, y, active: true });
+            S.pocketedLog=(S.pocketedLog||[]).filter(n=>n!==id);
             normalizeBallSet();
             if ($('ballSelect'))
                 $('ballSelect').value = String(id);
@@ -10872,7 +11790,7 @@
                 return;
             }
             const id = selectedObjectBallId();
-            if (!id || id < 1 || id > 15)
+            if (!Number.isInteger(id) || id < 0 || id > 15)
                 return;
             if (S.balls.some(b => b.id === id)) {
                 toast('Ball ' + id + ' is already on the table');
@@ -11064,8 +11982,19 @@ if ('serviceWorker' in navigator) {
       <iframe id="btFeedbackFrame" title="Billiards Trainer feedback form" loading="lazy" scrolling="no"></iframe>
     </div>
   </div>
+  <link rel="stylesheet" href="./guide/pool-guide.css?v=fit5">
+  <script src="./phone-play.js?v=8"></script>
+  <script src="./guide/audio-startup.js?v=walkthrough-v11"></script>
+  <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
+  <script src="./guide/guide.js?v=walkthrough-v11"></script>
+  <script src="./guide/recorded-audio.js?v=presets-recovery-v13"></script>
+  <script src="./guide/pool-integration.js?v=presets-recovery-v13"></script>
+  <script src="./guide/analyze-integration.js?v=presets-recovery-v13"></script>
+  <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
+  <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=2"></script>
+
 
 </body>
 </html>

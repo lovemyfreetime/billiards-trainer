@@ -1,0 +1,51 @@
+{
+  "format": "billiards-trainer",
+  "version": 1,
+  "kind": "layout",
+  "name": "Two-Rail Center Recovery",
+  "layout": {
+    "name": "Two-Rail Center Recovery",
+    "tableL": 2.54,
+    "tableW": 1.27,
+    "ballR": 0.028575,
+    "setupMode": "custom",
+    "allowMissingCueBall": false,
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 1.5875,
+        "y": 0.9525,
+        "active": true
+      },
+      {
+        "id": 1,
+        "n": "1",
+        "x": 2.2225,
+        "y": 0.9525,
+        "active": true
+      },
+      {
+        "id": 1000,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "white",
+        "markerShape": "square",
+        "markerDiameterIn": 12.5,
+        "markerWidthIn": 12.5,
+        "markerHeightIn": 12.5,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 0.3175,
+        "y": 0.635,
+        "active": true
+      }
+    ],
+    "freeAim": {
+      "x": 2.182088847455189,
+      "y": 0.9120888474551888
+    }
+  },
+  "practiceNote": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface.",
+  "diamondOrientation": "x across 0–4; y head-to-foot 0–8. App coordinates x=head-to-foot, y=across."
+}

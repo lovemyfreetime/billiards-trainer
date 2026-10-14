@@ -1,0 +1,449 @@
+{
+  "orientation": "Head end looking toward foot; x left to right 0–4, y head to foot 0–8; coordinates are ball or marker centers.",
+  "example_table": {
+    "playing_length_inches": 100,
+    "playing_width_inches": 50,
+    "ball_diameter_inches": 2.25,
+    "diamond_spacing_inches": 12.5
+  },
+  "scaling": "For another table use diamond spacing = playing length / 8. Recalculate ball-radius offsets, stop ghost center, tangent marker x, and blocker spacing using actual ball diameter.",
+  "drills": [
+    {
+      "id": "drill-stop-shot",
+      "group": "Cue Ball Control",
+      "title": "Stop Shot Calibration",
+      "file": "drill-stop-shot.mp3",
+      "balls": {
+        "Cue": [
+          1,
+          2
+        ],
+        "1": [
+          2,
+          4
+        ]
+      },
+      "markers": [
+        {
+          "label": "White circle",
+          "xy": [
+            1.9195015528100077,
+            3.8390031056200153
+          ],
+          "size_inches": 3
+        }
+      ],
+      "target_pocket": [
+        4,
+        8
+      ],
+      "narration": "Stop Shot Calibration. Stand at the head end, looking toward the foot end. Place the 1-ball on the center spot. Put the cue ball on the head string, one diamond from the left long rail. This lines up with the foot-right corner pocket. Center a three-inch white circle one ball width behind the 1-ball, toward the cue ball. That is the cue ball’s stopping position. Use no side spin. Start slightly below center and adjust your speed and tip height until the cue ball arrives without forward or backward roll. Pocket the 1-ball and stop the cue ball inside the white circle. Reset both balls after each attempt. Try five shots and count clean stops. In the Trainer, select Execute Shot to watch the result.",
+      "editorial_note": "Head spot, center spot and a corner are not collinear. Shifted cue ball to a true straight-in line. Stop marker is the cue ball center at contact, not the object ball center."
+    },
+    {
+      "id": "drill-stun-tangent",
+      "group": "Cue Ball Control",
+      "title": "90-Degree Stun Tangent Line",
+      "file": "drill-stun-tangent.mp3",
+      "balls": {
+        "Cue": [
+          2,
+          4.5
+        ],
+        "1": [
+          3,
+          4
+        ]
+      },
+      "markers": [
+        {
+          "label": "Yellow square",
+          "xy": [
+            2.82,
+            2.5
+          ],
+          "size_inches": 3
+        }
+      ],
+      "target_pocket": [
+        4,
+        4
+      ],
+      "narration": "Ninety-Degree Stun Tangent Line. Stand at the head end, looking toward the foot. Place the 1-ball one diamond inward from the right side pocket. Put the cue ball on the table’s center line, half a diamond toward the foot end from the center spot. Place a three-inch yellow square one and a half diamonds toward the head end from the 1-ball, and one ball width to its left. Pocket the 1-ball into the right side pocket. Use no side spin and enough low tip contact and speed for the cue ball to be sliding at impact. It should leave along the tangent line, perpendicular to the object ball’s path. Adjust speed to finish inside the yellow square. Reset both balls and repeat five times. Select Execute Shot in the Trainer to compare the path with the tangent line.",
+      "editorial_note": "Center tip contact does not ensure stun at impact. Target uses the ghost-ball contact center and a perpendicular tangent reference."
+    },
+    {
+      "id": "drill-speed-ladder",
+      "group": "Cue Ball Control",
+      "title": "Speed Ladder — Four Zones",
+      "file": "drill-speed-ladder.mp3",
+      "balls": {
+        "Cue": [
+          2,
+          1.5
+        ]
+      },
+      "markers": [
+        {
+          "label": "White circle",
+          "xy": [
+            2,
+            4
+          ],
+          "size_inches": 3
+        },
+        {
+          "label": "Red circle",
+          "xy": [
+            2,
+            6
+          ],
+          "size_inches": 3
+        },
+        {
+          "label": "Yellow circle",
+          "xy": [
+            2,
+            7
+          ],
+          "size_inches": 3
+        },
+        {
+          "label": "Pink circle",
+          "xy": [
+            2,
+            1
+          ],
+          "size_inches": 3
+        }
+      ],
+      "target_pocket": null,
+      "narration": "Speed Ladder. Stand at the head end, looking toward the foot. Use only the cue ball. Start on the center line, half a diamond behind the head string. Place four three-inch circles on the center line: white on the center spot, red on the foot spot, yellow one diamond from the foot cushion, and pink one diamond from the head cushion. Reset the cue ball to the same starting position before every shot. First, stop on white. Second, stop on red. Third, touch the foot cushion and return to yellow. Fourth, touch the foot cushion and return all the way to pink. Use a level cue and no side spin. Change your stroke speed while keeping your delivery smooth. Score one point for each finish inside its circle, for a maximum of four. Repeat the ladder and compare your scores.",
+      "editorial_note": "Clarified reset between attempts and which targets require a foot-cushion rebound."
+    },
+    {
+      "id": "drill-l-pattern",
+      "group": "Positional Patterns",
+      "title": "L-Drill — Five-Ball Rotation",
+      "file": "drill-l-pattern.mp3",
+      "balls": {
+        "Cue": [
+          2,
+          1.5
+        ],
+        "1": [
+          3.5,
+          7
+        ],
+        "2": [
+          3.5,
+          6
+        ],
+        "3": [
+          3.5,
+          5
+        ],
+        "4": [
+          3,
+          7.5
+        ],
+        "5": [
+          2,
+          7.5
+        ]
+      },
+      "markers": [
+        {
+          "label": "White square",
+          "xy": [
+            2,
+            4
+          ],
+          "size_diamonds": 1
+        }
+      ],
+      "target_pocket": null,
+      "narration": "The L-Drill. Stand at the head end, looking toward the foot. Place balls one, two, and three half a diamond from the right long rail, respectively one, two, and three diamonds from the foot cushion. Place ball four one diamond from the right long rail and half a diamond from the foot cushion. Place ball five on the center line, also half a diamond from the foot cushion. These five balls form an L. Put a white square at the center spot, one diamond wide. Start the cue ball on the center line, half a diamond behind the head string. Pocket balls one through five in order, choosing clear corner pockets. Plan the next angle before every shot. Use the center square as a recovery option when it helps the next shot. Count balls pocketed in sequence, then reset the full pattern and try again.",
+      "editorial_note": "Added exact inward rail offsets. Center recovery is an option, not a requirement after every shot."
+    },
+    {
+      "id": "drill-t-pattern",
+      "group": "Positional Patterns",
+      "title": "T-Drill — Center and Foot String",
+      "file": "drill-t-pattern.mp3",
+      "balls": {
+        "Cue": [
+          3,
+          2
+        ],
+        "1": [
+          2,
+          4
+        ],
+        "2": [
+          2,
+          5
+        ],
+        "3": [
+          2,
+          6
+        ],
+        "4": [
+          1,
+          6
+        ],
+        "5": [
+          3,
+          6
+        ]
+      },
+      "markers": [
+        {
+          "label": "Yellow circle 1",
+          "xy": [
+            1,
+            4
+          ],
+          "size_diamonds": 0.5
+        },
+        {
+          "label": "Yellow circle 2",
+          "xy": [
+            3,
+            4
+          ],
+          "size_diamonds": 0.5
+        }
+      ],
+      "target_pocket": null,
+      "narration": "The T-Drill. Stand at the head end, looking toward the foot. Place ball one on the center spot. Place ball two one diamond farther toward the foot, and ball three on the foot spot. Put ball four on the foot string, one diamond to the left of ball three, and ball five one diamond to its right. Start the cue ball on the head string, one diamond from the right long rail. Place two yellow circles, each half a diamond wide, halfway between the center spot and the side pockets. Pocket balls one through five in order into corner pockets. Choose the yellow zone that gives you a useful angle for the next ball. Use a cushion when it helps the route. Keep the cue ball clear of the remaining balls. Count your run, reset the full pattern, and work toward completing all five.",
+      "editorial_note": "Moved cue ball off the occupied center spot. Removed mandatory short-rail contact after every shot."
+    },
+    {
+      "id": "drill-wagon-wheel",
+      "group": "Positional Patterns",
+      "title": "Wagon Wheel — Six Target Zones",
+      "file": "drill-wagon-wheel.mp3",
+      "balls": {
+        "Cue": [
+          2,
+          4.5
+        ],
+        "1": [
+          3,
+          4
+        ]
+      },
+      "markers": [
+        {
+          "label": "White circle 1",
+          "xy": [
+            1.5,
+            3.5
+          ],
+          "size_inches": 3
+        },
+        {
+          "label": "White circle 2",
+          "xy": [
+            2,
+            3
+          ],
+          "size_inches": 3
+        },
+        {
+          "label": "White circle 3",
+          "xy": [
+            2.82,
+            3
+          ],
+          "size_inches": 3
+        },
+        {
+          "label": "White circle 4",
+          "xy": [
+            3.25,
+            3
+          ],
+          "size_inches": 3
+        },
+        {
+          "label": "White circle 5",
+          "xy": [
+            3.5,
+            2.5
+          ],
+          "size_inches": 3
+        },
+        {
+          "label": "White circle 6",
+          "xy": [
+            2.82,
+            1.5
+          ],
+          "size_inches": 3
+        }
+      ],
+      "target_pocket": [
+        4,
+        4
+      ],
+      "narration": "The Wagon Wheel. Stand at the head end, looking toward the foot. Place the 1-ball one diamond inward from the right side pocket. Put the cue ball on the center line, half a diamond toward the foot from the center spot. Set six three-inch circles on the head side of the 1-ball. Marker one is one and a half diamonds from the left rail and three and a half from the head rail. Marker two is two from the left and three from the head. Marker three is one ball width left of the 1-ball’s line and three from the head. Marker four is three and a quarter from the left and three from the head. Marker five is three and a half from the left and two and a half from the head. Marker six is directly headward of marker three, one and a half diamonds from the head rail. Reset both balls before every attempt and pocket the 1-ball into the right side pocket. Work through the markers in order, varying draw, follow, and speed. Start without side spin. Record the combinations that produce repeatable finishes.",
+      "editorial_note": "Custom head-side target fan for one fixed cut. Removed impossible dead-stop-on-object-center target. Targets are practice challenges, not verified live-app trajectories."
+    },
+    {
+      "id": "drill-two-rail-recovery",
+      "group": "Rail Navigation",
+      "title": "Two-Rail Center Recovery",
+      "file": "drill-two-rail-recovery.mp3",
+      "balls": {
+        "Cue": [
+          3,
+          5
+        ],
+        "1": [
+          3,
+          7
+        ]
+      },
+      "markers": [
+        {
+          "label": "White square",
+          "xy": [
+            2,
+            1
+          ],
+          "size_diamonds": 1
+        }
+      ],
+      "target_pocket": [
+        4,
+        8
+      ],
+      "narration": "Two-Rail Center Recovery. Stand at the head end, looking toward the foot. Place the 1-ball one diamond from the right long rail and one diamond from the foot cushion. Put the cue ball on the same rail offset, three diamonds from the foot cushion. Place a white square on the center line, one diamond from the head cushion. Make the square one diamond wide. Pocket the 1-ball into the foot-right corner. Start with natural forward roll and no side spin. Look for the cue ball to contact the foot cushion, then the left long cushion, and travel toward the white recovery zone. Adjust your stroke speed to finish in the square. Keep the ball placements fixed so you can compare attempts. Score the pocketed ball and the position result separately. Try five shots, then repeat your most successful speed.",
+      "editorial_note": "Redesigned cut for a plausible foot-then-left cushion route. Broad landing zone; no prescribed running English or guaranteed exact landing."
+    },
+    {
+      "id": "drill-scratch-avoidance",
+      "group": "Rail Navigation",
+      "title": "Side Pocket Scratch Avoidance",
+      "file": "drill-scratch-avoidance.mp3",
+      "balls": {
+        "Cue": [
+          2,
+          6
+        ],
+        "1": [
+          3.5,
+          4
+        ]
+      },
+      "markers": [
+        {
+          "label": "Red square",
+          "xy": [
+            3.75,
+            0.25
+          ],
+          "size_diamonds": 0.5
+        },
+        {
+          "label": "White square",
+          "xy": [
+            2,
+            7
+          ],
+          "size_diamonds": 1
+        }
+      ],
+      "target_pocket": [
+        4,
+        4
+      ],
+      "narration": "Side Pocket Scratch Avoidance. Stand at the head end, looking toward the foot. Place the 1-ball half a diamond inward from the right side pocket. Start the cue ball on the foot spot. Place a red square beside the head-right corner pocket, centered a quarter diamond from each cushion. Make it half a diamond wide. Place a white square on the center line, one diamond from the foot cushion, and make it one diamond wide. Pocket the 1-ball into the right side pocket. Compare forward roll, stun, and controlled draw, starting without side spin. Watch the whole cue ball route, including any cushion rebounds. Find a stroke that keeps the cue ball clear of the red danger zone and returns it toward white. In the Trainer, judge whether the path enters the red zone, even if cue ball pocketing is prevented. Reset both balls and repeat five times.",
+      "editorial_note": "Object ball moved safely inside the pocket mouth. Removed claim that outside spin bends the tangent line. Red-zone scoring accommodates cue-ball pocket prevention."
+    },
+    {
+      "id": "drill-mirror-kick",
+      "group": "Kicking Systems",
+      "title": "One-Rail Mirror Kick",
+      "file": "drill-mirror-kick.mp3",
+      "balls": {
+        "Cue": [
+          3,
+          2
+        ],
+        "1": [
+          3,
+          5
+        ],
+        "8": [
+          3,
+          3.5
+        ]
+      },
+      "markers": [
+        {
+          "label": "Yellow circle",
+          "xy": [
+            0.09,
+            3.5
+          ],
+          "size_inches": 3
+        }
+      ],
+      "target_pocket": null,
+      "narration": "One-Rail Mirror Kick. Stand at the head end, looking toward the foot. Put the cue ball on the head string, one diamond from the right long rail. Place the 1-ball on that same line, three diamonds from the foot cushion. Put the 8-ball halfway between them to block the direct shot. The cue ball and the 1-ball are now equally distant from the left cushion. Mark the left cushion halfway between their lengthwise positions: three and a half diamonds from the head cushion. Center a yellow circle one ball radius inside that cushion as the cue ball contact reference. Use a level cue, moderate speed, and no side spin. Send the cue ball to the left cushion, then into the 1-ball without touching the 8-ball first. Begin with the midpoint reference and make small aiming adjustments from your observed results. Reset the cue ball after each attempt and count five clean contacts.",
+      "editorial_note": "Equal-distance baseline makes midpoint geometry valid; target ball is not frozen to a different rail."
+    },
+    {
+      "id": "drill-two-rail-kick",
+      "group": "Kicking Systems",
+      "title": "Two-Rail Corner Kick",
+      "file": "drill-two-rail-kick.mp3",
+      "balls": {
+        "Cue": [
+          2.75,
+          1
+        ],
+        "1": [
+          3.25,
+          7
+        ],
+        "8": [
+          3,
+          4
+        ],
+        "2": [
+          3,
+          3.64
+        ],
+        "3": [
+          3,
+          4.36
+        ]
+      },
+      "markers": [
+        {
+          "label": "Yellow circle A",
+          "xy": [
+            3.91,
+            6
+          ],
+          "size_inches": 3
+        },
+        {
+          "label": "Yellow circle B",
+          "xy": [
+            3.5,
+            7.91
+          ],
+          "size_inches": 3
+        }
+      ],
+      "target_pocket": null,
+      "narration": "Two-Rail Corner Kick. Stand at the head end, looking toward the foot. Place the cue ball one diamond from the head cushion and one and a quarter diamonds from the right long rail. Put the 1-ball one diamond from the foot cushion and three quarters of a diamond from the right long rail. Place the 8-ball level with the side pockets, one diamond from the right rail. Put balls two and three on the same line, two ball widths to either side of the 8-ball toward the head and foot ends. This blocks the direct shot. Place yellow marker A at the right cushion on the foot string, with its center one ball radius inside the cloth. Place yellow marker B half a diamond left of the foot-right corner, also one ball radius inside the foot cushion. Use moderate speed and no side spin. Aim the cue ball center toward A. Look for right cushion, then foot cushion near B, then contact with the 1-ball. Make small aiming adjustments and count five successful escapes.",
+      "editorial_note": "Added an explicit reflected two-rail baseline and separated ball-center rail contacts from cushion-nose coordinates. Markers are geometric starting references, not guarantees."
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "format": "billiards-trainer",
+  "version": 1,
+  "kind": "layout",
+  "name": "8-ball full rack",
+  "layout": {
+    "name": "8-ball full rack",
+    "tableL": 2.54,
+    "tableW": 1.27,
+    "ballR": 0.028575,
+    "setupMode": "custom",
+    "allowMissingCueBall": false,
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 0.635,
+        "y": 0.635,
+        "active": true
+      },
+      {
+        "id": 1,
+        "n": "1",
+        "x": 1.905,
+        "y": 0.635,
+        "active": true
+      },
+      {
+        "id": 9,
+        "n": "9",
+        "x": 1.9544933518262806,
+        "y": 0.606425,
+        "active": true
+      },
+      {
+        "id": 2,
+        "n": "2",
+        "x": 1.9544933518262806,
+        "y": 0.6635749999999999,
+        "active": true
+      },
+      {
+        "id": 3,
+        "n": "3",
+        "x": 2.0039867036525614,
+        "y": 0.57785,
+        "active": true
+      },
+      {
+        "id": 8,
+        "n": "8",
+        "x": 2.0039867036525614,
+        "y": 0.635,
+        "active": true
+      },
+      {
+        "id": 10,
+        "n": "10",
+        "x": 2.0039867036525614,
+        "y": 0.69215,
+        "active": true
+      },
+      {
+        "id": 11,
+        "n": "11",
+        "x": 2.053480055478842,
+        "y": 0.549275,
+        "active": true
+      },
+      {
+        "id": 4,
+        "n": "4",
+        "x": 2.053480055478842,
+        "y": 0.606425,
+        "active": true
+      },
+      {
+        "id": 12,
+        "n": "12",
+        "x": 2.053480055478842,
+        "y": 0.6635749999999999,
+        "active": true
+      },
+      {
+        "id": 5,
+        "n": "5",
+        "x": 2.053480055478842,
+        "y": 0.7207250000000001,
+        "active": true
+      },
+      {
+        "id": 6,
+        "n": "6",
+        "x": 2.102973407305123,
+        "y": 0.5207,
+        "active": true
+      },
+      {
+        "id": 13,
+        "n": "13",
+        "x": 2.102973407305123,
+        "y": 0.57785,
+        "active": true
+      },
+      {
+        "id": 14,
+        "n": "14",
+        "x": 2.102973407305123,
+        "y": 0.635,
+        "active": true
+      },
+      {
+        "id": 7,
+        "n": "7",
+        "x": 2.102973407305123,
+        "y": 0.69215,
+        "active": true
+      },
+      {
+        "id": 15,
+        "n": "15",
+        "x": 2.102973407305123,
+        "y": 0.7493,
+        "active": true
+      }
+    ],
+    "freeAim": {
+      "x": 1.905,
+      "y": 0.635
+    }
+  },
+  "practiceNote": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+  "diamondOrientation": "x across 0–4; y head-to-foot 0–8. App coordinates x=head-to-foot, y=across."
+}

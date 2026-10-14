@@ -1,0 +1,123 @@
+/* Phone play keeps the table wide and puts the existing controls in a drawer. */
+#app { height:100vh; height:100dvh; }
+#phoneHeader,#phoneActions,#phoneDismiss,#phoneNotice { display:none; }
+#btg-fullscreen { touch-action:manipulation; }
+body.phone-layout:not(.projector) #app { display:block; position:relative; height:var(--phone-height,100dvh); }
+body.phone-layout:not(.projector) #stageWrap { position:absolute; top:calc(52px + env(safe-area-inset-top)); left:env(safe-area-inset-left); right:env(safe-area-inset-right); bottom:calc(48px + env(safe-area-inset-bottom)); }
+body.phone-layout:not(.projector) #phoneHeader { display:flex; position:fixed; z-index:45; top:0; left:0; right:0; min-height:52px; align-items:center; gap:6px; padding:calc(6px + env(safe-area-inset-top)) calc(8px + env(safe-area-inset-right)) 6px calc(8px + env(safe-area-inset-left)); background:#171a1f; border-bottom:1px solid #3b4652; }
+body.phone-layout .btg-pool-title { display:flex; flex:1; min-width:0; align-items:center; gap:6px; margin-bottom:0; }
+body.phone-layout .btg-pool-title h1 { min-width:0; flex:1; margin:0; font-size:13px; }
+body.phone-layout .btg-pool-title .editionSub { display:none; }
+body.phone-layout #btg-pool-launchers { gap:3px; }
+body.phone-layout #btg-pool-launchers .btg-launcher { width:32px; height:32px; }
+body.phone-layout #phoneControls { flex:0 0 auto; min-height:40px; padding:5px 8px; font-size:12px; }
+body.phone-layout:not(.projector) #panel { display:none; position:fixed; z-index:40; top:calc(52px + env(safe-area-inset-top)); bottom:calc(48px + env(safe-area-inset-bottom)); right:env(safe-area-inset-right); width:min(350px,calc(100% - 16px)); padding:10px; box-shadow:-8px 0 28px #0009; overscroll-behavior:contain; }
+body.phone-layout.phone-controls-open #panel { display:block; }
+body.phone-layout.phone-controls-open #phoneDismiss { display:block; position:fixed; z-index:35; inset:calc(52px + env(safe-area-inset-top)) 0 calc(48px + env(safe-area-inset-bottom)); width:100%; padding:0; border:0; border-radius:0; background:#0005; }
+body.phone-layout:not(.projector) #phoneActions { display:flex; position:fixed; z-index:45; left:0; right:0; bottom:0; align-items:center; justify-content:center; gap:8px; min-height:48px; padding:4px calc(8px + env(safe-area-inset-right)) calc(4px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left)); background:#171a1f; border-top:1px solid #3b4652; }
+body.phone-layout #phoneActions button { min-height:40px; flex:1; max-width:220px; font-size:13px; touch-action:manipulation; }
+body.phone-layout #panel input[type=number],body.phone-layout #panel input[type=text],body.phone-layout #panel select { font-size:16px; }
+body.phone-layout #analyzePhotoBtn { left:8px; right:auto; height:32px; top:4px; font-size:10px; padding:0 8px; }
+body.phone-layout #cameraCaptureBtn { left:125px; right:auto; top:4px; width:32px; height:32px; line-height:30px; }
+body.phone-layout #quickLayoutRecall { left:165px; right:auto; top:4px; width:32px; height:32px; line-height:30px; }
+body.phone-layout #bt-guide-pool-root { top:40px; }
+#phoneNotice.visible { display:block; position:fixed; z-index:80; left:12px; right:12px; bottom:calc(56px + env(safe-area-inset-bottom)); margin:auto; max-width:540px; padding:10px 36px 10px 12px; background:#142b36; border:1px solid #72a5bf; border-radius:9px; font-size:13px; box-shadow:0 4px 24px #000a; }
+#phoneNotice button { position:absolute; right:4px; top:4px; width:28px; height:28px; padding:0; border-radius:50%; }
+body.phone-layout .photoAnalyzerPanel { width:100%; height:var(--phone-height,100dvh); max-height:var(--phone-height,100dvh); }
+@media(max-height:500px) and (orientation:landscape) {
+ body.phone-layout .photoAnalyzerBody { grid-template-columns:minmax(0,1fr) 260px; grid-template-rows:minmax(0,1fr); }
+ body.phone-layout .photoReview { border-left:1px solid #323a44; border-top:0; }
+ body.phone-layout #photoAnalyzerCanvas { max-height:none; }
+}
+
+/* Phone-only rail controls: Shot 1 on the left, Shot 2 on the right. */
+body.phone-layout .aimControlRow,body.phone-layout .tableSpeedControl,body.phone-layout .bottomSpinGroup {
+ top:44px !important; width:32px !important; height:calc(100% - 52px) !important; transform:none !important;
+}
+body.phone-layout #aimControls { left:6px !important; }
+body.phone-layout #tableSpeed1Wrap { left:44px !important; }
+body.phone-layout #bottomSpin1 { left:82px !important; }
+body.phone-layout #aimControls2 { left:calc(100% - 114px) !important; }
+body.phone-layout #tableSpeed2Wrap { left:calc(100% - 76px) !important; }
+body.phone-layout #bottomSpin2 { left:calc(100% - 38px) !important; }
+body.phone-layout .aimRollerControl { width:32px; min-width:0; height:100%; flex-direction:column; padding:6px 4px; gap:4px; cursor:ns-resize; }
+body.phone-layout .aimRollerControl .rollerTrack { width:20px; height:auto; min-height:0; }
+body.phone-layout .aimRollerControl .rollerTicks { background:repeating-linear-gradient(0deg,rgba(255,255,255,.45) 0px,rgba(255,255,255,.45) 1px,transparent 1px,transparent 12px); }
+body.phone-layout .aimRollerControl .rollerCenter { left:0; top:50%; width:100%; height:2px; transform:translateY(-50%); }
+body.phone-layout .tableSpeedControl { padding:26px 3px 6px; flex-direction:column; gap:0; }
+body.phone-layout .tableSpeedControl input[type=range],body.phone-layout .miniSpinControl input[type=range] {
+ writing-mode:vertical-lr; direction:rtl; width:26px; min-width:0; height:100%; min-height:0; flex:1; margin:0; touch-action:none;
+}
+body.phone-layout .tableSpeedLabel,body.phone-layout .miniSpinLabel { left:0; right:0; top:6px; transform:none; text-align:center; font-size:8px; }
+body.phone-layout .tableSpeedLabel { font-size:0; }
+body.phone-layout #tableSpeed1Wrap .tableSpeedLabel::after { content:'SPD 1'; font-size:8px; }
+body.phone-layout #tableSpeed2Wrap .tableSpeedLabel::after { content:'SPD 2'; font-size:8px; }
+body.phone-layout .bottomSpinGroup { flex-direction:column; gap:6px; }
+body.phone-layout .miniSpinControl { flex:1; min-height:0; width:32px; height:auto; padding:24px 3px 6px; }
+body.phone-layout .speedTickScale { left:0; right:0; top:28px; bottom:12px; height:auto; }
+body.phone-layout .speedTickScale .speedTick { left:50% !important; top:calc(100% - var(--phone-tick,50%)); width:24px; height:2px; transform:translate(-50%,-50%); }
+body.phone-layout .speedTickScale .speedTick.major { width:26px; height:2px; }
+body.phone-layout #bt-guide-pool-root {
+ position:fixed; z-index:46; top:env(safe-area-inset-top); left:calc(6px + env(safe-area-inset-left)); right:auto;
+ max-width:calc(100% - 230px - env(safe-area-inset-left) - env(safe-area-inset-right)); margin:0;
+}
+body.phone-layout:not(.projector) #stageWrap { top:calc(max(52px,var(--phone-guide-height,0px)) + env(safe-area-inset-top)); }
+body.phone-layout #bt-guide-pool-root:not(.btg-enabled) { display:none; }
+body.phone-layout #bt-guide-pool-root .btg-toolbar { overflow-x:auto; scrollbar-width:thin; }
+body.phone-layout #bt-guide-pool-root .btg-pool-drawer .btg-expanded { max-height:35vh; }
+#phoneFlightCanvas { display:none; position:fixed; z-index:46; top:env(safe-area-inset-top); left:env(safe-area-inset-left); inset:auto; pointer-events:none; }
+body.phone-layout #phoneFlightCanvas { top:env(safe-area-inset-top); left:env(safe-area-inset-left); }
+#phonePanelScroll { display:none; }
+body.phone-layout.phone-controls-open #panel { padding-right:26px; scrollbar-width:none; }
+body.phone-layout #panel::-webkit-scrollbar { width:0; }
+body.phone-layout.phone-controls-open #phonePanelScroll { display:block; position:fixed; z-index:51; right:calc(3px + env(safe-area-inset-right)); top:calc(56px + env(safe-area-inset-top)); bottom:calc(52px + env(safe-area-inset-bottom)); width:14px; border-radius:8px; background:#25313d; touch-action:none; cursor:ns-resize; }
+#phonePanelScrollThumb { position:absolute; left:4px; right:4px; top:0; min-height:24px; border-radius:5px; background:#91aaba; pointer-events:none; }
+#phonePanelScroll:focus-visible { outline:2px solid #6fff58; }
+@media(max-width:600px) and (orientation:portrait) {
+ body.phone-layout #bt-guide-pool-root { top:calc(52px + env(safe-area-inset-top)); max-width:calc(100% - 12px); }
+ body.phone-layout:not(.projector) #stageWrap { top:calc(52px + var(--phone-guide-height,0px) + env(safe-area-inset-top)); }
+}
+
+/* Live values and wider finger clearance on the landscape phone controls. */
+.phoneSliderValue { display:none; }
+body.phone-layout .phoneSliderValue { display:block; position:absolute; top:20px; left:0; right:0; text-align:center; font-size:10px; line-height:14px; font-weight:800; font-variant-numeric:tabular-nums; color:#fff; pointer-events:none; }
+body.phone-layout .tableSpeedControl,body.phone-layout .miniSpinControl { padding-top:42px; }
+body.phone-layout .speedTickScale { top:44px; }
+body.phone-layout .bottomSpinGroup { gap:18px; }
+body.phone-layout:not(.projector) #phoneActions { left:var(--phone-table-left,160px); right:auto; width:var(--phone-table-width,calc(100% - 320px)); padding:4px 0 calc(4px + env(safe-area-inset-bottom)); }
+body.phone-layout #phoneActions button { max-width:none; min-width:0; padding:6px 3px; }
+@media(orientation:landscape) {
+ body.phone-layout .aimControlRow,body.phone-layout .tableSpeedControl,body.phone-layout .bottomSpinGroup { width:36px !important; }
+ body.phone-layout #aimControls { left:6px !important; }
+ body.phone-layout #tableSpeed1Wrap { left:62px !important; }
+ body.phone-layout #bottomSpin1 { left:118px !important; }
+ body.phone-layout #aimControls2 { left:calc(100% - 154px) !important; }
+ body.phone-layout #tableSpeed2Wrap { left:calc(100% - 98px) !important; }
+ body.phone-layout #bottomSpin2 { left:calc(100% - 42px) !important; }
+ body.phone-layout .aimRollerControl,body.phone-layout .miniSpinControl { width:36px; }
+}
+
+/* Compact action row and pen-safe gameplay; editable controls retain text selection. */
+body.phone-layout #phoneActions { gap:5px; }
+body.phone-layout #phoneActions button { min-height:34px; font-size:11px; padding:4px 2px; }
+#stageWrap, #stageWrap canvas, #phoneActions, #phoneHeader {
+  -webkit-touch-callout:none; -webkit-user-select:none; user-select:none;
+}
+#stageWrap canvas { touch-action:none; }
+
+/* Fixed cue-tip controls sit under the side sliders, outside the table. */
+.phoneTipControl { display:none; }
+body.phone-layout .phoneTipControl:not([hidden]) {
+ display:block; position:fixed; inset:auto; z-index:46; width:60px; height:64px;
+ bottom:calc(4px + env(safe-area-inset-bottom)); touch-action:none;
+ -webkit-touch-callout:none; user-select:none; cursor:crosshair;
+}
+body.phone-layout #phoneTip1 { left:calc(26px + env(safe-area-inset-left)); }
+body.phone-layout #phoneTip2 { right:calc(26px + env(safe-area-inset-right)); }
+body.phone-layout .aimControlRow,body.phone-layout .tableSpeedControl,body.phone-layout .bottomSpinGroup {
+ height:calc(100% - 72px) !important;
+}
+@media(orientation:landscape) {
+ body.phone-layout #phoneTip1 { left:calc(50px + env(safe-area-inset-left)); }
+ body.phone-layout #phoneTip2 { right:calc(50px + env(safe-area-inset-right)); }
+}

@@ -1,0 +1,126 @@
+{
+  "format": "billiards-trainer",
+  "version": 1,
+  "kind": "layout",
+  "name": "Wagon Wheel — Six Target Zones",
+  "layout": {
+    "name": "Wagon Wheel — Six Target Zones",
+    "tableL": 2.54,
+    "tableW": 1.27,
+    "ballR": 0.028575,
+    "setupMode": "custom",
+    "allowMissingCueBall": false,
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 1.42875,
+        "y": 0.635,
+        "active": true
+      },
+      {
+        "id": 1,
+        "n": "1",
+        "x": 1.27,
+        "y": 0.9525,
+        "active": true
+      },
+      {
+        "id": 1000,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "white",
+        "markerShape": "circle",
+        "markerDiameterIn": 3,
+        "markerWidthIn": 3,
+        "markerHeightIn": 3,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 1.11125,
+        "y": 0.47625,
+        "active": true
+      },
+      {
+        "id": 1001,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "white",
+        "markerShape": "circle",
+        "markerDiameterIn": 3,
+        "markerWidthIn": 3,
+        "markerHeightIn": 3,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 0.9525,
+        "y": 0.635,
+        "active": true
+      },
+      {
+        "id": 1002,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "white",
+        "markerShape": "circle",
+        "markerDiameterIn": 3,
+        "markerWidthIn": 3,
+        "markerHeightIn": 3,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 0.9525,
+        "y": 0.89535,
+        "active": true
+      },
+      {
+        "id": 1003,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "white",
+        "markerShape": "circle",
+        "markerDiameterIn": 3,
+        "markerWidthIn": 3,
+        "markerHeightIn": 3,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 0.9525,
+        "y": 1.031875,
+        "active": true
+      },
+      {
+        "id": 1004,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "white",
+        "markerShape": "circle",
+        "markerDiameterIn": 3,
+        "markerWidthIn": 3,
+        "markerHeightIn": 3,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 0.79375,
+        "y": 1.11125,
+        "active": true
+      },
+      {
+        "id": 1005,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "white",
+        "markerShape": "circle",
+        "markerDiameterIn": 3,
+        "markerWidthIn": 3,
+        "markerHeightIn": 3,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 0.47625,
+        "y": 0.89535,
+        "active": true
+      }
+    ],
+    "freeAim": {
+      "x": 1.27,
+      "y": 0.89535
+    }
+  },
+  "practiceNote": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface.",
+  "diamondOrientation": "x across 0–4; y head-to-foot 0–8. App coordinates x=head-to-foot, y=across."
+}

@@ -1,14 +1,42 @@
-const CACHE_NAME = 'billiards-trainer-4-12-ai-camera-v21';
+const CACHE_NAME = 'billiards-trainer-4-12-presets-recovery-v13-v58';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
-  './manifest.webmanifest'
+  './guide/audio-startup.js?v=walkthrough-v11',
+  './guide/practice-layouts.js?v=walkthrough-v11',
+  './guide/practice-layouts.json?v=walkthrough-v11',
+  './guide/guide.js?v=walkthrough-v11',
+  './guide/guide.css?v=presets-recovery-v13',
+  './guide/pool-guide.css?v=fit5',
+  './guide/recorded-audio.js?v=presets-recovery-v13',
+  './guide/recorded-audio.json?v=presets-recovery-v13',
+  './guide/pool-integration.js?v=presets-recovery-v13',
+  './guide/pool-audio-map.json?v=walkthrough-v11',
+  './guide/analyze-integration.js?v=presets-recovery-v13',
+  './guide/analyze-walkthrough.js?v=presets-recovery-v13',
+  './manifest.webmanifest',
+  './phone-play.css?v=8',
+  './phone-play.js?v=8',
+  './photo-calibration.js?v=walkthrough-v11',
+  './photo-table-spots.js?v=3',
+  './photo-cloth-filter.js?v=2',
+  './photo-calibration.css?v=presets-recovery-v13',
+  './photo-ball-crops.js?v=1',
+  './trainer-layout-files.js?v=2',
+  './trainer-saved-files.js?v=1'
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => Promise.all(APP_SHELL.map(url => cache.add(url).catch(() => null))))
+      .then(async () => {
+        const cache=await caches.open(CACHE_NAME);
+        const response=await fetch('./guide/audio-assets.json');
+        if(!response.ok)throw Error('Audio asset list unavailable');
+        const assets=await response.json();const layouts=await fetch('./guide/practice-layouts.json?v=walkthrough-v11').then(r=>r.json());assets.push(...Object.values(layouts.layouts).map(x=>x.url));let next=0;
+        await Promise.all(Array.from({length:6},async()=>{while(next<assets.length){const asset=assets[next++];await cache.add(asset);}}));
+      })
       .then(() => self.skipWaiting())
   );
 });
@@ -53,7 +81,7 @@ self.addEventListener('fetch', event => {
 
   // Always prefer the network for HTML and installer UI assets so a normal
   // mobile reload picks up the newest installer without a hard-refresh keyboard shortcut.
-  if (event.request.mode === 'navigate' || /\/index\.html$/i.test(url.pathname) || isInstallerAsset) {
+  if (event.request.mode === 'navigate' || /\/index\.html$/i.test(url.pathname) || isInstallerAsset || /\/(?:phone-play\.(?:css|js)|photo-[^/]+\.(?:css|js)|guide\/guide\.(?:css|js))$/i.test(url.pathname)) {
     event.respondWith(networkFirst(event.request));
     return;
   }
