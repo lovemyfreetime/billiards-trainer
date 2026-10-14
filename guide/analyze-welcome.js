@@ -1,11 +1,11 @@
 /* Explain the value of image practice before the action-aware walkthrough. */
 (function(global){
 'use strict';
-const text='Welcome to Analyze Real Pool Table. Bring a real shot into practice. Take an image of a difficult shot on your own table, an interesting layout someone else is playing, or a clear frame from an instructor or professional match on YouTube or Billiards TV. Bring that image into the Trainer to work on the same arrangement. Explore different angles, speed, and spin, then reset the layout and try again. It is a great way to practice a shot that challenged you, follow along with a lesson, or see how you would approach the table a professional played. A clear overhead view works best. Review the ball numbers and positions before applying the layout. Ready to try it? Tap Walkthrough. It will guide you from choosing an image to placing your reviewed layout on the Trainer table.';
+const text='Welcome to Table Analysis. Turn any real-world layout into a playable practice drill. Snap a photo of your table or grab a screenshot from a pro match, confirm the ball positions, and load it straight onto the cloth. Tap Walkthrough to get started.';
 function init(){
  const modal=document.getElementById('photoAnalyzerModal'),panel=document.getElementById('photoAnalyzerWelcome'),button=document.getElementById('photoWelcomePlay');
  if(!modal||!panel||!button||!global.BilliardsAudioStartup)return;
- const audio=new Audio('./guide/audio/analyze-page-welcome.mp3');audio.preload='auto';audio.volume=.8;audio.dataset.analyzeWelcome='1';
+ const audio=new Audio('./guide/audio/analyze-page-welcome.mp3?v=analyze-welcome-v16');audio.preload='auto';audio.volume=.8;audio.dataset.analyzeWelcome='1';
  const output=global.BilliardsAudioStartup.create(audio);let opened=false,active=false;
  document.getElementById('photoWelcomeText').textContent=text;
  function sync(){button.textContent=output.starting||!audio.paused?'Pause welcome':audio.ended?'Replay welcome':'Play welcome';button.setAttribute('aria-label',button.textContent);}
