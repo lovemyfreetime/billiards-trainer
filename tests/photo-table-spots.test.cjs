@@ -58,3 +58,21 @@ for(let y=0;y<96;y++)for(let x=0;x<88;x++)shifted.data.set(offset.data.subarray(
 assert.equal(filter.inspect(shifted,48).isSpot,true,'detector center displaced from the white dot');
 assert.equal(filter.nearSpot(.30,.60),true,'imprecise perspective alignment');
 console.log('Pale/wide and displaced spots rejected; smaller dark eight balls and bright ball bodies retained.');
+// Foot-spot evidence supports a dot painted on cloth as well as an adhesive disc.
+for(const color of [[245,245,235],[15,15,18]])for(const radius of [3,6,10])assert.equal(filter.inspectRackMark(image(radius,0,false,color,false),48).isSpot,true,'printed rack dot');
+for(const radius of [19,24])assert.equal(filter.inspectRackMark(image(radius,0,false,[15,15,18],false),48).isSpot,false,'full-sized ball is not rack evidence');
+assert.equal(filter.inspectRackMark(image(0,0,false,[12,145,190],false),48).isSpot,false,'empty cloth');
+assert.match(filter.rackCheckMessage(true,false),/selected foot end/);
+assert.match(filter.rackCheckMessage(false,true),/Flip Ends/);
+assert.match(filter.rackCheckMessage(true,true),/both ends/);
+assert.match(filter.rackCheckMessage(false,false),/no clear/);
+assert.match(filter.rackCheckMessage(null,null),/outside/);
+// Actual UI check searches both spots, skips cropped positions and caches unchanged fits.
+const ui={textContent:''};env.$=()=>ui;env.photoVision.imageReady=true;env.photoVision.imageVersion=1;env.pvRegion=()=>({x0:0,x1:1,y0:0,y1:1});
+vm.runInContext(source('pvCheckFootSpot'),env);
+let calls=0;env.pvIsTableSpot=(x,y,check)=>{calls++;assert.equal(check,true);return Math.abs(x-.75)<.001;};
+env.pvCheckFootSpot();assert.match(ui.textContent,/selected foot end/);const firstCalls=calls;env.pvCheckFootSpot();assert.equal(calls,firstCalls,'unchanged calibration avoids repeated pixel scanning');
+env.pvRegion=()=>({x0:0,x1:.5,y0:0,y1:1});env.pvIsTableSpot=x=>Math.abs(x-.25)<.001;env.pvCheckFootSpot();assert.match(ui.textContent,/Flip Ends/);
+env.pvRegion=()=>({x0:0,x1:.5,y0:0,y1:.25});env.pvCheckFootSpot();assert.match(ui.textContent,/outside/);
+env.fit=null;env.pvCheckFootSpot();assert.match(ui.textContent,/four corners/);
+console.log('Foot spot check passed: printed/adhesive dots, uncertain ends, cropped coverage and cached UI checks.');

@@ -61,5 +61,33 @@ function inspect(image,ballDiameter){
  if(fraction(discRadius*1.4,clothMatch)<.72||fraction(br*.95,clothMatch)<.72)return fail;
  return {isSpot:true,diameterRatio:ratio,dotArea};
 }
-const api={nearSpot,inspect};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsTableSpots=api;
+// Extra orientation evidence only. This does not replace the stricter ball
+// rejection filter above: a printed dot must never remove a real ball.
+function inspectRackMark(image,ballDiameter){
+ if(inspect(image,ballDiameter).isSpot)return {isSpot:true,kind:'adhesive'};
+ const {width:w,height:h,data}=image||{};if(!data||w<32||h<32||ballDiameter<16)return {isSpot:false};
+ const cx=(w-1)/2,cy=(h-1)/2,br=ballDiameter/2;
+ const pixel=(x,y)=>{x=Math.round(x);y=Math.round(y);if(x<0||y<0||x>=w||y>=h)return null;const i=(y*w+x)*4;return [data[i],data[i+1],data[i+2]];};
+ const ring=r=>Array.from({length:48},(_,a)=>pixel(cx+r*Math.cos(a*Math.PI/24),cy+r*Math.sin(a*Math.PI/24)));
+ const outer=ring(br*1.2);if(outer.some(p=>!p))return {isSpot:false};
+ const cloth=[0,1,2].map(k=>median(outer.map(p=>p[k]))),hi=Math.max(...cloth),lo=Math.min(...cloth);
+ if(hi<55||(hi-lo)/hi<.22)return {isSpot:false};
+ const match=p=>p&&Math.hypot(...p.map((v,k)=>v-cloth[k]))<40;
+ const marked=p=>{if(!p)return false;const v=Math.max(...p),sat=(v-Math.min(...p))/Math.max(1,v);return Math.hypot(...p.map((n,k)=>n-cloth[k]))>60&&(v<hi*.45||(v>hi+30&&sat<.25));};
+ if(!marked(pixel(cx,cy)))return {isSpot:false};
+ const fraction=(r,test)=>ring(r).filter(test).length/48;
+ // Require a small round mark with cloth returning on every surrounding ring.
+ let radius=0;for(let r=1;r<=br*.85;r+=.5){if(fraction(r,marked)>=.85)radius=r;}
+ if(radius<2||radius>br*.6||fraction(radius*.6,marked)<.9)return {isSpot:false};
+ for(const r of [radius*1.6,br*.9,br*1.2])if(fraction(r,match)<.9)return {isSpot:false};
+ return {isSpot:true,kind:'printed',diameterRatio:radius/br};
+}
+function rackCheckMessage(foot,head){
+ if(foot===null&&head===null)return 'Foot spot check: the rack position is outside this table region.';
+ if(foot&&head)return 'Foot spot check: marks found at both ends. Confirm the head and foot ends manually.';
+ if(foot)return 'Foot spot check: a likely rack dot matches the selected foot end. Confirm it against the real table.';
+ if(head)return 'Foot spot check: a likely dot is at the selected head end. If this is the rack dot, use Flip Ends.';
+ return 'Foot spot check: no clear rack dot found. It may be hidden, faint, or absent; confirm the ends manually.';
+}
+const api={nearSpot,inspect,inspectRackMark,rackCheckMessage};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsTableSpots=api;
 })(typeof window==='object'?window:globalThis);

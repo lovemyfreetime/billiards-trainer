@@ -22,6 +22,36 @@
     // Estimates start at image TL/TR/BR/BL; anchor 1→2 must span a long rail.
     return vertical>horizontal?[points[1],points[2],points[3],points[0]]:points.slice();
   }
+  function estimateOrientation(points,width,height){
+    if(points?.length===4){
+      const q=cornersForHead(points,'left'),edge=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+      const along01=edge(q[0],q[1])+edge(q[2],q[3]),along12=edge(q[1],q[2])+edge(q[3],q[0]);
+      const a=q[along12>along01?1:0],b=q[along12>along01?2:1];
+      return Math.abs(b.y-a.y)>Math.abs(b.x-a.x)?'top':'left';
+    }
+    return height>=width?'top':'left';
+  }
+  function headDirection(points,width,height){
+    if(points?.length===4){const hx=(points[0].x+points[3].x)/2,hy=(points[0].y+points[3].y)/2,fx=(points[1].x+points[2].x)/2,fy=(points[1].y+points[2].y)/2;
+      return Math.abs(fx-hx)>=Math.abs(fy-hy)?(hx<fx?'left':'right'):(hy<fy?'top':'bottom');}
+    return height>=width?'top':'left';
+  }
+  function cornersForHead(points,end){
+    if(points?.length!==4)return points;
+    const cx=points.reduce((a,p)=>a+p.x,0)/4,cy=points.reduce((a,p)=>a+p.y,0)/4;
+    const sorted=points.slice().sort((a,b)=>Math.atan2(a.y-cy,a.x-cx)-Math.atan2(b.y-cy,b.x-cx));
+    const first=sorted.reduce((a,p,i)=>p.x+p.y<sorted[a].x+sorted[a].y?i:a,0),quad=sorted.map((_,i)=>sorted[(first+i)%4]);
+    const shift={left:0,top:1,right:2,bottom:3}[end]||0;return quad.map((_,i)=>quad[(i+shift)%4]);
+  }
+  function orientDiagram(markup,end){
+    const config={left:[0,'','0 0 416 236'],right:[180,'translate(416 236) rotate(180)','0 0 416 236'],top:[90,'translate(236 0) rotate(90)','0 0 236 416'],bottom:[-90,'translate(0 416) rotate(-90)','0 0 236 416']}[end]||[0,'','0 0 416 236'];
+    const [angle,transform,viewBox]=config;
+    markup=markup.replace(/<text[^>]*>(?:HEAD \/ BREAK|KITCHEN|FOOT \/ RACK)<\/text>/g,'');
+    if(angle)markup=markup.replace(/<text([^>]*)>/g,(tag,attrs)=>{const x=attrs.match(/\bx="([^"]+)"/),y=attrs.match(/\by="([^"]+)"/);return x&&y?'<text'+attrs+' transform="rotate('+(-angle)+' '+x[1]+' '+y[1]+')">':tag;});
+    const labels={left:[88,100,328,100],right:[328,100,88,100],top:[118,91,118,332],bottom:[118,320,118,80]}[end]||[88,100,328,100];
+    const [hx,hy,fx,fy]=labels;
+    return {viewBox,markup:'<g id="photoCalibrationGeometry" transform="'+transform+'">'+markup+'</g><text x="'+hx+'" y="'+hy+'" text-anchor="middle">HEAD / BREAK</text><text x="'+hx+'" y="'+(hy+15)+'" text-anchor="middle">KITCHEN</text><text x="'+fx+'" y="'+fy+'" text-anchor="middle">FOOT / RACK</text>'};
+  }
   function diamonds(){
     const result=[];
     for(let i=1;i<8;i++)if(i!==4){
@@ -91,7 +121,7 @@
     for(let j=1;j<8;j+=2)path([{x:0,y:j/8},{x:1,y:j/8}]);
     ctx.restore();
   }
-  const api={orderDetectedCorners,pockets,region,customRegion,anchors,diamonds,fit,apply,inverse,validQuad,references};
+  const api={estimateOrientation,headDirection,cornersForHead,orientDiagram,orderDetectedCorners,pockets,region,customRegion,anchors,diamonds,fit,apply,inverse,validQuad,references};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   else root.BilliardsPhotoCalibration=api;
 })(typeof window!=='undefined'?window:globalThis);

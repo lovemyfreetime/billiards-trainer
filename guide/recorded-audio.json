@@ -3156,9 +3156,9 @@
     {
       "topic": {
         "id": "analyze-open-or-close-fine-tune-corner",
-        "title": "Custom table layouts",
-        "audio": "./guide/audio/analyze-open-or-close-fine-tune-corner.mp3?v=corner-guide-v9",
-        "text": "Custom Table Layouts opens the table-region and alignment controls beside your image. Choose full, half, quarter, or custom coverage to match the part of the table you can see. Match the highlighted boundary points, then refine the alignment with visible pocket and diamond references. Select Custom Table Layouts again to close this panel.",
+        "title": "Custom Table Layouts",
+        "audio": "./guide/audio/analyze-open-or-close-fine-tune-corner.mp3?v=table-orientation-v10",
+        "text": "Custom Table Layouts opens the table-region and alignment controls beside your image. The diagram follows the image’s estimated orientation. Use the Head / Kitchen End menu to choose its direction, or Flip Ends if the head and foot ends are reversed. Choose the coverage you can see and match the numbered references. Analyze Balls closes this panel so the right side shows the detected balls. Select Custom Table Layouts to open it again.",
         "summary": "Custom Table Layouts opens the table-region and alignment controls beside your image.",
         "category": "reference",
         "level": 0,
@@ -3214,9 +3214,9 @@
       "topic": {
         "id": "analyze-analyze-balls",
         "title": "Analyze Balls",
-        "audio": "./guide/audio/analyze-analyze-balls.mp3",
-        "text": "Analyze Balls detects candidates in the current image using its calibrated region, rack choice, and detector mode. Complete calibration first. Review the numbered balls and question marks before transferring the layout.",
-        "summary": "Analyze Balls detects candidates in the current image using its calibrated region, rack choice, and detector mode.",
+        "audio": "./guide/audio/analyze-analyze-balls.mp3?v=table-orientation-v10",
+        "text": "Analyze Balls detects ball candidates inside the calibrated table region. Custom Table Layouts closes so you can review the detected balls on the right. Check each candidate and assign its identity before applying the layout to the Trainer.",
+        "summary": "Analyze Balls detects ball candidates inside the calibrated table region.",
         "category": "reference",
         "level": 0,
         "group": "Image selection and setup",
@@ -7296,6 +7296,42 @@
         "explorerOnly": true,
         "text": "After choosing an image, select Find / Add Corners. The small table diagram highlights the next point to mark. Match that point to the same physical corner or boundary in your image. For a full table, start at the head-end corner shown as pocket one. Follow the same long rail to pocket three at the foot end. Cross the foot-end short rail to pocket four, then return along the other long rail to pocket six. This table-based order works for portrait and landscape images; the first two points follow a long rail, rather than the top edge of the screen. Use Reset Corners if you need to begin again. Use Custom Table Layouts for partial coverage and diamond references. Corner Sensing can estimate a full-table outline, but check its numbered orientation before continuing. Once the outline matches, select Analyze Balls.",
         "summary": "After choosing an image, select Find / Add Corners."
+      }
+    },
+    {
+      "page": "Analyze",
+      "kind": "Control",
+      "targets": [
+        "#photoOrientation"
+      ],
+      "topic": {
+        "id": "analyze-table-orientation",
+        "title": "Head / Kitchen End",
+        "category": "reference",
+        "level": 0,
+        "recordingStatus": "recorded",
+        "explorerOnly": true,
+        "text": "The Head / Kitchen End menu controls how the table diagram matches your image. Auto estimates portrait or landscape orientation from the image and corner outline. It cannot identify the actual head end from the cloth alone. Choose Top or Bottom for a vertical table, or Left or Right for a horizontal table. Match the head, break, and kitchen end to the real table. Changing orientation clears the previous ball analysis so you can check the corners and analyze again.",
+        "summary": "The Head / Kitchen End menu controls how the table diagram matches your image.",
+        "audio": "./guide/audio/analyze-table-orientation.mp3?v=table-orientation-v10"
+      }
+    },
+    {
+      "page": "Analyze",
+      "kind": "Control",
+      "targets": [
+        "#photoFlipEnds"
+      ],
+      "topic": {
+        "id": "analyze-flip-table-ends",
+        "title": "Flip Ends",
+        "category": "reference",
+        "level": 0,
+        "recordingStatus": "recorded",
+        "explorerOnly": true,
+        "text": "Flip Ends swaps the head and foot ends of the table diagram. Use it when the head, break, or kitchen end is shown at the opposite end from your image. Existing corner positions stay in place, but their numbered table references change. Review the alignment and select Analyze Balls again.",
+        "summary": "Flip Ends swaps the head and foot ends of the table diagram.",
+        "audio": "./guide/audio/analyze-flip-table-ends.mp3?v=table-orientation-v10"
       }
     }
   ]

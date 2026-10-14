@@ -15,7 +15,7 @@ vm.runInContext(source('imagePointToNormalized','    // ================== END P
 sandbox.pvSetupCalibration();assert.equal($('photoRefineAlignment').disabled,true);
 $('photoCalibrationPanel').hidden=true;$('photoFineTune').events.click();assert.equal($('photoCalibrationPanel').hidden,false);assert.equal($('photoFineTune')['aria-expanded'],'true');
 $('photoFindCorners').events.click();assert.equal($('photoCalibrationPanel').hidden,false);assert.equal(state.corners.length,0);
-state.refining=true;state.pendingDiamond='top-1';$('photoFineTune').events.click();assert.equal($('photoCalibrationPanel').hidden,true);assert.equal(state.refining,false);assert.equal(state.pendingDiamond,null);
+state.orientation='left';state.refining=true;state.pendingDiamond='top-1';$('photoFineTune').events.click();assert.equal($('photoCalibrationPanel').hidden,true);assert.equal(state.refining,false);assert.equal(state.pendingDiamond,null);
 const H=[720,80,100,30,380,90,.1,.1,1];
 for(const end of ['full','head','foot']){
  $('photoRegion').value=end;$('photoRegion').events.change();
@@ -46,3 +46,12 @@ for(const p of C.anchors(sandbox.pvRegion()))sandbox.pvHandlePhotoTap(C.apply(H,
 const cropped=sandbox.warpPhotoTopDown(80,40);assert.equal(cropped.canvas.width,40);assert.equal(cropped.canvas.height,20);
 state.addMissedMode=true;sandbox.pvHandlePhotoTap(C.apply(H,{x:.3,y:.35}));assert.ok(Math.abs(state.detections[0].ny-.35)<1e-7);
 assert.ok(sandbox.pvCalibrationReferences().some(d=>d.id==='pocket-2'));console.log('Quarter-photo handler preserves global Y and cropped warp dimensions; middle pockets available as references.');
+
+state.regionEnd='full';sandbox.pvResetDetectionsAndCorners();for(const p of C.anchors(C.region('full',8)))sandbox.pvHandlePhotoTap(C.apply(H,p));
+$('photoOrientation').value='top';$('photoOrientation').events.change();assert.equal(state.orientation,'top');assert.equal(C.headDirection(state.corners),'top');
+$('photoFlipEnds').events.click();assert.equal(state.orientation,'bottom');assert.equal(C.headDirection(state.corners),'bottom');assert.equal(state.detections.length,0);
+sandbox.pvSetCalibrationVisible(true);assert.equal($('photoCalibrationPanel').hidden,false);sandbox.pvSetCalibrationVisible(false);assert.equal($('photoCalibrationPanel').hidden,true);assert.equal($('photoFineTune')['aria-expanded'],'false');
+
+state.orientation='auto';state.regionEnd='full';sandbox.pvResetDetectionsAndCorners();
+for(const p of [{x:100,y:100},{x:450,y:100},{x:450,y:900},{x:100,y:900}])sandbox.pvHandlePhotoTap(p);
+assert.deepEqual(JSON.parse(JSON.stringify(state.corners[0])),{x:450,y:100});assert.equal(sandbox.pvImageOrientation(),'top');

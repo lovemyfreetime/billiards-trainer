@@ -80,3 +80,10 @@
 .photoSummaryBall.cue{position:absolute;top:-39px;left:273px}
 .photoSummaryBall.empty{visibility:hidden}
 @media(max-width:700px){#photoBallStrip{grid-template-columns:repeat(8,32px)}.photoSummaryBall.cue{left:259px;top:-38px}#photoBallCount{min-height:33px;line-height:33px}}
+
+/* These controls now sit in the main action row. */
+.photoAnalyzerToolbar #photoFineTune{position:static;transform:none;width:auto;height:32px;min-height:32px;padding:5px 8px;font-size:12px}
+#photoOrientationHint{font-size:11px;line-height:1.4;color:#bdd8d2;margin:5px 0}
+#photoCalibrationDiagram[viewBox="0 0 236 416"]{max-height:45vh;width:auto;max-width:100%;margin:auto}
+
+#photoFootSpotHint{font-size:12px;line-height:1.4;color:#c7d8df;padding:4px 0;}

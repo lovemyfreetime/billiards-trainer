@@ -5125,9 +5125,49 @@
       "model": "simba-3.2",
       "rate": "+30%",
       "request_id": "0668f3ea-58a0-4ad7-9f0b-e4e0777fd7e5"
+    },
+    {
+      "file": "analyze-open-or-close-fine-tune-corner.mp3",
+      "seconds": 20.592,
+      "bytes": 329517,
+      "billable_characters": 439,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "9f3b475c-ac21-4369-a8bc-1d68c469f185"
+    },
+    {
+      "file": "analyze-analyze-balls.mp3",
+      "seconds": 11.592,
+      "bytes": 185517,
+      "billable_characters": 240,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "113c6646-bfd8-4771-a7b2-34adbe73f151"
+    },
+    {
+      "file": "analyze-table-orientation.mp3",
+      "seconds": 22.056,
+      "bytes": 352941,
+      "billable_characters": 468,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "521441fc-0337-45b8-b965-9e6388296dd4"
+    },
+    {
+      "file": "analyze-flip-table-ends.mp3",
+      "seconds": 14.04,
+      "bytes": 224685,
+      "billable_characters": 288,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "e3bacc7a-62fb-4827-9f20-a7512c780af4"
     }
   ],
-  "current_recording_count": 621,
+  "current_recording_count": 623,
   "pitch_preserving_tempo_adjustments": {
     "files": [
       "drill-stop-shot.mp3",
@@ -5207,6 +5247,31 @@
         "tempo": 0.8608521696089755,
         "before_seconds": 11.256,
         "after_seconds": 13.104
+      }
+    ]
+  },
+  "orientation_pacing": {
+    "target_wpm": 174.3730407523511,
+    "files": [
+      {
+        "file": "analyze-table-orientation.mp3",
+        "tempo": 0.8012441222570533,
+        "seconds": 27.576
+      },
+      {
+        "file": "analyze-flip-table-ends.mp3",
+        "tempo": 0.8160658307210031,
+        "seconds": 17.256
+      },
+      {
+        "file": "analyze-open-or-close-fine-tune-corner.mp3",
+        "tempo": 0.819792158715163,
+        "seconds": 25.152
+      },
+      {
+        "file": "analyze-analyze-balls.mp3",
+        "tempo": 0.8865492492987957,
+        "seconds": 13.104
       }
     ]
   }
