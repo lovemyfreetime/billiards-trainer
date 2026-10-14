@@ -36,10 +36,10 @@ function mount(host,options={}){
  function isActive(){return options.isActive?options.isActive():!!host.closest('#photoAnalyzerModal')?.classList.contains('open')}
  function mappedTopic(e){const el=e.target instanceof Element?e.target.closest('[data-guide-topic]'):null;return options.resolveTopic?.(e,el)||el?.dataset.guideTopic}
  function save(){try{localStorage.setItem(STORE,JSON.stringify(state))}catch(_){}}
- function stop(){pendingResource=null;playback.pause();const t=selected();if(audioFiles(t).length)loadSequenceTrack(t,0);else audio.currentTime=0;sequenceIndex=0;state.position=0;save()}
+ function stop(){options.onPlaybackStop?.();pendingResource=null;playback.pause();const t=selected();if(audioFiles(t).length)loadSequenceTrack(t,0);else audio.currentTime=0;sequenceIndex=0;state.position=0;save()}
  function selected(){return topics.find(t=>t.id===state.topicId)||null}
  function choose(id){playback.pause();if(options.onTopicChange?.(topics.find(t=>t.id===id)||null)===false){render();return false;}pendingResource=null;audio.removeAttribute('src');audio.load();sequenceIndex=0;state.topicId=id;state.position=0;save();render();return true}
- function play(){let t=selected();if(!t&&state.enabled){t=availableLessons()[0];if(t)choose(t.id)}if(!t)return;
+ function play(){options.onPlaybackStart?.();let t=selected();if(!t&&state.enabled){t=availableLessons()[0];if(t)choose(t.id)}if(!t)return;
    if(!audioFiles(t).length)return;
    if(!audio.getAttribute('src')||audio.dataset.topic!==t.id)loadSequenceTrack(t,0);
    playback.play().catch(()=>{}).finally(render);render();}
@@ -243,12 +243,12 @@ function mount(host,options={}){
  audio.addEventListener('ended',()=>{const t=selected();
   if(!audio.ended||!t||audio.dataset.topic!==t.id)return;
   if(sequenceIndex+1<audioFiles(t).length){loadSequenceTrack(t,sequenceIndex+1);playback.play().catch(()=>{});}
-  else{state.position=0;save();const resource=pendingResource===t.id?t:null;pendingResource=null;advanceLesson();if(resource)openResource(resource);}
+  else{state.position=0;save();const resource=pendingResource===t.id?t:null;pendingResource=null;if(options.onLessonEnd?.(t,{...state})!==true)advanceLesson();if(resource)openResource(resource);}
  });
  document.addEventListener('pointerover',inspectTarget,true);
  // Explorer alone enables the inspection shield; validate against real trainer interactions before integration.
  render();
- return {setEnabled,setExploring,openCategory,openGuide,tryShot:practice,pause(){playback.pause();render()},selectTopic(id){choose(id);},destroy(){narrationPlaying=false;host.classList.remove('btg-narrating');pendingResource=null;playback.destroy();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
+ return {setEnabled,setExploring,openCategory,openGuide,tryShot:practice,nextLesson(){const list=availableLessons(),i=list.findIndex(t=>t.id===state.topicId);if(i<0||i+1>=list.length)return false;if(choose(list[i+1].id)===false)return false;play();return true},pause(){playback.pause();render()},selectTopic(id){choose(id);},destroy(){narrationPlaying=false;host.classList.remove('btg-narrating');pendingResource=null;playback.destroy();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
 }
 global.BilliardsGuide={mount,CATEGORIES,LEVELS};
 })(window);

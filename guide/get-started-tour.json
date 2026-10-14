@@ -294,5 +294,11 @@
       "recordingStatus": "recorded",
       "layout": "./guide/layouts/get-started-08.billiards.json"
     }
-  ]
+  ],
+  "transition": {
+    "seconds": 10,
+    "text": "Next lesson in ten seconds. Tap the table to try this shot.",
+    "audio": "./guide/audio/get-started-next-lesson.mp3",
+    "recordingStatus": "pending"
+  }
 }

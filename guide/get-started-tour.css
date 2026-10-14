@@ -6,3 +6,9 @@
 .btg-practice-library button,.btg-practice-library a{display:inline-block;margin:2px 6px 2px 0;font-size:11px}
 .btg-practice-library a{color:#a7dcff}
 @media(max-width:600px){#bt-guide-pool-root .btg-toolbar{flex-wrap:wrap}}
+.btg-practice-next{margin-top:6px;text-align:center;border-top:1px solid #53646c;padding-top:6px}
+.btg-practice-next[hidden],.btg-practice-next [hidden]{display:none!important}
+.btg-countdown>span{display:block;font-size:11px;color:#d4e4e8}
+.btg-countdown strong{display:block;font-size:46px;line-height:1.1;color:#ffdf79;font-variant-numeric:tabular-nums}
+#bt-guide-pool-root button.btg-next-lesson{display:block;width:100%;min-height:62px;border-radius:8px;font-size:20px;font-weight:700;background:#66d9ed;color:#082a35}
+.btg-last-lesson{margin:4px;font-size:11px;color:#d4e4e8}
