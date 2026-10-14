@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-inline-countdown-v24-v69';
+const CACHE_NAME = 'billiards-trainer-4-12-countdown-recording-v70';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
