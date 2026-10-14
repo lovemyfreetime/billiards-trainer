@@ -112,7 +112,7 @@
 #photoWalkthroughRecovery{margin-top:6px;}
 
 /* Dim examples identify unassigned slots without looking like detections. */
-.photoSummaryBall.empty{visibility:visible;opacity:.36;background:var(--ball-color);border:1px dashed #ffffff80;cursor:default;pointer-events:auto}
+.photoSummaryBall.empty{visibility:visible;opacity:.14;background:var(--ball-color);border:1px dashed #ffffff80;cursor:default;pointer-events:auto}
 .photoSummaryBall.empty.stripe{background:linear-gradient(#f5f5ef 0 27%,var(--ball-color) 27% 73%,#f5f5ef 73%)}
 .photoAnalyzerToolbar>.photoAnalyzerWelcome{flex:0 0 100%;display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:6px 8px;box-sizing:border-box;border:1px solid #527c87;border-radius:7px;background:#17333d;color:#eaf7f9;font:12px/1.4 system-ui}
 .photoAnalyzerWelcome[hidden]{display:none!important}
@@ -121,3 +121,7 @@
 .photoAnalyzerWelcome details{display:contents}
 .photoAnalyzerWelcome summary{cursor:pointer;padding:5px;list-style:none;text-decoration:underline;text-underline-offset:3px}
 .photoAnalyzerWelcome p{flex:0 0 100%;margin:3px 0;max-width:100%;font-size:13px}
+
+/* Actual detections stand apart from the faint reference slots. */
+.photoSummaryBall:not(.empty){opacity:1;filter:brightness(1.15);border-color:#ffffffb3;box-shadow:inset 1px 1px 3px #ffffff60,0 0 7px #ffffff38}
+.photoSummaryBall.unassigned{border-color:#ffd86b;box-shadow:inset 1px 1px 3px #ffffff60,0 0 8px #ffd86b55}
