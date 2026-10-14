@@ -12,7 +12,7 @@ The supplied scripts, recording URLs and normalized setups are in `get-started-t
 
 ## Between-lesson Chase prompt
 
-The countdown works now. Its optional voice slot is `guide/audio/get-started-next-lesson.mp3`, currently pending. Record this short prompt in Chase: “Next lesson in ten seconds. Tap the table to try this shot.” After adding the approved file, change `transition.recordingStatus` to `recorded` in `get-started-tour.json`, add the MP3 to `audio-assets.json`, and bump the service-worker cache. The counter begins when the prompt actually starts playing; a blocked or unavailable recording falls back to the visual countdown. Tapping to practice stops the prompt and countdown.
+The countdown works now. Its supplied Chase recording is `guide/audio/get-started-next-lesson.mp3` and is connected. The recording says: “Next lesson in ten seconds. Tap the table to try this shot.” The approved file is included in the offline cache without alteration. The counter begins when the prompt actually starts playing; a blocked or unavailable recording falls back to the visual countdown. Tapping to practice stops the prompt and countdown.
 
 `tests/lesson-countdown.browser.cjs` verifies real ten-to-zero timing, mouse/touch first-gesture gating, second-gesture aiming, cancellation, Next Lesson, final stop, phone layout, and optional transition-voice behavior.
 
