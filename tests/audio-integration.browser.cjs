@@ -21,7 +21,7 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
    image:document.querySelector('.photoToolGroup:first-child .photoToolHeading').dataset.guideTopic,
    run:document.querySelector('#startFullRack').dataset.guideTopic};
  });
- assert.equal(result.count,381);assert.deepEqual(result.missing,[]);assert.deepEqual(result.invalid,[]);
+ assert.equal(result.count,385);assert.deepEqual(result.missing,[]);assert.deepEqual(result.invalid,[]);
  assert.equal(result.ai,'analyze-ai-detector-mode-and-readiness');assert.equal(result.setup,'analyze-table-setup-heading');assert.equal(result.image,'analyze-image-camera-heading');assert.equal(result.run,'main-start-full-rack');
  await page.click('#btg-pool-start');
  assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().autoplay),true);
@@ -238,6 +238,6 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await page.screenshot({path:'../audio-integration-preview.png',fullPage:false});
  assert.equal(await page.evaluate(()=>window.__spokenText.length),0);
  assert.deepEqual(errors,[]);
- console.log(JSON.stringify({walkthrough:'image load → corners → orientation → rack → analysis → review → optional save → Apply; native layout shortcut and Back verified',records:result.count,drillGroups:groups,allAudioFetches:'381 successful',welcomes:'Guide intro autoplays on open/reopen, Play/Pause and Read work, Auto advances into selected category; 5 category MP3s play',resourcePopups:'5 verified destinations open only after real audio ended; Stop cancels navigation',offlineReload:'passed, including native saved setup',practiceSetups:'29 files mapped to 85 topics; Read, More, and Balls load/reset work',dropdown:'remains mounted and focused while Auto advances; current title updates independently',mp3Playback:'decoded and advancing',dedicatedMappings:result,browserErrors:errors,featuresAndOptions:'9 controls and 9 labels play their dedicated MP3 without mutation',controlsTab:'removed',zeroXLinks:2}));
+ console.log(JSON.stringify({walkthrough:'image load → corners → orientation → rack → analysis → review → optional save → Apply; native layout shortcut and Back verified',records:result.count,drillGroups:groups,allAudioFetches:'385 successful',welcomes:'Guide intro autoplays on open/reopen, Play/Pause and Read work, Auto advances into selected category; 5 category MP3s play',resourcePopups:'5 verified destinations open only after real audio ended; Stop cancels navigation',offlineReload:'passed, including native saved setup',practiceSetups:'29 files mapped to 85 topics; Read, More, and Balls load/reset work',dropdown:'remains mounted and focused while Auto advances; current title updates independently',mp3Playback:'decoded and advancing',dedicatedMappings:result,browserErrors:errors,featuresAndOptions:'9 controls and 9 labels play their dedicated MP3 without mutation',controlsTab:'removed',zeroXLinks:2}));
  await browser.close();server.kill();
 })().catch(e=>{console.error(e);server.kill();process.exit(1)});

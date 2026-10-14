@@ -8666,5 +8666,51 @@
     "targets": [],
     "narration": "Your reviewed layout is now on the Trainer table. If you chose Apply plus Save, the named layout is also saved on this device. You can now practice the arrangement.",
     "recording_status": "Recorded"
+  },
+  {
+    "id": "main-cue-shaft-preset",
+    "page": "Main",
+    "section": "Advanced Physics / Calibration",
+    "title": "Cue / Shaft Preset",
+    "file": "main-cue-shaft-preset.mp3",
+    "kind": "Control",
+    "targets": [
+      "#cueShaftPreset"
+    ],
+    "narration": "Cue and Shaft Preset is in Advanced Physics and Calibration. Standard shaft keeps the original squirt setting. Low-deflection shaft reduces squirt while keeping the same tip spin. Custom opens the cue ball to end-mass ratio for individual adjustment. The choice applies to both shots and is saved with your settings.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "analyze-walkthrough-image-error",
+    "page": "Analyze",
+    "section": "Walkthrough recovery",
+    "title": "Try another image",
+    "file": "analyze-walkthrough-image-error.mp3",
+    "kind": "Walkthrough recovery",
+    "targets": [],
+    "narration": "This image could not be opened. Choose Try Another Image and select a PNG, JPG, or WEBP file. The walkthrough will continue after the new image loads.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "analyze-walkthrough-analysis-error",
+    "page": "Analyze",
+    "section": "Walkthrough recovery",
+    "title": "Retry the analysis",
+    "file": "analyze-walkthrough-analysis-error.mp3",
+    "kind": "Walkthrough recovery",
+    "targets": [],
+    "narration": "Analysis could not finish. Choose Adjust Corners to check the table outline, or Analyze Again to retry. You can also choose Try Another Image for a clearer view.",
+    "recording_status": "Recorded"
+  },
+  {
+    "id": "analyze-walkthrough-no-balls",
+    "page": "Analyze",
+    "section": "Walkthrough recovery",
+    "title": "Add balls or check alignment",
+    "file": "analyze-walkthrough-no-balls.mp3",
+    "kind": "Walkthrough recovery",
+    "targets": [],
+    "narration": "No balls were detected. Choose Add Missed Ball and tap the center of one visible ball, then assign its identity. Repeat for other missed balls. You can also adjust the corners and analyze again, or try another image.",
+    "recording_status": "Recorded"
   }
 ]

@@ -7,3 +7,12 @@ m.back(s);m.update(s);assert.equal(m.state().id,'corners','Back stays available 
 m.start(s);m.next(s);assert.equal(m.state().id,'find');s.imageVersion++;s.imageReady=false;m.update(s);assert.equal(m.state().id,'picker');s.imageReady=true;m.update(s);assert.equal(m.state().id,'find');s.loadedTableFile={name:'Saved drill'};m.update(s);assert.equal(m.state().id,'review');
 m.next(s);m.next(s);s.reviewReady=false;m.update(s);assert.equal(m.state().id,'review','changed identities invalidate Apply step');m.stop();m.update(s,'applied');assert.equal(m.state().id,'review','stopped walkthrough ignores later actions');
 assert.equal(new Set(steps.map(s=>s.id)).size,11);console.log('Walkthrough transitions passed: real load, valid corners, explicit choices, analysis completion, review, save skip and successful Apply.');
+const {instructionFor}=require('../guide/analyze-walkthrough');
+assert.equal(instructionFor({imageError:'failed'},'picker',steps[1]).id,'image-error');
+assert.equal(instructionFor({analysisError:'failed'},'analyze',steps[6]).id,'analysis-error');
+assert.equal(instructionFor({detectionCount:0},'review',steps[7]).id,'no-balls');
+assert.equal(instructionFor({detectionCount:1},'review',steps[7]).recovery,false);
+m.start(s);m.recover('corners',s);m.update(s);assert.equal(m.state().id,'corners');
+m.recover('retry',s);m.update(s);assert.equal(m.state().id,'analyze');
+m.recover('image',s);assert.equal(m.state().id,'picker');
+console.log('Recovery states wait for genuine load/analysis and keep corner adjustment available.');

@@ -7511,6 +7511,72 @@
         "summary": "Your reviewed layout is now on the Trainer table.",
         "audio": "./guide/audio/analyze-walkthrough-complete.mp3?v=walkthrough-v11"
       }
+    },
+    {
+      "page": "Main",
+      "kind": "Control",
+      "targets": [
+        "#cueShaftPreset"
+      ],
+      "topic": {
+        "id": "main-cue-shaft-preset",
+        "title": "Cue / Shaft Preset",
+        "category": "reference",
+        "level": 0,
+        "recordingStatus": "recorded",
+        "explorerOnly": true,
+        "text": "Cue and Shaft Preset is in Advanced Physics and Calibration. Standard shaft keeps the original squirt setting. Low-deflection shaft reduces squirt while keeping the same tip spin. Custom opens the cue ball to end-mass ratio for individual adjustment. The choice applies to both shots and is saved with your settings.",
+        "summary": "Cue and Shaft Preset is in Advanced Physics and Calibration.",
+        "audio": "./guide/audio/main-cue-shaft-preset.mp3?v=presets-recovery-v13"
+      }
+    },
+    {
+      "page": "Analyze",
+      "kind": "Walkthrough recovery",
+      "targets": [],
+      "topic": {
+        "id": "analyze-walkthrough-image-error",
+        "title": "Try another image",
+        "category": "reference",
+        "level": 0,
+        "recordingStatus": "recorded",
+        "explorerOnly": true,
+        "text": "This image could not be opened. Choose Try Another Image and select a PNG, JPG, or WEBP file. The walkthrough will continue after the new image loads.",
+        "summary": "This image could not be opened.",
+        "audio": "./guide/audio/analyze-walkthrough-image-error.mp3?v=presets-recovery-v13"
+      }
+    },
+    {
+      "page": "Analyze",
+      "kind": "Walkthrough recovery",
+      "targets": [],
+      "topic": {
+        "id": "analyze-walkthrough-analysis-error",
+        "title": "Retry the analysis",
+        "category": "reference",
+        "level": 0,
+        "recordingStatus": "recorded",
+        "explorerOnly": true,
+        "text": "Analysis could not finish. Choose Adjust Corners to check the table outline, or Analyze Again to retry. You can also choose Try Another Image for a clearer view.",
+        "summary": "Analysis could not finish.",
+        "audio": "./guide/audio/analyze-walkthrough-analysis-error.mp3?v=presets-recovery-v13"
+      }
+    },
+    {
+      "page": "Analyze",
+      "kind": "Walkthrough recovery",
+      "targets": [],
+      "topic": {
+        "id": "analyze-walkthrough-no-balls",
+        "title": "Add balls or check alignment",
+        "category": "reference",
+        "level": 0,
+        "recordingStatus": "recorded",
+        "explorerOnly": true,
+        "text": "No balls were detected. Choose Add Missed Ball and tap the center of one visible ball, then assign its identity. Repeat for other missed balls. You can also adjust the corners and analyze again, or try another image.",
+        "summary": "No balls were detected.",
+        "audio": "./guide/audio/analyze-walkthrough-no-balls.mp3?v=presets-recovery-v13"
+      }
     }
   ]
 }

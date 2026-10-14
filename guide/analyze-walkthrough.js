@@ -14,6 +14,15 @@ const steps=[
  {id:'apply',title:'Send the layout to Trainer',targets:['photoLayoutName','photoApplyTable','photoApplySave'],text:'Choose Apply to Trainer Table to practice now. Or enter a layout name and choose Apply plus Save Layout to keep it for reuse on this device. The walkthrough finishes only after the layout is successfully applied.'},
  {id:'complete',title:'Ready to practice',targets:[],text:'Your reviewed layout is now on the Trainer table. If you chose Apply plus Save, the named layout is also saved on this device. You can now practice the arrangement.'}
 ];
+const recoveries={
+ 'image-error':{id:'image-error',title:'Try another image',text:'This image could not be opened. Choose Try Another Image and select a PNG, JPG, or WEBP file. The walkthrough will continue after the new image loads.'},
+ 'analysis-error':{id:'analysis-error',title:'Retry the analysis',text:'Analysis could not finish. Choose Adjust Corners to check the table outline, or Analyze Again to retry. You can also choose Try Another Image for a clearer view.'},
+ 'no-balls':{id:'no-balls',title:'Add balls or check alignment',text:'No balls were detected. Choose Add Missed Ball and tap the center of one visible ball, then assign its identity. Repeat for other missed balls. You can also adjust the corners and analyze again, or try another image.'}
+};
+function instructionFor(snapshot,stage,step){
+ const id=snapshot.imageError&&['choose','picker'].includes(stage)?'image-error':snapshot.analysisError?'analysis-error':stage==='review'&&snapshot.detectionCount===0?'no-balls':null;
+ return id?{...recoveries[id],key:stage+':'+id,recovery:true}:{...step,key:stage+':normal',recovery:false};
+}
 function createMachine(){
  let active=false,index=0,baseline=0,lastImage=0,analysis=0,loadBaseline=null,backViewing=false;
  const state=()=>({active,index,id:steps[index].id});
@@ -52,7 +61,8 @@ function createMachine(){
  }
  function request(s){if(active){baseline=s.imageVersion;lastImage=s.imageVersion;index=1;backViewing=false;}return state();}
  function back(s){if(active&&index>0){index--;backViewing=true;if(index===1)baseline=s.imageVersion;if(index===6)analysis=s.analysisRevision;}return state();}
- return {start,stop,state,ready,update,next,back,request};
+ function recover(action,s){if(!active)return state();if(action==='image'){request(s);}else if(action==='corners'){index=3;backViewing=true;}else if(action==='retry'){index=6;analysis=s.analysisRevision;backViewing=false;}else if(action==='add'){index=7;backViewing=false;}return state();}
+ return {start,stop,state,ready,update,next,back,request,recover};
 }
 function mount(bridge){
  const $=id=>document.getElementById(id),machine=createMachine(),panel=$('photoWalkthroughPanel'),launcher=$('photoWalkthroughBtn');
@@ -62,23 +72,26 @@ function mount(bridge){
  function stopAudio(){playToken++;output.pause();audio.currentTime=0;}
  function narrate(){
   stopAudio();if(muted)return;
-  const step=steps[machine.state().index],token=playToken;
-  audio.dataset.walkthroughStep=step.id;audio.src='./guide/audio/analyze-walkthrough-'+step.id+'.mp3?v=walkthrough-v11';audio.load();
+  const state=machine.state(),step=instructionFor(snap(),state.id,steps[state.index]),token=playToken;
+  audio.dataset.walkthroughStep=step.id;audio.src='./guide/audio/analyze-walkthrough-'+step.id+'.mp3?v='+(step.recovery?'presets-recovery-v13':'walkthrough-v11');audio.load();
   output.play().catch(()=>{if(token===playToken)$('photoWalkthroughDetail').textContent='Tap Replay to hear this instruction. The written instruction is available above.';});
  }
  function text(id,value){const el=$(id);if(el.textContent!==value)el.textContent=value;}
  function render(){
-  const s=machine.state(),snapshot=snap(),step=steps[s.index];panel.hidden=!s.active;launcher.setAttribute('aria-pressed',String(s.active));
-  if(!s.active||last!==s.id)document.querySelectorAll('.walkthroughTarget').forEach(el=>el.classList.remove('walkthroughTarget'));
+  const s=machine.state(),snapshot=snap(),step=steps[s.index],view=instructionFor(snapshot,s.id,step);panel.hidden=!s.active;launcher.setAttribute('aria-pressed',String(s.active));
+  if(!s.active||last!==view.key)document.querySelectorAll('.walkthroughTarget').forEach(el=>el.classList.remove('walkthroughTarget'));
   if(!s.active){clearInterval(interval);interval=null;return;}
-  if(last!==s.id)for(const id of step.targets)$(id)?.classList.add('walkthroughTarget');
-  text('photoWalkthroughTitle',(s.index+1)+' / 10 · '+step.title);
-  text('photoWalkthroughText',step.text);
+  if(last!==view.key)for(const id of step.targets)$(id)?.classList.add('walkthroughTarget');
+  text('photoWalkthroughTitle',(s.index+1)+' / 10 · '+view.title);
+  text('photoWalkthroughText',view.text);
   $('photoWalkthroughBack').disabled=s.index===0;
-  $('photoWalkthroughNext').disabled=!machine.ready(snapshot)||s.id==='apply';
+  $('photoWalkthroughNext').disabled=!machine.ready(snapshot)||s.id==='apply'||view.recovery;
+  $('photoWalkthroughRecovery').hidden=!view.recovery;
+  $('photoWalkthroughAdjust').hidden=view.id==='image-error';$('photoWalkthroughRetry').hidden=view.id==='image-error'||!snapshot.cornersValid;
+  $('photoWalkthroughAdd').hidden=view.id!=='no-balls';
   $('photoWalkthroughNext').textContent=s.id==='choose'?'Use Current Image':s.id==='save'?'Next / Skip':'Next';
   text('photoWalkthroughDetail',s.id==='corners'?snapshot.cornerHint:s.id==='orientation'?snapshot.orientationHint+' '+snapshot.footSpotHint:s.id==='analyze'&&snapshot.busy?'Analysis is running.':s.id==='review'?snapshot.reviewHint:s.id==='save'?snapshot.archiveBusy?'Saving image…':snapshot.imageSaved?'Image saved on this device. Save other copies if wanted, then Next.':'Optional: choose saves above, or Next to skip.':s.id==='picker'?'Waiting for an image or table file to finish loading. Cancelled? Back returns to Choose Image.':'');
-  if(last!==s.id){if(['corners','orientation'].includes(s.id))bridge.openCalibration();last=s.id;narrate();}
+  if(last!==view.key){if(['corners','orientation'].includes(s.id))bridge.openCalibration();last=view.key;narrate();}
  }
  function update(event){machine.update(snap(),event);render();}
  function stop(){machine.stop();last='';stopAudio();render();}
@@ -96,11 +109,14 @@ function mount(bridge){
   if(['photoChooseImage','photoArchiveLoad','photoLoadTableFile'].includes(id)&&machine.state().index<=1){machine.request(snap());render();}
   if(id==='photoFindCorners')setTimeout(()=>update('find'),0);
  },false);
+ for(const [id,action,target] of [['photoWalkthroughTryImage','image','photoChooseImage'],['photoWalkthroughAdjust','corners',null],['photoWalkthroughRetry','retry','photoAnalyzeNow'],['photoWalkthroughAdd','add','photoAddMissed']])$(id).addEventListener('click',()=>{
+  bridge.clearErrors();machine.recover(action,snap());if(action==='corners')bridge.openCalibration();render();if(target)$(target).click();
+ });
  $('photoRackType').addEventListener('change',()=>setTimeout(()=>update('rack'),0));
  $('photoFileInput').addEventListener('cancel',()=>{if(machine.state().id==='picker'){machine.back(snap());render();}});
  new MutationObserver(()=>{if(!$('photoAnalyzerModal').classList.contains('open')&&machine.state().active)stop();}).observe($('photoAnalyzerModal'),{attributes:true,attributeFilter:['class']});
  const applied=()=>{if(!machine.state().active)return;machine.update(snap(),'applied');last='complete';render();narrate();};
  return {start,stop,notify:update,applied,getState:machine.state};
 }
-const api={steps,createMachine,mount};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsAnalyzeWalkthrough=api;
+const api={steps,recoveries,instructionFor,createMachine,mount};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsAnalyzeWalkthrough=api;
 })(typeof window==='object'?window:globalThis);

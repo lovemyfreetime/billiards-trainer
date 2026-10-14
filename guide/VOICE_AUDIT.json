@@ -5275,9 +5275,49 @@
       "model": "simba-3.2",
       "rate": "+30%",
       "request_id": "9d49aa4a-083d-4f8f-8644-5c668a87713f"
+    },
+    {
+      "file": "main-cue-shaft-preset.mp3",
+      "seconds": 14.52,
+      "bytes": 232365,
+      "billable_characters": 316,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "daf314ee-7782-4a0f-a482-ce98cd84191a"
+    },
+    {
+      "file": "analyze-walkthrough-image-error.mp3",
+      "seconds": 10.056,
+      "bytes": 160941,
+      "billable_characters": 150,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "d605dd54-673e-4416-ba7f-c7e78e8348bf"
+    },
+    {
+      "file": "analyze-walkthrough-analysis-error.mp3",
+      "seconds": 9.768,
+      "bytes": 156333,
+      "billable_characters": 161,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "457f5e89-28c4-4a90-82e7-ba5173beafda"
+    },
+    {
+      "file": "analyze-walkthrough-no-balls.mp3",
+      "seconds": 11.904,
+      "bytes": 190509,
+      "billable_characters": 216,
+      "voice": "chase",
+      "model": "simba-3.2",
+      "rate": "+30%",
+      "request_id": "89e93892-a5da-4808-824b-eee90832193e"
     }
   ],
-  "current_recording_count": 634,
+  "current_recording_count": 638,
   "pitch_preserving_tempo_adjustments": {
     "files": [
       "drill-stop-shot.mp3",
@@ -5442,6 +5482,27 @@
         "file": "analyze-walkthrough-complete.mp3",
         "tempo": 0.8044409613375131,
         "seconds": 10.368
+      }
+    ]
+  },
+  "presets_recovery_pacing": {
+    "target_wpm": 174.3730407523511,
+    "files": [
+      {
+        "file": "main-cue-shaft-preset.mp3",
+        "tempo": 0.8439655172413794
+      },
+      {
+        "file": "analyze-walkthrough-image-error.mp3",
+        "tempo": 1.0824045048182978
+      },
+      {
+        "file": "analyze-walkthrough-analysis-error.mp3",
+        "tempo": 1.0138546798029557
+      },
+      {
+        "file": "analyze-walkthrough-no-balls.mp3",
+        "tempo": 0.9104108232964857
       }
     ]
   }

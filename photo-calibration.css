@@ -107,3 +107,6 @@
 .photoAnalyzerBody{grid-row:4;}
 .photoAnalyzerFooter{grid-row:5;}
 @media(min-width:1200px){.photoAnalyzerToolbar button,.photoAnalyzerToolbar select{padding-left:6px;padding-right:6px;}.photoAnalyzerToolbar #photoArchiveSelect{width:140px!important;max-width:140px!important;}}
+
+#photoWalkthroughRecovery[hidden],#cueEndmassRow[hidden]{display:none!important;}
+#photoWalkthroughRecovery{margin-top:6px;}

@@ -1389,7 +1389,7 @@
 /* Extra rail action for resizable zone markers; retain circular controls. */
 .markerRailCircle:has(button:nth-child(3)) button { font-size:clamp(7px,var(--marker-font),10px); }
 </style>
-<link rel="stylesheet" href="./guide/guide.css?v=walkthrough-only-v12">
+<link rel="stylesheet" href="./guide/guide.css?v=presets-recovery-v13">
 <style>
 /* Isolated Guide integration on Analyze page; existing trainer styling preserved. */
 .photoAnalyzerHeader{background:#205385;min-height:60px;position:relative;overflow:visible;justify-content:flex-start}
@@ -1717,7 +1717,8 @@
       <div class="row"><label>Ball restitution</label><input id="ballRest" type="number" min="0.5" max="1" step="0.005"></div>
       <div class="row"><label>Rail rebound</label><input id="railRest" type="number" min="0.5" max="1" step="0.005"></div>
       <div class="row"><label>Rail tangential damping</label><input id="railTang" type="number" min="0.5" max="1" step="0.005"></div>
-      <div class="row"><label>Cue ball / end-mass ratio</label><input id="cueEndmassRatio" type="number" min="8" max="60" step="0.1"></div>
+      <div class="row"><label for="cueShaftPreset">Cue / Shaft Preset</label><select id="cueShaftPreset"><option value="standard">Standard shaft</option><option value="low">Low-deflection shaft</option><option value="custom">Custom</option></select></div>
+      <div class="row" id="cueEndmassRow" hidden><label for="cueEndmassRatio">Cue ball / end-mass ratio</label><input id="cueEndmassRatio" type="number" min="8" max="60" step="0.1"></div>
       <div class="check"><input id="airbornePhysics" type="checkbox"><label for="airbornePhysics">3D jump / massé / airborne physics</label></div>
       <div class="row"><label>Bed vertical restitution</label><input id="tableRest" type="number" min="0" max="0.95" step="0.01"></div>
       <div class="row"><label>Bed impact friction μ</label><input id="bedImpactMu" type="number" min="0" max="0.5" step="0.01"></div>
@@ -1759,7 +1760,7 @@
     </div>
     <section id="photoWalkthroughPanel" aria-label="Analyze image walkthrough" data-btg-allow="1" hidden>
       <div class="photoWalkthroughRow"><strong id="photoWalkthroughTitle"></strong><div class="photoWalkthroughButtons"><button id="photoWalkthroughBack" type="button">Back</button><button id="photoWalkthroughNext" type="button">Next</button><button id="photoWalkthroughReplay" type="button">Replay</button><button id="photoWalkthroughMute" type="button" aria-pressed="false">Audio On</button><button id="photoWalkthroughStop" type="button">Stop</button></div></div>
-      <p id="photoWalkthroughText" aria-live="polite"></p><div id="photoWalkthroughDetail" role="status"></div>
+      <p id="photoWalkthroughText" aria-live="polite"></p><div id="photoWalkthroughDetail" role="status"></div><div id="photoWalkthroughRecovery" class="photoWalkthroughButtons" hidden><button id="photoWalkthroughTryImage" type="button">Try Another Image</button><button id="photoWalkthroughAdjust" type="button">Adjust Corners</button><button id="photoWalkthroughRetry" type="button">Analyze Again</button><button id="photoWalkthroughAdd" type="button">Add Missed Ball</button></div>
     </section>
     <div class="photoAnalyzerToolbar">
       <div class="photoToolGroup"><span class="photoToolHeading">IMAGE / CAMERA</span><div class="photoToolActions">
@@ -1830,7 +1831,7 @@
   </div>
 </div>
 
-<link rel="stylesheet" href="./photo-calibration.css?v=walkthrough-v11">
+<link rel="stylesheet" href="./photo-calibration.css?v=presets-recovery-v13">
 <script src="./photo-calibration.js?v=walkthrough-v11"></script>
 <script src="./trainer-layout-files.js?v=2"></script>
 <script src="./trainer-saved-files.js?v=1"></script>
@@ -1948,7 +1949,7 @@
                 solution: null
             },
             muSlide: APK.muSliding, muRoll: APK.muRolling, muBall: APK.muBallBall, ballRest: .96,
-            railRest: .90, railTang: .90, cueEndmassRatio: PHYSICS_MODEL.defaultCueEndmassRatio,
+            railRest: .90, railTang: .90, cueEndmassRatio: PHYSICS_MODEL.defaultCueEndmassRatio, cuePreset: 'standard',
             jumpUnits: 'in', airbornePhysics: false, tableRest: PHYSICS_MODEL.defaultTableVerticalRestitution, bedImpactMu: PHYSICS_MODEL.defaultBedImpactFriction, showImpact: true, showTipBadge: false, showPaths: true, showGrid: true, showDiamonds: true, showTable: true,
             preview: null, firstEvent: '—'
         };
@@ -2341,6 +2342,7 @@
     }
     window.billiardsGuideApplyLayout=file=>{applyTableFile(file,false,null,true);if($('photoAnalyzerModal').classList.contains('open'))closePhotoAnalyzer();};
     function stageTableFile(file){
+        photoVision.imageError='';photoVision.analysisError='';
         photoVision.loadedTableFile=file;photoVision.imageVersion++;photoVision.archiveId=null;photoVision.sourceName=file.layout.name;photoVision.rotation=0;photoVision.fineRotation=0;photoVision.sharpen=false;
         const d=file.layout,w=1200,h=Math.round(w*d.tableW/d.tableL)+80;
         for(const [canvas,ctx]of [[photoVision.rawCanvas,photoVision.rawCtx],[photoVision.sourceCanvas,photoVision.sourceCtx],[photoVision.analysisCanvas,photoVision.analysisCtx]]){
@@ -3513,6 +3515,12 @@
         }
         const limit = PHYSICS_MODEL.maxTipOffsetR;
         return { side: s, follow: f, sideR: s * limit, followR: f * limit };
+    }
+    function currentCuePreset(){
+        const ratio=Number(S.cueEndmassRatio);
+        if(S.cuePreset==='custom')return 'custom';
+        const preset=Math.abs(ratio-20.151)<.0005?'standard':Math.abs(ratio-29.158)<.0005?'low':'custom';
+        S.cuePreset=preset;return preset;
     }
     function cueSquirtAngleFor(side, follow = 0, cueEndmassRatio = S.cueEndmassRatio) {
         // Rigid cue/ball impact model (TP A.31): squirt is an immediate deflection
@@ -7051,6 +7059,7 @@
         $('railRest').value = S.railRest;
         $('railTang').value = S.railTang;
         $('cueEndmassRatio').value = (+S.cueEndmassRatio).toFixed(3);
+        $('cueShaftPreset').value=currentCuePreset();$('cueEndmassRow').hidden=S.cuePreset!=='custom';
         $('airbornePhysics').checked = S.airbornePhysics === true;
          $('jumpUnits').value = S.jumpUnits === 'mm' ? 'mm' : 'in';
         $('tableRest').value = (+S.tableRest).toFixed(2);
@@ -7144,7 +7153,7 @@
         if ($('aimControls')) $('aimControls').classList.toggle('activeAim', S.activeShot !== 2);
         if ($('aimControls2')) $('aimControls2').classList.toggle('activeAim', S.activeShot === 2 && S.shot2Enabled);
     }
-    function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
+    function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, cuePreset:S.cuePreset, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
     function keepCueOnTable(q){
         const gap=Math.max(S.ballR*2.2,.065),p={x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR)};
         for(const pocket of logicalPockets())if(Math.hypot(p.x-pocket.x,p.y-pocket.y)<gap){
@@ -10761,7 +10770,8 @@
     }
     async function analyzeCurrentPhoto(){
         pvSetCalibrationVisible(false);
-        if(!pvCalibration()){pvStatus(pvCalibrationPrompt());return;}
+        if(!pvCalibration()){photoVision.analysisError='The table outline needs correction. Adjust the four corners, then analyze again.';pvStatus(pvCalibrationPrompt());return;}
+        photoVision.analysisError='';
         photoVision.refining=false;photoVision.pendingDiamond=null;pvUpdateCalibrationDiagram();
         if(photoVision.aiBusy)return;
         const calibrationAtStart=JSON.stringify([photoVision.imageVersion,pvRegion(),photoVision.corners,photoVision.refinements]);
@@ -10786,7 +10796,7 @@
                 pvStatus(photoVision.aiEnabled?'AI returned no usable balls; running the original hybrid detector…':'Running original hybrid detector…');
                 await new Promise(r=>setTimeout(r,10));
                 const warp=warpPhotoTopDown(640,320,false);
-                if(!warp){pvStatus('Could not rectify the photo. Reset the corners and try again.');return;}
+                if(!warp){photoVision.analysisError='The table could not be aligned. Adjust the corners, then analyze again.';pvStatus(photoVision.analysisError);return;}
                 const classWarp=photoVision.sharpen ? warpPhotoTopDown(640,320,true) : warp;
                 detections=detectWarpBalls(warp,classWarp||warp).map(d=>({...d,nx:pvRegion().x0+d.nx*(pvRegion().x1-pvRegion().x0),ny:(pvRegion().y0??0)+d.ny*((pvRegion().y1??1)-(pvRegion().y0??0))})); engine='hybrid';
                 detections=pvApplyManualRackToHybrid(detections||[]);
@@ -10794,7 +10804,7 @@
                 photoVision.effectiveRackType=(photoVision.rackType==='auto')?'custom':photoVision.rackType;
                 photoVision.rackConfidence=(photoVision.rackType==='auto')?0:1;
             }
-            if(calibrationAtStart!==JSON.stringify([photoVision.imageVersion,pvRegion(),photoVision.corners,photoVision.refinements])){pvStatus('Alignment changed while analyzing. Press Analyze Balls again.');return;}
+            if(calibrationAtStart!==JSON.stringify([photoVision.imageVersion,pvRegion(),photoVision.corners,photoVision.refinements])){photoVision.analysisError='Alignment changed during analysis. Analyze again using the current corners.';pvStatus(photoVision.analysisError);return;}
             const finalCollapse=pvCollapseSamePhysicalBalls(detections||[],.80);
             photoVision.duplicatesMerged=(photoVision.duplicatesMerged||0)+finalCollapse.merged;
             detections=pvFilterDuplicateReviews(finalCollapse.items);
@@ -10817,6 +10827,8 @@
                 pvStatus('No balls were confidently detected. Select Add Missed Ball to place one ball at a time.');
             }
             $('photoAddMissed').disabled=false;
+        } catch(error){
+            photoVision.analysisError='Analysis could not finish. Check the corners and try Analyze Again, or choose another image.';pvStatus(photoVision.analysisError);console.warn('Image analysis failed:',error);
         } finally {
             photoVision.aiBusy=false;
             if(btn){btn.disabled=!pvCalibration();btn.textContent='ANALYZE BALLS';}
@@ -10841,12 +10853,12 @@
         }else toast('Photo layout applied to table'+(hasCueBall?'':' (no cue ball)'));
         window.billiardsAnalyzeWalkthrough?.applied();closePhotoAnalyzer();
     }
-    window.billiardsWalkthroughBridge={openCalibration(){pvSetCalibrationVisible(true);pvUpdateCalibrationDiagram();},snapshot(){
+    window.billiardsWalkthroughBridge={clearErrors(){photoVision.imageError='';photoVision.analysisError='';},openCalibration(){pvSetCalibrationVisible(true);pvUpdateCalibrationDiagram();},snapshot(){
         const ids=photoVision.detections.map(d=>String(d.id)),assigned=ids.filter(id=>id!=='ignore'),unique=new Set(assigned).size===assigned.length;
         const reviewReady=assigned.length>0&&assigned.length===ids.length&&unique;
         return {imageReady:photoVision.imageReady,imageVersion:photoVision.imageVersion,loadedTableFile:photoVision.loadedTableFile,
             cornersValid:!!pvCalibration(),busy:!!photoVision.aiBusy,analysisRevision:photoVision.analysisRevision||0,reviewReady,
-            archiveBusy:!!photoVision.archiveBusy,imageSaved:!!photoVision.archiveId,
+            imageError:photoVision.imageError||'',analysisError:photoVision.analysisError||'',detectionCount:photoVision.detections.length,archiveBusy:!!photoVision.archiveBusy,imageSaved:!!photoVision.archiveId,
             cornerHint:pvCalibrationPrompt(),orientationHint:$('photoOrientationHint').textContent,footSpotHint:$('photoFootSpotHint').textContent,
             reviewHint:!ids.length?'No balls found yet. Add missed balls or return to Analyze.':!unique?'Correct duplicate identities before continuing.':assigned.length<ids.length?'Assign every remaining question mark or delete that false detection.':assigned.length+' unique balls assigned. Check their positions, then Next.'};
     }};
@@ -10854,12 +10866,12 @@
         photoVision.loadedTableFile=null;
         if(!file)return;
         const imageVersion=++photoVision.imageVersion;
-        photoVision.imageReady=false;
+        photoVision.imageReady=false;photoVision.imageError='';photoVision.analysisError='';
         photoVision.archiveId=null;
         $('photoArchiveSave').disabled=true;
         $('photoArchiveExport').disabled=true;
         const v=$('photoAnalyzerVideo'),c=$('photoAnalyzerCanvas');
-        if(file.type&&file.type.startsWith('video/')){pvStatus('Choose a still image or take a camera photo.');return;}
+        if(file.type&&file.type.startsWith('video/')){photoVision.imageError='Choose a still image instead of a video file. PNG, JPG, or WEBP works here.';pvStatus(photoVision.imageError);return;}
         const img=new Image(),url=URL.createObjectURL(file);
         pvStatus('Loading photo…');
         img.onload=()=>{
@@ -10889,7 +10901,7 @@
         img.onerror=()=>{
             if(imageVersion!==photoVision.imageVersion){URL.revokeObjectURL(url);return;}
             URL.revokeObjectURL(url);
-            pvStatus('That image format could not be opened here. Try JPG, PNG, WEBP, or a screenshot of the photo.');
+            photoVision.imageError='This image could not be opened. Try another image in PNG, JPG, or WEBP format.';pvStatus(photoVision.imageError);
         };
         img.src=url;
     }
@@ -11465,6 +11477,8 @@
             refreshPreview();
         });
         const changeIds = ['tableL', 'tableW', 'ballD', 'muSlide', 'muRoll', 'muBall', 'ballRest', 'railRest', 'railTang', 'cueEndmassRatio', 'airbornePhysics', 'jumpUnits', 'tableRest', 'bedImpactMu', 'showImpact', 'showTipBadge', 'showPaths', 'showGrid', 'showDiamonds', 'showTable', 'showAngleLockControl'];
+        $('cueShaftPreset').addEventListener('change',()=>{S.cuePreset=$('cueShaftPreset').value;if(S.cuePreset==='standard')S.cueEndmassRatio=20.151;if(S.cuePreset==='low')S.cueEndmassRatio=29.158;updateUI();refreshPreview();saveState();});
+        $('cueEndmassRatio').addEventListener('change',()=>{S.cuePreset='custom';});
         changeIds.forEach(id => $(id).addEventListener('change', applyUI));
         ['speed', 'follow', 'sideSpin', 'cueElevation'].forEach(id => $(id).addEventListener('input', applyUI));
         function applyDirectShotInput() {
@@ -11973,10 +11987,10 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/audio-startup.js?v=walkthrough-v11"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <script src="./guide/guide.js?v=walkthrough-v11"></script>
-  <script src="./guide/recorded-audio.js?v=walkthrough-v11"></script>
-  <script src="./guide/pool-integration.js?v=walkthrough-v11"></script>
-  <script src="./guide/analyze-integration.js?v=walkthrough-only-v12"></script>
-  <script src="./guide/analyze-walkthrough.js?v=walkthrough-only-v12"></script>
+  <script src="./guide/recorded-audio.js?v=presets-recovery-v13"></script>
+  <script src="./guide/pool-integration.js?v=presets-recovery-v13"></script>
+  <script src="./guide/analyze-integration.js?v=presets-recovery-v13"></script>
+  <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=2"></script>
