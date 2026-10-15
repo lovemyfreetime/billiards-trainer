@@ -22,4 +22,4 @@ The first offline-cache activation does not reload the page. Later controller up
 
 Floating cue-tip badges start off at each app startup and in every Get Started setup/download, including Undo snapshots. Players may enable them in Options. Lesson 8 gives Guide and Explorer a yellow background/ring at their narration cues; pause or changing lessons clears attention.
 
-The completion script in `get-started-tour.json` is awaiting a supplied Chase recording. No synthesized fallback voice is used. When supplied, the completion recording finishes before its ten-second closing countdown begins. Until then the visual closing countdown works without requesting a missing file.
+The supplied Chase completion recording is `guide/audio/get-started-complete.mp3`, copied without alteration and included offline. It plays after lesson 8 and finishes before the ten-second closing countdown begins. Tapping the table cancels the recording/countdown without changing aim. No synthesized fallback voice is used.
