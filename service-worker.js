@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-shaped-guides-v86';
+const CACHE_NAME = 'billiards-trainer-4-12-shaped-guides-v87';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
@@ -19,7 +19,7 @@ const APP_SHELL = [
   './guide/get-started-tour.js?v=guided-cues-v1',
   './guide/get-started-tour.css?v=varied-lessons-v1',
   './guide/get-started-tour.json?v=chase-20261015',
-  './guide/pool-integration.js?v=guided-cues-v1',
+  './guide/pool-integration.js?v=shaped-guides-v2',
   './guide/pool-audio-map.json?v=chase-20261015',
   './guide/analyze-integration.js?v=completion-tour-v25',
   './guide/analyze-welcome.js?v=analyze-welcome-v16',

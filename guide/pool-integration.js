@@ -49,7 +49,7 @@ async function init(){
  await BilliardsLessonPractice.attach(catalog.topics);
  const welcome=catalog.topics.find(t=>t.guideWelcome);
  if(welcome){welcome.audio=['./guide/audio/guide-autoplay-intro.mp3?v=guided-cues-v1',...(Array.isArray(welcome.audio)?welcome.audio:[welcome.audio])];welcome.text='The Guide starts with Auto on, so lessons continue automatically. Turn Auto off whenever you want to experiment at your own pace. Tap the table to try the current layout, or choose Explorer to discover the controls on your own. '+welcome.text;}
- let tour=null,lessonPractice=null;
+ let tour=null,lessonPractice=null,visualState='';
  const guide=BilliardsGuide.mount(host,{
   loadLayout:url=>lessonPractice?lessonPractice.resetUrl(url):BilliardsPracticeLayouts.apply(url),
   onTopicChange:topic=>topic?.category==='start'?tour?.select(topic):lessonPractice?.select(topic),
@@ -62,6 +62,7 @@ async function init(){
   getPracticeSetups:()=>tour?.setups()||[],
   loadPracticeSetup:url=>tour.load(url),
   onStateChange(state){
+   const key=[state.enabled,state.exploring,state.topicId].join(':');if(key!==visualState){visualState=key;requestAnimationFrame(()=>window.billiardsTourBridge?.redraw());}
    tour?.sync(state);
    lessonPractice?.sync(state);
    guideButton.setAttribute('aria-pressed',String(state.enabled&&state.category!=='start'));
