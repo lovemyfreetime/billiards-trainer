@@ -9825,7 +9825,7 @@
       "categoryBefore": "fundamentals",
       "categoryAfter": "fundamentals",
       "source": "merged Main/Shared catalog",
-      "narration": "Welcome to the Guide. Use Play and Pause to listen at your own pace. Turn on Auto to play through the lessons in your selected category without choosing each one. Tap Read to follow along with the narration. Reading while you listen can help you get more from each lesson. Open More for additional resources and links related to that topic. Explore Fundamentals, Physics and Tools, Drills, Exercises, and Resources. Tap any category, then choose a topic from its drop-down menu. Pick something that interests you, listen, and try it on the table.",
+      "narration": "Welcome to the Guide. Use Play and Pause to listen at your own pace. Tap Read to follow along with the narration. Reading while you listen can help you get more from each lesson. Open More for additional resources and links related to that topic. Explore Fundamentals, Physics and Tools, Drills, Exercises, and Resources. Tap any category, then choose a topic from its drop-down menu. Pick something that interests you, listen, and try it on the table.",
       "existingPractice": {},
       "setupBefore": [],
       "setupAfter": [],
@@ -9836,7 +9836,9 @@
         "success": "Outcome may be described in narration; no separate success field.",
         "transfer": "No topic-specific portable starter in the original practice manifest."
       },
-      "validation": "Source and file review only; physical performance has not been tested."
+      "validation": "Source and file review only; physical performance has not been tested.",
+      "previousNarration": "Welcome to the Guide. Use Play and Pause to listen at your own pace. Turn on Auto to play through the lessons in your selected category without choosing each one. Tap Read to follow along with the narration. Reading while you listen can help you get more from each lesson. Open More for additional resources and links related to that topic. Explore Fundamentals, Physics and Tools, Drills, Exercises, and Resources. Tap any category, then choose a topic from its drop-down menu. Pick something that interests you, listen, and try it on the table.",
+      "narrationRevision": "2026-10-15: updated for default Auto On; separate opening track explains how to turn it off."
     },
     {
       "id": "main-cue-shaft-preset",

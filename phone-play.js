@@ -199,15 +199,16 @@
       syncFullscreen();
     } catch (_) { if(!automatic) showFallback(); }
   }
-  // Browser fullscreen needs a trusted gesture. Use the first gameplay release,
-  // after its aiming/dragging operation, rather than resizing during a drag.
-  document.addEventListener('pointerup', event => {
-    if(!startupFullscreen || fullscreenElement() || navigator.standalone) return;
-    const target=event.target;
-    if(!target?.closest?.('#stageWrap,#phoneActions,.phoneTipControl')) return;
-    startupFullscreen=false;
+  // Try immediately (works in permitted app/kiosk environments). Ordinary
+  // tabs retry on their first trusted interaction, without consuming the action.
+  enterFullscreen(true);
+  function startupGesture(event){
+    if(!event.isTrusted||!startupFullscreen||fullscreenElement()||event.target?.closest?.('#btg-fullscreen'))return;
+    if(event.type==='keydown'&&!['Enter',' '].includes(event.key))return;
     enterFullscreen(true);
-  },true);
+  }
+  document.addEventListener('pointerdown',startupGesture,true);
+  document.addEventListener('keydown',startupGesture,true);
   // Cancel automatic entry if the user explicitly leaves fullscreen.
   fullscreen.addEventListener('click', async () => {
     startupFullscreen=false;

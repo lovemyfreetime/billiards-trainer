@@ -33,7 +33,8 @@ def direct(k,straight=False):
   ob=ball(1,rng.uniform(.13,.87),rng.uniform(.16,.84));g=ghost(ob,pocket)
   dx,dy=px-ob['x'],py-ob['y'];n=math.hypot(dx,dy);dx/=n;dy/=n
   phi=0 if straight else math.radians((1 if (scene_index//6)%2 else -1)*rng.uniform(12,57))
-  d=rng.uniform(.28,1.15);vx=dx*math.cos(phi)-dy*math.sin(phi);vy=dx*math.sin(phi)+dy*math.cos(phi)
+  if id=='thirty-degree-rule-quick':phi=math.radians(30)
+  d=.68 if id=='thirty-degree-rule-quick' else rng.uniform(.28,1.15);vx=dx*math.cos(phi)-dy*math.sin(phi);vy=dx*math.sin(phi)+dy*math.cos(phi)
   cue=dict(id=0,n='CB',x=g['x']-vx*d,y=g['y']-vy*d,active=True)
   if R+.035<cue['x']<L-R-.035 and R+.035<cue['y']<W-R-.035:return [cue,ob],g,pocket
  raise ValueError('Could not place cut '+id)
@@ -152,7 +153,7 @@ for scene_index,(id,t,card) in enumerate(selected):
   if profile=='draw':controls.update(follow=-.5,speed=2.0)
   if profile=='stop':controls.update(follow=-.22,speed=1.65)
   if profile=='stun':controls.update(follow=-.28,speed=1.6)
-  if profile=='roll':controls.update(follow=.3,speed=1.05)
+  if profile=='roll':controls.update(follow=.3,speed=.85 if id=='thirty-degree-rule-quick' else 1.05)
   if profile=='swerve':controls.update(cueElevationDeg=10,sideSpin=.35,speed=.95)
   if profile=='squirt':controls.update(sideSpin=.3,speed=1.8)
   if profile=='access':

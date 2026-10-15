@@ -1,4 +1,5 @@
 const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=require('node:fs'),cp=require('node:child_process');
+fs.mkdirSync('/tmp/guide-refinement',{recursive:true});
 const server=cp.spawn('python',['-u','-m','http.server','8765','--bind','127.0.0.1'],{stdio:['ignore','pipe','pipe']});server.stderr.on('data',()=>{});
 (async()=>{
  await new Promise((r,j)=>{server.stdout.once('data',r);server.once('exit',()=>j(Error('Server failed')))});
@@ -26,7 +27,7 @@ const server=cp.spawn('python',['-u','-m','http.server','8765','--bind','127.0.0
  await p.mouse.click(x+60,y+30);assert.notDeepEqual(await p.evaluate(()=>billiardsTourBridge.capture().state.freeAim),before.state.freeAim,'Second gesture aims');
  await p.evaluate(()=>billiardsLessonPractice.retry());assert.deepEqual(await p.evaluate(()=>billiardsTourBridge.capture().state.balls),before.state.balls);assert.deepEqual(await p.evaluate(()=>billiardsTourBridge.capture().state.freeAim),before.state.freeAim);
  // Autoplay runs a real ten-second countdown and loads the following scene.
- await host.locator('[aria-label="Autoplay next lesson"]').click();await select.selectOption('contact-point-geometry-quick');
+ if(await host.locator('[aria-label="Autoplay next lesson"]').getAttribute('aria-pressed')==='false')await host.locator('[aria-label="Autoplay next lesson"]').click();await select.selectOption('contact-point-geometry-quick');
  await finishNarration();
  await p.waitForFunction(()=>billiardsLessonPractice.getState().phase==='countdown');assert.equal(await p.evaluate(()=>billiardsLessonPractice.getState().remaining),10);assert.equal(await p.locator('.btg-lesson-prompt').isVisible(),true);const felt=await p.evaluate(()=>billiardsTourBridge.feltBounds());const promptBox=await p.locator('.btg-lesson-prompt').boundingBox(),stageBox=await p.locator('#stageWrap').boundingBox();assert.ok(promptBox.x>=stageBox.x+felt.left&&promptBox.x+promptBox.width<=stageBox.x+felt.right);const started=Date.now();
  await p.waitForFunction(()=>billiardsPoolGuide.getState().topicId!=='contact-point-geometry-quick',null,{timeout:14000});assert.ok(Date.now()-started>=9400,'Countdown runs ten seconds');
@@ -43,7 +44,7 @@ const server=cp.spawn('python',['-u','-m','http.server','8765','--bind','127.0.0
  assert.deepEqual(errors,[]);console.log('133 native scenes, calibrated settings, load-before-audio, first-gesture handoff, reset, real countdown, touch cancellation, new fundamentals audio, Explorer preservation, compass, desktop/phone passed.');
  // Finish the last visible lesson without wrapping to the first.
  await p.evaluate(()=>billiardsPoolGuide.openCategory('physics'));await host.locator('[aria-label="Guide skill level"]').fill('2');
- const last=await p.evaluate(()=>billiardsPoolAudioMap.topics.filter(t=>t.category==='physics'&&!t.categoryWelcome&&!t.explorerOnly&&(t.level||0)<=2).at(-1).id);await select.selectOption(last);await host.locator('[aria-label="Autoplay next lesson"]').click();
+ const last=await p.evaluate(()=>billiardsPoolAudioMap.topics.filter(t=>t.category==='physics'&&!t.categoryWelcome&&!t.explorerOnly&&(t.level||0)<=2).at(-1).id);await select.selectOption(last);if(await host.locator('[aria-label="Autoplay next lesson"]').getAttribute('aria-pressed')==='false')await host.locator('[aria-label="Autoplay next lesson"]').click();
  await finishNarration();await p.waitForFunction(()=>billiardsLessonPractice.getState().phase==='practice');assert.equal(await p.evaluate(()=>billiardsLessonPractice.getState().phase),'practice');assert.equal(await p.evaluate(()=>billiardsPoolGuide.hasNextLesson()),false);assert.equal(await p.evaluate(()=>billiardsPoolGuide.nextLesson()),false);
  const blocked=await p.evaluate(()=>{const b=billiardsTourBridge,original=b.snapshot,before=JSON.stringify(b.capture().state.balls);b.snapshot=()=>({...original(),busy:true});const result=billiardsPoolGuide.selectTopic('compass-tool-intro-quick');b.snapshot=original;return {result,same:before===JSON.stringify(b.capture().state.balls)};});assert.deepEqual(blocked,{result:false,same:true});
  console.log('Final lesson stops without wrapping; a busy shot rejects layout changes.');

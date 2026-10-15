@@ -100,7 +100,7 @@ async function mount(guide){
  }
  for(const name of ['pointerdown','pointermove','pointerup','pointercancel','mousedown','mousemove','mouseup','touchstart','touchmove','touchend','click'])global.addEventListener(name,handoff,{capture:true,passive:false});
  document.addEventListener('pointerdown',event=>{
-  if(!active())return;
+  if(!active()||event.target.closest('#btg-fullscreen,#phoneControls,#phoneDismiss'))return;
   if(event.target.closest('#bt-guide-pool-root')){if((timer||voiceTimer||advanceTimer)&&event.target.closest('select,[data-action="Read"],[data-action="More"],[data-action="Practice"]'))hold();return;}
   if(event.target.closest('#tipCanvas,#tipCanvas2,#phoneTip1,#phoneTip2,#stageWrap input,#phoneActions button,#panel input,#panel button,#pocketTray')){hold();setTimeout(render,0);}
  },true);

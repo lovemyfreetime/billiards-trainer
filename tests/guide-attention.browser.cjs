@@ -20,7 +20,7 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await host.locator('[data-action="■"]').click();await glowing(false);
  await host.locator('.btg-categories button').filter({hasText:/^Drills$/}).click();await playing();
  const lesson=await host.locator('select option').evaluateAll(opts=>opts.find(o=>o.value).value);await host.locator('select').selectOption(lesson);await playing();
- await host.locator('[data-action="A"]').click();await host.locator('select').focus();await page.evaluate(()=>{window.__select=document.querySelector('#bt-guide-pool-root select');const a=__audio.find(a=>!a.paused&&a.dataset.topic);a.playbackRate=8});
+ if(await host.locator('[data-action="A"]').getAttribute('aria-pressed')==='false')await host.locator('[data-action="A"]').click();await host.locator('select').focus();await page.evaluate(()=>{window.__select=document.querySelector('#bt-guide-pool-root select');const a=__audio.find(a=>!a.paused&&a.dataset.topic);a.playbackRate=8});
  await page.waitForFunction(id=>billiardsPoolGuide.getState().topicId!==id,lesson);await playing();assert.equal(await page.evaluate(()=>__select===document.querySelector('#bt-guide-pool-root select')),true);
  await page.click('#btg-pool-guide');await page.waitForFunction(()=>!document.getElementById('bt-guide-pool-root').classList.contains('btg-narrating'));
  await page.click('#btg-pool-start');assert.equal(await host.isVisible(),true);assert.equal(await host.locator('[data-action="Try the Shot"]').count(),1);await page.click('#btg-pool-start');assert.equal(await host.evaluate(el=>el.classList.contains('btg-narrating')),false);

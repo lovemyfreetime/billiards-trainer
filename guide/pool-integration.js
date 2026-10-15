@@ -47,6 +47,8 @@ async function init(){
  await BilliardsPracticeLayouts.attach(catalog.topics);
  await BilliardsLearning.attach(catalog.topics);
  await BilliardsLessonPractice.attach(catalog.topics);
+ const welcome=catalog.topics.find(t=>t.guideWelcome);
+ if(welcome){welcome.audio=['./guide/audio/guide-autoplay-intro.mp3?v=guided-cues-v1',...(Array.isArray(welcome.audio)?welcome.audio:[welcome.audio])];welcome.text='The Guide starts with Auto on, so lessons continue automatically. Turn Auto off whenever you want to experiment at your own pace. Tap the table to try the current layout, or choose Explorer to discover the controls on your own. '+welcome.text;}
  let tour=null,lessonPractice=null;
  const guide=BilliardsGuide.mount(host,{
   loadLayout:url=>lessonPractice?lessonPractice.resetUrl(url):BilliardsPracticeLayouts.apply(url),

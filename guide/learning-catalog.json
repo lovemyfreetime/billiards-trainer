@@ -9973,7 +9973,7 @@
       "profile": "interface",
       "visible": true,
       "purpose": "Use Welcome to the Guide correctly within the current lesson.",
-      "instruction": "Welcome to the Guide. Use Play and Pause to listen at your own pace. Turn on Auto to play through the lessons in your selected category without choosing each one. Tap Read to follow along with the narration. Reading while you listen can help you get more from each lesson. Open More for additional resources and links related to that topic. Explore Fundamentals, Physics and Tools, Drills, Exercises, and Resources. Tap any category, then choose a topic from its drop-down menu. Pick something that interests you, listen, and try it on the table.",
+      "instruction": "Auto starts on. Turn Auto off to experiment independently. Welcome to the Guide. Use Play and Pause to listen at your own pace. Tap Read to follow along with the narration. Reading while you listen can help you get more from each lesson. Open More for additional resources and links related to that topic. Explore Fundamentals, Physics and Tools, Drills, Exercises, and Resources. Tap any category, then choose a topic from its drop-down menu. Pick something that interests you, listen, and try it on the table.",
       "success": "The intended operation completes and you can state what changed. This is an interface check, not a scored pool drill.",
       "transfer": "Use the linked skill lesson or saved setup for physical practice. This software operation has no independent physical-shot score.",
       "progression": "Return to a skill lesson and use the control only when it helps the objective.",

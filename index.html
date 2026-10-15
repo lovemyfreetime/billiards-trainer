@@ -2448,7 +2448,29 @@
             resetRunHistory();refresh();return true;
         }
         function snapshot(){return {busy:!!animation,undoCount:undoStack.length,shots:Math.max(0,runHistory.length-1),pocketed:[...(S.pocketedLog||[])],shot2Enabled:S.shot2Enabled,speed:S.speed,followPercent:Math.round(S.follow*100),sidePercent:Math.round(S.sideSpin*100),tableL:S.tableL,tableW:S.tableW};}
-        return {capture,restore,apply,loadLesson,snapshot,feltBounds(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR);return {left:c.left-s.left+m.corners[0].x*sx,top:c.top-s.top+m.corners[0].y*sy,right:c.left-s.left+m.corners[1].x*sx,width:(m.corners[1].x-m.corners[0].x)*sx,height:(m.corners[2].y-m.corners[0].y)*sy};},exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},rollingReference(which=1){return rollingReferenceForShot(which);},predict(adjust={}){const oldSpeed=S.speed,oldAim=S.freeAim,cb=cueBall(),oldCue=cb?{x:cb.x,y:cb.y}:null;try{if(adjust.speed!==undefined)S.speed=adjust.speed;if(adjust.aim)S.freeAim=adjust.aim;if(adjust.cue&&cb)Object.assign(cb,adjust.cue);const p=simulate(false);return {pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact,paths:p.paths,railEvents:p.railEvents};}finally{S.speed=oldSpeed;S.freeAim=oldAim;if(cb&&oldCue)Object.assign(cb,oldCue);}}};
+        // Read-only canvas anchors in viewport pixels for narration spotlights.
+        function narrationRegions(kind){
+            const c=canvas.getBoundingClientRect(),M=mapper(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR),R=S.ballR;
+            const point=(p,r=R*2)=>{const a=M.map({x:p.x-r,y:p.y-r}),b=M.map({x:p.x+r,y:p.y+r});return {x:c.left+a.x*sx,y:c.top+a.y*sy,width:Math.abs(b.x-a.x)*sx,height:Math.abs(b.y-a.y)*sy};};
+            const hit=S.preview?.firstBallContact,cb=cueBall(),obj=hit?S.balls.find(b=>b.id===hit.objId):S.balls.find(b=>b.id>0&&!b.marker);
+            if(kind==='diamonds'){const points=[];for(let i=1;i<8;i++)if(i!==4)for(const y of [-.041,S.tableW+.041])points.push({x:S.tableL*i/8,y});for(let j=1;j<4;j++)for(const x of [-.041,S.tableL+.041])points.push({x,y:S.tableW*j/4});return points.map(p=>point(p,R*.6));}
+            if(kind==='cue')return cb?[point(cb)]:[];
+            if(kind==='object')return obj?[point(obj)]:[];
+            if(kind==='cut')return hit?[point(hit.objPos,R*3),point(hit.cuePos,R*1.3)]:[];
+            if(kind==='ghost')return hit?[point(hit.cuePos,R*1.35)]:[];
+            if(kind==='markers')return S.balls.filter(b=>b.marker).map(b=>point(b,Math.max(R,(b.markerDiameterIn||6)*.0254/2)));
+            if(kind==='rolling'){const r=rollingReferenceForShot();return r?[point(r.start,R*1.3),point({x:(r.start.x+r.end.x)/2,y:(r.start.y+r.end.y)/2},R*2),point(r.end,R*1.3)]:[];}
+            if(kind==='tangent'&&hit){const t={x:-hit.normal.y,y:hit.normal.x};return [point({x:hit.cuePos.x+t.x*.16,y:hit.cuePos.y+t.y*.16},R*1.6),point({x:hit.cuePos.x-t.x*.16,y:hit.cuePos.y-t.y*.16},R*1.6)];}
+            if(kind==='aim'&&cb)return [point({x:(cb.x+S.freeAim.x)/2,y:(cb.y+S.freeAim.y)/2},R*2)];
+            if(kind==='path'){const path=S.preview?.paths?.[0]||[];if(path.length)return [point(path[Math.floor(path.length*.55)],R*2)];return cb?[point(cb)]:[];}
+            if(kind==='rail'&&S.preview?.railEvents?.length)return S.preview.railEvents.slice(0,4).map(e=>point(e,R*1.5));
+            if(kind==='rail')return [{x:c.left+M.map({x:0,y:0}).x*sx,y:c.top+M.map({x:0,y:0}).y*sy-12,width:S.tableL*M.scale*sx,height:12}];
+            if(/^pocket[1-6]$/.test(kind)){const [x,y]=[[0,0],[.5,0],[1,0],[1,1],[.5,1],[0,1]][Number(kind.slice(-1))-1];return [point({x:x*S.tableL,y:y*S.tableW},R*1.5)];}
+            if(kind==='pockets')return [[0,0],[.5,0],[1,0],[1,1],[.5,1],[0,1]].map(([x,y])=>point({x:x*S.tableL,y:y*S.tableW},R*1.5));
+            if(kind==='table'||kind==='grid'){const a=M.map({x:0,y:0}),b=M.map({x:S.tableL,y:S.tableW});return [{x:c.left+a.x*sx,y:c.top+a.y*sy,width:b.x*sx-a.x*sx,height:b.y*sy-a.y*sy}];}
+            return [];
+        }
+        return {capture,restore,apply,loadLesson,snapshot,narrationRegions,feltBounds(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR);return {left:c.left-s.left+m.corners[0].x*sx,top:c.top-s.top+m.corners[0].y*sy,right:c.left-s.left+m.corners[1].x*sx,width:(m.corners[1].x-m.corners[0].x)*sx,height:(m.corners[2].y-m.corners[0].y)*sy};},exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},rollingReference(which=1){return rollingReferenceForShot(which);},predict(adjust={}){const oldSpeed=S.speed,oldAim=S.freeAim,cb=cueBall(),oldCue=cb?{x:cb.x,y:cb.y}:null;try{if(adjust.speed!==undefined)S.speed=adjust.speed;if(adjust.aim)S.freeAim=adjust.aim;if(adjust.cue&&cb)Object.assign(cb,adjust.cue);const p=simulate(false);return {pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact,paths:p.paths,railEvents:p.railEvents};}finally{S.speed=oldSpeed;S.freeAim=oldAim;if(cb&&oldCue)Object.assign(cb,oldCue);}}};
     })();
 
     window.billiardsGuideApplyLayout=file=>{applyTableFile(file,false,null,true);if($('photoAnalyzerModal').classList.contains('open'))closePhotoAnalyzer();};
@@ -6382,7 +6404,15 @@
     function drawRollingReferences(map){
         for(const which of [1,2]){
             const ref=rollingReferenceForShot(which);if(!ref)continue;
-            const p=map(ref.end);pathPoly([ref.start,ref.end],map,which===1?'#ffe28a':'#a2f3ff',1.7,.64,[2,5]);
+            const p=map(ref.end),color=which===1?'#ffe28a':'#a2f3ff';pathPoly([ref.start,ref.end],map,color,2.2,.85,[3,5]);
+            // Show what the 30° is measured from: the incoming line extended
+            // beyond contact, and a small arc toward the natural-roll reference.
+            const hit=(which===2?ensureShot2().preview:S.preview)?.firstBallContact;
+            if(hit?.incoming){const a=Math.atan2(hit.incoming.y,hit.incoming.x),b=Math.atan2(ref.direction.y,ref.direction.x),origin=map(ref.start),radius=Math.min(36,Math.hypot(p.x-origin.x,p.y-origin.y)*.4),q=map({x:ref.start.x+hit.incoming.x*.24,y:ref.start.y+hit.incoming.y*.24});
+                pathPoly([ref.start,{x:ref.start.x+hit.incoming.x*.24,y:ref.start.y+hit.incoming.y*.24}],map,'#ffffff',1.2,.5,[5,5]);
+                ctx.save();ctx.strokeStyle=color;ctx.lineWidth=1.8;ctx.beginPath();ctx.arc(origin.x,origin.y,radius,a,b,Math.atan2(Math.sin(b-a),Math.cos(b-a))<0);ctx.stroke();ctx.restore();
+            }
+
             const start=map(ref.start);if(Math.hypot(p.x-start.x,p.y-start.y)<35)continue;
             const label=map({x:ref.start.x+ref.direction.x*Math.min(ref.length*.5,S.tableL*.2),y:ref.start.y+ref.direction.y*Math.min(ref.length*.5,S.tableL*.2)});
             ctx.save();ctx.globalAlpha=.75;ctx.fillStyle=which===1?'#ffe28a':'#a2f3ff';ctx.strokeStyle='#14232b';ctx.lineWidth=3;ctx.font='bold 11px Segoe UI';ctx.textAlign='center';ctx.strokeText('≈30°',label.x,label.y-7);ctx.fillText('≈30°',label.x,label.y-7);ctx.restore();
@@ -12143,17 +12173,19 @@ if ('serviceWorker' in navigator) {
       <iframe id="btFeedbackFrame" title="Billiards Trainer feedback form" loading="lazy" scrolling="no"></iframe>
     </div>
   </div>
-  <link rel="stylesheet" href="./guide/pool-guide.css?v=fit5">
-  <script src="./phone-play.js?v=9"></script>
+  <link rel="stylesheet" href="./guide/pool-guide.css?v=guided-cues-v1">
+  <script src="./phone-play.js?v=guided-cues-v1"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
-  <script src="./guide/guide.js?v=topic-guide-v2"></script>
-  <script src="./guide/recorded-audio.js?v=chase-20261015"></script>
+  <link rel="stylesheet" href="./guide/narration-cues.css?v=guided-cues-v1">
+  <script src="./guide/narration-cues.js?v=guided-cues-v1"></script>
+  <script src="./guide/guide.js?v=guided-cues-v1"></script>
+  <script src="./guide/recorded-audio.js?v=guided-cues-v1"></script>
   <link rel="stylesheet" href="./guide/get-started-tour.css?v=varied-lessons-v1">
-  <script src="./guide/get-started-tour.js?v=varied-lessons-v1"></script>
-  <script src="./guide/learning.js?v=varied-lessons-v1"></script>
-  <script src="./guide/lesson-practice.js?v=varied-lessons-v1"></script>
-  <script src="./guide/pool-integration.js?v=chase-20261015"></script>
+  <script src="./guide/get-started-tour.js?v=guided-cues-v1"></script>
+  <script src="./guide/learning.js?v=guided-cues-v1"></script>
+  <script src="./guide/lesson-practice.js?v=guided-cues-v1"></script>
+  <script src="./guide/pool-integration.js?v=guided-cues-v1"></script>
   <script src="./guide/analyze-integration.js?v=completion-tour-v25"></script>
   <script src="./guide/analyze-welcome.js?v=analyze-welcome-v16"></script>
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>

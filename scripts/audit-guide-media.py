@@ -17,6 +17,11 @@ for page,ts in [('Main',main),('Analyze',analyze)]:
   if r['page'] in [page,'Shared']:ts[r['topic']['id']]={**ts.get(r['topic']['id'],{}),**r['topic']}
 catalog=read('learning-catalog.json');scenes=read('topic-scenes.json')['topics']
 for t in catalog['newTopics']:main[t['id']]=t
+# The table Guide opens with its new introductory track before the shared welcome.
+welcome=main.get('welcome-guide')
+if welcome:
+ welcome['audio']=['./guide/audio/guide-autoplay-intro.mp3?v=guided-cues-v1',*([welcome['audio']] if isinstance(welcome['audio'],str) else welcome['audio'])]
+ welcome['text']='The Guide starts with Auto on, so lessons continue automatically. Turn Auto off whenever you want to experiment at your own pace. Tap the table to try the current layout, or choose Explorer to discover the controls on your own. '+welcome['text']
 starts=json.loads(source.split(' topics.push(...',1)[1].split('\n]);',1)[0]+'\n]')
 step_text=source.split('const steps={',1)[1].split('};',1)[0]
 for t in starts:

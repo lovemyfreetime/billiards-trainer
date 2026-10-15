@@ -14,8 +14,8 @@
     "approachSectors45Degrees": {
       "0": 17,
       "1": 12,
-      "2": 11,
-      "3": 26,
+      "2": 10,
+      "3": 27,
       "4": 23,
       "5": 5,
       "6": 14,
@@ -39,8 +39,8 @@
       "15": 12
     },
     "cutSides": {
-      "left": 36,
-      "right": 26,
+      "left": 35,
+      "right": 27,
       "straight": 13
     },
     "nativeVerifiedRailScenes": 11
@@ -243,8 +243,8 @@
     {
       "id": "thirty-degree-rule-quick",
       "pocket": 6,
-      "approachDegrees": 107.2,
-      "cutSide": "left",
+      "approachDegrees": 156.9,
+      "cutSide": "right",
       "railSequence": [],
       "ballIds": [
         0,

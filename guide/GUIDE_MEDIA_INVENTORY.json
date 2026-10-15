@@ -6,8 +6,8 @@
     "uniqueMainGeometry": 141,
     "mainWithAudio": 141,
     "missingAudio": [],
-    "physicalAudioFiles": 655,
-    "referencedAudioFiles": 621,
+    "physicalAudioFiles": 656,
+    "referencedAudioFiles": 622,
     "referenceMedianWpm": 211.1,
     "screeningBandWpm": [
       179.4,
@@ -1076,7 +1076,7 @@
       "wpm": 194.2,
       "text": "When the cue ball is rolling naturally into many ordinary cut shots, it often travels forward at an angle near thirty degrees from its original path after contact. Use this as a practical reference while comparing different cut angles.",
       "sceneUrl": "./guide/layouts/topics/thirty-degree-rule-quick.billiards.json",
-      "geometryHash": "e5002e3896eec11948a89158a2d9cbbf44d2b47971d9d30d4fdb4623392f311f",
+      "geometryHash": "14a74a1c98b4a9e722b7a716fb0a20614849909e387f25834fbb184abf73120d",
       "layoutReason": "Approach distance and contact geometry selected for The thirty-degree rule. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
@@ -9630,13 +9630,14 @@
       "visible": true,
       "welcome": true,
       "audio": [
-        "./guide/audio/welcome-guide.mp3"
+        "./guide/audio/guide-autoplay-intro.mp3?v=guided-cues-v1",
+        "./guide/audio/welcome-guide.mp3?v=guided-cues-v1"
       ],
       "audioStatus": "present",
-      "words": 93,
-      "seconds": 23.208,
-      "wpm": 240.4,
-      "text": "Welcome to the Guide. Use Play and Pause to listen at your own pace. Turn on Auto to play through the lessons in your selected category without choosing each one. Tap Read to follow along with the narration. Reading while you listen can help you get more from each lesson. Open More for additional resources and links related to that topic. Explore Fundamentals, Physics and Tools, Drills, Exercises, and Resources. Tap any category, then choose a topic from its drop-down menu. Pick something that interests you, listen, and try it on the table.",
+      "words": 117,
+      "seconds": 39.024,
+      "wpm": 179.9,
+      "text": "The Guide starts with Auto on, so lessons continue automatically. Turn Auto off whenever you want to experiment at your own pace. Tap the table to try the current layout, or choose Explorer to discover the controls on your own. Welcome to the Guide. Use Play and Pause to listen at your own pace. Tap Read to follow along with the narration. Reading while you listen can help you get more from each lesson. Open More for additional resources and links related to that topic. Explore Fundamentals, Physics and Tools, Drills, Exercises, and Resources. Tap any category, then choose a topic from its drop-down menu. Pick something that interests you, listen, and try it on the table.",
       "sceneUrl": "./guide/layouts/topics/welcome-guide.billiards.json",
       "geometryHash": "483e9da0d9353d9e258d65b89a3221e93399cd3970f149de67d706a751a07bda",
       "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
@@ -12492,17 +12493,17 @@
       "visible": false,
       "welcome": true,
       "audio": [
-        "./guide/audio/welcome-guide.mp3"
+        "./guide/audio/welcome-guide.mp3?v=guided-cues-v1"
       ],
       "audioStatus": "present",
-      "words": 93,
-      "seconds": 23.208,
-      "wpm": 240.4,
-      "text": "Welcome to the Guide. Use Play and Pause to listen at your own pace. Turn on Auto to play through the lessons in your selected category without choosing each one. Tap Read to follow along with the narration. Reading while you listen can help you get more from each lesson. Open More for additional resources and links related to that topic. Explore Fundamentals, Physics and Tools, Drills, Exercises, and Resources. Tap any category, then choose a topic from its drop-down menu. Pick something that interests you, listen, and try it on the table.",
+      "words": 77,
+      "seconds": 26.04,
+      "wpm": 177.4,
+      "text": "Welcome to the Guide. Use Play and Pause to listen at your own pace. Tap Read to follow along with the narration. Reading while you listen can help you get more from each lesson. Open More for additional resources and links related to that topic. Explore Fundamentals, Physics and Tools, Drills, Exercises, and Resources. Tap any category, then choose a topic from its drop-down menu. Pick something that interests you, listen, and try it on the table.",
       "sceneUrl": null,
       "geometryHash": null,
       "layoutReason": "Contextual control explanation; preserve current table.",
-      "pacingScreen": "within band"
+      "pacingScreen": "below band"
     },
     {
       "page": "Analyze",
@@ -14182,6 +14183,11 @@
       "exists": true,
       "seconds": 10.416,
       "sha256": "bdb03a11d5db278252414f8daf432e65b6decf9367aa549b1562654b7dc1c611"
+    },
+    "./guide/audio/guide-autoplay-intro.mp3": {
+      "exists": true,
+      "seconds": 12.984,
+      "sha256": "a4ea39f79ed833dc0cc50ceb694751645040be344c74b0b0c3774a139f9576c5"
     },
     "./guide/audio/guide-context-help-quick.mp3": {
       "exists": true,
@@ -16275,8 +16281,8 @@
     },
     "./guide/audio/welcome-guide.mp3": {
       "exists": true,
-      "seconds": 23.208,
-      "sha256": "0c40a8e2d62b026d6e772056b4d77d0b7916ef5240ebec30703339552cb27225"
+      "seconds": 26.04,
+      "sha256": "25a80aa84360a2bc51bb3d7fc3b69051061f5c4c0fe81a0034440f096136b1b8"
     },
     "./guide/audio/welcome-more.mp3": {
       "exists": true,

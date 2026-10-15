@@ -178,7 +178,7 @@ The existing `AUDIO_PACING.json` documents pitch-preserving slowing of ten coord
 | drills | Welcome to Drills | present | 210.5 | `./guide/layouts/topics/welcome-drills.billiards.json` |
 | exercises | Welcome to Exercises | present | 204.1 | `./guide/layouts/topics/welcome-exercises.billiards.json` |
 | more | Welcome to Resources | present | 190.8 | `./guide/layouts/topics/welcome-more.billiards.json` |
-| fundamentals | Welcome to the Guide | present | 240.4 | `./guide/layouts/topics/welcome-guide.billiards.json` |
+| fundamentals | Welcome to the Guide | present | 179.9 | `./guide/layouts/topics/welcome-guide.billiards.json` |
 | fundamentals | A repeatable pre-shot routine | present | 199.9 | `./guide/layouts/topics/fundamentals-pre-shot-routine.billiards.json` |
 | fundamentals | Comfortable stance and cue clearance | present | 202.6 | `./guide/layouts/topics/fundamentals-balanced-stance.billiards.json` |
 | fundamentals | A stable bridge | present | 211.4 | `./guide/layouts/topics/fundamentals-stable-bridge.billiards.json` |

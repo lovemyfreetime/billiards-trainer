@@ -1,0 +1,29 @@
+{
+  "items": [
+    {
+      "id": "guide-autoplay-intro",
+      "audio": "./guide/audio/guide-autoplay-intro.mp3",
+      "text": "The Guide starts with Auto on, so lessons continue automatically. Turn Auto off whenever you want to experiment at your own pace. Tap the table to try the current layout, or choose Explorer to discover the controls on your own.",
+      "voice": "Speechify Chase (US)",
+      "method": "Speechify Reader MP3 export",
+      "date": "2026-10-15",
+      "seconds": 12.984,
+      "sha256": "a4ea39f79ed833dc0cc50ceb694751645040be344c74b0b0c3774a139f9576c5",
+      "words": 40,
+      "wpm": 184.8
+    },
+    {
+      "id": "welcome-guide",
+      "audio": "./guide/audio/welcome-guide.mp3",
+      "text": "Welcome to the Guide. Use Play and Pause to listen at your own pace. Tap Read to follow along with the narration. Reading while you listen can help you get more from each lesson. Open More for additional resources and links related to that topic. Explore Fundamentals, Physics and Tools, Drills, Exercises, and Resources. Tap any category, then choose a topic from its drop-down menu. Pick something that interests you, listen, and try it on the table.",
+      "voice": "Speechify Chase (US)",
+      "method": "Speechify Reader MP3 export",
+      "date": "2026-10-15",
+      "seconds": 26.04,
+      "sha256": "25a80aa84360a2bc51bb3d7fc3b69051061f5c4c0fe81a0034440f096136b1b8",
+      "words": 77,
+      "wpm": 177.4
+    }
+  ],
+  "notes": "New autoplay introduction followed by a welcome freshly recorded without the previous Turn on Auto sentence. Original MP3 exports, no time stretching."
+}

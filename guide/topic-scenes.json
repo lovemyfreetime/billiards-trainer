@@ -3750,7 +3750,7 @@
         "target": 15
       },
       "controls": {
-        "speed": 2.2,
+        "speed": 0.95,
         "follow": 0.3,
         "sideSpin": 0,
         "cueElevationDeg": 0,
@@ -3764,7 +3764,7 @@
       },
       "objective": "Recognize natural rolling departures and distinguish them from stun.",
       "variation": "Approach distance and contact geometry selected for The thirty-degree rule. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
-      "geometryHash": "e5002e3896eec11948a89158a2d9cbbf44d2b47971d9d30d4fdb4623392f311f",
+      "geometryHash": "14a74a1c98b4a9e722b7a716fb0a20614849909e387f25834fbb184abf73120d",
       "file": {
         "format": "billiards-trainer",
         "version": 1,
@@ -3781,21 +3781,21 @@
             {
               "id": 0,
               "n": "CB",
-              "x": 2.0817958059033836,
-              "y": 0.23285176725937068,
+              "x": 1.1346297012478366,
+              "y": 0.3239541797945607,
               "active": true
             },
             {
               "id": 15,
               "n": "15",
-              "x": 1.9253007599481824,
-              "y": 0.5835266558895029,
+              "x": 0.47498474074411645,
+              "y": 0.6367570043754578,
               "active": true
             }
           ],
           "freeAim": {
-            "x": 1.9791313461440658,
-            "y": 0.5643331546506051
+            "x": 0.5092771662356295,
+            "y": 0.5910388235946237
           }
         },
         "state": {
@@ -3806,26 +3806,26 @@
             {
               "id": 0,
               "n": "CB",
-              "x": 2.0817958059033836,
-              "y": 0.23285176725937068,
+              "x": 1.1346297012478366,
+              "y": 0.3239541797945607,
               "active": true
             },
             {
               "id": 15,
               "n": "15",
-              "x": 1.9253007599481824,
-              "y": 0.5835266558895029,
+              "x": 0.47498474074411645,
+              "y": 0.6367570043754578,
               "active": true
             }
           ],
           "nextId": 4,
           "markerSeq": 1000,
           "freeAim": {
-            "x": 1.9791313461440658,
-            "y": 0.5643331546506051
+            "x": 0.5092771662356295,
+            "y": 0.5910388235946237
           },
           "angleLock": false,
-          "speed": 2.2,
+          "speed": 0.95,
           "follow": 0.3,
           "sideSpin": 0,
           "cueElevationDeg": 0,
@@ -3915,7 +3915,7 @@
           ],
           "target": 15,
           "controls": {
-            "speed": 2.2,
+            "speed": 0.95,
             "follow": 0.3,
             "sideSpin": 0,
             "cueElevationDeg": 0,
