@@ -24,12 +24,12 @@ async function mount(guide){
   const id=time>=2&&time<6.8?'btg-pool-guide':time>=6.8&&time<11.8?'btg-pool-explore':null;
   attention(id);
  }
- announcement.addEventListener('timeupdate',()=>{if(active()&&!hasNext()&&phase==='announcing'&&!announcement.paused){const t=announcement.currentTime;attention(t>=7.6&&t<10.2?'btg-pool-guide':t>=10.2&&t<13.6?'btg-pool-explore':null)}});
+ announcement.addEventListener('timeupdate',()=>{if(active()&&!hasNext()&&phase==='announcing'&&!announcement.paused){const t=announcement.currentTime;attention(t>=5.6&&t<8.4?'btg-pool-guide':t>=8.4&&t<11.8?'btg-pool-explore':null)}});
  announcement.addEventListener('pause',clearAttention);
  announcement.addEventListener('ended',clearAttention);
  function cancel(){clearAttention();epoch++;clearInterval(timer);clearTimeout(advanceTimer);clearTimeout(voiceTimer);timer=advanceTimer=voiceTimer=null;deadline=0;voice.pause();}
  function render(){
-  footer.hidden=!active()||phase==='listening';footer.dataset.phase=phase;placeControls();
+  footer.hidden=!active()||phase==='listening'||(!hasNext()&&phase==='announcing');footer.dataset.phase=phase;placeControls();
   const counting=phase==='countdown'||phase==='announcing';footer.querySelector('.btg-countdown').hidden=!counting;nextButton.hidden=counting||!hasNext();footer.querySelector('.btg-last-lesson').hidden=counting||hasNext();
   const remaining=deadline?Math.max(0,Math.ceil((deadline-performance.now())/1000)):seconds;
   if(counter.textContent!==String(remaining))counter.textContent=remaining;
@@ -46,7 +46,7 @@ async function mount(guide){
  function finish(){if(!active())return;cancel();phase='complete';guide.setEnabled(false);render();}
  nextButton.addEventListener('click',next);
  function beginCountdown(token){
-  if(token!==epoch||!active()||phase==='countdown')return;clearTimeout(voiceTimer);voiceTimer=null;phase='countdown';deadline=performance.now()+(hasNext()?seconds:(completion?.seconds||seconds))*1000;render();
+  if(token!==epoch||!active()||phase==='countdown')return;if(!hasNext()){finish();return;}clearTimeout(voiceTimer);voiceTimer=null;phase='countdown';deadline=performance.now()+(hasNext()?seconds:(completion?.seconds||seconds))*1000;render();
   timer=setInterval(()=>{
    if(token!==epoch||!active())return;
    render();if(performance.now()>=deadline){clearInterval(timer);timer=null;advanceTimer=setTimeout(()=>{if(token===epoch){if(hasNext())next();else finish();}},100);}
@@ -60,7 +60,7 @@ async function mount(guide){
   const prompt=hasNext()?transition:completion;
   if(prompt?.recordingStatus==='recorded'&&prompt.audio){
    phase='announcing';announcement.src=prompt.audio;announcement.load();
-   const onPlaying=()=>{announcement.removeEventListener('playing',onPlaying);if(phase==='announcing'){clearTimeout(voiceTimer);voiceTimer=null;if(hasNext())beginCountdown(token);else announcement.addEventListener('ended',()=>beginCountdown(token),{once:true})}};
+   const onPlaying=()=>{announcement.removeEventListener('playing',onPlaying);if(phase==='announcing'){clearTimeout(voiceTimer);voiceTimer=null;if(hasNext())beginCountdown(token);else announcement.addEventListener('ended',()=>{if(token===epoch&&active()&&phase==='announcing')finish()},{once:true})}};
    announcement.addEventListener('playing',onPlaying,{once:true});
    voiceTimer=setTimeout(()=>{if(token===epoch&&phase==='announcing'){voice.pause();announcement.removeEventListener('playing',onPlaying);beginCountdown(token)}},3000);
    voice.play().catch(()=>{announcement.removeEventListener('playing',onPlaying);beginCountdown(token)});render();

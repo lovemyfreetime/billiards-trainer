@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-shot-two-voice-v73';
+const CACHE_NAME = 'billiards-trainer-4-12-natural-ending-v74';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
