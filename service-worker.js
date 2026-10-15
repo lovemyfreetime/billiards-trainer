@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-compass-perimeter-v80';
+const CACHE_NAME = 'billiards-trainer-4-12-learning-v81';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
@@ -6,19 +6,24 @@ const APP_SHELL = [
   './guide/audio-startup.js?v=native-warmup-v22',
   './guide/practice-layouts.js?v=walkthrough-v11',
   './guide/practice-layouts.json?v=walkthrough-v11',
-  './guide/guide.js?v=completion-tour-v25',
-  './guide/guide.css?v=guide-attention-v14',
+  './guide/guide.js?v=learning-v1',
+  './guide/guide.css?v=learning-v1',
   './guide/pool-guide.css?v=fit5',
   './guide/recorded-audio.js?v=presets-recovery-v13',
   './guide/recorded-audio.json?v=presets-recovery-v13',
-  './guide/get-started-tour.js?v=completion-tour-v25',
+  './guide/get-started-tour.js?v=learning-v1',
   './guide/get-started-tour.css?v=completion-tour-v25',
   './guide/get-started-tour.json?v=completion-tour-v25',
-  './guide/pool-integration.js?v=completion-tour-v25',
+  './guide/pool-integration.js?v=learning-v1',
   './guide/pool-audio-map.json?v=completion-tour-v25',
   './guide/analyze-integration.js?v=completion-tour-v25',
   './guide/analyze-welcome.js?v=analyze-welcome-v16',
   './guide/analyze-walkthrough.js?v=presets-recovery-v13',
+  './guide/learning.js?v=learning-v1',
+  './guide/learning-catalog.json?v=learning-v1',
+  './guide/practice.html',
+  './guide/practice-sheet.js',
+  './guide/practice-sheet.css',
   './manifest.webmanifest',
   './phone-play.css?v=9',
   './phone-play.js?v=9',
@@ -71,6 +76,8 @@ async function networkFirst(request) {
     return response;
   } catch (err) {
     return (await caches.match(request)) ||
+           (/\/guide\/practice\.html$/.test(new URL(request.url).pathname)
+             ? await caches.match(new URL('./guide/practice.html', self.location.href).href) : null) ||
            (request.mode === 'navigate' ? await caches.match('./index.html') : null) ||
            Response.error();
   }

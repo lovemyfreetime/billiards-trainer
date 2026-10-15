@@ -16,6 +16,7 @@
 .btg-root .btg-resource-links a{color:#a7dcff;text-decoration:underline;overflow-wrap:anywhere}
 .btg-root .btg-resource-links a:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .btg-root .btg-resource-note,.btg-root .btg-recording-status{font-size:11px;color:#d1d9df}
+.btg-learning-card{white-space:normal;line-height:1.5}.btg-learning-card dt{font-weight:700;color:#9ce4b7;margin-top:10px}.btg-learning-card dd{margin:3px 0 10px}.btg-learning-card a{color:#a7dcff;text-decoration:underline}
 .btg-root [hidden]{display:none!important}
 body.btg-inspection:before{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(147,190,155,.035);z-index:2147483000}
 .btg-highlight{outline:2px solid #9ed9ff!important;outline-offset:3px;box-shadow:0 0 14px 4px rgba(112,196,255,.28)!important}

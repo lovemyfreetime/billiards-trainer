@@ -142,7 +142,7 @@ function mount(host,options={}){
   for(const setup of t.setups){
    const item=document.createElement('div');const button=document.createElement('button');button.type='button';button.dataset.layoutUrl=setup.url;
    button.textContent=t.setups.length===1?'Load / reset starting layout':'Load / reset: '+setup.title;
-   button.onclick=async()=>{button.disabled=true;try{await options.loadLayout(setup.url);}catch(error){global.alert(error.message);}finally{button.disabled=false;}};
+   button.onclick=async()=>{button.disabled=true;try{await (state.category==='start'&&options.loadPracticeSetup?options.loadPracticeSetup:options.loadLayout)(setup.url);}catch(error){global.alert(error.message);}finally{button.disabled=false;}};
    const download=document.createElement('a');download.href=setup.url;download.download=setup.url.split('/').pop();download.textContent='Download setup file';
    item.append(button,download);group.append(item);
   }
@@ -175,6 +175,7 @@ function mount(host,options={}){
    const range=document.createElement('input');range.type='range';range.min='0';range.max='2';range.step='1';range.value=state.level;
    range.setAttribute('aria-label','Guide skill level');range.addEventListener('input',()=>{state.level=Number(range.value);save();render()});level.append(range);toolbar.append(level);}
    btn('Read',()=>{state.expanded=state.expanded==='read'?null:'read';state.detailsOpen=!!state.expanded;save();render()});
+   if(t?.learning)btn('Practice',()=>{playback.pause();state.expanded=state.expanded==='practice'?null:'practice';state.detailsOpen=!!state.expanded;save();render()}).title='Purpose, instructions, success target, and real-table setup';
    const moreButton=btn('More',()=>{state.expanded=state.expanded==='more'?null:'more';state.detailsOpen=!!state.expanded;save();render()});moreButton.disabled=state.category==='more'&&!t?.resources?.length;
    if(state.category!=='start')btn('Reset',()=>{if(!confirm('Reset Guide session? The table will not change.'))return;stop();state={enabled:true,exploring:false,autoplay:state.category==='start',level:0,category:options.startOnly||state.category==='start'?'start':'fundamentals',topicId:null,expanded:null,detailsOpen:false,position:0};save();render();if(state.category==='start')openCategory('start')});
   }
@@ -201,7 +202,8 @@ function mount(host,options={}){
   const playingTitle=document.createElement('strong');playingTitle.className='btg-current-lesson';playingTitle.textContent=t?.title||'Choose a topic';playingTitle.setAttribute('aria-live','polite');drawer.append(playingTitle);
   if(options.poolMode&&state.category==='start'){const row=document.createElement('div');row.className='btg-lesson-row';const slot=document.createElement('div');slot.className='btg-practice-slot';slot.dataset.guideSlot='practice';row.append(select,slot);drawer.append(row)}else drawer.append(select);
   if(state.expanded&&state.detailsOpen){const detail=document.createElement('div');detail.className='btg-expanded';
-   if(state.category!=='start')setupActions(detail,t);
+   if(state.category!=='start'||state.expanded==='practice')setupActions(detail,t);
+   if(state.expanded==='practice')global.BilliardsLearning?.render(detail,t);
    if(state.category==='start'&&state.expanded==='more'){
     const library=document.createElement('div');library.className='btg-practice-library';
     for(const setup of options.getPracticeSetups?.()||[]){
@@ -214,7 +216,7 @@ function mount(host,options={}){
    }
    if(t?.recordingStatus==='pending'){const status=document.createElement('p');status.className='btg-recording-status';status.textContent='Audio recording pending. Instructions and links are ready.';detail.append(status)}
    if(state.expanded==='read'){const text=document.createElement('p');text.textContent=t?.text||'No narration text assigned.';detail.append(text)}
-   if(state.expanded!=='read'){
+   if(state.expanded!=='read'&&state.expanded!=='practice'){
     for(const [label,value] of Object.entries(state.category==='more'||state.category==='start'?{}:t?.practice||{})){const p=document.createElement('p'),strong=document.createElement('strong');strong.textContent=label+': ';p.append(strong,document.createTextNode(value));detail.append(p)}
    }
    {

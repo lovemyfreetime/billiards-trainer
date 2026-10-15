@@ -45,6 +45,7 @@ async function init(){
  const ids=[...new Set([...Object.values(catalog.assignments),...Object.values(catalog.sections),...catalog.canvasTopics,catalog.powerMeterTopic])];
  for(const topic of catalog.topics)topic.explorerOnly=topic.category==='reference'||topic.category==='explore'||(topic.category!=='start'&&topic.category!=='reference'&&ids.includes(topic.id));
  await BilliardsPracticeLayouts.attach(catalog.topics);
+ await BilliardsLearning.attach(catalog.topics);
  let tour=null;
  const guide=BilliardsGuide.mount(host,{
   loadLayout:BilliardsPracticeLayouts.apply,
