@@ -4,14 +4,14 @@
 async function mount(guide){
  const bridge=global.billiardsTourBridge,host=document.getElementById('bt-guide-pool-root');
  if(!bridge||!guide||!host)return null;
- const response=await fetch('./guide/get-started-tour.json?v=chase-20261015');
+ const response=await fetch('./guide/get-started-tour.json?v=five-second-v1');
  if(!response.ok)throw Error('Get Started lessons unavailable');
- const {steps,transition,completion}=await response.json(),seconds=transition?.seconds||10;
+ const {steps,transition,completion}=await response.json(),seconds=transition?.seconds||5;
  let index=0,original=null,profile=null,checkpoint=null,loading=false,practicing=false,phase='listening',deadline=0,timer=null,advanceTimer=null,voiceTimer=null,epoch=0;
  const announcement=new Audio();announcement.preload='auto';announcement.volume=.8;announcement.dataset.getStartedTransition='1';
  const voice=global.BilliardsAudioStartup.create(announcement);
  const footer=document.createElement('div');footer.className='btg-practice-next';footer.hidden=true;
- footer.innerHTML='<div class="btg-countdown"><span>Next lesson in</span><strong role="timer" aria-live="off">10</strong><span>Tap the table to try this shot.</span></div><button type="button" class="btg-next-lesson">Next Lesson ▶</button><p class="btg-last-lesson">Final lesson</p>';
+ footer.innerHTML='<div class="btg-countdown"><span>Next lesson in</span><strong role="timer" aria-live="off">5</strong><span>Tap the table to try this shot.</span></div><button type="button" class="btg-next-lesson">Next Lesson ▶</button><p class="btg-last-lesson">Final lesson</p>';
  function placeControls(){const slot=host.querySelector('[data-guide-slot="practice"]');if(slot&&footer.parentNode!==slot)slot.append(footer);}
  placeControls();const counter=footer.querySelector('[role="timer"]'),nextButton=footer.querySelector('button');
  const active=()=>{const s=guide.getState();return s.enabled&&s.category==='start'};

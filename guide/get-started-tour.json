@@ -296,7 +296,7 @@
     }
   ],
   "transition": {
-    "seconds": 10,
+    "seconds": 5,
     "text": "Next lesson will start shortly. Tap the table to try this shot.",
     "audio": "./guide/audio/get-started-next-lesson-shortly.mp3",
     "recordingStatus": "recorded"

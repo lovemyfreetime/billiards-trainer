@@ -13,11 +13,11 @@ global.BilliardsPracticePrompt={show(owner,action){promptOwner=owner;promptActio
 let pending;
 function load(){return pending||(pending=fetch('./guide/topic-scenes.json?v=shaped-guides-v2').then(r=>{if(!r.ok)throw Error('Topic layouts unavailable');return r.json();}));}
 async function attach(topics){const data=await load();for(const t of topics){const scene=data.topics[t.id];if(scene){t.scene=scene;t.setups=[scene.setup];if(t.learning)t.learning.setups=t.setups;}}return data;}
-function mount(guide,host,{seconds=10}={}){
+function mount(guide,host,{seconds=5}={}){
  const bridge=global.billiardsTourBridge;
  let current=null,checkpoint=null,phase='idle',deadline=0,interval=null,epoch=0,practicing=false,blocked=null;
  const footer=document.createElement('div');footer.className='btg-practice-next';footer.hidden=true;
- footer.innerHTML='<div class="btg-countdown"><span>Next lesson in</span><strong role="timer" aria-live="off">10</strong><span>Tap the table to try this layout.</span></div><button type="button" class="btg-next-lesson">Next Lesson ▶</button><p class="btg-last-lesson">Final lesson — try this layout.</p>';
+ footer.innerHTML='<div class="btg-countdown"><span>Next lesson in</span><strong role="timer" aria-live="off">5</strong><span>Tap the table to try this layout.</span></div><button type="button" class="btg-next-lesson">Next Lesson ▶</button><p class="btg-last-lesson">Final lesson — try this layout.</p>';
  const timer=footer.querySelector('[role="timer"]'),next=footer.querySelector('button');
  const state=()=>guide.getState();
  function active(){const s=state();return !!current&&s.enabled&&!s.exploring&&s.category!=='start'&&s.topicId===current.id;}
