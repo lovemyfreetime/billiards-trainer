@@ -795,6 +795,13 @@
     min-height:34px;
   }
 
+  #practiceCounter { position:absolute;z-index:10;display:flex;align-items:center;gap:5px;transform:translate(-50%,-50%);pointer-events:auto; }
+  #practiceCounter[hidden],#practiceCounterPanel[hidden]{display:none!important}
+  #practiceCounterPanel{display:flex;align-items:center;gap:4px;background:#0b1219e8;border:1px solid #f7df89;border-radius:5px;padding:3px;box-shadow:0 2px 8px #0008}
+  #practiceCounter button{width:30px;height:30px;min-width:30px;padding:0;font-size:20px;line-height:28px;touch-action:manipulation}
+  #practiceCounterToggle{border-radius:50%;background:#132633;color:#ffe28a;border:1px solid #ffe28a;font-size:14px!important}
+  #practiceCounter output{display:block;min-width:52px;text-align:center;font:700 23px/30px ui-monospace,monospace;color:#ffe28a;background:#05090d;border-radius:2px;font-variant-numeric:tabular-nums}
+  #practiceCounter button:focus-visible{outline:3px solid #fff;outline-offset:2px}
   #teachingCompassToggle {
     position:absolute;
     z-index:9;
@@ -1437,10 +1444,14 @@
         <button id="layoutQuickDelete" type="button">Delete Selected</button>
       </div>
     </div>
+    <div id="practiceCounter" hidden aria-label="Drill and exercise counter">
+      <button id="practiceCounterToggle" type="button" aria-label="Open practice counter" aria-expanded="false" aria-controls="practiceCounterPanel" title="Practice counter">#</button>
+      <div id="practiceCounterPanel" hidden><button id="practiceCounterMinus" type="button" aria-label="Decrease practice count">−</button><output id="practiceCounterValue" aria-live="polite" aria-label="Practice count">000</output><button id="practiceCounterPlus" type="button" aria-label="Increase practice count">+</button></div>
+    </div>
     <div id="markerRailControls" aria-label="Individual marker visibility and removal"></div>
     <button id="kickToolToggle" class="bankKickToggle" type="button" title="One-rail kick guide">KICK</button>
     <button id="bankToolToggle" class="bankKickToggle" type="button" title="One-rail bank guide">BANK</button>
-    <button id="teachingCompassToggle" type="button" title="Teaching compass">◎</button>
+    <button id="teachingCompassToggle" type="button" title="Teaching compass · dotted 30° reference for qualifying rolling shots">◎</button>
     <div id="compassSizeWrap" class="compassSideControl">
       <input id="compassSize" type="range" min="10" max="100" step="1" value="45" aria-label="Teaching compass size">
       <span class="compassSideLabel">SIZE</span>
@@ -1738,6 +1749,7 @@
         <div class="check"><input id="showGrid" type="checkbox" checked><label for="showGrid">Diamond-connected table grid</label></div>
         <div class="check"><input id="showDiamonds" type="checkbox" checked><label for="showDiamonds">Rail diamonds</label></div>
         <div class="check"><input id="showTable" type="checkbox" checked><label for="showTable">Show table / balls</label></div>
+        <div class="check"><input id="showPracticeCounter" type="checkbox"><label for="showPracticeCounter">Drill and exercise counter</label></div>
         <div class="check"><input id="showScoreBoard" type="checkbox"><label for="showScoreBoard">Show Player 1 / Player 2 controls</label></div>
         <div class="check"><input id="showBankKickNumbers" type="checkbox"><label for="showBankKickNumbers">Show bank / kick rail numbers</label></div>
       </div>
@@ -1837,6 +1849,7 @@
 
 <link rel="stylesheet" href="./photo-calibration.css?v=focused-start-v17">
 <script src="./photo-calibration.js?v=walkthrough-v11"></script>
+<script src="./trainer-practice-tools.js?v=1"></script>
 <script src="./trainer-layout-files.js?v=2"></script>
 <script src="./trainer-saved-files.js?v=1"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
@@ -1937,7 +1950,7 @@
                 sizePct: 45,
                 linkedBallId: null
             },
-            setupMode: 'custom', pocketedLog: [], player1Score: 0, player2Score: 0, activePlayer: 1, showScoreBoard: false,
+            setupMode: 'custom', pocketedLog: [], player1Score: 0, player2Score: 0, activePlayer: 1, showScoreBoard: false, showPracticeCounter:false,
             // Photo-analyzed layouts are allowed to contain only object balls.  When
             // true, normalizeBallSet() must not manufacture a default cue ball.
             allowMissingCueBall: false,
@@ -1959,6 +1972,23 @@
         };
     }
     let S = defaultState();
+    let practiceCounterOpen=false,practiceCount=0;
+    try{practiceCount=window.BilliardsPracticeTools.counterValue(localStorage.getItem('billiardsPracticeCount'));}catch(_){}
+    function syncPracticeCounter(){
+        if(isProjector)return;
+        const el=$('practiceCounter');if(!el)return;
+        el.hidden=!S.showPracticeCounter;
+        $('practiceCounterPanel').hidden=!practiceCounterOpen;
+        const toggle=$('practiceCounterToggle');toggle.setAttribute('aria-expanded',String(practiceCounterOpen));toggle.setAttribute('aria-label',(practiceCounterOpen?'Hide':'Open')+' practice counter');
+        const text=String(practiceCount).padStart(3,'0');if($('practiceCounterValue').textContent!==text)$('practiceCounterValue').textContent=text;
+        $('practiceCounterMinus').disabled=practiceCount===0;$('practiceCounterPlus').disabled=practiceCount===999;
+        if(el.hidden)return;
+        const M=controlMap(),q=M.map({x:S.tableL*.77,y:S.tableW}),w=stage.clientWidth,h=stage.clientHeight;
+        const half=(practiceCounterOpen?176:30)/2;
+        el.style.left=clamp(q.x,half+5,w-half-5)+'px';el.style.top=clamp(q.y+Math.max(17,M.scale*.065),20,h-21)+'px';
+    }
+    function changePracticeCount(delta){practiceCount=window.BilliardsPracticeTools.counterValue(practiceCount+delta);try{localStorage.setItem('billiardsPracticeCount',String(practiceCount));}catch(_){}syncPracticeCounter();}
+
     // Shot/run history. Each committed animated shot stores a complete pre-shot
     // snapshot so Undo restores every ball and its exact position. runHistory keeps
     // the starting layout plus each committed ending layout.
@@ -1971,7 +2001,9 @@
     function restoreSnapshot(snap) {
         if (!snap)
             return;
+        const counterEnabled=S.showPracticeCounter;
         S = Object.assign(Object.assign(Object.assign({}, defaultState()), JSON.parse(JSON.stringify(snap))), { preview: null });
+        S.showPracticeCounter=counterEnabled;
         normalizeBallSet();
         updateUI();
         refreshPreview();
@@ -2396,7 +2428,7 @@
             $('layoutNameInput').value=S.lastLayoutName;$('layoutQuickName').value=S.lastLayoutName;refresh();return true;
         }
         function snapshot(){return {busy:!!animation,undoCount:undoStack.length,shots:Math.max(0,runHistory.length-1),pocketed:[...(S.pocketedLog||[])],shot2Enabled:S.shot2Enabled,speed:S.speed,followPercent:Math.round(S.follow*100),sidePercent:Math.round(S.sideSpin*100),tableL:S.tableL,tableW:S.tableW};}
-        return {capture,restore,apply,snapshot,exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},predict(){const p=simulate(false);return {pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact};}};
+        return {capture,restore,apply,snapshot,exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},rollingReference(which=1){return rollingReferenceForShot(which);},predict(){const p=simulate(false);return {pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact};}};
     })();
 
     window.billiardsGuideApplyLayout=file=>{applyTableFile(file,false,null,true);if($('photoAnalyzerModal').classList.contains('open'))closePhotoAnalyzer();};
@@ -4506,6 +4538,7 @@
                                         objId: obj.id, objName: obj.n,
                                         cuePos: { x: cue.x, y: cue.y }, objPos: { x: obj.x, y: obj.y },
                                         incoming: iv, normal: nc, signedOffset: lateral,
+                                        motion:{appliedSide:S.sideSpin,speed:Math.hypot(cue.vx,cue.vy),slipRatio:Math.hypot(cue.vx-R*cue.wy,cue.vy+R*cue.wx)/Math.max(.001,Math.hypot(cue.vx,cue.vy)),sideRatio:Math.abs(R*cue.wz)/Math.max(.001,Math.hypot(cue.vx,cue.vy)),objectSpeed:Math.hypot(obj.vx,obj.vy),elevation:S.cueElevationDeg},
                                         overlap: clamp(100 * (1 - Math.abs(lateral) / (2 * R)), 0, 100),
                                         cutAngle: ca, distanceBalls: cue.travel / (2 * R), t
                                     };
@@ -4524,6 +4557,9 @@
                                 const dwT = 2.5 * jz / R;
                                 a.wx += dwT * tx; a.wy += dwT * ty;
                                 b.wx += dwT * tx; b.wy += dwT * ty;
+                                if(firstBallContact&&firstBallContact.t===t&&!firstBallContact.after&&(a.id===0||b.id===0)){
+                                    const cue=a.id===0?a:b;firstBallContact.after={vx:cue.vx,vy:cue.vy,wx:cue.wx,wy:cue.wy};
+                                }
                                 if (firstEvent === "—") firstEvent = `${a.n} → ${b.n}`;
                             }
                         }
@@ -6316,6 +6352,19 @@
         ctx.fillText(label, lx, ly);
         ctx.restore();
     }
+    function rollingReferenceForShot(which=1){
+        if(!compassState().enabled||animation||!S.showTable||!S.showImpact||!cueVisualsVisible(which)||which===2&&!S.shot2Enabled)return null;
+        const preview=which===2?ensureShot2().preview:S.preview;
+        return window.BilliardsPracticeTools.rollingReference(preview?.firstBallContact,S);
+    }
+    function drawRollingReferences(map){
+        for(const which of [1,2]){
+            const ref=rollingReferenceForShot(which);if(!ref)continue;
+            const p=map(ref.end);pathPoly([ref.start,ref.end],map,which===1?'#ffe28a':'#a2f3ff',2,.95,[2,5]);
+            const start=map(ref.start);if(Math.hypot(p.x-start.x,p.y-start.y)<35)continue;
+            ctx.save();ctx.fillStyle=which===1?'#ffe28a':'#a2f3ff';ctx.strokeStyle='#14232b';ctx.lineWidth=3;ctx.font='bold 11px Segoe UI';ctx.textAlign='center';ctx.strokeText('≈30°',p.x,p.y-7);ctx.fillText('≈30°',p.x,p.y-7);ctx.restore();
+        }
+    }
     function drawTeachingCompass(map) {
         const c = compassState();
         if (!c.enabled)
@@ -6535,6 +6584,7 @@
         window.billiardsPhoneReadouts?.();
         if ($('phoneFlightCanvas')) $('phoneFlightCanvas').style.display = 'none';
         updateMarkerRailControls();
+        syncPracticeCounter();
         const w = canvas.width / DPR, h = canvas.height / DPR;
         ctx.clearRect(0, 0, w, h);
         ctx.fillStyle = '#050608';
@@ -6588,6 +6638,7 @@
         drawTipBadge(map);
         drawBankKickGuide(map);
         drawTeachingCompass(map);
+        drawRollingReferences(map);
         drawCalibration(M);
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }
@@ -7132,6 +7183,8 @@
         $('showDiamonds').checked = S.showDiamonds;
         $('showTable').checked = S.showTable;
         $('showAngleLockControl').checked = S.showAngleLockControl === true;
+        $('showPracticeCounter').checked = !!S.showPracticeCounter;
+        syncPracticeCounter();
         $('showScoreBoard').checked = S.showScoreBoard === true;
         $('showBankKickNumbers').checked = !!S.showBankKickNumbers;
         updateShot2UIState();
@@ -7213,7 +7266,7 @@
         if ($('aimControls')) $('aimControls').classList.toggle('activeAim', S.activeShot !== 2);
         if ($('aimControls2')) $('aimControls2').classList.toggle('activeAim', S.activeShot === 2 && S.shot2Enabled);
     }
-    function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, cuePreset:S.cuePreset, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
+    function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, cuePreset:S.cuePreset, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showPracticeCounter:S.showPracticeCounter, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
     function keepCueOnTable(q){
         const gap=Math.max(S.ballR*2.2,.065),p={x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR)};
         for(const pocket of logicalPockets())if(Math.hypot(p.x-pocket.x,p.y-pocket.y)<gap){
@@ -11693,6 +11746,10 @@
             body.classList.toggle('open', open);
             btn.classList.toggle('open', open);
         }));
+        $('showPracticeCounter').addEventListener('change',()=>{S.showPracticeCounter=$('showPracticeCounter').checked;practiceCounterOpen=S.showPracticeCounter;syncPracticeCounter();saveState();});
+        $('practiceCounterToggle').addEventListener('click',()=>{practiceCounterOpen=!practiceCounterOpen;syncPracticeCounter();});
+        $('practiceCounterPlus').addEventListener('click',()=>changePracticeCount(1));
+        $('practiceCounterMinus').addEventListener('click',()=>changePracticeCount(-1));
         $('showScoreBoard').addEventListener('change', () => {
             S.showScoreBoard = $('showScoreBoard').checked;
             updateScoreBoard();
