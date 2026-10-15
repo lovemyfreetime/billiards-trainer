@@ -14,6 +14,11 @@ const server=cp.spawn('python',['-u','-m','http.server','8767','--bind','127.0.0
  await p.evaluate(()=>{const s=billiardsTourBridge.capture();s.state.showCueVisuals2=true;billiardsTourBridge.restore(s)});
  const positions=await p.evaluate(()=>{const ids=['tableSpeed1Wrap','practiceCounterToggle','tableSpeed2Wrap'];return ids.map(id=>{const r=document.getElementById(id).getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}})});
  assert.ok(Math.abs(positions[0].h-positions[1].h)<1&&Math.abs(positions[2].h-positions[1].h)<1);assert.ok(Math.abs(positions[0].y-positions[1].y)<1);assert.ok(Math.abs((positions[1].x-positions[0].x-positions[0].w)-(positions[2].x-positions[1].x-positions[1].w))<2);
+ assert.ok(await p.locator('#tableSpeed1Readout').isVisible());
+ for(const [id,value,text]of [['tableSpeed1','2.35','2.35'],['bottomFollow1','-.35','-35%'],['bottomSide1','.4','+40%'],['tableSpeed2','1.75','1.75'],['bottomFollow2','.65','+65%'],['bottomSide2','-.2','-20%']]){
+  await p.locator('#'+id).evaluate((el,value)=>{el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}))},value);assert.equal(await p.locator('#'+id+'Readout').textContent(),text);
+  const valueBox=await p.locator('#'+id+'Readout').boundingBox(),labelBox=await p.locator('#'+id).locator('..').locator('.tableSpeedLabel,.miniSpinLabel').boundingBox();assert.ok(valueBox.x+valueBox.width<labelBox.x,'Readout and label occupy opposite ends');
+ }
  await p.screenshot({path:'/workspace/scratch/0fe18c6a5400/tour-analysis/compass-counter-dual.png',fullPage:true});
  await shot();await p.locator('#resetLayout').evaluate(el=>el.closest('.section').classList.add('open'));await p.click('#resetLayout');assert.equal(await checkbox.isChecked(),true);assert.equal(await value.textContent(),'001');await shot();await p.screenshot({path:'/workspace/scratch/0fe18c6a5400/tour-analysis/practice-tools-desktop.png',fullPage:true});
  await p.reload();await p.waitForFunction(()=>window.billiardsPoolGuide);assert.equal(await value.textContent(),'001');await toggle.click();assert.equal(await value.isVisible(),true);

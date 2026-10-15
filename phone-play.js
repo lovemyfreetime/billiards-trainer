@@ -140,7 +140,8 @@
   window.billiardsPhoneReadouts = () => {
     for(const {input,output,kind} of readouts) {
       const value=Number(input.value)||0;
-      const text=kind==='speed'?value.toFixed(2):((value>0?'+':'')+Math.round(value*100)+'%');
+      const percent=Math.round(value*100);
+      const text=kind==='speed'?value.toFixed(2):((percent>0?'+':'')+percent+'%');
       if(output.textContent!==text)output.textContent=text;
     }
   };

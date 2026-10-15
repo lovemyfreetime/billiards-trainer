@@ -1,8 +1,8 @@
-const CACHE_NAME = 'billiards-trainer-4-12-compass-counter-v78';
+const CACHE_NAME = 'billiards-trainer-4-12-rail-readouts-v79';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
-  './trainer-practice-tools.js?v=2',
+  './trainer-practice-tools.js?v=3',
   './guide/audio-startup.js?v=native-warmup-v22',
   './guide/practice-layouts.js?v=walkthrough-v11',
   './guide/practice-layouts.json?v=walkthrough-v11',
@@ -20,8 +20,8 @@ const APP_SHELL = [
   './guide/analyze-welcome.js?v=analyze-welcome-v16',
   './guide/analyze-walkthrough.js?v=presets-recovery-v13',
   './manifest.webmanifest',
-  './phone-play.css?v=8',
-  './phone-play.js?v=8',
+  './phone-play.css?v=9',
+  './phone-play.js?v=9',
   './photo-calibration.js?v=walkthrough-v11',
   './photo-table-spots.js?v=3',
   './photo-cloth-filter.js?v=2',
