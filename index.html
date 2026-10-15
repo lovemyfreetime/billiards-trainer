@@ -1451,7 +1451,7 @@
     <div id="markerRailControls" aria-label="Individual marker visibility and removal"></div>
     <button id="kickToolToggle" class="bankKickToggle" type="button" title="One-rail kick guide">KICK</button>
     <button id="bankToolToggle" class="bankKickToggle" type="button" title="One-rail bank guide">BANK</button>
-    <button id="teachingCompassToggle" type="button" title="Teaching compass · 30° spokes and 5° / 10° degree dots">◎</button>
+    <button id="teachingCompassToggle" type="button" title="Teaching compass · 5° / 10° degree dots">◎</button>
     <div id="compassSizeWrap" class="compassSideControl">
       <input id="compassSize" type="range" min="10" max="100" step="1" value="45" aria-label="Teaching compass size">
       <span class="compassSideLabel">SIZE</span>
@@ -6397,14 +6397,6 @@
             ctx.beginPath();ctx.fillStyle=mark.major?'#ffe28a':'rgba(255,255,255,.82)';
             ctx.arc(center.x+Math.cos(mark.angle)*rp,center.y+Math.sin(mark.angle)*rp,mark.major?2.6:1.3,0,Math.PI*2);ctx.fill();
         }
-        // One 30° spoke in each quadrant, relative to the main compass axis.
-        ctx.strokeStyle='#ffe28a';ctx.lineWidth=1.4;ctx.setLineDash([2,5]);
-        for(const mark of marks.spokes){
-            const x=Math.cos(mark.angle),y=Math.sin(mark.angle);
-            ctx.beginPath();ctx.moveTo(center.x,center.y);ctx.lineTo(center.x+x*rp*.94,center.y+y*rp*.94);ctx.stroke();
-            if(rp>=55){ctx.font='bold 11px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#ffe28a';ctx.fillText('30°',center.x+x*rp*.68,center.y+y*rp*.68-8);}
-        }
-        ctx.setLineDash([]);
         // Main directional axis with arrowhead.
         const a1 = { x: center.x - d.x * rp, y: center.y - d.y * rp };
         const a2 = { x: center.x + d.x * rp, y: center.y + d.y * rp };
