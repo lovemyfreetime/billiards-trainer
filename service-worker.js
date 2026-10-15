@@ -1,8 +1,8 @@
-const CACHE_NAME = 'billiards-trainer-4-12-practice-tools-v77';
+const CACHE_NAME = 'billiards-trainer-4-12-compass-counter-v78';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
-  './trainer-practice-tools.js?v=1',
+  './trainer-practice-tools.js?v=2',
   './guide/audio-startup.js?v=native-warmup-v22',
   './guide/practice-layouts.js?v=walkthrough-v11',
   './guide/practice-layouts.json?v=walkthrough-v11',
