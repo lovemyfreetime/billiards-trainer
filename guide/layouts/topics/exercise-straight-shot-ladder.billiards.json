@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.1122739645398527,
-        "y": 0.9985681150927783,
+        "x": 2.3601257395873096,
+        "y": 0.7187260437026904,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.31064,
-        "y": 0.42545000000000005,
+        "id": 9,
+        "n": "9",
+        "x": 1.9816336243445234,
+        "y": 1.0440636307267033,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.3160743677605367,
-      "y": 0.482341037493117
+      "x": 2.038415747351653,
+      "y": 1.037589605178159
     }
   },
   "state": {
@@ -39,26 +39,26 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.1122739645398527,
-        "y": 0.9985681150927783,
+        "x": 2.3601257395873096,
+        "y": 0.7187260437026904,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.31064,
-        "y": 0.42545000000000005,
+        "id": 9,
+        "n": "9",
+        "x": 1.9816336243445234,
+        "y": 1.0440636307267033,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.3160743677605367,
-      "y": 0.482341037493117
+      "x": 2.038415747351653,
+      "y": 1.037589605178159
     },
     "angleLock": false,
-    "speed": 1.45,
+    "speed": 2.2,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -141,14 +141,14 @@
   "lesson": {
     "topic": "exercise-straight-shot-ladder",
     "purpose": "Connect the chosen pocket, object-ball contact, and cue-ball approach.",
-    "variation": "Approach distance and contact geometry selected for The Straight-Shot Ladder.",
+    "variation": "Approach distance and contact geometry selected for The Straight-Shot Ladder. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
-      0
+      0,
+      1
     ],
-    "target": 1,
+    "target": 9,
     "controls": {
-      "speed": 1.45,
+      "speed": 2.2,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

@@ -14,15 +14,15 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.321252234142275,
-        "y": 0.9815037368792542,
+        "x": 0.8409951381379756,
+        "y": 1.0436300359778645,
         "active": true
       },
       {
         "id": 1,
         "n": "1",
-        "x": 1.3716000000000002,
-        "y": 0.4699,
+        "x": 0.5288862796911384,
+        "y": 0.9117332449603485,
         "active": true
       },
       {
@@ -42,8 +42,8 @@
       }
     ],
     "freeAim": {
-      "x": 1.383677669092949,
-      "y": 0.5257592195548884
+      "x": 0.5575627546978466,
+      "y": 0.9611678712984695
     }
   },
   "state": {
@@ -54,15 +54,15 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.321252234142275,
-        "y": 0.9815037368792542,
+        "x": 0.8409951381379756,
+        "y": 1.0436300359778645,
         "active": true
       },
       {
         "id": 1,
         "n": "1",
-        "x": 1.3716000000000002,
-        "y": 0.4699,
+        "x": 0.5288862796911384,
+        "y": 0.9117332449603485,
         "active": true
       },
       {
@@ -84,8 +84,8 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.383677669092949,
-      "y": 0.5257592195548884
+      "x": 0.5575627546978466,
+      "y": 0.9611678712984695
     },
     "angleLock": false,
     "speed": 1.45,
@@ -171,9 +171,9 @@
   "lesson": {
     "topic": "table-markers-quick",
     "purpose": "Define a visible, measurable practice objective before shooting.",
-    "variation": "Approach distance and contact geometry selected for Table markers.",
+    "variation": "Approach distance and contact geometry selected for Table markers. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
+      0,
       0
     ],
     "target": 1,
@@ -189,6 +189,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

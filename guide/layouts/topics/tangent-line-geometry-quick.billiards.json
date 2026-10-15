@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0916008061413616,
-        "y": 0.8752700852863924,
+        "x": 0.276430206972605,
+        "y": 0.6726013763136811,
         "active": true
       },
       {
         "id": 1,
         "n": "1",
-        "x": 1.27,
-        "y": 0.48260000000000003,
+        "x": 1.1340847352212973,
+        "y": 0.45440198673839105,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.27,
-      "y": 0.5397500000000001
+      "x": 1.0961059440618575,
+      "y": 0.46693081487948074
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0916008061413616,
-        "y": 0.8752700852863924,
+        "x": 0.276430206972605,
+        "y": 0.6726013763136811,
         "active": true
       },
       {
         "id": 1,
         "n": "1",
-        "x": 1.27,
-        "y": 0.48260000000000003,
+        "x": 1.1340847352212973,
+        "y": 0.45440198673839105,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.27,
-      "y": 0.5397500000000001
+      "x": 1.0961059440618575,
+      "y": 0.46693081487948074
     },
     "angleLock": false,
     "speed": 1.6,
@@ -141,10 +141,10 @@
   "lesson": {
     "topic": "tangent-line-geometry-quick",
     "purpose": "Predict the initial cue-ball exit for a cut struck with stun at impact.",
-    "variation": "Approach distance and contact geometry selected for The tangent line.",
+    "variation": "Approach distance and contact geometry selected for The tangent line. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
-      0
+      1,
+      1
     ],
     "target": 1,
     "controls": {
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

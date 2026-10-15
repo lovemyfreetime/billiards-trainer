@@ -14,20 +14,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0676719284730767,
-        "y": 0.8531676211214839,
+        "x": 0.8563552988802792,
+        "y": 0.2227471050060636,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.27508,
-        "y": 0.42545000000000005,
+        "id": 5,
+        "n": "5",
+        "x": 1.1721716672647935,
+        "y": 0.43337368202182525,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 6,
+        "n": "6",
         "x": 1.90754,
         "y": 0.79375,
         "active": true
@@ -49,8 +49,8 @@
       }
     ],
     "freeAim": {
-      "x": 1.275762339420621,
-      "y": 0.48259592647700333
+      "x": 1.1655342303154492,
+      "y": 0.3766104286729951
     }
   },
   "state": {
@@ -61,20 +61,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0676719284730767,
-        "y": 0.8531676211214839,
+        "x": 0.8563552988802792,
+        "y": 0.2227471050060636,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.27508,
-        "y": 0.42545000000000005,
+        "id": 5,
+        "n": "5",
+        "x": 1.1721716672647935,
+        "y": 0.43337368202182525,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 6,
+        "n": "6",
         "x": 1.90754,
         "y": 0.79375,
         "active": true
@@ -98,11 +98,11 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.275762339420621,
-      "y": 0.48259592647700333
+      "x": 1.1655342303154492,
+      "y": 0.3766104286729951
     },
     "angleLock": false,
-    "speed": 1.45,
+    "speed": 2.2,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -185,14 +185,14 @@
   "lesson": {
     "topic": "practice-progressive-benchmark",
     "purpose": "Use comparable results to decide what to practice next.",
-    "variation": "Current pot plus a next-ball angle and a visible position zone.",
+    "variation": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
       0.5,
-      0
+      1
     ],
-    "target": 1,
+    "target": 5,
     "controls": {
-      "speed": 1.45,
+      "speed": 2.2,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -203,6 +203,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

@@ -14,22 +14,22 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.5841999999999999,
-        "y": 0.7112,
+        "x": 2.2350839291581974,
+        "y": 0.8350036806385148,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.8288,
-        "y": 0.6807200000000001,
+        "id": 13,
+        "n": "13",
+        "x": 1.3844119964748591,
+        "y": 0.810013375783803,
         "active": true
       },
       {
-        "id": 8,
-        "n": "8",
-        "x": 1.2065,
-        "y": 0.69596,
+        "id": 5,
+        "n": "5",
+        "x": 1.8097479628165283,
+        "y": 0.8225085282111588,
         "active": true
       },
       {
@@ -38,19 +38,49 @@
         "marker": true,
         "markerType": "yellow",
         "markerShape": "circle",
-        "markerDiameterIn": 3,
-        "markerWidthIn": 3,
-        "markerHeightIn": 3,
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.892149361313868,
+        "x": 0.028575,
+        "y": 0.23126874844619408,
+        "active": true
+      },
+      {
+        "id": 1001,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "yellow",
+        "markerShape": "circle",
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 0.9481352188917541,
         "y": 0.028575,
+        "active": true
+      },
+      {
+        "id": 1002,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "yellow",
+        "markerShape": "circle",
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 2.511425,
+        "y": 0.3502193324122106,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.417504767920124,
-      "y": 0.15838614004206786
+      "x": 1.2703868211604452,
+      "y": 0.5716417816842945
     }
   },
   "state": {
@@ -61,22 +91,22 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.5841999999999999,
-        "y": 0.7112,
+        "x": 2.2350839291581974,
+        "y": 0.8350036806385148,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.8288,
-        "y": 0.6807200000000001,
+        "id": 13,
+        "n": "13",
+        "x": 1.3844119964748591,
+        "y": 0.810013375783803,
         "active": true
       },
       {
-        "id": 8,
-        "n": "8",
-        "x": 1.2065,
-        "y": 0.69596,
+        "id": 5,
+        "n": "5",
+        "x": 1.8097479628165283,
+        "y": 0.8225085282111588,
         "active": true
       },
       {
@@ -85,24 +115,54 @@
         "marker": true,
         "markerType": "yellow",
         "markerShape": "circle",
-        "markerDiameterIn": 3,
-        "markerWidthIn": 3,
-        "markerHeightIn": 3,
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.892149361313868,
+        "x": 0.028575,
+        "y": 0.23126874844619408,
+        "active": true
+      },
+      {
+        "id": 1001,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "yellow",
+        "markerShape": "circle",
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 0.9481352188917541,
         "y": 0.028575,
+        "active": true
+      },
+      {
+        "id": 1002,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "yellow",
+        "markerShape": "circle",
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 2.511425,
+        "y": 0.3502193324122106,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.417504767920124,
-      "y": 0.15838614004206786
+      "x": 1.2703868211604452,
+      "y": 0.5716417816842945
     },
     "angleLock": false,
-    "speed": 2.1,
+    "speed": 5.199999999999999,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -185,11 +245,11 @@
   "lesson": {
     "topic": "practice-corner-five",
     "purpose": "Plan a multi-cushion route as a sequence of observable rail contacts.",
-    "variation": "Two-cushion image route around the blocker; check each rail contact before the final target. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+    "variation": "Prepared 3-cushion cue-ball escape to the target ball via left, top, right. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": null,
-    "target": 1,
+    "target": 13,
     "controls": {
-      "speed": 2.1,
+      "speed": 5.199999999999999,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -200,6 +260,23 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": [
+      {
+        "rail": "left",
+        "x": 0.028575,
+        "y": 0.23126874844619408
+      },
+      {
+        "rail": "top",
+        "x": 0.9481352188917541,
+        "y": 0.028575
+      },
+      {
+        "rail": "right",
+        "x": 2.511425,
+        "y": 0.3502193324122106
+      }
+    ]
   }
 }

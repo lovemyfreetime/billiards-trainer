@@ -14,20 +14,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.9965290809761425,
-        "y": 0.9803811693319099,
+        "x": 0.8273672269047228,
+        "y": 0.8930624391148673,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.2192,
-        "y": 0.4953,
+        "id": 9,
+        "n": "9",
+        "x": 1.203065018443745,
+        "y": 0.471737190384478,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 10,
+        "n": "10",
         "x": 1.9304000000000001,
         "y": 0.8255,
         "active": true
@@ -48,16 +48,16 @@
         "active": true
       },
       {
-        "id": 8,
-        "n": "8",
+        "id": 1,
+        "n": "1",
         "x": 1.6764000000000001,
         "y": 0.5588,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.213369050336757,
-      "y": 0.5521517592166216
+      "x": 1.1491715748545497,
+      "y": 0.4907534791417047
     }
   },
   "state": {
@@ -68,20 +68,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.9965290809761425,
-        "y": 0.9803811693319099,
+        "x": 0.8273672269047228,
+        "y": 0.8930624391148673,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.2192,
-        "y": 0.4953,
+        "id": 9,
+        "n": "9",
+        "x": 1.203065018443745,
+        "y": 0.471737190384478,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 10,
+        "n": "10",
         "x": 1.9304000000000001,
         "y": 0.8255,
         "active": true
@@ -102,8 +102,8 @@
         "active": true
       },
       {
-        "id": 8,
-        "n": "8",
+        "id": 1,
+        "n": "1",
         "x": 1.6764000000000001,
         "y": 0.5588,
         "active": true
@@ -112,8 +112,8 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.213369050336757,
-      "y": 0.5521517592166216
+      "x": 1.1491715748545497,
+      "y": 0.4907534791417047
     },
     "angleLock": false,
     "speed": 1.45,
@@ -199,12 +199,12 @@
   "lesson": {
     "topic": "safety-play-quick",
     "purpose": "Compare attacking with leaving a difficult legal reply.",
-    "variation": "An attacking ball, screening ball, and candidate hiding area for inspecting the opponent reply.",
+    "variation": "An attacking ball, screening ball, and candidate hiding area for inspecting the opponent reply. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
+      1,
       0
     ],
-    "target": 1,
+    "target": 9,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -217,6 +217,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

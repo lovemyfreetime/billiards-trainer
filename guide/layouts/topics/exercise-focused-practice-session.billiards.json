@@ -14,20 +14,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0901274475807385,
-        "y": 0.918232058516061,
+        "x": 1.882303535822484,
+        "y": 0.6759144760729616,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.30556,
-        "y": 0.4572,
+        "id": 12,
+        "n": "12",
+        "x": 1.2601182987377033,
+        "y": 1.0244562501885193,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 13,
+        "n": "13",
         "x": 1.88468,
         "y": 0.762,
         "active": true
@@ -49,8 +49,8 @@
       }
     ],
     "freeAim": {
-      "x": 1.3099916159403682,
-      "y": 0.5141779192333054
+      "x": 1.3162132705298293,
+      "y": 1.0135257131641737
     }
   },
   "state": {
@@ -61,20 +61,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0901274475807385,
-        "y": 0.918232058516061,
+        "x": 1.882303535822484,
+        "y": 0.6759144760729616,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.30556,
-        "y": 0.4572,
+        "id": 12,
+        "n": "12",
+        "x": 1.2601182987377033,
+        "y": 1.0244562501885193,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 13,
+        "n": "13",
         "x": 1.88468,
         "y": 0.762,
         "active": true
@@ -98,8 +98,8 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.3099916159403682,
-      "y": 0.5141779192333054
+      "x": 1.3162132705298293,
+      "y": 1.0135257131641737
     },
     "angleLock": false,
     "speed": 1.45,
@@ -185,12 +185,12 @@
   "lesson": {
     "topic": "exercise-focused-practice-session",
     "purpose": "Use comparable results to decide what to practice next.",
-    "variation": "Current pot plus a next-ball angle and a visible position zone.",
+    "variation": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
-      0
+      0,
+      1
     ],
-    "target": 1,
+    "target": 12,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -203,6 +203,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

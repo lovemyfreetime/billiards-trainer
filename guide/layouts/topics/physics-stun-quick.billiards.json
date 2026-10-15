@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.128604259317904,
-        "y": 1.0015775782158425,
+        "x": 2.2229763722186306,
+        "y": 0.7371906903931498,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.3309600000000001,
-        "y": 0.5461,
+        "id": 13,
+        "n": "13",
+        "x": 1.8930756437614624,
+        "y": 0.7606463374222374,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.3373001555065123,
-      "y": 0.6028972264125041
+      "x": 1.946183573198426,
+      "y": 0.7824369454542488
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.128604259317904,
-        "y": 1.0015775782158425,
+        "x": 2.2229763722186306,
+        "y": 0.7371906903931498,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.3309600000000001,
-        "y": 0.5461,
+        "id": 13,
+        "n": "13",
+        "x": 1.8930756437614624,
+        "y": 0.7606463374222374,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.3373001555065123,
-      "y": 0.6028972264125041
+      "x": 1.946183573198426,
+      "y": 0.7824369454542488
     },
     "angleLock": false,
     "speed": 1.6,
@@ -141,12 +141,12 @@
   "lesson": {
     "topic": "physics-stun-quick",
     "purpose": "Predict the initial cue-ball exit for a cut struck with stun at impact.",
-    "variation": "Approach distance and contact geometry selected for Stop and stun.",
+    "variation": "Approach distance and contact geometry selected for Stop and stun. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
+      0,
       0
     ],
-    "target": 1,
+    "target": 13,
     "controls": {
       "speed": 1.6,
       "follow": -0.28,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

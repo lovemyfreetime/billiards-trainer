@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.9957781478779049,
-        "y": 0.9948286824915407,
+        "x": 1.8480956356295302,
+        "y": 0.6453133140460444,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.25476,
-        "y": 0.5206999999999999,
+        "id": 12,
+        "n": "12",
+        "x": 2.1630502819405817,
+        "y": 0.27775326250370846,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.2530880330508667,
-      "y": 0.577825537428728
+      "x": 2.117041389720943,
+      "y": 0.31165465387222996
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.9957781478779049,
-        "y": 0.9948286824915407,
+        "x": 1.8480956356295302,
+        "y": 0.6453133140460444,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.25476,
-        "y": 0.5206999999999999,
+        "id": 12,
+        "n": "12",
+        "x": 2.1630502819405817,
+        "y": 0.27775326250370846,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.2530880330508667,
-      "y": 0.577825537428728
+      "x": 2.117041389720943,
+      "y": 0.31165465387222996
     },
     "angleLock": false,
     "speed": 1.45,
@@ -141,12 +141,12 @@
   "lesson": {
     "topic": "spin-transfer-advanced",
     "purpose": "Connect impact geometry and rotation with the motion of both balls.",
-    "variation": "Approach distance and contact geometry selected for Spin transfer.",
+    "variation": "Approach distance and contact geometry selected for Spin transfer. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
+      1,
       0
     ],
-    "target": 1,
+    "target": 12,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

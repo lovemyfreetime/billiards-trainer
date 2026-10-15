@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.224250118350522,
-        "y": 1.0293723371132555,
+        "x": 0.716812104896388,
+        "y": 0.0824542880114787,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.25476,
-        "y": 0.34290000000000004,
+        "id": 5,
+        "n": "5",
+        "x": 1.104351458321282,
+        "y": 0.9143971079105612,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.2522225049315758,
-      "y": 0.3999936390395439
+      "x": 1.0802193858161453,
+      "y": 0.8625920350256899
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.224250118350522,
-        "y": 1.0293723371132555,
+        "x": 0.716812104896388,
+        "y": 0.0824542880114787,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.25476,
-        "y": 0.34290000000000004,
+        "id": 5,
+        "n": "5",
+        "x": 1.104351458321282,
+        "y": 0.9143971079105612,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.2522225049315758,
-      "y": 0.3999936390395439
+      "x": 1.0802193858161453,
+      "y": 0.8625920350256899
     },
     "angleLock": false,
     "speed": 1.4,
@@ -141,12 +141,12 @@
   "lesson": {
     "topic": "exercise-sliding-friction",
     "purpose": "Compare repeatable table behavior without confusing stroke changes with table changes.",
-    "variation": "Straight collision exposes slide-to-roll changes instead of only free rolling distance.",
+    "variation": "Straight collision exposes slide-to-roll changes instead of only free rolling distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
       0.5,
-      0
+      1
     ],
-    "target": null,
+    "target": 5,
     "controls": {
       "speed": 1.4,
       "follow": -0.25,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

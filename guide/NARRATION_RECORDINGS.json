@@ -18,7 +18,7 @@
       "wpm": 175.6,
       "sha256": "7799cc71407b558259854335348a92a85c54cfb017edb4943333fe912292bff0",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "rail-speed-loss-advanced",
@@ -36,7 +36,7 @@
       "wpm": 153.7,
       "sha256": "aad76547cba850f8952c3abf396c3eb94ca64a7e356c8969b597f96dcaac18da",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "physics-jump-clearance-quick",
@@ -54,7 +54,7 @@
       "wpm": 240.0,
       "sha256": "6371d0d74abc057d66af4fe3983222e90632b6096f36b66ae8b351d7dfdc65d5",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "masse-physics-quick",
@@ -72,7 +72,7 @@
       "wpm": 168.5,
       "sha256": "2faf87f8b058056526375ebc98b73af449db580bc8b75e09a430d7a0e064acd6",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "real-table-calibration-quick",
@@ -90,7 +90,7 @@
       "wpm": 199.1,
       "sha256": "ea9899c23a0940a94bc6e46a76dadd1d2da085b92a07204d209c310620635f9e",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "calibration-notes-quick",
@@ -108,7 +108,7 @@
       "wpm": 196.4,
       "sha256": "1b0536412ed1b8537dc47a883884b84a27542840a1f98d736c0865e1e6482c2a",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "exercise-squirt-comparison",
@@ -126,7 +126,7 @@
       "wpm": 180.5,
       "sha256": "3517ca9e6281d6233f566b74ee67901317bbaa5a6562c9d1b21ad3cfaa59eb51",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "practice-shot-two-quick",
@@ -144,7 +144,7 @@
       "wpm": 244.7,
       "sha256": "a5d46f6ba120423a8b420abbffbce36b23de1c2aee7fde9afbfa499e08e56071",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "exercise-three-position-zones",
@@ -162,7 +162,7 @@
       "wpm": 241.3,
       "sha256": "218b37a1dfae07f4c2777c3457bcc0c7afd0a52d1fda31f95ee535999976d777",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "first-session-welcome",
@@ -180,7 +180,7 @@
       "wpm": 168.9,
       "sha256": "604cc96a79c78513f48e10cae521f1645d59b007f166c30239468256311b5427",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "first-session-execute",
@@ -198,7 +198,7 @@
       "wpm": 205.0,
       "sha256": "7dbf3c5d6d3962207d7332bbc9a1bf3f3a9d57b77a504aea3795814056204459",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "first-session-extend-runout",
@@ -216,7 +216,7 @@
       "wpm": 201.2,
       "sha256": "31f262d12961e5c58a22177f0361fa273b10e5fc618b2babc88889ebfacddda1",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "live-stats-cue-flight-quick",
@@ -234,7 +234,7 @@
       "wpm": 160.9,
       "sha256": "de6866f14c49b7ae8c8025702b7a751172e985491b3175453ee822a4dc6ffcce",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "practice-target-landing",
@@ -252,7 +252,7 @@
       "wpm": 221.2,
       "sha256": "aaad2f0d7686acc52d02a87a423063bc6c1c9161aee8698e09cfd4b9c2f65385",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "practice-rock-around-clock",
@@ -270,7 +270,7 @@
       "wpm": 239.2,
       "sha256": "74c3d0b05d2b79b0fd9ce9dd4b34218290a19c81dff9ce6f3a1c25f294adc792",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "practice-corner-five",
@@ -288,7 +288,7 @@
       "wpm": 204.0,
       "sha256": "31791308401f5ac7ac184654558aae1603f0a5c571a95e9ac343be50deb0e303",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "practice-progressive-benchmark",
@@ -306,7 +306,7 @@
       "wpm": 202.0,
       "sha256": "acb4e42bc002e3333f5d03a1878f604756dee45ee5d706d442b517a6e9d09d90",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "exercise-focused-practice-session",
@@ -324,7 +324,7 @@
       "wpm": 218.7,
       "sha256": "db36a03288baeaa6b0f3881f70b0b4a8751120723303683edcdbb6bf7d14eb4c",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "exercise-practice-review",
@@ -342,7 +342,7 @@
       "wpm": 236.6,
       "sha256": "a4a59b843ac4ae2fb895d8c44c472c3380e13e673e654fca8c3bff10b7df413c",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "drill-stop-shot",
@@ -360,7 +360,7 @@
       "wpm": 237.6,
       "sha256": "0efef1b55c1d4927fca95ff4b97cbddaf1abeddca721834aae005fd201d5b6c9",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "drill-stun-tangent",
@@ -378,7 +378,7 @@
       "wpm": 245.0,
       "sha256": "d704893019239d32b958a59ae23f5d38197ada5fc94d15ca60811b38b5203a79",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "drill-speed-ladder",
@@ -396,7 +396,7 @@
       "wpm": 220.8,
       "sha256": "85b13fef8948fd1b6293c027cc6119bf15a479dcc516ae3098e6a4d3f8afe69d",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "drill-l-pattern",
@@ -414,7 +414,7 @@
       "wpm": 248.3,
       "sha256": "188809b17299d63a8e9f5a8093c7f6591e1c02efc66699412d3fcc4744ce27ec",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "drill-t-pattern",
@@ -432,7 +432,7 @@
       "wpm": 247.3,
       "sha256": "30d125f9d50584a4f5909a1c08b8ea6dcbb05b89cbe7976170b091fef9faf99d",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "drill-wagon-wheel",
@@ -450,7 +450,7 @@
       "wpm": 257.1,
       "sha256": "d3bd22e00bb37d41d0f28dc156ba741364a196f15d9594660a11cb2c2dcdf66d",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "drill-two-rail-recovery",
@@ -468,7 +468,7 @@
       "wpm": 242.2,
       "sha256": "634e9e82d1d3dd8d9c8cf3d892a0d09a672abbb7a7237ae6a99b8c75c0aa3dee",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "drill-scratch-avoidance",
@@ -486,7 +486,7 @@
       "wpm": 236.0,
       "sha256": "754220308630c1cfd7e2435c0f2bdd3d288f0e751cddc707e33e3cc6b6d4f7f2",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "drill-mirror-kick",
@@ -504,7 +504,7 @@
       "wpm": 245.3,
       "sha256": "fac224ccb4895c790ff380b4586013d5e0c19f35e8d37e1592a9afe0523218e0",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "drill-two-rail-kick",
@@ -522,7 +522,7 @@
       "wpm": 249.0,
       "sha256": "3c5b3abfc5c0ed715043f3ca5b8a89cb06a942b2f06aace71193d9138e7743a2",
       "status": "recorded",
-      "listeningReview": "pending"
+      "listeningReview": "approved by user 2026-10-15"
     },
     {
       "id": "fundamentals-pre-shot-routine",

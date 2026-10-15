@@ -2448,7 +2448,7 @@
             resetRunHistory();refresh();return true;
         }
         function snapshot(){return {busy:!!animation,undoCount:undoStack.length,shots:Math.max(0,runHistory.length-1),pocketed:[...(S.pocketedLog||[])],shot2Enabled:S.shot2Enabled,speed:S.speed,followPercent:Math.round(S.follow*100),sidePercent:Math.round(S.sideSpin*100),tableL:S.tableL,tableW:S.tableW};}
-        return {capture,restore,apply,loadLesson,snapshot,exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},rollingReference(which=1){return rollingReferenceForShot(which);},predict(){const p=simulate(false);return {pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact};}};
+        return {capture,restore,apply,loadLesson,snapshot,feltBounds(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR);return {left:c.left-s.left+m.corners[0].x*sx,top:c.top-s.top+m.corners[0].y*sy,right:c.left-s.left+m.corners[1].x*sx,width:(m.corners[1].x-m.corners[0].x)*sx,height:(m.corners[2].y-m.corners[0].y)*sy};},exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},rollingReference(which=1){return rollingReferenceForShot(which);},predict(adjust={}){const oldSpeed=S.speed,oldAim=S.freeAim,cb=cueBall(),oldCue=cb?{x:cb.x,y:cb.y}:null;try{if(adjust.speed!==undefined)S.speed=adjust.speed;if(adjust.aim)S.freeAim=adjust.aim;if(adjust.cue&&cb)Object.assign(cb,adjust.cue);const p=simulate(false);return {pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact,paths:p.paths,railEvents:p.railEvents};}finally{S.speed=oldSpeed;S.freeAim=oldAim;if(cb&&oldCue)Object.assign(cb,oldCue);}}};
     })();
 
     window.billiardsGuideApplyLayout=file=>{applyTableFile(file,false,null,true);if($('photoAnalyzerModal').classList.contains('open'))closePhotoAnalyzer();};
@@ -4291,6 +4291,7 @@
         let firstEvent = '—', firstBallContact = null, sampleEvery = 6, frameEvery = 10;
         let simTime = 0;
         const pocketEvents = [];
+        const railEvents = [];
         const landings = [], clearanceMap = new Map();
         let takeoff = null;
         const lastColl = new Map(), Icoef = 2 / 5; // I = 2/5 mR² for a solid sphere
@@ -4416,6 +4417,7 @@
                 return false;
             const tx = -ny, ty = nx;
             // Normal impulse / rebound.
+            railEvents.push({id:b.id,x:b.x,y:b.y,t:simTime,rail:name});
             const jn = -(1 + S.railRest) * vn;
             b.vx += jn * nx;
             b.vy += jn * ny;
@@ -4663,7 +4665,7 @@
                 primaryClearance = candidates[0];
             }
         }
-        return { paths, frames, firstEvent, firstBallContact, pocketEvents,
+        return { paths, frames, firstEvent, firstBallContact, pocketEvents, railEvents,
             airborne: airborneMode ? {
                 maxCueHeight: Math.max(0, maxCueHeight - R), airborneDistance, bedBounceCount,
                 takeoff, landings, clearances, primaryClearance
@@ -12147,10 +12149,10 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <script src="./guide/guide.js?v=topic-guide-v2"></script>
   <script src="./guide/recorded-audio.js?v=chase-20261015"></script>
-  <link rel="stylesheet" href="./guide/get-started-tour.css?v=completion-tour-v25">
-  <script src="./guide/get-started-tour.js?v=chase-20261015"></script>
-  <script src="./guide/learning.js?v=chase-20261015"></script>
-  <script src="./guide/lesson-practice.js?v=topic-guide-v2"></script>
+  <link rel="stylesheet" href="./guide/get-started-tour.css?v=varied-lessons-v1">
+  <script src="./guide/get-started-tour.js?v=varied-lessons-v1"></script>
+  <script src="./guide/learning.js?v=varied-lessons-v1"></script>
+  <script src="./guide/lesson-practice.js?v=varied-lessons-v1"></script>
   <script src="./guide/pool-integration.js?v=chase-20261015"></script>
   <script src="./guide/analyze-integration.js?v=completion-tour-v25"></script>
   <script src="./guide/analyze-welcome.js?v=analyze-welcome-v16"></script>

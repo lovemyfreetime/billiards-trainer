@@ -14,20 +14,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.2558277607782997,
-        "y": 0.797516690441748,
+        "x": 0.9003183401366717,
+        "y": 0.8233251866117894,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.3208,
-        "y": 0.3175,
+        "id": 11,
+        "n": "11",
+        "x": 0.9640797906019435,
+        "y": 0.4192473166007719,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 12,
+        "n": "12",
         "x": 1.9304000000000001,
         "y": 0.8255,
         "active": true
@@ -49,8 +49,8 @@
       }
     ],
     "freeAim": {
-      "x": 1.3298291571382463,
-      "y": 0.3739322321140397
+      "x": 0.9303928563333732,
+      "y": 0.4654134617678207
     }
   },
   "state": {
@@ -61,20 +61,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.2558277607782997,
-        "y": 0.797516690441748,
+        "x": 0.9003183401366717,
+        "y": 0.8233251866117894,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.3208,
-        "y": 0.3175,
+        "id": 11,
+        "n": "11",
+        "x": 0.9640797906019435,
+        "y": 0.4192473166007719,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 12,
+        "n": "12",
         "x": 1.9304000000000001,
         "y": 0.8255,
         "active": true
@@ -98,8 +98,8 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.3298291571382463,
-      "y": 0.3739322321140397
+      "x": 0.9303928563333732,
+      "y": 0.4654134617678207
     },
     "angleLock": false,
     "speed": 1.45,
@@ -185,12 +185,12 @@
   "lesson": {
     "topic": "practice-layout-quick",
     "purpose": "Keep a repeatable starting arrangement so comparisons test one change.",
-    "variation": "Current pot plus a next-ball angle and a visible position zone.",
+    "variation": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
       0.5,
       0
     ],
-    "target": 1,
+    "target": 11,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -203,6 +203,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

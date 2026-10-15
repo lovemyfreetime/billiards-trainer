@@ -44,6 +44,7 @@ async function renderSetup(section,setup){
   const rows=layout.balls.filter(b=>!b.marker).map(b=>[b.id===0?'Cue ball':String(b.id),(b.x/layout.tableL*8).toFixed(3),(b.y/layout.tableW*4).toFixed(3),(b.x/.0254).toFixed(2),(b.y/.0254).toFixed(2)]);
   section.append(table(['Ball','Length diamonds','Width diamonds','Length inches','Width inches'],rows));
   const notes=el('p',`Source playing surface: ${(layout.tableL/.0254).toFixed(1)} × ${(layout.tableW/.0254).toFixed(1)} inches; ball diameter ${(layout.ballR*2/.0254).toFixed(2)} inches. On another table size use the diamond fractions, retain physical ball/target sizes, and recheck straight-in alignment and any ball-width offsets.`);notes.className='note';section.append(notes);
+  if(file.lesson?.railContacts?.length)section.append(table(['Rail contact','Length diamonds','Width diamonds'],file.lesson.railContacts.map((h,i)=>[(i+1)+': '+h.rail,(h.x/layout.tableL*8).toFixed(3),(h.y/layout.tableW*4).toFixed(3)])));
   const markers=layout.balls.filter(b=>b.marker);
   if(markers.length)section.append(table(['Target','Length diamonds','Width diamonds','Size inches'],markers.map((b,i)=>[(i+1)+': '+(b.markerType||'white')+' '+(b.markerShape||'circle'),(b.x/layout.tableL*8).toFixed(3),(b.y/layout.tableW*4).toFixed(3),`${b.markerWidthIn||b.markerDiameterIn||6} × ${b.markerHeightIn||b.markerDiameterIn||6}`])));
   section.append(el('p','Use flat cloth-safe references for zones; no raised object in the ball path. Unless the lesson specifies otherwise, score the cue-ball center inside the boundary.'));
@@ -75,7 +76,7 @@ function fill(pathIndex,preferred){
  if($('lesson').value)lesson($('lesson').value);
 }
 async function init(){
- const responses=await Promise.all(['learning-catalog.json?v=chase-20261015','pool-audio-map.json?v=chase-20261015','recorded-audio.json?v=chase-20261015'].map(url=>fetch(url).then(r=>{if(!r.ok)throw Error('Practice catalog could not load');return r.json();})));
+ const responses=await Promise.all(['learning-catalog.json?v=varied-lessons-v1','pool-audio-map.json?v=chase-20261015','recorded-audio.json?v=chase-20261015'].map(url=>fetch(url).then(r=>{if(!r.ok)throw Error('Practice catalog could not load');return r.json();})));
  catalog=responses[0];const topics=new Map(responses[1].topics.map(t=>[t.id,t]));for(const r of responses[2].records)if(['Main','Shared'].includes(r.page))topics.set(r.topic.id,{...topics.get(r.topic.id),...r.topic});for(const t of catalog.newTopics)topics.set(t.id,t);all=[...topics.values()];
  const p=$('path');p.append(new Option('All lessons','all'));catalog.paths.forEach((path,i)=>p.append(new Option(path.title,String(i))));
  const wanted=new URLSearchParams(location.search).get('topic'),exists=!!catalog.topics[wanted];

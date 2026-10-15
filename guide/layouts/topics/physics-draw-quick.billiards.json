@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.27,
-        "y": 0.91275,
+        "x": 2.120595796774978,
+        "y": 0.19287903402327639,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.27,
-        "y": 0.3556,
+        "id": 6,
+        "n": "6",
+        "x": 1.6797434383772354,
+        "y": 0.4168025742154486,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.27,
-      "y": 0.41275
+      "x": 1.7306972391610014,
+      "y": 0.3909214481640516
     }
   },
   "state": {
@@ -39,26 +39,26 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.27,
-        "y": 0.91275,
+        "x": 2.120595796774978,
+        "y": 0.19287903402327639,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.27,
-        "y": 0.3556,
+        "id": 6,
+        "n": "6",
+        "x": 1.6797434383772354,
+        "y": 0.4168025742154486,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.27,
-      "y": 0.41275
+      "x": 1.7306972391610014,
+      "y": 0.3909214481640516
     },
     "angleLock": false,
-    "speed": 2.0,
+    "speed": 2,
     "follow": -0.5,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -141,14 +141,14 @@
   "lesson": {
     "topic": "physics-draw-quick",
     "purpose": "Retain backspin through impact and control the distance the cue ball returns.",
-    "variation": "Approach distance and contact geometry selected for Draw through contact.",
+    "variation": "Approach distance and contact geometry selected for Draw through contact. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
-      0
+      0,
+      1
     ],
-    "target": 1,
+    "target": 6,
     "controls": {
-      "speed": 2.0,
+      "speed": 2,
       "follow": -0.5,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

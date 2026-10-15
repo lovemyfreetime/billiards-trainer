@@ -1,0 +1,1567 @@
+{
+  "summary": {
+    "redesigned": 123,
+    "preservedCoordinateDrills": 10,
+    "preservedLinkedGetStarted": 8,
+    "pockets": {
+      "1": 14,
+      "2": 10,
+      "3": 14,
+      "4": 12,
+      "5": 18,
+      "6": 13
+    },
+    "approachSectors45Degrees": {
+      "0": 17,
+      "1": 12,
+      "2": 11,
+      "3": 26,
+      "4": 23,
+      "5": 5,
+      "6": 14,
+      "7": 15
+    },
+    "ballPalette": {
+      "1": 18,
+      "2": 20,
+      "3": 20,
+      "4": 18,
+      "5": 20,
+      "6": 17,
+      "7": 12,
+      "8": 16,
+      "9": 17,
+      "10": 15,
+      "11": 15,
+      "12": 19,
+      "13": 17,
+      "14": 12,
+      "15": 12
+    },
+    "cutSides": {
+      "left": 36,
+      "right": 26,
+      "straight": 13
+    },
+    "nativeVerifiedRailScenes": 11
+  },
+  "topics": [
+    {
+      "id": "table-markers-quick",
+      "pocket": 1,
+      "approachDegrees": 196.2,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "physics-calibration-overview-quick",
+      "pocket": null,
+      "approachDegrees": 292.5,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0
+      ]
+    },
+    {
+      "id": "bank-kick-overview-quick",
+      "pocket": 5,
+      "approachDegrees": 46.2,
+      "cutSide": null,
+      "railSequence": [
+        "bottom",
+        "right",
+        "top"
+      ],
+      "ballIds": [
+        0,
+        15
+      ]
+    },
+    {
+      "id": "shot-speed-fine-adjustment-quick",
+      "pocket": null,
+      "approachDegrees": 134.3,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0
+      ]
+    },
+    {
+      "id": "jump-height-quick",
+      "pocket": null,
+      "approachDegrees": 306.1,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0,
+        6,
+        14
+      ]
+    },
+    {
+      "id": "jump-obstacle-clearance-quick",
+      "pocket": null,
+      "approachDegrees": 200.5,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0,
+        13,
+        6
+      ]
+    },
+    {
+      "id": "jump-landing-point-quick",
+      "pocket": null,
+      "approachDegrees": 169.5,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0,
+        5,
+        13
+      ]
+    },
+    {
+      "id": "masse-shot-controls-quick",
+      "pocket": null,
+      "approachDegrees": 7.7,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0,
+        12,
+        5
+      ]
+    },
+    {
+      "id": "exercise-cue-pocket-threshold",
+      "pocket": 3,
+      "approachDegrees": 353.1,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        12
+      ]
+    },
+    {
+      "id": "jump-masse-elevation-technique-advanced",
+      "pocket": null,
+      "approachDegrees": 176.3,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0,
+        11,
+        4
+      ]
+    },
+    {
+      "id": "contact-point-geometry-quick",
+      "pocket": 5,
+      "approachDegrees": 94.4,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        11
+      ]
+    },
+    {
+      "id": "cut-angle-geometry-quick",
+      "pocket": 6,
+      "approachDegrees": 190.8,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        3
+      ]
+    },
+    {
+      "id": "ball-overlap-quick",
+      "pocket": 1,
+      "approachDegrees": 147.5,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        10
+      ]
+    },
+    {
+      "id": "ghost-ball-geometry-quick",
+      "pocket": 2,
+      "approachDegrees": 306.1,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "collision-line-quick",
+      "pocket": 3,
+      "approachDegrees": 298.4,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        9
+      ]
+    },
+    {
+      "id": "tangent-line-geometry-quick",
+      "pocket": 4,
+      "approachDegrees": 345.9,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "ninety-degree-rule-quick",
+      "pocket": 5,
+      "approachDegrees": 45.0,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        8
+      ]
+    },
+    {
+      "id": "thirty-degree-rule-quick",
+      "pocket": 6,
+      "approachDegrees": 107.2,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        15
+      ]
+    },
+    {
+      "id": "diamond-system-geometry-quick",
+      "pocket": 3,
+      "approachDegrees": 146.2,
+      "cutSide": null,
+      "railSequence": [
+        "left",
+        "bottom"
+      ],
+      "ballIds": [
+        0,
+        7
+      ]
+    },
+    {
+      "id": "mirror-aiming-quick",
+      "pocket": 4,
+      "approachDegrees": 200.5,
+      "cutSide": null,
+      "railSequence": [
+        "top",
+        "left"
+      ],
+      "ballIds": [
+        0,
+        14
+      ]
+    },
+    {
+      "id": "rail-contact-point-quick",
+      "pocket": 5,
+      "approachDegrees": 200.3,
+      "cutSide": null,
+      "railSequence": [
+        "top",
+        "left"
+      ],
+      "ballIds": [
+        0,
+        6
+      ]
+    },
+    {
+      "id": "rail-english-geometry-quick",
+      "pocket": null,
+      "approachDegrees": 144.3,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0
+      ]
+    },
+    {
+      "id": "multiple-rail-routes-quick",
+      "pocket": null,
+      "approachDegrees": 149.1,
+      "cutSide": null,
+      "railSequence": [
+        "bottom",
+        "left",
+        "top"
+      ],
+      "ballIds": [
+        0,
+        5,
+        12
+      ]
+    },
+    {
+      "id": "exercise-geometry-route-comparison",
+      "pocket": 2,
+      "approachDegrees": 165.2,
+      "cutSide": null,
+      "railSequence": [
+        "left",
+        "bottom",
+        "right"
+      ],
+      "ballIds": [
+        0,
+        12
+      ]
+    },
+    {
+      "id": "compass-tool-intro-quick",
+      "pocket": 1,
+      "approachDegrees": 182.8,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        4
+      ]
+    },
+    {
+      "id": "practice-layout-quick",
+      "pocket": 2,
+      "approachDegrees": 274.8,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        11,
+        12
+      ]
+    },
+    {
+      "id": "exercise-change-one-ball",
+      "pocket": 3,
+      "approachDegrees": 305.7,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        3
+      ]
+    },
+    {
+      "id": "exercise-layout-runout-review",
+      "pocket": null,
+      "approachDegrees": 358.9,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0,
+        1,
+        9,
+        2,
+        3,
+        8,
+        10,
+        11,
+        4,
+        12,
+        5,
+        6,
+        13,
+        14,
+        7,
+        15
+      ]
+    },
+    {
+      "id": "exercise-save-recall-layout",
+      "pocket": 5,
+      "approachDegrees": 20.3,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "exercise-table-speed",
+      "pocket": null,
+      "approachDegrees": 187.5,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0
+      ]
+    },
+    {
+      "id": "calibration-expectations-advanced",
+      "pocket": null,
+      "approachDegrees": 304.7,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0
+      ]
+    },
+    {
+      "id": "natural-roll-quick",
+      "pocket": 2,
+      "approachDegrees": 253.9,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        8
+      ]
+    },
+    {
+      "id": "physics-shot-speed-quick",
+      "pocket": null,
+      "approachDegrees": 261.7,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0
+      ]
+    },
+    {
+      "id": "ball-collision-quick",
+      "pocket": 4,
+      "approachDegrees": 56.0,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        7
+      ]
+    },
+    {
+      "id": "physics-follow-quick",
+      "pocket": 5,
+      "approachDegrees": 108.0,
+      "cutSide": "straight",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        14
+      ]
+    },
+    {
+      "id": "physics-draw-quick",
+      "pocket": 6,
+      "approachDegrees": 153.1,
+      "cutSide": "straight",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        6
+      ]
+    },
+    {
+      "id": "physics-stun-quick",
+      "pocket": 1,
+      "approachDegrees": 170.7,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        13
+      ]
+    },
+    {
+      "id": "physics-english-quick",
+      "pocket": null,
+      "approachDegrees": 144.5,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0
+      ]
+    },
+    {
+      "id": "spin-transfer-advanced",
+      "pocket": 3,
+      "approachDegrees": 308.9,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        12
+      ]
+    },
+    {
+      "id": "cue-ball-swerve-advanced",
+      "pocket": 4,
+      "approachDegrees": 359.4,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        4
+      ]
+    },
+    {
+      "id": "rail-speed-loss-advanced",
+      "pocket": null,
+      "approachDegrees": 72.3,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0
+      ]
+    },
+    {
+      "id": "jump-trajectory-quick",
+      "pocket": null,
+      "approachDegrees": 178.3,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0,
+        10,
+        3
+      ]
+    },
+    {
+      "id": "physics-jump-clearance-quick",
+      "pocket": null,
+      "approachDegrees": 142.1,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0,
+        2,
+        10
+      ]
+    },
+    {
+      "id": "physics-jump-landing-quick",
+      "pocket": null,
+      "approachDegrees": 57.1,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0,
+        9,
+        2
+      ]
+    },
+    {
+      "id": "jump-model-limitations-advanced",
+      "pocket": null,
+      "approachDegrees": 92.4,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0,
+        1,
+        9
+      ]
+    },
+    {
+      "id": "masse-physics-quick",
+      "pocket": null,
+      "approachDegrees": 333.2,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0,
+        8,
+        1
+      ]
+    },
+    {
+      "id": "masse-versus-jump-advanced",
+      "pocket": null,
+      "approachDegrees": 168.8,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0,
+        15,
+        8
+      ]
+    },
+    {
+      "id": "table-geometry-calibration-quick",
+      "pocket": null,
+      "approachDegrees": 343.0,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0
+      ]
+    },
+    {
+      "id": "real-table-calibration-quick",
+      "pocket": null,
+      "approachDegrees": 194.8,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0
+      ]
+    },
+    {
+      "id": "one-variable-calibration-quick",
+      "pocket": null,
+      "approachDegrees": 244.5,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0
+      ]
+    },
+    {
+      "id": "calibration-notes-quick",
+      "pocket": null,
+      "approachDegrees": 38.1,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0
+      ]
+    },
+    {
+      "id": "exercise-table-speed-calibration-variation",
+      "pocket": null,
+      "approachDegrees": 200.8,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0
+      ]
+    },
+    {
+      "id": "exercise-sliding-friction",
+      "pocket": 5,
+      "approachDegrees": 65.0,
+      "cutSide": "straight",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        5
+      ]
+    },
+    {
+      "id": "exercise-speed-ladder",
+      "pocket": null,
+      "approachDegrees": 147.3,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0
+      ]
+    },
+    {
+      "id": "exercise-physics-stop-follow-draw",
+      "pocket": 1,
+      "approachDegrees": 216.0,
+      "cutSide": "straight",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        4
+      ]
+    },
+    {
+      "id": "exercise-rail-english",
+      "pocket": null,
+      "approachDegrees": 215.3,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0
+      ]
+    },
+    {
+      "id": "exercise-squirt-comparison",
+      "pocket": 3,
+      "approachDegrees": 337.6,
+      "cutSide": "straight",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        3
+      ]
+    },
+    {
+      "id": "exercise-jump-clearance",
+      "pocket": null,
+      "approachDegrees": 24.7,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0,
+        2,
+        10
+      ]
+    },
+    {
+      "id": "exercise-jump-landing",
+      "pocket": null,
+      "approachDegrees": 178.8,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0,
+        9,
+        2
+      ]
+    },
+    {
+      "id": "exercise-masse-route",
+      "pocket": null,
+      "approachDegrees": 208.6,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0,
+        1,
+        9
+      ]
+    },
+    {
+      "id": "exercise-calibration-real-table",
+      "pocket": null,
+      "approachDegrees": 116.9,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0
+      ]
+    },
+    {
+      "id": "exercise-full-rack-review",
+      "pocket": null,
+      "approachDegrees": 8.6,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        9,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "id": "practice-shot-two-quick",
+      "pocket": 3,
+      "approachDegrees": 276.3,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        15,
+        1
+      ]
+    },
+    {
+      "id": "practice-undo-history-quick",
+      "pocket": 4,
+      "approachDegrees": 24.4,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        7,
+        8
+      ]
+    },
+    {
+      "id": "exercise-three-ball-runout",
+      "pocket": 5,
+      "approachDegrees": 74.8,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        14,
+        15,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "exercise-full-rack-training",
+      "pocket": null,
+      "approachDegrees": 349.5,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0,
+        1,
+        9,
+        2,
+        3,
+        8,
+        10,
+        11,
+        4,
+        12,
+        5,
+        6,
+        13,
+        14,
+        7,
+        15
+      ]
+    },
+    {
+      "id": "exercise-jump-kick-masse",
+      "pocket": null,
+      "approachDegrees": 177.6,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0,
+        5,
+        13
+      ]
+    },
+    {
+      "id": "exercise-runout-improvement",
+      "pocket": null,
+      "approachDegrees": 9.4,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        9,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "id": "pattern-play-quick",
+      "pocket": 3,
+      "approachDegrees": 348.0,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        12,
+        13,
+        14,
+        15
+      ]
+    },
+    {
+      "id": "final-ball-backward-planning-quick",
+      "pocket": 4,
+      "approachDegrees": 41.2,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "id": "problem-balls-quick",
+      "pocket": 5,
+      "approachDegrees": 98.8,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        11,
+        12,
+        13,
+        14
+      ]
+    },
+    {
+      "id": "cue-ball-traffic-quick",
+      "pocket": 6,
+      "approachDegrees": 194.5,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "id": "route-selection-quick",
+      "pocket": 1,
+      "approachDegrees": 177.5,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        10,
+        11,
+        12,
+        13
+      ]
+    },
+    {
+      "id": "position-recovery-quick",
+      "pocket": 2,
+      "approachDegrees": 193.4,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "safety-play-quick",
+      "pocket": 3,
+      "approachDegrees": 308.7,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        9,
+        10,
+        1
+      ]
+    },
+    {
+      "id": "defensive-cue-ball-route-quick",
+      "pocket": 4,
+      "approachDegrees": 357.2,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        1,
+        2,
+        8
+      ]
+    },
+    {
+      "id": "safety-escape-quick",
+      "pocket": 5,
+      "approachDegrees": 121.9,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        8,
+        9,
+        15
+      ]
+    },
+    {
+      "id": "runout-quality-quick",
+      "pocket": 6,
+      "approachDegrees": 116.6,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        15,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "practice-aiming-quick",
+      "pocket": 1,
+      "approachDegrees": 223.3,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        7
+      ]
+    },
+    {
+      "id": "practice-speed-control-quick",
+      "pocket": null,
+      "approachDegrees": 55.9,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0
+      ]
+    },
+    {
+      "id": "practice-stop-shot-quick",
+      "pocket": 3,
+      "approachDegrees": 328.0,
+      "cutSide": "straight",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        6
+      ]
+    },
+    {
+      "id": "practice-follow-shot-quick",
+      "pocket": 4,
+      "approachDegrees": 50.7,
+      "cutSide": "straight",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        13
+      ]
+    },
+    {
+      "id": "practice-draw-shot-quick",
+      "pocket": 5,
+      "approachDegrees": 52.5,
+      "cutSide": "straight",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        5
+      ]
+    },
+    {
+      "id": "practice-cut-angles-quick",
+      "pocket": 6,
+      "approachDegrees": 188.2,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        12
+      ]
+    },
+    {
+      "id": "practice-tangent-line-quick",
+      "pocket": 1,
+      "approachDegrees": 143.9,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        4
+      ]
+    },
+    {
+      "id": "practice-bank-shots-quick",
+      "pocket": 4,
+      "approachDegrees": 333.7,
+      "cutSide": null,
+      "railSequence": [
+        "top",
+        "right",
+        "bottom",
+        "left"
+      ],
+      "ballIds": [
+        0,
+        11
+      ]
+    },
+    {
+      "id": "practice-kick-shots-quick",
+      "pocket": null,
+      "approachDegrees": 133.8,
+      "cutSide": null,
+      "railSequence": [
+        "bottom",
+        "left",
+        "top"
+      ],
+      "ballIds": [
+        0,
+        3,
+        10
+      ]
+    },
+    {
+      "id": "practice-english-quick",
+      "pocket": null,
+      "approachDegrees": 215.0,
+      "cutSide": null,
+      "railSequence": [],
+      "ballIds": [
+        0
+      ]
+    },
+    {
+      "id": "practice-position-play-quick",
+      "pocket": 5,
+      "approachDegrees": 14.5,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "exercise-straight-shot-ladder",
+      "pocket": 6,
+      "approachDegrees": 135.3,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        9
+      ]
+    },
+    {
+      "id": "exercise-stop-follow-draw",
+      "pocket": 1,
+      "approachDegrees": 218.3,
+      "cutSide": "straight",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "exercise-three-position-zones",
+      "pocket": 2,
+      "approachDegrees": 299.4,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "live-stats-contact-aim-quick",
+      "pocket": 5,
+      "approachDegrees": 44.1,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        11
+      ]
+    },
+    {
+      "id": "live-stats-cue-flight-quick",
+      "pocket": 6,
+      "approachDegrees": 109.5,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        3
+      ]
+    },
+    {
+      "id": "live-stats-power-pocket-quick",
+      "pocket": 1,
+      "approachDegrees": 228.7,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        10
+      ]
+    },
+    {
+      "id": "exercise-live-stats-cut-overlap",
+      "pocket": 2,
+      "approachDegrees": 296.1,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "exercise-live-stats-speed-spin",
+      "pocket": 3,
+      "approachDegrees": 0.9,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        9
+      ]
+    },
+    {
+      "id": "practice-session-introduction",
+      "pocket": 4,
+      "approachDegrees": 45.5,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "practice-speed-contact-baseline",
+      "pocket": 5,
+      "approachDegrees": 153.4,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        8
+      ]
+    },
+    {
+      "id": "practice-target-landing",
+      "pocket": 6,
+      "approachDegrees": 154.8,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        15,
+        1
+      ]
+    },
+    {
+      "id": "practice-rock-around-clock",
+      "pocket": 1,
+      "approachDegrees": 168.8,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        7,
+        8,
+        9,
+        10
+      ]
+    },
+    {
+      "id": "practice-one-rail-kick",
+      "pocket": null,
+      "approachDegrees": 33.6,
+      "cutSide": null,
+      "railSequence": [
+        "bottom"
+      ],
+      "ballIds": [
+        0,
+        14,
+        6
+      ]
+    },
+    {
+      "id": "practice-two-rail-kick",
+      "pocket": null,
+      "approachDegrees": 21.1,
+      "cutSide": null,
+      "railSequence": [
+        "bottom",
+        "right"
+      ],
+      "ballIds": [
+        0,
+        6,
+        13
+      ]
+    },
+    {
+      "id": "practice-corner-five",
+      "pocket": null,
+      "approachDegrees": 195.3,
+      "cutSide": null,
+      "railSequence": [
+        "left",
+        "top",
+        "right"
+      ],
+      "ballIds": [
+        0,
+        13,
+        5
+      ]
+    },
+    {
+      "id": "practice-progressive-benchmark",
+      "pocket": 5,
+      "approachDegrees": 26.5,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        5,
+        6
+      ]
+    },
+    {
+      "id": "exercise-focused-practice-session",
+      "pocket": 6,
+      "approachDegrees": 149.2,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        12,
+        13
+      ]
+    },
+    {
+      "id": "exercise-practice-review",
+      "pocket": 1,
+      "approachDegrees": 262.5,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "recommend-zero-x-overview",
+      "pocket": 2,
+      "approachDegrees": 340.7,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        11,
+        12,
+        13,
+        14
+      ]
+    },
+    {
+      "id": "recommend-zero-x-center-ball",
+      "pocket": 3,
+      "approachDegrees": 355.3,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "id": "recommend-zero-x-position-play",
+      "pocket": 4,
+      "approachDegrees": 69.0,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        10,
+        11,
+        12,
+        13
+      ]
+    },
+    {
+      "id": "recommend-zero-x-eight-ball-patterns",
+      "pocket": 5,
+      "approachDegrees": 40.8,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "recommend-zero-x-defense-recovery",
+      "pocket": 6,
+      "approachDegrees": 165.6,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "id": "welcome-fundamentals",
+      "pocket": 5,
+      "approachDegrees": 162.9,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        11,
+        12,
+        13,
+        14
+      ]
+    },
+    {
+      "id": "welcome-physics",
+      "pocket": 6,
+      "approachDegrees": 191.5,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "id": "welcome-drills",
+      "pocket": 1,
+      "approachDegrees": 183.9,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        10,
+        11,
+        12,
+        13
+      ]
+    },
+    {
+      "id": "welcome-exercises",
+      "pocket": 2,
+      "approachDegrees": 219.6,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "welcome-more",
+      "pocket": 3,
+      "approachDegrees": 283.2,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "id": "welcome-guide",
+      "pocket": 4,
+      "approachDegrees": 342.4,
+      "cutSide": "left",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "id": "fundamentals-pre-shot-routine",
+      "pocket": 5,
+      "approachDegrees": 43.7,
+      "cutSide": "straight",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        8
+      ]
+    },
+    {
+      "id": "fundamentals-balanced-stance",
+      "pocket": 6,
+      "approachDegrees": 169.6,
+      "cutSide": "straight",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        15
+      ]
+    },
+    {
+      "id": "fundamentals-stable-bridge",
+      "pocket": 1,
+      "approachDegrees": 211.9,
+      "cutSide": "straight",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        7
+      ]
+    },
+    {
+      "id": "fundamentals-grip-and-delivery",
+      "pocket": 2,
+      "approachDegrees": 279.6,
+      "cutSide": "straight",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        14
+      ]
+    },
+    {
+      "id": "fundamentals-cue-access",
+      "pocket": 3,
+      "approachDegrees": 3.8,
+      "cutSide": "right",
+      "railSequence": [],
+      "ballIds": [
+        0,
+        6
+      ]
+    }
+  ]
+}

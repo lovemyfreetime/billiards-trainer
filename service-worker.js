@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-chase-narration-v83';
+const CACHE_NAME = 'billiards-trainer-4-12-varied-lessons-v84';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
@@ -11,25 +11,29 @@ const APP_SHELL = [
   './guide/pool-guide.css?v=fit5',
   './guide/recorded-audio.js?v=chase-20261015',
   './guide/recorded-audio.json?v=chase-20261015',
-  './guide/get-started-tour.js?v=chase-20261015',
-  './guide/get-started-tour.css?v=completion-tour-v25',
+  './guide/get-started-tour.js?v=varied-lessons-v1',
+  './guide/get-started-tour.css?v=varied-lessons-v1',
   './guide/get-started-tour.json?v=chase-20261015',
   './guide/pool-integration.js?v=chase-20261015',
   './guide/pool-audio-map.json?v=chase-20261015',
   './guide/analyze-integration.js?v=completion-tour-v25',
   './guide/analyze-welcome.js?v=analyze-welcome-v16',
   './guide/analyze-walkthrough.js?v=presets-recovery-v13',
-  './guide/learning.js?v=chase-20261015',
-  './guide/learning-catalog.json?v=chase-20261015',
-  './guide/lesson-practice.js?v=topic-guide-v2',
-  './guide/topic-scenes.json?v=topic-guide-v2',
+  './guide/learning.js?v=varied-lessons-v1',
+  './guide/learning-catalog.json?v=varied-lessons-v1',
+  './guide/NARRATION_REFINEMENT_QUEUE.json?v=varied-lessons-v1',
+  './guide/GUIDE_MEDIA_INVENTORY.json?v=varied-lessons-v1',
+  './guide/layout-gallery.html',
+  './guide/SCENE_VARIETY.json',
+  './guide/lesson-practice.js?v=varied-lessons-v1',
+  './guide/topic-scenes.json?v=varied-lessons-v1',
   './guide/audio-review.html',
   './guide/NARRATION_REFINEMENT_QUEUE.json',
   './guide/GUIDE_MEDIA_INVENTORY.json',
   './guide/NARRATION_REFINEMENT_QUEUE.md',
   './guide/GUIDE_MEDIA_INVENTORY.md',
   './guide/practice.html',
-  './guide/practice-sheet.js',
+  './guide/practice-sheet.js?v=varied-lessons-v1',
   './guide/practice-sheet.css',
   './manifest.webmanifest',
   './phone-play.css?v=9',
@@ -51,7 +55,7 @@ self.addEventListener('install', event => {
         const cache=await caches.open(CACHE_NAME);
         const response=await fetch('./guide/audio-assets.json');
         if(!response.ok)throw Error('Audio asset list unavailable');
-        const assets=await response.json();const layouts=await fetch('./guide/practice-layouts.json?v=walkthrough-v11').then(r=>r.json());assets.push(...Object.values(layouts.layouts).map(x=>x.url));const tour=await fetch('./guide/get-started-tour.json?v=chase-20261015').then(r=>r.json());for(const step of tour.steps){assets.push(step.layout);if(step.recordingStatus==='recorded')assets.push(step.audio);}if(tour.transition?.recordingStatus==='recorded')assets.push(tour.transition.audio);const scenes=await fetch('./guide/topic-scenes.json?v=topic-guide-v2').then(r=>r.json());assets.push(...Object.values(scenes.topics).map(s=>s.setup.url));const uniqueAssets=[...new Set(assets)];let next=0;
+        const assets=await response.json();const layouts=await fetch('./guide/practice-layouts.json?v=walkthrough-v11').then(r=>r.json());assets.push(...Object.values(layouts.layouts).map(x=>x.url));const tour=await fetch('./guide/get-started-tour.json?v=chase-20261015').then(r=>r.json());for(const step of tour.steps){assets.push(step.layout);if(step.recordingStatus==='recorded')assets.push(step.audio);}if(tour.transition?.recordingStatus==='recorded')assets.push(tour.transition.audio);const scenes=await fetch('./guide/topic-scenes.json?v=varied-lessons-v1').then(r=>r.json());assets.push(...Object.values(scenes.topics).map(s=>s.setup.url));const uniqueAssets=[...new Set(assets)];let next=0;
         await Promise.all(Array.from({length:6},async()=>{while(next<uniqueAssets.length){const asset=uniqueAssets[next++];await cache.add(asset);}}));
       })
       .then(() => self.skipWaiting())
@@ -100,7 +104,7 @@ self.addEventListener('fetch', event => {
 
   // Always prefer the network for HTML and installer UI assets so a normal
   // mobile reload picks up the newest installer without a hard-refresh keyboard shortcut.
-  if (event.request.mode === 'navigate' || /\/index\.html$/i.test(url.pathname) || isInstallerAsset || /\/(?:phone-play\.(?:css|js)|photo-[^/]+\.(?:css|js)|guide\/guide\.(?:css|js))$/i.test(url.pathname)) {
+  if (/\/guide\/(?:NARRATION_REFINEMENT_QUEUE|GUIDE_MEDIA_INVENTORY)\.json$/.test(url.pathname) || event.request.mode === 'navigate' || /\/index\.html$/i.test(url.pathname) || isInstallerAsset || /\/(?:phone-play\.(?:css|js)|photo-[^/]+\.(?:css|js)|guide\/guide\.(?:css|js))$/i.test(url.pathname)) {
     event.respondWith(networkFirst(event.request));
     return;
   }

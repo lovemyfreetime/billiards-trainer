@@ -14,15 +14,15 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0418592334231613,
-        "y": 0.7861037485761071,
+        "x": 0.5463222358897084,
+        "y": 0.354183344859715,
         "active": true
       },
       {
         "id": 1,
         "n": "1",
-        "x": 1.2446,
-        "y": 0.3937,
+        "x": 0.8711691034888199,
+        "y": 0.6503450421406057,
         "active": true
       },
       {
@@ -49,8 +49,8 @@
       }
     ],
     "freeAim": {
-      "x": 1.2409205528124163,
-      "y": 0.45073143140754734
+      "x": 0.8175931902345617,
+      "y": 0.6304517262035325
     }
   },
   "state": {
@@ -61,15 +61,15 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0418592334231613,
-        "y": 0.7861037485761071,
+        "x": 0.5463222358897084,
+        "y": 0.354183344859715,
         "active": true
       },
       {
         "id": 1,
         "n": "1",
-        "x": 1.2446,
-        "y": 0.3937,
+        "x": 0.8711691034888199,
+        "y": 0.6503450421406057,
         "active": true
       },
       {
@@ -98,8 +98,8 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.2409205528124163,
-      "y": 0.45073143140754734
+      "x": 0.8175931902345617,
+      "y": 0.6304517262035325
     },
     "angleLock": false,
     "speed": 1.45,
@@ -185,10 +185,10 @@
   "lesson": {
     "topic": "practice-session-introduction",
     "purpose": "Use comparable results to decide what to practice next.",
-    "variation": "Current pot plus a next-ball angle and a visible position zone.",
+    "variation": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
-      0
+      1,
+      1
     ],
     "target": 1,
     "controls": {
@@ -203,6 +203,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

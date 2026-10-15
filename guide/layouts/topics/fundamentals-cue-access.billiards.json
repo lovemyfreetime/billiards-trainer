@@ -19,16 +19,16 @@
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.1938,
-        "y": 0.34290000000000004,
+        "id": 6,
+        "n": "6",
+        "x": 1.075996879003403,
+        "y": 0.8666230944309361,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.1814024243356638,
-      "y": 0.39868909048951295
+      "x": 1.0306073670382634,
+      "y": 0.8527539931475181
     }
   },
   "state": {
@@ -44,18 +44,18 @@
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.1938,
-        "y": 0.34290000000000004,
+        "id": 6,
+        "n": "6",
+        "x": 1.075996879003403,
+        "y": 0.8666230944309361,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.1814024243356638,
-      "y": 0.39868909048951295
+      "x": 1.0306073670382634,
+      "y": 0.8527539931475181
     },
     "angleLock": false,
     "speed": 1.45,
@@ -141,12 +141,12 @@
   "lesson": {
     "topic": "fundamentals-cue-access",
     "purpose": "Include physical cue access and reach when judging whether a route is practical.",
-    "variation": "Rail-adjacent cue ball makes bridge support and physical cue access the central observation.",
+    "variation": "Rail-adjacent cue ball makes bridge support and physical cue access the central observation. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
+      1,
       0
     ],
-    "target": 1,
+    "target": 6,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

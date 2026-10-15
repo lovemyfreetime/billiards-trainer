@@ -36,3 +36,14 @@ Unique arrangements do not automatically evaluate physical technique, cue access
 - Catalog, Get Started and offline audio URLs are versioned to refresh replacements. Five fundamentals lessons now enable narration and autoplay.
 - Native layout/catalog checks and desktop/phone playback, load-before-audio, real countdown, tap cancellation, reset, final-lesson stopping and busy-shot guards passed. Physical sheet cache references were updated with the catalog versions.
 - Duration screening retains the original 211.1 WPM reference: 12 recordings still sit outside its ±15% band. All 34 were re-recorded as authorized; naturalness, spoken-text accuracy and pronunciation require listening. Do not treat matching synthesis settings or MP3 decoding as perceptual approval.
+
+
+## Visual variety and silent practice prompts — 2026-10-15
+
+Supersedes the earlier coordinate-only uniqueness assessment. Redesigned 123 scenes; retained the 8 linked Get Started snapshots and 10 drills whose narration specifies coordinates. SCENE_VARIETY.json records all six pocket destinations, eight 45-degree approach sectors, left/right cuts and the full 1–15 ball palette. The gallery provides a visual review of every scene.
+
+Eleven bank/kick scenes are tuned against native physics (one rail in the explicitly named one-rail lesson; two, three or four cushions elsewhere). Yellow references use the verified contact points. Bank targets pot and kick targets are reached after the intended cushion sequence. Seventy-three direct pocketing setups are tuned for a starting pot; squirt/swerve comparison scenes intentionally retain uncompensated examples. The transient prediction probe restores aim, speed and cue position after every candidate.
+
+Get Started and Guide use a yellow felt-anchored visual prompt during the ten-second timer. Intermediate transition speech is removed; the final Get Started closing recording is retained. Tapping cancels the timer and removes the prompt, with Next Lesson visible. Small portrait tables use a compact prompt to keep it inside the felt.
+
+The screenshot showed stale review JSON with the five fundamentals marked pending. The review now requests versioned, network-first metadata with offline fallback. Media tests load metadata for all five actual MP3s. Other 29 recordings are marked approved by the user; 12 duration outliers remain measurement evidence, not unresolved listening issues.

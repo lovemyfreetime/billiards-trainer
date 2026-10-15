@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.1305781946342452,
-        "y": 1.0923267042664726,
+        "x": 1.7060975551793018,
+        "y": 1.0775589805291232,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.3258800000000002,
-        "y": 0.5397500000000001,
+        "id": 8,
+        "n": "8",
+        "x": 1.5025208136639723,
+        "y": 0.4195206313904241,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.3317652498946513,
-      "y": 0.5965961637551517
+      "x": 1.5302255625391215,
+      "y": 0.46950632324084185
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.1305781946342452,
-        "y": 1.0923267042664726,
+        "x": 1.7060975551793018,
+        "y": 1.0775589805291232,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.3258800000000002,
-        "y": 0.5397500000000001,
+        "id": 8,
+        "n": "8",
+        "x": 1.5025208136639723,
+        "y": 0.4195206313904241,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.3317652498946513,
-      "y": 0.5965961637551517
+      "x": 1.5302255625391215,
+      "y": 0.46950632324084185
     },
     "angleLock": false,
     "speed": 1.05,
@@ -141,12 +141,12 @@
   "lesson": {
     "topic": "natural-roll-quick",
     "purpose": "Recognize natural rolling departures and distinguish them from stun.",
-    "variation": "Approach distance and contact geometry selected for Natural roll.",
+    "variation": "Approach distance and contact geometry selected for Natural roll. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
       0.5,
       0
     ],
-    "target": 1,
+    "target": 8,
     "controls": {
       "speed": 1.05,
       "follow": 0.3,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

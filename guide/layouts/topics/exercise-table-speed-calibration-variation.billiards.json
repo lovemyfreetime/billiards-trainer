@@ -14,29 +14,29 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.61976,
-        "y": 0.64008,
+        "x": 1.2193749575737298,
+        "y": 0.9789023174723314,
         "active": true
       },
       {
         "id": 1000,
         "n": "MARKER",
         "marker": true,
-        "markerType": "white",
+        "markerType": "yellow",
         "markerShape": "circle",
-        "markerDiameterIn": 6,
-        "markerWidthIn": 6,
-        "markerHeightIn": 6,
+        "markerDiameterIn": 5,
+        "markerWidthIn": 5,
+        "markerHeightIn": 5,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.4681199999999999,
-        "y": 0.64008,
+        "x": 0.6802590764182405,
+        "y": 0.7739547898229469,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 2.2352,
-      "y": 0.64008
+      "x": 0.6802590764182405,
+      "y": 0.7739547898229469
     }
   },
   "state": {
@@ -47,34 +47,34 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.61976,
-        "y": 0.64008,
+        "x": 1.2193749575737298,
+        "y": 0.9789023174723314,
         "active": true
       },
       {
         "id": 1000,
         "n": "MARKER",
         "marker": true,
-        "markerType": "white",
+        "markerType": "yellow",
         "markerShape": "circle",
-        "markerDiameterIn": 6,
-        "markerWidthIn": 6,
-        "markerHeightIn": 6,
+        "markerDiameterIn": 5,
+        "markerWidthIn": 5,
+        "markerHeightIn": 5,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.4681199999999999,
-        "y": 0.64008,
+        "x": 0.6802590764182405,
+        "y": 0.7739547898229469,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 2.2352,
-      "y": 0.64008
+      "x": 0.6802590764182405,
+      "y": 0.7739547898229469
     },
     "angleLock": false,
-    "speed": 0.47400000000000003,
+    "speed": 0.368,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -157,11 +157,11 @@
   "lesson": {
     "topic": "exercise-table-speed-calibration-variation",
     "purpose": "Compare repeatable table behavior without confusing stroke changes with table changes.",
-    "variation": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
+    "variation": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": null,
     "target": null,
     "controls": {
-      "speed": 0.47400000000000003,
+      "speed": 0.368,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -172,6 +172,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

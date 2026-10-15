@@ -14,20 +14,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.3226313701251033,
-        "y": 0.9301497224421241,
+        "x": 1.0594488949622092,
+        "y": 0.1445907303077739,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.38176,
-        "y": 0.381,
+        "id": 7,
+        "n": "7",
+        "x": 1.597068923927448,
+        "y": 0.40807728434144325,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 8,
+        "n": "8",
         "x": 1.88468,
         "y": 0.762,
         "active": true
@@ -49,8 +49,8 @@
       }
     ],
     "freeAim": {
-      "x": 1.3978462144083832,
-      "y": 0.4358393673013058
+      "x": 1.5548864405685556,
+      "y": 0.3695187496483721
     }
   },
   "state": {
@@ -61,20 +61,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.3226313701251033,
-        "y": 0.9301497224421241,
+        "x": 1.0594488949622092,
+        "y": 0.1445907303077739,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.38176,
-        "y": 0.381,
+        "id": 7,
+        "n": "7",
+        "x": 1.597068923927448,
+        "y": 0.40807728434144325,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 8,
+        "n": "8",
         "x": 1.88468,
         "y": 0.762,
         "active": true
@@ -98,8 +98,8 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.3978462144083832,
-      "y": 0.4358393673013058
+      "x": 1.5548864405685556,
+      "y": 0.3695187496483721
     },
     "angleLock": false,
     "speed": 1.45,
@@ -185,12 +185,12 @@
   "lesson": {
     "topic": "practice-undo-history-quick",
     "purpose": "Keep a repeatable starting arrangement so comparisons test one change.",
-    "variation": "Current pot plus a next-ball angle and a visible position zone.",
+    "variation": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
-      0
+      1,
+      1
     ],
-    "target": 1,
+    "target": 7,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -203,6 +203,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

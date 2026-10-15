@@ -14,8 +14,8 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.71374,
-        "y": 0.39878,
+        "x": 1.82626,
+        "y": 0.87122,
         "active": true
       },
       {
@@ -29,14 +29,14 @@
         "markerHeightIn": 3,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.91516,
-        "y": 1.23825,
+        "x": 0.6248400000000001,
+        "y": 0.031749999999999945,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.91516,
-      "y": 1.241425
+      "x": 0.6248400000000001,
+      "y": 0.028575000000000017
     }
   },
   "state": {
@@ -47,8 +47,8 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.71374,
-        "y": 0.39878,
+        "x": 1.82626,
+        "y": 0.87122,
         "active": true
       },
       {
@@ -62,16 +62,16 @@
         "markerHeightIn": 3,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.91516,
-        "y": 1.23825,
+        "x": 0.6248400000000001,
+        "y": 0.031749999999999945,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.91516,
-      "y": 1.241425
+      "x": 0.6248400000000001,
+      "y": 0.028575000000000017
     },
     "angleLock": false,
     "speed": 1.25,
@@ -157,7 +157,7 @@
   "lesson": {
     "topic": "practice-english-quick",
     "purpose": "Distinguish sidespin influence on the approach from its effect at a cushion.",
-    "variation": "One-cushion lane with a marked first rail reference, for no/left/right English comparisons.",
+    "variation": "One-cushion lane with a marked first rail reference, for no/left/right English comparisons. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": null,
     "target": null,
     "controls": {
@@ -172,6 +172,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.1098378716764887,
-        "y": 1.028219481624048,
+        "x": 2.0817958059033836,
+        "y": 0.23285176725937068,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.2954,
-        "y": 0.508,
+        "id": 15,
+        "n": "15",
+        "x": 1.9253007599481824,
+        "y": 0.5835266558895029,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.2982539348083435,
-      "y": 0.5650786961668688
+      "x": 1.9791313461440658,
+      "y": 0.5643331546506051
     }
   },
   "state": {
@@ -39,26 +39,26 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.1098378716764887,
-        "y": 1.028219481624048,
+        "x": 2.0817958059033836,
+        "y": 0.23285176725937068,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.2954,
-        "y": 0.508,
+        "id": 15,
+        "n": "15",
+        "x": 1.9253007599481824,
+        "y": 0.5835266558895029,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.2982539348083435,
-      "y": 0.5650786961668688
+      "x": 1.9791313461440658,
+      "y": 0.5643331546506051
     },
     "angleLock": false,
-    "speed": 1.05,
+    "speed": 2.2,
     "follow": 0.3,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -141,14 +141,14 @@
   "lesson": {
     "topic": "thirty-degree-rule-quick",
     "purpose": "Recognize natural rolling departures and distinguish them from stun.",
-    "variation": "Approach distance and contact geometry selected for The thirty-degree rule.",
+    "variation": "Approach distance and contact geometry selected for The thirty-degree rule. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
-      0
+      0,
+      1
     ],
-    "target": 1,
+    "target": 15,
     "controls": {
-      "speed": 1.05,
+      "speed": 2.2,
       "follow": 0.3,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

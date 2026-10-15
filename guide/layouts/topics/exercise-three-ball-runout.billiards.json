@@ -14,20 +14,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.302355113571598,
-        "y": 0.8755751339951874,
+        "x": 1.2044358027677802,
+        "y": 0.46598545603454355,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.3716000000000002,
-        "y": 0.36829999999999996,
+        "id": 14,
+        "n": "14",
+        "x": 1.325829166269151,
+        "y": 1.0119342931000985,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 15,
+        "n": "15",
         "x": 1.9304000000000001,
         "y": 0.8255,
         "active": true
@@ -48,23 +48,23 @@
         "active": true
       },
       {
-        "id": 3,
-        "n": "3",
+        "id": 1,
+        "n": "1",
         "x": 1.8288,
         "y": 0.3175,
         "active": true
       },
       {
-        "id": 4,
-        "n": "4",
+        "id": 2,
+        "n": "2",
         "x": 0.8382000000000001,
         "y": 0.40640000000000004,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.3867978422428904,
-      "y": 0.4233921781304771
+      "x": 1.337913281806193,
+      "y": 0.956076467760336
     }
   },
   "state": {
@@ -75,20 +75,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.302355113571598,
-        "y": 0.8755751339951874,
+        "x": 1.2044358027677802,
+        "y": 0.46598545603454355,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.3716000000000002,
-        "y": 0.36829999999999996,
+        "id": 14,
+        "n": "14",
+        "x": 1.325829166269151,
+        "y": 1.0119342931000985,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 15,
+        "n": "15",
         "x": 1.9304000000000001,
         "y": 0.8255,
         "active": true
@@ -109,15 +109,15 @@
         "active": true
       },
       {
-        "id": 3,
-        "n": "3",
+        "id": 1,
+        "n": "1",
         "x": 1.8288,
         "y": 0.3175,
         "active": true
       },
       {
-        "id": 4,
-        "n": "4",
+        "id": 2,
+        "n": "2",
         "x": 0.8382000000000001,
         "y": 0.40640000000000004,
         "active": true
@@ -126,8 +126,8 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.3867978422428904,
-      "y": 0.4233921781304771
+      "x": 1.337913281806193,
+      "y": 0.956076467760336
     },
     "angleLock": false,
     "speed": 1.45,
@@ -213,12 +213,12 @@
   "lesson": {
     "topic": "exercise-three-ball-runout",
     "purpose": "Choose a sequence that preserves angles, access, and manageable transitions.",
-    "variation": "A distinct open pattern for comparing order, next angles, and route complexity.",
+    "variation": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
       0.5,
-      0
+      1
     ],
-    "target": 1,
+    "target": 14,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -231,6 +231,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

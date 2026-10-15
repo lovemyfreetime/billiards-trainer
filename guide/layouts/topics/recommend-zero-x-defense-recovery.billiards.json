@@ -14,20 +14,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.7899254380697829,
-        "y": 0.8611708188415111,
+        "x": 2.1363233788479294,
+        "y": 0.1865092578041359,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.1938,
-        "y": 0.40640000000000004,
+        "id": 9,
+        "n": "9",
+        "x": 1.5060139766597034,
+        "y": 0.3654771038139798,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 10,
+        "n": "10",
         "x": 1.90754,
         "y": 0.762,
         "active": true
@@ -48,23 +48,23 @@
         "active": true
       },
       {
-        "id": 3,
-        "n": "3",
-        "x": 1.8288,
-        "y": 0.3175,
+        "id": 11,
+        "n": "11",
+        "x": 2.138409841040359,
+        "y": 0.96550073581243,
         "active": true
       },
       {
-        "id": 4,
-        "n": "4",
+        "id": 12,
+        "n": "12",
         "x": 0.97536,
         "y": 0.40640000000000004,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.183267910221882,
-      "y": 0.46257114548329653
+      "x": 1.5550065673917377,
+      "y": 0.3360517991704695
     }
   },
   "state": {
@@ -75,20 +75,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.7899254380697829,
-        "y": 0.8611708188415111,
+        "x": 2.1363233788479294,
+        "y": 0.1865092578041359,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.1938,
-        "y": 0.40640000000000004,
+        "id": 9,
+        "n": "9",
+        "x": 1.5060139766597034,
+        "y": 0.3654771038139798,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 10,
+        "n": "10",
         "x": 1.90754,
         "y": 0.762,
         "active": true
@@ -109,15 +109,15 @@
         "active": true
       },
       {
-        "id": 3,
-        "n": "3",
-        "x": 1.8288,
-        "y": 0.3175,
+        "id": 11,
+        "n": "11",
+        "x": 2.138409841040359,
+        "y": 0.96550073581243,
         "active": true
       },
       {
-        "id": 4,
-        "n": "4",
+        "id": 12,
+        "n": "12",
         "x": 0.97536,
         "y": 0.40640000000000004,
         "active": true
@@ -126,8 +126,8 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.183267910221882,
-      "y": 0.46257114548329653
+      "x": 1.5550065673917377,
+      "y": 0.3360517991704695
     },
     "angleLock": false,
     "speed": 1.45,
@@ -213,12 +213,12 @@
   "lesson": {
     "topic": "recommend-zero-x-defense-recovery",
     "purpose": "Use Zero-X: defense and recovery correctly within the current lesson.",
-    "variation": "A distinct open pattern for comparing order, next angles, and route complexity.",
+    "variation": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
-      0
+      0,
+      1
     ],
-    "target": 1,
+    "target": 9,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -231,6 +231,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

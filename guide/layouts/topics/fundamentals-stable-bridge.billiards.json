@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.27,
-        "y": 0.86435,
+        "x": 1.710153047969944,
+        "y": 1.0644585812763687,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.27,
-        "y": 0.4572,
+        "id": 7,
+        "n": "7",
+        "x": 1.2608263161504614,
+        "y": 0.7847820365075405,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.27,
-      "y": 0.51435
+      "x": 1.3093452764406301,
+      "y": 0.814981920486805
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.27,
-        "y": 0.86435,
+        "x": 1.710153047969944,
+        "y": 1.0644585812763687,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.27,
-        "y": 0.4572,
+        "id": 7,
+        "n": "7",
+        "x": 1.2608263161504614,
+        "y": 0.7847820365075405,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.27,
-      "y": 0.51435
+      "x": 1.3093452764406301,
+      "y": 0.814981920486805
     },
     "angleLock": false,
     "speed": 1.45,
@@ -141,12 +141,12 @@
   "lesson": {
     "topic": "fundamentals-stable-bridge",
     "purpose": "Support a repeatable cue line with a stable bridge.",
-    "variation": "Approach distance and contact geometry selected for A stable bridge.",
+    "variation": "Approach distance and contact geometry selected for A stable bridge. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
+      0,
       0
     ],
-    "target": 1,
+    "target": 7,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

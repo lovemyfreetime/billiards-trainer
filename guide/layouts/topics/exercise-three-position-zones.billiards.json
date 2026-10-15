@@ -14,20 +14,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.9251435310521077,
-        "y": 1.0015625209167016,
+        "x": 0.8421336223987638,
+        "y": 1.0677001947443063,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.2293600000000002,
-        "y": 0.4953,
+        "id": 8,
+        "n": "8",
+        "x": 1.1908605355344144,
+        "y": 0.4123978542767145,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 9,
+        "n": "9",
         "x": 1.88468,
         "y": 0.762,
         "active": true
@@ -49,8 +49,8 @@
       }
     ],
     "freeAim": {
-      "x": 1.2246864748911976,
-      "y": 0.552258587263532
+      "x": 1.1800899323610512,
+      "y": 0.46852375388894285
     }
   },
   "state": {
@@ -61,20 +61,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.9251435310521077,
-        "y": 1.0015625209167016,
+        "x": 0.8421336223987638,
+        "y": 1.0677001947443063,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.2293600000000002,
-        "y": 0.4953,
+        "id": 8,
+        "n": "8",
+        "x": 1.1908605355344144,
+        "y": 0.4123978542767145,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 9,
+        "n": "9",
         "x": 1.88468,
         "y": 0.762,
         "active": true
@@ -98,8 +98,8 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.2246864748911976,
-      "y": 0.552258587263532
+      "x": 1.1800899323610512,
+      "y": 0.46852375388894285
     },
     "angleLock": false,
     "speed": 1.45,
@@ -185,12 +185,12 @@
   "lesson": {
     "topic": "exercise-three-position-zones",
     "purpose": "Pocket the current ball while preserving a usable angle on the next ball.",
-    "variation": "Current pot plus a next-ball angle and a visible position zone.",
+    "variation": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
       0.5,
       0
     ],
-    "target": 1,
+    "target": 8,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -203,6 +203,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

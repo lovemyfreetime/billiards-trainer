@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.346931819629431,
-        "y": 0.9776752077906847,
+        "x": 0.5935403832805103,
+        "y": 0.3883236614974138,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.30048,
-        "y": 0.3873500000000001,
+        "id": 5,
+        "n": "5",
+        "x": 1.0266389678141707,
+        "y": 0.952810830848478,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.3049631909006536,
-      "y": 0.4443238843624718
+      "x": 0.9918506614749437,
+      "y": 0.9074688388096614
     }
   },
   "state": {
@@ -39,26 +39,26 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.346931819629431,
-        "y": 0.9776752077906847,
+        "x": 0.5935403832805103,
+        "y": 0.3883236614974138,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.30048,
-        "y": 0.3873500000000001,
+        "id": 5,
+        "n": "5",
+        "x": 1.0266389678141707,
+        "y": 0.952810830848478,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.3049631909006536,
-      "y": 0.4443238843624718
+      "x": 0.9918506614749437,
+      "y": 0.9074688388096614
     },
     "angleLock": false,
-    "speed": 2.0,
+    "speed": 2,
     "follow": -0.5,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -141,14 +141,14 @@
   "lesson": {
     "topic": "practice-draw-shot-quick",
     "purpose": "Retain backspin through impact and control the distance the cue ball returns.",
-    "variation": "Approach distance and contact geometry selected for Practicing draw shots.",
+    "variation": "Approach distance and contact geometry selected for Practicing draw shots. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
       0.5,
-      0
+      1
     ],
-    "target": 1,
+    "target": 5,
     "controls": {
-      "speed": 2.0,
+      "speed": 2,
       "follow": -0.5,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

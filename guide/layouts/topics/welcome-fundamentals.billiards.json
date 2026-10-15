@@ -14,20 +14,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.8128853995765052,
-        "y": 0.9304503233062562,
+        "x": 2.013131958802793,
+        "y": 0.6769712931251178,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.22428,
-        "y": 0.43815000000000004,
+        "id": 11,
+        "n": "11",
+        "x": 1.5229385075114883,
+        "y": 0.8749621665672902,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 12,
+        "n": "12",
         "x": 1.88468,
         "y": 0.73025,
         "active": true
@@ -48,23 +48,23 @@
         "active": true
       },
       {
-        "id": 3,
-        "n": "3",
+        "id": 13,
+        "n": "13",
         "x": 1.8288,
         "y": 0.33274000000000004,
         "active": true
       },
       {
-        "id": 4,
-        "n": "4",
+        "id": 14,
+        "n": "14",
         "x": 0.9982200000000001,
         "y": 0.40640000000000004,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.2183487255622438,
-      "y": 0.4949913800284971
+      "x": 1.551209827796559,
+      "y": 0.8187926267150294
     }
   },
   "state": {
@@ -75,20 +75,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.8128853995765052,
-        "y": 0.9304503233062562,
+        "x": 2.013131958802793,
+        "y": 0.6769712931251178,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.22428,
-        "y": 0.43815000000000004,
+        "id": 11,
+        "n": "11",
+        "x": 1.5229385075114883,
+        "y": 0.8749621665672902,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 12,
+        "n": "12",
         "x": 1.88468,
         "y": 0.73025,
         "active": true
@@ -109,15 +109,15 @@
         "active": true
       },
       {
-        "id": 3,
-        "n": "3",
+        "id": 13,
+        "n": "13",
         "x": 1.8288,
         "y": 0.33274000000000004,
         "active": true
       },
       {
-        "id": 4,
-        "n": "4",
+        "id": 14,
+        "n": "14",
         "x": 0.9982200000000001,
         "y": 0.40640000000000004,
         "active": true
@@ -126,11 +126,11 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.2183487255622438,
-      "y": 0.4949913800284971
+      "x": 1.551209827796559,
+      "y": 0.8187926267150294
     },
     "angleLock": false,
-    "speed": 1.45,
+    "speed": 3.2,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -213,14 +213,14 @@
   "lesson": {
     "topic": "welcome-fundamentals",
     "purpose": "Use Welcome to Fundamentals correctly within the current lesson.",
-    "variation": "A distinct open pattern for comparing order, next angles, and route complexity.",
+    "variation": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
       0.5,
-      0
+      1
     ],
-    "target": 1,
+    "target": 11,
     "controls": {
-      "speed": 1.45,
+      "speed": 3.2,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -231,6 +231,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

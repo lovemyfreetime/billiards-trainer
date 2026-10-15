@@ -14,29 +14,29 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.52832,
-        "y": 0.54356,
+        "x": 1.2791238221970536,
+        "y": 0.4446689920183259,
         "active": true
       },
       {
         "id": 1000,
         "n": "MARKER",
         "marker": true,
-        "markerType": "white",
+        "markerType": "yellow",
         "markerShape": "circle",
         "markerDiameterIn": 6,
         "markerWidthIn": 6,
         "markerHeightIn": 6,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.3614400000000002,
-        "y": 0.54356,
+        "x": 1.5481373063094497,
+        "y": 0.8417791638507005,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 2.2352,
-      "y": 0.54356
+      "x": 1.5481373063094495,
+      "y": 0.8417791638507004
     }
   },
   "state": {
@@ -47,34 +47,34 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.52832,
-        "y": 0.54356,
+        "x": 1.2791238221970536,
+        "y": 0.4446689920183259,
         "active": true
       },
       {
         "id": 1000,
         "n": "MARKER",
         "marker": true,
-        "markerType": "white",
+        "markerType": "yellow",
         "markerShape": "circle",
         "markerDiameterIn": 6,
         "markerWidthIn": 6,
         "markerHeightIn": 6,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.3614400000000002,
-        "y": 0.54356,
+        "x": 1.5481373063094497,
+        "y": 0.8417791638507005,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 2.2352,
-      "y": 0.54356
+      "x": 1.5481373063094495,
+      "y": 0.8417791638507004
     },
     "angleLock": false,
-    "speed": 0.498,
+    "speed": 0.336,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -157,11 +157,11 @@
   "lesson": {
     "topic": "practice-speed-control-quick",
     "purpose": "Predict and control stopping distance without changing the aiming line.",
-    "variation": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
+    "variation": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": null,
     "target": null,
     "controls": {
-      "speed": 0.498,
+      "speed": 0.336,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -172,6 +172,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.2180864308768238,
-        "y": 1.1032773594803404,
+        "x": 1.0624654786794034,
+        "y": 0.3696385845734742,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.4427200000000002,
-        "y": 0.40640000000000004,
+        "id": 11,
+        "n": "11",
+        "x": 1.3422719548306514,
+        "y": 0.704109050525876,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.4650736875957084,
-      "y": 0.45899691198990183
+      "x": 1.3495119791882146,
+      "y": 0.6474195052172224
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.2180864308768238,
-        "y": 1.1032773594803404,
+        "x": 1.0624654786794034,
+        "y": 0.3696385845734742,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.4427200000000002,
-        "y": 0.40640000000000004,
+        "id": 11,
+        "n": "11",
+        "x": 1.3422719548306514,
+        "y": 0.704109050525876,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.4650736875957084,
-      "y": 0.45899691198990183
+      "x": 1.3495119791882146,
+      "y": 0.6474195052172224
     },
     "angleLock": false,
     "speed": 1.45,
@@ -141,12 +141,12 @@
   "lesson": {
     "topic": "live-stats-contact-aim-quick",
     "purpose": "Recognize how a thinner contact changes cut angle, overlap, and the required aiming line.",
-    "variation": "Approach distance and contact geometry selected for Contact & Aim.",
+    "variation": "Approach distance and contact geometry selected for Contact & Aim. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
       0.5,
-      0
+      1
     ],
-    "target": 1,
+    "target": 11,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

@@ -14,15 +14,15 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0200390339939278,
-        "y": 1.0462142763357287,
+        "x": 0.7552036285299376,
+        "y": 0.46087155466310453,
         "active": true
       },
       {
         "id": 1,
         "n": "1",
-        "x": 1.24968,
-        "y": 0.52705,
+        "x": 1.6323542069408585,
+        "y": 0.45823402599260094,
         "active": true
       },
       {
@@ -56,8 +56,8 @@
       }
     ],
     "freeAim": {
-      "x": 1.2474782622603064,
-      "y": 0.5841575726233011
+      "x": 1.5897557802864781,
+      "y": 0.4201355149118333
     }
   },
   "state": {
@@ -68,15 +68,15 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0200390339939278,
-        "y": 1.0462142763357287,
+        "x": 0.7552036285299376,
+        "y": 0.46087155466310453,
         "active": true
       },
       {
         "id": 1,
         "n": "1",
-        "x": 1.24968,
-        "y": 0.52705,
+        "x": 1.6323542069408585,
+        "y": 0.45823402599260094,
         "active": true
       },
       {
@@ -112,11 +112,11 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.2474782622603064,
-      "y": 0.5841575726233011
+      "x": 1.5897557802864781,
+      "y": 0.4201355149118333
     },
     "angleLock": false,
-    "speed": 1.45,
+    "speed": 2.2,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -199,14 +199,14 @@
   "lesson": {
     "topic": "defensive-cue-ball-route-quick",
     "purpose": "Compare attacking with leaving a difficult legal reply.",
-    "variation": "An attacking ball, screening ball, and candidate hiding area for inspecting the opponent reply.",
+    "variation": "An attacking ball, screening ball, and candidate hiding area for inspecting the opponent reply. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
-      0
+      1,
+      1
     ],
     "target": 1,
     "controls": {
-      "speed": 1.45,
+      "speed": 2.2,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -217,6 +217,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

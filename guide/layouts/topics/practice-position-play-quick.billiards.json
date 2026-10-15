@@ -14,20 +14,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.9025635117713824,
-        "y": 0.935108481895212,
-        "active": true
-      },
-      {
-        "id": 1,
-        "n": "1",
-        "x": 1.1988800000000002,
-        "y": 0.4635500000000001,
+        "x": 0.07011030226057569,
+        "y": 0.4281592348922757,
         "active": true
       },
       {
         "id": 2,
         "n": "2",
+        "x": 0.5155473746963611,
+        "y": 0.5716530526911583,
+        "active": true
+      },
+      {
+        "id": 3,
+        "n": "3",
         "x": 1.90754,
         "y": 0.79375,
         "active": true
@@ -49,8 +49,8 @@
       }
     ],
     "freeAim": {
-      "x": 1.190213192050386,
-      "y": 0.5200390161001633
+      "x": 0.47360684751773796,
+      "y": 0.5328314777620139
     }
   },
   "state": {
@@ -61,20 +61,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.9025635117713824,
-        "y": 0.935108481895212,
-        "active": true
-      },
-      {
-        "id": 1,
-        "n": "1",
-        "x": 1.1988800000000002,
-        "y": 0.4635500000000001,
+        "x": 0.07011030226057569,
+        "y": 0.4281592348922757,
         "active": true
       },
       {
         "id": 2,
         "n": "2",
+        "x": 0.5155473746963611,
+        "y": 0.5716530526911583,
+        "active": true
+      },
+      {
+        "id": 3,
+        "n": "3",
         "x": 1.90754,
         "y": 0.79375,
         "active": true
@@ -98,8 +98,8 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.190213192050386,
-      "y": 0.5200390161001633
+      "x": 0.47360684751773796,
+      "y": 0.5328314777620139
     },
     "angleLock": false,
     "speed": 1.45,
@@ -185,12 +185,12 @@
   "lesson": {
     "topic": "practice-position-play-quick",
     "purpose": "Pocket the current ball while preserving a usable angle on the next ball.",
-    "variation": "Current pot plus a next-ball angle and a visible position zone.",
+    "variation": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
       0.5,
-      0
+      1
     ],
-    "target": 1,
+    "target": 2,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -203,11 +203,12 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1,
-      "planNextBall": 2,
+      "planNextBall": 3,
       "nextPocket": [
         1,
         1
       ]
-    }
+    },
+    "railContacts": []
   }
 }

@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.4025844328076675,
-        "y": 0.9667614892225732,
+        "x": 1.4118396137049876,
+        "y": 1.1134674481103835,
         "active": true
       },
       {
         "id": 1,
         "n": "1",
-        "x": 1.3309600000000001,
-        "y": 0.44449999999999995,
+        "x": 1.0542629623284154,
+        "y": 0.8314595219640897,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.3387250314615542,
-      "y": 0.501120021073831
+      "x": 1.0991366718088214,
+      "y": 0.8668498129697895
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.4025844328076675,
-        "y": 0.9667614892225732,
+        "x": 1.4118396137049876,
+        "y": 1.1134674481103835,
         "active": true
       },
       {
         "id": 1,
         "n": "1",
-        "x": 1.3309600000000001,
-        "y": 0.44449999999999995,
+        "x": 1.0542629623284154,
+        "y": 0.8314595219640897,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.3387250314615542,
-      "y": 0.501120021073831
+      "x": 1.0991366718088214,
+      "y": 0.8668498129697895
     },
     "angleLock": false,
     "speed": 1.65,
@@ -141,9 +141,9 @@
   "lesson": {
     "topic": "exercise-stop-follow-draw",
     "purpose": "Distinguish stop, forward travel, and return on one straight shot.",
-    "variation": "Approach distance and contact geometry selected for Stop, Follow, Draw.",
+    "variation": "Approach distance and contact geometry selected for Stop, Follow, Draw. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
+      0,
       0
     ],
     "target": 1,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

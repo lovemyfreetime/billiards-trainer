@@ -14,15 +14,15 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0302830441530804,
-        "y": 0.8971743398447718,
+        "x": 1.623219499738507,
+        "y": 0.5475053382368607,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.28016,
-        "y": 0.5384800000000001,
+        "id": 14,
+        "n": "14",
+        "x": 1.26985902805106,
+        "y": 0.4156778010952415,
         "active": true
       },
       {
@@ -31,19 +31,34 @@
         "marker": true,
         "markerType": "yellow",
         "markerShape": "circle",
-        "markerDiameterIn": 3,
-        "markerWidthIn": 3,
-        "markerHeightIn": 3,
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.6552808988764045,
+        "x": 0.23212446346547055,
         "y": 0.028575,
+        "active": true
+      },
+      {
+        "id": 1001,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "yellow",
+        "markerShape": "circle",
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 0.028575,
+        "y": 0.0980451198876977,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.5357476101769727,
-      "y": 0.03432697646334604
+      "x": 1.3234041717788543,
+      "y": 0.43565378875968147
     }
   },
   "state": {
@@ -54,15 +69,15 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0302830441530804,
-        "y": 0.8971743398447718,
+        "x": 1.623219499738507,
+        "y": 0.5475053382368607,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.28016,
-        "y": 0.5384800000000001,
+        "id": 14,
+        "n": "14",
+        "x": 1.26985902805106,
+        "y": 0.4156778010952415,
         "active": true
       },
       {
@@ -71,24 +86,39 @@
         "marker": true,
         "markerType": "yellow",
         "markerShape": "circle",
-        "markerDiameterIn": 3,
-        "markerWidthIn": 3,
-        "markerHeightIn": 3,
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.6552808988764045,
+        "x": 0.23212446346547055,
         "y": 0.028575,
+        "active": true
+      },
+      {
+        "id": 1001,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "yellow",
+        "markerShape": "circle",
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 0.028575,
+        "y": 0.0980451198876977,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.5357476101769727,
-      "y": 0.03432697646334604
+      "x": 1.3234041717788543,
+      "y": 0.43565378875968147
     },
     "angleLock": false,
-    "speed": 1.7,
+    "speed": 3.6,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -171,14 +201,14 @@
   "lesson": {
     "topic": "mirror-aiming-quick",
     "purpose": "Send the object ball through a planned cushion contact toward a pocket.",
-    "variation": "Object-ball bank to a named corner, with a geometric first-rail reference; rebounds need observed adjustment. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+    "variation": "Prepared 2-cushion object-ball bank to pocket 4 via top, left. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
       1,
       1
     ],
-    "target": 1,
+    "target": 14,
     "controls": {
-      "speed": 1.7,
+      "speed": 3.6,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -189,6 +219,18 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": [
+      {
+        "rail": "top",
+        "x": 0.23212446346547053,
+        "y": 0.028575
+      },
+      {
+        "rail": "left",
+        "x": 0.028575,
+        "y": 0.09804511988769768
+      }
+    ]
   }
 }

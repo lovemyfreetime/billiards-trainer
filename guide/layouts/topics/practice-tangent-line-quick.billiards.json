@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.1426190601143367,
-        "y": 1.062495517450416,
+        "x": 1.7964773769049727,
+        "y": 0.09166503586699445,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.3614400000000002,
-        "y": 0.57785,
+        "id": 4,
+        "n": "4",
+        "x": 1.4757637051699728,
+        "y": 0.27415839730478453,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.3703723726216817,
-      "y": 0.6342976325397924
+      "x": 1.5319523398812116,
+      "y": 0.2845967798081698
     }
   },
   "state": {
@@ -39,26 +39,26 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.1426190601143367,
-        "y": 1.062495517450416,
+        "x": 1.7964773769049727,
+        "y": 0.09166503586699445,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.3614400000000002,
-        "y": 0.57785,
+        "id": 4,
+        "n": "4",
+        "x": 1.4757637051699728,
+        "y": 0.27415839730478453,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.3703723726216817,
-      "y": 0.6342976325397924
+      "x": 1.5319523398812116,
+      "y": 0.2845967798081698
     },
     "angleLock": false,
-    "speed": 1.6,
+    "speed": 2.2,
     "follow": -0.28,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -141,14 +141,14 @@
   "lesson": {
     "topic": "practice-tangent-line-quick",
     "purpose": "Predict the initial cue-ball exit for a cut struck with stun at impact.",
-    "variation": "Approach distance and contact geometry selected for Practicing the tangent line.",
+    "variation": "Approach distance and contact geometry selected for Practicing the tangent line. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
+      0,
       0
     ],
-    "target": 1,
+    "target": 4,
     "controls": {
-      "speed": 1.6,
+      "speed": 2.2,
       "follow": -0.28,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

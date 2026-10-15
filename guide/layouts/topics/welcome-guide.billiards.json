@@ -14,15 +14,15 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.6810331008318506,
-        "y": 0.983950177609045,
+        "x": 0.3505541449035921,
+        "y": 0.6902981143168699,
         "active": true
       },
       {
         "id": 1,
         "n": "1",
-        "x": 1.1938,
-        "y": 0.34290000000000004,
+        "x": 0.7726349592297436,
+        "y": 0.5936099141226683,
         "active": true
       },
       {
@@ -63,8 +63,8 @@
       }
     ],
     "freeAim": {
-      "x": 1.1814024243356638,
-      "y": 0.39868909048951295
+      "x": 0.7192602751466359,
+      "y": 0.5731828340810066
     }
   },
   "state": {
@@ -75,15 +75,15 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.6810331008318506,
-        "y": 0.983950177609045,
+        "x": 0.3505541449035921,
+        "y": 0.6902981143168699,
         "active": true
       },
       {
         "id": 1,
         "n": "1",
-        "x": 1.1938,
-        "y": 0.34290000000000004,
+        "x": 0.7726349592297436,
+        "y": 0.5936099141226683,
         "active": true
       },
       {
@@ -126,11 +126,11 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.1814024243356638,
-      "y": 0.39868909048951295
+      "x": 0.7192602751466359,
+      "y": 0.5731828340810066
     },
     "angleLock": false,
-    "speed": 1.45,
+    "speed": 2.2,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -213,14 +213,14 @@
   "lesson": {
     "topic": "welcome-guide",
     "purpose": "Use Welcome to the Guide correctly within the current lesson.",
-    "variation": "A distinct open pattern for comparing order, next angles, and route complexity.",
+    "variation": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
-      0
+      1,
+      1
     ],
     "target": 1,
     "controls": {
-      "speed": 1.45,
+      "speed": 2.2,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -231,6 +231,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

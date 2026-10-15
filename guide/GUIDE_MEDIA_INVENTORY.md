@@ -19,7 +19,7 @@ Each category introduction and lesson automatically loads its prepared scene bef
 
 Autoplay offers a ten-second practice window after narration. The first table tap pauses playback and hands control to the player without changing aim. Next Lesson resumes the sequence. A written lesson without a recording stops for practice; it does not silently skip ahead.
 
-The retained pre-recording reference median is 211.1 catalog words per minute. The review band is ±15% (179.4–242.8); 12 selectable items fall outside it. These are listening candidates, not verified audio defects.
+The retained pre-recording reference median is 211.1 catalog words per minute. The review band is ±15% (179.4–242.8); 12 selectable items fall outside it; 0 remain unresolved after user review. These are duration measurements; user-approved recordings are excluded from unresolved listening review.
 
 ## Missing recordings
 

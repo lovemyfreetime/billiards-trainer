@@ -14,20 +14,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.164097878948805,
-        "y": 1.2039628429005997,
+        "x": 1.2493027069543634,
+        "y": 1.182430531020809,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.3462,
-        "y": 0.43815000000000004,
+        "id": 9,
+        "n": "9",
+        "x": 1.470393736059496,
+        "y": 0.44498582686771376,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 10,
+        "n": "10",
         "x": 1.90754,
         "y": 0.73025,
         "active": true
@@ -48,23 +48,23 @@
         "active": true
       },
       {
-        "id": 3,
-        "n": "3",
-        "x": 1.8288,
-        "y": 0.34798,
+        "id": 11,
+        "n": "11",
+        "x": 0.3560540280583852,
+        "y": 0.539137102859521,
         "active": true
       },
       {
-        "id": 4,
-        "n": "4",
+        "id": 12,
+        "n": "12",
         "x": 1.08966,
         "y": 0.40640000000000004,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.3559921481370338,
-      "y": 0.49445485178794446
+      "x": 1.4176279275720411,
+      "y": 0.46693786446483043
     }
   },
   "state": {
@@ -75,20 +75,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.164097878948805,
-        "y": 1.2039628429005997,
+        "x": 1.2493027069543634,
+        "y": 1.182430531020809,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.3462,
-        "y": 0.43815000000000004,
+        "id": 9,
+        "n": "9",
+        "x": 1.470393736059496,
+        "y": 0.44498582686771376,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 10,
+        "n": "10",
         "x": 1.90754,
         "y": 0.73025,
         "active": true
@@ -109,15 +109,15 @@
         "active": true
       },
       {
-        "id": 3,
-        "n": "3",
-        "x": 1.8288,
-        "y": 0.34798,
+        "id": 11,
+        "n": "11",
+        "x": 0.3560540280583852,
+        "y": 0.539137102859521,
         "active": true
       },
       {
-        "id": 4,
-        "n": "4",
+        "id": 12,
+        "n": "12",
         "x": 1.08966,
         "y": 0.40640000000000004,
         "active": true
@@ -126,11 +126,11 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.3559921481370338,
-      "y": 0.49445485178794446
+      "x": 1.4176279275720411,
+      "y": 0.46693786446483043
     },
     "angleLock": false,
-    "speed": 1.45,
+    "speed": 2.2,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -213,14 +213,14 @@
   "lesson": {
     "topic": "welcome-more",
     "purpose": "Use Welcome to Resources correctly within the current lesson.",
-    "variation": "A distinct open pattern for comparing order, next angles, and route complexity.",
+    "variation": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
+      1,
       0
     ],
-    "target": 1,
+    "target": 9,
     "controls": {
-      "speed": 1.45,
+      "speed": 2.2,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -231,6 +231,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

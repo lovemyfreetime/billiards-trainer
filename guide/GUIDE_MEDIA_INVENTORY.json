@@ -13,7 +13,8 @@
       179.4,
       242.8
     ],
-    "pacingReview": 12,
+    "durationOutliers": 12,
+    "pacingReview": 0,
     "newRecordings": 0,
     "completedRecordings": 34
   },
@@ -155,8 +156,8 @@
       "wpm": 221.4,
       "text": "Markers let you highlight useful points and areas on the table while studying a shot. Place a marker where you want to focus your attention, then use it as a reference while you experiment.",
       "sceneUrl": "./guide/layouts/topics/table-markers-quick.billiards.json",
-      "geometryHash": "80ef772e77f5aed3fc14fb45f8e8be53f13f7a2b13daa655242f9aeff23a2206",
-      "layoutReason": "Approach distance and contact geometry selected for Table markers.",
+      "geometryHash": "b111b1699cdcba02ff51ddd90515e69fb67f91fed23b310a0b0884ddb9a1ce1a",
+      "layoutReason": "Approach distance and contact geometry selected for Table markers. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -275,8 +276,8 @@
       "wpm": 175.6,
       "text": "Physics and Calibration lets you explore how table and ball behavior affects a shot. Rolling friction and sliding friction are among the settings available. Adjust a parameter, repeat a shot, and compare the outcome.",
       "sceneUrl": "./guide/layouts/topics/physics-calibration-overview-quick.billiards.json",
-      "geometryHash": "07f82d7dc0fc42164e7ef082d633827b2fc9a20046b287cad444270a51344fa5",
-      "layoutReason": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
+      "geometryHash": "549768aefcf3efa443e654db1d7f219d1622b1e47db7e3d65bc4fb447739b6fe",
+      "layoutReason": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "below band"
     },
     {
@@ -355,8 +356,8 @@
       "wpm": 233.3,
       "text": "In a bank shot, the object ball rebounds from a cushion on its way toward a pocket. In a kick shot, the cue ball contacts a cushion before reaching the object ball. Use the rail and diamond references to explore both routes.",
       "sceneUrl": "./guide/layouts/topics/bank-kick-overview-quick.billiards.json",
-      "geometryHash": "aea92df9ffc9cac00c52333b8efccc27e8cdedc8957ff81b7e82ffb4bc1765a4",
-      "layoutReason": "Object-ball bank to a named corner, with a geometric first-rail reference; rebounds need observed adjustment. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+      "geometryHash": "841d4a593816f3cbc02d2a01ce896ae29ee755f907e3acdafcb425d9bb45b77f",
+      "layoutReason": "Prepared 3-cushion object-ball bank to pocket 5 via bottom, right, top. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -515,8 +516,8 @@
       "wpm": 185.4,
       "text": "For small speed changes, use the available fine-adjustment controls. On a computer, you can also hover over the speed control and use the mouse wheel. Compare the result after each adjustment.",
       "sceneUrl": "./guide/layouts/topics/shot-speed-fine-adjustment-quick.billiards.json",
-      "geometryHash": "7f9e4f6bf7c84c5542847380dd7789870be7cc6ebdb5a213220621bd07a4cf9f",
-      "layoutReason": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
+      "geometryHash": "9a352f5e8b86992e7d6d3cf19c0ef4ce5fdaf04dd444ebfc2eef2554f89ffca8",
+      "layoutReason": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -675,8 +676,8 @@
       "wpm": 220.2,
       "text": "For a jump shot, examine how high the cue ball rises along its path. The maximum height is not necessarily the height at the obstacle, so check the trajectory where the obstacle actually sits.",
       "sceneUrl": "./guide/layouts/topics/jump-height-quick.billiards.json",
-      "geometryHash": "604687be3234251c04f7529ad0e3fbb2dfa73992d3ad09d8d2e459070700bc65",
-      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately.",
+      "geometryHash": "b0fd0dfb17d68f3a8ebdcb4db1a62d1c0f099593e4d6cd24b8be3ec6d3f1e4ea",
+      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -695,8 +696,8 @@
       "wpm": 220.8,
       "text": "When attempting to jump an obstructing ball, examine the cue-ball path at the obstacle’s location. A shot clears the obstacle only if the cue ball is high enough at that point, not simply because it reaches a high point elsewhere.",
       "sceneUrl": "./guide/layouts/topics/jump-obstacle-clearance-quick.billiards.json",
-      "geometryHash": "516e8cb1cb5143e382794798d32ca4b7fb3f45477501879ec627da5d08676c57",
-      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately.",
+      "geometryHash": "618352ab104070adeb0a1f00934d814eadcbc4c057001f1dacc536f71c901fb3",
+      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -715,8 +716,8 @@
       "wpm": 204.4,
       "text": "The predicted landing point shows where the airborne cue ball returns to the cloth. Compare landing position as you change elevation and speed, then consider how the cue ball may continue moving after it lands.",
       "sceneUrl": "./guide/layouts/topics/jump-landing-point-quick.billiards.json",
-      "geometryHash": "c9fa3b926758beb0be4beeb3766368e19fb13ca990c040dce3387cc3bc4b2559",
-      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately.",
+      "geometryHash": "7c3b2aa069944a4fb86524c54e0b49e0ee32a3ff5d199598d32639f6caef02ed",
+      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -735,8 +736,8 @@
       "wpm": 197.8,
       "text": "A mass-ay shot uses cue elevation and off-center spin to create a curved cue-ball path. Explore the curve by changing one setting at a time, and compare it with a cushion route around the same obstacle.",
       "sceneUrl": "./guide/layouts/topics/masse-shot-controls-quick.billiards.json",
-      "geometryHash": "75888bdbbf704b3b61c1b7b8aa16935e2d561a3dfcc4aa0ce6a6d01aafbd1046",
-      "layoutReason": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape.",
+      "geometryHash": "f867365c8291bb45dab3a4971be8d7e99bddb5d8f7895b414f013c6b7722db6f",
+      "layoutReason": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -875,8 +876,8 @@
       "wpm": 229.0,
       "text": "Set up a straight shot and gradually reduce shot speed until one power meter falls below the white line. Increase speed a little at a time and watch the C and P readings. Find a speed that supplies enough power while keeping the cue ball under control.",
       "sceneUrl": "./guide/layouts/topics/exercise-cue-pocket-threshold.billiards.json",
-      "geometryHash": "087c7c590591feda635ace07afb01dbdae262002a7b38dbe2c725b57c98625bd",
-      "layoutReason": "Approach distance and contact geometry selected for Power meter.",
+      "geometryHash": "c1461c3eb6b73077e19de9a51e745fe2ce11574e0393c6d3041889d377b147dd",
+      "layoutReason": "Approach distance and contact geometry selected for Power meter. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -915,8 +916,8 @@
       "wpm": 212.3,
       "text": "Ordinary strokes use a cue close to level. Jump and mass-ay shots use considerably greater elevation. For a jump, explore elevation and speed to lift the cue ball over an obstacle. For mass-ay, combine elevation and off-center tip contact to bend the cue-ball path. Use the side view together with the overhead route.",
       "sceneUrl": "./guide/layouts/topics/jump-masse-elevation-technique-advanced.billiards.json",
-      "geometryHash": "4e69f4056391ae5977e53b16a82b60408fae2932d6486726ba6aed2a05909668",
-      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately.",
+      "geometryHash": "3ca29140ab6c6deb763768188d9b98434ff5f36c64bdc57e23df241cbfc2fdb3",
+      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -935,8 +936,8 @@
       "wpm": 212.1,
       "text": "The contact point is where the cue ball touches the object ball. Changing that point changes the direction the object ball travels. Use the visual guides to compare the contact point with the pocket you want to reach.",
       "sceneUrl": "./guide/layouts/topics/contact-point-geometry-quick.billiards.json",
-      "geometryHash": "eef43e865045577ee7a9cbb374cc5a85cd35e16b6392e3ee2857160418ec9227",
-      "layoutReason": "Approach distance and contact geometry selected for Contact point.",
+      "geometryHash": "6432915a8c13bb63874514aa833692724dbf02e8c1a5776d17f12bd532f506e0",
+      "layoutReason": "Approach distance and contact geometry selected for Contact point. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -955,8 +956,8 @@
       "wpm": 216.7,
       "text": "A cut shot sends the object ball away from the cue ball’s incoming direction. As the cut becomes thinner, the required contact point moves farther toward the edge of the object ball. Compare several angles and observe the change.",
       "sceneUrl": "./guide/layouts/topics/cut-angle-geometry-quick.billiards.json",
-      "geometryHash": "7ee0cbf06ac01c8b874136127ac2ef87333a78e4d410757d0b5b9d282df553b1",
-      "layoutReason": "Approach distance and contact geometry selected for Cut angle.",
+      "geometryHash": "65ffa6089bd02d7e7ff6e0d33d170cb84f85337a969d416fd8cb9a488c66137d",
+      "layoutReason": "Approach distance and contact geometry selected for Cut angle. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -975,8 +976,8 @@
       "wpm": 214.8,
       "text": "Ball overlap describes how much of the object ball the cue ball covers along the aiming line. A fuller hit has more overlap, while a thinner cut has less. Use overlap as another way to understand the contact angle.",
       "sceneUrl": "./guide/layouts/topics/ball-overlap-quick.billiards.json",
-      "geometryHash": "6aa8b9620c0347b4f9bdd3a2275058014da3bdda52c47c919d3037d8c1b4e5b1",
-      "layoutReason": "Approach distance and contact geometry selected for Ball overlap.",
+      "geometryHash": "96bac45870e8b07ba1586d066c6bb95995c2c9b3c32188d6139d59a235c5e9ad",
+      "layoutReason": "Approach distance and contact geometry selected for Ball overlap. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -995,8 +996,8 @@
       "wpm": 200.8,
       "text": "Imagine the cue ball at the instant it contacts the object ball. The ghost-ball guide shows that position. For balls of equal size, the centers are one ball diameter apart at contact. Aim through that position to study the intended object-ball path.",
       "sceneUrl": "./guide/layouts/topics/ghost-ball-geometry-quick.billiards.json",
-      "geometryHash": "2ab9509b57babb811b1fcb8597b5771a5acbcb756a8ef94debc1b7b18a7dbec8",
-      "layoutReason": "Approach distance and contact geometry selected for Ghost-ball position.",
+      "geometryHash": "4b38a876d63f764cd88c171870c3d88bcbecf7366bc417a3d0c69577de59d29b",
+      "layoutReason": "Approach distance and contact geometry selected for Ghost-ball position. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1015,8 +1016,8 @@
       "wpm": 213.7,
       "text": "The collision line connects the centers of the two balls at impact. For an ideal collision, the object ball initially moves along this line. Use it to see why even a small change in contact position can change the shot.",
       "sceneUrl": "./guide/layouts/topics/collision-line-quick.billiards.json",
-      "geometryHash": "dea82c5709ca73fb0c0d944c43281e700998e26e73e9a412d6d8b481e8934719",
-      "layoutReason": "Approach distance and contact geometry selected for Collision line.",
+      "geometryHash": "ecc6c252c6b52cca2147a897e20800a324e91462c57e3126fa9f13409a273bbc",
+      "layoutReason": "Approach distance and contact geometry selected for Collision line. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1035,8 +1036,8 @@
       "wpm": 234.5,
       "text": "For a cut shot with a sliding cue ball, the cue ball initially leaves the collision close to a line perpendicular to the object ball’s path. This is the tangent line. Follow and draw can bend the cue ball away from that initial direction.",
       "sceneUrl": "./guide/layouts/topics/tangent-line-geometry-quick.billiards.json",
-      "geometryHash": "416a88d75007d7ee94e35664feda714eb3d6f8e8443f73b0c9ac557dcd940fd9",
-      "layoutReason": "Approach distance and contact geometry selected for The tangent line.",
+      "geometryHash": "f900fbafcfff61e2d594020833c5db144f54e3665affff186218f560fd851a74",
+      "layoutReason": "Approach distance and contact geometry selected for The tangent line. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1055,8 +1056,8 @@
       "wpm": 202.6,
       "text": "The ninety-degree rule is a useful guide for a stun cut shot. Immediately after impact, the cue ball and object ball tend to separate along directions close to a right angle. Real shots can vary with spin, friction, and collision conditions.",
       "sceneUrl": "./guide/layouts/topics/ninety-degree-rule-quick.billiards.json",
-      "geometryHash": "7a202889c32c7a38e39c8b5f3abc14b921b34f1f92da890820e6559c10dffd98",
-      "layoutReason": "Approach distance and contact geometry selected for The ninety-degree rule.",
+      "geometryHash": "ab421b6eb995b30c83a810d0db1ff241e731262437bd79cb19ee4c2a6bd8166a",
+      "layoutReason": "Approach distance and contact geometry selected for The ninety-degree rule. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1075,8 +1076,8 @@
       "wpm": 194.2,
       "text": "When the cue ball is rolling naturally into many ordinary cut shots, it often travels forward at an angle near thirty degrees from its original path after contact. Use this as a practical reference while comparing different cut angles.",
       "sceneUrl": "./guide/layouts/topics/thirty-degree-rule-quick.billiards.json",
-      "geometryHash": "2daf9a3a9b31a737e4bd58fdd95782d2fe740b9504c952b1cfd5d1a827b3fb18",
-      "layoutReason": "Approach distance and contact geometry selected for The thirty-degree rule.",
+      "geometryHash": "e5002e3896eec11948a89158a2d9cbbf44d2b47971d9d30d4fdb4623392f311f",
+      "layoutReason": "Approach distance and contact geometry selected for The thirty-degree rule. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1155,8 +1156,8 @@
       "wpm": 205.0,
       "text": "The diamonds along the rails provide repeatable reference points for planning banks and kicks. Use them to compare aiming lines and rail contact points. With practice, they can help you recognize useful routes across the table.",
       "sceneUrl": "./guide/layouts/topics/diamond-system-geometry-quick.billiards.json",
-      "geometryHash": "3d23eb3a095eead89bc324247948f1285cc4e4ca53e02818a66d5f4dba1cc1d5",
-      "layoutReason": "Object-ball bank to a named corner, with a geometric first-rail reference; rebounds need observed adjustment. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+      "geometryHash": "f77e393b3c597cc7b67aaa07b0dc7d1a1c6f550a1c2292986a5156af1e22b1e3",
+      "layoutReason": "Prepared 2-cushion object-ball bank to pocket 3 via left, bottom. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1175,8 +1176,8 @@
       "wpm": 220.1,
       "text": "One way to visualize a simple bank is to imagine the target reflected across the cushion. Draw a line toward that reflected target to estimate a rail contact point. Then use the trainer to see how the cushion changes the actual path.",
       "sceneUrl": "./guide/layouts/topics/mirror-aiming-quick.billiards.json",
-      "geometryHash": "454d1238c979561ac79419929bf8d01dd5c2d3b888fb514a29142796bce2116b",
-      "layoutReason": "Object-ball bank to a named corner, with a geometric first-rail reference; rebounds need observed adjustment. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+      "geometryHash": "a5d01ab22b214cc6651ce1bfc7b7afceb66712a0e23208971553504b68456ccb",
+      "layoutReason": "Prepared 2-cushion object-ball bank to pocket 4 via top, left. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1195,8 +1196,8 @@
       "wpm": 215.4,
       "text": "For a bank or kick, identify where the moving ball should meet the cushion. Adjust the aim and execute the shot, then compare the actual rebound with your intended route. Small changes at the rail can create large differences farther down the table.",
       "sceneUrl": "./guide/layouts/topics/rail-contact-point-quick.billiards.json",
-      "geometryHash": "0889d86493f377ef6fad84eebdc7ddd20d6d49535562ec69c0154c1d7a06b228",
-      "layoutReason": "Object-ball bank to a named corner, with a geometric first-rail reference; rebounds need observed adjustment. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+      "geometryHash": "6f5f66792c50e9489270b458fe21da687a1987d01c50743eaac465730e2bca43",
+      "layoutReason": "Prepared 2-cushion object-ball bank to pocket 5 via top, left. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1235,8 +1236,8 @@
       "wpm": 224.4,
       "text": "Left or right English can change how the cue ball rebounds from a cushion. Set up the same rail shot without sidespin, then repeat it with left and right English. Compare the outgoing paths rather than assuming every rail behaves the same.",
       "sceneUrl": "./guide/layouts/topics/rail-english-geometry-quick.billiards.json",
-      "geometryHash": "889551051c3163155bf4090cf2dc77ef44482eaa9f409a65043dfdb9b8347f83",
-      "layoutReason": "One-cushion lane with a marked first rail reference, for no/left/right English comparisons.",
+      "geometryHash": "9f73b068e5df4c7d629fdc0239c3aeda4fb97eac092e13cee53ea24220b726b9",
+      "layoutReason": "One-cushion lane with a marked first rail reference, for no/left/right English comparisons. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1255,8 +1256,8 @@
       "wpm": 191.5,
       "text": "Some shots use two or more cushions to reach a target. Break the route into individual rail contacts and study each change in direction. Start with a simple two-rail path before experimenting with more complicated routes.",
       "sceneUrl": "./guide/layouts/topics/multiple-rail-routes-quick.billiards.json",
-      "geometryHash": "7b2d8133251b7d195b50154420acf76e720ac29151e5aa822b57e44d867059f1",
-      "layoutReason": "Two-cushion image route around the blocker; check each rail contact before the final target. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+      "geometryHash": "aa88fd1f0cfcbf5026e0520463824b55de0ebda096ade21c9326ae8df873d3ee",
+      "layoutReason": "Prepared 3-cushion cue-ball escape to the target ball via bottom, left, top. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1275,8 +1276,8 @@
       "wpm": 220.9,
       "text": "Set up an object ball with a clear pocketing route. First study a direct shot, then arrange a bank shot and a kick shot to reach a target. Compare the aiming references and cushion paths. Restore the layout between attempts so the differences are easier to observe.",
       "sceneUrl": "./guide/layouts/topics/exercise-geometry-route-comparison.billiards.json",
-      "geometryHash": "3928b600ca520bab8e80b25c92d8ed36c39e80d082355f573f837888d31deed3",
-      "layoutReason": "Object-ball bank to a named corner, with a geometric first-rail reference; rebounds need observed adjustment. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+      "geometryHash": "faaecaebc107df5e9264a261b94c3e3dbb30247072f10e1369368ce1b446c1c5",
+      "layoutReason": "Prepared 3-cushion object-ball bank to pocket 2 via left, bottom, right. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1295,8 +1296,8 @@
       "wpm": 221.2,
       "text": "The compass is a visual reference you can place over the table to study directions and angles. Open it from the circular icon along the top toolbar. Use the compass to compare possible lines without changing the actual shot setup.",
       "sceneUrl": "./guide/layouts/topics/compass-tool-intro-quick.billiards.json",
-      "geometryHash": "2327e423d0672b1af839e5d58538ab9eb186b85920bf4f4462abbc00186f26e3",
-      "layoutReason": "Approach distance and contact geometry selected for Compass tool — introduction.",
+      "geometryHash": "2f826029280a8246b4c378d274090ec606d89ddf947106d6d716ba77229d54c7",
+      "layoutReason": "Approach distance and contact geometry selected for Compass tool — introduction. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1435,8 +1436,8 @@
       "wpm": 202.2,
       "text": "Begin with the cue ball and one object ball. Choose a pocket, adjust their positions, and execute the shot. Once that feels comfortable, add a second object ball and plan where the cue ball should finish.",
       "sceneUrl": "./guide/layouts/topics/practice-layout-quick.billiards.json",
-      "geometryHash": "1ba7f77cc32ba54bb6393345521a7b5aaa3f6f58fb86f6aaaec7e1ce61d2a69e",
-      "layoutReason": "Current pot plus a next-ball angle and a visible position zone.",
+      "geometryHash": "3679c8271362f5c2be0e6412a618fe147aaca8623c6e4a2ee77dc64c4d3ad870",
+      "layoutReason": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1675,8 +1676,8 @@
       "wpm": 211.3,
       "text": "Set up a simple cut shot and execute it. Restore the starting arrangement, then move the object ball slightly while keeping the cue ball in place. Adjust your aim and execute again. Notice how the contact point and required cut angle change.",
       "sceneUrl": "./guide/layouts/topics/exercise-change-one-ball.billiards.json",
-      "geometryHash": "851336bd613b90c67a760fd4cb44c8778629bee0c55415bd7a414b3b0ecb25f5",
-      "layoutReason": "Approach distance and contact geometry selected for Exercise: change one ball.",
+      "geometryHash": "051c169186d489e6d37d862a0f019bd9b0c3adfbeaa31f969eba4f3f0edcf7df",
+      "layoutReason": "Approach distance and contact geometry selected for Exercise: change one ball. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1695,8 +1696,8 @@
       "wpm": 215.1,
       "text": "Choose a rack or create a multi-ball layout. Work through your planned sequence, extending Shot 2 as you go. When you finish, use Undo Last Shot to move backward through the rack and identify one positional decision you could improve.",
       "sceneUrl": "./guide/layouts/topics/exercise-layout-runout-review.billiards.json",
-      "geometryHash": "3793a37bb13563e73d4515380ac2c34d5e733c9ba11234988438808f74b795f1",
-      "layoutReason": "Correct full rack with a distinct break starting point; continue planning from the resulting spread.",
+      "geometryHash": "24d97615b0744fad40510c4ec2ee9d8a393388e74c848da75ceb4ce0a6cf6066",
+      "layoutReason": "Correct full rack with a distinct break starting point; continue planning from the resulting spread. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1755,8 +1756,8 @@
       "wpm": 225.5,
       "text": "Set up a simple shot and save the layout with a name you will recognize. Move one of the balls to create a different shot. Now open Save / Recall Layout, select your saved arrangement, and load it. Compare the restored setup with your original practice shot.",
       "sceneUrl": "./guide/layouts/topics/exercise-save-recall-layout.billiards.json",
-      "geometryHash": "86fd1a4aa687a066d32de2cd6dc3ccc454d9a0538fa2c0f5b6a0723372592354",
-      "layoutReason": "Current pot plus a next-ball angle and a visible position zone.",
+      "geometryHash": "f997c37f18b86f9f5657d46826ff8e6ec6cf46988799e0c895c851f9e196d1a4",
+      "layoutReason": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1835,8 +1836,8 @@
       "wpm": 190.8,
       "text": "Position the cue ball with an unobstructed path. Choose a moderate shot speed and execute the shot. Observe how far the ball travels before stopping. Restore the starting position, then open Physics & Calibration and adjust the rolling friction setting. Execute Shot again using the same speed. Compare the distances and notice how rolling friction influences table speed.",
       "sceneUrl": "./guide/layouts/topics/exercise-table-speed.billiards.json",
-      "geometryHash": "772d5b339b3ec7c2feaa1064dfbc5d184aa88dbe814e0101205999741cad60b3",
-      "layoutReason": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
+      "geometryHash": "3ce3a2ef499f719267753e53fac350b29bf153a45004ab0ab6624ccf78f31a38",
+      "layoutReason": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1875,8 +1876,8 @@
       "wpm": 186.2,
       "text": "The default calibration settings have been carefully tested and are ready for practice. Advanced calibration is available when you want to explore individual physical settings or fine-tune the trainer for a particular table.",
       "sceneUrl": "./guide/layouts/topics/calibration-expectations-advanced.billiards.json",
-      "geometryHash": "87ae6b0e8cf1fa7e2818a260980da40f40e474759c8ed3171643bfe3ce9ebbc2",
-      "layoutReason": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
+      "geometryHash": "b6a380477e3662ce4e336b2aa310508d16ada2692d0e5d6bb24536b3ca18186c",
+      "layoutReason": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1955,8 +1956,8 @@
       "wpm": 228.9,
       "text": "Natural roll occurs when the cue ball rotates forward at a rate that matches its movement across the cloth. Watch the cue ball after a moderate shot and notice how its travel changes as it settles into rolling motion.",
       "sceneUrl": "./guide/layouts/topics/natural-roll-quick.billiards.json",
-      "geometryHash": "a0694e040f23a149ea8fa3e6b1915c19856e44abfb5c2c273efb69b639ef87af",
-      "layoutReason": "Approach distance and contact geometry selected for Natural roll.",
+      "geometryHash": "d443c72825fd83229306312ec33a7671e48923d09d9df1b79d46dd85a0e22856",
+      "layoutReason": "Approach distance and contact geometry selected for Natural roll. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1975,8 +1976,8 @@
       "wpm": 204.1,
       "text": "Shot speed determines how much motion you give the cue ball. Use the same layout and change only the speed control. Execute Shot after each adjustment and compare both the cue ball and object ball travel.",
       "sceneUrl": "./guide/layouts/topics/physics-shot-speed-quick.billiards.json",
-      "geometryHash": "3c6e2b545a11be837ba3b92c652f7b3137a6b7ffd7a4a9e098e20c1643e0e0f7",
-      "layoutReason": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
+      "geometryHash": "4d2a9e40e1bda355b72e9b0f4abb95aaa86cb50f204bbaf1a65027b43c0d709b",
+      "layoutReason": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -1995,8 +1996,8 @@
       "wpm": 206.5,
       "text": "When the cue ball strikes an object ball, the collision changes the direction and speed of both balls. The contact point matters: a full hit behaves differently from a thin cut. Use the guides to compare their paths.",
       "sceneUrl": "./guide/layouts/topics/ball-collision-quick.billiards.json",
-      "geometryHash": "8b26f20f5992a337d253d2c8511ec3285eead53ad5f46576b5644e2c8a3df582",
-      "layoutReason": "Approach distance and contact geometry selected for Cue ball collisions.",
+      "geometryHash": "cdae9f49cd61d8e8b714a94fc9cba5ed79f13fad07afc7ba6c50700dd34b8eff",
+      "layoutReason": "Approach distance and contact geometry selected for Cue ball collisions. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2035,8 +2036,8 @@
       "wpm": 214.5,
       "text": "Forward rotation can carry the cue ball beyond the contact point after it strikes an object ball. Try a straight shot with moderate follow, then compare it with the same shot using less forward rotation.",
       "sceneUrl": "./guide/layouts/topics/physics-follow-quick.billiards.json",
-      "geometryHash": "ede5b9ba94c772ecb6768acfe254f711366489c8e107162e663cfae4f351e9b1",
-      "layoutReason": "Approach distance and contact geometry selected for Follow through contact.",
+      "geometryHash": "f9c148fef2bfc766d9d14312056e28531a8b1eeba3446fb4b8dad38bd3eeb5c5",
+      "layoutReason": "Approach distance and contact geometry selected for Follow through contact. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2055,8 +2056,8 @@
       "wpm": 191.1,
       "text": "Backspin can make the cue ball return after contact, especially on a nearly straight shot. Repeat the same layout while adjusting draw and speed. Watch whether the cue ball still has backspin when it reaches the object ball.",
       "sceneUrl": "./guide/layouts/topics/physics-draw-quick.billiards.json",
-      "geometryHash": "6b8f3b01ed02992a074974260522202042c948484a416aa3e11c520529e097dd",
-      "layoutReason": "Approach distance and contact geometry selected for Draw through contact.",
+      "geometryHash": "35831de846a54cba64b610f4de11dff1c9b021bc2b8546db1f5f4d9fed357536",
+      "layoutReason": "Approach distance and contact geometry selected for Draw through contact. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2075,8 +2076,8 @@
       "wpm": 227.8,
       "text": "A stun shot reaches the object ball while the cue ball is sliding, with little forward or backward rotation. On a straight, full hit, this can produce a stop shot. On a cut, the cue ball initially follows the tangent line.",
       "sceneUrl": "./guide/layouts/topics/physics-stun-quick.billiards.json",
-      "geometryHash": "35b072753a6b59f78142fc1acfc74a8cd2824d9db55ce319ae9f22d9f59228d1",
-      "layoutReason": "Approach distance and contact geometry selected for Stop and stun.",
+      "geometryHash": "8b2747c4a0f8e41ec397bc8d4fe187733a30074c32c8e30dd50e060a1282421f",
+      "layoutReason": "Approach distance and contact geometry selected for Stop and stun. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2095,8 +2096,8 @@
       "wpm": 206.4,
       "text": "Left and right English change how the cue ball interacts with cushions and can influence its route after contact. Compare shots with no English, then left English, then right English, keeping other settings the same.",
       "sceneUrl": "./guide/layouts/topics/physics-english-quick.billiards.json",
-      "geometryHash": "4ab200279c9d86bf98995dd8d578acd794e580d582acdc812bec5ce3e1d4ab6a",
-      "layoutReason": "One-cushion lane with a marked first rail reference, for no/left/right English comparisons.",
+      "geometryHash": "375cc35f361dceb4fc6f5a33ce8926530c2d68f32ee241cd79201e7fbe82983a",
+      "layoutReason": "One-cushion lane with a marked first rail reference, for no/left/right English comparisons. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2115,8 +2116,8 @@
       "wpm": 203.5,
       "text": "Friction at ball-to-ball contact can transfer some rotational influence during a collision. The effect is usually smaller than the primary change in direction caused by the contact geometry, but it can matter on certain shots.",
       "sceneUrl": "./guide/layouts/topics/spin-transfer-advanced.billiards.json",
-      "geometryHash": "cb96001ca56ec7c92cb17f7ed9af678562ab984f8c817fd5d4c4a965ad8f31dc",
-      "layoutReason": "Approach distance and contact geometry selected for Spin transfer.",
+      "geometryHash": "c1f8f3ea3ff663d8198162104bc4b45b3b134418687149ee4d74ae3e9791e349",
+      "layoutReason": "Approach distance and contact geometry selected for Spin transfer. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2155,8 +2156,8 @@
       "wpm": 183.8,
       "text": "With cue elevation and side spin, the cue ball can curve as it travels over the cloth. This is called swerve. Its amount depends on speed, elevation, spin, and the frictional interaction with the cloth.",
       "sceneUrl": "./guide/layouts/topics/cue-ball-swerve-advanced.billiards.json",
-      "geometryHash": "b7020fb71dd6611dad574dcf180e2473e0e5fe6f7deccb59d68980ae3a6b56a4",
-      "layoutReason": "Approach distance and contact geometry selected for Swerve and cloth interaction.",
+      "geometryHash": "19368a7349530b5523aea06827ca607ee4da9fdd609686f61e8da24e849d56f2",
+      "layoutReason": "Approach distance and contact geometry selected for Swerve and cloth interaction. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2195,8 +2196,8 @@
       "wpm": 153.7,
       "text": "Cushion contact generally reduces ball speed. The exact rebound also depends on the cushion’s response and the ball’s rotation. Multiple-rail routes compound these effects, so compare them at consistent speeds.",
       "sceneUrl": "./guide/layouts/topics/rail-speed-loss-advanced.billiards.json",
-      "geometryHash": "2a11b9a2d4921c901d65463c624869d4194ffb84bf52f499a193d5fc79b6708e",
-      "layoutReason": "An actual cushion route makes rebound speed loss observable.",
+      "geometryHash": "195a284228347f1052c5a492b1d8ab233807582d5cff2bd2a78ccf446d5718aa",
+      "layoutReason": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "below band"
     },
     {
@@ -2235,8 +2236,8 @@
       "wpm": 213.2,
       "text": "For a jump shot, look at the height of the cue ball along its route. A useful jump must rise high enough at the obstacle and land in a workable area. Adjust elevation, speed, and tip contact to compare results.",
       "sceneUrl": "./guide/layouts/topics/jump-trajectory-quick.billiards.json",
-      "geometryHash": "26ca46bda2b9de8e050f2559b83dfbb8896c77689a84410eeb532bd0cddba2aa",
-      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately.",
+      "geometryHash": "f6cd246fe35e54c8530f2106ab6c6f140474668f315c76a3661ef99f138ad5c2",
+      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2255,8 +2256,8 @@
       "wpm": 240.0,
       "text": "Place an object ball between the cue ball and your target. As you change the jump settings, check the cue ball’s predicted height where it crosses the obstacle. A path that passes over the ball is different from one that collides with it.",
       "sceneUrl": "./guide/layouts/topics/physics-jump-clearance-quick.billiards.json",
-      "geometryHash": "eec14bde2256754c3bb5f8d04c655f4e5e36874abb3883be4363716209462da3",
-      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately.",
+      "geometryHash": "10a6dd1fbfa99bf7267fbf737309651e6c0ec2afd6caaeadf04ce768522318c2",
+      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2275,8 +2276,8 @@
       "wpm": 226.7,
       "text": "The landing point matters as much as clearing the obstacle. A jump that lands too early can strike the blocking ball, while a late landing can make the next contact difficult. Compare the landing position before selecting Execute Shot.",
       "sceneUrl": "./guide/layouts/topics/physics-jump-landing-quick.billiards.json",
-      "geometryHash": "4e6318363914edc607f94d6ec2e19fceca6b42be77ec17d8ac79aebb41573df6",
-      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately.",
+      "geometryHash": "11d8c4f4edd7d9855335119cd432929244571f179cbc5e5a97fe3c19ff4b8544",
+      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2295,8 +2296,8 @@
       "wpm": 191.0,
       "text": "Use the jump trajectory to study how cue elevation, tip contact, and speed affect the height and landing point of the cue ball.",
       "sceneUrl": "./guide/layouts/topics/jump-model-limitations-advanced.billiards.json",
-      "geometryHash": "588943add66dde2735c2c55f4339bb20fab6225b5aa132b346eaf1bd498ff9f3",
-      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately.",
+      "geometryHash": "a00af631212deb22ec209980e70746b3a099e9f67f5f7bbb8e4f67f9d8c46c1d",
+      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2315,8 +2316,8 @@
       "wpm": 168.5,
       "text": "A mass-ay shot uses elevated cue delivery and off-center spin to curve the cue ball around an obstacle. Explore how elevation, side spin, and speed change the curve. These shots are sensitive, so make small adjustments.",
       "sceneUrl": "./guide/layouts/topics/masse-physics-quick.billiards.json",
-      "geometryHash": "5f799a09866ddfa372c9db384760952d785abf274bcb1e0ff8a07a3790033bcb",
-      "layoutReason": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape.",
+      "geometryHash": "17b4c69a42e09f9adf76fdb26e08bc6b03671b6db77fd6de706adace6fa8bbc6",
+      "layoutReason": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "below band"
     },
     {
@@ -2335,8 +2336,8 @@
       "wpm": 220.7,
       "text": "A jump route aims to carry the cue ball above an obstacle. A mass-ay route bends the ball’s path around it through elevated, off-center contact and interaction with the cloth. Compare clearance and landing for a jump with lateral curvature for a mass-ay.",
       "sceneUrl": "./guide/layouts/topics/masse-versus-jump-advanced.billiards.json",
-      "geometryHash": "e5b0e45b0e3e17eb541fa9a9f5434810014311c8db3fd313e8b57a1120d43b02",
-      "layoutReason": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape.",
+      "geometryHash": "7d4814100e5b03ccfcd5054491199dc46d4e9798fc78b1e428e560ec00b6ae33",
+      "layoutReason": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2355,8 +2356,8 @@
       "wpm": 230.3,
       "text": "Accurate table and ball dimensions help the aiming guides match the layout. If you adjust a geometry setting, verify it against the table you are trying to model before interpreting small differences in a shot.",
       "sceneUrl": "./guide/layouts/topics/table-geometry-calibration-quick.billiards.json",
-      "geometryHash": "9ddb2f398a8cc09a4321110634309fcde56a6611bb832d3c00c7ba562909ff89",
-      "layoutReason": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
+      "geometryHash": "7db1c14a97f10ee5f7c179e6377bf672831f694b23df8b7946ab6ce64183343b",
+      "layoutReason": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2395,8 +2396,8 @@
       "wpm": 199.1,
       "text": "Choose a simple repeatable shot on a real table. Match the starting ball positions in the trainer, execute the shot, and compare where the balls stop. Adjust one relevant calibration setting, then try again.",
       "sceneUrl": "./guide/layouts/topics/real-table-calibration-quick.billiards.json",
-      "geometryHash": "10cd47ed1851fc8c252ab5789b35216a8d544b38d0ded61b7c621c898af80b13",
-      "layoutReason": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
+      "geometryHash": "d71a357a5b2d302fa63886bcef38821b1303ec0ec95286817b92dfa8eb2b21de",
+      "layoutReason": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2415,8 +2416,8 @@
       "wpm": 183.2,
       "text": "To understand a result, change only one control between attempts. If you change speed, spin, and friction together, you will not know which change caused the difference. Keep the layout and other settings consistent.",
       "sceneUrl": "./guide/layouts/topics/one-variable-calibration-quick.billiards.json",
-      "geometryHash": "598dfe87524d7fa9aa30fa4b4d00157dfe8bd4abaaa0d2098ae979e2616ada5c",
-      "layoutReason": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
+      "geometryHash": "a0da6f50482cf32c706094b57b9d8cbba9e24cc528aa24c71daff35a4ba55a2d",
+      "layoutReason": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2435,8 +2436,8 @@
       "wpm": 196.4,
       "text": "As you compare simulated and real shots, keep a simple record of the layout, shot speed, spin, and calibration settings. Note what improved and what did not. Repeatable observations are more useful than a single lucky match.",
       "sceneUrl": "./guide/layouts/topics/calibration-notes-quick.billiards.json",
-      "geometryHash": "56d2ebe1bf13a682b68ffd45121e172ddac56604749eda9cad3403ef4607f014",
-      "layoutReason": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
+      "geometryHash": "ce56ed3eeea402175bb159e835f514c4650a80e2dcaf22c1503ff05d300ab595",
+      "layoutReason": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2455,8 +2456,8 @@
       "wpm": 190.8,
       "text": "Position the cue ball with an unobstructed path. Choose a moderate shot speed and execute the shot. Observe how far the ball travels before stopping. Restore the starting position, then open Physics & Calibration and adjust the rolling friction setting. Execute Shot again using the same speed. Compare the distances and notice how rolling friction influences table speed.",
       "sceneUrl": "./guide/layouts/topics/exercise-table-speed-calibration-variation.billiards.json",
-      "geometryHash": "c41023eb9faddf3df3f86f48ef0a31af232112dc8790d56f7f9895ee9ef2e25e",
-      "layoutReason": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
+      "geometryHash": "df8817f2aaa82b063bfbc83b21a312bc13782319155166565ea9752e93dbfeb0",
+      "layoutReason": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2475,8 +2476,8 @@
       "wpm": 215.6,
       "text": "Set up a straight shot and use the same shot speed each time. Compare a stop shot with a follow shot, then adjust sliding friction and repeat. Observe how the cue ball’s behavior changes as it approaches and passes the object ball.",
       "sceneUrl": "./guide/layouts/topics/exercise-sliding-friction.billiards.json",
-      "geometryHash": "1b490483437f099fce65b22f4e9daef7c91bd6d0eb9c06ea131c70ef5da47236",
-      "layoutReason": "Straight collision exposes slide-to-roll changes instead of only free rolling distance.",
+      "geometryHash": "d252df7e8e171a8dc7b821afa692ccd29ebbf1c39ed9b5d651ee9300d2a96ae8",
+      "layoutReason": "Straight collision exposes slide-to-roll changes instead of only free rolling distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2495,8 +2496,8 @@
       "wpm": 192.7,
       "text": "Place the cue ball on a clear path. Execute Shot at a low speed, restore the position, then repeat at medium and higher speeds. Compare stopping distances. Try to predict the next distance before running each shot.",
       "sceneUrl": "./guide/layouts/topics/exercise-speed-ladder.billiards.json",
-      "geometryHash": "a182c59213fba28194280c93e2682ad7d0dd8a6c4c01a3b684136bc836c705e7",
-      "layoutReason": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
+      "geometryHash": "cb6cd1ab8625fb253027b0543e750ce2f5a7e8aade8df5defbee46b78a8345d9",
+      "layoutReason": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2515,8 +2516,8 @@
       "wpm": 193.1,
       "text": "Use one straight-shot layout. First attempt a stop shot, then restore the layout for a follow shot, and finally try draw. Change only the relevant spin and speed controls. Compare the cue ball’s path after impact.",
       "sceneUrl": "./guide/layouts/topics/exercise-physics-stop-follow-draw.billiards.json",
-      "geometryHash": "5a017813d56c607b7b952e60afa2f56e694dfee9a105b66efc76e4fdf059a1d6",
-      "layoutReason": "Approach distance and contact geometry selected for stop, follow, draw.",
+      "geometryHash": "a862e9efd5d0ffc507837e4b78285527988ce8e0be742390cfdeaf1a657c3c96",
+      "layoutReason": "Approach distance and contact geometry selected for stop, follow, draw. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2535,8 +2536,8 @@
       "wpm": 202.7,
       "text": "Aim the cue ball toward a cushion at a moderate angle. Execute Shot with no English, then repeat with left English and right English. Compare the rebound directions while keeping the starting position and speed unchanged.",
       "sceneUrl": "./guide/layouts/topics/exercise-rail-english.billiards.json",
-      "geometryHash": "4c6da2ef23e67ae3aea93fd49dfc68eb10652cb7bde7b961cdc9073b2166a690",
-      "layoutReason": "One-cushion lane with a marked first rail reference, for no/left/right English comparisons.",
+      "geometryHash": "5ae0f9c731112078f5b9633a2720b3919eba59b20e5bf911862b728152f4b6f4",
+      "layoutReason": "One-cushion lane with a marked first rail reference, for no/left/right English comparisons. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2555,8 +2556,8 @@
       "wpm": 180.5,
       "text": "Choose a long, nearly straight shot. Start with center-ball contact, then add left or right English. Observe any change in the initial cue-ball direction. Adjust the aim and compare the resulting contact point.",
       "sceneUrl": "./guide/layouts/topics/exercise-squirt-comparison.billiards.json",
-      "geometryHash": "ef5d085fe6f4feb066233a0d4f077398a73810a6bed36b8af48a995fa00946c0",
-      "layoutReason": "Approach distance and contact geometry selected for squirt comparison.",
+      "geometryHash": "c3f4f4918448b9409a341ef2d4742c628fb57006d76e5761c0ee5be1a9d7567c",
+      "layoutReason": "Approach distance and contact geometry selected for squirt comparison. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2575,8 +2576,8 @@
       "wpm": 212.4,
       "text": "Place a blocking ball between the cue ball and your target. Adjust elevation and speed until the trajectory clears the blocker. Check the landing point as well, then execute the shot and review the result.",
       "sceneUrl": "./guide/layouts/topics/exercise-jump-clearance.billiards.json",
-      "geometryHash": "2f9172926130044ae9ef6f04e63cabdfc776e73ab92bb93db5ca5b19e1d7d551",
-      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately.",
+      "geometryHash": "be4cc6ec22f59668ea513c264520e0f1f248a8f8595e5345b6d920ac84d5e063",
+      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2595,8 +2596,8 @@
       "wpm": 214.4,
       "text": "Set up a jump over an obstacle with open cloth beyond it. Choose a desired landing area. Change one jump setting at a time and compare the landing point. Try to clear the obstacle while landing as close as possible to the chosen area.",
       "sceneUrl": "./guide/layouts/topics/exercise-jump-landing.billiards.json",
-      "geometryHash": "4dfc2f59af31da3ba1987f43d99f18dcfd03ae412525a6c5f8f44a4edf8d955a",
-      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately.",
+      "geometryHash": "4e9b1cb43c567923301406518372f9e49a3d0991a6073539bab67e48f5091d44",
+      "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2615,8 +2616,8 @@
       "wpm": 182.3,
       "text": "Arrange a blocking ball so a direct path is unavailable. Experiment with cue elevation and side spin to create a mass-ay route around it. Compare the curve at several speeds, then execute a promising shot.",
       "sceneUrl": "./guide/layouts/topics/exercise-masse-route.billiards.json",
-      "geometryHash": "2a790e7ffa3e0bbb939a1c49033f3f4802303709257879d6661220f01bf6c5f4",
-      "layoutReason": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape.",
+      "geometryHash": "d3a3ca4e2d7a62a7569a1668b3fb5d21a2fa76dbf71f71f4f7220edab3834bcf",
+      "layoutReason": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2635,8 +2636,8 @@
       "wpm": 197.4,
       "text": "Choose a simple shot you can repeat on a real table. Record the starting positions and approximate stopping points. Recreate the arrangement in the trainer, execute the shot, and compare. Adjust one calibration setting and repeat to see whether the match improves.",
       "sceneUrl": "./guide/layouts/topics/exercise-calibration-real-table.billiards.json",
-      "geometryHash": "6eb302cd421f5ff8ed96dfe89323a63c124fbb52369ac467eaef880d98556167",
-      "layoutReason": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
+      "geometryHash": "711dc59f505b8dd01c18222df3109927cb8efbbbc6b39aa7c49a51df1a3c5457",
+      "layoutReason": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2855,8 +2856,8 @@
       "wpm": 230.8,
       "text": "Set up a full rack and work through your planned runout. Use Shot 2 to continually extend your sequence as each shot is executed. After completing the rack, use Undo Last Shot repeatedly to travel backward through your entire shot history. Find a shot where better cue-ball positioning could have simplified the runout. Adjust that shot and explore an improved sequence from that point forward.",
       "sceneUrl": "./guide/layouts/topics/exercise-full-rack-review.billiards.json",
-      "geometryHash": "2d1b5088431d1c086e4b2419819b4b3c06b0a414a8d193a912b94d1f935174d8",
-      "layoutReason": "Correct full rack with a distinct break starting point; continue planning from the resulting spread.",
+      "geometryHash": "292e42816f70702981caa0c10082f49ddd51dccfabf53b8390bf9a1a82cc0eb1",
+      "layoutReason": "Correct full rack with a distinct break starting point; continue planning from the resulting spread. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2875,8 +2876,8 @@
       "wpm": 244.7,
       "text": "Plan your first shot, then add Shot 2 to examine the next opportunity. Execute Shot to complete the first stroke. The second planned cue ball becomes the active cue ball. Before continuing, you can add another Shot 2 to extend your plan. This allows you to build a longer sequence, one shot at a time.",
       "sceneUrl": "./guide/layouts/topics/practice-shot-two-quick.billiards.json",
-      "geometryHash": "490bee6594de1a602102b099576f3e292f91c66eb2f6a7d69b1d37514a75d282",
-      "layoutReason": "Current pot plus a next-ball angle and a visible position zone.",
+      "geometryHash": "4f1453824a7cd4c33ca8e113c53dc1fe4a8d1f3f889e58207ceffb2d852d79fd",
+      "layoutReason": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "above band"
     },
     {
@@ -2895,8 +2896,8 @@
       "wpm": 222.9,
       "text": "Undo Last Shot lets you revisit previous shots in your sequence. You can work backward through an entire rack, one shot at a time. Use this feature to identify a difficult position, return to the shot that created it, and explore a better approach before continuing.",
       "sceneUrl": "./guide/layouts/topics/practice-undo-history-quick.billiards.json",
-      "geometryHash": "79b47b85725d0096e5442198f072efb07a4ae2fc81c4f91280e8d65f19dde141",
-      "layoutReason": "Current pot plus a next-ball angle and a visible position zone.",
+      "geometryHash": "066e5338dc8b084ef4cc3f6037d1b0f25e64eefd43be83ff4cf9c4dfbbe8dea4",
+      "layoutReason": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2915,8 +2916,8 @@
       "wpm": 213.6,
       "text": "Place three object balls on the table and choose your pocketing order. Plan Shot 1 and Shot 2, then execute the first shot. Add another Shot 2 before continuing. Complete the three-ball sequence, then use Undo Last Shot to revisit any position you would like to improve.",
       "sceneUrl": "./guide/layouts/topics/exercise-three-ball-runout.billiards.json",
-      "geometryHash": "74a6a9cec33e4ea8ddf03a178297196bdc91ad27a87c48525fd9e36bd6f6fe15",
-      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity.",
+      "geometryHash": "9df3ce2f7eb9aac6777a1b5376ff48c947a1504ed3c991c8fa3032f99517fd65",
+      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2935,8 +2936,8 @@
       "wpm": 218.8,
       "text": "Begin with a full rack and plan your runout. Use Shot 2 to continually extend the sequence as you execute each shot. When you've finished, use Undo Last Shot to work backward through the rack. Identify an earlier position that could have been improved, adjust the shot, and explore a better route through the remaining balls.",
       "sceneUrl": "./guide/layouts/topics/exercise-full-rack-training.billiards.json",
-      "geometryHash": "56980c9af92a7d083dfd3655b00486c71f1b6df9c9a491e80fe4fc2878fceb1e",
-      "layoutReason": "Correct full rack with a distinct break starting point; continue planning from the resulting spread.",
+      "geometryHash": "297a2107d14e7a34f801676afe91e28ab17083ed4bfef9f96ead517ee7662cff",
+      "layoutReason": "Correct full rack with a distinct break starting point; continue planning from the resulting spread. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2975,8 +2976,8 @@
       "wpm": 206.1,
       "text": "Place an obstacle between the cue ball and the target ball. First, explore a kick shot using a cushion. Next, examine a mass-ay shot, using cue elevation and sidespin to curve the cue ball around the obstacle. Finally, investigate a jump shot that carries the cue ball over the obstacle. Compare the three techniques and consider which offers the best control.",
       "sceneUrl": "./guide/layouts/topics/exercise-jump-kick-masse.billiards.json",
-      "geometryHash": "df55ec87cc3d2ba0f78b4380a6504ff081bba558517e664142c3a33495b41148",
-      "layoutReason": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape.",
+      "geometryHash": "7eb46dda5e954c10ea526f4b74671b315f9ed862a1add8fe2a1ce4838de0eca5",
+      "layoutReason": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2995,8 +2996,8 @@
       "wpm": 202.1,
       "text": "Choose a rack or practice layout and work through the complete sequence. After finishing, use Undo Last Shot to review your decisions. Find an earlier shot where a different cue-ball position could have improved the remaining pattern. Change that shot and work forward again. Repeat until you develop a more comfortable and reliable runout.",
       "sceneUrl": "./guide/layouts/topics/exercise-runout-improvement.billiards.json",
-      "geometryHash": "263913915b83ab5e1335f57582c8ba85b8305eecbdf99051787f6f21f28ae7a7",
-      "layoutReason": "Correct full rack with a distinct break starting point; continue planning from the resulting spread.",
+      "geometryHash": "f78fefd379e696f335f6d39ea2a2d59df7dcb73a4035829faad3f50058e3a518",
+      "layoutReason": "Correct full rack with a distinct break starting point; continue planning from the resulting spread. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3015,8 +3016,8 @@
       "wpm": 206.3,
       "text": "Pattern play means choosing an order of shots that makes the table easier to complete. Instead of focusing only on the next ball, look at the remaining balls and consider how each shot connects to the next. A good pattern reduces difficult angles, unnecessary cue-ball travel, and complicated position shots.",
       "sceneUrl": "./guide/layouts/topics/pattern-play-quick.billiards.json",
-      "geometryHash": "66842966cf15c7e954794e1add7230e49df8c8f677cde368a8d0fdbfde564e9a",
-      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity.",
+      "geometryHash": "6e1b9117c109786dcf5ef4b7a9c2978781f715560d2a4ace16587a1c60a220da",
+      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3035,8 +3036,8 @@
       "wpm": 232.9,
       "text": "One effective way to plan a runout is to begin with the final ball. Decide which pocket you want to use and where the cue ball should be for that shot. Then identify the shot that will create that position. Continue working backward until you have a practical plan for the entire sequence.",
       "sceneUrl": "./guide/layouts/topics/final-ball-backward-planning-quick.billiards.json",
-      "geometryHash": "91e6014f8b09802c5469bb6d7c0fd4d31eb50fa052ebac04ea639fa0635ff399",
-      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity.",
+      "geometryHash": "731b707bff0f1ad9a8de1aee5ca5de7b55e8a1aada25dc5a730e2d38929fc699",
+      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3055,8 +3056,8 @@
       "wpm": 225.6,
       "text": "Some balls are more difficult than others because they're blocked, close to a cushion, or poorly positioned for a pocket. These are often called problem balls. Identify them early and decide how you'll handle them before removing the easier balls that might help you reach a better position.",
       "sceneUrl": "./guide/layouts/topics/problem-balls-quick.billiards.json",
-      "geometryHash": "094675f6e10d0434ff3854c316289ae1a9ef9a339047d1c92c9e1d3fd81f3fe7",
-      "layoutReason": "Two close object balls explicitly create the problem-ball decision described in the lesson.",
+      "geometryHash": "9478e610da0b86d347d3d63889fda258b87bf4a77fce8f3c59f85adb36fd7cc3",
+      "layoutReason": "Two close object balls explicitly create the problem-ball decision described in the lesson. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3075,8 +3076,8 @@
       "wpm": 203.2,
       "text": "A crowded table creates obstacles for the cue ball. Before choosing a route, look at the other balls and consider where the cue ball can travel safely. Sometimes a short, controlled path is better than a longer route that passes through several obstacles.",
       "sceneUrl": "./guide/layouts/topics/cue-ball-traffic-quick.billiards.json",
-      "geometryHash": "df4d2774a5d6df5af88ad8644a4286f3b3b89acb983b125119058716a0debc01",
-      "layoutReason": "Extra balls occupy the cue-ball travel corridor, making traffic avoidance visible.",
+      "geometryHash": "346150bdacd69e96bb80dd037bc416d31edb8547f0d6ed03142750ae32e36431",
+      "layoutReason": "Extra balls occupy the cue-ball travel corridor, making traffic avoidance visible. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3095,8 +3096,8 @@
       "wpm": 213.2,
       "text": "There may be several ways to move the cue ball into position. You could use natural roll, follow, draw, or one or more cushions. Compare the available routes and consider which gives you the greatest margin for error. The simplest reliable route is often the best choice.",
       "sceneUrl": "./guide/layouts/topics/route-selection-quick.billiards.json",
-      "geometryHash": "b8724337469f9a0be756a8dcbf9046b451771f9365afce560971f8be1642f46a",
-      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity.",
+      "geometryHash": "22391604eaaf077e8b1119fee99bfcf8b1357ae903e8723a8642abd51f26b85f",
+      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3115,8 +3116,8 @@
       "wpm": 231.6,
       "text": "Not every shot leaves the cue ball exactly where you wanted. When the position becomes difficult, examine the remaining options before making your next decision. You may need to choose a different pocket, use a cushion, or adjust your original pattern. The goal is to recover without creating an even more difficult shot.",
       "sceneUrl": "./guide/layouts/topics/position-recovery-quick.billiards.json",
-      "geometryHash": "ddb98cf76106d9a05faae6a9b4944869fa1b2b96704bc593e5cf1bd05f2cc2f9",
-      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity.",
+      "geometryHash": "92e4717a2f45de71cfda7999a9c68535fae0f39c010e3449ff3f679de66d0f6a",
+      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3135,8 +3136,8 @@
       "wpm": 219.4,
       "text": "Sometimes the best decision isn't to pocket a ball. A safety shot is designed to leave your opponent with a difficult opportunity. You might move the cue ball behind another ball, increase the distance to the target, or leave an unfavorable angle. Safety play is an important part of competitive billiards.",
       "sceneUrl": "./guide/layouts/topics/safety-play-quick.billiards.json",
-      "geometryHash": "1f620dd54c4a69e47fd3acd6aa1d735f8279f1b08083c78141c609044879dce0",
-      "layoutReason": "An attacking ball, screening ball, and candidate hiding area for inspecting the opponent reply.",
+      "geometryHash": "41dfd974517c997e684e33472c55f27d1166386e54120773747f1937cf254bb8",
+      "layoutReason": "An attacking ball, screening ball, and candidate hiding area for inspecting the opponent reply. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3155,8 +3156,8 @@
       "wpm": 224.2,
       "text": "When planning a safety, decide where you want the cue ball to finish. Look for areas where another ball blocks a direct route to the target. Then explore the speed and contact angle needed to move the cue ball into that area. Use the trainer to study the geometry before executing the shot.",
       "sceneUrl": "./guide/layouts/topics/defensive-cue-ball-route-quick.billiards.json",
-      "geometryHash": "f7a4c45b8e7f6c08f420b6a72726636bcc2276640c11b4e6aaed1ab20b0072fd",
-      "layoutReason": "An attacking ball, screening ball, and candidate hiding area for inspecting the opponent reply.",
+      "geometryHash": "32f79cd98bd50d4c8fd6650c9c22071665b469cadb9cb5d5d76d3c9bc8583fb6",
+      "layoutReason": "An attacking ball, screening ball, and candidate hiding area for inspecting the opponent reply. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3175,8 +3176,8 @@
       "wpm": 210.8,
       "text": "When another ball blocks your direct path, you may need to use a cushion to reach the target. Examine the available rail routes and use the diamond references to estimate a contact point. Experiment with speed and English to find a practical escape.",
       "sceneUrl": "./guide/layouts/topics/safety-escape-quick.billiards.json",
-      "geometryHash": "5cd11823ffca0004281fc8b799b896e14818490042fcbfaee7a82d087c9aa63e",
-      "layoutReason": "An attacking ball, screening ball, and candidate hiding area for inspecting the opponent reply.",
+      "geometryHash": "7979ca284bf3c70b9b422cccbbf0071c849f23b82e171af661b610c34a0ad8e9",
+      "layoutReason": "An attacking ball, screening ball, and candidate hiding area for inspecting the opponent reply. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3215,8 +3216,8 @@
       "wpm": 212.7,
       "text": "A successful runout isn't measured only by whether every ball was pocketed. Consider how well you controlled the cue ball, how often you faced difficult shots, and whether your pattern gave you comfortable positions. Review the sequence and look for opportunities to make the runout simpler and more repeatable.",
       "sceneUrl": "./guide/layouts/topics/runout-quality-quick.billiards.json",
-      "geometryHash": "2736617b36fa41906bcda105535ea46023b029fe3ce3d0f27ed5bfa5ad306767",
-      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity.",
+      "geometryHash": "e42aff64a87883f67cab19c4447d28af3d421c4fa8ec8a3215a28fafc7d3e24e",
+      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3255,8 +3256,8 @@
       "wpm": 213.7,
       "text": "Begin with a simple straight shot. Place the cue ball and object ball in line with a pocket. Use the aiming guides to examine the contact point, then select Execute Shot. Once you're comfortable, move the cue ball slightly to create a cut angle. Repeat with progressively more difficult angles.",
       "sceneUrl": "./guide/layouts/topics/practice-aiming-quick.billiards.json",
-      "geometryHash": "fcaea2c3268fa34b7afe687072d331638711b6f3b068287cbc8a0f9aab2b77ca",
-      "layoutReason": "Approach distance and contact geometry selected for Learning to aim accurately.",
+      "geometryHash": "7d2bca1d185cd43776fd40d97ce997e35528482dafdff3f0959ecd9b6739ceb7",
+      "layoutReason": "Approach distance and contact geometry selected for Learning to aim accurately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3275,8 +3276,8 @@
       "wpm": 214.0,
       "text": "Speed control determines where the cue ball finishes. Set up a shot with a clear path and choose a stopping area. Execute Shot and observe the result. Restore the arrangement, make a small speed adjustment, and try again. Your goal is to learn how different stroke speeds affect travel distance.",
       "sceneUrl": "./guide/layouts/topics/practice-speed-control-quick.billiards.json",
-      "geometryHash": "486e9f8ad18eea61d545697a238198ef86a0927259d25453920714fd3e2cdd8b",
-      "layoutReason": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
+      "geometryHash": "7eaf947b3ed371400f3c5d7745602dcd22ea4c3b7b486159edb01ffa6cba9977",
+      "layoutReason": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3295,8 +3296,8 @@
       "wpm": 229.0,
       "text": "A stop shot occurs when the cue ball strikes an object ball straight on while sliding without forward or backward rotation. Ideally, the cue ball stops near the collision point as the object ball moves away. Experiment with speed and spin to learn how to create this result.",
       "sceneUrl": "./guide/layouts/topics/practice-stop-shot-quick.billiards.json",
-      "geometryHash": "840aa6f07968043a133134ded9a2a2e186692aacdb71e81b068b0fa2ea9152ef",
-      "layoutReason": "Approach distance and contact geometry selected for Understanding stop shots.",
+      "geometryHash": "6f3552a09d93f3018141064d792b5afca06503706b9971fa7d516d26b2522ca9",
+      "layoutReason": "Approach distance and contact geometry selected for Understanding stop shots. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3315,8 +3316,8 @@
       "wpm": 236.2,
       "text": "Set up a straight shot and apply forward rotation to the cue ball. Execute Shot and observe how the cue ball continues after contacting the object ball. Repeat with different amounts of follow and speed. Try to control how far the cue ball travels beyond the contact point.",
       "sceneUrl": "./guide/layouts/topics/practice-follow-shot-quick.billiards.json",
-      "geometryHash": "6fa5d5bc5168f09cf2d99366414e6e65a7c8a847fb2adcbf1d3b1e86cd52d32c",
-      "layoutReason": "Approach distance and contact geometry selected for Practicing follow shots.",
+      "geometryHash": "b88ed5c8f36d4b4d94b43415bec7f05783a6012dbbad608581e9d47174171285",
+      "layoutReason": "Approach distance and contact geometry selected for Practicing follow shots. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3335,8 +3336,8 @@
       "wpm": 220.2,
       "text": "Set up a straight shot and apply backspin. Execute Shot and observe whether the cue ball returns toward its starting position. Adjust the amount of draw and shot speed, then repeat. Try to bring the cue ball back to a specific area of the table.",
       "sceneUrl": "./guide/layouts/topics/practice-draw-shot-quick.billiards.json",
-      "geometryHash": "87da7e1e9feaaae0108e1d353cec53ef2d3978b0c8a68b9e68c2d63b72383e1f",
-      "layoutReason": "Approach distance and contact geometry selected for Practicing draw shots.",
+      "geometryHash": "1762186bec92a0c1c803d5c6c90caba3498b6319a04839e6319d93422dc85a00",
+      "layoutReason": "Approach distance and contact geometry selected for Practicing draw shots. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3355,8 +3356,8 @@
       "wpm": 216.2,
       "text": "Place an object ball near the center of the table and select a pocket. Move the cue ball to create different cut angles. Use the ghost-ball guide to study the required contact point, then execute each shot. Compare how the aiming position changes as the cut becomes thinner.",
       "sceneUrl": "./guide/layouts/topics/practice-cut-angles-quick.billiards.json",
-      "geometryHash": "d0c174cc8b5947761b0ba61ede4898b96cf4675a00b1fba98915b550ddf97e37",
-      "layoutReason": "Approach distance and contact geometry selected for Practicing cut angles.",
+      "geometryHash": "b7c85e25298fac03fd2441fda83e4264d042f02164e912cb602d9424571b26a7",
+      "layoutReason": "Approach distance and contact geometry selected for Practicing cut angles. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3375,8 +3376,8 @@
       "wpm": 222.8,
       "text": "Set up a cut shot and examine the tangent-line guide. Try a stun shot so the cue ball is sliding when it contacts the object ball. Execute Shot and observe the cue ball's initial direction after impact. Repeat with different cut angles to develop a feel for the tangent line.",
       "sceneUrl": "./guide/layouts/topics/practice-tangent-line-quick.billiards.json",
-      "geometryHash": "3198725bde8b0da13cf54b5627caa7ca336981b4bca3757f59484c5c8a08297c",
-      "layoutReason": "Approach distance and contact geometry selected for Practicing the tangent line.",
+      "geometryHash": "b7d7ec64d5c86b78e087bb06798c1c0a5d00e3822f5969b0ac08177653ad4a22",
+      "layoutReason": "Approach distance and contact geometry selected for Practicing the tangent line. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3395,8 +3396,8 @@
       "wpm": 211.1,
       "text": "Choose an object ball and a pocket that requires a bank shot. Use the cushion and diamond references to estimate the rail contact point. Execute Shot and observe the rebound. Adjust your aim and speed, then repeat until you develop a more consistent banking approach.",
       "sceneUrl": "./guide/layouts/topics/practice-bank-shots-quick.billiards.json",
-      "geometryHash": "77e1fca2ecaa7db26aff52a2c2b90eebf14ad961e1f5e35ffe846018f9d913d0",
-      "layoutReason": "Object-ball bank to a named corner, with a geometric first-rail reference; rebounds need observed adjustment. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+      "geometryHash": "c9da36a76187ef66eb91436e54fdef9d94e1ecdca05b84c20fec0475d45dd3f5",
+      "layoutReason": "Prepared 4-cushion object-ball bank to pocket 4 via top, right, bottom, left. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3415,8 +3416,8 @@
       "wpm": 213.6,
       "text": "A kick shot sends the cue ball into a cushion before it contacts the object ball. Place an object ball where a direct shot is difficult. Use the diamond references to plan a one-rail route, then execute the shot. Experiment with the rail contact point and speed to improve your accuracy.",
       "sceneUrl": "./guide/layouts/topics/practice-kick-shots-quick.billiards.json",
-      "geometryHash": "e3443183ca58b8af8e4b790a17352f3583922d1068193aff3537b75f7658acfe",
-      "layoutReason": "Target behind a blocker; a geometric cushion reference starts the escape comparison. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+      "geometryHash": "cbcbd9f242e9c616c96e859652a719e5e3402720bf38e27fe71733da85ea4e51",
+      "layoutReason": "Prepared 3-cushion cue-ball escape to the target ball via bottom, left, top. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3435,8 +3436,8 @@
       "wpm": 194.9,
       "text": "Set up a shot where the cue ball will contact a cushion. Begin without sidespin and observe the rebound. Restore the arrangement and add left English, then right English. Compare the results and notice how sidespin changes the cue ball's path.",
       "sceneUrl": "./guide/layouts/topics/practice-english-quick.billiards.json",
-      "geometryHash": "112f42601306cd6d078535a7be8139fb65f86c5602b0e7230e3e5185a1327594",
-      "layoutReason": "One-cushion lane with a marked first rail reference, for no/left/right English comparisons.",
+      "geometryHash": "a8e195cfeaf74d3676ae587c6d17ad6fecd71853b14ac7df870983990341f489",
+      "layoutReason": "One-cushion lane with a marked first rail reference, for no/left/right English comparisons. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3455,8 +3456,8 @@
       "wpm": 242.4,
       "text": "Place two object balls on the table and choose the order you want to pocket them. Before executing the first shot, decide where the cue ball should finish for the second. Use speed and spin to explore different routes. Your goal is to create a comfortable next shot, not simply pocket the first ball.",
       "sceneUrl": "./guide/layouts/topics/practice-position-play-quick.billiards.json",
-      "geometryHash": "4d119e0d6ade71a92d57adbe8af25f9290281f6d6558ec113fa3e661f4b34d50",
-      "layoutReason": "Current pot plus a next-ball angle and a visible position zone.",
+      "geometryHash": "9efe385cad2d1dd145ba8f27d1d335b97acc1aa39945ce3eb2ca56e4ebdd07c3",
+      "layoutReason": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3475,8 +3476,8 @@
       "wpm": 197.2,
       "text": "Begin with the cue ball and object ball aligned toward a pocket. Execute the shot, then restore the arrangement. Gradually increase the distance between the balls while keeping the shot straight. Repeat at several distances, paying attention to aiming accuracy and shot speed.",
       "sceneUrl": "./guide/layouts/topics/exercise-straight-shot-ladder.billiards.json",
-      "geometryHash": "7207f016e85feee84e147497aee0a01634d82e56267ccddbca542eff524bb0a7",
-      "layoutReason": "Approach distance and contact geometry selected for The Straight-Shot Ladder.",
+      "geometryHash": "b5b113febbe2facf7f843043c55fe58ea4a006262ff06dc1db5e7a601ff1fa37",
+      "layoutReason": "Approach distance and contact geometry selected for The Straight-Shot Ladder. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3495,8 +3496,8 @@
       "wpm": 195.4,
       "text": "Set up a straight shot. First, adjust the stroke to produce a stop shot. Restore the arrangement and try a follow shot. Finally, apply backspin to produce draw. Compare the cue ball's position after each shot and observe how its rotation changes the result.",
       "sceneUrl": "./guide/layouts/topics/exercise-stop-follow-draw.billiards.json",
-      "geometryHash": "2eabda1e66218bfb8bab275aee26a1c398edc5c98737edc1f87252aa61fbf1e9",
-      "layoutReason": "Approach distance and contact geometry selected for Stop, Follow, Draw.",
+      "geometryHash": "c9d959731847c66b859bf238c2f43ae14d2a2b7d50b07fd997fc45b09b223bdc",
+      "layoutReason": "Approach distance and contact geometry selected for Stop, Follow, Draw. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3515,8 +3516,8 @@
       "wpm": 241.3,
       "text": "Set up a shot with an object ball near a pocket. Choose three different areas where you'd like the cue ball to finish. Try to reach the first area using speed control, the second using follow or draw, and the third using a cushion route. Compare the difficulty and consistency of each approach.",
       "sceneUrl": "./guide/layouts/topics/exercise-three-position-zones.billiards.json",
-      "geometryHash": "51056e062c96437438f5821646debd9de017dd5e1eb000dfdd4431a32777d854",
-      "layoutReason": "Current pot plus a next-ball angle and a visible position zone.",
+      "geometryHash": "6225e0ff3ee40a88994bea411774e8d68d80ae01cdba90409a0ce525c0c58950",
+      "layoutReason": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3795,8 +3796,8 @@
       "wpm": 220.0,
       "text": "Contact and Aim explains which ball the cue ball will hit first, the angle of that contact, and how much the balls overlap. Use it to check whether your aiming adjustment produces the contact you intended.",
       "sceneUrl": "./guide/layouts/topics/live-stats-contact-aim-quick.billiards.json",
-      "geometryHash": "11d9d2608707b72c08097296c353b0c59bb35ae016ae7c37ae39d9c5af852a59",
-      "layoutReason": "Approach distance and contact geometry selected for Contact & Aim.",
+      "geometryHash": "9d2575613122eb7bb116a07dc7acf822caaea4057427f555ea253cbda482c2bb",
+      "layoutReason": "Approach distance and contact geometry selected for Contact & Aim. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -3915,8 +3916,8 @@
       "wpm": 160.9,
       "text": "Cue and Flight describes the cue-tip contact and any predicted deviation or airborne behavior. This group becomes especially useful when experimenting with English, elevated cues, jumps, or mass-ay.",
       "sceneUrl": "./guide/layouts/topics/live-stats-cue-flight-quick.billiards.json",
-      "geometryHash": "7d39f261584731c7d04bde13206b398e01cdf77416b157d988ba0d5e5d85d8d6",
-      "layoutReason": "Approach distance and contact geometry selected for Cue & Flight.",
+      "geometryHash": "950b630a754d0d75677b247e8f24154df0259f5bdbe0783a3bc091a6d30bae63",
+      "layoutReason": "Approach distance and contact geometry selected for Cue & Flight. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "below band"
     },
     {
@@ -4015,8 +4016,8 @@
       "wpm": 180.4,
       "text": "Power and Pocket helps connect shot speed with ball travel. It includes a power feel reference, pocket speed, and speed readings for the cue ball and object ball.",
       "sceneUrl": "./guide/layouts/topics/live-stats-power-pocket-quick.billiards.json",
-      "geometryHash": "1ed6ecff60f882e9d8034757faaae196b778fe736e154ad37f20860993c8be67",
-      "layoutReason": "Approach distance and contact geometry selected for Power & Pocket.",
+      "geometryHash": "9370b28e8d65252b5661593743cd8ebb96e05e9b36dbbc506c2f3bd8021b58de",
+      "layoutReason": "Approach distance and contact geometry selected for Power & Pocket. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -4075,8 +4076,8 @@
       "wpm": 200.2,
       "text": "Set up a straight shot and open Live Stats. Notice the cut angle and physical overlap. Move the aim slightly to create a thinner contact, then watch both readings change. Return to a full-ball hit and compare the paths before selecting Execute Shot.",
       "sceneUrl": "./guide/layouts/topics/exercise-live-stats-cut-overlap.billiards.json",
-      "geometryHash": "8a7a205784bc83b05a7c247bfe4ce88605dcff4d910b5aa0fd787b0f40f76a5e",
-      "layoutReason": "Approach distance and contact geometry selected for Live adjustment.",
+      "geometryHash": "003261da32c9a388bb7835a59aa3dbe2b8d8867f4996ab39647d27d0a6231a18",
+      "layoutReason": "Approach distance and contact geometry selected for Live adjustment. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -4095,8 +4096,8 @@
       "wpm": 202.7,
       "text": "Set up a repeatable shot and open Live Stats. First adjust shot speed and compare the power and ball-speed predictions. Then restore the starting setup, change left or right English, and examine predicted squirt. Change only one setting at a time so the differences are easier to understand.",
       "sceneUrl": "./guide/layouts/topics/exercise-live-stats-speed-spin.billiards.json",
-      "geometryHash": "e4087e14208976d9d09830b23d9ea63cd3ab048ee89eceed8e7e66afcf067dfe",
-      "layoutReason": "Approach distance and contact geometry selected for Speed and spin.",
+      "geometryHash": "a3948c5e3cbb8ecb23248463afd21301da25dcb54f9d6fb1447b399834457211",
+      "layoutReason": "Approach distance and contact geometry selected for Speed and spin. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -4237,8 +4238,8 @@
       "wpm": 189.1,
       "text": "Start with cue ball speed and contact, then target landing, pattern play, and kick routes. Finish with a scored benchmark. Open More for the matching video. Watch the creator demonstrate the layout, then build your own practice table. Save a starting layout before changing it so you can repeat the same test. Count pocketing, cue ball position, and legal contact separately. Your score should show what improved and what still needs work.",
       "sceneUrl": "./guide/layouts/topics/practice-session-introduction.billiards.json",
-      "geometryHash": "8c6e9b73dfc0eab6eef279940218918e0780c276c33d64abfb268b3519b0eb0a",
-      "layoutReason": "Current pot plus a next-ball angle and a visible position zone.",
+      "geometryHash": "57c8ca77b01b363ec77e0f31ccf43f8224efefbda574db1f709120f8e64bb3de",
+      "layoutReason": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -4257,8 +4258,8 @@
       "wpm": 203.5,
       "text": "Begin with a straight shot and center cue tip contact. Find the speed that produces a stop shot, then move the contact point higher for follow and lower for draw. Keep the object ball and pocket fixed while changing one setting at a time. Next, use a cut shot to compare the tangent line with the cue ball route. Before each shot, name the landing point you expect. Repeat each setup five times and record whether the cue ball finished short, long, left, or right.",
       "sceneUrl": "./guide/layouts/topics/practice-speed-contact-baseline.billiards.json",
-      "geometryHash": "5e45fe7feec1c82cf95f93314e55d956f017e63d32560f2081a92ef6f6284d3f",
-      "layoutReason": "Approach distance and contact geometry selected for Speed and contact baseline.",
+      "geometryHash": "eef78482e29a1f34d53feb122596ee8eac719370bacd43c1a4240235466a5cc7",
+      "layoutReason": "Approach distance and contact geometry selected for Speed and contact baseline. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -4277,8 +4278,8 @@
       "wpm": 221.2,
       "text": "Set up a repeatable object ball shot and choose a small cue ball landing zone. Begin with a generous target, then reduce it as your control improves. For this practice plan, use a three inch target and count a success only when the object ball is pocketed and the cue ball center finishes inside the target. Shoot ten attempts. Change only speed, then contact height, then the cut angle. Aim for eight successes out of ten before making the target smaller. Open More for Dr. Dave’s target practice demonstration.",
       "sceneUrl": "./guide/layouts/topics/practice-target-landing.billiards.json",
-      "geometryHash": "7794013b6fc0cff6550438668bf6e11374a270533e6ef6d093340dd32b9dead5",
-      "layoutReason": "Current pot plus a next-ball angle and a visible position zone.",
+      "geometryHash": "9ec54ba86bfd46dc8154691e9eebe35d69d87815d807473c8ef0f6e977e4dbbd",
+      "layoutReason": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -4297,8 +4298,8 @@
       "wpm": 239.2,
       "text": "Open More and use Niels Feijen’s demonstration to set up Rock Around the Clock. Save the starting layout. Before every shot, choose the next object ball, its pocket, and the cue ball landing zone that leaves a useful angle. Prefer a route with room for a small speed error. Track pocketing and position separately. Complete one rotation first, then work toward three consecutive rotations without disturbing another ball. When you miss position, repeat the previous shot and compare a simpler route before changing the whole pattern.",
       "sceneUrl": "./guide/layouts/topics/practice-rock-around-clock.billiards.json",
-      "geometryHash": "dbdeefb344a62e78ee416030b99029952038aad35f4af3528556c285c1152544",
-      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity.",
+      "geometryHash": "5fdab084969b00282dbf9749491d769b399600e704955742feff3e1f0878998a",
+      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -4317,8 +4318,8 @@
       "wpm": 186.2,
       "text": "Place an object ball behind a blocker so the cue ball needs one cushion to reach it. Open More for the diamond system tutorial. Identify the cue ball start, the rail aim point, and the intended object ball contact. Keep speed and spin consistent while testing the route. Repeat five attempts, moving the rail aim point by a small amount when the contact misses. Record the adjustment that works, then test a second starting location. Count legal object ball contact according to the game you are practicing.",
       "sceneUrl": "./guide/layouts/topics/practice-one-rail-kick.billiards.json",
-      "geometryHash": "ca4617deef71012475c5aafd1a98d9528e5abc8f648190915c76a67ec7671c87",
-      "layoutReason": "Target behind a blocker; a geometric cushion reference starts the escape comparison. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+      "geometryHash": "5e9101489024ebbf10e9ee0b5221516b378216dbed3503c7c64d226e170176dd",
+      "layoutReason": "Prepared 1-cushion cue-ball escape to the target ball via bottom. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -4337,8 +4338,8 @@
       "wpm": 185.3,
       "text": "Begin with a two cushion route that has space for the cue ball to travel. Mark the first rail aim point and predict the second rail contact before shooting. Keep the same speed and spin for each attempt. If the first contact is wrong, adjust the aim point. If the first contact is right but the final contact misses, examine the second rail route and speed. Record five attempts from the same start, then move the cue ball to a new starting diamond. Open More for the linked kick reference.",
       "sceneUrl": "./guide/layouts/topics/practice-two-rail-kick.billiards.json",
-      "geometryHash": "6dc689b64ea34425924d2232f9aaffc44f3e301138124b0ff7da0da6fa42596f",
-      "layoutReason": "Two-cushion image route around the blocker; check each rail contact before the final target. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+      "geometryHash": "3c6eb7dc0afcf986db3d5274132e4d093958aff85761b4f7b359bcb81c3c9080",
+      "layoutReason": "Prepared 2-cushion cue-ball escape to the target ball via bottom, right. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -4357,8 +4358,8 @@
       "wpm": 204.0,
       "text": "Open More for Dr. Dave’s Corner-5 demonstration. Follow its starting, aiming, and arrival number scales together. Identify all three cushion contacts before you shoot. Start with a clear route, consistent speed, and the spin shown in the lesson. Compare the predicted arrival with the actual arrival, then make a small adjustment and repeat. Once the route is calibrated, add a target object ball and a blocker for escape practice. Test five different starting positions and record legal object ball contact separately from the final cue ball position.",
       "sceneUrl": "./guide/layouts/topics/practice-corner-five.billiards.json",
-      "geometryHash": "6f9a2fec9123af6880f449f2eb11e252ac8780a68b2b8a4e9c9e6c632e7a0f79",
-      "layoutReason": "Two-cushion image route around the blocker; check each rail contact before the final target. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+      "geometryHash": "6f32890b23fe5921f4ec10d7e0b401a0e255ea420170a052b3703cc7e3a6d7dd",
+      "layoutReason": "Prepared 3-cushion cue-ball escape to the target ball via left, top, right. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -4377,8 +4378,8 @@
       "wpm": 202.0,
       "text": "Open More for Sharivari’s progressive difficulty drill and use the demonstrated setup. Save the starting layout and record your first score. For your Trainer adaptation, begin with a comfortable position zone. After a successful set, reduce the zone or increase the shot difficulty, changing one condition at a time. Count both the pocketed ball and the required cue ball position. If the same error repeats, return to the last successful level. Record the highest level you can repeat, rather than only your best isolated attempt.",
       "sceneUrl": "./guide/layouts/topics/practice-progressive-benchmark.billiards.json",
-      "geometryHash": "ce5aebacead5db6e7685e4847edd582b463feeae24f2c73e501ef5baeae0d371",
-      "layoutReason": "Current pot plus a next-ball angle and a visible position zone.",
+      "geometryHash": "07a0e2e49f02111cc88636091e10dab9cba5418cae8389e1ad9df6d86247fa0e",
+      "layoutReason": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -4397,8 +4398,8 @@
       "wpm": 218.7,
       "text": "Use this one hundred and five minute practice plan. Spend thirty minutes on speed and target landing, aiming for eight successful pocket and position results out of ten with a three inch target. Spend forty five minutes on Rock Around the Clock, first completing one rotation and then working toward three consecutive rotations without disturbing another ball. Spend thirty minutes on kick escapes, starting with one rail and adding two and three rails as control improves. Test five selected escapes and aim for four legal contacts. Record the result at the end of each phase. If time runs out, save your layout and score, then continue there next session.",
       "sceneUrl": "./guide/layouts/topics/exercise-focused-practice-session.billiards.json",
-      "geometryHash": "1c7ff2ff49acf986523edf5f89dd928333d0f0050e4dea9db7a3bbdc152bbeaa",
-      "layoutReason": "Current pot plus a next-ball angle and a visible position zone.",
+      "geometryHash": "dd8bfed28b34d3deeebf1d616c9f3b3f8ab85dd209d13452e0240ebe15a5493c",
+      "layoutReason": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -4417,8 +4418,8 @@
       "wpm": 236.6,
       "text": "At the end of practice, record attempts, pocketed balls, successful position results, and legal kick contacts. Note the most common miss and the single adjustment that helped. Save the table with a name that includes the drill, difficulty, and date. Download its table file if you want to share the same layout with an instructor or student. Begin your next session with that saved layout and the same scoring conditions. Improve the weakest result first, then increase the challenge once you can repeat the improvement.",
       "sceneUrl": "./guide/layouts/topics/exercise-practice-review.billiards.json",
-      "geometryHash": "c9e8cb8c6d9045030d546e963ffb5104374863bd28ba534e91717d44e06570ce",
-      "layoutReason": "Current pot plus a next-ball angle and a visible position zone.",
+      "geometryHash": "4852164d1be419f4c1107f92f4c148a4ca40fd13f64ab2f574c975aa5b900d47",
+      "layoutReason": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -9237,8 +9238,8 @@
       "wpm": 213.4,
       "text": "We’ve found Tor Lowry’s Zero X Billiards videos helpful in advancing our games, and we recommend them as a companion to your practice in the Trainer. His lessons cover fundamentals, cue ball control, position play, patterns, and defense. Choose a topic that matches what you are practicing. Watch the demonstration, then recreate a manageable layout in the Trainer. Open More for the official channel and training resources.",
       "sceneUrl": "./guide/layouts/topics/recommend-zero-x-overview.billiards.json",
-      "geometryHash": "af64b8d34c26327be4a3b96edba67ac72dde32fea060691bf39dabe9b592acea",
-      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity.",
+      "geometryHash": "7097792d80ce89599cba56041ce97f29466143a3eccf5a8d5990f24e7305eb32",
+      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -9257,8 +9258,8 @@
       "wpm": 225.8,
       "text": "We’ve found Tor Lowry’s center ball lessons helpful for improving pocketing and cue ball control, and we recommend them for building a dependable foundation. Start with the vertical center line, then explore stop, follow, and draw without adding side spin. Keep the same layout and change one setting at a time. Watch his demonstration before practicing, and compare your expected landing point with the result. Open More for Zero X’s official lessons.",
       "sceneUrl": "./guide/layouts/topics/recommend-zero-x-center-ball.billiards.json",
-      "geometryHash": "2f1f2c193726420622c52a09ffbff42a52e7686abe01af69cd7fc622c7ad3f84",
-      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity.",
+      "geometryHash": "6bb18eb67c957afffc6c3825050d79f582ab3a0f390198652e6b6d69ffc56b29",
+      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -9277,8 +9278,8 @@
       "wpm": 224.2,
       "text": "We’ve found Tor Lowry’s position play lessons helpful in advancing our games, particularly when planning how one shot prepares the next. We recommend watching for the intended angle, cue ball route, and landing area. Pause the demonstration and plan the next position yourself. In the Trainer, use Shot 2 to compare routes, then save the layout and repeat the approach that gives you more room for error. Open More for the Zero X resources.",
       "sceneUrl": "./guide/layouts/topics/recommend-zero-x-position-play.billiards.json",
-      "geometryHash": "c595512e2cddd9f626ab525105c20802c9c5609563cc8acebe37d7718611e969",
-      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity.",
+      "geometryHash": "1afa0924cc2059e1efe5061ea7b5e1905eda370e2d3e6e07920fd7b9390ab47a",
+      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -9297,8 +9298,8 @@
       "wpm": 225.8,
       "text": "We’ve found Tor Lowry’s eight ball pattern lessons helpful in improving our planning through a full rack, and we recommend them when individual shots feel comfortable but the runout becomes difficult. Study the order of play, the useful angles, and how problems are addressed before they restrict your choices. Begin with a small group of balls in the Trainer and plan a clear route through them. Save the starting layout to compare different patterns. Open More for the Zero X lessons.",
       "sceneUrl": "./guide/layouts/topics/recommend-zero-x-eight-ball-patterns.billiards.json",
-      "geometryHash": "a37556accda43b6ae35a5b288bec63ed96d035269306178d86c091b7517a4145",
-      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity.",
+      "geometryHash": "1e47e3caa85b4c9fef0bf9b42214ae311596b31ff6858e4a94e60a126de33ffe",
+      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -9317,8 +9318,8 @@
       "wpm": 211.2,
       "text": "We’ve found Tor Lowry’s defensive lessons helpful in advancing our games, especially when a shot leaves us without ideal position. We recommend studying how cue ball control and ball placement can limit an opponent’s options. Recreate a simple situation in the Trainer and compare an attacking route with a defensive route. Judge both the object ball result and the position you leave. Open More for Zero X’s official lessons on defense and related skills.",
       "sceneUrl": "./guide/layouts/topics/recommend-zero-x-defense-recovery.billiards.json",
-      "geometryHash": "3195240b86e04c562615f5a7b4a5ea6cd927da0e4327d630fec3c1b7da2a1037",
-      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity.",
+      "geometryHash": "0f6868358a4083cc0d0ee8a43266b766e4e37522537aae6553169c2749f03a7c",
+      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -9537,8 +9538,8 @@
       "wpm": 179.6,
       "text": "Welcome to Fundamentals. Explore aiming, cue ball control, and the basics of a dependable stroke. Open the drop-down menu and choose a topic you want to practice. Listen to the lesson and follow along at your own pace.",
       "sceneUrl": "./guide/layouts/topics/welcome-fundamentals.billiards.json",
-      "geometryHash": "717926318837dbc52dedec83ef210670b05cbac19ef2457ff08e9705f332b33a",
-      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity.",
+      "geometryHash": "67d41f3cba77318d7b51927407eea2453f3ec35ff0100d91a32546a83125936d",
+      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -9557,8 +9558,8 @@
       "wpm": 205.3,
       "text": "Welcome to Physics and Tools. Explore how speed, spin, and contact affect a shot, and learn to use the table’s visual tools. Choose a topic from the drop-down menu, then try the idea on the table and compare the result.",
       "sceneUrl": "./guide/layouts/topics/welcome-physics.billiards.json",
-      "geometryHash": "643429c3d228c5c4ff33619dafb7b89a83bcbef831c7f5ff388dc516b05c0187",
-      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity.",
+      "geometryHash": "f4dd2298e2bab5ec587ea0381792954edfde34a1f5407ee9ea5b6b35c3471011",
+      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -9577,8 +9578,8 @@
       "wpm": 210.5,
       "text": "Welcome to Drills. Choose a drill from the drop-down menu and listen to its setup instructions. Place the balls and markers, then work through the shots at your own pace. Repeat the same arrangement to build control and compare your results.",
       "sceneUrl": "./guide/layouts/topics/welcome-drills.billiards.json",
-      "geometryHash": "61b8f6454fb3b7253465c47f8e4df0bd3b1cb1a8f02e5541ad7badeed88c3518",
-      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity.",
+      "geometryHash": "49ee2ef45aa81e32d6ab1674e71e21f5cba0212d3e9543630e0703eb418863a4",
+      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -9597,8 +9598,8 @@
       "wpm": 204.1,
       "text": "Welcome to Exercises. Explore short challenges that connect aiming, cue ball control, and planning your next shot. Choose an exercise from the drop-down menu, listen to its instructions, and work through it on the table. Repeat it whenever you want to sharpen that skill.",
       "sceneUrl": "./guide/layouts/topics/welcome-exercises.billiards.json",
-      "geometryHash": "eb98a3230c6fa42ae3b9070d01caf8c09aab155453a77a0bfd7b5f1f2745da69",
-      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity.",
+      "geometryHash": "c180983eeb5d5c90543d57abe9b518a18f019c2bc313b9154460638eb80fb252",
+      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -9617,8 +9618,8 @@
       "wpm": 190.8,
       "text": "We’ve found Tor Lowry’s Zero X Billiards lessons helpful in advancing our games. Welcome to Resources. Explore his training videos and websites. Choose a topic from the drop-down menu to hear its introduction. When the audio finishes, the matching website will open. Use More for the links to that resource.",
       "sceneUrl": "./guide/layouts/topics/welcome-more.billiards.json",
-      "geometryHash": "9b22d4a36224dd58e38b00f1e600483304cf4698d4ce0bcb0d52312a80ff039f",
-      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity.",
+      "geometryHash": "6975aedf02085ff336074d0a592263c1c157b63636f01fcdd6ba0cfd642477a5",
+      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -9637,8 +9638,8 @@
       "wpm": 240.4,
       "text": "Welcome to the Guide. Use Play and Pause to listen at your own pace. Turn on Auto to play through the lessons in your selected category without choosing each one. Tap Read to follow along with the narration. Reading while you listen can help you get more from each lesson. Open More for additional resources and links related to that topic. Explore Fundamentals, Physics and Tools, Drills, Exercises, and Resources. Tap any category, then choose a topic from its drop-down menu. Pick something that interests you, listen, and try it on the table.",
       "sceneUrl": "./guide/layouts/topics/welcome-guide.billiards.json",
-      "geometryHash": "f7c84b1491ee504db6ad7d9b31ef732bcfe99624a1426783c1a6b1fff34a840f",
-      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity.",
+      "geometryHash": "483e9da0d9353d9e258d65b89a3221e93399cd3970f149de67d706a751a07bda",
+      "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -9677,8 +9678,8 @@
       "wpm": 199.9,
       "text": "While standing, choose pocket, route, and finish. Approach along the aim line, form a comfortable stance and bridge, rehearse smoothly, pause as needed, and deliver. Stand up and restart if the plan changes. Use the straight-shot layout. Have a partner observe or record video, then review consistency of the routine rather than copying a prescribed body shape.",
       "sceneUrl": "./guide/layouts/topics/fundamentals-pre-shot-routine.billiards.json",
-      "geometryHash": "05bf3b4152097a4dfdda6419bdd8f0762c1697d666b0d7b60e12ef172e2828cf",
-      "layoutReason": "Approach distance and contact geometry selected for A repeatable pre-shot routine.",
+      "geometryHash": "2a88fa67c0c3a0f72dc207749a6e8ae192480ca36146bd4c93e56fe9fab0c346",
+      "layoutReason": "Approach distance and contact geometry selected for A repeatable pre-shot routine. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -9697,8 +9698,8 @@
       "wpm": 202.6,
       "text": "Plan while standing. Approach the shot, place your feet comfortably, and check that your body stays steady and the cue can move freely. Rise and realign if needed. Recreate the straight shot and observe from side/front video or with a coach. Adapt stance to your body; no single foot position is required.",
       "sceneUrl": "./guide/layouts/topics/fundamentals-balanced-stance.billiards.json",
-      "geometryHash": "e4252957d0c07dd6bd8866c2bf3e6d5b102e11f8e36d3b957ccd99074f01faaf",
-      "layoutReason": "Approach distance and contact geometry selected for Comfortable stance and cue clearance.",
+      "geometryHash": "1e7df89062d522c766dea503d06d72dc39373d6bc52f5f0f2b071ffabada795a",
+      "layoutReason": "Approach distance and contact geometry selected for Comfortable stance and cue clearance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -9717,8 +9718,8 @@
       "wpm": 211.4,
       "text": "Form a comfortable open or closed bridge on clear cloth. Rehearse slowly and check the hand remains still while the cue moves freely. Keep the bridge distance comfortable and consistent. Practice at the physical table with a coach, partner, or video. The on-screen cue does not model hand support or bridge stability.",
       "sceneUrl": "./guide/layouts/topics/fundamentals-stable-bridge.billiards.json",
-      "geometryHash": "6534fc259d02b71a33b2a9f811fabdfaaa1caeed5a40eb8e0328b8497c3b8bca",
-      "layoutReason": "Approach distance and contact geometry selected for A stable bridge.",
+      "geometryHash": "d40e9ac0dc5d41337f405334b856b9811d8b3f008ba025759dcc9d685463cb94",
+      "layoutReason": "Approach distance and contact geometry selected for A stable bridge. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -9737,8 +9738,8 @@
       "wpm": 213.2,
       "text": "Choose center contact on an easy straight shot. Rehearse smoothly without squeezing or steering, then deliver through the ball while keeping the bridge stable. Use the straight-shot diagram and a striped practice ball if available to inspect unintended spin. Ask a coach to review persistent delivery errors.",
       "sceneUrl": "./guide/layouts/topics/fundamentals-grip-and-delivery.billiards.json",
-      "geometryHash": "b6da338eb203c3ef4dd54d5d4df3fe39914e17b9c9c165cfbfa48d8851259fd0",
-      "layoutReason": "Approach distance and contact geometry selected for Relaxed grip and straight delivery.",
+      "geometryHash": "f3234fa771a333d33db7b00ddb18d34e868e6caabaa4ca4165c975a216540054",
+      "layoutReason": "Approach distance and contact geometry selected for Relaxed grip and straight delivery. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -9757,8 +9758,8 @@
       "wpm": 186.9,
       "text": "Compare a clear-cloth cue-ball start with a rail-adjacent start. Identify bridge support, cue clearance, reach, and elevation before choosing the stroke. Inspect the actual cue approach and use a mechanical bridge when needed. Do not stretch into an unstable stroke; compare a simpler accessible route.",
       "sceneUrl": "./guide/layouts/topics/fundamentals-cue-access.billiards.json",
-      "geometryHash": "b1ef7c9a2d83eed2e89bf490c5ace8f9b3bd5b68980f050eb1947d3b44ca5bc3",
-      "layoutReason": "Rail-adjacent cue ball makes bridge support and physical cue access the central observation.",
+      "geometryHash": "a820fe295075b84316a8a3b4ac679c2958ad9c6c4395405efe9f7ee0ed8bd06f",
+      "layoutReason": "Rail-adjacent cue ball makes bridge support and physical cue access the central observation. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {

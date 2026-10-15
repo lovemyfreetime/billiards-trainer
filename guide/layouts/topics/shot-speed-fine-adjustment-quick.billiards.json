@@ -14,29 +14,29 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.40640000000000004,
-        "y": 0.48260000000000003,
+        "x": 1.3930215417130407,
+        "y": 0.2643175094721066,
         "active": true
       },
       {
         "id": 1000,
         "n": "MARKER",
         "marker": true,
-        "markerType": "white",
+        "markerType": "yellow",
         "markerShape": "circle",
-        "markerDiameterIn": 6,
-        "markerWidthIn": 6,
-        "markerHeightIn": 6,
+        "markerDiameterIn": 5,
+        "markerWidthIn": 5,
+        "markerHeightIn": 5,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.2192,
-        "y": 0.48260000000000003,
+        "x": 1.1139360255303032,
+        "y": 0.5499662312733078,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 2.2352,
-      "y": 0.48260000000000003
+      "x": 1.1139360255303032,
+      "y": 0.5499662312733078
     }
   },
   "state": {
@@ -47,34 +47,34 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.40640000000000004,
-        "y": 0.48260000000000003,
+        "x": 1.3930215417130407,
+        "y": 0.2643175094721066,
         "active": true
       },
       {
         "id": 1000,
         "n": "MARKER",
         "marker": true,
-        "markerType": "white",
+        "markerType": "yellow",
         "markerShape": "circle",
-        "markerDiameterIn": 6,
-        "markerWidthIn": 6,
-        "markerHeightIn": 6,
+        "markerDiameterIn": 5,
+        "markerWidthIn": 5,
+        "markerHeightIn": 5,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.2192,
-        "y": 0.48260000000000003,
+        "x": 1.1139360255303032,
+        "y": 0.5499662312733078,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 2.2352,
-      "y": 0.48260000000000003
+      "x": 1.1139360255303032,
+      "y": 0.5499662312733078
     },
     "angleLock": false,
-    "speed": 0.45,
+    "speed": 0.307,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -157,11 +157,11 @@
   "lesson": {
     "topic": "shot-speed-fine-adjustment-quick",
     "purpose": "Predict and control stopping distance without changing the aiming line.",
-    "variation": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
+    "variation": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": null,
     "target": null,
     "controls": {
-      "speed": 0.45,
+      "speed": 0.307,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -172,6 +172,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

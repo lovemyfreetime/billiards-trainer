@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.27,
-        "y": 1.00055,
+        "x": 2.2635352687503785,
+        "y": 0.8558509899683453,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.27,
-        "y": 0.5334,
+        "id": 15,
+        "n": "15",
+        "x": 1.2732307777923177,
+        "y": 1.0370426109792268,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.27,
-      "y": 0.59055
+      "x": 1.3294475560998111,
+      "y": 1.0267568763566466
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.27,
-        "y": 1.00055,
+        "x": 2.2635352687503785,
+        "y": 0.8558509899683453,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.27,
-        "y": 0.5334,
+        "id": 15,
+        "n": "15",
+        "x": 1.2732307777923177,
+        "y": 1.0370426109792268,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.27,
-      "y": 0.59055
+      "x": 1.3294475560998111,
+      "y": 1.0267568763566466
     },
     "angleLock": false,
     "speed": 1.45,
@@ -141,12 +141,12 @@
   "lesson": {
     "topic": "fundamentals-balanced-stance",
     "purpose": "Build comfortable balance and cue clearance while maintaining the chosen line.",
-    "variation": "Approach distance and contact geometry selected for Comfortable stance and cue clearance.",
+    "variation": "Approach distance and contact geometry selected for Comfortable stance and cue clearance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
-      0
+      0,
+      1
     ],
-    "target": 1,
+    "target": 15,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

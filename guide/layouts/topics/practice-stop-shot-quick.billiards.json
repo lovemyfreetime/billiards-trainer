@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.3367246932127297,
-        "y": 0.9035635539223781,
+        "x": 1.4052063759442341,
+        "y": 0.7094031148608957,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.30048,
-        "y": 0.41275,
+        "id": 6,
+        "n": "6",
+        "x": 1.9242057238267436,
+        "y": 0.3849566726234543,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.3046888473374125,
-      "y": 0.4697448076941256
+      "x": 1.875745636171259,
+      "y": 0.4152509361798235
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.3367246932127297,
-        "y": 0.9035635539223781,
+        "x": 1.4052063759442341,
+        "y": 0.7094031148608957,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.30048,
-        "y": 0.41275,
+        "id": 6,
+        "n": "6",
+        "x": 1.9242057238267436,
+        "y": 0.3849566726234543,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.3046888473374125,
-      "y": 0.4697448076941256
+      "x": 1.875745636171259,
+      "y": 0.4152509361798235
     },
     "angleLock": false,
     "speed": 1.65,
@@ -141,12 +141,12 @@
   "lesson": {
     "topic": "practice-stop-shot-quick",
     "purpose": "Arrive at a straight full-ball collision without forward or backward roll.",
-    "variation": "Approach distance and contact geometry selected for Understanding stop shots.",
+    "variation": "Approach distance and contact geometry selected for Understanding stop shots. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
+      1,
       0
     ],
-    "target": 1,
+    "target": 6,
     "controls": {
       "speed": 1.65,
       "follow": -0.22,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

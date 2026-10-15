@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.2216170543124665,
-        "y": 0.851927787468459,
+        "x": 2.0213429019585094,
+        "y": 1.1252627227065048,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.3462,
-        "y": 0.41910000000000003,
+        "id": 4,
+        "n": "4",
+        "x": 1.4522026393676253,
+        "y": 1.066277962404206,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.3564233027931292,
-      "y": 0.47532816536220973
+      "x": 1.4982685671369167,
+      "y": 1.100101811959726
     }
   },
   "state": {
@@ -39,26 +39,26 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.2216170543124665,
-        "y": 0.851927787468459,
+        "x": 2.0213429019585094,
+        "y": 1.1252627227065048,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.3462,
-        "y": 0.41910000000000003,
+        "id": 4,
+        "n": "4",
+        "x": 1.4522026393676253,
+        "y": 1.066277962404206,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.3564233027931292,
-      "y": 0.47532816536220973
+      "x": 1.4982685671369167,
+      "y": 1.100101811959726
     },
     "angleLock": false,
-    "speed": 1.45,
+    "speed": 2.2,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -90,8 +90,8 @@
     },
     "teachingCompass": {
       "enabled": true,
-      "x": 1.3462,
-      "y": 0.41910000000000003,
+      "x": 1.4522026393676253,
+      "y": 1.066277962404206,
       "sizePct": 45,
       "angle": 0,
       "linkedBallId": null
@@ -141,14 +141,14 @@
   "lesson": {
     "topic": "compass-tool-intro-quick",
     "purpose": "Use an angle reference to explain a direction rather than assume it predicts the whole route.",
-    "variation": "Approach distance and contact geometry selected for Compass tool — introduction.",
+    "variation": "Approach distance and contact geometry selected for Compass tool — introduction. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
+      0,
       0
     ],
-    "target": 1,
+    "target": 4,
     "controls": {
-      "speed": 1.45,
+      "speed": 2.2,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -161,12 +161,13 @@
       "activeShot": 1,
       "teachingCompass": {
         "enabled": true,
-        "x": 1.3462,
-        "y": 0.41910000000000003,
+        "x": 1.4522026393676253,
+        "y": 1.066277962404206,
         "sizePct": 45,
         "angle": 0,
         "linkedBallId": null
       }
-    }
+    },
+    "railContacts": []
   }
 }

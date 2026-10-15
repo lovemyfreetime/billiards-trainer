@@ -14,15 +14,15 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.9585169628152711,
-        "y": 0.8589194731332892,
+        "x": 0.8029929321609703,
+        "y": 0.2250260358314259,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.2192,
-        "y": 0.508,
+        "id": 15,
+        "n": "15",
+        "x": 1.0642629456021435,
+        "y": 0.4970188713555427,
         "active": true
       },
       {
@@ -31,19 +31,49 @@
         "marker": true,
         "markerType": "yellow",
         "markerShape": "circle",
-        "markerDiameterIn": 3,
-        "markerWidthIn": 3,
-        "markerHeightIn": 3,
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.5965714285714285,
+        "x": 1.7829624958119799,
+        "y": 1.241425,
+        "active": true
+      },
+      {
+        "id": 1001,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "yellow",
+        "markerShape": "circle",
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 2.511425,
+        "y": 0.2513644879605948,
+        "active": true
+      },
+      {
+        "id": 1002,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "yellow",
+        "markerShape": "circle",
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 2.3367806389637416,
         "y": 0.028575,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.490020139858218,
-      "y": 0.0118631746541068
+      "x": 1.02467238145482,
+      "y": 0.4558034648854293
     }
   },
   "state": {
@@ -54,15 +84,15 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.9585169628152711,
-        "y": 0.8589194731332892,
+        "x": 0.8029929321609703,
+        "y": 0.2250260358314259,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.2192,
-        "y": 0.508,
+        "id": 15,
+        "n": "15",
+        "x": 1.0642629456021435,
+        "y": 0.4970188713555427,
         "active": true
       },
       {
@@ -71,12 +101,42 @@
         "marker": true,
         "markerType": "yellow",
         "markerShape": "circle",
-        "markerDiameterIn": 3,
-        "markerWidthIn": 3,
-        "markerHeightIn": 3,
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.5965714285714285,
+        "x": 1.7829624958119799,
+        "y": 1.241425,
+        "active": true
+      },
+      {
+        "id": 1001,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "yellow",
+        "markerShape": "circle",
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 2.511425,
+        "y": 0.2513644879605948,
+        "active": true
+      },
+      {
+        "id": 1002,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "yellow",
+        "markerShape": "circle",
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 2.3367806389637416,
         "y": 0.028575,
         "active": true
       }
@@ -84,11 +144,11 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.490020139858218,
-      "y": 0.0118631746541068
+      "x": 1.02467238145482,
+      "y": 0.4558034648854293
     },
     "angleLock": false,
-    "speed": 1.7,
+    "speed": 5.6,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -171,14 +231,14 @@
   "lesson": {
     "topic": "bank-kick-overview-quick",
     "purpose": "Distinguish which ball reaches a cushion first in a bank versus a kick.",
-    "variation": "Object-ball bank to a named corner, with a geometric first-rail reference; rebounds need observed adjustment. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+    "variation": "Prepared 3-cushion object-ball bank to pocket 5 via bottom, right, top. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      1,
+      0.5,
       1
     ],
-    "target": 1,
+    "target": 15,
     "controls": {
-      "speed": 1.7,
+      "speed": 5.6,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -189,6 +249,23 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": [
+      {
+        "rail": "bottom",
+        "x": 1.7829624958119799,
+        "y": 1.241425
+      },
+      {
+        "rail": "right",
+        "x": 2.511425,
+        "y": 0.2513644879605948
+      },
+      {
+        "rail": "top",
+        "x": 2.3367806389637416,
+        "y": 0.028575
+      }
+    ]
   }
 }

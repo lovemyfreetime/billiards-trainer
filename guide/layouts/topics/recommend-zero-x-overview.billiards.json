@@ -14,20 +14,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0808012318436766,
-        "y": 0.8467576473775239,
+        "x": 0.1359899012818635,
+        "y": 1.1853929297863919,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.25476,
-        "y": 0.40640000000000004,
+        "id": 11,
+        "n": "11",
+        "x": 0.908928367410812,
+        "y": 0.8694935215301698,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 12,
+        "n": "12",
         "x": 1.88468,
         "y": 0.762,
         "active": true
@@ -48,23 +48,23 @@
         "active": true
       },
       {
-        "id": 3,
-        "n": "3",
+        "id": 13,
+        "n": "13",
         "x": 1.8288,
         "y": 0.34798,
         "active": true
       },
       {
-        "id": 4,
-        "n": "4",
+        "id": 14,
+        "n": "14",
         "x": 0.88392,
         "y": 0.40640000000000004,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.2526183802973334,
-      "y": 0.4635098587377797
+      "x": 0.8870105773833205,
+      "y": 0.922273564920743
     }
   },
   "state": {
@@ -75,20 +75,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0808012318436766,
-        "y": 0.8467576473775239,
+        "x": 0.1359899012818635,
+        "y": 1.1853929297863919,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.25476,
-        "y": 0.40640000000000004,
+        "id": 11,
+        "n": "11",
+        "x": 0.908928367410812,
+        "y": 0.8694935215301698,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 12,
+        "n": "12",
         "x": 1.88468,
         "y": 0.762,
         "active": true
@@ -109,15 +109,15 @@
         "active": true
       },
       {
-        "id": 3,
-        "n": "3",
+        "id": 13,
+        "n": "13",
         "x": 1.8288,
         "y": 0.34798,
         "active": true
       },
       {
-        "id": 4,
-        "n": "4",
+        "id": 14,
+        "n": "14",
         "x": 0.88392,
         "y": 0.40640000000000004,
         "active": true
@@ -126,8 +126,8 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.2526183802973334,
-      "y": 0.4635098587377797
+      "x": 0.8870105773833205,
+      "y": 0.922273564920743
     },
     "angleLock": false,
     "speed": 1.45,
@@ -213,12 +213,12 @@
   "lesson": {
     "topic": "recommend-zero-x-overview",
     "purpose": "Use Tor Lowry and Zero-X Billiards correctly within the current lesson.",
-    "variation": "A distinct open pattern for comparing order, next angles, and route complexity.",
+    "variation": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
       0.5,
       0
     ],
-    "target": 1,
+    "target": 11,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -231,6 +231,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.27,
-        "y": 1.00515,
+        "x": 1.6481823318503064,
+        "y": 0.10475424734194488,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.27,
-        "y": 0.508,
+        "id": 14,
+        "n": "14",
+        "x": 1.4809179030420643,
+        "y": 0.6201251381130334,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.27,
-      "y": 0.56515
+      "x": 1.4985601229970424,
+      "y": 0.5657663800784704
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.27,
-        "y": 1.00515,
+        "x": 1.6481823318503064,
+        "y": 0.10475424734194488,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.27,
-        "y": 0.508,
+        "id": 14,
+        "n": "14",
+        "x": 1.4809179030420643,
+        "y": 0.6201251381130334,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.27,
-      "y": 0.56515
+      "x": 1.4985601229970424,
+      "y": 0.5657663800784704
     },
     "angleLock": false,
     "speed": 1.15,
@@ -141,12 +141,12 @@
   "lesson": {
     "topic": "physics-follow-quick",
     "purpose": "Control forward cue-ball travel after pocketing a straight shot.",
-    "variation": "Approach distance and contact geometry selected for Follow through contact.",
+    "variation": "Approach distance and contact geometry selected for Follow through contact. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
       0.5,
-      0
+      1
     ],
-    "target": 1,
+    "target": 14,
     "controls": {
       "speed": 1.15,
       "follow": 0.35,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

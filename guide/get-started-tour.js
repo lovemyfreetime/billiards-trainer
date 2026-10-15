@@ -27,10 +27,10 @@ async function mount(guide){
  announcement.addEventListener('timeupdate',()=>{if(active()&&!hasNext()&&phase==='announcing'&&!announcement.paused){const t=announcement.currentTime;attention(t>=5.6&&t<8.4?'btg-pool-guide':t>=8.4&&t<11.8?'btg-pool-explore':null)}});
  announcement.addEventListener('pause',clearAttention);
  announcement.addEventListener('ended',clearAttention);
- function cancel(){clearAttention();epoch++;clearInterval(timer);clearTimeout(advanceTimer);clearTimeout(voiceTimer);timer=advanceTimer=voiceTimer=null;deadline=0;voice.pause();}
+ function cancel(){clearAttention();epoch++;clearInterval(timer);clearTimeout(advanceTimer);clearTimeout(voiceTimer);timer=advanceTimer=voiceTimer=null;deadline=0;voice.pause();global.BilliardsPracticePrompt?.hide('start');}
  function render(){
   footer.hidden=!active()||phase==='listening'||(!hasNext()&&phase==='announcing');footer.dataset.phase=phase;placeControls();
-  const counting=phase==='countdown'||phase==='announcing';footer.querySelector('.btg-countdown').hidden=!counting;nextButton.hidden=counting||!hasNext();footer.querySelector('.btg-last-lesson').hidden=counting||hasNext();
+  const counting=phase==='countdown'||phase==='announcing';if(active()&&hasNext()&&phase==='countdown')global.BilliardsPracticePrompt?.show('start',()=>guide.tryShot());else global.BilliardsPracticePrompt?.hide('start');footer.querySelector('.btg-countdown').hidden=!counting;nextButton.hidden=counting||!hasNext();footer.querySelector('.btg-last-lesson').hidden=counting||hasNext();
   const remaining=deadline?Math.max(0,Math.ceil((deadline-performance.now())/1000)):seconds;
   if(counter.textContent!==String(remaining))counter.textContent=remaining;
   const label=hasNext()?'Next lesson in ':'Get Started closes in ';counter.setAttribute('aria-label',label+remaining+' seconds');counter.title=hasNext()?transition.text:completion?.text||label+remaining+' seconds';footer.querySelector('.btg-countdown>span').textContent=label;nextButton.disabled=bridge.snapshot().busy;
@@ -57,7 +57,8 @@ async function mount(guide){
   cancel();practicing=false;
   if(!state.autoplay){hold(false);return true;}
   const token=epoch;
-  const prompt=hasNext()?transition:completion;
+  if(hasNext()){beginCountdown(token);return true;}
+  const prompt=completion;
   if(prompt?.recordingStatus==='recorded'&&prompt.audio){
    phase='announcing';announcement.src=prompt.audio;announcement.load();
    const onPlaying=()=>{announcement.removeEventListener('playing',onPlaying);if(phase==='announcing'){clearTimeout(voiceTimer);voiceTimer=null;if(hasNext())beginCountdown(token);else announcement.addEventListener('ended',()=>{if(token===epoch&&active()&&phase==='announcing')finish()},{once:true})}};
@@ -93,7 +94,7 @@ async function mount(guide){
    if(event.type==='click'){clearTimeout(clearBlocked);blocked=null;}
    return;
   }
-  if(!active()||practicing||!event.target.closest?.('#canvas'))return;
+  if(!active()||practicing||!event.target.closest?.('#canvas,.btg-lesson-prompt'))return;
   if(!['pointerdown','mousedown','touchstart'].includes(event.type))return;
   blocked={id:event.pointerId,ended:false};stop(event);guide.tryShot();
  }

@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.1492588540242892,
-        "y": 1.1494420222950033,
+        "x": 2.3085276460669544,
+        "y": 0.655433826454948,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.4122400000000002,
-        "y": 0.50165,
+        "id": 12,
+        "n": "12",
+        "x": 1.552525300614173,
+        "y": 0.5772240481373435,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.4278299744045881,
-      "y": 0.5566324990161806
+      "x": 1.6047150802930727,
+      "y": 0.553935651948084
     }
   },
   "state": {
@@ -39,26 +39,26 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.1492588540242892,
-        "y": 1.1494420222950033,
+        "x": 2.3085276460669544,
+        "y": 0.655433826454948,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.4122400000000002,
-        "y": 0.50165,
+        "id": 12,
+        "n": "12",
+        "x": 1.552525300614173,
+        "y": 0.5772240481373435,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.4278299744045881,
-      "y": 0.5566324990161806
+      "x": 1.6047150802930727,
+      "y": 0.553935651948084
     },
     "angleLock": false,
-    "speed": 1.45,
+    "speed": 2.2,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -141,14 +141,14 @@
   "lesson": {
     "topic": "practice-cut-angles-quick",
     "purpose": "Recognize how a thinner contact changes cut angle, overlap, and the required aiming line.",
-    "variation": "Approach distance and contact geometry selected for Practicing cut angles.",
+    "variation": "Approach distance and contact geometry selected for Practicing cut angles. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
-      0
+      0,
+      1
     ],
-    "target": 1,
+    "target": 12,
     "controls": {
-      "speed": 1.45,
+      "speed": 2.2,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

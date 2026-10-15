@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.1115372923060378,
-        "y": 0.9391453366439283,
+        "x": 0.42657864077877383,
+        "y": 0.1043686209880963,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.30048,
-        "y": 0.5143500000000001,
+        "id": 8,
+        "n": "8",
+        "x": 0.8571068983223455,
+        "y": 0.5564098152540619,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.3038607358716963,
-      "y": 0.5713999178348736
+      "x": 0.8284850359159859,
+      "y": 0.5069435490477733
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.1115372923060378,
-        "y": 0.9391453366439283,
+        "x": 0.42657864077877383,
+        "y": 0.1043686209880963,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.30048,
-        "y": 0.5143500000000001,
+        "id": 8,
+        "n": "8",
+        "x": 0.8571068983223455,
+        "y": 0.5564098152540619,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.3038607358716963,
-      "y": 0.5713999178348736
+      "x": 0.8284850359159859,
+      "y": 0.5069435490477733
     },
     "angleLock": false,
     "speed": 1.6,
@@ -141,12 +141,12 @@
   "lesson": {
     "topic": "ninety-degree-rule-quick",
     "purpose": "Predict the initial cue-ball exit for a cut struck with stun at impact.",
-    "variation": "Approach distance and contact geometry selected for The ninety-degree rule.",
+    "variation": "Approach distance and contact geometry selected for The ninety-degree rule. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
       0.5,
-      0
+      1
     ],
-    "target": 1,
+    "target": 8,
     "controls": {
       "speed": 1.6,
       "follow": -0.28,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

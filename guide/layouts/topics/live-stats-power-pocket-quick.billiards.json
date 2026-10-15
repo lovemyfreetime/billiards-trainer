@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0465148092830703,
-        "y": 1.0388707159578146,
+        "x": 1.9302851596069077,
+        "y": 1.1914017344718002,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.27508,
-        "y": 0.47625,
+        "id": 10,
+        "n": "10",
+        "x": 1.1779203335291477,
+        "y": 0.3793581116545787,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.2756895653234923,
-      "y": 0.5333967490774094
+      "x": 1.2323187893333867,
+      "y": 0.3968775438974983
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0465148092830703,
-        "y": 1.0388707159578146,
+        "x": 1.9302851596069077,
+        "y": 1.1914017344718002,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.27508,
-        "y": 0.47625,
+        "id": 10,
+        "n": "10",
+        "x": 1.1779203335291477,
+        "y": 0.3793581116545787,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.2756895653234923,
-      "y": 0.5333967490774094
+      "x": 1.2323187893333867,
+      "y": 0.3968775438974983
     },
     "angleLock": false,
     "speed": 1.45,
@@ -141,12 +141,12 @@
   "lesson": {
     "topic": "live-stats-power-pocket-quick",
     "purpose": "Use a readout to check a specific prediction before executing.",
-    "variation": "Approach distance and contact geometry selected for Power & Pocket.",
+    "variation": "Approach distance and contact geometry selected for Power & Pocket. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
+      0,
       0
     ],
-    "target": 1,
+    "target": 10,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

@@ -14,20 +14,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.9670000711261704,
-        "y": 1.004464023732051,
+        "x": 0.9769390341948438,
+        "y": 0.4270951403050147,
+        "active": true
+      },
+      {
+        "id": 15,
+        "n": "15",
+        "x": 0.5257552848009638,
+        "y": 0.6648683587596914,
         "active": true
       },
       {
         "id": 1,
         "n": "1",
-        "x": 1.2903200000000001,
-        "y": 0.4318,
-        "active": true
-      },
-      {
-        "id": 2,
-        "n": "2",
         "x": 1.83896,
         "y": 0.8255,
         "active": true
@@ -49,8 +49,8 @@
       }
     ],
     "freeAim": {
-      "x": 1.293006438806202,
-      "y": 0.4888868246317882
+      "x": 0.5632377833895909,
+      "y": 0.6217269076997936
     }
   },
   "state": {
@@ -61,20 +61,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.9670000711261704,
-        "y": 1.004464023732051,
+        "x": 0.9769390341948438,
+        "y": 0.4270951403050147,
+        "active": true
+      },
+      {
+        "id": 15,
+        "n": "15",
+        "x": 0.5257552848009638,
+        "y": 0.6648683587596914,
         "active": true
       },
       {
         "id": 1,
         "n": "1",
-        "x": 1.2903200000000001,
-        "y": 0.4318,
-        "active": true
-      },
-      {
-        "id": 2,
-        "n": "2",
         "x": 1.83896,
         "y": 0.8255,
         "active": true
@@ -98,8 +98,8 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.293006438806202,
-      "y": 0.4888868246317882
+      "x": 0.5632377833895909,
+      "y": 0.6217269076997936
     },
     "angleLock": false,
     "speed": 1.45,
@@ -185,12 +185,12 @@
   "lesson": {
     "topic": "practice-target-landing",
     "purpose": "Pocket the current ball while preserving a usable angle on the next ball.",
-    "variation": "Current pot plus a next-ball angle and a visible position zone.",
+    "variation": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
-      0
+      0,
+      1
     ],
-    "target": 1,
+    "target": 15,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -203,6 +203,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

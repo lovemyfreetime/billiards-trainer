@@ -14,20 +14,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.4274321877724245,
-        "y": 1.1600459353011134,
+        "x": 2.147425618734986,
+        "y": 0.8882394192087152,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.43256,
-        "y": 0.36829999999999996,
+        "id": 7,
+        "n": "7",
+        "x": 1.4268355309395417,
+        "y": 0.989240054387257,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 8,
+        "n": "8",
         "x": 1.86182,
         "y": 0.8255,
         "active": true
@@ -48,23 +48,23 @@
         "active": true
       },
       {
-        "id": 3,
-        "n": "3",
+        "id": 9,
+        "n": "9",
         "x": 1.8288,
         "y": 0.34798,
         "active": true
       },
       {
-        "id": 4,
-        "n": "4",
+        "id": 10,
+        "n": "10",
         "x": 1.02108,
         "y": 0.40640000000000004,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.455636914816594,
-      "y": 0.4205836351313455
+      "x": 1.4738017620109205,
+      "y": 1.021802235502008
     }
   },
   "state": {
@@ -75,20 +75,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.4274321877724245,
-        "y": 1.1600459353011134,
+        "x": 2.147425618734986,
+        "y": 0.8882394192087152,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.43256,
-        "y": 0.36829999999999996,
+        "id": 7,
+        "n": "7",
+        "x": 1.4268355309395417,
+        "y": 0.989240054387257,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 8,
+        "n": "8",
         "x": 1.86182,
         "y": 0.8255,
         "active": true
@@ -109,15 +109,15 @@
         "active": true
       },
       {
-        "id": 3,
-        "n": "3",
+        "id": 9,
+        "n": "9",
         "x": 1.8288,
         "y": 0.34798,
         "active": true
       },
       {
-        "id": 4,
-        "n": "4",
+        "id": 10,
+        "n": "10",
         "x": 1.02108,
         "y": 0.40640000000000004,
         "active": true
@@ -126,11 +126,11 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.455636914816594,
-      "y": 0.4205836351313455
+      "x": 1.4738017620109205,
+      "y": 1.021802235502008
     },
     "angleLock": false,
-    "speed": 1.45,
+    "speed": 2.2,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -213,14 +213,14 @@
   "lesson": {
     "topic": "practice-rock-around-clock",
     "purpose": "Choose a sequence that preserves angles, access, and manageable transitions.",
-    "variation": "A distinct open pattern for comparing order, next angles, and route complexity.",
+    "variation": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
+      0,
       0
     ],
-    "target": 1,
+    "target": 7,
     "controls": {
-      "speed": 1.45,
+      "speed": 2.2,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -231,6 +231,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

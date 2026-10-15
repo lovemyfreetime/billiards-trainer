@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.27,
-        "y": 1.0119500000000001,
+        "x": 0.23492275350756125,
+        "y": 0.9520644219175636,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.27,
-        "y": 0.3048,
+        "id": 3,
+        "n": "3",
+        "x": 0.6748833458242561,
+        "y": 0.7703478101953815,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.27,
-      "y": 0.36195
+      "x": 0.622061540891337,
+      "y": 0.7921647628613393
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.27,
-        "y": 1.0119500000000001,
+        "x": 0.23492275350756125,
+        "y": 0.9520644219175636,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.27,
-        "y": 0.3048,
+        "id": 3,
+        "n": "3",
+        "x": 0.6748833458242561,
+        "y": 0.7703478101953815,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.27,
-      "y": 0.36195
+      "x": 0.622061540891337,
+      "y": 0.7921647628613393
     },
     "angleLock": false,
     "speed": 1.8,
@@ -141,12 +141,12 @@
   "lesson": {
     "topic": "exercise-squirt-comparison",
     "purpose": "Recognize initial cue-ball deflection when using off-center contact.",
-    "variation": "Approach distance and contact geometry selected for squirt comparison.",
+    "variation": "Approach distance and contact geometry selected for squirt comparison. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
+      1,
       0
     ],
-    "target": 1,
+    "target": 3,
     "controls": {
       "speed": 1.8,
       "follow": 0,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

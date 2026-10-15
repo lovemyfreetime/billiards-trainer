@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.894149231438087,
-        "y": 0.9419378140524473,
+        "x": 0.534183367237234,
+        "y": 0.1723169074373964,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.2192,
-        "y": 0.3175,
+        "id": 4,
+        "n": "4",
+        "x": 1.5661920730564438,
+        "y": 0.20442221410949443,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.2101708428617537,
-      "y": 0.3739322321140397
+      "x": 1.5276383866175354,
+      "y": 0.16223529952724125
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.894149231438087,
-        "y": 0.9419378140524473,
+        "x": 0.534183367237234,
+        "y": 0.1723169074373964,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.2192,
-        "y": 0.3175,
+        "id": 4,
+        "n": "4",
+        "x": 1.5661920730564438,
+        "y": 0.20442221410949443,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.2101708428617537,
-      "y": 0.3739322321140397
+      "x": 1.5276383866175354,
+      "y": 0.16223529952724125
     },
     "angleLock": false,
     "speed": 0.95,
@@ -141,12 +141,12 @@
   "lesson": {
     "topic": "cue-ball-swerve-advanced",
     "purpose": "Separate initial deflection from later cloth-induced curvature.",
-    "variation": "Approach distance and contact geometry selected for Swerve and cloth interaction.",
+    "variation": "Approach distance and contact geometry selected for Swerve and cloth interaction. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
-      0
+      1,
+      1
     ],
-    "target": 1,
+    "target": 4,
     "controls": {
       "speed": 0.95,
       "follow": 0,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

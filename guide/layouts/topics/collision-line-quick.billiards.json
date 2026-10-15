@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.9528214272775426,
-        "y": 0.8639568232104262,
+        "x": 0.7896710820929436,
+        "y": 0.8111425579159015,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.1938,
-        "y": 0.4572,
+        "id": 9,
+        "n": "9",
+        "x": 1.042405311573617,
+        "y": 0.4291220274864183,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.184404597875499,
-      "y": 0.513572412747007
+      "x": 0.9874662290117333,
+      "y": 0.4448643178934253
     }
   },
   "state": {
@@ -39,26 +39,26 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.9528214272775426,
-        "y": 0.8639568232104262,
+        "x": 0.7896710820929436,
+        "y": 0.8111425579159015,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.1938,
-        "y": 0.4572,
+        "id": 9,
+        "n": "9",
+        "x": 1.042405311573617,
+        "y": 0.4291220274864183,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.184404597875499,
-      "y": 0.513572412747007
+      "x": 0.9874662290117333,
+      "y": 0.4448643178934253
     },
     "angleLock": false,
-    "speed": 1.45,
+    "speed": 2.2,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -141,14 +141,14 @@
   "lesson": {
     "topic": "collision-line-quick",
     "purpose": "Connect impact geometry and rotation with the motion of both balls.",
-    "variation": "Approach distance and contact geometry selected for Collision line.",
+    "variation": "Approach distance and contact geometry selected for Collision line. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
+      1,
       0
     ],
-    "target": 1,
+    "target": 9,
     "controls": {
-      "speed": 1.45,
+      "speed": 2.2,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

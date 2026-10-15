@@ -14,20 +14,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.4526839274594285,
-        "y": 1.0130017257319932,
+        "x": 2.438816795089054,
+        "y": 0.4060180548128464,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.4935200000000002,
-        "y": 0.36829999999999996,
+        "id": 3,
+        "n": "3",
+        "x": 1.6713503220425956,
+        "y": 0.24934083025480944,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 4,
+        "n": "4",
         "x": 1.83896,
         "y": 0.8255,
         "active": true
@@ -48,37 +48,37 @@
         "active": true
       },
       {
-        "id": 3,
-        "n": "3",
+        "id": 5,
+        "n": "5",
         "x": 1.8288,
         "y": 0.33274000000000004,
         "active": true
       },
       {
-        "id": 4,
-        "n": "4",
+        "id": 6,
+        "n": "6",
         "x": 0.92964,
         "y": 0.40640000000000004,
         "active": true
       },
       {
-        "id": 5,
-        "n": "5",
+        "id": 7,
+        "n": "7",
         "x": 1.4986,
         "y": 0.6985000000000001,
         "active": true
       },
       {
-        "id": 6,
-        "n": "6",
+        "id": 8,
+        "n": "8",
         "x": 1.6256000000000002,
         "y": 0.9017,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.5231708073958814,
-      "y": 0.41715644400457685
+      "x": 1.7201247459144595,
+      "y": 0.21955529557826295
     }
   },
   "state": {
@@ -89,20 +89,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.4526839274594285,
-        "y": 1.0130017257319932,
+        "x": 2.438816795089054,
+        "y": 0.4060180548128464,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.4935200000000002,
-        "y": 0.36829999999999996,
+        "id": 3,
+        "n": "3",
+        "x": 1.6713503220425956,
+        "y": 0.24934083025480944,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 4,
+        "n": "4",
         "x": 1.83896,
         "y": 0.8255,
         "active": true
@@ -123,29 +123,29 @@
         "active": true
       },
       {
-        "id": 3,
-        "n": "3",
+        "id": 5,
+        "n": "5",
         "x": 1.8288,
         "y": 0.33274000000000004,
         "active": true
       },
       {
-        "id": 4,
-        "n": "4",
+        "id": 6,
+        "n": "6",
         "x": 0.92964,
         "y": 0.40640000000000004,
         "active": true
       },
       {
-        "id": 5,
-        "n": "5",
+        "id": 7,
+        "n": "7",
         "x": 1.4986,
         "y": 0.6985000000000001,
         "active": true
       },
       {
-        "id": 6,
-        "n": "6",
+        "id": 8,
+        "n": "8",
         "x": 1.6256000000000002,
         "y": 0.9017,
         "active": true
@@ -154,11 +154,11 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.5231708073958814,
-      "y": 0.41715644400457685
+      "x": 1.7201247459144595,
+      "y": 0.21955529557826295
     },
     "angleLock": false,
-    "speed": 1.45,
+    "speed": 2.2,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -241,14 +241,14 @@
   "lesson": {
     "topic": "cue-ball-traffic-quick",
     "purpose": "Choose a sequence that preserves angles, access, and manageable transitions.",
-    "variation": "Extra balls occupy the cue-ball travel corridor, making traffic avoidance visible.",
+    "variation": "Extra balls occupy the cue-ball travel corridor, making traffic avoidance visible. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
-      0
+      0,
+      1
     ],
-    "target": 1,
+    "target": 3,
     "controls": {
-      "speed": 1.45,
+      "speed": 2.2,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -259,6 +259,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

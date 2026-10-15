@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0696153714820713,
-        "y": 1.104019791276401,
+        "x": 0.7682272843414597,
+        "y": 0.5543217595685663,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.30556,
-        "y": 0.508,
+        "id": 9,
+        "n": "9",
+        "x": 1.3113976476587559,
+        "y": 0.5388216079128357,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.3095507346480502,
-      "y": 0.565010494972144
+      "x": 1.259059739284156,
+      "y": 0.5617751663945175
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0696153714820713,
-        "y": 1.104019791276401,
+        "x": 0.7682272843414597,
+        "y": 0.5543217595685663,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.30556,
-        "y": 0.508,
+        "id": 9,
+        "n": "9",
+        "x": 1.3113976476587559,
+        "y": 0.5388216079128357,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.3095507346480502,
-      "y": 0.565010494972144
+      "x": 1.259059739284156,
+      "y": 0.5617751663945175
     },
     "angleLock": false,
     "speed": 1.45,
@@ -141,12 +141,12 @@
   "lesson": {
     "topic": "exercise-live-stats-speed-spin",
     "purpose": "Use a readout to check a specific prediction before executing.",
-    "variation": "Approach distance and contact geometry selected for Speed and spin.",
+    "variation": "Approach distance and contact geometry selected for Speed and spin. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
+      1,
       0
     ],
-    "target": 1,
+    "target": 9,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

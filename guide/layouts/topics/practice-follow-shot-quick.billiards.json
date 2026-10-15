@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.3304830228773779,
-        "y": 1.0710535301202313,
+        "x": 1.619965235664644,
+        "y": 0.1463432251938741,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.30048,
-        "y": 0.5397500000000001,
+        "id": 13,
+        "n": "13",
+        "x": 1.8807582602370223,
+        "y": 0.4648549382753143,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.303702160589011,
-      "y": 0.5968090937637344
+      "x": 1.844552711978132,
+      "y": 0.42063638136451986
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.3304830228773779,
-        "y": 1.0710535301202313,
+        "x": 1.619965235664644,
+        "y": 0.1463432251938741,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.30048,
-        "y": 0.5397500000000001,
+        "id": 13,
+        "n": "13",
+        "x": 1.8807582602370223,
+        "y": 0.4648549382753143,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.303702160589011,
-      "y": 0.5968090937637344
+      "x": 1.844552711978132,
+      "y": 0.42063638136451986
     },
     "angleLock": false,
     "speed": 1.15,
@@ -141,12 +141,12 @@
   "lesson": {
     "topic": "practice-follow-shot-quick",
     "purpose": "Control forward cue-ball travel after pocketing a straight shot.",
-    "variation": "Approach distance and contact geometry selected for Practicing follow shots.",
+    "variation": "Approach distance and contact geometry selected for Practicing follow shots. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
-      0
+      1,
+      1
     ],
-    "target": 1,
+    "target": 13,
     "controls": {
       "speed": 1.15,
       "follow": 0.35,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

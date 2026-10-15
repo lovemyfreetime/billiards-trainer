@@ -14,22 +14,22 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.5206999999999999,
-        "y": 0.7112,
+        "x": 0.46107060708947284,
+        "y": 0.7670015319610164,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.8288,
-        "y": 0.69596,
+        "id": 6,
+        "n": "6",
+        "x": 1.5578940938358308,
+        "y": 0.7345784115386962,
         "active": true
       },
       {
-        "id": 8,
-        "n": "8",
-        "x": 1.17475,
-        "y": 0.7035800000000001,
+        "id": 13,
+        "n": "13",
+        "x": 1.0094823504626518,
+        "y": 0.7507899717498562,
         "active": true
       },
       {
@@ -38,19 +38,34 @@
         "marker": true,
         "markerType": "yellow",
         "markerShape": "circle",
-        "markerDiameterIn": 3,
-        "markerWidthIn": 3,
-        "markerHeightIn": 3,
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.8452882220216604,
-        "y": 0.028575,
+        "x": 1.6927377083397446,
+        "y": 1.241425,
+        "active": true
+      },
+      {
+        "id": 1001,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "yellow",
+        "markerShape": "circle",
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 2.511425,
+        "y": 1.0883634533307631,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.3568496465964128,
-      "y": 0.1626986157750432
+      "x": 1.3940837926326108,
+      "y": 1.1268437134832026
     }
   },
   "state": {
@@ -61,22 +76,22 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.5206999999999999,
-        "y": 0.7112,
+        "x": 0.46107060708947284,
+        "y": 0.7670015319610164,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.8288,
-        "y": 0.69596,
+        "id": 6,
+        "n": "6",
+        "x": 1.5578940938358308,
+        "y": 0.7345784115386962,
         "active": true
       },
       {
-        "id": 8,
-        "n": "8",
-        "x": 1.17475,
-        "y": 0.7035800000000001,
+        "id": 13,
+        "n": "13",
+        "x": 1.0094823504626518,
+        "y": 0.7507899717498562,
         "active": true
       },
       {
@@ -85,24 +100,39 @@
         "marker": true,
         "markerType": "yellow",
         "markerShape": "circle",
-        "markerDiameterIn": 3,
-        "markerWidthIn": 3,
-        "markerHeightIn": 3,
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.8452882220216604,
-        "y": 0.028575,
+        "x": 1.6927377083397446,
+        "y": 1.241425,
+        "active": true
+      },
+      {
+        "id": 1001,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "yellow",
+        "markerShape": "circle",
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 2.511425,
+        "y": 1.0883634533307631,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.3568496465964128,
-      "y": 0.1626986157750432
+      "x": 1.3940837926326108,
+      "y": 1.1268437134832026
     },
     "angleLock": false,
-    "speed": 2.1,
+    "speed": 2.2,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -185,11 +215,11 @@
   "lesson": {
     "topic": "practice-two-rail-kick",
     "purpose": "Plan a multi-cushion route as a sequence of observable rail contacts.",
-    "variation": "Two-cushion image route around the blocker; check each rail contact before the final target. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+    "variation": "Prepared 2-cushion cue-ball escape to the target ball via bottom, right. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": null,
-    "target": 1,
+    "target": 6,
     "controls": {
-      "speed": 2.1,
+      "speed": 2.2,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -200,6 +230,18 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": [
+      {
+        "rail": "bottom",
+        "x": 1.6927377083397446,
+        "y": 1.241425
+      },
+      {
+        "rail": "right",
+        "x": 2.511425,
+        "y": 1.0883634533307631
+      }
+    ]
   }
 }

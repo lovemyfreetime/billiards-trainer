@@ -14,22 +14,22 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.5206999999999999,
-        "y": 0.7112,
+        "x": 0.4218335133063907,
+        "y": 0.9544059521767413,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.8288,
-        "y": 0.69596,
+        "id": 14,
+        "n": "14",
+        "x": 1.6981421585679775,
+        "y": 0.8324099372596269,
         "active": true
       },
       {
-        "id": 8,
-        "n": "8",
-        "x": 1.17475,
-        "y": 0.7035800000000001,
+        "id": 6,
+        "n": "6",
+        "x": 1.0599878359371842,
+        "y": 0.8934079447181842,
         "active": true
       },
       {
@@ -38,19 +38,19 @@
         "marker": true,
         "markerType": "yellow",
         "markerShape": "circle",
-        "markerDiameterIn": 3,
-        "markerWidthIn": 3,
-        "markerHeightIn": 3,
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.1552701714801443,
-        "y": 0.028575,
+        "x": 0.8541301338391669,
+        "y": 1.241425,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.0929979142489192,
-      "y": -0.10884578978636084
+      "x": 1.2546985859172755,
+      "y": 1.5078820318991315
     }
   },
   "state": {
@@ -61,22 +61,22 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.5206999999999999,
-        "y": 0.7112,
+        "x": 0.4218335133063907,
+        "y": 0.9544059521767413,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.8288,
-        "y": 0.69596,
+        "id": 14,
+        "n": "14",
+        "x": 1.6981421585679775,
+        "y": 0.8324099372596269,
         "active": true
       },
       {
-        "id": 8,
-        "n": "8",
-        "x": 1.17475,
-        "y": 0.7035800000000001,
+        "id": 6,
+        "n": "6",
+        "x": 1.0599878359371842,
+        "y": 0.8934079447181842,
         "active": true
       },
       {
@@ -85,24 +85,24 @@
         "marker": true,
         "markerType": "yellow",
         "markerShape": "circle",
-        "markerDiameterIn": 3,
-        "markerWidthIn": 3,
-        "markerHeightIn": 3,
+        "markerDiameterIn": 2.4,
+        "markerWidthIn": 2.4,
+        "markerHeightIn": 2.4,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.1552701714801443,
-        "y": 0.028575,
+        "x": 0.8541301338391669,
+        "y": 1.241425,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.0929979142489192,
-      "y": -0.10884578978636084
+      "x": 1.2546985859172755,
+      "y": 1.5078820318991315
     },
     "angleLock": false,
-    "speed": 1.7,
+    "speed": 2.6,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -185,11 +185,11 @@
   "lesson": {
     "topic": "practice-one-rail-kick",
     "purpose": "Reach the legal target through a cushion route when direct access is blocked.",
-    "variation": "Target behind a blocker; a geometric cushion reference starts the escape comparison. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+    "variation": "Prepared 1-cushion cue-ball escape to the target ball via bottom. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": null,
-    "target": 1,
+    "target": 14,
     "controls": {
-      "speed": 1.7,
+      "speed": 2.6,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -200,6 +200,13 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": [
+      {
+        "rail": "bottom",
+        "x": 0.8541301338391669,
+        "y": 1.241425
+      }
+    ]
   }
 }

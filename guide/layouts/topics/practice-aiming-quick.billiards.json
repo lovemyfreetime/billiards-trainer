@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0824567965029617,
-        "y": 0.9311728399160781,
+        "x": 1.905611902358359,
+        "y": 0.8698028766207951,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.28016,
-        "y": 0.3937,
+        "id": 7,
+        "n": "7",
+        "x": 1.463538418066493,
+        "y": 0.4868396277413225,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.281634347853497,
-      "y": 0.450830979323016
+      "x": 1.5177668464303702,
+      "y": 0.5048784762961457
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0824567965029617,
-        "y": 0.9311728399160781,
+        "x": 1.905611902358359,
+        "y": 0.8698028766207951,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.28016,
-        "y": 0.3937,
+        "id": 7,
+        "n": "7",
+        "x": 1.463538418066493,
+        "y": 0.4868396277413225,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.281634347853497,
-      "y": 0.450830979323016
+      "x": 1.5177668464303702,
+      "y": 0.5048784762961457
     },
     "angleLock": false,
     "speed": 1.45,
@@ -141,12 +141,12 @@
   "lesson": {
     "topic": "practice-aiming-quick",
     "purpose": "Connect the chosen pocket, object-ball contact, and cue-ball approach.",
-    "variation": "Approach distance and contact geometry selected for Learning to aim accurately.",
+    "variation": "Approach distance and contact geometry selected for Learning to aim accurately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
+      0,
       0
     ],
-    "target": 1,
+    "target": 7,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

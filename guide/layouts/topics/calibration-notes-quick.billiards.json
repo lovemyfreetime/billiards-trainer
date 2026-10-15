@@ -14,8 +14,8 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.58928,
-        "y": 0.62484,
+        "x": 1.5196579677435318,
+        "y": 0.6537838561464592,
         "active": true
       },
       {
@@ -24,19 +24,19 @@
         "marker": true,
         "markerType": "white",
         "markerShape": "circle",
-        "markerDiameterIn": 6,
-        "markerWidthIn": 6,
-        "markerHeightIn": 6,
+        "markerDiameterIn": 7,
+        "markerWidthIn": 7,
+        "markerHeightIn": 7,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.4325599999999998,
-        "y": 0.62484,
+        "x": 1.8995066257540218,
+        "y": 0.9515597004027221,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 2.2352,
-      "y": 0.62484
+      "x": 1.8995066257540216,
+      "y": 0.9515597004027221
     }
   },
   "state": {
@@ -47,8 +47,8 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.58928,
-        "y": 0.62484,
+        "x": 1.5196579677435318,
+        "y": 0.6537838561464592,
         "active": true
       },
       {
@@ -57,24 +57,24 @@
         "marker": true,
         "markerType": "white",
         "markerShape": "circle",
-        "markerDiameterIn": 6,
-        "markerWidthIn": 6,
-        "markerHeightIn": 6,
+        "markerDiameterIn": 7,
+        "markerWidthIn": 7,
+        "markerHeightIn": 7,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.4325599999999998,
-        "y": 0.62484,
+        "x": 1.8995066257540218,
+        "y": 0.9515597004027221,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 2.2352,
-      "y": 0.62484
+      "x": 1.8995066257540216,
+      "y": 0.9515597004027221
     },
     "angleLock": false,
-    "speed": 0.462,
+    "speed": 0.337,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -157,11 +157,11 @@
   "lesson": {
     "topic": "calibration-notes-quick",
     "purpose": "Compare repeatable table behavior without confusing stroke changes with table changes.",
-    "variation": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
+    "variation": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": null,
     "target": null,
     "controls": {
-      "speed": 0.462,
+      "speed": 0.337,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -172,6 +172,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

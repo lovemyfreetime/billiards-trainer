@@ -14,20 +14,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0967948471705973,
-        "y": 1.068802678484438,
+        "x": 1.6340888831024294,
+        "y": 0.8609496134277106,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.28524,
-        "y": 0.37465000000000004,
+        "id": 10,
+        "n": "10",
+        "x": 1.1484602528380625,
+        "y": 0.7982036543904545,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 11,
+        "n": "11",
         "x": 1.83896,
         "y": 0.79375,
         "active": true
@@ -48,23 +48,23 @@
         "active": true
       },
       {
-        "id": 3,
-        "n": "3",
+        "id": 12,
+        "n": "12",
         "x": 1.8288,
         "y": 0.3175,
         "active": true
       },
       {
-        "id": 4,
-        "n": "4",
+        "id": 13,
+        "n": "13",
         "x": 1.04394,
         "y": 0.40640000000000004,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.2875628247715432,
-      "y": 0.4317527756337703
+      "x": 1.195388872974404,
+      "y": 0.8308200170340566
     }
   },
   "state": {
@@ -75,20 +75,20 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0967948471705973,
-        "y": 1.068802678484438,
+        "x": 1.6340888831024294,
+        "y": 0.8609496134277106,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.28524,
-        "y": 0.37465000000000004,
+        "id": 10,
+        "n": "10",
+        "x": 1.1484602528380625,
+        "y": 0.7982036543904545,
         "active": true
       },
       {
-        "id": 2,
-        "n": "2",
+        "id": 11,
+        "n": "11",
         "x": 1.83896,
         "y": 0.79375,
         "active": true
@@ -109,15 +109,15 @@
         "active": true
       },
       {
-        "id": 3,
-        "n": "3",
+        "id": 12,
+        "n": "12",
         "x": 1.8288,
         "y": 0.3175,
         "active": true
       },
       {
-        "id": 4,
-        "n": "4",
+        "id": 13,
+        "n": "13",
         "x": 1.04394,
         "y": 0.40640000000000004,
         "active": true
@@ -126,8 +126,8 @@
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.2875628247715432,
-      "y": 0.4317527756337703
+      "x": 1.195388872974404,
+      "y": 0.8308200170340566
     },
     "angleLock": false,
     "speed": 1.45,
@@ -213,12 +213,12 @@
   "lesson": {
     "topic": "welcome-drills",
     "purpose": "Use Welcome to Drills correctly within the current lesson.",
-    "variation": "A distinct open pattern for comparing order, next angles, and route complexity.",
+    "variation": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
+      0,
       0
     ],
-    "target": 1,
+    "target": 10,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -231,6 +231,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

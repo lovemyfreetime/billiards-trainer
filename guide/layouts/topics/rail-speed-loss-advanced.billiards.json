@@ -14,29 +14,29 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.6096,
-        "y": 0.44449999999999995,
+        "x": 1.0643051491691842,
+        "y": 0.6949393163237365,
         "active": true
       },
       {
         "id": 1000,
         "n": "MARKER",
         "marker": true,
-        "markerType": "yellow",
+        "markerType": "white",
         "markerShape": "circle",
         "markerDiameterIn": 6,
         "markerWidthIn": 6,
         "markerHeightIn": 6,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.9812,
-        "y": 0.8255,
+        "x": 1.1763993766497893,
+        "y": 1.0469823002196708,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.8542,
-      "y": 1.241425
+      "x": 1.1763993766497893,
+      "y": 1.0469823002196708
     }
   },
   "state": {
@@ -47,34 +47,34 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.6096,
-        "y": 0.44449999999999995,
+        "x": 1.0643051491691842,
+        "y": 0.6949393163237365,
         "active": true
       },
       {
         "id": 1000,
         "n": "MARKER",
         "marker": true,
-        "markerType": "yellow",
+        "markerType": "white",
         "markerShape": "circle",
         "markerDiameterIn": 6,
         "markerWidthIn": 6,
         "markerHeightIn": 6,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.9812,
-        "y": 0.8255,
+        "x": 1.1763993766497893,
+        "y": 1.0469823002196708,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.8542,
-      "y": 1.241425
+      "x": 1.1763993766497893,
+      "y": 1.0469823002196708
     },
     "angleLock": false,
-    "speed": 1.35,
+    "speed": 0.295,
     "follow": 0,
     "sideSpin": 0,
     "cueElevationDeg": 0,
@@ -157,11 +157,11 @@
   "lesson": {
     "topic": "rail-speed-loss-advanced",
     "purpose": "Predict and control stopping distance without changing the aiming line.",
-    "variation": "An actual cushion route makes rebound speed loss observable.",
+    "variation": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": null,
     "target": null,
     "controls": {
-      "speed": 1.35,
+      "speed": 0.295,
       "follow": 0,
       "sideSpin": 0,
       "cueElevationDeg": 0,
@@ -172,6 +172,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

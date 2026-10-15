@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0193556972626008,
-        "y": 0.971794250077103,
+        "x": 1.0911770934819718,
+        "y": 0.16231862477563636,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.2446,
-        "y": 0.44449999999999995,
+        "id": 3,
+        "n": "3",
+        "x": 0.9262690636570595,
+        "y": 0.5374594118434382,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.241339604470724,
-      "y": 0.5015569217623302
+      "x": 0.9710950760072365,
+      "y": 0.502008726140877
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.0193556972626008,
-        "y": 0.971794250077103,
+        "x": 1.0911770934819718,
+        "y": 0.16231862477563636,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.2446,
-        "y": 0.44449999999999995,
+        "id": 3,
+        "n": "3",
+        "x": 0.9262690636570595,
+        "y": 0.5374594118434382,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.241339604470724,
-      "y": 0.5015569217623302
+      "x": 0.9710950760072365,
+      "y": 0.502008726140877
     },
     "angleLock": false,
     "speed": 1.45,
@@ -141,12 +141,12 @@
   "lesson": {
     "topic": "live-stats-cue-flight-quick",
     "purpose": "Use a readout to check a specific prediction before executing.",
-    "variation": "Approach distance and contact geometry selected for Cue & Flight.",
+    "variation": "Approach distance and contact geometry selected for Cue & Flight. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
-      0.5,
-      0
+      0,
+      1
     ],
-    "target": 1,
+    "target": 3,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

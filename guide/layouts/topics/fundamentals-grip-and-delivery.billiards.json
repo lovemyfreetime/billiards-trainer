@@ -14,21 +14,21 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.27,
-        "y": 1.03895,
+        "x": 1.130454606843477,
+        "y": 0.8269271441367005,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.27,
-        "y": 0.4318,
+        "id": 14,
+        "n": "14",
+        "x": 1.234858695337065,
+        "y": 0.208242623055021,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.27,
-      "y": 0.48895
+      "x": 1.225348987667472,
+      "y": 0.26459586573047744
     }
   },
   "state": {
@@ -39,23 +39,23 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.27,
-        "y": 1.03895,
+        "x": 1.130454606843477,
+        "y": 0.8269271441367005,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.27,
-        "y": 0.4318,
+        "id": 14,
+        "n": "14",
+        "x": 1.234858695337065,
+        "y": 0.208242623055021,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.27,
-      "y": 0.48895
+      "x": 1.225348987667472,
+      "y": 0.26459586573047744
     },
     "angleLock": false,
     "speed": 1.45,
@@ -141,12 +141,12 @@
   "lesson": {
     "topic": "fundamentals-grip-and-delivery",
     "purpose": "Deliver the cue through the intended tip contact with a relaxed grip.",
-    "variation": "Approach distance and contact geometry selected for Relaxed grip and straight delivery.",
+    "variation": "Approach distance and contact geometry selected for Relaxed grip and straight delivery. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": [
       0.5,
       0
     ],
-    "target": 1,
+    "target": 14,
     "controls": {
       "speed": 1.45,
       "follow": 0,
@@ -159,6 +159,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

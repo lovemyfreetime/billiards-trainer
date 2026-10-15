@@ -14,22 +14,22 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.6654800000000001,
-        "y": 0.5841999999999999,
+        "x": 0.4824407803458735,
+        "y": 0.2764944946974733,
         "active": true
       },
       {
-        "id": 8,
-        "n": "8",
-        "x": 1.17348,
-        "y": 0.5841999999999999,
+        "id": 2,
+        "n": "2",
+        "x": 0.9300840148366016,
+        "y": 0.48253502550155286,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.85928,
-        "y": 0.5841999999999999,
+        "id": 10,
+        "n": "10",
+        "x": 1.5234715582312877,
+        "y": 0.7556585198232397,
         "active": true
       },
       {
@@ -38,19 +38,19 @@
         "marker": true,
         "markerType": "yellow",
         "markerShape": "circle",
-        "markerDiameterIn": 6,
-        "markerWidthIn": 6,
-        "markerHeightIn": 6,
+        "markerDiameterIn": 5,
+        "markerWidthIn": 5,
+        "markerHeightIn": 5,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.57988,
-        "y": 0.5841999999999999,
+        "x": 1.2319829404233718,
+        "y": 0.621492592788025,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 1.85928,
-      "y": 0.5841999999999999
+      "x": 1.5234715582312877,
+      "y": 0.7556585198232397
     }
   },
   "state": {
@@ -61,22 +61,22 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.6654800000000001,
-        "y": 0.5841999999999999,
+        "x": 0.4824407803458735,
+        "y": 0.2764944946974733,
         "active": true
       },
       {
-        "id": 8,
-        "n": "8",
-        "x": 1.17348,
-        "y": 0.5841999999999999,
+        "id": 2,
+        "n": "2",
+        "x": 0.9300840148366016,
+        "y": 0.48253502550155286,
         "active": true
       },
       {
-        "id": 1,
-        "n": "1",
-        "x": 1.85928,
-        "y": 0.5841999999999999,
+        "id": 10,
+        "n": "10",
+        "x": 1.5234715582312877,
+        "y": 0.7556585198232397,
         "active": true
       },
       {
@@ -85,21 +85,21 @@
         "marker": true,
         "markerType": "yellow",
         "markerShape": "circle",
-        "markerDiameterIn": 6,
-        "markerWidthIn": 6,
-        "markerHeightIn": 6,
+        "markerDiameterIn": 5,
+        "markerWidthIn": 5,
+        "markerHeightIn": 5,
         "markerAngle": 0,
         "markerLocked": false,
-        "x": 1.57988,
-        "y": 0.5841999999999999,
+        "x": 1.2319829404233718,
+        "y": 0.621492592788025,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 1.85928,
-      "y": 0.5841999999999999
+      "x": 1.5234715582312877,
+      "y": 0.7556585198232397
     },
     "angleLock": false,
     "speed": 2.25,
@@ -185,9 +185,9 @@
   "lesson": {
     "topic": "exercise-jump-clearance",
     "purpose": "Evaluate height at the obstacle, then landing and the continuation after landing.",
-    "variation": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately.",
+    "variation": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": null,
-    "target": 1,
+    "target": 10,
     "controls": {
       "speed": 2.25,
       "follow": 0,
@@ -200,6 +200,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }

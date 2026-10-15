@@ -14,8 +14,8 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.51816,
-        "y": 0.55245,
+        "x": 0.5207,
+        "y": 0.40640000000000004,
         "active": true
       },
       {
@@ -28,15 +28,15 @@
       {
         "id": 2,
         "n": "2",
-        "x": 1.9544933518262806,
-        "y": 0.606425,
+        "x": 1.848068992031738,
+        "y": 0.2464268599461355,
         "active": true
       },
       {
         "id": 3,
         "n": "3",
-        "x": 1.9544933518262806,
-        "y": 0.6635749999999999,
+        "x": 1.964693274093692,
+        "y": 0.434734022749267,
         "active": true
       },
       {
@@ -49,8 +49,8 @@
       {
         "id": 9,
         "n": "9",
-        "x": 2.0039867036525614,
-        "y": 0.635,
+        "x": 1.0759347448857455,
+        "y": 0.5727044956742996,
         "active": true
       },
       {
@@ -63,15 +63,15 @@
       {
         "id": 6,
         "n": "6",
-        "x": 2.053480055478842,
-        "y": 0.606425,
+        "x": 1.4887299426706502,
+        "y": 0.19433738641063678,
         "active": true
       },
       {
         "id": 7,
         "n": "7",
-        "x": 2.053480055478842,
-        "y": 0.6635749999999999,
+        "x": 0.33121236596782905,
+        "y": 0.6624018807329697,
         "active": true
       },
       {
@@ -95,8 +95,8 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 0.51816,
-        "y": 0.55245,
+        "x": 0.5207,
+        "y": 0.40640000000000004,
         "active": true
       },
       {
@@ -109,15 +109,15 @@
       {
         "id": 2,
         "n": "2",
-        "x": 1.9544933518262806,
-        "y": 0.606425,
+        "x": 1.848068992031738,
+        "y": 0.2464268599461355,
         "active": true
       },
       {
         "id": 3,
         "n": "3",
-        "x": 1.9544933518262806,
-        "y": 0.6635749999999999,
+        "x": 1.964693274093692,
+        "y": 0.434734022749267,
         "active": true
       },
       {
@@ -130,8 +130,8 @@
       {
         "id": 9,
         "n": "9",
-        "x": 2.0039867036525614,
-        "y": 0.635,
+        "x": 1.0759347448857455,
+        "y": 0.5727044956742996,
         "active": true
       },
       {
@@ -144,15 +144,15 @@
       {
         "id": 6,
         "n": "6",
-        "x": 2.053480055478842,
-        "y": 0.606425,
+        "x": 1.4887299426706502,
+        "y": 0.19433738641063678,
         "active": true
       },
       {
         "id": 7,
         "n": "7",
-        "x": 2.053480055478842,
-        "y": 0.6635749999999999,
+        "x": 0.33121236596782905,
+        "y": 0.6624018807329697,
         "active": true
       },
       {
@@ -253,7 +253,7 @@
   "lesson": {
     "topic": "exercise-runout-improvement",
     "purpose": "Carry a plan through a full rack and identify the decision that created a difficult continuation.",
-    "variation": "Correct full rack with a distinct break starting point; continue planning from the resulting spread.",
+    "variation": "Correct full rack with a distinct break starting point; continue planning from the resulting spread. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": null,
     "target": 1,
     "controls": {
@@ -268,6 +268,7 @@
       "shot2Enabled": false,
       "shot2Initialized": false,
       "activeShot": 1
-    }
+    },
+    "railContacts": []
   }
 }
