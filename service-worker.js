@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-rail-readouts-v79';
+const CACHE_NAME = 'billiards-trainer-4-12-compass-perimeter-v80';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
