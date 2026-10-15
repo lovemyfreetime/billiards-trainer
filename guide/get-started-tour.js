@@ -17,12 +17,16 @@ async function mount(guide){
  const active=()=>{const s=guide.getState();return s.enabled&&s.category==='start'};
  const hasNext=()=>index+1<steps.length;
  const topicId=i=>global.billiardsPoolAudioMap?.topics.filter(t=>t.category==='start'&&!t.explorerOnly)[i]?.id;
- function clearAttention(){for(const id of ['btg-pool-guide','btg-pool-explore'])document.getElementById(id)?.classList.remove('btg-tour-attention');}
+ function attention(target){for(const id of ['btg-pool-guide','btg-pool-explore'])document.getElementById(id)?.classList.toggle('btg-tour-attention',id===target);}
+ function clearAttention(){attention(null);}
  function progress(topic,time,playing){
-  clearAttention();if(!active()||index!==steps.length-1||topic?.id!==topicId(index)||!playing)return;
+  if(!active()||index!==steps.length-1||topic?.id!==topicId(index)||!playing){clearAttention();return;}
   const id=time>=2&&time<6.8?'btg-pool-guide':time>=6.8&&time<11.8?'btg-pool-explore':null;
-  if(id)document.getElementById(id)?.classList.add('btg-tour-attention');
+  attention(id);
  }
+ announcement.addEventListener('timeupdate',()=>{if(active()&&!hasNext()&&phase==='announcing'&&!announcement.paused){const t=announcement.currentTime;attention(t>=7.6&&t<10.2?'btg-pool-guide':t>=10.2&&t<13.6?'btg-pool-explore':null)}});
+ announcement.addEventListener('pause',clearAttention);
+ announcement.addEventListener('ended',clearAttention);
  function cancel(){clearAttention();epoch++;clearInterval(timer);clearTimeout(advanceTimer);clearTimeout(voiceTimer);timer=advanceTimer=voiceTimer=null;deadline=0;voice.pause();}
  function render(){
   footer.hidden=!active()||phase==='listening';footer.dataset.phase=phase;placeControls();

@@ -1,0 +1,19 @@
+const {chromium}=require('playwright'),assert=require('node:assert/strict'),cp=require('child_process');
+const server=cp.spawn('python',['-u','-m','http.server','8766','--bind','127.0.0.1'],{stdio:['ignore','pipe','pipe']});
+(async()=>{
+ await new Promise(r=>server.stdout.once('data',r));
+ const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox','--disable-dev-shm-usage','--single-process','--disable-gpu','--disable-software-rasterizer','--no-zygote']});
+ const ctx=await browser.newContext({serviceWorkers:'block',viewport:{width:1365,height:900}}),p=await ctx.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
+ await p.addInitScript(()=>{window.__audio=[];const A=Audio;window.Audio=new Proxy(A,{construct(C,args){const a=new C(...args);__audio.push(a);return a}})});
+ await p.goto('http://127.0.0.1:8766/index.html');await p.waitForFunction(()=>window.billiardsGetStartedTour);await p.click('#btg-pool-start');
+ const id=await p.evaluate(()=>billiardsPoolAudioMap.topics.filter(t=>t.category==='start'&&!t.explorerOnly)[7].id),select=p.locator('#bt-guide-pool-root select');
+ async function last(){await select.selectOption(id);await p.waitForFunction(id=>__audio.some(a=>a.dataset.topic===id&&!a.paused),id);await p.evaluate(id=>__audio.find(a=>a.dataset.topic===id).playbackRate=8,id);await p.waitForFunction(()=>__audio.some(a=>a.dataset.getStartedTransition&&!a.paused&&a.currentTime>.1));}
+ await last();assert.equal(await p.evaluate(()=>billiardsGetStartedTour.getState().phase),'announcing');assert.equal(await p.evaluate(()=>billiardsGetStartedTour.getState().remaining),null);
+ assert.ok(Math.abs(await p.evaluate(()=>__audio.find(a=>a.dataset.getStartedTransition).duration)-15.288)<.1);
+ await p.evaluate(()=>__audio.find(a=>a.dataset.getStartedTransition).currentTime=9);await p.waitForFunction(()=>document.getElementById('btg-pool-guide').classList.contains('btg-tour-attention'));
+ await p.evaluate(()=>__audio.find(a=>a.dataset.getStartedTransition).currentTime=11.5);await p.waitForFunction(()=>document.getElementById('btg-pool-explore').classList.contains('btg-tour-attention'));
+ const aim=await p.evaluate(()=>billiardsTourBridge.capture().state.freeAim);await p.locator('#canvas').click({position:{x:250,y:180}});assert.deepEqual(await p.evaluate(()=>billiardsTourBridge.capture().state.freeAim),aim);assert.equal(await p.evaluate(()=>__audio.every(a=>a.paused)),true);assert.equal(await p.evaluate(()=>billiardsGetStartedTour.getState().phase),'practice');assert.equal(await p.locator('.btg-tour-attention').count(),0);
+ await last();await p.evaluate(()=>__audio.find(a=>a.dataset.getStartedTransition).playbackRate=8);await p.waitForFunction(()=>billiardsGetStartedTour.getState().phase==='countdown');assert.equal(await p.locator('#bt-guide-pool-root [role="timer"]').textContent(),'10');assert.equal(await p.evaluate(()=>__audio.find(a=>a.dataset.getStartedTransition).ended),true);
+ const balls=await p.evaluate(()=>billiardsTourBridge.capture().state.balls),started=Date.now();await p.waitForFunction(()=>!billiardsPoolGuide.getState().enabled);assert.ok(Date.now()-started>=9500);assert.deepEqual(await p.evaluate(()=>billiardsTourBridge.capture().state.balls),balls);assert.equal(await p.locator('.btg-tour-attention').count(),0);assert.deepEqual(errors,[]);
+ console.log('Original closing recording plays fully before countdown; Guide/Explorer highlights, first-tap cancellation, ten-second close and preserved table passed.');await browser.close();
+})().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>{server.kill();process.exit(process.exitCode||0)});
