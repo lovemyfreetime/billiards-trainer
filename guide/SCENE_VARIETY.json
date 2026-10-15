@@ -15,11 +15,11 @@
       "0": 17,
       "1": 12,
       "2": 10,
-      "3": 27,
+      "3": 26,
       "4": 23,
       "5": 5,
       "6": 14,
-      "7": 15
+      "7": 16
     },
     "ballPalette": {
       "1": 18,
@@ -131,7 +131,7 @@
     {
       "id": "masse-shot-controls-quick",
       "pocket": null,
-      "approachDegrees": 7.7,
+      "approachDegrees": 328.0,
       "cutSide": null,
       "railSequence": [],
       "ballIds": [
@@ -583,7 +583,7 @@
     {
       "id": "masse-physics-quick",
       "pocket": null,
-      "approachDegrees": 333.2,
+      "approachDegrees": 212.0,
       "cutSide": null,
       "railSequence": [],
       "ballIds": [
@@ -595,7 +595,7 @@
     {
       "id": "masse-versus-jump-advanced",
       "pocket": null,
-      "approachDegrees": 168.8,
+      "approachDegrees": 345.0,
       "cutSide": null,
       "railSequence": [],
       "ballIds": [
@@ -734,7 +734,7 @@
     {
       "id": "exercise-masse-route",
       "pocket": null,
-      "approachDegrees": 208.6,
+      "approachDegrees": 148.0,
       "cutSide": null,
       "railSequence": [],
       "ballIds": [
@@ -838,7 +838,7 @@
     {
       "id": "exercise-jump-kick-masse",
       "pocket": null,
-      "approachDegrees": 177.6,
+      "approachDegrees": 32.0,
       "cutSide": null,
       "railSequence": [],
       "ballIds": [

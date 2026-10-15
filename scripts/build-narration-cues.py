@@ -6,7 +6,6 @@ Alignment cache is keyed by audio SHA and normalized transcript.
 """
 import json,re,hashlib,subprocess,unicodedata,argparse,concurrent.futures,os
 from pathlib import Path
-from pocketsphinx import Decoder
 ROOT=Path(__file__).resolve().parents[1];G=ROOT/'guide'
 B={}
 def dom(key,label,*selectors):B[key]=dict(label=label,selectors=list(selectors))
@@ -23,7 +22,7 @@ RULES=[
  ('english',r'(?:left|right|side|left and right) english|english|side spin|sidespin'),('follow',r'follow(?: and draw)?|draw|backspin|forward rotation|forward spin'),('speed',r'shot speed|speed (?:control|adjustment|slider)|stroke speeds?|speed|slower|faster|power setting'),('elevation',r'cue elevation|elevation angle|raise (?:the )?cue|steepen (?:the )?cue'),
  ('tip',r'cue.ball (?:contact )?diagram|cue.tip contact|tip location|contact disk'),('aim-control',r'aim roller|micro.aim|roller|fine.aim'),('shot2',r'shot (?:two|2)|second cue ball'),
  ('read',r'(?:tap|open|choose) read|read button'),('more',r'(?:open|tap|choose) more|more button'),('play',r'play and pause|play or pause|pause (?:the )?narration'),('explorer',r'explorer'),('guide',r'(?:open|choose|tap) (?:the )?guide'),
- ('rolling',r'thirty.degrees?|30.degrees?|natural.angle|natural.roll reference'),('tangent',r'tangent line|ninety.degree|90.degree'),('ghost',r'ghost ball|ghost.ball'),('cut',r'cut angles?|cut shots?|overlap|contact point|contact geometry|fractional hit|thickness of (?:the )?hit'),('diamonds',r'(?:rail )?diamonds?|diamond (?:points|marks)'),('grid',r'diamond grid|half.diamond grid'),('aim',r'aiming line|aim line|line of aim'),('path',r'cue.ball path|cue.ball route|predicted path|trajectory|travel line'),('markers',r'target zone|position zone|stopping area|landing area|target markers?|markers?|finish zone'),('cue',r'cue ball'),('object',r'object ball'),('rail',r'cushions?|rail contacts?'),('pockets',r'(?:selected|target|corner|side) pocket'),
+ ('rolling',r'thirty.degrees?|30.degrees?|natural.angle|natural.roll reference'),('tangent',r'tangent line|ninety.degree|90.degree'),('ghost',r'ghost ball|ghost.ball'),('cut',r'cut angles?|cut shots?|overlap|contact point|contact geometry|fractional hit|thickness of (?:the )?hit'),('diamonds',r'(?:rail )?diamonds?|diamond (?:points|marks)'),('grid',r'diamond grid|half.diamond grid'),('aim',r'aiming line|aim line|line of aim'),('path',r'cue.ball path|cue.ball route|predicted path|trajectory|travel line|curved? path|curve (?:the )?cue ball|curve'),('markers',r'target zone|position zone|stopping area|landing area|target markers?|markers?|finish zone'),('cue',r'cue ball'),('object',r'object ball'),('rail',r'cushions?|rail contacts?'),('pockets',r'(?:selected|target|corner|side) pocket'),
  ('stats',r'live stats'),('save',r'save current layout|save (?:the|your) layout'),('recall',r'load (?:a|the|your) saved layout|recall (?:the|a) layout'),('rack',r'full rack'),('marker-control',r'add next marker|add (?:a )?marker'),('compass',r'teaching compass|compass'),('bank-tool',r'bank tool'),('kick-tool',r'kick tool'),('rolling-friction',r'rolling friction'),('sliding-friction',r'sliding friction'),('cushion-response',r'cushion restitution|rail restitution'),('ball-response',r'ball restitution|collision restitution'),('units',r'inches|millimeters|measurement units'),('jump',r'jump and masse|jump.mass[eé] controls'),('physics',r'physics and calibration|physics calibration')]
 # Normalize exactly once so cue offsets and forced-alignment words stay identical.
 NUM={'0':'zero','1':'one','2':'two','3':'three','4':'four','5':'five','6':'six','7':'seven','8':'eight','9':'nine','10':'ten','15':'fifteen','30':'thirty','90':'ninety'}
@@ -87,6 +86,7 @@ for name,t in tracks.items():
  t.update(normalized=n,sha256=sha,key=key)
  if key not in cache:work.append((name,n,key))
 def align(job):
+ from pocketsphinx import Decoder
  name,text,key=job;d=Decoder(loglevel='ERROR',beam=1e-80,wbeam=1e-60,bestpath=False);unknown=[]
  for w in set(text.split()):
   if not d.lookup_word(w):

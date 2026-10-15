@@ -1,10 +1,10 @@
-const CACHE_NAME = 'billiards-trainer-4-12-guided-cues-v85';
+const CACHE_NAME = 'billiards-trainer-4-12-shaped-guides-v86';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
-  './guide/narration-cues.js?v=guided-cues-v1',
-  './guide/narration-cues.css?v=guided-cues-v1',
-  './guide/narration-cues.json?v=guided-cues-v1',
+  './guide/narration-cues.js?v=shaped-guides-v2',
+  './guide/narration-cues.css?v=shaped-guides-v2',
+  './guide/narration-cues.json?v=shaped-guides-v2',
   './guide/audio/guide-autoplay-intro.mp3?v=guided-cues-v1',
   './guide/audio/welcome-guide.mp3?v=guided-cues-v1',
   './trainer-practice-tools.js?v=3',
@@ -30,8 +30,8 @@ const APP_SHELL = [
   './guide/GUIDE_MEDIA_INVENTORY.json?v=varied-lessons-v1',
   './guide/layout-gallery.html',
   './guide/SCENE_VARIETY.json',
-  './guide/lesson-practice.js?v=guided-cues-v1',
-  './guide/topic-scenes.json?v=guided-cues-v1',
+  './guide/lesson-practice.js?v=shaped-guides-v2',
+  './guide/topic-scenes.json?v=shaped-guides-v2',
   './guide/audio-review.html',
   './guide/NARRATION_REFINEMENT_QUEUE.json',
   './guide/GUIDE_MEDIA_INVENTORY.json',
@@ -60,7 +60,7 @@ self.addEventListener('install', event => {
         const cache=await caches.open(CACHE_NAME);
         const response=await fetch('./guide/audio-assets.json');
         if(!response.ok)throw Error('Audio asset list unavailable');
-        const assets=await response.json();const layouts=await fetch('./guide/practice-layouts.json?v=walkthrough-v11').then(r=>r.json());assets.push(...Object.values(layouts.layouts).map(x=>x.url));const tour=await fetch('./guide/get-started-tour.json?v=chase-20261015').then(r=>r.json());for(const step of tour.steps){assets.push(step.layout);if(step.recordingStatus==='recorded')assets.push(step.audio);}if(tour.transition?.recordingStatus==='recorded')assets.push(tour.transition.audio);const scenes=await fetch('./guide/topic-scenes.json?v=guided-cues-v1').then(r=>r.json());assets.push(...Object.values(scenes.topics).map(s=>s.setup.url));const uniqueAssets=[...new Set(assets)];let next=0;
+        const assets=await response.json();const layouts=await fetch('./guide/practice-layouts.json?v=walkthrough-v11').then(r=>r.json());assets.push(...Object.values(layouts.layouts).map(x=>x.url));const tour=await fetch('./guide/get-started-tour.json?v=chase-20261015').then(r=>r.json());for(const step of tour.steps){assets.push(step.layout);if(step.recordingStatus==='recorded')assets.push(step.audio);}if(tour.transition?.recordingStatus==='recorded')assets.push(tour.transition.audio);const scenes=await fetch('./guide/topic-scenes.json?v=shaped-guides-v2').then(r=>r.json());assets.push(...Object.values(scenes.topics).map(s=>s.setup.url));const uniqueAssets=[...new Set(assets)];let next=0;
         await Promise.all(Array.from({length:6},async()=>{while(next<uniqueAssets.length){const asset=uniqueAssets[next++];await cache.add(asset);}}));
       })
       .then(() => self.skipWaiting())

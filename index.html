@@ -2451,18 +2451,23 @@
         // Read-only canvas anchors in viewport pixels for narration spotlights.
         function narrationRegions(kind){
             const c=canvas.getBoundingClientRect(),M=mapper(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR),R=S.ballR;
-            const point=(p,r=R*2)=>{const a=M.map({x:p.x-r,y:p.y-r}),b=M.map({x:p.x+r,y:p.y+r});return {x:c.left+a.x*sx,y:c.top+a.y*sy,width:Math.abs(b.x-a.x)*sx,height:Math.abs(b.y-a.y)*sy};};
+            const pixel=p=>{const q=M.map(p);return {x:c.left+q.x*sx,y:c.top+q.y*sy};};
+            const point=(p,r=R*2)=>{const a=pixel({x:p.x-r,y:p.y-r}),b=pixel({x:p.x+r,y:p.y+r});return {x:a.x,y:a.y,width:Math.abs(b.x-a.x),height:Math.abs(b.y-a.y)};};
+            const ballRadius=R*M.scale*Math.min(sx,sy);
+            const circle=(p,limit=ballRadius)=>{const q=pixel(p),outer=Math.min(ballRadius,limit),strokeWidth=Math.min(1.8,outer*.4);return {shape:'circle',cx:q.x,cy:q.y,radius:Math.max(.01,outer-strokeWidth/2),strokeWidth};};
+            const pair=(p,q)=>{const a=pixel(p),b=pixel(q),limit=Math.hypot(b.x-a.x,b.y-a.y)/2;return [circle(p,limit),circle(q,limit)];};
+            const line=points=>points?.length>1?[{shape:'polyline',points:points.map(pixel)}]:[];
             const hit=S.preview?.firstBallContact,cb=cueBall(),obj=hit?S.balls.find(b=>b.id===hit.objId):S.balls.find(b=>b.id>0&&!b.marker);
             if(kind==='diamonds'){const points=[];for(let i=1;i<8;i++)if(i!==4)for(const y of [-.041,S.tableW+.041])points.push({x:S.tableL*i/8,y});for(let j=1;j<4;j++)for(const x of [-.041,S.tableL+.041])points.push({x,y:S.tableW*j/4});return points.map(p=>point(p,R*.6));}
-            if(kind==='cue')return cb?[point(cb)]:[];
-            if(kind==='object')return obj?[point(obj)]:[];
-            if(kind==='cut')return hit?[point(hit.objPos,R*3),point(hit.cuePos,R*1.3)]:[];
-            if(kind==='ghost')return hit?[point(hit.cuePos,R*1.35)]:[];
+            if(kind==='cue')return cb?[circle(cb)]:[];
+            if(kind==='object')return obj?[circle(obj)]:[];
+            if(kind==='cut')return hit&&S.showImpact?pair(obj||hit.objPos,hit.cuePos):[];
+            if(kind==='ghost')return hit&&S.showImpact?pair(hit.cuePos,obj||hit.objPos):[];
             if(kind==='markers')return S.balls.filter(b=>b.marker).map(b=>point(b,Math.max(R,(b.markerDiameterIn||6)*.0254/2)));
-            if(kind==='rolling'){const r=rollingReferenceForShot();return r?[point(r.start,R*1.3),point({x:(r.start.x+r.end.x)/2,y:(r.start.y+r.end.y)/2},R*2),point(r.end,R*1.3)]:[];}
-            if(kind==='tangent'&&hit){const t={x:-hit.normal.y,y:hit.normal.x};return [point({x:hit.cuePos.x+t.x*.16,y:hit.cuePos.y+t.y*.16},R*1.6),point({x:hit.cuePos.x-t.x*.16,y:hit.cuePos.y-t.y*.16},R*1.6)];}
-            if(kind==='aim'&&cb)return [point({x:(cb.x+S.freeAim.x)/2,y:(cb.y+S.freeAim.y)/2},R*2)];
-            if(kind==='path'){const path=S.preview?.paths?.[0]||[];if(path.length)return [point(path[Math.floor(path.length*.55)],R*2)];return cb?[point(cb)]:[];}
+            if(kind==='rolling'){const r=rollingReferenceForShot();return r?line([r.start,r.end]):[];}
+            if(kind==='tangent'&&hit&&S.showImpact)return line(clippedLineThroughRect(hit.cuePos,{x:-hit.normal.y,y:hit.normal.x},S.tableL,S.tableW));
+            if(kind==='aim'&&cb){const ends=clippedLineThroughRect(cb,aimDirection(),S.tableL,S.tableW);return ends?line([cb,ends[1]]):[];}
+            if(kind==='path')return S.showPaths?line(S.preview?.paths?.[0]):[];
             if(kind==='rail'&&S.preview?.railEvents?.length)return S.preview.railEvents.slice(0,4).map(e=>point(e,R*1.5));
             if(kind==='rail')return [{x:c.left+M.map({x:0,y:0}).x*sx,y:c.top+M.map({x:0,y:0}).y*sy-12,width:S.tableL*M.scale*sx,height:12}];
             if(/^pocket[1-6]$/.test(kind)){const [x,y]=[[0,0],[.5,0],[1,0],[1,1],[.5,1],[0,1]][Number(kind.slice(-1))-1];return [point({x:x*S.tableL,y:y*S.tableW},R*1.5)];}
@@ -5249,6 +5254,10 @@
         return '#6fff58';
     }
     function shouldShowFlightOverlay(preview, which) {
+        // Massé lessons teach the cloth curve; jump landing/clearance callouts
+        // obscure that route. The same native 3-D solver still supplies its path.
+        const guide=window.billiardsPoolGuide?.getState();
+        if(guide?.enabled&&!guide.exploring&&window.billiardsPoolAudioMap?.topics.find(t=>t.id===guide.topicId)?.scene?.profile==='masse')return false;
         const a = preview && preview.airborne;
         if (!S.airbornePhysics || !a || !cueVisualsVisible(which)) return false;
         if (which === 2 && !S.shot2Enabled) return false;
@@ -12177,14 +12186,14 @@ if ('serviceWorker' in navigator) {
   <script src="./phone-play.js?v=guided-cues-v1"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
-  <link rel="stylesheet" href="./guide/narration-cues.css?v=guided-cues-v1">
-  <script src="./guide/narration-cues.js?v=guided-cues-v1"></script>
+  <link rel="stylesheet" href="./guide/narration-cues.css?v=shaped-guides-v2">
+  <script src="./guide/narration-cues.js?v=shaped-guides-v2"></script>
   <script src="./guide/guide.js?v=guided-cues-v1"></script>
   <script src="./guide/recorded-audio.js?v=guided-cues-v1"></script>
   <link rel="stylesheet" href="./guide/get-started-tour.css?v=varied-lessons-v1">
   <script src="./guide/get-started-tour.js?v=guided-cues-v1"></script>
   <script src="./guide/learning.js?v=guided-cues-v1"></script>
-  <script src="./guide/lesson-practice.js?v=guided-cues-v1"></script>
+  <script src="./guide/lesson-practice.js?v=shaped-guides-v2"></script>
   <script src="./guide/pool-integration.js?v=guided-cues-v1"></script>
   <script src="./guide/analyze-integration.js?v=completion-tour-v25"></script>
   <script src="./guide/analyze-welcome.js?v=analyze-welcome-v16"></script>

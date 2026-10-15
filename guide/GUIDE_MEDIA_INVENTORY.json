@@ -736,8 +736,8 @@
       "wpm": 197.8,
       "text": "A mass-ay shot uses cue elevation and off-center spin to create a curved cue-ball path. Explore the curve by changing one setting at a time, and compare it with a cushion route around the same obstacle.",
       "sceneUrl": "./guide/layouts/topics/masse-shot-controls-quick.billiards.json",
-      "geometryHash": "f867365c8291bb45dab3a4971be8d7e99bddb5d8f7895b414f013c6b7722db6f",
-      "layoutReason": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+      "geometryHash": "54eda67bf5acdd9f63bd66e70db64c8a5c58e3348cc52625166cb60d87fafe9c",
+      "layoutReason": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2316,8 +2316,8 @@
       "wpm": 168.5,
       "text": "A mass-ay shot uses elevated cue delivery and off-center spin to curve the cue ball around an obstacle. Explore how elevation, side spin, and speed change the curve. These shots are sensitive, so make small adjustments.",
       "sceneUrl": "./guide/layouts/topics/masse-physics-quick.billiards.json",
-      "geometryHash": "17b4c69a42e09f9adf76fdb26e08bc6b03671b6db77fd6de706adace6fa8bbc6",
-      "layoutReason": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+      "geometryHash": "8632eda386fd9c5a6862490d11279255c540f0c5507833c6d468d1be88b35de8",
+      "layoutReason": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "below band"
     },
     {
@@ -2336,8 +2336,8 @@
       "wpm": 220.7,
       "text": "A jump route aims to carry the cue ball above an obstacle. A mass-ay route bends the ball’s path around it through elevated, off-center contact and interaction with the cloth. Compare clearance and landing for a jump with lateral curvature for a mass-ay.",
       "sceneUrl": "./guide/layouts/topics/masse-versus-jump-advanced.billiards.json",
-      "geometryHash": "7d4814100e5b03ccfcd5054491199dc46d4e9798fc78b1e428e560ec00b6ae33",
-      "layoutReason": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+      "geometryHash": "8a67c848d85ae7168d397a18f1df72152a898ac00e7f90474317a8c2b6199d40",
+      "layoutReason": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2616,8 +2616,8 @@
       "wpm": 182.3,
       "text": "Arrange a blocking ball so a direct path is unavailable. Experiment with cue elevation and side spin to create a mass-ay route around it. Compare the curve at several speeds, then execute a promising shot.",
       "sceneUrl": "./guide/layouts/topics/exercise-masse-route.billiards.json",
-      "geometryHash": "d3a3ca4e2d7a62a7569a1668b3fb5d21a2fa76dbf71f71f4f7220edab3834bcf",
-      "layoutReason": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+      "geometryHash": "ca7e3358ed926c66e73d1d3bfad31f00f4ea95b6036a47cb6fc10a33a0b9f167",
+      "layoutReason": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {
@@ -2976,8 +2976,8 @@
       "wpm": 206.1,
       "text": "Place an obstacle between the cue ball and the target ball. First, explore a kick shot using a cushion. Next, examine a mass-ay shot, using cue elevation and sidespin to curve the cue ball around the obstacle. Finally, investigate a jump shot that carries the cue ball over the obstacle. Compare the three techniques and consider which offers the best control.",
       "sceneUrl": "./guide/layouts/topics/exercise-jump-kick-masse.billiards.json",
-      "geometryHash": "7eb46dda5e954c10ea526f4b74671b315f9ed862a1add8fe2a1ce4838de0eca5",
-      "layoutReason": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+      "geometryHash": "fd1337cef49f09bdc1207f32df9abe19a45e217eba52859eda9372d94343141c",
+      "layoutReason": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
       "pacingScreen": "within band"
     },
     {

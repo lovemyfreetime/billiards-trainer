@@ -1680,13 +1680,13 @@
       "setup": {
         "title": "Massé shot controls",
         "url": "./guide/layouts/topics/masse-shot-controls-quick.billiards.json",
-        "note": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        "note": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
       },
       "controls": {
-        "speed": 1.15,
-        "follow": 0,
-        "sideSpin": 0.55,
-        "cueElevationDeg": 62,
+        "speed": 2.15,
+        "follow": -0.9,
+        "sideSpin": 0.7,
+        "cueElevationDeg": 55,
         "airbornePhysics": true,
         "showPaths": true,
         "showImpact": true,
@@ -1696,8 +1696,8 @@
         "activeShot": 1
       },
       "objective": "Compare a curved route around a blocker with a cushion alternative.",
-      "variation": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
-      "geometryHash": "f867365c8291bb45dab3a4971be8d7e99bddb5d8f7895b414f013c6b7722db6f",
+      "variation": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+      "geometryHash": "54eda67bf5acdd9f63bd66e70db64c8a5c58e3348cc52625166cb60d87fafe9c",
       "file": {
         "format": "billiards-trainer",
         "version": 1,
@@ -1714,43 +1714,28 @@
             {
               "id": 0,
               "n": "CB",
-              "x": 1.4714605246480223,
-              "y": 0.49122311911029426,
+              "x": 0.32,
+              "y": 0.55,
               "active": true
             },
             {
               "id": 12,
               "n": "12",
-              "x": 1.8623330960985773,
-              "y": 0.6969355433227585,
+              "x": 0.7302416437784709,
+              "y": 0.6607925129151372,
               "active": true
             },
             {
               "id": 5,
               "n": "5",
-              "x": 2.380466504765592,
-              "y": 0.969624105650909,
-              "active": true
-            },
-            {
-              "id": 1000,
-              "n": "MARKER",
-              "marker": true,
-              "markerType": "yellow",
-              "markerShape": "circle",
-              "markerDiameterIn": 5,
-              "markerWidthIn": 5,
-              "markerHeightIn": 5,
-              "markerAngle": 0,
-              "markerLocked": false,
-              "x": 2.1259448303326725,
-              "y": 0.8356718294195369,
+              "x": 1.4921189822242027,
+              "y": 0.8665500369003919,
               "active": true
             }
           ],
           "freeAim": {
-            "x": 2.489398587554856,
-            "y": 0.6289237941196056
+            "x": 1.168048096156426,
+            "y": 0.020080735766795144
           }
         },
         "state": {
@@ -1761,51 +1746,36 @@
             {
               "id": 0,
               "n": "CB",
-              "x": 1.4714605246480223,
-              "y": 0.49122311911029426,
+              "x": 0.32,
+              "y": 0.55,
               "active": true
             },
             {
               "id": 12,
               "n": "12",
-              "x": 1.8623330960985773,
-              "y": 0.6969355433227585,
+              "x": 0.7302416437784709,
+              "y": 0.6607925129151372,
               "active": true
             },
             {
               "id": 5,
               "n": "5",
-              "x": 2.380466504765592,
-              "y": 0.969624105650909,
-              "active": true
-            },
-            {
-              "id": 1000,
-              "n": "MARKER",
-              "marker": true,
-              "markerType": "yellow",
-              "markerShape": "circle",
-              "markerDiameterIn": 5,
-              "markerWidthIn": 5,
-              "markerHeightIn": 5,
-              "markerAngle": 0,
-              "markerLocked": false,
-              "x": 2.1259448303326725,
-              "y": 0.8356718294195369,
+              "x": 1.4921189822242027,
+              "y": 0.8665500369003919,
               "active": true
             }
           ],
           "nextId": 4,
           "markerSeq": 1000,
           "freeAim": {
-            "x": 2.489398587554856,
-            "y": 0.6289237941196056
+            "x": 1.168048096156426,
+            "y": 0.020080735766795144
           },
           "angleLock": false,
-          "speed": 1.15,
-          "follow": 0,
-          "sideSpin": 0.55,
-          "cueElevationDeg": 62,
+          "speed": 2.15,
+          "follow": -0.9,
+          "sideSpin": 0.7,
+          "cueElevationDeg": 55,
           "shot2Enabled": false,
           "activeShot": 1,
           "shot2Initialized": false,
@@ -1885,14 +1855,14 @@
         "lesson": {
           "topic": "masse-shot-controls-quick",
           "purpose": "Compare a curved route around a blocker with a cushion alternative.",
-          "variation": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "variation": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
           "pocket": null,
           "target": 5,
           "controls": {
-            "speed": 1.15,
-            "follow": 0,
-            "sideSpin": 0.55,
-            "cueElevationDeg": 62,
+            "speed": 2.15,
+            "follow": -0.9,
+            "sideSpin": 0.7,
+            "cueElevationDeg": 55,
             "airbornePhysics": true,
             "showPaths": true,
             "showImpact": true,
@@ -10294,13 +10264,13 @@
       "setup": {
         "title": "Massé shot",
         "url": "./guide/layouts/topics/masse-physics-quick.billiards.json",
-        "note": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        "note": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
       },
       "controls": {
-        "speed": 1.15,
-        "follow": 0,
-        "sideSpin": -0.55,
-        "cueElevationDeg": 62,
+        "speed": 2.3,
+        "follow": -1,
+        "sideSpin": -0.7,
+        "cueElevationDeg": 60,
         "airbornePhysics": true,
         "showPaths": true,
         "showImpact": true,
@@ -10310,8 +10280,8 @@
         "activeShot": 1
       },
       "objective": "Compare a curved route around a blocker with a cushion alternative.",
-      "variation": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
-      "geometryHash": "17b4c69a42e09f9adf76fdb26e08bc6b03671b6db77fd6de706adace6fa8bbc6",
+      "variation": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+      "geometryHash": "8632eda386fd9c5a6862490d11279255c540f0c5507833c6d468d1be88b35de8",
       "file": {
         "format": "billiards-trainer",
         "version": 1,
@@ -10328,43 +10298,28 @@
             {
               "id": 0,
               "n": "CB",
-              "x": 1.1667637946824725,
-              "y": 0.4375239806627106,
+              "x": 2.18,
+              "y": 0.38,
               "active": true
             },
             {
               "id": 8,
               "n": "8",
-              "x": 1.567842068404251,
-              "y": 0.39039456463901934,
+              "x": 1.7445653967441916,
+              "y": 0.6401706129973729,
               "active": true
             },
             {
               "id": 1,
               "n": "1",
-              "x": 2.099503966128469,
-              "y": 0.3279206875843589,
-              "active": true
-            },
-            {
-              "id": 1000,
-              "n": "MARKER",
-              "marker": true,
-              "markerType": "yellow",
-              "markerShape": "circle",
-              "markerDiameterIn": 5,
-              "markerWidthIn": 5,
-              "markerHeightIn": 5,
-              "markerAngle": 0,
-              "markerLocked": false,
-              "x": 1.83833671812359,
-              "y": 0.35860960964629734,
+              "x": 1.2123675483204257,
+              "y": 0.9581569177719397,
               "active": true
             }
           ],
           "freeAim": {
-            "x": 2.005371731028964,
-            "y": 0.014731078192239289
+            "x": 1.331951903843574,
+            "y": -0.14991926423320479
           }
         },
         "state": {
@@ -10375,51 +10330,36 @@
             {
               "id": 0,
               "n": "CB",
-              "x": 1.1667637946824725,
-              "y": 0.4375239806627106,
+              "x": 2.18,
+              "y": 0.38,
               "active": true
             },
             {
               "id": 8,
               "n": "8",
-              "x": 1.567842068404251,
-              "y": 0.39039456463901934,
+              "x": 1.7445653967441916,
+              "y": 0.6401706129973729,
               "active": true
             },
             {
               "id": 1,
               "n": "1",
-              "x": 2.099503966128469,
-              "y": 0.3279206875843589,
-              "active": true
-            },
-            {
-              "id": 1000,
-              "n": "MARKER",
-              "marker": true,
-              "markerType": "yellow",
-              "markerShape": "circle",
-              "markerDiameterIn": 5,
-              "markerWidthIn": 5,
-              "markerHeightIn": 5,
-              "markerAngle": 0,
-              "markerLocked": false,
-              "x": 1.83833671812359,
-              "y": 0.35860960964629734,
+              "x": 1.2123675483204257,
+              "y": 0.9581569177719397,
               "active": true
             }
           ],
           "nextId": 4,
           "markerSeq": 1000,
           "freeAim": {
-            "x": 2.005371731028964,
-            "y": 0.014731078192239289
+            "x": 1.331951903843574,
+            "y": -0.14991926423320479
           },
           "angleLock": false,
-          "speed": 1.15,
-          "follow": 0,
-          "sideSpin": -0.55,
-          "cueElevationDeg": 62,
+          "speed": 2.3,
+          "follow": -1,
+          "sideSpin": -0.7,
+          "cueElevationDeg": 60,
           "shot2Enabled": false,
           "activeShot": 1,
           "shot2Initialized": false,
@@ -10499,14 +10439,14 @@
         "lesson": {
           "topic": "masse-physics-quick",
           "purpose": "Compare a curved route around a blocker with a cushion alternative.",
-          "variation": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "variation": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
           "pocket": null,
           "target": 1,
           "controls": {
-            "speed": 1.15,
-            "follow": 0,
-            "sideSpin": -0.55,
-            "cueElevationDeg": 62,
+            "speed": 2.3,
+            "follow": -1,
+            "sideSpin": -0.7,
+            "cueElevationDeg": 60,
             "airbornePhysics": true,
             "showPaths": true,
             "showImpact": true,
@@ -10529,13 +10469,13 @@
       "setup": {
         "title": "Massé versus jump",
         "url": "./guide/layouts/topics/masse-versus-jump-advanced.billiards.json",
-        "note": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        "note": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
       },
       "controls": {
-        "speed": 1.15,
-        "follow": 0,
-        "sideSpin": -0.55,
-        "cueElevationDeg": 62,
+        "speed": 2,
+        "follow": -0.8,
+        "sideSpin": 0.7,
+        "cueElevationDeg": 50,
         "airbornePhysics": true,
         "showPaths": true,
         "showImpact": true,
@@ -10545,8 +10485,8 @@
         "activeShot": 1
       },
       "objective": "Compare a curved route around a blocker with a cushion alternative.",
-      "variation": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
-      "geometryHash": "7d4814100e5b03ccfcd5054491199dc46d4e9798fc78b1e428e560ec00b6ae33",
+      "variation": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+      "geometryHash": "8a67c848d85ae7168d397a18f1df72152a898ac00e7f90474317a8c2b6199d40",
       "file": {
         "format": "billiards-trainer",
         "version": 1,
@@ -10563,43 +10503,28 @@
             {
               "id": 0,
               "n": "CB",
-              "x": 1.0256280427858722,
-              "y": 0.7005576121134244,
+              "x": 0.4,
+              "y": 0.37,
               "active": true
             },
             {
               "id": 15,
               "n": "15",
-              "x": 0.6521635794052347,
-              "y": 0.642668715603279,
+              "x": 0.8216942149189455,
+              "y": 0.5353160799528779,
               "active": true
             },
             {
               "id": 8,
               "n": "8",
-              "x": 0.1571060349239244,
-              "y": 0.5659322713921562,
-              "active": true
-            },
-            {
-              "id": 1000,
-              "n": "MARKER",
-              "marker": true,
-              "markerType": "yellow",
-              "markerShape": "circle",
-              "markerDiameterIn": 5,
-              "markerWidthIn": 5,
-              "markerHeightIn": 5,
-              "markerAngle": 0,
-              "markerLocked": false,
-              "x": 0.40029219712526976,
-              "y": 0.6036273667941112,
+              "x": 1.6048406140541296,
+              "y": 0.8423316570082227,
               "active": true
             }
           ],
           "freeAim": {
-            "x": 0.16359943393167586,
-            "y": 0.8719085328047521
+            "x": 1.3659258262890683,
+            "y": 0.11118095489747926
           }
         },
         "state": {
@@ -10610,51 +10535,36 @@
             {
               "id": 0,
               "n": "CB",
-              "x": 1.0256280427858722,
-              "y": 0.7005576121134244,
+              "x": 0.4,
+              "y": 0.37,
               "active": true
             },
             {
               "id": 15,
               "n": "15",
-              "x": 0.6521635794052347,
-              "y": 0.642668715603279,
+              "x": 0.8216942149189455,
+              "y": 0.5353160799528779,
               "active": true
             },
             {
               "id": 8,
               "n": "8",
-              "x": 0.1571060349239244,
-              "y": 0.5659322713921562,
-              "active": true
-            },
-            {
-              "id": 1000,
-              "n": "MARKER",
-              "marker": true,
-              "markerType": "yellow",
-              "markerShape": "circle",
-              "markerDiameterIn": 5,
-              "markerWidthIn": 5,
-              "markerHeightIn": 5,
-              "markerAngle": 0,
-              "markerLocked": false,
-              "x": 0.40029219712526976,
-              "y": 0.6036273667941112,
+              "x": 1.6048406140541296,
+              "y": 0.8423316570082227,
               "active": true
             }
           ],
           "nextId": 4,
           "markerSeq": 1000,
           "freeAim": {
-            "x": 0.16359943393167586,
-            "y": 0.8719085328047521
+            "x": 1.3659258262890683,
+            "y": 0.11118095489747926
           },
           "angleLock": false,
-          "speed": 1.15,
-          "follow": 0,
-          "sideSpin": -0.55,
-          "cueElevationDeg": 62,
+          "speed": 2,
+          "follow": -0.8,
+          "sideSpin": 0.7,
+          "cueElevationDeg": 50,
           "shot2Enabled": false,
           "activeShot": 1,
           "shot2Initialized": false,
@@ -10734,14 +10644,14 @@
         "lesson": {
           "topic": "masse-versus-jump-advanced",
           "purpose": "Compare a curved route around a blocker with a cushion alternative.",
-          "variation": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "variation": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
           "pocket": null,
           "target": 8,
           "controls": {
-            "speed": 1.15,
-            "follow": 0,
-            "sideSpin": -0.55,
-            "cueElevationDeg": 62,
+            "speed": 2,
+            "follow": -0.8,
+            "sideSpin": 0.7,
+            "cueElevationDeg": 50,
             "airbornePhysics": true,
             "showPaths": true,
             "showImpact": true,
@@ -13280,13 +13190,13 @@
       "setup": {
         "title": "massé route",
         "url": "./guide/layouts/topics/exercise-masse-route.billiards.json",
-        "note": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        "note": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
       },
       "controls": {
-        "speed": 1.15,
-        "follow": 0,
-        "sideSpin": 0.55,
-        "cueElevationDeg": 62,
+        "speed": 2.45,
+        "follow": -0.9,
+        "sideSpin": 0.7,
+        "cueElevationDeg": 55,
         "airbornePhysics": true,
         "showPaths": true,
         "showImpact": true,
@@ -13296,8 +13206,8 @@
         "activeShot": 1
       },
       "objective": "Compare a curved route around a blocker with a cushion alternative.",
-      "variation": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
-      "geometryHash": "d3a3ca4e2d7a62a7569a1668b3fb5d21a2fa76dbf71f71f4f7220edab3834bcf",
+      "variation": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+      "geometryHash": "ca7e3358ed926c66e73d1d3bfad31f00f4ea95b6036a47cb6fc10a33a0b9f167",
       "file": {
         "format": "billiards-trainer",
         "version": 1,
@@ -13314,43 +13224,28 @@
             {
               "id": 0,
               "n": "CB",
-              "x": 1.6077688649454458,
-              "y": 0.7296833042315944,
+              "x": 2.14,
+              "y": 0.85,
               "active": true
             },
             {
               "id": 1,
               "n": "1",
-              "x": 1.3939173747917826,
-              "y": 0.48650669336044317,
+              "x": 1.6105461140110493,
+              "y": 0.7073490072982211,
               "active": true
             },
             {
               "id": 9,
               "n": "9",
-              "x": 1.1104398180764614,
-              "y": 0.16415630220566121,
-              "active": true
-            },
-            {
-              "id": 1000,
-              "n": "MARKER",
-              "marker": true,
-              "markerType": "yellow",
-              "markerShape": "circle",
-              "markerDiameterIn": 5,
-              "markerWidthIn": 5,
-              "markerHeightIn": 5,
-              "markerAngle": 0,
-              "markerLocked": false,
-              "x": 1.249691951199777,
-              "y": 0.32250386277292253,
+              "x": 0.6272746114601404,
+              "y": 0.44242573513777483,
               "active": true
             }
           ],
           "freeAim": {
-            "x": 0.9466735599587797,
-            "y": 0.3689757099053327
+            "x": 1.2919519038435743,
+            "y": 1.3799192642332048
           }
         },
         "state": {
@@ -13361,51 +13256,36 @@
             {
               "id": 0,
               "n": "CB",
-              "x": 1.6077688649454458,
-              "y": 0.7296833042315944,
+              "x": 2.14,
+              "y": 0.85,
               "active": true
             },
             {
               "id": 1,
               "n": "1",
-              "x": 1.3939173747917826,
-              "y": 0.48650669336044317,
+              "x": 1.6105461140110493,
+              "y": 0.7073490072982211,
               "active": true
             },
             {
               "id": 9,
               "n": "9",
-              "x": 1.1104398180764614,
-              "y": 0.16415630220566121,
-              "active": true
-            },
-            {
-              "id": 1000,
-              "n": "MARKER",
-              "marker": true,
-              "markerType": "yellow",
-              "markerShape": "circle",
-              "markerDiameterIn": 5,
-              "markerWidthIn": 5,
-              "markerHeightIn": 5,
-              "markerAngle": 0,
-              "markerLocked": false,
-              "x": 1.249691951199777,
-              "y": 0.32250386277292253,
+              "x": 0.6272746114601404,
+              "y": 0.44242573513777483,
               "active": true
             }
           ],
           "nextId": 4,
           "markerSeq": 1000,
           "freeAim": {
-            "x": 0.9466735599587797,
-            "y": 0.3689757099053327
+            "x": 1.2919519038435743,
+            "y": 1.3799192642332048
           },
           "angleLock": false,
-          "speed": 1.15,
-          "follow": 0,
-          "sideSpin": 0.55,
-          "cueElevationDeg": 62,
+          "speed": 2.45,
+          "follow": -0.9,
+          "sideSpin": 0.7,
+          "cueElevationDeg": 55,
           "shot2Enabled": false,
           "activeShot": 1,
           "shot2Initialized": false,
@@ -13485,14 +13365,14 @@
         "lesson": {
           "topic": "exercise-masse-route",
           "purpose": "Compare a curved route around a blocker with a cushion alternative.",
-          "variation": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "variation": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
           "pocket": null,
           "target": 9,
           "controls": {
-            "speed": 1.15,
-            "follow": 0,
-            "sideSpin": 0.55,
-            "cueElevationDeg": 62,
+            "speed": 2.45,
+            "follow": -0.9,
+            "sideSpin": 0.7,
+            "cueElevationDeg": 55,
             "airbornePhysics": true,
             "showPaths": true,
             "showImpact": true,
@@ -15179,13 +15059,13 @@
       "setup": {
         "title": "Jump, Kick, or Massé",
         "url": "./guide/layouts/topics/exercise-jump-kick-masse.billiards.json",
-        "note": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        "note": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
       },
       "controls": {
-        "speed": 1.15,
-        "follow": 0,
-        "sideSpin": -0.55,
-        "cueElevationDeg": 62,
+        "speed": 2.15,
+        "follow": -1,
+        "sideSpin": -0.7,
+        "cueElevationDeg": 60,
         "airbornePhysics": true,
         "showPaths": true,
         "showImpact": true,
@@ -15195,8 +15075,8 @@
         "activeShot": 1
       },
       "objective": "Compare a curved route around a blocker with a cushion alternative.",
-      "variation": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
-      "geometryHash": "7eb46dda5e954c10ea526f4b74671b315f9ed862a1add8fe2a1ce4838de0eca5",
+      "variation": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+      "geometryHash": "fd1337cef49f09bdc1207f32df9abe19a45e217eba52859eda9372d94343141c",
       "file": {
         "format": "billiards-trainer",
         "version": 1,
@@ -15213,43 +15093,28 @@
             {
               "id": 0,
               "n": "CB",
-              "x": 1.6328706886660367,
-              "y": 1.0680073545496847,
+              "x": 0.3,
+              "y": 0.85,
               "active": true
             },
             {
               "id": 5,
               "n": "5",
-              "x": 1.2123005393452733,
-              "y": 0.934199643152395,
+              "x": 0.5972795945270356,
+              "y": 0.6721673782227644,
               "active": true
             },
             {
               "id": 13,
               "n": "13",
-              "x": 0.654800573966587,
-              "y": 0.7568266303699412,
-              "active": true
-            },
-            {
-              "id": 1000,
-              "n": "MARKER",
-              "marker": true,
-              "markerType": "yellow",
-              "markerShape": "circle",
-              "markerDiameterIn": 5,
-              "markerWidthIn": 5,
-              "markerHeightIn": 5,
-              "markerAngle": 0,
-              "markerLocked": false,
-              "x": 0.9286602060824329,
-              "y": 0.8439572331402694,
+              "x": 1.1493702700772448,
+              "y": 0.3419067949221841,
               "active": true
             }
           ],
           "freeAim": {
-            "x": 0.6073951236222339,
-            "y": 1.1110707713592904
+            "x": 1.148048096156426,
+            "y": 1.3799192642332048
           }
         },
         "state": {
@@ -15260,51 +15125,36 @@
             {
               "id": 0,
               "n": "CB",
-              "x": 1.6328706886660367,
-              "y": 1.0680073545496847,
+              "x": 0.3,
+              "y": 0.85,
               "active": true
             },
             {
               "id": 5,
               "n": "5",
-              "x": 1.2123005393452733,
-              "y": 0.934199643152395,
+              "x": 0.5972795945270356,
+              "y": 0.6721673782227644,
               "active": true
             },
             {
               "id": 13,
               "n": "13",
-              "x": 0.654800573966587,
-              "y": 0.7568266303699412,
-              "active": true
-            },
-            {
-              "id": 1000,
-              "n": "MARKER",
-              "marker": true,
-              "markerType": "yellow",
-              "markerShape": "circle",
-              "markerDiameterIn": 5,
-              "markerWidthIn": 5,
-              "markerHeightIn": 5,
-              "markerAngle": 0,
-              "markerLocked": false,
-              "x": 0.9286602060824329,
-              "y": 0.8439572331402694,
+              "x": 1.1493702700772448,
+              "y": 0.3419067949221841,
               "active": true
             }
           ],
           "nextId": 4,
           "markerSeq": 1000,
           "freeAim": {
-            "x": 0.6073951236222339,
-            "y": 1.1110707713592904
+            "x": 1.148048096156426,
+            "y": 1.3799192642332048
           },
           "angleLock": false,
-          "speed": 1.15,
-          "follow": 0,
-          "sideSpin": -0.55,
-          "cueElevationDeg": 62,
+          "speed": 2.15,
+          "follow": -1,
+          "sideSpin": -0.7,
+          "cueElevationDeg": 60,
           "shot2Enabled": false,
           "activeShot": 1,
           "shot2Initialized": false,
@@ -15384,14 +15234,14 @@
         "lesson": {
           "topic": "exercise-jump-kick-masse",
           "purpose": "Compare a curved route around a blocker with a cushion alternative.",
-          "variation": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "variation": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
           "pocket": null,
           "target": 13,
           "controls": {
-            "speed": 1.15,
-            "follow": 0,
-            "sideSpin": -0.55,
-            "cueElevationDeg": 62,
+            "speed": 2.15,
+            "follow": -1,
+            "sideSpin": -0.7,
+            "cueElevationDeg": 60,
             "airbornePhysics": true,
             "showPaths": true,
             "showImpact": true,

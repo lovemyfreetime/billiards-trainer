@@ -11,7 +11,7 @@ prompt.addEventListener('click',()=>promptAction?.());
 global.addEventListener('resize',positionPrompt);new ResizeObserver(positionPrompt).observe(document.getElementById('stageWrap'));
 global.BilliardsPracticePrompt={show(owner,action){promptOwner=owner;promptAction=action;prompt.hidden=false;positionPrompt();},hide(owner){if(promptOwner===owner){prompt.hidden=true;promptOwner=null;promptAction=null;}}};
 let pending;
-function load(){return pending||(pending=fetch('./guide/topic-scenes.json?v=guided-cues-v1').then(r=>{if(!r.ok)throw Error('Topic layouts unavailable');return r.json();}));}
+function load(){return pending||(pending=fetch('./guide/topic-scenes.json?v=shaped-guides-v2').then(r=>{if(!r.ok)throw Error('Topic layouts unavailable');return r.json();}));}
 async function attach(topics){const data=await load();for(const t of topics){const scene=data.topics[t.id];if(scene){t.scene=scene;t.setups=[scene.setup];if(t.learning)t.learning.setups=t.setups;}}return data;}
 function mount(guide,host,{seconds=10}={}){
  const bridge=global.billiardsTourBridge;

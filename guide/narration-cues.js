@@ -2,13 +2,13 @@
 (function(global){
 'use strict';
 let pending;
-function load(){return pending||(pending=fetch('./guide/narration-cues.json?v=guided-cues-v1').then(r=>{if(!r.ok)throw Error('Narration cues unavailable');return r.json();}));}
+function load(){return pending||(pending=fetch('./guide/narration-cues.json?v=shaped-guides-v2').then(r=>{if(!r.ok)throw Error('Narration cues unavailable');return r.json();}));}
 function mount(host,{page='Main'}={}){
- let data=null,current=null,frame=0,source=null,signature='',disposed=false;
+ let data=null,current=null,frame=0,source=null,signature='',disposed=false,vectors=null,nodes=[];
  const layer=document.createElement('div');layer.className='btg-cue-layer';layer.setAttribute('aria-hidden','true');document.body.append(layer);
  load().then(value=>{data=value;if(source)update(...source);}).catch(error=>console.warn(error.message));
  const visible=el=>!!el&&!el.hidden&&el.getClientRects().length>0&&getComputedStyle(el).visibility!=='hidden';
- function clear(){current=null;signature='';layer.replaceChildren();cancelAnimationFrame(frame);frame=0;}
+ function clear(){current=null;signature='';layer.replaceChildren();vectors=null;nodes=[];cancelAnimationFrame(frame);frame=0;}
  function stop(){source=null;clear();}
  function selectElement(cue){
   const binding=data.bindings[cue.target];if(!binding)return null;
@@ -31,8 +31,17 @@ function mount(host,{page='Main'}={}){
   const binding=data.bindings[current.target];let boxes=[];
   if(binding?.region&&page==='Main')boxes=global.billiardsTourBridge?.narrationRegions(binding.region)||[];
   else{const el=selectElement(current);if(visible(el)){const r=el.getBoundingClientRect();boxes=[{x:r.x,y:r.y,width:r.width,height:r.height}];}}
-  while(layer.children.length>boxes.length)layer.lastChild.remove();
-  boxes.forEach((r,i)=>{let node=layer.children[i];if(!node){node=document.createElement('div');node.className='btg-cue-ring';layer.append(node);}const pad=binding?.region?5:4;Object.assign(node.style,{left:(r.x-pad)+'px',top:(r.y-pad)+'px',width:Math.max(12,r.width+pad*2)+'px',height:Math.max(12,r.height+pad*2)+'px'});node.dataset.target=current.target;});
+  while(nodes.length>boxes.length)nodes.pop().remove();
+  const ns='http://www.w3.org/2000/svg';
+  boxes.forEach((r,i)=>{
+   const shape=r.shape||'box',tag=shape==='circle'?'circle':shape==='polyline'?'polyline':'div';let node=nodes[i];
+   if(node?.localName!==tag){node?.remove();node=tag==='div'?document.createElement(tag):document.createElementNS(ns,tag);nodes[i]=node;node.setAttribute('class','btg-cue-ring btg-cue-'+(shape==='circle'?'ball':shape==='polyline'?'line':'box'));
+    if(tag==='div')layer.append(node);else{if(!vectors){vectors=document.createElementNS(ns,'svg');vectors.setAttribute('class','btg-cue-vectors');layer.prepend(vectors);}vectors.append(node);}}
+   if(shape==='circle'){node.setAttribute('cx',r.cx);node.setAttribute('cy',r.cy);node.setAttribute('r',r.radius);node.setAttribute('stroke-width',r.strokeWidth);}
+   else if(shape==='polyline')node.setAttribute('points',r.points.map(p=>p.x+','+p.y).join(' '));
+   else{const pad=binding?.region?5:4;Object.assign(node.style,{left:(r.x-pad)+'px',top:(r.y-pad)+'px',width:Math.max(12,r.width+pad*2)+'px',height:Math.max(12,r.height+pad*2)+'px'});}
+   node.dataset.target=current.target;node.dataset.shape=shape;
+  });
   layer.dataset.target=current.target;frame=requestAnimationFrame(paint);
  }
  function update(topic,time,playing,src){

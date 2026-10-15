@@ -14,43 +14,28 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.6077688649454458,
-        "y": 0.7296833042315944,
+        "x": 2.14,
+        "y": 0.85,
         "active": true
       },
       {
         "id": 1,
         "n": "1",
-        "x": 1.3939173747917826,
-        "y": 0.48650669336044317,
+        "x": 1.6105461140110493,
+        "y": 0.7073490072982211,
         "active": true
       },
       {
         "id": 9,
         "n": "9",
-        "x": 1.1104398180764614,
-        "y": 0.16415630220566121,
-        "active": true
-      },
-      {
-        "id": 1000,
-        "n": "MARKER",
-        "marker": true,
-        "markerType": "yellow",
-        "markerShape": "circle",
-        "markerDiameterIn": 5,
-        "markerWidthIn": 5,
-        "markerHeightIn": 5,
-        "markerAngle": 0,
-        "markerLocked": false,
-        "x": 1.249691951199777,
-        "y": 0.32250386277292253,
+        "x": 0.6272746114601404,
+        "y": 0.44242573513777483,
         "active": true
       }
     ],
     "freeAim": {
-      "x": 0.9466735599587797,
-      "y": 0.3689757099053327
+      "x": 1.2919519038435743,
+      "y": 1.3799192642332048
     }
   },
   "state": {
@@ -61,51 +46,36 @@
       {
         "id": 0,
         "n": "CB",
-        "x": 1.6077688649454458,
-        "y": 0.7296833042315944,
+        "x": 2.14,
+        "y": 0.85,
         "active": true
       },
       {
         "id": 1,
         "n": "1",
-        "x": 1.3939173747917826,
-        "y": 0.48650669336044317,
+        "x": 1.6105461140110493,
+        "y": 0.7073490072982211,
         "active": true
       },
       {
         "id": 9,
         "n": "9",
-        "x": 1.1104398180764614,
-        "y": 0.16415630220566121,
-        "active": true
-      },
-      {
-        "id": 1000,
-        "n": "MARKER",
-        "marker": true,
-        "markerType": "yellow",
-        "markerShape": "circle",
-        "markerDiameterIn": 5,
-        "markerWidthIn": 5,
-        "markerHeightIn": 5,
-        "markerAngle": 0,
-        "markerLocked": false,
-        "x": 1.249691951199777,
-        "y": 0.32250386277292253,
+        "x": 0.6272746114601404,
+        "y": 0.44242573513777483,
         "active": true
       }
     ],
     "nextId": 4,
     "markerSeq": 1000,
     "freeAim": {
-      "x": 0.9466735599587797,
-      "y": 0.3689757099053327
+      "x": 1.2919519038435743,
+      "y": 1.3799192642332048
     },
     "angleLock": false,
-    "speed": 1.15,
-    "follow": 0,
-    "sideSpin": 0.55,
-    "cueElevationDeg": 62,
+    "speed": 2.45,
+    "follow": -0.9,
+    "sideSpin": 0.7,
+    "cueElevationDeg": 55,
     "shot2Enabled": false,
     "activeShot": 1,
     "shot2Initialized": false,
@@ -185,14 +155,14 @@
   "lesson": {
     "topic": "exercise-masse-route",
     "purpose": "Compare a curved route around a blocker with a cushion alternative.",
-    "variation": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+    "variation": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
     "pocket": null,
     "target": 9,
     "controls": {
-      "speed": 1.15,
-      "follow": 0,
-      "sideSpin": 0.55,
-      "cueElevationDeg": 62,
+      "speed": 2.45,
+      "follow": -0.9,
+      "sideSpin": 0.7,
+      "cueElevationDeg": 55,
       "airbornePhysics": true,
       "showPaths": true,
       "showImpact": true,

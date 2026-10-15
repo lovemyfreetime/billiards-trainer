@@ -1,0 +1,237 @@
+{
+  "masse-shot-controls-quick": {
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 0.32,
+        "y": 0.55,
+        "active": true
+      },
+      {
+        "id": 12,
+        "n": "12",
+        "x": 0.7302416437784709,
+        "y": 0.6607925129151372,
+        "active": true
+      },
+      {
+        "id": 5,
+        "n": "5",
+        "x": 1.4921189822242027,
+        "y": 0.8665500369003919,
+        "active": true
+      }
+    ],
+    "aim": {
+      "x": 1.168048096156426,
+      "y": 0.020080735766795144
+    },
+    "controls": {
+      "speed": 2.15,
+      "follow": -0.9,
+      "sideSpin": 0.7,
+      "cueElevationDeg": 55,
+      "airbornePhysics": true,
+      "showPaths": true,
+      "showImpact": true
+    },
+    "target": 5,
+    "blocker": 12,
+    "proof": {
+      "bowMetres": 0.09637128474810824,
+      "blockerClearanceMetres": 0.01822132457595268,
+      "railContacts": 0,
+      "firstContact": 5,
+      "contactSeconds": 3.3233333333333337
+    }
+  },
+  "masse-physics-quick": {
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 2.18,
+        "y": 0.38,
+        "active": true
+      },
+      {
+        "id": 8,
+        "n": "8",
+        "x": 1.7445653967441916,
+        "y": 0.6401706129973729,
+        "active": true
+      },
+      {
+        "id": 1,
+        "n": "1",
+        "x": 1.2123675483204257,
+        "y": 0.9581569177719397,
+        "active": true
+      }
+    ],
+    "aim": {
+      "x": 1.331951903843574,
+      "y": -0.14991926423320479
+    },
+    "controls": {
+      "speed": 2.3,
+      "follow": -1,
+      "sideSpin": -0.7,
+      "cueElevationDeg": 60,
+      "airbornePhysics": true,
+      "showPaths": true,
+      "showImpact": true
+    },
+    "target": 1,
+    "blocker": 8,
+    "proof": {
+      "bowMetres": 0.10029658531108072,
+      "blockerClearanceMetres": 0.008121596380964706,
+      "railContacts": 0,
+      "firstContact": 1,
+      "contactSeconds": 3.79
+    }
+  },
+  "masse-versus-jump-advanced": {
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 0.4,
+        "y": 0.37,
+        "active": true
+      },
+      {
+        "id": 15,
+        "n": "15",
+        "x": 0.8216942149189455,
+        "y": 0.5353160799528779,
+        "active": true
+      },
+      {
+        "id": 8,
+        "n": "8",
+        "x": 1.6048406140541296,
+        "y": 0.8423316570082227,
+        "active": true
+      }
+    ],
+    "aim": {
+      "x": 1.3659258262890683,
+      "y": 0.11118095489747926
+    },
+    "controls": {
+      "speed": 2,
+      "follow": -0.8,
+      "sideSpin": 0.7,
+      "cueElevationDeg": 50,
+      "airbornePhysics": true,
+      "showPaths": true,
+      "showImpact": true
+    },
+    "target": 8,
+    "blocker": 15,
+    "proof": {
+      "bowMetres": 0.08436827916489656,
+      "blockerClearanceMetres": 0.009360713358036198,
+      "railContacts": 0,
+      "firstContact": 8,
+      "contactSeconds": 2.9400000000000004
+    }
+  },
+  "exercise-masse-route": {
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 2.14,
+        "y": 0.85,
+        "active": true
+      },
+      {
+        "id": 1,
+        "n": "1",
+        "x": 1.6105461140110493,
+        "y": 0.7073490072982211,
+        "active": true
+      },
+      {
+        "id": 9,
+        "n": "9",
+        "x": 0.6272746114601404,
+        "y": 0.44242573513777483,
+        "active": true
+      }
+    ],
+    "aim": {
+      "x": 1.2919519038435743,
+      "y": 1.3799192642332048
+    },
+    "controls": {
+      "speed": 2.45,
+      "follow": -0.9,
+      "sideSpin": 0.7,
+      "cueElevationDeg": 55,
+      "airbornePhysics": true,
+      "showPaths": true,
+      "showImpact": true
+    },
+    "target": 9,
+    "blocker": 1,
+    "proof": {
+      "bowMetres": 0.12519787597219967,
+      "blockerClearanceMetres": 0.04073596148276588,
+      "railContacts": 0,
+      "firstContact": 9,
+      "contactSeconds": 3.8216666666666668
+    }
+  },
+  "exercise-jump-kick-masse": {
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 0.3,
+        "y": 0.85,
+        "active": true
+      },
+      {
+        "id": 5,
+        "n": "5",
+        "x": 0.5972795945270356,
+        "y": 0.6721673782227644,
+        "active": true
+      },
+      {
+        "id": 13,
+        "n": "13",
+        "x": 1.1493702700772448,
+        "y": 0.3419067949221841,
+        "active": true
+      }
+    ],
+    "aim": {
+      "x": 1.148048096156426,
+      "y": 1.3799192642332048
+    },
+    "controls": {
+      "speed": 2.15,
+      "follow": -1,
+      "sideSpin": -0.7,
+      "cueElevationDeg": 60,
+      "airbornePhysics": true,
+      "showPaths": true,
+      "showImpact": true
+    },
+    "target": 13,
+    "blocker": 5,
+    "proof": {
+      "bowMetres": 0.08757707812497639,
+      "blockerClearanceMetres": 0.010249798419358573,
+      "railContacts": 0,
+      "firstContact": 13,
+      "contactSeconds": 3.506666666666667
+    }
+  }
+}

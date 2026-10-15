@@ -18,6 +18,7 @@ for t in catalog['newTopics']:topics[t['id']]=t
 selected=[(id,t,catalog['topics'][id]) for id,t in topics.items() if catalog['topics'][id]['visible']]
 counts=collections.Counter();scenes={};fingerprints={}
 route_controls=read('topic-route-controls.json')
+masse_scenes=read('topic-masse-scenes.json') if (G/'topic-masse-scenes.json').exists() else {}
 shot_controls=read('topic-shot-controls.json') if (G/'topic-shot-controls.json').exists() else {}
 defaults=read('layouts/get-started-01.billiards.json')['state']
 def ball(id,x,y):return dict(id=id,n='CB' if id==0 else str(id),x=x*L,y=y*W,active=True)
@@ -239,6 +240,9 @@ for scene_index,(id,t,card) in enumerate(selected):
    reason='Prepared '+str(len(rail_hits))+'-cushion '+('object-ball bank to pocket '+str(POCKETS.index(pocket)+1) if profile=='bank' else 'cue-ball escape to the target ball')+' via '+', '.join(h['rail'] for h in rail_hits)+'. Aim and speed verified in the native solver; yellow references show the contacts.'
   shot=shot_controls.get(id) if not rail_hits else None
   if shot and shot.get('success') and all(abs(cue[k]-shot.get('sourceCue',{}).get(k,-99))<1e-8 for k in ['x','y']) and all(abs(aim[k]-shot.get('sourceAim',{}).get(k,-99))<1e-8 for k in ['x','y']):aim=shot['aim'];controls['speed']=shot['speed']
+  if profile=='masse' and id in masse_scenes:
+   authored=masse_scenes[id];balls=copy.deepcopy(authored['balls']);aim=copy.deepcopy(authored['aim']);controls.update(authored['controls']);target=authored['target'];pocket=None
+   reason='Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve.'
   reason+=' Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.'
   layout=dict(name=t['title'][:60],tableL=L,tableW=W,ballR=R,setupMode='custom',allowMissingCueBall=False,balls=balls,freeAim=aim)
   f=dict(format='billiards-trainer',version=1,kind='layout',name=t['title'][:60],layout=layout)

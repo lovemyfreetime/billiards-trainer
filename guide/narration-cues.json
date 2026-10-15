@@ -3264,6 +3264,12 @@
           "end": 6.01
         },
         {
+          "start": 6.16,
+          "target": "path",
+          "quote": "curve",
+          "end": 7.76
+        },
+        {
           "start": 8.81,
           "target": "rail",
           "quote": "cushion",
@@ -4274,7 +4280,13 @@
           "start": 2.19,
           "target": "cue",
           "quote": "cue ball",
-          "end": 3.79
+          "end": 2.72
+        },
+        {
+          "start": 2.72,
+          "target": "path",
+          "quote": "curve",
+          "end": 4.32
         },
         {
           "start": 6.84,
@@ -4417,10 +4429,10 @@
       "approximatePronunciations": [],
       "cues": [
         {
-          "start": 3.84,
-          "target": "cue",
-          "quote": "cue ball",
-          "end": 5.44
+          "start": 3.44,
+          "target": "path",
+          "quote": "curve the cue ball",
+          "end": 5.04
         },
         {
           "start": 6.81,
@@ -4432,7 +4444,13 @@
           "start": 7.92,
           "target": "speed",
           "quote": "speed",
-          "end": 9.52
+          "end": 8.95
+        },
+        {
+          "start": 8.95,
+          "target": "path",
+          "quote": "curve",
+          "end": 10.55
         }
       ]
     },
@@ -4797,6 +4815,12 @@
           "target": "english",
           "quote": "side spin",
           "end": 6.37
+        },
+        {
+          "start": 8.36,
+          "target": "path",
+          "quote": "curve",
+          "end": 9.96
         }
       ]
     },
@@ -4978,13 +5002,13 @@
           "start": 7.66,
           "target": "english",
           "quote": "sidespin",
-          "end": 8.75
+          "end": 8.43
         },
         {
-          "start": 8.75,
-          "target": "cue",
-          "quote": "cue ball",
-          "end": 10.35
+          "start": 8.43,
+          "target": "path",
+          "quote": "curve the cue ball",
+          "end": 10.03
         },
         {
           "start": 12.65,
@@ -14081,7 +14105,7 @@
   },
   "audit": {
     "tracks": 496,
-    "cues": 1111,
+    "cues": 1115,
     "withoutVisualReferences": [
       "calibration-expectations-advanced.mp3",
       "table-geometry-calibration-quick.mp3",
