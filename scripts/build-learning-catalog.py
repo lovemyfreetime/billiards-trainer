@@ -392,6 +392,9 @@ def build():
       ('Advanced route study', ['exercise-jump-clearance','exercise-jump-landing','exercise-masse-route','exercise-jump-kick-masse']),
       ('Runouts and practice review', ['exercise-three-ball-runout','exercise-full-rack-review','exercise-runout-improvement','practice-progressive-benchmark','exercise-focused-practice-session','exercise-practice-review']),
     ]
+    if (G/'topic-scenes.json').exists():
+        for id,scene in read('topic-scenes.json')['topics'].items():
+            if id in catalog:catalog[id]['setups']=[scene['setup']];catalog[id]['sceneId']=id
     write('learning-catalog.json',dict(version=1,criteria=['Purpose','Instruction','Success','Transfer'],
       notes='Supplemental written practice cards; existing MP3 narration is unchanged. Suggested scores are practice goals. Physical results are recorded by the student.',
       paths=[dict(title=k,topics=v) for k,v in paths],newTopics=[topics[x[0]] for x in NEW],topics=catalog))

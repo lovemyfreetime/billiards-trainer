@@ -46,20 +46,22 @@ async function init(){
  for(const topic of catalog.topics)topic.explorerOnly=topic.category==='reference'||topic.category==='explore'||(topic.category!=='start'&&topic.category!=='reference'&&ids.includes(topic.id));
  await BilliardsPracticeLayouts.attach(catalog.topics);
  await BilliardsLearning.attach(catalog.topics);
- let tour=null;
+ await BilliardsLessonPractice.attach(catalog.topics);
+ let tour=null,lessonPractice=null;
  const guide=BilliardsGuide.mount(host,{
-  loadLayout:BilliardsPracticeLayouts.apply,
-  onTopicChange:topic=>tour?.select(topic),
-  onTryShot:()=>tour?.tryShot(),
+  loadLayout:url=>lessonPractice?lessonPractice.resetUrl(url):BilliardsPracticeLayouts.apply(url),
+  onTopicChange:topic=>topic?.category==='start'?tour?.select(topic):lessonPractice?.select(topic),
+  onTryShot:()=>guide.getState().category==='start'?tour?.tryShot():lessonPractice?.tryShot(),
   onPlaybackProgress:(topic,time,playing)=>tour?.progress(topic,time,playing),
-  onPlaybackStart:()=>tour?.listening(),
-  onRendered:()=>tour?.placeControls(),
-  onPlaybackStop:()=>tour?.hold(false),
-  onLessonEnd:(topic,state)=>tour?.ended(topic,state),
+  onPlaybackStart:()=>guide.getState().category==='start'?tour?.listening():lessonPractice?.listening(),
+  onRendered:()=>{tour?.placeControls();lessonPractice?.placeControls();},
+  onPlaybackStop:()=>guide.getState().category==='start'?tour?.hold(false):lessonPractice?.hold(false),
+  onLessonEnd:(topic,state)=>topic?.category==='start'?tour?.ended(topic,state):lessonPractice?.ended(topic,state),
   getPracticeSetups:()=>tour?.setups()||[],
   loadPracticeSetup:url=>tour.load(url),
   onStateChange(state){
    tour?.sync(state);
+   lessonPractice?.sync(state);
    guideButton.setAttribute('aria-pressed',String(state.enabled&&state.category!=='start'));
    startButton.setAttribute('aria-pressed',String(!!tour?.getState().active||(state.enabled&&state.category==='start')));
    exploreButton.setAttribute('aria-pressed',String(state.exploring));
@@ -98,6 +100,8 @@ async function init(){
  exploreButton.addEventListener('click',()=>guide.setExploring(!guide.getState().exploring));
  window.billiardsPoolAudioMap=catalog;
  tour=await BilliardsGetStartedTour.mount(guide);
+ lessonPractice=BilliardsLessonPractice.mount(guide,host);
+ window.billiardsLessonPractice=lessonPractice;
  window.billiardsGetStartedTour=tour;
  startButton.addEventListener('click',()=>tour?tour.start():guide.openCategory('start'));
  for(const id of ['analyzePhotoBtn','cameraCaptureBtn'])document.getElementById(id)?.addEventListener('click',()=>{if(!guide.getState().exploring){guide.setEnabled(false);guide.setExploring(false)}},true);

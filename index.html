@@ -2432,8 +2432,23 @@
             }
             $('layoutNameInput').value=S.lastLayoutName;$('layoutQuickName').value=S.lastLayoutName;refresh();return true;
         }
+        function loadLesson(scene){
+            if(animation||!scene?.file?.layout)return false;
+            // Use the same native loader while retaining the current calibration.
+            const file=window.BilliardsLayoutFiles.parse(JSON.stringify(scene.file));
+            applyTableFile({...file,kind:'layout',state:null,history:[]},false,null,true);
+            const c=scene.controls||{},allowed=['speed','follow','sideSpin','cueElevationDeg','airbornePhysics','showPaths','showImpact','showDiamonds','shot2Enabled','shot2Initialized','activeShot'];
+            for(const key of allowed)if(c[key]!==undefined)S[key]=copy(c[key]);
+            S.teachingCompass={...defaultState().teachingCompass,...(c.teachingCompass||{})};
+            S.angleLock=false;S.showShot1=true;S.showShot2=true;S.showCueVisuals=true;S.showCueVisuals1=true;S.showCueVisuals2=true;
+            if(c.planNextBall){
+                const rest=simulate(false).finalBalls.find(b=>b.id===0&&b.active);
+                if(rest&&S.balls.some(b=>b.id===c.planNextBall)){S.shot2Enabled=true;S.shot2Initialized=true;S.shot2={...defaultState().shot2,x:rest.x,y:rest.y,freeAim:aimAt(c.planNextBall,c.nextPocket||[1,1]),speed:1.45,follow:0,sideSpin:0};}
+            }
+            resetRunHistory();refresh();return true;
+        }
         function snapshot(){return {busy:!!animation,undoCount:undoStack.length,shots:Math.max(0,runHistory.length-1),pocketed:[...(S.pocketedLog||[])],shot2Enabled:S.shot2Enabled,speed:S.speed,followPercent:Math.round(S.follow*100),sidePercent:Math.round(S.sideSpin*100),tableL:S.tableL,tableW:S.tableW};}
-        return {capture,restore,apply,snapshot,exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},rollingReference(which=1){return rollingReferenceForShot(which);},predict(){const p=simulate(false);return {pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact};}};
+        return {capture,restore,apply,loadLesson,snapshot,exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},rollingReference(which=1){return rollingReferenceForShot(which);},predict(){const p=simulate(false);return {pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact};}};
     })();
 
     window.billiardsGuideApplyLayout=file=>{applyTableFile(file,false,null,true);if($('photoAnalyzerModal').classList.contains('open'))closePhotoAnalyzer();};
@@ -12130,12 +12145,13 @@ if ('serviceWorker' in navigator) {
   <script src="./phone-play.js?v=9"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
-  <script src="./guide/guide.js?v=learning-v1"></script>
+  <script src="./guide/guide.js?v=topic-guide-v2"></script>
   <script src="./guide/recorded-audio.js?v=presets-recovery-v13"></script>
   <link rel="stylesheet" href="./guide/get-started-tour.css?v=completion-tour-v25">
   <script src="./guide/get-started-tour.js?v=learning-v1"></script>
-  <script src="./guide/learning.js?v=learning-v1"></script>
-  <script src="./guide/pool-integration.js?v=learning-v1"></script>
+  <script src="./guide/learning.js?v=topic-guide-v2"></script>
+  <script src="./guide/lesson-practice.js?v=topic-guide-v2"></script>
+  <script src="./guide/pool-integration.js?v=topic-guide-v2"></script>
   <script src="./guide/analyze-integration.js?v=completion-tour-v25"></script>
   <script src="./guide/analyze-welcome.js?v=analyze-welcome-v16"></script>
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>

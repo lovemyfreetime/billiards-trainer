@@ -1,0 +1,177 @@
+{
+  "format": "billiards-trainer",
+  "version": 1,
+  "kind": "session",
+  "name": "table speed",
+  "layout": {
+    "name": "table speed",
+    "tableL": 2.54,
+    "tableW": 1.27,
+    "ballR": 0.028575,
+    "setupMode": "custom",
+    "allowMissingCueBall": false,
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 0.61976,
+        "y": 0.64008,
+        "active": true
+      },
+      {
+        "id": 1000,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "white",
+        "markerShape": "circle",
+        "markerDiameterIn": 6,
+        "markerWidthIn": 6,
+        "markerHeightIn": 6,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 1.4681199999999999,
+        "y": 0.64008,
+        "active": true
+      }
+    ],
+    "freeAim": {
+      "x": 2.2352,
+      "y": 0.64008
+    }
+  },
+  "state": {
+    "tableL": 2.54,
+    "tableW": 1.27,
+    "ballR": 0.028575,
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 0.61976,
+        "y": 0.64008,
+        "active": true
+      },
+      {
+        "id": 1000,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "white",
+        "markerShape": "circle",
+        "markerDiameterIn": 6,
+        "markerWidthIn": 6,
+        "markerHeightIn": 6,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 1.4681199999999999,
+        "y": 0.64008,
+        "active": true
+      }
+    ],
+    "nextId": 4,
+    "markerSeq": 1000,
+    "freeAim": {
+      "x": 2.2352,
+      "y": 0.64008
+    },
+    "angleLock": false,
+    "speed": 0.47400000000000003,
+    "follow": 0,
+    "sideSpin": 0,
+    "cueElevationDeg": 0,
+    "shot2Enabled": false,
+    "activeShot": 1,
+    "shot2Initialized": false,
+    "showShot1": true,
+    "showShot2": true,
+    "showCueVisuals": true,
+    "showShotStats1": true,
+    "showShotStats2": true,
+    "showCueVisuals1": true,
+    "showCueVisuals2": true,
+    "showAngleLockControl": false,
+    "shot2": {
+      "x": 1.05,
+      "y": 0.72,
+      "freeAim": {
+        "x": 1.7,
+        "y": 0.72
+      },
+      "angleLock": false,
+      "autoGhostLock": false,
+      "speed": 2.42,
+      "follow": 0,
+      "sideSpin": 0,
+      "cueElevationDeg": 3,
+      "preview": null
+    },
+    "teachingCompass": {
+      "enabled": false,
+      "x": 0.9,
+      "y": 0.56,
+      "angle": 0,
+      "sizePct": 45,
+      "linkedBallId": null
+    },
+    "setupMode": "custom",
+    "pocketedLog": [],
+    "player1Score": 0,
+    "player2Score": 0,
+    "activePlayer": 1,
+    "showScoreBoard": false,
+    "allowMissingCueBall": false,
+    "showBankKickNumbers": false,
+    "bankKick": {
+      "mode": null,
+      "phase": null,
+      "zero": null,
+      "railName": null,
+      "railU": null,
+      "autoAim": true,
+      "ballId": null,
+      "solution": null
+    },
+    "muSlide": 0.25,
+    "muRoll": 0.01,
+    "muBall": 0.01,
+    "ballRest": 0.96,
+    "railRest": 0.9,
+    "railTang": 0.9,
+    "cueEndmassRatio": 20.151,
+    "cuePreset": "standard",
+    "jumpUnits": "in",
+    "airbornePhysics": false,
+    "tableRest": 0.6,
+    "bedImpactMu": 0.2,
+    "showImpact": true,
+    "showTipBadge": false,
+    "showPaths": true,
+    "showGrid": true,
+    "showDiamonds": true,
+    "showTable": true,
+    "preview": null,
+    "firstEvent": "CB → 1",
+    "lastLayoutName": "table speed",
+    "name": "table speed"
+  },
+  "history": [],
+  "lesson": {
+    "topic": "exercise-table-speed-calibration-variation",
+    "purpose": "Compare repeatable table behavior without confusing stroke changes with table changes.",
+    "variation": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
+    "pocket": null,
+    "target": null,
+    "controls": {
+      "speed": 0.47400000000000003,
+      "follow": 0,
+      "sideSpin": 0,
+      "cueElevationDeg": 0,
+      "airbornePhysics": false,
+      "showPaths": true,
+      "showImpact": true,
+      "showDiamonds": true,
+      "shot2Enabled": false,
+      "shot2Initialized": false,
+      "activeShot": 1
+    }
+  }
+}

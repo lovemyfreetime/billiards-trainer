@@ -11,7 +11,7 @@ const layoutFiles=require('../trainer-layout-files.js');const checked=new Set();
 for(const [id,card]of Object.entries(catalog.topics)){
  for(const key of ['purpose','instruction','success','transfer','progression'])assert.ok(typeof card[key]==='string'&&card[key].length>20,id+' '+key);
  for(const setup of card.setups){
-  assert.match(setup.url,/^\.\/guide\/layouts\/[\w-]+\.billiards\.json$/);
+  assert.match(setup.url,/^\.\/guide\/layouts\/(?:topics\/)?[\w-]+\.billiards\.json$/);
   if(!checked.has(setup.url)){checked.add(setup.url);const parsed=layoutFiles.parse(fs.readFileSync(setup.url,'utf8'));assert.ok(parsed.layout.balls.some(b=>b.id===0),'Cue present: '+setup.url);}
  }
 }

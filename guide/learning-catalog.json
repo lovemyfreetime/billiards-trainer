@@ -348,19 +348,20 @@
       "progression": "Start generously and shrink only after repeatable success.",
       "setups": [
         {
-          "title": "Three cue-ball position zones",
-          "url": "./guide/layouts/three-zones.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Table markers",
+          "url": "./guide/layouts/topics/table-markers-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Table markers.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "table-markers-quick"
     },
     "marker-resizing-quick": {
       "title": "Resizing markers",
@@ -477,14 +478,15 @@
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
       "setups": [
         {
-          "title": "Cue-ball speed — clear table",
-          "url": "./guide/layouts/clear-speed.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Physics and calibration overview",
+          "url": "./guide/layouts/topics/physics-calibration-overview-quick.billiards.json",
+          "note": "Clear rolling lane and a named stopping target; no collision hides the travel comparison."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "physics-calibration-overview-quick"
     },
     "execute-shot-quick": {
       "title": "Execute Shot",
@@ -558,14 +560,20 @@
       "progression": "Change object-ball distance or speed individually, retaining the same target pocket.",
       "setups": [
         {
-          "title": "One-rail bank starter",
-          "url": "./guide/layouts/bank-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Banks and kicks",
+          "url": "./guide/layouts/topics/bank-kick-overview-quick.billiards.json",
+          "note": "Object-ball bank to a named corner, with a geometric first-rail reference; rebounds need observed adjustment. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "bank-kick-overview-quick"
     },
     "load-selected-layout-quick": {
       "title": "Load Selected",
@@ -736,14 +744,15 @@
       "progression": "Narrow the band or add a cushion only after establishing a consistent baseline.",
       "setups": [
         {
-          "title": "Cue-ball speed — clear table",
-          "url": "./guide/layouts/clear-speed.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Fine speed adjustment",
+          "url": "./guide/layouts/topics/shot-speed-fine-adjustment-quick.billiards.json",
+          "note": "Clear rolling lane and a named stopping target; no collision hides the travel comparison."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "shot-speed-fine-adjustment-quick"
     },
     "follow-control-quick": {
       "title": "Follow",
@@ -915,14 +924,15 @@
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
       "setups": [
         {
-          "title": "Jump clearance and landing",
-          "url": "./guide/layouts/jump-obstacle.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Jump height",
+          "url": "./guide/layouts/topics/jump-height-quick.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "jump-height-quick"
     },
     "jump-obstacle-clearance-quick": {
       "title": "Obstacle clearance",
@@ -937,14 +947,15 @@
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
       "setups": [
         {
-          "title": "Jump clearance and landing",
-          "url": "./guide/layouts/jump-obstacle.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Obstacle clearance",
+          "url": "./guide/layouts/topics/jump-obstacle-clearance-quick.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "jump-obstacle-clearance-quick"
     },
     "jump-landing-point-quick": {
       "title": "Landing point",
@@ -959,14 +970,15 @@
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
       "setups": [
         {
-          "title": "Jump clearance and landing",
-          "url": "./guide/layouts/jump-obstacle.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Landing point",
+          "url": "./guide/layouts/topics/jump-landing-point-quick.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "jump-landing-point-quick"
     },
     "masse-shot-controls-quick": {
       "title": "Massé shot controls",
@@ -981,14 +993,15 @@
       "progression": "Prefer the route you can repeat with the largest clearance margin.",
       "setups": [
         {
-          "title": "Blocked route — kick, jump, or massé",
-          "url": "./guide/layouts/blocked-route.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Massé shot controls",
+          "url": "./guide/layouts/topics/masse-shot-controls-quick.billiards.json",
+          "note": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "masse-shot-controls-quick"
     },
     "execute-shot-sequence-quick": {
       "title": "Execute Shot one at a time",
@@ -1121,19 +1134,20 @@
       "progression": "Compare a longer approach while keeping the target/pocket fixed.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Power meter",
+          "url": "./guide/layouts/topics/exercise-cue-pocket-threshold.billiards.json",
+          "note": "Approach distance and contact geometry selected for Power meter.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-cue-pocket-threshold"
     },
     "jump-masse-open-controls-quick": {
       "title": "Opening 3D jump and massé controls",
@@ -1164,14 +1178,15 @@
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
       "setups": [
         {
-          "title": "Jump clearance and landing",
-          "url": "./guide/layouts/jump-obstacle.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Cue elevation for advanced shots",
+          "url": "./guide/layouts/topics/jump-masse-elevation-technique-advanced.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "jump-masse-elevation-technique-advanced"
     },
     "contact-point-geometry-quick": {
       "title": "Contact point",
@@ -1186,19 +1201,20 @@
       "progression": "Increase cue-ball distance or cut angle, one at a time, after a repeatable baseline.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Contact point",
+          "url": "./guide/layouts/topics/contact-point-geometry-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Contact point.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "contact-point-geometry-quick"
     },
     "cut-angle-geometry-quick": {
       "title": "Cut angle",
@@ -1213,19 +1229,20 @@
       "progression": "Increase distance before adding English; keep the same scoring conditions.",
       "setups": [
         {
-          "title": "Cut shot — right side pocket",
-          "url": "./guide/layouts/cut-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Cut angle",
+          "url": "./guide/layouts/topics/cut-angle-geometry-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Cut angle.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "cut-angle-geometry-quick"
     },
     "ball-overlap-quick": {
       "title": "Ball overlap",
@@ -1240,19 +1257,20 @@
       "progression": "Increase distance before adding English; keep the same scoring conditions.",
       "setups": [
         {
-          "title": "Cut shot — right side pocket",
-          "url": "./guide/layouts/cut-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Ball overlap",
+          "url": "./guide/layouts/topics/ball-overlap-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Ball overlap.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "ball-overlap-quick"
     },
     "ghost-ball-geometry-quick": {
       "title": "Ghost-ball position",
@@ -1267,19 +1285,20 @@
       "progression": "Increase cue-ball distance or cut angle, one at a time, after a repeatable baseline.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Ghost-ball position",
+          "url": "./guide/layouts/topics/ghost-ball-geometry-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Ghost-ball position.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "ghost-ball-geometry-quick"
     },
     "collision-line-quick": {
       "title": "Collision line",
@@ -1294,19 +1313,20 @@
       "progression": "Compare no sidespin with a small sidespin input after the geometry baseline.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Collision line",
+          "url": "./guide/layouts/topics/collision-line-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Collision line.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "collision-line-quick"
     },
     "tangent-line-geometry-quick": {
       "title": "The tangent line",
@@ -1321,19 +1341,20 @@
       "progression": "Change cut angle, then compare how follow/draw move the route away from the reference.",
       "setups": [
         {
-          "title": "90-Degree Stun Tangent Line",
-          "url": "./guide/layouts/drill-stun-tangent.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface.",
+          "title": "The tangent line",
+          "url": "./guide/layouts/topics/tangent-line-geometry-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for The tangent line.",
           "pocket": [
             0.5,
-            1.0
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "tangent-line-geometry-quick"
     },
     "ninety-degree-rule-quick": {
       "title": "The ninety-degree rule",
@@ -1348,19 +1369,20 @@
       "progression": "Change cut angle, then compare how follow/draw move the route away from the reference.",
       "setups": [
         {
-          "title": "90-Degree Stun Tangent Line",
-          "url": "./guide/layouts/drill-stun-tangent.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface.",
+          "title": "The ninety-degree rule",
+          "url": "./guide/layouts/topics/ninety-degree-rule-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for The ninety-degree rule.",
           "pocket": [
             0.5,
-            1.0
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "ninety-degree-rule-quick"
     },
     "thirty-degree-rule-quick": {
       "title": "The thirty-degree rule",
@@ -1375,19 +1397,20 @@
       "progression": "Compare a fuller and a thinner hit to learn where the natural-angle approximation stops being useful.",
       "setups": [
         {
-          "title": "Cut shot — right side pocket",
-          "url": "./guide/layouts/cut-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "The thirty-degree rule",
+          "url": "./guide/layouts/topics/thirty-degree-rule-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for The thirty-degree rule.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "thirty-degree-rule-quick"
     },
     "bank-shot-geometry-quick": {
       "title": "Bank-shot geometry",
@@ -1456,14 +1479,20 @@
       "progression": "Change object-ball distance or speed individually, retaining the same target pocket.",
       "setups": [
         {
-          "title": "One-rail bank starter",
-          "url": "./guide/layouts/bank-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Diamond references",
+          "url": "./guide/layouts/topics/diamond-system-geometry-quick.billiards.json",
+          "note": "Object-ball bank to a named corner, with a geometric first-rail reference; rebounds need observed adjustment. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "diamond-system-geometry-quick"
     },
     "mirror-aiming-quick": {
       "title": "Mirror aiming",
@@ -1478,14 +1507,20 @@
       "progression": "Change object-ball distance or speed individually, retaining the same target pocket.",
       "setups": [
         {
-          "title": "One-rail bank starter",
-          "url": "./guide/layouts/bank-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Mirror aiming",
+          "url": "./guide/layouts/topics/mirror-aiming-quick.billiards.json",
+          "note": "Object-ball bank to a named corner, with a geometric first-rail reference; rebounds need observed adjustment. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "mirror-aiming-quick"
     },
     "rail-contact-point-quick": {
       "title": "Choosing the rail contact point",
@@ -1500,14 +1535,20 @@
       "progression": "Change object-ball distance or speed individually, retaining the same target pocket.",
       "setups": [
         {
-          "title": "One-rail bank starter",
-          "url": "./guide/layouts/bank-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Choosing the rail contact point",
+          "url": "./guide/layouts/topics/rail-contact-point-quick.billiards.json",
+          "note": "Object-ball bank to a named corner, with a geometric first-rail reference; rebounds need observed adjustment. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "rail-contact-point-quick"
     },
     "cushion-response-geometry-quick": {
       "title": "Cushion response",
@@ -1544,14 +1585,15 @@
       "progression": "Add a target zone; then compare a second speed without changing the layout.",
       "setups": [
         {
-          "title": "Rail rebound and English",
-          "url": "./guide/layouts/rail-spin.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "English off a cushion",
+          "url": "./guide/layouts/topics/rail-english-geometry-quick.billiards.json",
+          "note": "One-cushion lane with a marked first rail reference, for no/left/right English comparisons."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "rail-english-geometry-quick"
     },
     "multiple-rail-routes-quick": {
       "title": "Multiple-rail routes",
@@ -1566,14 +1608,15 @@
       "progression": "Test a second start only after the original route repeats; record each adjustment.",
       "setups": [
         {
-          "title": "Two-Rail Corner Kick",
-          "url": "./guide/layouts/drill-two-rail-kick.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+          "title": "Multiple-rail routes",
+          "url": "./guide/layouts/topics/multiple-rail-routes-quick.billiards.json",
+          "note": "Two-cushion image route around the blocker; check each rail contact before the final target. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "multiple-rail-routes-quick"
     },
     "exercise-geometry-route-comparison": {
       "title": "Geometry practice challenge",
@@ -1588,29 +1631,20 @@
       "progression": "Change object-ball distance or speed individually, retaining the same target pocket.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Geometry practice challenge",
+          "url": "./guide/layouts/topics/exercise-geometry-route-comparison.billiards.json",
+          "note": "Object-ball bank to a named corner, with a geometric first-rail reference; rebounds need observed adjustment. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
           "pocket": [
             1,
             1
           ],
           "target": 1
-        },
-        {
-          "title": "One-rail bank starter",
-          "url": "./guide/layouts/bank-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "One-Rail Mirror Kick",
-          "url": "./guide/layouts/drill-mirror-kick.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-geometry-route-comparison"
     },
     "compass-tool-intro-quick": {
       "title": "Compass tool — introduction",
@@ -1625,19 +1659,20 @@
       "progression": "Repeat with another cut and distinguish initial and eventual direction.",
       "setups": [
         {
-          "title": "Cut shot — right side pocket",
-          "url": "./guide/layouts/cut-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Compass tool — introduction",
+          "url": "./guide/layouts/topics/compass-tool-intro-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Compass tool — introduction.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "compass-tool-intro-quick"
     },
     "compass-rotate-size-quick": {
       "title": "Compass tool — rotate and resize",
@@ -1814,19 +1849,20 @@
       "progression": "Save baseline and variation under different names; keep physical results with the matching setup.",
       "setups": [
         {
-          "title": "First shot and next-ball position",
-          "url": "./guide/layouts/position-two-balls.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Creating a simple practice layout",
+          "url": "./guide/layouts/topics/practice-layout-quick.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-layout-quick"
     },
     "random-layouts-quick": {
       "title": "Random ball arrangements",
@@ -2122,19 +2158,20 @@
       "progression": "Increase distance before adding English; keep the same scoring conditions.",
       "setups": [
         {
-          "title": "Cut shot — right side pocket",
-          "url": "./guide/layouts/cut-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Exercise: change one ball",
+          "url": "./guide/layouts/topics/exercise-change-one-ball.billiards.json",
+          "note": "Approach distance and contact geometry selected for Exercise: change one ball.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-change-one-ball"
     },
     "exercise-layout-runout-review": {
       "title": "Exercise: build and review a rack",
@@ -2149,29 +2186,15 @@
       "progression": "Improve the earliest weak transition before increasing layout difficulty.",
       "setups": [
         {
-          "title": "8-ball full rack",
-          "url": "./guide/layouts/rack-8ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "9-ball full rack",
-          "url": "./guide/layouts/rack-9ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
-          "pocket": [
-            0.5,
-            1
-          ],
-          "target": 1
+          "title": "Exercise: build and review a rack",
+          "url": "./guide/layouts/topics/exercise-layout-runout-review.billiards.json",
+          "note": "Correct full rack with a distinct break starting point; continue planning from the resulting spread."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-layout-runout-review"
     },
     "save-recall-layout-intro-quick": {
       "title": "Save / Recall Layout — introduction",
@@ -2240,19 +2263,20 @@
       "progression": "Save baseline and variation under different names; keep physical results with the matching setup.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "— save, change, and recall",
+          "url": "./guide/layouts/topics/exercise-save-recall-layout.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-save-recall-layout"
     },
     "table-balls-saved-layouts-quick": {
       "title": "Saved Ball Layouts inside Table / Balls",
@@ -2337,14 +2361,15 @@
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
       "setups": [
         {
-          "title": "Cue-ball speed — clear table",
-          "url": "./guide/layouts/clear-speed.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Table Speed",
+          "url": "./guide/layouts/topics/exercise-table-speed.billiards.json",
+          "note": "Clear rolling lane and a named stopping target; no collision hides the travel comparison."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-table-speed"
     },
     "physics-calibration-intro-quick": {
       "title": "Physics and Calibration overview",
@@ -2375,14 +2400,15 @@
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
       "setups": [
         {
-          "title": "Cue-ball speed — clear table",
-          "url": "./guide/layouts/clear-speed.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "What calibration can and cannot do",
+          "url": "./guide/layouts/topics/calibration-expectations-advanced.billiards.json",
+          "note": "Clear rolling lane and a named stopping target; no collision hides the travel comparison."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "calibration-expectations-advanced"
     },
     "rolling-friction-quick": {
       "title": "Rolling friction and table speed",
@@ -2456,19 +2482,20 @@
       "progression": "Compare a fuller and a thinner hit to learn where the natural-angle approximation stops being useful.",
       "setups": [
         {
-          "title": "Cut shot — right side pocket",
-          "url": "./guide/layouts/cut-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Natural roll",
+          "url": "./guide/layouts/topics/natural-roll-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Natural roll.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "natural-roll-quick"
     },
     "physics-shot-speed-quick": {
       "title": "Shot speed and distance",
@@ -2483,14 +2510,15 @@
       "progression": "Narrow the band or add a cushion only after establishing a consistent baseline.",
       "setups": [
         {
-          "title": "Cue-ball speed — clear table",
-          "url": "./guide/layouts/clear-speed.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Shot speed and distance",
+          "url": "./guide/layouts/topics/physics-shot-speed-quick.billiards.json",
+          "note": "Clear rolling lane and a named stopping target; no collision hides the travel comparison."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "physics-shot-speed-quick"
     },
     "ball-collision-quick": {
       "title": "Cue ball collisions",
@@ -2505,19 +2533,20 @@
       "progression": "Compare no sidespin with a small sidespin input after the geometry baseline.",
       "setups": [
         {
-          "title": "Cut shot — right side pocket",
-          "url": "./guide/layouts/cut-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Cue ball collisions",
+          "url": "./guide/layouts/topics/ball-collision-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Cue ball collisions.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "ball-collision-quick"
     },
     "collision-restitution-advanced": {
       "title": "Collision energy and restitution",
@@ -2548,19 +2577,20 @@
       "progression": "Use a smaller zone only after consistent pocketing and position; then increase approach distance.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Follow through contact",
+          "url": "./guide/layouts/topics/physics-follow-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Follow through contact.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "physics-follow-quick"
     },
     "physics-draw-quick": {
       "title": "Draw through contact",
@@ -2575,19 +2605,20 @@
       "progression": "Move the cue ball farther away while retaining the same return-zone objective.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Draw through contact",
+          "url": "./guide/layouts/topics/physics-draw-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Draw through contact.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "physics-draw-quick"
     },
     "physics-stun-quick": {
       "title": "Stop and stun",
@@ -2602,19 +2633,20 @@
       "progression": "Change cut angle, then compare how follow/draw move the route away from the reference.",
       "setups": [
         {
-          "title": "90-Degree Stun Tangent Line",
-          "url": "./guide/layouts/drill-stun-tangent.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface.",
+          "title": "Stop and stun",
+          "url": "./guide/layouts/topics/physics-stun-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Stop and stun.",
           "pocket": [
             0.5,
-            1.0
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "physics-stun-quick"
     },
     "physics-english-quick": {
       "title": "Side spin or English",
@@ -2629,14 +2661,15 @@
       "progression": "Add a target zone; then compare a second speed without changing the layout.",
       "setups": [
         {
-          "title": "Rail rebound and English",
-          "url": "./guide/layouts/rail-spin.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Side spin or English",
+          "url": "./guide/layouts/topics/physics-english-quick.billiards.json",
+          "note": "One-cushion lane with a marked first rail reference, for no/left/right English comparisons."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "physics-english-quick"
     },
     "spin-transfer-advanced": {
       "title": "Spin transfer",
@@ -2651,19 +2684,20 @@
       "progression": "Compare no sidespin with a small sidespin input after the geometry baseline.",
       "setups": [
         {
-          "title": "Cut shot — right side pocket",
-          "url": "./guide/layouts/cut-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Spin transfer",
+          "url": "./guide/layouts/topics/spin-transfer-advanced.billiards.json",
+          "note": "Approach distance and contact geometry selected for Spin transfer.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "spin-transfer-advanced"
     },
     "cue-ball-squirt-quick": {
       "title": "Cue ball deflection or squirt",
@@ -2694,19 +2728,20 @@
       "progression": "Compare the same shot with a near-level cue before increasing elevation.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Swerve and cloth interaction",
+          "url": "./guide/layouts/topics/cue-ball-swerve-advanced.billiards.json",
+          "note": "Approach distance and contact geometry selected for Swerve and cloth interaction.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "cue-ball-swerve-advanced"
     },
     "cushion-response-quick": {
       "title": "Cushion rebounds",
@@ -2743,14 +2778,15 @@
       "progression": "Narrow the band or add a cushion only after establishing a consistent baseline.",
       "setups": [
         {
-          "title": "Cue-ball speed — clear table",
-          "url": "./guide/layouts/clear-speed.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Rail speed loss",
+          "url": "./guide/layouts/topics/rail-speed-loss-advanced.billiards.json",
+          "note": "An actual cushion route makes rebound speed loss observable."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "rail-speed-loss-advanced"
     },
     "cue-elevation-quick": {
       "title": "Cue elevation",
@@ -2787,14 +2823,15 @@
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
       "setups": [
         {
-          "title": "Jump clearance and landing",
-          "url": "./guide/layouts/jump-obstacle.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Jump trajectory",
+          "url": "./guide/layouts/topics/jump-trajectory-quick.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "jump-trajectory-quick"
     },
     "physics-jump-clearance-quick": {
       "title": "Clearing an obstacle",
@@ -2809,14 +2846,15 @@
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
       "setups": [
         {
-          "title": "Jump clearance and landing",
-          "url": "./guide/layouts/jump-obstacle.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Clearing an obstacle",
+          "url": "./guide/layouts/topics/physics-jump-clearance-quick.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "physics-jump-clearance-quick"
     },
     "physics-jump-landing-quick": {
       "title": "Landing position",
@@ -2831,14 +2869,15 @@
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
       "setups": [
         {
-          "title": "Jump clearance and landing",
-          "url": "./guide/layouts/jump-obstacle.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Landing position",
+          "url": "./guide/layouts/topics/physics-jump-landing-quick.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "physics-jump-landing-quick"
     },
     "jump-model-limitations-advanced": {
       "title": "Understanding jump trajectory",
@@ -2853,14 +2892,15 @@
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
       "setups": [
         {
-          "title": "Jump clearance and landing",
-          "url": "./guide/layouts/jump-obstacle.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Understanding jump trajectory",
+          "url": "./guide/layouts/topics/jump-model-limitations-advanced.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "jump-model-limitations-advanced"
     },
     "masse-physics-quick": {
       "title": "Massé shot",
@@ -2875,14 +2915,15 @@
       "progression": "Prefer the route you can repeat with the largest clearance margin.",
       "setups": [
         {
-          "title": "Blocked route — kick, jump, or massé",
-          "url": "./guide/layouts/blocked-route.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Massé shot",
+          "url": "./guide/layouts/topics/masse-physics-quick.billiards.json",
+          "note": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "masse-physics-quick"
     },
     "masse-versus-jump-advanced": {
       "title": "Massé versus jump",
@@ -2897,14 +2938,15 @@
       "progression": "Prefer the route you can repeat with the largest clearance margin.",
       "setups": [
         {
-          "title": "Blocked route — kick, jump, or massé",
-          "url": "./guide/layouts/blocked-route.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Massé versus jump",
+          "url": "./guide/layouts/topics/masse-versus-jump-advanced.billiards.json",
+          "note": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "masse-versus-jump-advanced"
     },
     "table-geometry-calibration-quick": {
       "title": "Table dimensions and ball geometry",
@@ -2919,14 +2961,15 @@
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
       "setups": [
         {
-          "title": "Cue-ball speed — clear table",
-          "url": "./guide/layouts/clear-speed.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Table dimensions and ball geometry",
+          "url": "./guide/layouts/topics/table-geometry-calibration-quick.billiards.json",
+          "note": "Clear rolling lane and a named stopping target; no collision hides the travel comparison."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "table-geometry-calibration-quick"
     },
     "physics-measurements-quick": {
       "title": "Reading physical measurements",
@@ -2957,14 +3000,15 @@
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
       "setups": [
         {
-          "title": "Cue-ball speed — clear table",
-          "url": "./guide/layouts/clear-speed.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Calibrating against a real table",
+          "url": "./guide/layouts/topics/real-table-calibration-quick.billiards.json",
+          "note": "Clear rolling lane and a named stopping target; no collision hides the travel comparison."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "real-table-calibration-quick"
     },
     "one-variable-calibration-quick": {
       "title": "Change one variable at a time",
@@ -2979,14 +3023,15 @@
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
       "setups": [
         {
-          "title": "Cue-ball speed — clear table",
-          "url": "./guide/layouts/clear-speed.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Change one variable at a time",
+          "url": "./guide/layouts/topics/one-variable-calibration-quick.billiards.json",
+          "note": "Clear rolling lane and a named stopping target; no collision hides the travel comparison."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "one-variable-calibration-quick"
     },
     "calibration-notes-quick": {
       "title": "Save your calibration observations",
@@ -3001,14 +3046,15 @@
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
       "setups": [
         {
-          "title": "Cue-ball speed — clear table",
-          "url": "./guide/layouts/clear-speed.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Save your calibration observations",
+          "url": "./guide/layouts/topics/calibration-notes-quick.billiards.json",
+          "note": "Clear rolling lane and a named stopping target; no collision hides the travel comparison."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "calibration-notes-quick"
     },
     "exercise-table-speed-calibration-variation": {
       "title": "table speed",
@@ -3023,14 +3069,15 @@
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
       "setups": [
         {
-          "title": "Cue-ball speed — clear table",
-          "url": "./guide/layouts/clear-speed.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "table speed",
+          "url": "./guide/layouts/topics/exercise-table-speed-calibration-variation.billiards.json",
+          "note": "Clear rolling lane and a named stopping target; no collision hides the travel comparison."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-table-speed-calibration-variation"
     },
     "exercise-sliding-friction": {
       "title": "sliding friction",
@@ -3045,19 +3092,20 @@
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "sliding friction",
+          "url": "./guide/layouts/topics/exercise-sliding-friction.billiards.json",
+          "note": "Straight collision exposes slide-to-roll changes instead of only free rolling distance.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
-          "target": 1
+          "target": null
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-sliding-friction"
     },
     "exercise-speed-ladder": {
       "title": "speed ladder",
@@ -3072,14 +3120,15 @@
       "progression": "Narrow the band or add a cushion only after establishing a consistent baseline.",
       "setups": [
         {
-          "title": "Cue-ball speed — clear table",
-          "url": "./guide/layouts/clear-speed.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "speed ladder",
+          "url": "./guide/layouts/topics/exercise-speed-ladder.billiards.json",
+          "note": "Clear rolling lane and a named stopping target; no collision hides the travel comparison."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-speed-ladder"
     },
     "exercise-physics-stop-follow-draw": {
       "title": "stop, follow, draw",
@@ -3094,19 +3143,20 @@
       "progression": "Increase approach distance; regain the stop with speed and tip height rather than assuming center-tip contact always means stun.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "stop, follow, draw",
+          "url": "./guide/layouts/topics/exercise-physics-stop-follow-draw.billiards.json",
+          "note": "Approach distance and contact geometry selected for stop, follow, draw.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-physics-stop-follow-draw"
     },
     "exercise-rail-english": {
       "title": "rail and English",
@@ -3121,14 +3171,15 @@
       "progression": "Add a target zone; then compare a second speed without changing the layout.",
       "setups": [
         {
-          "title": "Rail rebound and English",
-          "url": "./guide/layouts/rail-spin.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "rail and English",
+          "url": "./guide/layouts/topics/exercise-rail-english.billiards.json",
+          "note": "One-cushion lane with a marked first rail reference, for no/left/right English comparisons."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-rail-english"
     },
     "exercise-squirt-comparison": {
       "title": "squirt comparison",
@@ -3143,19 +3194,20 @@
       "progression": "Compare distances before introducing elevation and swerve.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "squirt comparison",
+          "url": "./guide/layouts/topics/exercise-squirt-comparison.billiards.json",
+          "note": "Approach distance and contact geometry selected for squirt comparison.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-squirt-comparison"
     },
     "exercise-jump-clearance": {
       "title": "jump clearance",
@@ -3170,14 +3222,15 @@
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
       "setups": [
         {
-          "title": "Jump clearance and landing",
-          "url": "./guide/layouts/jump-obstacle.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "jump clearance",
+          "url": "./guide/layouts/topics/exercise-jump-clearance.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-jump-clearance"
     },
     "exercise-jump-landing": {
       "title": "jump landing",
@@ -3192,14 +3245,15 @@
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
       "setups": [
         {
-          "title": "Jump clearance and landing",
-          "url": "./guide/layouts/jump-obstacle.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "jump landing",
+          "url": "./guide/layouts/topics/exercise-jump-landing.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-jump-landing"
     },
     "exercise-masse-route": {
       "title": "massé route",
@@ -3214,14 +3268,15 @@
       "progression": "Prefer the route you can repeat with the largest clearance margin.",
       "setups": [
         {
-          "title": "Blocked route — kick, jump, or massé",
-          "url": "./guide/layouts/blocked-route.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "massé route",
+          "url": "./guide/layouts/topics/exercise-masse-route.billiards.json",
+          "note": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-masse-route"
     },
     "exercise-calibration-real-table": {
       "title": "real-table comparison",
@@ -3236,19 +3291,15 @@
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
-          "pocket": [
-            1,
-            1
-          ],
-          "target": 1
+          "title": "real-table comparison",
+          "url": "./guide/layouts/topics/exercise-calibration-real-table.billiards.json",
+          "note": "Clear rolling lane and a named stopping target; no collision hides the travel comparison."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-calibration-real-table"
     },
     "calibration-table-ball-dimensions-quick": {
       "title": "Table and ball geometry settings",
@@ -3470,29 +3521,15 @@
       "progression": "Improve the earliest weak transition before increasing layout difficulty.",
       "setups": [
         {
-          "title": "8-ball full rack",
-          "url": "./guide/layouts/rack-8ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "9-ball full rack",
-          "url": "./guide/layouts/rack-9ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
-          "pocket": [
-            0.5,
-            1
-          ],
-          "target": 1
+          "title": "Full Rack Runout Analysis",
+          "url": "./guide/layouts/topics/exercise-full-rack-review.billiards.json",
+          "note": "Correct full rack with a distinct break starting point; continue planning from the resulting spread."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-full-rack-review"
     },
     "practice-shot-two-quick": {
       "title": "Practicing with Shot 2",
@@ -3507,19 +3544,20 @@
       "progression": "Shrink the useful zone or add a third ball; do not count an attractive leave that is blocked.",
       "setups": [
         {
-          "title": "First shot and next-ball position",
-          "url": "./guide/layouts/position-two-balls.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Practicing with Shot 2",
+          "url": "./guide/layouts/topics/practice-shot-two-quick.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-shot-two-quick"
     },
     "practice-undo-history-quick": {
       "title": "Practicing with Undo Last Shot",
@@ -3534,29 +3572,20 @@
       "progression": "Save baseline and variation under different names; keep physical results with the matching setup.",
       "setups": [
         {
-          "title": "8-ball full rack",
-          "url": "./guide/layouts/rack-8ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "9-ball full rack",
-          "url": "./guide/layouts/rack-9ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Practicing with Undo Last Shot",
+          "url": "./guide/layouts/topics/practice-undo-history-quick.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-undo-history-quick"
     },
     "exercise-three-ball-runout": {
       "title": "The Three-Ball Runout",
@@ -3571,19 +3600,20 @@
       "progression": "Add a ball or a blocker while retaining a readable, explained pattern.",
       "setups": [
         {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "The Three-Ball Runout",
+          "url": "./guide/layouts/topics/exercise-three-ball-runout.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-three-ball-runout"
     },
     "exercise-full-rack-training": {
       "title": "Full-Rack Runout Review",
@@ -3598,29 +3628,15 @@
       "progression": "Improve the earliest weak transition before increasing layout difficulty.",
       "setups": [
         {
-          "title": "8-ball full rack",
-          "url": "./guide/layouts/rack-8ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "9-ball full rack",
-          "url": "./guide/layouts/rack-9ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
-          "pocket": [
-            0.5,
-            1
-          ],
-          "target": 1
+          "title": "Full-Rack Runout Review",
+          "url": "./guide/layouts/topics/exercise-full-rack-training.billiards.json",
+          "note": "Correct full rack with a distinct break starting point; continue planning from the resulting spread."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-full-rack-training"
     },
     "obstacle-route-choice-quick": {
       "title": "Choosing a jump or massé route",
@@ -3657,14 +3673,15 @@
       "progression": "Prefer the route you can repeat with the largest clearance margin.",
       "setups": [
         {
-          "title": "Blocked route — kick, jump, or massé",
-          "url": "./guide/layouts/blocked-route.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Jump, Kick, or Massé",
+          "url": "./guide/layouts/topics/exercise-jump-kick-masse.billiards.json",
+          "note": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-jump-kick-masse"
     },
     "exercise-runout-improvement": {
       "title": "The Runout Improvement Challenge",
@@ -3679,29 +3696,15 @@
       "progression": "Improve the earliest weak transition before increasing layout difficulty.",
       "setups": [
         {
-          "title": "8-ball full rack",
-          "url": "./guide/layouts/rack-8ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "9-ball full rack",
-          "url": "./guide/layouts/rack-9ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
-          "pocket": [
-            0.5,
-            1
-          ],
-          "target": 1
+          "title": "The Runout Improvement Challenge",
+          "url": "./guide/layouts/topics/exercise-runout-improvement.billiards.json",
+          "note": "Correct full rack with a distinct break starting point; continue planning from the resulting spread."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-runout-improvement"
     },
     "pattern-play-quick": {
       "title": "Understanding pattern play",
@@ -3716,19 +3719,20 @@
       "progression": "Add a ball or a blocker while retaining a readable, explained pattern.",
       "setups": [
         {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Understanding pattern play",
+          "url": "./guide/layouts/topics/pattern-play-quick.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "pattern-play-quick"
     },
     "final-ball-backward-planning-quick": {
       "title": "Planning backward from the final ball",
@@ -3743,19 +3747,20 @@
       "progression": "Add a ball or a blocker while retaining a readable, explained pattern.",
       "setups": [
         {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Planning backward from the final ball",
+          "url": "./guide/layouts/topics/final-ball-backward-planning-quick.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "final-ball-backward-planning-quick"
     },
     "problem-balls-quick": {
       "title": "Recognizing problem balls",
@@ -3770,19 +3775,20 @@
       "progression": "Add a ball or a blocker while retaining a readable, explained pattern.",
       "setups": [
         {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Recognizing problem balls",
+          "url": "./guide/layouts/topics/problem-balls-quick.billiards.json",
+          "note": "Two close object balls explicitly create the problem-ball decision described in the lesson.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "problem-balls-quick"
     },
     "cue-ball-traffic-quick": {
       "title": "Managing cue-ball traffic",
@@ -3797,19 +3803,20 @@
       "progression": "Add a ball or a blocker while retaining a readable, explained pattern.",
       "setups": [
         {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Managing cue-ball traffic",
+          "url": "./guide/layouts/topics/cue-ball-traffic-quick.billiards.json",
+          "note": "Extra balls occupy the cue-ball travel corridor, making traffic avoidance visible.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "cue-ball-traffic-quick"
     },
     "route-selection-quick": {
       "title": "Choosing between simple and complex routes",
@@ -3824,19 +3831,20 @@
       "progression": "Add a ball or a blocker while retaining a readable, explained pattern.",
       "setups": [
         {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Choosing between simple and complex routes",
+          "url": "./guide/layouts/topics/route-selection-quick.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "route-selection-quick"
     },
     "position-recovery-quick": {
       "title": "Recovering from poor position",
@@ -3851,19 +3859,20 @@
       "progression": "Add a ball or a blocker while retaining a readable, explained pattern.",
       "setups": [
         {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Recovering from poor position",
+          "url": "./guide/layouts/topics/position-recovery-quick.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "position-recovery-quick"
     },
     "safety-play-quick": {
       "title": "Understanding safety play",
@@ -3878,19 +3887,20 @@
       "progression": "Compare distance safety with a containing safety, then add a realistic escape test.",
       "setups": [
         {
-          "title": "Attack or safety — comparison starter",
-          "url": "./guide/layouts/defense-starter.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Understanding safety play",
+          "url": "./guide/layouts/topics/safety-play-quick.billiards.json",
+          "note": "An attacking ball, screening ball, and candidate hiding area for inspecting the opponent reply.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "safety-play-quick"
     },
     "defensive-cue-ball-route-quick": {
       "title": "Planning a defensive cue-ball route",
@@ -3905,19 +3915,20 @@
       "progression": "Compare distance safety with a containing safety, then add a realistic escape test.",
       "setups": [
         {
-          "title": "Attack or safety — comparison starter",
-          "url": "./guide/layouts/defense-starter.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Planning a defensive cue-ball route",
+          "url": "./guide/layouts/topics/defensive-cue-ball-route-quick.billiards.json",
+          "note": "An attacking ball, screening ball, and candidate hiding area for inspecting the opponent reply.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "defensive-cue-ball-route-quick"
     },
     "safety-escape-quick": {
       "title": "Escaping from a safety",
@@ -3932,19 +3943,20 @@
       "progression": "Compare distance safety with a containing safety, then add a realistic escape test.",
       "setups": [
         {
-          "title": "Attack or safety — comparison starter",
-          "url": "./guide/layouts/defense-starter.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Escaping from a safety",
+          "url": "./guide/layouts/topics/safety-escape-quick.billiards.json",
+          "note": "An attacking ball, screening ball, and candidate hiding area for inspecting the opponent reply.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "safety-escape-quick"
     },
     "undo-strategic-review-quick": {
       "title": "Recognizing when to use Undo Last Shot",
@@ -3986,19 +3998,20 @@
       "progression": "Add a ball or a blocker while retaining a readable, explained pattern.",
       "setups": [
         {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Evaluating the quality of a runout",
+          "url": "./guide/layouts/topics/runout-quality-quick.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "runout-quality-quick"
     },
     "structured-practice-intro-quick": {
       "title": "Introduction to structured practice",
@@ -4040,19 +4053,20 @@
       "progression": "Increase cue-ball distance or cut angle, one at a time, after a repeatable baseline.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Learning to aim accurately",
+          "url": "./guide/layouts/topics/practice-aiming-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Learning to aim accurately.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-aiming-quick"
     },
     "practice-speed-control-quick": {
       "title": "Developing speed control",
@@ -4067,14 +4081,15 @@
       "progression": "Narrow the band or add a cushion only after establishing a consistent baseline.",
       "setups": [
         {
-          "title": "Cue-ball speed — clear table",
-          "url": "./guide/layouts/clear-speed.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Developing speed control",
+          "url": "./guide/layouts/topics/practice-speed-control-quick.billiards.json",
+          "note": "Clear rolling lane and a named stopping target; no collision hides the travel comparison."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-speed-control-quick"
     },
     "practice-stop-shot-quick": {
       "title": "Understanding stop shots",
@@ -4089,19 +4104,20 @@
       "progression": "Increase approach distance; regain the stop with speed and tip height rather than assuming center-tip contact always means stun.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Understanding stop shots",
+          "url": "./guide/layouts/topics/practice-stop-shot-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Understanding stop shots.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-stop-shot-quick"
     },
     "practice-follow-shot-quick": {
       "title": "Practicing follow shots",
@@ -4116,19 +4132,20 @@
       "progression": "Use a smaller zone only after consistent pocketing and position; then increase approach distance.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Practicing follow shots",
+          "url": "./guide/layouts/topics/practice-follow-shot-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Practicing follow shots.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-follow-shot-quick"
     },
     "practice-draw-shot-quick": {
       "title": "Practicing draw shots",
@@ -4143,19 +4160,20 @@
       "progression": "Move the cue ball farther away while retaining the same return-zone objective.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Practicing draw shots",
+          "url": "./guide/layouts/topics/practice-draw-shot-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Practicing draw shots.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-draw-shot-quick"
     },
     "practice-cut-angles-quick": {
       "title": "Practicing cut angles",
@@ -4170,19 +4188,20 @@
       "progression": "Increase distance before adding English; keep the same scoring conditions.",
       "setups": [
         {
-          "title": "Cut shot — right side pocket",
-          "url": "./guide/layouts/cut-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Practicing cut angles",
+          "url": "./guide/layouts/topics/practice-cut-angles-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Practicing cut angles.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-cut-angles-quick"
     },
     "practice-tangent-line-quick": {
       "title": "Practicing the tangent line",
@@ -4197,19 +4216,20 @@
       "progression": "Change cut angle, then compare how follow/draw move the route away from the reference.",
       "setups": [
         {
-          "title": "Cut shot — right side pocket",
-          "url": "./guide/layouts/cut-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Practicing the tangent line",
+          "url": "./guide/layouts/topics/practice-tangent-line-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Practicing the tangent line.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-tangent-line-quick"
     },
     "practice-bank-shots-quick": {
       "title": "Practicing bank shots",
@@ -4224,14 +4244,20 @@
       "progression": "Change object-ball distance or speed individually, retaining the same target pocket.",
       "setups": [
         {
-          "title": "One-rail bank starter",
-          "url": "./guide/layouts/bank-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Practicing bank shots",
+          "url": "./guide/layouts/topics/practice-bank-shots-quick.billiards.json",
+          "note": "Object-ball bank to a named corner, with a geometric first-rail reference; rebounds need observed adjustment. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-bank-shots-quick"
     },
     "practice-kick-shots-quick": {
       "title": "Practicing kick shots",
@@ -4246,14 +4272,15 @@
       "progression": "Aim for four target contacts in five as a suggested practice goal, then change the starting diamond.",
       "setups": [
         {
-          "title": "One-Rail Mirror Kick",
-          "url": "./guide/layouts/drill-mirror-kick.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+          "title": "Practicing kick shots",
+          "url": "./guide/layouts/topics/practice-kick-shots-quick.billiards.json",
+          "note": "Target behind a blocker; a geometric cushion reference starts the escape comparison. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-kick-shots-quick"
     },
     "practice-english-quick": {
       "title": "Practicing English",
@@ -4268,14 +4295,15 @@
       "progression": "Add a target zone; then compare a second speed without changing the layout.",
       "setups": [
         {
-          "title": "Rail rebound and English",
-          "url": "./guide/layouts/rail-spin.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Practicing English",
+          "url": "./guide/layouts/topics/practice-english-quick.billiards.json",
+          "note": "One-cushion lane with a marked first rail reference, for no/left/right English comparisons."
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-english-quick"
     },
     "practice-position-play-quick": {
       "title": "Practicing cue-ball position",
@@ -4290,19 +4318,20 @@
       "progression": "Shrink the useful zone or add a third ball; do not count an attractive leave that is blocked.",
       "setups": [
         {
-          "title": "First shot and next-ball position",
-          "url": "./guide/layouts/position-two-balls.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Practicing cue-ball position",
+          "url": "./guide/layouts/topics/practice-position-play-quick.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-position-play-quick"
     },
     "exercise-straight-shot-ladder": {
       "title": "The Straight-Shot Ladder",
@@ -4317,39 +4346,20 @@
       "progression": "Increase cue-ball distance or cut angle, one at a time, after a repeatable baseline.",
       "setups": [
         {
-          "title": "Straight-shot ladder — distance 1",
-          "url": "./guide/layouts/straight-distance-1.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "The Straight-Shot Ladder",
+          "url": "./guide/layouts/topics/exercise-straight-shot-ladder.billiards.json",
+          "note": "Approach distance and contact geometry selected for The Straight-Shot Ladder.",
           "pocket": [
-            1,
-            1
-          ],
-          "target": 1
-        },
-        {
-          "title": "Straight-shot ladder — distance 2",
-          "url": "./guide/layouts/straight-distance-2.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
-          "pocket": [
-            1,
-            1
-          ],
-          "target": 1
-        },
-        {
-          "title": "Straight-shot ladder — distance 3",
-          "url": "./guide/layouts/straight-distance-3.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
-          "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-straight-shot-ladder"
     },
     "exercise-stop-follow-draw": {
       "title": "Stop, Follow, Draw",
@@ -4364,19 +4374,20 @@
       "progression": "Increase approach distance; regain the stop with speed and tip height rather than assuming center-tip contact always means stun.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Stop, Follow, Draw",
+          "url": "./guide/layouts/topics/exercise-stop-follow-draw.billiards.json",
+          "note": "Approach distance and contact geometry selected for Stop, Follow, Draw.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-stop-follow-draw"
     },
     "exercise-three-position-zones": {
       "title": "Three Position Zones",
@@ -4391,19 +4402,20 @@
       "progression": "Shrink the useful zone or add a third ball; do not count an attractive leave that is blocked.",
       "setups": [
         {
-          "title": "Three cue-ball position zones",
-          "url": "./guide/layouts/three-zones.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Three Position Zones",
+          "url": "./guide/layouts/topics/exercise-three-position-zones.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-three-position-zones"
     },
     "first-session-welcome": {
       "title": "1. Welcome to Focused Practice",
@@ -4430,7 +4442,8 @@
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "first-session-welcome"
     },
     "first-session-aiming": {
       "title": "2. Set Up and Aim Precisely",
@@ -4457,7 +4470,8 @@
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "first-session-aiming"
     },
     "first-session-speed": {
       "title": "3. Speed, Tip Contact, and English",
@@ -4484,7 +4498,8 @@
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "first-session-speed"
     },
     "first-session-execute": {
       "title": "4. Execute and Compare Variations",
@@ -4511,7 +4526,8 @@
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "first-session-execute"
     },
     "first-session-shot-two": {
       "title": "5. Plan and Execute Shot 2",
@@ -4538,7 +4554,8 @@
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "first-session-shot-two"
     },
     "first-session-extend-runout": {
       "title": "6. Full Racks and Runout Planning",
@@ -4560,7 +4577,8 @@
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "first-session-extend-runout"
     },
     "first-session-undo": {
       "title": "7. Undo and Reset the Layout",
@@ -4587,7 +4605,8 @@
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "first-session-undo"
     },
     "get-started-explore": {
       "title": "8. Guide and Explorer",
@@ -4614,7 +4633,8 @@
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "get-started-explore"
     },
     "features-options-overview-quick": {
       "title": "Features and Options overview",
@@ -4731,19 +4751,20 @@
       "progression": "Increase distance before adding English; keep the same scoring conditions.",
       "setups": [
         {
-          "title": "Cut shot — right side pocket",
-          "url": "./guide/layouts/cut-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Contact & Aim",
+          "url": "./guide/layouts/topics/live-stats-contact-aim-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Contact & Aim.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "live-stats-contact-aim-quick"
     },
     "live-stats-first-ball-quick": {
       "title": "First ball hit",
@@ -4860,19 +4881,20 @@
       "progression": "Hide the readout, predict the outcome, then reveal it to check your reasoning.",
       "setups": [
         {
-          "title": "Cut shot — right side pocket",
-          "url": "./guide/layouts/cut-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Cue & Flight",
+          "url": "./guide/layouts/topics/live-stats-cue-flight-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Cue & Flight.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "live-stats-cue-flight-quick"
     },
     "live-stats-tip-location-quick": {
       "title": "Tip location",
@@ -4962,19 +4984,20 @@
       "progression": "Hide the readout, predict the outcome, then reveal it to check your reasoning.",
       "setups": [
         {
-          "title": "Cut shot — right side pocket",
-          "url": "./guide/layouts/cut-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Power & Pocket",
+          "url": "./guide/layouts/topics/live-stats-power-pocket-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Power & Pocket.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "live-stats-power-pocket-quick"
     },
     "live-stats-power-feel-quick": {
       "title": "Power feel and pocket speed",
@@ -5021,19 +5044,20 @@
       "progression": "Increase distance before adding English; keep the same scoring conditions.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Live adjustment",
+          "url": "./guide/layouts/topics/exercise-live-stats-cut-overlap.billiards.json",
+          "note": "Approach distance and contact geometry selected for Live adjustment.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-live-stats-cut-overlap"
     },
     "exercise-live-stats-speed-spin": {
       "title": "Speed and spin",
@@ -5048,19 +5072,20 @@
       "progression": "Hide the readout, predict the outcome, then reveal it to check your reasoning.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Speed and spin",
+          "url": "./guide/layouts/topics/exercise-live-stats-speed-spin.billiards.json",
+          "note": "Approach distance and contact geometry selected for Speed and spin.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-live-stats-speed-spin"
     },
     "live-stats-cp-meter-cross-reference-quick": {
       "title": "Power meters and Live Stats",
@@ -5204,34 +5229,14 @@
       "progression": "Increase one difficulty factor only after consistent results; suggested targets are practice goals, not certified ratings.",
       "setups": [
         {
-          "title": "Stop Shot Calibration",
-          "url": "./guide/layouts/drill-stop-shot.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface.",
+          "title": "Practice pathway",
+          "url": "./guide/layouts/topics/practice-session-introduction.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone.",
           "pocket": [
-            1.0,
-            1.0
+            0.5,
+            0
           ],
           "target": 1
-        },
-        {
-          "title": "Pattern rotation — Trainer starter",
-          "url": "./guide/layouts/pattern-clock.billiards.json",
-          "note": "Trainer rotation adaptation. Use the linked Niels Feijen video to match his demonstrated layout and sequence."
-        },
-        {
-          "title": "One-Rail Mirror Kick",
-          "url": "./guide/layouts/drill-mirror-kick.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
-        },
-        {
-          "title": "Two-Rail Corner Kick",
-          "url": "./guide/layouts/drill-two-rail-kick.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
-        },
-        {
-          "title": "Three-rail escape starter",
-          "url": "./guide/layouts/three-rail.billiards.json",
-          "note": "Trainer three-rail example. Use the linked Corner-5 video for the creator’s number scales and exact starting references."
         }
       ],
       "kind": "lesson",
@@ -5241,7 +5246,8 @@
         "Measure": "Record a baseline score before making the drill harder.",
         "Trainer": "Use Save Table File to keep or share the starting layout."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-session-introduction"
     },
     "practice-speed-contact-baseline": {
       "title": "Speed and contact baseline",
@@ -5256,12 +5262,12 @@
       "progression": "Increase approach distance; regain the stop with speed and tip height rather than assuming center-tip contact always means stun.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Speed and contact baseline",
+          "url": "./guide/layouts/topics/practice-speed-contact-baseline.billiards.json",
+          "note": "Approach distance and contact geometry selected for Speed and contact baseline.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
@@ -5273,7 +5279,8 @@
         "Measure": "Repeat each setting five times and identify the direction of the miss.",
         "Trainer": "Use cue tip contact, shot speed, tangent line, and Undo Last Shot."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-speed-contact-baseline"
     },
     "practice-target-landing": {
       "title": "Target landing precision",
@@ -5288,12 +5295,12 @@
       "progression": "Shrink the useful zone or add a third ball; do not count an attractive leave that is blocked.",
       "setups": [
         {
-          "title": "Stop Shot Calibration",
-          "url": "./guide/layouts/drill-stop-shot.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface.",
+          "title": "Target landing precision",
+          "url": "./guide/layouts/topics/practice-target-landing.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone.",
           "pocket": [
-            1.0,
-            1.0
+            0.5,
+            0
           ],
           "target": 1
         }
@@ -5305,7 +5312,8 @@
         "Measure": "Pocket the ball and land the cue ball center inside the target on 8 of 10 attempts.",
         "Trainer": "Use a table marker for the landing zone; save the layout and use Undo to repeat it."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-target-landing"
     },
     "practice-rock-around-clock": {
       "title": "Rock Around the Clock",
@@ -5320,9 +5328,14 @@
       "progression": "Add a ball or a blocker while retaining a readable, explained pattern.",
       "setups": [
         {
-          "title": "Pattern rotation — Trainer starter",
-          "url": "./guide/layouts/pattern-clock.billiards.json",
-          "note": "Trainer rotation adaptation. Use the linked Niels Feijen video to match his demonstrated layout and sequence."
+          "title": "Rock Around the Clock",
+          "url": "./guide/layouts/topics/practice-rock-around-clock.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity.",
+          "pocket": [
+            0.5,
+            0
+          ],
+          "target": 1
         }
       ],
       "kind": "lesson",
@@ -5332,7 +5345,8 @@
         "Measure": "For this plan, complete 3 consecutive rotations without disturbing a secondary ball.",
         "Trainer": "Use Shot 2 to preview the next shot and Undo Last Shot to revisit a position error."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-rock-around-clock"
     },
     "practice-one-rail-kick": {
       "title": "One-rail kick reference",
@@ -5347,9 +5361,9 @@
       "progression": "Aim for four target contacts in five as a suggested practice goal, then change the starting diamond.",
       "setups": [
         {
-          "title": "One-Rail Mirror Kick",
-          "url": "./guide/layouts/drill-mirror-kick.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+          "title": "One-rail kick reference",
+          "url": "./guide/layouts/topics/practice-one-rail-kick.billiards.json",
+          "note": "Target behind a blocker; a geometric cushion reference starts the escape comparison. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table."
         }
       ],
       "kind": "lesson",
@@ -5359,7 +5373,8 @@
         "Measure": "Make legal target contact on at least 4 of 5 attempts from each tested start.",
         "Trainer": "Use the kick tool, diamonds, and a saved layout to compare aim points."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-one-rail-kick"
     },
     "practice-two-rail-kick": {
       "title": "Two-rail kick extension",
@@ -5374,9 +5389,9 @@
       "progression": "Test a second start only after the original route repeats; record each adjustment.",
       "setups": [
         {
-          "title": "Two-Rail Corner Kick",
-          "url": "./guide/layouts/drill-two-rail-kick.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+          "title": "Two-rail kick extension",
+          "url": "./guide/layouts/topics/practice-two-rail-kick.billiards.json",
+          "note": "Two-cushion image route around the blocker; check each rail contact before the final target. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table."
         }
       ],
       "kind": "lesson",
@@ -5386,7 +5401,8 @@
         "Measure": "Make legal target contact on at least 4 of 5 attempts before moving the starting point.",
         "Trainer": "Use diamond and half-diamond references and compare the two rail contact points."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-two-rail-kick"
     },
     "practice-corner-five": {
       "title": "Corner-5 three-rail route",
@@ -5401,9 +5417,9 @@
       "progression": "Test a second start only after the original route repeats; record each adjustment.",
       "setups": [
         {
-          "title": "Three-rail escape starter",
-          "url": "./guide/layouts/three-rail.billiards.json",
-          "note": "Trainer three-rail example. Use the linked Corner-5 video for the creator’s number scales and exact starting references."
+          "title": "Corner-5 three-rail route",
+          "url": "./guide/layouts/topics/practice-corner-five.billiards.json",
+          "note": "Two-cushion image route around the blocker; check each rail contact before the final target. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table."
         }
       ],
       "kind": "lesson",
@@ -5413,7 +5429,8 @@
         "Measure": "For this plan, make legal target contact on 4 of 5 selected escape attempts.",
         "Trainer": "Mark rail references on the Trainer; record the adjustment for each start."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-corner-five"
     },
     "practice-progressive-benchmark": {
       "title": "Progressive difficulty benchmark",
@@ -5428,12 +5445,12 @@
       "progression": "Increase one difficulty factor only after consistent results; suggested targets are practice goals, not certified ratings.",
       "setups": [
         {
-          "title": "Progressive target — Trainer starter",
-          "url": "./guide/layouts/progressive-target.billiards.json",
-          "note": "Trainer progression starter; shrink the target or move the cue ball. The linked Sharivari video supplies the creator’s demonstrated drill.",
+          "title": "Progressive difficulty benchmark",
+          "url": "./guide/layouts/topics/practice-progressive-benchmark.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
@@ -5445,7 +5462,8 @@
         "Measure": "Complete a repeatable successful set before reducing the margin.",
         "Trainer": "Save one layout per difficulty level, with the level included in its name."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "practice-progressive-benchmark"
     },
     "exercise-focused-practice-session": {
       "title": "105-minute practice session",
@@ -5460,34 +5478,14 @@
       "progression": "Increase one difficulty factor only after consistent results; suggested targets are practice goals, not certified ratings.",
       "setups": [
         {
-          "title": "Stop Shot Calibration",
-          "url": "./guide/layouts/drill-stop-shot.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface.",
+          "title": "105-minute practice session",
+          "url": "./guide/layouts/topics/exercise-focused-practice-session.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone.",
           "pocket": [
-            1.0,
-            1.0
+            0.5,
+            0
           ],
           "target": 1
-        },
-        {
-          "title": "Pattern rotation — Trainer starter",
-          "url": "./guide/layouts/pattern-clock.billiards.json",
-          "note": "Trainer rotation adaptation. Use the linked Niels Feijen video to match his demonstrated layout and sequence."
-        },
-        {
-          "title": "One-Rail Mirror Kick",
-          "url": "./guide/layouts/drill-mirror-kick.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
-        },
-        {
-          "title": "Two-Rail Corner Kick",
-          "url": "./guide/layouts/drill-two-rail-kick.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
-        },
-        {
-          "title": "Three-rail escape starter",
-          "url": "./guide/layouts/three-rail.billiards.json",
-          "note": "Trainer three-rail example. Use the linked Corner-5 video for the creator’s number scales and exact starting references."
         }
       ],
       "kind": "lesson",
@@ -5497,7 +5495,8 @@
         "Measure": "Targets are goals for this Trainer plan, not prerequisites or creator certification.",
         "Trainer": "Name saved layouts by phase and difficulty so the next session starts in the same place."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-focused-practice-session"
     },
     "exercise-practice-review": {
       "title": "Review, save, and repeat",
@@ -5512,12 +5511,12 @@
       "progression": "Increase one difficulty factor only after consistent results; suggested targets are practice goals, not certified ratings.",
       "setups": [
         {
-          "title": "Progressive target — Trainer starter",
-          "url": "./guide/layouts/progressive-target.billiards.json",
-          "note": "Trainer progression starter; shrink the target or move the cue ball. The linked Sharivari video supplies the creator’s demonstrated drill.",
+          "title": "Review, save, and repeat",
+          "url": "./guide/layouts/topics/exercise-practice-review.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
@@ -5529,7 +5528,8 @@
         "Measure": "Compare results under the same conditions in the next session.",
         "Trainer": "Save or download the layout; load it again on either Trainer or Analyze."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "exercise-practice-review"
     },
     "main-open-analyze-photo": {
       "title": "Open Analyze Photo",
@@ -9384,29 +9384,20 @@
       "progression": "Return to a skill lesson and use the control only when it helps the objective.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
-          "pocket": [
-            1,
-            1
-          ],
-          "target": 1
-        },
-        {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Tor Lowry and Zero-X Billiards",
+          "url": "./guide/layouts/topics/recommend-zero-x-overview.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "recommend-zero-x-overview"
     },
     "recommend-zero-x-center-ball": {
       "title": "Zero-X: center-ball fundamentals",
@@ -9421,19 +9412,20 @@
       "progression": "Return to a skill lesson and use the control only when it helps the objective.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Zero-X: center-ball fundamentals",
+          "url": "./guide/layouts/topics/recommend-zero-x-center-ball.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "recommend-zero-x-center-ball"
     },
     "recommend-zero-x-position-play": {
       "title": "Zero-X: position play",
@@ -9448,19 +9440,20 @@
       "progression": "Return to a skill lesson and use the control only when it helps the objective.",
       "setups": [
         {
-          "title": "First shot and next-ball position",
-          "url": "./guide/layouts/position-two-balls.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Zero-X: position play",
+          "url": "./guide/layouts/topics/recommend-zero-x-position-play.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity.",
           "pocket": [
             0.5,
-            1
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "recommend-zero-x-position-play"
     },
     "recommend-zero-x-eight-ball-patterns": {
       "title": "Zero-X: eight-ball patterns",
@@ -9475,14 +9468,20 @@
       "progression": "Return to a skill lesson and use the control only when it helps the objective.",
       "setups": [
         {
-          "title": "8-ball full rack",
-          "url": "./guide/layouts/rack-8ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Zero-X: eight-ball patterns",
+          "url": "./guide/layouts/topics/recommend-zero-x-eight-ball-patterns.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity.",
+          "pocket": [
+            0.5,
+            0
+          ],
+          "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "recommend-zero-x-eight-ball-patterns"
     },
     "recommend-zero-x-defense-recovery": {
       "title": "Zero-X: defense and recovery",
@@ -9497,19 +9496,20 @@
       "progression": "Return to a skill lesson and use the control only when it helps the objective.",
       "setups": [
         {
-          "title": "Attack or safety — comparison starter",
-          "url": "./guide/layouts/defense-starter.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Zero-X: defense and recovery",
+          "url": "./guide/layouts/topics/recommend-zero-x-defense-recovery.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "recommend-zero-x-defense-recovery"
     },
     "drill-stop-shot": {
       "title": "Stop Shot Calibration",
@@ -9525,8 +9525,8 @@
       "setups": [
         {
           "title": "Stop Shot Calibration",
-          "url": "./guide/layouts/drill-stop-shot.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface.",
+          "url": "./guide/layouts/topics/drill-stop-shot.billiards.json",
+          "note": "Exact existing narrated drill coordinates retained.",
           "pocket": [
             1.0,
             1.0
@@ -9541,7 +9541,8 @@
         "Targets": "White circle: (1.920, 3.839), 3 inches",
         "Coordinate scale": "Numeric ball-radius offsets use a 100 × 50-inch table with 2.25-inch balls. For another table, use the accompanying layout formulas."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "drill-stop-shot"
     },
     "drill-stun-tangent": {
       "title": "90-Degree Stun Tangent Line",
@@ -9557,8 +9558,8 @@
       "setups": [
         {
           "title": "90-Degree Stun Tangent Line",
-          "url": "./guide/layouts/drill-stun-tangent.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface.",
+          "url": "./guide/layouts/topics/drill-stun-tangent.billiards.json",
+          "note": "Exact existing narrated drill coordinates retained.",
           "pocket": [
             0.5,
             1.0
@@ -9573,7 +9574,8 @@
         "Targets": "Yellow square: (2.820, 2.500), 3 inches",
         "Coordinate scale": "Numeric ball-radius offsets use a 100 × 50-inch table with 2.25-inch balls. For another table, use the accompanying layout formulas."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "drill-stun-tangent"
     },
     "drill-speed-ladder": {
       "title": "Speed Ladder — Four Zones",
@@ -9589,8 +9591,8 @@
       "setups": [
         {
           "title": "Speed Ladder — Four Zones",
-          "url": "./guide/layouts/drill-speed-ladder.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+          "url": "./guide/layouts/topics/drill-speed-ladder.billiards.json",
+          "note": "Exact existing narrated drill coordinates retained."
         }
       ],
       "kind": "lesson",
@@ -9600,7 +9602,8 @@
         "Targets": "White circle: (2.000, 4.000), 3 inches; Red circle: (2.000, 6.000), 3 inches; Yellow circle: (2.000, 7.000), 3 inches; Pink circle: (2.000, 1.000), 3 inches",
         "Coordinate scale": "Numeric ball-radius offsets use a 100 × 50-inch table with 2.25-inch balls. For another table, use the accompanying layout formulas."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "drill-speed-ladder"
     },
     "drill-l-pattern": {
       "title": "L-Drill — Five-Ball Rotation",
@@ -9616,8 +9619,8 @@
       "setups": [
         {
           "title": "L-Drill — Five-Ball Rotation",
-          "url": "./guide/layouts/drill-l-pattern.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+          "url": "./guide/layouts/topics/drill-l-pattern.billiards.json",
+          "note": "Exact existing narrated drill coordinates retained."
         }
       ],
       "kind": "lesson",
@@ -9627,7 +9630,8 @@
         "Targets": "White square: (2.000, 4.000), 1 diamonds",
         "Coordinate scale": "Numeric ball-radius offsets use a 100 × 50-inch table with 2.25-inch balls. For another table, use the accompanying layout formulas."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "drill-l-pattern"
     },
     "drill-t-pattern": {
       "title": "T-Drill — Center and Foot String",
@@ -9643,8 +9647,8 @@
       "setups": [
         {
           "title": "T-Drill — Center and Foot String",
-          "url": "./guide/layouts/drill-t-pattern.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+          "url": "./guide/layouts/topics/drill-t-pattern.billiards.json",
+          "note": "Exact existing narrated drill coordinates retained."
         }
       ],
       "kind": "lesson",
@@ -9654,7 +9658,8 @@
         "Targets": "Yellow circle 1: (1.000, 4.000), 0.5 diamonds; Yellow circle 2: (3.000, 4.000), 0.5 diamonds",
         "Coordinate scale": "Numeric ball-radius offsets use a 100 × 50-inch table with 2.25-inch balls. For another table, use the accompanying layout formulas."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "drill-t-pattern"
     },
     "drill-wagon-wheel": {
       "title": "Wagon Wheel — Six Target Zones",
@@ -9670,8 +9675,8 @@
       "setups": [
         {
           "title": "Wagon Wheel — Six Target Zones",
-          "url": "./guide/layouts/drill-wagon-wheel.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface.",
+          "url": "./guide/layouts/topics/drill-wagon-wheel.billiards.json",
+          "note": "Exact existing narrated drill coordinates retained.",
           "pocket": [
             0.5,
             1.0
@@ -9686,7 +9691,8 @@
         "Targets": "White circle 1: (1.500, 3.500), 3 inches; White circle 2: (2.000, 3.000), 3 inches; White circle 3: (2.820, 3.000), 3 inches; White circle 4: (3.250, 3.000), 3 inches; White circle 5: (3.500, 2.500), 3 inches; White circle 6: (2.820, 1.500), 3 inches",
         "Coordinate scale": "Numeric ball-radius offsets use a 100 × 50-inch table with 2.25-inch balls. For another table, use the accompanying layout formulas."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "drill-wagon-wheel"
     },
     "drill-two-rail-recovery": {
       "title": "Two-Rail Center Recovery",
@@ -9702,8 +9708,8 @@
       "setups": [
         {
           "title": "Two-Rail Center Recovery",
-          "url": "./guide/layouts/drill-two-rail-recovery.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface.",
+          "url": "./guide/layouts/topics/drill-two-rail-recovery.billiards.json",
+          "note": "Exact existing narrated drill coordinates retained.",
           "pocket": [
             1.0,
             1.0
@@ -9718,7 +9724,8 @@
         "Targets": "White square: (2.000, 1.000), 1 diamonds",
         "Coordinate scale": "Numeric ball-radius offsets use a 100 × 50-inch table with 2.25-inch balls. For another table, use the accompanying layout formulas."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "drill-two-rail-recovery"
     },
     "drill-scratch-avoidance": {
       "title": "Side Pocket Scratch Avoidance",
@@ -9734,8 +9741,8 @@
       "setups": [
         {
           "title": "Side Pocket Scratch Avoidance",
-          "url": "./guide/layouts/drill-scratch-avoidance.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface.",
+          "url": "./guide/layouts/topics/drill-scratch-avoidance.billiards.json",
+          "note": "Exact existing narrated drill coordinates retained.",
           "pocket": [
             0.5,
             1.0
@@ -9750,7 +9757,8 @@
         "Targets": "Red square: (3.750, 0.250), 0.5 diamonds; White square: (2.000, 7.000), 1 diamonds",
         "Coordinate scale": "Numeric ball-radius offsets use a 100 × 50-inch table with 2.25-inch balls. For another table, use the accompanying layout formulas."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "drill-scratch-avoidance"
     },
     "drill-mirror-kick": {
       "title": "One-Rail Mirror Kick",
@@ -9766,8 +9774,8 @@
       "setups": [
         {
           "title": "One-Rail Mirror Kick",
-          "url": "./guide/layouts/drill-mirror-kick.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+          "url": "./guide/layouts/topics/drill-mirror-kick.billiards.json",
+          "note": "Exact existing narrated drill coordinates retained."
         }
       ],
       "kind": "lesson",
@@ -9777,7 +9785,8 @@
         "Targets": "Yellow circle: (0.090, 3.500), 3 inches",
         "Coordinate scale": "Numeric ball-radius offsets use a 100 × 50-inch table with 2.25-inch balls. For another table, use the accompanying layout formulas."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "drill-mirror-kick"
     },
     "drill-two-rail-kick": {
       "title": "Two-Rail Corner Kick",
@@ -9793,8 +9802,8 @@
       "setups": [
         {
           "title": "Two-Rail Corner Kick",
-          "url": "./guide/layouts/drill-two-rail-kick.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 × 50-inch playing surface."
+          "url": "./guide/layouts/topics/drill-two-rail-kick.billiards.json",
+          "note": "Exact existing narrated drill coordinates retained."
         }
       ],
       "kind": "lesson",
@@ -9804,7 +9813,8 @@
         "Targets": "Yellow circle A: (3.910, 6.000), 3 inches; Yellow circle B: (3.500, 7.910), 3 inches",
         "Coordinate scale": "Numeric ball-radius offsets use a 100 × 50-inch table with 2.25-inch balls. For another table, use the accompanying layout formulas."
       },
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "drill-two-rail-kick"
     },
     "welcome-fundamentals": {
       "title": "Welcome to Fundamentals",
@@ -9817,10 +9827,22 @@
       "success": "The intended operation completes and you can state what changed. This is an interface check, not a scored pool drill.",
       "transfer": "Use the linked skill lesson or saved setup for physical practice. This software operation has no independent physical-shot score.",
       "progression": "Return to a skill lesson and use the control only when it helps the objective.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Welcome to Fundamentals",
+          "url": "./guide/layouts/topics/welcome-fundamentals.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity.",
+          "pocket": [
+            0.5,
+            0
+          ],
+          "target": 1
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "welcome-fundamentals"
     },
     "welcome-physics": {
       "title": "Welcome to Physics and Tools",
@@ -9833,10 +9855,22 @@
       "success": "The intended operation completes and you can state what changed. This is an interface check, not a scored pool drill.",
       "transfer": "Use the linked skill lesson or saved setup for physical practice. This software operation has no independent physical-shot score.",
       "progression": "Return to a skill lesson and use the control only when it helps the objective.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Welcome to Physics and Tools",
+          "url": "./guide/layouts/topics/welcome-physics.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity.",
+          "pocket": [
+            0.5,
+            0
+          ],
+          "target": 1
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "welcome-physics"
     },
     "welcome-drills": {
       "title": "Welcome to Drills",
@@ -9849,10 +9883,22 @@
       "success": "The intended operation completes and you can state what changed. This is an interface check, not a scored pool drill.",
       "transfer": "Use the linked skill lesson or saved setup for physical practice. This software operation has no independent physical-shot score.",
       "progression": "Return to a skill lesson and use the control only when it helps the objective.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Welcome to Drills",
+          "url": "./guide/layouts/topics/welcome-drills.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity.",
+          "pocket": [
+            0.5,
+            0
+          ],
+          "target": 1
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "welcome-drills"
     },
     "welcome-exercises": {
       "title": "Welcome to Exercises",
@@ -9865,10 +9911,22 @@
       "success": "The intended operation completes and you can state what changed. This is an interface check, not a scored pool drill.",
       "transfer": "Use the linked skill lesson or saved setup for physical practice. This software operation has no independent physical-shot score.",
       "progression": "Return to a skill lesson and use the control only when it helps the objective.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Welcome to Exercises",
+          "url": "./guide/layouts/topics/welcome-exercises.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity.",
+          "pocket": [
+            0.5,
+            0
+          ],
+          "target": 1
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "welcome-exercises"
     },
     "welcome-more": {
       "title": "Welcome to Resources",
@@ -9881,10 +9939,22 @@
       "success": "The intended operation completes and you can state what changed. This is an interface check, not a scored pool drill.",
       "transfer": "Use the linked skill lesson or saved setup for physical practice. This software operation has no independent physical-shot score.",
       "progression": "Return to a skill lesson and use the control only when it helps the objective.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Welcome to Resources",
+          "url": "./guide/layouts/topics/welcome-more.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity.",
+          "pocket": [
+            0.5,
+            0
+          ],
+          "target": 1
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "welcome-more"
     },
     "welcome-guide": {
       "title": "Welcome to the Guide",
@@ -9897,10 +9967,22 @@
       "success": "The intended operation completes and you can state what changed. This is an interface check, not a scored pool drill.",
       "transfer": "Use the linked skill lesson or saved setup for physical practice. This software operation has no independent physical-shot score.",
       "progression": "Return to a skill lesson and use the control only when it helps the objective.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Welcome to the Guide",
+          "url": "./guide/layouts/topics/welcome-guide.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity.",
+          "pocket": [
+            0.5,
+            0
+          ],
+          "target": 1
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "welcome-guide"
     },
     "main-cue-shaft-preset": {
       "title": "Cue / Shaft Preset",
@@ -9931,19 +10013,20 @@
       "progression": "Keep the same routine when moving from straight shots to cuts.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "A repeatable pre-shot routine",
+          "url": "./guide/layouts/topics/fundamentals-pre-shot-routine.billiards.json",
+          "note": "Approach distance and contact geometry selected for A repeatable pre-shot routine.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": true
+      "physicalCheck": true,
+      "sceneId": "fundamentals-pre-shot-routine"
     },
     "fundamentals-balanced-stance": {
       "title": "Comfortable stance and cue clearance",
@@ -9958,19 +10041,20 @@
       "progression": "Test a second table position without losing balance or cue clearance.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Comfortable stance and cue clearance",
+          "url": "./guide/layouts/topics/fundamentals-balanced-stance.billiards.json",
+          "note": "Approach distance and contact geometry selected for Comfortable stance and cue clearance.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": true
+      "physicalCheck": true,
+      "sceneId": "fundamentals-balanced-stance"
     },
     "fundamentals-stable-bridge": {
       "title": "A stable bridge",
@@ -9985,19 +10069,20 @@
       "progression": "Try a rail bridge only after the clear-cloth bridge is comfortable.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "A stable bridge",
+          "url": "./guide/layouts/topics/fundamentals-stable-bridge.billiards.json",
+          "note": "Approach distance and contact geometry selected for A stable bridge.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": true
+      "physicalCheck": true,
+      "sceneId": "fundamentals-stable-bridge"
     },
     "fundamentals-grip-and-delivery": {
       "title": "Relaxed grip and straight delivery",
@@ -10012,19 +10097,20 @@
       "progression": "Increase distance only after delivery stays repeatable.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Relaxed grip and straight delivery",
+          "url": "./guide/layouts/topics/fundamentals-grip-and-delivery.billiards.json",
+          "note": "Approach distance and contact geometry selected for Relaxed grip and straight delivery.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": true
+      "physicalCheck": true,
+      "sceneId": "fundamentals-grip-and-delivery"
     },
     "fundamentals-cue-access": {
       "title": "Reach, rail bridges, and cue access",
@@ -10039,19 +10125,20 @@
       "progression": "Add one nearby object ball and reassess cue clearance before planning position.",
       "setups": [
         {
-          "title": "First shot — straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson.",
+          "title": "Reach, rail bridges, and cue access",
+          "url": "./guide/layouts/topics/fundamentals-cue-access.billiards.json",
+          "note": "Rail-adjacent cue ball makes bridge support and physical cue access the central observation.",
           "pocket": [
-            1,
-            1
+            0.5,
+            0
           ],
           "target": 1
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": true
+      "physicalCheck": true,
+      "sceneId": "fundamentals-cue-access"
     }
   }
 }
