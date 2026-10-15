@@ -795,12 +795,12 @@
     min-height:34px;
   }
 
-  #practiceCounter { position:absolute;z-index:10;display:flex;align-items:center;gap:5px;transform:translate(-50%,-50%);pointer-events:auto; }
+  #practiceCounter{position:absolute;inset:0;z-index:10;pointer-events:none}
   #practiceCounter[hidden],#practiceCounterPanel[hidden]{display:none!important}
-  #practiceCounterPanel{display:flex;align-items:center;gap:4px;background:#0b1219e8;border:1px solid #f7df89;border-radius:5px;padding:3px;box-shadow:0 2px 8px #0008}
-  #practiceCounter button{width:30px;height:30px;min-width:30px;padding:0;font-size:20px;line-height:28px;touch-action:manipulation}
-  #practiceCounterToggle{border-radius:50%;background:#132633;color:#ffe28a;border:1px solid #ffe28a;font-size:14px!important}
-  #practiceCounter output{display:block;min-width:52px;text-align:center;font:700 23px/30px ui-monospace,monospace;color:#ffe28a;background:#05090d;border-radius:2px;font-variant-numeric:tabular-nums}
+  #practiceCounterPanel{position:absolute;display:flex;align-items:center;gap:3px;transform:translate(-50%,-50%);background:#0b1219e8;border:1px solid #f7df89;border-radius:4px;padding:2px;box-shadow:0 2px 8px #0008;pointer-events:auto}
+  #practiceCounterPanel button{width:23px;height:23px;min-width:23px;padding:0;font-size:17px;line-height:21px;touch-action:manipulation}
+  #practiceCounterToggle{position:absolute;transform:translate(-50%,-50%);border-radius:50%;background:#49a8f0;color:#000;border:1px solid #83c9ff;width:44px;height:44px;min-width:44px;padding:0;font-size:27px;font-weight:900;line-height:1;pointer-events:auto;touch-action:manipulation;box-shadow:0 2px 9px #0007}
+  #practiceCounter output{display:block;min-width:42px;text-align:center;font:700 19px/23px ui-monospace,monospace;color:#ffe28a;background:#05090d;border-radius:2px;font-variant-numeric:tabular-nums}
   #practiceCounter button:focus-visible{outline:3px solid #fff;outline-offset:2px}
   #teachingCompassToggle {
     position:absolute;
@@ -1451,7 +1451,7 @@
     <div id="markerRailControls" aria-label="Individual marker visibility and removal"></div>
     <button id="kickToolToggle" class="bankKickToggle" type="button" title="One-rail kick guide">KICK</button>
     <button id="bankToolToggle" class="bankKickToggle" type="button" title="One-rail bank guide">BANK</button>
-    <button id="teachingCompassToggle" type="button" title="Teaching compass · dotted 30° reference for qualifying rolling shots">◎</button>
+    <button id="teachingCompassToggle" type="button" title="Teaching compass · 30° spokes and 5° / 10° degree dots">◎</button>
     <div id="compassSizeWrap" class="compassSideControl">
       <input id="compassSize" type="range" min="10" max="100" step="1" value="45" aria-label="Teaching compass size">
       <span class="compassSideLabel">SIZE</span>
@@ -1849,7 +1849,7 @@
 
 <link rel="stylesheet" href="./photo-calibration.css?v=focused-start-v17">
 <script src="./photo-calibration.js?v=walkthrough-v11"></script>
-<script src="./trainer-practice-tools.js?v=1"></script>
+<script src="./trainer-practice-tools.js?v=2"></script>
 <script src="./trainer-layout-files.js?v=2"></script>
 <script src="./trainer-saved-files.js?v=1"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
@@ -1984,8 +1984,13 @@
         $('practiceCounterMinus').disabled=practiceCount===0;$('practiceCounterPlus').disabled=practiceCount===999;
         if(el.hidden)return;
         const M=controlMap(),q=M.map({x:S.tableL*.77,y:S.tableW}),w=stage.clientWidth,h=stage.clientHeight;
-        const half=(practiceCounterOpen?176:30)/2;
-        el.style.left=clamp(q.x,half+5,w-half-5)+'px';el.style.top=clamp(q.y+Math.max(17,M.scale*.065),20,h-21)+'px';
+        const panel=$('practiceCounterPanel');panel.style.left=clamp(q.x,54,w-54)+'px';panel.style.top=clamp(q.y+Math.max(18,M.scale*.09),16,h-15)+'px';
+        const phone=document.body.classList.contains('phone-layout'),sr=stage.getBoundingClientRect();
+        const speed=[$('tableSpeed1Wrap'),$('tableSpeed2Wrap')].find(e=>e&&e.getBoundingClientRect().height>0),rect=speed?.getBoundingClientRect();
+        const size=!phone&&rect?rect.height:44,cx=M.map({x:S.tableL*.5,y:S.tableW}).x;
+        const cy=!phone&&rect?rect.top-sr.top+size/2:q.y+58;
+        toggle.style.width=size+'px';toggle.style.height=size+'px';toggle.style.minWidth=size+'px';
+        toggle.style.left=clamp(cx,size/2+4,w-size/2-4)+'px';toggle.style.top=clamp(cy,size/2+4,h-size/2-4)+'px';
     }
     function changePracticeCount(delta){practiceCount=window.BilliardsPracticeTools.counterValue(practiceCount+delta);try{localStorage.setItem('billiardsPracticeCount',String(practiceCount));}catch(_){}syncPracticeCounter();}
 
@@ -6353,7 +6358,7 @@
         ctx.restore();
     }
     function rollingReferenceForShot(which=1){
-        if(!compassState().enabled||animation||!S.showTable||!S.showImpact||!cueVisualsVisible(which)||which===2&&!S.shot2Enabled)return null;
+        if(animation||!S.showTable||!S.showImpact||!cueVisualsVisible(which)||which===2&&!S.shot2Enabled)return null;
         const preview=which===2?ensureShot2().preview:S.preview;
         return window.BilliardsPracticeTools.rollingReference(preview?.firstBallContact,S);
     }
@@ -6385,6 +6390,20 @@
         ctx.beginPath();
         ctx.arc(center.x, center.y, rp, 0, Math.PI * 2);
         ctx.stroke();
+        // Degree dots rotate with the compass: larger at 10°, smaller at 5°.
+        const marks=window.BilliardsPracticeTools.compassMarks(c.angle);
+        for(const mark of marks.dots){
+            ctx.beginPath();ctx.fillStyle=mark.major?'#ffe28a':'rgba(255,255,255,.82)';
+            ctx.arc(center.x+Math.cos(mark.angle)*rp,center.y+Math.sin(mark.angle)*rp,mark.major?2.6:1.3,0,Math.PI*2);ctx.fill();
+        }
+        // One 30° spoke in each quadrant, relative to the main compass axis.
+        ctx.strokeStyle='#ffe28a';ctx.lineWidth=1.4;ctx.setLineDash([2,5]);
+        for(const mark of marks.spokes){
+            const x=Math.cos(mark.angle),y=Math.sin(mark.angle);
+            ctx.beginPath();ctx.moveTo(center.x,center.y);ctx.lineTo(center.x+x*rp*.94,center.y+y*rp*.94);ctx.stroke();
+            if(rp>=55){ctx.font='bold 11px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#ffe28a';ctx.fillText('30°',center.x+x*rp*.68,center.y+y*rp*.68-8);}
+        }
+        ctx.setLineDash([]);
         // Main directional axis with arrowhead.
         const a1 = { x: center.x - d.x * rp, y: center.y - d.y * rp };
         const a2 = { x: center.x + d.x * rp, y: center.y + d.y * rp };
