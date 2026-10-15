@@ -4,9 +4,9 @@
 async function mount(guide){
  const bridge=global.billiardsTourBridge,host=document.getElementById('bt-guide-pool-root');
  if(!bridge||!guide||!host)return null;
- const response=await fetch('./guide/get-started-tour.json?v=inline-countdown-v24');
+ const response=await fetch('./guide/get-started-tour.json?v=completion-tour-v25');
  if(!response.ok)throw Error('Get Started lessons unavailable');
- const {steps,transition}=await response.json(),seconds=transition?.seconds||10;
+ const {steps,transition,completion}=await response.json(),seconds=transition?.seconds||10;
  let index=0,original=null,profile=null,checkpoint=null,loading=false,practicing=false,phase='listening',deadline=0,timer=null,advanceTimer=null,voiceTimer=null,epoch=0;
  const announcement=new Audio();announcement.preload='auto';announcement.volume=.8;announcement.dataset.getStartedTransition='1';
  const voice=global.BilliardsAudioStartup.create(announcement);
@@ -17,13 +17,19 @@ async function mount(guide){
  const active=()=>{const s=guide.getState();return s.enabled&&s.category==='start'};
  const hasNext=()=>index+1<steps.length;
  const topicId=i=>global.billiardsPoolAudioMap?.topics.filter(t=>t.category==='start'&&!t.explorerOnly)[i]?.id;
- function cancel(){epoch++;clearInterval(timer);clearTimeout(advanceTimer);clearTimeout(voiceTimer);timer=advanceTimer=voiceTimer=null;deadline=0;voice.pause();}
+ function clearAttention(){for(const id of ['btg-pool-guide','btg-pool-explore'])document.getElementById(id)?.classList.remove('btg-tour-attention');}
+ function progress(topic,time,playing){
+  clearAttention();if(!active()||index!==steps.length-1||topic?.id!==topicId(index)||!playing)return;
+  const id=time>=2&&time<6.8?'btg-pool-guide':time>=6.8&&time<11.8?'btg-pool-explore':null;
+  if(id)document.getElementById(id)?.classList.add('btg-tour-attention');
+ }
+ function cancel(){clearAttention();epoch++;clearInterval(timer);clearTimeout(advanceTimer);clearTimeout(voiceTimer);timer=advanceTimer=voiceTimer=null;deadline=0;voice.pause();}
  function render(){
   footer.hidden=!active()||phase==='listening';footer.dataset.phase=phase;placeControls();
   const counting=phase==='countdown'||phase==='announcing';footer.querySelector('.btg-countdown').hidden=!counting;nextButton.hidden=counting||!hasNext();footer.querySelector('.btg-last-lesson').hidden=counting||hasNext();
   const remaining=deadline?Math.max(0,Math.ceil((deadline-performance.now())/1000)):seconds;
   if(counter.textContent!==String(remaining))counter.textContent=remaining;
-  counter.setAttribute('aria-label','Next lesson in '+remaining+' seconds');nextButton.disabled=bridge.snapshot().busy;
+  const label=hasNext()?'Next lesson in ':'Get Started closes in ';counter.setAttribute('aria-label',label+remaining+' seconds');counter.title=hasNext()?transition.text:completion?.text||label+remaining+' seconds';footer.querySelector('.btg-countdown>span').textContent=label;nextButton.disabled=bridge.snapshot().busy;
  }
  function hold(pause=true){cancel();practicing=true;phase='practice';if(pause)guide.pause();render();setTimeout(render,0);}
  function listening(){cancel();practicing=false;phase='listening';render();}
@@ -33,23 +39,24 @@ async function mount(guide){
   render();
  }
  function next(){if(!active()||!hasNext()||bridge.snapshot().busy)return false;cancel();return guide.nextLesson();}
+ function finish(){if(!active())return;cancel();phase='complete';guide.setEnabled(false);render();}
  nextButton.addEventListener('click',next);
  function beginCountdown(token){
-  if(token!==epoch||!active()||phase==='countdown')return;clearTimeout(voiceTimer);voiceTimer=null;phase='countdown';deadline=performance.now()+seconds*1000;render();
+  if(token!==epoch||!active()||phase==='countdown')return;clearTimeout(voiceTimer);voiceTimer=null;phase='countdown';deadline=performance.now()+(hasNext()?seconds:(completion?.seconds||seconds))*1000;render();
   timer=setInterval(()=>{
    if(token!==epoch||!active())return;
-   render();if(performance.now()>=deadline){clearInterval(timer);timer=null;advanceTimer=setTimeout(()=>{if(token===epoch)next();},100);}
+   render();if(performance.now()>=deadline){clearInterval(timer);timer=null;advanceTimer=setTimeout(()=>{if(token===epoch){if(hasNext())next();else finish();}},100);}
   },100);
  }
  function ended(topic,state){
   if(topic?.category!=='start'||!active())return false;
   cancel();practicing=false;
-  if(!hasNext()){phase='complete';render();return true;}
   if(!state.autoplay){hold(false);return true;}
   const token=epoch;
-  if(transition?.recordingStatus==='recorded'&&transition.audio){
-   phase='announcing';announcement.src=transition.audio;announcement.load();
-   const onPlaying=()=>{announcement.removeEventListener('playing',onPlaying);if(phase==='announcing')beginCountdown(token)};
+  const prompt=hasNext()?transition:completion;
+  if(prompt?.recordingStatus==='recorded'&&prompt.audio){
+   phase='announcing';announcement.src=prompt.audio;announcement.load();
+   const onPlaying=()=>{announcement.removeEventListener('playing',onPlaying);if(phase==='announcing'){clearTimeout(voiceTimer);voiceTimer=null;if(hasNext())beginCountdown(token);else announcement.addEventListener('ended',()=>beginCountdown(token),{once:true})}};
    announcement.addEventListener('playing',onPlaying,{once:true});
    voiceTimer=setTimeout(()=>{if(token===epoch&&phase==='announcing'){voice.pause();announcement.removeEventListener('playing',onPlaying);beginCountdown(token)}},3000);
    voice.play().catch(()=>{announcement.removeEventListener('playing',onPlaying);beginCountdown(token)});render();
@@ -96,7 +103,7 @@ async function mount(guide){
  document.addEventListener('input',event=>{if(active()&&!event.target.closest('#bt-guide-pool-root'))hold();},true);
  document.addEventListener('click',event=>{if(active()&&event.target.closest('#resetLayoutQuick,#resetLayout')){event.preventDefault();event.stopImmediatePropagation();retry();}},true);
  for(const event of ['billiards:shot-complete','billiards:undo-complete'])global.addEventListener(event,()=>{if(active()&&!loading)render();});
- return {placeControls,start,select,tryShot,retry,setups,load,listening,sync,ended,hold,next,pause(){hold()},exit(){guide.setEnabled(false);if(original)bridge.restore(original);},getState:()=>({active:active(),index,stepId:steps[index].id,loading,practicing,phase,remaining:deadline?Math.max(0,Math.ceil((deadline-performance.now())/1000)):null}),steps,transition};
+ return {progress,placeControls,start,select,tryShot,retry,setups,load,listening,sync,ended,hold,next,pause(){hold()},exit(){guide.setEnabled(false);if(original)bridge.restore(original);},getState:()=>({active:active(),index,stepId:steps[index].id,loading,practicing,phase,remaining:deadline?Math.max(0,Math.ceil((deadline-performance.now())/1000)):null}),steps,transition};
 }
 global.BilliardsGetStartedTour={mount};
 })(window);

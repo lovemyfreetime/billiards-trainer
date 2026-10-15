@@ -2361,7 +2361,7 @@
             const R=S.ballR,L=S.tableL,W=S.tableW;
             S.balls=step.balls.map(([id,x,y])=>({id,n:id===0?'CB':String(id),x:clamp(x*L,R,L-R),y:clamp(y*W,R,W-R),active:true}));
             S.speed=step.speed;S.follow=step.followPercent/100;S.sideSpin=step.sidePercent/100;
-            S.showPaths=true;S.showImpact=true;S.showTipBadge=true;S.lastLayoutName='Get Started — '+step.title;S.setupMode='custom';
+            S.showPaths=true;S.showImpact=true;S.showTipBadge=false;S.lastLayoutName='Get Started — '+step.title;S.setupMode='custom';
             if(step.id==='practice-2')S.pocketedLog=[1,2,3,4,5,6,7];
             if(step.id==='practice-6'){
                 const ids=[1,2,3,4,9,5,6,7,8],rows=[1,2,3,2,1];let k=0;
@@ -2920,6 +2920,7 @@
     }
     if (!isProjector) {
         restoreState();
+        S.showTipBadge = false; // Start with a clear table; players may enable the badge in Options.
         normalizeBallSet();
         try{const saved=JSON.parse(localStorage.getItem('billiardTrainerProgress')||'null');if(saved?.history?.length)runHistory=saved.history.filter(h=>h&&Array.isArray(h.balls)&&h.tableL===S.tableL&&h.tableW===S.tableW).slice(-30);undoStack=runHistory.slice(0,-1).map(h=>JSON.parse(JSON.stringify(h)));}catch(e){}
 
@@ -12060,12 +12061,12 @@ if ('serviceWorker' in navigator) {
   <script src="./phone-play.js?v=8"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
-  <script src="./guide/guide.js?v=inline-countdown-v24"></script>
+  <script src="./guide/guide.js?v=completion-tour-v25"></script>
   <script src="./guide/recorded-audio.js?v=presets-recovery-v13"></script>
-  <link rel="stylesheet" href="./guide/get-started-tour.css?v=inline-countdown-v24">
-  <script src="./guide/get-started-tour.js?v=inline-countdown-v24"></script>
-  <script src="./guide/pool-integration.js?v=inline-countdown-v24"></script>
-  <script src="./guide/analyze-integration.js?v=inline-countdown-v24"></script>
+  <link rel="stylesheet" href="./guide/get-started-tour.css?v=completion-tour-v25">
+  <script src="./guide/get-started-tour.js?v=completion-tour-v25"></script>
+  <script src="./guide/pool-integration.js?v=completion-tour-v25"></script>
+  <script src="./guide/analyze-integration.js?v=completion-tour-v25"></script>
   <script src="./guide/analyze-welcome.js?v=analyze-welcome-v16"></script>
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>

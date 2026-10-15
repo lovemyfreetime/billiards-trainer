@@ -300,5 +300,11 @@
     "text": "Next lesson will start shortly. Tap the table to try this shot.",
     "audio": "./guide/audio/get-started-next-lesson-shortly.mp3",
     "recordingStatus": "recorded"
+  },
+  "completion": {
+    "seconds": 10,
+    "text": "You're ready to make this table your own! Get Started will close shortly. Try a shot, explore the controls and settings, or open the Guide to go deeper. Turn on Explorer to discover what any control does. Your next move is yours!",
+    "audio": "./guide/audio/get-started-complete.mp3",
+    "recordingStatus": "pending"
   }
 }
