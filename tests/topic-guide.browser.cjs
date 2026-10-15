@@ -33,14 +33,14 @@ const server=cp.spawn('python',['-u','-m','http.server','8765','--bind','127.0.0
  assert.equal(await p.evaluate(()=>billiardsTourBridge.capture().state.lastLayoutName),scenes[await p.evaluate(()=>billiardsPoolGuide.getState().topicId)].file.name);
  await select.selectOption('contact-point-geometry-quick');await finishNarration();await p.waitForFunction(()=>billiardsLessonPractice.getState().phase==='countdown');
  await p.touchscreen.tap(x,y);assert.equal(await p.evaluate(()=>billiardsLessonPractice.getState().phase),'practice');await p.waitForTimeout(10500);assert.equal(await p.evaluate(()=>billiardsPoolGuide.getState().topicId),'contact-point-geometry-quick','Tap cancels advancement');
- await select.selectOption('fundamentals-stable-bridge');assert.equal(await host.locator('[data-action="play-pause"]').isDisabled(),true);assert.equal(await p.evaluate(()=>billiardsLessonPractice.getState().phase),'practice');
+ await select.selectOption('fundamentals-stable-bridge');assert.equal(await host.locator('[data-action="play-pause"]').isDisabled(),false);await finishNarration();await p.waitForFunction(()=>billiardsLessonPractice.getState().phase==='countdown');
  // Explorer explanations never replace the current arrangement.
  const reference=await p.evaluate(()=>billiardsTourBridge.capture().state.balls);await p.evaluate(()=>{billiardsPoolGuide.setExploring(true);billiardsPoolGuide.selectTopic('table-markers-quick')});assert.deepEqual(await p.evaluate(()=>billiardsTourBridge.capture().state.balls),reference);
  await p.evaluate(()=>{billiardsPoolGuide.setExploring(false);billiardsPoolGuide.openCategory('physics')});
  await select.selectOption('compass-tool-intro-quick');assert.equal(await p.evaluate(()=>billiardsTourBridge.capture().state.teachingCompass.enabled),true);await p.evaluate(()=>billiardsPoolGuide.pause());
  await p.screenshot({path:'/tmp/guide-refinement/topic-guide-desktop.png'});
  await p.evaluate(async()=>{if(document.fullscreenElement)await document.exitFullscreen()});await p.setViewportSize({width:390,height:844});await p.screenshot({path:'/tmp/guide-refinement/topic-guide-phone.png'});const bounds=await host.boundingBox();assert.ok(bounds.x>=0&&bounds.x+bounds.width<=391,'Phone player fits');
- assert.deepEqual(errors,[]);console.log('133 native scenes, calibrated settings, load-before-audio, first-gesture handoff, reset, real countdown, touch cancellation, missing audio, Explorer preservation, compass, desktop/phone passed.');
+ assert.deepEqual(errors,[]);console.log('133 native scenes, calibrated settings, load-before-audio, first-gesture handoff, reset, real countdown, touch cancellation, new fundamentals audio, Explorer preservation, compass, desktop/phone passed.');
  // Finish the last visible lesson without wrapping to the first.
  await p.evaluate(()=>billiardsPoolGuide.openCategory('physics'));await host.locator('[aria-label="Guide skill level"]').fill('2');
  const last=await p.evaluate(()=>billiardsPoolAudioMap.topics.filter(t=>t.category==='physics'&&!t.categoryWelcome&&!t.explorerOnly&&(t.level||0)<=2).at(-1).id);await select.selectOption(last);await host.locator('[aria-label="Autoplay next lesson"]').click();

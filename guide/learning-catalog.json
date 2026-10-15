@@ -137,8 +137,10 @@
       "level": 0,
       "summary": "Make planning and delivery a repeatable physical routine.",
       "text": "While standing, choose pocket, route, and finish. Approach along the aim line, form a comfortable stance and bridge, rehearse smoothly, pause as needed, and deliver. Stand up and restart if the plan changes. Use the straight-shot layout. Have a partner observe or record video, then review consistency of the routine rather than copying a prescribed body shape.",
-      "audio": null,
-      "recordingStatus": "pending",
+      "audio": [
+        "./guide/audio/fundamentals-pre-shot-routine.mp3?v=chase-20261015"
+      ],
+      "recordingStatus": "recorded",
       "explorerOnly": false,
       "resources": [
         {
@@ -154,8 +156,10 @@
       "level": 0,
       "summary": "Build comfortable balance and cue clearance while maintaining the chosen line.",
       "text": "Plan while standing. Approach the shot, place your feet comfortably, and check that your body stays steady and the cue can move freely. Rise and realign if needed. Recreate the straight shot and observe from side/front video or with a coach. Adapt stance to your body; no single foot position is required.",
-      "audio": null,
-      "recordingStatus": "pending",
+      "audio": [
+        "./guide/audio/fundamentals-balanced-stance.mp3?v=chase-20261015"
+      ],
+      "recordingStatus": "recorded",
       "explorerOnly": false,
       "resources": [
         {
@@ -171,8 +175,10 @@
       "level": 0,
       "summary": "Support a repeatable cue line with a stable bridge.",
       "text": "Form a comfortable open or closed bridge on clear cloth. Rehearse slowly and check the hand remains still while the cue moves freely. Keep the bridge distance comfortable and consistent. Practice at the physical table with a coach, partner, or video. The on-screen cue does not model hand support or bridge stability.",
-      "audio": null,
-      "recordingStatus": "pending",
+      "audio": [
+        "./guide/audio/fundamentals-stable-bridge.mp3?v=chase-20261015"
+      ],
+      "recordingStatus": "recorded",
       "explorerOnly": false,
       "resources": [
         {
@@ -188,8 +194,10 @@
       "level": 0,
       "summary": "Deliver the cue through the intended tip contact with a relaxed grip.",
       "text": "Choose center contact on an easy straight shot. Rehearse smoothly without squeezing or steering, then deliver through the ball while keeping the bridge stable. Use the straight-shot diagram and a striped practice ball if available to inspect unintended spin. Ask a coach to review persistent delivery errors.",
-      "audio": null,
-      "recordingStatus": "pending",
+      "audio": [
+        "./guide/audio/fundamentals-grip-and-delivery.mp3?v=chase-20261015"
+      ],
+      "recordingStatus": "recorded",
       "explorerOnly": false,
       "resources": [
         {
@@ -205,8 +213,10 @@
       "level": 0,
       "summary": "Include physical cue access and reach when judging whether a route is practical.",
       "text": "Compare a clear-cloth cue-ball start with a rail-adjacent start. Identify bridge support, cue clearance, reach, and elevation before choosing the stroke. Inspect the actual cue approach and use a mechanical bridge when needed. Do not stretch into an unstable stroke; compare a simpler accessible route.",
-      "audio": null,
-      "recordingStatus": "pending",
+      "audio": [
+        "./guide/audio/fundamentals-cue-access.mp3?v=chase-20261015"
+      ],
+      "recordingStatus": "recorded",
       "explorerOnly": false,
       "resources": [
         {

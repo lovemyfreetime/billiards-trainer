@@ -26,3 +26,13 @@ A full inventory covers 487 Main entries, 162 Analyze entries, and every one of 
 Duration-based WPM is a listening screen, not an auditory quality score. It includes intentional pauses and assumes catalog text matches the recording. The earlier `AUDIO_PACING.json` documents slowing ten coordinate drills to about 174 WPM; those should be compared first against the approximately 211 WPM short-lesson median. Both slower and faster candidates are queued. The five missing MP3s and actual pacing re-recordings remain pending Speechify access.
 
 Unique arrangements do not automatically evaluate physical technique, cue access, or student performance. The solver checks above are software checks, not physical-table validation. Existing coordinate drills remain manually attempted lessons rather than solved demonstrations. Browser checks use headless Chromium; native Windows/Android/Chromebook installers are not rebuilt by this change.
+
+
+## Speechify recording batch — 2026-10-15
+
+- Five missing physical-fundamentals recordings and 29 queued replacements were synthesized through Speechify Speech with Chase, Simba 3.2, explicit +30% SSML prosody. No time stretching was applied.
+- All 34 MP3s fully decoded with ffmpeg, have distinct SHA-256 hashes, and every replacement differs from its prior file. Exact scripts, before/after durations, hashes and synthesis settings are retained in NARRATION_RECORDINGS.json.
+- Coverage: all 141 selectable Main topics have audio and unique prepared layouts; the complete audit covers 649 Main/Analyze declarations and 655 physical MP3s.
+- Catalog, Get Started and offline audio URLs are versioned to refresh replacements. Five fundamentals lessons now enable narration and autoplay.
+- Native layout/catalog checks and desktop/phone playback, load-before-audio, real countdown, tap cancellation, reset, final-lesson stopping and busy-shot guards passed. Physical sheet cache references were updated with the catalog versions.
+- Duration screening retains the original 211.1 WPM reference: 12 recordings still sit outside its ±15% band. All 34 were re-recorded as authorized; naturalness, spoken-text accuracy and pronunciation require listening. Do not treat matching synthesis settings or MP3 decoding as perceptual approval.

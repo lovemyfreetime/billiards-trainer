@@ -10,8 +10,10 @@ for(const [id,s]of Object.entries(manifest.topics)){
  if(id.startsWith('drill-'))assert.deepEqual(f.layout.balls,JSON.parse(fs.readFileSync('guide/layouts/'+id+'.billiards.json')).layout.balls,'Narrated coordinates retained: '+id);
 }
 const inventory=JSON.parse(fs.readFileSync('guide/GUIDE_MEDIA_INVENTORY.json')),queue=JSON.parse(fs.readFileSync('guide/NARRATION_REFINEMENT_QUEUE.json'));
-assert.equal(inventory.topics.length,649);assert.equal(inventory.summary.mainWithAudio,136);assert.equal(queue.items.filter(x=>x.priority==='record').length,5);
+assert.equal(inventory.topics.length,649);assert.equal(inventory.summary.mainWithAudio,141);assert.equal(queue.items.filter(x=>x.status.startsWith('recorded')).length,34);
 for(const [file,entry]of Object.entries(inventory.files)){assert.equal(entry.exists,true);assert.equal(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'),entry.sha256,'MP3 unchanged: '+file);}
 assert.equal(new Set(inventory.topics.filter(x=>x.visible&&x.page==='Main').map(x=>x.geometryHash)).size,141);
 for(const q of queue.items)assert.ok(q.ssml.includes('rate="+30%"')&&q.voice==='Speechify Chase (US)');
-console.log('141 native, unique, bounded layouts; exact coordinate drills; 649-entry media inventory; 650 audio hashes; five missing Chase scripts passed.');
+console.log('141 native, unique, bounded layouts; exact coordinate drills; 649-entry media inventory; 655 audio hashes; 34 fresh Chase recordings passed.');
+
+const fresh=JSON.parse(fs.readFileSync('guide/NARRATION_RECORDINGS.json')).items;assert.equal(fresh.length,34);assert.equal(new Set(fresh.map(x=>x.sha256)).size,34);for(const r of fresh){assert.notEqual(r.sha256,r.previousSha256);assert.equal(crypto.createHash('sha256').update(fs.readFileSync(r.audio)).digest('hex'),r.sha256);assert.equal(r.prosody,'+30%');}

@@ -28,7 +28,7 @@ server.stderr.on('data',()=>{});
   await page.evaluate(category=>billiardsPoolGuide.openCategory(category),category);
   await host.locator('select.btg-lesson-select').selectOption(id);await page.evaluate(()=>billiardsPoolGuide.pause());
   await host.locator('[data-action="Practice"]').click();await assertContract();
-  if(id==='fundamentals-stable-bridge')assert.equal(await host.locator('[data-action="play-pause"]').isDisabled(),true,'New written-only lesson does not borrow an unrelated MP3');
+  if(id==='fundamentals-stable-bridge')assert.equal(await host.locator('[data-action="play-pause"]').isDisabled(),false,'New fundamentals lesson has its own Chase recording');
   await host.locator('.btg-setup-actions button').first().click();
   const card=catalog.topics[id],raw=JSON.parse(fs.readFileSync(card.setups[0].url));
   await page.waitForFunction(name=>billiardsTourBridge.capture().state.lastLayoutName===name,raw.name);

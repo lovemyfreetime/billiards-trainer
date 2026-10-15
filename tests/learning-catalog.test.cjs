@@ -18,5 +18,5 @@ for(const [id,card]of Object.entries(catalog.topics)){
 const start=pool.topics.filter(t=>t.category==='start'),tour=JSON.parse(fs.readFileSync('guide/get-started-tour.json'));
 assert.equal(start.length,8);for(let i=0;i<8;i++)assert.equal(catalog.topics[start[i].id].setups[0].url,tour.steps[i].layout,'Get Started exact step mapping');
 for(const path of catalog.paths)for(const id of path.topics){assert.ok(catalog.topics[id],id);assert.ok(catalog.topics[id].visible,'Path topic must be discoverable: '+id);}
-for(const t of catalog.newTopics){assert.equal(t.recordingStatus,'pending');assert.equal(t.audio,null);assert.ok(catalog.topics[t.id].physicalCheck);}
+for(const t of catalog.newTopics){assert.equal(t.recordingStatus,'recorded');assert.ok(t.audio[0].includes('chase-20261015'));assert.ok(catalog.topics[t.id].physicalCheck);}
 console.log(`${originals.size} original entries preserved; ${Object.keys(catalog.topics).length} four-criterion cards; ${checked.size} valid starter files; 8 exact Get Started bindings; 11 usable learning paths.`);

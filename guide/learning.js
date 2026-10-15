@@ -2,7 +2,7 @@
 (function(global){
 'use strict';
 let pending;
-function load(){return pending||(pending=fetch('./guide/learning-catalog.json?v=topic-guide-v2').then(r=>{if(!r.ok)throw Error('Practice instructions unavailable');return r.json();}));}
+function load(){return pending||(pending=fetch('./guide/learning-catalog.json?v=chase-20261015').then(r=>{if(!r.ok)throw Error('Practice instructions unavailable');return r.json();}));}
 async function attach(topics){
  const data=await load();
  for(const extra of data.newTopics)if(!topics.some(t=>t.id===extra.id))topics.push({...extra});

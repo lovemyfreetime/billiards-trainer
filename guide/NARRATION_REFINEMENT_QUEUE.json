@@ -4,25 +4,20 @@
     "analyzeEntries": 162,
     "selectableMain": 141,
     "uniqueMainGeometry": 141,
-    "mainWithAudio": 136,
-    "missingAudio": [
-      "fundamentals-pre-shot-routine",
-      "fundamentals-balanced-stance",
-      "fundamentals-stable-bridge",
-      "fundamentals-grip-and-delivery",
-      "fundamentals-cue-access"
-    ],
-    "physicalAudioFiles": 650,
-    "referencedAudioFiles": 616,
+    "mainWithAudio": 141,
+    "missingAudio": [],
+    "physicalAudioFiles": 655,
+    "referencedAudioFiles": 621,
     "referenceMedianWpm": 211.1,
     "screeningBandWpm": [
       179.4,
       242.8
     ],
-    "pacingReview": 29,
-    "newRecordings": 5
+    "pacingReview": 12,
+    "newRecordings": 0,
+    "completedRecordings": 34
   },
-  "method": "Duration-based screening only. Text is the declared catalog transcript; actual speech/transcript match, natural pauses, and perceived pacing require listening. No MP3 has been re-recorded or time-stretched by this audit.",
+  "method": "Duration-based screening only. Text is the declared catalog transcript; actual speech/transcript match, natural pauses, and perceived pacing require listening. This audit never changes MP3s. NARRATION_RECORDINGS.json records fresh Speechify replacements separately.",
   "voice": "Speechify Chase (US)",
   "defaultProsody": "+30%",
   "priorPacingTransform": {
@@ -122,7 +117,7 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/physics-calibration-overview-quick.mp3"
+        "./guide/audio/physics-calibration-overview-quick.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 34,
@@ -137,8 +132,10 @@
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Physics and Calibration lets you explore how table and ball behavior affects a shot. Rolling friction and sliding friction are among the settings available. Adjust a parameter, repeat a shot, and compare the outcome.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 11.616,
+      "beforeWpm": 175.6
     },
     {
       "page": "Main",
@@ -148,12 +145,12 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/rail-speed-loss-advanced.mp3"
+        "./guide/audio/rail-speed-loss-advanced.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 30,
-      "seconds": 11.064,
-      "wpm": 162.7,
+      "seconds": 11.712,
+      "wpm": 153.7,
       "text": "Cushion contact generally reduces ball speed. The exact rebound also depends on the cushion’s response and the ball’s rotation. Multiple-rail routes compound these effects, so compare them at consistent speeds.",
       "sceneUrl": "./guide/layouts/topics/rail-speed-loss-advanced.billiards.json",
       "geometryHash": "2a11b9a2d4921c901d65463c624869d4194ffb84bf52f499a193d5fc79b6708e",
@@ -163,8 +160,10 @@
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Cushion contact generally reduces ball speed. The exact rebound also depends on the cushion’s response and the ball’s rotation. Multiple-rail routes compound these effects, so compare them at consistent speeds.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 11.064,
+      "beforeWpm": 162.7
     },
     {
       "page": "Main",
@@ -174,23 +173,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/physics-jump-clearance-quick.mp3"
+        "./guide/audio/physics-jump-clearance-quick.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 43,
-      "seconds": 10.224,
-      "wpm": 252.3,
+      "seconds": 10.752,
+      "wpm": 240.0,
       "text": "Place an object ball between the cue ball and your target. As you change the jump settings, check the cue ball’s predicted height where it crosses the obstacle. A path that passes over the ball is different from one that collides with it.",
       "sceneUrl": "./guide/layouts/topics/physics-jump-clearance-quick.billiards.json",
       "geometryHash": "eec14bde2256754c3bb5f8d04c655f4e5e36874abb3883be4363716209462da3",
       "layoutReason": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately.",
-      "pacingScreen": "above band",
+      "pacingScreen": "within band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: faster than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Place an object ball between the cue ball and your target. As you change the jump settings, check the cue ball’s predicted height where it crosses the obstacle. A path that passes over the ball is different from one that collides with it.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 10.224,
+      "beforeWpm": 252.3
     },
     {
       "page": "Main",
@@ -200,12 +201,12 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/masse-physics-quick.mp3"
+        "./guide/audio/masse-physics-quick.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 36,
-      "seconds": 12.192,
-      "wpm": 177.2,
+      "seconds": 12.816,
+      "wpm": 168.5,
       "text": "A mass-ay shot uses elevated cue delivery and off-center spin to curve the cue ball around an obstacle. Explore how elevation, side spin, and speed change the curve. These shots are sensitive, so make small adjustments.",
       "sceneUrl": "./guide/layouts/topics/masse-physics-quick.billiards.json",
       "geometryHash": "5f799a09866ddfa372c9db384760952d785abf274bcb1e0ff8a07a3790033bcb",
@@ -215,8 +216,10 @@
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">A mass-ay shot uses elevated cue delivery and off-center spin to curve the cue ball around an obstacle. Explore how elevation, side spin, and speed change the curve. These shots are sensitive, so make small adjustments.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 12.192,
+      "beforeWpm": 177.2
     },
     {
       "page": "Main",
@@ -226,23 +229,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/real-table-calibration-quick.mp3"
+        "./guide/audio/real-table-calibration-quick.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 34,
-      "seconds": 11.376,
-      "wpm": 179.3,
+      "seconds": 10.248,
+      "wpm": 199.1,
       "text": "Choose a simple repeatable shot on a real table. Match the starting ball positions in the trainer, execute the shot, and compare where the balls stop. Adjust one relevant calibration setting, then try again.",
       "sceneUrl": "./guide/layouts/topics/real-table-calibration-quick.billiards.json",
       "geometryHash": "10cd47ed1851fc8c252ab5789b35216a8d544b38d0ded61b7c621c898af80b13",
       "layoutReason": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
-      "pacingScreen": "below band",
+      "pacingScreen": "within band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Choose a simple repeatable shot on a real table. Match the starting ball positions in the trainer, execute the shot, and compare where the balls stop. Adjust one relevant calibration setting, then try again.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 11.376,
+      "beforeWpm": 179.3
     },
     {
       "page": "Main",
@@ -252,23 +257,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/calibration-notes-quick.mp3"
+        "./guide/audio/calibration-notes-quick.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 37,
-      "seconds": 12.48,
-      "wpm": 177.9,
+      "seconds": 11.304,
+      "wpm": 196.4,
       "text": "As you compare simulated and real shots, keep a simple record of the layout, shot speed, spin, and calibration settings. Note what improved and what did not. Repeatable observations are more useful than a single lucky match.",
       "sceneUrl": "./guide/layouts/topics/calibration-notes-quick.billiards.json",
       "geometryHash": "56d2ebe1bf13a682b68ffd45121e172ddac56604749eda9cad3403ef4607f014",
       "layoutReason": "Clear rolling lane and a named stopping target; no collision hides the travel comparison.",
-      "pacingScreen": "below band",
+      "pacingScreen": "within band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">As you compare simulated and real shots, keep a simple record of the layout, shot speed, spin, and calibration settings. Note what improved and what did not. Repeatable observations are more useful than a single lucky match.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 12.48,
+      "beforeWpm": 177.9
     },
     {
       "page": "Main",
@@ -278,23 +285,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/exercise-squirt-comparison.mp3"
+        "./guide/audio/exercise-squirt-comparison.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 33,
-      "seconds": 11.16,
-      "wpm": 177.4,
+      "seconds": 10.968,
+      "wpm": 180.5,
       "text": "Choose a long, nearly straight shot. Start with center-ball contact, then add left or right English. Observe any change in the initial cue-ball direction. Adjust the aim and compare the resulting contact point.",
       "sceneUrl": "./guide/layouts/topics/exercise-squirt-comparison.billiards.json",
       "geometryHash": "ef5d085fe6f4feb066233a0d4f077398a73810a6bed36b8af48a995fa00946c0",
       "layoutReason": "Approach distance and contact geometry selected for squirt comparison.",
-      "pacingScreen": "below band",
+      "pacingScreen": "within band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Choose a long, nearly straight shot. Start with center-ball contact, then add left or right English. Observe any change in the initial cue-ball direction. Adjust the aim and compare the resulting contact point.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 11.16,
+      "beforeWpm": 177.4
     },
     {
       "page": "Main",
@@ -304,12 +313,12 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/practice-shot-two-quick.mp3"
+        "./guide/audio/practice-shot-two-quick.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 55,
-      "seconds": 13.296,
-      "wpm": 248.2,
+      "seconds": 13.488,
+      "wpm": 244.7,
       "text": "Plan your first shot, then add Shot 2 to examine the next opportunity. Execute Shot to complete the first stroke. The second planned cue ball becomes the active cue ball. Before continuing, you can add another Shot 2 to extend your plan. This allows you to build a longer sequence, one shot at a time.",
       "sceneUrl": "./guide/layouts/topics/practice-shot-two-quick.billiards.json",
       "geometryHash": "490bee6594de1a602102b099576f3e292f91c66eb2f6a7d69b1d37514a75d282",
@@ -319,8 +328,10 @@
       "reason": "Duration screen: faster than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Plan your first shot, then add Shot 2 to examine the next opportunity. Execute Shot to complete the first stroke. The second planned cue ball becomes the active cue ball. Before continuing, you can add another Shot 2 to extend your plan. This allows you to build a longer sequence, one shot at a time.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 13.296,
+      "beforeWpm": 248.2
     },
     {
       "page": "Main",
@@ -330,23 +341,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/exercise-three-position-zones.mp3"
+        "./guide/audio/exercise-three-position-zones.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 53,
-      "seconds": 13.056,
-      "wpm": 243.6,
+      "seconds": 13.176,
+      "wpm": 241.3,
       "text": "Set up a shot with an object ball near a pocket. Choose three different areas where you'd like the cue ball to finish. Try to reach the first area using speed control, the second using follow or draw, and the third using a cushion route. Compare the difficulty and consistency of each approach.",
       "sceneUrl": "./guide/layouts/topics/exercise-three-position-zones.billiards.json",
       "geometryHash": "51056e062c96437438f5821646debd9de017dd5e1eb000dfdd4431a32777d854",
       "layoutReason": "Current pot plus a next-ball angle and a visible position zone.",
-      "pacingScreen": "above band",
+      "pacingScreen": "within band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: faster than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Set up a shot with an object ball near a pocket. Choose three different areas where you&#x27;d like the cue ball to finish. Try to reach the first area using speed control, the second using follow or draw, and the third using a cushion route. Compare the difficulty and consistency of each approach.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 13.056,
+      "beforeWpm": 243.6
     },
     {
       "page": "Main",
@@ -356,12 +369,12 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/get-started-01.mp3"
+        "./guide/audio/get-started-01.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 36,
-      "seconds": 14.016,
-      "wpm": 154.1,
+      "seconds": 12.792,
+      "wpm": 168.9,
       "text": "Welcome to the Billiards Trainer—your digital practice arena. Master shot geometry, unlock cue-ball control, and explore real billiard physics. From core fundamentals to pro runouts, step up to the table and practice on your terms.",
       "sceneUrl": "./guide/layouts/get-started-01.billiards.json",
       "geometryHash": "801def27a055eeeb3ee2ff323ffd78287ebdf03ee7cc66eff551a743fd9bfc00",
@@ -371,8 +384,10 @@
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Welcome to the Billiards Trainer—your digital practice arena. Master shot geometry, unlock cue-ball control, and explore real billiard physics. From core fundamentals to pro runouts, step up to the table and practice on your terms.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 14.016,
+      "beforeWpm": 154.1
     },
     {
       "page": "Main",
@@ -382,23 +397,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/get-started-04.mp3"
+        "./guide/audio/get-started-04.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 46,
-      "seconds": 15.72,
-      "wpm": 175.6,
+      "seconds": 13.464,
+      "wpm": 205.0,
       "text": "Hit Execute Shot to unleash the physics engine. Want to see how a slight adjustment changes the leave? Reset the shot, tweak your speed or angle, and shoot again. Changing one variable at a time is the fastest way to understand how the cue ball behaves.",
       "sceneUrl": "./guide/layouts/get-started-04.billiards.json",
       "geometryHash": "c9cda4ae37554eccadc9496e14b4d61e15053d7922808c4a0452cfe0669cd8ba",
       "layoutReason": "Original Get Started scene and execution behavior retained.",
-      "pacingScreen": "below band",
+      "pacingScreen": "within band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Hit Execute Shot to unleash the physics engine. Want to see how a slight adjustment changes the leave? Reset the shot, tweak your speed or angle, and shoot again. Changing one variable at a time is the fastest way to understand how the cue ball behaves.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 15.72,
+      "beforeWpm": 175.6
     },
     {
       "page": "Main",
@@ -408,23 +425,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/get-started-06.mp3"
+        "./guide/audio/get-started-06.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 47,
-      "seconds": 17.256,
-      "wpm": 163.4,
+      "seconds": 14.016,
+      "wpm": 201.2,
       "text": "Step up to full-table strategy. Open Pick and Play Full Racks to load official layouts like 8-Ball, 9-Ball, or Straight Pool. Map out your patterns ball-by-ball. Add Shot 2 after each execution to plan a complete, unbroken runout from the break right through to the money ball.",
       "sceneUrl": "./guide/layouts/get-started-06.billiards.json",
       "geometryHash": "bb15aad914609891232214e613523652258fce30c693548fba662deb29c4e39e",
       "layoutReason": "Original Get Started scene and execution behavior retained.",
-      "pacingScreen": "below band",
+      "pacingScreen": "within band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Step up to full-table strategy. Open Pick and Play Full Racks to load official layouts like 8-Ball, 9-Ball, or Straight Pool. Map out your patterns ball-by-ball. Add Shot 2 after each execution to plan a complete, unbroken runout from the break right through to the money ball.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 17.256,
+      "beforeWpm": 163.4
     },
     {
       "page": "Main",
@@ -434,12 +453,12 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/live-stats-cue-flight-quick.mp3"
+        "./guide/audio/live-stats-cue-flight-quick.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 28,
-      "seconds": 10.008,
-      "wpm": 167.9,
+      "seconds": 10.44,
+      "wpm": 160.9,
       "text": "Cue and Flight describes the cue-tip contact and any predicted deviation or airborne behavior. This group becomes especially useful when experimenting with English, elevated cues, jumps, or mass-ay.",
       "sceneUrl": "./guide/layouts/topics/live-stats-cue-flight-quick.billiards.json",
       "geometryHash": "7d39f261584731c7d04bde13206b398e01cdf77416b157d988ba0d5e5d85d8d6",
@@ -449,8 +468,10 @@
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Cue and Flight describes the cue-tip contact and any predicted deviation or airborne behavior. This group becomes especially useful when experimenting with English, elevated cues, jumps, or mass-ay.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 10.008,
+      "beforeWpm": 167.9
     },
     {
       "page": "Main",
@@ -460,23 +481,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/practice-target-landing.mp3"
+        "./guide/audio/practice-target-landing.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 89,
-      "seconds": 30.624,
-      "wpm": 174.4,
+      "seconds": 24.144,
+      "wpm": 221.2,
       "text": "Set up a repeatable object ball shot and choose a small cue ball landing zone. Begin with a generous target, then reduce it as your control improves. For this practice plan, use a three inch target and count a success only when the object ball is pocketed and the cue ball center finishes inside the target. Shoot ten attempts. Change only speed, then contact height, then the cut angle. Aim for eight successes out of ten before making the target smaller. Open More for Dr. Dave’s target practice demonstration.",
       "sceneUrl": "./guide/layouts/topics/practice-target-landing.billiards.json",
       "geometryHash": "7794013b6fc0cff6550438668bf6e11374a270533e6ef6d093340dd32b9dead5",
       "layoutReason": "Current pot plus a next-ball angle and a visible position zone.",
-      "pacingScreen": "below band",
+      "pacingScreen": "within band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Set up a repeatable object ball shot and choose a small cue ball landing zone. Begin with a generous target, then reduce it as your control improves. For this practice plan, use a three inch target and count a success only when the object ball is pocketed and the cue ball center finishes inside the target. Shoot ten attempts. Change only speed, then contact height, then the cut angle. Aim for eight successes out of ten before making the target smaller. Open More for Dr. Dave’s target practice demonstration.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 30.624,
+      "beforeWpm": 174.4
     },
     {
       "page": "Main",
@@ -486,23 +509,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/practice-rock-around-clock.mp3"
+        "./guide/audio/practice-rock-around-clock.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 86,
-      "seconds": 30.672,
-      "wpm": 168.2,
+      "seconds": 21.576,
+      "wpm": 239.2,
       "text": "Open More and use Niels Feijen’s demonstration to set up Rock Around the Clock. Save the starting layout. Before every shot, choose the next object ball, its pocket, and the cue ball landing zone that leaves a useful angle. Prefer a route with room for a small speed error. Track pocketing and position separately. Complete one rotation first, then work toward three consecutive rotations without disturbing another ball. When you miss position, repeat the previous shot and compare a simpler route before changing the whole pattern.",
       "sceneUrl": "./guide/layouts/topics/practice-rock-around-clock.billiards.json",
       "geometryHash": "dbdeefb344a62e78ee416030b99029952038aad35f4af3528556c285c1152544",
       "layoutReason": "A distinct open pattern for comparing order, next angles, and route complexity.",
-      "pacingScreen": "below band",
+      "pacingScreen": "within band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Open More and use Niels Feijen’s demonstration to set up Rock Around the Clock. Save the starting layout. Before every shot, choose the next object ball, its pocket, and the cue ball landing zone that leaves a useful angle. Prefer a route with room for a small speed error. Track pocketing and position separately. Complete one rotation first, then work toward three consecutive rotations without disturbing another ball. When you miss position, repeat the previous shot and compare a simpler route before changing the whole pattern.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 30.672,
+      "beforeWpm": 168.2
     },
     {
       "page": "Main",
@@ -512,23 +537,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/practice-corner-five.mp3"
+        "./guide/audio/practice-corner-five.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 87,
-      "seconds": 32.04,
-      "wpm": 162.9,
+      "seconds": 25.584,
+      "wpm": 204.0,
       "text": "Open More for Dr. Dave’s Corner-5 demonstration. Follow its starting, aiming, and arrival number scales together. Identify all three cushion contacts before you shoot. Start with a clear route, consistent speed, and the spin shown in the lesson. Compare the predicted arrival with the actual arrival, then make a small adjustment and repeat. Once the route is calibrated, add a target object ball and a blocker for escape practice. Test five different starting positions and record legal object ball contact separately from the final cue ball position.",
       "sceneUrl": "./guide/layouts/topics/practice-corner-five.billiards.json",
       "geometryHash": "6f9a2fec9123af6880f449f2eb11e252ac8780a68b2b8a4e9c9e6c632e7a0f79",
       "layoutReason": "Two-cushion image route around the blocker; check each rail contact before the final target. Prepared aim is adjusted from the geometric reference for the default simulator cushion response; recalibrate on your table.",
-      "pacingScreen": "below band",
+      "pacingScreen": "within band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Open More for Dr. Dave’s Corner-5 demonstration. Follow its starting, aiming, and arrival number scales together. Identify all three cushion contacts before you shoot. Start with a clear route, consistent speed, and the spin shown in the lesson. Compare the predicted arrival with the actual arrival, then make a small adjustment and repeat. Once the route is calibrated, add a target object ball and a blocker for escape practice. Test five different starting positions and record legal object ball contact separately from the final cue ball position.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 32.04,
+      "beforeWpm": 162.9
     },
     {
       "page": "Main",
@@ -538,23 +565,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/practice-progressive-benchmark.mp3"
+        "./guide/audio/practice-progressive-benchmark.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 85,
-      "seconds": 32.16,
-      "wpm": 158.6,
+      "seconds": 25.248,
+      "wpm": 202.0,
       "text": "Open More for Sharivari’s progressive difficulty drill and use the demonstrated setup. Save the starting layout and record your first score. For your Trainer adaptation, begin with a comfortable position zone. After a successful set, reduce the zone or increase the shot difficulty, changing one condition at a time. Count both the pocketed ball and the required cue ball position. If the same error repeats, return to the last successful level. Record the highest level you can repeat, rather than only your best isolated attempt.",
       "sceneUrl": "./guide/layouts/topics/practice-progressive-benchmark.billiards.json",
       "geometryHash": "ce5aebacead5db6e7685e4847edd582b463feeae24f2c73e501ef5baeae0d371",
       "layoutReason": "Current pot plus a next-ball angle and a visible position zone.",
-      "pacingScreen": "below band",
+      "pacingScreen": "within band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Open More for Sharivari’s progressive difficulty drill and use the demonstrated setup. Save the starting layout and record your first score. For your Trainer adaptation, begin with a comfortable position zone. After a successful set, reduce the zone or increase the shot difficulty, changing one condition at a time. Count both the pocketed ball and the required cue ball position. If the same error repeats, return to the last successful level. Record the highest level you can repeat, rather than only your best isolated attempt.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 32.16,
+      "beforeWpm": 158.6
     },
     {
       "page": "Main",
@@ -564,23 +593,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/exercise-focused-practice-session.mp3"
+        "./guide/audio/exercise-focused-practice-session.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 109,
-      "seconds": 39.624,
-      "wpm": 165.1,
+      "seconds": 29.904,
+      "wpm": 218.7,
       "text": "Use this one hundred and five minute practice plan. Spend thirty minutes on speed and target landing, aiming for eight successful pocket and position results out of ten with a three inch target. Spend forty five minutes on Rock Around the Clock, first completing one rotation and then working toward three consecutive rotations without disturbing another ball. Spend thirty minutes on kick escapes, starting with one rail and adding two and three rails as control improves. Test five selected escapes and aim for four legal contacts. Record the result at the end of each phase. If time runs out, save your layout and score, then continue there next session.",
       "sceneUrl": "./guide/layouts/topics/exercise-focused-practice-session.billiards.json",
       "geometryHash": "1c7ff2ff49acf986523edf5f89dd928333d0f0050e4dea9db7a3bbdc152bbeaa",
       "layoutReason": "Current pot plus a next-ball angle and a visible position zone.",
-      "pacingScreen": "below band",
+      "pacingScreen": "within band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Use this one hundred and five minute practice plan. Spend thirty minutes on speed and target landing, aiming for eight successful pocket and position results out of ten with a three inch target. Spend forty five minutes on Rock Around the Clock, first completing one rotation and then working toward three consecutive rotations without disturbing another ball. Spend thirty minutes on kick escapes, starting with one rail and adding two and three rails as control improves. Test five selected escapes and aim for four legal contacts. Record the result at the end of each phase. If time runs out, save your layout and score, then continue there next session.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 39.624,
+      "beforeWpm": 165.1
     },
     {
       "page": "Main",
@@ -590,23 +621,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/exercise-practice-review.mp3"
+        "./guide/audio/exercise-practice-review.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 85,
-      "seconds": 30.12,
-      "wpm": 169.3,
+      "seconds": 21.552,
+      "wpm": 236.6,
       "text": "At the end of practice, record attempts, pocketed balls, successful position results, and legal kick contacts. Note the most common miss and the single adjustment that helped. Save the table with a name that includes the drill, difficulty, and date. Download its table file if you want to share the same layout with an instructor or student. Begin your next session with that saved layout and the same scoring conditions. Improve the weakest result first, then increase the challenge once you can repeat the improvement.",
       "sceneUrl": "./guide/layouts/topics/exercise-practice-review.billiards.json",
       "geometryHash": "c9e8cb8c6d9045030d546e963ffb5104374863bd28ba534e91717d44e06570ce",
       "layoutReason": "Current pot plus a next-ball angle and a visible position zone.",
-      "pacingScreen": "below band",
+      "pacingScreen": "within band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">At the end of practice, record attempts, pocketed balls, successful position results, and legal kick contacts. Note the most common miss and the single adjustment that helped. Save the table with a name that includes the drill, difficulty, and date. Download its table file if you want to share the same layout with an instructor or student. Begin your next session with that saved layout and the same scoring conditions. Improve the weakest result first, then increase the challenge once you can repeat the improvement.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 30.12,
+      "beforeWpm": 169.3
     },
     {
       "page": "Main",
@@ -616,23 +649,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/drill-stop-shot.mp3?v=practice-ready-v8"
+        "./guide/audio/drill-stop-shot.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 125,
-      "seconds": 43.056,
-      "wpm": 174.2,
+      "seconds": 31.56,
+      "wpm": 237.6,
       "text": "Stop Shot Calibration. Stand at the head end, looking toward the foot end. Place the 1-ball on the center spot. Put the cue ball on the head string, one diamond from the left long rail. This lines up with the foot-right corner pocket. Center a three-inch white circle one ball width behind the 1-ball, toward the cue ball. That is the cue ball’s stopping position. Use no side spin. Start slightly below center and adjust your speed and tip height until the cue ball arrives without forward or backward roll. Pocket the 1-ball and stop the cue ball inside the white circle. Reset both balls after each attempt. Try five shots and count clean stops. In the Trainer, select Execute Shot to watch the result.",
       "sceneUrl": "./guide/layouts/topics/drill-stop-shot.billiards.json",
       "geometryHash": "cb21c90ca75184bde91935d60716c9d55d9b8a87d227c7405756c8eb1b4993fc",
       "layoutReason": "The original narration specifies these ball and target coordinates; they are preserved.",
-      "pacingScreen": "below band",
+      "pacingScreen": "within band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Stop Shot Calibration. Stand at the head end, looking toward the foot end. Place the 1-ball on the center spot. Put the cue ball on the head string, one diamond from the left long rail. This lines up with the foot-right corner pocket. Center a three-inch white circle one ball width behind the 1-ball, toward the cue ball. That is the cue ball’s stopping position. Use no side spin. Start slightly below center and adjust your speed and tip height until the cue ball arrives without forward or backward roll. Pocket the 1-ball and stop the cue ball inside the white circle. Reset both balls after each attempt. Try five shots and count clean stops. In the Trainer, select Execute Shot to watch the result.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 43.056,
+      "beforeWpm": 174.2
     },
     {
       "page": "Main",
@@ -642,23 +677,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/drill-stun-tangent.mp3?v=practice-ready-v8"
+        "./guide/audio/drill-stun-tangent.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 138,
-      "seconds": 47.52,
-      "wpm": 174.2,
+      "seconds": 33.792,
+      "wpm": 245.0,
       "text": "Ninety-Degree Stun Tangent Line. Stand at the head end, looking toward the foot. Place the 1-ball one diamond inward from the right side pocket. Put the cue ball on the table’s center line, half a diamond toward the foot end from the center spot. Place a three-inch yellow square one and a half diamonds toward the head end from the 1-ball, and one ball width to its left. Pocket the 1-ball into the right side pocket. Use no side spin and enough low tip contact and speed for the cue ball to be sliding at impact. It should leave along the tangent line, perpendicular to the object ball’s path. Adjust speed to finish inside the yellow square. Reset both balls and repeat five times. Select Execute Shot in the Trainer to compare the path with the tangent line.",
       "sceneUrl": "./guide/layouts/topics/drill-stun-tangent.billiards.json",
       "geometryHash": "b09891f019ac1ffe5a96056c08ff7d04d42c3364ea3c53b242ae225e4ca59a96",
       "layoutReason": "The original narration specifies these ball and target coordinates; they are preserved.",
-      "pacingScreen": "below band",
+      "pacingScreen": "above band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Ninety-Degree Stun Tangent Line. Stand at the head end, looking toward the foot. Place the 1-ball one diamond inward from the right side pocket. Put the cue ball on the table’s center line, half a diamond toward the foot end from the center spot. Place a three-inch yellow square one and a half diamonds toward the head end from the 1-ball, and one ball width to its left. Pocket the 1-ball into the right side pocket. Use no side spin and enough low tip contact and speed for the cue ball to be sliding at impact. It should leave along the tangent line, perpendicular to the object ball’s path. Adjust speed to finish inside the yellow square. Reset both balls and repeat five times. Select Execute Shot in the Trainer to compare the path with the tangent line.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 47.52,
+      "beforeWpm": 174.2
     },
     {
       "page": "Main",
@@ -668,23 +705,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/drill-speed-ladder.mp3?v=practice-ready-v8"
+        "./guide/audio/drill-speed-ladder.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 140,
-      "seconds": 48.192,
-      "wpm": 174.3,
+      "seconds": 38.04,
+      "wpm": 220.8,
       "text": "Speed Ladder. Stand at the head end, looking toward the foot. Use only the cue ball. Start on the center line, half a diamond behind the head string. Place four three-inch circles on the center line: white on the center spot, red on the foot spot, yellow one diamond from the foot cushion, and pink one diamond from the head cushion. Reset the cue ball to the same starting position before every shot. First, stop on white. Second, stop on red. Third, touch the foot cushion and return to yellow. Fourth, touch the foot cushion and return all the way to pink. Use a level cue and no side spin. Change your stroke speed while keeping your delivery smooth. Score one point for each finish inside its circle, for a maximum of four. Repeat the ladder and compare your scores.",
       "sceneUrl": "./guide/layouts/topics/drill-speed-ladder.billiards.json",
       "geometryHash": "e9d941ec8cab43365377118353046c7cc368521b8646f4522919d08db1ca16a5",
       "layoutReason": "The original narration specifies these ball and target coordinates; they are preserved.",
-      "pacingScreen": "below band",
+      "pacingScreen": "within band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Speed Ladder. Stand at the head end, looking toward the foot. Use only the cue ball. Start on the center line, half a diamond behind the head string. Place four three-inch circles on the center line: white on the center spot, red on the foot spot, yellow one diamond from the foot cushion, and pink one diamond from the head cushion. Reset the cue ball to the same starting position before every shot. First, stop on white. Second, stop on red. Third, touch the foot cushion and return to yellow. Fourth, touch the foot cushion and return all the way to pink. Use a level cue and no side spin. Change your stroke speed while keeping your delivery smooth. Score one point for each finish inside its circle, for a maximum of four. Repeat the ladder and compare your scores.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 48.192,
+      "beforeWpm": 174.3
     },
     {
       "page": "Main",
@@ -694,23 +733,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/drill-l-pattern.mp3?v=practice-ready-v8"
+        "./guide/audio/drill-l-pattern.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 145,
-      "seconds": 49.92,
-      "wpm": 174.3,
+      "seconds": 35.04,
+      "wpm": 248.3,
       "text": "The L-Drill. Stand at the head end, looking toward the foot. Place balls one, two, and three half a diamond from the right long rail, respectively one, two, and three diamonds from the foot cushion. Place ball four one diamond from the right long rail and half a diamond from the foot cushion. Place ball five on the center line, also half a diamond from the foot cushion. These five balls form an L. Put a white square at the center spot, one diamond wide. Start the cue ball on the center line, half a diamond behind the head string. Pocket balls one through five in order, choosing clear corner pockets. Plan the next angle before every shot. Use the center square as a recovery option when it helps the next shot. Count balls pocketed in sequence, then reset the full pattern and try again.",
       "sceneUrl": "./guide/layouts/topics/drill-l-pattern.billiards.json",
       "geometryHash": "cde56fdb1be1a022fe00ae42f24b0da05d847983525d4ee1f2b711bf6d44704a",
       "layoutReason": "The original narration specifies these ball and target coordinates; they are preserved.",
-      "pacingScreen": "below band",
+      "pacingScreen": "above band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">The L-Drill. Stand at the head end, looking toward the foot. Place balls one, two, and three half a diamond from the right long rail, respectively one, two, and three diamonds from the foot cushion. Place ball four one diamond from the right long rail and half a diamond from the foot cushion. Place ball five on the center line, also half a diamond from the foot cushion. These five balls form an L. Put a white square at the center spot, one diamond wide. Start the cue ball on the center line, half a diamond behind the head string. Pocket balls one through five in order, choosing clear corner pockets. Plan the next angle before every shot. Use the center square as a recovery option when it helps the next shot. Count balls pocketed in sequence, then reset the full pattern and try again.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 49.92,
+      "beforeWpm": 174.3
     },
     {
       "page": "Main",
@@ -720,23 +761,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/drill-t-pattern.mp3?v=practice-ready-v8"
+        "./guide/audio/drill-t-pattern.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 144,
-      "seconds": 49.584,
-      "wpm": 174.2,
+      "seconds": 34.944,
+      "wpm": 247.3,
       "text": "The T-Drill. Stand at the head end, looking toward the foot. Place ball one on the center spot. Place ball two one diamond farther toward the foot, and ball three on the foot spot. Put ball four on the foot string, one diamond to the left of ball three, and ball five one diamond to its right. Start the cue ball on the head string, one diamond from the right long rail. Place two yellow circles, each half a diamond wide, halfway between the center spot and the side pockets. Pocket balls one through five in order into corner pockets. Choose the yellow zone that gives you a useful angle for the next ball. Use a cushion when it helps the route. Keep the cue ball clear of the remaining balls. Count your run, reset the full pattern, and work toward completing all five.",
       "sceneUrl": "./guide/layouts/topics/drill-t-pattern.billiards.json",
       "geometryHash": "b2939d6d98b14c1b0fbeebc14a369439e713bbbbcaf350b51cb20e6c5cedcb6c",
       "layoutReason": "The original narration specifies these ball and target coordinates; they are preserved.",
-      "pacingScreen": "below band",
+      "pacingScreen": "above band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">The T-Drill. Stand at the head end, looking toward the foot. Place ball one on the center spot. Place ball two one diamond farther toward the foot, and ball three on the foot spot. Put ball four on the foot string, one diamond to the left of ball three, and ball five one diamond to its right. Start the cue ball on the head string, one diamond from the right long rail. Place two yellow circles, each half a diamond wide, halfway between the center spot and the side pockets. Pocket balls one through five in order into corner pockets. Choose the yellow zone that gives you a useful angle for the next ball. Use a cushion when it helps the route. Keep the cue ball clear of the remaining balls. Count your run, reset the full pattern, and work toward completing all five.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 49.584,
+      "beforeWpm": 174.2
     },
     {
       "page": "Main",
@@ -746,23 +789,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/drill-wagon-wheel.mp3?v=practice-ready-v8"
+        "./guide/audio/drill-wagon-wheel.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 188,
-      "seconds": 64.728,
-      "wpm": 174.3,
+      "seconds": 43.872,
+      "wpm": 257.1,
       "text": "The Wagon Wheel. Stand at the head end, looking toward the foot. Place the 1-ball one diamond inward from the right side pocket. Put the cue ball on the center line, half a diamond toward the foot from the center spot. Set six three-inch circles on the head side of the 1-ball. Marker one is one and a half diamonds from the left rail and three and a half from the head rail. Marker two is two from the left and three from the head. Marker three is one ball width left of the 1-ball’s line and three from the head. Marker four is three and a quarter from the left and three from the head. Marker five is three and a half from the left and two and a half from the head. Marker six is directly headward of marker three, one and a half diamonds from the head rail. Reset both balls before every attempt and pocket the 1-ball into the right side pocket. Work through the markers in order, varying draw, follow, and speed. Start without side spin. Record the combinations that produce repeatable finishes.",
       "sceneUrl": "./guide/layouts/topics/drill-wagon-wheel.billiards.json",
       "geometryHash": "56b8aac13fb33232deb55480eb129ba9bc918da7f743765c1b376ac99ceb3087",
       "layoutReason": "The original narration specifies these ball and target coordinates; they are preserved.",
-      "pacingScreen": "below band",
+      "pacingScreen": "above band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">The Wagon Wheel. Stand at the head end, looking toward the foot. Place the 1-ball one diamond inward from the right side pocket. Put the cue ball on the center line, half a diamond toward the foot from the center spot. Set six three-inch circles on the head side of the 1-ball. Marker one is one and a half diamonds from the left rail and three and a half from the head rail. Marker two is two from the left and three from the head. Marker three is one ball width left of the 1-ball’s line and three from the head. Marker four is three and a quarter from the left and three from the head. Marker five is three and a half from the left and two and a half from the head. Marker six is directly headward of marker three, one and a half diamonds from the head rail. Reset both balls before every attempt and pocket the 1-ball into the right side pocket. Work through the markers in order, varying draw, follow, and speed. Start without side spin. Record the combinations that produce repeatable finishes.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 64.728,
+      "beforeWpm": 174.3
     },
     {
       "page": "Main",
@@ -772,23 +817,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/drill-two-rail-recovery.mp3?v=practice-ready-v8"
+        "./guide/audio/drill-two-rail-recovery.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 139,
-      "seconds": 47.88,
-      "wpm": 174.2,
+      "seconds": 34.44,
+      "wpm": 242.2,
       "text": "Two-Rail Center Recovery. Stand at the head end, looking toward the foot. Place the 1-ball one diamond from the right long rail and one diamond from the foot cushion. Put the cue ball on the same rail offset, three diamonds from the foot cushion. Place a white square on the center line, one diamond from the head cushion. Make the square one diamond wide. Pocket the 1-ball into the foot-right corner. Start with natural forward roll and no side spin. Look for the cue ball to contact the foot cushion, then the left long cushion, and travel toward the white recovery zone. Adjust your stroke speed to finish in the square. Keep the ball placements fixed so you can compare attempts. Score the pocketed ball and the position result separately. Try five shots, then repeat your most successful speed.",
       "sceneUrl": "./guide/layouts/topics/drill-two-rail-recovery.billiards.json",
       "geometryHash": "93f5d9f52c1d79f34fd2432281710d39441b6a1e099fdc2353361c4a76cd3edb",
       "layoutReason": "The original narration specifies these ball and target coordinates; they are preserved.",
-      "pacingScreen": "below band",
+      "pacingScreen": "within band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Two-Rail Center Recovery. Stand at the head end, looking toward the foot. Place the 1-ball one diamond from the right long rail and one diamond from the foot cushion. Put the cue ball on the same rail offset, three diamonds from the foot cushion. Place a white square on the center line, one diamond from the head cushion. Make the square one diamond wide. Pocket the 1-ball into the foot-right corner. Start with natural forward roll and no side spin. Look for the cue ball to contact the foot cushion, then the left long cushion, and travel toward the white recovery zone. Adjust your stroke speed to finish in the square. Keep the ball placements fixed so you can compare attempts. Score the pocketed ball and the position result separately. Try five shots, then repeat your most successful speed.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 47.88,
+      "beforeWpm": 174.2
     },
     {
       "page": "Main",
@@ -798,23 +845,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/drill-scratch-avoidance.mp3?v=practice-ready-v8"
+        "./guide/audio/drill-scratch-avoidance.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 148,
-      "seconds": 50.952,
-      "wpm": 174.3,
+      "seconds": 37.632,
+      "wpm": 236.0,
       "text": "Side Pocket Scratch Avoidance. Stand at the head end, looking toward the foot. Place the 1-ball half a diamond inward from the right side pocket. Start the cue ball on the foot spot. Place a red square beside the head-right corner pocket, centered a quarter diamond from each cushion. Make it half a diamond wide. Place a white square on the center line, one diamond from the foot cushion, and make it one diamond wide. Pocket the 1-ball into the right side pocket. Compare forward roll, stun, and controlled draw, starting without side spin. Watch the whole cue ball route, including any cushion rebounds. Find a stroke that keeps the cue ball clear of the red danger zone and returns it toward white. In the Trainer, judge whether the path enters the red zone, even if cue ball pocketing is prevented. Reset both balls and repeat five times.",
       "sceneUrl": "./guide/layouts/topics/drill-scratch-avoidance.billiards.json",
       "geometryHash": "886c3b2ecee4be991d797d454ca7b8095557fc1697ab6b57c62848ddf89dfefd",
       "layoutReason": "The original narration specifies these ball and target coordinates; they are preserved.",
-      "pacingScreen": "below band",
+      "pacingScreen": "within band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Side Pocket Scratch Avoidance. Stand at the head end, looking toward the foot. Place the 1-ball half a diamond inward from the right side pocket. Start the cue ball on the foot spot. Place a red square beside the head-right corner pocket, centered a quarter diamond from each cushion. Make it half a diamond wide. Place a white square on the center line, one diamond from the foot cushion, and make it one diamond wide. Pocket the 1-ball into the right side pocket. Compare forward roll, stun, and controlled draw, starting without side spin. Watch the whole cue ball route, including any cushion rebounds. Find a stroke that keeps the cue ball clear of the red danger zone and returns it toward white. In the Trainer, judge whether the path enters the red zone, even if cue ball pocketing is prevented. Reset both balls and repeat five times.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 50.952,
+      "beforeWpm": 174.3
     },
     {
       "page": "Main",
@@ -824,23 +873,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/drill-mirror-kick.mp3?v=practice-ready-v8"
+        "./guide/audio/drill-mirror-kick.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 152,
-      "seconds": 52.32,
-      "wpm": 174.3,
+      "seconds": 37.176,
+      "wpm": 245.3,
       "text": "One-Rail Mirror Kick. Stand at the head end, looking toward the foot. Put the cue ball on the head string, one diamond from the right long rail. Place the 1-ball on that same line, three diamonds from the foot cushion. Put the 8-ball halfway between them to block the direct shot. The cue ball and the 1-ball are now equally distant from the left cushion. Mark the left cushion halfway between their lengthwise positions: three and a half diamonds from the head cushion. Center a yellow circle one ball radius inside that cushion as the cue ball contact reference. Use a level cue, moderate speed, and no side spin. Send the cue ball to the left cushion, then into the 1-ball without touching the 8-ball first. Begin with the midpoint reference and make small aiming adjustments from your observed results. Reset the cue ball after each attempt and count five clean contacts.",
       "sceneUrl": "./guide/layouts/topics/drill-mirror-kick.billiards.json",
       "geometryHash": "cb32e5f14f40fc497de342ab55aee1caa068949197a59d26741b0dce9016301b",
       "layoutReason": "The original narration specifies these ball and target coordinates; they are preserved.",
-      "pacingScreen": "below band",
+      "pacingScreen": "above band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">One-Rail Mirror Kick. Stand at the head end, looking toward the foot. Put the cue ball on the head string, one diamond from the right long rail. Place the 1-ball on that same line, three diamonds from the foot cushion. Put the 8-ball halfway between them to block the direct shot. The cue ball and the 1-ball are now equally distant from the left cushion. Mark the left cushion halfway between their lengthwise positions: three and a half diamonds from the head cushion. Center a yellow circle one ball radius inside that cushion as the cue ball contact reference. Use a level cue, moderate speed, and no side spin. Send the cue ball to the left cushion, then into the 1-ball without touching the 8-ball first. Begin with the midpoint reference and make small aiming adjustments from your observed results. Reset the cue ball after each attempt and count five clean contacts.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 52.32,
+      "beforeWpm": 174.3
     },
     {
       "page": "Main",
@@ -850,23 +901,25 @@
       "visible": true,
       "welcome": false,
       "audio": [
-        "./guide/audio/drill-two-rail-kick.mp3?v=practice-ready-v8"
+        "./guide/audio/drill-two-rail-kick.mp3?v=chase-20261015"
       ],
       "audioStatus": "present",
       "words": 174,
-      "seconds": 59.904,
-      "wpm": 174.3,
+      "seconds": 41.928,
+      "wpm": 249.0,
       "text": "Two-Rail Corner Kick. Stand at the head end, looking toward the foot. Place the cue ball one diamond from the head cushion and one and a quarter diamonds from the right long rail. Put the 1-ball one diamond from the foot cushion and three quarters of a diamond from the right long rail. Place the 8-ball level with the side pockets, one diamond from the right rail. Put balls two and three on the same line, two ball widths to either side of the 8-ball toward the head and foot ends. This blocks the direct shot. Place yellow marker A at the right cushion on the foot string, with its center one ball radius inside the cloth. Place yellow marker B half a diamond left of the foot-right corner, also one ball radius inside the foot cushion. Use moderate speed and no side spin. Aim the cue ball center toward A. Look for right cushion, then foot cushion near B, then contact with the 1-ball. Make small aiming adjustments and count five successful escapes.",
       "sceneUrl": "./guide/layouts/topics/drill-two-rail-kick.billiards.json",
       "geometryHash": "501e161c49902654f404cb7fd4ad178d37b77104f7d19e837995f40ad75ab3c3",
       "layoutReason": "The original narration specifies these ball and target coordinates; they are preserved.",
-      "pacingScreen": "below band",
+      "pacingScreen": "above band",
       "priority": "listen-before-re-record",
       "reason": "Duration screen: slower than reference band",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Two-Rail Corner Kick. Stand at the head end, looking toward the foot. Place the cue ball one diamond from the head cushion and one and a quarter diamonds from the right long rail. Put the 1-ball one diamond from the foot cushion and three quarters of a diamond from the right long rail. Place the 8-ball level with the side pockets, one diamond from the right rail. Put balls two and three on the same line, two ball widths to either side of the 8-ball toward the head and foot ends. This blocks the direct shot. Place yellow marker A at the right cushion on the foot string, with its center one ball radius inside the cloth. Place yellow marker B half a diamond left of the foot-right corner, also one ball radius inside the foot cushion. Use moderate speed and no side spin. Aim the cue ball center toward A. Look for right cushion, then foot cushion near B, then contact with the 1-ball. Make small aiming adjustments and count five successful escapes.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 59.904,
+      "beforeWpm": 174.3
     },
     {
       "page": "Main",
@@ -875,22 +928,26 @@
       "category": "fundamentals",
       "visible": true,
       "welcome": false,
-      "audio": [],
-      "audioStatus": "missing",
+      "audio": [
+        "./guide/audio/fundamentals-pre-shot-routine.mp3?v=chase-20261015"
+      ],
+      "audioStatus": "present",
       "words": 57,
-      "seconds": 0,
-      "wpm": null,
+      "seconds": 17.112,
+      "wpm": 199.9,
       "text": "While standing, choose pocket, route, and finish. Approach along the aim line, form a comfortable stance and bridge, rehearse smoothly, pause as needed, and deliver. Stand up and restart if the plan changes. Use the straight-shot layout. Have a partner observe or record video, then review consistency of the routine rather than copying a prescribed body shape.",
       "sceneUrl": "./guide/layouts/topics/fundamentals-pre-shot-routine.billiards.json",
       "geometryHash": "05bf3b4152097a4dfdda6419bdd8f0762c1697d666b0d7b60e12ef172e2828cf",
       "layoutReason": "Approach distance and contact geometry selected for A repeatable pre-shot routine.",
-      "pacingScreen": "no audio",
+      "pacingScreen": "within band",
       "priority": "record",
       "reason": "No recording",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">While standing, choose pocket, route, and finish. Approach along the aim line, form a comfortable stance and bridge, rehearse smoothly, pause as needed, and deliver. Stand up and restart if the plan changes. Use the straight-shot layout. Have a partner observe or record video, then review consistency of the routine rather than copying a prescribed body shape.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 0,
+      "beforeWpm": null
     },
     {
       "page": "Main",
@@ -899,22 +956,26 @@
       "category": "fundamentals",
       "visible": true,
       "welcome": false,
-      "audio": [],
-      "audioStatus": "missing",
+      "audio": [
+        "./guide/audio/fundamentals-balanced-stance.mp3?v=chase-20261015"
+      ],
+      "audioStatus": "present",
       "words": 53,
-      "seconds": 0,
-      "wpm": null,
+      "seconds": 15.696,
+      "wpm": 202.6,
       "text": "Plan while standing. Approach the shot, place your feet comfortably, and check that your body stays steady and the cue can move freely. Rise and realign if needed. Recreate the straight shot and observe from side/front video or with a coach. Adapt stance to your body; no single foot position is required.",
       "sceneUrl": "./guide/layouts/topics/fundamentals-balanced-stance.billiards.json",
       "geometryHash": "e4252957d0c07dd6bd8866c2bf3e6d5b102e11f8e36d3b957ccd99074f01faaf",
       "layoutReason": "Approach distance and contact geometry selected for Comfortable stance and cue clearance.",
-      "pacingScreen": "no audio",
+      "pacingScreen": "within band",
       "priority": "record",
       "reason": "No recording",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Plan while standing. Approach the shot, place your feet comfortably, and check that your body stays steady and the cue can move freely. Rise and realign if needed. Recreate the straight shot and observe from side/front video or with a coach. Adapt stance to your body; no single foot position is required.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 0,
+      "beforeWpm": null
     },
     {
       "page": "Main",
@@ -923,22 +984,26 @@
       "category": "fundamentals",
       "visible": true,
       "welcome": false,
-      "audio": [],
-      "audioStatus": "missing",
+      "audio": [
+        "./guide/audio/fundamentals-stable-bridge.mp3?v=chase-20261015"
+      ],
+      "audioStatus": "present",
       "words": 52,
-      "seconds": 0,
-      "wpm": null,
+      "seconds": 14.76,
+      "wpm": 211.4,
       "text": "Form a comfortable open or closed bridge on clear cloth. Rehearse slowly and check the hand remains still while the cue moves freely. Keep the bridge distance comfortable and consistent. Practice at the physical table with a coach, partner, or video. The on-screen cue does not model hand support or bridge stability.",
       "sceneUrl": "./guide/layouts/topics/fundamentals-stable-bridge.billiards.json",
       "geometryHash": "6534fc259d02b71a33b2a9f811fabdfaaa1caeed5a40eb8e0328b8497c3b8bca",
       "layoutReason": "Approach distance and contact geometry selected for A stable bridge.",
-      "pacingScreen": "no audio",
+      "pacingScreen": "within band",
       "priority": "record",
       "reason": "No recording",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Form a comfortable open or closed bridge on clear cloth. Rehearse slowly and check the hand remains still while the cue moves freely. Keep the bridge distance comfortable and consistent. Practice at the physical table with a coach, partner, or video. The on-screen cue does not model hand support or bridge stability.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 0,
+      "beforeWpm": null
     },
     {
       "page": "Main",
@@ -947,22 +1012,26 @@
       "category": "fundamentals",
       "visible": true,
       "welcome": false,
-      "audio": [],
-      "audioStatus": "missing",
+      "audio": [
+        "./guide/audio/fundamentals-grip-and-delivery.mp3?v=chase-20261015"
+      ],
+      "audioStatus": "present",
       "words": 47,
-      "seconds": 0,
-      "wpm": null,
+      "seconds": 13.224,
+      "wpm": 213.2,
       "text": "Choose center contact on an easy straight shot. Rehearse smoothly without squeezing or steering, then deliver through the ball while keeping the bridge stable. Use the straight-shot diagram and a striped practice ball if available to inspect unintended spin. Ask a coach to review persistent delivery errors.",
       "sceneUrl": "./guide/layouts/topics/fundamentals-grip-and-delivery.billiards.json",
       "geometryHash": "b6da338eb203c3ef4dd54d5d4df3fe39914e17b9c9c165cfbfa48d8851259fd0",
       "layoutReason": "Approach distance and contact geometry selected for Relaxed grip and straight delivery.",
-      "pacingScreen": "no audio",
+      "pacingScreen": "within band",
       "priority": "record",
       "reason": "No recording",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Choose center contact on an easy straight shot. Rehearse smoothly without squeezing or steering, then deliver through the ball while keeping the bridge stable. Use the straight-shot diagram and a striped practice ball if available to inspect unintended spin. Ask a coach to review persistent delivery errors.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 0,
+      "beforeWpm": null
     },
     {
       "page": "Main",
@@ -971,22 +1040,26 @@
       "category": "fundamentals",
       "visible": true,
       "welcome": false,
-      "audio": [],
-      "audioStatus": "missing",
+      "audio": [
+        "./guide/audio/fundamentals-cue-access.mp3?v=chase-20261015"
+      ],
+      "audioStatus": "present",
       "words": 45,
-      "seconds": 0,
-      "wpm": null,
+      "seconds": 14.448,
+      "wpm": 186.9,
       "text": "Compare a clear-cloth cue-ball start with a rail-adjacent start. Identify bridge support, cue clearance, reach, and elevation before choosing the stroke. Inspect the actual cue approach and use a mechanical bridge when needed. Do not stretch into an unstable stroke; compare a simpler accessible route.",
       "sceneUrl": "./guide/layouts/topics/fundamentals-cue-access.billiards.json",
       "geometryHash": "b1ef7c9a2d83eed2e89bf490c5ace8f9b3bd5b68980f050eb1947d3b44ca5bc3",
       "layoutReason": "Rail-adjacent cue ball makes bridge support and physical cue access the central observation.",
-      "pacingScreen": "no audio",
+      "pacingScreen": "within band",
       "priority": "record",
       "reason": "No recording",
       "voice": "Speechify Chase (US)",
       "ssml": "<speak><prosody rate=\"+30%\">Compare a clear-cloth cue-ball start with a rail-adjacent start. Identify bridge support, cue clearance, reach, and elevation before choosing the stroke. Inspect the actual cue approach and use a mechanical bridge when needed. Do not stretch into an unstable stroke; compare a simpler accessible route.</prosody></speak>",
-      "status": "pending; no audio replaced",
-      "instruction": "Compare at normal playback speed with the same Chase reference; keep instructional pauses. Re-record in Chase only after listening confirms an issue. For multi-clip topics compare each component before replacing."
+      "status": "recorded with Speechify; listening review pending",
+      "instruction": "Fresh Chase synthesis at +30% prosody; decode verified. Compare natural pauses and pronunciation at normal playback speed.",
+      "beforeSeconds": 0,
+      "beforeWpm": null
     }
   ]
 }

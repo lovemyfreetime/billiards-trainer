@@ -75,7 +75,7 @@ function fill(pathIndex,preferred){
  if($('lesson').value)lesson($('lesson').value);
 }
 async function init(){
- const responses=await Promise.all(['learning-catalog.json?v=topic-guide-v2','pool-audio-map.json?v=completion-tour-v25','recorded-audio.json?v=presets-recovery-v13'].map(url=>fetch(url).then(r=>{if(!r.ok)throw Error('Practice catalog could not load');return r.json();})));
+ const responses=await Promise.all(['learning-catalog.json?v=chase-20261015','pool-audio-map.json?v=chase-20261015','recorded-audio.json?v=chase-20261015'].map(url=>fetch(url).then(r=>{if(!r.ok)throw Error('Practice catalog could not load');return r.json();})));
  catalog=responses[0];const topics=new Map(responses[1].topics.map(t=>[t.id,t]));for(const r of responses[2].records)if(['Main','Shared'].includes(r.page))topics.set(r.topic.id,{...topics.get(r.topic.id),...r.topic});for(const t of catalog.newTopics)topics.set(t.id,t);all=[...topics.values()];
  const p=$('path');p.append(new Option('All lessons','all'));catalog.paths.forEach((path,i)=>p.append(new Option(path.title,String(i))));
  const wanted=new URLSearchParams(location.search).get('topic'),exists=!!catalog.topics[wanted];

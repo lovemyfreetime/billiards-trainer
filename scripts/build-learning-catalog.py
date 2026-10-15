@@ -316,7 +316,7 @@ def build():
     original_ids=set(topics)
     for id,title,key in NEW:
         p=PROFILES[key];EXACT[id]=key
-        topics[id]=dict(id=id,title=title,category='fundamentals',level=0,summary=p['purpose'],text=p['instruction']+' '+p['transfer'],audio=None,recordingStatus='pending',explorerOnly=False,resources=[dict(title='Dr. Dave — physical fundamentals',url='https://drdavepoolinfo.com/tutorial/fundamentals/')])
+        topics[id]=dict(id=id,title=title,category='fundamentals',level=0,summary=p['purpose'],text=p['instruction']+' '+p['transfer'],audio=['./guide/audio/'+id+'.mp3?v=chase-20261015'],recordingStatus='recorded',explorerOnly=False,resources=[dict(title='Dr. Dave — physical fundamentals',url='https://drdavepoolinfo.com/tutorial/fundamentals/')])
     ids=set(pool['assignments'].values())|set(pool['sections'].values())|set(pool['canvasTopics'])|{pool['powerMeterTopic']}
     catalog={}; audit=[]
     for id,t in topics.items():

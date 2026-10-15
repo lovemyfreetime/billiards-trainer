@@ -25,8 +25,8 @@
       "audio": "./guide/audio/tangent-line-quick.mp3",
       "category": "physics",
       "level": 0,
-      "text": "The tangent line helps you study the cue ball\u2019s initial direction after an angled collision when it arrives sliding without forward or backward roll. Follow and draw can change the path that develops afterward.",
-      "summary": "The tangent line helps you study the cue ball\u2019s initial direction after an angled collision when it arrives sliding without forward or backward roll."
+      "text": "The tangent line helps you study the cue ball’s initial direction after an angled collision when it arrives sliding without forward or backward roll. Follow and draw can change the path that develops afterward.",
+      "summary": "The tangent line helps you study the cue ball’s initial direction after an angled collision when it arrives sliding without forward or backward roll."
     },
     {
       "id": "diamond-grid-quick",
@@ -112,7 +112,7 @@
     {
       "id": "physics-calibration-overview-quick",
       "title": "Physics and calibration overview",
-      "audio": "./guide/audio/physics-calibration-overview-quick.mp3",
+      "audio": "./guide/audio/physics-calibration-overview-quick.mp3?v=chase-20261015",
       "category": "physics",
       "level": 0,
       "text": "Physics and Calibration lets you explore how table and ball behavior affects a shot. Rolling friction and sliding friction are among the settings available. Adjust a parameter, repeat a shot, and compare the outcome.",
@@ -133,7 +133,7 @@
       "audio": "./guide/audio/reset-restore-overview-quick.mp3",
       "category": "explore",
       "level": 0,
-      "text": "Repeating a shot is easier when you begin from the same arrangement. Use the appropriate restore or reset option for your layout, then change one shot setting and compare the results. Check the control\u2019s effect before using it on a layout you want to keep.",
+      "text": "Repeating a shot is easier when you begin from the same arrangement. Use the appropriate restore or reset option for your layout, then change one shot setting and compare the results. Check the control’s effect before using it on a layout you want to keep.",
       "summary": "Repeating a shot is easier when you begin from the same arrangement."
     },
     {
@@ -142,7 +142,7 @@
       "audio": "./guide/audio/player-turn-overview-quick.mp3",
       "category": "explore",
       "level": 0,
-      "text": "When working with player or turn information, use the table display to keep track of whose shot you are studying. The trainer\u2019s main learning tools still work best when you focus on the current shot and the position it creates.",
+      "text": "When working with player or turn information, use the table display to keep track of whose shot you are studying. The trainer’s main learning tools still work best when you focus on the current shot and the position it creates.",
       "summary": "When working with player or turn information, use the table display to keep track of whose shot you are studying."
     },
     {
@@ -205,7 +205,7 @@
       "audio": "./guide/audio/hide-cue-ball-guides-quick.mp3",
       "category": "fundamentals",
       "level": 0,
-      "text": "When planning two shots, the aiming lines and guides can overlap. Select Hide Cue Ball 1 or Hide Cue Ball 2 to temporarily clear that shot\u2019s visual guides. This lets you focus on the other shot while making adjustments. Select Show to bring the hidden guides back.",
+      "text": "When planning two shots, the aiming lines and guides can overlap. Select Hide Cue Ball 1 or Hide Cue Ball 2 to temporarily clear that shot’s visual guides. This lets you focus on the other shot while making adjustments. Select Show to bring the hidden guides back.",
       "summary": "When planning two shots, the aiming lines and guides can overlap."
     },
     {
@@ -304,8 +304,8 @@
       "audio": "./guide/audio/jump-obstacle-clearance-quick.mp3",
       "category": "physics",
       "level": 0,
-      "text": "When attempting to jump an obstructing ball, examine the cue-ball path at the obstacle\u2019s location. A shot clears the obstacle only if the cue ball is high enough at that point, not simply because it reaches a high point elsewhere.",
-      "summary": "When attempting to jump an obstructing ball, examine the cue-ball path at the obstacle\u2019s location."
+      "text": "When attempting to jump an obstructing ball, examine the cue-ball path at the obstacle’s location. A shot clears the obstacle only if the cue ball is high enough at that point, not simply because it reaches a high point elsewhere.",
+      "summary": "When attempting to jump an obstructing ball, examine the cue-ball path at the obstacle’s location."
     },
     {
       "id": "jump-landing-point-quick",
@@ -318,7 +318,7 @@
     },
     {
       "id": "masse-shot-controls-quick",
-      "title": "Mass\u00e9 shot controls",
+      "title": "Massé shot controls",
       "audio": "./guide/audio/masse-shot-controls-quick.mp3",
       "category": "physics",
       "level": 0,
@@ -376,7 +376,7 @@
       "audio": "./guide/audio/cue-ball-pocket-power-meters-quick.mp3",
       "category": "physics",
       "level": 0,
-      "text": "The two meters beside the cue-ball diagram show power along the shot. C is the cue ball\u2019s power reaching the object ball. P is the object ball\u2019s power toward the pocket. The white horizontal line marks the power needed at each stage. If a meter is well below that line, the shot may not have enough power to reach its intended destination.",
+      "text": "The two meters beside the cue-ball diagram show power along the shot. C is the cue ball’s power reaching the object ball. P is the object ball’s power toward the pocket. The white horizontal line marks the power needed at each stage. If a meter is well below that line, the shot may not have enough power to reach its intended destination.",
       "summary": "The two meters beside the cue-ball diagram show power along the shot."
     },
     {
@@ -390,7 +390,7 @@
     },
     {
       "id": "jump-masse-open-controls-quick",
-      "title": "Opening 3D jump and mass\u00e9 controls",
+      "title": "Opening 3D jump and massé controls",
       "audio": "./guide/audio/jump-masse-open-controls-quick.mp3",
       "category": "physics",
       "level": 0,
@@ -421,8 +421,8 @@
       "audio": "./guide/audio/cut-angle-geometry-quick.mp3",
       "category": "fundamentals",
       "level": 0,
-      "text": "A cut shot sends the object ball away from the cue ball\u2019s incoming direction. As the cut becomes thinner, the required contact point moves farther toward the edge of the object ball. Compare several angles and observe the change.",
-      "summary": "A cut shot sends the object ball away from the cue ball\u2019s incoming direction."
+      "text": "A cut shot sends the object ball away from the cue ball’s incoming direction. As the cut becomes thinner, the required contact point moves farther toward the edge of the object ball. Compare several angles and observe the change.",
+      "summary": "A cut shot sends the object ball away from the cue ball’s incoming direction."
     },
     {
       "id": "ball-overlap-quick",
@@ -457,8 +457,8 @@
       "audio": "./guide/audio/tangent-line-geometry-quick.mp3",
       "category": "physics",
       "level": 0,
-      "text": "For a cut shot with a sliding cue ball, the cue ball initially leaves the collision close to a line perpendicular to the object ball\u2019s path. This is the tangent line. Follow and draw can bend the cue ball away from that initial direction.",
-      "summary": "For a cut shot with a sliding cue ball, the cue ball initially leaves the collision close to a line perpendicular to the object ball\u2019s path."
+      "text": "For a cut shot with a sliding cue ball, the cue ball initially leaves the collision close to a line perpendicular to the object ball’s path. This is the tangent line. Follow and draw can bend the cue ball away from that initial direction.",
+      "summary": "For a cut shot with a sliding cue ball, the cue ball initially leaves the collision close to a line perpendicular to the object ball’s path."
     },
     {
       "id": "ninety-degree-rule-quick",
@@ -493,11 +493,11 @@
       "audio": "./guide/audio/kick-shot-geometry-quick.mp3",
       "category": "fundamentals",
       "level": 0,
-      "text": "A kick shot sends the cue ball into a cushion before contacting an object ball. Study the cue ball\u2019s route to the rail and its route away from the rail. Use the diamond references to help estimate where to aim.",
+      "text": "A kick shot sends the cue ball into a cushion before contacting an object ball. Study the cue ball’s route to the rail and its route away from the rail. Use the diamond references to help estimate where to aim.",
       "summary": "A kick shot sends the cue ball into a cushion before contacting an object ball.",
       "resources": [
         {
-          "title": "Diamond System Formula \u2014 Kick Shots (Cue Craft Pro)",
+          "title": "Diamond System Formula — Kick Shots (Cue Craft Pro)",
           "url": "https://www.youtube.com/watch?v=GBFhoRZdGMI"
         },
         {
@@ -548,8 +548,8 @@
       "audio": "./guide/audio/cushion-response-geometry-quick.mp3",
       "category": "explore",
       "level": 0,
-      "text": "A cushion changes a ball\u2019s direction and speed. The rebound depends on how the ball arrives, including its speed and rotation. Compare otherwise similar shots at different speeds to see how the outgoing path changes.",
-      "summary": "A cushion changes a ball\u2019s direction and speed."
+      "text": "A cushion changes a ball’s direction and speed. The rebound depends on how the ball arrives, including its speed and rotation. Compare otherwise similar shots at different speeds to see how the outgoing path changes.",
+      "summary": "A cushion changes a ball’s direction and speed."
     },
     {
       "id": "rail-english-geometry-quick",
@@ -580,7 +580,7 @@
     },
     {
       "id": "compass-tool-intro-quick",
-      "title": "Compass tool \u2014 introduction",
+      "title": "Compass tool — introduction",
       "audio": "./guide/audio/compass-tool-intro-quick.mp3",
       "category": "explore",
       "level": 0,
@@ -589,7 +589,7 @@
     },
     {
       "id": "compass-rotate-size-quick",
-      "title": "Compass tool \u2014 rotate and resize",
+      "title": "Compass tool — rotate and resize",
       "audio": "./guide/audio/compass-rotate-size-quick.mp3",
       "category": "explore",
       "level": 0,
@@ -598,7 +598,7 @@
     },
     {
       "id": "compass-reference-advanced",
-      "title": "Compass tool \u2014 advanced note",
+      "title": "Compass tool — advanced note",
       "audio": "./guide/audio/compass-reference-advanced.mp3",
       "category": "explore",
       "level": 2,
@@ -769,7 +769,7 @@
     },
     {
       "id": "save-recall-layout-intro-quick",
-      "title": "Save / Recall Layout \u2014 introduction",
+      "title": "Save / Recall Layout — introduction",
       "audio": "./guide/audio/save-recall-layout-intro-quick.mp3",
       "category": "explore",
       "level": 0,
@@ -787,7 +787,7 @@
     },
     {
       "id": "exercise-save-recall-layout",
-      "title": "\u2014 save, change, and recall",
+      "title": "— save, change, and recall",
       "audio": "./guide/audio/exercise-save-recall-layout.mp3",
       "category": "exercises",
       "level": 0,
@@ -908,7 +908,7 @@
       "audio": "./guide/audio/collision-restitution-advanced.mp3",
       "category": "physics",
       "level": 2,
-      "text": "Ball collisions do not transfer energy perfectly. Restitution describes how strongly balls separate after contact. Small changes in collision behavior can affect object-ball travel and the cue ball\u2019s remaining speed.",
+      "text": "Ball collisions do not transfer energy perfectly. Restitution describes how strongly balls separate after contact. Small changes in collision behavior can affect object-ball travel and the cue ball’s remaining speed.",
       "summary": "Ball collisions do not transfer energy perfectly."
     },
     {
@@ -980,16 +980,16 @@
       "audio": "./guide/audio/cushion-response-quick.mp3",
       "category": "explore",
       "level": 0,
-      "text": "A cushion changes the cue ball\u2019s direction, and its rebound depends on the incoming angle, speed, and spin. Start with no English, then add side spin to compare the resulting paths.",
-      "summary": "A cushion changes the cue ball\u2019s direction, and its rebound depends on the incoming angle, speed, and spin."
+      "text": "A cushion changes the cue ball’s direction, and its rebound depends on the incoming angle, speed, and spin. Start with no English, then add side spin to compare the resulting paths.",
+      "summary": "A cushion changes the cue ball’s direction, and its rebound depends on the incoming angle, speed, and spin."
     },
     {
       "id": "rail-speed-loss-advanced",
       "title": "Rail speed loss",
-      "audio": "./guide/audio/rail-speed-loss-advanced.mp3",
+      "audio": "./guide/audio/rail-speed-loss-advanced.mp3?v=chase-20261015",
       "category": "physics",
       "level": 2,
-      "text": "Cushion contact generally reduces ball speed. The exact rebound also depends on the cushion\u2019s response and the ball\u2019s rotation. Multiple-rail routes compound these effects, so compare them at consistent speeds.",
+      "text": "Cushion contact generally reduces ball speed. The exact rebound also depends on the cushion’s response and the ball’s rotation. Multiple-rail routes compound these effects, so compare them at consistent speeds.",
       "summary": "Cushion contact generally reduces ball speed."
     },
     {
@@ -998,7 +998,7 @@
       "audio": "./guide/audio/cue-elevation-quick.mp3",
       "category": "explore",
       "level": 0,
-      "text": "Cue elevation changes how the tip approaches the cue ball. Raising the cue can help create jump or mass-ay effects, and changes the ball\u2019s height and path. Check obstacle clearance as you adjust the shot. Watch the path.",
+      "text": "Cue elevation changes how the tip approaches the cue ball. Raising the cue can help create jump or mass-ay effects, and changes the ball’s height and path. Check obstacle clearance as you adjust the shot. Watch the path.",
       "summary": "Cue elevation changes how the tip approaches the cue ball."
     },
     {
@@ -1013,10 +1013,10 @@
     {
       "id": "physics-jump-clearance-quick",
       "title": "Clearing an obstacle",
-      "audio": "./guide/audio/physics-jump-clearance-quick.mp3",
+      "audio": "./guide/audio/physics-jump-clearance-quick.mp3?v=chase-20261015",
       "category": "physics",
       "level": 0,
-      "text": "Place an object ball between the cue ball and your target. As you change the jump settings, check the cue ball\u2019s predicted height where it crosses the obstacle. A path that passes over the ball is different from one that collides with it.",
+      "text": "Place an object ball between the cue ball and your target. As you change the jump settings, check the cue ball’s predicted height where it crosses the obstacle. A path that passes over the ball is different from one that collides with it.",
       "summary": "Place an object ball between the cue ball and your target."
     },
     {
@@ -1039,8 +1039,8 @@
     },
     {
       "id": "masse-physics-quick",
-      "title": "Mass\u00e9 shot",
-      "audio": "./guide/audio/masse-physics-quick.mp3",
+      "title": "Massé shot",
+      "audio": "./guide/audio/masse-physics-quick.mp3?v=chase-20261015",
       "category": "physics",
       "level": 0,
       "text": "A mass-ay shot uses elevated cue delivery and off-center spin to curve the cue ball around an obstacle. Explore how elevation, side spin, and speed change the curve. These shots are sensitive, so make small adjustments.",
@@ -1048,11 +1048,11 @@
     },
     {
       "id": "masse-versus-jump-advanced",
-      "title": "Mass\u00e9 versus jump",
+      "title": "Massé versus jump",
       "audio": "./guide/audio/masse-versus-jump-advanced.mp3",
       "category": "physics",
       "level": 2,
-      "text": "A jump route aims to carry the cue ball above an obstacle. A mass-ay route bends the ball\u2019s path around it through elevated, off-center contact and interaction with the cloth. Compare clearance and landing for a jump with lateral curvature for a mass-ay.",
+      "text": "A jump route aims to carry the cue ball above an obstacle. A mass-ay route bends the ball’s path around it through elevated, off-center contact and interaction with the cloth. Compare clearance and landing for a jump with lateral curvature for a mass-ay.",
       "summary": "A jump route aims to carry the cue ball above an obstacle."
     },
     {
@@ -1070,13 +1070,13 @@
       "audio": "./guide/audio/physics-measurements-quick.mp3",
       "category": "physics",
       "level": 0,
-      "text": "Use the displayed measurements as guides to the simulated shot. When height or clearance is shown in inches, compare the values with the ball\u2019s approximate size and the space available around an obstacle.",
+      "text": "Use the displayed measurements as guides to the simulated shot. When height or clearance is shown in inches, compare the values with the ball’s approximate size and the space available around an obstacle.",
       "summary": "Use the displayed measurements as guides to the simulated shot."
     },
     {
       "id": "real-table-calibration-quick",
       "title": "Calibrating against a real table",
-      "audio": "./guide/audio/real-table-calibration-quick.mp3",
+      "audio": "./guide/audio/real-table-calibration-quick.mp3?v=chase-20261015",
       "category": "physics",
       "level": 0,
       "text": "Choose a simple repeatable shot on a real table. Match the starting ball positions in the trainer, execute the shot, and compare where the balls stop. Adjust one relevant calibration setting, then try again.",
@@ -1094,7 +1094,7 @@
     {
       "id": "calibration-notes-quick",
       "title": "Save your calibration observations",
-      "audio": "./guide/audio/calibration-notes-quick.mp3",
+      "audio": "./guide/audio/calibration-notes-quick.mp3?v=chase-20261015",
       "category": "physics",
       "level": 0,
       "text": "As you compare simulated and real shots, keep a simple record of the layout, shot speed, spin, and calibration settings. Note what improved and what did not. Repeatable observations are more useful than a single lucky match.",
@@ -1115,7 +1115,7 @@
       "audio": "./guide/audio/exercise-sliding-friction.mp3",
       "category": "exercises",
       "level": 0,
-      "text": "Set up a straight shot and use the same shot speed each time. Compare a stop shot with a follow shot, then adjust sliding friction and repeat. Observe how the cue ball\u2019s behavior changes as it approaches and passes the object ball.",
+      "text": "Set up a straight shot and use the same shot speed each time. Compare a stop shot with a follow shot, then adjust sliding friction and repeat. Observe how the cue ball’s behavior changes as it approaches and passes the object ball.",
       "summary": "Set up a straight shot and use the same shot speed each time."
     },
     {
@@ -1133,7 +1133,7 @@
       "audio": "./guide/audio/exercise-physics-stop-follow-draw.mp3",
       "category": "exercises",
       "level": 0,
-      "text": "Use one straight-shot layout. First attempt a stop shot, then restore the layout for a follow shot, and finally try draw. Change only the relevant spin and speed controls. Compare the cue ball\u2019s path after impact.",
+      "text": "Use one straight-shot layout. First attempt a stop shot, then restore the layout for a follow shot, and finally try draw. Change only the relevant spin and speed controls. Compare the cue ball’s path after impact.",
       "summary": "Use one straight-shot layout."
     },
     {
@@ -1148,7 +1148,7 @@
     {
       "id": "exercise-squirt-comparison",
       "title": "squirt comparison",
-      "audio": "./guide/audio/exercise-squirt-comparison.mp3",
+      "audio": "./guide/audio/exercise-squirt-comparison.mp3?v=chase-20261015",
       "category": "exercises",
       "level": 0,
       "text": "Choose a long, nearly straight shot. Start with center-ball contact, then add left or right English. Observe any change in the initial cue-ball direction. Adjust the aim and compare the resulting contact point.",
@@ -1174,7 +1174,7 @@
     },
     {
       "id": "exercise-masse-route",
-      "title": "mass\u00e9 route",
+      "title": "massé route",
       "audio": "./guide/audio/exercise-masse-route.mp3",
       "category": "exercises",
       "level": 0,
@@ -1219,7 +1219,7 @@
     },
     {
       "id": "continuous-runout-master-quick",
-      "title": "Continuous runout planning \u2014 canonical narration",
+      "title": "Continuous runout planning — canonical narration",
       "audio": "./guide/audio/continuous-runout-master-quick.mp3",
       "category": "explore",
       "level": 0,
@@ -1246,7 +1246,7 @@
     },
     {
       "id": "undo-last-shot-quick",
-      "title": "Undo Last Shot \u2014 full-rack history",
+      "title": "Undo Last Shot — full-rack history",
       "audio": "./guide/audio/undo-last-shot-quick.mp3",
       "category": "explore",
       "level": 0,
@@ -1292,7 +1292,7 @@
     {
       "id": "practice-shot-two-quick",
       "title": "Practicing with Shot 2",
-      "audio": "./guide/audio/practice-shot-two-quick.mp3",
+      "audio": "./guide/audio/practice-shot-two-quick.mp3?v=chase-20261015",
       "category": "drills",
       "level": 0,
       "text": "Plan your first shot, then add Shot 2 to examine the next opportunity. Execute Shot to complete the first stroke. The second planned cue ball becomes the active cue ball. Before continuing, you can add another Shot 2 to extend your plan. This allows you to build a longer sequence, one shot at a time.",
@@ -1327,7 +1327,7 @@
     },
     {
       "id": "obstacle-route-choice-quick",
-      "title": "Choosing a jump or mass\u00e9 route",
+      "title": "Choosing a jump or massé route",
       "audio": "./guide/audio/obstacle-route-choice-quick.mp3",
       "category": "explore",
       "level": 0,
@@ -1336,7 +1336,7 @@
     },
     {
       "id": "exercise-jump-kick-masse",
-      "title": "Jump, Kick, or Mass\u00e9",
+      "title": "Jump, Kick, or Massé",
       "audio": "./guide/audio/exercise-jump-kick-masse.mp3",
       "category": "exercises",
       "level": 0,
@@ -1467,11 +1467,11 @@
       "summary": "The best way to improve your billiards game is to practice with a purpose.",
       "resources": [
         {
-          "title": "Cue Ball Control \u2014 Target Practice (DrDaveBilliards)",
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
           "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
         },
         {
-          "title": "Rock Around the Clock \u2014 Positional Play (Niels Feijen)",
+          "title": "Rock Around the Clock — Positional Play (Niels Feijen)",
           "url": "https://www.youtube.com/watch?v=DAFJPeTSGOE"
         },
         {
@@ -1499,7 +1499,7 @@
       "summary": "Speed control determines where the cue ball finishes.",
       "resources": [
         {
-          "title": "Cue Ball Control \u2014 Target Practice (DrDaveBilliards)",
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
           "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
         }
       ]
@@ -1514,7 +1514,7 @@
       "summary": "A stop shot occurs when the cue ball strikes an object ball straight on while sliding without forward or backward rotation.",
       "resources": [
         {
-          "title": "Cue Ball Control \u2014 Target Practice (DrDaveBilliards)",
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
           "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
         }
       ]
@@ -1529,7 +1529,7 @@
       "summary": "Set up a straight shot and apply forward rotation to the cue ball.",
       "resources": [
         {
-          "title": "Cue Ball Control \u2014 Target Practice (DrDaveBilliards)",
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
           "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
         }
       ]
@@ -1544,7 +1544,7 @@
       "summary": "Set up a straight shot and apply backspin.",
       "resources": [
         {
-          "title": "Cue Ball Control \u2014 Target Practice (DrDaveBilliards)",
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
           "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
         }
       ]
@@ -1586,7 +1586,7 @@
       "summary": "A kick shot sends the cue ball into a cushion before it contacts the object ball.",
       "resources": [
         {
-          "title": "Diamond System Formula \u2014 Kick Shots (Cue Craft Pro)",
+          "title": "Diamond System Formula — Kick Shots (Cue Craft Pro)",
           "url": "https://www.youtube.com/watch?v=GBFhoRZdGMI"
         },
         {
@@ -1614,7 +1614,7 @@
       "summary": "Place two object balls on the table and choose the order you want to pocket them.",
       "resources": [
         {
-          "title": "Rock Around the Clock \u2014 Positional Play (Niels Feijen)",
+          "title": "Rock Around the Clock — Positional Play (Niels Feijen)",
           "url": "https://www.youtube.com/watch?v=DAFJPeTSGOE"
         }
       ]
@@ -1640,18 +1640,18 @@
     {
       "id": "exercise-three-position-zones",
       "title": "Three Position Zones",
-      "audio": "./guide/audio/exercise-three-position-zones.mp3",
+      "audio": "./guide/audio/exercise-three-position-zones.mp3?v=chase-20261015",
       "category": "exercises",
       "level": 0,
       "text": "Set up a shot with an object ball near a pocket. Choose three different areas where you'd like the cue ball to finish. Try to reach the first area using speed control, the second using follow or draw, and the third using a cushion route. Compare the difficulty and consistency of each approach.",
       "summary": "Set up a shot with an object ball near a pocket.",
       "resources": [
         {
-          "title": "Cue Ball Control \u2014 Target Practice (DrDaveBilliards)",
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
           "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
         },
         {
-          "title": "Rock Around the Clock \u2014 Positional Play (Niels Feijen)",
+          "title": "Rock Around the Clock — Positional Play (Niels Feijen)",
           "url": "https://www.youtube.com/watch?v=DAFJPeTSGOE"
         }
       ]
@@ -1662,9 +1662,9 @@
       "category": "start",
       "level": 2,
       "audio": [
-        "./guide/audio/get-started-01.mp3"
+        "./guide/audio/get-started-01.mp3?v=chase-20261015"
       ],
-      "text": "Welcome to the Billiards Trainer\u2014your digital practice arena. Master shot geometry, unlock cue-ball control, and explore real billiard physics. From core fundamentals to pro runouts, step up to the table and practice on your terms.",
+      "text": "Welcome to the Billiards Trainer—your digital practice arena. Master shot geometry, unlock cue-ball control, and explore real billiard physics. From core fundamentals to pro runouts, step up to the table and practice on your terms.",
       "summary": "Pocket the 1-ball, then look at your cue-ball leave.",
       "sourceTopicIds": [
         "guide-welcome-quick"
@@ -1714,7 +1714,7 @@
       "category": "start",
       "level": 2,
       "audio": [
-        "./guide/audio/get-started-04.mp3"
+        "./guide/audio/get-started-04.mp3?v=chase-20261015"
       ],
       "text": "Hit Execute Shot to unleash the physics engine. Want to see how a slight adjustment changes the leave? Reset the shot, tweak your speed or angle, and shoot again. Changing one variable at a time is the fastest way to understand how the cue ball behaves.",
       "summary": "Shoot the 4. Try Again, change one setting, and compare the leave.",
@@ -1732,7 +1732,7 @@
       "audio": [
         "./guide/audio/get-started-05.mp3"
       ],
-      "text": "Great pool is played two shots ahead. With Shot 2, plan your next ball before shooting your first. Set your landing zone and aim at your next target.\n\nTable looking busy? Use the Show and Hide controls for Cue Ball 1 and Cue Ball 2 to hide either cue ball and its shot lines. Show them again whenever you\u2019re ready to compare both shots.\n\nNow press Execute Shot. The trainer fires the opener and transitions straight into shot two\u2014ready for your next strike!",
+      "text": "Great pool is played two shots ahead. With Shot 2, plan your next ball before shooting your first. Set your landing zone and aim at your next target.\n\nTable looking busy? Use the Show and Hide controls for Cue Ball 1 and Cue Ball 2 to hide either cue ball and its shot lines. Show them again whenever you’re ready to compare both shots.\n\nNow press Execute Shot. The trainer fires the opener and transitions straight into shot two—ready for your next strike!",
       "summary": "Execute Shot plays the 2. Press it again to play the second plan on the 3.",
       "sourceTopicIds": [
         "first-session-shot-two",
@@ -1746,7 +1746,7 @@
       "category": "start",
       "level": 2,
       "audio": [
-        "./guide/audio/get-started-06.mp3"
+        "./guide/audio/get-started-06.mp3?v=chase-20261015"
       ],
       "text": "Step up to full-table strategy. Open Pick and Play Full Racks to load official layouts like 8-Ball, 9-Ball, or Straight Pool. Map out your patterns ball-by-ball. Add Shot 2 after each execution to plan a complete, unbroken runout from the break right through to the money ball.",
       "summary": "A 9-ball break is ready. Shoot, plan a runout, or choose another full rack.",
@@ -1813,8 +1813,8 @@
       "audio": "./guide/audio/help-shape-billiards-trainer-quick.mp3",
       "category": "explore",
       "level": 0,
-      "text": "We\u2019d love to hear what you think of Billiards Trainer. Open Help Shape Billiards Trainer near the bottom of Features & Options. Tell us what you\u2019d change or add, include your email if you\u2019d like a response, and select Share Your Feedback. Your ideas help improve the trainer for everyone.",
-      "summary": "We\u2019d love to hear what you think of Billiards Trainer."
+      "text": "We’d love to hear what you think of Billiards Trainer. Open Help Shape Billiards Trainer near the bottom of Features & Options. Tell us what you’d change or add, include your email if you’d like a response, and select Share Your Feedback. Your ideas help improve the trainer for everyone.",
+      "summary": "We’d love to hear what you think of Billiards Trainer."
     },
     {
       "id": "live-stats-overview-quick",
@@ -1891,7 +1891,7 @@
     {
       "id": "live-stats-cue-flight-quick",
       "title": "Cue & Flight",
-      "audio": "./guide/audio/live-stats-cue-flight-quick.mp3",
+      "audio": "./guide/audio/live-stats-cue-flight-quick.mp3?v=chase-20261015",
       "category": "physics",
       "level": 0,
       "text": "Cue and Flight describes the cue-tip contact and any predicted deviation or airborne behavior. This group becomes especially useful when experimenting with English, elevated cues, jumps, or mass-ay.",
@@ -1926,7 +1926,7 @@
     },
     {
       "id": "live-stats-masse-quick",
-      "title": "Curve and mass\u00e9",
+      "title": "Curve and massé",
       "audio": "./guide/audio/live-stats-masse-quick.mp3",
       "category": "physics",
       "level": 0,
@@ -2066,15 +2066,15 @@
       },
       "resources": [
         {
-          "title": "Cue Ball Control \u2014 Target Practice (DrDaveBilliards)",
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
           "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
         },
         {
-          "title": "Rock Around the Clock \u2014 Positional Play (Niels Feijen)",
+          "title": "Rock Around the Clock — Positional Play (Niels Feijen)",
           "url": "https://www.youtube.com/watch?v=DAFJPeTSGOE"
         },
         {
-          "title": "Diamond System Formula \u2014 Kick Shots (Cue Craft Pro)",
+          "title": "Diamond System Formula — Kick Shots (Cue Craft Pro)",
           "url": "https://www.youtube.com/watch?v=GBFhoRZdGMI"
         },
         {
@@ -2086,7 +2086,7 @@
           "url": "https://www.youtube.com/watch?v=G4dv9ekF3FY"
         },
         {
-          "title": "Zero-X Billiards \u2014 channel link",
+          "title": "Zero-X Billiards — channel link",
           "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA"
         }
       ],
@@ -2111,7 +2111,7 @@
       },
       "resources": [
         {
-          "title": "Cue Ball Control \u2014 Target Practice (DrDaveBilliards)",
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
           "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
         }
       ],
@@ -2123,11 +2123,11 @@
       "group": "Cue Ball Control",
       "category": "drills",
       "level": 0,
-      "audio": "./guide/audio/practice-target-landing.mp3",
+      "audio": "./guide/audio/practice-target-landing.mp3?v=chase-20261015",
       "recordingStatus": "recorded",
-      "plannedAudio": "./guide/audio/practice-target-landing.mp3",
+      "plannedAudio": "./guide/audio/practice-target-landing.mp3?v=chase-20261015",
       "summary": "Set up a repeatable object ball shot and choose a small cue ball landing zone.",
-      "text": "Set up a repeatable object ball shot and choose a small cue ball landing zone. Begin with a generous target, then reduce it as your control improves. For this practice plan, use a three inch target and count a success only when the object ball is pocketed and the cue ball center finishes inside the target. Shoot ten attempts. Change only speed, then contact height, then the cut angle. Aim for eight successes out of ten before making the target smaller. Open More for Dr. Dave\u2019s target practice demonstration.",
+      "text": "Set up a repeatable object ball shot and choose a small cue ball landing zone. Begin with a generous target, then reduce it as your control improves. For this practice plan, use a three inch target and count a success only when the object ball is pocketed and the cue ball center finishes inside the target. Shoot ten attempts. Change only speed, then contact height, then the cut angle. Aim for eight successes out of ten before making the target smaller. Open More for Dr. Dave’s target practice demonstration.",
       "practice": {
         "Goal": "Control the cue ball stopping point after pocketing.",
         "Setup": "Use a three inch target, starting with an easier size if needed.",
@@ -2136,7 +2136,7 @@
       },
       "resources": [
         {
-          "title": "Cue Ball Control \u2014 Target Practice (DrDaveBilliards)",
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
           "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
         }
       ],
@@ -2148,20 +2148,20 @@
       "group": "Pattern Play",
       "category": "drills",
       "level": 0,
-      "audio": "./guide/audio/practice-rock-around-clock.mp3",
+      "audio": "./guide/audio/practice-rock-around-clock.mp3?v=chase-20261015",
       "recordingStatus": "recorded",
-      "plannedAudio": "./guide/audio/practice-rock-around-clock.mp3",
-      "summary": "Open More and use Niels Feijen\u2019s demonstration to set up Rock Around the Clock.",
-      "text": "Open More and use Niels Feijen\u2019s demonstration to set up Rock Around the Clock. Save the starting layout. Before every shot, choose the next object ball, its pocket, and the cue ball landing zone that leaves a useful angle. Prefer a route with room for a small speed error. Track pocketing and position separately. Complete one rotation first, then work toward three consecutive rotations without disturbing another ball. When you miss position, repeat the previous shot and compare a simpler route before changing the whole pattern.",
+      "plannedAudio": "./guide/audio/practice-rock-around-clock.mp3?v=chase-20261015",
+      "summary": "Open More and use Niels Feijen’s demonstration to set up Rock Around the Clock.",
+      "text": "Open More and use Niels Feijen’s demonstration to set up Rock Around the Clock. Save the starting layout. Before every shot, choose the next object ball, its pocket, and the cue ball landing zone that leaves a useful angle. Prefer a route with room for a small speed error. Track pocketing and position separately. Complete one rotation first, then work toward three consecutive rotations without disturbing another ball. When you miss position, repeat the previous shot and compare a simpler route before changing the whole pattern.",
       "practice": {
         "Goal": "Plan the next shot before shooting the current one.",
-        "Setup": "Use the linked demonstration for the creator\u2019s ball layout and sequence.",
+        "Setup": "Use the linked demonstration for the creator’s ball layout and sequence.",
         "Measure": "For this plan, complete 3 consecutive rotations without disturbing a secondary ball.",
         "Trainer": "Use Shot 2 to preview the next shot and Undo Last Shot to revisit a position error."
       },
       "resources": [
         {
-          "title": "Rock Around the Clock \u2014 Positional Play (Niels Feijen)",
+          "title": "Rock Around the Clock — Positional Play (Niels Feijen)",
           "url": "https://www.youtube.com/watch?v=DAFJPeTSGOE"
         }
       ],
@@ -2186,7 +2186,7 @@
       },
       "resources": [
         {
-          "title": "Diamond System Formula \u2014 Kick Shots (Cue Craft Pro)",
+          "title": "Diamond System Formula — Kick Shots (Cue Craft Pro)",
           "url": "https://www.youtube.com/watch?v=GBFhoRZdGMI"
         }
       ],
@@ -2211,7 +2211,7 @@
       },
       "resources": [
         {
-          "title": "Diamond System Formula \u2014 Kick Shots (Cue Craft Pro)",
+          "title": "Diamond System Formula — Kick Shots (Cue Craft Pro)",
           "url": "https://www.youtube.com/watch?v=GBFhoRZdGMI"
         }
       ],
@@ -2223,11 +2223,11 @@
       "group": "Kick Systems",
       "category": "drills",
       "level": 0,
-      "audio": "./guide/audio/practice-corner-five.mp3",
+      "audio": "./guide/audio/practice-corner-five.mp3?v=chase-20261015",
       "recordingStatus": "recorded",
-      "plannedAudio": "./guide/audio/practice-corner-five.mp3",
+      "plannedAudio": "./guide/audio/practice-corner-five.mp3?v=chase-20261015",
       "summary": "Open More for Dr.",
-      "text": "Open More for Dr. Dave\u2019s Corner-5 demonstration. Follow its starting, aiming, and arrival number scales together. Identify all three cushion contacts before you shoot. Start with a clear route, consistent speed, and the spin shown in the lesson. Compare the predicted arrival with the actual arrival, then make a small adjustment and repeat. Once the route is calibrated, add a target object ball and a blocker for escape practice. Test five different starting positions and record legal object ball contact separately from the final cue ball position.",
+      "text": "Open More for Dr. Dave’s Corner-5 demonstration. Follow its starting, aiming, and arrival number scales together. Identify all three cushion contacts before you shoot. Start with a clear route, consistent speed, and the spin shown in the lesson. Compare the predicted arrival with the actual arrival, then make a small adjustment and repeat. Once the route is calibrated, add a target object ball and a blocker for escape practice. Test five different starting positions and record legal object ball contact separately from the final cue ball position.",
       "practice": {
         "Goal": "Use one consistent numbering system for a three-rail route.",
         "Setup": "Use the linked lesson for the Corner-5 numbering and reference route.",
@@ -2248,11 +2248,11 @@
       "group": "Practice Benchmarks",
       "category": "drills",
       "level": 0,
-      "audio": "./guide/audio/practice-progressive-benchmark.mp3",
+      "audio": "./guide/audio/practice-progressive-benchmark.mp3?v=chase-20261015",
       "recordingStatus": "recorded",
-      "plannedAudio": "./guide/audio/practice-progressive-benchmark.mp3",
-      "summary": "Open More for Sharivari\u2019s progressive difficulty drill and use the demonstrated setup.",
-      "text": "Open More for Sharivari\u2019s progressive difficulty drill and use the demonstrated setup. Save the starting layout and record your first score. For your Trainer adaptation, begin with a comfortable position zone. After a successful set, reduce the zone or increase the shot difficulty, changing one condition at a time. Count both the pocketed ball and the required cue ball position. If the same error repeats, return to the last successful level. Record the highest level you can repeat, rather than only your best isolated attempt.",
+      "plannedAudio": "./guide/audio/practice-progressive-benchmark.mp3?v=chase-20261015",
+      "summary": "Open More for Sharivari’s progressive difficulty drill and use the demonstrated setup.",
+      "text": "Open More for Sharivari’s progressive difficulty drill and use the demonstrated setup. Save the starting layout and record your first score. For your Trainer adaptation, begin with a comfortable position zone. After a successful set, reduce the zone or increase the shot difficulty, changing one condition at a time. Count both the pocketed ball and the required cue ball position. If the same error repeats, return to the last successful level. Record the highest level you can repeat, rather than only your best isolated attempt.",
       "practice": {
         "Goal": "Increase difficulty only after a repeatable result.",
         "Setup": "Use the linked demonstration, then define your Trainer target zone.",
@@ -2273,9 +2273,9 @@
       "group": "Practice Sessions",
       "category": "exercises",
       "level": 0,
-      "audio": "./guide/audio/exercise-focused-practice-session.mp3",
+      "audio": "./guide/audio/exercise-focused-practice-session.mp3?v=chase-20261015",
       "recordingStatus": "recorded",
-      "plannedAudio": "./guide/audio/exercise-focused-practice-session.mp3",
+      "plannedAudio": "./guide/audio/exercise-focused-practice-session.mp3?v=chase-20261015",
       "summary": "Use this one hundred and five minute practice plan.",
       "text": "Use this one hundred and five minute practice plan. Spend thirty minutes on speed and target landing, aiming for eight successful pocket and position results out of ten with a three inch target. Spend forty five minutes on Rock Around the Clock, first completing one rotation and then working toward three consecutive rotations without disturbing another ball. Spend thirty minutes on kick escapes, starting with one rail and adding two and three rails as control improves. Test five selected escapes and aim for four legal contacts. Record the result at the end of each phase. If time runs out, save your layout and score, then continue there next session.",
       "practice": {
@@ -2286,15 +2286,15 @@
       },
       "resources": [
         {
-          "title": "Cue Ball Control \u2014 Target Practice (DrDaveBilliards)",
+          "title": "Cue Ball Control — Target Practice (DrDaveBilliards)",
           "url": "https://www.youtube.com/watch?v=-WdC_7MN0qI"
         },
         {
-          "title": "Rock Around the Clock \u2014 Positional Play (Niels Feijen)",
+          "title": "Rock Around the Clock — Positional Play (Niels Feijen)",
           "url": "https://www.youtube.com/watch?v=DAFJPeTSGOE"
         },
         {
-          "title": "Diamond System Formula \u2014 Kick Shots (Cue Craft Pro)",
+          "title": "Diamond System Formula — Kick Shots (Cue Craft Pro)",
           "url": "https://www.youtube.com/watch?v=GBFhoRZdGMI"
         },
         {
@@ -2310,13 +2310,13 @@
       "group": "Practice Sessions",
       "category": "exercises",
       "level": 0,
-      "audio": "./guide/audio/exercise-practice-review.mp3",
+      "audio": "./guide/audio/exercise-practice-review.mp3?v=chase-20261015",
       "recordingStatus": "recorded",
-      "plannedAudio": "./guide/audio/exercise-practice-review.mp3",
+      "plannedAudio": "./guide/audio/exercise-practice-review.mp3?v=chase-20261015",
       "summary": "At the end of practice, record attempts, pocketed balls, successful position results, and legal kick contacts.",
       "text": "At the end of practice, record attempts, pocketed balls, successful position results, and legal kick contacts. Note the most common miss and the single adjustment that helped. Save the table with a name that includes the drill, difficulty, and date. Download its table file if you want to share the same layout with an instructor or student. Begin your next session with that saved layout and the same scoring conditions. Improve the weakest result first, then increase the challenge once you can repeat the improvement.",
       "practice": {
-        "Goal": "Turn a practice result into the next session\u2019s starting point.",
+        "Goal": "Turn a practice result into the next session’s starting point.",
         "Setup": "Keep a simple score record and the matching starting layout.",
         "Measure": "Compare results under the same conditions in the next session.",
         "Trainer": "Save or download the layout; load it again on either Trainer or Analyze."
