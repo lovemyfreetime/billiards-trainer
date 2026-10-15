@@ -5,7 +5,7 @@ async function init(){
  const recorded=await BilliardsRecordedAudio.load();
  const stage=document.getElementById('stageWrap');
  if(!stage||!window.BilliardsGuide||document.body.classList.contains('projector'))return;
- const response=await fetch('./guide/pool-audio-map.json?v=inline-countdown-v24');
+ const response=await fetch('./guide/pool-audio-map.json?v=completion-tour-v25');
  if(!response.ok)throw Error('Pool Guide audio map could not load');
  const catalog=await response.json();
  BilliardsRecordedAudio.merge(catalog.topics,recorded,'Main');
@@ -50,6 +50,7 @@ async function init(){
   loadLayout:BilliardsPracticeLayouts.apply,
   onTopicChange:topic=>tour?.select(topic),
   onTryShot:()=>tour?.tryShot(),
+  onPlaybackProgress:(topic,time,playing)=>tour?.progress(topic,time,playing),
   onPlaybackStart:()=>tour?.listening(),
   onRendered:()=>tour?.placeControls(),
   onPlaybackStop:()=>tour?.hold(false),

@@ -17,3 +17,8 @@
 .btg-countdown strong{display:flex;align-items:center;justify-content:center;width:42px;height:42px;border:2px solid #ffdf79;border-radius:50%;font-size:24px;line-height:1;color:#ffdf79;font-variant-numeric:tabular-nums}
 #bt-guide-pool-root button.btg-next-lesson{display:block;width:100%;min-height:40px;padding:5px;border-radius:7px;font-size:12px;font-weight:700;white-space:nowrap;background:#66d9ed;color:#082a35}
 .btg-last-lesson{margin:0;font-size:11px;color:#d4e4e8}
+
+/* Narration points players toward the next learning tools. */
+#btg-pool-guide.btg-tour-attention,#btg-pool-explore.btg-tour-attention{background:#ffeb00!important;color:#182008!important;border-color:#fff49a!important;outline:3px solid #ffeb00;outline-offset:3px;box-shadow:0 0 0 6px #ffeb0033,0 0 18px #ffeb0099;animation:btg-tour-glow 1.5s ease-in-out infinite}
+@keyframes btg-tour-glow{50%{box-shadow:0 0 0 9px #ffeb0022,0 0 25px #ffeb00cc}}
+@media(prefers-reduced-motion:reduce){#btg-pool-guide.btg-tour-attention,#btg-pool-explore.btg-tour-attention{animation:none}}

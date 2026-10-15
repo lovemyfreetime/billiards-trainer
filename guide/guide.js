@@ -240,9 +240,9 @@ function mount(host,options={}){
   options.onRendered?.();
 
  }
- audio.addEventListener('timeupdate',()=>{state.position=audio.currentTime;save()});
+ audio.addEventListener('timeupdate',()=>{state.position=audio.currentTime;options.onPlaybackProgress?.(selected(),audio.currentTime,!audio.paused);save()});
  audio.addEventListener('playing',()=>{narrationPlaying=true;render()});
- audio.addEventListener('pause',()=>{narrationPlaying=false;render()});
+ audio.addEventListener('pause',()=>{narrationPlaying=false;options.onPlaybackProgress?.(selected(),audio.currentTime,false);render()});
  for(const event of ['waiting','ended','emptied','error','loadstart'])audio.addEventListener(event,()=>{narrationPlaying=false;syncNarrationAttention()});
  audio.addEventListener('ended',()=>{const t=selected();
   if(!audio.ended||!t||audio.dataset.topic!==t.id)return;
