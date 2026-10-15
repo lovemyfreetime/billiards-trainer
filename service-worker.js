@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-preferred-ending-v75';
+const CACHE_NAME = 'billiards-trainer-4-12-closing-revision-three-v76';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
