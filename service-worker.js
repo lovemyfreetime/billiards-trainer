@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-zen-symbols-v89';
+const CACHE_NAME = 'billiards-trainer-4-12-zen-original-v90';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './index.html',
