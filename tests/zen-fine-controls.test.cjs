@@ -26,3 +26,6 @@ for(const end of ['pointercancel','lostpointercapture','blur','visibilitychange'
 send('pointerdown');input.disabled=true;advance(1000);send('pointerup');const disabledValue=value;assert(!send('wheel',{deltaY:-100}));send('pointerdown');assert(!captures.size);assert.equal(value,disabledValue);
 assert(send('click'));assert.equal(surface.style.touchAction,'none');assert(changes.length>0);
 console.log('Zen arrows: directional taps, delayed repeating holds, immediate release/off-zone/cancel/blur stops, swipe cancellation of hold, neutral divider, disabled guard, and pen hover pass.');
+input.disabled=false;value=0;context.bindZenFineControl(surface,input,steps=>value+=steps,false,'y',6);
+send('pointerdown',{clientX:10,clientY:30});send('pointermove',{clientX:10,clientY:12});assert.equal(value,3,'Vertical edge upward movement increments');send('pointermove',{clientX:35,clientY:36});assert.equal(value,-1,'Captured edge gesture tolerates sideways drift and reverses vertically');send('pointerup',{clientX:35,clientY:36});assert(!captures.size);advance(1000);assert.equal(value,-1,'Release ends the edge gesture without a tap increment');
+console.log('Zen edge gestures: vertical relative adjustment, reversal, capture across drift, and release pass.');
