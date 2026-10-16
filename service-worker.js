@@ -1,10 +1,10 @@
-const CACHE_NAME = 'billiards-trainer-4-12-zen-visible-aim-drag-v115';
+const CACHE_NAME = 'billiards-trainer-4-12-zen-live-ghost-drag-v116';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './trainer-action-history.js?v=2',
   './icons/zen-reference-table-v1.webp',
-  './zen-mode.js?v=visible-aim-drag-v26',
-  './beta-ui.js?v=visible-aim-drag-v26',
+  './zen-mode.js?v=live-ghost-drag-v27',
+  './beta-ui.js?v=live-ghost-drag-v27',
   './index.html',
   './trainer-practice-tools.js?v=3',
   './guide/audio-startup.js?v=native-warmup-v22',

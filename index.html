@@ -6094,26 +6094,14 @@
         }
     }
     let zenGuideFrame=null;
-    function drawZenDragAim(map){
-        const shot=drag.kind==='aim2'?ensureShot2():S;
-        const ball=drag.kind==='aim2'?shot:cueBall();
-        if(!ball||!shot.freeAim)return;
-        const start=map(ball),end=map(shot.freeAim);
-        // Follow the current pointer without running the trajectory solver per move.
-        ctx.save();ctx.setLineDash([]);ctx.lineCap='round';
-        ctx.beginPath();ctx.moveTo(start.x,start.y);ctx.lineTo(end.x,end.y);
-        ctx.strokeStyle='rgba(255,255,255,0.22)';ctx.lineWidth=1.25;ctx.stroke();
-        ctx.beginPath();ctx.arc(end.x,end.y,3,0,Math.PI*2);
-        ctx.strokeStyle='rgba(255,255,255,0.20)';ctx.lineWidth=1;ctx.stroke();ctx.restore();
-    }
     function drawZenGuides(map){
-        if(drag&&['aim','aim2'].includes(drag.kind)){drawZenDragAim(map);return;}
         if(drag&&['ball','ball2'].includes(drag.kind))return;
         if(!cueBall())return;
         const preview=S.preview,key=[canvas.width,canvas.height,DPR,S.tableL,S.tableW,S.ballR].join('|');
         if(!zenGuideFrame||zenGuideFrame.key!==key||zenGuideFrame.preview!==preview){
-            const raw=document.createElement('canvas');raw.width=canvas.width;raw.height=canvas.height;
-            const c=raw.getContext('2d');c.setTransform(DPR,0,0,DPR,0,0);c.lineCap='round';c.lineJoin='round';
+            const raw=zenGuideFrame?.key===key?zenGuideFrame.layer:document.createElement('canvas');
+            if(raw.width!==canvas.width||raw.height!==canvas.height){raw.width=canvas.width;raw.height=canvas.height;}
+            const c=raw.getContext('2d');c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,raw.width,raw.height);c.setTransform(DPR,0,0,DPR,0,0);c.lineCap='round';c.lineJoin='round';
             const R=S.ballR,contact=preview?.firstBallContact;
             const stroke=(points,width,color,dash=[])=>{if(!points||points.length<2)return;c.setLineDash(dash);c.beginPath();points.forEach((p,i)=>{const q=map(p);if(i)c.lineTo(q.x,q.y);else c.moveTo(q.x,q.y)});c.lineWidth=width;c.strokeStyle=color;c.stroke()};
             c.save();const tl=map({x:0,y:0}),br=map({x:S.tableL,y:S.tableW});
@@ -7838,7 +7826,16 @@
     let zenDragFrame=0;
     function requestZenDragPaint(){
         if(zenDragFrame)return;
-        zenDragFrame=requestAnimationFrame(()=>{zenDragFrame=0;draw();});
+        zenDragFrame=requestAnimationFrame(()=>{
+            zenDragFrame=0;
+            // Coalesce aim changes to one live prediction per frame. Ball dragging
+            // stays solver-free; metrics and persistence still wait for release.
+            if(drag&&['aim','aim2'].includes(drag.kind)){
+                S.preview=simulate(false);S.firstEvent=S.preview.firstEvent;
+                if(S.shot2Enabled)ensureShot2().preview=simulateShot2();
+            }
+            draw();
+        });
     }
     function finishZenDragPaint(){
         if(zenDragFrame){cancelAnimationFrame(zenDragFrame);zenDragFrame=0;}
@@ -12389,7 +12386,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=visible-aim-drag-v26"></script>
+  <script src="./beta-ui.js?v=live-ghost-drag-v27"></script>
 
 
 </body>

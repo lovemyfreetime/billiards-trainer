@@ -99,7 +99,7 @@
     setupCommunity(cfg);
     setupFeedback(cfg);
     setupZenLauncher();
-    const zenScript=document.createElement('script');zenScript.src='./zen-mode.js?v=visible-aim-drag-v26';document.body.appendChild(zenScript);
+    const zenScript=document.createElement('script');zenScript.src='./zen-mode.js?v=live-ghost-drag-v27';document.body.appendChild(zenScript);
   }
 
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded",init,{once:true});
