@@ -6094,8 +6094,21 @@
         }
     }
     let zenGuideFrame=null;
+    function drawZenDragAim(map){
+        const shot=drag.kind==='aim2'?ensureShot2():S;
+        const ball=drag.kind==='aim2'?shot:cueBall();
+        if(!ball||!shot.freeAim)return;
+        const start=map(ball),end=map(shot.freeAim);
+        // Follow the current pointer without running the trajectory solver per move.
+        ctx.save();ctx.setLineDash([]);ctx.lineCap='round';
+        ctx.beginPath();ctx.moveTo(start.x,start.y);ctx.lineTo(end.x,end.y);
+        ctx.strokeStyle='rgba(255,255,255,0.22)';ctx.lineWidth=1.25;ctx.stroke();
+        ctx.beginPath();ctx.arc(end.x,end.y,3,0,Math.PI*2);
+        ctx.strokeStyle='rgba(255,255,255,0.20)';ctx.lineWidth=1;ctx.stroke();ctx.restore();
+    }
     function drawZenGuides(map){
-        if(drag&&['ball','ball2','aim','aim2'].includes(drag.kind))return;
+        if(drag&&['aim','aim2'].includes(drag.kind)){drawZenDragAim(map);return;}
+        if(drag&&['ball','ball2'].includes(drag.kind))return;
         if(!cueBall())return;
         const preview=S.preview,key=[canvas.width,canvas.height,DPR,S.tableL,S.tableW,S.ballR].join('|');
         if(!zenGuideFrame||zenGuideFrame.key!==key||zenGuideFrame.preview!==preview){
@@ -7911,6 +7924,13 @@
     });
     canvas.addEventListener('pointerup', ev => {
         const zenGesture=document.body.classList.contains('zen-mode')&&drag&&['ball','ball2','aim','aim2'].includes(drag.kind);
+        if(zenGesture&&['aim','aim2'].includes(drag.kind)){
+            const q=controlMap().inv(pointerPos(ev));
+            if(onPlayingSurface(q)){
+                const shot=drag.kind==='aim2'?ensureShot2():S;
+                shot.freeAim={x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR)};
+            }
+        }
         if (drag && drag.kind === 'ball')
             removeMarkerInPocket(drag.id,controlMap().inv(pointerPos(ev)));
         if (drag && (drag.kind === 'ball' || drag.kind === 'ball2')) {
@@ -12369,7 +12389,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=fine-controls-v25"></script>
+  <script src="./beta-ui.js?v=visible-aim-drag-v26"></script>
 
 
 </body>

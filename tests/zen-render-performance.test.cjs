@@ -17,7 +17,7 @@ let filtered=0,created=0,liveBlits=0;const strokes=[];
 const fakeContext=()=>new Proxy({createLinearGradient:()=>({addColorStop(){}}),stroke(){strokes.push({color:this.strokeStyle,width:this.lineWidth})}}, {get:(o,k)=>k in o?o[k]:()=>{},set:(o,k,v)=>{if(k==='filter')filtered++;o[k]=v;return true}});
 const art={};
 const renderContext={zenTableFrame:null,zenGuideFrame:null,zenRecoloredTable:()=>art,document:{createElement:()=>{created++;return{width:0,height:0,getContext:()=>fakeContext()}}},canvas:{width:2400,height:1400},DPR:2,S:{tableL:2,tableW:1,ballR:.03,preview:{paths:{0:[{x:.2,y:.5},{x:1,y:.5}]}}},ZEN_ASSET_GEOM:{width:1678,height:937,x0:298,x1:1379,y0:120,y1:650},ctx:{drawImage:()=>liveBlits++},drag:null,cueBall:()=>({x:.2,y:.5})};
-vm.createContext(renderContext);vm.runInContext(extract('drawZenTable')+extract('drawZenGuides'),renderContext);
+vm.createContext(renderContext);vm.runInContext(extract('drawZenTable')+extract('drawZenDragAim')+extract('drawZenGuides'),renderContext);
 const map=p=>({x:100+p.x*500,y:100+p.y*500});renderContext.map=map;
 vm.runInContext('drawZenTable(map);drawZenGuides(map)',renderContext);const initialFilters=filtered,initialCreated=created;
 for(let i=0;i<120;i++)vm.runInContext('drawZenTable(map);drawZenGuides(map)',renderContext);
@@ -47,3 +47,13 @@ for(const [width,height] of [[1363,936],[1920,1080],[1200,800],[700,900]]){
  assert(a.x>=0&&a.y>=0&&b.x<=width&&b.y<=height,'Playing surface stays inside the viewport');
 }
 console.log('Zen reference alignment: regulation aspect, viewport fit, and drag-coordinate round trips pass at four sizes.');
+
+// Aiming keeps a live, low-contrast line at the newest pointer position without
+// allocating a prediction surface or running the solver on the drag path.
+const aimLines=[];renderContext.ctx=new Proxy({moveTo:(x,y)=>aimLines.push(['from',x,y]),lineTo:(x,y)=>aimLines.push(['to',x,y])},{get:(o,k)=>k in o?o[k]:()=>{},set:(o,k,v)=>{o[k]=v;return true}});
+renderContext.S.freeAim={x:1.4,y:.7};renderContext.drag={kind:'aim'};
+const surfaces=created;vm.runInContext('drawZenGuides(map)',renderContext);
+assert.deepEqual(aimLines,[['from',200,350],['to',800,450]]);assert.equal(created,surfaces);
+renderContext.S.freeAim={x:.6,y:.2};vm.runInContext('drawZenGuides(map)',renderContext);
+assert.deepEqual(aimLines.at(-1),['to',400,200]);assert.equal(created,surfaces);
+console.log('Zen aim drag: visible live line follows the current target with no solver or cached-surface allocation.');
