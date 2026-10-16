@@ -2050,7 +2050,7 @@
     }
     function installActionUndo(){
         actionHistory=window.BilliardsActionHistory.create(60);
-        const relevant=e=>e.target instanceof Element&&!!e.target.closest('#app,#zenBar,#zenRack,#zenRackMenu,.zen-hover-panel');
+        const relevant=e=>e.target instanceof Element&&!!e.target.closest('#app,#zenBar,#zenRack,#zenRackMenu,#zenFreshTable,.zen-hover-panel');
         const excluded=e=>!!e.target.closest?.('#undoAction,#redoAction,#undoShot,#redoShot,#zenUndoAction,#zenShotHistory,.zen-history-menu,.zen-history-trigger');
         const later=delay=>{clearTimeout(actionUndoTimer);actionUndoTimer=setTimeout(finishActionUndo,delay);};
         document.addEventListener('pointerdown',e=>{if(e.button!==0||!relevant(e)||excluded(e)||animation)return;actionPointer=false;actionKeys=false;finishActionUndo();beginActionUndo();actionPointer=true;},true);
@@ -2514,10 +2514,19 @@
         return {capture,restore,apply,snapshot,exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},rollingReference(which=1){return rollingReferenceForShot(which);},predict(){const p=simulate(false);return {pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact};}};
     })();
 
+    function freshZenTable(){
+        if(animation||!document.body.classList.contains('zen-mode'))return false;
+        beginActionUndo();
+        S.activeShot=1;S.shot2Enabled=false;S.balls=[];S.pocketedLog=[];S.allowMissingCueBall=true;
+        S.speed=2.42;S.follow=0;S.sideSpin=0;S.cueElevationDeg=0;S.airbornePhysics=false;S.freeAim=null;
+        normalizeBallSet();resetRunHistory();updateUI();refreshPreview();saveState();syncProjector();
+        return true;
+    }
     window.billiardsZenControls={
         enter(){S.activeShot=1;S.shot2Enabled=false;S.cueElevationDeg=0;S.airbornePhysics=false;S.balls=[];S.pocketedLog=[];S.allowMissingCueBall=true;S.speed=2.42;S.follow=0;S.sideSpin=0;normalizeBallSet();actionHistory=window.BilliardsActionHistory.create(60);resetRunHistory();updateUI();refreshPreview();syncActionUndo();},
         aim(degrees){if(!animation){S.activeShot=1;rotateAimMicro(degrees*Math.PI/180);}},
         status(){return {overlap:S.preview?.firstBallContact?.overlap||0,busy:!!animation,undo:undoStack.length>0,redo:redoStack.length>0,undoAction:!!actionHistory?.count,redoAction:!!actionHistory?.redoCount,tip:{...effectiveTipOffsetValues(S.sideSpin,S.follow),limit:PHYSICS_MODEL.maxTipOffsetR},balls:S.balls.filter(b=>b.active&&!b.marker).map(b=>b.id)};},
+        freshTable:freshZenTable,
         undoAction:undoLastAction,redoAction:redoLastAction,undoShot:undoLastShot,redoShot:redoLastShot,
         tip(side,follow){
             if(animation)return;
@@ -5727,7 +5736,7 @@
         const A=ZEN_ASSET_GEOM;
         const point=(x,y)=>map({x:(x-A.x0)/(A.x1-A.x0)*S.tableL,y:(y-A.y0)/(A.y1-A.y0)*S.tableW});
         const top=point(mask.x,mask.y),bottom=point(mask.x+mask.w,mask.y+mask.h);
-        paint.save();paint.globalAlpha=highlight.strength;paint.drawImage(mask.tile,top.x,top.y,bottom.x-top.x,bottom.y-top.y);paint.restore();
+        paint.save();paint.globalAlpha=highlight.strength*.75*(['TM','BM'].includes(highlight.name)?.8:1);paint.drawImage(mask.tile,top.x,top.y,bottom.x-top.x,bottom.y-top.y);paint.restore();
     }
     let zenTableArtwork=null,zenTableFrame=null;
     const zenReferenceTable=new Image();
@@ -12521,7 +12530,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=zen-stable-glow-v43"></script>
+  <script src="./beta-ui.js?v=zen-fresh-table-v44"></script>
 
 
 </body>

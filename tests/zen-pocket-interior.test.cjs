@@ -21,3 +21,6 @@ c.document={createElement(){const n=ordinal++,base=n<3?[75,105,105]:[45,75,75];r
 c.zenPocketFeltMasks();const mean=samples.reduce((sum,p)=>sum+p.raw,0)/6;assert(samples[3].raw>samples[0].raw,'Darker lower cloth produces stronger uncorrected contrast');
 for(const p of samples){let before=0,after=0;for(let i=3;i<p.original.length;i+=4){before+=p.original[i];after+=p.result[i];}assert(Math.abs(p.raw*after/before-mean)<mean*.025,'All six normalized pocket lights reach the shared contrast midpoint');}
 console.log('Pocket balance: six differently shaded cloth samples converge to the shared brightness midpoint.');
+vm.runInContext(html.slice(html.indexOf('    const ZEN_ASSET_GEOM='),html.indexOf('    const ZEN_POCKET_ART=')),c);vm.runInContext(extract('drawZenPocketFelt'),c);c.S={tableL:2,tableW:1};c.zenPocketFeltMasks=()=>Object.fromEntries(['TL','TM','TR','BL','BM','BR'].map(n=>[n,{tile:{},x:0,y:0,w:10,h:10}]));
+for(const name of ['TL','TM','TR','BL','BM','BR']){let alpha;const paint={save(){},restore(){},drawImage(){alpha=this.globalAlpha}};c.drawZenPocketFelt(paint,p=>p,{name,strength:1});assert(Math.abs(alpha-(['TM','BM'].includes(name)?.6:.75))<1e-10,'Global glow is reduced 25%, with an additional middle-pocket reduction');}
+console.log('Pocket intensity: corners reduced by 25%; middle pockets receive a further 20% reduction.');

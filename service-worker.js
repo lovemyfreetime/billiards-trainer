@@ -1,10 +1,10 @@
-const CACHE_NAME = 'billiards-trainer-4-12-trainer-zen-stable-glow-v132';
+const CACHE_NAME = 'billiards-trainer-4-12-trainer-zen-fresh-table-v133';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './trainer-action-history.js?v=2',
   './icons/zen-reference-table-v1.webp',
-  './zen-mode.js?v=zen-stable-glow-v43',
-  './beta-ui.js?v=zen-stable-glow-v43',
+  './zen-mode.js?v=zen-fresh-table-v44',
+  './beta-ui.js?v=zen-fresh-table-v44',
   './index.html',
   './trainer-practice-tools.js?v=3',
   './guide/audio-startup.js?v=native-warmup-v22',
