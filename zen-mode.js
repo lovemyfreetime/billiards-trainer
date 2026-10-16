@@ -17,7 +17,7 @@ const paths={
 };
 const icon=key=>`<svg viewBox="${['aim','speed','follow','spin'].includes(key)?'0 0 144 48':'-4 0 58 48'}" aria-hidden="true" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">${paths[key]}</svg>`;
 const style=document.createElement('style');style.textContent=`
-body.zen-mode{--zen-footer:148px;--zen-cloth:#2A382E;--zen-rail:#181B20;background:radial-gradient(ellipse at center,#161A20 0%,#0A0C0E 100%)!important;overflow:hidden;isolation:isolate}
+body.zen-mode{--zen-footer:148px;--zen-cloth:#2A382E;--zen-rail:#181B20;background:radial-gradient(ellipse at 50% 42%,#252C34 0%,#191D23 65%,#14171C 100%)!important;overflow:hidden;isolation:isolate}
 
 body.zen-mode #app{display:block!important;height:100dvh!important;background:transparent!important}
 body.zen-mode #stageWrap{position:absolute!important;inset:0 0 calc(var(--zen-footer) + 25px)!important;background:transparent!important}

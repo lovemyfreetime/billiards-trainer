@@ -5621,15 +5621,15 @@
         if(!zenTableFrame||zenTableFrame.key!==key||zenTableFrame.art!==art){
             const layer=document.createElement('canvas');layer.width=canvas.width;layer.height=canvas.height;
             const paint=layer.getContext('2d');paint.setTransform(DPR,0,0,DPR,0,0);
-            const cw=canvas.width/DPR,ch=canvas.height/DPR;
-            paint.fillStyle='#20252C';paint.fillRect(0,0,cw,ch);
-            // Extend the ambient edge pixels into spare viewport space, so the
-            // reference composition has no letterbox seam on taller screens.
-            if(p.y>0)paint.drawImage(art,0,0,A.width,1,p.x,0,q.x-p.x,p.y+1);
-            if(q.y<ch)paint.drawImage(art,0,A.height-1,A.width,1,p.x,q.y-1,q.x-p.x,ch-q.y+1);
-            if(p.x>0)paint.drawImage(art,0,0,1,A.height,0,p.y,p.x+1,q.y-p.y);
-            if(q.x<cw)paint.drawImage(art,A.width-1,0,1,A.height,q.x-1,p.y,cw-q.x+1,q.y-p.y);
             paint.drawImage(art,p.x,p.y,q.x-p.x,q.y-p.y);
+            // Feather only the ambient margins; the table remains crisp and
+            // the cached layer blends into any viewport without stretched noise.
+            const fade=paint.createLinearGradient(0,p.y,0,q.y);
+            fade.addColorStop(0,'rgba(0,0,0,0)');fade.addColorStop(.045,'#000');
+            fade.addColorStop(.91,'#000');fade.addColorStop(1,'rgba(0,0,0,0)');
+            paint.globalCompositeOperation='destination-in';paint.fillStyle=fade;paint.fillRect(p.x,p.y,q.x-p.x,q.y-p.y);
+            if(p.x>1){const side=paint.createLinearGradient(p.x,0,q.x,0);side.addColorStop(0,'rgba(0,0,0,0)');side.addColorStop(.04,'#000');side.addColorStop(.96,'#000');side.addColorStop(1,'rgba(0,0,0,0)');paint.fillStyle=side;paint.fillRect(p.x,p.y,q.x-p.x,q.y-p.y);}
+            paint.globalCompositeOperation='source-over';
             zenTableFrame={key,art,layer};
         }
         ctx.drawImage(zenTableFrame.layer,0,0,canvas.width/DPR,canvas.height/DPR);
@@ -12323,7 +12323,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=zen-reference-v12"></script>
+  <script src="./beta-ui.js?v=zen-reference-v13"></script>
 
 
 </body>
