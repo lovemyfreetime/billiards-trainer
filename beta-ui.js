@@ -84,10 +84,23 @@
     document.addEventListener("keydown",function(e){ if(e.key === "Escape" && modal.classList.contains("open")) closeModal(); });
   }
 
+
+  function setupZenLauncher(){
+    if(document.getElementById("btZenLauncher")) return;
+    const isPreview = location.hostname.includes("billiards-trainer-guide-dev");
+    if(new URLSearchParams(location.search).get("zen")==="1") return;
+    const b=document.createElement("a");b.id="btZenLauncher";b.href=isPreview?"?zen=1":"https://billiards-trainer-guide-dev.vercel.app/?zen=1";
+    b.setAttribute("aria-label","Open Zen pool table");b.title="Open Zen mode";b.innerHTML="<svg viewBox=\"0 0 64 64\" width=\"33\" height=\"33\" aria-hidden=\"true\"><ellipse cx=\"32\" cy=\"49\" rx=\"23\" ry=\"9\" fill=\"#827b70\"/><ellipse cx=\"32\" cy=\"36\" rx=\"18\" ry=\"8\" fill=\"#a29b8b\"/><ellipse cx=\"32\" cy=\"24\" rx=\"13\" ry=\"7\" fill=\"#bbb4a4\"/></svg>";
+    b.style.cssText="position:fixed;left:14px;bottom:12px;z-index:55;display:grid;place-items:center;width:54px;height:54px;background:linear-gradient(140deg,#ded5c5d9,#a99c8cdb);border:1px solid #b2a797;border-radius:50%;box-shadow:0 3px 14px #0005;text-decoration:none;";
+    document.body.appendChild(b);
+  }
+
   function init(){
     const cfg = window.BilliardsBetaConfig || {};
     setupCommunity(cfg);
     setupFeedback(cfg);
+    setupZenLauncher();
+    const zenScript=document.createElement('script');zenScript.src='./zen-mode.js?v=1';document.body.appendChild(zenScript);
   }
 
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded",init,{once:true});
