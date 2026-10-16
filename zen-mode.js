@@ -258,7 +258,7 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 #zenRack #zenFreshTable{position:relative;z-index:102;display:grid;place-items:center;padding:5px;border-radius:50%;border:1px solid #AEAA9466;background:linear-gradient(145deg,#3E5058,#2C3C45);color:#D0C4AF;cursor:pointer;touch-action:manipulation;opacity:.95;transition:opacity var(--zen-fade-duration) var(--zen-fade-ease)}
 #zenFreshTable svg{width:100%;height:100%}#zenFreshTable:disabled{opacity:.35;cursor:default}#zenFreshTable:focus-visible{outline:2px solid #C5A880;outline-offset:4px}
 #zenEdgeControls{position:fixed;inset:0;pointer-events:none;z-index:99}
-.zen-edge-zone{position:fixed;pointer-events:auto;touch-action:none;outline:none;user-select:none;background:transparent;border:0;box-shadow:none;-webkit-tap-highlight-color:transparent}
+.zen-edge-zone{position:fixed;pointer-events:auto;touch-action:none;outline:none;user-select:none;background:transparent!important;border:0;box-shadow:none!important;-webkit-tap-highlight-color:transparent}
 .zen-edge-x{z-index:1}.zen-edge-y{top:0;bottom:0;width:96px}
 #zen-edge-aim{left:0}#zen-edge-speed{right:0}
 .zen-edge-execute{appearance:none;padding:0;border-radius:0;cursor:pointer}
