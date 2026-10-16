@@ -248,6 +248,11 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 /* Warm feedback stays on the moving thumb, with no fixed center marks. */
 #zenBar .zen-group input::-webkit-slider-thumb{background:radial-gradient(circle at 42% 35%,var(--zen-thumb-tint,transparent),transparent 85%),linear-gradient(#383B3C,#202326);box-shadow:inset 0 0 5px var(--zen-thumb-tint,transparent),0 0 5px 1px var(--zen-thumb-halo,transparent),0 2px 5px #0007;transition:background-color .12s,box-shadow .12s}
 #zenBar .zen-group input::-moz-range-thumb{background:radial-gradient(circle at 42% 35%,var(--zen-thumb-tint,transparent),transparent 85%),linear-gradient(#383B3C,#202326);box-shadow:inset 0 0 4px var(--zen-thumb-tint,transparent),0 2px 5px #0007}
+#zenRack{--zen-tray-ball-size:24px;--zen-tray-gap:6px}
+#zenRack .zen-cue-ball{margin-right:calc(var(--zen-tray-ball-size) - var(--zen-tray-gap));background:radial-gradient(circle at 30% 23%,#FFF9EE,#E2DCCB 65%,#A5A89D)}
+#zenRack .zen-cue-ball.zen-place-first{box-shadow:inset 0 1px 4px #fff5,0 0 9px 2px #D0B89166}
+@media(max-width:700px){#zenRack{--zen-tray-gap:4px}}
+@media(min-width:900px){#zenRack{--zen-tray-ball-size:calc(50 * var(--zu));--zen-tray-gap:calc(7 * var(--zu))}}
 `;
 function init(){
  const layout=()=>{const u=Math.min(innerWidth/2048,innerHeight/1143);document.documentElement.style.setProperty('--zu',u+'px');document.documentElement.style.setProperty('--zen-y',(innerHeight-1143*u)/2+'px')};
@@ -404,18 +409,19 @@ function init(){
 
  const rack=document.createElement('div');rack.id='zenRack';rack.setAttribute('aria-label','Drag or tap a ball to add it to the table');
  const colors=['#ddb040','#386480','#b74035','#624377','#d98938','#397255','#71382f','#292c24','#ddb040','#386480','#b74035','#624377','#d98938','#397255','#71382f'];
- const balls=colors.map((color,i)=>{
-  const b=document.createElement('button');b.type='button';b.innerHTML=`<span>${i+1}</span>`;b.className=i>=8?'stripe':'';b.style.setProperty('--ball',color);b.title=`Drag or tap to add ball ${i+1}`;b.setAttribute('aria-label',`Add ball ${i+1}`);
+ const trayEntries=[{id:0,color:'#F2ECDD'},...colors.map((color,i)=>({id:i+1,color}))];
+ const balls=trayEntries.map(({id,color})=>{
+  const b=document.createElement('button');b.type='button';b.innerHTML=id?`<span>${id}</span>`:'';b.dataset.ballId=String(id);b.className=id===0?'zen-cue-ball':id>=9?'stripe':'';b.style.setProperty('--ball',color);b.title=id===0?'Drag or tap to place the cue ball':`Drag or tap to add ball ${id}`;b.setAttribute('aria-label',id===0?'Place cue ball':`Add ball ${id}`);
   let drag=null,suppress=false;
   b.addEventListener('pointerdown',e=>{if(b.disabled||e.button!==0)return;b.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,preview:null};suppress=false});
   b.addEventListener('pointermove',e=>{if(!drag)return;if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>5&&!drag.preview){suppress=true;drag.preview=document.createElement('div');drag.preview.className='zen-drag-preview';drag.preview.style.setProperty('--ball',color);document.body.append(drag.preview)}if(drag.preview){drag.preview.style.left=e.clientX+'px';drag.preview.style.top=e.clientY+'px'}});
-  b.addEventListener('pointerup',e=>{if(!drag)return;if(drag.preview){engine.place(i+1,e.clientX,e.clientY);drag.preview.remove()}drag=null;sync()});
+  b.addEventListener('pointerup',e=>{if(!drag)return;if(drag.preview){engine.place(id,e.clientX,e.clientY);drag.preview.remove()}drag=null;sync()});
   b.addEventListener('pointercancel',()=>{drag?.preview?.remove();drag=null;suppress=true});
-  b.addEventListener('click',()=>{if(!suppress){engine.place(i+1);sync()}suppress=false});rack.append(b);return b;
+  b.addEventListener('click',()=>{if(!suppress){engine.place(id);sync()}suppress=false});rack.append(b);return b;
  });
  const cueRest=document.createElement('div');cueRest.id='zenCueRest';cueRest.setAttribute('aria-hidden','true');
  cueRest.innerHTML='<span></span><i></i>';document.body.append(bar,menu,rack,cueRest,rackMenu);
- function sync(){const status=engine.status();bindings.forEach(f=>f());bar.querySelectorAll('input').forEach(el=>el.disabled=status.busy);const selected=historyModes.find(mode=>mode.key===historyMode);if(undo.getAttribute('aria-label')!==selected.label){undo.innerHTML=icon(selected.glyph);undo.setAttribute('aria-label',selected.label);undo.title=selected.label}if(historyCurrent.dataset.mode!==historyMode){historyCurrent.innerHTML=icon(selected.glyph);historyCurrent.dataset.mode=historyMode}undo.disabled=status.busy||!status[selected.available];historyChoices.forEach((button,i)=>{button.disabled=status.busy||!status[historyModes[i].available];button.setAttribute('aria-pressed',String(historyModes[i].key===historyMode))});syncContact();if(status.busy){hoverTools.forEach(tool=>tool.close());closeMenu();}shot.disabled=status.busy;rackToggle.disabled=status.busy;center.disabled=status.busy;rackChoices.forEach(b=>b.disabled=status.busy);if(status.busy&&!rackMenu.hidden)closeRackMenu();balls.forEach((b,i)=>{b.disabled=status.busy||status.balls.includes(i+1);b.title=status.balls.includes(i+1)?`Ball ${i+1} is on the table`:`Drag or tap to add ball ${i+1}`})}
+ function sync(){const status=engine.status();bindings.forEach(f=>f());bar.querySelectorAll('input').forEach(el=>el.disabled=status.busy);const selected=historyModes.find(mode=>mode.key===historyMode);if(undo.getAttribute('aria-label')!==selected.label){undo.innerHTML=icon(selected.glyph);undo.setAttribute('aria-label',selected.label);undo.title=selected.label}if(historyCurrent.dataset.mode!==historyMode){historyCurrent.innerHTML=icon(selected.glyph);historyCurrent.dataset.mode=historyMode}undo.disabled=status.busy||!status[selected.available];historyChoices.forEach((button,i)=>{button.disabled=status.busy||!status[historyModes[i].available];button.setAttribute('aria-pressed',String(historyModes[i].key===historyMode))});syncContact();if(status.busy){hoverTools.forEach(tool=>tool.close());closeMenu();}shot.disabled=status.busy||!status.balls.includes(0);rackToggle.disabled=status.busy;center.disabled=status.busy;rackChoices.forEach(b=>b.disabled=status.busy);if(status.busy&&!rackMenu.hidden)closeRackMenu();balls.forEach(b=>{const id=+b.dataset.ballId,onTable=status.balls.includes(id);b.disabled=status.busy||onTable;b.classList.toggle('zen-place-first',id===0&&!onTable&&!status.busy);b.title=id===0?(onTable?'Cue ball is on the table':'Place the cue ball first'):onTable?`Ball ${id} is on the table`:`Drag or tap to add ball ${id}`})}
  sync();setInterval(sync,180);window.dispatchEvent(new Event('resize'));
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();

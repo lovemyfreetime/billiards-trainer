@@ -2115,7 +2115,7 @@
         return e;
     }
     function returnPocketBall(id,q=null){
-        if(id<1||id>15||S.balls.some(b=>b.id===id))return;
+        if(id<(document.body.classList.contains('zen-mode')?0:1)||id>15||S.balls.some(b=>b.id===id))return;
         if(!q){for(let y=1;y<10&&!q;y++)for(let x=1;x<18;x++){const p={x:S.tableL*x/18,y:S.tableW*y/10};if(S.balls.every(b=>b.marker||Math.hypot(b.x-p.x,b.y-p.y)>S.ballR*2.2)){q=p;break;}}}
         if(!q||!onPlayingSurface(q)||manualPocketAt(q)||S.balls.some(b=>!b.marker&&Math.hypot(b.x-q.x,b.y-q.y)<S.ballR*2)){toast('Drop on clear table cloth to return the ball');return;}
         S.balls.push({id,n:String(id),x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR),active:true});S.pocketedLog=(S.pocketedLog||[]).filter(n=>n!==id);
@@ -2508,7 +2508,7 @@
     })();
 
     window.billiardsZenControls={
-        enter(){S.activeShot=1;S.shot2Enabled=false;S.cueElevationDeg=0;S.airbornePhysics=false;updateUI();refreshPreview();},
+        enter(){S.activeShot=1;S.shot2Enabled=false;S.cueElevationDeg=0;S.airbornePhysics=false;S.balls=[];S.pocketedLog=[];S.allowMissingCueBall=true;S.speed=2.42;S.follow=0;S.sideSpin=0;normalizeBallSet();actionHistory=window.BilliardsActionHistory.create(60);resetRunHistory();updateUI();refreshPreview();syncActionUndo();},
         aim(degrees){if(!animation){S.activeShot=1;rotateAimMicro(degrees*Math.PI/180);}},
         status(){return {overlap:S.preview?.firstBallContact?.overlap||0,busy:!!animation,undo:undoStack.length>0,redo:redoStack.length>0,undoAction:!!actionHistory?.count,redoAction:!!actionHistory?.redoCount,tip:{...effectiveTipOffsetValues(S.sideSpin,S.follow),limit:PHYSICS_MODEL.maxTipOffsetR},balls:S.balls.filter(b=>b.active&&!b.marker).map(b=>b.id)};},
         undoAction:undoLastAction,redoAction:redoLastAction,undoShot:undoLastShot,redoShot:redoLastShot,
@@ -4345,7 +4345,7 @@
         const B = cloneBallsForPhysics();
         const cb = B.find(b => b.id === 0);
         if (!cb)
-            return { paths: {}, frames: [], firstEvent: '—', firstBallContact: null };
+            return { paths: {}, frames: [], firstEvent: '—', firstBallContact: null, pocketEvents:[],railEvents:[],finalBalls:[] };
         const aimD = aimDirection(), d = strikeDirection();
         const airborneMode = S.airbornePhysics === true;
         if (airborneMode) {
@@ -6105,6 +6105,33 @@
         };
     }
     function zenPathGlow(power,channel){return power.stroke*(.4+.6*power[channel]);}
+    function zenPocketVisualCenter(pocket){
+        const offset=S.ballR*(pocket.kind==='side'?2.2:1.65);
+        return {x:pocket.kind==='side'?pocket.x:pocket.x+(pocket.x===0?-offset:offset),y:pocket.y+(pocket.y===0?-offset:offset)};
+    }
+    function zenPocketAlignment(path,target,radius){
+        if(!path||path.length<2)return 0;
+        const end=path[path.length-1];let start=path[0];
+        for(let i=path.length-2;i>=0;i--)if(Math.hypot(end.x-path[i].x,end.y-path[i].y)>=radius*2){start=path[i];break;}
+        const dx=end.x-start.x,dy=end.y-start.y,length=Math.hypot(dx,dy);
+        if(length<1e-6||(target.x-start.x)*dx+(target.y-start.y)*dy<0)return 0;
+        const miss=Math.abs((target.x-start.x)*dy-(target.y-start.y)*dx)/length;
+        return Math.pow(Math.max(0,1-miss/(radius*.4)),2);
+    }
+    function zenPocketHighlights(preview){
+        if(!preview)return [];
+        const ids=preview.firstBallContact?[preview.firstBallContact.objId]:[];
+        if(preview.pocketEvents?.some(event=>event.id===0))ids.push(0);
+        return logicalPockets().map(pocket=>{
+            const center=zenPocketVisualCenter(pocket);let strength=0;
+            for(const id of ids){
+                const event=preview.pocketEvents?.find(event=>event.id===id);
+                if(event&&nearestLogicalPocket(event).name!==pocket.name)continue;
+                strength=Math.max(strength,zenPocketAlignment(preview.paths?.[id],center,S.ballR));
+            }
+            return {center,strength};
+        }).filter(highlight=>highlight.strength>0);
+    }
     let zenGuideFrame=null;
     function drawZenGuides(map){
         if(drag&&['ball','ball2'].includes(drag.kind))return;
@@ -6151,6 +6178,12 @@
                 if(roll)stroke([roll.start,roll.end],1,'rgba(255,255,255,0.14)',[2,4]);
             }
             c.restore();c.setLineDash([]);
+            for(const highlight of zenPocketHighlights(preview)){
+                const center=map(highlight.center),radius=Math.abs(map({x:highlight.center.x+R*2.2,y:highlight.center.y}).x-center.x);
+                const glow=c.createRadialGradient(center.x,center.y,0,center.x,center.y,radius);
+                glow.addColorStop(0,`rgba(208,184,145,${.24*highlight.strength})`);glow.addColorStop(.5,`rgba(208,184,145,${.12*highlight.strength})`);glow.addColorStop(1,'rgba(208,184,145,0)');
+                c.fillStyle=glow;c.beginPath();c.arc(center.x,center.y,radius,0,Math.PI*2);c.fill();
+            }
             if(g){c.beginPath();c.arc(g.x,g.y,r,0,Math.PI*2);c.strokeStyle='rgba(255,255,255,0.20)';c.lineWidth=1;c.stroke();}
             const layer=raw;
             zenGuideFrame={key,preview,layer};
@@ -7849,6 +7882,15 @@
     function publishZenAimFeedback(){
         if(document.body.classList.contains('zen-mode'))window.dispatchEvent(new CustomEvent('billiards:zen-preview',{detail:{overlap:S.preview?.firstBallContact?.overlap||0}}));
     }
+    function returnZenBallToTray(id){
+        const ball=S.balls.find(b=>b.id===id&&!b.marker);
+        if(!ball||id<0||id>15)return false;
+        if(id===0)S.allowMissingCueBall=true;
+        S.balls=S.balls.filter(b=>b!==ball);
+        S.pocketedLog=[...new Set([...(S.pocketedLog||[]),id])];
+        normalizeBallSet();updateUI();
+        return true;
+    }
     let zenDragFrame=0;
     function requestZenDragPaint(){
         if(zenDragFrame)return;
@@ -7912,7 +7954,8 @@
         else if (drag.kind === 'ball') {
             const b = S.balls.find(x => x.id === drag.id);
             if (b) {
-                if(b.id===0)Object.assign(q,keepCueOnTable(q));
+                if(b.id===0&&!document.body.classList.contains('zen-mode'))Object.assign(q,keepCueOnTable(q));
+                if(document.body.classList.contains('zen-mode')&&!b.marker&&drag.dropPoint.y>S.tableW)q.y=drag.dropPoint.y;
                 if (b.id === 0 && S.angleLock) {
                     const dx = q.x - b.x, dy = q.y - b.y;
                     S.freeAim = { x: S.freeAim.x + dx, y: S.freeAim.y + dy };
@@ -7953,6 +7996,10 @@
                 const shot=drag.kind==='aim2'?ensureShot2():S;
                 shot.freeAim={x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR)};
             }
+        }
+        if(zenGesture&&drag.kind==='ball'){
+            const q=controlMap().inv(pointerPos(ev));
+            if(q.y>S.tableW||manualPocketAt(q))returnZenBallToTray(drag.id);
         }
         if (drag && drag.kind === 'ball')
             removeMarkerInPocket(drag.id,controlMap().inv(pointerPos(ev)));
@@ -8260,7 +8307,7 @@
         const pocketFrame = new Map();
         for (let fi = 0; fi < sim.frames.length; fi++) {
             for (const fb of sim.frames[fi]) {
-                if (fb.id !== 0 && !fb.active && !pocketFrame.has(fb.id))
+                if (!fb.active && !pocketFrame.has(fb.id))
                     pocketFrame.set(fb.id, fi);
             }
         }
@@ -8276,6 +8323,7 @@
             // If it scratches, restore its pre-shot location instead of leaving the next
             // shot with the cue ball sitting inside a pocket capture region.
             if (b.id === 0) {
+                if(!f.active&&document.body.classList.contains('zen-mode')){S.allowMissingCueBall=true;removed.push(0);return false;}
                 if (f.active) {
                     if (S.angleLock) {
                         const dx = f.x - b.x, dy = f.y - b.y;
@@ -12412,7 +12460,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=softer-path-glow-v33"></script>
+  <script src="./beta-ui.js?v=scratch-tray-v34"></script>
 
 
 </body>
