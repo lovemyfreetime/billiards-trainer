@@ -1409,7 +1409,7 @@
 
 .bt-file-library{width:100%;min-width:0;margin-top:8px}.bt-saved-files{display:flex;flex-wrap:wrap;align-items:end;gap:5px}.bt-saved-files label{display:flex;flex:1 1 180px;flex-direction:column;gap:4px;font-size:11px;min-width:0}.bt-saved-files select{width:100%;min-width:0}.bt-saved-files button{white-space:nowrap}.bt-file-status{font-size:11px;margin-top:4px}.photoAnalyzerFooter .bt-file-library{flex-basis:100%;margin-top:2px}.photoAnalyzerHeader #btg-analyze-explore{width:30px;height:30px;flex:0 0 30px;font-size:17px;border-width:1px;align-self:center}.photoAnalyzerHeader{gap:4px!important}
 </style>
-<link rel="stylesheet" href="./phone-play.css?v=9">
+<link rel="stylesheet" href="./phone-play.css?v=10">
 </head>
 <body>
 <div id="app">
@@ -4983,7 +4983,19 @@
             return {map:p=>({x:ox+p.x*scale,y:oy+p.y*scale}),inv:p=>({x:(p.x-ox)/scale,y:(p.y-oy)/scale}),scale,corners:[{x:ox,y:oy},{x:ox+tw,y:oy},{x:ox+tw,y:oy+th},{x:ox,y:oy+th}]};
         }
 
-        const sidePad = !document.body.classList.contains('zen-mode') && document.body.classList.contains('phone-layout') ? (w < 600 ? 140 : 190) : pad;
+        if(!zen && document.body.classList.contains('phone-layout')) {
+            // Fit the OUTSIDE of the artwork between only the visible control banks.
+            // Reserving two banks for one shot needlessly shrank tablet layouts.
+            const A=ORIGINAL_ASSET_GEOM, landscape=w>h;
+            const left=landscape&&w>600?168:126, right=S.shot2Enabled?left:12;
+            const top=42,bottom=26,artW=S.tableL*A.width/(A.x1-A.x0),artH=S.tableW*A.height/(A.y1-A.y0);
+            const scale=Math.max(.01,Math.min((w-left-right)/artW,(h-top-bottom)/artH));
+            const ox=left+(w-left-right-artW*scale)/2+S.tableL*A.x0/(A.x1-A.x0)*scale;
+            const oy=top+(h-top-bottom-artH*scale)/2+S.tableW*A.y0/(A.y1-A.y0)*scale;
+            const tw=S.tableL*scale,th=S.tableW*scale;
+            return {map:p=>({x:ox+p.x*scale,y:oy+p.y*scale}),inv:p=>({x:(p.x-ox)/scale,y:(p.y-oy)/scale}),scale,corners:[{x:ox,y:oy},{x:ox+tw,y:oy},{x:ox+tw,y:oy+th},{x:ox,y:oy+th}]};
+        }
+        const sidePad = pad;
         const A=zen?ZEN_ASSET_GEOM:ORIGINAL_ASSET_GEOM;
         const scale = Math.max(.01, zen ? Math.min((w-64)/(S.tableL*A.width/(A.x1-A.x0)),(h-48)/(S.tableW*A.height/(A.y1-A.y0))) : Math.min((w - sidePad * 2) / S.tableL, (h - pad * 2) / S.tableW));
         const tw = S.tableL * scale, th = S.tableW * scale, ox = (w - tw) / 2, oy = (h - th) / 2;
@@ -12315,7 +12327,7 @@ if ('serviceWorker' in navigator) {
     </div>
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=fit5">
-  <script src="./phone-play.js?v=9"></script>
+  <script src="./phone-play.js?v=10"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <script src="./guide/guide.js?v=completion-tour-v25"></script>
@@ -12328,7 +12340,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=zen-live-v17"></script>
+  <script src="./beta-ui.js?v=android-layout-v18"></script>
 
 
 </body>

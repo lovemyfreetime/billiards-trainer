@@ -1,10 +1,10 @@
-const CACHE_NAME = 'billiards-trainer-4-12-zen-live-v104';
+const CACHE_NAME = 'billiards-trainer-4-12-android-layout-v105';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './trainer-action-history.js?v=1',
   './icons/zen-reference-table-v1.webp',
-  './zen-mode.js?v=zen-live-v17',
-  './beta-ui.js?v=zen-live-v17',
+  './zen-mode.js?v=android-layout-v18',
+  './beta-ui.js?v=android-layout-v18',
   './index.html',
   './trainer-practice-tools.js?v=3',
   './guide/audio-startup.js?v=native-warmup-v22',
@@ -24,8 +24,8 @@ const APP_SHELL = [
   './guide/analyze-welcome.js?v=analyze-welcome-v16',
   './guide/analyze-walkthrough.js?v=presets-recovery-v13',
   './manifest.webmanifest',
-  './phone-play.css?v=9',
-  './phone-play.js?v=9',
+  './phone-play.css?v=10',
+  './phone-play.js?v=10',
   './photo-calibration.js?v=walkthrough-v11',
   './photo-table-spots.js?v=3',
   './photo-cloth-filter.js?v=2',

@@ -41,6 +41,15 @@
     button.addEventListener('click', () => { if (source && !source.disabled) source.click(); });
     actions.append(button);
   }
+  const shot2Source=document.getElementById('toggleShot2');
+  const syncShot2Actions=()=>{
+    const on=shot2Source?.textContent?.includes('−') || false;
+    document.body.classList.toggle('phone-two-shots',on);
+    const second=actions.querySelector('[data-trainer-action="toggleCueVisuals2Btn"]');
+    if(second)second.hidden=!on;
+  };
+  if(shot2Source)new MutationObserver(syncShot2Actions).observe(shot2Source,{childList:true,characterData:true,subtree:true});
+  syncShot2Actions();
   for (const which of [1,2]) {
     const disk = document.createElement('canvas');
     disk.id = 'phoneTip' + which; disk.className = 'phoneTipControl'; disk.hidden = true;
