@@ -2522,11 +2522,17 @@
         normalizeBallSet();resetRunHistory();updateUI();refreshPreview();saveState();syncProjector();
         return true;
     }
+    function zenTableScreenBounds(){
+        const A=ZEN_ASSET_GEOM,frame=controlMap(),rect=canvas.getBoundingClientRect();
+        const point=(x,y)=>{const p=frame.map({x:(x-A.x0)/(A.x1-A.x0)*S.tableL,y:(y-A.y0)/(A.y1-A.y0)*S.tableW});return {x:rect.left+p.x*rect.width/(canvas.width/DPR),y:rect.top+p.y*rect.height/(canvas.height/DPR)};};
+        const top=point(230,56),bottom=point(1448,716);
+        return {left:top.x,top:top.y,right:bottom.x,bottom:bottom.y};
+    }
     window.billiardsZenControls={
         enter(){S.activeShot=1;S.shot2Enabled=false;S.cueElevationDeg=0;S.airbornePhysics=false;S.balls=[];S.pocketedLog=[];S.allowMissingCueBall=true;S.speed=2.42;S.follow=0;S.sideSpin=0;normalizeBallSet();actionHistory=window.BilliardsActionHistory.create(60);resetRunHistory();updateUI();refreshPreview();syncActionUndo();},
         aim(degrees){if(!animation){S.activeShot=1;rotateAimMicro(degrees*Math.PI/180);}},
         status(){return {overlap:S.preview?.firstBallContact?.overlap||0,busy:!!animation,undo:undoStack.length>0,redo:redoStack.length>0,undoAction:!!actionHistory?.count,redoAction:!!actionHistory?.redoCount,tip:{...effectiveTipOffsetValues(S.sideSpin,S.follow),limit:PHYSICS_MODEL.maxTipOffsetR},balls:S.balls.filter(b=>b.active&&!b.marker).map(b=>b.id)};},
-        freshTable:freshZenTable,
+        freshTable:freshZenTable,tableBounds:zenTableScreenBounds,
         undoAction:undoLastAction,redoAction:redoLastAction,undoShot:undoLastShot,redoShot:redoLastShot,
         tip(side,follow){
             if(animation)return;
@@ -12530,7 +12536,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=zen-edge-controls-v47"></script>
+  <script src="./beta-ui.js?v=zen-wide-edges-v48"></script>
 
 
 </body>

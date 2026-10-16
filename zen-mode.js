@@ -260,8 +260,8 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 #zenEdgeControls{position:fixed;inset:0;pointer-events:none;z-index:99}
 .zen-edge-zone{position:fixed;pointer-events:auto;touch-action:none;outline:none;user-select:none;transition:filter var(--zen-fade-duration) var(--zen-fade-ease)}
 .zen-edge-x{z-index:1;border-radius:50%;background:radial-gradient(ellipse,rgba(220,232,234,.045),rgba(220,232,234,.015) 55%,transparent 75%)}
-.zen-edge-y{top:0;bottom:0;width:24px;background:linear-gradient(90deg,rgba(220,232,234,.025),transparent)}
-#zen-edge-aim{left:0}#zen-edge-speed{right:0;background:linear-gradient(270deg,rgba(220,232,234,.025),transparent)}
+.zen-edge-y{top:0;bottom:0;width:80px;background:linear-gradient(90deg,rgba(220,232,234,.045),rgba(220,232,234,.015) 55%,transparent)}
+#zen-edge-aim{left:0}#zen-edge-speed{right:0;background:linear-gradient(270deg,rgba(220,232,234,.045),rgba(220,232,234,.015) 55%,transparent)}
 .zen-edge-zone:is(:active,:focus-visible){filter:brightness(1.6)}
 #zenRack{--zen-tray-ball-size:24px;--zen-tray-gap:6px}
 #zenRack .zen-cue-ball{margin-right:0;background:radial-gradient(circle at 30% 23%,#FFF9EE,#E2DCCB 65%,#A5A89D)}
@@ -455,9 +455,12 @@ function init(){
  }
  const followEdge=edgeZone('follow','Edge follow / draw control','x'),spinEdge=edgeZone('spin','Edge left / right spin control','x');
  edgeZone('aim','Left edge aiming control','y');edgeZone('speed','Right edge power control','y');document.body.append(edgeControls);
- const positionEdges=()=>{const left=fresh.getBoundingClientRect(),right=balls[balls.length-1].getBoundingClientRect(),height=Math.max(44,left.height),top=left.top+(left.height-height)/2;
+ const positionEdges=()=>{const left=fresh.getBoundingClientRect(),right=balls[balls.length-1].getBoundingClientRect(),table=engine.tableBounds(),dock=bar.getBoundingClientRect();
+  const top=Math.min(dock.top,table.bottom),height=Math.max(0,dock.top-top);
   Object.assign(followEdge.style,{left:'0px',top:top+'px',width:Math.max(0,left.left-6)+'px',height:height+'px'});
   Object.assign(spinEdge.style,{left:(right.right+6)+'px',top:top+'px',width:Math.max(0,innerWidth-right.right-6)+'px',height:height+'px'});
+  const width=Math.max(32,Math.min(80,Math.min(table.left,innerWidth-table.right)*.65));
+  for(const {zone}of edgeZones)if(zone.classList.contains('zen-edge-y'))zone.style.width=width+'px';
  };
  window.addEventListener('resize',positionEdges);
 
