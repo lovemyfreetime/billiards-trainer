@@ -5598,7 +5598,7 @@
     }
 
     // Recolor the original trainer artwork once; never reconstruct its geometry.
-    let zenTableArtwork=null;
+    let zenTableArtwork=null,zenTableFrame=null;
     const zenMaterial=new Image();
     zenMaterial.onload=()=>{zenTableArtwork=null;if(document.body.classList.contains('zen-mode'))draw();};
     if(new URLSearchParams(location.search).get('zen')==='1')zenMaterial.src='./icons/zen-materials-v1.webp';
@@ -5627,8 +5627,8 @@
             // Preserve the original cushion highlights, cloth shadows, pocket
             // openings, trim edges and anti-aliasing while changing their hues.
             if(g>r*1.3&&b>r*1.3){target=[130,148,123];base=110.9242;}
-            else if(r>g*1.7&&r>b*1.7){target=[183,180,158];base=54.541;}
-            else if(r>g&&g>b*1.15&&r-g<65){target=[218,214,190];base=167.871;}
+            else if(r>g*1.7&&r>b*1.7){target=[185,151,143];base=54.541;}
+            else if(r>g&&g>b*1.15&&r-g<65){target=[218,203,184];base=167.871;}
             const x=(i/4)%art.width,y=Math.floor(i/4/art.width);
             const grain=((Math.imul(x+17,374761393)^Math.imul(y+71,668265263))>>>0)%101/100-.5;
             if(target){
@@ -5638,7 +5638,7 @@
                     shade*=1.035-.12*Math.hypot((x-art.width*.42)/art.width,(y-art.height*.4)/art.height);
                     shade*=.92+.08*textureLight(x,y,true);shade+=grain*.009;
                 }else if(base===54.541){
-                    // Matte warm limestone: quiet mineral variation, no wood grain.
+                    // Matte rose-taupe stone: quiet mineral variation, distinct from sage cloth.
                     shade*=1.01+.012*Math.sin(x*.014)*Math.sin(y*.011);
                     shade+=grain*.017;
                 }else shade+=grain*.012;
@@ -5657,6 +5657,11 @@
         const art=zenRecoloredTable();if(!art)return;
         const A=ORIGINAL_ASSET_GEOM,L=S.tableL,W=S.tableW,sx=(A.x1-A.x0)/L,sy=(A.y1-A.y0)/W;
         const p=map({x:-A.x0/sx,y:-A.y0/sy}),q=map({x:(A.width-A.x0)/sx,y:(A.height-A.y0)/sy});
+        const key=[canvas.width,canvas.height,DPR,p.x,p.y,q.x,q.y].join('|');
+        if(!zenTableFrame||zenTableFrame.key!==key||zenTableFrame.art!==art){
+            const layer=document.createElement('canvas');layer.width=canvas.width;layer.height=canvas.height;
+            {
+                const ctx=layer.getContext('2d');ctx.setTransform(DPR,0,0,DPR,0,0);
         ctx.save();
         ctx.filter='blur(.65px)';ctx.shadowColor='#625b4550';ctx.shadowBlur=25;ctx.shadowOffsetY=10;
         ctx.drawImage(art,p.x,p.y,q.x-p.x,q.y-p.y);
@@ -5671,6 +5676,12 @@
         for(let i=1;i<4;i++)for(const xx of [left.x-(left.x-p.x)*.5,right.x+(q.x-right.x)*.5]){ctx.beginPath();ctx.arc(xx,left.y+h*i/4,dot,0,Math.PI*2);ctx.fill();}
         ctx.fillStyle='#e4debb55';for(const xx of [.25,.75]){ctx.beginPath();ctx.arc(left.x+w*xx,left.y+h*.5,dot,0,Math.PI*2);ctx.fill();}
         ctx.restore();
+
+            }
+            zenTableFrame={key,art,layer};
+        }
+        // The full table and its blurred edges are baked once, never per drag frame.
+        ctx.drawImage(zenTableFrame.layer,0,0,canvas.width/DPR,canvas.height/DPR);
     }
     function drawZenBall(b,map,label){
         const p=map(b),edge=map({x:b.x+S.ballR,y:b.y}),r=Math.abs(edge.x-p.x);
@@ -6086,38 +6097,36 @@
             }
         }
     }
-    function drawAim(map) {
-        if (document.body.classList.contains('zen-mode')) {
-            const cb=cueBall();if(!cb)return;
-            const R=S.ballR,preview=S.preview,contact=preview?.firstBallContact;
-            const glow=(points,alpha=.25)=>{
-                if(!points||points.length<2)return;
-                ctx.save();ctx.lineCap='round';ctx.lineJoin='round';ctx.shadowColor='#eee8cc';ctx.shadowBlur=10;
-                pathPoly(points,map,'#ece6ce',4,alpha*.32,[]);
-                ctx.filter='blur(.65px)';ctx.shadowBlur=7;pathPoly(points,map,'#ede7cf',1.2,alpha,[]);ctx.restore();
-            };
-            ctx.save();
-            const tl=map({x:0,y:0}),br=map({x:S.tableL,y:S.tableW});
-            ctx.beginPath();ctx.rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y);
-            if(contact){const g=map(contact.cuePos),e=map({x:contact.cuePos.x+R*1.08,y:contact.cuePos.y});ctx.moveTo(e.x,g.y);ctx.arc(g.x,g.y,Math.abs(e.x-g.x),0,Math.PI*2);}
-            ctx.clip('evenodd');
-            // Native simulated cue path includes spin, cushion rebounds and stop.
-            glow(preview?.paths?.[0],.27);
-            if(contact){
-                const g=contact.cuePos,t={x:-contact.normal.y,y:contact.normal.x};
-                for(const sign of [-1,1])glow([{x:g.x+t.x*R*1.1*sign,y:g.y+t.y*R*1.1*sign},{x:g.x+t.x*R*7*sign,y:g.y+t.y*R*7*sign}],.25);
-                const objectPath=preview.paths?.[contact.objId];
-                if(objectPath)glow(objectPath,.15);
-            }
-            ctx.restore();
-            ctx.save();
-            if(contact){
-                ctx.shadowColor='#eae6c8';ctx.shadowBlur=12;ctx.filter='blur(.7px)';
-                logicalCircle(contact.cuePos,R,map,'#eee9cc06','#ede9ce50',1.6);
-                ctx.shadowBlur=6;logicalCircle(contact.cuePos,R,map,null,'#eee9ce24',.8);
-            }
-            ctx.restore();return;
+    let zenGuideFrame=null;
+    function drawZenGuides(map){
+        if(drag&&['ball','ball2','aim','aim2'].includes(drag.kind))return;
+        if(!cueBall())return;
+        const preview=S.preview,key=[canvas.width,canvas.height,DPR,S.tableL,S.tableW,S.ballR].join('|');
+        if(!zenGuideFrame||zenGuideFrame.key!==key||zenGuideFrame.preview!==preview){
+            const raw=document.createElement('canvas');raw.width=canvas.width;raw.height=canvas.height;
+            const c=raw.getContext('2d');c.setTransform(DPR,0,0,DPR,0,0);c.lineCap='round';c.lineJoin='round';
+            const R=S.ballR,contact=preview?.firstBallContact;
+            const stroke=(points,width,alpha)=>{if(!points||points.length<2)return;c.beginPath();points.forEach((p,i)=>{const q=map(p);if(i)c.lineTo(q.x,q.y);else c.moveTo(q.x,q.y)});c.lineWidth=width;c.strokeStyle=`rgba(237,231,207,${alpha})`;c.stroke()};
+            const glow=(points,alpha)=>{stroke(points,3.2,alpha*.2);stroke(points,1,alpha)};
+            c.save();const tl=map({x:0,y:0}),br=map({x:S.tableL,y:S.tableW});
+            c.beginPath();c.rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y);
+            let g=null,r=0;
+            if(contact){g=map(contact.cuePos);r=Math.abs(map({x:contact.cuePos.x+R,y:contact.cuePos.y}).x-g.x);c.moveTo(g.x+r*1.08,g.y);c.arc(g.x,g.y,r*1.08,0,Math.PI*2);}
+            c.clip('evenodd');glow(preview?.paths?.[0],.27);
+            if(contact){const p=contact.cuePos,t={x:-contact.normal.y,y:contact.normal.x};for(const sign of [-1,1])glow([{x:p.x+t.x*R*1.1*sign,y:p.y+t.y*R*1.1*sign},{x:p.x+t.x*R*7*sign,y:p.y+t.y*R*7*sign}],.25);glow(preview.paths?.[contact.objId],.15)}
+            c.restore();
+            if(g){c.beginPath();c.arc(g.x,g.y,r,0,Math.PI*2);c.strokeStyle='#ede9ce50';c.lineWidth=1.6;c.stroke();}
+            const layer=document.createElement('canvas');layer.width=canvas.width;layer.height=canvas.height;
+            const paint=layer.getContext('2d');paint.setTransform(DPR,0,0,DPR,0,0);
+            // Apply diffusion to the guide layer once, rather than filtering every path every frame.
+            paint.filter='blur(3px)';paint.globalAlpha=.32;paint.drawImage(raw,0,0,canvas.width/DPR,canvas.height/DPR);
+            paint.filter='blur(.6px)';paint.globalAlpha=.85;paint.drawImage(raw,0,0,canvas.width/DPR,canvas.height/DPR);
+            zenGuideFrame={key,preview,layer};
         }
+        ctx.drawImage(zenGuideFrame.layer,0,0,canvas.width/DPR,canvas.height/DPR);
+    }
+    function drawAim(map) {
+        if(document.body.classList.contains('zen-mode')){drawZenGuides(map);return;}
         const cb = cueBall();
         if (!cb)
             return;
@@ -7812,6 +7821,15 @@
             refreshPreview();
         }
     });
+    let zenDragFrame=0;
+    function requestZenDragPaint(){
+        if(zenDragFrame)return;
+        zenDragFrame=requestAnimationFrame(()=>{zenDragFrame=0;draw();});
+    }
+    function finishZenDragPaint(){
+        if(zenDragFrame){cancelAnimationFrame(zenDragFrame);zenDragFrame=0;}
+        refreshPreview();
+    }
     canvas.addEventListener('pointermove', ev => {
         if (!drag)
             return;
@@ -7885,9 +7903,13 @@
                 s.ghostLockDirty = true;
             }
         }
+        if(document.body.classList.contains('zen-mode')&&['ball','ball2','aim','aim2'].includes(drag.kind)){
+            requestZenDragPaint();return;
+        }
         refreshPreview();
     });
     canvas.addEventListener('pointerup', ev => {
+        const zenGesture=document.body.classList.contains('zen-mode')&&drag&&['ball','ball2','aim','aim2'].includes(drag.kind);
         if (drag && drag.kind === 'ball')
             removeMarkerInPocket(drag.id,controlMap().inv(pointerPos(ev)));
         if (drag && (drag.kind === 'ball' || drag.kind === 'ball2')) {
@@ -7928,10 +7950,11 @@
             draw();
         }
         drag = null;
+        if(zenGesture){finishZenDragPaint();return;}
         saveState();
         syncProjector();
     });
-    canvas.addEventListener('pointercancel', () => drag = null);
+    canvas.addEventListener('pointercancel', () => {const zenGesture=document.body.classList.contains('zen-mode')&&drag;drag=null;if(zenGesture)finishZenDragPaint();});
     // Mouse-wheel fine controls.  Hovering any shot slider uses the same increment
     // as its +/- controls, so the mouse can stay over the table or sidebar.
     function installWheelRange(id) {
@@ -12337,7 +12360,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=zen-soft-v8"></script>
+  <script src="./beta-ui.js?v=zen-responsive-v9"></script>
 
 
 </body>

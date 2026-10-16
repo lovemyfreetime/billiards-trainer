@@ -4,15 +4,18 @@ if(new URLSearchParams(location.search).get("zen")!=="1")return;
 const svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\" width=\"44\" height=\"44\" aria-hidden=\"true\"><defs><filter id=\"stonegrain\"><feTurbulence type=\"fractalNoise\" baseFrequency=\".42\" numOctaves=\"3\" seed=\"8\" result=\"noise\"/><feColorMatrix in=\"noise\" type=\"saturate\" values=\"0\" result=\"noise\"/><feComposite in=\"noise\" in2=\"SourceGraphic\" operator=\"in\" result=\"texture\"/><feBlend in=\"SourceGraphic\" in2=\"texture\" mode=\"multiply\"/></filter><linearGradient id=\"stonefill\" x1=\"0\" y1=\"0\" x2=\".2\" y2=\"1\"><stop stop-color=\"#c5c5be\"/><stop offset=\".5\" stop-color=\"#a2a49e\"/><stop offset=\"1\" stop-color=\"#7e837f\"/></linearGradient></defs><ellipse cx=\"32\" cy=\"56\" rx=\"25\" ry=\"5\" fill=\"#746d62\" opacity=\".16\"/><g fill=\"url(#stonefill)\" stroke=\"#73766f\" stroke-width=\".6\" filter=\"url(#stonegrain)\"><ellipse cx=\"32\" cy=\"47\" rx=\"24\" ry=\"11\"/><ellipse cx=\"32\" cy=\"34\" rx=\"19\" ry=\"9\"/><ellipse cx=\"33\" cy=\"21\" rx=\"13\" ry=\"7\"/></g></svg>";
 
 // Simple, rounded line symbols traced from Jeff's control sketch.
+// Each directional arrow is its own closed shape, with clear physical spacing.
+const upChevron='<path d="M2 34Q0 32 2 29L13 9Q16 4 19 9L30 29Q32 33 29 35Q26 37 24 33L16 19 8 33Q5 38 2 34Z"/>';
+const rightChevron='<path d="M5 6Q2 4 1 7Q0 9 3 11L18 24 3 37Q0 40 2 42Q4 44 7 41L28 28Q33 24 28 20L7 7Q6 6 5 6Z"/>';
 const paths={
- aim:'<path d="M7 39Q24 23 41 39M6 26Q4 17 5 14Q6 12 9 14l9 5q2 2 0 3l-8-3 2 7q0 3-3 2ZM18 22l4-13q2-4 4 0l4 13q0 3-3 2l-3-9-3 9q-3 1-3-2ZM32 19l9-5q3-2 3 1l-2 11q-1 3-3 1l1-8-7 4q-3 0-1-4Z"/>',
- speed:'<path d="M5 12Q3 10 2 12Q1 13 3 15L14 24 3 33Q1 35 3 36Q4 37 6 35L19 26Q21 24 19 22ZM29 12q-2-2-3 0q-1 1 1 3l11 9-11 9q-2 2 0 3q1 1 3-1l13-9q2-2 0-4ZM53 12q-2-2-3 0q-1 1 1 3l11 9-11 9q-2 2 0 3q1 1 3-1l13-9q2-2 0-4Z"/>',
- follow:'<path d="M25 7v34M3 18l7 10 7-10q3-1 2 2l-7 12q-2 3-4 0L1 20q-1-3 2-2ZM32 30l7-10 7 10q3 1 2-2l-7-12q-2-3-4 0l-7 12q-1 3 2 2Z"/>',
- spin:'<path d="M24 7v34M16 13 4 22q-2 2 0 4l12 9q3 1 2-2L8 24l10-9q1-3-2-2ZM32 13l12 9q2 2 0 4l-12 9q-3 1-2-2l10-9-10-9q-1-3 2-2Z"/>',
+ aim:`<g transform="translate(8 0) rotate(-22 16 24)">${upChevron}</g><g transform="translate(56 0)">${upChevron}</g><g transform="translate(104 0) rotate(22 16 24)">${upChevron}</g>`,
+ speed:`<g transform="translate(4 0)">${rightChevron}</g><g transform="translate(56 0)">${rightChevron}</g><g transform="translate(108 0)">${rightChevron}</g>`,
+ follow:`<path d="M72 3v42"/><g transform="translate(10 48) scale(1 -1)">${upChevron}</g><g transform="translate(102 0)">${upChevron}</g>`,
+ spin:`<path d="M72 3v42"/><g transform="translate(38 0) scale(-1 1)">${rightChevron}</g><g transform="translate(106 0)">${rightChevron}</g>`,
  undo:'<path d="M12 19h17a12 12 0 0 1 0 24M12 19l9-9M12 19l9 9"/>',
  shot:'<path d="m19 12 20 12-20 12Z" fill="currentColor" stroke="none"/>'
 };
-const icon=key=>`<svg viewBox="${key==='speed'?'-2 0 76 48':'-4 0 58 48'}" aria-hidden="true" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round">${paths[key]}</svg>`;
+const icon=key=>`<svg viewBox="${['aim','speed','follow','spin'].includes(key)?'0 0 144 48':'-4 0 58 48'}" aria-hidden="true" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">${paths[key]}</svg>`;
 const style=document.createElement('style');style.textContent=`
 body.zen-mode{--zen-footer:148px;background:#d6c8ad!important;overflow:hidden;isolation:isolate}
 body.zen-mode::before{content:'';position:fixed;inset:-5px;background:url('./icons/zen-garden-v1.webp') center/cover;filter:blur(1.45px) saturate(.9);z-index:-1;pointer-events:none}
@@ -22,8 +25,8 @@ body.zen-mode #canvas{filter:none!important}
 body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,body.zen-mode #analyzePhotoBtn,body.zen-mode #quickLayoutRecall,body.zen-mode #kickToolToggle,body.zen-mode #bankToolToggle,body.zen-mode #teachingCompassToggle,body.zen-mode #compassSizeWrap,body.zen-mode #compassRotateWrap,body.zen-mode #bottomSpeedControls,body.zen-mode #bottomSpin1,body.zen-mode #bottomSpin2,body.zen-mode #cueRailBtn,body.zen-mode #cuePopup,body.zen-mode #aimControls,body.zen-mode #aimControls2,body.zen-mode #angleLock,body.zen-mode #practiceCounter,body.zen-mode #markerRailControls,body.zen-mode #pocketTray,body.zen-mode #bt-guide-pool-root,body.zen-mode .phone-controls{display:none!important}
 #zenBar{position:fixed;z-index:100;bottom:14px;left:50%;transform:translateX(-50%);width:min(1240px,96vw);box-sizing:border-box;height:92px;display:flex;gap:18px;align-items:center;justify-content:center;padding:12px 20px;background:linear-gradient(120deg,#f6edd552,#dfd3b92e);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid #fff4d877;border-radius:29px;box-shadow:0 4px 22px #54482c24,inset 0 1px 14px #fff3d433;font-family:system-ui;color:#6d705c}
 #zenBar .zen-group{min-width:0;flex:1;max-width:164px;text-align:center;position:relative;padding:0 9px;border-right:1px solid #fff4}
-#zenBar .zen-symbol{display:block;width:82px;height:42px;margin:0 auto;color:#696e59;opacity:.85}
-#zenBar .zen-group[data-kind=speed] .zen-symbol{width:110px}
+#zenBar .zen-symbol{display:block;width:136px;height:42px;margin:0 auto;color:#696e59;opacity:.85}
+#zenBar .zen-group[data-kind=speed] .zen-symbol{width:136px}
 #zenBar .zen-symbol svg{width:100%;height:100%}
 #zenBar input[type=range]{appearance:none;-webkit-appearance:none;display:block;box-sizing:border-box;width:100%;height:26px;margin:0;padding:0;background:transparent;cursor:pointer;touch-action:pan-y}
 #zenBar input[type=range]::-webkit-slider-runnable-track{height:5px;background:linear-gradient(90deg,#8ca38b,#d9cdb7);border-radius:10px;box-shadow:0 1px 0 #fffa}
