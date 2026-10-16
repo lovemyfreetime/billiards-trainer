@@ -1,0 +1,16 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const source=fs.readFileSync('zen-mode.js','utf8');
+const start=source.indexOf('function zenCanHover('),end=source.indexOf('const ZEN_FADE_DURATION=',start);
+const context={Event,Math};vm.createContext(context);vm.runInContext(source.slice(start,end),context);
+for(const [pointerType,buttons,expected] of [['mouse',0,true],['pen',0,true],['pen',1,false],['touch',1,false]])assert.equal(context.zenCanHover({pointerType,buttons}),expected);
+const listeners={},captures=new Set(),changes=[];let value=0;
+const input={disabled:false,dispatchEvent:e=>changes.push(e.type)};
+const surface={style:{},addEventListener:(type,fn)=>listeners[type]=fn,setPointerCapture:id=>captures.add(id),hasPointerCapture:id=>captures.has(id),releasePointerCapture:id=>{captures.delete(id);listeners.lostpointercapture({pointerId:id})}};
+context.bindZenFineControl(surface,input,steps=>value+=steps);
+const send=(type,fields={})=>{let prevented=false;listeners[type]({button:0,pointerId:7,clientX:0,preventDefault(){prevented=true},...fields});return prevented;};
+assert(send('wheel',{deltaY:-100}));assert.equal(value,1);send('wheel',{deltaY:100});assert.equal(value,0);
+assert(!send('wheel',{deltaY:-100,ctrlKey:true}),'Browser zoom remains available');
+send('pointerdown',{clientX:50});assert(captures.has(7));send('pointermove',{clientX:55});assert.equal(value,0,'Small jitter is ignored');send('pointermove',{clientX:86});assert.equal(value,3);send('pointermove',{clientX:62});assert.equal(value,1,'Swipes reverse naturally');send('pointermove',{clientX:200,pointerId:8});assert.equal(value,1,'Other pointers do not affect the gesture');send('pointerup');assert(!captures.size);assert.deepEqual(changes,['change'],'One undoable gesture finishes once even after capture loss');
+send('pointerdown');send('pointermove',{clientX:120});send('pointercancel');send('pointermove',{clientX:240});assert.equal(value,11,'Cancelled gesture stops immediately');
+input.disabled=true;assert(!send('wheel',{deltaY:-100}));send('pointerdown');assert(!captures.size);assert(send('click'),'Swiping never forwards a label click to the coarse slider');assert.equal(surface.style.touchAction,'none');
+console.log('Zen fine controls: wheel, pen hover, touch exclusion, repeated/reversed swipes, capture, cancellation, busy guard, and gesture completion pass.');

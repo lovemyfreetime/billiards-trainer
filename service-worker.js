@@ -1,10 +1,10 @@
-const CACHE_NAME = 'billiards-trainer-4-12-zen-soft-choice-rings-v113';
+const CACHE_NAME = 'billiards-trainer-4-12-zen-fine-controls-v114';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './trainer-action-history.js?v=2',
   './icons/zen-reference-table-v1.webp',
-  './zen-mode.js?v=soft-choice-rings-v24',
-  './beta-ui.js?v=soft-choice-rings-v24',
+  './zen-mode.js?v=fine-controls-v25',
+  './beta-ui.js?v=fine-controls-v25',
   './index.html',
   './trainer-practice-tools.js?v=3',
   './guide/audio-startup.js?v=native-warmup-v22',

@@ -8,6 +8,38 @@ function zenHoverDelay(open){
  let timer=0;
  return {schedule(){clearTimeout(timer);timer=setTimeout(()=>{timer=0;open()},ZEN_HOVER_DELAY)},cancel(){clearTimeout(timer);timer=0}};
 }
+// Pen proximity emits pointerenter before contact; finger contact must not open a hover menu.
+function zenCanHover(event){return event.pointerType==='mouse'||(event.pointerType==='pen'&&event.buttons===0);}
+function bindZenFineControl(surface,input,adjust){
+ let drag=null,remainder=0;
+ surface.style.touchAction='none';
+ surface.addEventListener('wheel',event=>{
+  if(input.disabled||event.ctrlKey)return;
+  event.preventDefault();const delta=event.deltaY||event.deltaX;if(!delta)return;
+  adjust(delta<0?1:-1);
+ },{passive:false});
+ surface.addEventListener('pointerdown',event=>{
+  if(input.disabled||event.button!==0||drag)return;
+  event.preventDefault();drag={id:event.pointerId,x:event.clientX};remainder=0;
+  surface.setPointerCapture(event.pointerId);
+ });
+ surface.addEventListener('pointermove',event=>{
+  if(!drag||event.pointerId!==drag.id)return;
+  const delta=event.clientX-drag.x;drag.x=event.clientX;
+  if(input.disabled){remainder=0;return;}
+  remainder+=delta;const steps=Math.trunc(remainder/12);
+  if(steps){remainder-=steps*12;adjust(steps);}
+ });
+ const finish=event=>{
+  if(!drag||event.pointerId!==drag.id)return;
+  drag=null;remainder=0;
+  if(surface.hasPointerCapture(event.pointerId))surface.releasePointerCapture(event.pointerId);
+  input.dispatchEvent(new Event('change',{bubbles:true}));
+ };
+ for(const type of ['pointerup','pointercancel','lostpointercapture'])surface.addEventListener(type,finish);
+ // The decorative label must not forward the end of a swipe to the coarse slider.
+ surface.addEventListener('click',event=>event.preventDefault());
+}
 const ZEN_FADE_DURATION=1600;
 const zenPopoverStates=new WeakMap();
 let zenSceneFade=null;
@@ -198,7 +230,7 @@ function init(){
  const openMenu=()=>{if(engine.status().busy)return;modeHover.cancel();clearTimeout(modeLeaveTimer);hoverTools.forEach(tool=>tool.close());closeRackMenu();showZenPopover(menu,positionModeMenu);stones.setAttribute('aria-expanded','true')};
  const modeHover=zenHoverDelay(openMenu);
  const leaveModeMenu=()=>{modeHover.cancel();clearTimeout(modeLeaveTimer);modeLeaveTimer=setTimeout(()=>{if(!menu.matches(':hover')&&!stones.matches(':hover')&&!menu.contains(document.activeElement))closeMenu()},350)};
- stones.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')modeHover.schedule()});stones.addEventListener('pointerleave',leaveModeMenu);menu.addEventListener('pointerenter',()=>clearTimeout(modeLeaveTimer));menu.addEventListener('pointerleave',leaveModeMenu);
+ stones.addEventListener('pointerenter',e=>{if(zenCanHover(e))modeHover.schedule()});stones.addEventListener('pointerleave',leaveModeMenu);menu.addEventListener('pointerenter',()=>clearTimeout(modeLeaveTimer));menu.addEventListener('pointerleave',leaveModeMenu);
  stones.addEventListener('focusin',()=>{if(stones.matches(':focus-visible'))openMenu()});stones.onclick=()=>{if(!menu.classList.contains('zen-popover-open'))openMenu();else closeMenu()};
  stones.addEventListener('keydown',e=>{if(e.key==='ArrowUp'){e.preventDefault();e.stopPropagation();openMenu();train.focus()}});
  document.addEventListener('pointerdown',e=>{if(!stones.contains(e.target)&&!menu.contains(e.target))closeMenu()});document.addEventListener('focusin',e=>{if(!stones.contains(e.target)&&!menu.contains(e.target))closeMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});window.addEventListener('resize',()=>{if(!menu.hidden)positionModeMenu()});bar.append(stones);
@@ -206,7 +238,7 @@ function init(){
  function group(name,kind,originalId){
   const box=document.createElement('div');box.className='zen-group';box.dataset.kind=kind;box.title=name;
   const control=originalId&&document.getElementById(originalId),input=document.createElement('input');input.type='range';input.id='zen-'+kind;input.min=control?.min||'-12';input.max=control?.max||'12';input.step=control?.step||'.1';input.value=control?.value||'0';input.setAttribute('aria-label',name);
-  const symbol=document.createElement('label');symbol.htmlFor=input.id;symbol.className='zen-symbol';symbol.innerHTML=icon(kind);symbol.title=name;
+  const symbol=document.createElement('label');symbol.htmlFor=input.id;symbol.className='zen-symbol';symbol.innerHTML=icon(kind);symbol.title=name+' · Wheel or swipe left/right for fine adjustment';
   box.append(input,symbol);bar.append(box);
   if(control){
    const sync=()=>{input.value=control.value;input.setAttribute('aria-valuetext',kind==='speed'?Number(input.value).toFixed(2):`${Math.round(Number(input.value)*100)}%`)};
@@ -216,6 +248,12 @@ function init(){
    let previous=0;input.addEventListener('input',()=>{const current=+input.value;engine.aim(current-previous);previous=current});const reset=()=>{input.value='0';previous=0};input.addEventListener('change',reset);input.addEventListener('blur',reset);input.addEventListener('pointercancel',reset);
    input.addEventListener('wheel',e=>{e.preventDefault();if(!input.disabled)engine.aim(e.deltaY<0?-.15:.15)},{passive:false});
   }
+  bindZenFineControl(symbol,input,steps=>{
+   cancelZenSceneTransition();
+   if(kind==='aim'){engine.aim(steps*.05);return;}
+   const value=Math.max(+input.min,Math.min(+input.max,+input.value+steps*+input.step));
+   input.value=String(Number(value.toFixed(6)));input.dispatchEvent(new Event('input',{bubbles:true}));
+  });
   return input;
  }
  group('Aim adjustment','aim');group('Speed','speed','speed');group('Forward / Draw','follow','follow');group('Left / Right Spin','spin','sideSpin');
@@ -238,7 +276,7 @@ function init(){
   const open=()=>{if(engine.status().busy)return;hoverIntent.cancel();hoverTools.forEach(tool=>{if(tool.panel!==panel)tool.close()});closeRackMenu();closeMenu();clearTimeout(timer);showZenPopover(panel,position);anchor.setAttribute('aria-expanded','true');syncContact();};
   const hoverIntent=zenHoverDelay(open);
   const leave=()=>{hoverIntent.cancel();clearTimeout(timer);timer=setTimeout(()=>{if(!panel.matches(':hover')&&!anchor.matches(':hover')&&!panel.contains(document.activeElement))close()},350)};
-  anchor.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')hoverIntent.schedule()});anchor.addEventListener('pointerleave',leave);panel.addEventListener('pointerenter',()=>clearTimeout(timer));panel.addEventListener('pointerleave',leave);
+  anchor.addEventListener('pointerenter',e=>{if(zenCanHover(e))hoverIntent.schedule()});anchor.addEventListener('pointerleave',leave);panel.addEventListener('pointerenter',()=>clearTimeout(timer));panel.addEventListener('pointerleave',leave);
   anchor.addEventListener('focusin',()=>{if(!suppressFocus&&anchor.matches(':focus-visible'))open()});
   anchor.addEventListener('keydown',e=>{if(e.key==='ArrowUp'){e.preventDefault();e.stopPropagation();open();panel.querySelector('button:not(:disabled),[tabindex]')?.focus()}});
   anchor.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')return;touchOpened=false;hold=setTimeout(()=>{touchOpened=true;open()},500)});
@@ -299,13 +337,13 @@ function init(){
  const openRackMenu=()=>{if(engine.status().busy)return;rackHover.cancel();clearTimeout(hideRackTimer);hoverTools.forEach(tool=>tool.close());closeMenu();showZenPopover(rackMenu,positionRackMenu);rackToggle.setAttribute('aria-expanded','true')};
  const rackHover=zenHoverDelay(openRackMenu);
  const scheduleRackClose=()=>{rackHover.cancel();clearTimeout(hideRackTimer);hideRackTimer=setTimeout(()=>{if(!rackMenu.contains(document.activeElement))closeRackMenu()},350)};
- rackToggle.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')rackHover.schedule()});rackToggle.addEventListener('pointerleave',scheduleRackClose);
- rackToggle.addEventListener('click',()=>{if(!rackMenu.classList.contains('zen-popover-open'))openRackMenu();else if(matchMedia('(hover: none)').matches)closeRackMenu()});
+ rackToggle.addEventListener('pointerenter',e=>{if(zenCanHover(e))rackHover.schedule()});rackToggle.addEventListener('pointerleave',scheduleRackClose);
+ rackToggle.addEventListener('click',e=>{if(!rackMenu.classList.contains('zen-popover-open'))openRackMenu();else if(e.pointerType==='touch')closeRackMenu()});
  rackToggle.addEventListener('keydown',e=>{if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();openRackMenu();rackMenu.querySelector('button')?.focus()}});
  rackMenu.addEventListener('pointerenter',()=>clearTimeout(hideRackTimer));rackMenu.addEventListener('pointerleave',scheduleRackClose);
  const center=document.createElement('button');center.type='button';center.className='zen-radial-center';center.textContent='R';center.title='Randomize the balls currently on the table';center.setAttribute('aria-label','Randomize current balls');
  const randomize=()=>{stopRandomHover();if(engine.status().busy)return;runZenSceneTransition(()=>document.getElementById('shuffleTableLayout').click());randomHoverDone=true;sync()};
- center.addEventListener('click',e=>{if(!randomHoverDone||e.detail===0)randomize();randomHoverDone=false});center.addEventListener('pointerenter',e=>{randomHoverDone=false;if(e.pointerType==='mouse')randomHoverTimer=setTimeout(randomize,ZEN_FADE_DURATION)});center.addEventListener('pointerleave',()=>{stopRandomHover();randomHoverDone=false});center.addEventListener('blur',()=>randomHoverDone=false);rackMenu.append(center);
+ center.addEventListener('click',e=>{if(!randomHoverDone||e.detail===0)randomize();randomHoverDone=false});center.addEventListener('pointerenter',e=>{randomHoverDone=false;if(zenCanHover(e))randomHoverTimer=setTimeout(randomize,ZEN_FADE_DURATION)});center.addEventListener('pointerleave',()=>{stopRandomHover();randomHoverDone=false});center.addEventListener('blur',()=>randomHoverDone=false);rackMenu.append(center);
  const labels={rack3:'3',rack6:'6',rack7:'7',rack8:'8',rack9:'9',rack10:'10',straight14:'S',ultimate8:'U'};
  const order=['rack6','rack7','rack8','rack9','rack10','straight14','ultimate8','rack3'];
  const rackChoices=order.map((value,i)=>{const option=Array.from(document.getElementById('fullRackSelect').options).find(o=>o.value===value);const b=document.createElement('button');b.type='button';b.textContent=labels[value];b.dataset.rack=value;b.title=option.textContent;b.setAttribute('aria-label','Set up '+option.textContent);const angle=(-90+i*45)*Math.PI/180;b.style.left=(50+38*Math.cos(angle))+'%';b.style.top=(50+38*Math.sin(angle))+'%';b.addEventListener('click',()=>{if(engine.status().busy)return;const select=document.getElementById('fullRackSelect');select.value=value;select.dispatchEvent(new Event('change',{bubbles:true}));runZenSceneTransition(()=>document.getElementById('startFullRack').click());closeRackMenu();sync()});rackMenu.append(b);return b});
