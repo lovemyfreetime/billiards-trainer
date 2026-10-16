@@ -258,11 +258,11 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 #zenRack #zenFreshTable{position:relative;z-index:102;display:grid;place-items:center;padding:5px;border-radius:50%;border:1px solid #AEAA9466;background:linear-gradient(145deg,#3E5058,#2C3C45);color:#D0C4AF;cursor:pointer;touch-action:manipulation;opacity:.95;transition:opacity var(--zen-fade-duration) var(--zen-fade-ease)}
 #zenFreshTable svg{width:100%;height:100%}#zenFreshTable:disabled{opacity:.35;cursor:default}#zenFreshTable:focus-visible{outline:2px solid #C5A880;outline-offset:4px}
 #zenEdgeControls{position:fixed;inset:0;pointer-events:none;z-index:99}
-.zen-edge-zone{position:fixed;pointer-events:auto;touch-action:none;outline:none;user-select:none;transition:filter var(--zen-fade-duration) var(--zen-fade-ease)}
-.zen-edge-x{z-index:1;border-radius:50%;background:radial-gradient(ellipse,rgba(220,232,234,.045),rgba(220,232,234,.015) 55%,transparent 75%)}
-.zen-edge-y{top:0;bottom:0;width:80px;background:linear-gradient(90deg,rgba(220,232,234,.045),rgba(220,232,234,.015) 55%,transparent)}
-#zen-edge-aim{left:0}#zen-edge-speed{right:0;background:linear-gradient(270deg,rgba(220,232,234,.045),rgba(220,232,234,.015) 55%,transparent)}
-.zen-edge-zone:is(:active,:focus-visible){filter:brightness(1.6)}
+.zen-edge-zone{position:fixed;pointer-events:auto;touch-action:none;outline:none;user-select:none;background:transparent;border:0;box-shadow:none;-webkit-tap-highlight-color:transparent}
+.zen-edge-x{z-index:1}.zen-edge-y{top:0;bottom:0;width:96px}
+#zen-edge-aim{left:0}#zen-edge-speed{right:0}
+.zen-edge-execute{appearance:none;padding:0;border-radius:0;cursor:pointer}
+.zen-edge-zone:focus-visible{outline:1px solid rgba(226,223,216,.12);outline-offset:-2px}
 #zenRack{--zen-tray-ball-size:24px;--zen-tray-gap:6px}
 #zenRack .zen-cue-ball{margin-right:0;background:radial-gradient(circle at 30% 23%,#FFF9EE,#E2DCCB 65%,#A5A89D)}
 #zenRack .zen-cue-ball.zen-place-first{box-shadow:inset 0 1px 4px #fff5,0 0 9px 2px #D0B89166}
@@ -455,16 +455,20 @@ function init(){
  }
  const followEdge=edgeZone('follow','Edge follow / draw control','x'),spinEdge=edgeZone('spin','Edge left / right spin control','x');
  edgeZone('aim','Left edge aiming control','y');edgeZone('speed','Right edge power control','y');document.body.append(edgeControls);
+ const executeEdge=document.createElement('button');executeEdge.id='zen-edge-execute';executeEdge.type='button';executeEdge.className='zen-edge-zone zen-edge-execute';executeEdge.setAttribute('aria-label','Execute shot above table');
+ executeEdge.addEventListener('click',()=>{if(!shot.disabled)shot.click()});edgeControls.append(executeEdge);
+
  const positionEdges=()=>{const left=fresh.getBoundingClientRect(),right=balls[balls.length-1].getBoundingClientRect(),table=engine.tableBounds(),dock=bar.getBoundingClientRect();
   const top=Math.min(dock.top,table.bottom),height=Math.max(0,dock.top-top);
   Object.assign(followEdge.style,{left:'0px',top:top+'px',width:Math.max(0,left.left-6)+'px',height:height+'px'});
   Object.assign(spinEdge.style,{left:(right.right+6)+'px',top:top+'px',width:Math.max(0,innerWidth-right.right-6)+'px',height:height+'px'});
-  const width=Math.max(32,Math.min(80,Math.min(table.left,innerWidth-table.right)*.65));
+  Object.assign(executeEdge.style,{left:Math.max(0,table.left)+'px',top:'0px',width:Math.max(0,Math.min(innerWidth,table.right)-Math.max(0,table.left))+'px',height:Math.max(0,table.top)+'px'});
+  const width=Math.max(32,Math.min(96,Math.min(table.left,innerWidth-table.right)*.7));
   for(const {zone}of edgeZones)if(zone.classList.contains('zen-edge-y'))zone.style.width=width+'px';
  };
  window.addEventListener('resize',positionEdges);
 
- function sync(){positionFresh();positionEdges();const status=engine.status();edgeZones.forEach(({zone,input,kind})=>{zone.setAttribute('aria-disabled',String(status.busy));zone.setAttribute('aria-valuemin',input.min);zone.setAttribute('aria-valuemax',input.max);zone.setAttribute('aria-valuenow',input.value);zone.setAttribute('aria-valuetext',kind==='aim'?'Fine aim adjustment':input.getAttribute('aria-valuetext')||input.value)});fresh.disabled=status.busy||status.balls.length===0;bindings.forEach(f=>f());bar.querySelectorAll('input').forEach(el=>el.disabled=status.busy);const selected=historyModes.find(mode=>mode.key===historyMode);if(undo.getAttribute('aria-label')!==selected.label){undo.innerHTML=icon(selected.glyph);undo.setAttribute('aria-label',selected.label);undo.title=selected.label}if(historyCurrent.dataset.mode!==historyMode){historyCurrent.innerHTML=icon(selected.glyph);historyCurrent.dataset.mode=historyMode}undo.disabled=status.busy||!status[selected.available];historyChoices.forEach((button,i)=>{button.disabled=status.busy||!status[historyModes[i].available];button.setAttribute('aria-pressed',String(historyModes[i].key===historyMode))});syncContact();if(status.busy){hoverTools.forEach(tool=>tool.close());closeMenu();}shot.disabled=status.busy||!status.balls.includes(0);rackToggle.disabled=status.busy;center.disabled=status.busy;rackChoices.forEach(b=>b.disabled=status.busy);if(status.busy&&!rackMenu.hidden)closeRackMenu();balls.forEach(b=>{const id=+b.dataset.ballId,onTable=status.balls.includes(id);b.disabled=status.busy||onTable;b.classList.toggle('zen-place-first',id===0&&!onTable&&!status.busy);b.title=id===0?(onTable?'Cue ball is on the table':'Place the cue ball first'):onTable?`Ball ${id} is on the table`:`Drag or tap to add ball ${id}`})}
+ function sync(){positionFresh();positionEdges();const status=engine.status();edgeZones.forEach(({zone,input,kind})=>{zone.setAttribute('aria-disabled',String(status.busy));zone.setAttribute('aria-valuemin',input.min);zone.setAttribute('aria-valuemax',input.max);zone.setAttribute('aria-valuenow',input.value);zone.setAttribute('aria-valuetext',kind==='aim'?'Fine aim adjustment':input.getAttribute('aria-valuetext')||input.value)});fresh.disabled=status.busy||status.balls.length===0;bindings.forEach(f=>f());bar.querySelectorAll('input').forEach(el=>el.disabled=status.busy);const selected=historyModes.find(mode=>mode.key===historyMode);if(undo.getAttribute('aria-label')!==selected.label){undo.innerHTML=icon(selected.glyph);undo.setAttribute('aria-label',selected.label);undo.title=selected.label}if(historyCurrent.dataset.mode!==historyMode){historyCurrent.innerHTML=icon(selected.glyph);historyCurrent.dataset.mode=historyMode}undo.disabled=status.busy||!status[selected.available];historyChoices.forEach((button,i)=>{button.disabled=status.busy||!status[historyModes[i].available];button.setAttribute('aria-pressed',String(historyModes[i].key===historyMode))});syncContact();if(status.busy){hoverTools.forEach(tool=>tool.close());closeMenu();}shot.disabled=status.busy||!status.balls.includes(0);executeEdge.disabled=shot.disabled;rackToggle.disabled=status.busy;center.disabled=status.busy;rackChoices.forEach(b=>b.disabled=status.busy);if(status.busy&&!rackMenu.hidden)closeRackMenu();balls.forEach(b=>{const id=+b.dataset.ballId,onTable=status.balls.includes(id);b.disabled=status.busy||onTable;b.classList.toggle('zen-place-first',id===0&&!onTable&&!status.busy);b.title=id===0?(onTable?'Cue ball is on the table':'Place the cue ball first'):onTable?`Ball ${id} is on the table`:`Drag or tap to add ball ${id}`})}
  sync();setInterval(sync,180);window.dispatchEvent(new Event('resize'));
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
