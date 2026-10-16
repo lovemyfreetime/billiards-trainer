@@ -99,7 +99,7 @@
     setupCommunity(cfg);
     setupFeedback(cfg);
     setupZenLauncher();
-    const zenScript=document.createElement('script');zenScript.src='./zen-mode.js?v=relaxed-hover-v22';document.body.appendChild(zenScript);
+    const zenScript=document.createElement('script');zenScript.src='./zen-mode.js?v=slow-crossfade-v23';document.body.appendChild(zenScript);
   }
 
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded",init,{once:true});

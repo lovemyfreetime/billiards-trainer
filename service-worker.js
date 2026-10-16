@@ -1,10 +1,10 @@
-const CACHE_NAME = 'billiards-trainer-4-12-zen-relaxed-hover-v111';
+const CACHE_NAME = 'billiards-trainer-4-12-zen-slow-crossfade-v112';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './trainer-action-history.js?v=2',
   './icons/zen-reference-table-v1.webp',
-  './zen-mode.js?v=relaxed-hover-v22',
-  './beta-ui.js?v=relaxed-hover-v22',
+  './zen-mode.js?v=slow-crossfade-v23',
+  './beta-ui.js?v=slow-crossfade-v23',
   './index.html',
   './trainer-practice-tools.js?v=3',
   './guide/audio-startup.js?v=native-warmup-v22',
