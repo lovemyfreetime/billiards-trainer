@@ -5634,7 +5634,10 @@
         // Inset cushion depth, clipped to the bed; no outer spread or surface glint.
         const bed0=map({x:0,y:0}),bed1=map({x:L,y:W});
         ctx.save();ctx.beginPath();ctx.rect(bed0.x,bed0.y,bed1.x-bed0.x,bed1.y-bed0.y);ctx.clip();
-        ctx.strokeStyle='#12151A';ctx.lineWidth=4;ctx.strokeRect(bed0.x,bed0.y,bed1.x-bed0.x,bed1.y-bed0.y);ctx.restore();
+        ctx.strokeStyle='#12151A';ctx.lineWidth=4;
+        const gap=(bed1.x-bed0.x)*.035,mid=(bed0.x+bed1.x)/2;
+        ctx.beginPath();for(const y of [bed0.y,bed1.y]){ctx.moveTo(bed0.x+gap,y);ctx.lineTo(mid-gap,y);ctx.moveTo(mid+gap,y);ctx.lineTo(bed1.x-gap,y);}
+        for(const x of [bed0.x,bed1.x]){ctx.moveTo(x,bed0.y+gap);ctx.lineTo(x,bed1.y-gap);}ctx.stroke();ctx.restore();
         const left=map({x:0,y:0}),right=map({x:L,y:W}),w=right.x-left.x,h=right.y-left.y;
         // Keep the requested quiet round rail sights and subtle table spots.
         ctx.fillStyle='rgba(226,223,216,0.40)';const dot=3;
