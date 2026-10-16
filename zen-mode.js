@@ -8,7 +8,7 @@ function zenHoverDelay(open){
  let timer=0;
  return {schedule(){clearTimeout(timer);timer=setTimeout(()=>{timer=0;open()},ZEN_HOVER_DELAY)},cancel(){clearTimeout(timer);timer=0}};
 }
-const ZEN_FADE_DURATION=1800;
+const ZEN_FADE_DURATION=1600;
 const zenPopoverStates=new WeakMap();
 let zenSceneFade=null;
 function zenReducedMotion(){return typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;}
@@ -95,7 +95,7 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 #zenRackMenu{position:fixed;z-index:130;width:264px;height:264px;border-radius:50%;background:radial-gradient(circle,#12161cee 0,#12161c99 50%,transparent 72%);isolation:isolate}
 #zenRackMenu[hidden]{display:none}
 #zenRackMenu button{position:absolute;width:43px;height:43px;border-radius:50%;display:grid;place-items:center;transform:translate(-50%,-50%);border:1px solid #C5A88066;background:#181B20;color:#E2DFD8;font:500 16px system-ui;cursor:pointer;touch-action:manipulation}
-#zenRackMenu button:hover,#zenRackMenu button:focus-visible{outline:2px solid #C5A880;outline-offset:3px;filter:brightness(1.12)}
+
 #zenRackMenu .zen-radial-center{width:55px;height:55px;left:50%;top:50%;background:#2A382E;color:#C5A880;font-size:20px}
 #zenRackMenu button:disabled{opacity:.35;cursor:default}
 @media(max-width:1000px){#zenActions{gap:10px}#zenRackSection{padding-left:12px}}
@@ -168,7 +168,10 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 .zen-history-radial svg{width:26px;height:26px}
 .zen-history-radial button[aria-pressed=true]{border-color:#C5A880;background:#494039}
 .zen-history-radial button:disabled{opacity:.3;cursor:default}
-.zen-history-radial button:focus-visible{outline:1px solid #C5A880;outline-offset:3px}
+#zenRackMenu button:focus,.zen-history-radial button:focus{outline:none}
+#zenRackMenu button::after,.zen-history-radial button::after{content:"";position:absolute;inset:-5px;box-sizing:border-box;border:2px solid #C5A880;border-radius:50%;pointer-events:none;opacity:0;scale:.94;transition:opacity var(--zen-fade-duration) var(--zen-fade-ease),scale var(--zen-fade-duration) var(--zen-fade-ease)}
+#zenRackMenu button:not(:disabled):is(:hover,:focus-visible)::after,.zen-history-radial button:not(:disabled):is(:hover,:focus-visible)::after{opacity:1;scale:1}
+@media(prefers-reduced-motion:reduce){#zenRackMenu button::after,.zen-history-radial button::after{transition:none;scale:1}}
 .zen-history-current{position:absolute;inset:67px;display:grid;place-items:center;color:#C5A88077;pointer-events:none}
 #zenContactPanel{box-shadow:0 3px 9px #0003}
 #zenTipPoint{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair;border-radius:50%;overflow:visible}
