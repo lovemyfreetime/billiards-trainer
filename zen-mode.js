@@ -32,7 +32,7 @@ function inputGroup(label,originalId){
 const box=document.createElement("div");box.className="zen-group";
 const control=document.getElementById(originalId);
 const inp=document.createElement("input");inp.type="range";inp.min=control?.min||"-1";inp.max=control?.max||"1";inp.step=control?.step||".01";inp.value=control?.value||"0";inp.setAttribute("aria-label",label);
-inp.addEventListener("input",()=>{if(!control)return;control.value=inp.value;control.dispatchEvent(new Event("input",{bubbles:true}));});
+inp.addEventListener("input",()=>{if(!control)return;control.value=inp.value;control.dispatchEvent(new Event("input",{bubbles:true}));inp.value=control.value;});
 inp.addEventListener("change",()=>{if(!control)return;control.dispatchEvent(new Event("change",{bubbles:true}));});
 control?.addEventListener("input",()=>{inp.value=control.value});
 const lab=document.createElement("label");lab.textContent=label;box.append(inp,lab);return box;
@@ -50,13 +50,22 @@ bar.append(stones);
 const aimBox=document.createElement("div");aimBox.className="zen-group";
 const aim=document.createElement("input");aim.type="range";aim.min="-10";aim.max="10";aim.step=".1";aim.value="0";aim.setAttribute("aria-label","Aim adjustment");
 const aimLabel=document.createElement("label");aimLabel.textContent="Aim";aimBox.append(aim,aimLabel);
-aim.addEventListener("input",()=>{const roller=document.getElementById("aimRoller");if(!roller)return;const d=Number(aim.value); if(!d)return;roller.dispatchEvent(new WheelEvent("wheel",{deltaY:-d, bubbles:true,cancelable:true}));aim.value="0";});
+let aimPrevious=0;
+aim.addEventListener("input",()=>{
+const roller=document.getElementById("aimRoller");if(!roller)return;
+const current=Number(aim.value),delta=current-aimPrevious;
+if(!delta)return;
+aimPrevious=current;
+// Existing trainer expects mouse-wheel units of approximately 100 per micro-aim notch.
+roller.dispatchEvent(new WheelEvent("wheel",{deltaY:-delta*100,deltaMode:0,bubbles:true,cancelable:true}));
+});
+aim.addEventListener("change",()=>{aim.value="0";aimPrevious=0;});
 bar.append(aimBox,inputGroup("Speed","speed"),inputGroup("Forward / Draw","follow"),inputGroup("Left / Right Spin","sideSpin"));
 const undo=document.createElement("button");undo.className="zen-action";undo.type="button";undo.textContent="↶";undo.title="Undo last shot";undo.onclick=()=>document.getElementById("undoShot")?.click();bar.append(undo);
 const shot=document.createElement("button");shot.className="zen-action";shot.type="button";shot.textContent="▶";shot.title="Execute Shot";shot.onclick=()=>document.getElementById("animate")?.click();bar.append(shot);
 const tray=document.createElement("div");tray.id="zenRack";tray.setAttribute("aria-label","Balls available to add to the table");const shades=["#dfad38","#39638b","#b94942","#5d497b","#d68c44","#43765e","#82433b","#30302e","#e3b13c","#3c6390","#b64747","#664a7c","#ca8a4b","#447159","#824c49"];
 shades.forEach((color,i)=>{const ball=document.createElement("button");ball.type="button";ball.textContent=String(i+1);ball.title="Add ball "+(i+1);ball.style.backgroundColor=color;ball.addEventListener("click",()=>{const select=document.getElementById("ballSelect");const add=document.getElementById("addBall");if(select&&add){select.value=String(i+1);select.dispatchEvent(new Event("change",{bubbles:true}));add.click();}});tray.appendChild(ball)});
-document.body.append(bar,menu,tray);setTimeout(()=>window.dispatchEvent(new Event("resize")),80);
+document.body.append(bar,menu,tray);window.addEventListener("keydown",e=>{if(e.key==="Escape")menu.hidden=true});setTimeout(()=>window.dispatchEvent(new Event("resize")),80);
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
