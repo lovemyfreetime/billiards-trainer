@@ -16,7 +16,7 @@ current=350;vm.runInContext('requestZenDragPaint();finishZenDragPaint()',dragCon
 let filtered=0,created=0,liveBlits=0;const strokes=[];
 const fakeContext=()=>new Proxy({createLinearGradient:()=>({addColorStop(){}}),stroke(){strokes.push({color:this.strokeStyle,width:this.lineWidth})}}, {get:(o,k)=>k in o?o[k]:()=>{},set:(o,k,v)=>{if(k==='filter')filtered++;o[k]=v;return true}});
 const art={};
-const renderContext={zenTableFrame:null,zenGuideFrame:null,zenRecoloredTable:()=>art,document:{createElement:()=>{created++;return{width:0,height:0,getContext:()=>fakeContext()}}},canvas:{width:2400,height:1400},DPR:2,S:{tableL:2,tableW:1,ballR:.03,preview:{paths:{0:[{x:.2,y:.5},{x:1,y:.5}]}}},ORIGINAL_ASSET_GEOM:{width:2530,height:1380,x0:109,x1:2421,y0:110,y1:1270},ctx:{drawImage:()=>liveBlits++},drag:null,cueBall:()=>({x:.2,y:.5})};
+const renderContext={zenTableFrame:null,zenGuideFrame:null,zenRecoloredTable:()=>art,document:{createElement:()=>{created++;return{width:0,height:0,getContext:()=>fakeContext()}}},canvas:{width:2400,height:1400},DPR:2,S:{tableL:2,tableW:1,ballR:.03,preview:{paths:{0:[{x:.2,y:.5},{x:1,y:.5}]}}},ZEN_ASSET_GEOM:{width:1678,height:937,x0:298,x1:1379,y0:120,y1:650},ctx:{drawImage:()=>liveBlits++},drag:null,cueBall:()=>({x:.2,y:.5})};
 vm.createContext(renderContext);vm.runInContext(extract('drawZenTable')+extract('drawZenGuides'),renderContext);
 const map=p=>({x:100+p.x*500,y:100+p.y*500});renderContext.map=map;
 vm.runInContext('drawZenTable(map);drawZenGuides(map)',renderContext);const initialFilters=filtered,initialCreated=created;

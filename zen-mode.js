@@ -1,7 +1,7 @@
 (function(){
 "use strict";
 if(new URLSearchParams(location.search).get("zen")!=="1")return;
-const lotus = '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M24 37C13 30 15 18 24 9c9 9 11 21 0 28Z"/><path d="M24 37C12 38 6 29 7 18c10 1 17 8 17 19Zm0 0c12 1 18-8 17-19-10 1-17 8-17 19Z"/><path d="M10 39c9 4 19 4 28 0"/></svg>';
+const lotus = '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="zenLotusMetal" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#D4BB92"/><stop offset="1" stop-color="#8F7755"/></linearGradient></defs><g fill="url(#zenLotusMetal)" stroke="#C5A880" stroke-width=".6" stroke-linejoin="round"><path d="M31 51C16 50 6 41 5 29c13 1 23 8 26 22Z"/><path d="M33 51c15-1 25-10 26-22-13 1-23 8-26 22Z"/><path d="M31 49C18 44 12 32 17 18c11 5 16 17 14 31Z"/><path d="M33 49c13-5 19-17 14-31-11 5-16 17-14 31Z"/><path d="M32 48C22 38 22 23 32 10c10 13 10 28 0 38Z"/></g><path d="M12 49q20 15 40 0" fill="none" stroke="#A68D68" stroke-width="1"/></svg>';
 
 // Simple, rounded line symbols traced from Jeff's control sketch.
 // Each directional arrow is its own closed shape, with clear physical spacing.
@@ -72,8 +72,40 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 @media(max-width:700px){body.zen-mode{--zen-footer:136px}#zenBar{width:96vw;height:84px;gap:5px;padding:8px;bottom:8px;border-radius:16px}#zenBar .zen-group{padding:0 2px}#zenModeBtn{width:40px;height:40px}#zenModeBtn svg{width:32px;height:32px}#zenBar .zen-action{width:32px;height:32px;padding:5px}#zenBar .zen-shoot{width:32px;height:32px}#zenBar .zen-symbol{width:44px;height:32px;margin-top:0}#zenRack{gap:4px;bottom:98px}#zenBar .zen-group[data-kind=speed] .zen-symbol{width:56px}#zenBar input[type=range]::-webkit-slider-thumb{width:16px;height:16px;margin-top:-5px}}
 @media(max-height:550px){body.zen-mode{--zen-footer:110px}#zenBar{height:70px;padding:6px;bottom:6px}#zenRack{bottom:79px}#zenBar .zen-symbol{width:48px;height:32px;margin-top:0}#zenModeBtn{width:45px;height:45px}#zenBar .zen-action{width:40px;height:40px}#zenBar .zen-shoot{width:40px;height:40px}#zenCueRest{display:none}}
 
+@media(min-width:900px){
+ body.zen-mode #stageWrap{inset:0!important}
+ #zenBar{top:calc(var(--zen-y) + 1022 * var(--zu));bottom:auto;width:calc(1564 * var(--zu));height:calc(114 * var(--zu));padding:calc(12 * var(--zu)) calc(27 * var(--zu));gap:calc(18 * var(--zu));border-radius:calc(36 * var(--zu));background:linear-gradient(115deg,rgba(57,58,60,.68),rgba(37,39,43,.72));border-color:rgba(218,204,173,.30);box-shadow:inset 0 1px 1px #ffffff09,0 8px 22px #0002}
+ #zenModeBtn{width:calc(80 * var(--zu));height:calc(80 * var(--zu));background:linear-gradient(145deg,#514D43,#343637);border-color:#C5A88055;box-shadow:inset 0 1px 1px #ffffff12}
+ #zenModeBtn svg{width:calc(61 * var(--zu));height:calc(61 * var(--zu))}
+ #zenBar .zen-group{padding:0 calc(12 * var(--zu));border-color:rgba(216,202,173,.24)}
+ #zenBar .zen-symbol,#zenBar .zen-group[data-kind=speed] .zen-symbol{width:calc(172 * var(--zu));height:calc(48 * var(--zu));color:rgba(198,179,146,.61)}
+ #zenBar input[type=range]{height:calc(34 * var(--zu))}
+ #zenBar input[type=range]::-webkit-slider-runnable-track{height:calc(6 * var(--zu));background:linear-gradient(90deg,#A8ADA36B,#1B1E23);box-shadow:0 1px 1px #ffffff0d}
+ #zenBar .zen-group[data-kind=speed] input::-webkit-slider-runnable-track{background:linear-gradient(90deg,#8F72566B,#1B1E23)}
+ #zenBar input[type=range]::-webkit-slider-thumb{width:calc(23 * var(--zu));height:calc(23 * var(--zu));margin-top:calc(-8.5 * var(--zu));border:calc(2 * var(--zu)) solid #D0B891;background:linear-gradient(#383B3C,#202326);box-shadow:0 2px 5px #0007}
+ #zenBar input[type=range]::-moz-range-track{height:calc(6 * var(--zu));background:linear-gradient(90deg,#A8ADA36B,#1B1E23)}
+ #zenBar input[type=range]::-moz-range-thumb{width:calc(20 * var(--zu));height:calc(20 * var(--zu));border:calc(2 * var(--zu)) solid #D0B891;background:#292D30}
+ #zenActions{gap:calc(22 * var(--zu))}
+ #zenBar .zen-action,#zenBar .zen-shoot{width:calc(60 * var(--zu));height:calc(60 * var(--zu));padding:calc(11 * var(--zu));border-color:#D1C3A64A;box-shadow:inset 0 1px 2px #ffffff0b}
+ #zenBar .zen-shoot{background:linear-gradient(145deg,#454D3E,#343B31);color:#D4BE98}
+ #zenBar .zen-undo{background:linear-gradient(145deg,#544649,#3A3236);color:#BEA590}
+ #zenBar .zen-rack-toggle{background:linear-gradient(145deg,#3E5058,#2C3C45)}
+ #zenBar .zen-rack-toggle::before{inset:calc(17 * var(--zu));border-color:#AEAA9466}
+ #zenBar button:disabled{opacity:.65}
+ #zenRackSection{padding-left:calc(24 * var(--zu));min-height:calc(68 * var(--zu));border-color:rgba(216,202,173,.24)}
+ #zenRack{top:calc(var(--zen-y) + 942 * var(--zu));bottom:auto;gap:calc(7 * var(--zu));padding:calc(7 * var(--zu)) calc(12 * var(--zu));opacity:.95}
+ #zenRack button{width:calc(50 * var(--zu));height:calc(50 * var(--zu));box-shadow:inset -5px -6px 9px #131e1644,inset 2px 2px 5px #fff3,0 5px 7px #0004}
+ #zenRack button span{font-size:calc(15 * var(--zu))}
+ #zenRack button:disabled{opacity:.70}
+ #zenCueRest{display:none}
+ #zenModeMenu{bottom:auto;top:calc(var(--zen-y) + 906 * var(--zu));left:calc(50% - 840 * var(--zu));padding:calc(10 * var(--zu));gap:calc(9 * var(--zu));border-radius:calc(25 * var(--zu));background:linear-gradient(120deg,#383A3BCC,#303437DD);border-color:#C5A88055}
+ #zenModeMenu button{font-size:calc(17 * var(--zu));padding:calc(18 * var(--zu)) calc(22 * var(--zu));border-radius:calc(16 * var(--zu))}
+}
+
 `;
 function init(){
+ const layout=()=>{const u=Math.min(innerWidth/2048,innerHeight/1143);document.documentElement.style.setProperty('--zu',u+'px');document.documentElement.style.setProperty('--zen-y',(innerHeight-1143*u)/2+'px')};
+ layout();window.addEventListener('resize',layout);
  document.body.classList.add('zen-mode');document.head.appendChild(style);
  const engine=window.billiardsZenControls;engine.enter();
  const bar=document.createElement('div');bar.id='zenBar';bar.setAttribute('aria-label','Zen shot controls');

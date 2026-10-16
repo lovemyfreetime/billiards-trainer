@@ -4955,8 +4955,16 @@
     if (window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(resize)).observe(stage);
     function controlMap() {
         const w = canvas.width / DPR, h = canvas.height / DPR, zen=document.body.classList.contains('zen-mode'), pad = zen ? 24 : 34;
+        if(zen&&w>=900){
+            // Fit the complete reference composition, with a true 2:1 playing surface.
+            const unit=Math.min(w/2048,h/1143),scale=1319*unit/S.tableL;
+            const ox=(w-2048*unit)/2+364*unit,oy=(h-1143*unit)/2+147*unit;
+            const tw=S.tableL*scale,th=S.tableW*scale;
+            return {map:p=>({x:ox+p.x*scale,y:oy+p.y*scale}),inv:p=>({x:(p.x-ox)/scale,y:(p.y-oy)/scale}),scale,corners:[{x:ox,y:oy},{x:ox+tw,y:oy},{x:ox+tw,y:oy+th},{x:ox,y:oy+th}]};
+        }
+
         const sidePad = !document.body.classList.contains('zen-mode') && document.body.classList.contains('phone-layout') ? (w < 600 ? 140 : 190) : pad;
-        const A=ORIGINAL_ASSET_GEOM;
+        const A=zen?ZEN_ASSET_GEOM:ORIGINAL_ASSET_GEOM;
         const scale = Math.max(.01, zen ? Math.min((w-64)/(S.tableL*A.width/(A.x1-A.x0)),(h-48)/(S.tableW*A.height/(A.y1-A.y0))) : Math.min((w - sidePad * 2) / S.tableL, (h - pad * 2) / S.tableW));
         const tw = S.tableL * scale, th = S.tableW * scale, ox = (w - tw) / 2, oy = (h - th) / 2;
         return { map: p => ({ x: ox + p.x * scale, y: oy + p.y * scale }), inv: p => ({ x: (p.x - ox) / scale, y: (p.y - oy) / scale }), scale, corners: [{ x: ox, y: oy }, { x: ox + tw, y: oy }, { x: ox + tw, y: oy + th }, { x: ox, y: oy + th }] };
@@ -5598,57 +5606,24 @@
         return [uniq[0], uniq[uniq.length - 1]];
     }
 
-    // Recolor the original trainer artwork once; never reconstruct its geometry.
+    // Reference materials are rasterized once; live balls and physics stay separate.
+    const ZEN_ASSET_GEOM={width:1678,height:937,x0:298,x1:1379,y0:120,y1:650};
     let zenTableArtwork=null,zenTableFrame=null;
-    function zenRecoloredTable(){
-        if(zenTableArtwork)return zenTableArtwork;
-        if(!ORIGINAL_TABLE_ASSET.complete||!ORIGINAL_TABLE_ASSET.naturalWidth)return null;
-        const art=document.createElement('canvas');art.width=ORIGINAL_ASSET_GEOM.width;art.height=ORIGINAL_ASSET_GEOM.height;
-        const paint=art.getContext('2d',{willReadFrequently:true});paint.drawImage(ORIGINAL_TABLE_ASSET,0,0);
-        const pixels=paint.getImageData(0,0,art.width,art.height),d=pixels.data,A=ORIGINAL_ASSET_GEOM;
-        for(let i=0;i<d.length;i+=4){
-            if(!d[i+3])continue;
-            const r=d[i],g=d[i+1],b=d[i+2],x=(i/4)%art.width,y=Math.floor(i/4/art.width);
-            let color;
-            if(g>r*1.3&&b>r*1.3){
-                // Preserve the original cloth/cushion mask with an entirely matte bed.
-                const bed=x>A.x0&&x<A.x1&&y>A.y0&&y<A.y1;
-                color=bed?[42,56,46]:[18,21,26];
-            }else if(r>g*1.7&&r>b*1.7)color=[24,27,32];
-            else color=[5,6,8];
-            d[i]=color[0];d[i+1]=color[1];d[i+2]=color[2];
-        }
-        paint.putImageData(pixels,0,0);zenTableArtwork=art;return art;
-    }
+    const zenReferenceTable=new Image();
+    zenReferenceTable.onload=()=>{zenTableArtwork=zenReferenceTable;zenTableFrame=null;if(document.body.classList.contains('zen-mode'))draw();};
+    if(new URLSearchParams(location.search).get('zen')==='1')zenReferenceTable.src='./icons/zen-reference-table-v1.webp';
+    function zenRecoloredTable(){return zenTableArtwork;}
     function drawZenTable(map){
         const art=zenRecoloredTable();if(!art)return;
-        const A=ORIGINAL_ASSET_GEOM,L=S.tableL,W=S.tableW,sx=(A.x1-A.x0)/L,sy=(A.y1-A.y0)/W;
+        const A=ZEN_ASSET_GEOM,L=S.tableL,W=S.tableW,sx=(A.x1-A.x0)/L,sy=(A.y1-A.y0)/W;
         const p=map({x:-A.x0/sx,y:-A.y0/sy}),q=map({x:(A.width-A.x0)/sx,y:(A.height-A.y0)/sy});
         const key=[canvas.width,canvas.height,DPR,p.x,p.y,q.x,q.y].join('|');
         if(!zenTableFrame||zenTableFrame.key!==key||zenTableFrame.art!==art){
             const layer=document.createElement('canvas');layer.width=canvas.width;layer.height=canvas.height;
-            {
-                const ctx=layer.getContext('2d');ctx.setTransform(DPR,0,0,DPR,0,0);
-        ctx.save();
-        ctx.drawImage(art,p.x,p.y,q.x-p.x,q.y-p.y);
-        // Inset cushion depth, clipped to the bed; no outer spread or surface glint.
-        const bed0=map({x:0,y:0}),bed1=map({x:L,y:W});
-        ctx.save();ctx.beginPath();ctx.rect(bed0.x,bed0.y,bed1.x-bed0.x,bed1.y-bed0.y);ctx.clip();
-        ctx.strokeStyle='#12151A';ctx.lineWidth=4;
-        const gap=(bed1.x-bed0.x)*.035,mid=(bed0.x+bed1.x)/2;
-        ctx.beginPath();for(const y of [bed0.y,bed1.y]){ctx.moveTo(bed0.x+gap,y);ctx.lineTo(mid-gap,y);ctx.moveTo(mid+gap,y);ctx.lineTo(bed1.x-gap,y);}
-        for(const x of [bed0.x,bed1.x]){ctx.moveTo(x,bed0.y+gap);ctx.lineTo(x,bed1.y-gap);}ctx.stroke();ctx.restore();
-        const left=map({x:0,y:0}),right=map({x:L,y:W}),w=right.x-left.x,h=right.y-left.y;
-        // Keep the requested quiet round rail sights and subtle table spots.
-        ctx.fillStyle='rgba(226,223,216,0.40)';const dot=3;
-        for(let i=1;i<8;i++){if(i===4)continue;for(const yy of [left.y-(left.y-p.y)*.5,right.y+(q.y-right.y)*.5]){ctx.beginPath();ctx.arc(left.x+w*i/8,yy,dot,0,Math.PI*2);ctx.fill();}}
-        for(let i=1;i<4;i++)for(const xx of [left.x-(left.x-p.x)*.5,right.x+(q.x-right.x)*.5]){ctx.beginPath();ctx.arc(xx,left.y+h*i/4,dot,0,Math.PI*2);ctx.fill();}
-        ctx.restore();
-
-            }
+            const paint=layer.getContext('2d');paint.setTransform(DPR,0,0,DPR,0,0);
+            paint.drawImage(art,p.x,p.y,q.x-p.x,q.y-p.y);
             zenTableFrame={key,art,layer};
         }
-        // The matte table is baked once, never per drag frame.
         ctx.drawImage(zenTableFrame.layer,0,0,canvas.width/DPR,canvas.height/DPR);
     }
     function drawZenBall(b,map,label){
@@ -12340,7 +12315,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=zen-midnight-v11"></script>
+  <script src="./beta-ui.js?v=zen-reference-v12"></script>
 
 
 </body>
