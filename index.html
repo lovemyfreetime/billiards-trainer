@@ -5986,7 +5986,7 @@
                 ctx.font = '600 11px Segoe UI';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText('CB', q.x, q.y);
+                if (!document.body.classList.contains('zen-mode')) ctx.fillText('CB', q.x, q.y);
             }
             else {
                 // Keep the ball color visible at phone scale; white numbers sit
@@ -6695,7 +6695,7 @@
         syncPracticeCounter();
         const w = canvas.width / DPR, h = canvas.height / DPR;
         ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = '#050608';
+        ctx.fillStyle = document.body.classList.contains('zen-mode') ? '#e6dccd' : '#050608';
         ctx.fillRect(0, 0, w, h);
         const M = mapper(), map = M.map;
         if (!map)
@@ -6719,7 +6719,7 @@
                 if (!document.body.classList.contains('zen-mode')) drawPreview(map);
                 drawAim(map);
             }
-            drawShot2(map);
+            if (!document.body.classList.contains('zen-mode')) drawShot2(map);
         }
 
         if (!animation && (S.showTable || !isProjector || !projectorProjectionOnly)) {
@@ -12240,7 +12240,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=3"></script>
+  <script src="./beta-ui.js?v=4"></script>
 
 
 </body>
