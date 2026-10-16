@@ -174,7 +174,7 @@ function init(){
   let timer=0,hold=0,touchOpened=false,suppressFocus=false;
   const position=()=>{const r=anchor.getBoundingClientRect(),p=panel.getBoundingClientRect(),ball=document.querySelector('#zenRack button')?.getBoundingClientRect();
    const centerY=ball?ball.top+ball.height/2:r.top-p.height/2-12;
-   panel.style.left=Math.max(8,Math.min(innerWidth-p.width-8,r.left+r.width/2-p.width/2))+'px';panel.style.top=Math.max(8,centerY-p.height/2)+'px'};
+   panel.style.left=Math.max(8,Math.min(innerWidth-p.width-8,r.left+r.width/2-p.width/2))+'px';panel.style.top=Math.max(8,centerY-p.height/2)+'px';panel.dispatchEvent(new Event('zen:positioned'))};
   const close=()=>{clearTimeout(timer);panel.hidden=true;anchor.setAttribute('aria-expanded','false');panel.dispatchEvent(new Event('zen:closed'))};
   const open=()=>{if(engine.status().busy)return;hoverTools.forEach(tool=>{if(tool.panel!==panel)tool.close()});closeRackMenu();closeMenu();clearTimeout(timer);panel.hidden=false;anchor.setAttribute('aria-expanded','true');position();syncContact();};
   const leave=()=>{clearTimeout(timer);timer=setTimeout(()=>{if(!panel.matches(':hover')&&!anchor.matches(':hover')&&!panel.contains(document.activeElement))close()},350)};
@@ -199,16 +199,20 @@ function init(){
   const choices=document.createElement('div');choices.id=id;choices.className='zen-history-menu';choices.hidden=true;choices.setAttribute('role','group');choices.setAttribute('aria-label',kind==='Shot'?'Choose shot undo or redo':'Choose action undo or redo');recovery.panel.append(choices);
   trigger.setAttribute('aria-controls',id);trigger.setAttribute('aria-expanded','false');
   let timer=0,hold=0,selected=false,touchOpened=false;
+  const place=()=>{
+   if(choices.hidden)return;
+   const r=button.getBoundingClientRect(),bottom=direction==='below'?Math.max(r.bottom,bar.getBoundingClientRect().bottom):0;
+   choices.style.left=Math.max(8,Math.min(innerWidth-88,r.left+r.width/2-40))+'px';
+   choices.style.top=Math.max(8,direction==='below'?bottom+8:r.top-44)+'px';
+  };
   const position=()=>{
    if(choices.hidden)return;
    if(direction==='below'){
     document.body.style.setProperty('--zen-history-lift','0px');
-    const bottom=button.getBoundingClientRect().bottom,needed=Math.max(0,bottom+8+36+8-innerHeight);
+    const bottom=Math.max(button.getBoundingClientRect().bottom,bar.getBoundingClientRect().bottom),needed=Math.max(0,bottom+8+36+8-innerHeight);
     document.body.style.setProperty('--zen-history-lift',-needed+'px');recovery.position();
    }
-   const r=button.getBoundingClientRect();
-   choices.style.left=Math.max(8,Math.min(innerWidth-88,r.left+r.width/2-40))+'px';
-   choices.style.top=Math.max(8,direction==='below'?r.bottom+8:r.top-44)+'px';
+   place();
   };
   const close=()=>{clearTimeout(timer);choices.hidden=true;trigger.setAttribute('aria-expanded','false');if(direction==='below'){document.body.style.removeProperty('--zen-history-lift');if(!recovery.panel.hidden)recovery.position();}};
   const open=()=>{if(selected||engine.status().busy)return;clearTimeout(timer);choices.hidden=false;trigger.setAttribute('aria-expanded','true');position()};
@@ -224,7 +228,7 @@ function init(){
   for(const type of ['pointerup','pointercancel','pointerleave'])trigger.addEventListener(type,()=>clearTimeout(hold));
   trigger.addEventListener('click',e=>{if(touchOpened){e.preventDefault();e.stopImmediatePropagation();touchOpened=false}},true);
   choices.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();selected=true;close();trigger.focus()}else if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();e.stopPropagation();const i=buttons.indexOf(document.activeElement);buttons[(i+1)%2].focus()}else if(e.key===' '||e.key==='Enter')e.stopPropagation()});
-  recovery.panel.addEventListener('zen:closed',close);window.addEventListener('resize',position);
+  recovery.panel.addEventListener('zen:closed',close);recovery.panel.addEventListener('zen:positioned',place);window.addEventListener('resize',position);
   return {sync(status){buttons.forEach((b,i)=>{const mode=i?'redo':'undo';b.disabled=status.busy||!status[mode+(kind==='Action'?'Action':'')];b.setAttribute('aria-pressed',String(mode===getMode()))});if(status.busy)close();},close};
  }
  const shotPicker=historyPicker(recovery.anchor,undo,'zenShotHistoryModes','Shot','below',()=>shotHistoryMode,mode=>shotHistoryMode=mode);
