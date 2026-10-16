@@ -6182,6 +6182,7 @@
         if(!preview)return [];
         const ids=new Set(preview.pocketEvents?.map(event=>event.id)||[]);
         if(preview.firstBallContact)ids.add(preview.firstBallContact.objId);
+        if(preview.paths?.[0]?.length)ids.add(0);
         return logicalPockets().map(pocket=>{
             const center=zenPocketVisualCenter(pocket);let strength=0;
             for(const id of ids){
@@ -6190,7 +6191,9 @@
                 const alignment=zenPocketAlignment(preview.paths?.[id],center,S.ballR);
                 // A jaw-assisted pot still gets a quiet indication; centered
                 // approaches smoothly turn up the same light like a dimmer.
-                strength=Math.max(strength,event ? .20+.80*alignment : alignment);
+                const distance=Math.min(...(preview.paths?.[id]||[]).map(p=>Math.hypot(p.x-center.x,p.y-center.y)));
+                const proximity=clamp((S.ballR*5-distance)/(S.ballR*2),0,1);
+                strength=Math.max(strength,event ? .20+.80*alignment : alignment*proximity);
             }
             return {name:pocket.name,center,strength};
         }).filter(highlight=>highlight.strength>0);
@@ -12508,7 +12511,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=pocket-felt-glow-v40"></script>
+  <script src="./beta-ui.js?v=pocket-felt-glow-v41"></script>
 
 
 </body>
