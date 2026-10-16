@@ -5671,41 +5671,43 @@
         TL:{cx:290,cy:111,x:260,y:80,w:64,h:65},TM:{cx:839,cy:100,x:807,y:68,w:64,h:62},TR:{cx:1387,cy:111,x:1355,y:80,w:64,h:65},
         BL:{cx:290,cy:660,x:260,y:628,w:64,h:65},BM:{cx:839,cy:674,x:807,y:642,w:64,h:62},BR:{cx:1387,cy:660,x:1355,y:628,w:64,h:65}
     };
+    const ZEN_POCKET_FELT={
+        TL:{x:316,y:139,rx:43,ry:37},TM:{x:839,y:135,rx:58,ry:35},TR:{x:1361,y:139,rx:43,ry:37},
+        BL:{x:316,y:631,rx:43,ry:37},BM:{x:839,y:634,rx:58,ry:35},BR:{x:1361,y:631,rx:43,ry:37}
+    };
     let zenPocketMaskCache=null;
-    function tintZenPocketInterior(pixels,width,height,seedX,seedY){
-        const count=width*height,seen=new Uint8Array(count),queue=new Uint32Array(count);
-        let head=0,tail=0;const seed=seedY*width+seedX;queue[tail++]=seed;seen[seed]=1;
-        const original=new Uint8ClampedArray(pixels);pixels.fill(0);
-        while(head<tail){
-            const i=queue[head++],offset=i*4,x=i%width,y=Math.floor(i/width);
-            const brightness=Math.max(original[offset],original[offset+1],original[offset+2]);
-            if(brightness>=18||original[offset+3]===0)continue;
-            const distance=Math.hypot(x-seedX,y-seedY),interior=Math.max(0,Math.min(1,(Math.min(width,height)*.44-distance)/2));
-            const edge=Math.min(1,(18-brightness)/6)*interior,depth=.45+.55*Math.max(0,1-distance/(Math.max(width,height)*.52));
-            pixels[offset]=180;pixels[offset+1]=167;pixels[offset+2]=131;pixels[offset+3]=Math.round(255*edge*depth);
-            for(const next of [x>0?i-1:-1,x+1<width?i+1:-1,y>0?i-width:-1,y+1<height?i+width:-1]){
-                if(next>=0&&!seen[next]){seen[next]=1;queue[tail++]=next;}
-            }
+    function tintZenPocketFelt(pixels,width,height,region,sourceX,sourceY){
+        for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+            const i=(y*width+x)*4,r=pixels[i],g=pixels[i+1],b=pixels[i+2],ax=x+sourceX,ay=y+sourceY;
+            const distance=Math.hypot((ax-region.x)/region.rx,(ay-region.y)/region.ry);
+            // Feather light into the existing cloth texture, never the black opening
+            // or the rail. No outline, flat colored disk, or blur beyond the felt.
+            const feather=Math.max(0,1-distance*distance);
+            const cloth=Math.max(0,Math.min(1,(g-r-7)/10))*Math.max(0,Math.min(1,(g-25)/20));
+            const edge=Math.max(0,Math.min(1,(ax-304)/8,(1373-ax)/8,(ay-128)/8,(642-ay)/8));
+            pixels[i]=r+(210-r)*.34;pixels[i+1]=g+(207-g)*.30;pixels[i+2]=b+(167-b)*.26;
+            pixels[i+3]=Math.round(255*.85*cloth*edge*feather*feather);
         }
     }
-    function zenPocketInteriorMasks(){
+    function zenPocketFeltMasks(){
         const art=zenRecoloredTable();if(!art)return null;
         if(zenPocketMaskCache?.art===art)return zenPocketMaskCache.masks;
         const masks={};
-        for(const [name,region]of Object.entries(ZEN_POCKET_ART)){
-            const tile=document.createElement('canvas');tile.width=region.w;tile.height=region.h;
-            const paint=tile.getContext('2d',{willReadFrequently:true});paint.drawImage(art,region.x,region.y,region.w,region.h,0,0,region.w,region.h);
-            const data=paint.getImageData(0,0,region.w,region.h);
-            tintZenPocketInterior(data.data,region.w,region.h,region.cx-region.x,region.cy-region.y);paint.putImageData(data,0,0);masks[name]=tile;
+        for(const [name,region]of Object.entries(ZEN_POCKET_FELT)){
+            const x=Math.floor(region.x-region.rx),y=Math.floor(region.y-region.ry),w=Math.ceil(region.rx*2),h=Math.ceil(region.ry*2);
+            const tile=document.createElement('canvas');tile.width=w;tile.height=h;
+            const paint=tile.getContext('2d',{willReadFrequently:true});paint.drawImage(art,x,y,w,h,0,0,w,h);
+            const data=paint.getImageData(0,0,w,h);
+            tintZenPocketFelt(data.data,w,h,region,x,y);paint.putImageData(data,0,0);masks[name]={tile,x,y,w,h};
         }
         zenPocketMaskCache={art,masks};return masks;
     }
-    function drawZenPocketInterior(paint,map,highlight){
-        const mask=zenPocketInteriorMasks()?.[highlight.name];if(!mask)return;
-        const region=ZEN_POCKET_ART[highlight.name],A=ZEN_ASSET_GEOM;
+    function drawZenPocketFelt(paint,map,highlight){
+        const mask=zenPocketFeltMasks()?.[highlight.name];if(!mask)return;
+        const A=ZEN_ASSET_GEOM;
         const point=(x,y)=>map({x:(x-A.x0)/(A.x1-A.x0)*S.tableL,y:(y-A.y0)/(A.y1-A.y0)*S.tableW});
-        const top=point(region.x,region.y),bottom=point(region.x+region.w,region.y+region.h);
-        paint.save();paint.globalAlpha=.42*highlight.strength;paint.drawImage(mask,top.x,top.y,bottom.x-top.x,bottom.y-top.y);paint.restore();
+        const top=point(mask.x,mask.y),bottom=point(mask.x+mask.w,mask.y+mask.h);
+        paint.save();paint.globalAlpha=highlight.strength;paint.drawImage(mask.tile,top.x,top.y,bottom.x-top.x,bottom.y-top.y);paint.restore();
     }
     let zenTableArtwork=null,zenTableFrame=null;
     const zenReferenceTable=new Image();
@@ -6164,23 +6166,31 @@
     }
     function zenPocketAlignment(path,target,radius){
         if(!path||path.length<2)return 0;
-        const end=path[path.length-1];let start=path[0];
-        for(let i=path.length-2;i>=0;i--)if(Math.hypot(end.x-path[i].x,end.y-path[i].y)>=radius*2){start=path[i];break;}
+        // Use the approach before the mouth/jaw interaction, rather than a final
+        // reflected segment that can suddenly point to the center of the hole.
+        const near=path.findIndex(p=>Math.hypot(p.x-target.x,p.y-target.y)<=radius*3);
+        const index=near>=0?near:path.length-1;
+        const end=path[index];let start=path[0];
+        for(let i=index-1;i>=0;i--)if(Math.hypot(end.x-path[i].x,end.y-path[i].y)>=radius*2){start=path[i];break;}
         const dx=end.x-start.x,dy=end.y-start.y,length=Math.hypot(dx,dy);
-        if(length<1e-6||(target.x-start.x)*dx+(target.y-start.y)*dy<0)return 0;
+        if(length<1e-6||(target.x-end.x)*dx+(target.y-end.y)*dy<0)return 0;
         const miss=Math.abs((target.x-start.x)*dy-(target.y-start.y)*dx)/length;
-        return Math.pow(Math.max(0,1-miss/(radius*.4)),2);
+        const fade=Math.max(0,1-miss/(radius*2.4));
+        return fade*fade*(3-2*fade);
     }
     function zenPocketHighlights(preview){
         if(!preview)return [];
-        const ids=preview.firstBallContact?[preview.firstBallContact.objId]:[];
-        if(preview.pocketEvents?.some(event=>event.id===0))ids.push(0);
+        const ids=new Set(preview.pocketEvents?.map(event=>event.id)||[]);
+        if(preview.firstBallContact)ids.add(preview.firstBallContact.objId);
         return logicalPockets().map(pocket=>{
             const center=zenPocketVisualCenter(pocket);let strength=0;
             for(const id of ids){
                 const event=preview.pocketEvents?.find(event=>event.id===id);
                 if(event&&nearestLogicalPocket(event).name!==pocket.name)continue;
-                strength=Math.max(strength,zenPocketAlignment(preview.paths?.[id],center,S.ballR));
+                const alignment=zenPocketAlignment(preview.paths?.[id],center,S.ballR);
+                // A jaw-assisted pot still gets a quiet indication; centered
+                // approaches smoothly turn up the same light like a dimmer.
+                strength=Math.max(strength,event ? .20+.80*alignment : alignment);
             }
             return {name:pocket.name,center,strength};
         }).filter(highlight=>highlight.strength>0);
@@ -6231,7 +6241,7 @@
                 if(roll)stroke([roll.start,roll.end],1,'rgba(255,255,255,0.14)',[2,4]);
             }
             c.restore();c.setLineDash([]);
-            for(const highlight of zenPocketHighlights(preview))drawZenPocketInterior(c,map,highlight);
+            for(const highlight of zenPocketHighlights(preview))drawZenPocketFelt(c,map,highlight);
             if(g){c.beginPath();c.arc(g.x,g.y,r,0,Math.PI*2);c.strokeStyle='rgba(255,255,255,0.20)';c.lineWidth=1;c.stroke();}
             const layer=raw;
             zenGuideFrame={key,preview,layer};
@@ -12498,7 +12508,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=pocket-interior-glow-v39"></script>
+  <script src="./beta-ui.js?v=pocket-felt-glow-v40"></script>
 
 
 </body>
