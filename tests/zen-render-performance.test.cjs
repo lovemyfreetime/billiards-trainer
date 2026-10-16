@@ -34,3 +34,16 @@ strokes.length=0;vm.runInContext('drawZenGuides(map)',renderContext);
 const cue=strokes.filter(s=>s.width===1.25).map(s=>Number(s.color.match(/,([^,]+)\)$/)[1]));
 assert.equal(cue.length,9);assert.equal(cue[0],.22);assert(Math.abs(cue[1]-.18)<1e-9);assert.equal(cue.at(-1),.08);assert(cue.every(a=>a>=.08));
 console.log('Zen tracer: cue opacity drops .04 per rail and remains visible at the .08 floor, without bloom.');
+
+// The reference art and collision coordinates must share an invertible 2:1 map.
+renderContext.document.body={classList:{contains:className=>className==='zen-mode'}};
+renderContext.ORIGINAL_ASSET_GEOM=renderContext.ZEN_ASSET_GEOM;
+vm.runInContext(extract('controlMap'),renderContext);
+for(const [width,height] of [[1363,936],[1920,1080],[1200,800],[700,900]]){
+ renderContext.canvas.width=width*2;renderContext.canvas.height=height*2;
+ const m=vm.runInContext('controlMap()',renderContext),a=m.map({x:0,y:0}),b=m.map({x:2,y:1});
+ assert(Math.abs((b.x-a.x)/(b.y-a.y)-2)<1e-9,'Regulation aspect survives viewport changes');
+ const q=m.inv(m.map({x:.7,y:.3}));assert(Math.abs(q.x-.7)<1e-9&&Math.abs(q.y-.3)<1e-9,'Ball dragging uses the same coordinate map as the image');
+ assert(a.x>=0&&a.y>=0&&b.x<=width&&b.y<=height,'Playing surface stays inside the viewport');
+}
+console.log('Zen reference alignment: regulation aspect, viewport fit, and drag-coordinate round trips pass at four sizes.');
