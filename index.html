@@ -2119,7 +2119,7 @@
         if(!q){for(let y=1;y<10&&!q;y++)for(let x=1;x<18;x++){const p={x:S.tableL*x/18,y:S.tableW*y/10};if(S.balls.every(b=>b.marker||Math.hypot(b.x-p.x,b.y-p.y)>S.ballR*2.2)){q=p;break;}}}
         if(!q||!onPlayingSurface(q)||manualPocketAt(q)||S.balls.some(b=>!b.marker&&Math.hypot(b.x-q.x,b.y-q.y)<S.ballR*2)){toast('Drop on clear table cloth to return the ball');return;}
         S.balls.push({id,n:String(id),x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR),active:true});S.pocketedLog=(S.pocketedLog||[]).filter(n=>n!==id);
-        normalizeBallSet();updateUI();refreshPreview();saveState();syncProjector();toast('Ball '+id+' returned to play');
+        normalizeBallSet();updateUI();refreshPreview();saveState();syncProjector();toast(id===0?'Cue ball returned to play':'Ball '+id+' returned to play');
     }
     function installPocketBallReturn(e,id){
         e.setAttribute('role','button');e.tabIndex=0;e.setAttribute('aria-label','Return ball '+id+' to table');e.title='Drag Ball '+id+' onto clear table cloth, or click to return';e.style.touchAction='none';e.style.cursor='grab';
@@ -8302,7 +8302,7 @@
         // before Shot 1 is committed.  At the end of the animation this Shot 2 plan
         // becomes the new Shot 1, while Shot 2 itself is hidden.
         const shot2Handoff = S.shot2Enabled ? JSON.parse(JSON.stringify(ensureShot2())) : null;
-        const finalFrame = sim.frames[sim.frames.length - 1];
+        const finalFrame = sim.finalBalls || sim.frames[sim.frames.length - 1];
         // Determine actual pocketing order from animation frames, not ball number.
         const pocketFrame = new Map();
         for (let fi = 0; fi < sim.frames.length; fi++) {
@@ -12460,7 +12460,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=scratch-tray-v34"></script>
+  <script src="./beta-ui.js?v=scratch-final-v35"></script>
 
 
 </body>
