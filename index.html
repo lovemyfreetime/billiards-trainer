@@ -2123,7 +2123,8 @@
     function returnPocketBall(id,q=null){
         if(id<(document.body.classList.contains('zen-mode')?0:1)||id>15||S.balls.some(b=>b.id===id))return;
         if(!q){for(let y=1;y<10&&!q;y++)for(let x=1;x<18;x++){const p={x:S.tableL*x/18,y:S.tableW*y/10};if(S.balls.every(b=>b.marker||Math.hypot(b.x-p.x,b.y-p.y)>S.ballR*2.2)){q=p;break;}}}
-        if(!q||!onPlayingSurface(q)||manualPocketAt(q)||S.balls.some(b=>!b.marker&&Math.hypot(b.x-q.x,b.y-q.y)<S.ballR*2)){toast('Drop on clear table cloth to return the ball');return;}
+        if(q&&onPlayingSurface(q))q=keepCueOnTable(q);
+        if(!q||!onPlayingSurface(q)||S.balls.some(b=>!b.marker&&Math.hypot(b.x-q.x,b.y-q.y)<S.ballR*2)){toast('Drop on clear table cloth to return the ball');return;}
         S.balls.push({id,n:String(id),x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR),active:true});S.pocketedLog=(S.pocketedLog||[]).filter(n=>n!==id);
         normalizeBallSet();updateUI();refreshPreview();saveState();syncProjector();toast(id===0?'Cue ball returned to play':'Ball '+id+' returned to play');
     }
@@ -2531,7 +2532,7 @@
             if(Number.isFinite(clientX)&&Number.isFinite(clientY)){
                 const rect=canvas.getBoundingClientRect();
                 q=controlMap().inv({x:(clientX-rect.left)*(canvas.width/DPR)/rect.width,y:(clientY-rect.top)*(canvas.height/DPR)/rect.height});
-                if(!onPlayingSurface(q)||manualPocketAt(q))return false;
+                if(!onPlayingSurface(q))return false;
             }
             returnPocketBall(id,q);return S.balls.some(b=>b.id===id&&b.active);
         }
@@ -7894,6 +7895,14 @@
     function publishZenAimFeedback(){
         if(document.body.classList.contains('zen-mode'))window.dispatchEvent(new CustomEvent('billiards:zen-preview',{detail:{overlap:S.preview?.firstBallContact?.overlap||0}}));
     }
+    function finishDraggedBall(id,q){
+        const ball=S.balls.find(b=>b.id===id&&!b.marker);
+        if(!ball)return;
+        if(document.body.classList.contains('zen-mode')&&q.y>S.tableW){returnZenBallToTray(id);return;}
+        const point=keepCueOnTable(q);
+        if(id===0&&S.angleLock)S.freeAim={x:S.freeAim.x+point.x-ball.x,y:S.freeAim.y+point.y-ball.y};
+        Object.assign(ball,point);
+    }
     function returnZenBallToTray(id){
         const ball=S.balls.find(b=>b.id===id&&!b.marker);
         if(!ball||id<0||id>15)return false;
@@ -7966,7 +7975,7 @@
         else if (drag.kind === 'ball') {
             const b = S.balls.find(x => x.id === drag.id);
             if (b) {
-                if(b.id===0&&!document.body.classList.contains('zen-mode'))Object.assign(q,keepCueOnTable(q));
+                if(!b.marker)Object.assign(q,keepCueOnTable(q));
                 if(document.body.classList.contains('zen-mode')&&!b.marker&&drag.dropPoint.y>S.tableW)q.y=drag.dropPoint.y;
                 if (b.id === 0 && S.angleLock) {
                     const dx = q.x - b.x, dy = q.y - b.y;
@@ -8009,28 +8018,10 @@
                 shot.freeAim={x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR)};
             }
         }
-        if(zenGesture&&drag.kind==='ball'){
+        if (drag && drag.kind === 'ball'){
             const q=controlMap().inv(pointerPos(ev));
-            if(q.y>S.tableW||manualPocketAt(q))returnZenBallToTray(drag.id);
-        }
-        if (drag && drag.kind === 'ball')
-            removeMarkerInPocket(drag.id,controlMap().inv(pointerPos(ev)));
-        if (drag && (drag.kind === 'ball' || drag.kind === 'ball2')) {
-            const q = controlMap().inv(pointerPos(ev));
-            const pocket = manualPocketAt(q);
-            const ball = drag.kind === 'ball' ? S.balls.find(b => b.id === drag.id && !b.marker) : null;
-            if (pocket && ball && ball.id>=1 && ball.id<=15) {
-                animation = null;
-                const id = drag.kind === 'ball2' ? -2 : ball.id;
-                if (id === -2) { S.shot2Enabled=false; S.activeShot=1; }
-                else {
-                    if (id === 0) S.allowMissingCueBall=true;
-                    S.balls=S.balls.filter(b=>b.id!==id);
-                }
-                S.pocketedLog=[...new Set([...(S.pocketedLog||[]),id])];
-                normalizeBallSet(); updateUI(); refreshPreview();
-                toast((id===0?'Cue ball 1':id===-2?'Cue ball 2':'Ball '+id)+' pocketed');
-            }
+            removeMarkerInPocket(drag.id,q);
+            finishDraggedBall(drag.id,q);
         }
         if (drag && drag.kind === 'compassMove') {
             const c = compassState();
@@ -12472,7 +12463,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=separate-starts-v36"></script>
+  <script src="./beta-ui.js?v=safe-drag-placement-v37"></script>
 
 
 </body>
