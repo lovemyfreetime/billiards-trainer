@@ -142,7 +142,7 @@ body.phone-layout #phoneTip2 { right:44px; }
  body.phone-layout #kickToolToggle,body.phone-layout #bankToolToggle { font-size:10px;min-width:42px;padding:0 6px;height:32px; }
 }
 @media(max-height:400px) and (orientation:landscape) {
- body.phone-layout .aimControlRow,body.phone-layout .tableSpeedControl,body.phone-layout .bottomSpinGroup { height:calc(100% - 46px)!important; }
+ body.phone-layout .aimControlRow,body.phone-layout .tableSpeedControl,body.phone-layout .bottomSpinGroup { height:calc(100% - 64px)!important; }
  body.phone-layout .bottomSpinGroup { gap:6px; }
  body.phone-layout .tableSpeedControl,body.phone-layout .miniSpinControl { padding-top:29px;padding-bottom:3px; }
  body.phone-layout .phoneSliderValue { top:16px;font-size:9px;line-height:11px; }

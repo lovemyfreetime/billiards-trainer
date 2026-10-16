@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-android-layout-v105';
+const CACHE_NAME = 'billiards-trainer-4-12-android-layout-v106';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './trainer-action-history.js?v=1',
@@ -24,8 +24,8 @@ const APP_SHELL = [
   './guide/analyze-welcome.js?v=analyze-welcome-v16',
   './guide/analyze-walkthrough.js?v=presets-recovery-v13',
   './manifest.webmanifest',
-  './phone-play.css?v=10',
-  './phone-play.js?v=10',
+  './phone-play.css?v=11',
+  './phone-play.js?v=11',
   './photo-calibration.js?v=walkthrough-v11',
   './photo-table-spots.js?v=3',
   './photo-cloth-filter.js?v=2',

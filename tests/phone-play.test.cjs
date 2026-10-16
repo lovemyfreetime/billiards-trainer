@@ -18,7 +18,7 @@ class Element {
  async emit(type,event={}){for(const fn of this.listeners[type]||[])await fn(event)}
  click(){return this.emit('click')} focus(){this.focused=true}
  contains(el){return el===this||this.children.some(c=>c.contains(el))}
- querySelector(q){return q==='.btg-pool-title'?this.children.find(x=>x.id==='title'):null}
+ querySelector(q){if(q==='.btg-pool-title')return this.children.find(x=>x.id==='title');if(q.includes('data-trainer-action'))return this.children.find(x=>x.dataset.trainerAction==='toggleCueVisuals2Btn');return null}
 }
 function fixture(mobile=true){
  const ids={};const body=new Element('body'),root=new Element('html');
@@ -28,9 +28,10 @@ function fixture(mobile=true){
  const doc={body,documentElement:root,createComment:()=>new Element(),createElement:()=>new Element(),getElementById(id){return ids[id]||find(body,id)},addEventListener:body.addEventListener.bind(body)};
  const window={innerHeight:430,visualViewport:{height:430,addEventListener(){}},addEventListener(){},dispatchEvent(){}};
  function find(el,id){if(el.id===id)return el;for(const c of el.children){const r=find(c,id);if(r)return r}}
- const ctx={document:doc,window,matchMedia:()=>media,navigator:{userAgent:'iPhone'},screen:{orientation:{lock:async()=>{}}},Event:class{},MutationObserver:class{constructor(fn){this.fn=fn}observe(){}}};
+ const observers=[];
+ const ctx={document:doc,window,matchMedia:()=>media,navigator:{userAgent:'iPhone'},screen:{orientation:{lock:async()=>{}}},Event:class{},MutationObserver:class{constructor(fn){this.fn=fn}observe(el){observers.push({el,fn:this.fn})}}};
  vm.runInNewContext(fs.readFileSync('phone-play.js','utf8'),ctx);
- return {ids,body,root,doc,media,get:id=>doc.getElementById(id)};
+ return {ids,body,root,doc,media,get:id=>doc.getElementById(id),observers};
 }
 (async()=>{
  const f=fixture();assert(f.body.classList.contains('phone-layout'));assert.equal(f.ids.title.parentNode.id,'phoneHeader');assert.equal(f.ids.panel.inert,true);
@@ -44,6 +45,12 @@ function fixture(mobile=true){
  const before=f.ids.panel.scrollTop;await rail.emit('wheel',{deltaY:100,preventDefault(){}});assert.equal(f.ids.panel.scrollTop,before+100);
  await rail.emit('keydown',{key:'Home',preventDefault(){},stopPropagation(){}});assert.equal(f.ids.panel.scrollTop,0);
  const actions=f.get('phoneActions').children;assert.equal(actions.length,6);
+ assert.equal(actions[0].textContent,'Shoot');assert.equal(actions[0].getAttribute('aria-label'),'Execute Shot');
+ assert.equal(actions[5].hidden,true,'CB2 action stays hidden while Shot 2 is off');
+ f.ids.toggleShot2.textContent='− SHOT 2';for(const o of f.observers.filter(o=>o.el===f.ids.toggleShot2))o.fn();
+ assert.equal(actions[5].hidden,false);assert(f.body.classList.contains('phone-two-shots'));
+ f.ids.toggleShot2.textContent='+ SHOT 2';for(const o of f.observers.filter(o=>o.el===f.ids.toggleShot2))o.fn();
+ assert.equal(actions[5].hidden,true);assert(!f.body.classList.contains('phone-two-shots'));
  await actions[3].click();await actions[4].click();await actions[5].click();assert.equal(f.ids.toggleShot2.calls,1);assert.equal(f.ids.toggleCueVisuals1Btn.calls,1);assert.equal(f.ids.toggleCueVisuals2Btn.calls,1);await actions[0].click();assert.equal(f.ids.animate.calls,1);
  f.ids.animate.disabled=true;await actions[0].click();assert.equal(f.ids.animate.calls,1);
  await f.get('btg-fullscreen').click();assert(f.get('phoneNotice').classList.contains('visible'));assert.equal(f.get('btg-fullscreen').getAttribute('aria-pressed'),'true');

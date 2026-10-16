@@ -24,7 +24,7 @@
     const button = document.createElement('button');
     button.type = 'button'; button.textContent = label;
     button.dataset.trainerAction = id;
-    if (id === 'animate') button.classList.add('primary');
+    if (id === 'animate') { button.classList.add('primary');button.textContent='Shoot';button.setAttribute('aria-label','Execute Shot'); }
     const sync = () => {
       button.disabled = !source || !!source.disabled;
       if(source?.dataset.guideTopic) button.dataset.guideTopic=source.dataset.guideTopic;
