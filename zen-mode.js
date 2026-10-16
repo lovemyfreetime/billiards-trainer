@@ -422,9 +422,9 @@ function init(){
   b.addEventListener('click',()=>{if(!suppress){engine.place(id);sync()}suppress=false});rack.append(b);return b;
  });
  const fresh=document.createElement('button');fresh.id='zenFreshTable';fresh.type='button';fresh.setAttribute('aria-label','Fresh table');fresh.title='Fresh table · clear all balls';
- fresh.innerHTML='<svg viewBox="0 0 32 32" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="21" height="13" rx="3"/><path d="M8 13v7h15v-4M24 4l1.3 3.7L29 9l-3.7 1.3L24 14l-1.3-3.7L19 9l3.7-1.3Z"/></svg>';
+
  fresh.addEventListener('click',()=>{if(engine.status().busy)return;hoverTools.forEach(tool=>tool.close());closeMenu();closeRackMenu();runZenSceneTransition(()=>engine.freshTable());sync()});
- const positionFresh=()=>{const r=balls[0].getBoundingClientRect();fresh.style.width=r.width+'px';fresh.style.height=r.height+'px';fresh.style.left=Math.max(8,r.left-r.width*3)+'px';fresh.style.top=r.top+'px'};
+ const positionFresh=()=>{const r=balls[0].getBoundingClientRect(),size=rackToggle.getBoundingClientRect().width,style=getComputedStyle(rackToggle);fresh.style.width=size+'px';fresh.style.height=size+'px';fresh.style.background=style.background;fresh.style.borderColor=style.borderColor;fresh.style.left=Math.max(8,r.left-r.width*2-size)+'px';fresh.style.top=(r.top+(r.height-size)/2)+'px'};
  window.addEventListener('resize',positionFresh);
  document.body.append(fresh);
  const cueRest=document.createElement('div');cueRest.id='zenCueRest';cueRest.setAttribute('aria-hidden','true');

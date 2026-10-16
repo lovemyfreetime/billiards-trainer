@@ -2518,7 +2518,7 @@
         if(animation||!document.body.classList.contains('zen-mode'))return false;
         beginActionUndo();
         S.activeShot=1;S.shot2Enabled=false;S.balls=[];S.pocketedLog=[];S.allowMissingCueBall=true;
-        S.speed=2.42;S.follow=0;S.sideSpin=0;S.cueElevationDeg=0;S.airbornePhysics=false;S.freeAim=null;
+        S.speed=2.42;S.follow=0;S.sideSpin=0;S.cueElevationDeg=0;S.airbornePhysics=false;S.freeAim={x:S.tableL*.75,y:S.tableW*.5};
         normalizeBallSet();resetRunHistory();updateUI();refreshPreview();saveState();syncProjector();
         return true;
     }
@@ -12530,7 +12530,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=zen-soft-pocket-v45"></script>
+  <script src="./beta-ui.js?v=zen-fresh-fix-v46"></script>
 
 
 </body>
