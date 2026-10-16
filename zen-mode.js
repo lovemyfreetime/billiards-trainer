@@ -102,6 +102,20 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
  #zenModeMenu button{font-size:calc(17 * var(--zu));padding:calc(18 * var(--zu)) calc(22 * var(--zu));border-radius:calc(16 * var(--zu))}
 }
 
+.zen-hover-anchor{display:flex;flex-shrink:0;align-items:center;border-radius:50%;outline:none}
+.zen-hover-anchor:focus-visible{outline:1px solid #C5A880;outline-offset:4px}
+.zen-hover-anchor .zen-action:disabled{pointer-events:none}
+.zen-hover-panel{position:fixed;z-index:135;box-sizing:border-box;padding:14px;border:1px solid #C5A88055;border-radius:20px;background:linear-gradient(135deg,#30363beF,#1B2026F5);backdrop-filter:blur(16px);box-shadow:0 9px 24px #0005;color:#D4C3A8;font:12px system-ui}
+.zen-hover-panel[hidden]{display:none}
+#zenActionPanel{width:184px;text-align:center}
+#zenUndoAction{display:flex;flex-direction:column;align-items:center;gap:7px;width:100%;padding:9px;border:0;border-radius:12px;background:#C5A88012;color:#D4C3A8;cursor:pointer;font:12px system-ui}
+#zenUndoAction svg{width:32px;height:32px}
+#zenUndoAction:disabled{opacity:.38;cursor:default}
+#zenUndoAction:focus-visible,#zenTipPoint:focus-visible{outline:1px solid #C5A880;outline-offset:3px}
+#zenContactPanel{width:208px;padding:10px 12px 12px;text-align:center}
+#zenTipPoint{display:block;width:180px;height:180px;touch-action:none;cursor:crosshair;border-radius:50%}
+#zenContactReadout{font-size:11px;color:#D4C3A8B8;min-height:15px;margin-top:2px}
+
 `;
 function init(){
  const layout=()=>{const u=Math.min(innerWidth/2048,innerHeight/1143);document.documentElement.style.setProperty('--zu',u+'px');document.documentElement.style.setProperty('--zen-y',(innerHeight-1143*u)/2+'px')};
@@ -135,6 +149,45 @@ function init(){
  const actions=document.createElement('div');actions.id='zenActions';bar.append(actions);
  const action=(name,kind,id)=>{const b=document.createElement('button');b.type='button';b.className='zen-action zen-'+kind;b.title=name;b.setAttribute('aria-label',name);b.innerHTML=icon(kind);b.onclick=()=>{closeRackMenu();document.getElementById(id).click()};actions.append(b);return b};
  const shot=action('Execute Shot','shot','animate'),undo=action('Undo last shot','undo','undoShot');shot.classList.add('zen-shoot');
+
+ // Popovers are outside the dock so its glass blur never clips the hover content.
+ const hoverTools=[];
+ function hoverPanel(trigger,id,label){
+  const anchor=document.createElement('span');anchor.className='zen-hover-anchor';anchor.tabIndex=0;anchor.setAttribute('role','group');anchor.setAttribute('aria-label',label);trigger.replaceWith(anchor);anchor.append(trigger);
+  const panel=document.createElement('div');panel.id=id;panel.className='zen-hover-panel';panel.hidden=true;panel.setAttribute('role','group');panel.setAttribute('aria-label',label);anchor.setAttribute('aria-controls',id);anchor.setAttribute('aria-expanded','false');document.body.append(panel);
+  let timer=0,hold=0,touchOpened=false,suppressFocus=false;
+  const position=()=>{const r=anchor.getBoundingClientRect(),p=panel.getBoundingClientRect();panel.style.left=Math.max(8,Math.min(innerWidth-p.width-8,r.left+r.width/2-p.width/2))+'px';panel.style.top=Math.max(8,r.top-p.height-12)+'px'};
+  const close=()=>{clearTimeout(timer);panel.hidden=true;anchor.setAttribute('aria-expanded','false')};
+  const open=()=>{if(engine.status().busy)return;hoverTools.forEach(tool=>{if(tool.panel!==panel)tool.close()});closeRackMenu();closeMenu();clearTimeout(timer);panel.hidden=false;anchor.setAttribute('aria-expanded','true');position();syncContact();};
+  const leave=()=>{clearTimeout(timer);timer=setTimeout(()=>{if(!panel.matches(':hover')&&!anchor.matches(':hover')&&!panel.contains(document.activeElement))close()},350)};
+  anchor.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')open()});anchor.addEventListener('pointerleave',leave);panel.addEventListener('pointerenter',()=>clearTimeout(timer));panel.addEventListener('pointerleave',leave);
+  anchor.addEventListener('focusin',()=>{if(!suppressFocus)open()});
+  anchor.addEventListener('keydown',e=>{if(e.key==='ArrowUp'){e.preventDefault();e.stopPropagation();open();panel.querySelector('button,[tabindex]')?.focus()}});
+  anchor.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')return;touchOpened=false;hold=setTimeout(()=>{touchOpened=true;open()},500)});
+  for(const type of ['pointerup','pointercancel','pointerleave'])anchor.addEventListener(type,()=>clearTimeout(hold));
+  anchor.addEventListener('click',e=>{if(touchOpened){e.preventDefault();e.stopImmediatePropagation();touchOpened=false}},true);
+  panel.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close();suppressFocus=true;anchor.focus();suppressFocus=false;}if(e.key===' '||e.key==='Enter')e.stopPropagation()});
+  document.addEventListener('pointerdown',e=>{if(!anchor.contains(e.target)&&!panel.contains(e.target))close()});
+  document.addEventListener('focusin',e=>{if(!anchor.contains(e.target)&&!panel.contains(e.target))close()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});window.addEventListener('resize',()=>{if(!panel.hidden)position()});
+  const tool={anchor,panel,open,close};hoverTools.push(tool);return tool;
+ }
+ const recovery=hoverPanel(undo,'zenActionPanel','Action recovery');
+ const undoAction=document.createElement('button');undoAction.id='zenUndoAction';undoAction.type='button';undoAction.setAttribute('aria-label','Undo last action');undoAction.innerHTML=icon('undo')+'<span>Undo last action</span>';undoAction.onclick=()=>{engine.undoAction();sync()};recovery.panel.append(undoAction);
+ const contactTool=hoverPanel(shot,'zenContactPanel','Cue-ball contact');
+ contactTool.panel.innerHTML='<svg id="zenTipPoint" viewBox="0 0 200 200" tabindex="0" role="group" aria-label="Adjust cue-ball contact point" aria-describedby="zenContactHelp"><defs><radialGradient id="zenCueFace" cx="32%" cy="25%" r="78%"><stop stop-color="#FFF9E9"/><stop offset=".65" stop-color="#E2DCCB"/><stop offset="1" stop-color="#A5A89D"/></radialGradient></defs><circle cx="100" cy="100" r="76" fill="url(#zenCueFace)" stroke="#E2DFD855"/><path d="M24 100h152M100 24v152" fill="none" stroke="#5F696A55" stroke-width=".8"/><circle id="zenTipLimit" cx="100" cy="100" r="38" fill="none" stroke="#5F696A77" stroke-dasharray="2 4" stroke-width=".8"/><circle id="zenTipDot" cx="100" cy="100" r="5" fill="#C84B43" stroke="#FFF5DF" stroke-width="1.5"/></svg><div id="zenContactReadout" aria-live="polite"></div><span id="zenContactHelp" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)">Click or drag the red dot. Arrow keys adjust the contact point; Home returns to center. Escape closes.</span>';
+ const tipPoint=contactTool.panel.querySelector('#zenTipPoint'),tipDot=contactTool.panel.querySelector('#zenTipDot');let tipDragging=false;
+ function syncContact(){
+  const tip=engine.status().tip;if(!tip)return;
+  tipDot.setAttribute('cx',100+76*tip.sideR);tipDot.setAttribute('cy',100-76*tip.followR);contactTool.panel.querySelector('#zenTipLimit').setAttribute('r',76*tip.limit);
+  const side=Math.round(tip.side*100),follow=Math.round(tip.follow*100);
+  contactTool.panel.querySelector('#zenContactReadout').textContent=`${side===0?'Center':side<0?'Left '+-side+'%':'Right '+side+'%'} · ${follow===0?'Level':follow<0?'Draw '+-follow+'%':'Follow '+follow+'%'}`;
+ }
+ const setContact=e=>{const r=tipPoint.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*200-100,y=100-(e.clientY-r.top)/r.height*200;if(!tipDragging&&Math.hypot(x,y)>76)return false;engine.tip(x/(76*engine.status().tip.limit),y/(76*engine.status().tip.limit));sync();return true;};
+ tipPoint.addEventListener('pointerdown',e=>{if(e.button!==0)return;if(setContact(e)){e.preventDefault();tipDragging=true;tipPoint.setPointerCapture(e.pointerId)}});
+ tipPoint.addEventListener('pointermove',e=>{if(tipDragging)setContact(e)});for(const type of ['pointerup','pointercancel','lostpointercapture'])tipPoint.addEventListener(type,()=>{tipDragging=false});
+ tipPoint.addEventListener('keydown',e=>{const d={ArrowLeft:[-.02,0],ArrowRight:[.02,0],ArrowUp:[0,.02],ArrowDown:[0,-.02]}[e.key],tip=engine.status().tip;if(d||e.key==='Home'){e.preventDefault();e.stopPropagation();engine.tip(e.key==='Home'?0:tip.side+d[0],e.key==='Home'?0:tip.follow+d[1]);sync()}});
+ window.addEventListener('billiards:action-history',()=>sync());
  const rackSection=document.createElement('div');rackSection.id='zenRackSection';
  const rackToggle=document.createElement('button');rackToggle.type='button';rackToggle.id='zenRackToggle';rackToggle.className='zen-action zen-rack-toggle';rackToggle.setAttribute('aria-label','Choose a rack or randomize');rackToggle.setAttribute('aria-expanded','false');rackToggle.setAttribute('aria-controls','zenRackMenu');rackToggle.title='Choose a rack or randomize';rackSection.append(rackToggle);actions.append(rackSection);
  const rackMenu=document.createElement('div');rackMenu.id='zenRackMenu';rackMenu.hidden=true;rackMenu.setAttribute('role','dialog');rackMenu.setAttribute('aria-label','Full racks and randomize');
@@ -142,7 +195,7 @@ function init(){
  const stopRandomHover=()=>{clearTimeout(randomHoverTimer);randomHoverTimer=0};
  const closeRackMenu=()=>{clearTimeout(hideRackTimer);stopRandomHover();rackMenu.hidden=true;rackToggle.setAttribute('aria-expanded','false')};
  const positionRackMenu=()=>{const r=rackToggle.getBoundingClientRect(),size=rackMenu.getBoundingClientRect().width||264;const x=Math.max(size/2+8,Math.min(innerWidth-size/2-8,r.left+r.width/2));const y=Math.max(size/2+8,r.top-size/2+10);rackMenu.style.left=(x-size/2)+'px';rackMenu.style.top=(y-size/2)+'px'};
- const openRackMenu=()=>{if(engine.status().busy)return;clearTimeout(hideRackTimer);closeMenu();rackMenu.hidden=false;rackToggle.setAttribute('aria-expanded','true');positionRackMenu()};
+ const openRackMenu=()=>{if(engine.status().busy)return;clearTimeout(hideRackTimer);hoverTools.forEach(tool=>tool.close());closeMenu();rackMenu.hidden=false;rackToggle.setAttribute('aria-expanded','true');positionRackMenu()};
  const scheduleRackClose=()=>{clearTimeout(hideRackTimer);hideRackTimer=setTimeout(()=>{if(!rackMenu.contains(document.activeElement))closeRackMenu()},350)};
  rackToggle.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')openRackMenu()});rackToggle.addEventListener('pointerleave',scheduleRackClose);
  rackToggle.addEventListener('click',()=>{if(rackMenu.hidden)openRackMenu();else if(matchMedia('(hover: none)').matches)closeRackMenu()});
@@ -173,7 +226,7 @@ function init(){
  });
  const cueRest=document.createElement('div');cueRest.id='zenCueRest';cueRest.setAttribute('aria-hidden','true');
  cueRest.innerHTML='<span></span><i></i>';document.body.append(bar,menu,rack,cueRest,rackMenu);
- function sync(){const status=engine.status();bindings.forEach(f=>f());bar.querySelectorAll('input').forEach(el=>el.disabled=status.busy);undo.disabled=status.busy||!status.undo;shot.disabled=status.busy;rackToggle.disabled=status.busy;center.disabled=status.busy;rackChoices.forEach(b=>b.disabled=status.busy);if(status.busy&&!rackMenu.hidden)closeRackMenu();balls.forEach((b,i)=>{b.disabled=status.busy||status.balls.includes(i+1);b.title=status.balls.includes(i+1)?`Ball ${i+1} is on the table`:`Drag or tap to add ball ${i+1}`})}
+ function sync(){const status=engine.status();bindings.forEach(f=>f());bar.querySelectorAll('input').forEach(el=>el.disabled=status.busy);undo.disabled=status.busy||!status.undo;undoAction.disabled=status.busy||!status.undoAction;syncContact();if(status.busy)hoverTools.forEach(tool=>tool.close());shot.disabled=status.busy;rackToggle.disabled=status.busy;center.disabled=status.busy;rackChoices.forEach(b=>b.disabled=status.busy);if(status.busy&&!rackMenu.hidden)closeRackMenu();balls.forEach((b,i)=>{b.disabled=status.busy||status.balls.includes(i+1);b.title=status.balls.includes(i+1)?`Ball ${i+1} is on the table`:`Drag or tap to add ball ${i+1}`})}
  sync();setInterval(sync,180);window.dispatchEvent(new Event('resize'));
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();

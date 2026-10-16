@@ -224,6 +224,7 @@
   #animate:hover { background:#70dfa3; }
   #animate.executed { background:#4297e6; border-color:#4297e6; color:#05121d; }
   .shotBottomActions { margin-top:8px; }
+  .shotBottomActions #undoAction { grid-column:1 / -1; font-size:11px; min-height:32px; }
   .shotBottomActions #toggleShot2 { position:static; border-radius:7px; min-height:38px; padding:6px; font-size:11px; }
   .tableControlGroup { padding:8px; margin-bottom:8px; background:#19232e; border:1px solid #354250; border-radius:7px; }
   .layoutSetupGroup { padding:6px; }
@@ -1567,7 +1568,7 @@
         </div>
       </div>
       <div id="shotExecuteRow" class="shotExecuteRow"><button id="animate" type="button">Execute Shot</button></div>
-      <div class="buttons shotBottomActions"><button id="toggleShot2" type="button">+ SHOT 2</button><button id="undoShot">Undo Last Shot</button></div>
+      <div class="buttons shotBottomActions"><button id="toggleShot2" type="button">+ SHOT 2</button><button id="undoShot">Undo Last Shot</button><button id="undoAction" type="button" disabled title="Restore the previous aim, ball position, or control adjustment">Undo Last Action</button></div>
       <div class="shotExecuteRow"><button id="resetLayoutQuick" type="button">Reset Layout</button></div>
       </div>
     </div>
@@ -1850,6 +1851,7 @@
 <link rel="stylesheet" href="./photo-calibration.css?v=focused-start-v17">
 <script src="./photo-calibration.js?v=walkthrough-v11"></script>
 <script src="./trainer-practice-tools.js?v=3"></script>
+<script src="./trainer-action-history.js?v=1"></script>
 <script src="./trainer-layout-files.js?v=2"></script>
 <script src="./trainer-saved-files.js?v=1"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
@@ -1999,6 +2001,58 @@
     // the starting layout plus each committed ending layout.
     let undoStack = [];
     let runHistory = [];
+    let actionHistory=null,actionUndoTimer=0,actionPointer=false,actionKeys=false;
+    function captureActionState(){
+        return {state:JSON.parse(JSON.stringify(S,(key,value)=>key==='preview'||key==='firstEvent'?null:value)),undo:undoStack.slice(),history:runHistory.slice()};
+    }
+    function syncActionUndo(){
+        const button=$('undoAction');if(button)button.disabled=!!animation||!actionHistory?.count;
+        window.dispatchEvent(new CustomEvent('billiards:action-history'));
+    }
+    function finishActionUndo(){
+        clearTimeout(actionUndoTimer);actionUndoTimer=0;
+        if(!actionHistory||animation||actionPointer||actionKeys)return;
+        actionHistory.commit(captureActionState());syncActionUndo();
+    }
+    function beginActionUndo(){
+        if(!actionHistory||animation)return;
+        if(!actionHistory.pending)actionHistory.begin(captureActionState());
+    }
+    function undoLastAction(){
+        if(animation||!actionHistory)return;
+        actionPointer=false;actionKeys=false;finishActionUndo();
+        const before=actionHistory.undo();if(!before){toast('No action to undo');return;}
+        undoStack=before.undo.slice();runHistory=before.history.slice();
+        restoreSnapshot(before.state);updateRunCount();saveState();syncProjector();syncActionUndo();
+        toast('Last action restored');
+    }
+    function installActionUndo(){
+        actionHistory=window.BilliardsActionHistory.create(60);
+        const relevant=e=>e.target instanceof Element&&!!e.target.closest('#app,#zenBar,#zenRack,#zenRackMenu,.zen-hover-panel');
+        const excluded=e=>!!e.target.closest?.('#undoAction,#zenUndoAction');
+        const later=delay=>{clearTimeout(actionUndoTimer);actionUndoTimer=setTimeout(finishActionUndo,delay);};
+        document.addEventListener('pointerdown',e=>{if(e.button!==0||!relevant(e)||excluded(e)||animation)return;actionPointer=false;actionKeys=false;finishActionUndo();beginActionUndo();actionPointer=true;},true);
+        document.addEventListener('pointerup',()=>{actionPointer=false;later(0);});
+        document.addEventListener('pointercancel',()=>{actionPointer=false;later(0);});
+        window.addEventListener('blur',()=>{actionPointer=false;actionKeys=false;finishActionUndo();});
+        document.addEventListener('click',e=>{if(relevant(e)&&!excluded(e))beginActionUndo();},true);
+        document.addEventListener('click',e=>{if(relevant(e)&&!excluded(e))later(0);});
+        document.addEventListener('input',e=>{if(relevant(e)&&!excluded(e))beginActionUndo();},true);
+        document.addEventListener('input',e=>{if(relevant(e)&&!actionPointer&&!actionKeys)later(300);});
+        document.addEventListener('change',e=>{if(relevant(e))later(0);});
+        document.addEventListener('wheel',e=>{if(!relevant(e)||animation)return;beginActionUndo();later(300);}, {capture:true,passive:true});
+        document.addEventListener('keydown',e=>{
+            if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&e.key.toLowerCase()==='z'&&!e.target.matches?.('input:not([type=range]),textarea,[contenteditable=true]')){e.preventDefault();e.stopImmediatePropagation();undoLastAction();return;}
+            if(excluded(e))return;
+            if(!relevant(e)&&e.target!==document.body)return;
+            if(!e.repeat){finishActionUndo();beginActionUndo();}actionKeys=true;
+        },true);
+        document.addEventListener('keyup',()=>{actionKeys=false;later(0);});
+        window.addEventListener('billiards:shot-complete',()=>{actionPointer=false;actionKeys=false;finishActionUndo();});
+        $('undoAction').onclick=undoLastAction;
+        $('undoAction').addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')e.stopPropagation();});
+        syncActionUndo();
+    }
     function cleanSnapshot(state = S) {
         const copy = JSON.parse(JSON.stringify(Object.assign(Object.assign({}, state), { preview: null })));
         return copy;
@@ -2481,7 +2535,15 @@
     window.billiardsZenControls={
         enter(){S.activeShot=1;S.shot2Enabled=false;S.cueElevationDeg=0;S.airbornePhysics=false;updateUI();refreshPreview();},
         aim(degrees){if(!animation){S.activeShot=1;rotateAimMicro(degrees*Math.PI/180);}},
-        status(){return {busy:!!animation,undo:undoStack.length>0,balls:S.balls.filter(b=>b.active&&!b.marker).map(b=>b.id)};},
+        status(){return {busy:!!animation,undo:undoStack.length>0,undoAction:!!actionHistory?.count,tip:{...effectiveTipOffsetValues(S.sideSpin,S.follow),limit:PHYSICS_MODEL.maxTipOffsetR},balls:S.balls.filter(b=>b.active&&!b.marker).map(b=>b.id)};},
+        undoAction:undoLastAction,
+        tip(side,follow){
+            if(animation)return;
+            const magnitude=Math.max(1,Math.hypot(side,follow));
+            S.sideSpin=Math.round(clamp(side/magnitude,-1,1)*100)/100;
+            S.follow=Math.round(clamp(follow/magnitude,-1,1)*100)/100;
+            updateUI();refreshPreview();
+        },
         place(id,clientX,clientY){
             if(animation)return false;
             let q=null;
@@ -12261,6 +12323,7 @@
         updateStatsTitles();
         updateUI();
         refreshPreview();
+        installActionUndo();
         requestAnimationFrame(() => requestAnimationFrame(() => drawTipControl()));
         window.addEventListener('resize', () => requestAnimationFrame(() => { drawTipControl(); fitLiveStats(); }));
     }
@@ -12323,7 +12386,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=zen-reference-v13"></script>
+  <script src="./beta-ui.js?v=zen-hidden-tools-v14"></script>
 
 
 </body>
