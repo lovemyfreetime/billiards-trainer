@@ -3,6 +3,17 @@
 if(new URLSearchParams(location.search).get("zen")!=="1")return;
 const lotus = '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="zenLotusMetal" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#D4BB92"/><stop offset="1" stop-color="#8F7755"/></linearGradient></defs><g fill="url(#zenLotusMetal)" stroke="#C5A880" stroke-width=".6" stroke-linejoin="round"><path d="M31 51C16 50 6 41 5 29c13 1 23 8 26 22Z"/><path d="M33 51c15-1 25-10 26-22-13 1-23 8-26 22Z"/><path d="M31 49C18 44 12 32 17 18c11 5 16 17 14 31Z"/><path d="M33 49c13-5 19-17 14-31-11 5-16 17-14 31Z"/><path d="M32 48C22 38 22 23 32 10c10 13 10 28 0 38Z"/></g><path d="M12 49q20 15 40 0" fill="none" stroke="#A68D68" stroke-width="1"/></svg>';
 
+const ZEN_HOVER_DELAY=600;
+function zenHoverDelay(open){
+ let timer=0;
+ return {schedule(){clearTimeout(timer);timer=setTimeout(()=>{timer=0;open()},ZEN_HOVER_DELAY)},cancel(){clearTimeout(timer);timer=0}};
+}
+function showZenPopover(panel,position){
+ const fresh=panel.hidden;panel.hidden=false;position();
+ if(fresh){panel.classList.remove('zen-popover-open');panel.getBoundingClientRect();requestAnimationFrame(()=>{if(!panel.hidden)panel.classList.add('zen-popover-open')});}
+}
+function hideZenPopover(panel){panel.hidden=true;panel.classList.remove('zen-popover-open');}
+
 // Simple, rounded line symbols traced from Jeff's control sketch.
 // Each directional arrow is its own closed shape, with clear physical spacing.
 const upChevron='<g transform="translate(5.12 7.68) scale(.68)"><path d="M2 34Q0 32 2 29L13 9Q16 4 19 9L30 29Q32 33 29 35Q26 37 24 33L16 19 8 33Q5 38 2 34Z"/></g>';
@@ -63,10 +74,11 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 #zenRack button.stripe{background:radial-gradient(circle at 30% 23%,#fff9,transparent 48%),linear-gradient(#f3e8ce 22%,var(--ball) 23% 77%,#f3e8ce 78%)}
 #zenRack button span{display:grid;place-items:center;margin:auto;width:43%;height:43%;border-radius:50%;background:#f9edcf;color:#373c30;font:600 8px system-ui}
 #zenRack button:disabled{opacity:.22;cursor:default;box-shadow:inset 0 1px 5px #655f3822}
-#zenModeMenu{position:fixed;z-index:120;bottom:calc(var(--zen-footer) - 10px);left:18px;padding:9px;background:rgba(18,22,28,.9);backdrop-filter:blur(16px) saturate(120%);border:1px solid #ffffff12;border-radius:18px;box-shadow:0 9px 22px #4443;display:flex;gap:7px}
+#zenModeMenu{position:fixed;z-index:140;display:flex;gap:10px;padding:0;width:106px;height:48px;background:transparent;border:0}
 #zenModeMenu[hidden]{display:none}
-#zenModeMenu button{background:#181B20;border:0;border-radius:12px;padding:12px 18px;color:#C5A880;cursor:pointer;font:500 14px system-ui}
-#zenModeMenu button:disabled{opacity:.5;cursor:default}
+#zenModeMenu button{display:grid;place-items:center;box-sizing:border-box;width:48px;height:48px;padding:10px;background:#181B20;border:1px solid #C5A88055;border-radius:50%;color:#C5A880;cursor:pointer}
+#zenModeMenu svg{width:26px;height:26px}
+#zenModeMenu button:disabled{opacity:.4;cursor:default}
 .zen-drag-preview{position:fixed;z-index:200;pointer-events:none;width:32px;height:32px;border-radius:50%;background:var(--ball);box-shadow:0 4px 10px #0004;transform:translate(-50%,-50%)}
 #zenCueRest{position:fixed;bottom:136px;left:5vw;width:145px;height:16px;display:flex;align-items:center;gap:5px;pointer-events:none;opacity:.75}
 #zenCueRest span{height:4px;flex:1;background:#C5A88088;border-radius:3px;box-shadow:0 1px 5px #66532a33}
@@ -101,10 +113,12 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
  #zenRack button span{font-size:calc(15 * var(--zu))}
  #zenRack button:disabled{opacity:.70}
  #zenCueRest{display:none}
- #zenModeMenu{bottom:auto;top:calc(var(--zen-y) + 906 * var(--zu));left:calc(50% - 840 * var(--zu));padding:calc(10 * var(--zu));gap:calc(9 * var(--zu));border-radius:calc(25 * var(--zu));background:linear-gradient(120deg,#383A3BCC,#303437DD);border-color:#C5A88055}
- #zenModeMenu button{font-size:calc(17 * var(--zu));padding:calc(18 * var(--zu)) calc(22 * var(--zu));border-radius:calc(16 * var(--zu))}
+
 }
 
+.zen-popover{opacity:0;scale:.88;transform-origin:center bottom;transition:opacity .3s ease,scale .38s cubic-bezier(.16,1,.3,1);pointer-events:none}
+.zen-popover.zen-popover-open{opacity:1;scale:1;pointer-events:auto}
+@media(prefers-reduced-motion:reduce){.zen-popover{transition:none;scale:1}}
 .zen-hover-anchor{display:flex;flex-shrink:0;align-items:center;border-radius:50%;outline:none}
 .zen-hover-anchor:focus-visible{outline:1px solid #C5A880;outline-offset:4px}
 .zen-hover-anchor .zen-action:disabled{pointer-events:none}
@@ -132,11 +146,19 @@ function init(){
  const engine=window.billiardsZenControls;engine.enter();
  const bar=document.createElement('div');bar.id='zenBar';bar.setAttribute('aria-label','Zen shot controls');
  const stones=document.createElement('button');stones.id='zenModeBtn';stones.type='button';stones.setAttribute('aria-label','Change experience');stones.setAttribute('aria-expanded','false');stones.title='Change experience';stones.innerHTML=lotus;
- const menu=document.createElement('div');menu.id='zenModeMenu';menu.hidden=true;
- const train=document.createElement('button');train.textContent='Train';train.onclick=()=>{const url=new URL(location.href);url.searchParams.delete('zen');location.href=url.toString()};
- const play=document.createElement('button');play.textContent='Play · coming soon';play.disabled=true;
- menu.append(train,play);const closeMenu=()=>{menu.hidden=true;stones.setAttribute('aria-expanded','false')};stones.onclick=()=>{menu.hidden=!menu.hidden;stones.setAttribute('aria-expanded',String(!menu.hidden))};
- document.addEventListener('pointerdown',e=>{if(!stones.contains(e.target)&&!menu.contains(e.target))closeMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});bar.append(stones);
+ const menu=document.createElement('div');menu.id='zenModeMenu';menu.className='zen-popover';menu.hidden=true;menu.setAttribute('role','group');menu.setAttribute('aria-label','Choose experience');stones.setAttribute('aria-controls','zenModeMenu');
+ const train=document.createElement('button');train.type='button';train.setAttribute('aria-label','Train');train.title='Open trainer';train.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="38" height="28" rx="6"/><path d="M10 15h28v18H10Z"/><circle cx="20" cy="25" r="2"/><path d="m22 23 12-9"/></svg>';train.onclick=()=>{const url=new URL(location.href);url.searchParams.delete('zen');location.href=url.toString()};
+ const play=document.createElement('button');play.type='button';play.setAttribute('aria-label','Play · coming soon');play.title='Play · coming soon';play.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="m17 11 20 13-20 13Z"/></svg>';play.disabled=true;
+ menu.append(train,play);let modeLeaveTimer=0;
+ const positionModeMenu=()=>{const r=stones.getBoundingClientRect();menu.style.left=Math.max(8,Math.min(innerWidth-114,r.left+r.width/2-53))+'px';menu.style.top=Math.max(8,r.top-62)+'px'};
+ const closeMenu=()=>{modeHover.cancel();clearTimeout(modeLeaveTimer);hideZenPopover(menu);stones.setAttribute('aria-expanded','false')};
+ const openMenu=()=>{if(engine.status().busy)return;modeHover.cancel();clearTimeout(modeLeaveTimer);hoverTools.forEach(tool=>tool.close());closeRackMenu();showZenPopover(menu,positionModeMenu);stones.setAttribute('aria-expanded','true')};
+ const modeHover=zenHoverDelay(openMenu);
+ const leaveModeMenu=()=>{modeHover.cancel();clearTimeout(modeLeaveTimer);modeLeaveTimer=setTimeout(()=>{if(!menu.matches(':hover')&&!stones.matches(':hover')&&!menu.contains(document.activeElement))closeMenu()},350)};
+ stones.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')modeHover.schedule()});stones.addEventListener('pointerleave',leaveModeMenu);menu.addEventListener('pointerenter',()=>clearTimeout(modeLeaveTimer));menu.addEventListener('pointerleave',leaveModeMenu);
+ stones.addEventListener('focusin',()=>{if(stones.matches(':focus-visible'))openMenu()});stones.onclick=()=>{if(menu.hidden)openMenu();else closeMenu()};
+ stones.addEventListener('keydown',e=>{if(e.key==='ArrowUp'){e.preventDefault();e.stopPropagation();openMenu();train.focus()}});
+ document.addEventListener('pointerdown',e=>{if(!stones.contains(e.target)&&!menu.contains(e.target))closeMenu()});document.addEventListener('focusin',e=>{if(!stones.contains(e.target)&&!menu.contains(e.target))closeMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});window.addEventListener('resize',()=>{if(!menu.hidden)positionModeMenu()});bar.append(stones);
  const bindings=[];
  function group(name,kind,originalId){
   const box=document.createElement('div');box.className='zen-group';box.dataset.kind=kind;box.title=name;
@@ -164,16 +186,17 @@ function init(){
  const hoverTools=[];
  function hoverPanel(trigger,id,label,radial=false){
   const anchor=document.createElement('span');anchor.className='zen-hover-anchor';anchor.tabIndex=0;anchor.setAttribute('role','group');anchor.setAttribute('aria-label',label);trigger.replaceWith(anchor);anchor.append(trigger);
-  const panel=document.createElement('div');panel.id=id;panel.className='zen-hover-panel'+(radial?' zen-history-menu zen-history-radial':'');panel.hidden=true;panel.setAttribute('role','group');panel.setAttribute('aria-label',label);anchor.setAttribute('aria-controls',id);anchor.setAttribute('aria-expanded','false');document.body.append(panel);
+  const panel=document.createElement('div');panel.id=id;panel.className='zen-hover-panel zen-popover'+(radial?' zen-history-menu zen-history-radial':'');panel.hidden=true;panel.setAttribute('role','group');panel.setAttribute('aria-label',label);anchor.setAttribute('aria-controls',id);anchor.setAttribute('aria-expanded','false');document.body.append(panel);
   let timer=0,hold=0,touchOpened=false,suppressFocus=false;
-  const position=()=>{const r=anchor.getBoundingClientRect(),p=panel.getBoundingClientRect(),ball=document.querySelector('#zenRack button')?.getBoundingClientRect();
+  const position=()=>{const r=anchor.getBoundingClientRect(),p={width:panel.offsetWidth,height:panel.offsetHeight},ball=document.querySelector('#zenRack button')?.getBoundingClientRect();
    const centerY=ball?ball.top+ball.height/2:r.top-p.height/2-12;
    panel.style.left=Math.max(8,Math.min(innerWidth-p.width-8,r.left+r.width/2-p.width/2))+'px';panel.style.top=Math.max(8,radial?r.top-p.height-12:centerY-p.height/2)+'px';panel.dispatchEvent(new Event('zen:positioned'))};
-  const close=()=>{clearTimeout(timer);panel.hidden=true;anchor.setAttribute('aria-expanded','false');panel.dispatchEvent(new Event('zen:closed'))};
-  const open=()=>{if(engine.status().busy)return;hoverTools.forEach(tool=>{if(tool.panel!==panel)tool.close()});closeRackMenu();closeMenu();clearTimeout(timer);panel.hidden=false;anchor.setAttribute('aria-expanded','true');position();syncContact();};
-  const leave=()=>{clearTimeout(timer);timer=setTimeout(()=>{if(!panel.matches(':hover')&&!anchor.matches(':hover')&&!panel.contains(document.activeElement))close()},350)};
-  anchor.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')open()});anchor.addEventListener('pointerleave',leave);panel.addEventListener('pointerenter',()=>clearTimeout(timer));panel.addEventListener('pointerleave',leave);
-  anchor.addEventListener('focusin',()=>{if(!suppressFocus)open()});
+  const close=()=>{hoverIntent.cancel();clearTimeout(timer);hideZenPopover(panel);anchor.setAttribute('aria-expanded','false');panel.dispatchEvent(new Event('zen:closed'))};
+  const open=()=>{if(engine.status().busy)return;hoverIntent.cancel();hoverTools.forEach(tool=>{if(tool.panel!==panel)tool.close()});closeRackMenu();closeMenu();clearTimeout(timer);showZenPopover(panel,position);anchor.setAttribute('aria-expanded','true');syncContact();};
+  const hoverIntent=zenHoverDelay(open);
+  const leave=()=>{hoverIntent.cancel();clearTimeout(timer);timer=setTimeout(()=>{if(!panel.matches(':hover')&&!anchor.matches(':hover')&&!panel.contains(document.activeElement))close()},350)};
+  anchor.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')hoverIntent.schedule()});anchor.addEventListener('pointerleave',leave);panel.addEventListener('pointerenter',()=>clearTimeout(timer));panel.addEventListener('pointerleave',leave);
+  anchor.addEventListener('focusin',()=>{if(!suppressFocus&&anchor.matches(':focus-visible'))open()});
   anchor.addEventListener('keydown',e=>{if(e.key==='ArrowUp'){e.preventDefault();e.stopPropagation();open();panel.querySelector('button:not(:disabled),[tabindex]')?.focus()}});
   anchor.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')return;touchOpened=false;hold=setTimeout(()=>{touchOpened=true;open()},500)});
   for(const type of ['pointerup','pointercancel','pointerleave'])anchor.addEventListener(type,()=>clearTimeout(hold));
@@ -194,9 +217,13 @@ function init(){
   {key:'redoAction',label:'Redo last action',glyph:'actionRedo',available:'redoAction',x:72.5,y:72.5}
  ];
  const historyCurrent=document.createElement('span');historyCurrent.className='zen-history-current';historyCurrent.setAttribute('aria-hidden','true');historyTool.panel.append(historyCurrent);
+ function chooseHistoryMode(mode){
+  const status=engine.status();if(status.busy||!status[mode.available])return;
+  historyMode=mode.key;historyTool.close();engine[mode.key]();historyTool.focusAnchor();sync();
+ }
  const historyChoices=historyModes.map(mode=>{
   const option=document.createElement('button');option.type='button';option.dataset.historyMode=mode.key;option.setAttribute('aria-label','Select '+mode.label.toLowerCase());option.title=mode.label;option.innerHTML=icon(mode.glyph);option.style.left=mode.x+'%';option.style.top=mode.y+'%';
-  option.addEventListener('click',e=>{e.stopPropagation();historyMode=mode.key;historyTool.close();historyTool.focusAnchor();sync()});historyTool.panel.append(option);return option;
+  option.addEventListener('click',e=>{e.stopPropagation();chooseHistoryMode(mode)});historyTool.panel.append(option);return option;
  });
  historyTool.panel.addEventListener('keydown',e=>{
   if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;
@@ -221,20 +248,21 @@ function init(){
  window.addEventListener('billiards:action-history',()=>sync());
  const rackSection=document.createElement('div');rackSection.id='zenRackSection';
  const rackToggle=document.createElement('button');rackToggle.type='button';rackToggle.id='zenRackToggle';rackToggle.className='zen-action zen-rack-toggle';rackToggle.setAttribute('aria-label','Choose a rack or randomize');rackToggle.setAttribute('aria-expanded','false');rackToggle.setAttribute('aria-controls','zenRackMenu');rackToggle.title='Choose a rack or randomize';rackSection.append(rackToggle);actions.append(rackSection);
- const rackMenu=document.createElement('div');rackMenu.id='zenRackMenu';rackMenu.hidden=true;rackMenu.setAttribute('role','dialog');rackMenu.setAttribute('aria-label','Full racks and randomize');
+ const rackMenu=document.createElement('div');rackMenu.id='zenRackMenu';rackMenu.className='zen-popover';rackMenu.hidden=true;rackMenu.setAttribute('role','dialog');rackMenu.setAttribute('aria-label','Full racks and randomize');
  let hideRackTimer=0,randomHoverTimer=0,randomHoverDone=false;
  const stopRandomHover=()=>{clearTimeout(randomHoverTimer);randomHoverTimer=0};
- const closeRackMenu=()=>{clearTimeout(hideRackTimer);stopRandomHover();rackMenu.hidden=true;rackToggle.setAttribute('aria-expanded','false')};
- const positionRackMenu=()=>{const r=rackToggle.getBoundingClientRect(),size=rackMenu.getBoundingClientRect().width||264;const x=Math.max(size/2+8,Math.min(innerWidth-size/2-8,r.left+r.width/2));const y=Math.max(size/2+8,r.top-size/2+10);rackMenu.style.left=(x-size/2)+'px';rackMenu.style.top=(y-size/2)+'px'};
- const openRackMenu=()=>{if(engine.status().busy)return;clearTimeout(hideRackTimer);hoverTools.forEach(tool=>tool.close());closeMenu();rackMenu.hidden=false;rackToggle.setAttribute('aria-expanded','true');positionRackMenu()};
- const scheduleRackClose=()=>{clearTimeout(hideRackTimer);hideRackTimer=setTimeout(()=>{if(!rackMenu.contains(document.activeElement))closeRackMenu()},350)};
- rackToggle.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')openRackMenu()});rackToggle.addEventListener('pointerleave',scheduleRackClose);
+ const closeRackMenu=()=>{rackHover.cancel();clearTimeout(hideRackTimer);stopRandomHover();hideZenPopover(rackMenu);rackToggle.setAttribute('aria-expanded','false')};
+ const positionRackMenu=()=>{const r=rackToggle.getBoundingClientRect(),size=rackMenu.offsetWidth||264;const x=Math.max(size/2+8,Math.min(innerWidth-size/2-8,r.left+r.width/2));const y=Math.max(size/2+8,r.top-size/2+10);rackMenu.style.left=(x-size/2)+'px';rackMenu.style.top=(y-size/2)+'px'};
+ const openRackMenu=()=>{if(engine.status().busy)return;rackHover.cancel();clearTimeout(hideRackTimer);hoverTools.forEach(tool=>tool.close());closeMenu();showZenPopover(rackMenu,positionRackMenu);rackToggle.setAttribute('aria-expanded','true')};
+ const rackHover=zenHoverDelay(openRackMenu);
+ const scheduleRackClose=()=>{rackHover.cancel();clearTimeout(hideRackTimer);hideRackTimer=setTimeout(()=>{if(!rackMenu.contains(document.activeElement))closeRackMenu()},350)};
+ rackToggle.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')rackHover.schedule()});rackToggle.addEventListener('pointerleave',scheduleRackClose);
  rackToggle.addEventListener('click',()=>{if(rackMenu.hidden)openRackMenu();else if(matchMedia('(hover: none)').matches)closeRackMenu()});
  rackToggle.addEventListener('keydown',e=>{if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();openRackMenu();rackMenu.querySelector('button')?.focus()}});
  rackMenu.addEventListener('pointerenter',()=>clearTimeout(hideRackTimer));rackMenu.addEventListener('pointerleave',scheduleRackClose);
  const center=document.createElement('button');center.type='button';center.className='zen-radial-center';center.textContent='R';center.title='Randomize the balls currently on the table';center.setAttribute('aria-label','Randomize current balls');
  const randomize=()=>{stopRandomHover();if(engine.status().busy)return;document.getElementById('shuffleTableLayout').click();randomHoverDone=true;sync()};
- center.addEventListener('click',e=>{if(!randomHoverDone||e.detail===0)randomize();randomHoverDone=false});center.addEventListener('pointerenter',e=>{randomHoverDone=false;if(e.pointerType==='mouse')randomHoverTimer=setTimeout(randomize,550)});center.addEventListener('pointerleave',()=>{stopRandomHover();randomHoverDone=false});center.addEventListener('blur',()=>randomHoverDone=false);rackMenu.append(center);
+ center.addEventListener('click',e=>{if(!randomHoverDone||e.detail===0)randomize();randomHoverDone=false});center.addEventListener('pointerenter',e=>{randomHoverDone=false;if(e.pointerType==='mouse')randomHoverTimer=setTimeout(randomize,800)});center.addEventListener('pointerleave',()=>{stopRandomHover();randomHoverDone=false});center.addEventListener('blur',()=>randomHoverDone=false);rackMenu.append(center);
  const labels={rack3:'3',rack6:'6',rack7:'7',rack8:'8',rack9:'9',rack10:'10',straight14:'S',ultimate8:'U'};
  const order=['rack6','rack7','rack8','rack9','rack10','straight14','ultimate8','rack3'];
  const rackChoices=order.map((value,i)=>{const option=Array.from(document.getElementById('fullRackSelect').options).find(o=>o.value===value);const b=document.createElement('button');b.type='button';b.textContent=labels[value];b.dataset.rack=value;b.title=option.textContent;b.setAttribute('aria-label','Set up '+option.textContent);const angle=(-90+i*45)*Math.PI/180;b.style.left=(50+38*Math.cos(angle))+'%';b.style.top=(50+38*Math.sin(angle))+'%';b.addEventListener('click',()=>{if(engine.status().busy)return;const select=document.getElementById('fullRackSelect');select.value=value;select.dispatchEvent(new Event('change',{bubbles:true}));document.getElementById('startFullRack').click();closeRackMenu();sync()});rackMenu.append(b);return b});
@@ -257,7 +285,7 @@ function init(){
  });
  const cueRest=document.createElement('div');cueRest.id='zenCueRest';cueRest.setAttribute('aria-hidden','true');
  cueRest.innerHTML='<span></span><i></i>';document.body.append(bar,menu,rack,cueRest,rackMenu);
- function sync(){const status=engine.status();bindings.forEach(f=>f());bar.querySelectorAll('input').forEach(el=>el.disabled=status.busy);const selected=historyModes.find(mode=>mode.key===historyMode);if(undo.getAttribute('aria-label')!==selected.label){undo.innerHTML=icon(selected.glyph);undo.setAttribute('aria-label',selected.label);undo.title=selected.label}if(historyCurrent.dataset.mode!==historyMode){historyCurrent.innerHTML=icon(selected.glyph);historyCurrent.dataset.mode=historyMode}undo.disabled=status.busy||!status[selected.available];historyChoices.forEach((button,i)=>{button.disabled=status.busy||!status[historyModes[i].available];button.setAttribute('aria-pressed',String(historyModes[i].key===historyMode))});syncContact();if(status.busy)hoverTools.forEach(tool=>tool.close());shot.disabled=status.busy;rackToggle.disabled=status.busy;center.disabled=status.busy;rackChoices.forEach(b=>b.disabled=status.busy);if(status.busy&&!rackMenu.hidden)closeRackMenu();balls.forEach((b,i)=>{b.disabled=status.busy||status.balls.includes(i+1);b.title=status.balls.includes(i+1)?`Ball ${i+1} is on the table`:`Drag or tap to add ball ${i+1}`})}
+ function sync(){const status=engine.status();bindings.forEach(f=>f());bar.querySelectorAll('input').forEach(el=>el.disabled=status.busy);const selected=historyModes.find(mode=>mode.key===historyMode);if(undo.getAttribute('aria-label')!==selected.label){undo.innerHTML=icon(selected.glyph);undo.setAttribute('aria-label',selected.label);undo.title=selected.label}if(historyCurrent.dataset.mode!==historyMode){historyCurrent.innerHTML=icon(selected.glyph);historyCurrent.dataset.mode=historyMode}undo.disabled=status.busy||!status[selected.available];historyChoices.forEach((button,i)=>{button.disabled=status.busy||!status[historyModes[i].available];button.setAttribute('aria-pressed',String(historyModes[i].key===historyMode))});syncContact();if(status.busy){hoverTools.forEach(tool=>tool.close());closeMenu();}shot.disabled=status.busy;rackToggle.disabled=status.busy;center.disabled=status.busy;rackChoices.forEach(b=>b.disabled=status.busy);if(status.busy&&!rackMenu.hidden)closeRackMenu();balls.forEach((b,i)=>{b.disabled=status.busy||status.balls.includes(i+1);b.title=status.balls.includes(i+1)?`Ball ${i+1} is on the table`:`Drag or tap to add ball ${i+1}`})}
  sync();setInterval(sync,180);window.dispatchEvent(new Event('resize'));
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
