@@ -1,25 +1,28 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const source=fs.readFileSync('zen-mode.js','utf8');
 const start=source.indexOf('function zenCanHover('),end=source.indexOf('const ZEN_FADE_DURATION=',start);
-const context={Event,Math};vm.createContext(context);vm.runInContext(source.slice(start,end),context);
-for(const [pointerType,buttons,expected] of [['mouse',0,true],['pen',0,true],['pen',1,false],['touch',1,false]])assert.equal(context.zenCanHover({pointerType,buttons}),expected);
+let now=0,timerId=0;const timers=new Map(),globalEvents={};
+const context={Event,Math,window:{addEventListener:(t,f)=>globalEvents[t]=f},document:{hidden:false,addEventListener:(t,f)=>globalEvents[t]=f},setTimeout:(fn,delay)=>{timers.set(++timerId,{fn,at:now+delay});return timerId},clearTimeout:id=>timers.delete(id)};
+const advance=ms=>{const target=now+ms;while(true){const next=[...timers].filter(([,t])=>t.at<=target).sort((a,b)=>a[1].at-b[1].at)[0];if(!next)break;now=next[1].at;timers.delete(next[0]);next[1].fn();}now=target;};
+vm.createContext(context);vm.runInContext(source.slice(start,end),context);
+for(const [pointerType,buttons,expected]of [['mouse',0,true],['pen',0,true],['pen',1,false],['touch',1,false]])assert.equal(context.zenCanHover({pointerType,buttons}),expected);
 const listeners={},captures=new Set(),changes=[];let value=0;
 const input={disabled:false,dispatchEvent:e=>changes.push(e.type)};
-const surface={style:{},addEventListener:(type,fn)=>listeners[type]=fn,setPointerCapture:id=>captures.add(id),hasPointerCapture:id=>captures.has(id),releasePointerCapture:id=>{captures.delete(id);listeners.lostpointercapture({pointerId:id})}};
-context.bindZenFineControl(surface,input,steps=>value+=steps);
-const send=(type,fields={})=>{let prevented=false;listeners[type]({type,button:0,pointerId:7,clientX:0,clientY:0,preventDefault(){prevented=true},...fields});return prevented;};
-assert(send('wheel',{deltaY:-100}));assert.equal(value,1);send('wheel',{deltaY:100});assert.equal(value,0);
-assert(!send('wheel',{deltaY:-100,ctrlKey:true}),'Browser zoom remains available');
-send('pointerdown',{clientX:50});assert(captures.has(7));send('pointermove',{clientX:55});assert.equal(value,0,'Small jitter is ignored');send('pointermove',{clientX:86});assert.equal(value,3);send('pointermove',{clientX:62});assert.equal(value,1,'Swipes reverse naturally');send('pointermove',{clientX:200,pointerId:8});assert.equal(value,1,'Other pointers do not affect the gesture');send('pointerup');assert(!captures.size);assert.deepEqual(changes,['change'],'One undoable gesture finishes once even after capture loss');
-send('pointerdown');send('pointermove',{clientX:120});send('pointercancel');send('pointermove',{clientX:240});assert.equal(value,11,'Cancelled gesture stops immediately');
-input.disabled=true;assert(!send('wheel',{deltaY:-100}));send('pointerdown');assert(!captures.size);assert(send('click'),'Swiping never forwards a label click to the coarse slider');assert.equal(surface.style.touchAction,'none');
-console.log('Zen fine controls: wheel, pen hover, touch exclusion, repeated/reversed swipes, capture, cancellation, busy guard, and gesture completion pass.');
-
-input.disabled=false;surface.getBoundingClientRect=()=>({left:0,width:100});
+const surface={style:{},getBoundingClientRect:()=>({left:0,top:0,width:200,height:40}),addEventListener:(type,fn)=>listeners[type]=fn,setPointerCapture:id=>captures.add(id),hasPointerCapture:id=>captures.has(id),releasePointerCapture:id=>{captures.delete(id);listeners.lostpointercapture({pointerId:id})}};
 context.bindZenFineControl(surface,input,steps=>value+=steps,true);
-const beforeTap=value;send('pointerdown',{clientX:20});send('pointerup',{clientX:20});assert.equal(value,beforeTap-1);
-send('pointerdown',{clientX:80});send('pointerup',{clientX:80});assert.equal(value,beforeTap);
-send('pointerdown',{clientX:50});send('pointerup',{clientX:50});assert.equal(value,beforeTap,'Divider is not a directional button');
-send('pointerdown',{clientX:20});send('pointermove',{clientX:44});send('pointermove',{clientX:20});send('pointerup',{clientX:20});assert.equal(value,beforeTap,'Returning a swipe to its start does not add a tap');
-send('pointerdown',{clientX:20});send('pointercancel',{clientX:20});assert.equal(value,beforeTap,'Cancellation never taps');
-console.log('Zen directional taps: one step per arrow, neutral divider, no extra swipe-end step, and no cancellation step pass.');
+const send=(type,fields={})=>{let prevented=false;listeners[type]({type,button:0,pointerId:7,clientX:20,clientY:20,preventDefault(){prevented=true},...fields});return prevented;};
+assert(send('wheel',{deltaY:-100}));assert.equal(value,1);send('wheel',{deltaY:100});assert.equal(value,0);assert(!send('wheel',{deltaY:-100,ctrlKey:true}));
+send('pointerdown');advance(449);assert.equal(value,0);send('pointerup');assert.equal(value,-1,'Quick tap is exactly one step');advance(1000);assert.equal(value,-1);
+send('pointerdown',{clientX:180});advance(450);assert.equal(value,0,'Hold begins after the dwell');advance(360);assert.equal(value,3,'Hold repeats in the chosen direction');send('pointerup',{clientX:180});assert.equal(value,3,'Release adds no extra tap');advance(1000);assert.equal(value,3);assert(!captures.size);assert.equal(timers.size,0);
+send('pointerdown');advance(450);const held=value;send('pointermove',{clientX:180});advance(500);assert.equal(value,held,'Leaving the original half stops without reversing');send('pointerup',{clientX:180});
+send('pointerdown');advance(450);const off=value;send('pointermove',{clientX:-1});advance(500);assert.equal(value,off,'Leaving the arrows stops captured input');
+send('pointerdown');send('pointermove',{clientX:56});assert.equal(value,off+3);advance(1000);assert.equal(value,off+3,'Swiping cancels hold intent');send('pointermove',{clientX:20});send('pointerup');assert.equal(value,off,'Swipe reversal has no extra release step');
+send('pointerdown',{clientX:100});send('pointerup',{clientX:100});assert.equal(value,off,'Center divider is neutral');
+for(const end of ['pointercancel','lostpointercapture','blur','visibilitychange']){
+ send('pointerdown');advance(450);const before=value;
+ if(end==='blur')globalEvents.blur();else if(end==='visibilitychange'){context.document.hidden=true;globalEvents.visibilitychange();context.document.hidden=false;}else send(end);
+ advance(1000);assert.equal(value,before,end+' stops repetition');send('pointerup');
+}
+send('pointerdown');input.disabled=true;advance(1000);send('pointerup');const disabledValue=value;assert(!send('wheel',{deltaY:-100}));send('pointerdown');assert(!captures.size);assert.equal(value,disabledValue);
+assert(send('click'));assert.equal(surface.style.touchAction,'none');assert(changes.length>0);
+console.log('Zen arrows: directional taps, delayed repeating holds, immediate release/off-zone/cancel/blur stops, swipe cancellation of hold, neutral divider, disabled guard, and pen hover pass.');

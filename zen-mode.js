@@ -11,7 +11,24 @@ function zenHoverDelay(open){
 // Pen proximity emits pointerenter before contact; finger contact must not open a hover menu.
 function zenCanHover(event){return event.pointerType==='mouse'||(event.pointerType==='pen'&&event.buttons===0);}
 function bindZenFineControl(surface,input,adjust,tapArrows=false){
- let drag=null,remainder=0;
+ let drag=null,remainder=0,repeatTimer=0;
+ const stopRepeat=()=>{clearTimeout(repeatTimer);repeatTimer=0;};
+ const directionAt=(x,r)=>{const fraction=(x-r.left)/r.width;return fraction<.48?-1:fraction>.52?1:0;};
+ const inside=(event,r)=>event.clientX>=r.left&&event.clientX<=r.left+r.width&&event.clientY>=r.top&&event.clientY<=r.top+r.height;
+ const finish=event=>{
+  if(!drag||(event.pointerId!=null&&event.pointerId!==drag.id))return;
+  const current=drag,r=surface.getBoundingClientRect();
+  const tap=tapArrows&&event.type==='pointerup'&&!current.moved&&!current.repeated&&!input.disabled&&inside(event,r)&&Math.hypot(event.clientX-current.startX,event.clientY-current.startY)<=5;
+  drag=null;remainder=0;stopRepeat();
+  if(tap){const direction=directionAt(event.clientX,r);if(direction)adjust(direction);}
+  if(surface.hasPointerCapture(current.id))surface.releasePointerCapture(current.id);
+  input.dispatchEvent(new Event('change',{bubbles:true}));
+ };
+ const repeat=()=>{
+  repeatTimer=0;
+  if(!drag||input.disabled){stopRepeat();return;}
+  drag.repeated=true;adjust(drag.direction);repeatTimer=setTimeout(repeat,120);
+ };
  surface.style.touchAction='none';
  surface.addEventListener('wheel',event=>{
   if(input.disabled||event.ctrlKey)return;
@@ -20,26 +37,28 @@ function bindZenFineControl(surface,input,adjust,tapArrows=false){
  },{passive:false});
  surface.addEventListener('pointerdown',event=>{
   if(input.disabled||event.button!==0||drag)return;
-  event.preventDefault();drag={id:event.pointerId,x:event.clientX,startX:event.clientX,startY:event.clientY,moved:false};remainder=0;
+  event.preventDefault();const direction=directionAt(event.clientX,surface.getBoundingClientRect());
+  drag={id:event.pointerId,x:event.clientX,startX:event.clientX,startY:event.clientY,moved:false,repeated:false,direction};remainder=0;
   surface.setPointerCapture(event.pointerId);
+  if(tapArrows&&direction)repeatTimer=setTimeout(repeat,450);
  });
  surface.addEventListener('pointermove',event=>{
   if(!drag||event.pointerId!==drag.id)return;
+  const r=surface.getBoundingClientRect();
+  if(input.disabled||!inside(event,r)){finish({...event,type:'pointercancel',pointerId:event.pointerId});return;}
   drag.moved=drag.moved||Math.hypot(event.clientX-drag.startX,event.clientY-drag.startY)>5;
+  if(drag.repeated){
+   if(directionAt(event.clientX,r)!==drag.direction)finish({...event,type:'pointercancel',pointerId:event.pointerId});
+   return;
+  }
+  if(drag.moved)stopRepeat();
   const delta=event.clientX-drag.x;drag.x=event.clientX;
-  if(input.disabled){remainder=0;return;}
   remainder+=delta;const steps=Math.trunc(remainder/12);
   if(steps){remainder-=steps*12;adjust(steps);}
  });
- const finish=event=>{
-  if(!drag||event.pointerId!==drag.id)return;
-  const tap=tapArrows&&event.type==='pointerup'&&!drag.moved&&!input.disabled&&Math.hypot(event.clientX-drag.startX,event.clientY-drag.startY)<=5;
-  drag=null;remainder=0;
-  if(tap){const r=surface.getBoundingClientRect(),x=(event.clientX-r.left)/r.width;if(x<.4)adjust(-1);else if(x>.6)adjust(1);}
-  if(surface.hasPointerCapture(event.pointerId))surface.releasePointerCapture(event.pointerId);
-  input.dispatchEvent(new Event('change',{bubbles:true}));
- };
  for(const type of ['pointerup','pointercancel','lostpointercapture'])surface.addEventListener(type,finish);
+ window.addEventListener('blur',()=>finish({type:'pointercancel'}));
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)finish({type:'pointercancel'});});
  // The decorative label must not forward the end of a swipe to the coarse slider.
  surface.addEventListener('click',event=>event.preventDefault());
 }
@@ -241,7 +260,7 @@ function init(){
  function group(name,kind,originalId){
   const box=document.createElement('div');box.className='zen-group';box.dataset.kind=kind;box.title=name;
   const control=originalId&&document.getElementById(originalId),input=document.createElement('input');input.type='range';input.id='zen-'+kind;input.min=control?.min||'-12';input.max=control?.max||'12';input.step=control?.step||'.1';input.value=control?.value||'0';input.setAttribute('aria-label',name);
-  const symbol=document.createElement('label');symbol.htmlFor=input.id;symbol.className='zen-symbol';symbol.innerHTML=icon(kind);symbol.title=name+' · Wheel or swipe left/right for fine adjustment'+(['follow','spin'].includes(kind)?' · Tap either arrow for one step':'');
+  const symbol=document.createElement('label');symbol.htmlFor=input.id;symbol.className='zen-symbol';symbol.innerHTML=icon(kind);symbol.title=name+' · Wheel or swipe left/right for fine adjustment'+' · Tap for one step or hold either half to repeat';
   box.append(input,symbol);bar.append(box);
   if(control){
    const sync=()=>{input.value=control.value;input.setAttribute('aria-valuetext',kind==='speed'?Number(input.value).toFixed(2):`${Math.round(Number(input.value)*100)}%`)};
@@ -256,7 +275,7 @@ function init(){
    if(kind==='aim'){engine.aim(steps*.05);return;}
    const value=Math.max(+input.min,Math.min(+input.max,+input.value+steps*+input.step));
    input.value=String(Number(value.toFixed(6)));input.dispatchEvent(new Event('input',{bubbles:true}));
-  },['follow','spin'].includes(kind));
+  },true);
   return input;
  }
  group('Aim adjustment','aim');group('Speed','speed','speed');group('Forward / Draw','follow','follow');group('Left / Right Spin','spin','sideSpin');
