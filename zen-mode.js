@@ -110,21 +110,15 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 .zen-hover-anchor .zen-action:disabled{pointer-events:none}
 .zen-hover-panel{position:fixed;z-index:135;box-sizing:border-box;width:55px;height:55px;padding:0;border:0;border-radius:50%;background:transparent;color:#D4C3A8}
 .zen-hover-panel[hidden]{display:none}
-#zenUndoAction{display:grid;place-items:center;box-sizing:border-box;width:100%;height:100%;padding:10px;border:1px solid #C5A88055;border-radius:50%;background:linear-gradient(145deg,#494044,#302B30);color:#D4C3A8;box-shadow:0 3px 9px #0003;cursor:pointer}
-#zenUndoAction svg{width:30px;height:30px}
-#zenUndoAction:disabled{opacity:.38;cursor:default}
-#zenUndoAction:focus-visible,#zenTipPoint:focus-visible{outline:1px solid #C5A880;outline-offset:3px}
-body.zen-mode #zenBar,body.zen-mode #zenRack{translate:0 var(--zen-history-lift,0px)}
-.zen-action-history-anchor{display:grid;width:100%;height:100%;border-radius:50%;outline:none}
-.zen-action-history-anchor:focus-visible{outline:1px solid #C5A880;outline-offset:3px}
-.zen-action-history-anchor button:disabled{pointer-events:none}
-.zen-history-menu{position:fixed;z-index:140;display:flex;gap:8px;width:80px;height:36px}
-.zen-history-menu[hidden]{display:none}
-.zen-history-menu button{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;padding:5px;border:1px solid #C5A88055;border-radius:50%;background:linear-gradient(145deg,#494044,#302B30);color:#D4C3A8;box-shadow:0 3px 9px #0003;cursor:pointer}
-.zen-history-menu svg{width:26px;height:26px}
-.zen-history-menu button[aria-pressed=true]{border-color:#C5A880;background:#494039}
-.zen-history-menu button:disabled{opacity:.3;cursor:default}
-.zen-history-menu button:focus-visible{outline:1px solid #C5A880;outline-offset:3px}
+#zenTipPoint:focus-visible{outline:1px solid #C5A880;outline-offset:3px}
+.zen-history-radial{width:168px;height:168px;z-index:140;background:radial-gradient(circle,#181B2066,transparent 72%)}
+.zen-history-radial::before{content:"";position:absolute;inset:30px;border:1px solid #C5A88025;border-radius:50%;pointer-events:none}
+.zen-history-radial button{position:absolute;display:grid;place-items:center;box-sizing:border-box;width:40px;height:40px;padding:6px;transform:translate(-50%,-50%);border:1px solid #C5A88055;border-radius:50%;background:linear-gradient(145deg,#494044,#302B30);color:#D4C3A8;box-shadow:0 3px 9px #0003;cursor:pointer}
+.zen-history-radial svg{width:26px;height:26px}
+.zen-history-radial button[aria-pressed=true]{border-color:#C5A880;background:#494039}
+.zen-history-radial button:disabled{opacity:.3;cursor:default}
+.zen-history-radial button:focus-visible{outline:1px solid #C5A880;outline-offset:3px}
+.zen-history-current{position:absolute;inset:67px;display:grid;place-items:center;color:#C5A88077;pointer-events:none}
 #zenContactPanel{box-shadow:0 3px 9px #0003}
 #zenTipPoint{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair;border-radius:50%;overflow:visible}
 #zenContactReadout{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
@@ -163,24 +157,24 @@ function init(){
  const actions=document.createElement('div');actions.id='zenActions';bar.append(actions);
  const action=(name,kind,id)=>{const b=document.createElement('button');b.type='button';b.className='zen-action zen-'+kind;b.title=name;b.setAttribute('aria-label',name);b.innerHTML=icon(kind);b.onclick=()=>{closeRackMenu();document.getElementById(id).click()};actions.append(b);return b};
  const shot=action('Execute Shot','shot','animate'),undo=action('Undo last shot','undo','undoShot');shot.classList.add('zen-shoot');undo.id='zenShotHistory';
- let shotHistoryMode='undo',actionHistoryMode='undo';
- undo.onclick=()=>{closeRackMenu();engine[shotHistoryMode+'Shot']();sync()};
+ let historyMode='undoShot';
+ undo.onclick=()=>{historyTool.close();closeRackMenu();engine[historyMode]();sync()};
 
  // Popovers are outside the dock so its glass blur never clips the hover content.
  const hoverTools=[];
- function hoverPanel(trigger,id,label){
+ function hoverPanel(trigger,id,label,radial=false){
   const anchor=document.createElement('span');anchor.className='zen-hover-anchor';anchor.tabIndex=0;anchor.setAttribute('role','group');anchor.setAttribute('aria-label',label);trigger.replaceWith(anchor);anchor.append(trigger);
-  const panel=document.createElement('div');panel.id=id;panel.className='zen-hover-panel';panel.hidden=true;panel.setAttribute('role','group');panel.setAttribute('aria-label',label);anchor.setAttribute('aria-controls',id);anchor.setAttribute('aria-expanded','false');document.body.append(panel);
+  const panel=document.createElement('div');panel.id=id;panel.className='zen-hover-panel'+(radial?' zen-history-menu zen-history-radial':'');panel.hidden=true;panel.setAttribute('role','group');panel.setAttribute('aria-label',label);anchor.setAttribute('aria-controls',id);anchor.setAttribute('aria-expanded','false');document.body.append(panel);
   let timer=0,hold=0,touchOpened=false,suppressFocus=false;
   const position=()=>{const r=anchor.getBoundingClientRect(),p=panel.getBoundingClientRect(),ball=document.querySelector('#zenRack button')?.getBoundingClientRect();
    const centerY=ball?ball.top+ball.height/2:r.top-p.height/2-12;
-   panel.style.left=Math.max(8,Math.min(innerWidth-p.width-8,r.left+r.width/2-p.width/2))+'px';panel.style.top=Math.max(8,centerY-p.height/2)+'px';panel.dispatchEvent(new Event('zen:positioned'))};
+   panel.style.left=Math.max(8,Math.min(innerWidth-p.width-8,r.left+r.width/2-p.width/2))+'px';panel.style.top=Math.max(8,radial?r.top-p.height-12:centerY-p.height/2)+'px';panel.dispatchEvent(new Event('zen:positioned'))};
   const close=()=>{clearTimeout(timer);panel.hidden=true;anchor.setAttribute('aria-expanded','false');panel.dispatchEvent(new Event('zen:closed'))};
   const open=()=>{if(engine.status().busy)return;hoverTools.forEach(tool=>{if(tool.panel!==panel)tool.close()});closeRackMenu();closeMenu();clearTimeout(timer);panel.hidden=false;anchor.setAttribute('aria-expanded','true');position();syncContact();};
   const leave=()=>{clearTimeout(timer);timer=setTimeout(()=>{if(!panel.matches(':hover')&&!anchor.matches(':hover')&&!panel.contains(document.activeElement))close()},350)};
   anchor.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')open()});anchor.addEventListener('pointerleave',leave);panel.addEventListener('pointerenter',()=>clearTimeout(timer));panel.addEventListener('pointerleave',leave);
   anchor.addEventListener('focusin',()=>{if(!suppressFocus)open()});
-  anchor.addEventListener('keydown',e=>{if(e.key==='ArrowUp'){e.preventDefault();e.stopPropagation();open();panel.querySelector('button,[tabindex]')?.focus()}});
+  anchor.addEventListener('keydown',e=>{if(e.key==='ArrowUp'){e.preventDefault();e.stopPropagation();open();panel.querySelector('button:not(:disabled),[tabindex]')?.focus()}});
   anchor.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')return;touchOpened=false;hold=setTimeout(()=>{touchOpened=true;open()},500)});
   for(const type of ['pointerup','pointercancel','pointerleave'])anchor.addEventListener(type,()=>clearTimeout(hold));
   anchor.addEventListener('click',e=>{if(touchOpened){e.preventDefault();e.stopImmediatePropagation();touchOpened=false}},true);
@@ -188,51 +182,28 @@ function init(){
   document.addEventListener('pointerdown',e=>{if(!anchor.contains(e.target)&&!panel.contains(e.target))close()});
   document.addEventListener('focusin',e=>{if(!anchor.contains(e.target)&&!panel.contains(e.target))close()});
   document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});window.addEventListener('resize',()=>{if(!panel.hidden)position()});
-  const tool={anchor,panel,open,close,position};hoverTools.push(tool);return tool;
+  const tool={anchor,panel,open,close,position,focusAnchor(){suppressFocus=true;anchor.focus();suppressFocus=false;}};hoverTools.push(tool);return tool;
  }
- const recovery=hoverPanel(undo,'zenActionPanel','Action recovery');
- const undoAction=document.createElement('button');undoAction.id='zenUndoAction';undoAction.type='button';undoAction.setAttribute('aria-label','Undo last action');undoAction.innerHTML=icon('actionUndo');undoAction.onclick=()=>{engine[actionHistoryMode+'Action']();sync()};
- const actionAnchor=document.createElement('span');actionAnchor.className='zen-action-history-anchor zen-history-trigger';actionAnchor.tabIndex=0;actionAnchor.setAttribute('role','group');actionAnchor.setAttribute('aria-label','Action undo and redo');actionAnchor.append(undoAction);recovery.panel.append(actionAnchor);
- recovery.anchor.classList.add('zen-history-trigger');
- // The selectors only change the mode; the existing circle performs that action.
- function historyPicker(trigger,button,id,kind,direction,getMode,setMode){
-  const choices=document.createElement('div');choices.id=id;choices.className='zen-history-menu';choices.hidden=true;choices.setAttribute('role','group');choices.setAttribute('aria-label',kind==='Shot'?'Choose shot undo or redo':'Choose action undo or redo');recovery.panel.append(choices);
-  trigger.setAttribute('aria-controls',id);trigger.setAttribute('aria-expanded','false');
-  let timer=0,hold=0,selected=false,touchOpened=false;
-  const place=()=>{
-   if(choices.hidden)return;
-   const r=button.getBoundingClientRect(),bottom=direction==='below'?Math.max(r.bottom,bar.getBoundingClientRect().bottom):0;
-   choices.style.left=Math.max(8,Math.min(innerWidth-88,r.left+r.width/2-40))+'px';
-   choices.style.top=Math.max(8,direction==='below'?bottom+8:r.top-44)+'px';
-  };
-  const position=()=>{
-   if(choices.hidden)return;
-   if(direction==='below'){
-    document.body.style.setProperty('--zen-history-lift','0px');
-    const bottom=Math.max(button.getBoundingClientRect().bottom,bar.getBoundingClientRect().bottom),needed=Math.max(0,bottom+8+36+8-innerHeight);
-    document.body.style.setProperty('--zen-history-lift',-needed+'px');recovery.position();
-   }
-   place();
-  };
-  const close=()=>{clearTimeout(timer);choices.hidden=true;trigger.setAttribute('aria-expanded','false');if(direction==='below'){document.body.style.removeProperty('--zen-history-lift');if(!recovery.panel.hidden)recovery.position();}};
-  const open=()=>{if(selected||engine.status().busy)return;clearTimeout(timer);choices.hidden=false;trigger.setAttribute('aria-expanded','true');position()};
-  const leave=()=>{clearTimeout(timer);timer=setTimeout(()=>{if(!trigger.matches(':hover')&&!choices.matches(':hover')&&!choices.contains(document.activeElement))close()},350)};
-  const buttons=['undo','redo'].map(mode=>{
-   const option=document.createElement('button');option.type='button';option.dataset.historyMode=mode;option.setAttribute('aria-label','Select '+mode+' last '+kind.toLowerCase());option.title=(mode==='undo'?'Undo':'Redo')+' last '+kind.toLowerCase();option.innerHTML=icon(kind==='Shot'?mode:mode==='undo'?'actionUndo':'actionRedo');
-   option.addEventListener('click',e=>{e.stopPropagation();setMode(mode);selected=true;close();trigger.focus();sync()});choices.append(option);return option;
-  });
-  trigger.addEventListener('pointerenter',e=>{selected=false;if(e.pointerType==='mouse')open()});trigger.addEventListener('pointerleave',leave);choices.addEventListener('pointerenter',()=>clearTimeout(timer));choices.addEventListener('pointerleave',leave);
-  trigger.addEventListener('focusin',open);
-  trigger.addEventListener('keydown',e=>{if(e.key===(direction==='below'?'ArrowDown':'ArrowUp')){e.preventDefault();e.stopPropagation();selected=false;open();buttons.find(b=>!b.disabled)?.focus()}});
-  trigger.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'){touchOpened=false;hold=setTimeout(()=>{touchOpened=true;selected=false;open()},500)}});
-  for(const type of ['pointerup','pointercancel','pointerleave'])trigger.addEventListener(type,()=>clearTimeout(hold));
-  trigger.addEventListener('click',e=>{if(touchOpened){e.preventDefault();e.stopImmediatePropagation();touchOpened=false}},true);
-  choices.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();selected=true;close();trigger.focus()}else if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();e.stopPropagation();const i=buttons.indexOf(document.activeElement);buttons[(i+1)%2].focus()}else if(e.key===' '||e.key==='Enter')e.stopPropagation()});
-  recovery.panel.addEventListener('zen:closed',close);recovery.panel.addEventListener('zen:positioned',place);window.addEventListener('resize',position);
-  return {sync(status){buttons.forEach((b,i)=>{const mode=i?'redo':'undo';b.disabled=status.busy||!status[mode+(kind==='Action'?'Action':'')];b.setAttribute('aria-pressed',String(mode===getMode()))});if(status.busy)close();},close};
- }
- const shotPicker=historyPicker(recovery.anchor,undo,'zenShotHistoryModes','Shot','below',()=>shotHistoryMode,mode=>shotHistoryMode=mode);
- const actionPicker=historyPicker(actionAnchor,undoAction,'zenActionHistoryModes','Action','above',()=>actionHistoryMode,mode=>actionHistoryMode=mode);
+ // One stationary dock control, with all four history modes in a single radial picker.
+ const historyTool=hoverPanel(undo,'zenHistoryMenu','Choose history action',true);
+ historyTool.anchor.classList.add('zen-history-trigger');
+ const historyModes=[
+  {key:'undoShot',label:'Undo last shot',glyph:'undo',available:'undo',x:27.5,y:27.5},
+  {key:'redoShot',label:'Redo last shot',glyph:'redo',available:'redo',x:72.5,y:27.5},
+  {key:'undoAction',label:'Undo last action',glyph:'actionUndo',available:'undoAction',x:27.5,y:72.5},
+  {key:'redoAction',label:'Redo last action',glyph:'actionRedo',available:'redoAction',x:72.5,y:72.5}
+ ];
+ const historyCurrent=document.createElement('span');historyCurrent.className='zen-history-current';historyCurrent.setAttribute('aria-hidden','true');historyTool.panel.append(historyCurrent);
+ const historyChoices=historyModes.map(mode=>{
+  const option=document.createElement('button');option.type='button';option.dataset.historyMode=mode.key;option.setAttribute('aria-label','Select '+mode.label.toLowerCase());option.title=mode.label;option.innerHTML=icon(mode.glyph);option.style.left=mode.x+'%';option.style.top=mode.y+'%';
+  option.addEventListener('click',e=>{e.stopPropagation();historyMode=mode.key;historyTool.close();historyTool.focusAnchor();sync()});historyTool.panel.append(option);return option;
+ });
+ historyTool.panel.addEventListener('keydown',e=>{
+  if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;
+  e.preventDefault();e.stopPropagation();
+  const available=historyChoices.filter(b=>!b.disabled),i=available.indexOf(document.activeElement),step=e.key==='ArrowLeft'||e.key==='ArrowUp'?-1:1;
+  available[(i+step+available.length)%available.length]?.focus();
+ });
 
  const contactTool=hoverPanel(shot,'zenContactPanel','Cue-ball contact');
  contactTool.panel.innerHTML='<svg id="zenTipPoint" viewBox="24 24 152 152" tabindex="0" role="group" aria-label="Adjust cue-ball contact point" aria-describedby="zenContactHelp"><defs><radialGradient id="zenCueFace" cx="32%" cy="25%" r="78%"><stop stop-color="#FFF9E9"/><stop offset=".65" stop-color="#E2DCCB"/><stop offset="1" stop-color="#A5A89D"/></radialGradient></defs><circle cx="100" cy="100" r="76" fill="url(#zenCueFace)" stroke="#E2DFD855"/><path d="M24 100h152M100 24v152" fill="none" stroke="#5F696A55" stroke-width=".8"/><circle id="zenTipLimit" cx="100" cy="100" r="38" fill="none" stroke="#5F696A77" stroke-dasharray="2 4" stroke-width=".8"/><circle id="zenTipDot" cx="100" cy="100" r="7" fill="#C84B43" stroke="#FFF5DF" stroke-width="1.5"/></svg><div id="zenContactReadout" aria-live="polite"></div><span id="zenContactHelp" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)">Click or drag the red dot. Arrow keys adjust the contact point; Home returns to center. Escape closes.</span>';
@@ -286,7 +257,7 @@ function init(){
  });
  const cueRest=document.createElement('div');cueRest.id='zenCueRest';cueRest.setAttribute('aria-hidden','true');
  cueRest.innerHTML='<span></span><i></i>';document.body.append(bar,menu,rack,cueRest,rackMenu);
- function sync(){const status=engine.status();bindings.forEach(f=>f());bar.querySelectorAll('input').forEach(el=>el.disabled=status.busy);const shotLabel=(shotHistoryMode==='undo'?'Undo':'Redo')+' last shot',actionLabel=(actionHistoryMode==='undo'?'Undo':'Redo')+' last action';if(undo.getAttribute('aria-label')!==shotLabel){undo.innerHTML=icon(shotHistoryMode);undo.setAttribute('aria-label',shotLabel);undo.title=shotLabel}if(undoAction.getAttribute('aria-label')!==actionLabel){undoAction.innerHTML=icon(actionHistoryMode==='undo'?'actionUndo':'actionRedo');undoAction.setAttribute('aria-label',actionLabel);undoAction.title=actionLabel}undo.disabled=status.busy||!status[shotHistoryMode];undoAction.disabled=status.busy||!status[actionHistoryMode+'Action'];shotPicker.sync(status);actionPicker.sync(status);syncContact();if(status.busy)hoverTools.forEach(tool=>tool.close());shot.disabled=status.busy;rackToggle.disabled=status.busy;center.disabled=status.busy;rackChoices.forEach(b=>b.disabled=status.busy);if(status.busy&&!rackMenu.hidden)closeRackMenu();balls.forEach((b,i)=>{b.disabled=status.busy||status.balls.includes(i+1);b.title=status.balls.includes(i+1)?`Ball ${i+1} is on the table`:`Drag or tap to add ball ${i+1}`})}
+ function sync(){const status=engine.status();bindings.forEach(f=>f());bar.querySelectorAll('input').forEach(el=>el.disabled=status.busy);const selected=historyModes.find(mode=>mode.key===historyMode);if(undo.getAttribute('aria-label')!==selected.label){undo.innerHTML=icon(selected.glyph);undo.setAttribute('aria-label',selected.label);undo.title=selected.label}if(historyCurrent.dataset.mode!==historyMode){historyCurrent.innerHTML=icon(selected.glyph);historyCurrent.dataset.mode=historyMode}undo.disabled=status.busy||!status[selected.available];historyChoices.forEach((button,i)=>{button.disabled=status.busy||!status[historyModes[i].available];button.setAttribute('aria-pressed',String(historyModes[i].key===historyMode))});syncContact();if(status.busy)hoverTools.forEach(tool=>tool.close());shot.disabled=status.busy;rackToggle.disabled=status.busy;center.disabled=status.busy;rackChoices.forEach(b=>b.disabled=status.busy);if(status.busy&&!rackMenu.hidden)closeRackMenu();balls.forEach((b,i)=>{b.disabled=status.busy||status.balls.includes(i+1);b.title=status.balls.includes(i+1)?`Ball ${i+1} is on the table`:`Drag or tap to add ball ${i+1}`})}
  sync();setInterval(sync,180);window.dispatchEvent(new Event('resize'));
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
