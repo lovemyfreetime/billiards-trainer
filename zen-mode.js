@@ -10,7 +10,7 @@ function zenHoverDelay(open){
 }
 // Pen proximity emits pointerenter before contact; finger contact must not open a hover menu.
 function zenCanHover(event){return event.pointerType==='mouse'||(event.pointerType==='pen'&&event.buttons===0);}
-function bindZenFineControl(surface,input,adjust){
+function bindZenFineControl(surface,input,adjust,tapArrows=false){
  let drag=null,remainder=0;
  surface.style.touchAction='none';
  surface.addEventListener('wheel',event=>{
@@ -20,11 +20,12 @@ function bindZenFineControl(surface,input,adjust){
  },{passive:false});
  surface.addEventListener('pointerdown',event=>{
   if(input.disabled||event.button!==0||drag)return;
-  event.preventDefault();drag={id:event.pointerId,x:event.clientX};remainder=0;
+  event.preventDefault();drag={id:event.pointerId,x:event.clientX,startX:event.clientX,startY:event.clientY,moved:false};remainder=0;
   surface.setPointerCapture(event.pointerId);
  });
  surface.addEventListener('pointermove',event=>{
   if(!drag||event.pointerId!==drag.id)return;
+  drag.moved=drag.moved||Math.hypot(event.clientX-drag.startX,event.clientY-drag.startY)>5;
   const delta=event.clientX-drag.x;drag.x=event.clientX;
   if(input.disabled){remainder=0;return;}
   remainder+=delta;const steps=Math.trunc(remainder/12);
@@ -32,7 +33,9 @@ function bindZenFineControl(surface,input,adjust){
  });
  const finish=event=>{
   if(!drag||event.pointerId!==drag.id)return;
+  const tap=tapArrows&&event.type==='pointerup'&&!drag.moved&&!input.disabled&&Math.hypot(event.clientX-drag.startX,event.clientY-drag.startY)<=5;
   drag=null;remainder=0;
+  if(tap){const r=surface.getBoundingClientRect(),x=(event.clientX-r.left)/r.width;if(x<.4)adjust(-1);else if(x>.6)adjust(1);}
   if(surface.hasPointerCapture(event.pointerId))surface.releasePointerCapture(event.pointerId);
   input.dispatchEvent(new Event('change',{bubbles:true}));
  };
@@ -238,7 +241,7 @@ function init(){
  function group(name,kind,originalId){
   const box=document.createElement('div');box.className='zen-group';box.dataset.kind=kind;box.title=name;
   const control=originalId&&document.getElementById(originalId),input=document.createElement('input');input.type='range';input.id='zen-'+kind;input.min=control?.min||'-12';input.max=control?.max||'12';input.step=control?.step||'.1';input.value=control?.value||'0';input.setAttribute('aria-label',name);
-  const symbol=document.createElement('label');symbol.htmlFor=input.id;symbol.className='zen-symbol';symbol.innerHTML=icon(kind);symbol.title=name+' · Wheel or swipe left/right for fine adjustment';
+  const symbol=document.createElement('label');symbol.htmlFor=input.id;symbol.className='zen-symbol';symbol.innerHTML=icon(kind);symbol.title=name+' · Wheel or swipe left/right for fine adjustment'+(['follow','spin'].includes(kind)?' · Tap either arrow for one step':'');
   box.append(input,symbol);bar.append(box);
   if(control){
    const sync=()=>{input.value=control.value;input.setAttribute('aria-valuetext',kind==='speed'?Number(input.value).toFixed(2):`${Math.round(Number(input.value)*100)}%`)};
@@ -253,7 +256,7 @@ function init(){
    if(kind==='aim'){engine.aim(steps*.05);return;}
    const value=Math.max(+input.min,Math.min(+input.max,+input.value+steps*+input.step));
    input.value=String(Number(value.toFixed(6)));input.dispatchEvent(new Event('input',{bubbles:true}));
-  });
+  },['follow','spin'].includes(kind));
   return input;
  }
  group('Aim adjustment','aim');group('Speed','speed','speed');group('Forward / Draw','follow','follow');group('Left / Right Spin','spin','sideSpin');
