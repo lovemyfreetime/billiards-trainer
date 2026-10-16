@@ -1,7 +1,7 @@
 (function(){
 "use strict";
 if(new URLSearchParams(location.search).get("zen")!=="1")return;
-const buddha = '<img src="./icons/zen-buddha-v1.webp" alt="" aria-hidden="true" draggable="false">';
+const lotus = '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M24 37C13 30 15 18 24 9c9 9 11 21 0 28Z"/><path d="M24 37C12 38 6 29 7 18c10 1 17 8 17 19Zm0 0c12 1 18-8 17-19-10 1-17 8-17 19Z"/><path d="M10 39c9 4 19 4 28 0"/></svg>';
 
 // Simple, rounded line symbols traced from Jeff's control sketch.
 // Each directional arrow is its own closed shape, with clear physical spacing.
@@ -17,59 +17,59 @@ const paths={
 };
 const icon=key=>`<svg viewBox="${['aim','speed','follow','spin'].includes(key)?'0 0 144 48':'-4 0 58 48'}" aria-hidden="true" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">${paths[key]}</svg>`;
 const style=document.createElement('style');style.textContent=`
-body.zen-mode{--zen-footer:148px;background:#d6c8ad!important;overflow:hidden;isolation:isolate}
-body.zen-mode::before{content:'';position:fixed;inset:-5px;background:url('./icons/zen-garden-v1.webp') center/cover;filter:blur(1.45px) saturate(.9);z-index:-1;pointer-events:none}
+body.zen-mode{--zen-footer:148px;--zen-cloth:#2A382E;--zen-rail:#181B20;background:radial-gradient(ellipse at center,#161A20 0%,#0A0C0E 100%)!important;overflow:hidden;isolation:isolate}
+
 body.zen-mode #app{display:block!important;height:100dvh!important;background:transparent!important}
 body.zen-mode #stageWrap{position:absolute!important;inset:0 0 calc(var(--zen-footer) + 25px)!important;background:transparent!important}
 body.zen-mode #canvas{filter:none!important}
 body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,body.zen-mode #analyzePhotoBtn,body.zen-mode #quickLayoutRecall,body.zen-mode #kickToolToggle,body.zen-mode #bankToolToggle,body.zen-mode #teachingCompassToggle,body.zen-mode #compassSizeWrap,body.zen-mode #compassRotateWrap,body.zen-mode #bottomSpeedControls,body.zen-mode #bottomSpin1,body.zen-mode #bottomSpin2,body.zen-mode #cueRailBtn,body.zen-mode #cuePopup,body.zen-mode #aimControls,body.zen-mode #aimControls2,body.zen-mode #angleLock,body.zen-mode #practiceCounter,body.zen-mode #markerRailControls,body.zen-mode #pocketTray,body.zen-mode #bt-guide-pool-root,body.zen-mode .phone-controls{display:none!important}
-#zenBar{position:fixed;z-index:100;bottom:14px;left:50%;transform:translateX(-50%);width:min(1240px,96vw);box-sizing:border-box;height:92px;display:flex;gap:18px;align-items:center;justify-content:center;padding:12px 20px;background:linear-gradient(120deg,#f6edd552,#dfd3b92e);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid #fff4d877;border-radius:29px;box-shadow:0 4px 22px #54482c24,inset 0 1px 14px #fff3d433;font-family:system-ui;color:#6d705c}
-#zenBar .zen-group{min-width:0;flex:1;max-width:none;text-align:center;position:relative;padding:0 9px;border-right:1px solid #fff4}
-#zenBar .zen-symbol{display:block;width:136px;height:42px;margin:0 auto;color:#696e59;opacity:.85}
+#zenBar{position:fixed;z-index:100;bottom:14px;left:50%;transform:translateX(-50%);width:min(1240px,96vw);box-sizing:border-box;height:92px;display:flex;gap:18px;align-items:center;justify-content:center;padding:12px 20px;background:rgba(18,22,28,.60);backdrop-filter:blur(16px) saturate(120%);-webkit-backdrop-filter:blur(16px) saturate(120%);border:1px solid rgba(255,255,255,.07);border-radius:16px;font-family:system-ui;color:#C5A880}
+#zenBar .zen-group{min-width:0;flex:1;max-width:none;text-align:center;position:relative;padding:0 9px;border-right:1px solid rgba(255,255,255,.07)}
+#zenBar .zen-symbol{display:block;width:136px;height:42px;margin:0 auto;color:rgba(226,223,216,.45)}
 #zenBar .zen-group[data-kind=speed] .zen-symbol{width:136px}
 #zenBar .zen-symbol svg{width:100%;height:100%}
 #zenBar input[type=range]{appearance:none;-webkit-appearance:none;display:block;box-sizing:border-box;width:100%;height:26px;margin:0;padding:0;background:transparent;cursor:pointer;touch-action:pan-y}
-#zenBar input[type=range]::-webkit-slider-runnable-track{height:5px;background:linear-gradient(90deg,#8ca38b,#d9cdb7);border-radius:10px;box-shadow:0 1px 0 #fffa}
-#zenBar .zen-group[data-kind=speed] input::-webkit-slider-runnable-track{background:linear-gradient(90deg,#b68b5c,#d9cdb7)}
-#zenBar input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:19px;height:19px;margin-top:-7px;border:2px solid #fff2d8;border-radius:50%;background:#d8c6a9;box-shadow:0 2px 7px #66553d44,0 0 8px #fff4d744}
-#zenBar input[type=range]::-moz-range-track{height:5px;background:#a6ad93;border-radius:10px}
-#zenBar input[type=range]::-moz-range-thumb{height:17px;width:17px;background:#d8c6a9;border:2px solid #fff2d8;border-radius:50%}
-#zenBar input:focus-visible,#zenBar button:focus-visible,#zenRack button:focus-visible{outline:2px solid #727e61;outline-offset:5px}
-#zenBar .zen-action{border:1px solid #fff0cb99;background:#e9dfca88;color:#737b62;border-radius:50%;width:48px;height:48px;flex-shrink:0;cursor:pointer;box-shadow:0 3px 10px #655b3c14;display:grid;place-items:center;padding:8px}
+#zenBar input[type=range]::-webkit-slider-runnable-track{height:5px;background:linear-gradient(90deg,#C5A88066,#ffffff0e);border-radius:10px}
+#zenBar .zen-group[data-kind=speed] input::-webkit-slider-runnable-track{background:linear-gradient(90deg,#C5A88066,#ffffff0e)}
+#zenBar input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:19px;height:19px;margin-top:-7px;border:1px solid #C5A880;border-radius:50%;background:#181B20}
+#zenBar input[type=range]::-moz-range-track{height:5px;background:#C5A88066;border-radius:10px}
+#zenBar input[type=range]::-moz-range-thumb{height:17px;width:17px;background:#181B20;border:1px solid #C5A880;border-radius:50%}
+#zenBar input:focus-visible,#zenBar button:focus-visible,#zenRack button:focus-visible{outline:2px solid #C5A880;outline-offset:5px}
+#zenBar .zen-action{border:1px solid #ffffff18;background:#181B20;color:rgba(226,223,216,.45);border-radius:50%;width:48px;height:48px;flex-shrink:0;cursor:pointer;display:grid;place-items:center;padding:8px}
 #zenBar .zen-action svg{width:100%;height:100%}
-#zenBar .zen-shoot{width:48px;height:48px;background:linear-gradient(145deg,#97a282,#6d795e);color:#fff1d6;box-shadow:0 0 14px #fff1d644,0 3px 12px #5d614733}
+#zenBar .zen-shoot{width:48px;height:48px;background:#34382F;color:#C5A880}
 #zenBar button:disabled{opacity:.35;cursor:default}
 #zenActions{display:flex;align-items:center;gap:18px;margin-left:0;flex-shrink:0}
-#zenBar .zen-undo{background:linear-gradient(145deg,#bb9994,#997772);color:#fff2dc;box-shadow:0 2px 10px #684f4433}
-#zenRackSection{border-left:1px solid #fff6;padding-left:22px;display:flex;align-items:center;min-height:58px}
-#zenBar .zen-rack-toggle{position:relative;background:linear-gradient(145deg,#91a8a5,#627f80);color:#fff0d5;box-shadow:0 0 10px #ebf6e31f,0 3px 10px #354e4e33}
-#zenBar .zen-rack-toggle::before{content:'';position:absolute;inset:13px;border-radius:50%;border:1px solid #e9f0dc6b;box-shadow:0 0 6px #e4ebcd22}
-#zenRackMenu{position:fixed;z-index:130;width:264px;height:264px;border-radius:50%;background:radial-gradient(circle,#e8dfc87a 0,#e8dfc822 50%,transparent 72%);isolation:isolate}
+#zenBar .zen-undo{background:#352D30;color:rgba(226,223,216,.45)}
+#zenRackSection{border-left:1px solid rgba(255,255,255,.07);padding-left:22px;display:flex;align-items:center;min-height:58px}
+#zenBar .zen-rack-toggle{position:relative;background:#28343C;color:#C5A880}
+#zenBar .zen-rack-toggle::before{content:'';position:absolute;inset:13px;border-radius:50%;border:1px solid #C5A88066}
+#zenRackMenu{position:fixed;z-index:130;width:264px;height:264px;border-radius:50%;background:radial-gradient(circle,#12161cee 0,#12161c99 50%,transparent 72%);isolation:isolate}
 #zenRackMenu[hidden]{display:none}
-#zenRackMenu button{position:absolute;width:43px;height:43px;border-radius:50%;display:grid;place-items:center;transform:translate(-50%,-50%);border:1px solid #fff1d59c;background:radial-gradient(circle at 30% 25%,#b7c3a7,#7f9277);color:#fff8df;font:500 16px system-ui;cursor:pointer;box-shadow:0 3px 9px #3f513d33,0 0 8px #fff4d52b;text-shadow:0 1px 2px #46514155;touch-action:manipulation}
-#zenRackMenu button:hover,#zenRackMenu button:focus-visible{outline:2px solid #fff1c1b0;outline-offset:3px;filter:brightness(1.12)}
-#zenRackMenu .zen-radial-center{width:55px;height:55px;left:50%;top:50%;background:radial-gradient(circle at 30% 25%,#9eb5b0,#6a8583);font-size:20px}
+#zenRackMenu button{position:absolute;width:43px;height:43px;border-radius:50%;display:grid;place-items:center;transform:translate(-50%,-50%);border:1px solid #C5A88066;background:#181B20;color:#E2DFD8;font:500 16px system-ui;cursor:pointer;touch-action:manipulation}
+#zenRackMenu button:hover,#zenRackMenu button:focus-visible{outline:2px solid #C5A880;outline-offset:3px;filter:brightness(1.12)}
+#zenRackMenu .zen-radial-center{width:55px;height:55px;left:50%;top:50%;background:#2A382E;color:#C5A880;font-size:20px}
 #zenRackMenu button:disabled{opacity:.35;cursor:default}
 @media(max-width:1000px){#zenActions{gap:10px}#zenRackSection{padding-left:12px}}
 @media(max-width:700px){#zenActions{gap:6px}#zenRackSection{padding-left:7px;min-height:48px}#zenBar .zen-rack-toggle::before{inset:9px}#zenBar .zen-group{max-width:140px}#zenBar .zen-symbol{max-width:100%}#zenRackMenu{width:248px;height:248px}#zenRackMenu button{width:40px;height:40px}}
 
-#zenModeBtn{border:1px solid #eadebd;background:radial-gradient(circle at 35% 25%,#eee5d2,#c5b69a);border-radius:50%;height:64px;width:64px;display:grid;place-items:center;box-shadow:0 0 15px #fff2d944,0 3px 13px #675e5622;cursor:pointer;padding:0;flex-shrink:0}
-#zenModeBtn img{width:47px;height:47px;object-fit:contain;filter:grayscale(1) brightness(.72) drop-shadow(0 2px 2px #6b635433)}
-#zenRack{position:fixed;z-index:101;bottom:118px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:7px 12px;max-width:94vw;background:#dfd1b322;border-radius:30px;overflow-x:auto;scrollbar-width:none}
-#zenRack button{position:relative;flex:0 0 auto;width:clamp(22px,2.9vw,40px);height:clamp(22px,2.9vw,40px);border:0;border-radius:50%;cursor:grab;padding:0;touch-action:none;background:radial-gradient(circle at 30% 23%,#fff9,transparent 48%),var(--ball);box-shadow:inset -5px -6px 9px #131e1644,inset 2px 2px 5px #fff5,0 5px 7px #56492e44;transition:opacity .2s}
+#zenModeBtn{border:1px solid #C5A88055;background:#181B20;color:#C5A880;border-radius:50%;height:64px;width:64px;display:grid;place-items:center;cursor:pointer;padding:0;flex-shrink:0}
+#zenModeBtn svg{width:46px;height:46px}
+#zenRack{position:fixed;z-index:101;bottom:118px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:7px 12px;max-width:94vw;background:transparent;opacity:.70;border-radius:30px;overflow-x:auto;scrollbar-width:none}
+#zenRack button{position:relative;flex:0 0 auto;width:24px;height:24px;border:0;border-radius:50%;cursor:grab;padding:0;touch-action:none;background:radial-gradient(circle at 30% 23%,#fff9,transparent 48%),var(--ball);box-shadow:inset -5px -6px 9px #131e1644,inset 2px 2px 5px #fff5,0 5px 7px #56492e44;transition:opacity .2s}
 #zenRack button.stripe{background:radial-gradient(circle at 30% 23%,#fff9,transparent 48%),linear-gradient(#f3e8ce 22%,var(--ball) 23% 77%,#f3e8ce 78%)}
-#zenRack button span{display:grid;place-items:center;margin:auto;width:43%;height:43%;border-radius:50%;background:#f9edcf;color:#373c30;font:600 clamp(8px,.8vw,12px) system-ui}
+#zenRack button span{display:grid;place-items:center;margin:auto;width:43%;height:43%;border-radius:50%;background:#f9edcf;color:#373c30;font:600 8px system-ui}
 #zenRack button:disabled{opacity:.22;cursor:default;box-shadow:inset 0 1px 5px #655f3822}
-#zenModeMenu{position:fixed;z-index:120;bottom:calc(var(--zen-footer) - 10px);left:18px;padding:9px;background:#eee5d3f5;border:1px solid #fff3d1;border-radius:18px;box-shadow:0 9px 22px #4443;display:flex;gap:7px}
+#zenModeMenu{position:fixed;z-index:120;bottom:calc(var(--zen-footer) - 10px);left:18px;padding:9px;background:rgba(18,22,28,.9);backdrop-filter:blur(16px) saturate(120%);border:1px solid #ffffff12;border-radius:18px;box-shadow:0 9px 22px #4443;display:flex;gap:7px}
 #zenModeMenu[hidden]{display:none}
-#zenModeMenu button{background:#dad2bb;border:0;border-radius:12px;padding:12px 18px;color:#555b48;cursor:pointer;font:500 14px system-ui}
+#zenModeMenu button{background:#181B20;border:0;border-radius:12px;padding:12px 18px;color:#C5A880;cursor:pointer;font:500 14px system-ui}
 #zenModeMenu button:disabled{opacity:.5;cursor:default}
 .zen-drag-preview{position:fixed;z-index:200;pointer-events:none;width:32px;height:32px;border-radius:50%;background:var(--ball);box-shadow:0 4px 10px #0004;transform:translate(-50%,-50%)}
 #zenCueRest{position:fixed;bottom:136px;left:5vw;width:145px;height:16px;display:flex;align-items:center;gap:5px;pointer-events:none;opacity:.75}
-#zenCueRest span{height:4px;flex:1;background:linear-gradient(#f8e8c8,#a37e57);border-radius:3px;box-shadow:0 1px 5px #66532a33}
+#zenCueRest span{height:4px;flex:1;background:#C5A88088;border-radius:3px;box-shadow:0 1px 5px #66532a33}
 #zenCueRest i{width:15px;height:15px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#fff7df,#d7c8a7);box-shadow:0 0 6px #fff4d455}
 @media(max-width:1000px){#zenCueRest{display:none}#zenBar{gap:10px}#zenBar .zen-group{padding:0 5px}}
-@media(max-width:700px){body.zen-mode{--zen-footer:136px}#zenBar{width:96vw;height:84px;gap:5px;padding:8px;bottom:8px;border-radius:22px}#zenBar .zen-group{padding:0 2px}#zenModeBtn{width:40px;height:40px}#zenModeBtn img{width:32px;height:32px}#zenBar .zen-action{width:32px;height:32px;padding:5px}#zenBar .zen-shoot{width:32px;height:32px}#zenBar .zen-symbol{width:44px;height:32px;margin-top:0}#zenRack{gap:4px;bottom:98px}#zenBar .zen-group[data-kind=speed] .zen-symbol{width:56px}#zenBar input[type=range]::-webkit-slider-thumb{width:16px;height:16px;margin-top:-5px}}
+@media(max-width:700px){body.zen-mode{--zen-footer:136px}#zenBar{width:96vw;height:84px;gap:5px;padding:8px;bottom:8px;border-radius:16px}#zenBar .zen-group{padding:0 2px}#zenModeBtn{width:40px;height:40px}#zenModeBtn svg{width:32px;height:32px}#zenBar .zen-action{width:32px;height:32px;padding:5px}#zenBar .zen-shoot{width:32px;height:32px}#zenBar .zen-symbol{width:44px;height:32px;margin-top:0}#zenRack{gap:4px;bottom:98px}#zenBar .zen-group[data-kind=speed] .zen-symbol{width:56px}#zenBar input[type=range]::-webkit-slider-thumb{width:16px;height:16px;margin-top:-5px}}
 @media(max-height:550px){body.zen-mode{--zen-footer:110px}#zenBar{height:70px;padding:6px;bottom:6px}#zenRack{bottom:79px}#zenBar .zen-symbol{width:48px;height:32px;margin-top:0}#zenModeBtn{width:45px;height:45px}#zenBar .zen-action{width:40px;height:40px}#zenBar .zen-shoot{width:40px;height:40px}#zenCueRest{display:none}}
 
 `;
@@ -77,7 +77,7 @@ function init(){
  document.body.classList.add('zen-mode');document.head.appendChild(style);
  const engine=window.billiardsZenControls;engine.enter();
  const bar=document.createElement('div');bar.id='zenBar';bar.setAttribute('aria-label','Zen shot controls');
- const stones=document.createElement('button');stones.id='zenModeBtn';stones.type='button';stones.setAttribute('aria-label','Change experience');stones.setAttribute('aria-expanded','false');stones.title='Change experience';stones.innerHTML=buddha;
+ const stones=document.createElement('button');stones.id='zenModeBtn';stones.type='button';stones.setAttribute('aria-label','Change experience');stones.setAttribute('aria-expanded','false');stones.title='Change experience';stones.innerHTML=lotus;
  const menu=document.createElement('div');menu.id='zenModeMenu';menu.hidden=true;
  const train=document.createElement('button');train.textContent='Train';train.onclick=()=>{const url=new URL(location.href);url.searchParams.delete('zen');location.href=url.toString()};
  const play=document.createElement('button');play.textContent='Play · coming soon';play.disabled=true;

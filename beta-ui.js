@@ -90,7 +90,7 @@
     const isPreview = location.hostname.includes("billiards-trainer-guide-dev");
     if(new URLSearchParams(location.search).get("zen")==="1") return;
     const b=document.createElement("a");b.id="btZenLauncher";b.href=isPreview?"?zen=1":"https://billiards-trainer-guide-dev.vercel.app/?zen=1";
-    b.setAttribute("aria-label","Open Zen pool table");b.title="Open Zen mode";b.innerHTML='<img src="./icons/zen-buddha-v1.webp" alt="" aria-hidden="true" draggable="false" style="width:43px;height:43px;object-fit:contain;filter:grayscale(1) brightness(1.85);">';
+    b.setAttribute("aria-label","Open Zen pool table");b.title="Open Zen mode";b.innerHTML='<svg style="width:42px;height:42px;color:#C5A880" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M24 37C13 30 15 18 24 9c9 9 11 21 0 28Z"/><path d="M24 37C12 38 6 29 7 18c10 1 17 8 17 19Zm0 0c12 1 18-8 17-19-10 1-17 8-17 19Z"/><path d="M10 39c9 4 19 4 28 0"/></svg>';
     b.style.cssText="position:fixed;left:14px;bottom:12px;z-index:55;display:grid;place-items:center;width:54px;height:54px;background:linear-gradient(145deg,#29333a,#11181d);border:1.5px solid #e5e9de;border-radius:50%;box-shadow:0 3px 14px #0005;text-decoration:none;";
     document.body.appendChild(b);
   }
@@ -100,7 +100,7 @@
     setupCommunity(cfg);
     setupFeedback(cfg);
     setupZenLauncher();
-    const zenScript=document.createElement('script');zenScript.src='./zen-mode.js?v=zen-buddha-v10';document.body.appendChild(zenScript);
+    const zenScript=document.createElement('script');zenScript.src='./zen-mode.js?v=zen-midnight-v11';document.body.appendChild(zenScript);
   }
 
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded",init,{once:true});
