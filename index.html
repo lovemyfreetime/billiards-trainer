@@ -5736,7 +5736,7 @@
         const A=ZEN_ASSET_GEOM;
         const point=(x,y)=>map({x:(x-A.x0)/(A.x1-A.x0)*S.tableL,y:(y-A.y0)/(A.y1-A.y0)*S.tableW});
         const top=point(mask.x,mask.y),bottom=point(mask.x+mask.w,mask.y+mask.h);
-        paint.save();paint.globalAlpha=highlight.strength*.75*(['TM','BM'].includes(highlight.name)?.8:1);paint.drawImage(mask.tile,top.x,top.y,bottom.x-top.x,bottom.y-top.y);paint.restore();
+        paint.save();paint.globalAlpha=highlight.strength*.75*.875*(['TM','BM'].includes(highlight.name)?.8:1);paint.drawImage(mask.tile,top.x,top.y,bottom.x-top.x,bottom.y-top.y);paint.restore();
     }
     let zenTableArtwork=null,zenTableFrame=null;
     const zenReferenceTable=new Image();
@@ -12530,7 +12530,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=zen-fresh-table-v44"></script>
+  <script src="./beta-ui.js?v=zen-soft-pocket-v45"></script>
 
 
 </body>
