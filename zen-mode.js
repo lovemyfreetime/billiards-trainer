@@ -13,6 +13,8 @@ const paths={
  follow:`<path d="M72 3v42"/><g transform="translate(10 48) scale(1 -1)">${upChevron}</g><g transform="translate(102 0)">${upChevron}</g>`,
  spin:`<path d="M72 3v42"/><g transform="translate(38 0) scale(-1 1)">${rightChevron}</g><g transform="translate(106 0)">${rightChevron}</g>`,
  undo:'<circle cx="25" cy="25" r="7" fill="#E2DFD8" fill-opacity=".85" stroke="none"/><path d="M13 13a17 17 0 1 1-3 18M13 5v8h8" stroke-width="1.8"/>',
+ redo:'<g transform="translate(50 0) scale(-1 1)"><circle cx="25" cy="25" r="7" fill="#E2DFD8" fill-opacity=".85" stroke="none"/><path d="M13 13a17 17 0 1 1-3 18M13 5v8h8" stroke-width="1.8"/></g>',
+ actionRedo:'<path d="M41 13v22M12 24h21m-10-9 10 9-10 9" stroke-width="1.8"/>',
  actionUndo:'<path d="M9 13v22M38 24H17m10-9-10 9 10 9" stroke-width="1.8"/>',
  shot:'<path d="m19 12 20 12-20 12Z" fill="currentColor" stroke="none"/>'
 };
@@ -112,6 +114,17 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 #zenUndoAction svg{width:30px;height:30px}
 #zenUndoAction:disabled{opacity:.38;cursor:default}
 #zenUndoAction:focus-visible,#zenTipPoint:focus-visible{outline:1px solid #C5A880;outline-offset:3px}
+body.zen-mode #zenBar,body.zen-mode #zenRack{translate:0 var(--zen-history-lift,0px)}
+.zen-action-history-anchor{display:grid;width:100%;height:100%;border-radius:50%;outline:none}
+.zen-action-history-anchor:focus-visible{outline:1px solid #C5A880;outline-offset:3px}
+.zen-action-history-anchor button:disabled{pointer-events:none}
+.zen-history-menu{position:fixed;z-index:140;display:flex;gap:8px;width:80px;height:36px}
+.zen-history-menu[hidden]{display:none}
+.zen-history-menu button{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;padding:5px;border:1px solid #C5A88055;border-radius:50%;background:linear-gradient(145deg,#494044,#302B30);color:#D4C3A8;box-shadow:0 3px 9px #0003;cursor:pointer}
+.zen-history-menu svg{width:26px;height:26px}
+.zen-history-menu button[aria-pressed=true]{border-color:#C5A880;background:#494039}
+.zen-history-menu button:disabled{opacity:.3;cursor:default}
+.zen-history-menu button:focus-visible{outline:1px solid #C5A880;outline-offset:3px}
 #zenContactPanel{box-shadow:0 3px 9px #0003}
 #zenTipPoint{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair;border-radius:50%;overflow:visible}
 #zenContactReadout{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
@@ -149,7 +162,9 @@ function init(){
  group('Aim adjustment','aim');group('Speed','speed','speed');group('Forward / Draw','follow','follow');group('Left / Right Spin','spin','sideSpin');
  const actions=document.createElement('div');actions.id='zenActions';bar.append(actions);
  const action=(name,kind,id)=>{const b=document.createElement('button');b.type='button';b.className='zen-action zen-'+kind;b.title=name;b.setAttribute('aria-label',name);b.innerHTML=icon(kind);b.onclick=()=>{closeRackMenu();document.getElementById(id).click()};actions.append(b);return b};
- const shot=action('Execute Shot','shot','animate'),undo=action('Undo last shot','undo','undoShot');shot.classList.add('zen-shoot');
+ const shot=action('Execute Shot','shot','animate'),undo=action('Undo last shot','undo','undoShot');shot.classList.add('zen-shoot');undo.id='zenShotHistory';
+ let shotHistoryMode='undo',actionHistoryMode='undo';
+ undo.onclick=()=>{closeRackMenu();engine[shotHistoryMode+'Shot']();sync()};
 
  // Popovers are outside the dock so its glass blur never clips the hover content.
  const hoverTools=[];
@@ -160,7 +175,7 @@ function init(){
   const position=()=>{const r=anchor.getBoundingClientRect(),p=panel.getBoundingClientRect(),ball=document.querySelector('#zenRack button')?.getBoundingClientRect();
    const centerY=ball?ball.top+ball.height/2:r.top-p.height/2-12;
    panel.style.left=Math.max(8,Math.min(innerWidth-p.width-8,r.left+r.width/2-p.width/2))+'px';panel.style.top=Math.max(8,centerY-p.height/2)+'px'};
-  const close=()=>{clearTimeout(timer);panel.hidden=true;anchor.setAttribute('aria-expanded','false')};
+  const close=()=>{clearTimeout(timer);panel.hidden=true;anchor.setAttribute('aria-expanded','false');panel.dispatchEvent(new Event('zen:closed'))};
   const open=()=>{if(engine.status().busy)return;hoverTools.forEach(tool=>{if(tool.panel!==panel)tool.close()});closeRackMenu();closeMenu();clearTimeout(timer);panel.hidden=false;anchor.setAttribute('aria-expanded','true');position();syncContact();};
   const leave=()=>{clearTimeout(timer);timer=setTimeout(()=>{if(!panel.matches(':hover')&&!anchor.matches(':hover')&&!panel.contains(document.activeElement))close()},350)};
   anchor.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')open()});anchor.addEventListener('pointerleave',leave);panel.addEventListener('pointerenter',()=>clearTimeout(timer));panel.addEventListener('pointerleave',leave);
@@ -173,10 +188,48 @@ function init(){
   document.addEventListener('pointerdown',e=>{if(!anchor.contains(e.target)&&!panel.contains(e.target))close()});
   document.addEventListener('focusin',e=>{if(!anchor.contains(e.target)&&!panel.contains(e.target))close()});
   document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});window.addEventListener('resize',()=>{if(!panel.hidden)position()});
-  const tool={anchor,panel,open,close};hoverTools.push(tool);return tool;
+  const tool={anchor,panel,open,close,position};hoverTools.push(tool);return tool;
  }
  const recovery=hoverPanel(undo,'zenActionPanel','Action recovery');
- const undoAction=document.createElement('button');undoAction.id='zenUndoAction';undoAction.type='button';undoAction.setAttribute('aria-label','Undo last action');undoAction.innerHTML=icon('actionUndo');undoAction.onclick=()=>{engine.undoAction();sync()};recovery.panel.append(undoAction);
+ const undoAction=document.createElement('button');undoAction.id='zenUndoAction';undoAction.type='button';undoAction.setAttribute('aria-label','Undo last action');undoAction.innerHTML=icon('actionUndo');undoAction.onclick=()=>{engine[actionHistoryMode+'Action']();sync()};
+ const actionAnchor=document.createElement('span');actionAnchor.className='zen-action-history-anchor zen-history-trigger';actionAnchor.tabIndex=0;actionAnchor.setAttribute('role','group');actionAnchor.setAttribute('aria-label','Action undo and redo');actionAnchor.append(undoAction);recovery.panel.append(actionAnchor);
+ recovery.anchor.classList.add('zen-history-trigger');
+ // The selectors only change the mode; the existing circle performs that action.
+ function historyPicker(trigger,button,id,kind,direction,getMode,setMode){
+  const choices=document.createElement('div');choices.id=id;choices.className='zen-history-menu';choices.hidden=true;choices.setAttribute('role','group');choices.setAttribute('aria-label',kind==='Shot'?'Choose shot undo or redo':'Choose action undo or redo');recovery.panel.append(choices);
+  trigger.setAttribute('aria-controls',id);trigger.setAttribute('aria-expanded','false');
+  let timer=0,hold=0,selected=false,touchOpened=false;
+  const position=()=>{
+   if(choices.hidden)return;
+   if(direction==='below'){
+    document.body.style.setProperty('--zen-history-lift','0px');
+    const bottom=button.getBoundingClientRect().bottom,needed=Math.max(0,bottom+8+36+8-innerHeight);
+    document.body.style.setProperty('--zen-history-lift',-needed+'px');recovery.position();
+   }
+   const r=button.getBoundingClientRect();
+   choices.style.left=Math.max(8,Math.min(innerWidth-88,r.left+r.width/2-40))+'px';
+   choices.style.top=Math.max(8,direction==='below'?r.bottom+8:r.top-44)+'px';
+  };
+  const close=()=>{clearTimeout(timer);choices.hidden=true;trigger.setAttribute('aria-expanded','false');if(direction==='below'){document.body.style.removeProperty('--zen-history-lift');if(!recovery.panel.hidden)recovery.position();}};
+  const open=()=>{if(selected||engine.status().busy)return;clearTimeout(timer);choices.hidden=false;trigger.setAttribute('aria-expanded','true');position()};
+  const leave=()=>{clearTimeout(timer);timer=setTimeout(()=>{if(!trigger.matches(':hover')&&!choices.matches(':hover')&&!choices.contains(document.activeElement))close()},350)};
+  const buttons=['undo','redo'].map(mode=>{
+   const option=document.createElement('button');option.type='button';option.dataset.historyMode=mode;option.setAttribute('aria-label','Select '+mode+' last '+kind.toLowerCase());option.title=(mode==='undo'?'Undo':'Redo')+' last '+kind.toLowerCase();option.innerHTML=icon(kind==='Shot'?mode:mode==='undo'?'actionUndo':'actionRedo');
+   option.addEventListener('click',e=>{e.stopPropagation();setMode(mode);selected=true;close();trigger.focus();sync()});choices.append(option);return option;
+  });
+  trigger.addEventListener('pointerenter',e=>{selected=false;if(e.pointerType==='mouse')open()});trigger.addEventListener('pointerleave',leave);choices.addEventListener('pointerenter',()=>clearTimeout(timer));choices.addEventListener('pointerleave',leave);
+  trigger.addEventListener('focusin',open);
+  trigger.addEventListener('keydown',e=>{if(e.key===(direction==='below'?'ArrowDown':'ArrowUp')){e.preventDefault();e.stopPropagation();selected=false;open();buttons.find(b=>!b.disabled)?.focus()}});
+  trigger.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'){touchOpened=false;hold=setTimeout(()=>{touchOpened=true;selected=false;open()},500)}});
+  for(const type of ['pointerup','pointercancel','pointerleave'])trigger.addEventListener(type,()=>clearTimeout(hold));
+  trigger.addEventListener('click',e=>{if(touchOpened){e.preventDefault();e.stopImmediatePropagation();touchOpened=false}},true);
+  choices.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();selected=true;close();trigger.focus()}else if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();e.stopPropagation();const i=buttons.indexOf(document.activeElement);buttons[(i+1)%2].focus()}else if(e.key===' '||e.key==='Enter')e.stopPropagation()});
+  recovery.panel.addEventListener('zen:closed',close);window.addEventListener('resize',position);
+  return {sync(status){buttons.forEach((b,i)=>{const mode=i?'redo':'undo';b.disabled=status.busy||!status[mode+(kind==='Action'?'Action':'')];b.setAttribute('aria-pressed',String(mode===getMode()))});if(status.busy)close();},close};
+ }
+ const shotPicker=historyPicker(recovery.anchor,undo,'zenShotHistoryModes','Shot','below',()=>shotHistoryMode,mode=>shotHistoryMode=mode);
+ const actionPicker=historyPicker(actionAnchor,undoAction,'zenActionHistoryModes','Action','above',()=>actionHistoryMode,mode=>actionHistoryMode=mode);
+
  const contactTool=hoverPanel(shot,'zenContactPanel','Cue-ball contact');
  contactTool.panel.innerHTML='<svg id="zenTipPoint" viewBox="24 24 152 152" tabindex="0" role="group" aria-label="Adjust cue-ball contact point" aria-describedby="zenContactHelp"><defs><radialGradient id="zenCueFace" cx="32%" cy="25%" r="78%"><stop stop-color="#FFF9E9"/><stop offset=".65" stop-color="#E2DCCB"/><stop offset="1" stop-color="#A5A89D"/></radialGradient></defs><circle cx="100" cy="100" r="76" fill="url(#zenCueFace)" stroke="#E2DFD855"/><path d="M24 100h152M100 24v152" fill="none" stroke="#5F696A55" stroke-width=".8"/><circle id="zenTipLimit" cx="100" cy="100" r="38" fill="none" stroke="#5F696A77" stroke-dasharray="2 4" stroke-width=".8"/><circle id="zenTipDot" cx="100" cy="100" r="7" fill="#C84B43" stroke="#FFF5DF" stroke-width="1.5"/></svg><div id="zenContactReadout" aria-live="polite"></div><span id="zenContactHelp" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)">Click or drag the red dot. Arrow keys adjust the contact point; Home returns to center. Escape closes.</span>';
  const tipPoint=contactTool.panel.querySelector('#zenTipPoint'),tipDot=contactTool.panel.querySelector('#zenTipDot');let tipDragging=false;
@@ -229,7 +282,7 @@ function init(){
  });
  const cueRest=document.createElement('div');cueRest.id='zenCueRest';cueRest.setAttribute('aria-hidden','true');
  cueRest.innerHTML='<span></span><i></i>';document.body.append(bar,menu,rack,cueRest,rackMenu);
- function sync(){const status=engine.status();bindings.forEach(f=>f());bar.querySelectorAll('input').forEach(el=>el.disabled=status.busy);undo.disabled=status.busy||!status.undo;undoAction.disabled=status.busy||!status.undoAction;syncContact();if(status.busy)hoverTools.forEach(tool=>tool.close());shot.disabled=status.busy;rackToggle.disabled=status.busy;center.disabled=status.busy;rackChoices.forEach(b=>b.disabled=status.busy);if(status.busy&&!rackMenu.hidden)closeRackMenu();balls.forEach((b,i)=>{b.disabled=status.busy||status.balls.includes(i+1);b.title=status.balls.includes(i+1)?`Ball ${i+1} is on the table`:`Drag or tap to add ball ${i+1}`})}
+ function sync(){const status=engine.status();bindings.forEach(f=>f());bar.querySelectorAll('input').forEach(el=>el.disabled=status.busy);const shotLabel=(shotHistoryMode==='undo'?'Undo':'Redo')+' last shot',actionLabel=(actionHistoryMode==='undo'?'Undo':'Redo')+' last action';if(undo.getAttribute('aria-label')!==shotLabel){undo.innerHTML=icon(shotHistoryMode);undo.setAttribute('aria-label',shotLabel);undo.title=shotLabel}if(undoAction.getAttribute('aria-label')!==actionLabel){undoAction.innerHTML=icon(actionHistoryMode==='undo'?'actionUndo':'actionRedo');undoAction.setAttribute('aria-label',actionLabel);undoAction.title=actionLabel}undo.disabled=status.busy||!status[shotHistoryMode];undoAction.disabled=status.busy||!status[actionHistoryMode+'Action'];shotPicker.sync(status);actionPicker.sync(status);syncContact();if(status.busy)hoverTools.forEach(tool=>tool.close());shot.disabled=status.busy;rackToggle.disabled=status.busy;center.disabled=status.busy;rackChoices.forEach(b=>b.disabled=status.busy);if(status.busy&&!rackMenu.hidden)closeRackMenu();balls.forEach((b,i)=>{b.disabled=status.busy||status.balls.includes(i+1);b.title=status.balls.includes(i+1)?`Ball ${i+1} is on the table`:`Drag or tap to add ball ${i+1}`})}
  sync();setInterval(sync,180);window.dispatchEvent(new Event('resize'));
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();

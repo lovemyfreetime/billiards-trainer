@@ -1,10 +1,10 @@
-const CACHE_NAME = 'billiards-trainer-4-12-android-layout-v106';
+const CACHE_NAME = 'billiards-trainer-4-12-zen-history-v107';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
-  './trainer-action-history.js?v=1',
+  './trainer-action-history.js?v=2',
   './icons/zen-reference-table-v1.webp',
-  './zen-mode.js?v=android-layout-v18',
-  './beta-ui.js?v=android-layout-v18',
+  './zen-mode.js?v=history-modes-v19',
+  './beta-ui.js?v=history-modes-v19',
   './index.html',
   './trainer-practice-tools.js?v=3',
   './guide/audio-startup.js?v=native-warmup-v22',

@@ -1851,7 +1851,7 @@
 <link rel="stylesheet" href="./photo-calibration.css?v=focused-start-v17">
 <script src="./photo-calibration.js?v=walkthrough-v11"></script>
 <script src="./trainer-practice-tools.js?v=3"></script>
-<script src="./trainer-action-history.js?v=1"></script>
+<script src="./trainer-action-history.js?v=2"></script>
 <script src="./trainer-layout-files.js?v=2"></script>
 <script src="./trainer-saved-files.js?v=1"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
@@ -1999,37 +1999,46 @@
     // Shot/run history. Each committed animated shot stores a complete pre-shot
     // snapshot so Undo restores every ball and its exact position. runHistory keeps
     // the starting layout plus each committed ending layout.
-    let undoStack = [];
+    let undoStack = [], redoStack = [];
     let runHistory = [];
     let actionHistory=null,actionUndoTimer=0,actionPointer=false,actionKeys=false;
     function captureActionState(){
-        return {state:JSON.parse(JSON.stringify(S,(key,value)=>key==='preview'||key==='firstEvent'?null:value)),undo:undoStack.slice(),history:runHistory.slice()};
+        return {state:JSON.parse(JSON.stringify(S,(key,value)=>key==='preview'||key==='firstEvent'?null:value)),undo:undoStack.slice(),history:runHistory.slice(),redo:redoStack.slice()};
     }
     function syncActionUndo(){
         const button=$('undoAction');if(button)button.disabled=!!animation||!actionHistory?.count;
         window.dispatchEvent(new CustomEvent('billiards:action-history'));
     }
-    function finishActionUndo(){
+    function finishActionUndo(preserveShotRedo=false){
         clearTimeout(actionUndoTimer);actionUndoTimer=0;
         if(!actionHistory||animation||actionPointer||actionKeys)return;
-        actionHistory.commit(captureActionState());syncActionUndo();
+        if(actionHistory.commit(captureActionState())&&preserveShotRedo!==true)redoStack=[];
+        syncActionUndo();
     }
     function beginActionUndo(){
         if(!actionHistory||animation)return;
         if(!actionHistory.pending)actionHistory.begin(captureActionState());
     }
+    function restoreActionState(snapshot){
+        undoStack=snapshot.undo.slice();runHistory=snapshot.history.slice();redoStack=(snapshot.redo||[]).slice();
+        restoreSnapshot(snapshot.state);updateRunCount();saveState();syncProjector();syncActionUndo();
+    }
     function undoLastAction(){
         if(animation||!actionHistory)return;
         actionPointer=false;actionKeys=false;finishActionUndo();
-        const before=actionHistory.undo();if(!before){toast('No action to undo');return;}
-        undoStack=before.undo.slice();runHistory=before.history.slice();
-        restoreSnapshot(before.state);updateRunCount();saveState();syncProjector();syncActionUndo();
-        toast('Last action restored');
+        const before=actionHistory.undo(captureActionState());if(!before){toast('No action to undo');return;}
+        restoreActionState(before);toast('Last action restored');
+    }
+    function redoLastAction(){
+        if(animation||!actionHistory)return;
+        actionPointer=false;actionKeys=false;finishActionUndo();
+        const after=actionHistory.redo(captureActionState());if(!after){toast('No action to redo');return;}
+        restoreActionState(after);toast('Last action redone');
     }
     function installActionUndo(){
         actionHistory=window.BilliardsActionHistory.create(60);
         const relevant=e=>e.target instanceof Element&&!!e.target.closest('#app,#zenBar,#zenRack,#zenRackMenu,.zen-hover-panel');
-        const excluded=e=>!!e.target.closest?.('#undoAction,#zenUndoAction');
+        const excluded=e=>!!e.target.closest?.('#undoAction,#undoShot,#zenUndoAction,#zenShotHistory,.zen-history-menu,.zen-history-trigger');
         const later=delay=>{clearTimeout(actionUndoTimer);actionUndoTimer=setTimeout(finishActionUndo,delay);};
         document.addEventListener('pointerdown',e=>{if(e.button!==0||!relevant(e)||excluded(e)||animation)return;actionPointer=false;actionKeys=false;finishActionUndo();beginActionUndo();actionPointer=true;},true);
         document.addEventListener('pointerup',()=>{actionPointer=false;later(0);});
@@ -2042,7 +2051,7 @@
         document.addEventListener('change',e=>{if(relevant(e))later(0);});
         document.addEventListener('wheel',e=>{if(!relevant(e)||animation)return;beginActionUndo();later(300);}, {capture:true,passive:true});
         document.addEventListener('keydown',e=>{
-            if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&e.key.toLowerCase()==='z'&&!e.target.matches?.('input:not([type=range]),textarea,[contenteditable=true]')){e.preventDefault();e.stopImmediatePropagation();undoLastAction();return;}
+            if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&!e.target.matches?.('input:not([type=range]),textarea,[contenteditable=true]')){e.preventDefault();e.stopImmediatePropagation();if(e.shiftKey)redoLastAction();else undoLastAction();return;}
             if(excluded(e))return;
             if(!relevant(e)&&e.target!==document.body)return;
             if(!e.repeat){finishActionUndo();beginActionUndo();}actionKeys=true;
@@ -2068,7 +2077,7 @@
         refreshPreview();
     }
     function resetRunHistory() {
-        undoStack = [];
+        undoStack = []; redoStack = [];
         runHistory = [cleanSnapshot()];
         updateRunCount();
     }
@@ -2440,7 +2449,7 @@
         const copy=v=>JSON.parse(JSON.stringify(v,(key,value)=>key==='preview'?null:value));
         function capture(){return {state:copy(S),undo:copy(undoStack),history:copy(runHistory),name:$('layoutNameInput').value,quickName:$('layoutQuickName').value};}
         function refresh(){normalizeBallSet();updateUI();updateShot2UIState();updateRunCount();refreshPreview();saveState();syncProjector();}
-        function restore(saved){if(!saved?.state)return false;animation=null;S=copy(saved.state);undoStack=copy(saved.undo||[]);runHistory=copy(saved.history||[saved.state]);$('layoutNameInput').value=saved.name||'';$('layoutQuickName').value=saved.quickName||'';refresh();return true;}
+        function restore(saved){if(!saved?.state)return false;animation=null;redoStack=[];S=copy(saved.state);undoStack=copy(saved.undo||[]);runHistory=copy(saved.history||[saved.state]);$('layoutNameInput').value=saved.name||'';$('layoutQuickName').value=saved.quickName||'';refresh();return true;}
         function aimAt(id,pocket,from=cueBall()){
             const ball=S.balls.find(b=>b.id===id),px=pocket[0]*S.tableL,py=pocket[1]*S.tableW;
             const d=norm({x:px-ball.x,y:py-ball.y});return {x:ball.x-d.x*2*S.ballR,y:ball.y-d.y*2*S.ballR};
@@ -2493,8 +2502,8 @@
     window.billiardsZenControls={
         enter(){S.activeShot=1;S.shot2Enabled=false;S.cueElevationDeg=0;S.airbornePhysics=false;updateUI();refreshPreview();},
         aim(degrees){if(!animation){S.activeShot=1;rotateAimMicro(degrees*Math.PI/180);}},
-        status(){return {busy:!!animation,undo:undoStack.length>0,undoAction:!!actionHistory?.count,tip:{...effectiveTipOffsetValues(S.sideSpin,S.follow),limit:PHYSICS_MODEL.maxTipOffsetR},balls:S.balls.filter(b=>b.active&&!b.marker).map(b=>b.id)};},
-        undoAction:undoLastAction,
+        status(){return {busy:!!animation,undo:undoStack.length>0,redo:redoStack.length>0,undoAction:!!actionHistory?.count,redoAction:!!actionHistory?.redoCount,tip:{...effectiveTipOffsetValues(S.sideSpin,S.follow),limit:PHYSICS_MODEL.maxTipOffsetR},balls:S.balls.filter(b=>b.active&&!b.marker).map(b=>b.id)};},
+        undoAction:undoLastAction,redoAction:redoLastAction,undoShot:undoLastShot,redoShot:redoLastShot,
         tip(side,follow){
             if(animation)return;
             const magnitude=Math.max(1,Math.hypot(side,follow));
@@ -2762,7 +2771,7 @@
         resetGameMeta('loose' + count);
         normalizeBallSet();
         S.firstEvent = '—';
-        undoStack = [];
+        undoStack = []; redoStack = [];
         runHistory = [cleanSnapshot()];
         updateUI();
         refreshPreview();
@@ -2789,7 +2798,7 @@
         resetGameMeta(mode || 'rack');
         normalizeBallSet();
         S.firstEvent = '—';
-        undoStack = [];
+        undoStack = []; redoStack = [];
         runHistory = [cleanSnapshot()];
         updateUI();
         refreshPreview();
@@ -2923,7 +2932,7 @@
         resetGameMeta('8ball');
         normalizeBallSet();
         S.firstEvent = '—';
-        undoStack = [];
+        undoStack = []; redoStack = [];
         runHistory = [cleanSnapshot()];
         updateUI();
         refreshPreview();
@@ -8306,6 +8315,7 @@
         }
         normalizeBallSet();
         // The shot just committed can be reverted exactly.
+        redoStack=[];
         undoStack.push(preShot);
         runHistory.push(cleanSnapshot());
         animation = null;
@@ -8353,21 +8363,28 @@
         }
         requestAnimationFrame(tick);
     }
+    function captureShotHistoryState(){
+        return {state:cleanSnapshot(),undo:undoStack.slice(),history:runHistory.slice()};
+    }
     function undoLastShot() {
-        if (animation)
-            return;
-        if (!undoStack.length) {
-            toast('No saved shot to undo');
-            return;
-        }
-        const snap = undoStack.pop();
-        if (runHistory.length > 1)
-            runHistory.pop();
-        restoreSnapshot(snap);
-        saveState();
-        syncProjector();
-        toast('Last shot restored');
+        if(animation)return;
+        if(!undoStack.length){toast('No saved shot to undo');return;}
+        actionPointer=false;actionKeys=false;finishActionUndo();beginActionUndo();
+        redoStack.push(captureShotHistoryState());if(redoStack.length>60)redoStack.shift();
+        const snap=undoStack.pop();if(runHistory.length>1)runHistory.pop();
+        restoreSnapshot(snap);updateRunCount();saveState();syncProjector();
+        finishActionUndo(true);toast('Last shot restored');
         window.dispatchEvent(new CustomEvent('billiards:undo-complete'));
+    }
+    function redoLastShot(){
+        if(animation)return;
+        actionPointer=false;actionKeys=false;finishActionUndo();
+        if(!redoStack.length){toast('No saved shot to redo');return;}
+        beginActionUndo();
+        const after=redoStack.pop();undoStack=after.undo.slice();runHistory=after.history.slice();
+        restoreSnapshot(after.state);updateRunCount();saveState();syncProjector();
+        finishActionUndo(true);toast('Last shot redone');
+        window.dispatchEvent(new CustomEvent('billiards:redo-complete'));
     }
     function saveRun() {
         if (!runHistory.length)
@@ -8392,6 +8409,7 @@
                 toast('No saved run found');
                 return;
             }
+            redoStack=[];
             runHistory = payload.states.map(x => JSON.parse(JSON.stringify(x)));
             // Rebuild Undo from every state preceding the final state.
             undoStack = runHistory.slice(0, -1).map(x => JSON.parse(JSON.stringify(x)));
@@ -12340,7 +12358,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=android-layout-v18"></script>
+  <script src="./beta-ui.js?v=history-modes-v19"></script>
 
 
 </body>
