@@ -223,9 +223,9 @@
   #animate { width:100%; height:48px; background:#60d394; color:#071b10; border:1px solid #60d394; font-weight:800; transition:background .08s; }
   #animate:hover { background:#70dfa3; }
   #animate.executed { background:#4297e6; border-color:#4297e6; color:#05121d; }
-  .shotBottomActions { margin-top:8px; }
-  .shotBottomActions #undoAction { grid-column:1 / -1; font-size:11px; min-height:32px; }
-  .shotBottomActions #toggleShot2 { position:static; border-radius:7px; min-height:38px; padding:6px; font-size:11px; }
+  .shotHistoryRow { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:8px; margin-top:8px; }
+  .shotHistoryRow button { width:100%; min-width:0; min-height:38px; padding:6px 4px; font-size:11px; line-height:1.2; }
+  .shotToggleRow #toggleShot2 { position:static; width:100%; border-radius:7px; min-height:38px; padding:6px; font-size:11px; }
   .tableControlGroup { padding:8px; margin-bottom:8px; background:#19232e; border:1px solid #354250; border-radius:7px; }
   .layoutSetupGroup { padding:6px; }
   .layoutSetupReset { display:grid; grid-template-columns:1fr; margin-bottom:5px; }
@@ -1567,8 +1567,10 @@
           <button id="toggleCueVisuals2Btn" class="cueVisualToggleBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">CUE BALL 2</span></button>
         </div>
       </div>
+      <div class="shotExecuteRow shotToggleRow"><button id="toggleShot2" type="button">+ SHOT 2</button></div>
       <div id="shotExecuteRow" class="shotExecuteRow"><button id="animate" type="button">Execute Shot</button></div>
-      <div class="buttons shotBottomActions"><button id="toggleShot2" type="button">+ SHOT 2</button><button id="undoShot">Undo Last Shot</button><button id="undoAction" type="button" disabled title="Restore the previous aim, ball position, or control adjustment">Undo Last Action</button></div>
+      <div class="shotHistoryRow" role="group" aria-label="Shot history"><button id="undoShot" type="button" disabled>Undo Last Shot</button><button id="redoShot" type="button" disabled>Redo Last Shot</button></div>
+      <div class="shotHistoryRow" role="group" aria-label="Action history"><button id="undoAction" type="button" disabled title="Restore the previous aim, ball position, or control adjustment">Undo Last Action</button><button id="redoAction" type="button" disabled title="Restore the action most recently undone">Redo Last Action</button></div>
       <div class="shotExecuteRow"><button id="resetLayoutQuick" type="button">Reset Layout</button></div>
       </div>
     </div>
@@ -2005,8 +2007,13 @@
     function captureActionState(){
         return {state:JSON.parse(JSON.stringify(S,(key,value)=>key==='preview'||key==='firstEvent'?null:value)),undo:undoStack.slice(),history:runHistory.slice(),redo:redoStack.slice()};
     }
+    function syncHistoryButtons(){
+        for(const [id,available] of [['undoShot',undoStack.length],['redoShot',redoStack.length],['undoAction',actionHistory?.count],['redoAction',actionHistory?.redoCount]]){
+            const button=$(id);if(button)button.disabled=!!animation||!available;
+        }
+    }
     function syncActionUndo(){
-        const button=$('undoAction');if(button)button.disabled=!!animation||!actionHistory?.count;
+        syncHistoryButtons();
         window.dispatchEvent(new CustomEvent('billiards:action-history'));
     }
     function finishActionUndo(preserveShotRedo=false){
@@ -2038,7 +2045,7 @@
     function installActionUndo(){
         actionHistory=window.BilliardsActionHistory.create(60);
         const relevant=e=>e.target instanceof Element&&!!e.target.closest('#app,#zenBar,#zenRack,#zenRackMenu,.zen-hover-panel');
-        const excluded=e=>!!e.target.closest?.('#undoAction,#undoShot,#zenUndoAction,#zenShotHistory,.zen-history-menu,.zen-history-trigger');
+        const excluded=e=>!!e.target.closest?.('#undoAction,#redoAction,#undoShot,#redoShot,#zenUndoAction,#zenShotHistory,.zen-history-menu,.zen-history-trigger');
         const later=delay=>{clearTimeout(actionUndoTimer);actionUndoTimer=setTimeout(finishActionUndo,delay);};
         document.addEventListener('pointerdown',e=>{if(e.button!==0||!relevant(e)||excluded(e)||animation)return;actionPointer=false;actionKeys=false;finishActionUndo();beginActionUndo();actionPointer=true;},true);
         document.addEventListener('pointerup',()=>{actionPointer=false;later(0);});
@@ -2059,7 +2066,8 @@
         document.addEventListener('keyup',()=>{actionKeys=false;later(0);});
         window.addEventListener('billiards:shot-complete',()=>{actionPointer=false;actionKeys=false;finishActionUndo();});
         $('undoAction').onclick=undoLastAction;
-        $('undoAction').addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')e.stopPropagation();});
+        $('redoAction').onclick=redoLastAction;
+        for(const id of ['undoAction','redoAction'])$(id).addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')e.stopPropagation();});
         syncActionUndo();
     }
     function cleanSnapshot(state = S) {
@@ -7244,7 +7252,7 @@
         jumpBtn.classList.toggle('visibilityOff', !S.airbornePhysics);
         updateStatsLayout();
         document.getElementById('panel').classList.toggle('dualMode', on);
-        // Keep the small add/remove Shot 2 control exactly as before.
+        // The full-width add/remove Shot 2 control sits above Execute Shot.
         $('toggleShot2').textContent = on ? '− SHOT 2' : '+ SHOT 2';
         // Symmetric full-width visibility controls live directly under each cue-ball box.
         [1,2].forEach(which => {
@@ -7304,6 +7312,7 @@
         updateMarkerZoneControls();draw();saveState();syncProjector();
     }
     function updateUI() {
+        syncHistoryButtons();
         syncCueElevationLimits();
         if (isProjector)
             return;
@@ -8348,6 +8357,7 @@
         const start = performance.now();
         const fps = 60;
         animation = { current: sim.frames[0] };
+        syncHistoryButtons();
         const runningAnimation = animation;
         function tick(now) {
             if (animation !== runningAnimation) return;
@@ -11964,6 +11974,7 @@
             animateShot();
         };
         $('undoShot').onclick = undoLastShot;
+        $('redoShot').onclick = redoLastShot;
         $('resetLayoutQuick').onclick = resetLayout;
         $('makeRandomSetup').onclick = createRandomSetup;
         $('startFullRack').onclick = startFullRack;

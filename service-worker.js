@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-zen-history-v108';
+const CACHE_NAME = 'billiards-trainer-4-12-trainer-history-v109';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './trainer-action-history.js?v=2',
