@@ -5672,21 +5672,24 @@
         BL:{cx:290,cy:660,x:260,y:628,w:64,h:65},BM:{cx:839,cy:674,x:807,y:642,w:64,h:62},BR:{cx:1387,cy:660,x:1355,y:628,w:64,h:65}
     };
     const ZEN_POCKET_FELT={
-        TL:{x:316,y:139,rx:43,ry:37},TM:{x:839,y:135,rx:58,ry:35},TR:{x:1361,y:139,rx:43,ry:37},
-        BL:{x:316,y:631,rx:43,ry:37},BM:{x:839,y:634,rx:58,ry:35},BR:{x:1361,y:631,rx:43,ry:37}
+        TL:{x:298,y:119,rx:78,ry:78,dx:Math.SQRT1_2,dy:Math.SQRT1_2},TM:{x:839,y:112,rx:58,ry:78,dx:0,dy:1},TR:{x:1379,y:119,rx:78,ry:78,dx:-Math.SQRT1_2,dy:Math.SQRT1_2},
+        BL:{x:298,y:652,rx:78,ry:78,dx:Math.SQRT1_2,dy:-Math.SQRT1_2},BM:{x:839,y:662,rx:58,ry:78,dx:0,dy:-1},BR:{x:1379,y:652,rx:78,ry:78,dx:-Math.SQRT1_2,dy:-Math.SQRT1_2}
     };
     let zenPocketMaskCache=null;
     function tintZenPocketFelt(pixels,width,height,region,sourceX,sourceY){
         for(let y=0;y<height;y++)for(let x=0;x<width;x++){
-            const i=(y*width+x)*4,r=pixels[i],g=pixels[i+1],b=pixels[i+2],ax=x+sourceX,ay=y+sourceY;
-            const distance=Math.hypot((ax-region.x)/region.rx,(ay-region.y)/region.ry);
-            // Feather light into the existing cloth texture, never the black opening
-            // or the rail. No outline, flat colored disk, or blur beyond the felt.
-            const feather=Math.max(0,1-distance*distance);
-            const cloth=Math.max(0,Math.min(1,(g-r-7)/10))*Math.max(0,Math.min(1,(g-25)/20));
-            const edge=Math.max(0,Math.min(1,(ax-304)/8,(1373-ax)/8,(ay-128)/8,(642-ay)/8));
-            pixels[i]=r+(210-r)*.34;pixels[i+1]=g+(207-g)*.30;pixels[i+2]=b+(167-b)*.26;
-            pixels[i+3]=Math.round(255*.85*cloth*edge*feather*feather);
+            const i=(y*width+x)*4,r=pixels[i],g=pixels[i+1],b=pixels[i+2];
+            const px=x+sourceX-region.x,py=y+sourceY-region.y;
+            const along=px*region.dx+py*region.dy,across=-px*region.dy+py*region.dx;
+            const feather=Math.max(0,1-(along/66)**2-(across/46)**2);
+            const facing=Math.max(0,Math.min(1,(along+28)/40));
+            // One continuous white light field starts in the opening, crosses
+            // its curved lip and fades into the textured cloth. No rectangular
+            // cloth bounds or brightness cutoff can introduce a gap or seam.
+            const cloth=Math.max(0,Math.min(1,(g-r)/18));
+            const material=.28+.72*cloth;
+            pixels[i]=r+(255-r)*.32;pixels[i+1]=g+(255-g)*.32;pixels[i+2]=b+(255-b)*.32;
+            pixels[i+3]=Math.round(255*.76*material*facing*facing*(3-2*facing)*feather*feather);
         }
     }
     function zenPocketFeltMasks(){
@@ -12511,7 +12514,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=pocket-felt-glow-v41"></script>
+  <script src="./beta-ui.js?v=pocket-white-glow-v42"></script>
 
 
 </body>
