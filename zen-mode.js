@@ -105,16 +105,16 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 .zen-hover-anchor{display:flex;flex-shrink:0;align-items:center;border-radius:50%;outline:none}
 .zen-hover-anchor:focus-visible{outline:1px solid #C5A880;outline-offset:4px}
 .zen-hover-anchor .zen-action:disabled{pointer-events:none}
-.zen-hover-panel{position:fixed;z-index:135;box-sizing:border-box;padding:14px;border:1px solid #C5A88055;border-radius:20px;background:linear-gradient(135deg,#30363beF,#1B2026F5);backdrop-filter:blur(16px);box-shadow:0 9px 24px #0005;color:#D4C3A8;font:12px system-ui}
+.zen-hover-panel{position:fixed;z-index:135;box-sizing:border-box;width:55px;height:55px;padding:0;border:0;border-radius:50%;background:transparent;color:#D4C3A8}
 .zen-hover-panel[hidden]{display:none}
-#zenActionPanel{width:184px;text-align:center}
-#zenUndoAction{display:flex;flex-direction:column;align-items:center;gap:7px;width:100%;padding:9px;border:0;border-radius:12px;background:#C5A88012;color:#D4C3A8;cursor:pointer;font:12px system-ui}
-#zenUndoAction svg{width:32px;height:32px}
+#zenUndoAction{display:grid;place-items:center;box-sizing:border-box;width:100%;height:100%;padding:10px;border:1px solid #C5A88055;border-radius:50%;background:linear-gradient(145deg,#494044,#302B30);color:#D4C3A8;box-shadow:0 3px 9px #0003;cursor:pointer}
+#zenUndoAction svg{width:30px;height:30px}
 #zenUndoAction:disabled{opacity:.38;cursor:default}
 #zenUndoAction:focus-visible,#zenTipPoint:focus-visible{outline:1px solid #C5A880;outline-offset:3px}
-#zenContactPanel{width:208px;padding:10px 12px 12px;text-align:center}
-#zenTipPoint{display:block;width:180px;height:180px;touch-action:none;cursor:crosshair;border-radius:50%}
-#zenContactReadout{font-size:11px;color:#D4C3A8B8;min-height:15px;margin-top:2px}
+#zenContactPanel{box-shadow:0 3px 9px #0003}
+#zenTipPoint{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair;border-radius:50%;overflow:visible}
+#zenContactReadout{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
 
 `;
 function init(){
@@ -156,7 +156,9 @@ function init(){
   const anchor=document.createElement('span');anchor.className='zen-hover-anchor';anchor.tabIndex=0;anchor.setAttribute('role','group');anchor.setAttribute('aria-label',label);trigger.replaceWith(anchor);anchor.append(trigger);
   const panel=document.createElement('div');panel.id=id;panel.className='zen-hover-panel';panel.hidden=true;panel.setAttribute('role','group');panel.setAttribute('aria-label',label);anchor.setAttribute('aria-controls',id);anchor.setAttribute('aria-expanded','false');document.body.append(panel);
   let timer=0,hold=0,touchOpened=false,suppressFocus=false;
-  const position=()=>{const r=anchor.getBoundingClientRect(),p=panel.getBoundingClientRect();panel.style.left=Math.max(8,Math.min(innerWidth-p.width-8,r.left+r.width/2-p.width/2))+'px';panel.style.top=Math.max(8,r.top-p.height-12)+'px'};
+  const position=()=>{const r=anchor.getBoundingClientRect(),p=panel.getBoundingClientRect(),ball=document.querySelector('#zenRack button')?.getBoundingClientRect();
+   const centerY=ball?ball.top+ball.height/2:r.top-p.height/2-12;
+   panel.style.left=Math.max(8,Math.min(innerWidth-p.width-8,r.left+r.width/2-p.width/2))+'px';panel.style.top=Math.max(8,centerY-p.height/2)+'px'};
   const close=()=>{clearTimeout(timer);panel.hidden=true;anchor.setAttribute('aria-expanded','false')};
   const open=()=>{if(engine.status().busy)return;hoverTools.forEach(tool=>{if(tool.panel!==panel)tool.close()});closeRackMenu();closeMenu();clearTimeout(timer);panel.hidden=false;anchor.setAttribute('aria-expanded','true');position();syncContact();};
   const leave=()=>{clearTimeout(timer);timer=setTimeout(()=>{if(!panel.matches(':hover')&&!anchor.matches(':hover')&&!panel.contains(document.activeElement))close()},350)};
@@ -173,9 +175,9 @@ function init(){
   const tool={anchor,panel,open,close};hoverTools.push(tool);return tool;
  }
  const recovery=hoverPanel(undo,'zenActionPanel','Action recovery');
- const undoAction=document.createElement('button');undoAction.id='zenUndoAction';undoAction.type='button';undoAction.setAttribute('aria-label','Undo last action');undoAction.innerHTML=icon('undo')+'<span>Undo last action</span>';undoAction.onclick=()=>{engine.undoAction();sync()};recovery.panel.append(undoAction);
+ const undoAction=document.createElement('button');undoAction.id='zenUndoAction';undoAction.type='button';undoAction.setAttribute('aria-label','Undo last action');undoAction.innerHTML=icon('undo');undoAction.onclick=()=>{engine.undoAction();sync()};recovery.panel.append(undoAction);
  const contactTool=hoverPanel(shot,'zenContactPanel','Cue-ball contact');
- contactTool.panel.innerHTML='<svg id="zenTipPoint" viewBox="0 0 200 200" tabindex="0" role="group" aria-label="Adjust cue-ball contact point" aria-describedby="zenContactHelp"><defs><radialGradient id="zenCueFace" cx="32%" cy="25%" r="78%"><stop stop-color="#FFF9E9"/><stop offset=".65" stop-color="#E2DCCB"/><stop offset="1" stop-color="#A5A89D"/></radialGradient></defs><circle cx="100" cy="100" r="76" fill="url(#zenCueFace)" stroke="#E2DFD855"/><path d="M24 100h152M100 24v152" fill="none" stroke="#5F696A55" stroke-width=".8"/><circle id="zenTipLimit" cx="100" cy="100" r="38" fill="none" stroke="#5F696A77" stroke-dasharray="2 4" stroke-width=".8"/><circle id="zenTipDot" cx="100" cy="100" r="5" fill="#C84B43" stroke="#FFF5DF" stroke-width="1.5"/></svg><div id="zenContactReadout" aria-live="polite"></div><span id="zenContactHelp" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)">Click or drag the red dot. Arrow keys adjust the contact point; Home returns to center. Escape closes.</span>';
+ contactTool.panel.innerHTML='<svg id="zenTipPoint" viewBox="24 24 152 152" tabindex="0" role="group" aria-label="Adjust cue-ball contact point" aria-describedby="zenContactHelp"><defs><radialGradient id="zenCueFace" cx="32%" cy="25%" r="78%"><stop stop-color="#FFF9E9"/><stop offset=".65" stop-color="#E2DCCB"/><stop offset="1" stop-color="#A5A89D"/></radialGradient></defs><circle cx="100" cy="100" r="76" fill="url(#zenCueFace)" stroke="#E2DFD855"/><path d="M24 100h152M100 24v152" fill="none" stroke="#5F696A55" stroke-width=".8"/><circle id="zenTipLimit" cx="100" cy="100" r="38" fill="none" stroke="#5F696A77" stroke-dasharray="2 4" stroke-width=".8"/><circle id="zenTipDot" cx="100" cy="100" r="7" fill="#C84B43" stroke="#FFF5DF" stroke-width="1.5"/></svg><div id="zenContactReadout" aria-live="polite"></div><span id="zenContactHelp" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)">Click or drag the red dot. Arrow keys adjust the contact point; Home returns to center. Escape closes.</span>';
  const tipPoint=contactTool.panel.querySelector('#zenTipPoint'),tipDot=contactTool.panel.querySelector('#zenTipDot');let tipDragging=false;
  function syncContact(){
   const tip=engine.status().tip;if(!tip)return;
@@ -183,7 +185,7 @@ function init(){
   const side=Math.round(tip.side*100),follow=Math.round(tip.follow*100);
   contactTool.panel.querySelector('#zenContactReadout').textContent=`${side===0?'Center':side<0?'Left '+-side+'%':'Right '+side+'%'} · ${follow===0?'Level':follow<0?'Draw '+-follow+'%':'Follow '+follow+'%'}`;
  }
- const setContact=e=>{const r=tipPoint.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*200-100,y=100-(e.clientY-r.top)/r.height*200;if(!tipDragging&&Math.hypot(x,y)>76)return false;engine.tip(x/(76*engine.status().tip.limit),y/(76*engine.status().tip.limit));sync();return true;};
+ const setContact=e=>{const r=tipPoint.getBoundingClientRect(),x=((e.clientX-r.left)/r.width-.5)*152,y=(.5-(e.clientY-r.top)/r.height)*152;if(!tipDragging&&Math.hypot(x,y)>76)return false;engine.tip(x/(76*engine.status().tip.limit),y/(76*engine.status().tip.limit));sync();return true;};
  tipPoint.addEventListener('pointerdown',e=>{if(e.button!==0)return;if(setContact(e)){e.preventDefault();tipDragging=true;tipPoint.setPointerCapture(e.pointerId)}});
  tipPoint.addEventListener('pointermove',e=>{if(tipDragging)setContact(e)});for(const type of ['pointerup','pointercancel','lostpointercapture'])tipPoint.addEventListener(type,()=>{tipDragging=false});
  tipPoint.addEventListener('keydown',e=>{const d={ArrowLeft:[-.02,0],ArrowRight:[.02,0],ArrowUp:[0,.02],ArrowDown:[0,-.02]}[e.key],tip=engine.status().tip;if(d||e.key==='Home'){e.preventDefault();e.stopPropagation();engine.tip(e.key==='Home'?0:tip.side+d[0],e.key==='Home'?0:tip.follow+d[1]);sync()}});
