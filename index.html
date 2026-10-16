@@ -5599,12 +5599,27 @@
 
     // Recolor the original trainer artwork once; never reconstruct its geometry.
     let zenTableArtwork=null;
+    const zenMaterial=new Image();
+    zenMaterial.onload=()=>{zenTableArtwork=null;if(document.body.classList.contains('zen-mode'))draw();};
+    if(new URLSearchParams(location.search).get('zen')==='1')zenMaterial.src='./icons/zen-materials-v1.webp';
     function zenRecoloredTable(){
         if(zenTableArtwork)return zenTableArtwork;
         if(!ORIGINAL_TABLE_ASSET.complete||!ORIGINAL_TABLE_ASSET.naturalWidth)return null;
         const art=document.createElement('canvas');art.width=ORIGINAL_ASSET_GEOM.width;art.height=ORIGINAL_ASSET_GEOM.height;
         const paint=art.getContext('2d',{willReadFrequently:true});paint.drawImage(ORIGINAL_TABLE_ASSET,0,0);
         const pixels=paint.getImageData(0,0,art.width,art.height),d=pixels.data;
+        let material=null,mw=0,mh=0,half=0;
+        if(zenMaterial.complete&&zenMaterial.naturalWidth){
+            const tile=document.createElement('canvas');mw=tile.width=zenMaterial.naturalWidth;mh=tile.height=zenMaterial.naturalHeight;half=Math.floor(mw/2);
+            const t=tile.getContext('2d',{willReadFrequently:true});t.drawImage(zenMaterial,0,0);material=t.getImageData(0,0,mw,mh).data;
+        }
+        const textureLight=(x,y,cloth)=>{
+            if(!material)return 1;
+            let tx,ty;
+            if(cloth){tx=half+Math.min(half-1,Math.floor(x/art.width*half));ty=Math.min(mh-1,Math.floor(y/art.height*mh));}
+            else{const horizontal=y<120||y>art.height-120;tx=Math.floor((horizontal?x:y)*.65)%half;ty=Math.floor((horizontal?y:x)*2)%mh;}
+            const k=(ty*mw+tx)*4;return (.2126*material[k]+.7152*material[k+1]+.0722*material[k+2])/(cloth?82.6:101.97);
+        };
         for(let i=0;i<d.length;i+=4){
             const r=d[i],g=d[i+1],b=d[i+2];if(!d[i+3])continue;
             let target=null,base=1;
@@ -5621,18 +5636,21 @@
                 if(base===110.9242){
                     // Fine woven cloth, with broad natural light and quiet nap.
                     shade*=1.035-.12*Math.hypot((x-art.width*.42)/art.width,(y-art.height*.4)/art.height);
-                    shade+=grain*.022+Math.sin(x*2.4+y*.8)*.003;
+                    shade*=.64+.36*textureLight(x,y,true);shade+=grain*.012;
                 }else if(base===54.541){
                     // Layered flowing walnut grain follows the existing rail art.
                     const axis=(y<120||y>art.height-120)?x:y;
                     const cross=(y<120||y>art.height-120)?y:x;
-                    shade*=1+Math.sin(cross*.22+Math.sin(axis*.005)*2)*.037+Math.sin(cross*.83+axis*.007)*.013;
+                    shade*=.25+.75*textureLight(x,y,false);
                     shade+=grain*.018;
                 }else shade+=grain*.012;
                 d[i]=Math.min(255,target[0]*shade);d[i+1]=Math.min(255,target[1]*shade);d[i+2]=Math.min(255,target[2]*shade);
             }else if(Math.abs(r-g)<3&&Math.abs(g-b)<3&&light<80){
                 // Keep the pocket wells deep while warming hard ink-like edges.
-                d[i]=r*.8+15;d[i+1]=g*.8+16;d[i+2]=b*.8+12;
+                const pocketX=x<art.width*.25?109:x>art.width*.75?2421:1265;
+                const pocketY=y<art.height*.5?110:1270;
+                const pocket=Math.hypot(x-pocketX,y-pocketY)<95;
+                d[i]=r*.7+(pocket?15:47);d[i+1]=g*.7+(pocket?18:46);d[i+2]=b*.7+(pocket?13:36);
             }
         }
         paint.putImageData(pixels,0,0);zenTableArtwork=art;return art;
@@ -12321,7 +12339,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=zen-garden-v5"></script>
+  <script src="./beta-ui.js?v=zen-materials-v6"></script>
 
 
 </body>
