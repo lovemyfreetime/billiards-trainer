@@ -12,7 +12,8 @@ const paths={
  speed:`<g transform="translate(4 0)">${rightChevron}</g><g transform="translate(56 0)">${rightChevron}</g><g transform="translate(108 0)">${rightChevron}</g>`,
  follow:`<path d="M72 3v42"/><g transform="translate(10 48) scale(1 -1)">${upChevron}</g><g transform="translate(102 0)">${upChevron}</g>`,
  spin:`<path d="M72 3v42"/><g transform="translate(38 0) scale(-1 1)">${rightChevron}</g><g transform="translate(106 0)">${rightChevron}</g>`,
- undo:'<path d="M12 19h17a12 12 0 0 1 0 24M12 19l9-9M12 19l9 9"/>',
+ undo:'<circle cx="25" cy="25" r="7" fill="#E2DFD8" fill-opacity=".85" stroke="none"/><path d="M13 13a17 17 0 1 1-3 18M13 5v8h8" stroke-width="1.8"/>',
+ actionUndo:'<path d="M9 13v22M38 24H17m10-9-10 9 10 9" stroke-width="1.8"/>',
  shot:'<path d="m19 12 20 12-20 12Z" fill="currentColor" stroke="none"/>'
 };
 const icon=key=>`<svg viewBox="${['aim','speed','follow','spin'].includes(key)?'0 0 144 48':'-4 0 58 48'}" aria-hidden="true" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">${paths[key]}</svg>`;
@@ -175,7 +176,7 @@ function init(){
   const tool={anchor,panel,open,close};hoverTools.push(tool);return tool;
  }
  const recovery=hoverPanel(undo,'zenActionPanel','Action recovery');
- const undoAction=document.createElement('button');undoAction.id='zenUndoAction';undoAction.type='button';undoAction.setAttribute('aria-label','Undo last action');undoAction.innerHTML=icon('undo');undoAction.onclick=()=>{engine.undoAction();sync()};recovery.panel.append(undoAction);
+ const undoAction=document.createElement('button');undoAction.id='zenUndoAction';undoAction.type='button';undoAction.setAttribute('aria-label','Undo last action');undoAction.innerHTML=icon('actionUndo');undoAction.onclick=()=>{engine.undoAction();sync()};recovery.panel.append(undoAction);
  const contactTool=hoverPanel(shot,'zenContactPanel','Cue-ball contact');
  contactTool.panel.innerHTML='<svg id="zenTipPoint" viewBox="24 24 152 152" tabindex="0" role="group" aria-label="Adjust cue-ball contact point" aria-describedby="zenContactHelp"><defs><radialGradient id="zenCueFace" cx="32%" cy="25%" r="78%"><stop stop-color="#FFF9E9"/><stop offset=".65" stop-color="#E2DCCB"/><stop offset="1" stop-color="#A5A89D"/></radialGradient></defs><circle cx="100" cy="100" r="76" fill="url(#zenCueFace)" stroke="#E2DFD855"/><path d="M24 100h152M100 24v152" fill="none" stroke="#5F696A55" stroke-width=".8"/><circle id="zenTipLimit" cx="100" cy="100" r="38" fill="none" stroke="#5F696A77" stroke-dasharray="2 4" stroke-width=".8"/><circle id="zenTipDot" cx="100" cy="100" r="7" fill="#C84B43" stroke="#FFF5DF" stroke-width="1.5"/></svg><div id="zenContactReadout" aria-live="polite"></div><span id="zenContactHelp" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)">Click or drag the red dot. Arrow keys adjust the contact point; Home returns to center. Escape closes.</span>';
  const tipPoint=contactTool.panel.querySelector('#zenTipPoint'),tipDot=contactTool.panel.querySelector('#zenTipDot');let tipDragging=false;
