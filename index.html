@@ -5667,9 +5667,49 @@
 
     // Reference materials are rasterized once; live balls and physics stay separate.
     const ZEN_ASSET_GEOM={width:1678,height:937,x0:298,x1:1379,y0:120,y1:650};
+    const ZEN_POCKET_ART={
+        TL:{cx:290,cy:111,x:260,y:80,w:64,h:65},TM:{cx:839,cy:100,x:807,y:68,w:64,h:62},TR:{cx:1387,cy:111,x:1355,y:80,w:64,h:65},
+        BL:{cx:290,cy:660,x:260,y:628,w:64,h:65},BM:{cx:839,cy:674,x:807,y:642,w:64,h:62},BR:{cx:1387,cy:660,x:1355,y:628,w:64,h:65}
+    };
+    let zenPocketMaskCache=null;
+    function tintZenPocketInterior(pixels,width,height,seedX,seedY){
+        const count=width*height,seen=new Uint8Array(count),queue=new Uint32Array(count);
+        let head=0,tail=0;const seed=seedY*width+seedX;queue[tail++]=seed;seen[seed]=1;
+        const original=new Uint8ClampedArray(pixels);pixels.fill(0);
+        while(head<tail){
+            const i=queue[head++],offset=i*4,x=i%width,y=Math.floor(i/width);
+            const brightness=Math.max(original[offset],original[offset+1],original[offset+2]);
+            if(brightness>=18||original[offset+3]===0)continue;
+            const distance=Math.hypot(x-seedX,y-seedY),interior=Math.max(0,Math.min(1,(Math.min(width,height)*.44-distance)/2));
+            const edge=Math.min(1,(18-brightness)/6)*interior,depth=.45+.55*Math.max(0,1-distance/(Math.max(width,height)*.52));
+            pixels[offset]=180;pixels[offset+1]=167;pixels[offset+2]=131;pixels[offset+3]=Math.round(255*edge*depth);
+            for(const next of [x>0?i-1:-1,x+1<width?i+1:-1,y>0?i-width:-1,y+1<height?i+width:-1]){
+                if(next>=0&&!seen[next]){seen[next]=1;queue[tail++]=next;}
+            }
+        }
+    }
+    function zenPocketInteriorMasks(){
+        const art=zenRecoloredTable();if(!art)return null;
+        if(zenPocketMaskCache?.art===art)return zenPocketMaskCache.masks;
+        const masks={};
+        for(const [name,region]of Object.entries(ZEN_POCKET_ART)){
+            const tile=document.createElement('canvas');tile.width=region.w;tile.height=region.h;
+            const paint=tile.getContext('2d',{willReadFrequently:true});paint.drawImage(art,region.x,region.y,region.w,region.h,0,0,region.w,region.h);
+            const data=paint.getImageData(0,0,region.w,region.h);
+            tintZenPocketInterior(data.data,region.w,region.h,region.cx-region.x,region.cy-region.y);paint.putImageData(data,0,0);masks[name]=tile;
+        }
+        zenPocketMaskCache={art,masks};return masks;
+    }
+    function drawZenPocketInterior(paint,map,highlight){
+        const mask=zenPocketInteriorMasks()?.[highlight.name];if(!mask)return;
+        const region=ZEN_POCKET_ART[highlight.name],A=ZEN_ASSET_GEOM;
+        const point=(x,y)=>map({x:(x-A.x0)/(A.x1-A.x0)*S.tableL,y:(y-A.y0)/(A.y1-A.y0)*S.tableW});
+        const top=point(region.x,region.y),bottom=point(region.x+region.w,region.y+region.h);
+        paint.save();paint.globalAlpha=.42*highlight.strength;paint.drawImage(mask,top.x,top.y,bottom.x-top.x,bottom.y-top.y);paint.restore();
+    }
     let zenTableArtwork=null,zenTableFrame=null;
     const zenReferenceTable=new Image();
-    zenReferenceTable.onload=()=>{zenTableArtwork=zenReferenceTable;zenTableFrame=null;if(document.body.classList.contains('zen-mode'))draw();};
+    zenReferenceTable.onload=()=>{zenTableArtwork=zenReferenceTable;zenTableFrame=null;zenGuideFrame=null;zenPocketMaskCache=null;if(document.body.classList.contains('zen-mode'))draw();};
     if(new URLSearchParams(location.search).get('zen')==='1')zenReferenceTable.src='./icons/zen-reference-table-v1.webp';
     function zenRecoloredTable(){return zenTableArtwork;}
     function drawZenTable(map){
@@ -6119,8 +6159,8 @@
     }
     function zenPathGlow(power,channel){return power.stroke*(.4+.6*power[channel]);}
     function zenPocketVisualCenter(pocket){
-        const offset=S.ballR*(pocket.kind==='side'?2.2:1.65);
-        return {x:pocket.kind==='side'?pocket.x:pocket.x+(pocket.x===0?-offset:offset),y:pocket.y+(pocket.y===0?-offset:offset)};
+        const center=ZEN_POCKET_ART[pocket.name],A=ZEN_ASSET_GEOM;
+        return {x:(center.cx-A.x0)/(A.x1-A.x0)*S.tableL,y:(center.cy-A.y0)/(A.y1-A.y0)*S.tableW};
     }
     function zenPocketAlignment(path,target,radius){
         if(!path||path.length<2)return 0;
@@ -6142,7 +6182,7 @@
                 if(event&&nearestLogicalPocket(event).name!==pocket.name)continue;
                 strength=Math.max(strength,zenPocketAlignment(preview.paths?.[id],center,S.ballR));
             }
-            return {center,strength};
+            return {name:pocket.name,center,strength};
         }).filter(highlight=>highlight.strength>0);
     }
     let zenGuideFrame=null;
@@ -6191,12 +6231,7 @@
                 if(roll)stroke([roll.start,roll.end],1,'rgba(255,255,255,0.14)',[2,4]);
             }
             c.restore();c.setLineDash([]);
-            for(const highlight of zenPocketHighlights(preview)){
-                const center=map(highlight.center),radius=Math.abs(map({x:highlight.center.x+R*2.2,y:highlight.center.y}).x-center.x);
-                const glow=c.createRadialGradient(center.x,center.y,0,center.x,center.y,radius);
-                glow.addColorStop(0,`rgba(208,184,145,${.24*highlight.strength})`);glow.addColorStop(.5,`rgba(208,184,145,${.12*highlight.strength})`);glow.addColorStop(1,'rgba(208,184,145,0)');
-                c.fillStyle=glow;c.beginPath();c.arc(center.x,center.y,radius,0,Math.PI*2);c.fill();
-            }
+            for(const highlight of zenPocketHighlights(preview))drawZenPocketInterior(c,map,highlight);
             if(g){c.beginPath();c.arc(g.x,g.y,r,0,Math.PI*2);c.strokeStyle='rgba(255,255,255,0.20)';c.lineWidth=1;c.stroke();}
             const layer=raw;
             zenGuideFrame={key,preview,layer};
@@ -12463,7 +12498,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=safe-drag-placement-v37"></script>
+  <script src="./beta-ui.js?v=pocket-interior-glow-v38"></script>
 
 
 </body>
