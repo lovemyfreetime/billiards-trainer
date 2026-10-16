@@ -1,12 +1,12 @@
 (function(){
 "use strict";
 if(new URLSearchParams(location.search).get("zen")!=="1")return;
-const svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\" width=\"44\" height=\"44\" aria-hidden=\"true\"><defs><filter id=\"stonegrain\"><feTurbulence type=\"fractalNoise\" baseFrequency=\".42\" numOctaves=\"3\" seed=\"8\" result=\"noise\"/><feColorMatrix in=\"noise\" type=\"saturate\" values=\"0\" result=\"noise\"/><feComposite in=\"noise\" in2=\"SourceGraphic\" operator=\"in\" result=\"texture\"/><feBlend in=\"SourceGraphic\" in2=\"texture\" mode=\"multiply\"/></filter><linearGradient id=\"stonefill\" x1=\"0\" y1=\"0\" x2=\".2\" y2=\"1\"><stop stop-color=\"#c5c5be\"/><stop offset=\".5\" stop-color=\"#a2a49e\"/><stop offset=\"1\" stop-color=\"#7e837f\"/></linearGradient></defs><ellipse cx=\"32\" cy=\"56\" rx=\"25\" ry=\"5\" fill=\"#746d62\" opacity=\".16\"/><g fill=\"url(#stonefill)\" stroke=\"#73766f\" stroke-width=\".6\" filter=\"url(#stonegrain)\"><ellipse cx=\"32\" cy=\"47\" rx=\"24\" ry=\"11\"/><ellipse cx=\"32\" cy=\"34\" rx=\"19\" ry=\"9\"/><ellipse cx=\"33\" cy=\"21\" rx=\"13\" ry=\"7\"/></g></svg>";
+const buddha = '<img src="./icons/zen-buddha-v1.webp" alt="" aria-hidden="true" draggable="false">';
 
 // Simple, rounded line symbols traced from Jeff's control sketch.
 // Each directional arrow is its own closed shape, with clear physical spacing.
-const upChevron='<path d="M2 34Q0 32 2 29L13 9Q16 4 19 9L30 29Q32 33 29 35Q26 37 24 33L16 19 8 33Q5 38 2 34Z"/>';
-const rightChevron='<path d="M5 6Q2 4 1 7Q0 9 3 11L18 24 3 37Q0 40 2 42Q4 44 7 41L28 28Q33 24 28 20L7 7Q6 6 5 6Z"/>';
+const upChevron='<g transform="translate(5.12 7.68) scale(.68)"><path d="M2 34Q0 32 2 29L13 9Q16 4 19 9L30 29Q32 33 29 35Q26 37 24 33L16 19 8 33Q5 38 2 34Z"/></g>';
+const rightChevron='<g transform="translate(5.12 7.68) scale(.68)"><path d="M5 6Q2 4 1 7Q0 9 3 11L18 24 3 37Q0 40 2 42Q4 44 7 41L28 28Q33 24 28 20L7 7Q6 6 5 6Z"/></g>';
 const paths={
  aim:`<g transform="translate(8 0) rotate(-22 16 24)">${upChevron}</g><g transform="translate(56 0)">${upChevron}</g><g transform="translate(104 0) rotate(22 16 24)">${upChevron}</g>`,
  speed:`<g transform="translate(4 0)">${rightChevron}</g><g transform="translate(56 0)">${rightChevron}</g><g transform="translate(108 0)">${rightChevron}</g>`,
@@ -24,7 +24,7 @@ body.zen-mode #stageWrap{position:absolute!important;inset:0 0 calc(var(--zen-fo
 body.zen-mode #canvas{filter:none!important}
 body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,body.zen-mode #analyzePhotoBtn,body.zen-mode #quickLayoutRecall,body.zen-mode #kickToolToggle,body.zen-mode #bankToolToggle,body.zen-mode #teachingCompassToggle,body.zen-mode #compassSizeWrap,body.zen-mode #compassRotateWrap,body.zen-mode #bottomSpeedControls,body.zen-mode #bottomSpin1,body.zen-mode #bottomSpin2,body.zen-mode #cueRailBtn,body.zen-mode #cuePopup,body.zen-mode #aimControls,body.zen-mode #aimControls2,body.zen-mode #angleLock,body.zen-mode #practiceCounter,body.zen-mode #markerRailControls,body.zen-mode #pocketTray,body.zen-mode #bt-guide-pool-root,body.zen-mode .phone-controls{display:none!important}
 #zenBar{position:fixed;z-index:100;bottom:14px;left:50%;transform:translateX(-50%);width:min(1240px,96vw);box-sizing:border-box;height:92px;display:flex;gap:18px;align-items:center;justify-content:center;padding:12px 20px;background:linear-gradient(120deg,#f6edd552,#dfd3b92e);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid #fff4d877;border-radius:29px;box-shadow:0 4px 22px #54482c24,inset 0 1px 14px #fff3d433;font-family:system-ui;color:#6d705c}
-#zenBar .zen-group{min-width:0;flex:1;max-width:164px;text-align:center;position:relative;padding:0 9px;border-right:1px solid #fff4}
+#zenBar .zen-group{min-width:0;flex:1;max-width:none;text-align:center;position:relative;padding:0 9px;border-right:1px solid #fff4}
 #zenBar .zen-symbol{display:block;width:136px;height:42px;margin:0 auto;color:#696e59;opacity:.85}
 #zenBar .zen-group[data-kind=speed] .zen-symbol{width:136px}
 #zenBar .zen-symbol svg{width:100%;height:100%}
@@ -39,7 +39,7 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 #zenBar .zen-action svg{width:100%;height:100%}
 #zenBar .zen-shoot{width:48px;height:48px;background:linear-gradient(145deg,#97a282,#6d795e);color:#fff1d6;box-shadow:0 0 14px #fff1d644,0 3px 12px #5d614733}
 #zenBar button:disabled{opacity:.35;cursor:default}
-#zenActions{display:flex;align-items:center;gap:18px;margin-left:auto;flex-shrink:0}
+#zenActions{display:flex;align-items:center;gap:18px;margin-left:0;flex-shrink:0}
 #zenBar .zen-undo{background:linear-gradient(145deg,#bb9994,#997772);color:#fff2dc;box-shadow:0 2px 10px #684f4433}
 #zenRackSection{border-left:1px solid #fff6;padding-left:22px;display:flex;align-items:center;min-height:58px}
 #zenBar .zen-rack-toggle{position:relative;background:linear-gradient(145deg,#91a8a5,#627f80);color:#fff0d5;box-shadow:0 0 10px #ebf6e31f,0 3px 10px #354e4e33}
@@ -54,7 +54,7 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 @media(max-width:700px){#zenActions{gap:6px}#zenRackSection{padding-left:7px;min-height:48px}#zenBar .zen-rack-toggle::before{inset:9px}#zenBar .zen-group{max-width:140px}#zenBar .zen-symbol{max-width:100%}#zenRackMenu{width:248px;height:248px}#zenRackMenu button{width:40px;height:40px}}
 
 #zenModeBtn{border:1px solid #eadebd;background:radial-gradient(circle at 35% 25%,#eee5d2,#c5b69a);border-radius:50%;height:64px;width:64px;display:grid;place-items:center;box-shadow:0 0 15px #fff2d944,0 3px 13px #675e5622;cursor:pointer;padding:0;flex-shrink:0}
-#zenModeBtn svg{width:46px;height:46px;filter:drop-shadow(0 3px 2px #6b63544a)}
+#zenModeBtn img{width:47px;height:47px;object-fit:contain;filter:grayscale(1) brightness(.72) drop-shadow(0 2px 2px #6b635433)}
 #zenRack{position:fixed;z-index:101;bottom:118px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:7px 12px;max-width:94vw;background:#dfd1b322;border-radius:30px;overflow-x:auto;scrollbar-width:none}
 #zenRack button{position:relative;flex:0 0 auto;width:clamp(22px,2.9vw,40px);height:clamp(22px,2.9vw,40px);border:0;border-radius:50%;cursor:grab;padding:0;touch-action:none;background:radial-gradient(circle at 30% 23%,#fff9,transparent 48%),var(--ball);box-shadow:inset -5px -6px 9px #131e1644,inset 2px 2px 5px #fff5,0 5px 7px #56492e44;transition:opacity .2s}
 #zenRack button.stripe{background:radial-gradient(circle at 30% 23%,#fff9,transparent 48%),linear-gradient(#f3e8ce 22%,var(--ball) 23% 77%,#f3e8ce 78%)}
@@ -69,7 +69,7 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 #zenCueRest span{height:4px;flex:1;background:linear-gradient(#f8e8c8,#a37e57);border-radius:3px;box-shadow:0 1px 5px #66532a33}
 #zenCueRest i{width:15px;height:15px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#fff7df,#d7c8a7);box-shadow:0 0 6px #fff4d455}
 @media(max-width:1000px){#zenCueRest{display:none}#zenBar{gap:10px}#zenBar .zen-group{padding:0 5px}}
-@media(max-width:700px){body.zen-mode{--zen-footer:136px}#zenBar{width:96vw;height:84px;gap:5px;padding:8px;bottom:8px;border-radius:22px}#zenBar .zen-group{padding:0 2px}#zenModeBtn{width:40px;height:40px}#zenModeBtn svg{width:32px;height:32px}#zenBar .zen-action{width:32px;height:32px;padding:5px}#zenBar .zen-shoot{width:32px;height:32px}#zenBar .zen-symbol{width:44px;height:32px;margin-top:0}#zenRack{gap:4px;bottom:98px}#zenBar .zen-group[data-kind=speed] .zen-symbol{width:56px}#zenBar input[type=range]::-webkit-slider-thumb{width:16px;height:16px;margin-top:-5px}}
+@media(max-width:700px){body.zen-mode{--zen-footer:136px}#zenBar{width:96vw;height:84px;gap:5px;padding:8px;bottom:8px;border-radius:22px}#zenBar .zen-group{padding:0 2px}#zenModeBtn{width:40px;height:40px}#zenModeBtn img{width:32px;height:32px}#zenBar .zen-action{width:32px;height:32px;padding:5px}#zenBar .zen-shoot{width:32px;height:32px}#zenBar .zen-symbol{width:44px;height:32px;margin-top:0}#zenRack{gap:4px;bottom:98px}#zenBar .zen-group[data-kind=speed] .zen-symbol{width:56px}#zenBar input[type=range]::-webkit-slider-thumb{width:16px;height:16px;margin-top:-5px}}
 @media(max-height:550px){body.zen-mode{--zen-footer:110px}#zenBar{height:70px;padding:6px;bottom:6px}#zenRack{bottom:79px}#zenBar .zen-symbol{width:48px;height:32px;margin-top:0}#zenModeBtn{width:45px;height:45px}#zenBar .zen-action{width:40px;height:40px}#zenBar .zen-shoot{width:40px;height:40px}#zenCueRest{display:none}}
 
 `;
@@ -77,7 +77,7 @@ function init(){
  document.body.classList.add('zen-mode');document.head.appendChild(style);
  const engine=window.billiardsZenControls;engine.enter();
  const bar=document.createElement('div');bar.id='zenBar';bar.setAttribute('aria-label','Zen shot controls');
- const stones=document.createElement('button');stones.id='zenModeBtn';stones.type='button';stones.setAttribute('aria-label','Change experience');stones.setAttribute('aria-expanded','false');stones.title='Change experience';stones.innerHTML=svg;
+ const stones=document.createElement('button');stones.id='zenModeBtn';stones.type='button';stones.setAttribute('aria-label','Change experience');stones.setAttribute('aria-expanded','false');stones.title='Change experience';stones.innerHTML=buddha;
  const menu=document.createElement('div');menu.id='zenModeMenu';menu.hidden=true;
  const train=document.createElement('button');train.textContent='Train';train.onclick=()=>{const url=new URL(location.href);url.searchParams.delete('zen');location.href=url.toString()};
  const play=document.createElement('button');play.textContent='Play · coming soon';play.disabled=true;
