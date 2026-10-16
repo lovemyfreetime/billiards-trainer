@@ -1,10 +1,10 @@
-const CACHE_NAME = 'billiards-trainer-4-12-zen-materials-v93';
+const CACHE_NAME = 'billiards-trainer-4-12-zen-radial-v94';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './icons/zen-garden-v1.webp',
   './icons/zen-materials-v1.webp',
-  './zen-mode.js?v=zen-materials-v6',
-  './beta-ui.js?v=zen-materials-v6',
+  './zen-mode.js?v=zen-radial-v7',
+  './beta-ui.js?v=zen-radial-v7',
   './index.html',
   './guide/narration-cues.js?v=shaped-guides-v2',
   './guide/narration-cues.css?v=shaped-guides-v2',

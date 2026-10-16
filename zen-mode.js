@@ -19,7 +19,7 @@ body.zen-mode #app{display:block!important;height:100dvh!important;background:tr
 body.zen-mode #stageWrap{position:absolute!important;inset:0 0 calc(var(--zen-footer) + 25px)!important;background:transparent!important}
 body.zen-mode #canvas{filter:none!important}
 body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,body.zen-mode #analyzePhotoBtn,body.zen-mode #quickLayoutRecall,body.zen-mode #kickToolToggle,body.zen-mode #bankToolToggle,body.zen-mode #teachingCompassToggle,body.zen-mode #compassSizeWrap,body.zen-mode #compassRotateWrap,body.zen-mode #bottomSpeedControls,body.zen-mode #bottomSpin1,body.zen-mode #bottomSpin2,body.zen-mode #cueRailBtn,body.zen-mode #cuePopup,body.zen-mode #aimControls,body.zen-mode #aimControls2,body.zen-mode #angleLock,body.zen-mode #practiceCounter,body.zen-mode #markerRailControls,body.zen-mode #pocketTray,body.zen-mode #bt-guide-pool-root,body.zen-mode .phone-controls{display:none!important}
-#zenBar{position:fixed;z-index:100;bottom:14px;left:50%;transform:translateX(-50%);width:min(1080px,92vw);box-sizing:border-box;height:92px;display:flex;gap:18px;align-items:center;justify-content:center;padding:12px 20px;background:linear-gradient(120deg,#f6edd5a6,#dfd3b967);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);border:1px solid #fff4d877;border-radius:29px;box-shadow:0 4px 22px #54482c24,inset 0 1px 14px #fff3d433;font-family:system-ui;color:#6d705c}
+#zenBar{position:fixed;z-index:100;bottom:14px;left:50%;transform:translateX(-50%);width:min(1240px,96vw);box-sizing:border-box;height:92px;display:flex;gap:18px;align-items:center;justify-content:center;padding:12px 20px;background:linear-gradient(120deg,#f6edd552,#dfd3b92e);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid #fff4d877;border-radius:29px;box-shadow:0 4px 22px #54482c24,inset 0 1px 14px #fff3d433;font-family:system-ui;color:#6d705c}
 #zenBar .zen-group{min-width:0;flex:1;max-width:164px;text-align:center;position:relative;padding:0 9px;border-right:1px solid #fff4}
 #zenBar .zen-symbol{display:block;width:54px;height:32px;margin:4px auto 0;color:#696e59;opacity:.85}
 #zenBar .zen-group[data-kind=speed] .zen-symbol{width:66px}
@@ -33,8 +33,22 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 #zenBar input:focus-visible,#zenBar button:focus-visible,#zenRack button:focus-visible{outline:2px solid #727e61;outline-offset:5px}
 #zenBar .zen-action{border:1px solid #fff0cb99;background:#e9dfca88;color:#737b62;border-radius:50%;width:48px;height:48px;flex-shrink:0;cursor:pointer;box-shadow:0 3px 10px #655b3c14;display:grid;place-items:center;padding:8px}
 #zenBar .zen-action svg{width:100%;height:100%}
-#zenBar .zen-shoot{width:62px;height:62px;background:linear-gradient(145deg,#97a282,#6d795e);color:#fff1d6;box-shadow:0 0 14px #fff1d644,0 3px 12px #5d614733}
+#zenBar .zen-shoot{width:48px;height:48px;background:linear-gradient(145deg,#97a282,#6d795e);color:#fff1d6;box-shadow:0 0 14px #fff1d644,0 3px 12px #5d614733}
 #zenBar button:disabled{opacity:.35;cursor:default}
+#zenActions{display:flex;align-items:center;gap:18px;margin-left:auto;flex-shrink:0}
+#zenBar .zen-undo{background:linear-gradient(145deg,#bb9994,#997772);color:#fff2dc;box-shadow:0 2px 10px #684f4433}
+#zenRackSection{border-left:1px solid #fff6;padding-left:22px;display:flex;align-items:center;min-height:58px}
+#zenBar .zen-rack-toggle{position:relative;background:linear-gradient(145deg,#91a8a5,#627f80);color:#fff0d5;box-shadow:0 0 10px #ebf6e31f,0 3px 10px #354e4e33}
+#zenBar .zen-rack-toggle::before{content:'';position:absolute;inset:13px;border-radius:50%;border:1px solid #e9f0dc6b;box-shadow:0 0 6px #e4ebcd22}
+#zenRackMenu{position:fixed;z-index:130;width:264px;height:264px;border-radius:50%;background:radial-gradient(circle,#e8dfc87a 0,#e8dfc822 50%,transparent 72%);isolation:isolate}
+#zenRackMenu[hidden]{display:none}
+#zenRackMenu button{position:absolute;width:43px;height:43px;border-radius:50%;display:grid;place-items:center;transform:translate(-50%,-50%);border:1px solid #fff1d59c;background:radial-gradient(circle at 30% 25%,#b7c3a7,#7f9277);color:#fff8df;font:500 16px system-ui;cursor:pointer;box-shadow:0 3px 9px #3f513d33,0 0 8px #fff4d52b;text-shadow:0 1px 2px #46514155;touch-action:manipulation}
+#zenRackMenu button:hover,#zenRackMenu button:focus-visible{outline:2px solid #fff1c1b0;outline-offset:3px;filter:brightness(1.12)}
+#zenRackMenu .zen-radial-center{width:55px;height:55px;left:50%;top:50%;background:radial-gradient(circle at 30% 25%,#9eb5b0,#6a8583);font-size:20px}
+#zenRackMenu button:disabled{opacity:.35;cursor:default}
+@media(max-width:1000px){#zenActions{gap:10px}#zenRackSection{padding-left:12px}}
+@media(max-width:700px){#zenActions{gap:6px}#zenRackSection{padding-left:7px;min-height:48px}#zenBar .zen-rack-toggle::before{inset:9px}#zenBar .zen-group{max-width:140px}#zenBar .zen-symbol{max-width:100%}#zenRackMenu{width:248px;height:248px}#zenRackMenu button{width:40px;height:40px}}
+
 #zenModeBtn{border:1px solid #eadebd;background:radial-gradient(circle at 35% 25%,#eee5d2,#c5b69a);border-radius:50%;height:64px;width:64px;display:grid;place-items:center;box-shadow:0 0 15px #fff2d944,0 3px 13px #675e5622;cursor:pointer;padding:0;flex-shrink:0}
 #zenModeBtn svg{width:46px;height:46px;filter:drop-shadow(0 3px 2px #6b63544a)}
 #zenRack{position:fixed;z-index:101;bottom:118px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:7px 12px;max-width:94vw;background:#dfd1b322;border-radius:30px;overflow-x:auto;scrollbar-width:none}
@@ -51,8 +65,8 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 #zenCueRest span{height:4px;flex:1;background:linear-gradient(#f8e8c8,#a37e57);border-radius:3px;box-shadow:0 1px 5px #66532a33}
 #zenCueRest i{width:15px;height:15px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#fff7df,#d7c8a7);box-shadow:0 0 6px #fff4d455}
 @media(max-width:1000px){#zenCueRest{display:none}#zenBar{gap:10px}#zenBar .zen-group{padding:0 5px}}
-@media(max-width:700px){body.zen-mode{--zen-footer:136px}#zenBar{width:96vw;height:84px;gap:5px;padding:8px;bottom:8px;border-radius:22px}#zenBar .zen-group{padding:0 2px}#zenModeBtn{width:40px;height:40px}#zenModeBtn svg{width:32px;height:32px}#zenBar .zen-action{width:32px;height:32px;padding:5px}#zenBar .zen-shoot{width:40px;height:40px}#zenBar .zen-symbol{width:36px;height:27px;margin-top:2px}#zenRack{gap:4px;bottom:98px}#zenBar .zen-group[data-kind=speed] .zen-symbol{width:42px}#zenBar input[type=range]::-webkit-slider-thumb{width:16px;height:16px;margin-top:-5px}}
-@media(max-height:550px){body.zen-mode{--zen-footer:110px}#zenBar{height:70px;padding:6px;bottom:6px}#zenRack{bottom:79px}#zenBar .zen-symbol{width:36px;height:25px;margin-top:0}#zenModeBtn{width:45px;height:45px}#zenBar .zen-shoot{width:45px;height:45px}#zenCueRest{display:none}}
+@media(max-width:700px){body.zen-mode{--zen-footer:136px}#zenBar{width:96vw;height:84px;gap:5px;padding:8px;bottom:8px;border-radius:22px}#zenBar .zen-group{padding:0 2px}#zenModeBtn{width:40px;height:40px}#zenModeBtn svg{width:32px;height:32px}#zenBar .zen-action{width:32px;height:32px;padding:5px}#zenBar .zen-shoot{width:32px;height:32px}#zenBar .zen-symbol{width:36px;height:27px;margin-top:2px}#zenRack{gap:4px;bottom:98px}#zenBar .zen-group[data-kind=speed] .zen-symbol{width:42px}#zenBar input[type=range]::-webkit-slider-thumb{width:16px;height:16px;margin-top:-5px}}
+@media(max-height:550px){body.zen-mode{--zen-footer:110px}#zenBar{height:70px;padding:6px;bottom:6px}#zenRack{bottom:79px}#zenBar .zen-symbol{width:36px;height:25px;margin-top:0}#zenModeBtn{width:45px;height:45px}#zenBar .zen-action{width:40px;height:40px}#zenBar .zen-shoot{width:40px;height:40px}#zenCueRest{display:none}}
 
 `;
 function init(){
@@ -82,8 +96,34 @@ function init(){
   return input;
  }
  group('Aim adjustment','aim');group('Speed','speed','speed');group('Forward / Draw','follow','follow');group('Left / Right Spin','spin','sideSpin');
- const action=(name,kind,id)=>{const b=document.createElement('button');b.type='button';b.className='zen-action zen-'+kind;b.title=name;b.setAttribute('aria-label',name);b.innerHTML=icon(kind);b.onclick=()=>document.getElementById(id).click();bar.append(b);return b};
- const undo=action('Undo last shot','undo','undoShot'),shot=action('Execute Shot','shot','animate');shot.classList.add('zen-shoot');
+ const actions=document.createElement('div');actions.id='zenActions';bar.append(actions);
+ const action=(name,kind,id)=>{const b=document.createElement('button');b.type='button';b.className='zen-action zen-'+kind;b.title=name;b.setAttribute('aria-label',name);b.innerHTML=icon(kind);b.onclick=()=>{closeRackMenu();document.getElementById(id).click()};actions.append(b);return b};
+ const shot=action('Execute Shot','shot','animate'),undo=action('Undo last shot','undo','undoShot');shot.classList.add('zen-shoot');
+ const rackSection=document.createElement('div');rackSection.id='zenRackSection';
+ const rackToggle=document.createElement('button');rackToggle.type='button';rackToggle.id='zenRackToggle';rackToggle.className='zen-action zen-rack-toggle';rackToggle.setAttribute('aria-label','Choose a rack or randomize');rackToggle.setAttribute('aria-expanded','false');rackToggle.setAttribute('aria-controls','zenRackMenu');rackToggle.title='Choose a rack or randomize';rackSection.append(rackToggle);actions.append(rackSection);
+ const rackMenu=document.createElement('div');rackMenu.id='zenRackMenu';rackMenu.hidden=true;rackMenu.setAttribute('role','dialog');rackMenu.setAttribute('aria-label','Full racks and randomize');
+ let hideRackTimer=0,randomHoverTimer=0,randomHoverDone=false;
+ const stopRandomHover=()=>{clearTimeout(randomHoverTimer);randomHoverTimer=0};
+ const closeRackMenu=()=>{clearTimeout(hideRackTimer);stopRandomHover();rackMenu.hidden=true;rackToggle.setAttribute('aria-expanded','false')};
+ const positionRackMenu=()=>{const r=rackToggle.getBoundingClientRect(),size=rackMenu.getBoundingClientRect().width||264;const x=Math.max(size/2+8,Math.min(innerWidth-size/2-8,r.left+r.width/2));const y=Math.max(size/2+8,r.top-size/2+10);rackMenu.style.left=(x-size/2)+'px';rackMenu.style.top=(y-size/2)+'px'};
+ const openRackMenu=()=>{if(engine.status().busy)return;clearTimeout(hideRackTimer);closeMenu();rackMenu.hidden=false;rackToggle.setAttribute('aria-expanded','true');positionRackMenu()};
+ const scheduleRackClose=()=>{clearTimeout(hideRackTimer);hideRackTimer=setTimeout(()=>{if(!rackMenu.contains(document.activeElement))closeRackMenu()},350)};
+ rackToggle.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')openRackMenu()});rackToggle.addEventListener('pointerleave',scheduleRackClose);
+ rackToggle.addEventListener('click',()=>{if(rackMenu.hidden)openRackMenu();else if(matchMedia('(hover: none)').matches)closeRackMenu()});
+ rackToggle.addEventListener('keydown',e=>{if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();openRackMenu();rackMenu.querySelector('button')?.focus()}});
+ rackMenu.addEventListener('pointerenter',()=>clearTimeout(hideRackTimer));rackMenu.addEventListener('pointerleave',scheduleRackClose);
+ const center=document.createElement('button');center.type='button';center.className='zen-radial-center';center.textContent='R';center.title='Randomize the balls currently on the table';center.setAttribute('aria-label','Randomize current balls');
+ const randomize=()=>{stopRandomHover();if(engine.status().busy)return;document.getElementById('shuffleTableLayout').click();randomHoverDone=true;sync()};
+ center.addEventListener('click',e=>{if(!randomHoverDone||e.detail===0)randomize();randomHoverDone=false});center.addEventListener('pointerenter',e=>{randomHoverDone=false;if(e.pointerType==='mouse')randomHoverTimer=setTimeout(randomize,550)});center.addEventListener('pointerleave',()=>{stopRandomHover();randomHoverDone=false});center.addEventListener('blur',()=>randomHoverDone=false);rackMenu.append(center);
+ const labels={rack3:'3',rack6:'6',rack7:'7',rack8:'8',rack9:'9',rack10:'10',straight14:'S',ultimate8:'U'};
+ const order=['rack6','rack7','rack8','rack9','rack10','straight14','ultimate8','rack3'];
+ const rackChoices=order.map((value,i)=>{const option=Array.from(document.getElementById('fullRackSelect').options).find(o=>o.value===value);const b=document.createElement('button');b.type='button';b.textContent=labels[value];b.dataset.rack=value;b.title=option.textContent;b.setAttribute('aria-label','Set up '+option.textContent);const angle=(-90+i*45)*Math.PI/180;b.style.left=(50+38*Math.cos(angle))+'%';b.style.top=(50+38*Math.sin(angle))+'%';b.addEventListener('click',()=>{if(engine.status().busy)return;const select=document.getElementById('fullRackSelect');select.value=value;select.dispatchEvent(new Event('change',{bubbles:true}));document.getElementById('startFullRack').click();closeRackMenu();sync()});rackMenu.append(b);return b});
+ rackMenu.addEventListener('keydown',e=>{const buttons=Array.from(rackMenu.querySelectorAll('button'));const i=buttons.indexOf(document.activeElement);if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();buttons[(i+1)%buttons.length].focus()}if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();buttons[(i+buttons.length-1)%buttons.length].focus()}});
+ document.addEventListener('pointerdown',e=>{if(!rackToggle.contains(e.target)&&!rackMenu.contains(e.target))closeRackMenu()});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!rackMenu.hidden){closeRackMenu();rackToggle.focus()}});
+ document.addEventListener('focusin',e=>{if(!rackToggle.contains(e.target)&&!rackMenu.contains(e.target))closeRackMenu()});
+ window.addEventListener('resize',()=>{if(!rackMenu.hidden)positionRackMenu()});
+
  const rack=document.createElement('div');rack.id='zenRack';rack.setAttribute('aria-label','Drag or tap a ball to add it to the table');
  const colors=['#ddb040','#386480','#b74035','#624377','#d98938','#397255','#71382f','#292c24','#ddb040','#386480','#b74035','#624377','#d98938','#397255','#71382f'];
  const balls=colors.map((color,i)=>{
@@ -96,8 +136,8 @@ function init(){
   b.addEventListener('click',()=>{if(!suppress){engine.place(i+1);sync()}suppress=false});rack.append(b);return b;
  });
  const cueRest=document.createElement('div');cueRest.id='zenCueRest';cueRest.setAttribute('aria-hidden','true');
- cueRest.innerHTML='<span></span><i></i>';document.body.append(bar,menu,rack,cueRest);
- function sync(){const status=engine.status();bindings.forEach(f=>f());bar.querySelectorAll('input').forEach(el=>el.disabled=status.busy);undo.disabled=status.busy||!status.undo;shot.disabled=status.busy;balls.forEach((b,i)=>{b.disabled=status.busy||status.balls.includes(i+1);b.title=status.balls.includes(i+1)?`Ball ${i+1} is on the table`:`Drag or tap to add ball ${i+1}`})}
+ cueRest.innerHTML='<span></span><i></i>';document.body.append(bar,menu,rack,cueRest,rackMenu);
+ function sync(){const status=engine.status();bindings.forEach(f=>f());bar.querySelectorAll('input').forEach(el=>el.disabled=status.busy);undo.disabled=status.busy||!status.undo;shot.disabled=status.busy;rackToggle.disabled=status.busy;center.disabled=status.busy;rackChoices.forEach(b=>b.disabled=status.busy);if(status.busy&&!rackMenu.hidden)closeRackMenu();balls.forEach((b,i)=>{b.disabled=status.busy||status.balls.includes(i+1);b.title=status.balls.includes(i+1)?`Ball ${i+1} is on the table`:`Drag or tap to add ball ${i+1}`})}
  sync();setInterval(sync,180);window.dispatchEvent(new Event('resize'));
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
