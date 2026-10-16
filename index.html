@@ -224,6 +224,7 @@
   #animate:hover { background:#70dfa3; }
   #animate.executed { background:#4297e6; border-color:#4297e6; color:#05121d; }
   .shotBottomActions { margin-top:8px; }
+  .shotBottomActions #undoAction { grid-column:1 / -1; font-size:11px; min-height:32px; }
   .shotBottomActions #toggleShot2 { position:static; border-radius:7px; min-height:38px; padding:6px; font-size:11px; }
   .tableControlGroup { padding:8px; margin-bottom:8px; background:#19232e; border:1px solid #354250; border-radius:7px; }
   .layoutSetupGroup { padding:6px; }
@@ -1567,7 +1568,7 @@
         </div>
       </div>
       <div id="shotExecuteRow" class="shotExecuteRow"><button id="animate" type="button">Execute Shot</button></div>
-      <div class="buttons shotBottomActions"><button id="toggleShot2" type="button">+ SHOT 2</button><button id="undoShot">Undo Last Shot</button></div>
+      <div class="buttons shotBottomActions"><button id="toggleShot2" type="button">+ SHOT 2</button><button id="undoShot">Undo Last Shot</button><button id="undoAction" type="button" disabled title="Restore the previous aim, ball position, or control adjustment">Undo Last Action</button></div>
       <div class="shotExecuteRow"><button id="resetLayoutQuick" type="button">Reset Layout</button></div>
       </div>
     </div>
@@ -1850,6 +1851,7 @@
 <link rel="stylesheet" href="./photo-calibration.css?v=focused-start-v17">
 <script src="./photo-calibration.js?v=walkthrough-v11"></script>
 <script src="./trainer-practice-tools.js?v=3"></script>
+<script src="./trainer-action-history.js?v=1"></script>
 <script src="./trainer-layout-files.js?v=2"></script>
 <script src="./trainer-saved-files.js?v=1"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
@@ -1999,6 +2001,58 @@
     // the starting layout plus each committed ending layout.
     let undoStack = [];
     let runHistory = [];
+    let actionHistory=null,actionUndoTimer=0,actionPointer=false,actionKeys=false;
+    function captureActionState(){
+        return {state:JSON.parse(JSON.stringify(S,(key,value)=>key==='preview'||key==='firstEvent'?null:value)),undo:undoStack.slice(),history:runHistory.slice()};
+    }
+    function syncActionUndo(){
+        const button=$('undoAction');if(button)button.disabled=!!animation||!actionHistory?.count;
+        window.dispatchEvent(new CustomEvent('billiards:action-history'));
+    }
+    function finishActionUndo(){
+        clearTimeout(actionUndoTimer);actionUndoTimer=0;
+        if(!actionHistory||animation||actionPointer||actionKeys)return;
+        actionHistory.commit(captureActionState());syncActionUndo();
+    }
+    function beginActionUndo(){
+        if(!actionHistory||animation)return;
+        if(!actionHistory.pending)actionHistory.begin(captureActionState());
+    }
+    function undoLastAction(){
+        if(animation||!actionHistory)return;
+        actionPointer=false;actionKeys=false;finishActionUndo();
+        const before=actionHistory.undo();if(!before){toast('No action to undo');return;}
+        undoStack=before.undo.slice();runHistory=before.history.slice();
+        restoreSnapshot(before.state);updateRunCount();saveState();syncProjector();syncActionUndo();
+        toast('Last action restored');
+    }
+    function installActionUndo(){
+        actionHistory=window.BilliardsActionHistory.create(60);
+        const relevant=e=>e.target instanceof Element&&!!e.target.closest('#app,#zenBar,#zenRack,#zenRackMenu,.zen-hover-panel');
+        const excluded=e=>!!e.target.closest?.('#undoAction,#zenUndoAction');
+        const later=delay=>{clearTimeout(actionUndoTimer);actionUndoTimer=setTimeout(finishActionUndo,delay);};
+        document.addEventListener('pointerdown',e=>{if(e.button!==0||!relevant(e)||excluded(e)||animation)return;actionPointer=false;actionKeys=false;finishActionUndo();beginActionUndo();actionPointer=true;},true);
+        document.addEventListener('pointerup',()=>{actionPointer=false;later(0);});
+        document.addEventListener('pointercancel',()=>{actionPointer=false;later(0);});
+        window.addEventListener('blur',()=>{actionPointer=false;actionKeys=false;finishActionUndo();});
+        document.addEventListener('click',e=>{if(relevant(e)&&!excluded(e))beginActionUndo();},true);
+        document.addEventListener('click',e=>{if(relevant(e)&&!excluded(e))later(0);});
+        document.addEventListener('input',e=>{if(relevant(e)&&!excluded(e))beginActionUndo();},true);
+        document.addEventListener('input',e=>{if(relevant(e)&&!actionPointer&&!actionKeys)later(300);});
+        document.addEventListener('change',e=>{if(relevant(e))later(0);});
+        document.addEventListener('wheel',e=>{if(!relevant(e)||animation)return;beginActionUndo();later(300);}, {capture:true,passive:true});
+        document.addEventListener('keydown',e=>{
+            if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&e.key.toLowerCase()==='z'&&!e.target.matches?.('input:not([type=range]),textarea,[contenteditable=true]')){e.preventDefault();e.stopImmediatePropagation();undoLastAction();return;}
+            if(excluded(e))return;
+            if(!relevant(e)&&e.target!==document.body)return;
+            if(!e.repeat){finishActionUndo();beginActionUndo();}actionKeys=true;
+        },true);
+        document.addEventListener('keyup',()=>{actionKeys=false;later(0);});
+        window.addEventListener('billiards:shot-complete',()=>{actionPointer=false;actionKeys=false;finishActionUndo();});
+        $('undoAction').onclick=undoLastAction;
+        $('undoAction').addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')e.stopPropagation();});
+        syncActionUndo();
+    }
     function cleanSnapshot(state = S) {
         const copy = JSON.parse(JSON.stringify(Object.assign(Object.assign({}, state), { preview: null })));
         return copy;
@@ -2435,6 +2489,30 @@
         function snapshot(){return {busy:!!animation,undoCount:undoStack.length,shots:Math.max(0,runHistory.length-1),pocketed:[...(S.pocketedLog||[])],shot2Enabled:S.shot2Enabled,speed:S.speed,followPercent:Math.round(S.follow*100),sidePercent:Math.round(S.sideSpin*100),tableL:S.tableL,tableW:S.tableW};}
         return {capture,restore,apply,snapshot,exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},rollingReference(which=1){return rollingReferenceForShot(which);},predict(){const p=simulate(false);return {pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact};}};
     })();
+
+    window.billiardsZenControls={
+        enter(){S.activeShot=1;S.shot2Enabled=false;S.cueElevationDeg=0;S.airbornePhysics=false;updateUI();refreshPreview();},
+        aim(degrees){if(!animation){S.activeShot=1;rotateAimMicro(degrees*Math.PI/180);}},
+        status(){return {busy:!!animation,undo:undoStack.length>0,undoAction:!!actionHistory?.count,tip:{...effectiveTipOffsetValues(S.sideSpin,S.follow),limit:PHYSICS_MODEL.maxTipOffsetR},balls:S.balls.filter(b=>b.active&&!b.marker).map(b=>b.id)};},
+        undoAction:undoLastAction,
+        tip(side,follow){
+            if(animation)return;
+            const magnitude=Math.max(1,Math.hypot(side,follow));
+            S.sideSpin=Math.round(clamp(side/magnitude,-1,1)*100)/100;
+            S.follow=Math.round(clamp(follow/magnitude,-1,1)*100)/100;
+            updateUI();refreshPreview();
+        },
+        place(id,clientX,clientY){
+            if(animation)return false;
+            let q=null;
+            if(Number.isFinite(clientX)&&Number.isFinite(clientY)){
+                const rect=canvas.getBoundingClientRect();
+                q=controlMap().inv({x:(clientX-rect.left)*(canvas.width/DPR)/rect.width,y:(clientY-rect.top)*(canvas.height/DPR)/rect.height});
+                if(!onPlayingSurface(q)||manualPocketAt(q))return false;
+            }
+            returnPocketBall(id,q);return S.balls.some(b=>b.id===id&&b.active);
+        }
+    };
 
     window.billiardsGuideApplyLayout=file=>{applyTableFile(file,false,null,true);if($('photoAnalyzerModal').classList.contains('open'))closePhotoAnalyzer();};
     function stageTableFile(file){
@@ -4276,6 +4354,7 @@
         let firstEvent = '—', firstBallContact = null, sampleEvery = 6, frameEvery = 10;
         let simTime = 0;
         const pocketEvents = [];
+        const railEvents = [];
         const landings = [], clearanceMap = new Map();
         let takeoff = null;
         const lastColl = new Map(), Icoef = 2 / 5; // I = 2/5 mR² for a solid sphere
@@ -4401,6 +4480,7 @@
                 return false;
             const tx = -ny, ty = nx;
             // Normal impulse / rebound.
+            railEvents.push({id:b.id,x:b.x,y:b.y,t:simTime,rail:name});
             const jn = -(1 + S.railRest) * vn;
             b.vx += jn * nx;
             b.vy += jn * ny;
@@ -4648,7 +4728,7 @@
                 primaryClearance = candidates[0];
             }
         }
-        return { paths, frames, firstEvent, firstBallContact, pocketEvents,
+        return { paths, frames, firstEvent, firstBallContact, pocketEvents, railEvents,
             airborne: airborneMode ? {
                 maxCueHeight: Math.max(0, maxCueHeight - R), airborneDistance, bedBounceCount,
                 takeoff, landings, clearances, primaryClearance
@@ -4894,9 +4974,18 @@
     window.addEventListener('resize', resize);
     if (window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(resize)).observe(stage);
     function controlMap() {
-        const w = canvas.width / DPR, h = canvas.height / DPR, pad = 34;
-        const sidePad = document.body.classList.contains('phone-layout') ? (w < 600 ? 140 : 190) : pad;
-        const scale = Math.max(.01, Math.min((w - sidePad * 2) / S.tableL, (h - pad * 2) / S.tableW));
+        const w = canvas.width / DPR, h = canvas.height / DPR, zen=document.body.classList.contains('zen-mode'), pad = zen ? 24 : 34;
+        if(zen&&w>=900){
+            // Fit the complete reference composition, with a true 2:1 playing surface.
+            const unit=Math.min(w/2048,h/1143),scale=1319*unit/S.tableL;
+            const ox=(w-2048*unit)/2+364*unit,oy=(h-1143*unit)/2+147*unit;
+            const tw=S.tableL*scale,th=S.tableW*scale;
+            return {map:p=>({x:ox+p.x*scale,y:oy+p.y*scale}),inv:p=>({x:(p.x-ox)/scale,y:(p.y-oy)/scale}),scale,corners:[{x:ox,y:oy},{x:ox+tw,y:oy},{x:ox+tw,y:oy+th},{x:ox,y:oy+th}]};
+        }
+
+        const sidePad = !document.body.classList.contains('zen-mode') && document.body.classList.contains('phone-layout') ? (w < 600 ? 140 : 190) : pad;
+        const A=zen?ZEN_ASSET_GEOM:ORIGINAL_ASSET_GEOM;
+        const scale = Math.max(.01, zen ? Math.min((w-64)/(S.tableL*A.width/(A.x1-A.x0)),(h-48)/(S.tableW*A.height/(A.y1-A.y0))) : Math.min((w - sidePad * 2) / S.tableL, (h - pad * 2) / S.tableW));
         const tw = S.tableL * scale, th = S.tableW * scale, ox = (w - tw) / 2, oy = (h - th) / 2;
         return { map: p => ({ x: ox + p.x * scale, y: oy + p.y * scale }), inv: p => ({ x: (p.x - ox) / scale, y: (p.y - oy) / scale }), scale, corners: [{ x: ox, y: oy }, { x: ox + tw, y: oy }, { x: ox + tw, y: oy + th }, { x: ox, y: oy + th }] };
     }
@@ -5532,7 +5621,50 @@
         uniq.sort((a, b) => a.t - b.t);
         return [uniq[0], uniq[uniq.length - 1]];
     }
+
+    // Reference materials are rasterized once; live balls and physics stay separate.
+    const ZEN_ASSET_GEOM={width:1678,height:937,x0:298,x1:1379,y0:120,y1:650};
+    let zenTableArtwork=null,zenTableFrame=null;
+    const zenReferenceTable=new Image();
+    zenReferenceTable.onload=()=>{zenTableArtwork=zenReferenceTable;zenTableFrame=null;if(document.body.classList.contains('zen-mode'))draw();};
+    if(new URLSearchParams(location.search).get('zen')==='1')zenReferenceTable.src='./icons/zen-reference-table-v1.webp';
+    function zenRecoloredTable(){return zenTableArtwork;}
+    function drawZenTable(map){
+        const art=zenRecoloredTable();if(!art)return;
+        const A=ZEN_ASSET_GEOM,L=S.tableL,W=S.tableW,sx=(A.x1-A.x0)/L,sy=(A.y1-A.y0)/W;
+        const p=map({x:-A.x0/sx,y:-A.y0/sy}),q=map({x:(A.width-A.x0)/sx,y:(A.height-A.y0)/sy});
+        const key=[canvas.width,canvas.height,DPR,p.x,p.y,q.x,q.y].join('|');
+        if(!zenTableFrame||zenTableFrame.key!==key||zenTableFrame.art!==art){
+            const layer=document.createElement('canvas');layer.width=canvas.width;layer.height=canvas.height;
+            const paint=layer.getContext('2d');paint.setTransform(DPR,0,0,DPR,0,0);
+            paint.drawImage(art,p.x,p.y,q.x-p.x,q.y-p.y);
+            // Feather only the ambient margins; the table remains crisp and
+            // the cached layer blends into any viewport without stretched noise.
+            const fade=paint.createLinearGradient(0,p.y,0,q.y);
+            fade.addColorStop(0,'rgba(0,0,0,0)');fade.addColorStop(.045,'#000');
+            fade.addColorStop(.91,'#000');fade.addColorStop(1,'rgba(0,0,0,0)');
+            paint.globalCompositeOperation='destination-in';paint.fillStyle=fade;paint.fillRect(p.x,p.y,q.x-p.x,q.y-p.y);
+            if(p.x>1){const side=paint.createLinearGradient(p.x,0,q.x,0);side.addColorStop(0,'rgba(0,0,0,0)');side.addColorStop(.04,'#000');side.addColorStop(.96,'#000');side.addColorStop(1,'rgba(0,0,0,0)');paint.fillStyle=side;paint.fillRect(p.x,p.y,q.x-p.x,q.y-p.y);}
+            paint.globalCompositeOperation='source-over';
+            zenTableFrame={key,art,layer};
+        }
+        ctx.drawImage(zenTableFrame.layer,0,0,canvas.width/DPR,canvas.height/DPR);
+    }
+    function drawZenBall(b,map,label){
+        const p=map(b),edge=map({x:b.x+S.ballR,y:b.y}),r=Math.abs(edge.x-p.x);
+        ctx.save();ctx.shadowColor='#1b261c70';ctx.shadowBlur=r*.65;ctx.shadowOffsetY=r*.35;
+        ctx.fillStyle=b.id===0||b.id>=9?'#f3e8ce':ballBaseColor(b.id);ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+        ctx.save();ctx.clip();
+        if(b.id>=9){ctx.fillStyle=ballBaseColor(b.id);ctx.fillRect(p.x-r,p.y-r*.58,r*2,r*1.16);}
+        const sheen=ctx.createRadialGradient(p.x-r*.38,p.y-r*.42,0,p.x+r*.23,p.y+r*.32,r*1.45);
+        sheen.addColorStop(0,'#fff7dfb0');sheen.addColorStop(.4,'#fff3d516');sheen.addColorStop(1,'#141a1266');ctx.fillStyle=sheen;ctx.fillRect(p.x-r,p.y-r,r*2,r*2);ctx.restore();
+        if(b.id&&label){ctx.fillStyle='#f7ebd0';ctx.beginPath();ctx.arc(p.x,p.y,r*.4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#36382c';ctx.font=`600 ${r*.68}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(b.id,p.x,p.y+.3);}
+        ctx.shadowColor='#fff0bf55';ctx.shadowBlur=5;ctx.strokeStyle='#fff4d32b';ctx.lineWidth=.7;ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.stroke();
+        ctx.restore();
+    }
+
     function drawTable(map, M) {
+        if (document.body.classList.contains('zen-mode')) { drawZenTable(map); return; }
         const projectionOnly = isProjector && projectorProjectionOnly;
         if (projectionOnly || !S.showTable)
             return;
@@ -5879,6 +6011,7 @@
             return;
         }
 
+        if(document.body.classList.contains('zen-mode')){drawZenBall(b,map,label);return;}
         if (b.id === 0) {
             logicalCircle(b, R, map, '#f7f7f3', '#999', 1.2);
         }
@@ -5910,7 +6043,7 @@
                 ctx.font = '600 11px Segoe UI';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText('CB', q.x, q.y);
+                if (!document.body.classList.contains('zen-mode')) ctx.fillText('CB', q.x, q.y);
             }
             else {
                 // Keep the ball color visible at phone scale; white numbers sit
@@ -5931,7 +6064,48 @@
             }
         }
     }
+    let zenGuideFrame=null;
+    function drawZenGuides(map){
+        if(drag&&['ball','ball2','aim','aim2'].includes(drag.kind))return;
+        if(!cueBall())return;
+        const preview=S.preview,key=[canvas.width,canvas.height,DPR,S.tableL,S.tableW,S.ballR].join('|');
+        if(!zenGuideFrame||zenGuideFrame.key!==key||zenGuideFrame.preview!==preview){
+            const raw=document.createElement('canvas');raw.width=canvas.width;raw.height=canvas.height;
+            const c=raw.getContext('2d');c.setTransform(DPR,0,0,DPR,0,0);c.lineCap='round';c.lineJoin='round';
+            const R=S.ballR,contact=preview?.firstBallContact;
+            const stroke=(points,width,color,dash=[])=>{if(!points||points.length<2)return;c.setLineDash(dash);c.beginPath();points.forEach((p,i)=>{const q=map(p);if(i)c.lineTo(q.x,q.y);else c.moveTo(q.x,q.y)});c.lineWidth=width;c.strokeStyle=color;c.stroke()};
+            c.save();const tl=map({x:0,y:0}),br=map({x:S.tableL,y:S.tableW});
+            c.beginPath();c.rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y);
+            let g=null,r=0;
+            if(contact){g=map(contact.cuePos);r=Math.abs(map({x:contact.cuePos.x+R,y:contact.cuePos.y}).x-g.x);c.moveTo(g.x+r*1.08,g.y);c.arc(g.x,g.y,r*1.08,0,Math.PI*2);}
+            c.clip('evenodd');
+            // Split at exact cushion events, sharing each endpoint between strokes.
+            const path=preview?.paths?.[0]||[],rails=(preview?.railEvents||[]).filter(e=>e.id===0).slice().sort((a,b)=>a.t-b.t);
+            let segment=[],hits=0,eventIndex=0;
+            const cueStroke=()=>stroke(segment,1.25,`rgba(255,255,255,${Math.max(.08,.22-.04*hits)})`);
+            for(const point of path){
+                while(eventIndex<rails.length&&rails[eventIndex].t<=point.t){
+                    const event=rails[eventIndex++];segment.push(event);cueStroke();hits++;segment=[event];
+                }
+                segment.push(point);
+            }
+            cueStroke();
+            if(contact){
+                const p=contact.cuePos,t={x:-contact.normal.y,y:contact.normal.x};
+                stroke([{x:p.x-t.x*R*7,y:p.y-t.y*R*7},{x:p.x+t.x*R*7,y:p.y+t.y*R*7}],1,'rgba(180,210,200,0.18)',[3,4]);
+                stroke(preview.paths?.[contact.objId],1.25,'rgba(255,255,255,0.14)');
+                const roll=window.BilliardsPracticeTools?.rollingReference(contact,S);
+                if(roll)stroke([roll.start,roll.end],1,'rgba(255,255,255,0.14)',[2,4]);
+            }
+            c.restore();c.setLineDash([]);
+            if(g){c.beginPath();c.arc(g.x,g.y,r,0,Math.PI*2);c.strokeStyle='rgba(255,255,255,0.20)';c.lineWidth=1;c.stroke();}
+            const layer=raw;
+            zenGuideFrame={key,preview,layer};
+        }
+        ctx.drawImage(zenGuideFrame.layer,0,0,canvas.width/DPR,canvas.height/DPR);
+    }
     function drawAim(map) {
+        if(document.body.classList.contains('zen-mode')){drawZenGuides(map);return;}
         const cb = cueBall();
         if (!cb)
             return;
@@ -6599,8 +6773,7 @@
         syncPracticeCounter();
         const w = canvas.width / DPR, h = canvas.height / DPR;
         ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = '#050608';
-        ctx.fillRect(0, 0, w, h);
+        if(!document.body.classList.contains('zen-mode')){ctx.fillStyle='#050608';ctx.fillRect(0,0,w,h);}
         const M = mapper(), map = M.map;
         if (!map)
             return;
@@ -6620,10 +6793,10 @@
         // Shot visibility controls paths and guides independently of cue-ball visibility.
         {
             if (cueVisualsVisible(1)) {
-                drawPreview(map);
+                if (!document.body.classList.contains('zen-mode')) drawPreview(map);
                 drawAim(map);
             }
-            drawShot2(map);
+            if (!document.body.classList.contains('zen-mode')) drawShot2(map);
         }
 
         if (!animation && (S.showTable || !isProjector || !projectorProjectionOnly)) {
@@ -6646,12 +6819,12 @@
                 drawBall(Object.assign(Object.assign({}, b), { x: ab.x, y: ab.y, active: true }), map, false);
             }
         }
-        if (cueVisualsVisible(1)) drawImpactOverlay(map);
-        drawTipBadge(map);
-        drawBankKickGuide(map);
-        drawTeachingCompass(map);
-        drawRollingReferences(map);
-        drawCalibration(M);
+        if (cueVisualsVisible(1) && !document.body.classList.contains('zen-mode')) drawImpactOverlay(map);
+        if (!document.body.classList.contains('zen-mode')) drawTipBadge(map);
+        if (!document.body.classList.contains('zen-mode')) drawBankKickGuide(map);
+        if (!document.body.classList.contains('zen-mode')) drawTeachingCompass(map);
+        if (!document.body.classList.contains('zen-mode')) drawRollingReferences(map);
+        if (!document.body.classList.contains('zen-mode')) drawCalibration(M);
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }
     function friendlyEventText(v) {
@@ -7619,6 +7792,15 @@
             refreshPreview();
         }
     });
+    let zenDragFrame=0;
+    function requestZenDragPaint(){
+        if(zenDragFrame)return;
+        zenDragFrame=requestAnimationFrame(()=>{zenDragFrame=0;draw();});
+    }
+    function finishZenDragPaint(){
+        if(zenDragFrame){cancelAnimationFrame(zenDragFrame);zenDragFrame=0;}
+        refreshPreview();
+    }
     canvas.addEventListener('pointermove', ev => {
         if (!drag)
             return;
@@ -7692,9 +7874,13 @@
                 s.ghostLockDirty = true;
             }
         }
+        if(document.body.classList.contains('zen-mode')&&['ball','ball2','aim','aim2'].includes(drag.kind)){
+            requestZenDragPaint();return;
+        }
         refreshPreview();
     });
     canvas.addEventListener('pointerup', ev => {
+        const zenGesture=document.body.classList.contains('zen-mode')&&drag&&['ball','ball2','aim','aim2'].includes(drag.kind);
         if (drag && drag.kind === 'ball')
             removeMarkerInPocket(drag.id,controlMap().inv(pointerPos(ev)));
         if (drag && (drag.kind === 'ball' || drag.kind === 'ball2')) {
@@ -7735,10 +7921,11 @@
             draw();
         }
         drag = null;
+        if(zenGesture){finishZenDragPaint();return;}
         saveState();
         syncProjector();
     });
-    canvas.addEventListener('pointercancel', () => drag = null);
+    canvas.addEventListener('pointercancel', () => {const zenGesture=document.body.classList.contains('zen-mode')&&drag;drag=null;if(zenGesture)finishZenDragPaint();});
     // Mouse-wheel fine controls.  Hovering any shot slider uses the same increment
     // as its +/- controls, so the mouse can stay over the table or sidebar.
     function installWheelRange(id) {
@@ -12082,6 +12269,7 @@
         updateStatsTitles();
         updateUI();
         refreshPreview();
+        installActionUndo();
         requestAnimationFrame(() => requestAnimationFrame(() => drawTipControl()));
         window.addEventListener('resize', () => requestAnimationFrame(() => { drawTipControl(); fitLiveStats(); }));
     }
@@ -12140,7 +12328,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=4"></script>
+  <script src="./beta-ui.js?v=zen-live-v17"></script>
 
 
 </body>
