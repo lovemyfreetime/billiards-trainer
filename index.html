@@ -5677,6 +5677,7 @@
     };
     let zenPocketMaskCache=null;
     function tintZenPocketFelt(pixels,width,height,region,sourceX,sourceY){
+        let contrast=0,weight=0;
         for(let y=0;y<height;y++)for(let x=0;x<width;x++){
             const i=(y*width+x)*4,r=pixels[i],g=pixels[i+1],b=pixels[i+2];
             const px=x+sourceX-region.x,py=y+sourceY-region.y;
@@ -5689,19 +5690,35 @@
             const cloth=Math.max(0,Math.min(1,(g-r)/18));
             const material=.28+.72*cloth;
             pixels[i]=r+(255-r)*.32;pixels[i+1]=g+(255-g)*.32;pixels[i+2]=b+(255-b)*.32;
-            pixels[i+3]=Math.round(255*.76*material*facing*facing*(3-2*facing)*feather*feather);
+            const alpha=.76*material*facing*facing*(3-2*facing)*feather*feather;
+            pixels[i+3]=Math.round(255*alpha);
+            // Compare the light on actual nearby cloth, excluding the hole and
+            // neutral hardware. Equalize relative luminance lift across pockets.
+            if(g-r>8&&g>30&&along>6&&along<48&&Math.abs(across)<30){
+                const luminance=.2126*r+.7152*g+.0722*b;
+                contrast+=alpha*.32*(255-luminance)/Math.max(24,luminance);weight++;
+            }
         }
+        return weight?contrast/weight:0;
     }
     function zenPocketFeltMasks(){
         const art=zenRecoloredTable();if(!art)return null;
         if(zenPocketMaskCache?.art===art)return zenPocketMaskCache.masks;
-        const masks={};
+        const masks={},pending=[];
         for(const [name,region]of Object.entries(ZEN_POCKET_FELT)){
             const x=Math.floor(region.x-region.rx),y=Math.floor(region.y-region.ry),w=Math.ceil(region.rx*2),h=Math.ceil(region.ry*2);
             const tile=document.createElement('canvas');tile.width=w;tile.height=h;
             const paint=tile.getContext('2d',{willReadFrequently:true});paint.drawImage(art,x,y,w,h,0,0,w,h);
             const data=paint.getImageData(0,0,w,h);
-            tintZenPocketFelt(data.data,w,h,region,x,y);paint.putImageData(data,0,0);masks[name]={tile,x,y,w,h};
+            const contrast=tintZenPocketFelt(data.data,w,h,region,x,y);
+            pending.push({paint,data,contrast});masks[name]={tile,x,y,w,h};
+        }
+        const measured=pending.filter(p=>p.contrast>0);
+        const midpoint=measured.reduce((sum,p)=>sum+p.contrast,0)/Math.max(1,measured.length);
+        for(const {paint,data,contrast}of pending){
+            const gain=contrast>0?Math.max(.5,Math.min(1.8,midpoint/contrast)):1;
+            for(let i=3;i<data.data.length;i+=4)data.data[i]=Math.round(data.data[i]*gain);
+            paint.putImageData(data,0,0);
         }
         zenPocketMaskCache={art,masks};return masks;
     }
@@ -12467,19 +12484,9 @@
 
 <script>
 if ('serviceWorker' in navigator) {
-  let swRefreshing = false;
-  let swHadController = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (swRefreshing) return;
-    // Initial cache activation needs no reload. Never interrupt narration or a shot.
-    if (!swHadController) { swHadController = true; return; }
-    const guideState = window.billiardsPoolGuide?.getState();
-    if (guideState?.enabled || guideState?.exploring ||
-        document.getElementById('photoAnalyzerModal')?.classList.contains('open') ||
-        window.billiardsTourBridge?.snapshot().busy) return;
-    swRefreshing = true;
-    window.location.reload();
-  });
+  // A newly activated worker takes over caching without reloading the open
+  // table. Apply new page code on the next user-initiated navigation/reload;
+  // background updates must never discard a shot or a newly arranged Zen rack.
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./service-worker.js')
       .then(reg => reg.update())
@@ -12514,7 +12521,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=pocket-white-glow-v42"></script>
+  <script src="./beta-ui.js?v=zen-stable-glow-v43"></script>
 
 
 </body>

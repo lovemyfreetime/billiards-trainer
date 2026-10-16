@@ -15,3 +15,9 @@ vm.runInContext(html.slice(html.indexOf('    const ZEN_POCKET_FELT='),html.index
 let reads=0,created=0;const art={};c.zenRecoloredTable=()=>art;c.document={createElement(){created++;return {getContext(){return {drawImage(){},getImageData(x,y,w,h){reads++;return {data:new Uint8ClampedArray(w*h*4)}},putImageData(){}}}}}};
 c.zenPocketFeltMasks();c.zenPocketFeltMasks();assert.equal(created,6);assert.equal(reads,6,'Felt masks are sampled once, never per live aim frame');
 console.log('Pocket white glow: continuous opening-to-cloth spill, neutral white, no rectangular seams, textured falloff and cached masks pass.');
+// Different source cloth brightness must converge to the same visible contrast.
+vm.runInContext('zenPocketMaskCache=null',c);let ordinal=0;const samples=[];
+c.document={createElement(){const n=ordinal++,base=n<3?[75,105,105]:[45,75,75];return {getContext(){return {drawImage(){},getImageData(x,y,w,h){const data=new Uint8ClampedArray(w*h*4);for(let i=0;i<w*h;i++)data.set([...base,255],i*4);const region=vm.runInContext('Object.values(ZEN_POCKET_FELT)',c)[n];const original=new Uint8ClampedArray(data);const raw=c.tintZenPocketFelt(original,w,h,region,Math.floor(region.x-region.rx),Math.floor(region.y-region.ry));samples[n]={raw,original};return {data}},putImageData(result){samples[n].result=new Uint8ClampedArray(result.data)}}}}}};
+c.zenPocketFeltMasks();const mean=samples.reduce((sum,p)=>sum+p.raw,0)/6;assert(samples[3].raw>samples[0].raw,'Darker lower cloth produces stronger uncorrected contrast');
+for(const p of samples){let before=0,after=0;for(let i=3;i<p.original.length;i+=4){before+=p.original[i];after+=p.result[i];}assert(Math.abs(p.raw*after/before-mean)<mean*.025,'All six normalized pocket lights reach the shared contrast midpoint');}
+console.log('Pocket balance: six differently shaded cloth samples converge to the shared brightness midpoint.');
