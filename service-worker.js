@@ -1,10 +1,10 @@
-const CACHE_NAME = 'billiards-trainer-4-12-zen-hold-arrows-v118';
+const CACHE_NAME = 'billiards-trainer-4-12-zen-quiet-power-cues-v119';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './trainer-action-history.js?v=2',
   './icons/zen-reference-table-v1.webp',
-  './zen-mode.js?v=hold-arrows-v29',
-  './beta-ui.js?v=hold-arrows-v29',
+  './zen-mode.js?v=quiet-power-cues-v30',
+  './beta-ui.js?v=quiet-power-cues-v30',
   './index.html',
   './trainer-practice-tools.js?v=3',
   './guide/audio-startup.js?v=native-warmup-v22',

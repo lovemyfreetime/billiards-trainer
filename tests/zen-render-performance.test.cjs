@@ -16,8 +16,8 @@ current=350;vm.runInContext('requestZenDragPaint();finishZenDragPaint()',dragCon
 let filtered=0,created=0,liveBlits=0;const strokes=[];
 const fakeContext=()=>new Proxy({createLinearGradient:()=>({addColorStop(){}}),stroke(){strokes.push({color:this.strokeStyle,width:this.lineWidth})}}, {get:(o,k)=>k in o?o[k]:()=>{},set:(o,k,v)=>{if(k==='filter')filtered++;o[k]=v;return true}});
 const art={};
-const renderContext={zenTableFrame:null,zenGuideFrame:null,zenRecoloredTable:()=>art,document:{createElement:()=>{created++;return{width:0,height:0,getContext:()=>fakeContext()}}},canvas:{width:2400,height:1400},DPR:2,S:{tableL:2,tableW:1,ballR:.03,preview:{paths:{0:[{x:.2,y:.5},{x:1,y:.5}]}}},ZEN_ASSET_GEOM:{width:1678,height:937,x0:298,x1:1379,y0:120,y1:650},ctx:{drawImage:()=>liveBlits++},drag:null,cueBall:()=>({x:.2,y:.5})};
-vm.createContext(renderContext);vm.runInContext(extract('drawZenTable')+extract('drawZenGuides'),renderContext);
+const renderContext={zenTableFrame:null,zenGuideFrame:null,zenRecoloredTable:()=>art,document:{createElement:()=>{created++;return{width:0,height:0,getContext:()=>fakeContext()}}},canvas:{width:2400,height:1400},DPR:2,S:{speed:2.42,tableL:2,tableW:1,ballR:.03,preview:{paths:{0:[{x:.2,y:.5},{x:1,y:.5}]}}},ZEN_ASSET_GEOM:{width:1678,height:937,x0:298,x1:1379,y0:120,y1:650},ctx:{drawImage:()=>liveBlits++},drag:null,clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),shotPowerState:()=>null,cueBall:()=>({x:.2,y:.5})};
+vm.createContext(renderContext);vm.runInContext(extract('drawZenTable')+extract('zenPathPower')+extract('drawZenGuides'),renderContext);
 const map=p=>({x:100+p.x*500,y:100+p.y*500});renderContext.map=map;
 vm.runInContext('drawZenTable(map);drawZenGuides(map)',renderContext);const initialFilters=filtered,initialCreated=created;
 for(let i=0;i<120;i++)vm.runInContext('drawZenTable(map);drawZenGuides(map)',renderContext);
@@ -30,10 +30,11 @@ console.log('Zen render: 120 unchanged frames allocate no surfaces and perform n
 
 // Each cushion contact attenuates the cue tracer, including the hard visibility floor.
 renderContext.S.preview={paths:{0:Array.from({length:11},(_,t)=>({x:.2+t*.1,y:.5,t}))},railEvents:Array.from({length:8},(_,i)=>({id:0,x:.25+i*.1,y:.5,t:i+.5}))};
+renderContext.shotPowerState=()=>({currentCueImpact:2,requiredCueImpact:1,currentPocketArrival:.2,pocketResidualTarget:.2});
 strokes.length=0;vm.runInContext('drawZenGuides(map)',renderContext);
 const cue=strokes.filter(s=>s.width===1.25).map(s=>Number(s.color.match(/,([^,]+)\)$/)[1]));
-assert.equal(cue.length,9);assert.equal(cue[0],.22);assert(Math.abs(cue[1]-.18)<1e-9);assert.equal(cue.at(-1),.08);assert(cue.every(a=>a>=.08));
-console.log('Zen tracer: cue opacity drops .04 per rail and remains visible at the .08 floor, without bloom.');
+assert.equal(cue.length,9);assert.equal(cue[0],.24000000000000002);assert(Math.abs(cue[1]-.20)<1e-9);assert.equal(cue.at(-1),.08);assert(cue.every(a=>a>=.08));
+console.log('Zen tracer: cue opacity drops .04 per rail and remains visible at the .08 floor, with a narrow low-opacity halo and no blur.');
 
 // The reference art and collision coordinates must share an invertible 2:1 map.
 renderContext.document.body={classList:{contains:className=>className==='zen-mode'}};

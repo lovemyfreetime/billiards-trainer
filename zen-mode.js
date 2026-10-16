@@ -62,6 +62,12 @@ function bindZenFineControl(surface,input,adjust,tapArrows=false){
  // The decorative label must not forward the end of a swipe to the coarse slider.
  surface.addEventListener('click',event=>event.preventDefault());
 }
+function zenSpeedReferenceStrength(value,min,max,references){
+ const position=(value-min)/Math.max(.001,max-min);
+ const distance=references.length?Math.min(...references.map(reference=>Math.abs(reference-position))):1;
+ return Math.pow(Math.max(0,1-distance/.025),2);
+}
+function zenCenterStrength(value,min,max){return Math.max(0,1-Math.abs(value)/Math.max(.001,Math.abs(min),Math.abs(max)));}
 const ZEN_FADE_DURATION=1600;
 const zenPopoverStates=new WeakMap();
 let zenSceneFade=null;
@@ -232,6 +238,12 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 #zenContactReadout{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 
 
+
+/* Quiet state cues live inside the existing thumb; no added labels or panels. */
+#zenBar .zen-group:is([data-kind=follow],[data-kind=spin])::before{content:"";position:absolute;pointer-events:none;left:50%;top:13px;transform:translate(-50%,-50%);width:6px;height:6px;border:1px solid #B7C1AD66;background:#B7C1AD1A;box-sizing:border-box}
+#zenBar .zen-group input::-webkit-slider-thumb{background:radial-gradient(circle at 42% 35%,var(--zen-thumb-tint,transparent),transparent 85%),linear-gradient(#383B3C,#202326);box-shadow:inset 0 0 4px var(--zen-thumb-tint,transparent),0 2px 5px #0007;transition:background-color .12s,box-shadow .12s}
+#zenBar .zen-group input::-moz-range-thumb{background:radial-gradient(circle at 42% 35%,var(--zen-thumb-tint,transparent),transparent 85%),linear-gradient(#383B3C,#202326);box-shadow:inset 0 0 4px var(--zen-thumb-tint,transparent),0 2px 5px #0007}
+@media(min-width:900px){#zenBar .zen-group:is([data-kind=follow],[data-kind=spin])::before{top:calc(17 * var(--zu));width:calc(8 * var(--zu));height:calc(8 * var(--zu))}}
 `;
 function init(){
  const layout=()=>{const u=Math.min(innerWidth/2048,innerHeight/1143);document.documentElement.style.setProperty('--zu',u+'px');document.documentElement.style.setProperty('--zen-y',(innerHeight-1143*u)/2+'px')};
@@ -263,7 +275,14 @@ function init(){
   const symbol=document.createElement('label');symbol.htmlFor=input.id;symbol.className='zen-symbol';symbol.innerHTML=icon(kind);symbol.title=name+' · Wheel or swipe left/right for fine adjustment'+' · Tap for one step or hold either half to repeat';
   box.append(input,symbol);bar.append(box);
   if(control){
-   const sync=()=>{input.value=control.value;input.setAttribute('aria-valuetext',kind==='speed'?Number(input.value).toFixed(2):`${Math.round(Number(input.value)*100)}%`)};
+   const sync=()=>{input.value=control.value;
+    if(kind==='follow'||kind==='spin')input.style.setProperty('--zen-thumb-tint',`rgba(183,193,173,${.035+.30*zenCenterStrength(+input.value,+input.min,+input.max)})`);
+    if(kind==='speed'){
+     const references=Array.from(document.querySelectorAll('#lagTicks1 .speedTick.major'),tick=>parseFloat(tick.style.left)/100).filter(Number.isFinite);
+     const strength=zenSpeedReferenceStrength(+input.value,+input.min,+input.max,references);
+     input.style.setProperty('--zen-thumb-tint',`rgba(197,168,128,${.035+.34*strength})`);
+    }
+    input.setAttribute('aria-valuetext',kind==='speed'?Number(input.value).toFixed(2):`${Math.round(Number(input.value)*100)}%`)};
    input.addEventListener('input',()=>{control.value=input.value;control.dispatchEvent(new Event('input',{bubbles:true}));sync()});input.addEventListener('change',()=>control.dispatchEvent(new Event('change',{bubbles:true})));bindings.push(sync);sync();
    input.addEventListener('wheel',e=>{e.preventDefault();if(input.disabled)return;input.value=String(Math.max(+input.min,Math.min(+input.max,+input.value+(e.deltaY<0?1:-1)*+input.step)));input.dispatchEvent(new Event('input',{bubbles:true}));},{passive:false});
   }else{
