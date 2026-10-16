@@ -5580,7 +5580,35 @@
         uniq.sort((a, b) => a.t - b.t);
         return [uniq[0], uniq[uniq.length - 1]];
     }
+
+    function drawZenTable(map) {
+        const L=S.tableL,W=S.tableW;
+        const p=map({x:0,y:0}),q=map({x:L,y:W});
+        const left=p.x,top=p.y,w=q.x-p.x,h=q.y-p.y;
+        const rail=Math.max(9,Math.min(w,h)*.075);
+        ctx.save();
+        ctx.shadowColor='#716b58';ctx.shadowBlur=21;
+        ctx.fillStyle='#b58e72';ctx.beginPath();ctx.roundRect(left-rail,top-rail,w+rail*2,h+rail*2,rail*.5);ctx.fill();
+        ctx.shadowBlur=0;
+        const wood=ctx.createLinearGradient(left,top-rail,left,top+rail);
+        wood.addColorStop(0,'#d0a68a');wood.addColorStop(.5,'#b58b6e');wood.addColorStop(1,'#967458');
+        ctx.fillStyle=wood;ctx.beginPath();ctx.roundRect(left-rail*.7,top-rail*.7,w+rail*1.4,h+rail*1.4,rail*.35);ctx.fill();
+        ctx.fillStyle='#a1ac96';ctx.beginPath();ctx.roundRect(left-rail*.24,top-rail*.24,w+rail*.48,h+rail*.48,rail*.21);ctx.fill();
+        const felt=ctx.createRadialGradient(left+w*.48,top+h*.44,0,left+w*.5,top+h*.5,Math.max(w,h)*.76);
+        felt.addColorStop(0,'#879c88');felt.addColorStop(1,'#667d70');
+        ctx.fillStyle=felt;ctx.fillRect(left,top,w,h);
+        ctx.strokeStyle='#d6d1bd55';ctx.lineWidth=Math.max(1,rail*.12);ctx.strokeRect(left,top,w,h);
+        const pockets=[[0,0],[L/2,0],[L,0],[0,W],[L/2,W],[L,W]];
+        pockets.forEach(([x,y])=>{const z=map({x,y});const rad=rail*.43;ctx.shadowColor='#201e1b';ctx.shadowBlur=7;ctx.fillStyle='#242320';ctx.beginPath();ctx.arc(z.x,z.y,rad,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;});
+        ctx.fillStyle='#d6c9ad99';
+        for(let i=1;i<8;i++){if(i===4)continue;for(const yy of [top-rail*.49,top+h+rail*.49]){ctx.beginPath();ctx.arc(left+w*i/8,yy,Math.max(1.4,rail*.09),0,Math.PI*2);ctx.fill();}}
+        for(let i=1;i<4;i++){for(const xx of [left-rail*.49,left+w+rail*.49]){ctx.beginPath();ctx.arc(xx,top+h*i/4,Math.max(1.4,rail*.09),0,Math.PI*2);ctx.fill();}}
+        ctx.fillStyle='#e1dec24a';for(const x of [L*.25,L*.75]){const v=map({x,y:W*.5});ctx.beginPath();ctx.arc(v.x,v.y,Math.max(1.6,rail*.08),0,Math.PI*2);ctx.fill();}
+        ctx.restore();
+    }
+
     function drawTable(map, M) {
+        if (document.body.classList.contains('zen-mode')) { drawZenTable(map); return; }
         const projectionOnly = isProjector && projectorProjectionOnly;
         if (projectionOnly || !S.showTable)
             return;
@@ -5928,7 +5956,7 @@
         }
 
         if (b.id === 0) {
-            logicalCircle(b, R, map, '#f7f7f3', '#999', 1.2);
+            logicalCircle(b, R, map, '#f3eee3', '#b0a99b', 1.0);
         }
         else if (b.id >= 9 && b.id <= 15) {
             // Traditional American stripe: white ball with a centered colored band.
@@ -5980,6 +6008,18 @@
         }
     }
     function drawAim(map) {
+        if (document.body.classList.contains('zen-mode')) {
+            const cb=cueBall();if(!cb)return;
+            const d=aimDirection(),R=S.ballR;
+            const front=map({x:cb.x+d.x*R*10,y:cb.y+d.y*R*10});
+            const start=map({x:cb.x+d.x*R,y:cb.y+d.y*R});
+            ctx.save();ctx.strokeStyle='#efe8cb78';ctx.lineWidth=1.4;ctx.shadowColor='#eee9c7';ctx.shadowBlur=5;ctx.setLineDash([1.5,9]);ctx.lineCap='round';
+            ctx.beginPath();ctx.moveTo(start.x,start.y);ctx.lineTo(front.x,front.y);ctx.stroke();ctx.setLineDash([]);
+            const tip=map({x:cb.x-d.x*R*1.2,y:cb.y-d.y*R*1.2});
+            const butt=map({x:cb.x-d.x*.48,y:cb.y-d.y*.48});
+            ctx.strokeStyle='#c4a58b';ctx.shadowBlur=2;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(butt.x,butt.y);ctx.lineTo(tip.x,tip.y);ctx.stroke();
+            ctx.restore();return;
+        }
         const cb = cueBall();
         if (!cb)
             return;
@@ -6676,7 +6716,7 @@
         // Shot visibility controls paths and guides independently of cue-ball visibility.
         {
             if (cueVisualsVisible(1)) {
-                drawPreview(map);
+                if (!document.body.classList.contains('zen-mode')) drawPreview(map);
                 drawAim(map);
             }
             drawShot2(map);
@@ -6702,12 +6742,12 @@
                 drawBall(Object.assign(Object.assign({}, b), { x: ab.x, y: ab.y, active: true }), map, false);
             }
         }
-        if (cueVisualsVisible(1)) drawImpactOverlay(map);
-        drawTipBadge(map);
-        drawBankKickGuide(map);
+        if (cueVisualsVisible(1) && !document.body.classList.contains('zen-mode')) drawImpactOverlay(map);
+        if (!document.body.classList.contains('zen-mode')) drawTipBadge(map);
+        if (!document.body.classList.contains('zen-mode')) drawBankKickGuide(map);
         drawTeachingCompass(map);
-        drawRollingReferences(map);
-        drawCalibration(M);
+        if (!document.body.classList.contains('zen-mode')) drawRollingReferences(map);
+        if (!document.body.classList.contains('zen-mode')) drawCalibration(M);
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }
     function friendlyEventText(v) {
