@@ -5636,7 +5636,7 @@
                 if(base===110.9242){
                     // Fine woven cloth, with broad natural light and quiet nap.
                     shade*=1.035-.12*Math.hypot((x-art.width*.42)/art.width,(y-art.height*.4)/art.height);
-                    shade*=.64+.36*textureLight(x,y,true);shade+=grain*.012;
+                    shade*=.92+.08*textureLight(x,y,true);shade+=grain*.009;
                 }else if(base===54.541){
                     // Layered flowing walnut grain follows the existing rail art.
                     const axis=(y<120||y>art.height-120)?x:y;
