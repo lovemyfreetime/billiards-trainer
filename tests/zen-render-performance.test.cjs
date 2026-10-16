@@ -6,7 +6,7 @@ function extract(name){const a=source.indexOf('    function '+name+'(');assert(a
 // A stream of pointer positions must paint the newest position once per frame,
 // with no solver, storage, or delayed frame backlog on the pointer path.
 let frames=new Map(),id=0,painted=[],solves=0,current=0;
-const dragContext={drag:{kind:'ball'},S:{},simulate:()=>{solves++;return{firstEvent:'contact'}},zenDragFrame:0,requestAnimationFrame:f=>{frames.set(++id,f);return id},cancelAnimationFrame:i=>frames.delete(i),draw:()=>painted.push(current),refreshPreview:()=>solves++};
+const dragContext={publishZenAimFeedback(){},drag:{kind:'ball'},S:{},simulate:()=>{solves++;return{firstEvent:'contact'}},zenDragFrame:0,requestAnimationFrame:f=>{frames.set(++id,f);return id},cancelAnimationFrame:i=>frames.delete(i),draw:()=>painted.push(current),refreshPreview:()=>solves++};
 vm.createContext(dragContext);vm.runInContext(extract('requestZenDragPaint')+extract('finishZenDragPaint'),dragContext);
 for(current=0;current<300;current++)vm.runInContext('requestZenDragPaint()',dragContext);
 assert.equal(frames.size,1);assert.equal(solves,0);

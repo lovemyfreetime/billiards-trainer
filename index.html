@@ -2510,7 +2510,7 @@
     window.billiardsZenControls={
         enter(){S.activeShot=1;S.shot2Enabled=false;S.cueElevationDeg=0;S.airbornePhysics=false;updateUI();refreshPreview();},
         aim(degrees){if(!animation){S.activeShot=1;rotateAimMicro(degrees*Math.PI/180);}},
-        status(){return {busy:!!animation,undo:undoStack.length>0,redo:redoStack.length>0,undoAction:!!actionHistory?.count,redoAction:!!actionHistory?.redoCount,tip:{...effectiveTipOffsetValues(S.sideSpin,S.follow),limit:PHYSICS_MODEL.maxTipOffsetR},balls:S.balls.filter(b=>b.active&&!b.marker).map(b=>b.id)};},
+        status(){return {overlap:S.preview?.firstBallContact?.overlap||0,busy:!!animation,undo:undoStack.length>0,redo:redoStack.length>0,undoAction:!!actionHistory?.count,redoAction:!!actionHistory?.redoCount,tip:{...effectiveTipOffsetValues(S.sideSpin,S.follow),limit:PHYSICS_MODEL.maxTipOffsetR},balls:S.balls.filter(b=>b.active&&!b.marker).map(b=>b.id)};},
         undoAction:undoLastAction,redoAction:redoLastAction,undoShot:undoLastShot,redoShot:redoLastShot,
         tip(side,follow){
             if(animation)return;
@@ -4978,6 +4978,7 @@
         saveState();
         syncProjector();
         draw();
+        publishZenAimFeedback();
     }
     function resize() {
         const r = stage.getBoundingClientRect();
@@ -7838,6 +7839,9 @@
             refreshPreview();
         }
     });
+    function publishZenAimFeedback(){
+        if(document.body.classList.contains('zen-mode'))window.dispatchEvent(new CustomEvent('billiards:zen-preview',{detail:{overlap:S.preview?.firstBallContact?.overlap||0}}));
+    }
     let zenDragFrame=0;
     function requestZenDragPaint(){
         if(zenDragFrame)return;
@@ -7846,7 +7850,7 @@
             // Coalesce aim changes to one live prediction per frame. Ball dragging
             // stays solver-free; metrics and persistence still wait for release.
             if(drag&&['aim','aim2'].includes(drag.kind)){
-                S.preview=simulate(false);S.firstEvent=S.preview.firstEvent;
+                S.preview=simulate(false);S.firstEvent=S.preview.firstEvent;publishZenAimFeedback();
                 if(S.shot2Enabled)ensureShot2().preview=simulateShot2();
             }
             draw();
@@ -12401,7 +12405,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=quiet-power-cues-v30"></script>
+  <script src="./beta-ui.js?v=warm-overlap-glow-v31"></script>
 
 
 </body>
