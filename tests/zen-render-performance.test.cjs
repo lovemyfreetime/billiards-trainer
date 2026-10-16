@@ -33,8 +33,8 @@ renderContext.S.preview={paths:{0:Array.from({length:11},(_,t)=>({x:.2+t*.1,y:.5
 renderContext.S.speed=6;renderContext.shotPowerState=()=>({currentCueImpact:2,requiredCueImpact:1,currentPocketArrival:.2,pocketResidualTarget:.2});
 strokes.length=0;vm.runInContext('drawZenGuides(map)',renderContext);
 const cue=strokes.filter(s=>s.width===1.25).map(s=>Number(s.color.match(/,([^,]+)\)$/)[1]));
-assert.equal(cue.length,9);assert.equal(cue[0],.36);assert(Math.abs(cue[1]-.32)<1e-9);assert.equal(cue.at(-1),.08);assert(cue.every(a=>a>=.08));
-console.log('Zen tracer: cue opacity drops .04 per rail and remains visible at the .08 floor, with a narrow low-opacity halo and no blur.');
+assert.equal(cue.length,9);assert.equal(cue[0],.36*(2/3));assert(Math.abs(cue[1]-.32*(2/3))<1e-9);assert.equal(cue.at(-1),.08*(2/3));assert(cue.every(a=>a>=.08*(2/3)));
+console.log('Zen tracer: every path layer uses two-thirds intensity, preserving the rail falloff and relative visibility floor.');
 
 // The reference art and collision coordinates must share an invertible 2:1 map.
 renderContext.document.body={classList:{contains:className=>className==='zen-mode'}};

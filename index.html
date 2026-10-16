@@ -6117,12 +6117,13 @@
             const R=S.ballR,contact=preview?.firstBallContact,power=zenPathPower();
             const stroke=(points,width,color,dash=[])=>{if(!points||points.length<2)return;c.setLineDash(dash);c.beginPath();points.forEach((p,i)=>{const q=map(p);if(i)c.lineTo(q.x,q.y);else c.moveTo(q.x,q.y)});c.lineWidth=width;c.strokeStyle=color;c.stroke()};
             const powerStroke=(points,alpha,intensity)=>{
+                const glowScale=2/3;
                 // Widen and brighten the feathered halo across the entire speed range.
                 // Layered strokes keep the live preview free of canvas blur filters.
-                stroke(points,4+10*intensity,`rgba(255,255,255,${.05*intensity})`);
-                stroke(points,2.75+5.25*intensity,`rgba(255,255,255,${.075*intensity})`);
-                stroke(points,1.75+2.25*intensity,`rgba(255,255,255,${.10*intensity})`);
-                stroke(points,1.25,`rgba(255,255,255,${alpha})`);
+                stroke(points,4+10*intensity,`rgba(255,255,255,${.05*intensity*glowScale})`);
+                stroke(points,2.75+5.25*intensity,`rgba(255,255,255,${.075*intensity*glowScale})`);
+                stroke(points,1.75+2.25*intensity,`rgba(255,255,255,${.10*intensity*glowScale})`);
+                stroke(points,1.25,`rgba(255,255,255,${alpha*glowScale})`);
             };
             c.save();const tl=map({x:0,y:0}),br=map({x:S.tableL,y:S.tableW});
             c.beginPath();c.rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y);
@@ -12411,7 +12412,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=stronger-path-glow-v32"></script>
+  <script src="./beta-ui.js?v=softer-path-glow-v33"></script>
 
 
 </body>

@@ -1,10 +1,10 @@
-const CACHE_NAME = 'billiards-trainer-4-12-zen-stronger-path-glow-v121';
+const CACHE_NAME = 'billiards-trainer-4-12-zen-softer-path-glow-v122';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './trainer-action-history.js?v=2',
   './icons/zen-reference-table-v1.webp',
-  './zen-mode.js?v=stronger-path-glow-v32',
-  './beta-ui.js?v=stronger-path-glow-v32',
+  './zen-mode.js?v=softer-path-glow-v33',
+  './beta-ui.js?v=softer-path-glow-v33',
   './index.html',
   './trainer-practice-tools.js?v=3',
   './guide/audio-startup.js?v=native-warmup-v22',
