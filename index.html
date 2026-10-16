@@ -2478,6 +2478,22 @@
         return {capture,restore,apply,loadLesson,snapshot,narrationRegions,redraw:draw,feltBounds(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR);return {left:c.left-s.left+m.corners[0].x*sx,top:c.top-s.top+m.corners[0].y*sy,right:c.left-s.left+m.corners[1].x*sx,width:(m.corners[1].x-m.corners[0].x)*sx,height:(m.corners[2].y-m.corners[0].y)*sy};},exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},rollingReference(which=1){return rollingReferenceForShot(which);},predict(adjust={}){const oldSpeed=S.speed,oldAim=S.freeAim,cb=cueBall(),oldCue=cb?{x:cb.x,y:cb.y}:null;try{if(adjust.speed!==undefined)S.speed=adjust.speed;if(adjust.aim)S.freeAim=adjust.aim;if(adjust.cue&&cb)Object.assign(cb,adjust.cue);const p=simulate(false);return {pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact,paths:p.paths,railEvents:p.railEvents};}finally{S.speed=oldSpeed;S.freeAim=oldAim;if(cb&&oldCue)Object.assign(cb,oldCue);}}};
     })();
 
+    window.billiardsZenControls={
+        enter(){S.activeShot=1;S.shot2Enabled=false;S.cueElevationDeg=0;S.airbornePhysics=false;updateUI();refreshPreview();},
+        aim(degrees){if(!animation){S.activeShot=1;rotateAimMicro(degrees*Math.PI/180);}},
+        status(){return {busy:!!animation,undo:undoStack.length>0,balls:S.balls.filter(b=>b.active&&!b.marker).map(b=>b.id)};},
+        place(id,clientX,clientY){
+            if(animation)return false;
+            let q=null;
+            if(Number.isFinite(clientX)&&Number.isFinite(clientY)){
+                const rect=canvas.getBoundingClientRect();
+                q=controlMap().inv({x:(clientX-rect.left)*(canvas.width/DPR)/rect.width,y:(clientY-rect.top)*(canvas.height/DPR)/rect.height});
+                if(!onPlayingSurface(q)||manualPocketAt(q))return false;
+            }
+            returnPocketBall(id,q);return S.balls.some(b=>b.id===id&&b.active);
+        }
+    };
+
     window.billiardsGuideApplyLayout=file=>{applyTableFile(file,false,null,true);if($('photoAnalyzerModal').classList.contains('open'))closePhotoAnalyzer();};
     function stageTableFile(file){
         photoVision.imageError='';photoVision.analysisError='';
@@ -4938,8 +4954,8 @@
     window.addEventListener('resize', resize);
     if (window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(resize)).observe(stage);
     function controlMap() {
-        const w = canvas.width / DPR, h = canvas.height / DPR, pad = 34;
-        const sidePad = document.body.classList.contains('phone-layout') ? (w < 600 ? 140 : 190) : pad;
+        const w = canvas.width / DPR, h = canvas.height / DPR, pad = document.body.classList.contains('zen-mode') ? Math.max(28,Math.min(w,h)*.095) : 34;
+        const sidePad = !document.body.classList.contains('zen-mode') && document.body.classList.contains('phone-layout') ? (w < 600 ? 140 : 190) : pad;
         const scale = Math.max(.01, Math.min((w - sidePad * 2) / S.tableL, (h - pad * 2) / S.tableW));
         const tw = S.tableL * scale, th = S.tableW * scale, ox = (w - tw) / 2, oy = (h - th) / 2;
         return { map: p => ({ x: ox + p.x * scale, y: oy + p.y * scale }), inv: p => ({ x: (p.x - ox) / scale, y: (p.y - oy) / scale }), scale, corners: [{ x: ox, y: oy }, { x: ox + tw, y: oy }, { x: ox + tw, y: oy + th }, { x: ox, y: oy + th }] };
@@ -5581,29 +5597,67 @@
         return [uniq[0], uniq[uniq.length - 1]];
     }
 
+    // Zen is a presentation of the same table geometry and simulation.
     function drawZenTable(map) {
-        const L=S.tableL,W=S.tableW;
-        const p=map({x:0,y:0}),q=map({x:L,y:W});
-        const left=p.x,top=p.y,w=q.x-p.x,h=q.y-p.y;
-        const rail=Math.max(9,Math.min(w,h)*.075);
+        const L=S.tableL,W=S.tableW,p=map({x:0,y:0}),q=map({x:L,y:W});
+        const x=p.x,y=p.y,w=q.x-p.x,h=q.y-p.y,r=Math.min(w,h)*.082;
+        const round=(xx,yy,ww,hh,rr,fill)=>{ctx.fillStyle=fill;ctx.beginPath();ctx.roundRect(xx,yy,ww,hh,rr);ctx.fill();};
         ctx.save();
-        ctx.shadowColor='#716b58';ctx.shadowBlur=21;
-        ctx.fillStyle='#b58e72';ctx.beginPath();ctx.roundRect(left-rail,top-rail,w+rail*2,h+rail*2,rail*.5);ctx.fill();
-        ctx.shadowBlur=0;
-        const wood=ctx.createLinearGradient(left,top-rail,left,top+rail);
-        wood.addColorStop(0,'#d0a68a');wood.addColorStop(.5,'#b58b6e');wood.addColorStop(1,'#967458');
-        ctx.fillStyle=wood;ctx.beginPath();ctx.roundRect(left-rail*.7,top-rail*.7,w+rail*1.4,h+rail*1.4,rail*.35);ctx.fill();
-        ctx.fillStyle='#a1ac96';ctx.beginPath();ctx.roundRect(left-rail*.24,top-rail*.24,w+rail*.48,h+rail*.48,rail*.21);ctx.fill();
-        const felt=ctx.createRadialGradient(left+w*.48,top+h*.44,0,left+w*.5,top+h*.5,Math.max(w,h)*.76);
-        felt.addColorStop(0,'#879c88');felt.addColorStop(1,'#667d70');
-        ctx.fillStyle=felt;ctx.fillRect(left,top,w,h);
-        ctx.strokeStyle='#d6d1bd55';ctx.lineWidth=Math.max(1,rail*.12);ctx.strokeRect(left,top,w,h);
-        const pockets=[[0,0],[L/2,0],[L,0],[0,W],[L/2,W],[L,W]];
-        pockets.forEach(([x,y])=>{const z=map({x,y});const rad=rail*.43;ctx.shadowColor='#201e1b';ctx.shadowBlur=7;ctx.fillStyle='#242320';ctx.beginPath();ctx.arc(z.x,z.y,rad,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;});
-        ctx.fillStyle='#d6c9ad99';
-        for(let i=1;i<8;i++){if(i===4)continue;for(const yy of [top-rail*.49,top+h+rail*.49]){ctx.beginPath();ctx.arc(left+w*i/8,yy,Math.max(1.4,rail*.09),0,Math.PI*2);ctx.fill();}}
-        for(let i=1;i<4;i++){for(const xx of [left-rail*.49,left+w+rail*.49]){ctx.beginPath();ctx.arc(xx,top+h*i/4,Math.max(1.4,rail*.09),0,Math.PI*2);ctx.fill();}}
-        ctx.fillStyle='#e1dec24a';for(const x of [L*.25,L*.75]){const v=map({x,y:W*.5});ctx.beginPath();ctx.arc(v.x,v.y,Math.max(1.6,rail*.08),0,Math.PI*2);ctx.fill();}
+        ctx.shadowColor='#56442c66';ctx.shadowBlur=r*.7;ctx.shadowOffsetY=r*.28;
+        round(x-r,y-r,w+2*r,h+2*r,r*.75,'#cab49a');
+        ctx.shadowOffsetY=0;ctx.shadowBlur=r*.15;ctx.shadowColor='#fff0cc';
+        ctx.strokeStyle='#ffe9bd';ctx.lineWidth=1.6;ctx.stroke();ctx.shadowBlur=0;
+        const wood=ctx.createLinearGradient(x,y-r,x,y+h+r);
+        wood.addColorStop(0,'#bc9474');wood.addColorStop(.12,'#947054');wood.addColorStop(.5,'#b18a68');wood.addColorStop(.9,'#997456');wood.addColorStop(1,'#b58e6b');
+        round(x-r*.89,y-r*.89,w+r*1.78,h+r*1.78,r*.56,wood);
+        // Quiet, deterministic wood grain. Clip the grain to the wooden frame.
+        ctx.save();ctx.clip();ctx.strokeStyle='#503b291b';ctx.lineWidth=.7;
+        for(let i=0;i<90;i++){
+            const yy=y-r+i*(h+2*r)/90;ctx.beginPath();ctx.moveTo(x-r,yy);
+            ctx.bezierCurveTo(x+w*.28,yy+Math.sin(i*1.7)*5,x+w*.7,yy+Math.cos(i)*4,x+w+r,yy+Math.sin(i)*2);ctx.stroke();
+        }
+        ctx.restore();
+        round(x-r*.3,y-r*.3,w+r*.6,h+r*.6,r*.24,'#a4af91');
+        const felt=ctx.createRadialGradient(x+w*.45,y+h*.35,0,x+w*.5,y+h*.5,w*.7);
+        felt.addColorStop(0,'#899b80');felt.addColorStop(.55,'#74896e');felt.addColorStop(1,'#526a57');
+        ctx.fillStyle=felt;ctx.fillRect(x,y,w,h);
+        // Felt edge shadows give the cushions depth without a bright outline.
+        ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
+        ctx.strokeStyle='#25352b66';ctx.lineWidth=r*.36;ctx.shadowColor='#1c2a22';ctx.shadowBlur=r*.5;ctx.strokeRect(x,y,w,h);ctx.restore();
+        const segments=[[[0,0],[.5,0]],[[.5,0],[1,0]],[[0,1],[.5,1]],[[.5,1],[1,1]],[[0,0],[0,1]],[[1,0],[1,1]]];
+        for(const [a,b] of segments){
+            const horizontal=a[1]===b[1],gap=r*.65;
+            const ax=x+a[0]*w,ay=y+a[1]*h,bx=x+b[0]*w,by=y+b[1]*h;
+            const grad=ctx.createLinearGradient(horizontal?ax-r*.28:ax-r*.28,horizontal?ay-r*.28:ay,horizontal?ax+r*.28:ax+r*.28,horizontal?ay+r*.28:ay);
+            grad.addColorStop(0,'#afba9d');grad.addColorStop(.48,'#899a7d');grad.addColorStop(1,'#64765d');
+            if(horizontal)round(ax+gap,ay-r*.29,bx-ax-2*gap,r*.5,r*.18,grad);
+            else round(ax-r*.29,ay+gap,r*.5,by-ay-2*gap,r*.18,grad);
+        }
+        for(const [xx,yy] of [[0,0],[.5,0],[1,0],[0,1],[.5,1],[1,1]]){
+            const px=x+xx*w,py=y+yy*h,pr=r*.56;
+            const rim=ctx.createRadialGradient(px-pr*.2,py-pr*.3,pr*.1,px,py,pr*1.2);
+            rim.addColorStop(0,'#82745c');rim.addColorStop(.66,'#342d22');rim.addColorStop(1,'#b9a78d');
+            ctx.fillStyle=rim;ctx.beginPath();ctx.arc(px,py,pr*1.15,0,Math.PI*2);ctx.fill();
+            const well=ctx.createRadialGradient(px,py+pr*.4,1,px,py,pr);
+            well.addColorStop(0,'#161a14');well.addColorStop(.7,'#25261c');well.addColorStop(1,'#514635');
+            ctx.fillStyle=well;ctx.beginPath();ctx.arc(px,py,pr,0,Math.PI*2);ctx.fill();
+        }
+        ctx.fillStyle='#e5d7b9';ctx.shadowColor='#ffe4ae';ctx.shadowBlur=5;
+        for(let i=1;i<8;i++){if(i===4)continue;for(const yy of [y-r*.66,y+h+r*.66]){ctx.beginPath();ctx.arc(x+w*i/8,yy,r*.065,0,Math.PI*2);ctx.fill();}}
+        for(let i=1;i<4;i++)for(const xx of [x-r*.66,x+w+r*.66]){ctx.beginPath();ctx.arc(xx,y+h*i/4,r*.065,0,Math.PI*2);ctx.fill();}
+        ctx.shadowBlur=0;ctx.fillStyle='#e4debb66';
+        for(const xx of [.25,.75]){ctx.beginPath();ctx.arc(x+w*xx,y+h*.5,r*.07,0,Math.PI*2);ctx.fill();}
+        ctx.restore();
+    }
+    function drawZenBall(b,map,label){
+        const p=map(b),edge=map({x:b.x+S.ballR,y:b.y}),r=Math.abs(edge.x-p.x);
+        ctx.save();ctx.shadowColor='#1b261c70';ctx.shadowBlur=r*.65;ctx.shadowOffsetY=r*.35;
+        ctx.fillStyle=b.id===0||b.id>=9?'#f3e8ce':ballBaseColor(b.id);ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+        ctx.save();ctx.clip();
+        if(b.id>=9){ctx.fillStyle=ballBaseColor(b.id);ctx.fillRect(p.x-r,p.y-r*.58,r*2,r*1.16);}
+        const sheen=ctx.createRadialGradient(p.x-r*.38,p.y-r*.42,0,p.x+r*.23,p.y+r*.32,r*1.45);
+        sheen.addColorStop(0,'#fff7dfb0');sheen.addColorStop(.4,'#fff3d516');sheen.addColorStop(1,'#141a1266');ctx.fillStyle=sheen;ctx.fillRect(p.x-r,p.y-r,r*2,r*2);ctx.restore();
+        if(b.id&&label){ctx.fillStyle='#f7ebd0';ctx.beginPath();ctx.arc(p.x,p.y,r*.4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#36382c';ctx.font=`600 ${r*.68}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(b.id,p.x,p.y+.3);}
         ctx.restore();
     }
 
@@ -5955,6 +6009,7 @@
             return;
         }
 
+        if(document.body.classList.contains('zen-mode')){drawZenBall(b,map,label);return;}
         if (b.id === 0) {
             logicalCircle(b, R, map, '#f3eee3', '#b0a99b', 1.0);
         }
@@ -6009,15 +6064,22 @@
     }
     function drawAim(map) {
         if (document.body.classList.contains('zen-mode')) {
-            const cb=cueBall();if(!cb)return;
-            const d=aimDirection(),R=S.ballR;
-            const front=map({x:cb.x+d.x*R*10,y:cb.y+d.y*R*10});
-            const start=map({x:cb.x+d.x*R,y:cb.y+d.y*R});
-            ctx.save();ctx.strokeStyle='#efe8cb78';ctx.lineWidth=1.4;ctx.shadowColor='#eee9c7';ctx.shadowBlur=5;ctx.setLineDash([1.5,9]);ctx.lineCap='round';
-            ctx.beginPath();ctx.moveTo(start.x,start.y);ctx.lineTo(front.x,front.y);ctx.stroke();ctx.setLineDash([]);
-            const tip=map({x:cb.x-d.x*R*1.2,y:cb.y-d.y*R*1.2});
+            const cb=cueBall();if(!cb||animation)return;
+            const d=aimDirection(),R=S.ballR,contact=S.preview?.firstBallContact;
+            const end=contact?.cuePos||extendedAimEnd(cb,d),start={x:cb.x+d.x*R,y:cb.y+d.y*R};
+            pathPoly([start,end],map,'#f4e7b9',1.35,.62,[1,10]);
+            ctx.save();ctx.lineCap='round';
+            if(contact){
+                ctx.shadowColor='#ffedb6';ctx.shadowBlur=9;
+                logicalCircle(contact.cuePos,R,map,'#f7ebc30c','#f4e7bc99',1.3);
+                const out=norm(contact.normal),hit=contact.objPos;
+                const path=clippedLineThroughRect(hit,out,S.tableL,S.tableW);
+                if(path){const forward=path.filter(p=>(p.x-hit.x)*out.x+(p.y-hit.y)*out.y>0)[0];if(forward)pathPoly([hit,forward],map,'#efe2b8',1,.45,[5,9]);}
+            }
+            const tip=map({x:cb.x-d.x*R*1.25,y:cb.y-d.y*R*1.25});
             const butt=map({x:cb.x-d.x*.48,y:cb.y-d.y*.48});
-            ctx.strokeStyle='#c4a58b';ctx.shadowBlur=2;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(butt.x,butt.y);ctx.lineTo(tip.x,tip.y);ctx.stroke();
+            ctx.shadowBlur=2;ctx.strokeStyle='#b28c62';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(butt.x,butt.y);ctx.lineTo(tip.x,tip.y);ctx.stroke();
+            ctx.strokeStyle='#f3ddaf';ctx.lineWidth=2;ctx.stroke();
             ctx.restore();return;
         }
         const cb = cueBall();
@@ -6695,7 +6757,9 @@
         syncPracticeCounter();
         const w = canvas.width / DPR, h = canvas.height / DPR;
         ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = document.body.classList.contains('zen-mode') ? '#e6dccd' : '#050608';
+        if(document.body.classList.contains('zen-mode')){
+            const ground=ctx.createRadialGradient(w*.42,h*.35,0,w*.5,h*.5,w*.8);ground.addColorStop(0,'#eee3ce');ground.addColorStop(.65,'#d4c4a9');ground.addColorStop(1,'#b4aa90');ctx.fillStyle=ground;
+        }else ctx.fillStyle='#050608';
         ctx.fillRect(0, 0, w, h);
         const M = mapper(), map = M.map;
         if (!map)
@@ -6745,7 +6809,7 @@
         if (cueVisualsVisible(1) && !document.body.classList.contains('zen-mode')) drawImpactOverlay(map);
         if (!document.body.classList.contains('zen-mode')) drawTipBadge(map);
         if (!document.body.classList.contains('zen-mode')) drawBankKickGuide(map);
-        drawTeachingCompass(map);
+        if (!document.body.classList.contains('zen-mode')) drawTeachingCompass(map);
         if (!document.body.classList.contains('zen-mode')) drawRollingReferences(map);
         if (!document.body.classList.contains('zen-mode')) drawCalibration(M);
     }
@@ -12240,7 +12304,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=5"></script>
+  <script src="./beta-ui.js?v=soft-symbols-v3"></script>
 
 
 </body>
