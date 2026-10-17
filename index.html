@@ -2536,7 +2536,7 @@
         const A=ZEN_ASSET_GEOM,frame=controlMap(),rect=canvas.getBoundingClientRect();
         const point=(x,y)=>{const p=frame.map({x:(x-A.x0)/(A.x1-A.x0)*S.tableL,y:(y-A.y0)/(A.y1-A.y0)*S.tableW});return {x:rect.left+p.x*rect.width/(canvas.width/DPR),y:rect.top+p.y*rect.height/(canvas.height/DPR)};};
         const top=point(230,56),bottom=point(1448,716);
-        return {left:top.x,top:top.y,right:bottom.x,bottom:bottom.y};
+        return {left:top.x,top:top.y,right:bottom.x,bottom:bottom.y,cushionTop:point(839,98).y};
     }
     window.billiardsZenControls={
         enter(){S.activeShot=1;S.shot2Enabled=false;S.cueElevationDeg=0;S.airbornePhysics=false;S.balls=[];S.pocketedLog=[];S.allowMissingCueBall=true;S.speed=2.42;S.follow=0;S.sideSpin=0;normalizeBallSet();actionHistory=window.BilliardsActionHistory.create(60);resetRunHistory();updateUI();refreshPreview();syncActionUndo();},
@@ -12546,7 +12546,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=trainer-touch-menus-v52"></script>
+  <script src="./beta-ui.js?v=zen-axis-edges-v53"></script>
 
 
 </body>

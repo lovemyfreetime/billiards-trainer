@@ -62,6 +62,50 @@ function bindZenFineControl(surface,input,adjust,tapArrows=false,axis='x',pixels
  // The decorative label must not forward the end of a swipe to the coarse slider.
  surface.addEventListener('click',event=>event.preventDefault());
 }
+function bindZenEdgeGestures(root,zones,execute,canExecute,runShot,enabled){
+ let drag=null;
+ const contains=(element,x,y)=>{const r=element.getBoundingClientRect();return x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom;};
+ const finish=event=>{
+  if(!drag||(event.pointerId!=null&&event.pointerId!==drag.id))return;
+  const current=drag;drag=null;
+  if(root.hasPointerCapture(current.id))root.releasePointerCapture(current.id);
+  current.zone?.input.dispatchEvent(new Event('change',{bubbles:true}));
+  if(event.type==='pointerup'&&!current.moved&&current.execute&&contains(execute,event.clientX,event.clientY)&&canExecute())runShot();
+ };
+ root.addEventListener('pointerdown',event=>{
+  if(event.button!==0||drag||!enabled()||!event.target.closest?.('.zen-edge-zone'))return;
+  event.preventDefault();drag={id:event.pointerId,x:event.clientX,y:event.clientY,lastX:event.clientX,lastY:event.clientY,candidates:zones.filter(z=>contains(z.zone,event.clientX,event.clientY)),execute:contains(execute,event.clientX,event.clientY),moved:false,decided:false,zone:null,remainder:0};root.setPointerCapture(event.pointerId);
+ });
+ root.addEventListener('pointermove',event=>{
+  if(!drag||event.pointerId!==drag.id)return;
+  if(!enabled()){finish({type:'pointercancel',pointerId:event.pointerId});return;}
+  const dx=event.clientX-drag.x,dy=event.clientY-drag.y;
+  if(Math.hypot(dx,dy)>=6)drag.moved=true;
+  if(!drag.decided){
+   if(!drag.moved)return;
+   const axis=Math.abs(dx)>Math.abs(dy)*1.2?'x':Math.abs(dy)>Math.abs(dx)*1.2?'y':null;
+   if(!axis)return;
+   drag.decided=true;drag.zone=drag.candidates.find(z=>z.axis===axis)||null;
+  }
+  if(!drag.zone)return;
+  const zone=drag.zone,delta=zone.axis==='x'?event.clientX-drag.lastX:drag.lastY-event.clientY;
+  drag.lastX=event.clientX;drag.lastY=event.clientY;drag.remainder+=delta;
+  const size=zone.pixelsPerStep(),steps=Math.trunc(drag.remainder/size);
+  if(steps){drag.remainder-=steps*size;zone.adjust(steps);}
+ });
+ for(const type of ['pointerup','pointercancel','lostpointercapture'])root.addEventListener(type,finish);
+ window.addEventListener('blur',()=>finish({type:'pointercancel'}));
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)finish({type:'pointercancel'});});
+ root.addEventListener('wheel',event=>{
+  if(!enabled()||event.ctrlKey)return;
+  const target=event.target.closest?.('.zen-edge-zone');
+  const zone=zones.find(z=>z.zone===target)||zones.find(z=>z.axis==='y'&&contains(z.zone,event.clientX,event.clientY));
+  if(!zone)return;event.preventDefault();const delta=event.deltaY||event.deltaX;if(delta)zone.adjust(delta<0?1:-1);
+ },{passive:false});
+ // Native clicks following a swipe must never turn into a shot. Keyboard and
+ // accessibility clicks have no pointer sequence and retain normal activation.
+ execute.addEventListener('click',event=>{if(event.detail===0&&canExecute())runShot();});
+}
 function zenSpeedReferenceStrength(value,min,max,references){
  const position=(value-min)/Math.max(.001,max-min);
  const distance=references.length?Math.min(...references.map(reference=>Math.abs(reference-position))):1;
@@ -450,26 +494,26 @@ function init(){
  function edgeZone(kind,label,axis){
   const input=document.getElementById('zen-'+kind),zone=document.createElement('div');zone.id='zen-edge-'+kind;zone.className='zen-edge-zone zen-edge-'+axis;zone.tabIndex=0;zone.setAttribute('role','slider');zone.setAttribute('aria-label',label);zone.setAttribute('aria-orientation',axis==='y'?'vertical':'horizontal');zone.title=label+' · Swipe or use the mouse wheel';
   const adjust=steps=>{if(engine.status().busy)return;cancelZenSceneTransition();if(kind==='aim')engine.aim(-steps*.05);else{input.value=String(Math.max(+input.min,Math.min(+input.max,+input.value+steps*+input.step)));input.dispatchEvent(new Event('input',{bubbles:true}));}};
-  bindZenFineControl(zone,input,adjust,false,axis,kind==='speed'?Math.max(.5,innerHeight/((+input.max-+input.min)/+input.step)):6);
+
   zone.addEventListener('keydown',e=>{const direction={ArrowRight:1,ArrowUp:1,ArrowLeft:-1,ArrowDown:-1}[e.key];if(direction){e.preventDefault();adjust(direction);input.dispatchEvent(new Event('change',{bubbles:true}));}});
-  edgeControls.append(zone);edgeZones.push({kind,zone,input});return zone;
+  edgeControls.append(zone);edgeZones.push({kind,zone,input,axis,adjust,pixelsPerStep:()=>kind==='speed'?Math.max(.5,innerHeight/((+input.max-+input.min)/+input.step)):6});return zone;
  }
  const followEdge=edgeZone('follow','Edge follow / draw control','x'),spinEdge=edgeZone('spin','Edge left / right spin control','x');
  edgeZone('aim','Left edge aiming control','y');edgeZone('speed','Right edge power control','y');document.body.append(edgeControls);
  const executeEdge=document.createElement('button');executeEdge.id='zen-edge-execute';executeEdge.type='button';executeEdge.className='zen-edge-zone zen-edge-execute';executeEdge.setAttribute('aria-label','Execute shot above table');
- executeEdge.addEventListener('click',()=>{if(!shot.disabled)shot.click()});edgeControls.append(executeEdge);
+ edgeControls.append(executeEdge);
+ bindZenEdgeGestures(edgeControls,edgeZones,executeEdge,()=>!shot.disabled,()=>shot.click(),()=>!engine.status().busy);
 
  const positionEdges=()=>{const left=fresh.getBoundingClientRect(),right=balls[balls.length-1].getBoundingClientRect(),table=engine.tableBounds(),dock=bar.getBoundingClientRect();
   const top=Math.min(dock.top,table.bottom),height=Math.max(0,dock.top-top);
   Object.assign(followEdge.style,{left:'0px',top:top+'px',width:Math.max(0,left.left-6)+'px',height:height+'px'});
   Object.assign(spinEdge.style,{left:(right.right+6)+'px',top:top+'px',width:Math.max(0,innerWidth-right.right-6)+'px',height:height+'px'});
-  Object.assign(executeEdge.style,{left:Math.max(0,table.left)+'px',top:'0px',width:Math.max(0,Math.min(innerWidth,table.right)-Math.max(0,table.left))+'px',height:Math.max(0,table.top)+'px'});
-  const width=Math.max(32,Math.min(96,Math.min(table.left,innerWidth-table.right)*.7));
-  for(const {zone}of edgeZones)if(zone.classList.contains('zen-edge-y'))zone.style.width=width+'px';
+  Object.assign(executeEdge.style,{left:'0px',top:'0px',width:innerWidth+'px',height:Math.max(0,table.cushionTop)+'px'});
+  for(const {zone,kind}of edgeZones)if(zone.classList.contains('zen-edge-y'))zone.style.width=Math.max(0,kind==='aim'?table.left:innerWidth-table.right)+'px';
  };
  window.addEventListener('resize',positionEdges);
 
- function sync(){positionFresh();positionEdges();const status=engine.status();edgeZones.forEach(({zone,input,kind})=>{zone.setAttribute('aria-disabled',String(status.busy));zone.setAttribute('aria-valuemin',input.min);zone.setAttribute('aria-valuemax',input.max);zone.setAttribute('aria-valuenow',input.value);zone.setAttribute('aria-valuetext',kind==='aim'?'Fine aim adjustment':input.getAttribute('aria-valuetext')||input.value)});fresh.disabled=status.busy||status.balls.length===0;bindings.forEach(f=>f());bar.querySelectorAll('input').forEach(el=>el.disabled=status.busy);const selected=historyModes.find(mode=>mode.key===historyMode);if(undo.getAttribute('aria-label')!==selected.label){undo.innerHTML=icon(selected.glyph);undo.setAttribute('aria-label',selected.label);undo.title=selected.label}if(historyCurrent.dataset.mode!==historyMode){historyCurrent.innerHTML=icon(selected.glyph);historyCurrent.dataset.mode=historyMode}undo.disabled=status.busy||!status[selected.available];historyChoices.forEach((button,i)=>{button.disabled=status.busy||!status[historyModes[i].available];button.setAttribute('aria-pressed',String(historyModes[i].key===historyMode))});syncContact();if(status.busy){hoverTools.forEach(tool=>tool.close());closeMenu();}shot.disabled=status.busy||!status.balls.includes(0);executeEdge.disabled=shot.disabled;rackToggle.disabled=status.busy;center.disabled=status.busy;rackChoices.forEach(b=>b.disabled=status.busy);if(status.busy&&!rackMenu.hidden)closeRackMenu();balls.forEach(b=>{const id=+b.dataset.ballId,onTable=status.balls.includes(id);b.disabled=status.busy||onTable;b.classList.toggle('zen-on-table',onTable);b.classList.toggle('zen-place-first',id===0&&!onTable&&!status.busy);b.title=id===0?(onTable?'Cue ball is on the table':'Place the cue ball first'):onTable?`Ball ${id} is on the table`:`Drag or tap to add ball ${id}`})}
+ function sync(){positionFresh();positionEdges();const status=engine.status();edgeZones.forEach(({zone,input,kind})=>{zone.setAttribute('aria-disabled',String(status.busy));zone.setAttribute('aria-valuemin',input.min);zone.setAttribute('aria-valuemax',input.max);zone.setAttribute('aria-valuenow',input.value);zone.setAttribute('aria-valuetext',kind==='aim'?'Fine aim adjustment':input.getAttribute('aria-valuetext')||input.value)});fresh.disabled=status.busy||status.balls.length===0;bindings.forEach(f=>f());bar.querySelectorAll('input').forEach(el=>el.disabled=status.busy);const selected=historyModes.find(mode=>mode.key===historyMode);if(undo.getAttribute('aria-label')!==selected.label){undo.innerHTML=icon(selected.glyph);undo.setAttribute('aria-label',selected.label);undo.title=selected.label}if(historyCurrent.dataset.mode!==historyMode){historyCurrent.innerHTML=icon(selected.glyph);historyCurrent.dataset.mode=historyMode}undo.disabled=status.busy||!status[selected.available];historyChoices.forEach((button,i)=>{button.disabled=status.busy||!status[historyModes[i].available];button.setAttribute('aria-pressed',String(historyModes[i].key===historyMode))});syncContact();if(status.busy){hoverTools.forEach(tool=>tool.close());closeMenu();}shot.disabled=status.busy||!status.balls.includes(0);executeEdge.setAttribute('aria-disabled',String(shot.disabled));rackToggle.disabled=status.busy;center.disabled=status.busy;rackChoices.forEach(b=>b.disabled=status.busy);if(status.busy&&!rackMenu.hidden)closeRackMenu();balls.forEach(b=>{const id=+b.dataset.ballId,onTable=status.balls.includes(id);b.disabled=status.busy||onTable;b.classList.toggle('zen-on-table',onTable);b.classList.toggle('zen-place-first',id===0&&!onTable&&!status.busy);b.title=id===0?(onTable?'Cue ball is on the table':'Place the cue ball first'):onTable?`Ball ${id} is on the table`:`Drag or tap to add ball ${id}`})}
  sync();setInterval(sync,180);window.dispatchEvent(new Event('resize'));
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
