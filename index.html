@@ -2545,6 +2545,10 @@
             rows.forEach((len,row)=>{for(let col=0;col<len;col++){const id=order[k++];balls.push({id,n:String(id),x:L*.68+row*Math.sqrt(3)*R*1.001,y:W*.5+(col-(len-1)/2)*2*R*1.001,active:true});}});
             S.freeAim={x:L*.68,y:W*.5};finishRackSetup(balls,'Play rack ready','custom');
         },
+        scenario(scene){
+            const L=S.tableL,W=S.tableW,balls=[{id:0,n:"CB",x:scene.cue.x*L,y:scene.cue.y*W,active:true},...scene.balls.map(b=>({id:b.id,n:String(b.id),x:b.x*L,y:b.y*W,active:true}))];
+            S.freeAim={x:balls[1].x,y:balls[1].y};finishRackSetup(balls,"Play challenge ready","custom");
+        },
         reconcile(remaining){
             const wanted=new Set(remaining);S.balls=S.balls.filter(b=>b.id===0||wanted.has(b.id));
             for(const id of remaining){if(S.balls.some(b=>b.id===id))continue;
@@ -8400,7 +8404,7 @@
         refreshPreview();
         saveState();
         syncProjector();
-        window.dispatchEvent(new CustomEvent('billiards:shot-complete',{detail:{removed:[...removed],shot2Handoff:!!shot2Handoff,firstContact:sim.firstBallContact?.objId??null,scratch:sim.pocketEvents.some(e=>e.id===0),railAfter:sim.railEvents.some(e=>e.t>=(sim.firstBallContact?.t??Infinity)),breakRails:new Set(sim.railEvents.filter(e=>e.id>0).map(e=>e.id)).size}}));
+        window.dispatchEvent(new CustomEvent('billiards:shot-complete',{detail:{removed:[...removed],shot2Handoff:!!shot2Handoff,firstContact:sim.firstBallContact?.objId??null,scratch:sim.pocketEvents.some(e=>e.id===0),railAfter:sim.railEvents.some(e=>e.t>=(sim.firstBallContact?.t??Infinity)),breakRails:new Set(sim.railEvents.filter(e=>e.id>0).map(e=>e.id)).size,pockets:sim.pocketEvents.filter(e=>e.id>0).map(e=>({id:e.id,pocket:nearestLogicalPocket(e)?.name})),bank:sim.railEvents.some(e=>e.id>0&&sim.pocketEvents.some(p=>p.id===e.id&&p.t>e.t)),kick:sim.railEvents.some(e=>e.id===0&&e.t<(sim.firstBallContact?.t??0)),lastPotSeconds:Math.max(0,...sim.pocketEvents.filter(e=>e.id>0).map(e=>e.t)),cueFinish:{x:cueBall()?.x/S.tableL,y:cueBall()?.y/S.tableW}}}));
         if (shot2Handoff) {
             if (removed.length)
                 toast('Shot saved · Shot 2 applied · pocketed ' + removed.join(', '));
@@ -12433,9 +12437,10 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-welcome.js?v=analyze-welcome-v16"></script>
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
-  <link rel="stylesheet" href="./play-mode.css?v=play-expand-v3">
-  <script src="./play-engine.js?v=play-v1"></script>
-  <script src="./play-mode.js?v=play-expand-v3"></script>
+  <link rel="stylesheet" href="./play-mode.css?v=catalog-v1">
+  <script src="./play-catalog.js?v=catalog-v1"></script>
+  <script src="./play-engine.js?v=catalog-v1"></script>
+  <script src="./play-mode.js?v=catalog-v1"></script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=play-v17"></script>
 

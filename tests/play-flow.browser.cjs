@@ -36,11 +36,11 @@ const server=cp.spawn('python3',['-u','-m','http.server','8779','--bind','127.0.
  await setup('Ghost Runout','screen');
  await p.locator('#play-speed').fill('3.5');await p.locator('#play-speed').dispatchEvent('input');
  await p.getByRole('button',{name:'Execute Shot',exact:true}).click();
- await p.waitForFunction(()=>billiardsPlayStatus().shots===1,{timeout:20000});assert.equal((await status()).phase,'placement');await ready();
+ await p.waitForFunction(()=>billiardsPlayStatus().shots===1,null,{timeout:20000});assert.equal((await status()).phase,'placement');await ready();
  // Fixture: a straight pot to the top side pocket on the existing physical solver.
  await p.evaluate(()=>{const s=billiardsPlayBridge.capture(),L=s.tableL,W=s.tableW;s.balls=[{id:0,n:'CB',x:L/2,y:W*.6,active:true},{id:1,n:'1',x:L/2,y:W*.2,active:true},{id:2,n:'2',x:L*.8,y:W*.75,active:true},{id:3,n:'3',x:L*.7,y:W*.85,active:true}];s.freeAim={x:L/2,y:0};s.speed=1.8;billiardsPlayBridge.restore(s);});
  const ballBefore=await p.evaluate(()=>billiardsPlayBridge.capture().balls);
- await p.getByRole('button',{name:'Execute Shot',exact:true}).click();await p.waitForFunction(()=>billiardsPlayStatus().shots===2,{timeout:20000});assert(!(await status()).remaining.includes(1),'actual physics pot advances Ghost inventory');
+ await p.getByRole('button',{name:'Execute Shot',exact:true}).click();await p.waitForFunction(()=>billiardsPlayStatus().shots===2,null,{timeout:20000});assert(!(await status()).remaining.includes(1),'actual physics pot advances Ghost inventory');
  await p.locator('#playUndo').click();assert.deepEqual(await p.evaluate(()=>billiardsPlayBridge.capture().balls),ballBefore,'Undo restores actual pre-shot coordinates');assert.equal((await status()).shots,1);
  await p.locator('.play-footer').getByRole('link',{name:'Train',exact:true}).click();await p.waitForSelector('#btPlayLauncher');assert.equal(await p.locator('body.play-mode').count(),0);
  assert.deepEqual(await p.evaluate(()=>billiardsPlayBridge.capture().balls),ballBefore,'Train receives Play table');

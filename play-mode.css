@@ -130,3 +130,8 @@ body.play-mode{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 @media(orientation:portrait){
  body.play-mode #playRoot.play-table-expanded #playStage #stageWrap{inset:auto!important;left:50%!important;top:50%!important;width:100dvh!important;height:100dvw!important;transform:translate(-50%,-50%) rotate(90deg);transform-origin:center}
 }
+.play-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:12px 0}.play-grid>*{padding:12px 6px;text-align:center;background:#25383e;border-radius:9px;overflow-wrap:anywhere}#playRoot .play-grid button{font-size:14px;min-height:64px}#playModule p{font-size:15px;line-height:1.5}#playModule{margin:8px 0}#playModule:empty{display:none}#playModule select{display:block;width:100%;margin:6px 0;padding:10px;background:#25383e;color:white}.play-clock{font-variant-numeric:tabular-nums}#playDialog .play-game-grid{max-height:55vh;overflow:auto}
+.play-layout-diagram{width:min(100%,600px);max-height:40vh;display:block;margin:12px auto}#playPhysical:has(.play-layout-diagram){overflow:auto}#playModule .play-grid button:disabled{opacity:.5}
+/* Keep long scores and names inside the glanceable player strip. */
+.play-player{min-width:155px;overflow:hidden}.play-value{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;line-height:1.2}.play-player-name>span{min-width:0;overflow:hidden;text-overflow:ellipsis}.play-player-name small{flex-shrink:0}
+@media(max-width:650px){.play-value{font-size:17px}.play-player{min-width:155px}}

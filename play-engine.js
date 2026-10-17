@@ -1,6 +1,7 @@
 /* Our four first Play games. Pure state transitions, shared by table and scorekeeper. */
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsPlay=api;})(typeof globalThis!=='undefined'?globalThis:this,function(){
 'use strict';
+const catalog=typeof module==='object'&&module.exports?require('./play-catalog.js'):globalThis.BilliardsCatalog;
 const copy=x=>JSON.parse(JSON.stringify(x));
 const games={
  killer:{name:'Killer',min:2,max:12,tag:'Make it. Stay alive.',rules:'Three lives. One shot per turn. Make a ball to stay safe; miss or foul to lose one life. Last player alive wins. A dry break gets one retry; a break scratch loses a life immediately. Rerack when empty. No eight-ball bonus in this version.'},
@@ -32,7 +33,9 @@ function rankHand(cards){
 }
 function compare(a,b){for(let i=0;i<Math.max(a.length,b.length);i++){const d=(a[i]||0)-(b[i]||0);if(d)return Math.sign(d);}return 0;}
 function ids(n){return Array.from({length:n},(_,i)=>i+1);}
+Object.assign(games,catalog.games);
 function create(opts){
+ if(catalog.games[opts.game])return catalog.create(opts);
  const g=games[opts.game];if(!g)throw Error('Choose a game');
  const names=opts.names.map(x=>String(x).trim()).filter(Boolean);
  if(names.length<g.min||names.length>g.max)throw Error(g.min===g.max?`Choose ${g.min} player${g.min===1?'':'s'}`:`Choose ${g.min}–${g.max} players`);
@@ -103,6 +106,7 @@ function resolve(s,event){
  if(!s.remaining.length){s.rack++;rack(s);}else if(s.ballInHand||s.returns.length)s.phase='placement';
 }
 function reduce(state,event){
+ if(catalog.games[state.game])return catalog.reduce(state,event);
  const s=copy(state);
  if(event.type==='ready'){
   if(s.phase!=='placement')throw Error('No placement pending');

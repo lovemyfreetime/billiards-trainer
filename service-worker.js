@@ -1,9 +1,10 @@
-const CACHE_NAME = 'billiards-trainer-4-12-play-expand-v106';
+const CACHE_NAME = 'billiards-trainer-4-12-play-catalog-v107';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
-  './play-engine.js?v=play-v1',
-  './play-mode.js?v=play-expand-v3',
-  './play-mode.css?v=play-expand-v3',
+  './play-catalog.js?v=catalog-v1',
+  './play-engine.js?v=catalog-v1',
+  './play-mode.js?v=catalog-v1',
+  './play-mode.css?v=catalog-v1',
   './trainer-action-history.js?v=1',
   './icons/zen-reference-table-v1.webp',
   './zen-mode.js?v=play-v17',
