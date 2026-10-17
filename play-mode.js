@@ -112,7 +112,7 @@ function init(){
  }
  setInterval(()=>{const clock=$('playClock');if(clock&&state?.timer)clock.textContent=((Date.now()-state.timer)/1000).toFixed(1)+'s';},100);
 
- function controls(){const target=$('playStrokeControls');target.replaceChildren();if(!state||state.mode!=='screen'||state.phase==='result')return;
+ function controls(){const target=$('playStrokeControls');target.replaceChildren();if(!state||state.mode!=='screen'||!['ready','placement'].includes(state.phase))return;
   const aim=document.createElement('input');aim.type='range';aim.min=-10;aim.max=10;aim.step=.1;aim.value=0;aim.id='playAim';const al=text('label','Aim');al.htmlFor=aim.id;const ao=text('output','0°');let previous=0;aim.oninput=()=>{const value=+aim.value;window.billiardsZenControls.aim(value-previous);previous=value;ao.textContent=value.toFixed(1)+'°';};aim.onchange=()=>{previous=0;aim.value=0;ao.textContent='0°';};al.append(aim,ao);target.append(al);
   [['Speed','speed'],['Follow / Draw','follow'],['Left / Right','sideSpin']].forEach(([name,id])=>{const original=$(id),input=document.createElement('input');input.type='range';input.id='play-'+id;input.min=original.min;input.max=original.max;input.step=original.step;input.value=original.value;const label=text('label',name);label.htmlFor=input.id;const output=text('output',id==='speed'?Number(input.value).toFixed(1):Math.round(input.value*100)+'%');input.oninput=()=>{original.value=input.value;original.dispatchEvent(new Event('input',{bubbles:true}));output.textContent=id==='speed'?Number(input.value).toFixed(1):Math.round(input.value*100)+'%';};label.append(input,output);target.append(label);});
   target.querySelectorAll('input').forEach(input=>input.disabled=paused||bridge.busy()||state.phase!=='ready');
@@ -131,6 +131,10 @@ function init(){
   if(state.phase==='ready'&&!C.games[state.game]){notice=state.isBreak?`${p.name} to break.`:state.game==='ghost'?`Lowest first: ${Math.min(...state.remaining)}. Keep shooting.`:`${p.name} · ${state.game==='cutthroat'?'keep shooting after a pot':'one shot this turn'}.`;}
   if(state.phase==='placement')notice=state.scene?`Set the challenge layout shown. Target pocket: ${state.targetPocket}. Then Ready.`:state.needsRack?'Rack the balls. Cue ball behind the head string.':`${state.returns.length?'Return '+state.returns.join(', ')+'. ':''}${state.ballInHand?'Cue ball anywhere. Drag it to clear cloth, then Ready.':'Spot the returned balls, then Ready.'}`;
   if(C.games[state.game]&&state.phase==='ready')notice=`${p.name} · ${state.isBreak?'break next':C.stat(state,state.active)}.`;
+  if(state.phase==='task')notice=state.game==='bingo'?`${p.name}: choose an unmarked square.`:`${p.name}: choose a shot to set.`;
+  if(state.phase==='fleet')notice=`Pass to ${p.name} to lock a fleet privately.`;
+  if(state.phase==='attack')notice=`${p.name} earned one attack. Choose an enemy cell.`;
+  if(state.phase==='vote')notice=`Pass to ${state.players[state.voteSeat].name} for a private vote.`;
   if(state.phase==='choose')notice=`Pass to ${p.name} to choose a card. Keep it hidden from the room.`;
   if(paused)notice='Paused. Your game is saved. Resume when everyone is ready.';
   $('playFocusTurn').textContent=paused?'Paused':`${p.name} · ${state.phase==='placement'?(state.needsRack?'Rack ready':state.ballInHand?'Cue ball anywhere':'Spot returned balls'):state.game==='ghost'?'Lowest first: '+Math.min(...state.remaining):'Shooting'}`;
