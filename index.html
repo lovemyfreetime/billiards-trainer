@@ -13,6 +13,16 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Billiards Trainer">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+(function installTrainerContextMenuGuard(){
+  const editable='textarea,select,input:not([type="range"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]):not([type="submit"]):not([type="reset"]):not([type="image"]),[contenteditable="true"],[contenteditable=""]';
+  // Cancel only the browser menu. Pointer events still reach pen/finger holds,
+  // repeating arrows, drags and the app's own picker controls unchanged.
+  document.addEventListener('contextmenu',event=>{
+    if(!event.target?.closest?.(editable))event.preventDefault();
+  },{capture:true,passive:false});
+})();
+</script>
 <style>
   #markerRailControls { position:absolute;z-index:9;display:none;pointer-events:none; }
   .markerRailItem { position:absolute;top:0;transform:translateX(-50%);width:var(--marker-diameter);height:100%;text-align:center;opacity:.12;transition:opacity .15s;pointer-events:auto;white-space:nowrap;touch-action:none;cursor:grab; }
@@ -12536,7 +12546,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=zen-tray-path-colors-v51"></script>
+  <script src="./beta-ui.js?v=trainer-touch-menus-v52"></script>
 
 
 </body>

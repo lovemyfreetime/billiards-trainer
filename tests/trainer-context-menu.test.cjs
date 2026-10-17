@@ -1,0 +1,6 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const html=fs.readFileSync('index.html','utf8');const a=html.indexOf('(function installTrainerContextMenuGuard(){'),b=html.indexOf('</script>',a);const handlers={};const c={document:{addEventListener(name,fn,options){handlers[name]={fn,options}}}};vm.createContext(c);vm.runInContext(html.slice(a,b),c);
+assert.deepEqual(Object.keys(handlers),['contextmenu'],'Native suppression must not consume touch, pointer, hold or drag events');const {fn,options}=handlers.contextmenu;assert(options.capture);assert.equal(options.passive,false);
+for(const name of ['cloth','tray ball','rack picker','history picker','range slider','invisible edge','background']){let blocked=false;fn({target:{closest(selector){assert(selector.includes('input:not([type="range"])'));return null}},preventDefault(){blocked=true}});assert(blocked,name+' blocks the browser menu');}
+for(const name of ['number input','text input','textarea','editable content','select']){let blocked=false;fn({target:{closest(){return {name}}},preventDefault(){blocked=true}});assert.equal(blocked,false,name+' keeps native editing');}
+console.log('Browser menus: gameplay/right-click/long-press context menus suppressed in capture phase; editing and app pointer gestures preserved.');
