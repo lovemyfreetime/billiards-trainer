@@ -5029,8 +5029,9 @@
         syncProjector();
         draw();
     }
+    function playPortraitTable(){return document.body.classList.contains('play-mode')&&document.getElementById('playRoot')?.classList.contains('play-table-expanded')&&innerHeight>innerWidth;}
     function resize() {
-        const r = stage.getBoundingClientRect();
+        const r = playPortraitTable()?{width:stage.clientWidth,height:stage.clientHeight}:stage.getBoundingClientRect();
         DPR = Math.max(1, Math.min(2, devicePixelRatio || 1));
         canvas.width = Math.round(r.width * DPR);
         canvas.height = Math.round(r.height * DPR);
@@ -7560,7 +7561,7 @@
         // Include the visible pocket well outside the cushion nose.
         return nearestLogicalPocket(q, Math.max(S.ballR * 4.8, .135));
     }
-    function pointerPos(ev) { const r = canvas.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
+    function pointerPos(ev) { const r = canvas.getBoundingClientRect();if(playPortraitTable())return {x:ev.clientY-r.top,y:r.right-ev.clientX}; return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
     // Read-only Guide hit testing uses the trainer's actual drawing geometry.
     // A canvas element contains many different targets, so it cannot inherit
     // one cue-ball explanation for every ball, pocket, and trajectory.
@@ -12432,9 +12433,9 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-welcome.js?v=analyze-welcome-v16"></script>
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
-  <link rel="stylesheet" href="./play-mode.css?v=play-landscape-v2">
+  <link rel="stylesheet" href="./play-mode.css?v=play-expand-v3">
   <script src="./play-engine.js?v=play-v1"></script>
-  <script src="./play-mode.js?v=play-v1"></script>
+  <script src="./play-mode.js?v=play-expand-v3"></script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=play-v17"></script>
 

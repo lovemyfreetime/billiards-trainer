@@ -4,16 +4,25 @@ const params=new URLSearchParams(location.search),enabled=params.get('play')==='
 function link(mode){const url=new URL(location.href);url.searchParams.delete('zen');url.searchParams.delete('play');if(mode!=='train')url.searchParams.set(mode,'1');return url.toString();}
 function init(){
  if(!enabled){if(params.get('zen')==='1')return;const a=document.createElement('a');a.id='btPlayLauncher';a.href=link('play');a.textContent='Play';a.title='Open the Play game room';a.style.cssText='position:fixed;left:80px;bottom:14px;z-index:55;padding:13px 20px;border:1px solid #4fbdd7;border-radius:25px;color:#eaf7f7;background:#164357;text-decoration:none;font:700 15px system-ui';a.onclick=()=>window.billiardsPlayBridge.save();document.body.append(a);return;}
- const bridge=window.billiardsPlayBridge,KEY='billiardsPlaySession-v1';let state=null,history=[],shotBefore=null,privacy=false,paused=false,audio=false,storageError='',selected=new Set(),returnFocus=null;
+ const bridge=window.billiardsPlayBridge,KEY='billiardsPlaySession-v1';let state=null,history=[],shotBefore=null,privacy=false,paused=false,audio=false,storageError='',selected=new Set(),returnFocus=null,expanded=false,focusControls=false;
  document.body.classList.add('play-mode');
  const root=document.createElement('section');root.id='playRoot';root.setAttribute('aria-label','Billiards Play game room');root.innerHTML=`
  <header class="play-header"><div class="play-brand">BILLIARDS <span style="color:#54d6e9">PLAY</span><small>Our table. Our rules.</small></div><nav aria-label="Session"><button id="playAudio" aria-pressed="false">Audio off</button><button id="playPause">Pause</button><button id="playRules">Rules</button><button id="playNew">Games</button></nav></header>
  <div id="playPlayers" aria-label="Players and scores"></div>
- <main class="play-main"><section id="playStage" aria-label="Playing table"><div id="playPhysical" class="play-result" hidden></div><div class="play-screen-hint">Drag the cue to aim · wheel for fine aim · Space to shoot</div><div id="playResult" class="play-result" hidden></div></section><aside id="playDock"><div class="play-eyebrow" id="playRound">Game room</div><h1 id="playTitle">Choose your game</h1><p id="playObjective">A little pressure. A little luck. One more game.</p><div id="playNotice" role="status" aria-live="polite">Choose Games to begin.</div><div id="playBalls" role="group" aria-label="Balls made on this shot"></div><div id="playActions"></div><div id="playStrokeControls" class="play-controls"></div></aside></main>
+ <main class="play-main"><section id="playStage" aria-label="Playing table"><div class="play-table-toolbar" id="playTableToolbar"><span id="playFocusTurn" hidden></span><button id="playFocusControls" aria-expanded="false" aria-controls="playStrokeControls" hidden>Shot controls</button><button id="playFocusUndo" hidden disabled>Undo Shot</button><button id="playExpand" aria-expanded="false" aria-controls="playStage">Expand table</button></div><div id="playPhysical" class="play-result" hidden></div><div class="play-screen-hint">Drag the cue to aim · wheel for fine aim · Space to shoot</div><div id="playResult" class="play-result" hidden></div></section><aside id="playDock"><div class="play-eyebrow" id="playRound">Game room</div><h1 id="playTitle">Choose your game</h1><p id="playObjective">A little pressure. A little luck. One more game.</p><div id="playNotice" role="status" aria-live="polite">Choose Games to begin.</div><div id="playBalls" role="group" aria-label="Balls made on this shot"></div><div id="playActions"></div><div id="playStrokeControls" class="play-controls"></div></aside></main>
  <footer class="play-footer"><nav aria-label="Experience"><a href="${link('train')}">Train</a><a href="${link('play')}" aria-current="page">Play</a><a href="${link('zen')}">Zen</a></nav><span id="playLatest"></span><button id="playUndo" disabled>Undo Shot</button></footer>
  <dialog id="playDialog" aria-labelledby="playDialogTitle"></dialog>`;
  document.body.append(root);root.querySelector('#playStage').prepend(document.getElementById('stageWrap'));
  const $=id=>document.getElementById(id),dialog=$('playDialog');
+ function setExpanded(value){
+  expanded=!!(value&&state?.mode==='screen');if(!expanded)focusControls=false;
+  root.classList.toggle('play-table-expanded',expanded);root.classList.toggle('play-focus-controls',expanded&&focusControls);
+  $('playExpand').textContent=expanded?'Game view':'Expand table';$('playExpand').setAttribute('aria-expanded',String(expanded));
+  $('playExpand').setAttribute('aria-label',expanded?'Return to game view':'Expand playable table');
+  for(const id of ['playFocusTurn','playFocusControls','playFocusUndo'])$(id).hidden=!expanded;
+  $('playFocusControls').setAttribute('aria-expanded',String(expanded&&focusControls));
+  window.dispatchEvent(new Event('resize'));
+ }
  function speech(message){if(!audio||!window.speechSynthesis||privacy||paused)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(message);u.rate=1.08;window.speechSynthesis.speak(u);}
  function text(tag,value,cls){const e=document.createElement(tag);e.textContent=value;if(cls)e.className=cls;return e;}
  function button(label,action,cls=''){const b=text('button',label,cls);b.type='button';b.onclick=action;return b;}
@@ -63,6 +72,9 @@ function init(){
   target.querySelectorAll('input').forEach(input=>input.disabled=paused||bridge.busy()||state.phase!=='ready');
  }
  function render(){
+  if(expanded&&(!state||state.mode!=='screen'||['choose','result'].includes(state.phase)))setExpanded(false);
+  $('playTableToolbar').hidden=!state||state.mode!=='screen'||state.phase==='result';
+  $('playFocusUndo').disabled=!history.length||bridge.busy();
   $('playUndo').disabled=!history.length||bridge.busy();$('playPause').textContent=paused?'Resume':'Pause';$('playPlayers').replaceChildren();$('playBalls').replaceChildren();$('playActions').replaceChildren();$('playResult').hidden=true;
   if(!state){$('playPause').disabled=true;$('playRules').disabled=true;return;}
   $('playPause').disabled=false;$('playRules').disabled=false;const g=E.games[state.game],p=state.players[state.active];
@@ -74,6 +86,7 @@ function init(){
   if(state.phase==='placement')notice=state.needsRack?'Rack the balls. Cue ball behind the head string.':`${state.returns.length?'Return '+state.returns.join(', ')+'. ':''}${state.ballInHand?'Cue ball anywhere. Drag it to clear cloth, then Ready.':'Spot the returned balls, then Ready.'}`;
   if(state.phase==='choose')notice=`Pass to ${p.name} to choose a card. Keep it hidden from the room.`;
   if(paused)notice='Paused. Your game is saved. Resume when everyone is ready.';
+  $('playFocusTurn').textContent=paused?'Paused':`${p.name} · ${state.phase==='placement'?(state.needsRack?'Rack ready':state.ballInHand?'Cue ball anywhere':'Spot returned balls'):state.game==='ghost'?'Lowest first: '+Math.min(...state.remaining):'Shooting'}`;
   $('playNotice').textContent=storageError||notice;$('playLatest').textContent=state.last;
   const dock=$('playActions'),locked=paused||bridge.busy();
   if(state.phase==='placement')dock.append(button(state.needsRack?'Table ready · Break next':'Ready to shoot',()=>transact({type:'ready'}),'play-primary'));
@@ -96,6 +109,9 @@ function init(){
   const physical=$('playPhysical');physical.hidden=state.mode!=='real'||state.phase==='result';physical.replaceChildren(text('div','AT YOUR TABLE','play-eyebrow'),text('h2',p.name),text('p',state.game==='ghost'?`${state.remaining.length} balls left · You ${state.points[0]} / Ghost ${state.points[1]}`:state.game==='killer'?`${p.lives} ${p.lives===1?'life':'lives'} remaining`:state.game==='cutthroat'?`Protect balls ${state.active*5+1}–${state.active*5+5}`:`Round ${Math.min(5,state.round)} · ${p.hand.length} cards held`));
   controls();
  }
+ $('playExpand').onclick=()=>{setExpanded(!expanded);$('playExpand').focus({preventScroll:true});};
+ $('playFocusControls').onclick=()=>{focusControls=!focusControls;setExpanded(expanded);};
+ $('playFocusUndo').onclick=undo;
  $('playNew').onclick=()=>{if(!bridge.busy())setup();};$('playRules').onclick=showRules;$('playUndo').onclick=undo;
  $('playAudio').onclick=()=>{audio=!audio;$('playAudio').textContent=audio?'Audio on':'Audio off';$('playAudio').setAttribute('aria-pressed',String(audio));if(!audio)window.speechSynthesis?.cancel();else speech('Play audio on.');};
  $('playPause').onclick=()=>{if(bridge.busy())return;paused=!paused;window.speechSynthesis?.cancel();render();};
@@ -103,7 +119,7 @@ function init(){
  window.billiardsPlayHooks={canShoot:()=>!!state&&state.mode==='screen'&&state.phase==='ready'&&!paused&&!dialog.open,canInteract:()=>!!state&&state.mode==='screen'&&!bridge.busy()&&!paused&&!dialog.open&&['ready','placement'].includes(state.phase),canPlaceCue:()=>!!state&&state.ballInHand};
  window.addEventListener('billiards:shot-start',()=>{shotBefore=capture();render();$('playActions').querySelectorAll('button').forEach(b=>b.disabled=true);$('playStrokeControls').querySelectorAll('input').forEach(b=>b.disabled=true);});
  window.addEventListener('billiards:shot-complete',e=>{if(!state||state.mode!=='screen'||!shotBefore)return;const d=e.detail,before=shotBefore;shotBefore=null;transact({type:'shot',potted:d.removed.filter(id=>id>0&&id<=15),foul:d.scratch,scratch:d.scratch,auto:true,firstContact:d.firstContact,railAfter:d.railAfter,breakLegal:d.removed.length>0||d.breakRails>=4},before);});
- document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&!e.target.matches('input,textarea')){e.preventDefault();e.stopImmediatePropagation();undo();}},true);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&expanded&&!dialog.open){e.preventDefault();e.stopPropagation();setExpanded(false);$('playExpand').focus({preventScroll:true});return;}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&!e.target.matches('input,textarea')){e.preventDefault();e.stopImmediatePropagation();undo();}},true);
  window.addEventListener('pagehide',save);
  try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(saved?.version===1&&E.games[saved.state?.game]&&Array.isArray(saved.table?.balls)){state=saved.state;history=saved.history||[];bridge.restore(saved.table);bridge.enter();}}catch(e){storageError='Saved game could not be restored. Start a new game.';}
  render();if(!state)setup();

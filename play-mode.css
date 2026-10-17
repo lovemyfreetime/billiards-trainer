@@ -98,3 +98,35 @@ body.play-mode{-webkit-text-size-adjust:100%;text-size-adjust:100%}
  #playRound{display:none}
  #playNotice,#playTitle,#playActions,#playStrokeControls{flex-shrink:0}
 }
+
+/* A single toggle switches the game room into the full-window playing table. */
+.play-table-toolbar{position:absolute;top:10px;right:10px;z-index:12;display:flex;align-items:center;gap:7px;max-width:calc(100% - 20px)}
+#playRoot .play-table-toolbar button{min-height:40px;padding:6px 13px;font-size:14px;background:#13252eea;border-color:#65838c;box-shadow:0 3px 12px #0005}
+#playFocusTurn{color:#e6f6f5;background:#14262dd9;border-radius:10px;padding:9px 12px;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#playRoot.play-table-expanded>#playPlayers,#playRoot.play-table-expanded>.play-header,#playRoot.play-table-expanded>.play-footer{display:none}
+#playRoot.play-table-expanded .play-main{display:block;padding:0;overflow:visible}
+#playRoot.play-table-expanded #playStage{position:fixed;inset:0;z-index:70;border:0;border-radius:0;background:#17232a}
+#playRoot.play-table-expanded #playDock{position:fixed;z-index:75;right:10px;bottom:10px;width:240px;padding:7px;border:0;background:transparent;overflow:visible;display:block}
+#playRoot.play-table-expanded #playDock>#playRound,#playRoot.play-table-expanded #playDock>#playTitle,#playRoot.play-table-expanded #playDock>#playObjective,#playRoot.play-table-expanded #playDock>#playNotice,#playRoot.play-table-expanded #playDock>#playBalls{display:none}
+#playRoot.play-table-expanded #playActions{display:grid;grid-template-columns:1fr;gap:6px}
+#playRoot.play-table-expanded #playActions>button{min-height:44px;font-size:17px;box-shadow:0 4px 18px #0006}
+#playRoot.play-table-expanded #playStrokeControls{display:none}
+#playRoot.play-table-expanded.play-focus-controls #playStrokeControls{display:grid;position:fixed;left:10px;bottom:10px;width:min(440px,calc(100vw - 280px));grid-template-columns:1fr 1fr;gap:12px;padding:14px;margin:0;border:1px solid #6c8c97;border-radius:14px;background:#14262ef5;box-shadow:0 6px 22px #0007}
+#playRoot.play-table-expanded #playStrokeControls label{display:grid;grid-template-columns:minmax(0,1fr) 40px;gap:3px;font-size:12px;line-height:18px}
+#playRoot.play-table-expanded #playStrokeControls input{grid-column:1/-1;grid-row:2;height:24px;margin:0}
+#playRoot.play-table-expanded #playStrokeControls output{grid-column:2;grid-row:1;font-size:12px}
+#playRoot.play-table-expanded .play-screen-hint{left:12px;bottom:10px;max-width:calc(100% - 275px);font-size:11px;white-space:normal}
+#playRoot.play-table-expanded.play-focus-controls .play-screen-hint{display:none}
+@media(max-width:650px){
+ .play-table-toolbar{top:6px;right:6px;gap:5px;max-width:calc(100% - 12px)}
+ #playRoot .play-table-toolbar button{min-height:36px;font-size:12px;padding:5px 9px}
+ #playRoot.play-table-expanded .play-table-toolbar{left:6px;flex-wrap:wrap;justify-content:flex-end}
+ #playRoot.play-table-expanded #playFocusTurn{flex:1;min-width:90px;font-size:12px;padding:7px}
+ #playRoot.play-table-expanded #playDock{width:190px;right:6px;bottom:6px}
+ #playRoot.play-table-expanded.play-focus-controls #playStrokeControls{left:6px;bottom:65px;width:calc(100vw - 12px);padding:12px}
+ #playRoot.play-table-expanded .play-screen-hint{max-width:calc(100% - 215px);font-size:10px;left:6px;bottom:6px}
+}
+
+@media(orientation:portrait){
+ body.play-mode #playRoot.play-table-expanded #playStage #stageWrap{inset:auto!important;left:50%!important;top:50%!important;width:100dvh!important;height:100dvw!important;transform:translate(-50%,-50%) rotate(90deg);transform-origin:center}
+}

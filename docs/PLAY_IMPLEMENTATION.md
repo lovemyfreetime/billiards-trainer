@@ -27,3 +27,9 @@ The broader existing Node suite has one pre-existing failure in `phone-play.test
 Same-device privacy is pass-and-peek, not protection from a determined person with browser access. Undo cannot erase a player's knowledge of a revealed card. No paired phones, voice-command input, automatic physical-table vision, shot clock, share-card export or challenge-link generation is included in this first build. Audio is optional browser turn speech, not new recorded narration.
 
 In real-table mode the room reports fouls. For Killer/Poker it can report Rack Empty when necessary rather than entering every ball number. Mandatory spot/rack steps wait for Table Ready. The engine knows scores and inventory; only the simulation can report real on-screen first-contact and rail facts automatically.
+
+## Expanded table view
+
+On-screen games have an Expand Table button on the table. It hides the game chrome and lets the same live canvas occupy the full window. Game View restores the scores and instructions without changing gameplay. Execute Shot and Undo remain available; Shot Controls opens an optional slider panel. Escape returns to game view. Poker card choices and match results return to game view automatically. Real-table scoring does not gain extra controls.
+
+Expanded portrait tables rotate vertically. Rendering dimensions and pointer coordinates use the same rotation; the browser test verifies a cue-ball drag lands at the expected physical coordinate. `tests/play-expanded.browser.cjs` also covers view switching without state changes, actual simulated shooting, Undo, portrait slider bounds and unchanged real-table mode.
