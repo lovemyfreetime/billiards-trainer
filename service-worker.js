@@ -1,10 +1,11 @@
-const CACHE_NAME = 'billiards-trainer-4-12-trainer-zen-axis-edges-v142';
+const CACHE_NAME = 'billiards-trainer-4-12-trainer-shared-table-v143';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './trainer-action-history.js?v=2',
+  './trainer-table-exchange.js?v=1',
   './icons/zen-reference-table-v1.webp',
-  './zen-mode.js?v=zen-axis-edges-v53',
-  './beta-ui.js?v=zen-axis-edges-v53',
+  './zen-mode.js?v=shared-table-v54',
+  './beta-ui.js?v=shared-table-v54',
   './index.html',
   './trainer-practice-tools.js?v=3',
   './guide/audio-startup.js?v=native-warmup-v22',

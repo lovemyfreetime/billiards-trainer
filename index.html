@@ -1865,6 +1865,7 @@
 <script src="./trainer-practice-tools.js?v=3"></script>
 <script src="./trainer-action-history.js?v=2"></script>
 <script src="./trainer-layout-files.js?v=2"></script>
+<script src="./trainer-table-exchange.js?v=1"></script>
 <script src="./trainer-saved-files.js?v=1"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
 <script src="./photo-table-spots.js?v=3"></script>
@@ -1883,6 +1884,8 @@
     const isZenPage = new URLSearchParams(location.search).get('zen') === '1';
     const STATE_STORE_KEY=isZenPage?'billiardTrainerZenState':'billiardTrainerState';
     const PROGRESS_STORE_KEY=isZenPage?'billiardTrainerZenProgress':'billiardTrainerProgress';
+    const TABLE_SOURCE=isZenPage?'zen':'trainer';
+    const tableExchange=window.BilliardsTableExchange.create(localStorage,window.BilliardsLayoutFiles);
     if (isProjector)
         document.body.classList.add('projector');
     const $ = id => document.getElementById(id);
@@ -1948,11 +1951,11 @@
     }
     function defaultState() {
         const inch = .0254;
-        const demo=trainerDemoLayout(88*inch,44*inch,2.25*inch/2);
+        const initialAim={x:88*inch*.75,y:44*inch*.5};
         return {
             tableL: 88 * inch, tableW: 44 * inch, ballR: 2.25 * inch / 2,
-            balls: demo.balls,
-            nextId: 3, markerSeq: 1000, freeAim: demo.freeAim, angleLock: false, speed: 2.42, follow: 0, sideSpin: 0, cueElevationDeg: PHYSICS_MODEL.defaultCueElevationDeg,
+            balls: [],
+            nextId: 1, markerSeq: 1000, freeAim: initialAim, angleLock: false, speed: 2.42, follow: 0, sideSpin: 0, cueElevationDeg: PHYSICS_MODEL.defaultCueElevationDeg,
             shot2Enabled: false, activeShot: 1, shot2Initialized: false,
             showShot1: true,
             showShot2: true,
@@ -1973,7 +1976,7 @@
             setupMode: 'custom', pocketedLog: [], player1Score: 0, player2Score: 0, activePlayer: 1, showScoreBoard: false, showPracticeCounter:false,
             // Photo-analyzed layouts are allowed to contain only object balls.  When
             // true, normalizeBallSet() must not manufacture a default cue ball.
-            allowMissingCueBall: false,
+            allowMissingCueBall: true,
             showBankKickNumbers: false,
             bankKick: {
                 mode: null,
@@ -2539,10 +2542,10 @@
         return {left:top.x,top:top.y,right:bottom.x,bottom:bottom.y,cushionTop:point(839,98).y};
     }
     window.billiardsZenControls={
-        enter(){S.activeShot=1;S.shot2Enabled=false;S.cueElevationDeg=0;S.airbornePhysics=false;S.balls=[];S.pocketedLog=[];S.allowMissingCueBall=true;S.speed=2.42;S.follow=0;S.sideSpin=0;normalizeBallSet();actionHistory=window.BilliardsActionHistory.create(60);resetRunHistory();updateUI();refreshPreview();syncActionUndo();},
+        enter(){S.activeShot=1;S.shot2Enabled=false;S.cueElevationDeg=0;S.airbornePhysics=false;normalizeBallSet();actionHistory=window.BilliardsActionHistory.create(60);updateUI();refreshPreview();syncActionUndo();},
         aim(degrees){if(!animation){S.activeShot=1;rotateAimMicro(degrees*Math.PI/180);}},
         status(){return {overlap:S.preview?.firstBallContact?.overlap||0,busy:!!animation,undo:undoStack.length>0,redo:redoStack.length>0,undoAction:!!actionHistory?.count,redoAction:!!actionHistory?.redoCount,tip:{...effectiveTipOffsetValues(S.sideSpin,S.follow),limit:PHYSICS_MODEL.maxTipOffsetR},balls:S.balls.filter(b=>b.active&&!b.marker).map(b=>b.id)};},
-        freshTable:freshZenTable,tableBounds:zenTableScreenBounds,
+        freshTable:freshZenTable,tableBounds:zenTableScreenBounds,shareTable(){saveState();},
         undoAction:undoLastAction,redoAction:redoLastAction,undoShot:undoLastShot,redoShot:redoLastShot,
         tip(side,follow){
             if(animation)return;
@@ -2626,6 +2629,7 @@
         if(runHistory.length&&(lastSavedHistory!==runHistory||lastSavedHistoryLength!==runHistory.length||lastSavedHistoryEnd!==runHistory.at(-1))){
             localStorage.setItem(PROGRESS_STORE_KEY,JSON.stringify({history:runHistory.slice(-30)},(key,value)=>key==='preview'?null:value));lastSavedHistory=runHistory;lastSavedHistoryLength=runHistory.length;lastSavedHistoryEnd=runHistory.at(-1);
         }
+        if(!isProjector)tableExchange.publish(S,TABLE_SOURCE);
         scheduleSessionFolder();
     }
     catch (e) { } }
@@ -3084,12 +3088,10 @@
     }
     if (!isProjector) {
         restoreState();
-        // Install the requested starting demonstration once, preserving calibration
-        // and UI preferences. Future visits retain the trainer's own session.
-        if(!isZenPage){try{const key='billiardTrainerPocket4StartV1';if(!localStorage.getItem(key)){
-            Object.assign(S,trainerDemoLayout(S.tableL,S.tableW,S.ballR),{speed:2.42,follow:0,sideSpin:0,cueElevationDeg:PHYSICS_MODEL.defaultCueElevationDeg,airbornePhysics:false,angleLock:false,shot2Enabled:false,activeShot:1,showShot1:true,showCueVisuals:true,showCueVisuals1:true});
-            localStorage.removeItem(PROGRESS_STORE_KEY);localStorage.setItem(key,'1');
-        }}catch(_){} }
+        // All experiences resume the most recently shared table. Empty tables
+        // are valid too: clearing in one mode clears the next mode's layout.
+        const shared=tableExchange.read();
+        if(shared){S=tableExchange.apply(S,shared);if(shared.source!==TABLE_SOURCE){S.activeShot=1;S.shot2Enabled=false;S.shot2Initialized=false;S.angleLock=false;S.ghostLock=null;S.bankKick=defaultState().bankKick;runHistory=[];undoStack=[];redoStack=[];localStorage.removeItem(PROGRESS_STORE_KEY);}}
         S.showTipBadge = false; // Start with a clear table; players may enable the badge in Options.
         normalizeBallSet();
         try{const saved=JSON.parse(localStorage.getItem(PROGRESS_STORE_KEY)||'null');if(saved?.history?.length)runHistory=saved.history.filter(h=>h&&Array.isArray(h.balls)&&h.tableL===S.tableL&&h.tableW===S.tableW).slice(-30);undoStack=runHistory.slice(0,-1).map(h=>JSON.parse(JSON.stringify(h)));}catch(e){}
@@ -7644,7 +7646,7 @@
         if ($('aimControls')) $('aimControls').classList.toggle('activeAim', S.activeShot !== 2);
         if ($('aimControls2')) $('aimControls2').classList.toggle('activeAim', S.activeShot === 2 && S.shot2Enabled);
     }
-    function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, cuePreset:S.cuePreset, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showPracticeCounter:S.showPracticeCounter, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; Object.assign(S,trainerDemoLayout(S.tableL,S.tableW,S.ballR)); resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
+    function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, cuePreset:S.cuePreset, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showPracticeCounter:S.showPracticeCounter, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; Object.assign(S,{balls:[],allowMissingCueBall:true,freeAim:{x:S.tableL*.75,y:S.tableW*.5},pocketedLog:[],nextId:1}); resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
     function keepCueOnTable(q){
         const gap=Math.max(S.ballR*2.2,.065),p={x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR)};
         for(const pocket of logicalPockets())if(Math.hypot(p.x-pocket.x,p.y-pocket.y)<gap){
@@ -12546,7 +12548,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=zen-axis-edges-v53"></script>
+  <script src="./beta-ui.js?v=shared-table-v54"></script>
 
 
 </body>
