@@ -5043,7 +5043,7 @@
     function controlMap() {
         const w = canvas.width / DPR, h = canvas.height / DPR, zen=document.body.classList.contains('zen-mode'), pad = zen ? 24 : 34;
         if(document.body.classList.contains('play-mode')){
-            const scale=Math.max(.01,Math.min((w-85)/S.tableL,(h-85)/S.tableW)),tw=S.tableL*scale,th=S.tableW*scale,ox=(w-tw)/2,oy=(h-th)/2;
+            const scale=Math.max(.01,Math.min((w-16)/(S.tableL*1.12),(h-24)/(S.tableW*1.25))),tw=S.tableL*scale,th=S.tableW*scale,ox=(w-tw)/2,oy=(h-th)/2;
             return {map:p=>({x:ox+p.x*scale,y:oy+p.y*scale}),inv:p=>({x:(p.x-ox)/scale,y:(p.y-oy)/scale}),scale,corners:[{x:ox,y:oy},{x:ox+tw,y:oy},{x:ox+tw,y:oy+th},{x:ox,y:oy+th}]};
         }
         if(zen&&w>=900){
@@ -12432,7 +12432,7 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-welcome.js?v=analyze-welcome-v16"></script>
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
-  <link rel="stylesheet" href="./play-mode.css?v=play-v1">
+  <link rel="stylesheet" href="./play-mode.css?v=play-landscape-v2">
   <script src="./play-engine.js?v=play-v1"></script>
   <script src="./play-mode.js?v=play-v1"></script>
   <script src="./beta-config.js?v=1"></script>

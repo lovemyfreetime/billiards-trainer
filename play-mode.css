@@ -61,3 +61,40 @@ body.play-mode #bt-guide-pool-root,body.play-mode .btg-launcher,body.play-mode #
 /* Trainer phone chrome must never sit over the Play shell. */
 body.play-mode #phoneHeader,body.play-mode #phoneActions,body.play-mode #phoneDismiss,body.play-mode #phoneNotice,body.play-mode #phoneFlightCanvas,body.play-mode #phonePanelScroll,body.play-mode .phoneTipControl{display:none!important}
 @media(max-width:650px){#playRoot .play-brand{font-size:0}#playRoot .play-brand span{font-size:19px}#playRoot .play-brand small{display:none}}
+/* Landscape phones and short tablet windows need the cloth, not oversized chrome. */
+body.play-mode{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+@media(max-height:600px) and (min-width:651px){
+ body.play-mode #playRoot{grid-template-rows:40px 54px minmax(0,1fr) 42px}
+ #playRoot .play-header,#playRoot .play-footer{padding:3px 10px;gap:6px}
+ #playRoot .play-brand{font-size:16px}
+ #playRoot .play-header button{min-height:32px!important;padding:3px 10px!important;font-size:12px!important}
+ #playPlayers{padding:3px 10px;gap:8px}
+ #playRoot .play-player{min-width:115px;max-width:260px;padding:4px 10px;border-radius:10px}
+ #playRoot .play-player.active{padding:3px 9px}
+ #playRoot .play-player-name{font-size:13px;line-height:16px}
+ #playRoot .play-player-name small{font-size:9px}
+ #playRoot .play-value{margin-top:1px;font-size:17px;line-height:20px}
+ #playRoot .play-main{grid-template-columns:minmax(0,1fr) 270px;gap:8px;padding:0 8px 6px}
+ #playDock{padding:8px;gap:6px}
+ #playRound{font-size:9px;letter-spacing:.05em}
+ #playTitle{font-size:20px;line-height:1}
+ #playObjective{display:none}
+ #playNotice{min-height:0;padding:6px 8px;font-size:12px;line-height:1.25}
+ #playActions{gap:5px}
+ #playRoot #playActions>button{min-height:38px;padding:5px 9px;font-size:15px;border-radius:9px}
+ #playStrokeControls{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px;padding:6px 0 0;margin:0}
+ #playStrokeControls label{display:grid;grid-template-columns:minmax(0,1fr) 32px;gap:1px;font-size:11px;line-height:14px}
+ #playStrokeControls label input{grid-column:1/-1;grid-row:2;min-width:0;height:19px;margin:0}
+ #playStrokeControls label output{grid-column:2;grid-row:1;font-size:10px}
+ #playRoot .play-footer button{min-height:32px!important;padding:3px 12px!important;font-size:12px}
+ #playRoot .play-footer nav a{padding:5px 12px}
+ #playLatest{font-size:11px}
+ .play-screen-hint{font-size:10px;left:6px;bottom:3px;padding:2px 5px}
+ #playRoot .play-ball{width:34px;height:34px;min-height:34px}
+ #playRoot .play-ball span{font-size:11px;width:20px;height:20px}
+ #playBalls{gap:5px}
+}
+@media(max-height:600px) and (min-width:651px){
+ #playRound{display:none}
+ #playNotice,#playTitle,#playActions,#playStrokeControls{flex-shrink:0}
+}
