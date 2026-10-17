@@ -6,7 +6,7 @@ const server=cp.spawn('python3',['-u','-m','http.server','8781','--bind','127.0.
  try{
  const p=await browser.newPage({serviceWorkers:'block',viewport:{width:768,height:358},isMobile:true,hasTouch:true,deviceScaleFactor:2}),errors=[];p.on('pageerror',e=>errors.push(e.message));
  await p.goto('http://127.0.0.1:8781/?play=1');
- await p.locator('#playDialog').getByRole('button',{name:/^Killer/}).click();await p.locator('#playDialog button[type=submit]').click();
+ await p.locator('#playDialog').getByRole('button',{name:/^Killer/}).click();await p.locator('#playCatalogStart').click();await p.locator('#playDialog button[type=submit]').click();
  await p.evaluate(async()=>{if(document.fullscreenElement)await document.exitFullscreen();});
  for(const [width,height]of [[768,358],[915,412],[1024,600],[1280,800],[412,915]]){
   await p.setViewportSize({width,height});

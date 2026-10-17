@@ -55,3 +55,13 @@ Additional verification:
 - `CHROMIUM_EXECUTABLE_PATH=/path/to/chromium node tests/play-catalog.browser.cjs`: each new game in both modes, private reveal gates, Undo, expansion, actual solver pocket reporting, and phone catalog.
 
 Equipment: standard table and cues; fifteen balls for general games, nine for Ring, ten for Bowliards, three for Three-Ball/Equalizer and one for Golf/Bingo/HORSE layouts. The app replaces cards, tally peas, score sheets, fleet boards, timers and role slips. A triangle rack works for the triangular racks; nine-ball can be arranged manually if no diamond rack is available.
+
+## Play room visual refresh
+
+The catalog follows Jeff's supplied game-room references: four colored families, twenty individual vector symbols, a selected-game preview, and Start Game before configuration. Counts and rules still come from the game engines. `play-presentation.js` holds visual grouping and symbols only. Search filters the same twenty playable entries. Layouts adapt to desktop, tablet, portrait phone and landscape phone; smaller screens scroll instead of shrinking text into miniature controls.
+
+The Play canvas now calls the existing Zen table, shaded-ball and aiming renderers directly. The former flat four-pixel cue stick has been removed. Zen itself is unchanged. Physical-table scorekeeping renders clean cloth behind the player banner, without simulated balls. Desktop scores sit in a bronze dock below the table; the game controls remain reachable in the side panel and the full-window table toggle remains available.
+
+Fullscreen activation can put its element above an already-open dialog in the browser's top layer. Play reopens the same dialog on fullscreen change so the roster, setup and private screens remain visible without losing their content. Native fullscreen is still requested by the existing startup behavior.
+
+`tests/play-room.browser.cjs` checks the twenty symbols and categories, changing previews, search, four viewport shapes, score-dock placement and both play modes. The existing full-game, expansion and responsive browser suites include the new selection step.

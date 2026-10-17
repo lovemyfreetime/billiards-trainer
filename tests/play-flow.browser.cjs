@@ -9,7 +9,7 @@ const server=cp.spawn('python3',['-u','-m','http.server','8779','--bind','127.0.
  const status=()=>p.evaluate(()=>billiardsPlayStatus());
  async function setup(name,mode='real'){
   if(await p.locator('#playDialog[open]').count()===0)await p.locator('#playNew').click();
-  await p.locator('#playDialog').getByRole('button',{name:new RegExp('^'+name)}).click();
+  await p.locator('#playDialog').getByRole('button',{name:new RegExp('^'+name)}).click();await p.locator('#playCatalogStart').click();
   await p.locator('#playSetupMode').selectOption(mode);
   await p.locator('#playDialog button[type=submit]').click();
   await p.getByRole('button',{name:'Table ready · Break next',exact:true}).click();

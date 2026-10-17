@@ -6867,13 +6867,11 @@
             return;
         drawTable(map, M);
         if(document.body.classList.contains('play-mode')){
-            const visible=animation?.current||S.balls;
-            for(const b of visible)if(b.active&&!b.marker)drawZenBall(b,map,true);
-            if(!animation){
-                const cb=cueBall();if(cb){const d=aimDirection(),p=map(cb),tip=map({x:cb.x-d.x*S.ballR*1.3,y:cb.y-d.y*S.ballR*1.3}),butt=map({x:cb.x-d.x*.43,y:cb.y-d.y*.43}),end=map({x:cb.x+d.x*.22,y:cb.y+d.y*.22});
-                    ctx.save();ctx.lineCap='round';ctx.strokeStyle='#b8a183';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(butt.x,butt.y);ctx.lineTo(tip.x,tip.y);ctx.stroke();ctx.strokeStyle='#b4e0dc99';ctx.lineWidth=1;ctx.setLineDash([3,6]);ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(end.x,end.y);ctx.stroke();ctx.restore();
-                }
-            }
+            // Play uses Zen's exact table, shaded balls and restrained aiming layer.
+            // Real-table scorekeeping keeps the cloth clear of simulated equipment.
+            if(window.billiardsPlayHooks?.view()?.mode==='real')return;
+            if(!animation)drawZenGuides(map);
+            for(const b of (animation?.current||S.balls))if(b.active&&!b.marker)drawZenBall(b,map,true);
             return;
         }
 
@@ -12437,10 +12435,11 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-welcome.js?v=analyze-welcome-v16"></script>
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
-  <link rel="stylesheet" href="./play-mode.css?v=catalog-v1">
+  <link rel="stylesheet" href="./play-mode.css?v=play-room-v1">
   <script src="./play-catalog.js?v=catalog-v1"></script>
   <script src="./play-engine.js?v=catalog-v1"></script>
-  <script src="./play-mode.js?v=catalog-v2"></script>
+  <script src="./play-presentation.js?v=play-room-v1"></script>
+  <script src="./play-mode.js?v=play-room-v1"></script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=play-v17"></script>
 
