@@ -1,10 +1,13 @@
-const CACHE_NAME = 'billiards-trainer-4-12-zen-undo-icons-v103';
+const CACHE_NAME = 'billiards-trainer-4-12-play-house-v104';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
+  './play-engine.js?v=play-v1',
+  './play-mode.js?v=play-v1',
+  './play-mode.css?v=play-v1',
   './trainer-action-history.js?v=1',
   './icons/zen-reference-table-v1.webp',
-  './zen-mode.js?v=zen-undo-icons-v16',
-  './beta-ui.js?v=zen-undo-icons-v16',
+  './zen-mode.js?v=play-v17',
+  './beta-ui.js?v=play-v17',
   './index.html',
   './guide/narration-cues.js?v=shaped-guides-v2',
   './guide/narration-cues.css?v=shaped-guides-v2',

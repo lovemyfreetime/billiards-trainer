@@ -126,8 +126,8 @@ function init(){
  const bar=document.createElement('div');bar.id='zenBar';bar.setAttribute('aria-label','Zen shot controls');
  const stones=document.createElement('button');stones.id='zenModeBtn';stones.type='button';stones.setAttribute('aria-label','Change experience');stones.setAttribute('aria-expanded','false');stones.title='Change experience';stones.innerHTML=lotus;
  const menu=document.createElement('div');menu.id='zenModeMenu';menu.hidden=true;
- const train=document.createElement('button');train.textContent='Train';train.onclick=()=>{const url=new URL(location.href);url.searchParams.delete('zen');location.href=url.toString()};
- const play=document.createElement('button');play.textContent='Play · coming soon';play.disabled=true;
+ const train=document.createElement('button');train.textContent='Train';train.onclick=()=>{window.billiardsPlayBridge.save();const url=new URL(location.href);url.searchParams.delete('zen');location.href=url.toString()};
+ const play=document.createElement('button');play.textContent='Play';play.onclick=()=>{engine.status();window.billiardsPlayBridge.save();const url=new URL(location.href);url.searchParams.delete('zen');url.searchParams.set('play','1');location.href=url.toString()};
  menu.append(train,play);const closeMenu=()=>{menu.hidden=true;stones.setAttribute('aria-expanded','false')};stones.onclick=()=>{menu.hidden=!menu.hidden;stones.setAttribute('aria-expanded',String(!menu.hidden))};
  document.addEventListener('pointerdown',e=>{if(!stones.contains(e.target)&&!menu.contains(e.target))closeMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});bar.append(stones);
  const bindings=[];
