@@ -5110,7 +5110,7 @@
             const scale=Math.max(.01,Math.min((w-16)/(S.tableL*1.12),(h-24)/(S.tableW*1.25))),tw=S.tableL*scale,th=S.tableW*scale,ox=(w-tw)/2,oy=(h-th)/2;
             return {map:p=>({x:ox+p.x*scale,y:oy+p.y*scale}),inv:p=>({x:(p.x-ox)/scale,y:(p.y-oy)/scale}),scale,corners:[{x:ox,y:oy},{x:ox+tw,y:oy},{x:ox+tw,y:oy+th},{x:ox,y:oy+th}]};
         }
-        if(zen&&w>=900){
+        if(zen){
             // Fit the complete reference composition, with a true 2:1 playing surface.
             const unit=Math.min(w/2048,h/1143),scale=1319*unit/S.tableL;
             const ox=(w-2048*unit)/2+364*unit,oy=(h-1143*unit)/2+147*unit;
@@ -12665,7 +12665,7 @@ if ('serviceWorker' in navigator) {
 <script src="./experience-menu.js?v=8"></script>
 <script src="./play-mode.js?v=experience-navigation-v2"></script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=restored-controls-v55"></script>
+  <script src="./beta-ui.js?v=unified-zen-scale-v56"></script>
 
 
 </body>

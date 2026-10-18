@@ -240,7 +240,7 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 @media(max-width:700px){body.zen-mode{--zen-footer:136px}#zenBar{width:96vw;height:84px;gap:5px;padding:8px;bottom:8px;border-radius:16px}#zenBar .zen-group{padding:0 2px}#zenModeBtn{width:40px;height:40px}#zenModeBtn svg{width:32px;height:32px}#zenBar .zen-action{width:32px;height:32px;padding:5px}#zenBar .zen-shoot{width:32px;height:32px}#zenBar .zen-symbol{width:44px;height:32px;margin-top:0}#zenRack{gap:4px;bottom:98px}#zenBar .zen-group[data-kind=speed] .zen-symbol{width:56px}#zenBar input[type=range]::-webkit-slider-thumb{width:16px;height:16px;margin-top:-5px}}
 @media(max-height:550px){body.zen-mode{--zen-footer:110px}#zenBar{height:70px;padding:6px;bottom:6px}#zenRack{bottom:79px}#zenBar .zen-symbol{width:48px;height:32px;margin-top:0}#zenModeBtn{width:45px;height:45px}#zenBar .zen-action{width:40px;height:40px}#zenBar .zen-shoot{width:40px;height:40px}#zenCueRest{display:none}}
 
-@media(min-width:900px){
+@media all{
  body.zen-mode #stageWrap{inset:0!important}
  #zenBar{top:calc(var(--zen-y) + 1022 * var(--zu));bottom:auto;width:calc(1564 * var(--zu));height:calc(114 * var(--zu));padding:calc(12 * var(--zu)) calc(27 * var(--zu));gap:calc(18 * var(--zu));border-radius:calc(36 * var(--zu));background:linear-gradient(115deg,rgba(57,58,60,.68),rgba(37,39,43,.72));border-color:rgba(218,204,173,.30);box-shadow:inset 0 1px 1px #ffffff09,0 8px 22px #0002}
  #zenModeBtn{width:calc(80 * var(--zu));height:calc(80 * var(--zu));background:linear-gradient(145deg,#514D43,#343637);border-color:#C5A88055;box-shadow:inset 0 1px 1px #ffffff12}
@@ -314,7 +314,7 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 #zenRack button.zen-on-table{opacity:.12;box-shadow:none}
 #zenRack .zen-cue-ball.zen-place-first{box-shadow:inset 0 1px 4px #fff5,0 0 9px 2px #D0B89166}
 @media(max-width:700px){#zenRack{--zen-tray-gap:4px}}
-@media(min-width:900px){#zenRack{--zen-tray-ball-size:calc(50 * var(--zu));--zen-tray-gap:calc(7 * var(--zu))}}
+@media all{#zenRack{--zen-tray-ball-size:calc(50 * var(--zu));--zen-tray-gap:calc(7 * var(--zu))}}
 `;
 function init(){
  const layout=()=>{const u=Math.min(innerWidth/2048,innerHeight/1143);document.documentElement.style.setProperty('--zu',u+'px');document.documentElement.style.setProperty('--zen-y',(innerHeight-1143*u)/2+'px')};

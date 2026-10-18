@@ -40,14 +40,15 @@ console.log('Zen tracer: every path layer uses two-thirds intensity, preserving 
 renderContext.document.body={classList:{contains:className=>className==='zen-mode'}};
 renderContext.ORIGINAL_ASSET_GEOM=renderContext.ZEN_ASSET_GEOM;
 vm.runInContext(extract('controlMap'),renderContext);
-for(const [width,height] of [[1363,936],[1920,1080],[1200,800],[700,900]]){
+for(const [width,height] of [[1363,936],[1920,1080],[1200,800],[700,900],[772,360],[915,412],[600,375],[430,270]]){
  renderContext.canvas.width=width*2;renderContext.canvas.height=height*2;
  const m=vm.runInContext('controlMap()',renderContext),a=m.map({x:0,y:0}),b=m.map({x:2,y:1});
  assert(Math.abs((b.x-a.x)/(b.y-a.y)-2)<1e-9,'Regulation aspect survives viewport changes');
  const q=m.inv(m.map({x:.7,y:.3}));assert(Math.abs(q.x-.7)<1e-9&&Math.abs(q.y-.3)<1e-9,'Ball dragging uses the same coordinate map as the image');
  assert(a.x>=0&&a.y>=0&&b.x<=width&&b.y<=height,'Playing surface stays inside the viewport');
+ const unit=Math.min(width/2048,height/1143);assert(Math.abs((b.x-a.x)/(1564*unit)-1319/1564)<1e-9,'Table and dock use identical scaling at phone and tablet widths');
 }
-console.log('Zen reference alignment: regulation aspect, viewport fit, and drag-coordinate round trips pass at four sizes.');
+console.log('Zen reference alignment: regulation aspect, viewport fit, and drag-coordinate round trips pass at eight sizes, with matching phone/tablet proportions.');
 
 // Aim drags solve the latest target once per frame and paint the actual
 // contact/ghost/path prediction, while ball dragging remains solver-free.
