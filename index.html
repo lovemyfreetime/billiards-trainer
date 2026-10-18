@@ -4426,6 +4426,7 @@
         return Number.isFinite(t) ? { x: origin.x + d.x * t, y: origin.y + d.y * t } : { x: origin.x + d.x, y: origin.y + d.y };
     }
     function extendedAimEnd(origin, d) {
+        if (document.body.classList.contains('phone-layout') && !isProjector) return rayEnd(origin, d, 0);
         const m = Math.max(S.tableL, S.tableW) * 1.75;
         return { x: origin.x + d.x * m, y: origin.y + d.y * m };
     }
@@ -6384,7 +6385,7 @@
         const cb = cueBall();
         if (!cb)
             return;
-        const d = aimDirection(), end = document.body.classList.contains('phone-layout')&&!isProjector ? rayEnd(cb,d,0) : extendedAimEnd(cb, d);
+        const d = aimDirection(), end = extendedAimEnd(cb, d);
         pathPoly([cb, end], map, '#6fff58', 1.55, .92, []);
         const sd = strikeDirection();
         const actualEnd = { x: cb.x + sd.x * S.ballR * 5.2, y: cb.y + sd.y * S.ballR * 5.2 };

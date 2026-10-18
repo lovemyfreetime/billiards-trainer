@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-compact-trainer-v147';
+const CACHE_NAME = 'billiards-trainer-4-12-compact-trainer-v148';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './trainer-table-exchange.js?v=1',

@@ -12,7 +12,7 @@ for(const [w,h] of [[430,162],[580,162],[696,201],[915,334],[390,660]])for(const
  assert(Math.abs((m.corners[1].x-m.corners[0].x)/(m.corners[3].y-m.corners[0].y)-2)<1e-9,'Playing surface keeps its 2:1 shape');
 }
 c.canvas.width=696;c.canvas.height=201;c.S.shot2Enabled=false;assert(c.controlMap().scale>1.25*((179-42-26)/(A.height/1160)),'Short browser view gains at least 25% table size');
-let direction={x:1,y:0},paths=[];c.isProjector=false;c.cueBall=()=>({x:.7,y:.4});c.aimDirection=()=>direction;c.strikeDirection=()=>direction;c.cueVisualsVisible=()=>false;c.pathPoly=points=>paths.push(points);c.extendedAimEnd=()=>{throw Error('Phone aiming must stop at the rail')};
-vm.runInContext(extract('rayEnd')+extract('drawAim'),c);
-for(const [x,y]of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1]]){direction={x,y};paths=[];c.drawAim(p=>p);const end=paths[0][1];assert(end.x>=0&&end.x<=2&&end.y>=0&&end.y<=1,'Phone aim line stays on the playing surface');}
+let direction={x:1,y:0},paths=[];c.isProjector=false;c.cueBall=()=>({x:.7,y:.4});c.aimDirection=()=>direction;c.strikeDirection=()=>direction;c.cueVisualsVisible=()=>false;c.pathPoly=points=>paths.push(points);
+vm.runInContext(extract('rayEnd')+extract('extendedAimEnd')+extract('drawAim'),c);
+for(const [x,y]of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1]]){direction={x,y};const sharedEnd=c.extendedAimEnd({x:.7,y:.4},direction);assert(sharedEnd.x>=0&&sharedEnd.x<=2&&sharedEnd.y>=0&&sharedEnd.y<=1,'Both shot guides and hit tests stop at the rail');paths=[];c.drawAim(p=>p);const end=paths[0][1];assert(end.x>=0&&end.x<=2&&end.y>=0&&end.y<=1,'Phone aim line stays on the playing surface');}
 console.log('Trainer phone: 5 viewports, both shot modes, safe toolbar/tray bounds, exact touch mapping, larger short-screen table and rail-bounded aim pass.');
