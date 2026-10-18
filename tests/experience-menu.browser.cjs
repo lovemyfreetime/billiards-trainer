@@ -6,7 +6,7 @@ for(const viewport of [{width:412,height:915},{width:915,height:412},{width:1366
  for(const path of ['/','/?zen=1','/play.html']){
   await p.goto('http://127.0.0.1:8887'+path,{waitUntil:'domcontentloaded'});
   const zen=path.includes('zen'),play=path==='/play.html';
-  const switcher=p.locator(zen?'body>.experience-switcher':play?'#playDialog .experience-switcher':'#btZenLauncher');await switcher.waitFor();
+  const switcher=p.locator(zen?'#zenBar .experience-switcher':play?'#playDialog .experience-switcher':'#btZenLauncher');await switcher.waitFor();
   assert.equal(await p.locator('.experience-menu:visible').count(),0);
   const toggle=switcher.locator('.experience-toggle');
   assert.equal(await toggle.evaluate(e=>getComputedStyle(e).borderRadius),'50%');
