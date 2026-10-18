@@ -6,7 +6,7 @@ const lotus='<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient i
 window.BilliardsExperienceMenu=function({current,beforeNavigate=()=>true}={}){
  const wrap=document.createElement('span');wrap.className='experience-switcher';
  const toggle=document.createElement('button');toggle.type='button';toggle.className='experience-toggle';toggle.innerHTML=lotus;toggle.setAttribute('aria-label','Change experience');toggle.title='Trainer · Play · Zen';toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-haspopup','true');
- const menu=document.createElement('nav');menu.className='experience-menu';menu.id='experience-menu-'+(++next);menu.setAttribute('popover','auto');menu.setAttribute('aria-label','Experiences');toggle.setAttribute('aria-controls',menu.id);
+ const menu=document.createElement('nav');menu.className='experience-menu';menu.id='experience-menu-'+(++next);menu.setAttribute('popover','manual');menu.setAttribute('aria-label','Experiences');toggle.setAttribute('aria-controls',menu.id);
  for(const [mode,label] of [['train','Trainer'],['play','Play'],['zen','Zen']]){
   if(mode===current)continue;
   const url=new URL(location.href);if(url.pathname.endsWith('/play.html'))url.pathname=url.pathname.slice(0,-9);url.searchParams.delete('play');url.searchParams.delete('zen');
@@ -15,6 +15,8 @@ window.BilliardsExperienceMenu=function({current,beforeNavigate=()=>true}={}){
   a.onclick=e=>{if(beforeNavigate(mode)===false)e.preventDefault();};menu.append(a);
  }
  toggle.onclick=()=>{if(menu.matches(':popover-open')){menu.hidePopover();return;}menu.showPopover();const r=toggle.getBoundingClientRect(),v=visualViewport,h=v?.height||innerHeight,w=v?.width||innerWidth;menu.style.left=Math.max(8,Math.min(r.left,w-menu.offsetWidth-8))+'px';menu.style.top=Math.max(8,Math.min(r.top-menu.offsetHeight-8,h-menu.offsetHeight-8))+'px';};
+ document.addEventListener('pointerdown',e=>{if(menu.matches(':popover-open')&&!wrap.contains(e.target))menu.hidePopover();});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&menu.matches(':popover-open'))menu.hidePopover();});
  menu.addEventListener('toggle',()=>toggle.setAttribute('aria-expanded',String(menu.matches(':popover-open'))));wrap.append(toggle,menu);return wrap;
 };
 })();
