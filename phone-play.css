@@ -169,3 +169,5 @@ body.phone-layout #phoneTip2 { right:44px; }
 }
 body.phone-layout #phoneActions button.primary{background:#6fff58;color:#071107;border-color:#8dff7b}
 body.phone-layout #btZenLauncher .experience-toggle{width:32px;height:32px;min-width:32px;min-height:32px}
+
+body.phone-layout #phoneActions button.primary{flex-basis:76px}

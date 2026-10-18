@@ -1,8 +1,8 @@
-const CACHE_NAME = 'billiards-trainer-4-12-compact-trainer-v148';
+const CACHE_NAME = 'billiards-trainer-4-12-compact-trainer-v149';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './trainer-table-exchange.js?v=1',
-  './phone-play.css?v=compact-trainer-v12',
+  './phone-play.css?v=compact-trainer-v13',
   './play.html',
   './icons/play-experience-v1.webp',
   './icons/trainer-original-execute-v2.svg',
