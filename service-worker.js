@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-restored-zen-controls-v144';
+const CACHE_NAME = 'billiards-trainer-4-12-restored-zen-bootstrap-v145';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './trainer-table-exchange.js?v=1',
@@ -17,7 +17,7 @@ const APP_SHELL = [
   './trainer-action-history.js?v=2',
   './icons/zen-reference-table-v1.webp',
   './zen-mode.js?v=restored-controls-v55',
-  './beta-ui.js?v=experience-icons-v2',
+  './beta-ui.js?v=restored-controls-v55',
   './index.html',
   './guide/narration-cues.js?v=shaped-guides-v2',
   './guide/narration-cues.css?v=shaped-guides-v2',
