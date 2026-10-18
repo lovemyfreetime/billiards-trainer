@@ -1,11 +1,23 @@
-const CACHE_NAME = 'billiards-trainer-4-12-trainer-shared-table-v143';
+const CACHE_NAME = 'billiards-trainer-4-12-live-play-zen-v151';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
+  './play.html',
+  './icons/play-experience-v1.webp',
+  './icons/trainer-original-execute-v2.svg',
+  './experience-menu.js?v=8',
+  './experience-menu.css?v=6',
+  './play-viewport.js?v=android-play-v1',
+  './play-catalog.js?v=catalog-v1',
+  './play-engine.js?v=catalog-v1',
+  './play-presentation.js?v=play-room-v1',
+  './play-mode.js?v=experience-navigation-v2',
+  './play-mode.css?v=catalog-scroll-v1',
+
   './trainer-action-history.js?v=2',
   './trainer-table-exchange.js?v=1',
   './icons/zen-reference-table-v1.webp',
-  './zen-mode.js?v=shared-table-v54',
-  './beta-ui.js?v=shared-table-v54',
+  './zen-mode.js?v=unified-zen-scale-v56',
+  './beta-ui.js?v=live-play-zen-v151',
   './index.html',
   './trainer-practice-tools.js?v=3',
   './guide/audio-startup.js?v=native-warmup-v22',
@@ -70,13 +82,14 @@ async function networkFirst(request) {
     if (response && response.status === 200) {
       cache.put(request, response.clone()).catch(() => {});
       if (request.mode === 'navigate') {
-        cache.put('./index.html', response.clone()).catch(() => {});
+        const page = new URL(request.url).pathname.endsWith('/play.html') ? './play.html' : './index.html';
+        cache.put(page, response.clone()).catch(() => {});
       }
     }
     return response;
   } catch (err) {
     return (await caches.match(request)) ||
-           (request.mode === 'navigate' ? await caches.match('./index.html') : null) ||
+           (request.mode === 'navigate' ? await caches.match(new URL(request.url).pathname.endsWith('/play.html') ? './play.html' : './index.html') : null) ||
            Response.error();
   }
 }

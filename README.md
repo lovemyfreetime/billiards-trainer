@@ -8,6 +8,8 @@ https://lovemyfreetime.github.io/billiards-trainer/
 
 The accepted October 14, 2026 release includes the Chase audio guides, action-aware Analyze walkthrough and recovery prompts, saved practice layouts, portrait/landscape image calibration, and Advanced cue/shaft presets.
 
+Play is available at https://lovemyfreetime.github.io/billiards-trainer/play.html and Zen at https://lovemyfreetime.github.io/billiards-trainer/?zen=1. Use Change experience to move between Trainer, Play, and Zen. Play provides 20 real-table scorekeepers.
+
 ## Development and release history
 
 `main` publishes the live app through GitHub Pages. `development/interactive-guide` remains available for future development, with its separate preview at https://billiards-trainer-guide-dev.vercel.app.

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
+<script>if(new URLSearchParams(location.search).get("play")==="1"){const playURL=new URL("./play.html",location.href);playURL.search=location.search;location.replace(playURL.href);}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Billiards Trainer 4.12 — AI Camera Edition</title>
 <link rel="manifest" href="./manifest.webmanifest">
@@ -5033,7 +5034,7 @@
     if (window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(resize)).observe(stage);
     function controlMap() {
         const w = canvas.width / DPR, h = canvas.height / DPR, zen=document.body.classList.contains('zen-mode'), pad = zen ? 24 : 34;
-        if(zen&&w>=900){
+        if(zen){
             // Fit the complete reference composition, with a true 2:1 playing surface.
             const unit=Math.min(w/2048,h/1143),scale=1319*unit/S.tableL;
             const ox=(w-2048*unit)/2+364*unit,oy=(h-1143*unit)/2+147*unit;
@@ -12548,7 +12549,9 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
-  <script src="./beta-ui.js?v=shared-table-v54"></script>
+  <link rel="stylesheet" href="./experience-menu.css?v=6">
+  <script src="./experience-menu.js?v=8"></script>
+  <script src="./beta-ui.js?v=live-play-zen-v151"></script>
 
 
 </body>

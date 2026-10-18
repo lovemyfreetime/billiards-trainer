@@ -227,6 +227,8 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 #zenRack button:disabled{opacity:.22;cursor:default;box-shadow:inset 0 1px 5px #655f3822}
 #zenModeMenu{position:fixed;z-index:140;display:flex;gap:10px;padding:0;width:106px;height:48px;background:transparent;border:0}
 #zenModeMenu[hidden]{display:none}
+#zenModeMenu button{overflow:hidden;padding:0!important}
+#zenModeMenu button img{display:block;width:100%;height:100%;object-fit:contain;border-radius:50%}
 #zenModeMenu button{display:grid;place-items:center;box-sizing:border-box;width:48px;height:48px;padding:10px;background:#181B20;border:1px solid #C5A88055;border-radius:50%;color:#C5A880;cursor:pointer}
 #zenModeMenu svg{width:26px;height:26px}
 #zenModeMenu button:disabled{opacity:.4;cursor:default}
@@ -238,7 +240,7 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 @media(max-width:700px){body.zen-mode{--zen-footer:136px}#zenBar{width:96vw;height:84px;gap:5px;padding:8px;bottom:8px;border-radius:16px}#zenBar .zen-group{padding:0 2px}#zenModeBtn{width:40px;height:40px}#zenModeBtn svg{width:32px;height:32px}#zenBar .zen-action{width:32px;height:32px;padding:5px}#zenBar .zen-shoot{width:32px;height:32px}#zenBar .zen-symbol{width:44px;height:32px;margin-top:0}#zenRack{gap:4px;bottom:98px}#zenBar .zen-group[data-kind=speed] .zen-symbol{width:56px}#zenBar input[type=range]::-webkit-slider-thumb{width:16px;height:16px;margin-top:-5px}}
 @media(max-height:550px){body.zen-mode{--zen-footer:110px}#zenBar{height:70px;padding:6px;bottom:6px}#zenRack{bottom:79px}#zenBar .zen-symbol{width:48px;height:32px;margin-top:0}#zenModeBtn{width:45px;height:45px}#zenBar .zen-action{width:40px;height:40px}#zenBar .zen-shoot{width:40px;height:40px}#zenCueRest{display:none}}
 
-@media(min-width:900px){
+@media all{
  body.zen-mode #stageWrap{inset:0!important}
  #zenBar{top:calc(var(--zen-y) + 1022 * var(--zu));bottom:auto;width:calc(1564 * var(--zu));height:calc(114 * var(--zu));padding:calc(12 * var(--zu)) calc(27 * var(--zu));gap:calc(18 * var(--zu));border-radius:calc(36 * var(--zu));background:linear-gradient(115deg,rgba(57,58,60,.68),rgba(37,39,43,.72));border-color:rgba(218,204,173,.30);box-shadow:inset 0 1px 1px #ffffff09,0 8px 22px #0002}
  #zenModeBtn{width:calc(80 * var(--zu));height:calc(80 * var(--zu));background:linear-gradient(145deg,#514D43,#343637);border-color:#C5A88055;box-shadow:inset 0 1px 1px #ffffff12}
@@ -312,7 +314,7 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 #zenRack button.zen-on-table{opacity:.12;box-shadow:none}
 #zenRack .zen-cue-ball.zen-place-first{box-shadow:inset 0 1px 4px #fff5,0 0 9px 2px #D0B89166}
 @media(max-width:700px){#zenRack{--zen-tray-gap:4px}}
-@media(min-width:900px){#zenRack{--zen-tray-ball-size:calc(50 * var(--zu));--zen-tray-gap:calc(7 * var(--zu))}}
+@media all{#zenRack{--zen-tray-ball-size:calc(50 * var(--zu));--zen-tray-gap:calc(7 * var(--zu))}}
 `;
 function init(){
  const layout=()=>{const u=Math.min(innerWidth/2048,innerHeight/1143);document.documentElement.style.setProperty('--zu',u+'px');document.documentElement.style.setProperty('--zen-y',(innerHeight-1143*u)/2+'px')};
@@ -325,8 +327,8 @@ function init(){
  const bar=document.createElement('div');bar.id='zenBar';bar.setAttribute('aria-label','Zen shot controls');
  const stones=document.createElement('button');stones.id='zenModeBtn';stones.type='button';stones.setAttribute('aria-label','Change experience');stones.setAttribute('aria-expanded','false');stones.title='Change experience';stones.innerHTML=lotus;
  const menu=document.createElement('div');menu.id='zenModeMenu';menu.className='zen-popover';menu.hidden=true;menu.setAttribute('role','group');menu.setAttribute('aria-label','Choose experience');stones.setAttribute('aria-controls','zenModeMenu');
- const train=document.createElement('button');train.type='button';train.setAttribute('aria-label','Train');train.title='Open trainer';train.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="38" height="28" rx="6"/><path d="M10 15h28v18H10Z"/><circle cx="20" cy="25" r="2"/><path d="m22 23 12-9"/></svg>';train.onclick=()=>{engine.shareTable();const url=new URL(location.href);url.searchParams.delete('zen');location.href=url.toString()};
- const play=document.createElement('button');play.type='button';play.setAttribute('aria-label','Play · coming soon');play.title='Play · coming soon';play.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="m17 11 20 13-20 13Z"/></svg>';play.disabled=true;
+ const train=document.createElement('button');train.type='button';train.setAttribute('aria-label','Open Trainer');train.title='Open Trainer';train.innerHTML='<img src="./icons/trainer-original-execute-v2.svg" alt="">';train.onclick=()=>{engine.shareTable();const url=new URL(location.href);url.searchParams.delete('zen');url.searchParams.delete('play');location.href=url.toString()};
+ const play=document.createElement('button');play.type='button';play.setAttribute('aria-label','Open Play');play.title='Open Play';play.innerHTML='<img src="./icons/play-experience-v1.webp" alt="">';play.onclick=()=>{engine.shareTable();const url=new URL(location.href);url.searchParams.delete('zen');url.searchParams.delete('play');url.pathname=url.pathname.replace(/(?:index\.html)?$/,'play.html');location.href=url.toString()};
  menu.append(train,play);let modeLeaveTimer=0;
  const positionModeMenu=()=>{const r=stones.getBoundingClientRect();menu.style.left=Math.max(8,Math.min(innerWidth-114,r.left+r.width/2-53))+'px';menu.style.top=Math.max(8,r.top-62)+'px'};
  const closeMenu=()=>{modeHover.cancel();clearTimeout(modeLeaveTimer);hideZenPopover(menu);stones.setAttribute('aria-expanded','false')};
