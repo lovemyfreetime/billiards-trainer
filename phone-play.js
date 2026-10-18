@@ -203,7 +203,7 @@
   // tabs retry on their first trusted interaction, without consuming the action.
   enterFullscreen(true);
   function startupGesture(event){
-    if(!event.isTrusted||!startupFullscreen||fullscreenElement()||event.target?.closest?.('#btg-fullscreen'))return;
+    if(!event.isTrusted||!startupFullscreen||fullscreenElement()||event.target?.closest?.('#btg-fullscreen,.experience-switcher'))return;
     if(event.type==='keydown'&&!['Enter',' '].includes(event.key))return;
     enterFullscreen(true);
   }

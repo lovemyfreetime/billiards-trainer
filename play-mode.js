@@ -10,7 +10,7 @@ function init(){
  <header class="play-header"><div class="play-brand">BILLIARDS <span style="color:#54d6e9">PLAY</span><small>Our table. Our rules.</small></div><nav aria-label="Session"><button id="playAudio" aria-pressed="false">Audio off</button><button id="playPause">Pause</button><button id="playRules">Rules</button><button id="playNew">Games</button></nav></header>
  <div id="playPlayers" aria-label="Players and scores"></div>
  <main class="play-main"><section id="playDock" aria-label="Game and scorekeeping"><div class="play-eyebrow" id="playRound">Game room</div><h1 id="playTitle">Choose your game</h1><p id="playObjective">Games for your real table.</p><div id="playNotice" role="status" aria-live="polite">Choose Games to begin.</div><div id="playResult" class="play-result" hidden></div><div id="playModule"></div><div id="playBalls" role="group" aria-label="Balls made on this shot"></div><div id="playActions"></div><details id="playLayout" hidden><summary>View shot setup diagram</summary><div id="playPhysical"></div></details></section></main>
- <footer class="play-footer"><nav aria-label="Experience"><a href="${link('train')}">Train</a><a href="${link('play')}" aria-current="page">Play</a><a href="${link('zen')}">Zen</a></nav><span id="playLatest"></span><button id="playUndo" disabled>Undo Shot</button></footer>
+ <footer class="play-footer"><nav aria-label="Experience"><span id="playModeSwitch"></span></nav><span id="playLatest"></span><button id="playUndo" disabled>Undo Shot</button></footer>
  <dialog id="playDialog" aria-labelledby="playDialogTitle"></dialog>`;
  document.body.append(root);
  const $=id=>document.getElementById(id),dialog=$('playDialog');
@@ -25,13 +25,15 @@ function init(){
   catch(e){$('playNotice').textContent=e.message;}
  }
  function undo(){if(bridge.busy()||!history.length)return;const previous=history.pop();state=previous.state;state.mode='real';selected.clear();closeDialog();paused=false;window.speechSynthesis?.cancel();save();render();}
- function openDialog(title,privateView=false){closeDialog();returnFocus=document.activeElement;privacy=privateView;dialog.className='';dialog.replaceChildren(text('h2',title));dialog.firstChild.id='playDialogTitle';dialog.showModal();return dialog;}
+ function openDialog(title,privateView=false){closeDialog();returnFocus=document.activeElement;privacy=privateView;dialog.className='';dialog.removeAttribute('aria-label');dialog.setAttribute('aria-labelledby','playDialogTitle');dialog.replaceChildren(text('h2',title));dialog.firstChild.id='playDialogTitle';dialog.showModal();return dialog;}
  function closeDialog(){privacy=false;if(dialog.open)dialog.close();dialog.replaceChildren();}
  dialog.addEventListener('close',()=>{if(dialog.open)return;privacy=false;dialog.replaceChildren();returnFocus?.focus?.({preventScroll:true});});
  dialog.addEventListener('cancel',()=>{privacy=false;});
  // Native fullscreen joins the browser top layer after the initial game dialog.
  // Reopen the same dialog above it, preserving its selection and private content.
  document.addEventListener('fullscreenchange',()=>{if(dialog.open){dialog.close();dialog.showModal();}});
+ const modeSwitch=()=>window.BilliardsExperienceMenu({current:'play',beforeNavigate:()=>{if(bridge.busy())return false;save();bridge.save();return true;}});
+ root.querySelector('#playModeSwitch').append(modeSwitch());
  function dismiss(label='Back to table'){const row=text('div','','play-dialog-actions');row.append(button(label,closeDialog));dialog.append(row);}
  function shieldPrivate(){if(privacy)closeDialog();}
  window.addEventListener('blur',shieldPrivate);document.addEventListener('visibilitychange',()=>{if(document.hidden){shieldPrivate();if(state?.game==='speed'&&state.timer)state=E.reduce(state,{type:'interrupt'});save();}});
@@ -48,18 +50,17 @@ function init(){
  function showRules(){if(!state)return;openDialog(`${E.games[state.game].name} · our rules`);dialog.append(text('p',E.games[state.game].rules),text('p','A foul takes priority over a made ball. Unless this game says otherwise, foul-shot balls return and the next player gets cue ball anywhere. In real-table mode, report the result honestly; Undo corrects mistakes.'));dismiss();}
  function setup(game){
   if(!game){
-   openDialog('Choose tonight’s game');dialog.className='play-catalog-dialog';const compact=matchMedia('(pointer:coarse), (max-width:1000px), (max-height:650px)').matches;dialog.classList.toggle('play-catalog-compact',compact);
+   openDialog('Games');dialog.firstChild.remove();dialog.setAttribute('aria-label','Games');dialog.removeAttribute('aria-labelledby');dialog.className='play-catalog-dialog';const compact=matchMedia('(pointer:coarse), (max-width:1000px), (max-height:650px)').matches;dialog.classList.toggle('play-catalog-compact',compact);
    dialog.append(text('p',compact?'Tap a game to set up your players.':'Our table. Our rules. Pick your kind of pressure.','play-catalog-intro'));
    const layout=text('div','','play-catalog-layout'),hero=text('section','','play-catalog-hero');hero.setAttribute('aria-label','Selected game preview');
    const heroArt=text('div','','play-hero-emblem'),eyebrow=text('div','','play-eyebrow'),title=text('h3',''),pitch=text('p','','play-hero-pitch'),tags=text('div','','play-hero-tags');
    const start=button('Start game',()=>setup(catalogChoice),'play-catalog-start');start.id='playCatalogStart';hero.append(eyebrow,heroArt,title,pitch,tags,start);
-   const right=text('div','','play-catalog-roster'),search=document.createElement('input');search.id='playGameSearch';search.type='search';search.placeholder='Find a game';search.setAttribute('aria-label','Find a game');
-   const grid=text('div','','play-game-grid'),empty=text('p','No games match. Try another name.');empty.hidden=true;
+   const right=text('div','','play-catalog-roster');
+   const grid=text('div','','play-game-grid');
    const tiles=new Map();
    function preview(id){catalogChoice=id;const g=E.games[id],family=P.group(id);hero.style.setProperty('--family',family.color);heroArt.innerHTML=P.icon(id);eyebrow.textContent=family.name;title.textContent=g.name;pitch.textContent=g.tag+' '+g.rules.split('. ')[0]+'.';tags.replaceChildren(text('span',`${g.min===g.max?g.min:g.min+'–'+g.max} player${g.max===1?'':'s'}`),text('span','Our house rules'));for(const [key,b] of tiles){b.classList.toggle('selected',key===id);b.setAttribute('aria-pressed',String(key===id));}}
    P.groups.forEach((family,col)=>{const column=text('section','','play-game-family');column.style.setProperty('--family',family.color);column.append(text('h3',family.name));family.games.forEach((id,row)=>{const g=E.games[id],b=button('',()=>compact?setup(id):preview(id),'play-game-tile');b.dataset.game=id;b.style.setProperty('--family',family.color);b.setAttribute('aria-label',`${g.name} ${g.tag} · ${g.min===g.max?g.min:g.min+'–'+g.max} player${g.max===1?'':'s'}`);b.setAttribute('aria-pressed','false');const art=text('span','','play-tile-icon');art.innerHTML=P.icon(id);const count=text('span',String(col*5+row+1).padStart(2,'0'),'play-tile-number');count.setAttribute('aria-hidden','true');b.append(count,art,text('strong',g.name),text('small',`${g.min===g.max?g.min:g.min+'–'+g.max} player${g.max===1?'':'s'}`));b.onfocus=()=>preview(id);column.append(b);tiles.set(id,b);});grid.append(column);});
-   search.oninput=()=>{let visible=0;for(const [id,b] of tiles){b.hidden=!(E.games[id].name+' '+E.games[id].tag+' '+P.group(id).name).toLowerCase().includes(search.value.trim().toLowerCase());if(!b.hidden)visible++;}for(const col of grid.children)col.hidden=![...col.querySelectorAll('button')].some(b=>!b.hidden);empty.hidden=visible>0;};
-   right.append(search,grid,empty);layout.append(hero,right);dialog.append(layout);preview(catalogChoice);if(state)dismiss('Resume game');else{const nav=text('div','','play-catalog-nav');for(const mode of ['train','zen']){const a=text('a',mode==='train'?'Train':'Zen');a.href=link(mode);nav.append(a);}dialog.append(nav);}return;
+   right.append(grid);layout.append(hero,right);dialog.append(layout);preview(catalogChoice);if(state)dismiss('Resume game');{const nav=text('div','','play-catalog-nav');nav.append(modeSwitch());dialog.append(nav);}dialog.scrollTop=0;return;
   }
   const g=E.games[game];catalogChoice=game;openDialog(g.name);dialog.className='play-setup-dialog';dialog.style.setProperty('--family',P.group(game)?.color||'#d3b68b');const emblem=text('div','','play-setup-emblem');emblem.innerHTML=P.icon(game);dialog.append(emblem);dialog.append(text('p',g.rules));
   const form=document.createElement('form');

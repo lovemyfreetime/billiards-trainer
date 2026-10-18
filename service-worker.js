@@ -1,17 +1,19 @@
-const CACHE_NAME = 'billiards-trainer-4-12-play-android-isolated-v111';
+const CACHE_NAME = 'billiards-trainer-4-12-play-catalog-scroll-v112';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './play.html',
+  './experience-menu.js?v=1',
+  './experience-menu.css?v=1',
   './play-viewport.js?v=android-play-v1',
   './play-catalog.js?v=catalog-v1',
   './play-engine.js?v=catalog-v1',
   './play-presentation.js?v=play-room-v1',
-  './play-mode.js?v=android-play-v1',
-  './play-mode.css?v=android-play-v1',
+  './play-mode.js?v=catalog-scroll-v1',
+  './play-mode.css?v=catalog-scroll-v1',
   './trainer-action-history.js?v=1',
   './icons/zen-reference-table-v1.webp',
-  './zen-mode.js?v=play-v17',
-  './beta-ui.js?v=play-v17',
+  './zen-mode.js?v=universal-modes-v1',
+  './beta-ui.js?v=universal-modes-v1',
   './index.html',
   './guide/narration-cues.js?v=shaped-guides-v2',
   './guide/narration-cues.css?v=shaped-guides-v2',
@@ -53,7 +55,7 @@ const APP_SHELL = [
   './guide/practice-sheet.css',
   './manifest.webmanifest',
   './phone-play.css?v=9',
-  './phone-play.js?v=scorekeeper-v1',
+  './phone-play.js?v=universal-modes-v1',
   './photo-calibration.js?v=walkthrough-v11',
   './photo-table-spots.js?v=3',
   './photo-cloth-filter.js?v=2',

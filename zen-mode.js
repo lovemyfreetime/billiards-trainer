@@ -1,7 +1,6 @@
 (function(){
 "use strict";
 if(new URLSearchParams(location.search).get("zen")!=="1")return;
-const lotus = '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="zenLotusMetal" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#D4BB92"/><stop offset="1" stop-color="#8F7755"/></linearGradient></defs><g fill="url(#zenLotusMetal)" stroke="#C5A880" stroke-width=".6" stroke-linejoin="round"><path d="M31 51C16 50 6 41 5 29c13 1 23 8 26 22Z"/><path d="M33 51c15-1 25-10 26-22-13 1-23 8-26 22Z"/><path d="M31 49C18 44 12 32 17 18c11 5 16 17 14 31Z"/><path d="M33 49c13-5 19-17 14-31-11 5-16 17-14 31Z"/><path d="M32 48C22 38 22 23 32 10c10 13 10 28 0 38Z"/></g><path d="M12 49q20 15 40 0" fill="none" stroke="#A68D68" stroke-width="1"/></svg>';
 
 // Simple, rounded line symbols traced from Jeff's control sketch.
 // Each directional arrow is its own closed shape, with clear physical spacing.
@@ -124,12 +123,7 @@ function init(){
  document.body.classList.add('zen-mode');document.head.appendChild(style);
  const engine=window.billiardsZenControls;engine.enter();
  const bar=document.createElement('div');bar.id='zenBar';bar.setAttribute('aria-label','Zen shot controls');
- const stones=document.createElement('button');stones.id='zenModeBtn';stones.type='button';stones.setAttribute('aria-label','Change experience');stones.setAttribute('aria-expanded','false');stones.title='Change experience';stones.innerHTML=lotus;
- const menu=document.createElement('div');menu.id='zenModeMenu';menu.hidden=true;
- const train=document.createElement('button');train.textContent='Train';train.onclick=()=>{window.billiardsPlayBridge.save();const url=new URL(location.href);url.searchParams.delete('zen');location.href=url.toString()};
- const play=document.createElement('button');play.textContent='Play';play.onclick=()=>{engine.status();window.billiardsPlayBridge.save();const url=new URL(location.href);url.searchParams.delete('zen');url.searchParams.set('play','1');location.href=url.toString()};
- menu.append(train,play);const closeMenu=()=>{menu.hidden=true;stones.setAttribute('aria-expanded','false')};stones.onclick=()=>{menu.hidden=!menu.hidden;stones.setAttribute('aria-expanded',String(!menu.hidden))};
- document.addEventListener('pointerdown',e=>{if(!stones.contains(e.target)&&!menu.contains(e.target))closeMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});bar.append(stones);
+ const switcher=window.BilliardsExperienceMenu({current:'zen',beforeNavigate:()=>{window.billiardsPlayBridge.save();return true;}});bar.append(switcher);
  const bindings=[];
  function group(name,kind,originalId){
   const box=document.createElement('div');box.className='zen-group';box.dataset.kind=kind;box.title=name;
@@ -228,7 +222,7 @@ function init(){
   b.addEventListener('click',()=>{if(!suppress){engine.place(i+1);sync()}suppress=false});rack.append(b);return b;
  });
  const cueRest=document.createElement('div');cueRest.id='zenCueRest';cueRest.setAttribute('aria-hidden','true');
- cueRest.innerHTML='<span></span><i></i>';document.body.append(bar,menu,rack,cueRest,rackMenu);
+ cueRest.innerHTML='<span></span><i></i>';document.body.append(bar,rack,cueRest,rackMenu);
  function sync(){const status=engine.status();bindings.forEach(f=>f());bar.querySelectorAll('input').forEach(el=>el.disabled=status.busy);undo.disabled=status.busy||!status.undo;undoAction.disabled=status.busy||!status.undoAction;syncContact();if(status.busy)hoverTools.forEach(tool=>tool.close());shot.disabled=status.busy;rackToggle.disabled=status.busy;center.disabled=status.busy;rackChoices.forEach(b=>b.disabled=status.busy);if(status.busy&&!rackMenu.hidden)closeRackMenu();balls.forEach((b,i)=>{b.disabled=status.busy||status.balls.includes(i+1);b.title=status.balls.includes(i+1)?`Ball ${i+1} is on the table`:`Drag or tap to add ball ${i+1}`})}
  sync();setInterval(sync,180);window.dispatchEvent(new Event('resize'));
 }

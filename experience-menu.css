@@ -1,0 +1,10 @@
+/* Identical lotus control and menu in every experience. */
+.experience-switcher{display:inline-flex;flex:none;align-items:center}
+body .experience-switcher .experience-toggle,#playRoot .experience-switcher .experience-toggle{box-sizing:border-box;display:grid;place-items:center;width:46px;height:46px;min-width:46px;min-height:46px;padding:3px;border:1px solid #c5a88088;border-radius:50%;background:linear-gradient(145deg,#343b3e,#171c22);cursor:pointer;touch-action:manipulation}
+.experience-toggle svg{width:36px;height:36px}
+.experience-menu{box-sizing:border-box;position:fixed;inset:auto;margin:0;width:200px;max-width:calc(100vw - 16px);padding:8px;border:1px solid #c5a88066;border-radius:14px;background:#18212a;color:#eee;box-shadow:0 8px 24px #0008}
+.experience-menu:popover-open{display:grid;gap:4px}
+body .experience-menu a,#playRoot .experience-menu a{box-sizing:border-box;display:block;min-height:44px;padding:12px;border-radius:8px;color:#e8d1ae;text-decoration:none;font:600 14px/20px system-ui,sans-serif}
+.experience-menu a[aria-current=page]{background:#30434b}
+.experience-toggle:focus-visible,.experience-menu a:focus-visible{outline:3px solid #58dbe3;outline-offset:2px}
+.experience-menu:not(:popover-open){display:none!important}
