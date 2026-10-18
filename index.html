@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
+<script>if(!location.search&&!location.hash)location.replace(new URL("./welcome.html",location.href).href);</script>
 <script>if(new URLSearchParams(location.search).get("play")==="1"){const playURL=new URL("./play.html",location.href);playURL.search=location.search;location.replace(playURL.href);}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Billiards Trainer 4.12 — AI Camera Edition</title>
@@ -12550,8 +12551,8 @@ if ('serviceWorker' in navigator) {
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
   <link rel="stylesheet" href="./experience-menu.css?v=6">
-  <script src="./experience-menu.js?v=8"></script>
-  <script src="./beta-ui.js?v=live-play-zen-v151"></script>
+  <script src="./experience-menu.js?v=ordered-experiences-v9"></script>
+  <script src="./beta-ui.js?v=experience-entry-v152"></script>
 
 
 </body>

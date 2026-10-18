@@ -7,10 +7,10 @@ window.BilliardsExperienceMenu=function({current,beforeNavigate=()=>true}={}){
  const wrap=document.createElement('span');wrap.className='experience-switcher';
  const toggle=document.createElement('button');toggle.type='button';toggle.className='experience-toggle';if(current==='zen')toggle.innerHTML=lotus;else{const img=document.createElement('img');img.src=current==='train'?'./icons/trainer-original-execute-v2.svg':'./icons/play-experience-v1.webp';img.alt='';toggle.append(img);toggle.classList.add('experience-toggle-image');}toggle.dataset.experience=current;toggle.setAttribute('aria-label','Change experience');toggle.title='Trainer · Play · Zen';toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-haspopup','true');
  const menu=document.createElement('nav');menu.className='experience-menu';menu.id='experience-menu-'+(++next);menu.setAttribute('popover','manual');menu.setAttribute('aria-label','Experiences');toggle.setAttribute('aria-controls',menu.id);
- for(const [mode,label] of [['train','Trainer'],['play','Play'],['zen','Zen']]){
+ for(const [mode,label] of [['zen','Zen'],['train','Trainer'],['play','Play']]){
   if(mode===current)continue;
-  const url=new URL(location.href);if(url.pathname.endsWith('/play.html'))url.pathname=url.pathname.slice(0,-9);url.searchParams.delete('play');url.searchParams.delete('zen');
-  if(mode==='play')url.pathname=url.pathname.replace(/(?:index\.html)?$/,'play.html');if(mode==='zen')url.searchParams.set('zen','1');
+  const url=new URL(location.href);if(url.pathname.endsWith('/play.html'))url.pathname=url.pathname.slice(0,-9);url.searchParams.delete('play');url.searchParams.delete('zen');url.searchParams.delete('train');
+  if(mode==='play')url.pathname=url.pathname.replace(/(?:index\.html)?$/,'play.html');if(mode==='zen')url.searchParams.set('zen','1');if(mode==='train')url.searchParams.set('train','1');
   const a=document.createElement('a');a.href=url.href;a.dataset.experience=mode;a.setAttribute('aria-label','Open '+label);a.title=label;const art=document.createElement('span');art.className='experience-art';art.setAttribute('aria-hidden','true');if(mode==='zen')art.innerHTML=lotus;else{const img=document.createElement('img');img.src=mode==='train'?'./icons/trainer-original-execute-v2.svg':'./icons/play-experience-v1.webp';img.alt='';art.append(img);}const name=document.createElement('span');name.textContent=label;a.append(art,name);
   a.onclick=e=>{if(beforeNavigate(mode)===false)e.preventDefault();};menu.append(a);
  }

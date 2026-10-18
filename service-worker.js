@@ -1,10 +1,11 @@
-const CACHE_NAME = 'billiards-trainer-4-12-live-play-zen-v151';
+const CACHE_NAME = 'billiards-trainer-4-12-experience-entry-v152';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
+  './welcome.html',
   './play.html',
   './icons/play-experience-v1.webp',
   './icons/trainer-original-execute-v2.svg',
-  './experience-menu.js?v=8',
+  './experience-menu.js?v=ordered-experiences-v9',
   './experience-menu.css?v=6',
   './play-viewport.js?v=android-play-v1',
   './play-catalog.js?v=catalog-v1',
@@ -16,8 +17,8 @@ const APP_SHELL = [
   './trainer-action-history.js?v=2',
   './trainer-table-exchange.js?v=1',
   './icons/zen-reference-table-v1.webp',
-  './zen-mode.js?v=unified-zen-scale-v56',
-  './beta-ui.js?v=live-play-zen-v151',
+  './zen-mode.js?v=experience-order-v57',
+  './beta-ui.js?v=experience-entry-v152',
   './index.html',
   './trainer-practice-tools.js?v=3',
   './guide/audio-startup.js?v=native-warmup-v22',
@@ -75,6 +76,13 @@ self.addEventListener('activate', event => {
   );
 });
 
+function navigationShell(url) {
+  const path = new URL(url).pathname;
+  if (path.endsWith('/welcome.html')) return './welcome.html';
+  if (path.endsWith('/play.html')) return './play.html';
+  return './index.html';
+}
+
 async function networkFirst(request) {
   const cache = await caches.open(CACHE_NAME);
   try {
@@ -82,14 +90,14 @@ async function networkFirst(request) {
     if (response && response.status === 200) {
       cache.put(request, response.clone()).catch(() => {});
       if (request.mode === 'navigate') {
-        const page = new URL(request.url).pathname.endsWith('/play.html') ? './play.html' : './index.html';
+        const page = navigationShell(request.url);
         cache.put(page, response.clone()).catch(() => {});
       }
     }
     return response;
   } catch (err) {
     return (await caches.match(request)) ||
-           (request.mode === 'navigate' ? await caches.match(new URL(request.url).pathname.endsWith('/play.html') ? './play.html' : './index.html') : null) ||
+           (request.mode === 'navigate' ? await caches.match(navigationShell(request.url)) : null) ||
            Response.error();
   }
 }
