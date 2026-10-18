@@ -1,11 +1,13 @@
-const CACHE_NAME = 'billiards-trainer-4-12-play-scorekeeper-v110';
+const CACHE_NAME = 'billiards-trainer-4-12-play-android-isolated-v111';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
+  './play.html',
+  './play-viewport.js?v=android-play-v1',
   './play-catalog.js?v=catalog-v1',
   './play-engine.js?v=catalog-v1',
   './play-presentation.js?v=play-room-v1',
-  './play-mode.js?v=scorekeeper-v1',
-  './play-mode.css?v=scorekeeper-v1',
+  './play-mode.js?v=android-play-v1',
+  './play-mode.css?v=android-play-v1',
   './trainer-action-history.js?v=1',
   './icons/zen-reference-table-v1.webp',
   './zen-mode.js?v=play-v17',

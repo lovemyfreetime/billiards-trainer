@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
+<script>if(new URLSearchParams(location.search).get("play")==="1"){const playURL=new URL("./play.html",location.href);playURL.search=location.search;location.replace(playURL.href);}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Billiards Trainer 4.12 — AI Camera Edition</title>
 <link rel="manifest" href="./manifest.webmanifest">
@@ -12436,11 +12437,11 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-welcome.js?v=analyze-welcome-v16"></script>
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
-  <link rel="stylesheet" href="./play-mode.css?v=scorekeeper-v1">
+  <link rel="stylesheet" href="./play-mode.css?v=android-play-v1">
   <script src="./play-catalog.js?v=catalog-v1"></script>
   <script src="./play-engine.js?v=catalog-v1"></script>
   <script src="./play-presentation.js?v=play-room-v1"></script>
-  <script src="./play-mode.js?v=scorekeeper-v1"></script>
+  <script src="./play-mode.js?v=android-play-v1"></script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=play-v17"></script>
 

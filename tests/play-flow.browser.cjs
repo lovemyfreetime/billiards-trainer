@@ -9,7 +9,7 @@ const server=cp.spawn('python3',['-u','-m','http.server','8779','--bind','127.0.
  const status=()=>p.evaluate(()=>billiardsPlayStatus());
  async function setup(name,mode='real'){
   if(await p.locator('#playDialog[open]').count()===0)await p.locator('#playNew').click();
-  await p.locator('#playDialog').getByRole('button',{name:new RegExp('^'+name)}).click();await p.locator('#playCatalogStart').click();
+  await p.locator('#playDialog').getByRole('button',{name:new RegExp('^'+name)}).click();if(await p.locator('#playCatalogStart').isVisible())await p.locator('#playCatalogStart').click();
   await p.locator('#playDialog button[type=submit]').click();
   await p.getByRole('button',{name:'Table ready · Break next',exact:true}).click();
  }
@@ -35,9 +35,9 @@ const server=cp.spawn('python3',['-u','-m','http.server','8779','--bind','127.0.
  await setup('Ghost Runout');
  await p.getByRole('button',{name:'Miss',exact:true}).click();await ready();
  await p.getByRole('button',{name:'Ball 1 made',exact:true}).click();await p.getByRole('button',{name:'Record balls',exact:true}).click();assert(!(await status()).remaining.includes(1));await p.locator('#playUndo').click();assert((await status()).remaining.includes(1));
- assert.equal(await p.locator('#playRoot canvas').count(),0);assert.equal(await p.locator('#playExpand').count(),0);const ballBefore=await p.evaluate(()=>billiardsPlayBridge.capture().balls);
+ assert.equal(await p.locator('#playRoot canvas').count(),0);assert.equal(await p.locator('#playExpand').count(),0);assert.equal(await p.evaluate(()=>typeof billiardsPlayBridge),'undefined','Play does not load the Trainer runtime');
  await p.locator('.play-footer').getByRole('link',{name:'Train',exact:true}).click();await p.waitForSelector('#btPlayLauncher');assert.equal(await p.locator('body.play-mode').count(),0);
- assert.deepEqual(await p.evaluate(()=>billiardsPlayBridge.capture().balls),ballBefore,'Train receives Play table');
+ assert(await p.evaluate(()=>billiardsPlayBridge.capture().balls.length>0),'Train keeps its own layout');
  await p.locator('#btPlayLauncher').click();await p.waitForSelector('#playRoot');assert.equal((await status()).game,'ghost');
  await p.evaluate(async()=>{if(document.fullscreenElement)await document.exitFullscreen();});await p.setViewportSize({width:412,height:915});await p.screenshot({path:'/tmp/play-phone.png'});assert.equal(await p.locator('#playUndo').isVisible(),true);assert.equal(await p.locator('#phoneHeader').isVisible(),false);assert.equal(await p.locator('#phoneActions').isVisible(),false);assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'phone has no horizontal overflow');
  await p.setViewportSize({width:1440,height:960});await p.screenshot({path:'/tmp/play-screen.png'});

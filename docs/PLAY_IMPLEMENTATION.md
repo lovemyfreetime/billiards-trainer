@@ -1,6 +1,6 @@
 # Play — real-table game room
 
-Open `index.html?play=1`. Work stays on `development/interactive-guide`; production is separate.
+Open `play.html` (legacy `index.html?play=1` redirects to it). Work stays on `development/interactive-guide`; production is separate.
 
 Play is now a dedicated real-table scorekeeper on every device. It has no playable table, canvas, cue controls, speed/spin sliders, or table expansion button. Trainer and Zen remain the places for on-screen shooting. Optional collapsed setup diagrams remain for games whose real-table shots need a layout reference.
 
@@ -8,7 +8,7 @@ Play is now a dedicated real-table scorekeeper on every device. It has no playab
 
 All twenty house games remain available: Kelly Pool, Secret Bounty, Cutthroat, Poker Pool, Twenty-One, Cribbage Pool, Bingo, Killer, Turf War, Battleship, Golf, Undercover Saboteur, HORSE, Ghost Runout, Equalizer, Bowliards, Ring Game, Three-Ball, Speed Pool and High-Low. In-app Rules are the exact implemented version; `PLAY_GAMES.md` records the broader design direction.
 
-The engines own rules and deterministic state. `play-presentation.js` owns four colored families and vector symbols. Selecting a game updates a preview; Start Game opens player setup. Limits are sourced from the engine. There is no screen/real mode choice: every new Play session is real-table mode.
+The engines own rules and deterministic state. `play-presentation.js` owns four colored families and vector symbols. On desktop, selecting a game updates a preview and Start Game opens player setup. Phones, touch tablets and small windows skip the preview: tapping a tile opens setup directly. Limits are sourced from the engine. There is no screen/real mode choice: every new Play session is real-table mode.
 
 Players report made balls, misses and fouls. Numbered games offer multi-ball selection; Turf/Golf also report pockets. The app owns turn order, scores, lives, card dealing, target assignment, private roles, votes, fleet attacks, bowling bonuses and match results. Real shots, first-contact legality, bank/kick routes and cue finish zones are witnessed by the room.
 
@@ -18,7 +18,7 @@ Speed Pool has Start, Penalty and Finish controls. A witness verifies clearance;
 
 ## Device layout
 
-The shell has a wrapping header, bounded player grid, one scrolling game panel, and a persistent Undo/navigation footer. No table consumes space. The catalog has a bounded, independently scrollable game grid. On phones, tablets and short windows its selected-game preview is a compact bottom bar or sidebar; it cannot push the roster below the viewport. Small screens scroll the same twenty readable choices. Native fullscreen remains supported, but Play never forces landscape orientation.
+The shell has a wrapping header, bounded player grid, one scrolling game panel, and a persistent Undo/navigation footer. No table consumes space. The catalog has a bounded, independently scrollable game grid. Phones and touch tablets have no selected-game preview panel. Narrow portrait phones use a two-column scrolling list; landscape and wider screens use denser grids. Small screens scroll the same twenty readable choices. The dedicated Play entry does not load Trainer CSS, phone controls, native fullscreen startup or orientation locks. Its own viewport helper tracks visible browser height and keyboard/orientation resizing without overriding intentional pinch zoom.
 
 An open dialog is reopened above native fullscreen's top layer without replacing its contents, preserving setup and private screens on first interaction.
 
@@ -34,3 +34,12 @@ The existing storage key remains `billiardsPlaySession-v1`; its current payload 
 - `... node tests/play-room.browser.cjs`: nine device shapes from 360×640 and 640×360 through 1440×960, immediate roster visibility, scroll access to the final game, always-visible preview/start, search, scorekeeper controls, and version-1 session/Undo migration.
 
 The former expansion tests were retired with the removed feature. Browser scripts start/stop local servers and block service workers for repeatable checks; the development deployment is also checked live.
+
+
+## Android isolation and density
+
+`play.html` is a standalone entry containing only Play's engines, symbols, styles and viewport helper. It shares the same origin and saved-session key, preserving existing game state and Undo. The old query route redirects before loading the Trainer. Train and Zen links explicitly return to the root app. Browser-default font sizes cannot inflate inherited Play controls: the Play root/dialog and component typography are explicitly scoped; the broad inherited-font shorthand was replaced with font-family inheritance.
+
+Compact tiles retain full game names for accessibility, prevent player counts wrapping, and bound visible names to two lines. Portrait phone choices scroll; larger/landscape grids fit more choices without oversized hero content. Setup remains one tap away. The catalog dialog itself has no giant keyboard-focus frame; interactive controls retain focus indicators.
+
+`tests/play-android.browser.cjs` uses Android Chrome/Samsung user agents, touch/mobile contexts, 360–1280 CSS-pixel widths, portrait/landscape, DPR 2, and an injected 32px browser-default font. It checks isolation from Trainer resources, measured typography, tap-target bounds, readable player counts, access to every game, one-tap setup, scoring and Undo. These are browser emulations, not physical-device tests.
