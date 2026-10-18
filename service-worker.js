@@ -1,8 +1,8 @@
-const CACHE_NAME = 'billiards-trainer-4-12-unified-zen-scale-v146';
+const CACHE_NAME = 'billiards-trainer-4-12-compact-trainer-v147';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './trainer-table-exchange.js?v=1',
-  './phone-play.css?v=11',
+  './phone-play.css?v=compact-trainer-v12',
   './play.html',
   './icons/play-experience-v1.webp',
   './icons/trainer-original-execute-v2.svg',
@@ -59,7 +59,7 @@ const APP_SHELL = [
   './guide/practice-sheet.css',
   './manifest.webmanifest',
   './phone-play.css?v=9',
-  './phone-play.js?v=zen-recovery-v12',
+  './phone-play.js?v=compact-trainer-v13',
   './photo-calibration.js?v=walkthrough-v11',
   './photo-table-spots.js?v=3',
   './photo-cloth-filter.js?v=2',

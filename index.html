@@ -1420,7 +1420,7 @@
 
 .bt-file-library{width:100%;min-width:0;margin-top:8px}.bt-saved-files{display:flex;flex-wrap:wrap;align-items:end;gap:5px}.bt-saved-files label{display:flex;flex:1 1 180px;flex-direction:column;gap:4px;font-size:11px;min-width:0}.bt-saved-files select{width:100%;min-width:0}.bt-saved-files button{white-space:nowrap}.bt-file-status{font-size:11px;margin-top:4px}.photoAnalyzerFooter .bt-file-library{flex-basis:100%;margin-top:2px}.photoAnalyzerHeader #btg-analyze-explore{width:30px;height:30px;flex:0 0 30px;font-size:17px;border-width:1px;align-self:center}.photoAnalyzerHeader{gap:4px!important}
 </style>
-<link rel="stylesheet" href="./phone-play.css?v=11">
+<link rel="stylesheet" href="./phone-play.css?v=compact-trainer-v12">
 </head>
 <body>
 <div id="app">
@@ -5123,7 +5123,7 @@
             // Reserving two banks for one shot needlessly shrank tablet layouts.
             const A=ORIGINAL_ASSET_GEOM, landscape=w>h;
             const left=landscape&&w>600?168:126, right=S.shot2Enabled?left:12;
-            const top=42,bottom=26,artW=S.tableL*A.width/(A.x1-A.x0),artH=S.tableW*A.height/(A.y1-A.y0);
+            const top=landscape&&h<260?32:42,bottom=26,artW=S.tableL*A.width/(A.x1-A.x0),artH=S.tableW*A.height/(A.y1-A.y0);
             const scale=Math.max(.01,Math.min((w-left-right)/artW,(h-top-bottom)/artH));
             const ox=left+(w-left-right-artW*scale)/2+S.tableL*A.x0/(A.x1-A.x0)*scale;
             const oy=top+(h-top-bottom-artH*scale)/2+S.tableW*A.y0/(A.y1-A.y0)*scale;
@@ -6384,7 +6384,7 @@
         const cb = cueBall();
         if (!cb)
             return;
-        const d = aimDirection(), end = extendedAimEnd(cb, d);
+        const d = aimDirection(), end = document.body.classList.contains('phone-layout')&&!isProjector ? rayEnd(cb,d,0) : extendedAimEnd(cb, d);
         pathPoly([cb, end], map, '#6fff58', 1.55, .92, []);
         const sd = strikeDirection();
         const actualEnd = { x: cb.x + sd.x * S.ballR * 5.2, y: cb.y + sd.y * S.ballR * 5.2 };
@@ -12641,7 +12641,7 @@ if ('serviceWorker' in navigator) {
     </div>
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=guided-cues-v1">
-  <script src="./phone-play.js?v=zen-recovery-v12"></script>
+  <script src="./phone-play.js?v=compact-trainer-v13"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=shaped-guides-v2">

@@ -149,3 +149,23 @@ body.phone-layout #phoneTip2 { right:44px; }
  body.phone-layout .tableSpeedLabel,body.phone-layout .miniSpinLabel { top:3px; }
  body.phone-layout .speedTickScale { top:31px;bottom:7px; }
 }
+
+/* Browser bars leave very short landscape viewports; keep chrome compact. */
+@media(max-height:400px) and (orientation:landscape){
+ body.phone-layout:not(.zen-mode):not(.projector) #phoneHeader{box-sizing:border-box;height:36px;min-height:36px;padding:2px 6px;gap:5px}
+ body.phone-layout:not(.zen-mode) #phoneControls{min-height:30px;height:30px;padding:3px 8px;font-size:11px}
+ body.phone-layout:not(.zen-mode) .btg-pool-title h1{font-size:12px}
+ body.phone-layout:not(.zen-mode) #btg-pool-launchers .btg-launcher{width:28px;height:28px}
+ body.phone-layout:not(.zen-mode):not(.projector) #stageWrap{top:calc(max(36px,var(--phone-guide-height,0px)) + env(safe-area-inset-top));bottom:calc(42px + env(safe-area-inset-bottom))}
+ body.phone-layout:not(.zen-mode):not(.projector) #phoneActions{box-sizing:border-box;min-height:42px;height:calc(42px + env(safe-area-inset-bottom));padding:3px 0 calc(3px + env(safe-area-inset-bottom))}
+ body.phone-layout:not(.zen-mode) #phoneActions button{min-height:34px;height:34px}
+ body.phone-layout:not(.zen-mode):not(.projector) #panel{top:calc(36px + env(safe-area-inset-top));bottom:calc(42px + env(safe-area-inset-bottom))}
+ body.phone-layout:not(.zen-mode) .aimControlRow,body.phone-layout:not(.zen-mode) .tableSpeedControl,body.phone-layout:not(.zen-mode) .bottomSpinGroup{top:34px!important;height:calc(100% - 64px)!important}
+ body.phone-layout:not(.zen-mode) #analyzePhotoBtn{height:28px;top:2px;font-size:9px}
+ body.phone-layout:not(.zen-mode) #cameraCaptureBtn{height:28px;width:28px;line-height:26px;top:2px;left:112px}
+ body.phone-layout:not(.zen-mode) #quickLayoutRecall{height:28px;width:28px;top:2px;left:146px}
+ body.phone-layout:not(.zen-mode) #kickToolToggle,body.phone-layout:not(.zen-mode) #bankToolToggle{height:28px;top:2px;min-width:42px;font-size:9px;padding:0 6px}
+ body.phone-layout:not(.zen-mode) #teachingCompassToggle{height:28px;width:28px;top:2px}
+}
+body.phone-layout #phoneActions button.primary{background:#6fff58;color:#071107;border-color:#8dff7b}
+body.phone-layout #btZenLauncher .experience-toggle{width:32px;height:32px;min-width:32px;min-height:32px}
