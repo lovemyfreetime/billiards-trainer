@@ -1,10 +1,10 @@
-const CACHE_NAME = 'billiards-trainer-4-12-experience-icons-v113';
+const CACHE_NAME = 'billiards-trainer-4-12-trainer-icon-v114';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './play.html',
   './icons/play-experience-v1.webp',
-  './icons/trainer-experience-v2.webp',
-  './experience-menu.js?v=2',
+  './icons/trainer-experience-v3.webp',
+  './experience-menu.js?v=3',
   './experience-menu.css?v=2',
   './play-viewport.js?v=android-play-v1',
   './play-catalog.js?v=catalog-v1',
