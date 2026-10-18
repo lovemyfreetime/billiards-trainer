@@ -3,7 +3,7 @@
 const params=new URLSearchParams(location.search),enabled=params.get('play')==='1'||location.pathname.endsWith('/play.html'),E=window.BilliardsPlay,C=window.BilliardsCatalog,P=window.BilliardsPlayPresentation;
 function link(mode){const url=new URL(location.href);if(url.pathname.endsWith('/play.html')&&mode!=='play')url.pathname=url.pathname.slice(0,-9);url.searchParams.delete('zen');url.searchParams.delete('play');if(mode!=='train')url.searchParams.set(mode,'1');return url.toString();}
 function init(){
- if(!enabled){if(params.get('zen')==='1')return;const a=document.createElement('a');a.id='btPlayLauncher';a.href=link('play');a.textContent='Play';a.title='Open the Play game room';a.style.cssText='position:fixed;left:80px;bottom:14px;z-index:55;padding:13px 20px;border:1px solid #4fbdd7;border-radius:25px;color:#eaf7f7;background:#164357;text-decoration:none;font:700 15px system-ui';a.onclick=()=>window.billiardsPlayBridge.save();document.body.append(a);return;}
+ if(!enabled)return;
  const bridge=window.billiardsPlayBridge||{busy:()=>false,save:()=>{}},KEY='billiardsPlaySession-v1';let state=null,history=[],privacy=false,paused=false,audio=false,storageError='',selected=new Set(),returnFocus=null,catalogChoice='killer';
  document.body.classList.add('play-mode');
  const root=document.createElement('section');root.id='playRoot';root.setAttribute('aria-label','Billiards Play game room');root.innerHTML=`
