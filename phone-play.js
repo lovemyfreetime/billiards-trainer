@@ -195,7 +195,7 @@
     try {
       await request.call(root);
       startupFullscreen = false;
-      if(phone.matches && screen.orientation?.lock) { try { await screen.orientation.lock('landscape'); } catch (_) {} }
+      if(phone.matches && new URLSearchParams(location.search).get('play')!=='1' && screen.orientation?.lock) { try { await screen.orientation.lock('landscape'); } catch (_) {} }
       syncFullscreen();
     } catch (_) { if(!automatic) showFallback(); }
   }

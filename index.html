@@ -5707,7 +5707,7 @@
     let zenTableArtwork=null,zenTableFrame=null;
     const zenReferenceTable=new Image();
     zenReferenceTable.onload=()=>{zenTableArtwork=zenReferenceTable;zenTableFrame=null;if(document.body.classList.contains('zen-mode')||document.body.classList.contains('play-mode'))draw();};
-    if(new URLSearchParams(location.search).get('zen')==='1'||new URLSearchParams(location.search).get('play')==='1')zenReferenceTable.src='./icons/zen-reference-table-v1.webp';
+    if(new URLSearchParams(location.search).get('zen')==='1')zenReferenceTable.src='./icons/zen-reference-table-v1.webp';
     function zenRecoloredTable(){return zenTableArtwork;}
     function drawZenTable(map){
         const art=zenRecoloredTable();if(!art)return;
@@ -6855,6 +6855,7 @@
         });
     }
     function draw() {
+        if(document.body.classList.contains('play-mode'))return;
         window.billiardsPhoneReadouts?.();
         if ($('phoneFlightCanvas')) $('phoneFlightCanvas').style.display = 'none';
         updateMarkerRailControls();
@@ -12419,7 +12420,7 @@ if ('serviceWorker' in navigator) {
     </div>
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=guided-cues-v1">
-  <script src="./phone-play.js?v=guided-cues-v1"></script>
+  <script src="./phone-play.js?v=scorekeeper-v1"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=shaped-guides-v2">
@@ -12435,11 +12436,11 @@ if ('serviceWorker' in navigator) {
   <script src="./guide/analyze-welcome.js?v=analyze-welcome-v16"></script>
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
-  <link rel="stylesheet" href="./play-mode.css?v=play-room-v1">
+  <link rel="stylesheet" href="./play-mode.css?v=scorekeeper-v1">
   <script src="./play-catalog.js?v=catalog-v1"></script>
   <script src="./play-engine.js?v=catalog-v1"></script>
   <script src="./play-presentation.js?v=play-room-v1"></script>
-  <script src="./play-mode.js?v=play-room-v1"></script>
+  <script src="./play-mode.js?v=scorekeeper-v1"></script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=play-v17"></script>
 

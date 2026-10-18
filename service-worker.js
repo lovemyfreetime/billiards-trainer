@@ -1,11 +1,11 @@
-const CACHE_NAME = 'billiards-trainer-4-12-play-room-v109';
+const CACHE_NAME = 'billiards-trainer-4-12-play-scorekeeper-v110';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './play-catalog.js?v=catalog-v1',
   './play-engine.js?v=catalog-v1',
   './play-presentation.js?v=play-room-v1',
-  './play-mode.js?v=play-room-v1',
-  './play-mode.css?v=play-room-v1',
+  './play-mode.js?v=scorekeeper-v1',
+  './play-mode.css?v=scorekeeper-v1',
   './trainer-action-history.js?v=1',
   './icons/zen-reference-table-v1.webp',
   './zen-mode.js?v=play-v17',
@@ -51,7 +51,7 @@ const APP_SHELL = [
   './guide/practice-sheet.css',
   './manifest.webmanifest',
   './phone-play.css?v=9',
-  './phone-play.js?v=guided-cues-v1',
+  './phone-play.js?v=scorekeeper-v1',
   './photo-calibration.js?v=walkthrough-v11',
   './photo-table-spots.js?v=3',
   './photo-cloth-filter.js?v=2',

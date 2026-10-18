@@ -1,67 +1,36 @@
-# Play catalog build
+# Play — real-table game room
 
-Open `index.html?play=1`, the trainer's Play launcher, or Play in Zen's experience menu. This build belongs on `development/interactive-guide`; do not merge to production as part of this work.
+Open `index.html?play=1`. Work stays on `development/interactive-guide`; production is separate.
 
-All twenty games are selectable in both on-screen and real-table modes. `play-engine.js` contains the original four; `play-catalog.js` supplies the remaining sixteen. The in-app Rules view is the exact implemented house version; `PLAY_GAMES.md` holds the broader design direction.
+Play is now a dedicated real-table scorekeeper on every device. It has no playable table, canvas, cue controls, speed/spin sliders, or table expansion button. Trainer and Zen remain the places for on-screen shooting. Optional collapsed setup diagrams remain for games whose real-table shots need a layout reference.
 
-## Included
+## Games and controls
 
-- Shared on-screen table with the existing physics, aim/speed/follow/side controls, scratch detection and automatic scoring.
-- Real-table scorekeeper with simple results for Killer/Poker and numbered multi-ball reporting for Cutthroat/Ghost.
-- Five-round Poker with pass-and-peek private hands, draw-two/keep-one for successful pots, five-card evaluation, tied winners, and deterministic deck recycling.
-- Killer lives and break retries; Cutthroat scratch revivals; Ghost lowest-first runouts and race to five.
-- Per-action Undo including coordinates, pending private choices, deck state, result and player turn. Up to 45 saved actions; this is action history, not permission to redeal for luck.
-- Browser save/resume, visible storage failures, optional turn speech, pause, rules and Train/Play/Zen links.
-- Minimal table artwork shared with Zen, with a short aim indicator rather than trainer prediction overlays.
+All twenty house games remain available: Kelly Pool, Secret Bounty, Cutthroat, Poker Pool, Twenty-One, Cribbage Pool, Bingo, Killer, Turf War, Battleship, Golf, Undercover Saboteur, HORSE, Ghost Runout, Equalizer, Bowliards, Ring Game, Three-Ball, Speed Pool and High-Low. In-app Rules are the exact implemented version; `PLAY_GAMES.md` records the broader design direction.
+
+The engines own rules and deterministic state. `play-presentation.js` owns four colored families and vector symbols. Selecting a game updates a preview; Start Game opens player setup. Limits are sourced from the engine. There is no screen/real mode choice: every new Play session is real-table mode.
+
+Players report made balls, misses and fouls. Numbered games offer multi-ball selection; Turf/Golf also report pockets. The app owns turn order, scores, lives, card dealing, target assignment, private roles, votes, fleet attacks, bowling bonuses and match results. Real shots, first-contact legality, bank/kick routes and cue finish zones are witnessed by the room.
+
+Private views use a pass-to-player screen before revealing numbers, cards, roles, fleets or voting controls. Public status inspection omits secrets. Privacy is shared-device pass-and-peek; device storage contains the complete game.
+
+Speed Pool has Start, Penalty and Finish controls. A witness verifies clearance; every foul adds ten seconds. Pausing, hiding or reloading an active run marks it interrupted and ineligible. HORSE currently uses an authored shot bank rather than a freeform editor. Equalizer offers visible miss allowances and one cue-ball reset per layout.
+
+## Device layout
+
+The shell has a wrapping header, bounded player grid, one scrolling game panel, and a persistent Undo/navigation footer. No table consumes space. The catalog has a bounded, independently scrollable game grid. On phones, tablets and short windows its selected-game preview is a compact bottom bar or sidebar; it cannot push the roster below the viewport. Small screens scroll the same twenty readable choices. Native fullscreen remains supported, but Play never forces landscape orientation.
+
+An open dialog is reopened above native fullscreen's top layer without replacing its contents, preserving setup and private screens on first interaction.
+
+## Save and Undo
+
+The existing storage key remains `billiardsPlaySession-v1`; its current payload version is 2. It stores game state and up to 45 state snapshots, without simulated table snapshots. Version-1 sessions migrate to real mode, including all Undo entries. Scores, turn order, pending cards, target numbers, votes and game progress are preserved. A live timed run is marked interrupted on reload. Play does not restore or manipulate the Trainer/Zen layout when scoring or using Undo.
 
 ## Verification
 
-Run pure game tests with `node tests/play-engine.test.cjs`. Run the browser flow test from the repository root with `CHROMIUM_EXECUTABLE_PATH=/path/to/chromium node tests/play-flow.browser.cjs` and an installed Playwright package. The browser script starts and stops its own local static server; it uses isolated browser storage and blocks service workers for repeatable UI tests.
+- `node tests/play-engine.test.cjs` and `node tests/play-catalog.test.cjs`: all original and additional game rules, deterministic full matches, foul precedence, ties, private reassignment, bowling and timing.
+- `CHROMIUM_EXECUTABLE_PATH=/path/to/chromium node tests/play-flow.browser.cjs`: original four real-table games, full Poker showdown, private choice/Undo, elimination/reload, Cutthroat revival, Ghost inventory, unchanged Trainer layout and no simulated table.
+- `... node tests/play-catalog.browser.cjs`: sixteen additional real-table games, fleet placement, target privacy, Undo and catalog.
+- `... node tests/play-room.browser.cjs`: nine device shapes from 360×640 and 640×360 through 1440×960, immediate roster visibility, scroll access to the final game, always-visible preview/start, search, scorekeeper controls, and version-1 session/Undo migration.
 
-The browser flow covers full Killer/Poker games, Undo across elimination/results/private choices, reload, Cutthroat revival, an actual physics-driven pot, exact coordinate restoration, Train handoff and phone layout. Existing focused geometry, action-history, portable-file and Zen rendering tests also pass.
-
-The broader existing Node suite has one pre-existing failure in `phone-play.test.cjs` at “First gameplay interaction enters native fullscreen.” The phone-play source/test are unchanged; running the HEAD version of that test reproduces the same failure. No unrelated fullscreen repair is included.
-
-## Boundaries
-
-Same-device privacy is pass-and-peek, not protection from a determined person with browser access. Undo cannot erase a player's knowledge of a revealed card. No paired phones, voice-command input, automatic physical-table vision, shot clock, share-card export or challenge-link generation is included in this first build. Audio is optional browser turn speech, not new recorded narration.
-
-In real-table mode the room reports fouls. For Killer/Poker it can report Rack Empty when necessary rather than entering every ball number. Mandatory spot/rack steps wait for Table Ready. The engine knows scores and inventory; only the simulation can report real on-screen first-contact and rail facts automatically.
-
-## Expanded table view
-
-On-screen games have an Expand Table button on the table. It hides the game chrome and lets the same live canvas occupy the full window. Game View restores the scores and instructions without changing gameplay. Execute Shot and Undo remain available; Shot Controls opens an optional slider panel. Escape returns to game view. Poker card choices and match results return to game view automatically. Real-table scoring does not gain extra controls.
-
-Expanded portrait tables rotate vertically. Rendering dimensions and pointer coordinates use the same rotation; the browser test verifies a cue-ball drag lands at the expected physical coordinate. `tests/play-expanded.browser.cjs` also covers view switching without state changes, actual simulated shooting, Undo, portrait slider bounds and unchanged real-table mode.
-
-
-## Full catalog implementation
-
-The new games are Kelly Pool, Secret Bounty, Twenty-One, Cribbage Pool, Billiards Bingo, Turf War, Battleship Billiards, Golf Pool, Undercover Saboteur, H-O-R-S-E, Equalizer, Bowliards, Ring Game, Three-Ball, Speed Pool and High-Low. The catalog has a name/style search and a scrollable list.
-
-Private pass-and-peek views handle secret numbers, blackjack cards, saboteur roles, votes and fleet placement. Fleet placement offers shuffled valid arrangements and an explicit lock. Enemy attacks reveal only previously attacked cells. Votes do not reveal correctness until the final result. Public scores never display secret assignments. Saved state necessarily contains secrets on this shared offline device.
-
-Bingo and HORSE use nine authored shot tasks, with a chosen pocket, route requirements for banks/kicks, and cue finish zones for draw/follow. HORSE currently uses this bank rather than a freeform shot editor. The same normalized layout resets for every attempt. Real-table mode shows a diagram and coordinates; a witness reports whether the full task succeeded. These first task layouts and Equalizer allowances should be tuned through playtesting.
-
-Equalizer offers visible per-player miss allowances at setup (0–2) and one optional cue-ball reset per layout. Golf has six sequential pocket targets and a ten-stroke cap. Turf uses pocket capture and round-end ownership scoring. Ring and High-Low enforce the required first contact in the simulation; people referee it at a real table.
-
-Bowliards uses free, non-scoring breaks, visit totals, standard strike/spare bonus arithmetic and tenth-frame bonus visits. Three-Ball counts breaks and foul penalties, with a six-stroke cap. Speed uses two attempts per player, ten-second foul penalties and the best valid attempt. Simulation time stops at the last drop; real-table mode has Start/Penalty/Finish buttons. Pausing, hiding the page, or reloading an active timed attempt marks it interrupted and ineligible. This is casual table-side timing, not certified competition timing.
-
-Every action uses the existing state/table snapshot Undo path, including private choices, fleet locks, votes, attacks, scene resets and finishing a timed run. Returning from expanded table view is automatic for tasks, fleet setup, attacks, votes, card choices and results.
-
-Additional verification:
-
-- `node tests/play-catalog.test.cjs`: complete matches for every new game, tied Bingo, secret reassignment, crib obligations, fleet completion, private voting, route validation, 300/150/90 bowling scores and interrupted timers.
-- `CHROMIUM_EXECUTABLE_PATH=/path/to/chromium node tests/play-catalog.browser.cjs`: each new game in both modes, private reveal gates, Undo, expansion, actual solver pocket reporting, and phone catalog.
-
-Equipment: standard table and cues; fifteen balls for general games, nine for Ring, ten for Bowliards, three for Three-Ball/Equalizer and one for Golf/Bingo/HORSE layouts. The app replaces cards, tally peas, score sheets, fleet boards, timers and role slips. A triangle rack works for the triangular racks; nine-ball can be arranged manually if no diamond rack is available.
-
-## Play room visual refresh
-
-The catalog follows Jeff's supplied game-room references: four colored families, twenty individual vector symbols, a selected-game preview, and Start Game before configuration. Counts and rules still come from the game engines. `play-presentation.js` holds visual grouping and symbols only. Search filters the same twenty playable entries. Layouts adapt to desktop, tablet, portrait phone and landscape phone; smaller screens scroll instead of shrinking text into miniature controls.
-
-The Play canvas now calls the existing Zen table, shaded-ball and aiming renderers directly. The former flat four-pixel cue stick has been removed. Zen itself is unchanged. Physical-table scorekeeping renders clean cloth behind the player banner, without simulated balls. Desktop scores sit in a bronze dock below the table; the game controls remain reachable in the side panel and the full-window table toggle remains available.
-
-Fullscreen activation can put its element above an already-open dialog in the browser's top layer. Play reopens the same dialog on fullscreen change so the roster, setup and private screens remain visible without losing their content. Native fullscreen is still requested by the existing startup behavior.
-
-`tests/play-room.browser.cjs` checks the twenty symbols and categories, changing previews, search, four viewport shapes, score-dock placement and both play modes. The existing full-game, expansion and responsive browser suites include the new selection step.
+The former expansion tests were retired with the removed feature. Browser scripts start/stop local servers and block service workers for repeatable checks; the development deployment is also checked live.
