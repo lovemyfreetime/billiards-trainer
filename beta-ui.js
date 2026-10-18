@@ -96,7 +96,7 @@
     setupCommunity(cfg);
     setupFeedback(cfg);
     setupZenLauncher();
-    const zenScript=document.createElement('script');zenScript.src='./zen-mode.js?v=universal-modes-v1';document.body.appendChild(zenScript);
+    const zenScript=document.createElement('script');zenScript.src='./zen-mode.js?v=experience-icons-v2';document.body.appendChild(zenScript);
   }
 
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded",init,{once:true});

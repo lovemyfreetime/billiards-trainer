@@ -1,9 +1,11 @@
-const CACHE_NAME = 'billiards-trainer-4-12-play-catalog-scroll-v112';
+const CACHE_NAME = 'billiards-trainer-4-12-experience-icons-v113';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './play.html',
-  './experience-menu.js?v=1',
-  './experience-menu.css?v=1',
+  './icons/play-experience-v1.webp',
+  './icons/trainer-experience-v2.webp',
+  './experience-menu.js?v=2',
+  './experience-menu.css?v=2',
   './play-viewport.js?v=android-play-v1',
   './play-catalog.js?v=catalog-v1',
   './play-engine.js?v=catalog-v1',
@@ -12,8 +14,8 @@ const APP_SHELL = [
   './play-mode.css?v=catalog-scroll-v1',
   './trainer-action-history.js?v=1',
   './icons/zen-reference-table-v1.webp',
-  './zen-mode.js?v=universal-modes-v1',
-  './beta-ui.js?v=universal-modes-v1',
+  './zen-mode.js?v=experience-icons-v2',
+  './beta-ui.js?v=experience-icons-v2',
   './index.html',
   './guide/narration-cues.js?v=shaped-guides-v2',
   './guide/narration-cues.css?v=shaped-guides-v2',

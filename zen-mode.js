@@ -123,7 +123,7 @@ function init(){
  document.body.classList.add('zen-mode');document.head.appendChild(style);
  const engine=window.billiardsZenControls;engine.enter();
  const bar=document.createElement('div');bar.id='zenBar';bar.setAttribute('aria-label','Zen shot controls');
- const switcher=window.BilliardsExperienceMenu({current:'zen',beforeNavigate:()=>{window.billiardsPlayBridge.save();return true;}});bar.append(switcher);
+ const switcher=window.BilliardsExperienceMenu({current:'zen',beforeNavigate:()=>{window.billiardsPlayBridge.save();return true;}});document.body.append(switcher);
  const bindings=[];
  function group(name,kind,originalId){
   const box=document.createElement('div');box.className='zen-group';box.dataset.kind=kind;box.title=name;
