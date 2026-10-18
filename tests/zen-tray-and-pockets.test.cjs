@@ -1,0 +1,31 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const html=fs.readFileSync('index.html','utf8');
+function extract(name){const a=html.indexOf('function '+name+'('),begin=html.indexOf('{',a);assert(a>=0,name);let d=0;for(let i=begin;i<html.length;i++){if(html[i]==='{')d++;if(html[i]==='}'&&--d===0)return html.slice(a,i+1);}throw Error(name);}
+let zen=true;const clone=value=>JSON.parse(JSON.stringify(value));
+const initial={tableL:2,tableW:1,ballR:.03,balls:[{id:0,x:.4,y:.5,active:true},{id:1,x:1,y:.5,active:true}],pocketedLog:[],freeAim:{x:1,y:.5},shot2Enabled:false};
+const c={S:clone(initial),Math,Set,document:{body:{classList:{contains:()=>zen}}},clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),updateUI(){},refreshPreview(){},saveState(){},syncProjector(){},toast(){},onPlayingSurface:q=>q.x>0&&q.x<2&&q.y>0&&q.y<1,manualPocketAt:()=>null,PHYSICS_MODEL:{defaultCueElevationDeg:0},undoStack:[],redoStack:[],runHistory:[],animation:null,CustomEvent:class{},window:{dispatchEvent(){}},cleanSnapshot:()=>clone(c.S)};
+vm.createContext(c);vm.runInContext(html.slice(html.indexOf('    const ZEN_ASSET_GEOM='),html.indexOf('    const ZEN_POCKET_FELT=')),c);for(const name of ['normalizeBallSet','keepCueOnTable','finishDraggedBall','returnPocketBall','returnZenBallToTray','commitAnimatedShot','logicalPockets','pocketModel','nearestLogicalPocket','zenPocketVisualCenter','zenPocketAlignment','zenPocketHighlights'])vm.runInContext(extract(name),c);
+assert(c.returnZenBallToTray(0));assert(!c.S.balls.some(b=>b.id===0));assert(c.S.allowMissingCueBall);c.normalizeBallSet();assert(!c.S.balls.some(b=>b.id===0),'Cue ball stays absent');c.returnPocketBall(0,{x:.6,y:.6});assert(c.S.balls.some(b=>b.id===0));assert(!c.S.allowMissingCueBall);assert(!c.S.pocketedLog.includes(0));c.returnPocketBall(0,{x:.8,y:.6});assert.equal(c.S.balls.filter(b=>b.id===0).length,1);
+assert(c.returnZenBallToTray(1));c.returnPocketBall(1,{x:1,y:.5});assert(c.S.balls.some(b=>b.id===1));
+c.cueBall=()=>c.S.balls.find(b=>b.id===0);
+const pre=clone(initial),sim={pocketEvents:[],railEvents:[],frames:[clone(initial.balls),[{id:0,x:1,y:-.02,active:false},{id:1,x:1.2,y:.5,active:true}]]};
+c.S=clone(initial);c.commitAnimatedShot(sim,pre);assert(!c.S.balls.some(b=>b.id===0),'Zen scratches remove the cue');assert(c.S.allowMissingCueBall);assert(c.S.pocketedLog.includes(0));assert.equal(c.undoStack.length,1);assert(c.undoStack[0].balls.some(b=>b.id===0),'Shot undo retains the pre-scratch cue');
+zen=false;c.S=clone(initial);c.commitAnimatedShot(sim,pre);assert(c.S.balls.some(b=>b.id===0&&b.active&&b.x===.4),'Regular trainer still restores scratched cue');c.S.balls=[];c.S.allowMissingCueBall=true;c.returnPocketBall(0,{x:.4,y:.5});assert.equal(c.S.balls.length,0,'Cue tray return is Zen-only');zen=true;
+const target=c.zenPocketVisualCenter(c.logicalPockets().find(p=>p.name==='TM')),centerPath=[{x:target.x,y:.5},{x:target.x,y:.05},{x:target.x,y:-.01}];assert.equal(c.zenPocketAlignment(centerPath,target,.03),1);assert(c.zenPocketAlignment(centerPath,{x:target.x+.02,y:target.y},.03)>.5,'Off-center aim fades gradually across the mouth');assert.equal(c.zenPocketAlignment(centerPath,{x:target.x+.08,y:target.y},.03),0,'Wide misses stay dark');assert.equal(c.zenPocketAlignment([...centerPath].reverse(),target,.03),0,'A line moving away cannot light the pocket');
+let p={paths:{1:centerPath},firstBallContact:{objId:1},pocketEvents:[]};assert(c.zenPocketHighlights(p).some(h=>h.strength>.99),'Centered object path lights the pocket');p={paths:{0:centerPath},firstBallContact:null,pocketEvents:[]};assert(c.zenPocketHighlights(p).some(h=>h.strength>.99),'Cue approaches fade smoothly before the exact scratch boundary');p.pocketEvents=[{id:0,x:target.x,y:-.01}];assert(c.zenPocketHighlights(p).some(h=>h.strength>.99));
+console.log('Zen tray/pockets: cue and numbered-ball returns, scratch removal, regular-trainer preservation, undo snapshot, center alignment and scratch-only cue pocket glow pass.');
+
+zen=true;c.S=clone(initial);const sampledBeforeDrop={pocketEvents:[],railEvents:[],frames:[clone(initial.balls)],finalBalls:[{id:0,x:1,y:-.02,active:false},{id:1,x:1.2,y:.5,active:true}]};c.commitAnimatedShot(sampledBeforeDrop,pre);assert(!c.S.balls.some(b=>b.id===0),'Actual final physics state wins over a frame sampled just before the scratch');
+
+zen=true;c.S=clone(initial);c.finishDraggedBall(1,{x:0,y:0});assert(c.S.balls.some(b=>b.id===1&&b.x>0&&b.y>0),'Dragging to a corner keeps the object ball on cloth');assert(!c.S.pocketedLog.includes(1));c.finishDraggedBall(0,{x:1,y:0});assert(c.S.balls.some(b=>b.id===0&&b.y>0),'Cue ball stays safely outside the side pocket');c.finishDraggedBall(1,{x:1,y:1.2});assert(!c.S.balls.some(b=>b.id===1),'Bottom edge still returns balls to the tray');c.S.balls=c.S.balls.filter(b=>b.id!==1);c.returnPocketBall(1,{x:.005,y:.005});assert(c.S.balls.some(b=>b.id===1&&b.x>.005&&b.y>.005),'Tray drop near a pocket places the ball safely on cloth');
+zen=false;c.S=clone(initial);c.finishDraggedBall(1,{x:2,y:0});assert(c.S.balls.some(b=>b.id===1),'Main trainer also prevents manual pocket drops');
+console.log('Safe drag placement: cue and object balls cannot be manually pocketed; near-pocket tray drops stay on cloth; bottom-edge tray returns remain available in Zen.');
+
+const offsetPath=dx=>centerPath.map(p=>({...p,x:p.x+dx}));
+const values=[0,.01,.02,.03,.04,.05,.06,.072].map(dx=>c.zenPocketAlignment(offsetPath(dx),target,.03));
+assert.equal(values[0],1);assert.equal(values.at(-1),0);for(let i=1;i<values.length;i++)assert(values[i]<values[i-1],'Brightness decreases continuously across the wider mouth');
+const jawPath=[{x:target.x+.06,y:.5},{x:target.x+.06,y:.12},{x:target.x+.06,y:.02},{x:target.x,y:-.01}];
+assert(c.zenPocketAlignment(jawPath,target,.03)<.15,'Final jaw deflection does not falsely register as a centered approach');
+const jawPreview={paths:{1:jawPath},firstBallContact:{objId:1},pocketEvents:[{id:1,x:target.x,y:-.01}]};
+const jawGlow=c.zenPocketHighlights(jawPreview).find(h=>h.name==='TM');assert(jawGlow&&jawGlow.strength>=.2&&jawGlow.strength<.4,'Jaw-assisted pots retain a quiet success indication');
+console.log('Pocket dimmer: broad continuous center gradient, pre-jaw approach, and low-level indication for every predicted pot pass.');

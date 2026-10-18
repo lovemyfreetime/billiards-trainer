@@ -14,6 +14,16 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Billiards Trainer">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+(function installTrainerContextMenuGuard(){
+  const editable='textarea,select,input:not([type="range"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]):not([type="submit"]):not([type="reset"]):not([type="image"]),[contenteditable="true"],[contenteditable=""]';
+  // Cancel only the browser menu. Pointer events still reach pen/finger holds,
+  // repeating arrows, drags and the app's own picker controls unchanged.
+  document.addEventListener('contextmenu',event=>{
+    if(!event.target?.closest?.(editable))event.preventDefault();
+  },{capture:true,passive:false});
+})();
+</script>
 <style>
   #markerRailControls { position:absolute;z-index:9;display:none;pointer-events:none; }
   .markerRailItem { position:absolute;top:0;transform:translateX(-50%);width:var(--marker-diameter);height:100%;text-align:center;opacity:.12;transition:opacity .15s;pointer-events:auto;white-space:nowrap;touch-action:none;cursor:grab; }
@@ -224,9 +234,9 @@
   #animate { width:100%; height:48px; background:#60d394; color:#071b10; border:1px solid #60d394; font-weight:800; transition:background .08s; }
   #animate:hover { background:#70dfa3; }
   #animate.executed { background:#4297e6; border-color:#4297e6; color:#05121d; }
-  .shotBottomActions { margin-top:8px; }
-  .shotBottomActions #undoAction { grid-column:1 / -1; font-size:11px; min-height:32px; }
-  .shotBottomActions #toggleShot2 { position:static; border-radius:7px; min-height:38px; padding:6px; font-size:11px; }
+  .shotHistoryRow { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:8px; margin-top:8px; }
+  .shotHistoryRow button { width:100%; min-width:0; min-height:38px; padding:6px 4px; font-size:11px; line-height:1.2; }
+  .shotToggleRow #toggleShot2 { position:static; width:100%; border-radius:7px; min-height:38px; padding:6px; font-size:11px; }
   .tableControlGroup { padding:8px; margin-bottom:8px; background:#19232e; border:1px solid #354250; border-radius:7px; }
   .layoutSetupGroup { padding:6px; }
   .layoutSetupReset { display:grid; grid-template-columns:1fr; margin-bottom:5px; }
@@ -1410,7 +1420,7 @@
 
 .bt-file-library{width:100%;min-width:0;margin-top:8px}.bt-saved-files{display:flex;flex-wrap:wrap;align-items:end;gap:5px}.bt-saved-files label{display:flex;flex:1 1 180px;flex-direction:column;gap:4px;font-size:11px;min-width:0}.bt-saved-files select{width:100%;min-width:0}.bt-saved-files button{white-space:nowrap}.bt-file-status{font-size:11px;margin-top:4px}.photoAnalyzerFooter .bt-file-library{flex-basis:100%;margin-top:2px}.photoAnalyzerHeader #btg-analyze-explore{width:30px;height:30px;flex:0 0 30px;font-size:17px;border-width:1px;align-self:center}.photoAnalyzerHeader{gap:4px!important}
 </style>
-<link rel="stylesheet" href="./phone-play.css?v=9">
+<link rel="stylesheet" href="./phone-play.css?v=11">
 </head>
 <body>
 <div id="app">
@@ -1568,8 +1578,10 @@
           <button id="toggleCueVisuals2Btn" class="cueVisualToggleBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">CUE BALL 2</span></button>
         </div>
       </div>
+      <div class="shotExecuteRow shotToggleRow"><button id="toggleShot2" type="button">+ SHOT 2</button></div>
       <div id="shotExecuteRow" class="shotExecuteRow"><button id="animate" type="button">Execute Shot</button></div>
-      <div class="buttons shotBottomActions"><button id="toggleShot2" type="button">+ SHOT 2</button><button id="undoShot">Undo Last Shot</button><button id="undoAction" type="button" disabled title="Restore the previous aim, ball position, or control adjustment">Undo Last Action</button></div>
+      <div class="shotHistoryRow" role="group" aria-label="Shot history"><button id="undoShot" type="button" disabled>Undo Last Shot</button><button id="redoShot" type="button" disabled>Redo Last Shot</button></div>
+      <div class="shotHistoryRow" role="group" aria-label="Action history"><button id="undoAction" type="button" disabled title="Restore the previous aim, ball position, or control adjustment">Undo Last Action</button><button id="redoAction" type="button" disabled title="Restore the action most recently undone">Redo Last Action</button></div>
       <div class="shotExecuteRow"><button id="resetLayoutQuick" type="button">Reset Layout</button></div>
       </div>
     </div>
@@ -1852,8 +1864,9 @@
 <link rel="stylesheet" href="./photo-calibration.css?v=focused-start-v17">
 <script src="./photo-calibration.js?v=walkthrough-v11"></script>
 <script src="./trainer-practice-tools.js?v=3"></script>
-<script src="./trainer-action-history.js?v=1"></script>
+<script src="./trainer-action-history.js?v=2"></script>
 <script src="./trainer-layout-files.js?v=2"></script>
+<script src="./trainer-table-exchange.js?v=1"></script>
 <script src="./trainer-saved-files.js?v=1"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
 <script src="./photo-table-spots.js?v=3"></script>
@@ -1869,6 +1882,11 @@
 (() => {
     'use strict';
     const isProjector = new URLSearchParams(location.search).get('projector') === '1';
+    const isZenPage = new URLSearchParams(location.search).get('zen') === '1';
+    const STATE_STORE_KEY=isZenPage?'billiardTrainerZenState':'billiardTrainerState';
+    const PROGRESS_STORE_KEY=isZenPage?'billiardTrainerZenProgress':'billiardTrainerProgress';
+    const TABLE_SOURCE=isZenPage?'zen':'trainer';
+    const tableExchange=window.BilliardsTableExchange.create(localStorage,window.BilliardsLayoutFiles);
     if (isProjector)
         document.body.classList.add('projector');
     const $ = id => document.getElementById(id);
@@ -1926,16 +1944,19 @@
         '8': [88, 44],
         '9': [100, 50]
     };
+    function trainerDemoLayout(L,W,R){
+        const cue={id:0,n:'CB',x:L*.23,y:W*.5,active:true};
+        const one={id:1,n:'1',x:L*.64,y:W*.5,active:true};
+        const dx=L-one.x,dy=W-one.y,distance=Math.hypot(dx,dy);
+        return {balls:[cue,one,{id:2,n:'2',x:L*.75,y:W*.25,active:true}],freeAim:{x:one.x-2*R*dx/distance,y:one.y-2*R*dy/distance},allowMissingCueBall:false,pocketedLog:[],nextId:3};
+    }
     function defaultState() {
         const inch = .0254;
+        const initialAim={x:88*inch*.75,y:44*inch*.5};
         return {
             tableL: 88 * inch, tableW: 44 * inch, ballR: 2.25 * inch / 2,
-            balls: [
-                { id: 0, n: 'CB', x: .52, y: .56, active: true },
-                { id: 1, n: '1', x: 1.43, y: .55, active: true },
-                { id: 2, n: '2', x: 1.76, y: .34, active: true }
-            ],
-            nextId: 3, markerSeq: 1000, freeAim: { x: 1.18, y: .56 }, angleLock: false, speed: 2.42, follow: 0, sideSpin: 0, cueElevationDeg: PHYSICS_MODEL.defaultCueElevationDeg,
+            balls: [],
+            nextId: 1, markerSeq: 1000, freeAim: initialAim, angleLock: false, speed: 2.42, follow: 0, sideSpin: 0, cueElevationDeg: PHYSICS_MODEL.defaultCueElevationDeg,
             shot2Enabled: false, activeShot: 1, shot2Initialized: false,
             showShot1: true,
             showShot2: true,
@@ -1956,7 +1977,7 @@
             setupMode: 'custom', pocketedLog: [], player1Score: 0, player2Score: 0, activePlayer: 1, showScoreBoard: false, showPracticeCounter:false,
             // Photo-analyzed layouts are allowed to contain only object balls.  When
             // true, normalizeBallSet() must not manufacture a default cue ball.
-            allowMissingCueBall: false,
+            allowMissingCueBall: true,
             showBankKickNumbers: false,
             bankKick: {
                 mode: null,
@@ -2000,37 +2021,51 @@
     // Shot/run history. Each committed animated shot stores a complete pre-shot
     // snapshot so Undo restores every ball and its exact position. runHistory keeps
     // the starting layout plus each committed ending layout.
-    let undoStack = [];
+    let undoStack = [], redoStack = [];
     let runHistory = [];
     let actionHistory=null,actionUndoTimer=0,actionPointer=false,actionKeys=false;
     function captureActionState(){
-        return {state:JSON.parse(JSON.stringify(S,(key,value)=>key==='preview'||key==='firstEvent'?null:value)),undo:undoStack.slice(),history:runHistory.slice()};
+        return {state:JSON.parse(JSON.stringify(S,(key,value)=>key==='preview'||key==='firstEvent'?null:value)),undo:undoStack.slice(),history:runHistory.slice(),redo:redoStack.slice()};
+    }
+    function syncHistoryButtons(){
+        for(const [id,available] of [['undoShot',undoStack.length],['redoShot',redoStack.length],['undoAction',actionHistory?.count],['redoAction',actionHistory?.redoCount]]){
+            const button=$(id);if(button)button.disabled=!!animation||!available;
+        }
     }
     function syncActionUndo(){
-        const button=$('undoAction');if(button)button.disabled=!!animation||!actionHistory?.count;
+        syncHistoryButtons();
         window.dispatchEvent(new CustomEvent('billiards:action-history'));
     }
-    function finishActionUndo(){
+    function finishActionUndo(preserveShotRedo=false){
         clearTimeout(actionUndoTimer);actionUndoTimer=0;
         if(!actionHistory||animation||actionPointer||actionKeys)return;
-        actionHistory.commit(captureActionState());syncActionUndo();
+        if(actionHistory.commit(captureActionState())&&preserveShotRedo!==true)redoStack=[];
+        syncActionUndo();
     }
     function beginActionUndo(){
         if(!actionHistory||animation)return;
         if(!actionHistory.pending)actionHistory.begin(captureActionState());
     }
+    function restoreActionState(snapshot){
+        undoStack=snapshot.undo.slice();runHistory=snapshot.history.slice();redoStack=(snapshot.redo||[]).slice();
+        restoreSnapshot(snapshot.state);updateRunCount();saveState();syncProjector();syncActionUndo();
+    }
     function undoLastAction(){
         if(animation||!actionHistory)return;
         actionPointer=false;actionKeys=false;finishActionUndo();
-        const before=actionHistory.undo();if(!before){toast('No action to undo');return;}
-        undoStack=before.undo.slice();runHistory=before.history.slice();
-        restoreSnapshot(before.state);updateRunCount();saveState();syncProjector();syncActionUndo();
-        toast('Last action restored');
+        const before=actionHistory.undo(captureActionState());if(!before){toast('No action to undo');return;}
+        restoreActionState(before);toast('Last action restored');
+    }
+    function redoLastAction(){
+        if(animation||!actionHistory)return;
+        actionPointer=false;actionKeys=false;finishActionUndo();
+        const after=actionHistory.redo(captureActionState());if(!after){toast('No action to redo');return;}
+        restoreActionState(after);toast('Last action redone');
     }
     function installActionUndo(){
         actionHistory=window.BilliardsActionHistory.create(60);
-        const relevant=e=>e.target instanceof Element&&!!e.target.closest('#app,#zenBar,#zenRack,#zenRackMenu,.zen-hover-panel');
-        const excluded=e=>document.body.classList.contains('play-mode')||!!e.target.closest?.('#undoAction,#zenUndoAction');
+        const relevant=e=>e.target instanceof Element&&!!e.target.closest('#app,#zenBar,#zenRack,#zenRackMenu,#zenFreshTable,#zenEdgeControls,.zen-hover-panel');
+        const excluded=e=>document.body.classList.contains('play-mode')||!!e.target.closest?.('#undoAction,#redoAction,#undoShot,#redoShot,#zenUndoAction,#zenShotHistory,.zen-history-menu,.zen-history-trigger');
         const later=delay=>{clearTimeout(actionUndoTimer);actionUndoTimer=setTimeout(finishActionUndo,delay);};
         document.addEventListener('pointerdown',e=>{if(e.button!==0||!relevant(e)||excluded(e)||animation)return;actionPointer=false;actionKeys=false;finishActionUndo();beginActionUndo();actionPointer=true;},true);
         document.addEventListener('pointerup',()=>{actionPointer=false;later(0);});
@@ -2043,7 +2078,7 @@
         document.addEventListener('change',e=>{if(relevant(e))later(0);});
         document.addEventListener('wheel',e=>{if(!relevant(e)||animation)return;beginActionUndo();later(300);}, {capture:true,passive:true});
         document.addEventListener('keydown',e=>{
-            if(!document.body.classList.contains('play-mode')&&(e.ctrlKey||e.metaKey)&&!e.shiftKey&&e.key.toLowerCase()==='z'&&!e.target.matches?.('input:not([type=range]),textarea,[contenteditable=true]')){e.preventDefault();e.stopImmediatePropagation();undoLastAction();return;}
+            if(!document.body.classList.contains('play-mode')&&(e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&!e.target.matches?.('input:not([type=range]),textarea,[contenteditable=true]')){e.preventDefault();e.stopImmediatePropagation();if(e.shiftKey)redoLastAction();else undoLastAction();return;}
             if(excluded(e))return;
             if(!relevant(e)&&e.target!==document.body)return;
             if(!e.repeat){finishActionUndo();beginActionUndo();}actionKeys=true;
@@ -2051,7 +2086,8 @@
         document.addEventListener('keyup',()=>{actionKeys=false;later(0);});
         window.addEventListener('billiards:shot-complete',()=>{actionPointer=false;actionKeys=false;finishActionUndo();});
         $('undoAction').onclick=undoLastAction;
-        $('undoAction').addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')e.stopPropagation();});
+        $('redoAction').onclick=redoLastAction;
+        for(const id of ['undoAction','redoAction'])$(id).addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')e.stopPropagation();});
         syncActionUndo();
     }
     function cleanSnapshot(state = S) {
@@ -2069,7 +2105,7 @@
         refreshPreview();
     }
     function resetRunHistory() {
-        undoStack = [];
+        undoStack = []; redoStack = [];
         runHistory = [cleanSnapshot()];
         updateRunCount();
     }
@@ -2099,11 +2135,12 @@
         return e;
     }
     function returnPocketBall(id,q=null){
-        if(id<1||id>15||S.balls.some(b=>b.id===id))return;
+        if(id<(document.body.classList.contains('zen-mode')?0:1)||id>15||S.balls.some(b=>b.id===id))return;
         if(!q){for(let y=1;y<10&&!q;y++)for(let x=1;x<18;x++){const p={x:S.tableL*x/18,y:S.tableW*y/10};if(S.balls.every(b=>b.marker||Math.hypot(b.x-p.x,b.y-p.y)>S.ballR*2.2)){q=p;break;}}}
-        if(!q||!onPlayingSurface(q)||manualPocketAt(q)||S.balls.some(b=>!b.marker&&Math.hypot(b.x-q.x,b.y-q.y)<S.ballR*2)){toast('Drop on clear table cloth to return the ball');return;}
+        if(q&&onPlayingSurface(q))q=keepCueOnTable(q);
+        if(!q||!onPlayingSurface(q)||S.balls.some(b=>!b.marker&&Math.hypot(b.x-q.x,b.y-q.y)<S.ballR*2)){toast('Drop on clear table cloth to return the ball');return;}
         S.balls.push({id,n:String(id),x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR),active:true});S.pocketedLog=(S.pocketedLog||[]).filter(n=>n!==id);
-        normalizeBallSet();updateUI();refreshPreview();saveState();syncProjector();toast('Ball '+id+' returned to play');
+        normalizeBallSet();updateUI();refreshPreview();saveState();syncProjector();toast(id===0?'Cue ball returned to play':'Ball '+id+' returned to play');
     }
     function installPocketBallReturn(e,id){
         e.setAttribute('role','button');e.tabIndex=0;e.setAttribute('aria-label','Return ball '+id+' to table');e.title='Drag Ball '+id+' onto clear table cloth, or click to return';e.style.touchAction='none';e.style.cursor='grab';
@@ -2441,7 +2478,7 @@
         const copy=v=>JSON.parse(JSON.stringify(v,(key,value)=>key==='preview'?null:value));
         function capture(){return {state:copy(S),undo:copy(undoStack),history:copy(runHistory),name:$('layoutNameInput').value,quickName:$('layoutQuickName').value};}
         function refresh(){normalizeBallSet();updateUI();updateShot2UIState();updateRunCount();refreshPreview();saveState();syncProjector();}
-        function restore(saved){if(!saved?.state)return false;animation=null;S=copy(saved.state);undoStack=copy(saved.undo||[]);runHistory=copy(saved.history||[saved.state]);$('layoutNameInput').value=saved.name||'';$('layoutQuickName').value=saved.quickName||'';refresh();return true;}
+        function restore(saved){if(!saved?.state)return false;animation=null;redoStack=[];S=copy(saved.state);undoStack=copy(saved.undo||[]);runHistory=copy(saved.history||[saved.state]);$('layoutNameInput').value=saved.name||'';$('layoutQuickName').value=saved.quickName||'';refresh();return true;}
         function aimAt(id,pocket,from=cueBall()){
             const ball=S.balls.find(b=>b.id===id),px=pocket[0]*S.tableL,py=pocket[1]*S.tableW;
             const d=norm({x:px-ball.x,y:py-ball.y});return {x:ball.x-d.x*2*S.ballR,y:ball.y-d.y*2*S.ballR};
@@ -2562,11 +2599,26 @@
         save:saveState
     };
 
+    function freshZenTable(){
+        if(animation||!document.body.classList.contains('zen-mode'))return false;
+        beginActionUndo();
+        S.activeShot=1;S.shot2Enabled=false;S.balls=[];S.pocketedLog=[];S.allowMissingCueBall=true;
+        S.speed=2.42;S.follow=0;S.sideSpin=0;S.cueElevationDeg=0;S.airbornePhysics=false;S.freeAim={x:S.tableL*.75,y:S.tableW*.5};
+        normalizeBallSet();resetRunHistory();updateUI();refreshPreview();saveState();syncProjector();
+        return true;
+    }
+    function zenTableScreenBounds(){
+        const A=ZEN_ASSET_GEOM,frame=controlMap(),rect=canvas.getBoundingClientRect();
+        const point=(x,y)=>{const p=frame.map({x:(x-A.x0)/(A.x1-A.x0)*S.tableL,y:(y-A.y0)/(A.y1-A.y0)*S.tableW});return {x:rect.left+p.x*rect.width/(canvas.width/DPR),y:rect.top+p.y*rect.height/(canvas.height/DPR)};};
+        const top=point(230,56),bottom=point(1448,716);
+        return {left:top.x,top:top.y,right:bottom.x,bottom:bottom.y,cushionTop:point(839,98).y};
+    }
     window.billiardsZenControls={
-        enter(){S.activeShot=1;S.shot2Enabled=false;S.cueElevationDeg=0;S.airbornePhysics=false;updateUI();refreshPreview();},
+        enter(){S.activeShot=1;S.shot2Enabled=false;S.cueElevationDeg=0;S.airbornePhysics=false;normalizeBallSet();actionHistory=window.BilliardsActionHistory.create(60);updateUI();refreshPreview();syncActionUndo();},
         aim(degrees){if(!animation){S.activeShot=1;rotateAimMicro(degrees*Math.PI/180);}},
-        status(){return {busy:!!animation,undo:undoStack.length>0,undoAction:!!actionHistory?.count,tip:{...effectiveTipOffsetValues(S.sideSpin,S.follow),limit:PHYSICS_MODEL.maxTipOffsetR},balls:S.balls.filter(b=>b.active&&!b.marker).map(b=>b.id)};},
-        undoAction:undoLastAction,
+        status(){return {overlap:S.preview?.firstBallContact?.overlap||0,busy:!!animation,undo:undoStack.length>0,redo:redoStack.length>0,undoAction:!!actionHistory?.count,redoAction:!!actionHistory?.redoCount,tip:{...effectiveTipOffsetValues(S.sideSpin,S.follow),limit:PHYSICS_MODEL.maxTipOffsetR},balls:S.balls.filter(b=>b.active&&!b.marker).map(b=>b.id)};},
+        freshTable:freshZenTable,tableBounds:zenTableScreenBounds,shareTable(){saveState();},
+        undoAction:undoLastAction,redoAction:redoLastAction,undoShot:undoLastShot,redoShot:redoLastShot,
         tip(side,follow){
             if(animation)return;
             const magnitude=Math.max(1,Math.hypot(side,follow));
@@ -2580,7 +2632,7 @@
             if(Number.isFinite(clientX)&&Number.isFinite(clientY)){
                 const rect=canvas.getBoundingClientRect();
                 q=controlMap().inv({x:(clientX-rect.left)*(canvas.width/DPR)/rect.width,y:(clientY-rect.top)*(canvas.height/DPR)/rect.height});
-                if(!onPlayingSurface(q)||manualPocketAt(q))return false;
+                if(!onPlayingSurface(q))return false;
             }
             returnPocketBall(id,q);return S.balls.some(b=>b.id===id&&b.active);
         }
@@ -2645,16 +2697,17 @@
     }
 
     function saveState() { try {
-        localStorage.setItem('billiardTrainerState', JSON.stringify(Object.assign(Object.assign({}, S), { preview: null })));
+        localStorage.setItem(STATE_STORE_KEY, JSON.stringify(Object.assign(Object.assign({}, S), { preview: null })));
         if(runHistory.length&&(lastSavedHistory!==runHistory||lastSavedHistoryLength!==runHistory.length||lastSavedHistoryEnd!==runHistory.at(-1))){
-            localStorage.setItem('billiardTrainerProgress',JSON.stringify({history:runHistory.slice(-30)},(key,value)=>key==='preview'?null:value));lastSavedHistory=runHistory;lastSavedHistoryLength=runHistory.length;lastSavedHistoryEnd=runHistory.at(-1);
+            localStorage.setItem(PROGRESS_STORE_KEY,JSON.stringify({history:runHistory.slice(-30)},(key,value)=>key==='preview'?null:value));lastSavedHistory=runHistory;lastSavedHistoryLength=runHistory.length;lastSavedHistoryEnd=runHistory.at(-1);
         }
+        if(!isProjector)tableExchange.publish(S,TABLE_SOURCE);
         scheduleSessionFolder();
     }
     catch (e) { } }
     function restoreState() {
         try {
-            const x = JSON.parse(localStorage.getItem('billiardTrainerState') || 'null');
+            const x = JSON.parse(localStorage.getItem(STATE_STORE_KEY) || 'null');
             if (x && x.balls) {
                 S = Object.assign(Object.assign(Object.assign({}, defaultState()), x), { preview: null });
                 if (!S.freeAim)
@@ -2834,7 +2887,7 @@
         resetGameMeta('loose' + count);
         normalizeBallSet();
         S.firstEvent = '—';
-        undoStack = [];
+        undoStack = []; redoStack = [];
         runHistory = [cleanSnapshot()];
         updateUI();
         refreshPreview();
@@ -2861,7 +2914,7 @@
         resetGameMeta(mode || 'rack');
         normalizeBallSet();
         S.firstEvent = '—';
-        undoStack = [];
+        undoStack = []; redoStack = [];
         runHistory = [cleanSnapshot()];
         updateUI();
         refreshPreview();
@@ -2995,7 +3048,7 @@
         resetGameMeta('8ball');
         normalizeBallSet();
         S.firstEvent = '—';
-        undoStack = [];
+        undoStack = []; redoStack = [];
         runHistory = [cleanSnapshot()];
         updateUI();
         refreshPreview();
@@ -3107,9 +3160,13 @@
     }
     if (!isProjector) {
         restoreState();
+        // All experiences resume the most recently shared table. Empty tables
+        // are valid too: clearing in one mode clears the next mode's layout.
+        const shared=tableExchange.read();
+        if(shared){S=tableExchange.apply(S,shared);if(shared.source!==TABLE_SOURCE){S.activeShot=1;S.shot2Enabled=false;S.shot2Initialized=false;S.angleLock=false;S.ghostLock=null;S.bankKick=defaultState().bankKick;runHistory=[];undoStack=[];redoStack=[];localStorage.removeItem(PROGRESS_STORE_KEY);}}
         S.showTipBadge = false; // Start with a clear table; players may enable the badge in Options.
         normalizeBallSet();
-        try{const saved=JSON.parse(localStorage.getItem('billiardTrainerProgress')||'null');if(saved?.history?.length)runHistory=saved.history.filter(h=>h&&Array.isArray(h.balls)&&h.tableL===S.tableL&&h.tableW===S.tableW).slice(-30);undoStack=runHistory.slice(0,-1).map(h=>JSON.parse(JSON.stringify(h)));}catch(e){}
+        try{const saved=JSON.parse(localStorage.getItem(PROGRESS_STORE_KEY)||'null');if(saved?.history?.length)runHistory=saved.history.filter(h=>h&&Array.isArray(h.balls)&&h.tableL===S.tableL&&h.tableW===S.tableW).slice(-30);undoStack=runHistory.slice(0,-1).map(h=>JSON.parse(JSON.stringify(h)));}catch(e){}
 
     }
     function pocketModel() {
@@ -3877,7 +3934,7 @@
         }
         return best;
     }
-    function shotPowerState(which = 1) {
+    function shotPowerState(which = 1, includeFeel = true) {
         let preview, speed, follow;
         if (which === 2) {
             if (!S.shot2Enabled)
@@ -3925,8 +3982,8 @@
         const currentCueImpact = straightBallSpeedAfterDistance(speed, dCue, initialSpinRatio);
         const currentObjLaunch = currentCueImpact * transfer;
         const currentPocketArrival = straightBallSpeedAfterDistance(currentObjLaunch, dObj, 0);
-        const feel = powerFeelForSpeed(requiredCueStart);
-        const currentFeel = powerFeelForSpeed(speed);
+        const feel = includeFeel ? powerFeelForSpeed(requiredCueStart) : null;
+        const currentFeel = includeFeel ? powerFeelForSpeed(speed) : null;
         const ratio = requiredCueStart > 1e-6 ? speed / requiredCueStart : 0;
         let status = 'POCKET';
         if (currentPocketArrival < .045)
@@ -4400,7 +4457,7 @@
         const B = cloneBallsForPhysics();
         const cb = B.find(b => b.id === 0);
         if (!cb)
-            return { paths: {}, frames: [], firstEvent: '—', firstBallContact: null };
+            return { paths: {}, frames: [], firstEvent: '—', firstBallContact: null, pocketEvents:[],railEvents:[],finalBalls:[] };
         const aimD = aimDirection(), d = strikeDirection();
         const airborneMode = S.airbornePhysics === true;
         if (airborneMode) {
@@ -5033,6 +5090,7 @@
         saveState();
         syncProjector();
         draw();
+        publishZenAimFeedback();
     }
     function playPortraitTable(){return document.body.classList.contains('play-mode')&&document.getElementById('playRoot')?.classList.contains('play-table-expanded')&&innerHeight>innerWidth;}
     function resize() {
@@ -5060,7 +5118,19 @@
             return {map:p=>({x:ox+p.x*scale,y:oy+p.y*scale}),inv:p=>({x:(p.x-ox)/scale,y:(p.y-oy)/scale}),scale,corners:[{x:ox,y:oy},{x:ox+tw,y:oy},{x:ox+tw,y:oy+th},{x:ox,y:oy+th}]};
         }
 
-        const sidePad = !document.body.classList.contains('zen-mode') && document.body.classList.contains('phone-layout') ? (w < 600 ? 140 : 190) : pad;
+        if(!zen && document.body.classList.contains('phone-layout')) {
+            // Fit the OUTSIDE of the artwork between only the visible control banks.
+            // Reserving two banks for one shot needlessly shrank tablet layouts.
+            const A=ORIGINAL_ASSET_GEOM, landscape=w>h;
+            const left=landscape&&w>600?168:126, right=S.shot2Enabled?left:12;
+            const top=42,bottom=26,artW=S.tableL*A.width/(A.x1-A.x0),artH=S.tableW*A.height/(A.y1-A.y0);
+            const scale=Math.max(.01,Math.min((w-left-right)/artW,(h-top-bottom)/artH));
+            const ox=left+(w-left-right-artW*scale)/2+S.tableL*A.x0/(A.x1-A.x0)*scale;
+            const oy=top+(h-top-bottom-artH*scale)/2+S.tableW*A.y0/(A.y1-A.y0)*scale;
+            const tw=S.tableL*scale,th=S.tableW*scale;
+            return {map:p=>({x:ox+p.x*scale,y:oy+p.y*scale}),inv:p=>({x:(p.x-ox)/scale,y:(p.y-oy)/scale}),scale,corners:[{x:ox,y:oy},{x:ox+tw,y:oy},{x:ox+tw,y:oy+th},{x:ox,y:oy+th}]};
+        }
+        const sidePad = pad;
         const A=zen?ZEN_ASSET_GEOM:ORIGINAL_ASSET_GEOM;
         const scale = Math.max(.01, zen ? Math.min((w-64)/(S.tableL*A.width/(A.x1-A.x0)),(h-48)/(S.tableW*A.height/(A.y1-A.y0))) : Math.min((w - sidePad * 2) / S.tableL, (h - pad * 2) / S.tableW));
         const tw = S.tableL * scale, th = S.tableW * scale, ox = (w - tw) / 2, oy = (h - th) / 2;
@@ -5705,9 +5775,71 @@
 
     // Reference materials are rasterized once; live balls and physics stay separate.
     const ZEN_ASSET_GEOM={width:1678,height:937,x0:298,x1:1379,y0:120,y1:650};
+    const ZEN_POCKET_ART={
+        TL:{cx:290,cy:111,x:260,y:80,w:64,h:65},TM:{cx:839,cy:100,x:807,y:68,w:64,h:62},TR:{cx:1387,cy:111,x:1355,y:80,w:64,h:65},
+        BL:{cx:290,cy:660,x:260,y:628,w:64,h:65},BM:{cx:839,cy:674,x:807,y:642,w:64,h:62},BR:{cx:1387,cy:660,x:1355,y:628,w:64,h:65}
+    };
+    const ZEN_POCKET_FELT={
+        TL:{x:298,y:119,rx:78,ry:78,dx:Math.SQRT1_2,dy:Math.SQRT1_2},TM:{x:839,y:112,rx:58,ry:78,dx:0,dy:1},TR:{x:1379,y:119,rx:78,ry:78,dx:-Math.SQRT1_2,dy:Math.SQRT1_2},
+        BL:{x:298,y:652,rx:78,ry:78,dx:Math.SQRT1_2,dy:-Math.SQRT1_2},BM:{x:839,y:662,rx:58,ry:78,dx:0,dy:-1},BR:{x:1379,y:652,rx:78,ry:78,dx:-Math.SQRT1_2,dy:-Math.SQRT1_2}
+    };
+    let zenPocketMaskCache=null;
+    function tintZenPocketFelt(pixels,width,height,region,sourceX,sourceY){
+        let contrast=0,weight=0;
+        for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+            const i=(y*width+x)*4,r=pixels[i],g=pixels[i+1],b=pixels[i+2];
+            const px=x+sourceX-region.x,py=y+sourceY-region.y;
+            const along=px*region.dx+py*region.dy,across=-px*region.dy+py*region.dx;
+            const feather=Math.max(0,1-(along/66)**2-(across/46)**2);
+            const facing=Math.max(0,Math.min(1,(along+28)/40));
+            // One continuous white light field starts in the opening, crosses
+            // its curved lip and fades into the textured cloth. No rectangular
+            // cloth bounds or brightness cutoff can introduce a gap or seam.
+            const cloth=Math.max(0,Math.min(1,(g-r)/18));
+            const material=.28+.72*cloth;
+            pixels[i]=r+(255-r)*.32;pixels[i+1]=g+(255-g)*.32;pixels[i+2]=b+(255-b)*.32;
+            const alpha=.76*material*facing*facing*(3-2*facing)*feather*feather;
+            pixels[i+3]=Math.round(255*alpha);
+            // Compare the light on actual nearby cloth, excluding the hole and
+            // neutral hardware. Equalize relative luminance lift across pockets.
+            if(g-r>8&&g>30&&along>6&&along<48&&Math.abs(across)<30){
+                const luminance=.2126*r+.7152*g+.0722*b;
+                contrast+=alpha*.32*(255-luminance)/Math.max(24,luminance);weight++;
+            }
+        }
+        return weight?contrast/weight:0;
+    }
+    function zenPocketFeltMasks(){
+        const art=zenRecoloredTable();if(!art)return null;
+        if(zenPocketMaskCache?.art===art)return zenPocketMaskCache.masks;
+        const masks={},pending=[];
+        for(const [name,region]of Object.entries(ZEN_POCKET_FELT)){
+            const x=Math.floor(region.x-region.rx),y=Math.floor(region.y-region.ry),w=Math.ceil(region.rx*2),h=Math.ceil(region.ry*2);
+            const tile=document.createElement('canvas');tile.width=w;tile.height=h;
+            const paint=tile.getContext('2d',{willReadFrequently:true});paint.drawImage(art,x,y,w,h,0,0,w,h);
+            const data=paint.getImageData(0,0,w,h);
+            const contrast=tintZenPocketFelt(data.data,w,h,region,x,y);
+            pending.push({paint,data,contrast});masks[name]={tile,x,y,w,h};
+        }
+        const measured=pending.filter(p=>p.contrast>0);
+        const midpoint=measured.reduce((sum,p)=>sum+p.contrast,0)/Math.max(1,measured.length);
+        for(const {paint,data,contrast}of pending){
+            const gain=contrast>0?Math.max(.5,Math.min(1.8,midpoint/contrast)):1;
+            for(let i=3;i<data.data.length;i+=4)data.data[i]=Math.round(data.data[i]*gain);
+            paint.putImageData(data,0,0);
+        }
+        zenPocketMaskCache={art,masks};return masks;
+    }
+    function drawZenPocketFelt(paint,map,highlight){
+        const mask=zenPocketFeltMasks()?.[highlight.name];if(!mask)return;
+        const A=ZEN_ASSET_GEOM;
+        const point=(x,y)=>map({x:(x-A.x0)/(A.x1-A.x0)*S.tableL,y:(y-A.y0)/(A.y1-A.y0)*S.tableW});
+        const top=point(mask.x,mask.y),bottom=point(mask.x+mask.w,mask.y+mask.h);
+        paint.save();paint.globalAlpha=highlight.strength*.75*.875*(['TM','BM'].includes(highlight.name)?.8:1);paint.drawImage(mask.tile,top.x,top.y,bottom.x-top.x,bottom.y-top.y);paint.restore();
+    }
     let zenTableArtwork=null,zenTableFrame=null;
     const zenReferenceTable=new Image();
-    zenReferenceTable.onload=()=>{zenTableArtwork=zenReferenceTable;zenTableFrame=null;if(document.body.classList.contains('zen-mode')||document.body.classList.contains('play-mode'))draw();};
+    zenReferenceTable.onload=()=>{zenTableArtwork=zenReferenceTable;zenTableFrame=null;zenGuideFrame=null;zenPocketMaskCache=null;if(document.body.classList.contains('zen-mode')||document.body.classList.contains('play-mode'))draw();};
     if(new URLSearchParams(location.search).get('zen')==='1')zenReferenceTable.src='./icons/zen-reference-table-v1.webp';
     function zenRecoloredTable(){return zenTableArtwork;}
     function drawZenTable(map){
@@ -6145,16 +6277,75 @@
             }
         }
     }
+    function zenPathPower(){
+        // Use the same normalized C/P fills as the full trainer, without computing
+        // descriptive lag labels on every live aim frame.
+        const analysis=shotPowerState(1,false);
+        return {
+            stroke:clamp((S.speed-.25)/5.75,0,1),
+            cue:analysis?clamp(analysis.currentCueImpact/Math.max(.001,analysis.requiredCueImpact)/2,0,1):clamp((S.speed-.25)/5.75,0,1),
+            object:analysis?clamp(analysis.currentPocketArrival/Math.max(.001,analysis.pocketResidualTarget)/2,0,1):0
+        };
+    }
+    function zenPathGlow(power,channel){return power.stroke*(.4+.6*power[channel]);}
+    function zenPocketVisualCenter(pocket){
+        const center=ZEN_POCKET_ART[pocket.name],A=ZEN_ASSET_GEOM;
+        return {x:(center.cx-A.x0)/(A.x1-A.x0)*S.tableL,y:(center.cy-A.y0)/(A.y1-A.y0)*S.tableW};
+    }
+    function zenPocketAlignment(path,target,radius){
+        if(!path||path.length<2)return 0;
+        // Use the approach before the mouth/jaw interaction, rather than a final
+        // reflected segment that can suddenly point to the center of the hole.
+        const near=path.findIndex(p=>Math.hypot(p.x-target.x,p.y-target.y)<=radius*3);
+        const index=near>=0?near:path.length-1;
+        const end=path[index];let start=path[0];
+        for(let i=index-1;i>=0;i--)if(Math.hypot(end.x-path[i].x,end.y-path[i].y)>=radius*2){start=path[i];break;}
+        const dx=end.x-start.x,dy=end.y-start.y,length=Math.hypot(dx,dy);
+        if(length<1e-6||(target.x-end.x)*dx+(target.y-end.y)*dy<0)return 0;
+        const miss=Math.abs((target.x-start.x)*dy-(target.y-start.y)*dx)/length;
+        const fade=Math.max(0,1-miss/(radius*2.4));
+        return fade*fade*(3-2*fade);
+    }
+    function zenPocketHighlights(preview){
+        if(!preview)return [];
+        const ids=new Set(preview.pocketEvents?.map(event=>event.id)||[]);
+        if(preview.firstBallContact)ids.add(preview.firstBallContact.objId);
+        if(preview.paths?.[0]?.length)ids.add(0);
+        return logicalPockets().map(pocket=>{
+            const center=zenPocketVisualCenter(pocket);let strength=0;
+            for(const id of ids){
+                const event=preview.pocketEvents?.find(event=>event.id===id);
+                if(event&&nearestLogicalPocket(event).name!==pocket.name)continue;
+                const alignment=zenPocketAlignment(preview.paths?.[id],center,S.ballR);
+                // A jaw-assisted pot still gets a quiet indication; centered
+                // approaches smoothly turn up the same light like a dimmer.
+                const distance=Math.min(...(preview.paths?.[id]||[]).map(p=>Math.hypot(p.x-center.x,p.y-center.y)));
+                const proximity=clamp((S.ballR*5-distance)/(S.ballR*2),0,1);
+                strength=Math.max(strength,event ? .20+.80*alignment : alignment*proximity);
+            }
+            return {name:pocket.name,center,strength};
+        }).filter(highlight=>highlight.strength>0);
+    }
     let zenGuideFrame=null;
     function drawZenGuides(map){
-        if(drag&&['ball','ball2','aim','aim2'].includes(drag.kind))return;
+        if(drag&&['ball','ball2'].includes(drag.kind))return;
         if(!cueBall())return;
         const preview=S.preview,key=[canvas.width,canvas.height,DPR,S.tableL,S.tableW,S.ballR].join('|');
         if(!zenGuideFrame||zenGuideFrame.key!==key||zenGuideFrame.preview!==preview){
-            const raw=document.createElement('canvas');raw.width=canvas.width;raw.height=canvas.height;
-            const c=raw.getContext('2d');c.setTransform(DPR,0,0,DPR,0,0);c.lineCap='round';c.lineJoin='round';
-            const R=S.ballR,contact=preview?.firstBallContact;
+            const raw=zenGuideFrame?.key===key?zenGuideFrame.layer:document.createElement('canvas');
+            if(raw.width!==canvas.width||raw.height!==canvas.height){raw.width=canvas.width;raw.height=canvas.height;}
+            const c=raw.getContext('2d');c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,raw.width,raw.height);c.setTransform(DPR,0,0,DPR,0,0);c.lineCap='round';c.lineJoin='round';
+            const R=S.ballR,contact=preview?.firstBallContact,power=zenPathPower();
             const stroke=(points,width,color,dash=[])=>{if(!points||points.length<2)return;c.setLineDash(dash);c.beginPath();points.forEach((p,i)=>{const q=map(p);if(i)c.lineTo(q.x,q.y);else c.moveTo(q.x,q.y)});c.lineWidth=width;c.strokeStyle=color;c.stroke()};
+            const powerStroke=(points,alpha,intensity,color='255,255,255')=>{
+                const glowScale=2/3;
+                // Widen and brighten the feathered halo across the entire speed range.
+                // Layered strokes keep the live preview free of canvas blur filters.
+                stroke(points,4+10*intensity,`rgba(${color},${.05*intensity*glowScale})`);
+                stroke(points,2.75+5.25*intensity,`rgba(${color},${.075*intensity*glowScale})`);
+                stroke(points,1.75+2.25*intensity,`rgba(${color},${.10*intensity*glowScale})`);
+                stroke(points,1.25,`rgba(${color},${alpha*glowScale})`);
+            };
             c.save();const tl=map({x:0,y:0}),br=map({x:S.tableL,y:S.tableW});
             c.beginPath();c.rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y);
             let g=null,r=0;
@@ -6163,7 +6354,8 @@
             // Split at exact cushion events, sharing each endpoint between strokes.
             const path=preview?.paths?.[0]||[],rails=(preview?.railEvents||[]).filter(e=>e.id===0).slice().sort((a,b)=>a.t-b.t);
             let segment=[],hits=0,eventIndex=0;
-            const cueStroke=()=>stroke(segment,1.25,`rgba(255,255,255,${Math.max(.08,.22-.04*hits)})`);
+            const cueGlow=zenPathGlow(power,'cue');
+            const cueStroke=()=>powerStroke(segment,Math.max(.08,.14+.22*cueGlow-.04*hits),cueGlow*Math.max(.36,1-.16*hits));
             for(const point of path){
                 while(eventIndex<rails.length&&rails[eventIndex].t<=point.t){
                     const event=rails[eventIndex++];segment.push(event);cueStroke();hits++;segment=[event];
@@ -6174,11 +6366,13 @@
             if(contact){
                 const p=contact.cuePos,t={x:-contact.normal.y,y:contact.normal.x};
                 stroke([{x:p.x-t.x*R*7,y:p.y-t.y*R*7},{x:p.x+t.x*R*7,y:p.y+t.y*R*7}],1,'rgba(180,210,200,0.18)',[3,4]);
-                stroke(preview.paths?.[contact.objId],1.25,'rgba(255,255,255,0.14)');
+                const objectGlow=zenPathGlow(power,'object');
+                powerStroke(preview.paths?.[contact.objId],.10+.22*objectGlow,objectGlow,'210,185,145');
                 const roll=window.BilliardsPracticeTools?.rollingReference(contact,S);
                 if(roll)stroke([roll.start,roll.end],1,'rgba(255,255,255,0.14)',[2,4]);
             }
             c.restore();c.setLineDash([]);
+            for(const highlight of zenPocketHighlights(preview))drawZenPocketFelt(c,map,highlight);
             if(g){c.beginPath();c.arc(g.x,g.y,r,0,Math.PI*2);c.strokeStyle='rgba(255,255,255,0.20)';c.lineWidth=1;c.stroke();}
             const layer=raw;
             zenGuideFrame={key,preview,layer};
@@ -7321,7 +7515,7 @@
         jumpBtn.classList.toggle('visibilityOff', !S.airbornePhysics);
         updateStatsLayout();
         document.getElementById('panel').classList.toggle('dualMode', on);
-        // Keep the small add/remove Shot 2 control exactly as before.
+        // The full-width add/remove Shot 2 control sits above Execute Shot.
         $('toggleShot2').textContent = on ? '− SHOT 2' : '+ SHOT 2';
         // Symmetric full-width visibility controls live directly under each cue-ball box.
         [1,2].forEach(which => {
@@ -7381,6 +7575,7 @@
         updateMarkerZoneControls();draw();saveState();syncProjector();
     }
     function updateUI() {
+        syncHistoryButtons();
         syncCueElevationLimits();
         if (isProjector)
             return;
@@ -7549,7 +7744,7 @@
         if ($('aimControls')) $('aimControls').classList.toggle('activeAim', S.activeShot !== 2);
         if ($('aimControls2')) $('aimControls2').classList.toggle('activeAim', S.activeShot === 2 && S.shot2Enabled);
     }
-    function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, cuePreset:S.cuePreset, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showPracticeCounter:S.showPracticeCounter, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; S.balls[0].x = S.tableL * .23; S.balls[0].y = S.tableW * .5; S.balls[1].x = S.tableL * .64; S.balls[1].y = S.tableW * .5; S.balls[2].x = S.tableL * .79; S.balls[2].y = S.tableW * .30; S.freeAim = { x: S.tableL * .53, y: S.tableW * .5 }; resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
+    function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, cuePreset:S.cuePreset, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showPracticeCounter:S.showPracticeCounter, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; Object.assign(S,{balls:[],allowMissingCueBall:true,freeAim:{x:S.tableL*.75,y:S.tableW*.5},pocketedLog:[],nextId:1}); resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
     function keepCueOnTable(q){
         const gap=Math.max(S.ballR*2.2,.065),p={x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR)};
         for(const pocket of logicalPockets())if(Math.hypot(p.x-pocket.x,p.y-pocket.y)<gap){
@@ -7895,10 +8090,39 @@
             refreshPreview();
         }
     });
+    function publishZenAimFeedback(){
+        if(document.body.classList.contains('zen-mode'))window.dispatchEvent(new CustomEvent('billiards:zen-preview',{detail:{overlap:S.preview?.firstBallContact?.overlap||0}}));
+    }
+    function finishDraggedBall(id,q){
+        const ball=S.balls.find(b=>b.id===id&&!b.marker);
+        if(!ball)return;
+        if(document.body.classList.contains('zen-mode')&&q.y>S.tableW){returnZenBallToTray(id);return;}
+        const point=keepCueOnTable(q);
+        if(id===0&&S.angleLock)S.freeAim={x:S.freeAim.x+point.x-ball.x,y:S.freeAim.y+point.y-ball.y};
+        Object.assign(ball,point);
+    }
+    function returnZenBallToTray(id){
+        const ball=S.balls.find(b=>b.id===id&&!b.marker);
+        if(!ball||id<0||id>15)return false;
+        if(id===0)S.allowMissingCueBall=true;
+        S.balls=S.balls.filter(b=>b!==ball);
+        S.pocketedLog=[...new Set([...(S.pocketedLog||[]),id])];
+        normalizeBallSet();updateUI();
+        return true;
+    }
     let zenDragFrame=0;
     function requestZenDragPaint(){
         if(zenDragFrame)return;
-        zenDragFrame=requestAnimationFrame(()=>{zenDragFrame=0;draw();});
+        zenDragFrame=requestAnimationFrame(()=>{
+            zenDragFrame=0;
+            // Coalesce aim changes to one live prediction per frame. Ball dragging
+            // stays solver-free; metrics and persistence still wait for release.
+            if(drag&&['aim','aim2'].includes(drag.kind)){
+                S.preview=simulate(false);S.firstEvent=S.preview.firstEvent;publishZenAimFeedback();
+                if(S.shot2Enabled)ensureShot2().preview=simulateShot2();
+            }
+            draw();
+        });
     }
     function finishZenDragPaint(){
         if(zenDragFrame){cancelAnimationFrame(zenDragFrame);zenDragFrame=0;}
@@ -7949,7 +8173,8 @@
         else if (drag.kind === 'ball') {
             const b = S.balls.find(x => x.id === drag.id);
             if (b) {
-                if(b.id===0)Object.assign(q,keepCueOnTable(q));
+                if(!b.marker)Object.assign(q,keepCueOnTable(q));
+                if(document.body.classList.contains('zen-mode')&&!b.marker&&drag.dropPoint.y>S.tableW)q.y=drag.dropPoint.y;
                 if (b.id === 0 && S.angleLock) {
                     const dx = q.x - b.x, dy = q.y - b.y;
                     S.freeAim = { x: S.freeAim.x + dx, y: S.freeAim.y + dy };
@@ -7984,24 +8209,17 @@
     });
     canvas.addEventListener('pointerup', ev => {
         const zenGesture=document.body.classList.contains('zen-mode')&&drag&&['ball','ball2','aim','aim2'].includes(drag.kind);
-        if (drag && drag.kind === 'ball')
-            removeMarkerInPocket(drag.id,controlMap().inv(pointerPos(ev)));
-        if (drag && (drag.kind === 'ball' || drag.kind === 'ball2')) {
-            const q = controlMap().inv(pointerPos(ev));
-            const pocket = manualPocketAt(q);
-            const ball = drag.kind === 'ball' ? S.balls.find(b => b.id === drag.id && !b.marker) : null;
-            if (pocket && ball && ball.id>=1 && ball.id<=15) {
-                animation = null;
-                const id = drag.kind === 'ball2' ? -2 : ball.id;
-                if (id === -2) { S.shot2Enabled=false; S.activeShot=1; }
-                else {
-                    if (id === 0) S.allowMissingCueBall=true;
-                    S.balls=S.balls.filter(b=>b.id!==id);
-                }
-                S.pocketedLog=[...new Set([...(S.pocketedLog||[]),id])];
-                normalizeBallSet(); updateUI(); refreshPreview();
-                toast((id===0?'Cue ball 1':id===-2?'Cue ball 2':'Ball '+id)+' pocketed');
+        if(zenGesture&&['aim','aim2'].includes(drag.kind)){
+            const q=controlMap().inv(pointerPos(ev));
+            if(onPlayingSurface(q)){
+                const shot=drag.kind==='aim2'?ensureShot2():S;
+                shot.freeAim={x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR)};
             }
+        }
+        if (drag && drag.kind === 'ball'){
+            const q=controlMap().inv(pointerPos(ev));
+            removeMarkerInPocket(drag.id,q);
+            finishDraggedBall(drag.id,q);
         }
         if (drag && drag.kind === 'compassMove') {
             const c = compassState();
@@ -8285,12 +8503,12 @@
         // before Shot 1 is committed.  At the end of the animation this Shot 2 plan
         // becomes the new Shot 1, while Shot 2 itself is hidden.
         const shot2Handoff = S.shot2Enabled ? JSON.parse(JSON.stringify(ensureShot2())) : null;
-        const finalFrame = sim.frames[sim.frames.length - 1];
+        const finalFrame = sim.finalBalls || sim.frames[sim.frames.length - 1];
         // Determine actual pocketing order from animation frames, not ball number.
         const pocketFrame = new Map();
         for (let fi = 0; fi < sim.frames.length; fi++) {
             for (const fb of sim.frames[fi]) {
-                if (fb.id !== 0 && !fb.active && !pocketFrame.has(fb.id))
+                if (!fb.active && !pocketFrame.has(fb.id))
                     pocketFrame.set(fb.id, fi);
             }
         }
@@ -8306,6 +8524,7 @@
             // If it scratches, restore its pre-shot location instead of leaving the next
             // shot with the cue ball sitting inside a pocket capture region.
             if (b.id === 0) {
+                if(!f.active&&document.body.classList.contains('zen-mode')){S.allowMissingCueBall=true;removed.push(0);return false;}
                 if (f.active) {
                     if (S.angleLock) {
                         const dx = f.x - b.x, dy = f.y - b.y;
@@ -8397,6 +8616,7 @@
         }
         normalizeBallSet();
         // The shot just committed can be reverted exactly.
+        redoStack=[];
         undoStack.push(preShot);
         runHistory.push(cleanSnapshot());
         animation = null;
@@ -8431,6 +8651,7 @@
         const start = performance.now();
         const fps = 60;
         animation = { current: sim.frames[0] };
+        syncHistoryButtons();
         const runningAnimation = animation;
         function tick(now) {
             if (animation !== runningAnimation) return;
@@ -8446,21 +8667,28 @@
         }
         requestAnimationFrame(tick);
     }
+    function captureShotHistoryState(){
+        return {state:cleanSnapshot(),undo:undoStack.slice(),history:runHistory.slice()};
+    }
     function undoLastShot() {
-        if (animation)
-            return;
-        if (!undoStack.length) {
-            toast('No saved shot to undo');
-            return;
-        }
-        const snap = undoStack.pop();
-        if (runHistory.length > 1)
-            runHistory.pop();
-        restoreSnapshot(snap);
-        saveState();
-        syncProjector();
-        toast('Last shot restored');
+        if(animation)return;
+        if(!undoStack.length){toast('No saved shot to undo');return;}
+        actionPointer=false;actionKeys=false;finishActionUndo();beginActionUndo();
+        redoStack.push(captureShotHistoryState());if(redoStack.length>60)redoStack.shift();
+        const snap=undoStack.pop();if(runHistory.length>1)runHistory.pop();
+        restoreSnapshot(snap);updateRunCount();saveState();syncProjector();
+        finishActionUndo(true);toast('Last shot restored');
         window.dispatchEvent(new CustomEvent('billiards:undo-complete'));
+    }
+    function redoLastShot(){
+        if(animation)return;
+        actionPointer=false;actionKeys=false;finishActionUndo();
+        if(!redoStack.length){toast('No saved shot to redo');return;}
+        beginActionUndo();
+        const after=redoStack.pop();undoStack=after.undo.slice();runHistory=after.history.slice();
+        restoreSnapshot(after.state);updateRunCount();saveState();syncProjector();
+        finishActionUndo(true);toast('Last shot redone');
+        window.dispatchEvent(new CustomEvent('billiards:redo-complete'));
     }
     function saveRun() {
         if (!runHistory.length)
@@ -8485,6 +8713,7 @@
                 toast('No saved run found');
                 return;
             }
+            redoStack=[];
             runHistory = payload.states.map(x => JSON.parse(JSON.stringify(x)));
             // Rebuild Undo from every state preceding the final state.
             undoStack = runHistory.slice(0, -1).map(x => JSON.parse(JSON.stringify(x)));
@@ -12039,6 +12268,7 @@
             animateShot();
         };
         $('undoShot').onclick = undoLastShot;
+        $('redoShot').onclick = redoLastShot;
         $('resetLayoutQuick').onclick = resetLayout;
         $('makeRandomSetup').onclick = createRandomSetup;
         $('startFullRack').onclick = startFullRack;
@@ -12387,19 +12617,9 @@
 
 <script>
 if ('serviceWorker' in navigator) {
-  let swRefreshing = false;
-  let swHadController = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (swRefreshing) return;
-    // Initial cache activation needs no reload. Never interrupt narration or a shot.
-    if (!swHadController) { swHadController = true; return; }
-    const guideState = window.billiardsPoolGuide?.getState();
-    if (guideState?.enabled || guideState?.exploring ||
-        document.getElementById('photoAnalyzerModal')?.classList.contains('open') ||
-        window.billiardsTourBridge?.snapshot().busy) return;
-    swRefreshing = true;
-    window.location.reload();
-  });
+  // A newly activated worker takes over caching without reloading the open
+  // table. Apply new page code on the next user-initiated navigation/reload;
+  // background updates must never discard a shot or a newly arranged Zen rack.
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./service-worker.js')
       .then(reg => reg.update())
@@ -12421,7 +12641,7 @@ if ('serviceWorker' in navigator) {
     </div>
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=guided-cues-v1">
-  <script src="./phone-play.js?v=universal-modes-v1"></script>
+  <script src="./phone-play.js?v=zen-recovery-v12"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=shaped-guides-v2">
@@ -12441,8 +12661,8 @@ if ('serviceWorker' in navigator) {
   <script src="./play-catalog.js?v=catalog-v1"></script>
   <script src="./play-engine.js?v=catalog-v1"></script>
   <script src="./play-presentation.js?v=play-room-v1"></script>
-  <link rel="stylesheet" href="./experience-menu.css?v=5">
-<script src="./experience-menu.js?v=7"></script>
+  <link rel="stylesheet" href="./experience-menu.css?v=6">
+<script src="./experience-menu.js?v=8"></script>
 <script src="./play-mode.js?v=experience-navigation-v2"></script>
   <script src="./beta-config.js?v=1"></script>
   <script src="./beta-ui.js?v=experience-icons-v2"></script>

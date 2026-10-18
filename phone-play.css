@@ -121,3 +121,31 @@ body.phone-layout .aimControlRow,body.phone-layout .tableSpeedControl,body.phone
  body.phone-layout #phoneTip1 { left:calc(50px + env(safe-area-inset-left)); }
  body.phone-layout #phoneTip2 { right:calc(50px + env(safe-area-inset-right)); }
 }
+
+/* Keep the footer usable at tablet display scaling, independent of table width. */
+body.phone-layout:not(.projector) #phoneActions {
+ left:116px;right:8px;width:auto;overflow-x:auto;justify-content:flex-start;
+}
+body.phone-layout.phone-two-shots:not(.projector) #phoneActions { right:116px; }
+body.phone-layout #phoneActions button { flex:1 0 48px;white-space:nowrap; }
+body.phone-layout #phoneActions button[hidden] { display:none; }
+body.phone-layout #btZenLauncher { left:6px!important;bottom:10px!important;width:32px!important;height:32px!important; }
+body.phone-layout #btZenLauncher svg { width:26px!important;height:26px!important; }
+body.phone-layout #phoneTip1 { left:44px; }
+body.phone-layout #phoneTip2 { right:44px; }
+@media(max-width:600px) and (orientation:landscape) {
+ body.phone-layout #tableSpeed1Wrap { left:44px!important; }
+ body.phone-layout #bottomSpin1 { left:82px!important; }
+ body.phone-layout #aimControls2 { left:calc(100% - 118px)!important; }
+ body.phone-layout #tableSpeed2Wrap { left:calc(100% - 80px)!important; }
+ body.phone-layout #bottomSpin2 { left:calc(100% - 42px)!important; }
+ body.phone-layout #kickToolToggle,body.phone-layout #bankToolToggle { font-size:10px;min-width:42px;padding:0 6px;height:32px; }
+}
+@media(max-height:400px) and (orientation:landscape) {
+ body.phone-layout .aimControlRow,body.phone-layout .tableSpeedControl,body.phone-layout .bottomSpinGroup { height:calc(100% - 64px)!important; }
+ body.phone-layout .bottomSpinGroup { gap:6px; }
+ body.phone-layout .tableSpeedControl,body.phone-layout .miniSpinControl { padding-top:29px;padding-bottom:3px; }
+ body.phone-layout .phoneSliderValue { top:16px;font-size:9px;line-height:11px; }
+ body.phone-layout .tableSpeedLabel,body.phone-layout .miniSpinLabel { top:3px; }
+ body.phone-layout .speedTickScale { top:31px;bottom:7px; }
+}

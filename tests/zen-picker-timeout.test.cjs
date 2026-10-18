@@ -1,0 +1,6 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const src=fs.readFileSync('zen-mode.js','utf8');const start=src.indexOf('const zenPopoverStates='),end=src.indexOf('let zenSceneFade=',start);let now=0,id=0;const timers=new Map();const c={WeakMap,setTimeout(fn,ms){timers.set(++id,{fn,at:now+ms});return id},clearTimeout(id){timers.delete(id)}};vm.createContext(c);vm.runInContext(src.slice(start,end),c);
+const advance=ms=>{now+=ms;for(const [id,t]of [...timers])if(t.at<=now){timers.delete(id);t.fn()}};
+for(const name of ['rack','history']){let closed=0;const events={},panel={classList:{contains:()=>true},addEventListener:(type,fn)=>events[type]=fn};const timer=c.bindZenPopoverTimeout(panel,()=>closed++);timer.arm();advance(9999);assert.equal(closed,0);events.pointerdown();advance(9999);assert.equal(closed,0,'Interaction renews '+name+' timer');advance(1);assert.equal(closed,1,name+' closes at ten inactive seconds');timer.arm();timer.cancel();advance(10001);assert.equal(closed,1,'Manual close cancels timer');}
+assert(src.includes('bindZenPopoverTimeout(historyTool.panel,historyTool.close)'));assert(src.includes('bindZenPopoverTimeout(rackMenu,closeRackMenu)'));
+console.log('Rack and history pickers: ten-second inactivity timeout, renewal on interaction and cancellation on close pass.');
