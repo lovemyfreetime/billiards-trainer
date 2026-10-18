@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'windows-wrapper/**'
+      - 'icons/icon-512.png'
       - '.github/workflows/build-windows-wrapper.yml'
 
 permissions:
@@ -52,17 +53,19 @@ jobs:
           & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' 'windows-wrapper\installer.iss'
 
       - name: Publish current Windows installer
+        env:
+          BUILD_BRANCH: ${{ github.ref_name }}
         shell: pwsh
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git pull --rebase origin main
+          git pull --rebase origin $env:BUILD_BRANCH
           New-Item -ItemType Directory -Force downloads | Out-Null
           Copy-Item 'windows-wrapper/output/Billiards-Trainer-Windows-Setup.exe' 'downloads/Billiards-Trainer-Windows-Setup.exe' -Force
           git add -f downloads/Billiards-Trainer-Windows-Setup.exe
           if (-not (git diff --cached --quiet)) {
             git commit -m 'Publish Windows wrapper installer'
-            git push origin HEAD:main
+            git push origin "HEAD:$env:BUILD_BRANCH"
           } else {
             Write-Host 'Published Windows installer is already current.'
           }
