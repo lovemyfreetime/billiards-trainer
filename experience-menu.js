@@ -15,7 +15,6 @@ window.BilliardsExperienceMenu=function({current,beforeNavigate=()=>true}={}){
   a.onclick=e=>{if(beforeNavigate(mode)===false)e.preventDefault();};menu.append(a);
  }
  toggle.onclick=()=>{if(menu.matches(':popover-open')){menu.hidePopover();return;}menu.showPopover();const r=toggle.getBoundingClientRect(),v=visualViewport,h=v?.height||innerHeight,w=v?.width||innerWidth;menu.style.left=Math.max(8,Math.min(r.left,w-menu.offsetWidth-8))+'px';menu.style.top=Math.max(8,Math.min(r.top-menu.offsetHeight-8,h-menu.offsetHeight-8))+'px';};
- if(current!=='zen'){wrap.classList.add('experience-direct');const links=[...menu.children];links.sort((a,b)=>(a.dataset.experience==='zen'?-1:1));wrap.append(...links);return wrap;}
  menu.addEventListener('toggle',()=>toggle.setAttribute('aria-expanded',String(menu.matches(':popover-open'))));wrap.append(toggle,menu);return wrap;
 };
 })();

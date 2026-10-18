@@ -1,11 +1,11 @@
-const CACHE_NAME = 'billiards-trainer-4-12-experience-navigation-v116';
+const CACHE_NAME = 'billiards-trainer-4-12-round-lotus-v117';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './play.html',
   './icons/play-experience-v1.webp',
   './icons/trainer-original-execute-v2.svg',
-  './experience-menu.js?v=5',
-  './experience-menu.css?v=3',
+  './experience-menu.js?v=6',
+  './experience-menu.css?v=4',
   './play-viewport.js?v=android-play-v1',
   './play-catalog.js?v=catalog-v1',
   './play-engine.js?v=catalog-v1',
