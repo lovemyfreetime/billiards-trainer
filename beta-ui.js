@@ -97,7 +97,7 @@
     setupFeedback(cfg);
     if(!document.getElementById("app")) return;
     setupZenLauncher();
-    const zenScript=document.createElement('script');zenScript.src='./zen-mode.js?v=experience-order-v57';document.body.appendChild(zenScript);
+    const zenScript=document.createElement('script');zenScript.src='./zen-mode.js?v=direct-zen-entry-v58';document.body.appendChild(zenScript);
   }
 
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded",init,{once:true});

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-installer-experiences-v154';
+const CACHE_NAME = 'billiards-trainer-4-12-experience-polish-v156';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './welcome.html',
@@ -11,14 +11,14 @@ const APP_SHELL = [
   './play-catalog.js?v=catalog-v1',
   './play-engine.js?v=catalog-v1',
   './play-presentation.js?v=play-room-v1',
-  './play-mode.js?v=catalog-entry-v3',
-  './play-mode.css?v=catalog-scroll-v1',
+  './play-mode.js?v=catalog-header-v4',
+  './play-mode.css?v=catalog-header-v2',
 
   './trainer-action-history.js?v=2',
   './trainer-table-exchange.js?v=1',
   './icons/zen-reference-table-v1.webp',
-  './zen-mode.js?v=experience-order-v57',
-  './beta-ui.js?v=experience-entry-v152',
+  './zen-mode.js?v=direct-zen-entry-v58',
+  './beta-ui.js?v=direct-zen-entry-v156',
   './index.html',
   './trainer-practice-tools.js?v=3',
   './guide/audio-startup.js?v=native-warmup-v22',
