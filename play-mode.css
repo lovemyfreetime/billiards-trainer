@@ -64,3 +64,6 @@ body.play-mode #playRoot{font-size:14px;line-height:1.35;height:var(--play-heigh
 
 /* Keep the room title and saved-game entry visible above the catalog. */
 .play-catalog-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:12px}#playDialog .play-catalog-heading h2{font-size:clamp(23px,3vw,32px);margin:0;color:#f2eee6}#playRoot #playResume{width:clamp(150px,18vw,230px);min-height:98px;padding:14px 20px;border:1px solid #9ee9b3;border-bottom:3px solid #76d996;border-radius:12px;background:linear-gradient(145deg,#3d9d67,#216544);color:#fff;font-size:18px;font-weight:800;box-shadow:0 5px 20px #0004}#playRoot #playResume:hover{filter:brightness(1.12)}#playDialog.play-catalog-compact #playResume{min-height:78px;width:calc(50% - 4px);max-width:230px;font-size:16px}.play-catalog-heading>h2{flex:1;min-width:0}
+
+/* Tournament Night is part of the Play room, with its own director desk. */
+.play-tournament-link{display:inline-block;color:#10151c!important;background:#e9c787;border:1px solid #e9c787;border-radius:9px;padding:9px 13px;text-decoration:none;font:600 14px system-ui,sans-serif;white-space:normal}.play-tournament-link:focus-visible{outline:3px solid #67dbe8;outline-offset:3px}.play-catalog-dialog>.play-tournament-link{margin:0 0 12px}.play-header nav{flex-wrap:wrap}

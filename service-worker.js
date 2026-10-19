@@ -1,10 +1,14 @@
-const CACHE_NAME = 'billiards-trainer-4-12-local-table-v159';
+const CACHE_NAME = 'billiards-trainer-4-12-tournament-live-v160';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './local-session.js?v=local-table-v1',
   './local-session.css?v=local-table-v1',
   './welcome.html',
   './play.html',
+  './tournament.html',
+  './tournament-engine.js?v=1',
+  './tournament-ui.js?v=1',
+  './tournament.css?v=1',
   './icons/play-experience-v1.webp',
   './icons/trainer-original-execute-v2.svg',
   './experience-menu.js?v=ordered-experiences-v9',
@@ -13,8 +17,8 @@ const APP_SHELL = [
   './play-catalog.js?v=catalog-v1',
   './play-engine.js?v=catalog-v1',
   './play-presentation.js?v=play-room-v1',
-  './play-mode.js?v=local-table-v5',
-  './play-mode.css?v=catalog-header-v2',
+  './play-mode.js?v=tournament-live-v1',
+  './play-mode.css?v=tournament-live-v1',
 
   './trainer-action-history.js?v=2',
   './trainer-table-exchange.js?v=1',
@@ -81,6 +85,7 @@ self.addEventListener('activate', event => {
 function navigationShell(url) {
   const path = new URL(url).pathname;
   if (path.endsWith('/welcome.html')) return './welcome.html';
+  if (path.endsWith('/tournament.html')) return './tournament.html';
   if (path.endsWith('/play.html')) return './play.html';
   return './index.html';
 }
