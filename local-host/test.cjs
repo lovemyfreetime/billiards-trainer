@@ -48,3 +48,5 @@ test('secret targets, saboteur identities, fleets and pending choices never cros
   }
  }
 });
+
+test('private voting follows the voter seat rather than the previous shooting seat',()=>{const s=E.create({game:'saboteur',names:['A','B','C','D'],mode:'real',seed:123});s.phase='vote';s.voteSeat=2;s.active=0;assert.equal(view(s,2).active,2);assert.deepEqual(view(s,2).actions,['vote']);assert.deepEqual(view(s,0).actions,[]);});

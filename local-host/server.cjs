@@ -10,7 +10,8 @@ function actor(s){return s.phase==='vote'?s.voteSeat:s.active;}
 function actions(s,seat){if(s.localPaused)return [];if(seat!==actor(s)||s.phase==='result')return [];if(s.game==='poker'&&s.phase==='choose')return ['choose'];if(s.phase==='vote')return ['vote'];if(s.phase==='fleet')return ['fleet-shuffle','fleet-lock'];if(s.game==='blackjack'&&s.phase==='ready')return ['stand'];return [];}
 function view(s,seat){
  if(!s)return null;
- const eligible=s.players.map((p,i)=>({p,i})).filter(({p})=>!(s.game==='killer'&&p.lives<=0)&&!(s.game==='horse'&&p.letters>=5)),next=eligible.find(({i})=>i>s.active)?.i??eligible[0]?.i??s.active;
+ const current=actor(s);
+ const eligible=s.players.map((p,i)=>({p,i})).filter(({p})=>!(s.game==='killer'&&p.lives<=0)&&!(s.game==='horse'&&p.letters>=5)),next=eligible.find(({i})=>i>current)?.i??eligible[0]?.i??current;
  const players=s.players.map((p,i)=>({id:i,name:p.name,stat:C.games[s.game]?C.stat(s,i):s.game==='killer'?`${p.lives} lives`:s.game==='poker'?`${p.hand.length} cards`:s.game==='ghost'?`${s.points?.[0]||0} – ${s.points?.[1]||0}`:`Balls ${i*5+1}–${i*5+5}`}));
  const p=s.players[seat],personal={};
  if(p){
@@ -21,7 +22,7 @@ function view(s,seat){
   if(s.game==='battleship'){personal.fleet=[...p.fleet];personal.attacks=(p.attacks||[]).map(cell=>({cell,hit:s.players[1-seat].fleet.includes(cell)}));}
   if(s.game==='blackjack')personal.total=C.total(p.hand);
  }
- return {game:s.game,paused:!!s.localPaused,name:E.games[s.game].name,rules:E.games[s.game].rules,phase:s.phase,round:s.round,rack:s.rack,shots:s.shots,active:s.active,next,players,last:s.last,result:s.result?{text:s.result.text}:null,you:seat,private:personal,actions:p?actions(s,seat):[]};
+ return {game:s.game,paused:!!s.localPaused,name:E.games[s.game].name,rules:E.games[s.game].rules,phase:s.phase,round:s.round,rack:s.rack,shots:s.shots,active:current,next,players,last:s.last,result:s.result?{text:s.result.text}:null,you:seat,private:personal,actions:p?actions(s,seat):[]};
 }
 function createHost({port=8788,bind='0.0.0.0',hostToken=secret(),addressProvider=addresses}={}){
  let invite=secret(),revision=0,state=null,match=0,lastHost=Date.now();const members=new Map(),queue=[],rates=new Map(),snapshots=new Set();let actualPort=port;
