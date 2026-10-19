@@ -200,7 +200,7 @@ function init(){
  }
  function clockStatus(){const box=$('playShotClock');box.hidden=!shotClock;if(!shotClock)return;const n=Math.ceil(T.remaining(shotClock,Date.now())/1000);box.textContent=`Shot clock · ${n}s${shotClock.deadline===null?' · paused':''}`;if(shotClock.deadline!==null&&lastClockSecond!==n){if([10,5,0].includes(n))speech(n===0?'Time.':`${n} seconds.`);lastClockSecond=n;}if(n===0&&shotClock.deadline!==null){shotClock.remaining=0;shotClock.deadline=null;shotClock.expired=true;saveTools();}}
  setInterval(clockStatus,200);
- const inputs=window.BilliardsInput.create({context:()=>({busy:bridge.busy(),paused,modal:dialog.open||!!toolDialog?.open,hidden:document.hidden,actor:state?.phase==='vote'?state.voteSeat:state?.active,revision:inputRevision}),feedback:r=>{if(r.source!=='touch'||!r.ok){$('playNotice').textContent=r.message;if(r.ok)navigator.vibrate?.(40);}},execute(command){
+ const inputs=window.BilliardsInput.create({context:()=>({busy:bridge.busy(),paused,modal:dialog.open||!!toolDialog?.open,hidden:document.hidden,actor:state?.phase==='vote'?state.voteSeat:state?.active,revision:inputRevision}),feedback:r=>{if(r.ok&&r.command==='engine'){if(r.source!=='touch')navigator.vibrate?.(40);return;}if(r.source!=='touch'||!r.ok){$('playNotice').textContent=r.message;if(r.ok)navigator.vibrate?.(40);}},execute(command){
   const type=command.type;
   if(type==='engine'){if(privacy)closeDialog();return commit(command.event,command.before);}
   if(type==='pause'||type==='resume'){const next=type==='pause';if(next===paused)return false;if(state?.game==='speed'&&state.timer&&next)commit({type:'interrupt'});paused=next;if(shotClock){shotClock=T.timer(shotClock,{type:'pause'},Date.now());saveTools();}stopSpeech();save();render();return;}

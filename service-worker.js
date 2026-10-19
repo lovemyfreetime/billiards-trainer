@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-play-narration-popups-v164';
+const CACHE_NAME = 'billiards-trainer-4-12-play-narration-popups-v165';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './play-narration-data.js?v=1',
@@ -26,7 +26,7 @@ const APP_SHELL = [
   './play-catalog.js?v=catalog-v1',
   './play-engine.js?v=ghost-stats-v2',
   './play-presentation.js?v=play-room-v1',
-  './play-mode.js?v=narration-popups-v2',
+  './play-mode.js?v=narration-popups-v3',
   './play-mode.css?v=narration-popups-v2',
 
   './trainer-action-history.js?v=2',
