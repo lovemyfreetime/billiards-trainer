@@ -24,8 +24,9 @@ function view(s,seat){
  }
  return {game:s.game,paused:!!s.localPaused,name:E.games[s.game].name,rules:E.games[s.game].rules,phase:s.phase,round:s.round,rack:s.rack,shots:s.shots,active:current,next,players,last:s.last,result:s.result?{text:s.result.text}:null,you:seat,private:personal,actions:p?actions(s,seat):[]};
 }
+const {createAudioQueue}=require('./audio-queue.cjs');
 function createHost({port=8788,bind='0.0.0.0',hostToken=secret(),addressProvider=addresses}={}){
- let invite=secret(),revision=0,state=null,match=0,lastHost=Date.now();const members=new Map(),queue=[],rates=new Map(),snapshots=new Set();let actualPort=port;
+ let invite=secret(),revision=0,state=null,match=0,lastHost=Date.now();const members=new Map(),queue=[],rates=new Map(),snapshots=new Set();let actualPort=port;const audio=createAudioQueue();
  const hosts=new Set(['127.0.0.1','localhost',...addressProvider()]);
  function fail(status,message){throw Object.assign(new Error(message),{status});}
  function send(res,status,obj){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify(obj));}
@@ -54,6 +55,14 @@ function createHost({port=8788,bind='0.0.0.0',hostToken=secret(),addressProvider
    if(route==='/api/player'&&req.method==='GET'){
     const m=member(req);send(res,200,{name:m.name,approved:m.seat!==null,revision,match,hostOnline:Date.now()-lastHost<12000,view:m.seat===null?null:view(state,m.seat)});return;
    }
+   if(route==='/api/audio'&&req.method==='POST'){
+    const m=member(req),b=await body(req);
+    if(b.done){audio.finish(m.id,b.id);send(res,200,{ok:true});return;}
+    if(!state||m.seat===null||state.localPaused||Date.now()-lastHost>=12000)fail(403,'Alerts are unavailable.');
+    if(b.revision!==revision)fail(409,'The table changed.');
+    if(typeof b.id!=='string'||b.id.length>80||!b.id)fail(400,'Invalid alert.');
+    send(res,200,audio.request(m.id,b.id,revision));return;
+   }
    if(route==='/api/action'&&req.method==='POST'){
     const m=member(req),b=await body(req);if(!state||m.seat===null||!actions(state,m.seat).includes(b.type))fail(403,'That action is not available for your seat.');
     if(b.revision!==revision||queue.some(e=>e.revision===revision))fail(409,'The table changed. Please wait for an update.');
@@ -72,17 +81,17 @@ function createHost({port=8788,bind='0.0.0.0',hostToken=secret(),addressProvider
     if(route==='/api/host/state'&&req.method==='POST'){
      const b=await body(req);if(b.id&&snapshots.has(b.id)){send(res,200,{revision,match});return;}const s=b.state;if(!s||!E.games[s.game]||!Array.isArray(s.players)||s.players.length<E.games[s.game].min||s.players.length>E.games[s.game].max||!s.players.every(p=>typeof p.name==='string'&&p.name.length<=28)||!Number.isInteger(s.active)||!s.players[s.active])fail(400,'Invalid game snapshot.');
      if(b.newGame){match++;for(const m of members.values())m.seat=null;queue.length=0;}
-     state=s;revision++;if(typeof b.id==='string'){snapshots.add(b.id);if(snapshots.size>256)snapshots.delete(snapshots.values().next().value);}for(let i=queue.length-1;i>=0;i--)if((b.ack||[]).includes(queue[i].id)||queue[i].revision<revision)queue.splice(i,1);send(res,200,{revision,match});return;
+     state=s;revision++;audio.invalidate();if(typeof b.id==='string'){snapshots.add(b.id);if(snapshots.size>256)snapshots.delete(snapshots.values().next().value);}for(let i=queue.length-1;i>=0;i--)if((b.ack||[]).includes(queue[i].id)||queue[i].revision<revision)queue.splice(i,1);send(res,200,{revision,match});return;
     }
     if(route==='/api/host/seat'&&req.method==='POST'){
      const b=await body(req),m=members.get(b.id);if(!m||m.revoked)fail(404,'Player not found.');if(b.seat!==null&&(!state?.players[b.seat]||!Number.isInteger(b.seat)))fail(400,'Choose a seat.');
-     if(b.seat!==null&&[...members.values()].some(other=>other!==m&&!other.revoked&&other.seat===b.seat))fail(409,'That seat is already assigned.');m.seat=b.seat;for(let i=queue.length-1;i>=0;i--)if(queue[i].memberId===m.id)queue.splice(i,1);send(res,200,{ok:true});return;
+     if(b.seat!==null&&[...members.values()].some(other=>other!==m&&!other.revoked&&other.seat===b.seat))fail(409,'That seat is already assigned.');audio.remove(m.id);m.seat=b.seat;for(let i=queue.length-1;i>=0;i--)if(queue[i].memberId===m.id)queue.splice(i,1);send(res,200,{ok:true});return;
     }
     if(route==='/api/host/remove'&&req.method==='POST'){
-     const b=await body(req),m=members.get(b.id);if(m)m.revoked=true;for(let i=queue.length-1;i>=0;i--)if(queue[i].memberId===b.id)queue.splice(i,1);send(res,200,{ok:true});return;
+     const b=await body(req),m=members.get(b.id);if(m){m.revoked=true;audio.remove(m.id);}for(let i=queue.length-1;i>=0;i--)if(queue[i].memberId===b.id)queue.splice(i,1);send(res,200,{ok:true});return;
     }
     if(route==='/api/host/end'&&req.method==='POST'){
-     await body(req);members.clear();queue.length=0;invite=secret();state=null;match++;revision++;send(res,200,{ok:true});return;
+     await body(req);members.clear();audio.invalidate();queue.length=0;invite=secret();state=null;match++;revision++;send(res,200,{ok:true});return;
     }
     if(route==='/api/host/ack'&&req.method==='POST'){
      const b=await body(req);for(let i=queue.length-1;i>=0;i--)if((b.ids||[]).includes(queue[i].id))queue.splice(i,1);send(res,200,{ok:true});return;

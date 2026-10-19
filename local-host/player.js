@@ -6,8 +6,41 @@ function node(tag,value,cls){const e=document.createElement(tag);e.textContent=v
 function clearPrivate(){revealed=false;$('private').hidden=true;$('private').replaceChildren();$('reveal').textContent='Show my private view';}
 async function api(route,data){const r=await fetch('/api/'+route,{method:data?'POST':'GET',headers:{...(data?{'Content-Type':'application/json'}:{}),...(token?{Authorization:'Bearer '+token}:{})},body:data?JSON.stringify(data):undefined,cache:'no-store'});const v=await r.json();if(!r.ok)throw Object.assign(Error(v.error||'Connection failed'),{status:r.status});return v;}
 $('join').onsubmit=async e=>{e.preventDefault();$('error').textContent='';try{const r=await api('join',{name:$('name').value,invite});token=r.token;sessionStorage.setItem(storeKey,token);await poll();}catch(err){$('error').textContent=err.message;}};
-function speak(message){if(!enabled||document.hidden)return;window.speechSynthesis?.cancel();if(window.speechSynthesis){const u=new SpeechSynthesisUtterance(message);u.rate=1;window.speechSynthesis.speak(u);}if($('vibrate').checked)navigator.vibrate?.([150,80,150]);}
-$('enableAlerts').onclick=()=>{enabled=!enabled;$('enableAlerts').textContent=enabled?'Turn alerts on · Tap to mute':'Enable turn alerts';if(enabled)speak('Turn alerts enabled.');else window.speechSynthesis?.cancel();};
+let announcement=null,alertSerial=0;
+function stopAnnouncement(){
+ const a=announcement;if(!a)return;announcement=null;clearTimeout(a.timer);window.speechSynthesis?.cancel();
+ api('audio',{id:a.id,done:true}).catch(()=>{});
+}
+function speak(message){
+ stopAnnouncement();if(!enabled||document.hidden||!current?.approved||!window.speechSynthesis)return;
+ const a={id:Date.now()+'-'+(++alertSerial),revision:current.revision,timer:null};announcement=a;
+ async function attempt(){
+  if(announcement!==a)return;
+  if(!enabled||document.hidden||!current.hostOnline||current.view?.paused||current.revision!==a.revision){stopAnnouncement();return;}
+  const sent=performance.now();
+  try{
+   const slot=await api('audio',{id:a.id,revision:a.revision});
+   if(announcement!==a){api('audio',{id:a.id,done:true}).catch(()=>{});return;}
+   if(!slot.granted){a.timer=setTimeout(attempt,250);return;}
+   // Subtract the entire round trip so a delayed response cannot extend a lease.
+   const budget=slot.remaining-(performance.now()-sent);
+   if(budget<1000){stopAnnouncement();return;}
+   const u=new SpeechSynthesisUtterance(message);u.rate=1;
+   u.onend=u.onerror=()=>{if(announcement===a)stopAnnouncement();};
+   a.timer=setTimeout(()=>{if(announcement===a)stopAnnouncement();},budget);
+   window.speechSynthesis.speak(u);if($('vibrate').checked)navigator.vibrate?.([150,80,150]);
+  }catch{if(announcement===a)stopAnnouncement();}
+ }
+ attempt();
+}
+$('enableAlerts').onclick=()=>{
+ enabled=!enabled;$('enableAlerts').textContent=enabled?'Turn alerts on · Tap to mute':'Enable turn alerts';
+ if(enabled){
+  // Unlock speech in the tap handler on mobile; the audible confirmation queues.
+  if(window.speechSynthesis){const unlock=new SpeechSynthesisUtterance('');window.speechSynthesis.speak(unlock);}
+  speak('Turn alerts enabled.');
+ }else stopAnnouncement();
+};
 if(!navigator.vibrate){$('vibrate').checked=false;$('vibrate').disabled=true;}
 function action(type,index){if(pendingAction)return;pendingAction=true;drawPrivate();api('action',{type,index,revision:current.revision}).then(()=>{$('error').textContent='Choice sent. Waiting for the host.';}).catch(err=>{pendingAction=false;$('error').textContent=err.message;drawPrivate();});}
 function actionButton(label,type,index){const b=node('button',label);b.type='button';b.disabled=pendingAction;b.onclick=()=>action(type,index);return b;}
@@ -20,15 +53,16 @@ function drawPrivate(){const s=current?.view;if(!s||!revealed)return;const p=s.p
  if(!Object.keys(p).length)box.append(node('p','This game has no secret information for your seat.'));
 }
 $('reveal').onclick=()=>{if(revealed)clearPrivate();else{revealed=true;$('private').hidden=false;$('reveal').textContent='Hide my private view';drawPrivate();}};
-function render(data){const old=current;current=data;if(old?.revision!==data.revision){pendingAction=false;$('error').textContent='';}
+function render(data){const old=current;current=data;if(old?.revision!==data.revision){stopAnnouncement();pendingAction=false;$('error').textContent='';}
  $('join').hidden=true;$('waiting').hidden=data.approved&&!!data.view;$('game').hidden=!data.approved||!data.view;$('connection').textContent=data.hostOnline?'Connected to your local table':'Host screen disconnected · waiting to reconnect';
- if(!data.approved||!data.view){clearPrivate();$('waitingName').textContent=data.name+', your request is with the host.';lastAlert=null;return;}
+ if(!data.hostOnline||data.view?.paused)stopAnnouncement();
+ if(!data.approved||!data.view){stopAnnouncement();clearPrivate();$('waitingName').textContent=data.name+', your request is with the host.';lastAlert=null;return;}
  const s=data.view;$('gameName').textContent=s.name;$('rules').textContent=s.rules;$('round').textContent='Round '+s.round+' · '+s.shots+' strokes recorded';$('notice').textContent=s.result?.text||s.last;
  const me=s.players[s.you],who=s.players[s.active];$('turn').textContent=s.paused?'Paused by your host':s.phase==='result'?'Game complete':s.active===s.you?me.name+', you’re at the table':who.name+' is at the table';$('turn').classList.toggle('mine',s.active===s.you&&s.phase!=='result'&&!s.paused);
  $('scores').replaceChildren(...s.players.map(p=>{const e=node('div','','score'+(p.id===s.active?' active':''));e.append(node('strong',p.name+(p.id===s.you?' · You':'')),node('span',p.stat));return e;}));
  const key=[data.match,s.round,s.shots,s.active,s.phase,s.paused].join(':');if(lastAlert!==null&&lastAlert!==key&&data.hostOnline&&!s.paused){const changed=old?.view?.active!==s.active,phaseChanged=old?.view?.phase!==s.phase;if(s.phase==='result'&&phaseChanged)speak(s.result?.text||'Game complete.');else if(s.active===s.you&&(changed||phaseChanged))speak(me.name+(s.phase==='choose'?', choose your card.':s.phase==='vote'?', your private vote is ready.':s.phase==='fleet'?', choose your fleet.':', it’s your turn.'));else if(s.next===s.you&&changed)speak(me.name+', you’re next in the player order.');}lastAlert=key;
  if(old?.match!==data.match||old?.view?.you!==s.you)clearPrivate();drawPrivate();
 }
-async function poll(){if(busy||document.hidden)return;if(!token){$('join').hidden=false;$('connection').textContent=invite?'Enter your name to join this table.':'Scan your host’s QR code to join.';$('join').querySelector('button').disabled=!invite;return;}busy=true;try{render(await api('player'));}catch(err){clearPrivate();$('connection').textContent='Disconnected · retrying';if(err.status===401){token=null;sessionStorage.removeItem(storeKey);$('game').hidden=true;$('waiting').hidden=true;$('join').hidden=false;$('error').textContent=err.message;}}finally{busy=false;}}
-window.addEventListener('blur',clearPrivate);document.addEventListener('visibilitychange',()=>{if(document.hidden){clearPrivate();window.speechSynthesis?.cancel();}else{lastAlert=null;poll();}});poll();setInterval(poll,1000);
+async function poll(){if(busy||document.hidden)return;if(!token){$('join').hidden=false;$('connection').textContent=invite?'Enter your name to join this table.':'Scan your host’s QR code to join.';$('join').querySelector('button').disabled=!invite;return;}busy=true;try{render(await api('player'));}catch(err){stopAnnouncement();clearPrivate();$('connection').textContent='Disconnected · retrying';if(err.status===401){token=null;sessionStorage.removeItem(storeKey);$('game').hidden=true;$('waiting').hidden=true;$('join').hidden=false;$('error').textContent=err.message;}}finally{busy=false;}}
+window.addEventListener('pagehide',stopAnnouncement);window.addEventListener('blur',clearPrivate);document.addEventListener('visibilitychange',()=>{if(document.hidden){clearPrivate();stopAnnouncement();}else{lastAlert=null;poll();}});poll();setInterval(poll,1000);
 })();

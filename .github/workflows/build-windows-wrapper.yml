@@ -79,7 +79,7 @@ jobs:
           $nodeLicense = Join-Path (Split-Path (Get-Command node).Source) 'LICENSE'
           if (Test-Path $nodeLicense) { Copy-Item $nodeLicense "$destination/NODE-LICENSE.txt" }
           Copy-Item play.html, play-mode.js, play-mode.css, play-engine.js, play-catalog.js, play-presentation.js, play-viewport.js, experience-menu.js, experience-menu.css, local-session.js, local-session.css $destination
-          Copy-Item local-host/server.cjs, local-host/player.html, local-host/player.js, local-host/player.css, local-host/package.json, local-host/package-lock.json, local-host/start.cjs "$destination/local-host"
+          Copy-Item local-host/audio-queue.cjs, local-host/server.cjs, local-host/player.html, local-host/player.js, local-host/player.css, local-host/package.json, local-host/package-lock.json, local-host/start.cjs "$destination/local-host"
           Copy-Item local-host/node_modules "$destination/local-host/node_modules" -Recurse
           Copy-Item icons/icon-192.png, icons/play-experience-v1.webp, icons/trainer-original-execute-v2.svg "$destination/icons"
           Copy-Item local-host/Start-Local-Play.cmd $destination

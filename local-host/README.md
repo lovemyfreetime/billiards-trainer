@@ -10,7 +10,7 @@ The first hosting release runs on Windows. Player screens run in Android, iPhone
 4. Open **Local table** to display the QR code. Choose the host's Wi-Fi address if more than one is listed.
 5. Connect each player phone to the same Wi-Fi, scan the QR, and enter a name. No account, password, player download, or cloud service is needed.
 6. On the host, select the matching game seat and choose **Approve player**. Only an approved seat receives that seat's private information.
-7. Players tap **Show my private view** for cards or secret assignments, and **Enable turn alerts** for spoken prompts. Keep player screens open and awake. Vibration is optional where the browser supports it.
+7. Players tap **Show my private view** for cards or secret assignments, and **Enable turn alerts** for spoken prompts. Keep player screens open and awake. Vibration is optional where the browser supports it. Player announcements take turns across devices, with a short pause between voices. Outdated announcements are dropped when the game changes.
 
 The host records pool shots and controls Undo. Player phones can make their own Poker Pool card choices, Blackjack Stand decisions, Battleship fleet choices, and Saboteur votes when that player's action is available. Requests go through the host game engine; players cannot change the score or claim another seat.
 

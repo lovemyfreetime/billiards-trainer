@@ -9,6 +9,7 @@ test('local room approvals, private projections, scoped decisions, revocation an
  const initial=await hostData();let state=E.create({game:'poker',names:['Jeff','Cindy'],mode:'real',seed:123});
  let posted=await api('host/state',host.hostToken,{state,newGame:true});assert.equal(posted.status,200);
  const jeff=await api('join',null,{invite:initial.invite,name:'Jeff',seat:0}),cindy=await api('join',null,{invite:initial.invite,name:'Cindy'});assert.equal(jeff.status,201);
+ assert.equal((await api('audio',jeff.token,{id:'pending',revision:posted.revision})).status,403);
  const pending=await api('player',jeff.token);assert.equal(pending.approved,false);assert.equal(pending.view,null);
  const people=(await hostData()).members;
  assert.equal((await api('host/seat',host.hostToken,{id:people[0].id,seat:0})).status,200);
@@ -17,6 +18,10 @@ test('local room approvals, private projections, scoped decisions, revocation an
  state=E.reduce(state,{type:'ready'});state=E.reduce(state,{type:'shot',potted:[1],made:true,rails:4});assert.equal(state.phase,'choose');
  posted=await api('host/state',host.hostToken,{state});
  const j=await api('player',jeff.token),c=await api('player',cindy.token);
+ assert.equal((await api('audio',jeff.token,{id:'stale',revision:posted.revision-1})).status,409);
+ assert.equal((await api('audio',jeff.token,{id:'jeff-alert',revision:posted.revision})).granted,true);
+ assert.equal((await api('audio',cindy.token,{id:'cindy-alert',revision:posted.revision})).granted,false);
+ await api('audio',jeff.token,{id:'jeff-alert',done:true});
  assert.deepEqual(j.view.private.choices,state.pending.map(E.cardLabel));assert(!c.view.private.choices);assert.deepEqual(c.view.private.hand,[]);
  for(const packet of [j,c]){assert(!('rng' in packet.view));assert(!('deck' in packet.view));assert(packet.view.players.every(p=>!('hand' in p)&&!('target' in p)&&!('fleet' in p)));}
  assert.equal((await api('action',cindy.token,{type:'choose',index:0,revision:posted.revision})).status,403);
@@ -50,3 +55,19 @@ test('secret targets, saboteur identities, fleets and pending choices never cros
 });
 
 test('private voting follows the voter seat rather than the previous shooting seat',()=>{const s=E.create({game:'saboteur',names:['A','B','C','D'],mode:'real',seed:123});s.phase='vote';s.voteSeat=2;s.active=0;assert.equal(view(s,2).active,2);assert.deepEqual(view(s,2).actions,['vote']);assert.deepEqual(view(s,0).actions,[]);});
+
+test('table audio serializes voices, leaves a gap, and recovers from a lost phone',()=>{
+ const {createAudioQueue}=require('./audio-queue.cjs');let clock=0;const q=createAudioQueue(()=>clock);
+ assert.equal(q.request('a','one',1).granted,true);
+ assert.equal(q.request('b','two',1).granted,false);
+ q.finish('b','one');assert.equal(q.request('b','two',1).granted,false,'Other players cannot release the speaking lease');
+ q.finish('a','one');clock=799;assert.equal(q.request('b','two',1).granted,false);
+ clock=800;assert.equal(q.request('b','two',1).granted,true);
+ clock=14000;assert.equal(q.request('a','three',1).granted,false);
+ clock=14800;assert.equal(q.request('a','three',1).granted,false,'Expired speech gets a recovery gap');
+ clock=15600;assert.equal(q.request('a','three',1).granted,true);
+ q.request('b','old',1);q.invalidate();q.finish('a','three');clock+=800;
+ assert.equal(q.request('c','fresh',2).granted,true,'A stale queue cannot block the new game');
+ q.request('b','removed',2);q.remove('b');q.finish('c','fresh');clock+=800;
+ assert.equal(q.request('a','next',2).granted,true);
+});
