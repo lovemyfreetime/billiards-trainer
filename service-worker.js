@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-tournament-live-v160';
+const CACHE_NAME = 'billiards-trainer-4-12-matching-lotus-v161';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './local-session.js?v=local-table-v1',
@@ -11,7 +11,7 @@ const APP_SHELL = [
   './tournament.css?v=1',
   './icons/play-experience-v1.webp',
   './icons/trainer-original-execute-v2.svg',
-  './experience-menu.js?v=ordered-experiences-v9',
+  './experience-menu.js?v=matching-lotus-v10',
   './experience-menu.css?v=6',
   './play-viewport.js?v=android-play-v1',
   './play-catalog.js?v=catalog-v1',
