@@ -33,3 +33,12 @@ This pass follows the requested order, sharing foundations between related featu
 - Android Play Java compiled with Android API 35 and pinned NanoHTTPD 2.3.1 / ZXing 3.5.3 sources.
 - Full Gradle APK build is delegated to the added CI workflow. Browser layout tests could not launch because this environment lacks the expected Playwright browser. No browser installation or substitute preview was used.
 - Physical Android speech/hotspot/remote tests and real table calibration trials are still required. These native and measurement-dependent items are not marked production-verified.
+
+
+## Play navigation and Chase narration update
+
+- Table tools has cyan Back to table controls at both ends. Matching return controls lead to the game catalog; tapping outside a popup dismisses it to the previous view.
+- Resume game is a compact control below the game grid, next to Clear saved game. Clearing requires confirmation, clears the saved game and shot history, and ends current LAN sharing; drills and tournament events stay.
+- 54 locally bundled Chase recordings at the established +30% setting cover the Play introduction, rules/setup for all 20 games, and tool/instruction sections. Speaker controls play/pause at the same position, stop on dismissal/backgrounding, and suppress voice commands during spoken audio. No secret cards, targets or votes are read aloud.
+- Final MP3s and source-text hash receipts live under `play-audio/`; the same audio is included in the offline web package and native packages. `scripts/build-play-narration.cjs` marks a changed script pending until its matching recording is installed.
+- Resume/clear behavior, speaker pause/resume and outside-tap handling are checked with automated tests and the deployed UI.

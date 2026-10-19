@@ -13,10 +13,10 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{cre
   const p1=await c1.newPage(),p2=await c2.newPage();for(const p of [p1,p2]){p.on('pageerror',e=>errors.push(e.message));await mockSpeech(p);}
   const invite=(await api()).invite;
   for(const [p,name]of [[p1,'Jeff'],[p2,'Cindy']]){await p.goto(base+'/join#invite='+invite);await p.getByLabel('Your name',{exact:true}).fill(name);await p.getByRole('button',{name:'Join table',exact:true}).click();await p.getByRole('heading',{name:'Waiting for your host',exact:true}).waitFor();assert.equal(await p.locator('#private').isVisible(),false);}
-  await host.locator('.play-header').getByRole('button',{name:'Local table',exact:true}).click();await host.locator('#localQR').waitFor({state:'visible'});
+  await host.locator('#playModeSwitch').getByRole('button',{name:'Local table',exact:true}).click();await host.locator('#localQR').waitFor({state:'visible'});
   for(const [name,seat]of [['Jeff','0'],['Cindy','1']]){const row=host.locator('.local-member').filter({has:host.locator('strong').filter({hasText:new RegExp('^'+name+' ·')})});await row.getByRole('combobox').selectOption(seat);await row.getByRole('button',{name:'Approve player',exact:true}).click();}
   for(const p of [p1,p2])await p.locator('#gameName').waitFor({state:'visible'});
-  await host.getByRole('dialog',{name:'Local table',exact:true}).getByRole('button',{name:'Close',exact:true}).click();
+  await host.getByRole('dialog',{name:'Local table',exact:true}).getByRole('button',{name:'Back to table',exact:true}).click();await host.getByRole('button',{name:'Resume game',exact:true}).click();
   await host.locator('#playAudio').click();
   await p1.getByRole('button',{name:'Enable turn alerts',exact:true}).click();
   await p2.getByRole('button',{name:'Enable turn alerts',exact:true}).click();

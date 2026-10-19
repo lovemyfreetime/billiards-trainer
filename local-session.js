@@ -55,7 +55,7 @@ function createDialog(){
   const list=el('section');list.id='localMembers';list.setAttribute('aria-label','Player joining requests');dialog.append(list);
   dialog.append(button('Share current game',()=>{sharing=true;newGame=true;publish(adapter?.getState());lastURLs='';poll();},'local-primary'),button('End sharing · disconnect players',async()=>{if(uploading){error('Wait for the current update, then try again.');return;}if(!confirm('Disconnect everyone from this local table?'))return;try{cancelSpeech();sharing=false;pending=null;await api('/end',{});lastURLs='';lastMembers='';error('Sharing ended. Share current game to invite players again.');}catch(e){error(e.message);}}));
  }
- const status=el('p');status.id='localError';status.setAttribute('role','status');dialog.append(status,button('Close',()=>dialog.close()));document.body.append(dialog);
+ const status=el('p');status.id='localError';status.setAttribute('role','status');dialog.append(status,button('Back to table',()=>{dialog.close();window.BilliardsPlayNavigation?.backToTable();},'play-return'));window.BilliardsNarration?.attach(dialog,'local-table-help');window.BilliardsNarration?.backdrop(dialog,()=>dialog.close());document.body.append(dialog);
 }
 async function qr(url){const img=document.getElementById('localQR'),label=document.getElementById('localJoinLink');if(!url){img.hidden=true;label.textContent='No local Wi-Fi address found. Connect this host to Wi-Fi, then reopen Local table.';return;}label.textContent=url.split('#')[0];try{const r=await api('/qr',{url});img.src=r.image;img.hidden=false;}catch(e){error(e.message);}}
 function roster(data){
@@ -72,5 +72,5 @@ async function poll(){if(!active||polling)return;polling=true;try{
  error('');
  }catch(e){error('Local host disconnected. '+e.message);}finally{polling=false;}}
 function open(){if(!dialog)createDialog();if(!dialog.open)dialog.showModal();if(active){publish(adapter?.getState());lastURLs='';poll();}}
-window.BilliardsLocalSession={active,open,speak,cancelSpeech,button:()=>button('Local table',open),publish,newGame(){newGame=true;},mount(value){adapter=value;if(active){publish(adapter.getState());setInterval(poll,1000);poll();}}};
+window.BilliardsLocalSession={active,open,speak,cancelSpeech,button:()=>button('Local table',open),publish,newGame(){newGame=true;sharing=true;},async clearGame(){if(!active)return;if(uploading)throw Error('Wait for the current table update, then clear the saved game.');cancelSpeech();pending=null;const ended=await api('/end',{});revision=ended.revision??revision;sharing=false;newGame=true;lastMembers='';lastURLs='';eventsSeen.clear();},mount(value){adapter=value;if(active){publish(adapter.getState());setInterval(poll,1000);poll();}}};
 })();

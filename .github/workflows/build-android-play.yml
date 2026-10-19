@@ -8,6 +8,7 @@ on:
       - 'play*.js'
       - 'play*.html'
       - 'play*.css'
+      - 'play-audio/**'
       - 'local-session.*'
       - 'local-host/player.*'
       - 'scripts/package-play.py'
@@ -35,7 +36,7 @@ jobs:
       - name: Check shared commands and tracking
         run: |
           python3 scripts/package-play.py --android
-          node --test tests/play-input.test.cjs tests/play-controls.test.cjs tests/play-features.test.cjs
+          node --test tests/play-input.test.cjs tests/play-controls.test.cjs tests/play-features.test.cjs tests/play-narration.test.cjs
       - name: Compile standalone Play preview
         working-directory: android-wrapper
         run: gradle :app:assemblePlayDebug

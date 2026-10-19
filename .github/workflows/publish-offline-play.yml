@@ -1,0 +1,41 @@
+name: Publish offline Play package
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'play*.js'
+      - 'play*.html'
+      - 'play*.css'
+      - 'play-audio/**'
+      - 'local-session.*'
+      - 'local-host/player.*'
+      - 'scripts/package-play.py'
+      - '.github/workflows/publish-offline-play.yml'
+permissions:
+  contents: write
+concurrency:
+  group: offline-play-package
+  cancel-in-progress: false
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify Chase clips and package all offline assets
+        run: |
+          node --test tests/play-narration.test.cjs
+          python3 scripts/package-play.py
+          python3 -m zipfile --test downloads/Billiards-Play-Offline.zip
+      - name: Publish the current offline download
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add downloads/Billiards-Play-Offline.zip
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Publish offline Play package with Chase narration'
+          git pull --rebase origin main
+          git push origin HEAD:main

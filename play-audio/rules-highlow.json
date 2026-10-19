@@ -1,0 +1,9 @@
+{
+  "voice": "chase",
+  "rate": "+30%",
+  "model": "simba-3.2",
+  "textHash": "ba84029cea98100b0d6b57bef1522b4f9622796b1bed4499f5c0932a4aa90587",
+  "sourceHash": "b2c8f30acbf358ea14b848cf624547b9aece13a40020aad8d81cc173cbabdefd",
+  "duration": 13.704,
+  "source": "Speechify Playground export"
+}
