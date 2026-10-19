@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-experience-polish-v156';
+const CACHE_NAME = 'billiards-trainer-4-12-description-dots-v157';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './welcome.html',
