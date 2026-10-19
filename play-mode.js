@@ -168,7 +168,8 @@ function init(){
  document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&!e.target.matches('input,textarea')){e.preventDefault();e.stopImmediatePropagation();undo();}},true);
  window.addEventListener('pagehide',save);
  try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if([1,2].includes(saved?.version)&&E.games[saved.state?.game]){state=saved.state;state.mode='real';if(state.game==='speed'&&state.timer)state.interrupted=true;history=(saved.history||[]).filter(h=>h.state&&E.games[h.state.game]).map(h=>({state:{...h.state,mode:'real'}}));save();}}catch(e){storageError='Saved game could not be restored. Start a new game.';}
- render();if(!state)setup();
+ // Always enter through the full catalog; Resume game keeps the restored session and Undo history.
+ render();setup();
  // Read-only inspection supports browser QA without exposing secret cards through a public UI.
  window.billiardsPlayStatus=()=>state?{game:state.game,phase:state.phase,mode:state.mode,active:state.active,round:state.round,shots:state.shots,lives:state.players.map(p=>p.lives),remaining:[...state.remaining],undo:history.length}:null;
 }

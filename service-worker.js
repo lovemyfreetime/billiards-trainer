@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-experience-entry-v152';
+const CACHE_NAME = 'billiards-trainer-4-12-play-catalog-entry-v153';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './welcome.html',
@@ -11,7 +11,7 @@ const APP_SHELL = [
   './play-catalog.js?v=catalog-v1',
   './play-engine.js?v=catalog-v1',
   './play-presentation.js?v=play-room-v1',
-  './play-mode.js?v=experience-navigation-v2',
+  './play-mode.js?v=catalog-entry-v3',
   './play-mode.css?v=catalog-scroll-v1',
 
   './trainer-action-history.js?v=2',
