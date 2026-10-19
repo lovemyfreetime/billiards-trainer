@@ -1742,10 +1742,10 @@
         <div class="buttons"><button data-preset="7d">7' Diamond 80×40</button><button data-preset="7b">7' Bar 78×39</button><button data-preset="8">8' 88×44</button><button data-preset="9">9' 100×50</button></div>
         <div class="tableControlTitle" style="margin-top:10px">PHYSICS SETTINGS</div>
 <div class="row"><label>Sliding friction μ</label><input id="muSlide" type="number" min="0" max="0.5" step="0.005"></div>
-      <div class="row"><label>Rolling friction μ</label><input id="muRoll" type="number" min="0" max="0.1" step="0.001"></div>
+      <button id="applyMeasuredPhysics" type="button">Apply measured table settings</button><div class="row"><label>Rolling friction μ</label><input id="muRoll" type="number" min="0" max="0.1" step="0.001"></div>
       <div class="row"><label>Ball-ball friction μ</label><input id="muBall" type="number" min="0" max="0.2" step="0.001"></div>
       <div class="row"><label>Ball restitution</label><input id="ballRest" type="number" min="0.5" max="1" step="0.005"></div>
-      <div class="row"><label>Rail rebound</label><input id="railRest" type="number" min="0.5" max="1" step="0.005"></div>
+      <div class="row"><label>Rail rebound</label><input id="railRest" type="number" min="0.3" max="1" step="0.005"></div>
       <div class="row"><label>Rail tangential damping</label><input id="railTang" type="number" min="0.5" max="1" step="0.005"></div>
       <div class="row"><label for="cueShaftPreset">Cue / Shaft Preset</label><select id="cueShaftPreset"><option value="standard">Standard shaft</option><option value="low">Low-deflection shaft</option><option value="custom">Custom</option></select></div>
       <div class="row" id="cueEndmassRow" hidden><label for="cueEndmassRatio">Cue ball / end-mass ratio</label><input id="cueEndmassRatio" type="number" min="8" max="60" step="0.1"></div>
@@ -7551,6 +7551,7 @@
         $('ballD').value = (S.ballR * 2 / inch).toFixed(3);
         $('muSlide').value = S.muSlide;
         $('muRoll').value = S.muRoll;
+        $('applyMeasuredPhysics').onclick=()=>{try{const imported=new URLSearchParams(location.hash.slice(1)).get('measuredPhysics');const p=JSON.parse(imported||localStorage.getItem('billiardsMeasuredPhysics-v1')||'null');if(!p||!p.roll?.consistent||!p.rail?.consistent||!(p.muRoll>=.001&&p.muRoll<=.1&&p.railRest>=.3&&p.railRest<=.98)){toast('Complete guided table calibration from Play Tools first.');return;}S.muRoll=p.muRoll;S.railRest=p.railRest;localStorage.setItem('billiardsMeasuredPhysics-v1',JSON.stringify(p));if(imported)history.replaceState(null,'',location.pathname+location.search);updateUI();refreshPreview();saveState();toast('Applied measured rolling resistance and cushion response.');}catch(e){toast('Measured settings are unavailable.');}};
         $('muBall').value = S.muBall;
         $('ballRest').value = S.ballRest;
         $('railRest').value = S.railRest;

@@ -7,6 +7,7 @@ const lotus='<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient i
 // Referencing a gradient in a hidden sibling SVG can drop the gold fill.
 function lotusIcon(){return lotus.replaceAll('zenLotusMetal','zenLotusMetal-'+(++next));}
 window.BilliardsExperienceMenu=function({current,beforeNavigate=()=>true}={}){
+ if(window.BilliardsOfflinePlay){const link=document.createElement('a');link.href='./play.html';link.textContent='Play games';return link;}
  const wrap=document.createElement('span');wrap.className='experience-switcher';
  const toggle=document.createElement('button');toggle.type='button';toggle.className='experience-toggle';if(current==='zen')toggle.innerHTML=lotusIcon();else{const img=document.createElement('img');img.src=current==='train'?'./icons/trainer-original-execute-v2.svg':'./icons/play-experience-v1.webp';img.alt='';toggle.append(img);toggle.classList.add('experience-toggle-image');}toggle.dataset.experience=current;toggle.setAttribute('aria-label','Change experience');toggle.title='Trainer · Play · Zen';toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-haspopup','true');
  const menu=document.createElement('nav');menu.className='experience-menu';menu.id='experience-menu-'+(++next);menu.setAttribute('popover','manual');menu.setAttribute('aria-label','Experiences');toggle.setAttribute('aria-controls',menu.id);

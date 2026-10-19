@@ -4,28 +4,31 @@ const params=new URLSearchParams(location.search),enabled=params.get('play')==='
 function link(mode){const url=new URL(location.href);if(url.pathname.endsWith('/play.html')&&mode!=='play')url.pathname=url.pathname.slice(0,-9);url.searchParams.delete('zen');url.searchParams.delete('play');if(mode!=='train')url.searchParams.set(mode,'1');return url.toString();}
 function init(){
  if(!enabled)return;
- const bridge=window.billiardsPlayBridge||{busy:()=>false,save:()=>{}},KEY='billiardsPlaySession-v1';let state=null,history=[],privacy=false,paused=false,audio=false,storageError='',selected=new Set(),returnFocus=null,catalogChoice='killer';
+ const bridge=window.billiardsPlayBridge||{busy:()=>false,save:()=>{}},KEY='billiardsPlaySession-v1';let state=null,history=[],privacy=false,paused=false,audio=false,storageError='',selected=new Set(),returnFocus=null,catalogChoice='killer',inputRevision=0,hostSeat=null;
+ const T=window.BilliardsTraining;let shotClock=null,drillState=null,drillHistory=[],lastClockSecond=null,toolDialog=null;
+ try{const saved=JSON.parse(localStorage.getItem('billiardsPlayTools-v1')||'null');drillState=Array.isArray(saved?.drill?.names)&&Array.isArray(saved?.drill?.results)?saved.drill:null;shotClock=saved?.clock||null;if(shotClock){shotClock.remaining=T.remaining(shotClock,Date.now());shotClock.deadline=null;}}catch{}
  document.body.classList.add('play-mode');
  const root=document.createElement('section');root.id='playRoot';root.setAttribute('aria-label','Billiards Play game room');root.innerHTML=`
- <header class="play-header"><div class="play-brand">BILLIARDS <span>PLAY</span><small>Our table. Our rules.</small></div><nav aria-label="Session"><button id="playAudio" aria-pressed="false">Audio off</button><button id="playPause">Pause</button><button id="playRules">Rules</button><button id="playNew">Games</button></nav></header>
+ <header class="play-header"><div class="play-brand">BILLIARDS <span>PLAY</span><small>Our table. Our rules.</small></div><nav aria-label="Session"><button id="playTools">Tools</button><button id="playMyView">My player</button><button id="playAudio" aria-pressed="false">Audio off</button><button id="playPause">Pause</button><button id="playRules">Rules</button><button id="playNew">Games</button></nav></header>
  <div id="playPlayers" aria-label="Players and scores"></div>
- <main class="play-main"><section id="playDock" aria-label="Game and scorekeeping"><div class="play-eyebrow" id="playRound">Game room</div><h1 id="playTitle">Choose your game</h1><p id="playObjective">Games for your real table.</p><div id="playNotice" role="status" aria-live="polite">Choose Games to begin.</div><div id="playResult" class="play-result" hidden></div><div id="playModule"></div><div id="playBalls" role="group" aria-label="Balls made on this shot"></div><div id="playActions"></div><details id="playLayout" hidden><summary>View shot setup diagram</summary><div id="playPhysical"></div></details></section></main>
+ <main class="play-main"><section id="playDock" aria-label="Game and scorekeeping"><div class="play-eyebrow" id="playRound">Game room</div><h1 id="playTitle">Choose your game</h1><p id="playObjective">Games for your real table.</p><div id="playNotice" role="status" aria-live="polite">Choose Games to begin.</div><div id="playResult" class="play-result" hidden></div><div id="playShotClock" role="timer" hidden></div><section id="playDrillLive" aria-label="Current drill" hidden></section><div id="playModule"></div><div id="playBalls" role="group" aria-label="Balls made on this shot"></div><div id="playActions"></div><details id="playLayout" hidden><summary>View shot setup diagram</summary><div id="playPhysical"></div></details></section></main>
  <footer class="play-footer"><nav aria-label="Experience"><span id="playModeSwitch"></span></nav><span id="playLatest"></span><button id="playUndo" disabled>Undo Shot</button></footer>
  <dialog id="playDialog" aria-labelledby="playDialogTitle"></dialog>`;
  document.body.append(root);
  const $=id=>document.getElementById(id),dialog=$('playDialog');
- function stopSpeech(){window.BilliardsLocalSession?.cancelSpeech();window.speechSynthesis?.cancel();}
- function speech(message){if(!audio||!window.speechSynthesis||privacy||paused)return;if(window.BilliardsLocalSession?.active){window.BilliardsLocalSession.speak(message);return;}window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(message);u.rate=1.08;window.speechSynthesis.speak(u);}
+ function stopSpeech(){window.BilliardsLocalSession?.cancelSpeech();window.BilliardsAudio?.cancel();}
+ function speech(message){if(!audio||!window.BilliardsAudio?.available()||privacy||paused)return;if(window.BilliardsLocalSession?.active){window.BilliardsLocalSession.speak(message);return;}window.BilliardsAudio.cancel();window.BilliardsAudio.speak(message);}
  function text(tag,value,cls){const e=document.createElement(tag);e.textContent=value;if(cls)e.className=cls;return e;}
  function button(label,action,cls=''){const b=text('button',label,cls);b.type='button';b.onclick=action;return b;}
  function capture(){return {state:JSON.parse(JSON.stringify(state))};}
- function save(){if(!state)return;try{localStorage.setItem(KEY,JSON.stringify({version:2,...capture(),history}));window.BilliardsLocalSession?.publish({...state,localPaused:paused});storageError='';}catch(e){storageError='Browser storage is full or unavailable. This game is in memory only.';}}
- function transact(event,before){
-  if(!state||bridge.busy())return;
-  try{const next=E.reduce(state,event);history.push(before||capture());history=history.slice(-45);state=next;selected.clear();save();render();if(state.phase==='ready')speech(`${state.players[state.active].name}. ${state.isBreak?'Break.':state.game==='ghost'?'Lowest first.':'Your turn.'}`);else if(state.phase==='result')speech(state.result.text);}
-  catch(e){$('playNotice').textContent=e.message;}
+ function save(){if(!state)return;try{localStorage.setItem(KEY,JSON.stringify({version:2,...capture(),history}));window.BilliardsLocalSession?.publish({...state,localPaused:paused,localClock:shotClock,localHostSeat:hostSeat,localGameName:E.games[state.game].name,localRules:E.games[state.game].rules,localPlayerStats:state.players.map((p,i)=>C.games[state.game]?C.stat(state,i):state.game==='killer'?`${p.lives} lives`:state.game==='poker'?`${p.hand.length} cards`:state.game==='ghost'?`${state.points[0]} – ${state.points[1]}`:`Balls ${i*5+1}–${i*5+5}`)});storageError='';}catch(e){storageError='Browser storage is full or unavailable. This game is in memory only.';}}
+ function commit(event,before){
+  if(!state||bridge.busy())return false;
+  try{const next=E.reduce(state,event);history.push(before||capture());history=history.slice(-45);state=next;inputRevision++;selected.clear();syncClock(event);save();render();if(state.phase==='ready')speech(`${state.players[state.active].name}. ${state.isBreak?'Break.':state.game==='ghost'?'Lowest first.':'Your turn.'}`);else if(state.phase==='result')speech(state.result.text);if(state.game==='ghost'&&event.type==='shot')speech(ghostAnnouncement());}
+  catch(e){$('playNotice').textContent=e.message;throw e;}
  }
- function undo(){if(bridge.busy()||!history.length)return;const previous=history.pop();state=previous.state;state.mode='real';selected.clear();closeDialog();paused=false;stopSpeech();save();render();}
+ function transact(event,before){return inputs.dispatch({type:'engine',event,before});}
+ function undo(){if(bridge.busy()||!history.length)return;const previous=history.pop();state=previous.state;inputRevision++;state.mode='real';if(shotClock){shotClock=T.timer(shotClock,{type:'reset',seat:state.active},Date.now());saveTools();}selected.clear();closeDialog();paused=false;stopSpeech();save();render();}
  function openDialog(title,privateView=false){closeDialog();returnFocus=document.activeElement;privacy=privateView;dialog.className='';dialog.removeAttribute('aria-label');dialog.setAttribute('aria-labelledby','playDialogTitle');dialog.replaceChildren(text('h2',title));dialog.firstChild.id='playDialogTitle';dialog.showModal();return dialog;}
  function closeDialog(){privacy=false;if(dialog.open)dialog.close();dialog.replaceChildren();}
  dialog.addEventListener('close',()=>{if(dialog.open)return;privacy=false;dialog.replaceChildren();returnFocus?.focus?.({preventScroll:true});});
@@ -40,13 +43,13 @@ function init(){
  function dismiss(label='Back to table'){const row=text('div','','play-dialog-actions');row.append(button(label,closeDialog));dialog.append(row);}
  function shieldPrivate(){if(privacy)closeDialog();}
  window.addEventListener('blur',shieldPrivate);document.addEventListener('visibilitychange',()=>{if(document.hidden){shieldPrivate();if(state?.game==='speed'&&state.timer)state=E.reduce(state,{type:'interrupt'});save();}});
- function showPrivate(){
-  if(!state)return;if(C.games[state.game])return catalogPrivate();
-  const p=state.players[state.active];openDialog(`Pass to ${p.name}`,true);dialog.append(text('p','Turn the screen away from the room. This is a shared-device private view.'));
+ function showPrivate(seatOverride){
+  if(!state)return;if(C.games[state.game])return catalogPrivate(seatOverride);
+  const seat=Number.isInteger(seatOverride)?seatOverride:state.active,p=state.players[seat];openDialog(`Pass to ${p.name}`,true);dialog.append(text('p','Turn the screen away from the room. This is a shared-device private view.'));
   const reveal=button('Reveal privately',()=>{
    dialog.replaceChildren(text('h2',`${p.name} · your hand`));dialog.firstChild.id='playDialogTitle';
    const cards=text('div','','play-cards');if(!p.hand.length)cards.append(text('p','No cards yet.'));p.hand.forEach(c=>cards.append(card(c)));dialog.append(cards);
-   if(state.phase==='choose'){dialog.append(text('p','Choose one card to keep. The other is discarded.'));const choices=text('div','','play-cards');state.pending.forEach((c,i)=>{const b=card(c,()=>{closeDialog();transact({type:'choose',index:i});});b.setAttribute('aria-label',`Keep ${E.cardLabel(c)}`);choices.append(b);});dialog.append(choices);}else dismiss('Hide hand');
+   if(state.phase==='choose'&&seat===state.active){dialog.append(text('p','Choose one card to keep. The other is discarded.'));const choices=text('div','','play-cards');state.pending.forEach((c,i)=>{const b=card(c,()=>{closeDialog();transact({type:'choose',index:i});});b.setAttribute('aria-label',`Keep ${E.cardLabel(c)}`);choices.append(b);});dialog.append(choices);}else dismiss('Hide hand');
   },'play-private');dialog.append(reveal);dismiss('Keep hidden');
  }
  function card(c,action){const node=action?button(E.cardLabel(c),action):text('div',E.cardLabel(c));node.className='play-card'+([1,2].includes(Math.floor(c/13))?' red':'');return node;}
@@ -75,21 +78,22 @@ function init(){
   let allowances=null;if(game==='equalizer'){allowances=document.createElement('input');allowances.id='playAllowances';allowances.value='1, 1';const l=text('label','Allowed misses per player (0–2), separated by commas');l.htmlFor=allowances.id;form.append(l,allowances);form.append(text('p','Each player also has one optional cue-ball reset per layout.'));}
   const error=text('p','');error.setAttribute('role','alert');form.append(error);const row=text('div','','play-dialog-actions');row.append(button('Other games',()=>setup()));const start=button(state?'Start new game':'Rack them up',null,'play-primary');start.type='submit';row.append(start);form.append(row);
   if(state)form.append(text('p','Starting a new game replaces the saved game. Back to table keeps your current game.'));
-  form.onsubmit=e=>{e.preventDefault();try{const seed=crypto.getRandomValues(new Uint32Array(1))[0],next=E.create({game,mode:'real',names:names.value.split(',').map(n=>n.slice(0,28)),balls:count?.value,allowances:allowances?.value.split(',').map(Number),seed});window.BilliardsLocalSession?.newGame();state=next;history=[];paused=false;selected.clear();save();closeDialog();render();}catch(e){error.textContent=e.message;}};dialog.append(form);if(state)dismiss();
+  form.onsubmit=e=>{e.preventDefault();try{const seed=crypto.getRandomValues(new Uint32Array(1))[0],next=E.create({game,mode:'real',names:names.value.split(',').map(n=>n.slice(0,28)),balls:count?.value,allowances:allowances?.value.split(',').map(Number),seed});window.BilliardsLocalSession?.newGame();state=next;inputRevision++;hostSeat=null;history=[];paused=false;if(shotClock){shotClock=T.clock(shotClock.seconds,shotClock.extension,shotClock.extensions);saveTools();}selected.clear();save();closeDialog();render();}catch(e){error.textContent=e.message;}};dialog.append(form);if(state)dismiss();
  }
  function report(foul=false){if(!state||state.phase!=='ready')return;if(!foul&&needsBalls()&&!selected.size){$('playNotice').textContent='Select the ball numbers made, then Record balls.';return;}if(foul){openDialog('Record a foul');dialog.append(text('p',selected.size?`Balls made: ${[...selected].join(', ')}. The foul will be resolved with these balls as one shot.`:'Report any balls made first if this game needs their numbers.'));const row=text('div','','play-dialog-actions');row.append(button('Scratch',()=>{closeDialog();transact({type:'shot',potted:[...selected],foul:true,scratch:true});},'play-foul'),button('Other foul',()=>{closeDialog();transact({type:'shot',potted:[...selected],foul:true});},'play-foul'));dialog.append(row);dismiss('Cancel');return;}transact({type:'shot',potted:[...selected],made:!needsBalls(),pockets:selectedPockets(),now:Date.now()});}
 
  function needsBalls(){return ['cutthroat','ghost','kelly','bounty','cribbage','ring','three','highlow','bowliards','equalizer','speed','golf'].includes(state?.game);}
  function selectedPockets(){const select=$('playPocket');return select?[...select.selectedOptions].map(o=>o.value):[];}
- function catalogPrivate(){
-  const seat=state.phase==='vote'?state.voteSeat:state.active,p=state.players[seat];openDialog(`Pass to ${p.name}`,true);dialog.append(text('p','Turn the screen away from the room. Hide this view before passing.'));
+ function catalogPrivate(seatOverride){
+  const seat=Number.isInteger(seatOverride)?seatOverride:state.phase==='vote'?state.voteSeat:state.active,p=state.players[seat];openDialog(`Pass to ${p.name}`,true);dialog.append(text('p','Turn the screen away from the room. Hide this view before passing.'));
   dialog.append(button('Reveal privately',()=>{
    dialog.replaceChildren(text('h2',`${p.name} · private view`));dialog.firstChild.id='playDialogTitle';
    if(['kelly','bounty'].includes(state.game))dialog.append(text('h3',`Your target: ${p.target}`));
+   if(state.game==='blackjack'&&seat===state.active&&state.phase==='ready')dialog.append(button('Stand',()=>{closeDialog();transact({type:'stand'});}));
    if(state.game==='blackjack'){const cards=text('div','','play-cards');p.hand.forEach(c=>cards.append(card(c)));dialog.append(cards,text('p',`Total ${C.total(p.hand)}`));}
    if(state.game==='saboteur')dialog.append(text('h3',seat===state.saboteur?'You are the saboteur. Keep the crew below quota.':'You are crew. Reach the quota.'));
-   if(state.game==='battleship'){dialog.append(text('p','■ ship · · water. First three cells form one ship; last two the other.'));const grid=text('div','','play-grid');for(let i=0;i<9;i++)grid.append(text('div',`${String.fromCharCode(65+Math.floor(i/3))}${i%3+1} ${p.fleet.includes(i)?'■':'·'}`));dialog.append(grid);if(state.phase==='fleet'){dialog.append(button('Shuffle fleet',()=>{closeDialog();transact({type:'fleet-shuffle'});catalogPrivate();}),button('Lock fleet & hide',()=>{closeDialog();transact({type:'fleet-lock'});},'play-primary'));}}
-   if(state.phase==='vote'){dialog.append(text('p','Choose one suspect. Your vote stays hidden until the final result.'));state.players.forEach((pl,i)=>dialog.append(button(pl.name,()=>{closeDialog();transact({type:'vote',index:i});})));dialog.append(button('Abstain',()=>{closeDialog();transact({type:'vote',index:-1});}));}dismiss('Hide private view');
+   if(state.game==='battleship'){dialog.append(text('p','■ ship · · water. First three cells form one ship; last two the other.'));const grid=text('div','','play-grid');for(let i=0;i<9;i++)grid.append(text('div',`${String.fromCharCode(65+Math.floor(i/3))}${i%3+1} ${p.fleet.includes(i)?'■':'·'}`));dialog.append(grid);if(state.phase==='fleet'&&seat===state.active){dialog.append(button('Shuffle fleet',()=>{closeDialog();transact({type:'fleet-shuffle'});catalogPrivate();}),button('Lock fleet & hide',()=>{closeDialog();transact({type:'fleet-lock'});},'play-primary'));}}
+   if(state.phase==='vote'&&seat===state.voteSeat){dialog.append(text('p','Choose one suspect. Your vote stays hidden until the final result.'));state.players.forEach((pl,i)=>dialog.append(button(pl.name,()=>{closeDialog();transact({type:'vote',index:i});})));dialog.append(button('Abstain',()=>{closeDialog();transact({type:'vote',index:-1});}));}dismiss('Hide private view');
   },'play-private'));dismiss('Keep hidden');
  }
  function catalogModule(dock){
@@ -161,20 +165,60 @@ function init(){
    dock.append(button('Another game',()=>setup(),'play-primary'));
   }
   catalogModule(dock);
+  if(state.game==='ghost'&&state.ghostStats){const g=state.ghostStats;$('playModule').append(text('p',`Ghost stats · ${g.pots} post-break pots · ${g.misses} misses · ${g.fouls} fouls · best run ${g.bestRun} · ${g.racksWon}/${g.racksWon+g.racksLost} racks won`));}
   const physical=$('playPhysical');$('playLayout').hidden=!state.scene||!['ready','placement'].includes(state.phase);physical.replaceChildren();
   if(state.mode==='real'&&state.scene&&state.phase!=='result'){const diagram=document.createElementNS('http://www.w3.org/2000/svg','svg');diagram.setAttribute('viewBox','0 0 320 160');diagram.setAttribute('role','img');diagram.setAttribute('aria-label','Challenge layout, coordinates measured from top left');diagram.classList.add('play-layout-diagram');const marks=[{id:0,...state.scene.cue},...state.scene.balls];diagram.innerHTML='<rect x="4" y="4" width="312" height="152" rx="9" fill="#245e59" stroke="#79968d"/>'+marks.map(b=>`<circle cx="${b.x*300+10}" cy="${b.y*140+10}" r="7" fill="${b.id?'#efb72f':'#fff'}"/><text x="${b.x*300+10}" y="${b.y*140+13}" text-anchor="middle" font-size="8" fill="#111">${b.id||''}</text>`).join('')+'<text x="12" y="18" font-size="9" fill="white">TL</text><text x="154" y="14" font-size="9" fill="white">TM</text><text x="294" y="18" font-size="9" fill="white">TR</text><text x="12" y="150" font-size="9" fill="white">BL</text><text x="154" y="153" font-size="9" fill="white">BM</text><text x="294" y="150" font-size="9" fill="white">BR</text>';physical.append(diagram);physical.append(text('p',`Layout: cue (${Math.round(state.scene.cue.x*100)}%, ${Math.round(state.scene.cue.y*100)}%); ${state.scene.balls.map(b=>`ball ${b.id} (${Math.round(b.x*100)}%, ${Math.round(b.y*100)}%)`).join('; ')}. Coordinates start at the top-left of the diagram.`));}
  }
- $('playNew').onclick=()=>{if(!bridge.busy())setup();};$('playRules').onclick=showRules;$('playUndo').onclick=undo;
+ function saveTools(){try{localStorage.setItem('billiardsPlayTools-v1',JSON.stringify({drill:drillState,clock:shotClock}));}catch{$('playNotice').textContent='Tools could not be saved on this device.';}}
+ function syncClock(event){if(!shotClock||!['ready','shot','next-hand','stand'].includes(event.type))return;shotClock=T.timer(shotClock,{type:'reset',seat:state.active,running:state.phase==='ready'},Date.now());lastClockSecond=null;saveTools();}
+ function ghostAnnouncement(){const g=state.ghostStats||{};return `${state.last} You ${state.points[0]}, ghost ${state.points[1]}. ${state.phase==='ready'?`${state.remaining.length} balls left. Lowest ball ${Math.min(...state.remaining)}.`:''} ${g.bestRun?`Best run ${g.bestRun}.`:''}`;}
+ function myPlayer(){if(!state)return;openDialog('My player');dialog.append(text('p','Choose your seat. This reserves it on the host; a phone assigned to that seat returns to waiting. Keep the screen facing you when opening a private view.'));state.players.forEach((p,i)=>dialog.append(button((hostSeat===i?'✓ ':'')+p.name,()=>{hostSeat=i;save();closeDialog();showPrivate(i);})));dismiss();}
+ function tools(){
+  if(!toolDialog){toolDialog=document.createElement('dialog');toolDialog.className='play-tools-dialog';document.body.append(toolDialog);}
+  toolDialog.replaceChildren(text('h2','Table tools'));
+  const controls=document.createElement('section');toolDialog.append(controls);window.BilliardsPlayControls.mount(controls,{dispatch:(c,m)=>inputs.dispatch(c,m),voice:(v,m)=>inputs.voice(v,m)});
+  const clockBox=text('section');clockBox.append(text('h3','Shot clock'),text('p','The host owns the clock. Each shot resets it; extensions are limited per player for this match. Expiry announces time without automatically declaring a foul.'));
+  function number(label,value,min,max){const l=text('label',label),i=document.createElement('input');i.type='number';i.min=min;i.max=max;i.value=value;l.append(i);return {l,i};}
+  const seconds=number('Seconds per shot',shotClock?.seconds||30,5,600),extra=number('Extension seconds',shotClock?.extension||15,1,120),count=number('Extensions per player',shotClock?.extensions??1,0,5);
+  clockBox.append(seconds.l,extra.l,count.l,button('Set clock',()=>{try{shotClock=T.clock(+seconds.i.value,+extra.i.value,+count.i.value);shotClock.turn=state?.active||0;saveTools();save();clockStatus();}catch(e){$('playNotice').textContent=e.message;}}),button('Start',()=>inputs.dispatch({type:'clock-start'})),button('Pause clock',()=>inputs.dispatch({type:'clock-pause'})),button('Extension',()=>inputs.dispatch({type:'clock-extend'})),button('Turn clock off',()=>{shotClock=null;saveTools();save();clockStatus();}));toolDialog.append(clockBox);
+  const drills=text('section');drills.append(text('h3','Individual & group drills'));const names=document.createElement('input');names.setAttribute('aria-label','Drill player names');names.placeholder='Names separated by commas';names.value=drillState?.names.join(', ')||state?.players.map(p=>p.name).join(', ')||'Player 1';const tries=number('Attempts per set',drillState?.size||10,1,100),sets=number('Sets',drillState?.sets||3,1,100);drills.append(names,tries.l,sets.l,button('Start new drill',()=>{try{drillState=T.drill(names.value.split(','),+tries.i.value,+sets.i.value);drillHistory=[];saveTools();drawDrill();}catch(e){$('playNotice').textContent=e.message;}}));const output=text('div');output.id='playDrillStatus';drills.append(output,button('Drill made',()=>inputs.dispatch({type:'drill-made'})),button('Drill miss',()=>inputs.dispatch({type:'drill-miss'})),button('Undo drill attempt',()=>{if(drillHistory.length){drillState=drillHistory.pop();saveTools();drawDrill();}}));const calibration=text('a','Guided table calibration');calibration.href='./play-calibration.html';toolDialog.append(calibration);toolDialog.append(drills,button('Back to table',()=>toolDialog.close()));drawDrill();toolDialog.showModal();
+ }
+ function drawDrill(){
+  for(const id of ['playDrillStatus','playDrillLive']){const box=$(id);if(!box)continue;box.hidden=!drillState;box.replaceChildren();if(!drillState)continue;
+   box.append(text('p',drillState.done?'Drill complete':`${drillState.names[drillState.active]} · Set ${drillState.set}/${drillState.sets} · ${drillState.results.filter(r=>r.seat===drillState.active&&r.set===drillState.set).length}/${drillState.size} attempts`));drillState.names.forEach((name,i)=>{const s=T.stats(drillState,i);box.append(text('p',`${name}: ${s.made}/${s.attempts} · ${s.percent}%`));});
+   if(id==='playDrillLive'&&!drillState.done)box.append(button('Drill made',()=>inputs.dispatch({type:'drill-made'})),button('Drill miss',()=>inputs.dispatch({type:'drill-miss'})));
+  }
+ }
+ function clockStatus(){const box=$('playShotClock');box.hidden=!shotClock;if(!shotClock)return;const n=Math.ceil(T.remaining(shotClock,Date.now())/1000);box.textContent=`Shot clock · ${n}s${shotClock.deadline===null?' · paused':''}`;if(shotClock.deadline!==null&&lastClockSecond!==n){if([10,5,0].includes(n))speech(n===0?'Time.':`${n} seconds.`);lastClockSecond=n;}if(n===0&&shotClock.deadline!==null){shotClock.remaining=0;shotClock.deadline=null;shotClock.expired=true;saveTools();}}
+ setInterval(clockStatus,200);
+ const inputs=window.BilliardsInput.create({context:()=>({busy:bridge.busy(),paused,modal:dialog.open||!!toolDialog?.open,hidden:document.hidden,actor:state?.phase==='vote'?state.voteSeat:state?.active,revision:inputRevision}),feedback:r=>{if(r.source!=='touch'||!r.ok){$('playNotice').textContent=r.message;if(r.ok)navigator.vibrate?.(40);}},execute(command){
+  const type=command.type;
+  if(type==='engine'){if(privacy)closeDialog();return commit(command.event,command.before);}
+  if(type==='pause'||type==='resume'){const next=type==='pause';if(next===paused)return false;if(state?.game==='speed'&&state.timer&&next)commit({type:'interrupt'});paused=next;if(shotClock){shotClock=T.timer(shotClock,{type:'pause'},Date.now());saveTools();}stopSpeech();save();render();return;}
+  if(type==='undo'){if(!history.length)return false;undo();return;}
+  if(type==='private'){myPlayer();return;}
+  if(type.startsWith('clock-')){if(!shotClock)return false;shotClock=T.timer(shotClock,{type:type.slice(6)},Date.now());saveTools();save();clockStatus();return;}
+  if(type.startsWith('drill-')){if(!drillState)return false;const before=drillState;drillState=T.attempt(drillState,type==='drill-made');drillHistory.push(before);drillHistory=drillHistory.slice(-100);saveTools();drawDrill();speech(drillState.done?'Drill complete.':`${drillState.names[drillState.active]}, set ${drillState.set}.`);return;}
+  if(!state)return false;
+  if(type==='ready'){if(state.phase!=='placement')return false;commit({type:'ready'});return;}
+  if(state.phase!=='ready')return false;
+  if(type==='made'){const balls=command.balls||[...selected];if(needsBalls()&&!balls.length)throw Error('Say Table ball, its number, made; or select balls first.');if(['golf','turf'].includes(state.game))throw Error('Select the pocket and record this shot on screen.');commit({type:'shot',potted:balls,made:!needsBalls(),now:Date.now()});return;}
+  if(['miss','foul','scratch'].includes(type)){commit({type:'shot',potted:type==='miss'?[]:[...selected],foul:type!=='miss',scratch:type==='scratch',now:Date.now()});return;}
+  return false;
+ }});
+ window.billiardsPlayInput=inputs;
+ $('playTools').onclick=tools;$('playMyView').onclick=myPlayer;
+ $('playNew').onclick=()=>{if(!bridge.busy())setup();};$('playRules').onclick=showRules;$('playUndo').onclick=()=>inputs.dispatch({type:'undo'});
  $('playAudio').onclick=()=>{audio=!audio;$('playAudio').textContent=audio?'Audio on':'Audio off';$('playAudio').setAttribute('aria-pressed',String(audio));if(!audio)stopSpeech();else{if(window.BilliardsLocalSession?.active&&window.speechSynthesis)window.speechSynthesis.speak(new SpeechSynthesisUtterance(''));speech('Play audio on.');}};
- $('playPause').onclick=()=>{if(bridge.busy())return;if(state?.game==='speed'&&state.timer&&!paused)transact({type:'interrupt'});paused=!paused;stopSpeech();save();render();};
+ $('playPause').onclick=()=>inputs.dispatch({type:paused?'resume':'pause'});
  root.querySelectorAll('.play-footer a').forEach(a=>a.addEventListener('click',e=>{if(bridge.busy()){e.preventDefault();return;}save();bridge.save();}));
  window.billiardsPlayHooks={view:()=>({mode:'real',phase:state?.phase}),canShoot:()=>false,canInteract:()=>false,canPlaceCue:()=>false};
- document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&!e.target.matches('input,textarea')){e.preventDefault();e.stopImmediatePropagation();undo();}},true);
- window.addEventListener('pagehide',save);
+ document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&!e.target.matches('input,textarea')){e.preventDefault();e.stopImmediatePropagation();inputs.dispatch({type:'undo'},{source:'clicker'});}},true);
+ window.addEventListener('pagehide',()=>{save();saveTools();});
  try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if([1,2].includes(saved?.version)&&E.games[saved.state?.game]){state=saved.state;state.mode='real';if(state.game==='speed'&&state.timer)state.interrupted=true;history=(saved.history||[]).filter(h=>h.state&&E.games[h.state.game]).map(h=>({state:{...h.state,mode:'real'}}));save();}}catch(e){storageError='Saved game could not be restored. Start a new game.';}
  // Always enter through the full catalog; Resume game keeps the restored session and Undo history.
- render();setup();
- window.BilliardsLocalSession?.mount({getState:()=>state?{...state,localPaused:paused}:null,applyAction(event,seat){if(paused)return;const actor=state?.phase==='vote'?state.voteSeat:state?.active;if(actor!==seat)return;transact(event);}});
+ render();drawDrill();setup();
+ window.BilliardsLocalSession?.mount({getState:()=>state?{...state,localPaused:paused,localClock:shotClock,localHostSeat:hostSeat,localGameName:E.games[state.game].name,localRules:E.games[state.game].rules,localPlayerStats:state.players.map((p,i)=>C.games[state.game]?C.stat(state,i):state.game==='killer'?`${p.lives} lives`:state.game==='poker'?`${p.hand.length} cards`:state.game==='ghost'?`${state.points[0]} – ${state.points[1]}`:`Balls ${i*5+1}–${i*5+5}`)}:null,applyAction(event,seat,meta={}){return inputs.dispatch({type:'engine',event},{source:'remote',seat,id:meta.id});}});
  // Read-only inspection supports browser QA without exposing secret cards through a public UI.
  window.billiardsPlayStatus=()=>state?{game:state.game,phase:state.phase,mode:state.mode,active:state.active,round:state.round,shots:state.shots,lives:state.players.map(p=>p.lives),remaining:[...state.remaining],undo:history.length}:null;
 }

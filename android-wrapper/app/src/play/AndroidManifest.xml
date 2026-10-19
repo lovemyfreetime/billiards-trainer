@@ -1,0 +1,14 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+ <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+ <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+ <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+ <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" android:usesPermissionFlags="neverForLocation"/>
+ <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="32"/>
+ <queries><intent><action android:name="android.speech.RecognitionService"/></intent></queries>
+ <application android:usesCleartextTraffic="true" tools:replace="android:usesCleartextTraffic">
+  <activity android:name=".MainActivity" tools:node="remove"/>
+  <activity android:name=".PlayActivity" android:exported="true" android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|uiMode">
+   <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+  </activity>
+ </application>
+</manifest>

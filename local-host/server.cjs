@@ -22,7 +22,7 @@ function view(s,seat){
   if(s.game==='battleship'){personal.fleet=[...p.fleet];personal.attacks=(p.attacks||[]).map(cell=>({cell,hit:s.players[1-seat].fleet.includes(cell)}));}
   if(s.game==='blackjack')personal.total=C.total(p.hand);
  }
- return {game:s.game,paused:!!s.localPaused,name:E.games[s.game].name,rules:E.games[s.game].rules,phase:s.phase,round:s.round,rack:s.rack,shots:s.shots,active:current,next,players,last:s.last,result:s.result?{text:s.result.text}:null,you:seat,private:personal,actions:p?actions(s,seat):[]};
+ return {clock:s.localClock||null,game:s.game,paused:!!s.localPaused,name:E.games[s.game].name,rules:E.games[s.game].rules,phase:s.phase,round:s.round,rack:s.rack,shots:s.shots,active:current,next,players,last:s.last,result:s.result?{text:s.result.text}:null,you:seat,private:personal,actions:p?actions(s,seat):[]};
 }
 const {createAudioQueue}=require('./audio-queue.cjs');
 function createHost({port=8788,bind='0.0.0.0',hostToken=secret(),addressProvider=addresses}={}){
@@ -37,7 +37,7 @@ function createHost({port=8788,bind='0.0.0.0',hostToken=secret(),addressProvider
  function limited(req){const ip=req.socket.remoteAddress,now=Date.now(),r=rates.get(ip)||{time:now,n:0};if(now-r.time>60000){r.time=now;r.n=0;}if(++r.n>12)fail(429,'Please wait before joining again.');rates.set(ip,r);}
  const files=new Map([
  ['/join','local-host/player.html'],['/','local-host/player.html'],['/player.js','local-host/player.js'],['/player.css','local-host/player.css'],
- ...['app-display.js','app-display.css','manifest.webmanifest','tournament.html','tournament-engine.js','tournament-ui.js','tournament.css','play.html','play-mode.js','play-mode.css','play-engine.js','play-catalog.js','play-presentation.js','play-viewport.js','experience-menu.js','experience-menu.css','local-session.js','local-session.css','icons/icon-192.png','icons/play-experience-v1.webp','icons/trainer-original-execute-v2.svg'].map(f=>['/'+f,f])]);
+ ...['app-display.js','app-display.css','manifest.webmanifest','tournament.html','tournament-engine.js','tournament-ui.js','tournament.css','play.html','play-input.js','play-training.js','play-controls.js','play-calibration.js','play-calibration.html','play-mode.js','play-mode.css','play-engine.js','play-catalog.js','play-presentation.js','play-viewport.js','experience-menu.js','experience-menu.css','local-session.js','local-session.css','icons/icon-192.png','icons/play-experience-v1.webp','icons/trainer-original-execute-v2.svg'].map(f=>['/'+f,f])]);
  const server=http.createServer(async(req,res)=>{
   res.setHeader('Cache-Control','no-store');res.setHeader('Referrer-Policy','no-referrer');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; form-action 'self'");
   try{
@@ -53,7 +53,7 @@ function createHost({port=8788,bind='0.0.0.0',hostToken=secret(),addressProvider
     const m={id:secret(),token:secret(),name,seat:null,seen:Date.now(),revoked:false};members.set(m.id,m);send(res,201,{token:m.token});return;
    }
    if(route==='/api/player'&&req.method==='GET'){
-    const m=member(req);send(res,200,{name:m.name,approved:m.seat!==null,revision,match,hostOnline:Date.now()-lastHost<12000,view:m.seat===null?null:view(state,m.seat)});return;
+    const m=member(req);send(res,200,{serverTime:Date.now(),name:m.name,approved:m.seat!==null,revision,match,hostOnline:Date.now()-lastHost<12000,view:m.seat===null?null:view(state,m.seat)});return;
    }
    if(route==='/api/audio'&&req.method==='POST'){
     const m=member(req),b=await body(req);
@@ -89,10 +89,11 @@ function createHost({port=8788,bind='0.0.0.0',hostToken=secret(),addressProvider
     if(route==='/api/host/state'&&req.method==='POST'){
      const b=await body(req);if(b.id&&snapshots.has(b.id)){send(res,200,{revision,match});return;}const s=b.state;if(!s||!E.games[s.game]||!Array.isArray(s.players)||s.players.length<E.games[s.game].min||s.players.length>E.games[s.game].max||!s.players.every(p=>typeof p.name==='string'&&p.name.length<=28)||!Number.isInteger(s.active)||!s.players[s.active])fail(400,'Invalid game snapshot.');
      if(b.newGame){match++;for(const m of members.values())m.seat=null;queue.length=0;}
-     state=s;revision++;audio.invalidate();if(typeof b.id==='string'){snapshots.add(b.id);if(snapshots.size>256)snapshots.delete(snapshots.values().next().value);}for(let i=queue.length-1;i>=0;i--)if((b.ack||[]).includes(queue[i].id)||queue[i].revision<revision)queue.splice(i,1);send(res,200,{revision,match});return;
+     state=s;for(const m of members.values())if(m.seat!==null&&m.seat===s.localHostSeat)m.seat=null;revision++;audio.invalidate();if(typeof b.id==='string'){snapshots.add(b.id);if(snapshots.size>256)snapshots.delete(snapshots.values().next().value);}for(let i=queue.length-1;i>=0;i--)if((b.ack||[]).includes(queue[i].id)||queue[i].revision<revision)queue.splice(i,1);send(res,200,{revision,match});return;
     }
     if(route==='/api/host/seat'&&req.method==='POST'){
      const b=await body(req),m=members.get(b.id);if(!m||m.revoked)fail(404,'Player not found.');if(b.seat!==null&&(!state?.players[b.seat]||!Number.isInteger(b.seat)))fail(400,'Choose a seat.');
+     if(b.seat!==null&&state?.localHostSeat===b.seat)fail(409,'That is the host player seat.');
      if(b.seat!==null&&[...members.values()].some(other=>other!==m&&!other.revoked&&other.seat===b.seat))fail(409,'That seat is already assigned.');audio.remove(m.id);m.seat=b.seat;for(let i=queue.length-1;i>=0;i--)if(queue[i].memberId===m.id)queue.splice(i,1);send(res,200,{ok:true});return;
     }
     if(route==='/api/host/remove'&&req.method==='POST'){

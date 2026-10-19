@@ -73,3 +73,6 @@ body.play-mode #playRoot{font-size:14px;line-height:1.35;height:var(--play-heigh
 #playRoot .play-tournament-link{color:#60d394;border-color:#60d39466;white-space:nowrap}
 #playRoot .play-header{padding-right:52px}
 @media(max-width:600px){#playRoot .play-footer{flex-wrap:wrap}#playRoot .play-footer nav{flex:1 1 auto}#playLatest{display:none}}
+
+/* Table tools stay out of the playing area until opened. */
+.play-tools-dialog{background:#18222b;color:#f2eee6;border:1px solid #657e78;border-radius:16px;width:min(600px,calc(100vw - 40px));max-height:85dvh;overflow:auto;padding:20px}.play-tools-dialog section{padding:12px 0;border-bottom:1px solid #41514e}.play-tools-dialog label{display:block;margin:8px 0}.play-tools-dialog input,.play-tools-dialog select{max-width:100%;padding:8px;margin:5px;box-sizing:border-box}.play-tools-dialog button{padding:10px;margin:5px;background:#293d43;color:#fff;border:1px solid #67827d;border-radius:7px}.play-tools-dialog p{line-height:1.5}.play-header nav{flex-wrap:wrap}#playShotClock{font-variant-numeric:tabular-nums;font-size:24px;color:#86edc2;padding:8px 0}

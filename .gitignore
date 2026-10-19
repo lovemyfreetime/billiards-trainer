@@ -5,3 +5,6 @@ windows-wrapper/obj/
 windows-wrapper/bin/
 windows-wrapper/output/
 windows-wrapper/local-play/
+
+android-wrapper/.gradle/
+android-wrapper/app/build/

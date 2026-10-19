@@ -27,6 +27,12 @@ android {
 
     flavorDimensions += 'target'
     productFlavors {
+        play {
+            dimension 'target'
+            applicationIdSuffix '.play'
+            buildConfigField 'String', 'APP_URL', '"http://127.0.0.1:8788/play.html"'
+            manifestPlaceholders = [appLabel: 'Billiards Play Preview']
+        }
         trainer {
             dimension 'target'
             buildConfigField 'String', 'APP_URL', '"https://lovemyfreetime.github.io/billiards-trainer/"'
@@ -39,6 +45,8 @@ android {
             manifestPlaceholders = [appLabel: 'Billiards Trainer Installer']
         }
     }
+
+    sourceSets { play.assets.srcDirs += ['build/generated/playAssets'] }
 
     signingConfigs {
         release {
@@ -59,3 +67,13 @@ android {
         }
     }
 }
+
+dependencies {
+    playImplementation 'org.nanohttpd:nanohttpd:2.3.1'
+    playImplementation 'com.google.zxing:core:3.5.3'
+}
+tasks.register('bundlePlayAssets', Exec) {
+    workingDir rootProject.projectDir.parentFile
+    commandLine 'python3', 'scripts/package-play.py', '--android'
+}
+tasks.configureEach { if (name.startsWith('mergePlay') && name.endsWith('Assets')) dependsOn 'bundlePlayAssets' }

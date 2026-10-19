@@ -74,3 +74,13 @@ test('table audio serializes voices, leaves a gap, and recovers from a lost phon
  q.request('b','removed',2);q.remove('b');q.finish('c','fresh');clock+=800;
  assert.equal(q.request('a','next',2).granted,true);
 });
+
+test('host seat is reserved and synchronized clock exposes no private game snapshot',async t=>{
+ const host=createHost({port:0,bind:'127.0.0.1'}),ready=await host.listen(),base='http://127.0.0.1:'+ready.port;t.after(()=>{host.server.closeAllConnections();host.server.close();});
+ const api=async(route,token,data)=>{const r=await fetch(base+'/api/'+route,{method:data?'POST':'GET',headers:{...(token?{Authorization:'Bearer '+token}:{}),...(data?{'Content-Type':'application/json'}:{})},body:data?JSON.stringify(data):undefined});return {status:r.status,...await r.json()};};
+ const info=await api('host',host.hostToken),joined=await api('join',null,{invite:info.invite,name:'A'}),member=(await api('host',host.hostToken)).members[0];
+ const state=E.create({game:'poker',names:['A','B'],seed:1});state.localHostSeat=0;state.localClock={seconds:30,remaining:30000,deadline:Date.now()+30000,turn:0,used:{}};
+ await api('host/state',host.hostToken,{state,newGame:true});assert.equal((await api('host/seat',host.hostToken,{id:member.id,seat:0})).status,409);assert.equal((await api('host/seat',host.hostToken,{id:member.id,seat:1})).status,200);
+ const player=await api('player',joined.token);assert(player.serverTime>0);assert.deepEqual(player.view.clock,state.localClock);assert(!('localHostSeat' in player.view));assert(!('deck' in player.view));
+ state.localHostSeat=1;await api('host/state',host.hostToken,{state});assert.equal((await api('player',joined.token)).approved,false);
+});

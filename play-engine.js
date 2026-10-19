@@ -58,7 +58,7 @@ function finishPokerTurn(s){
  }
  if(!s.remaining.length){s.rack++;rack(s);}
 }
-function ghostRack(s,win){s.points[win?0:1]++;s.last=win?'You won the rack.':'The ghost takes the rack.';if(s.points[win?0:1]===5){result(s,win?[0]:[],win?'You beat the ghost!':'The ghost wins the match.');return;}s.rack++;rack(s);}
+function ghostRack(s,win){if(s.ghostStats){s.ghostStats[win?'racksWon':'racksLost']++;s.ghostStats.currentRun=0;}s.points[win?0:1]++;s.last=win?'You won the rack.':'The ghost takes the rack.';if(s.points[win?0:1]===5){result(s,win?[0]:[],win?'You beat the ghost!':'The ghost wins the match.');return;}s.rack++;rack(s);}
 function resolve(s,event){
  if(s.phase!=='ready')throw Error('Finish the current step first');
  const p=s.players[s.active],wasBreak=s.isBreak,valid=event.potted||[];
@@ -74,6 +74,10 @@ function resolve(s,event){
  if(wasBreak&&!foul&&s.game!=='ghost'&&!made&&(s.game==='killer'||event.breakLegal===false)){
   if(!s.breakRetry){s.breakRetry=1;s.needsRack=true;s.phase='placement';s.last='Free break retry. Rack again.';return;}
   if(s.game!=='killer')foul=true;
+ }
+ if(s.game==='ghost'){
+  const g=s.ghostStats||{attempts:0,pots:0,misses:0,fouls:0,breakPots:0,currentRun:0,bestRun:0,racksWon:0,racksLost:0};
+  g.attempts++;if(wasBreak)g.breakPots+=valid.length;else{g.pots+=foul?0:valid.length;g.misses+=!made&&!foul?1:0;g.fouls+=foul?1:0;g.currentRun=foul||!made?0:g.currentRun+valid.length;g.bestRun=Math.max(g.bestRun,g.currentRun);}s.ghostStats=g;
  }
  s.shots++;s.isBreak=false;s.returns=[];s.ballInHand=false;
  s.remaining=s.remaining.filter(id=>!valid.includes(id));

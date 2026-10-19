@@ -1,0 +1,14 @@
+/* Measurements of rolling balls, SI units. Robust median and repeatability gate. */
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCalibration=api;})(globalThis,function(){
+'use strict';
+function median(a){const b=[...a].sort((x,y)=>x-y),i=Math.floor(b.length/2);return b.length%2?b[i]:(b[i-1]+b[i])/2;}
+function result(values,min,max){if(values.length<3||values.some(v=>!Number.isFinite(v)||v<min||v>max))throw Error('Enter at least three valid measurements in the stated range.');const value=median(values),spread=Math.max(...values)-Math.min(...values),consistent=spread/value<=0.25;return {value,spread,consistent,samples:values.length};}
+function rolling(rows){return result(rows.map(({distance,time})=>{if(!(distance>0&&time>0))return NaN;return 2*distance/(9.80665*time*time);}),0.001,0.1);}
+function cushion(rows){return result(rows.map(({before,after})=>{if(!(before>0&&after>0&&after<before))return NaN;return after/before;}),0.3,0.98);}
+return {rolling,cushion};
+});
+if(typeof document!=='undefined')document.addEventListener('DOMContentLoaded',()=>{
+ const $=id=>document.getElementById(id);if(!$('calibrationForm'))return;let output=null;
+ $('calibrationForm').onsubmit=e=>{e.preventDefault();try{const parse=id=>$(id).value.trim().split(/\n/).filter(Boolean).map(row=>row.split(/[,\s]+/).map(Number));const roll=BilliardsCalibration.rolling(parse('rollSamples').map(([distance,time])=>({distance,time}))),rail=BilliardsCalibration.cushion(parse('railSamples').map(([before,after])=>({before,after})));output={version:1,muRoll:roll.value,railRest:rail.value,measuredAt:new Date().toISOString(),roll,rail};$('calibrationResult').textContent=`Rolling friction μ ${roll.value.toFixed(4)}; cushion restitution ${rail.value.toFixed(3)}. ${roll.consistent&&rail.consistent?'Repeats agree within 25%. You can apply these estimates to Trainer.':'Measurements vary by more than 25%. Repeat the trials before applying.'}`;$('applyCalibration').disabled=!(roll.consistent&&rail.consistent);const link=$('transferCalibration');link.hidden=!(roll.consistent&&rail.consistent);link.href='https://lovemyfreetime.github.io/billiards-trainer/?train=1#measuredPhysics='+encodeURIComponent(JSON.stringify(output));}catch(err){output=null;$('transferCalibration').hidden=true;$('applyCalibration').disabled=true;$('calibrationResult').textContent=err.message;}};
+ $('applyCalibration').onclick=()=>{if(!output)return;try{localStorage.setItem('billiardsMeasuredPhysics-v1',JSON.stringify(output));$('calibrationResult').textContent+=' Saved. Open Trainer and choose Apply measured table settings in Physics.';}catch{$('calibrationResult').textContent='Could not save these measurements.';}};
+});

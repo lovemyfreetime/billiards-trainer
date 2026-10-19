@@ -1,9 +1,14 @@
-const CACHE_NAME = 'billiards-trainer-4-12-tournament-display-v162';
+const CACHE_NAME = 'billiards-trainer-4-12-play-input-tools-v163';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
+  './play-input.js?v=1',
+  './play-training.js?v=1',
+  './play-controls.js?v=1',
+  './play-calibration.js',
+  './play-calibration.html',
   './app-display.js?v=1',
   './app-display.css?v=1',
-  './local-session.js?v=local-table-v1',
+  './local-session.js?v=local-table-v3',
   './local-session.css?v=local-table-v1',
   './welcome.html',
   './play.html',
@@ -13,14 +18,14 @@ const APP_SHELL = [
   './tournament.css?v=1',
   './icons/play-experience-v1.webp',
   './icons/trainer-original-execute-v2.svg',
-  './experience-menu.js?v=matching-lotus-v10',
+  './experience-menu.js?v=offline-play-v11',
   './experience-menu.css?v=6',
   './play-viewport.js?v=android-play-v1',
   './play-catalog.js?v=catalog-v1',
-  './play-engine.js?v=catalog-v1',
+  './play-engine.js?v=ghost-stats-v2',
   './play-presentation.js?v=play-room-v1',
-  './play-mode.js?v=tournament-play-v2',
-  './play-mode.css?v=tournament-play-v2',
+  './play-mode.js?v=shared-input-v1',
+  './play-mode.css?v=shared-input-v1',
 
   './trainer-action-history.js?v=2',
   './trainer-table-exchange.js?v=1',
@@ -88,6 +93,7 @@ function navigationShell(url) {
   const path = new URL(url).pathname;
   if (path.endsWith('/welcome.html')) return './welcome.html';
   if (path.endsWith('/tournament.html')) return './tournament.html';
+  if (path.endsWith('/play-calibration.html')) return './play-calibration.html';
   if (path.endsWith('/play.html')) return './play.html';
   return './index.html';
 }

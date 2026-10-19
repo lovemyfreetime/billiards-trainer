@@ -16,3 +16,8 @@ https://lovemyfreetime.github.io/billiards-trainer/
 Open this folder in Android Studio and build the `app` module, or use the included GitHub Actions workflow.
 
 Minimum Android: Android 10 (API 29).
+
+
+## Standalone offline Play preview
+
+The separate `play` flavor bundles the current Play assets and includes a local session server, on-device voice adapter, native offline TTS, external clicker handling and local-only hotspot setup. Build with `gradle :app:assemblePlayDebug`. It uses a separate application ID ending `.play`. The added `build-android-play.yml` workflow compiles it without replacing published Trainer/Installer APKs. See `docs/PLAY_IMPLEMENTATION_ROADMAP.md` for hardware validation still required.

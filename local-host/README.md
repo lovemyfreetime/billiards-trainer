@@ -1,6 +1,6 @@
 # Billiards Play — Local table hosting
 
-The first hosting release runs on Windows. Player screens run in Android, iPhone, iPad, Chromebook, Windows, and other modern browsers. Android hosting is not included in this release.
+The first hosting release runs on Windows. Player screens run in Android, iPhone, iPad, Chromebook, Windows, and other modern browsers. Android hosting is being introduced in a separate offline Android Play preview; see `docs/PLAY_IMPLEMENTATION_ROADMAP.md` for verification limits.
 
 ## Windows app
 

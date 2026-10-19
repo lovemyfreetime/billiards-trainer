@@ -13,11 +13,11 @@ async function flush(){if(uploading||!sharing)return;uploading=true;let snapshot
 // Host speech uses the same lease as every player phone.
 let announcement=null,alertSerial=0;
 function cancelSpeech(){
- const a=announcement;if(!a)return;announcement=null;clearTimeout(a.timer);window.speechSynthesis?.cancel();
+ const a=announcement;if(!a)return;announcement=null;clearTimeout(a.timer);window.BilliardsAudio?.cancel();
  api('/audio',{id:a.id,done:true}).catch(()=>{});
 }
 function speak(message){
- cancelSpeech();if(!active||!sharing||document.hidden||!window.speechSynthesis)return;
+ cancelSpeech();if(!active||!sharing||document.hidden||!window.BilliardsAudio?.available())return;
  const a={id:'host-'+Date.now()+'-'+(++alertSerial),timer:null,revision:null};announcement=a;
  async function attempt(){
   if(announcement!==a)return;
@@ -32,9 +32,7 @@ function speak(message){
    if(announcement!==a){api('/audio',{id:a.id,done:true}).catch(()=>{});return;}
    if(!slot.granted){a.timer=setTimeout(attempt,250);return;}
    const budget=slot.remaining-(performance.now()-sent);if(budget<1000){cancelSpeech();return;}
-   const u=new SpeechSynthesisUtterance(message);u.rate=1.08;
-   u.onend=u.onerror=()=>{if(announcement===a)cancelSpeech();};
-   a.timer=setTimeout(()=>{if(announcement===a)cancelSpeech();},budget);window.speechSynthesis.speak(u);
+   a.timer=setTimeout(()=>{if(announcement===a)cancelSpeech();},budget);window.BilliardsAudio.speak(message,()=>{if(announcement===a)cancelSpeech();});
   }catch{if(announcement===a)cancelSpeech();}
  }
  attempt();
@@ -49,6 +47,7 @@ function createDialog(){
   if(window.BilliardsWindowsHostAvailable)dialog.append(button('Start hosting on this computer',()=>{error('Starting the local host…');window.chrome.webview.postMessage({type:'start-local-play'});},'local-primary'));
   else{const a=el('a','Get the Windows host','local-download');a.href='https://lovemyfreetime.github.io/billiards-trainer/install/windows/';dialog.append(a,el('p','Install the updated Windows app to host. Android, iPhone, iPad, and other computers can join as players in their browsers.'));}
  }else{
+  if(window.BilliardsAndroid?.startLocalHotspot){dialog.append(button('Create Android local hotspot',()=>window.BilliardsAndroid.startLocalHotspot()),button('Open Wi-Fi settings',()=>window.BilliardsAndroid.openWifiSettings()));}
   note.textContent='Keep this host running. Players must join the same trusted private Wi-Fi; the network must allow devices to communicate. No internet is needed during play.';
   const linkLabel=el('label','Address players can reach');linkLabel.htmlFor='localAddress';const select=el('select');select.id='localAddress';select.onchange=()=>qr(select.value);const img=el('img');img.id='localQR';img.alt='Scan to join this local table';img.width=260;img.height=260;
   const address=el('p','','local-address');address.id='localJoinLink';
@@ -69,7 +68,7 @@ function roster(data){
 }
 async function poll(){if(!active||polling)return;polling=true;try{
  const data=await api('');if(dialog?.open){roster(data);const signature=JSON.stringify(data.urls);if(lastURLs!==signature){lastURLs=signature;const select=document.getElementById('localAddress');select.replaceChildren(...data.urls.map(url=>{const o=el('option',new URL(url).hostname);o.value=url;return o;}));qr(select.value);}}
- if(!uploading&&!pending){const ack=[];for(const item of data.events){ack.push(item.id);if(eventsSeen.has(item.id))continue;eventsSeen.add(item.id);if(item.revision===revision&&sharing)adapter?.applyAction(item.event,item.seat);}if(ack.length)await api('/ack',{ids:ack});}
+ if(!uploading&&!pending){const ack=[];for(const item of data.events){ack.push(item.id);if(eventsSeen.has(item.id))continue;eventsSeen.add(item.id);if(item.revision===revision&&sharing)adapter?.applyAction(item.event,item.seat,{id:item.id});}if(ack.length)await api('/ack',{ids:ack});}
  error('');
  }catch(e){error('Local host disconnected. '+e.message);}finally{polling=false;}}
 function open(){if(!dialog)createDialog();if(!dialog.open)dialog.showModal();if(active){publish(adapter?.getState());lastURLs='';poll();}}
