@@ -1,0 +1,19 @@
+{
+  "name": "billiards-local-table",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Offline LAN hosting for Billiards Play",
+  "scripts": {
+    "start": "node server.cjs",
+    "test": "node --test test.cjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "qrcode": "1.5.4"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}

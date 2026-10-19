@@ -1,0 +1,7 @@
+# Local Play host dependencies and generated builds
+local-host/node_modules/
+windows-wrapper/publish/
+windows-wrapper/obj/
+windows-wrapper/bin/
+windows-wrapper/output/
+windows-wrapper/local-play/

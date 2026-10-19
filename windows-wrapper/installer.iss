@@ -30,6 +30,8 @@ Source: "assets\MicrosoftEdgeWebview2Setup.exe"; DestDir: "{tmp}"; Flags: delete
 Name: "{autoprograms}\Billiards Trainer AI Edition 4.12"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\Billiards Trainer AI Edition 4.12"; Filename: "{app}\{#MyAppExeName}"
 
+Name: "{autoprograms}\Billiards Play - Local Host"; Filename: "{app}\{#MyAppExeName}"; Parameters: "--host-play"
+
 [Run]
 Filename: "{tmp}\MicrosoftEdgeWebview2Setup.exe"; Parameters: "/silent /install"; StatusMsg: "Preparing the Billiards Trainer display engine..."; Flags: waituntilterminated skipifdoesntexist
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch Billiards Trainer AI Edition 4.12"; Flags: nowait postinstall skipifsilent

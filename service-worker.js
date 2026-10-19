@@ -1,6 +1,8 @@
-const CACHE_NAME = 'billiards-trainer-4-12-description-dots-v157';
+const CACHE_NAME = 'billiards-trainer-4-12-local-table-v158';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
+  './local-session.js?v=local-table-v1',
+  './local-session.css?v=local-table-v1',
   './welcome.html',
   './play.html',
   './icons/play-experience-v1.webp',
@@ -11,7 +13,7 @@ const APP_SHELL = [
   './play-catalog.js?v=catalog-v1',
   './play-engine.js?v=catalog-v1',
   './play-presentation.js?v=play-room-v1',
-  './play-mode.js?v=catalog-header-v4',
+  './play-mode.js?v=local-table-v5',
   './play-mode.css?v=catalog-header-v2',
 
   './trainer-action-history.js?v=2',

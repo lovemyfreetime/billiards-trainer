@@ -5,6 +5,13 @@ on:
   push:
     paths:
       - 'windows-wrapper/**'
+      - 'local-host/**'
+      - 'local-session.*'
+      - 'play-*.js'
+      - 'play-*.css'
+      - 'experience-menu.*'
+      - 'icons/*'
+      - 'play.html'
       - '.github/workflows/build-windows-wrapper.yml'
 
 permissions:
@@ -19,6 +26,22 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.19.0'
+
+      - name: Verify local host
+        shell: pwsh
+        run: |
+          npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --test local-host/test.cjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node local-host/node_modules/playwright/cli.js install chromium
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node local-host/browser.cjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Create Windows icon
         shell: pwsh
@@ -42,6 +65,23 @@ jobs:
           dotnet restore windows-wrapper/BilliardsTrainer.Windows.csproj
           dotnet publish windows-wrapper/BilliardsTrainer.Windows.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -p:ApplicationIcon=assets/billiards-trainer.ico -o windows-wrapper/publish
 
+      - name: Bundle offline local Play host
+        shell: pwsh
+        run: |
+          npm prune --prefix local-host --omit=dev --ignore-scripts --no-audit --no-fund
+          $destination = 'windows-wrapper/publish/local-play'
+          New-Item -ItemType Directory -Force "$destination/local-host", "$destination/icons" | Out-Null
+          Copy-Item (Get-Command node).Source "$destination/node.exe"
+          $nodeLicense = Join-Path (Split-Path (Get-Command node).Source) 'LICENSE'
+          if (Test-Path $nodeLicense) { Copy-Item $nodeLicense "$destination/NODE-LICENSE.txt" }
+          Copy-Item play.html, play-mode.js, play-mode.css, play-engine.js, play-catalog.js, play-presentation.js, play-viewport.js, experience-menu.js, experience-menu.css, local-session.js, local-session.css $destination
+          Copy-Item local-host/server.cjs, local-host/player.html, local-host/player.js, local-host/player.css, local-host/package.json, local-host/package-lock.json, local-host/start.cjs "$destination/local-host"
+          Copy-Item local-host/node_modules "$destination/local-host/node_modules" -Recurse
+          Copy-Item icons/icon-192.png, icons/play-experience-v1.webp, icons/trainer-original-execute-v2.svg "$destination/icons"
+          Copy-Item local-host/Start-Local-Play.cmd $destination
+          Copy-Item local-host/README.md "$destination/README.md"
+          Compress-Archive -Path "$destination/*" -DestinationPath 'windows-wrapper/output-local-play.zip' -Force
+
       - name: Install Inno Setup
         shell: pwsh
         run: choco install innosetup --no-progress -y
@@ -56,13 +96,14 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git pull --rebase origin main
+          git pull --rebase origin "${{ github.ref_name }}"
           New-Item -ItemType Directory -Force downloads | Out-Null
+          Copy-Item 'windows-wrapper/output-local-play.zip' 'downloads/Billiards-Play-Local-Host-Windows.zip' -Force
           Copy-Item 'windows-wrapper/output/Billiards-Trainer-Windows-Setup.exe' 'downloads/Billiards-Trainer-Windows-Setup.exe' -Force
-          git add -f downloads/Billiards-Trainer-Windows-Setup.exe
+          git add -f downloads/Billiards-Trainer-Windows-Setup.exe downloads/Billiards-Play-Local-Host-Windows.zip
           if (-not (git diff --cached --quiet)) {
             git commit -m 'Publish Windows wrapper installer'
-            git push origin HEAD:main
+            git push origin "HEAD:${{ github.ref_name }}"
           } else {
             Write-Host 'Published Windows installer is already current.'
           }

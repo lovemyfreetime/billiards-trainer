@@ -19,3 +19,7 @@ Play is available at https://lovemyfreetime.github.io/billiards-trainer/play.htm
 ## Validation
 
 The release was checked with the automated tests and browser verification of Guide audio, the Analyze walkthrough, cue preset persistence, recovery actions, saved layouts, and offline use.
+
+## Local Play tables
+
+The Windows app includes an offline local host. Open **Billiards Play - Local Host**, choose a game, then use **Local table** to invite phones by QR. The host approves seats and records results; players receive only their own private view and can enable foreground turn alerts. See [local-host/README.md](local-host/README.md) for setup, network requirements, privacy boundaries, and tests.

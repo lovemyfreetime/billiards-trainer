@@ -14,7 +14,9 @@
 <script src="./play-presentation.js?v=play-room-v1" defer></script>
 <link rel="stylesheet" href="./experience-menu.css?v=6">
 <script src="./experience-menu.js?v=ordered-experiences-v9"></script>
-<script src="./play-mode.js?v=catalog-header-v4" defer></script>
+<link rel="stylesheet" href="./local-session.css?v=local-table-v1">
+<script src="./local-session.js?v=local-table-v1" defer></script>
+<script src="./play-mode.js?v=local-table-v5" defer></script>
 </head>
-<body><script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").then(reg=>reg.update()).catch(err=>console.warn("Service worker registration failed:",err)));</script></body>
+<body><script>if(!["127.0.0.1","localhost"].includes(location.hostname)&&"serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").then(reg=>reg.update()).catch(err=>console.warn("Service worker registration failed:",err)));</script></body>
 </html>

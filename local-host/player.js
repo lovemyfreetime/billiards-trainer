@@ -1,0 +1,34 @@
+(function(){'use strict';
+const $=id=>document.getElementById(id),storeKey='billiards-local-player',inviteKey='billiards-local-invite';
+let token=sessionStorage.getItem(storeKey),invite=new URLSearchParams(location.hash.slice(1)).get('invite')||sessionStorage.getItem(inviteKey),current=null,revealed=false,enabled=false,lastAlert=null,busy=false,pendingAction=false;
+if(invite){sessionStorage.setItem(inviteKey,invite);history.replaceState(null,'',location.pathname);}
+function node(tag,value,cls){const e=document.createElement(tag);e.textContent=value;if(cls)e.className=cls;return e;}
+function clearPrivate(){revealed=false;$('private').hidden=true;$('private').replaceChildren();$('reveal').textContent='Show my private view';}
+async function api(route,data){const r=await fetch('/api/'+route,{method:data?'POST':'GET',headers:{...(data?{'Content-Type':'application/json'}:{}),...(token?{Authorization:'Bearer '+token}:{})},body:data?JSON.stringify(data):undefined,cache:'no-store'});const v=await r.json();if(!r.ok)throw Object.assign(Error(v.error||'Connection failed'),{status:r.status});return v;}
+$('join').onsubmit=async e=>{e.preventDefault();$('error').textContent='';try{const r=await api('join',{name:$('name').value,invite});token=r.token;sessionStorage.setItem(storeKey,token);await poll();}catch(err){$('error').textContent=err.message;}};
+function speak(message){if(!enabled||document.hidden)return;window.speechSynthesis?.cancel();if(window.speechSynthesis){const u=new SpeechSynthesisUtterance(message);u.rate=1;window.speechSynthesis.speak(u);}if($('vibrate').checked)navigator.vibrate?.([150,80,150]);}
+$('enableAlerts').onclick=()=>{enabled=!enabled;$('enableAlerts').textContent=enabled?'Turn alerts on · Tap to mute':'Enable turn alerts';if(enabled)speak('Turn alerts enabled.');else window.speechSynthesis?.cancel();};
+if(!navigator.vibrate){$('vibrate').checked=false;$('vibrate').disabled=true;}
+function action(type,index){if(pendingAction)return;pendingAction=true;drawPrivate();api('action',{type,index,revision:current.revision}).then(()=>{$('error').textContent='Choice sent. Waiting for the host.';}).catch(err=>{pendingAction=false;$('error').textContent=err.message;drawPrivate();});}
+function actionButton(label,type,index){const b=node('button',label);b.type='button';b.disabled=pendingAction;b.onclick=()=>action(type,index);return b;}
+function cards(values){const box=node('div','','cards');for(const value of values)box.append(node('div',value,'card'+(/[♥♦]/.test(value)?' red':'')));return box;}
+function drawPrivate(){const s=current?.view;if(!s||!revealed)return;const p=s.private,box=$('private');box.replaceChildren(node('h3','Only your view'));if(p.hand)box.append(cards(p.hand));if(p.total!==undefined)box.append(node('p','Your total: '+p.total));if(p.target!==undefined)box.append(node('p','Your secret ball: '+p.target));if(p.role)box.append(node('p','Your role: '+p.role));if(p.fleet)box.append(node('p','Your ship cells: '+p.fleet.map(i=>String.fromCharCode(65+Math.floor(i/3))+(i%3+1)).join(', ')));if(p.attacks?.length)box.append(node('p','Your attacks: '+p.attacks.map(a=>String.fromCharCode(65+Math.floor(a.cell/3))+(a.cell%3+1)+(a.hit?' HIT':' miss')).join(', ')));
+ if(p.choices){box.append(node('p','Choose the card to keep:'));p.choices.forEach((label,i)=>box.append(actionButton(label,'choose',i)));}
+ if(s.actions.includes('stand'))box.append(actionButton('Stand','stand'));
+ if(s.actions.includes('fleet-shuffle'))box.append(actionButton('Shuffle my fleet','fleet-shuffle'),actionButton('Lock my fleet','fleet-lock'));
+ if(s.actions.includes('vote')){box.append(node('p','Choose your suspect privately:'));s.players.forEach((player,i)=>box.append(actionButton(player.name,'vote',i)));box.append(actionButton('Abstain','vote',-1));}
+ if(!Object.keys(p).length)box.append(node('p','This game has no secret information for your seat.'));
+}
+$('reveal').onclick=()=>{if(revealed)clearPrivate();else{revealed=true;$('private').hidden=false;$('reveal').textContent='Hide my private view';drawPrivate();}};
+function render(data){const old=current;current=data;if(old?.revision!==data.revision){pendingAction=false;$('error').textContent='';}
+ $('join').hidden=true;$('waiting').hidden=data.approved&&!!data.view;$('game').hidden=!data.approved||!data.view;$('connection').textContent=data.hostOnline?'Connected to your local table':'Host screen disconnected · waiting to reconnect';
+ if(!data.approved||!data.view){clearPrivate();$('waitingName').textContent=data.name+', your request is with the host.';lastAlert=null;return;}
+ const s=data.view;$('gameName').textContent=s.name;$('rules').textContent=s.rules;$('round').textContent='Round '+s.round+' · '+s.shots+' strokes recorded';$('notice').textContent=s.result?.text||s.last;
+ const me=s.players[s.you],who=s.players[s.active];$('turn').textContent=s.phase==='result'?'Game complete':s.active===s.you?me.name+', you’re at the table':who.name+' is at the table';$('turn').classList.toggle('mine',s.active===s.you&&s.phase!=='result');
+ $('scores').replaceChildren(...s.players.map(p=>{const e=node('div','','score'+(p.id===s.active?' active':''));e.append(node('strong',p.name+(p.id===s.you?' · You':'')),node('span',p.stat));return e;}));
+ const key=[data.match,s.round,s.shots,s.active,s.phase].join(':');if(lastAlert!==null&&lastAlert!==key&&data.hostOnline){if(s.phase==='result')speak(s.result?.text||'Game complete.');else if(s.active===s.you)speak(me.name+', it’s your turn.');else if(s.next===s.you)speak(me.name+', you’re next in the player order.');}lastAlert=key;
+ if(old?.match!==data.match||old?.view?.you!==s.you)clearPrivate();drawPrivate();
+}
+async function poll(){if(busy||document.hidden)return;if(!token){$('join').hidden=false;$('connection').textContent=invite?'Enter your name to join this table.':'Scan your host’s QR code to join.';$('join').querySelector('button').disabled=!invite;return;}busy=true;try{render(await api('player'));}catch(err){clearPrivate();$('connection').textContent='Disconnected · retrying';if(err.status===401){token=null;sessionStorage.removeItem(storeKey);$('game').hidden=true;$('waiting').hidden=true;$('join').hidden=false;$('error').textContent=err.message;}}finally{busy=false;}}
+window.addEventListener('blur',clearPrivate);document.addEventListener('visibilitychange',()=>{if(document.hidden){clearPrivate();window.speechSynthesis?.cancel();}else{lastAlert=null;poll();}});poll();setInterval(poll,1000);
+})();
