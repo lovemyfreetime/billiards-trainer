@@ -1424,6 +1424,8 @@
 .bt-file-library{width:100%;min-width:0;margin-top:8px}.bt-saved-files{display:flex;flex-wrap:wrap;align-items:end;gap:5px}.bt-saved-files label{display:flex;flex:1 1 180px;flex-direction:column;gap:4px;font-size:11px;min-width:0}.bt-saved-files select{width:100%;min-width:0}.bt-saved-files button{white-space:nowrap}.bt-file-status{font-size:11px;margin-top:4px}.photoAnalyzerFooter .bt-file-library{flex-basis:100%;margin-top:2px}.photoAnalyzerHeader #btg-analyze-explore{width:30px;height:30px;flex:0 0 30px;font-size:17px;border-width:1px;align-self:center}.photoAnalyzerHeader{gap:4px!important}
 </style>
 <link rel="stylesheet" href="./phone-play.css?v=11">
+<link rel="stylesheet" href="./app-display.css?v=1">
+<script src="./app-display.js?v=1" defer></script>
 </head>
 <body>
 <div id="app">
@@ -1543,7 +1545,7 @@
     <div id="toast"></div>
   </div>
   <aside id="panel">
-    <div class="btg-pool-title"><h1>Billiards Trainer<span class="editionSub">AI Camera Edition</span></h1>
+    <div class="btg-pool-title"><h1>Billiards <span class="trainer-title-color">Trainer</span><span class="editionSub">AI Camera Edition</span></h1>
       <div id="btg-pool-launchers" aria-label="Learning tools">
         <button id="btg-pool-start" class="btg-launcher" type="button" title="Get Started" aria-label="Get Started" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg></button>
         <button id="btg-pool-guide" class="btg-launcher" type="button" title="Guide: techniques and drills" aria-label="Toggle Guide" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 8l10-5 10 5-10 5zM6 10v6c3 3 9 3 12 0v-6M22 8v9"/></svg></button>
@@ -12539,7 +12541,7 @@ if ('serviceWorker' in navigator) {
     </div>
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=fit5">
-  <script src="./phone-play.js?v=11"></script>
+  <script src="./phone-play.js?v=12"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <script src="./guide/guide.js?v=completion-tour-v25"></script>

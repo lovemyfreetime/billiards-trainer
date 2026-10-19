@@ -37,7 +37,7 @@ function createHost({port=8788,bind='0.0.0.0',hostToken=secret(),addressProvider
  function limited(req){const ip=req.socket.remoteAddress,now=Date.now(),r=rates.get(ip)||{time:now,n:0};if(now-r.time>60000){r.time=now;r.n=0;}if(++r.n>12)fail(429,'Please wait before joining again.');rates.set(ip,r);}
  const files=new Map([
  ['/join','local-host/player.html'],['/','local-host/player.html'],['/player.js','local-host/player.js'],['/player.css','local-host/player.css'],
- ...['tournament.html','tournament-engine.js','tournament-ui.js','tournament.css','play.html','play-mode.js','play-mode.css','play-engine.js','play-catalog.js','play-presentation.js','play-viewport.js','experience-menu.js','experience-menu.css','local-session.js','local-session.css','icons/icon-192.png','icons/play-experience-v1.webp','icons/trainer-original-execute-v2.svg'].map(f=>['/'+f,f])]);
+ ...['app-display.js','app-display.css','manifest.webmanifest','tournament.html','tournament-engine.js','tournament-ui.js','tournament.css','play.html','play-mode.js','play-mode.css','play-engine.js','play-catalog.js','play-presentation.js','play-viewport.js','experience-menu.js','experience-menu.css','local-session.js','local-session.css','icons/icon-192.png','icons/play-experience-v1.webp','icons/trainer-original-execute-v2.svg'].map(f=>['/'+f,f])]);
  const server=http.createServer(async(req,res)=>{
   res.setHeader('Cache-Control','no-store');res.setHeader('Referrer-Policy','no-referrer');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; form-action 'self'");
   try{

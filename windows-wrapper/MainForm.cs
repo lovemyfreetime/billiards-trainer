@@ -33,7 +33,7 @@ public sealed class MainForm : Form
         webView.DefaultBackgroundColor = Color.FromArgb(9, 11, 14);
         Controls.Add(webView);
 
-        Shown += async (_, _) => await InitializeWebViewAsync();
+        Shown += async (_, _) => { ToggleFullscreen(); await InitializeWebViewAsync(); };
         KeyDown += MainForm_KeyDown;
         FormClosed += (_, _) => StopLocalHost();
     }
@@ -58,17 +58,32 @@ public sealed class MainForm : Form
             core.Settings.AreBrowserAcceleratorKeysEnabled = true;
             core.Settings.IsZoomControlEnabled = true;
 
-            await core.AddScriptToExecuteOnDocumentCreatedAsync("if(location.origin==='https://lovemyfreetime.github.io')window.BilliardsWindowsHostAvailable=true;");
+            await core.AddScriptToExecuteOnDocumentCreatedAsync("if(location.origin==='https://lovemyfreetime.github.io'){window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=true;}");
+            core.NavigationCompleted += async (_, _) =>
+            {
+                await core.ExecuteScriptAsync("window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=" +
+                    (isFullscreen ? "true" : "false") + ";window.dispatchEvent(new CustomEvent('billiards:native-fullscreen',{detail:window.BilliardsWindowsFullscreen}));");
+            };
             core.WebMessageReceived += async (_, e) =>
             {
-                if (!Uri.TryCreate(e.Source, UriKind.Absolute, out var source) ||
-                    source.Scheme != "https" || source.Host != "lovemyfreetime.github.io" ||
-                    !source.AbsolutePath.StartsWith("/billiards-trainer/", StringComparison.Ordinal)) return;
+                if (!Uri.TryCreate(e.Source, UriKind.Absolute, out var source)) return;
+                var publicApp = source.Scheme == "https" && source.Host == "lovemyfreetime.github.io" &&
+                    source.AbsolutePath.StartsWith("/billiards-trainer/", StringComparison.Ordinal);
+                var localApp = localHostUri != null && source.Scheme == "http" && source.Host == "127.0.0.1" && source.Port == localHostUri.Port;
+                if (!publicApp && !localApp) return;
                 try
                 {
                     using var message = JsonDocument.Parse(e.WebMessageAsJson);
-                    if (message.RootElement.TryGetProperty("type", out var type) && type.GetString() == "start-local-play")
-                        await StartLocalHostAsync();
+                    if (message.RootElement.TryGetProperty("type", out var type))
+                    {
+                        if (publicApp && type.GetString() == "start-local-play") await StartLocalHostAsync();
+                        else if (type.GetString() == "set-fullscreen" &&
+                                 message.RootElement.TryGetProperty("active", out var active) &&
+                                 active.ValueKind is JsonValueKind.True or JsonValueKind.False)
+                        {
+                            if (isFullscreen != active.GetBoolean()) ToggleFullscreen();
+                        }
+                    }
                 }
                 catch (Exception ex) { MessageBox.Show(this, ex.Message, "Local Play"); }
             };
@@ -222,5 +237,9 @@ public sealed class MainForm : Form
             WindowState = savedWindowState;
             isFullscreen = false;
         }
+        if (webView.CoreWebView2 != null)
+            _ = webView.CoreWebView2.ExecuteScriptAsync(
+                "window.dispatchEvent(new CustomEvent('billiards:native-fullscreen',{detail:" +
+                (isFullscreen ? "true" : "false") + "}));");
     }
 }

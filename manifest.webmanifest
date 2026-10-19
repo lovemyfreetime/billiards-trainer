@@ -4,7 +4,7 @@
   "description": "Billiards Trainer 4.12 with local pool-table AI photo analysis, camera capture, and true/virtual diamond systems.",
   "start_url": "./",
   "scope": "./",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "landscape",
   "background_color": "#090b0e",
   "theme_color": "#090b0e",

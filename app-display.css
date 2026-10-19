@@ -1,0 +1,8 @@
+.trainer-title-color{color:#77c8ff}
+/* A small, keyboard-accessible corner chevron reveals the screen action. */
+body #appDisplayControl{position:fixed;right:max(7px,env(safe-area-inset-right));top:max(4px,env(safe-area-inset-top));z-index:120;width:32px;height:28px;min-width:32px;min-height:28px;padding:0;border:0;border-radius:0 0 8px 8px;background:#10151c99;color:#aebbc8;font:20px/1 system-ui;cursor:pointer;opacity:.65}
+body #appDisplayControl:hover,body #appDisplayControl:focus-visible{opacity:1;background:#263442;outline:2px solid #77c8ff}
+body:has(#btg-fullscreen):not(.zen-mode) #appDisplayControl{display:none}
+#appDisplayMenu{position:fixed;inset:8px 8px auto auto;max-width:min(310px,calc(100vw - 32px));margin:0;padding:10px;border:1px solid #566476;border-radius:10px;background:#17212c;color:#eef2f5;box-shadow:0 8px 24px #0008;font:14px/1.5 system-ui}
+#appDisplayMenu button{min-height:44px;padding:8px 14px;border:1px solid #718395;border-radius:7px;background:#263442;color:#fff;font:inherit;cursor:pointer}
+#appDisplayMenu p{margin:8px 0 0}#appDisplayMenu p:empty{display:none}

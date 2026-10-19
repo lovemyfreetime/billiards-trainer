@@ -1,6 +1,8 @@
-const CACHE_NAME = 'billiards-trainer-4-12-matching-lotus-v161';
+const CACHE_NAME = 'billiards-trainer-4-12-tournament-display-v162';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
+  './app-display.js?v=1',
+  './app-display.css?v=1',
   './local-session.js?v=local-table-v1',
   './local-session.css?v=local-table-v1',
   './welcome.html',
@@ -17,8 +19,8 @@ const APP_SHELL = [
   './play-catalog.js?v=catalog-v1',
   './play-engine.js?v=catalog-v1',
   './play-presentation.js?v=play-room-v1',
-  './play-mode.js?v=tournament-live-v1',
-  './play-mode.css?v=tournament-live-v1',
+  './play-mode.js?v=tournament-play-v2',
+  './play-mode.css?v=tournament-play-v2',
 
   './trainer-action-history.js?v=2',
   './trainer-table-exchange.js?v=1',
@@ -45,7 +47,7 @@ const APP_SHELL = [
   './guide/analyze-walkthrough.js?v=presets-recovery-v13',
   './manifest.webmanifest',
   './phone-play.css?v=11',
-  './phone-play.js?v=11',
+  './phone-play.js?v=12',
   './photo-calibration.js?v=walkthrough-v11',
   './photo-table-spots.js?v=3',
   './photo-cloth-filter.js?v=2',

@@ -181,7 +181,7 @@
     window.dispatchEvent(new Event('resize'));
   }
   function syncFullscreen() {
-    const active = !!fullscreenElement() || fallback;
+    const active = !!window.BilliardsDisplay?.active() || !!fullscreenElement() || fallback;
     fullscreen.setAttribute('aria-pressed', String(active));
     fullscreen.setAttribute('aria-label', active ? 'Exit fullscreen' : 'Enter fullscreen');
     fullscreen.title = active ? 'Exit fullscreen table' : 'Fullscreen table';
@@ -211,7 +211,7 @@
   // Browser fullscreen needs a trusted gesture. Use the first gameplay release,
   // after its aiming/dragging operation, rather than resizing during a drag.
   document.addEventListener('pointerup', event => {
-    if(!startupFullscreen || fullscreenElement() || navigator.standalone) return;
+    if(window.BilliardsDisplay || !startupFullscreen || fullscreenElement() || navigator.standalone) return;
     const target=event.target;
     if(!target?.closest?.('#stageWrap,#phoneActions,.phoneTipControl')) return;
     startupFullscreen=false;
@@ -220,6 +220,7 @@
   // Cancel automatic entry if the user explicitly leaves fullscreen.
   fullscreen.addEventListener('click', async () => {
     startupFullscreen=false;
+    if(window.BilliardsDisplay){setControls(false);await window.BilliardsDisplay.toggle();syncFullscreen();return;}
     if(fullscreenElement()) {
       const exit = document.exitFullscreen || document.webkitExitFullscreen;
       try { await exit.call(document); } catch (_) { message.textContent='Use your browser’s fullscreen exit control.'; notice.classList.add('visible'); }
@@ -232,6 +233,7 @@
   controls.addEventListener('click', () => setControls(!document.body.classList.contains('phone-controls-open')));
   dismiss.addEventListener('click', () => { setControls(false); controls.focus(); });
   document.addEventListener('keydown', event => { if(event.key==='Escape') { startupFullscreen=false; setControls(false); fallback=false; notice.classList.remove('visible'); syncFullscreen(); } });
+  document.addEventListener('billiards:display-change',syncFullscreen);
   document.addEventListener('fullscreenchange',syncFullscreen);
   document.addEventListener('webkitfullscreenchange',syncFullscreen);
   if(phone.addEventListener) phone.addEventListener('change',layout); else phone.addListener(layout);

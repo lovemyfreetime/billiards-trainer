@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#10151c">
 <title>Billiards Play — Real-table games</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="icon" href="./icons/icon-192.png">
-<link rel="stylesheet" href="./play-mode.css?v=tournament-live-v1">
+<link rel="stylesheet" href="./play-mode.css?v=tournament-play-v2">
 <style>html,body{margin:0;min-height:100%;font:14px system-ui,sans-serif;background:#10151c;color:#f2eee6;-webkit-text-size-adjust:none;text-size-adjust:none}</style>
 <script src="./play-viewport.js?v=android-play-v1" defer></script>
 <script src="./play-catalog.js?v=catalog-v1" defer></script>
@@ -16,7 +18,9 @@
 <script src="./experience-menu.js?v=matching-lotus-v10"></script>
 <link rel="stylesheet" href="./local-session.css?v=local-table-v1">
 <script src="./local-session.js?v=local-table-v2" defer></script>
-<script src="./play-mode.js?v=tournament-live-v1" defer></script>
+<script src="./play-mode.js?v=tournament-play-v2" defer></script>
+<link rel="stylesheet" href="./app-display.css?v=1">
+<script src="./app-display.js?v=1" defer></script>
 </head>
 <body><script>if(!["127.0.0.1","localhost"].includes(location.hostname)&&"serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").then(reg=>reg.update()).catch(err=>console.warn("Service worker registration failed:",err)));</script></body>
 </html>

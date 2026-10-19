@@ -10,6 +10,7 @@ on:
       - 'play-*.js'
       - 'play-*.css'
       - 'experience-menu.*'
+      - 'app-display.*'
       - 'icons/*'
       - 'play.html'
       - 'tournament*'
@@ -79,7 +80,7 @@ jobs:
           Copy-Item (Get-Command node).Source "$destination/node.exe"
           $nodeLicense = Join-Path (Split-Path (Get-Command node).Source) 'LICENSE'
           if (Test-Path $nodeLicense) { Copy-Item $nodeLicense "$destination/NODE-LICENSE.txt" }
-          Copy-Item tournament.html, tournament-engine.js, tournament-ui.js, tournament.css, play.html, play-mode.js, play-mode.css, play-engine.js, play-catalog.js, play-presentation.js, play-viewport.js, experience-menu.js, experience-menu.css, local-session.js, local-session.css $destination
+          Copy-Item app-display.js, app-display.css, manifest.webmanifest, tournament.html, tournament-engine.js, tournament-ui.js, tournament.css, play.html, play-mode.js, play-mode.css, play-engine.js, play-catalog.js, play-presentation.js, play-viewport.js, experience-menu.js, experience-menu.css, local-session.js, local-session.css $destination
           Copy-Item local-host/audio-queue.cjs, local-host/server.cjs, local-host/player.html, local-host/player.js, local-host/player.css, local-host/package.json, local-host/package-lock.json, local-host/start.cjs "$destination/local-host"
           Copy-Item local-host/node_modules "$destination/local-host/node_modules" -Recurse
           Copy-Item icons/icon-192.png, icons/play-experience-v1.webp, icons/trainer-original-execute-v2.svg "$destination/icons"

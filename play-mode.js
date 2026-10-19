@@ -7,7 +7,7 @@ function init(){
  const bridge=window.billiardsPlayBridge||{busy:()=>false,save:()=>{}},KEY='billiardsPlaySession-v1';let state=null,history=[],privacy=false,paused=false,audio=false,storageError='',selected=new Set(),returnFocus=null,catalogChoice='killer';
  document.body.classList.add('play-mode');
  const root=document.createElement('section');root.id='playRoot';root.setAttribute('aria-label','Billiards Play game room');root.innerHTML=`
- <header class="play-header"><div class="play-brand">BILLIARDS <span style="color:#54d6e9">PLAY</span><small>Our table. Our rules.</small></div><nav aria-label="Session"><button id="playAudio" aria-pressed="false">Audio off</button><button id="playPause">Pause</button><button id="playRules">Rules</button><button id="playNew">Games</button><a class="play-tournament-link" href="./tournament.html">Tournament Night</a></nav></header>
+ <header class="play-header"><div class="play-brand">BILLIARDS <span>PLAY</span><small>Our table. Our rules.</small></div><nav aria-label="Session"><button id="playAudio" aria-pressed="false">Audio off</button><button id="playPause">Pause</button><button id="playRules">Rules</button><button id="playNew">Games</button></nav></header>
  <div id="playPlayers" aria-label="Players and scores"></div>
  <main class="play-main"><section id="playDock" aria-label="Game and scorekeeping"><div class="play-eyebrow" id="playRound">Game room</div><h1 id="playTitle">Choose your game</h1><p id="playObjective">Games for your real table.</p><div id="playNotice" role="status" aria-live="polite">Choose Games to begin.</div><div id="playResult" class="play-result" hidden></div><div id="playModule"></div><div id="playBalls" role="group" aria-label="Balls made on this shot"></div><div id="playActions"></div><details id="playLayout" hidden><summary>View shot setup diagram</summary><div id="playPhysical"></div></details></section></main>
  <footer class="play-footer"><nav aria-label="Experience"><span id="playModeSwitch"></span></nav><span id="playLatest"></span><button id="playUndo" disabled>Undo Shot</button></footer>
@@ -35,7 +35,8 @@ function init(){
  document.addEventListener('fullscreenchange',()=>{if(dialog.open){dialog.close();dialog.showModal();}});
  const modeSwitch=()=>window.BilliardsLocalSession?.active?window.BilliardsLocalSession.button():window.BilliardsExperienceMenu({current:'play',beforeNavigate:()=>{if(bridge.busy())return false;save();bridge.save();return true;}});
  root.querySelector('#playModeSwitch').append(modeSwitch());
- root.querySelector('.play-header nav').append(window.BilliardsLocalSession.button());
+ function tournamentLink(){const a=text('a','Tournament Play','play-tournament-link');a.href='./tournament.html';return a;}
+ root.querySelector('.play-footer nav').append(window.BilliardsLocalSession.button(),tournamentLink());
  function dismiss(label='Back to table'){const row=text('div','','play-dialog-actions');row.append(button(label,closeDialog));dialog.append(row);}
  function shieldPrivate(){if(privacy)closeDialog();}
  window.addEventListener('blur',shieldPrivate);document.addEventListener('visibilitychange',()=>{if(document.hidden){shieldPrivate();if(state?.game==='speed'&&state.timer)state=E.reduce(state,{type:'interrupt'});save();}});
@@ -53,8 +54,7 @@ function init(){
  function setup(game){
   if(!game){
    openDialog('Games');dialog.firstChild.remove();dialog.setAttribute('aria-label','Games');dialog.removeAttribute('aria-labelledby');dialog.className='play-catalog-dialog';const compact=matchMedia('(pointer:coarse), (max-width:1000px), (max-height:650px)').matches;dialog.classList.toggle('play-catalog-compact',compact);
-   const catalogHeading=text('div','','play-catalog-heading');catalogHeading.append(text('h2','Billiards Play'));if(state){const resume=button('Resume game',closeDialog,'play-resume');resume.id='playResume';catalogHeading.append(resume);}dialog.append(catalogHeading);
-   const tournamentLink=text('a','Tournament Night · brackets, tables & TV','play-tournament-link');tournamentLink.href='./tournament.html';dialog.append(tournamentLink);
+   const catalogHeading=text('div','','play-catalog-heading');const catalogTitle=text('h2','Billiards ');catalogTitle.append(text('span','Play','play-title-color'));catalogHeading.append(catalogTitle);if(state){const resume=button('Resume game',closeDialog,'play-resume');resume.id='playResume';catalogHeading.append(resume);}dialog.append(catalogHeading);
    dialog.append(text('p',compact?'Tap a game to set up your players.':'Our table. Our rules. Pick your kind of pressure.','play-catalog-intro'));
    const layout=text('div','','play-catalog-layout'),hero=text('section','','play-catalog-hero');hero.setAttribute('aria-label','Selected game preview');
    const heroArt=text('div','','play-hero-emblem'),eyebrow=text('div','','play-eyebrow'),title=text('h3',''),pitch=text('p','','play-hero-pitch'),tags=text('div','','play-hero-tags');
@@ -64,7 +64,7 @@ function init(){
    const tiles=new Map();
    function preview(id){catalogChoice=id;const g=E.games[id],family=P.group(id);hero.style.setProperty('--family',family.color);heroArt.innerHTML=P.icon(id);eyebrow.textContent=family.name;title.textContent=g.name;pitch.textContent=g.tag+' '+g.rules.split('. ')[0]+'.';tags.replaceChildren(text('span',`${g.min===g.max?g.min:g.min+'–'+g.max} player${g.max===1?'':'s'}`),text('span','Our house rules'));for(const [key,b] of tiles){b.classList.toggle('selected',key===id);b.setAttribute('aria-pressed',String(key===id));}}
    P.groups.forEach((family,col)=>{const column=text('section','','play-game-family');column.style.setProperty('--family',family.color);column.append(text('h3',family.name));family.games.forEach((id,row)=>{const g=E.games[id],b=button('',()=>compact?setup(id):preview(id),'play-game-tile');b.dataset.game=id;b.style.setProperty('--family',family.color);b.setAttribute('aria-label',`${g.name} ${g.tag} · ${g.min===g.max?g.min:g.min+'–'+g.max} player${g.max===1?'':'s'}`);b.setAttribute('aria-pressed','false');const art=text('span','','play-tile-icon');art.innerHTML=P.icon(id);const count=text('span',String(col*5+row+1).padStart(2,'0'),'play-tile-number');count.setAttribute('aria-hidden','true');b.append(count,art,text('strong',g.name),text('small',`${g.min===g.max?g.min:g.min+'–'+g.max} player${g.max===1?'':'s'}`));b.onfocus=()=>preview(id);column.append(b);tiles.set(id,b);});grid.append(column);});
-   right.append(grid);layout.append(hero,right);dialog.append(layout);preview(catalogChoice);{const nav=text('div','','play-catalog-nav');nav.append(modeSwitch());if(!window.BilliardsLocalSession?.active)nav.append(window.BilliardsLocalSession.button());dialog.append(nav);}dialog.scrollTop=0;return;
+   right.append(grid);layout.append(hero,right);dialog.append(layout);preview(catalogChoice);{const nav=text('div','','play-catalog-nav');nav.append(modeSwitch());if(!window.BilliardsLocalSession?.active)nav.append(window.BilliardsLocalSession.button());nav.append(tournamentLink());dialog.append(nav);}dialog.scrollTop=0;return;
   }
   const g=E.games[game];catalogChoice=game;openDialog(g.name);dialog.className='play-setup-dialog';dialog.style.setProperty('--family',P.group(game)?.color||'#d3b68b');const emblem=text('div','','play-setup-emblem');emblem.innerHTML=P.icon(game);dialog.append(emblem);dialog.append(text('p',g.rules));
   const form=document.createElement('form');
