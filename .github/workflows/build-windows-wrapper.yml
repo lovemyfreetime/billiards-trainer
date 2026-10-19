@@ -14,6 +14,10 @@ on:
       - 'play.html'
       - '.github/workflows/build-windows-wrapper.yml'
 
+concurrency:
+  group: windows-wrapper-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
