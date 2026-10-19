@@ -7,7 +7,7 @@ const loopback=ip=>['127.0.0.1','::1','::ffff:127.0.0.1'].includes(ip);
 function privateIP(ip){ip=ip.replace(/^::ffff:/,'');return loopback(ip)||/^10\./.test(ip)||/^192\.168\./.test(ip)||/^172\.(1[6-9]|2\d|3[01])\./.test(ip)||/^169\.254\./.test(ip);}
 function addresses(){try{return [...new Set(Object.values(os.networkInterfaces()).flat().filter(i=>i&&i.family==='IPv4'&&!i.internal&&privateIP(i.address)).map(i=>i.address))];}catch{return [];}}
 function actor(s){return s.phase==='vote'?s.voteSeat:s.active;}
-function actions(s,seat){if(seat!==actor(s)||s.phase==='result')return [];if(s.game==='poker'&&s.phase==='choose')return ['choose'];if(s.phase==='vote')return ['vote'];if(s.phase==='fleet')return ['fleet-shuffle','fleet-lock'];if(s.game==='blackjack'&&s.phase==='ready')return ['stand'];return [];}
+function actions(s,seat){if(s.localPaused)return [];if(seat!==actor(s)||s.phase==='result')return [];if(s.game==='poker'&&s.phase==='choose')return ['choose'];if(s.phase==='vote')return ['vote'];if(s.phase==='fleet')return ['fleet-shuffle','fleet-lock'];if(s.game==='blackjack'&&s.phase==='ready')return ['stand'];return [];}
 function view(s,seat){
  if(!s)return null;
  const eligible=s.players.map((p,i)=>({p,i})).filter(({p})=>!(s.game==='killer'&&p.lives<=0)&&!(s.game==='horse'&&p.letters>=5)),next=eligible.find(({i})=>i>s.active)?.i??eligible[0]?.i??s.active;
@@ -21,7 +21,7 @@ function view(s,seat){
   if(s.game==='battleship'){personal.fleet=[...p.fleet];personal.attacks=(p.attacks||[]).map(cell=>({cell,hit:s.players[1-seat].fleet.includes(cell)}));}
   if(s.game==='blackjack')personal.total=C.total(p.hand);
  }
- return {game:s.game,name:E.games[s.game].name,rules:E.games[s.game].rules,phase:s.phase,round:s.round,rack:s.rack,shots:s.shots,active:s.active,next,players,last:s.last,result:s.result?{text:s.result.text}:null,you:seat,private:personal,actions:p?actions(s,seat):[]};
+ return {game:s.game,paused:!!s.localPaused,name:E.games[s.game].name,rules:E.games[s.game].rules,phase:s.phase,round:s.round,rack:s.rack,shots:s.shots,active:s.active,next,players,last:s.last,result:s.result?{text:s.result.text}:null,you:seat,private:personal,actions:p?actions(s,seat):[]};
 }
 function createHost({port=8788,bind='0.0.0.0',hostToken=secret(),addressProvider=addresses}={}){
  let invite=secret(),revision=0,state=null,match=0,lastHost=Date.now();const members=new Map(),queue=[],rates=new Map(),snapshots=new Set();let actualPort=port;
@@ -58,7 +58,7 @@ function createHost({port=8788,bind='0.0.0.0',hostToken=secret(),addressProvider
     if(b.revision!==revision||queue.some(e=>e.revision===revision))fail(409,'The table changed. Please wait for an update.');
     const event={type:b.type};if(b.type==='choose'){if(![0,1].includes(b.index))fail(400,'Choose a card.');event.index=b.index;}
     if(b.type==='vote'){if(!Number.isInteger(b.index)||b.index< -1||b.index>=state.players.length)fail(400,'Choose a player.');event.index=b.index;}
-    queue.push({id:secret(),seat:m.seat,revision,match,event});send(res,202,{accepted:true});return;
+    queue.push({id:secret(),memberId:m.id,seat:m.seat,revision,match,event});send(res,202,{accepted:true});return;
    }
    if(route.startsWith('/api/host')){
     admin(req);
@@ -75,10 +75,10 @@ function createHost({port=8788,bind='0.0.0.0',hostToken=secret(),addressProvider
     }
     if(route==='/api/host/seat'&&req.method==='POST'){
      const b=await body(req),m=members.get(b.id);if(!m||m.revoked)fail(404,'Player not found.');if(b.seat!==null&&(!state?.players[b.seat]||!Number.isInteger(b.seat)))fail(400,'Choose a seat.');
-     if(b.seat!==null&&[...members.values()].some(other=>other!==m&&!other.revoked&&other.seat===b.seat))fail(409,'That seat is already assigned.');m.seat=b.seat;send(res,200,{ok:true});return;
+     if(b.seat!==null&&[...members.values()].some(other=>other!==m&&!other.revoked&&other.seat===b.seat))fail(409,'That seat is already assigned.');m.seat=b.seat;for(let i=queue.length-1;i>=0;i--)if(queue[i].memberId===m.id)queue.splice(i,1);send(res,200,{ok:true});return;
     }
     if(route==='/api/host/remove'&&req.method==='POST'){
-     const b=await body(req),m=members.get(b.id);if(m)m.revoked=true;send(res,200,{ok:true});return;
+     const b=await body(req),m=members.get(b.id);if(m)m.revoked=true;for(let i=queue.length-1;i>=0;i--)if(queue[i].memberId===b.id)queue.splice(i,1);send(res,200,{ok:true});return;
     }
     if(route==='/api/host/end'&&req.method==='POST'){
      await body(req);members.clear();queue.length=0;invite=secret();state=null;match++;revision++;send(res,200,{ok:true});return;

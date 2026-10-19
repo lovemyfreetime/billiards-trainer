@@ -20,6 +20,7 @@ test('local room approvals, private projections, scoped decisions, revocation an
  assert.deepEqual(j.view.private.choices,state.pending.map(E.cardLabel));assert(!c.view.private.choices);assert.deepEqual(c.view.private.hand,[]);
  for(const packet of [j,c]){assert(!('rng' in packet.view));assert(!('deck' in packet.view));assert(packet.view.players.every(p=>!('hand' in p)&&!('target' in p)&&!('fleet' in p)));}
  assert.equal((await api('action',cindy.token,{type:'choose',index:0,revision:posted.revision})).status,403);
+ await api('host/state',host.hostToken,{state:{...state,localPaused:true}});const paused=await api('player',jeff.token);assert.equal(paused.view.paused,true);assert.deepEqual(paused.view.actions,[]);assert.equal((await api('action',jeff.token,{type:'choose',index:0,revision:paused.revision})).status,403);posted=await api('host/state',host.hostToken,{state});
  assert.equal((await api('action',jeff.token,{type:'shot',revision:posted.revision})).status,403);
  assert.equal((await api('action',jeff.token,{type:'choose',index:0,revision:posted.revision-1})).status,409);
  assert.equal((await api('action',jeff.token,{type:'choose',index:0,revision:posted.revision})).status,202);
@@ -28,7 +29,9 @@ test('local room approvals, private projections, scoped decisions, revocation an
  assert.deepEqual((await api('player',jeff.token)).view.private.hand,state.players[0].hand.map(E.cardLabel));assert.deepEqual((await api('player',cindy.token)).view.private.hand,[]);
  const qr=await api('host/qr',host.hostToken,{url:`http://127.0.0.1:${ready.port}/join#invite=${initial.invite}`});assert.equal(qr.status,200);assert(qr.image.startsWith('data:image/png;base64,'));
  assert.equal((await api('host/qr',host.hostToken,{url:'https://evil.example/'})).status,400);
- await api('host/remove',host.hostToken,{id:people[0].id});assert.equal((await api('player',jeff.token)).status,401);
+ const awaiting=E.reduce(E.reduce(E.create({game:'poker',names:['Jeff','Cindy'],mode:'real',seed:123}),{type:'ready'}),{type:'shot',potted:[1],made:true});posted=await api('host/state',host.hostToken,{state:awaiting});
+ assert.equal((await api('action',jeff.token,{type:'choose',index:0,revision:posted.revision})).status,202);
+ await api('host/remove',host.hostToken,{id:people[0].id});assert.equal((await hostData()).events.length,0,'Removing a player cancels their pending decision');assert.equal((await api('player',jeff.token)).status,401);
  await api('host/end',host.hostToken,{});assert.equal((await api('player',cindy.token)).status,401);assert.equal((await api('join',null,{invite:initial.invite,name:'Old invite'})).status,403);
  assert.equal((await fetch(base+'/local-host/server.cjs')).status,404);
  assert.equal((await fetch(base+'/api/player?token='+cindy.token)).status,401);

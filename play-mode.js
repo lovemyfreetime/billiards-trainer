@@ -18,7 +18,7 @@ function init(){
  function text(tag,value,cls){const e=document.createElement(tag);e.textContent=value;if(cls)e.className=cls;return e;}
  function button(label,action,cls=''){const b=text('button',label,cls);b.type='button';b.onclick=action;return b;}
  function capture(){return {state:JSON.parse(JSON.stringify(state))};}
- function save(){if(!state)return;try{localStorage.setItem(KEY,JSON.stringify({version:2,...capture(),history}));window.BilliardsLocalSession?.publish(state);storageError='';}catch(e){storageError='Browser storage is full or unavailable. This game is in memory only.';}}
+ function save(){if(!state)return;try{localStorage.setItem(KEY,JSON.stringify({version:2,...capture(),history}));window.BilliardsLocalSession?.publish({...state,localPaused:paused});storageError='';}catch(e){storageError='Browser storage is full or unavailable. This game is in memory only.';}}
  function transact(event,before){
   if(!state||bridge.busy())return;
   try{const next=E.reduce(state,event);history.push(before||capture());history=history.slice(-45);state=next;selected.clear();save();render();if(state.phase==='ready')speech(`${state.players[state.active].name}. ${state.isBreak?'Break.':state.game==='ghost'?'Lowest first.':'Your turn.'}`);else if(state.phase==='result')speech(state.result.text);}
@@ -164,7 +164,7 @@ function init(){
  }
  $('playNew').onclick=()=>{if(!bridge.busy())setup();};$('playRules').onclick=showRules;$('playUndo').onclick=undo;
  $('playAudio').onclick=()=>{audio=!audio;$('playAudio').textContent=audio?'Audio on':'Audio off';$('playAudio').setAttribute('aria-pressed',String(audio));if(!audio)window.speechSynthesis?.cancel();else speech('Play audio on.');};
- $('playPause').onclick=()=>{if(bridge.busy())return;if(state?.game==='speed'&&state.timer&&!paused)transact({type:'interrupt'});paused=!paused;window.speechSynthesis?.cancel();render();};
+ $('playPause').onclick=()=>{if(bridge.busy())return;if(state?.game==='speed'&&state.timer&&!paused)transact({type:'interrupt'});paused=!paused;window.speechSynthesis?.cancel();save();render();};
  root.querySelectorAll('.play-footer a').forEach(a=>a.addEventListener('click',e=>{if(bridge.busy()){e.preventDefault();return;}save();bridge.save();}));
  window.billiardsPlayHooks={view:()=>({mode:'real',phase:state?.phase}),canShoot:()=>false,canInteract:()=>false,canPlaceCue:()=>false};
  document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&!e.target.matches('input,textarea')){e.preventDefault();e.stopImmediatePropagation();undo();}},true);
@@ -172,7 +172,7 @@ function init(){
  try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if([1,2].includes(saved?.version)&&E.games[saved.state?.game]){state=saved.state;state.mode='real';if(state.game==='speed'&&state.timer)state.interrupted=true;history=(saved.history||[]).filter(h=>h.state&&E.games[h.state.game]).map(h=>({state:{...h.state,mode:'real'}}));save();}}catch(e){storageError='Saved game could not be restored. Start a new game.';}
  // Always enter through the full catalog; Resume game keeps the restored session and Undo history.
  render();setup();
- window.BilliardsLocalSession?.mount({getState:()=>state,applyAction(event,seat){const actor=state?.phase==='vote'?state.voteSeat:state?.active;if(actor!==seat)return;transact(event);}});
+ window.BilliardsLocalSession?.mount({getState:()=>state?{...state,localPaused:paused}:null,applyAction(event,seat){if(paused)return;const actor=state?.phase==='vote'?state.voteSeat:state?.active;if(actor!==seat)return;transact(event);}});
  // Read-only inspection supports browser QA without exposing secret cards through a public UI.
  window.billiardsPlayStatus=()=>state?{game:state.game,phase:state.phase,mode:state.mode,active:state.active,round:state.round,shots:state.shots,lives:state.players.map(p=>p.lives),remaining:[...state.remaining],undo:history.length}:null;
 }
