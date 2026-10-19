@@ -72,6 +72,14 @@ function createHost({port=8788,bind='0.0.0.0',hostToken=secret(),addressProvider
    }
    if(route.startsWith('/api/host')){
     admin(req);
+    if(route==='/api/host/audio'&&req.method==='POST'){
+     const b=await body(req);
+     if(b.done){audio.finish('host',b.id);send(res,200,{ok:true});return;}
+     if(!state||state.localPaused)fail(403,'Alerts are unavailable.');
+     if(b.revision!==revision)fail(409,'The table changed.');
+     if(typeof b.id!=='string'||b.id.length>80||!b.id)fail(400,'Invalid alert.');
+     send(res,200,audio.request('host',b.id,revision));return;
+    }
     if(route==='/api/host'&&req.method==='GET'){
      send(res,200,{revision,match,invite,urls:addressProvider().map(ip=>`http://${ip}:${actualPort}/join#invite=${invite}`),members:[...members.values()].filter(m=>!m.revoked).map(({id,name,seat,seen})=>({id,name,seat,online:Date.now()-seen<10000})),players:state?.players.map((p,i)=>({id:i,name:p.name}))||[],events:[...queue]});return;
     }

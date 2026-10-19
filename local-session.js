@@ -7,8 +7,39 @@ function el(tag,value,cls){const n=document.createElement(tag);if(value)n.textCo
 function button(label,fn,cls){const b=el('button',label,cls);b.type='button';b.onclick=fn;return b;}
 function error(message){const n=document.getElementById('localError');if(n)n.textContent=message;}
 async function api(route,data){const r=await fetch('/api/host'+route,{method:data?'POST':'GET',headers:{Authorization:'Bearer '+token,...(data?{'Content-Type':'application/json'}:{})},body:data?JSON.stringify(data):undefined,cache:'no-store'});const v=await r.json();if(!r.ok)throw Error(v.error||'Local host unavailable.');return v;}
-function publish(state){if(!active||!sharing||!state)return;pending={state:JSON.parse(JSON.stringify(state)),newGame:newGame||!!pending?.newGame,id:Date.now()+'-'+Math.random()};newGame=false;queueMicrotask(flush);}
+function publish(state){if(!active||!sharing||!state)return;cancelSpeech();pending={state:JSON.parse(JSON.stringify(state)),newGame:newGame||!!pending?.newGame,id:Date.now()+'-'+Math.random()};newGame=false;queueMicrotask(flush);}
 async function flush(){if(uploading||!sharing)return;uploading=true;let snapshot;try{while(pending&&sharing){snapshot=pending;pending=null;const r=await api('/state',snapshot);revision=r.revision;error('');}}catch(e){if(!pending)pending=snapshot;error('Update delayed. Reconnecting… '+e.message);setTimeout(flush,2000);}finally{uploading=false;}}
+
+// Host speech uses the same lease as every player phone.
+let announcement=null,alertSerial=0;
+function cancelSpeech(){
+ const a=announcement;if(!a)return;announcement=null;clearTimeout(a.timer);window.speechSynthesis?.cancel();
+ api('/audio',{id:a.id,done:true}).catch(()=>{});
+}
+function speak(message){
+ cancelSpeech();if(!active||!sharing||document.hidden||!window.speechSynthesis)return;
+ const a={id:'host-'+Date.now()+'-'+(++alertSerial),timer:null,revision:null};announcement=a;
+ async function attempt(){
+  if(announcement!==a)return;
+  if(!sharing||document.hidden){cancelSpeech();return;}
+  // A shot publishes before announcing. Wait until that snapshot has its revision.
+  if(uploading||pending){a.timer=setTimeout(attempt,50);return;}
+  if(a.revision===null)a.revision=revision;
+  if(a.revision!==revision){cancelSpeech();return;}
+  const sent=performance.now();
+  try{
+   const slot=await api('/audio',{id:a.id,revision:a.revision});
+   if(announcement!==a){api('/audio',{id:a.id,done:true}).catch(()=>{});return;}
+   if(!slot.granted){a.timer=setTimeout(attempt,250);return;}
+   const budget=slot.remaining-(performance.now()-sent);if(budget<1000){cancelSpeech();return;}
+   const u=new SpeechSynthesisUtterance(message);u.rate=1.08;
+   u.onend=u.onerror=()=>{if(announcement===a)cancelSpeech();};
+   a.timer=setTimeout(()=>{if(announcement===a)cancelSpeech();},budget);window.speechSynthesis.speak(u);
+  }catch{if(announcement===a)cancelSpeech();}
+ }
+ attempt();
+}
+window.addEventListener('pagehide',cancelSpeech);document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelSpeech();});
 
 function createDialog(){
  dialog=el('dialog','','local-room');dialog.setAttribute('aria-labelledby','localRoomTitle');const title=el('h2','Local table');title.id='localRoomTitle';dialog.append(title);
@@ -23,7 +54,7 @@ function createDialog(){
   const address=el('p','','local-address');address.id='localJoinLink';
   dialog.append(linkLabel,select,img,address,el('p','Scan once, enter a name, then approve a seat below. A name alone never unlocks a player’s cards.'));
   const list=el('section');list.id='localMembers';list.setAttribute('aria-label','Player joining requests');dialog.append(list);
-  dialog.append(button('Share current game',()=>{sharing=true;newGame=true;publish(adapter?.getState());lastURLs='';poll();},'local-primary'),button('End sharing · disconnect players',async()=>{if(uploading){error('Wait for the current update, then try again.');return;}if(!confirm('Disconnect everyone from this local table?'))return;try{sharing=false;pending=null;await api('/end',{});lastURLs='';lastMembers='';error('Sharing ended. Share current game to invite players again.');}catch(e){error(e.message);}}));
+  dialog.append(button('Share current game',()=>{sharing=true;newGame=true;publish(adapter?.getState());lastURLs='';poll();},'local-primary'),button('End sharing · disconnect players',async()=>{if(uploading){error('Wait for the current update, then try again.');return;}if(!confirm('Disconnect everyone from this local table?'))return;try{cancelSpeech();sharing=false;pending=null;await api('/end',{});lastURLs='';lastMembers='';error('Sharing ended. Share current game to invite players again.');}catch(e){error(e.message);}}));
  }
  const status=el('p');status.id='localError';status.setAttribute('role','status');dialog.append(status,button('Close',()=>dialog.close()));document.body.append(dialog);
 }
@@ -42,5 +73,5 @@ async function poll(){if(!active||polling)return;polling=true;try{
  error('');
  }catch(e){error('Local host disconnected. '+e.message);}finally{polling=false;}}
 function open(){if(!dialog)createDialog();if(!dialog.open)dialog.showModal();if(active){publish(adapter?.getState());lastURLs='';poll();}}
-window.BilliardsLocalSession={active,open,button:()=>button('Local table',open),publish,newGame(){newGame=true;},mount(value){adapter=value;if(active){publish(adapter.getState());setInterval(poll,1000);poll();}}};
+window.BilliardsLocalSession={active,open,speak,cancelSpeech,button:()=>button('Local table',open),publish,newGame(){newGame=true;},mount(value){adapter=value;if(active){publish(adapter.getState());setInterval(poll,1000);poll();}}};
 })();

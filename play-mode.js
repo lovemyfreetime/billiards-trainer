@@ -14,7 +14,8 @@ function init(){
  <dialog id="playDialog" aria-labelledby="playDialogTitle"></dialog>`;
  document.body.append(root);
  const $=id=>document.getElementById(id),dialog=$('playDialog');
- function speech(message){if(!audio||!window.speechSynthesis||privacy||paused)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(message);u.rate=1.08;window.speechSynthesis.speak(u);}
+ function stopSpeech(){window.BilliardsLocalSession?.cancelSpeech();window.speechSynthesis?.cancel();}
+ function speech(message){if(!audio||!window.speechSynthesis||privacy||paused)return;if(window.BilliardsLocalSession?.active){window.BilliardsLocalSession.speak(message);return;}window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(message);u.rate=1.08;window.speechSynthesis.speak(u);}
  function text(tag,value,cls){const e=document.createElement(tag);e.textContent=value;if(cls)e.className=cls;return e;}
  function button(label,action,cls=''){const b=text('button',label,cls);b.type='button';b.onclick=action;return b;}
  function capture(){return {state:JSON.parse(JSON.stringify(state))};}
@@ -24,7 +25,7 @@ function init(){
   try{const next=E.reduce(state,event);history.push(before||capture());history=history.slice(-45);state=next;selected.clear();save();render();if(state.phase==='ready')speech(`${state.players[state.active].name}. ${state.isBreak?'Break.':state.game==='ghost'?'Lowest first.':'Your turn.'}`);else if(state.phase==='result')speech(state.result.text);}
   catch(e){$('playNotice').textContent=e.message;}
  }
- function undo(){if(bridge.busy()||!history.length)return;const previous=history.pop();state=previous.state;state.mode='real';selected.clear();closeDialog();paused=false;window.speechSynthesis?.cancel();save();render();}
+ function undo(){if(bridge.busy()||!history.length)return;const previous=history.pop();state=previous.state;state.mode='real';selected.clear();closeDialog();paused=false;stopSpeech();save();render();}
  function openDialog(title,privateView=false){closeDialog();returnFocus=document.activeElement;privacy=privateView;dialog.className='';dialog.removeAttribute('aria-label');dialog.setAttribute('aria-labelledby','playDialogTitle');dialog.replaceChildren(text('h2',title));dialog.firstChild.id='playDialogTitle';dialog.showModal();return dialog;}
  function closeDialog(){privacy=false;if(dialog.open)dialog.close();dialog.replaceChildren();}
  dialog.addEventListener('close',()=>{if(dialog.open)return;privacy=false;dialog.replaceChildren();returnFocus?.focus?.({preventScroll:true});});
@@ -163,8 +164,8 @@ function init(){
   if(state.mode==='real'&&state.scene&&state.phase!=='result'){const diagram=document.createElementNS('http://www.w3.org/2000/svg','svg');diagram.setAttribute('viewBox','0 0 320 160');diagram.setAttribute('role','img');diagram.setAttribute('aria-label','Challenge layout, coordinates measured from top left');diagram.classList.add('play-layout-diagram');const marks=[{id:0,...state.scene.cue},...state.scene.balls];diagram.innerHTML='<rect x="4" y="4" width="312" height="152" rx="9" fill="#245e59" stroke="#79968d"/>'+marks.map(b=>`<circle cx="${b.x*300+10}" cy="${b.y*140+10}" r="7" fill="${b.id?'#efb72f':'#fff'}"/><text x="${b.x*300+10}" y="${b.y*140+13}" text-anchor="middle" font-size="8" fill="#111">${b.id||''}</text>`).join('')+'<text x="12" y="18" font-size="9" fill="white">TL</text><text x="154" y="14" font-size="9" fill="white">TM</text><text x="294" y="18" font-size="9" fill="white">TR</text><text x="12" y="150" font-size="9" fill="white">BL</text><text x="154" y="153" font-size="9" fill="white">BM</text><text x="294" y="150" font-size="9" fill="white">BR</text>';physical.append(diagram);physical.append(text('p',`Layout: cue (${Math.round(state.scene.cue.x*100)}%, ${Math.round(state.scene.cue.y*100)}%); ${state.scene.balls.map(b=>`ball ${b.id} (${Math.round(b.x*100)}%, ${Math.round(b.y*100)}%)`).join('; ')}. Coordinates start at the top-left of the diagram.`));}
  }
  $('playNew').onclick=()=>{if(!bridge.busy())setup();};$('playRules').onclick=showRules;$('playUndo').onclick=undo;
- $('playAudio').onclick=()=>{audio=!audio;$('playAudio').textContent=audio?'Audio on':'Audio off';$('playAudio').setAttribute('aria-pressed',String(audio));if(!audio)window.speechSynthesis?.cancel();else speech('Play audio on.');};
- $('playPause').onclick=()=>{if(bridge.busy())return;if(state?.game==='speed'&&state.timer&&!paused)transact({type:'interrupt'});paused=!paused;window.speechSynthesis?.cancel();save();render();};
+ $('playAudio').onclick=()=>{audio=!audio;$('playAudio').textContent=audio?'Audio on':'Audio off';$('playAudio').setAttribute('aria-pressed',String(audio));if(!audio)stopSpeech();else{if(window.BilliardsLocalSession?.active&&window.speechSynthesis)window.speechSynthesis.speak(new SpeechSynthesisUtterance(''));speech('Play audio on.');}};
+ $('playPause').onclick=()=>{if(bridge.busy())return;if(state?.game==='speed'&&state.timer&&!paused)transact({type:'interrupt'});paused=!paused;stopSpeech();save();render();};
  root.querySelectorAll('.play-footer a').forEach(a=>a.addEventListener('click',e=>{if(bridge.busy()){e.preventDefault();return;}save();bridge.save();}));
  window.billiardsPlayHooks={view:()=>({mode:'real',phase:state?.phase}),canShoot:()=>false,canInteract:()=>false,canPlaceCue:()=>false};
  document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&!e.target.matches('input,textarea')){e.preventDefault();e.stopImmediatePropagation();undo();}},true);

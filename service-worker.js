@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-local-table-v158';
+const CACHE_NAME = 'billiards-trainer-4-12-local-table-v159';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './local-session.js?v=local-table-v1',

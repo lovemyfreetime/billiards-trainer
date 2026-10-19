@@ -21,6 +21,8 @@ test('local room approvals, private projections, scoped decisions, revocation an
  assert.equal((await api('audio',jeff.token,{id:'stale',revision:posted.revision-1})).status,409);
  assert.equal((await api('audio',jeff.token,{id:'jeff-alert',revision:posted.revision})).granted,true);
  assert.equal((await api('audio',cindy.token,{id:'cindy-alert',revision:posted.revision})).granted,false);
+ assert.equal((await api('host/audio',host.hostToken,{id:'host-alert',revision:posted.revision})).granted,false,'Host waits for the player voice');
+ assert.equal((await api('host/audio',jeff.token,{id:'unauthorized',revision:posted.revision})).status,403);
  await api('audio',jeff.token,{id:'jeff-alert',done:true});
  assert.deepEqual(j.view.private.choices,state.pending.map(E.cardLabel));assert(!c.view.private.choices);assert.deepEqual(c.view.private.hand,[]);
  for(const packet of [j,c]){assert(!('rng' in packet.view));assert(!('deck' in packet.view));assert(packet.view.players.every(p=>!('hand' in p)&&!('target' in p)&&!('fleet' in p)));}
@@ -61,11 +63,12 @@ test('table audio serializes voices, leaves a gap, and recovers from a lost phon
  assert.equal(q.request('a','one',1).granted,true);
  assert.equal(q.request('b','two',1).granted,false);
  q.finish('b','one');assert.equal(q.request('b','two',1).granted,false,'Other players cannot release the speaking lease');
- q.finish('a','one');clock=799;assert.equal(q.request('b','two',1).granted,false);
+ q.request('host','host-one',1);q.finish('a','one');clock=799;assert.equal(q.request('b','two',1).granted,false);
  clock=800;assert.equal(q.request('b','two',1).granted,true);
- clock=14000;assert.equal(q.request('a','three',1).granted,false);
- clock=14800;assert.equal(q.request('a','three',1).granted,false,'Expired speech gets a recovery gap');
- clock=15600;assert.equal(q.request('a','three',1).granted,true);
+ q.finish('b','two');clock=1600;assert.equal(q.request('host','host-one',1).granted,true,'Host waits in the same queue');q.finish('host','host-one');clock=2400;assert.equal(q.request('b','two-again',1).granted,true);
+ clock=15600;assert.equal(q.request('a','three',1).granted,false);
+ clock=16400;assert.equal(q.request('a','three',1).granted,false,'Expired speech gets a recovery gap');
+ clock=17200;assert.equal(q.request('a','three',1).granted,true);
  q.request('b','old',1);q.invalidate();q.finish('a','three');clock+=800;
  assert.equal(q.request('c','fresh',2).granted,true,'A stale queue cannot block the new game');
  q.request('b','removed',2);q.remove('b');q.finish('c','fresh');clock+=800;
