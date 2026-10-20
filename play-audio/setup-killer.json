@@ -1,9 +1,9 @@
 {
   "voice": "chase",
-  "rate": "+30%",
+  "rate": "+10%",
   "model": "simba-3.2",
-  "textHash": "cf818778f7a066867b1ddbd7b0bc8273a6d11a3107090d454a2315f007741689",
-  "sourceHash": "9515e75333ad309283a2f2134ef6353f2c46456b3c4b0a5e1e5e099d8d3e32df",
-  "duration": 24.552,
+  "textHash": "26012d7a2deb7a6646db30e39feeaf7ac35f151688f42fb78435e3c287fc13dc",
+  "sourceHash": "0f73bfccbc42fbc558ef4779ff44e3ec394a751e89a9bf75dc6d4aa34860387e",
+  "duration": 9.864,
   "source": "Speechify Playground export"
 }

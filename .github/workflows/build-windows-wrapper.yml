@@ -10,6 +10,7 @@ on:
       - 'play-*.js'
       - 'play-*.css'
       - 'play-audio/**'
+      - 'play-narration-copy.json'
       - 'experience-menu.*'
       - 'app-display.*'
       - 'icons/*'

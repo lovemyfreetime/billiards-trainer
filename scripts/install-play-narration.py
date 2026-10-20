@@ -6,7 +6,7 @@ records=json.loads((root/'play-audio/scripts.json').read_text())['records']
 rows=json.loads((root/'play-audio/recording-downloads.json').read_text())
 seen={};completed=[];missing=[];stale=[]
 for row in rows:
- if row['textHash']!=records[row['id']]['textHash']:stale.append(row['id']);continue
+ if row['textHash']!=records[row['id']]['textHash'] or row.get('rate')!=records[row['id']]['rate']:stale.append(row['id']);continue
  source=Path('/workspace/scratch')/Path(row['path']).relative_to('/home/oai/share')
  if not source.is_file() or not source.stat().st_size:missing.append(row['id']);continue
  digest=hashlib.sha256(source.read_bytes()).hexdigest()
@@ -18,7 +18,8 @@ for row in rows:
  subprocess.run(['ffmpeg','-y','-v','error','-i',str(source),'-vn','-codec:a','libmp3lame','-q:a','3',str(output)],check=True)
  duration=float(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration','-of','default=nw=1:nk=1',str(output)],text=True))
  if duration<1:raise ValueError('Audio too short '+row['id'])
+ if row.get('durationHint') and abs(duration-row['durationHint'])>0.15:raise ValueError('Export duration differs from the generated player: '+row['id'])
  subprocess.run(['ffmpeg','-v','error','-i',str(output),'-f','null','-'],check=True)
- data={'voice':'chase','rate':'+30%','model':'simba-3.2','textHash':row['textHash'],'sourceHash':digest,'duration':duration,'source':'Speechify Playground export'}
+ data={'voice':'chase','rate':records[row['id']]['rate'],'model':'simba-3.2','textHash':row['textHash'],'sourceHash':digest,'duration':duration,'source':'Speechify Playground export'}
  receipt.write_text(json.dumps(data,indent=2)+'\n');completed.append({'id':row['id'],'seconds':round(duration,1)})
 print(json.dumps({'installed':completed,'total':len(rows),'missing':missing,'stale':stale}))

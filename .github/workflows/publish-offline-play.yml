@@ -8,6 +8,7 @@ on:
       - 'play*.html'
       - 'play*.css'
       - 'play-audio/**'
+      - 'play-narration-copy.json'
       - 'local-session.*'
       - 'local-host/player.*'
       - 'scripts/package-play.py'
