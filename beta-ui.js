@@ -59,15 +59,14 @@
     const feedbackUrl = embedUrl(cfg.feedbackFormUrl,"trainer");
     if(feedbackUrl.indexOf("https://tally.so/embed/") === 0){
       frame.dataset.tallySrc = feedbackUrl;
-      frame.src = feedbackUrl;
       frame.setAttribute("scrolling","no");
-      ensureTallyEmbedScript();
     }else{
-      frame.src = feedbackUrl;
+      frame.dataset.feedbackSrc = feedbackUrl;
     }
     btn.hidden = false;
 
     function openModal(){
+      if(!frame.getAttribute("src")){frame.src=feedbackUrl;if(feedbackUrl.indexOf("https://tally.so/embed/")===0)ensureTallyEmbedScript();}
       modal.classList.add("open");
       modal.setAttribute("aria-hidden","false");
       close.focus({preventScroll:true});

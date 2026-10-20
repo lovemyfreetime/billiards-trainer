@@ -8922,7 +8922,7 @@
 
     // ----- Trained local AI: YOLO26 detector + zoomed identity classifier -----
     // The ONNX model bytes are embedded directly in this HTML. Images never leave this computer.
-    // ONNX Runtime Web is loaded on demand; if that runtime cannot be loaded the
+    // The pinned local ONNX Runtime Web is loaded on demand; if it cannot be loaded the
     // analyzer automatically falls back to the original geometric/color detector.
     const PV_AI_CLASSES = [
         '10_ball','11_ball','12_ball','13_ball','14_ball','15_ball',
@@ -8930,11 +8930,7 @@
     ];
     // The models are embedded directly into this HTML build. This avoids Chrome/Edge
     // file:// security rules blocking XMLHttpRequest access to adjacent .onnx files.
-    const PV_AI_RUNTIME_CANDIDATES = [
-        'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/',
-        'https://unpkg.com/onnxruntime-web@1.22.0/dist/',
-        'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/'
-    ];
+    const PV_AI_RUNTIME_CANDIDATES = [new URL('./vendor/onnxruntime-1.22.0/', document.baseURI).href];
     // GitHub/PWA build: trained models are hosted beside the app instead of embedded.
     // The larger detector is split into two browser-upload-friendly files and rejoined in memory.
     const photoAI = {
@@ -8980,7 +8976,7 @@
                 try {
                     await new Promise((resolve,reject)=>{
                         const tag=document.createElement('script');
-                        tag.src=base+'ort.min.js'; tag.async=true; tag.crossOrigin='anonymous';
+                        tag.src=base+'ort.wasm.min.js'; tag.async=true; tag.crossOrigin='anonymous';
                         tag.onload=()=>window.ort?resolve():reject(new Error('Runtime loaded without global ort.'));
                         tag.onerror=()=>reject(new Error('Could not load runtime from '+base));
                         document.head.appendChild(tag);
@@ -12517,7 +12513,7 @@
 
 
 <script>
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && !window.BilliardsBundledWindows) {
   // A newly activated worker takes over caching without reloading the open
   // table. Apply new page code on the next user-initiated navigation/reload;
   // background updates must never discard a shot or a newly arranged Zen rack.
@@ -12557,7 +12553,7 @@ if ('serviceWorker' in navigator) {
   <script src="./beta-config.js?v=1"></script>
   <link rel="stylesheet" href="./experience-menu.css?v=home-badge-v8">
   <script src="./experience-menu.js?v=home-badge-v13"></script>
-  <script src="./beta-ui.js?v=home-badge-v157"></script>
+  <script src="./beta-ui.js?v=offline-startup-v158"></script>
 
 
 </body>

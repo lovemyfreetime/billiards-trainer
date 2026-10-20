@@ -9,6 +9,6 @@ internal static class Program
     static void Main(string[] args)
     {
         ApplicationConfiguration.Initialize();
-        Application.Run(new MainForm(args.Contains("--host-play")));
+        Application.Run(new MainForm(args.Contains("--host-play"), args.Contains("--offline-smoke")));
     }
 }

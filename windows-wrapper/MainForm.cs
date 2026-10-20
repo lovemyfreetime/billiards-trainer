@@ -15,13 +15,16 @@ public sealed class MainForm : Form
     private Rectangle savedBounds;
     private bool isFullscreen;
     private readonly bool startLocal;
+    private readonly bool offlineSmoke;
+    private int externalSmokeRequests;
     private Process? localHost;
     private Uri? localHostUri;
     private bool startingLocal;
 
-    public MainForm(bool hostLocal = false)
+    public MainForm(bool hostLocal = false, bool smoke = false)
     {
         startLocal = hostLocal;
+        offlineSmoke = smoke;
         Text = "Billiards Trainer AI Edition 4.12";
         BackColor = Color.FromArgb(9, 11, 14);
         StartPosition = FormStartPosition.CenterScreen;
@@ -47,18 +50,47 @@ public sealed class MainForm : Form
                 "Billiards Trainer AI",
                 "WebView2");
 
+            if (offlineSmoke) userDataFolder = Path.Combine(Path.GetTempPath(), "Billiards-offline-smoke-" + Guid.NewGuid());
             Directory.CreateDirectory(userDataFolder);
-            var env = await CoreWebView2Environment.CreateAsync(null, userDataFolder);
+            var env = await CoreWebView2Environment.CreateAsync(null, userDataFolder, offlineSmoke ? new CoreWebView2EnvironmentOptions("--autoplay-policy=no-user-gesture-required --disable-background-networking") : null);
             await webView.EnsureCoreWebView2Async(env);
 
             var core = webView.CoreWebView2;
+            var bundlePath = Path.Combine(AppContext.BaseDirectory, "offline-app");
+            if (!File.Exists(Path.Combine(bundlePath, "welcome.html")))
+                throw new InvalidOperationException("The complete offline app is missing. Reinstall the current Windows installer.");
+            // Retain this profile's LocalStorage and IndexedDB (games, tables and saved layouts).
+            // Remove the old web-only worker/cache so it cannot intercept the installed bundle.
+            await core.Profile.ClearBrowsingDataAsync(CoreWebView2BrowsingDataKinds.ServiceWorkers |
+                CoreWebView2BrowsingDataKinds.CacheStorage | CoreWebView2BrowsingDataKinds.DiskCache);
+            var bundle = new BundledAssets(bundlePath);
+            core.AddWebResourceRequestedFilter("https://lovemyfreetime.github.io/*", CoreWebView2WebResourceContext.All,
+                CoreWebView2WebResourceRequestSourceKinds.All);
+            core.WebResourceRequested += (_, request) =>
+            {
+                if (!Uri.TryCreate(request.Request.Uri, UriKind.Absolute, out var uri) || uri.Scheme != "https" || uri.Host != "lovemyfreetime.github.io") return;
+                var range = request.Request.Headers.Contains("Range") ? request.Request.Headers.GetHeader("Range") : null;
+                var reply = bundle.Read(uri, request.Request.Method, range);
+                request.Response = env.CreateWebResourceResponse(reply.Body, reply.Status, reply.Reason, reply.Headers);
+            };
+            if (offlineSmoke)
+            {
+                core.AddWebResourceRequestedFilter("*", CoreWebView2WebResourceContext.All, CoreWebView2WebResourceRequestSourceKinds.All);
+                core.WebResourceRequested += (_, request) =>
+                {
+                    if (request.Request.Uri.StartsWith("https://lovemyfreetime.github.io/", StringComparison.Ordinal)) return;
+                    if (!request.Request.Uri.StartsWith("http", StringComparison.Ordinal)) return;
+                    externalSmokeRequests++;
+                    request.Response = env.CreateWebResourceResponse(null, 503, "Internet unavailable", "Content-Length: 0\r\n");
+                };
+            }
             core.Settings.AreDefaultContextMenusEnabled = true;
             core.Settings.AreDevToolsEnabled = false;
             core.Settings.IsStatusBarEnabled = false;
             core.Settings.AreBrowserAcceleratorKeysEnabled = true;
             core.Settings.IsZoomControlEnabled = true;
 
-            await core.AddScriptToExecuteOnDocumentCreatedAsync("if(location.origin==='https://lovemyfreetime.github.io'){window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=true;}");
+            await core.AddScriptToExecuteOnDocumentCreatedAsync("if(location.origin==='https://lovemyfreetime.github.io'){window.BilliardsBundledWindows=true;window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=true;}");
             core.NavigationCompleted += async (_, _) =>
             {
                 await core.ExecuteScriptAsync("window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=" +
@@ -122,12 +154,18 @@ public sealed class MainForm : Form
                 });
             };
 
+            if (offlineSmoke)
+            {
+                try { await OfflineSmoke.Run(core); if (externalSmokeRequests != 0) throw new Exception($"App attempted {externalSmokeRequests} internet requests"); Console.WriteLine("OFFLINE WebView2 smoke passed: zero public network requests"); Environment.ExitCode = 0; }
+                catch (Exception ex) { Console.Error.WriteLine(ex); Environment.ExitCode = 1; }
+                Close(); return;
+            }
             if (startLocal) await StartLocalHostAsync();
             else core.Navigate(AppUrl);
         }
         catch (Exception ex)
         {
-            ShowStartupError(ex);
+            if (offlineSmoke) { Console.Error.WriteLine(ex); Environment.ExitCode = 1; Close(); } else ShowStartupError(ex);
         }
     }
 
@@ -186,7 +224,7 @@ public sealed class MainForm : Form
             Padding = new Padding(40),
             Text = "Billiards Trainer could not start.\n\n" +
                    ex.Message +
-                   (startLocal ? "\n\nClose other local hosts, connect to your private Wi-Fi, and reopen Local Play." : "\n\nPlease make sure you are connected to the Internet, then reopen the app.")
+                   (startLocal ? "\n\nClose other local hosts, connect to your private Wi-Fi, and reopen Local Play." : "\n\nReinstall the current complete Windows app, then reopen it. Installed app content does not need internet.")
         };
         Controls.Add(label);
     }

@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-const html=fs.readFileSync('index.html','utf8');const start=html.indexOf("if ('serviceWorker' in navigator) {");const end=html.indexOf('</script>',start);
+const html=fs.readFileSync('index.html','utf8');const start=html.indexOf("if ('serviceWorker' in navigator");const end=html.indexOf('</script>',start);
 let reloads=0,registered=0,updated=0;const pageEvents={},workerEvents={};
 const context={navigator:{serviceWorker:{controller:{},addEventListener(name,fn){workerEvents[name]=fn},register:async path=>{assert.equal(path,'./service-worker.js');registered++;return {update:async()=>{updated++}}}}},window:{location:{reload(){reloads++}},addEventListener(name,fn){pageEvents[name]=fn}},console};
 vm.createContext(context);vm.runInContext(html.slice(start,end),context);

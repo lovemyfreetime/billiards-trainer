@@ -5,6 +5,20 @@ on:
   push:
     paths:
       - 'windows-wrapper/**'
+      - 'index.html'
+      - 'welcome.html'
+      - 'zen-mode.js'
+      - 'beta-*.js'
+      - 'photo-*'
+      - 'trainer-*'
+      - 'guide/**'
+      - 'vendor/**'
+      - 'ai_model/**'
+      - 'offline-assets.json'
+      - 'scripts/package-windows-app.py'
+      - 'scripts/build-offline-assets.py'
+      - 'tests/offline-loading.test.cjs'
+      - 'tests/windows-assets/**'
       - 'local-host/**'
       - 'local-session.*'
       - 'play-*.js'
@@ -52,6 +66,16 @@ jobs:
           node local-host/browser.cjs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+      - name: Verify complete offline assets and bounded network behavior
+        shell: pwsh
+        run: |
+          python scripts/build-offline-assets.py --check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --test tests/offline-loading.test.cjs tests/background-update-session.test.cjs tests/experience-entry.test.cjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet run --project tests/windows-assets/AssetTests.csproj
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
       - name: Create Windows icon
         shell: pwsh
         run: |
@@ -92,6 +116,17 @@ jobs:
           Copy-Item local-host/README.md "$destination/README.md"
           Compress-Archive -Path "$destination/*" -DestinationPath 'windows-wrapper/output-local-play.zip' -Force
 
+      - name: Bundle all experiences and test WebView2 without internet
+        shell: pwsh
+        run: |
+          python scripts/package-windows-app.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $engine = Start-Process -FilePath 'windows-wrapper/assets/MicrosoftEdgeWebview2Setup.exe' -ArgumentList '/silent /install' -Wait -PassThru
+          $smoke = Start-Process -FilePath 'windows-wrapper/publish/BilliardsTrainer.Windows.exe' -ArgumentList '--offline-smoke' -Wait -PassThru -RedirectStandardOutput 'windows-wrapper/offline-smoke.log' -RedirectStandardError 'windows-wrapper/offline-smoke-errors.log'
+          Get-Content 'windows-wrapper/offline-smoke.log'
+          Get-Content 'windows-wrapper/offline-smoke-errors.log'
+          if ($smoke.ExitCode -ne 0) { exit $smoke.ExitCode }
+
       - name: Install Inno Setup
         shell: pwsh
         run: choco install innosetup --no-progress -y
@@ -101,22 +136,20 @@ jobs:
         run: |
           & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' 'windows-wrapper\installer.iss'
 
-      - name: Publish current Windows installer
+      - name: Publish complete offline Windows installer
         shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git pull --rebase origin "${{ github.ref_name }}"
-          New-Item -ItemType Directory -Force downloads | Out-Null
-          Copy-Item 'windows-wrapper/output-local-play.zip' 'downloads/Billiards-Play-Local-Host-Windows.zip' -Force
-          Copy-Item 'windows-wrapper/output/Billiards-Trainer-Windows-Setup.exe' 'downloads/Billiards-Trainer-Windows-Setup.exe' -Force
-          git add -f downloads/Billiards-Trainer-Windows-Setup.exe downloads/Billiards-Play-Local-Host-Windows.zip
-          if (-not (git diff --cached --quiet)) {
-            git commit -m 'Publish Windows wrapper installer'
-            git push origin "HEAD:${{ github.ref_name }}"
-          } else {
-            Write-Host 'Published Windows installer is already current.'
+          gh release view windows-offline --repo $env:GITHUB_REPOSITORY
+          if ($LASTEXITCODE -ne 0) {
+            gh release create windows-offline --repo $env:GITHUB_REPOSITORY --target "${{ github.sha }}" --title 'Complete offline Windows app' --notes-file windows-wrapper/RELEASE_NOTES.md
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
+          gh release upload windows-offline --repo $env:GITHUB_REPOSITORY 'windows-wrapper/output/Billiards-Trainer-Windows-Setup.exe' 'windows-wrapper/output-local-play.zip' --clobber
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          gh release edit windows-offline --repo $env:GITHUB_REPOSITORY --notes-file windows-wrapper/RELEASE_NOTES.md
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - uses: actions/upload-artifact@v4
         with:

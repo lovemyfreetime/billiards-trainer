@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-home-badge-v170';
+const CACHE_NAME = 'billiards-trainer-4-12-offline-9655c5e9f4d9e762';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './play-narration-data.js?v=3',
@@ -37,7 +37,7 @@ const APP_SHELL = [
   './trainer-table-exchange.js?v=1',
   './icons/zen-reference-table-v1.webp',
   './zen-mode.js?v=home-badge-v59',
-  './beta-ui.js?v=home-badge-v157',
+  './beta-ui.js?v=offline-startup-v158',
   './index.html',
   './trainer-practice-tools.js?v=3',
   './guide/audio-startup.js?v=native-warmup-v22',
@@ -68,87 +68,64 @@ const APP_SHELL = [
   './trainer-saved-files.js?v=1'
 ];
 
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => Promise.all(APP_SHELL.map(url => cache.add(url).catch(() => null))))
-      .then(async () => {
-        const cache=await caches.open(CACHE_NAME);
-        const response=await fetch('./guide/audio-assets.json');
-        if(!response.ok)throw Error('Audio asset list unavailable');
-        const assets=await response.json();const playAudio=await fetch('./play-audio/scripts.json').then(r=>{if(!r.ok)throw Error('Play narration catalog unavailable');return r.json();});const calls=await fetch('./play-audio/announcements.json').then(r=>{if(!r.ok)throw Error('Chase announcement catalog unavailable');return r.json();});assets.push(...Object.values(calls.records).filter(r=>r.recordingStatus==='recorded').map(r=>'./'+r.src));assets.push(...Object.values(playAudio.records).filter(r=>r.recordingStatus==='recorded').map(r=>'./'+r.src));const layouts=await fetch('./guide/practice-layouts.json?v=walkthrough-v11').then(r=>r.json());assets.push(...Object.values(layouts.layouts).map(x=>x.url));const tour=await fetch('./guide/get-started-tour.json?v=completion-tour-v25').then(r=>r.json());for(const step of tour.steps){assets.push(step.layout);if(step.recordingStatus==='recorded')assets.push(step.audio);}if(tour.transition?.recordingStatus==='recorded')assets.push(tour.transition.audio);const uniqueAssets=[...new Set(assets)];let next=0;
-        await Promise.all(Array.from({length:6},async()=>{while(next<uniqueAssets.length){const asset=uniqueAssets[next++];await cache.add(asset);}}));
-      })
-      .then(() => self.skipWaiting())
-  );
+// Cache complete, hash-verified releases. Unchanged files are copied from the
+// previous cache rather than downloading every narration clip after each update.
+async function timedFetch(request, timeout=3000) {
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
+  try {return await fetch(request,{cache:'no-store',signal:controller.signal});}
+  finally {clearTimeout(timer);}
+}
+async function sha256(response){const bytes=await response.clone().arrayBuffer();return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');}
+async function verifiedResponse(response,hash){
+  const headers=new Headers(response.headers);for(const name of ['content-encoding','content-length','transfer-encoding'])headers.delete(name);
+  headers.set('X-Billiards-SHA256',hash);return new Response(response.body,{status:response.status,statusText:response.statusText,headers});
+}
+self.addEventListener('install',event=>{
+  event.waitUntil((async()=>{
+    const response=await timedFetch('./offline-assets.json',12000);if(!response.ok)throw Error('Offline content manifest unavailable');
+    const manifest=await response.json(),cache=await caches.open(CACHE_NAME),previous=[];
+    for(const name of await caches.keys())if(name!==CACHE_NAME&&name.startsWith(CACHE_PREFIX))previous.push(await caches.open(name));
+    const entries=Object.entries(manifest.files);let next=0;
+    await Promise.all(Array.from({length:4},async()=>{while(next<entries.length){
+      const [path,hash]=entries[next++],url='./'+path;let content;
+      const existing=await cache.match(url);if(existing?.headers.get('X-Billiards-SHA256')===hash)continue;
+      for(const old of previous){const candidate=await old.match(url,{ignoreSearch:true});if(candidate&&candidate.ok&&(candidate.headers.get('X-Billiards-SHA256')===hash||await sha256(candidate)===hash)){content=candidate;break;}}
+      if(!content){content=await timedFetch(url,12000);if(!content.ok||await sha256(content)!==hash)throw Error('Offline content incomplete: '+path);}
+      await cache.put(url,await verifiedResponse(content,hash));
+    }}));
+    // This marker is written only after every required file has been verified.
+    await cache.put('./offline-assets.json',new Response(JSON.stringify(manifest),{headers:{'Content-Type':'application/json'}}));
+    await self.skipWaiting();
+  })());
 });
-
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME && key.startsWith(CACHE_PREFIX))
-          .map(key => caches.delete(key))
-      ))
-      .then(() => self.clients.claim())
-  );
-});
-
-function navigationShell(url) {
-  const path = new URL(url).pathname;
-  if (path.endsWith('/welcome.html')) return './welcome.html';
-  if (path.endsWith('/tournament.html')) return './tournament.html';
-  if (path.endsWith('/play-calibration.html')) return './play-calibration.html';
-  if (path.endsWith('/play.html')) return './play.html';
+self.addEventListener('activate',event=>{event.waitUntil((async()=>{
+  // Keep one prior release for already-open pages using older versioned assets.
+  const keys=(await caches.keys()).filter(k=>k.startsWith(CACHE_PREFIX)&&k!==CACHE_NAME);
+  for(const key of keys.slice(0,-1))await caches.delete(key);
+  await self.clients.claim();
+})());});
+function navigationShell(url){
+  const path=new URL(url).pathname;
+  if(path.endsWith('/welcome.html'))return './welcome.html';
+  if(path.endsWith('/tournament.html'))return './tournament.html';
+  if(path.endsWith('/play-calibration.html'))return './play-calibration.html';
+  if(path.endsWith('/play.html'))return './play.html';
   return './index.html';
 }
-
-async function networkFirst(request) {
-  const cache = await caches.open(CACHE_NAME);
-  try {
-    const response = await fetch(request, { cache: 'no-store' });
-    if (response && response.status === 200) {
-      cache.put(request, response.clone()).catch(() => {});
-      if (request.mode === 'navigate') {
-        const page = navigationShell(request.url);
-        cache.put(page, response.clone()).catch(() => {});
-      }
-    }
-    return response;
-  } catch (err) {
-    return (await caches.match(request)) ||
-           (request.mode === 'navigate' ? await caches.match(navigationShell(request.url)) : null) ||
-           Response.error();
-  }
+async function cachedResponse(request){
+  const cache=await caches.open(CACHE_NAME);
+  return (await cache.match(request))||(await cache.match(request,{ignoreSearch:true}))||
+    (request.mode==='navigate'?await cache.match(navigationShell(request.url)):null);
 }
-
-self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
-  const url = new URL(event.request.url);
-  if (url.origin !== self.location.origin) return;
-
-  const isInstallerAsset = /\/install\//i.test(url.pathname) &&
-    (/\.(?:html|css|js|webmanifest)$/i.test(url.pathname) || event.request.mode === 'navigate');
-
-  // Always prefer the network for HTML and installer UI assets so a normal
-  // mobile reload picks up the newest installer without a hard-refresh keyboard shortcut.
-  if (event.request.mode === 'navigate' || /\/index\.html$/i.test(url.pathname) || isInstallerAsset || /\/(?:phone-play\.(?:css|js)|photo-[^/]+\.(?:css|js)|guide\/guide\.(?:css|js))$/i.test(url.pathname)) {
-    event.respondWith(networkFirst(event.request));
-    return;
-  }
-
-  // Other assets/models can load from cache immediately and refresh in the background.
-  event.respondWith(
-    caches.open(CACHE_NAME).then(async cache => {
-      const cached = await cache.match(event.request);
-      const refresh = fetch(event.request).then(response => {
-        if (response && response.status === 200) {
-          cache.put(event.request, response.clone()).catch(() => {});
-        }
-        return response;
-      }).catch(() => null);
-      return cached || (await refresh) || Response.error();
-    })
-  );
+async function respond(request){
+  // A dead connection can still report online. Cached app content must never
+  // wait for DNS, TLS or an internet timeout, including during page navigation.
+  const cached=await cachedResponse(request);if(cached)return cached;
+  // An older complete release is a useful fallback during a partial install.
+  const prior=await caches.match(request)||(request.mode==='navigate'?await caches.match(navigationShell(request.url)):null);if(prior)return prior;
+  try {return await timedFetch(request);}catch{return Response.error();}
+}
+self.addEventListener('fetch',event=>{
+  if(event.request.method!=='GET'||new URL(event.request.url).origin!==self.location.origin)return;
+  event.respondWith(respond(event.request));
 });
