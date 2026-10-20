@@ -106,6 +106,8 @@ self.addEventListener('activate',event=>{event.waitUntil((async()=>{
 })());});
 function navigationShell(url){
   const path=new URL(url).pathname;
+  // Directory links must retain their own cached index, including installer pages.
+  if(path.includes('/install/')&&path.endsWith('/'))return './'+path.slice(path.indexOf('/install/')+1)+'index.html';
   if(path.endsWith('/welcome.html'))return './welcome.html';
   if(path.endsWith('/tournament.html'))return './tournament.html';
   if(path.endsWith('/play-calibration.html'))return './play-calibration.html';

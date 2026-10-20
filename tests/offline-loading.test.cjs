@@ -8,3 +8,5 @@ test('the browser release covers every packaged audio/model/runtime and matches 
 test("bundled Windows entry points skip redundant web downloads",()=>{for(const name of ["welcome.html","index.html","play.html","play-viewport.js","install/assets/installer.js"])assert.match(fs.readFileSync(name,"utf8"),/BilliardsBundledWindows/);});
 
 test("offline release excludes temporary recording sources",()=>{const m=JSON.parse(fs.readFileSync("offline-assets.json","utf8"));assert.equal(Object.keys(m.files).some(p=>p.includes("source-wav/")),false);});
+
+test("cached installer directory links retain their own page",async()=>{let network=0;const h=harness(()=>{network++;throw Error("offline");});h.data.set("./install/windows/index.html",new Response("Windows installer"));h.data.set("./install/index.html",new Response("Universal installer"));for(const [path,text]of [["windows/","Windows installer"],["","Universal installer"]]){const r=await h.context.respond({url:"https://example.com/billiards-trainer/install/"+path,method:"GET",mode:"navigate"});assert.equal(await r.text(),text);}assert.equal(network,0);});
