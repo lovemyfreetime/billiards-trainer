@@ -3,5 +3,5 @@
  'use strict';
  function fit(){const v=window.visualViewport;if(v&&Math.abs(v.scale-1)>.02)return;document.documentElement.style.setProperty('--play-height',Math.round(v?.height||innerHeight)+'px');}
  fit();addEventListener('resize',fit);window.visualViewport?.addEventListener('resize',fit);
- if('serviceWorker' in navigator)navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+ if(!window.BilliardsBundledWindows&&'serviceWorker' in navigator)navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
 })();

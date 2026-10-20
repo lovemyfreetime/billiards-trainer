@@ -31,6 +31,6 @@
 document.querySelectorAll('[data-about]').forEach(button=>button.addEventListener('click',()=>document.getElementById('about-'+button.dataset.about).showModal()));
 document.querySelectorAll('.experience-description').forEach(dialog=>dialog.addEventListener('click',event=>{if(event.target!==dialog)return;const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();}));
 </script>
-<script>if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').then(reg=>reg.update()).catch(err=>console.warn('Service worker registration failed:',err)));</script>
+<script>if(!window.BilliardsBundledWindows&&'serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').then(reg=>reg.update()).catch(err=>console.warn('Service worker registration failed:',err)));</script>
 </body>
 </html>

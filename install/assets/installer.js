@@ -22,7 +22,7 @@ async function shareLink(title,url){
 function toggleQR(id){document.getElementById(id)?.classList.toggle('show')}
 
 function prepareTrainerWrapper(){
-  if(!('serviceWorker' in navigator)) return;
+  if(window.BilliardsBundledWindows||!('serviceWorker' in navigator)) return;
   try{
     const marker='/install/';
     const i=location.pathname.indexOf(marker);
