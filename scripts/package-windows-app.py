@@ -8,7 +8,7 @@ def assets():
  files={p.relative_to(ROOT).as_posix():p for p in ROOT.iterdir() if p.is_file() and p.suffix in EXT and p.name not in {'package-lock.json','package.json','play-narration-copy.json','play-announcements-copy.json'}}
  for folder in ['guide','icons','ai_model','vendor','install','play-audio']:
   for p in (ROOT/folder).rglob('*'):
-   if p.is_file() and (p.suffix in EXT or p.name in {'LICENSE','ThirdPartyNotices.txt'}):
+   if p.is_file() and 'source-wav' not in p.parts and (p.suffix in EXT or p.name in {'LICENSE','ThirdPartyNotices.txt'}):
     if folder=='play-audio' and p.suffix=='.json' and p.name not in {'scripts.json','announcements.json'}:continue
     files[p.relative_to(ROOT).as_posix()]=p
  return dict(sorted(files.items()))
