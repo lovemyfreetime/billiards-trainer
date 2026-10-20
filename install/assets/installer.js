@@ -135,7 +135,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   if(windowsCard){
     const windowsInstall=windowsCard.querySelector('.primary-actions > a.btn');
     if(windowsInstall){
-      windowsInstall.setAttribute('href','../downloads/Billiards-Trainer-Windows-Setup.exe');
+      windowsInstall.setAttribute('href','https://github.com/lovemyfreetime/billiards-trainer/releases/download/windows-offline/Billiards-Trainer-Windows-Setup.exe');
       windowsInstall.setAttribute('download','');
     }
     const windowsGuide=windowsCard.querySelector('.guide-body');
