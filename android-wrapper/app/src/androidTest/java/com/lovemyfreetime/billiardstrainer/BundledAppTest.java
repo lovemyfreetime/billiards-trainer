@@ -62,6 +62,7 @@ public class BundledAppTest {
             waitFor("document.body.dataset.model==='ready'",60);
             navigate(scenario,"install/","[data-device=android]");
             assertEquals("0",js("[...document.querySelectorAll('iframe')].filter(f=>f.getAttribute('src')).length"));
+            scenario.onActivity(a->{WebBackForwardList history=a.webView.copyBackForwardList();for(int i=0;i<history.getSize();i++)assertFalse("Startup page is not a Back destination",history.getItemAtIndex(i).getUrl().contains("__android_start__.html"));});
             assertEquals("No public network requests needed",0,activity.externalRequests.get());
             assertEquals("All requested app assets were installed",0,activity.bundledApp.missingRequests.get());
             navigate(scenario,"welcome.html","main nav");

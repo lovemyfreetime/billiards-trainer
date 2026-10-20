@@ -362,7 +362,7 @@ public class MainActivity extends Activity {
                 Uri current=Uri.parse(webView.getUrl()==null?"":webView.getUrl());
                 if(!BundledApp.isAppOrigin(current)||!BOOTSTRAP_PATH.equals(current.getPath()))return;
                 bootstrapPending=false;
-                webView.loadUrl(APP_URL);
+                webView.evaluateJavascript("location.replace("+org.json.JSONObject.quote(APP_URL)+")",null);
             });
         }
 
