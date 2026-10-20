@@ -28,7 +28,9 @@ const server=cp.spawn('python3',['-u','-m','http.server','8798','--bind','127.0.
   for(const [width,height] of [[320,640],[360,640],[800,360],[800,500],[1280,800],[1440,960]]){
    const c=await browser.newContext({viewport:{width,height},serviceWorkers:'block',hasTouch:width<1400,isMobile:width<1000}),p=await c.newPage();await p.goto('http://127.0.0.1:8798/play.html');await p.locator('.play-game-preview').last().waitFor();
    const issues=await p.locator('.play-game-card').evaluateAll(cards=>cards.flatMap(card=>{
-    const a=card.querySelector('.play-game-tile'),b=card.querySelector('.play-game-preview'),ar=a.getBoundingClientRect(),br=b.getBoundingClientRect(),name=a.dataset.game,issues=[];
+    const a=card.querySelector('.play-game-tile'),b=card.querySelector('.play-game-preview'),icon=card.querySelector('.play-tile-icon'),ar=a.getBoundingClientRect(),br=b.getBoundingClientRect(),ir=icon.getBoundingClientRect(),name=a.dataset.game,issues=[];
+    if(ir.width<20||ir.height<20||getComputedStyle(icon).display==='none')issues.push(name+' game icon missing');
+    if(ir.bottom>br.top-4||Math.abs((ir.left+ir.width/2)-(br.left+br.width/2))>1)issues.push(name+' icon must be above the right-hand speaker');
     if(br.width<52||br.height<52)issues.push(name+' small target');
     for(const el of a.querySelectorAll('strong,small')){const range=document.createRange();range.selectNodeContents(el);const r=range.getBoundingClientRect();if((r.bottom>br.top&&r.top<br.bottom&&r.right>br.left-3)||el.scrollWidth>el.clientWidth+1)issues.push(name+' label overlap');}
     if(br.right>ar.right+1||br.left<ar.left||br.bottom>ar.bottom+1||br.top<ar.top-1)issues.push(name+' speaker outside card');return issues;
