@@ -33,9 +33,9 @@ public class BundledAppTest {
         fail("Timed out: "+predicate+"; page="+js("JSON.stringify({url:location.href,text:document.body?.innerText.slice(0,1200),data:document.body?.dataset,native:window.BilliardsBundledAndroid,ready:document.readyState})"));
     }
     private void navigate(ActivityScenario<MainActivity> scenario,String path,String selector)throws Exception {
-        long start=SystemClock.elapsedRealtime();String url=BundledApp.ORIGIN+BundledApp.PREFIX+path;
+        long start=SystemClock.elapsedRealtime();String url=BundledApp.ORIGIN+BundledApp.PREFIX+path+(path.contains("?")?"&":"?")+"androidSmoke="+SystemClock.elapsedRealtime();
         scenario.onActivity(a->{activity=a;a.webView.loadUrl(url);});
-        waitFor("location.href==="+org.json.JSONObject.quote(url)+"&&window.BilliardsBundledAndroid&&document.querySelector("+org.json.JSONObject.quote(selector)+")",25);
+        waitFor("location.href==="+org.json.JSONObject.quote(url)+"&&document.readyState==='complete'&&window.BilliardsBundledAndroid&&document.querySelector("+org.json.JSONObject.quote(selector)+")",25);
         System.out.println("ANDROID LOCAL "+path+": "+(SystemClock.elapsedRealtime()-start)+" ms");
     }
     @Test public void completeAppWithoutInternetAndLegacyCacheMigration()throws Exception {
@@ -47,7 +47,7 @@ public class BundledAppTest {
         Intent intent=new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(),MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(intent)){
             scenario.onActivity(a->{activity=a;a.webView.setWebChromeClient(new WebChromeClient(){@Override public boolean onConsoleMessage(ConsoleMessage m){android.util.Log.d("BilliardsOfflineTest",m.message());return true;}});});
-            waitFor("window.BilliardsBundledAndroid&&(document.querySelector('main nav')||document.querySelector('[data-device=android]'))",30);
+            waitFor("document.readyState==='complete'&&window.BilliardsBundledAndroid&&(document.querySelector('main nav')||document.querySelector('[data-device=android]'))",30);
             navigate(scenario,"welcome.html","main nav");
             js("localStorage.setItem('android-offline-smoke','kept');(()=>{const r=indexedDB.open('billiards-offline-save-test',1);r.onupgradeneeded=()=>r.result.createObjectStore('layouts');r.onsuccess=()=>{const db=r.result,t=db.transaction('layouts','readwrite');t.objectStore('layouts').put('kept','layout');t.oncomplete=()=>{db.close();document.body.dataset.saved='yes';};};})()");
             waitFor("document.body.dataset.saved==='yes'",10);
@@ -77,7 +77,7 @@ public class BundledAppTest {
             js("navigator.serviceWorker.register('./__legacy_test_worker.js').then(()=>navigator.serviceWorker.ready).then(()=>document.body.dataset.legacy='ready').catch(e=>document.body.dataset.legacy=String(e));");
             waitFor("document.body.dataset.legacy==='ready'&&navigator.serviceWorker.controller",20);
             scenario.recreate();scenario.onActivity(a->{activity=a;});
-            waitFor("window.BilliardsBundledAndroid&&(document.querySelector('main nav')||document.querySelector('[data-device=android]'))",30);
+            waitFor("document.readyState==='complete'&&window.BilliardsBundledAndroid&&(document.querySelector('main nav')||document.querySelector('[data-device=android]'))",30);
             assertEquals("\"kept\"",js("localStorage.getItem('android-offline-smoke')"));
             js("(()=>{const r=indexedDB.open('billiards-offline-save-test');r.onsuccess=()=>{const db=r.result,q=db.transaction('layouts').objectStore('layouts').get('layout');q.onsuccess=()=>{document.body.dataset.restored=q.result;db.close();};};navigator.serviceWorker.getRegistrations().then(r=>document.body.dataset.workers=String(r.length));})()");
             waitFor("document.body.dataset.restored==='kept'&&document.body.dataset.workers==='0'",10);
