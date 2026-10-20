@@ -44,10 +44,24 @@ jobs:
         with:
           gradle-version: '8.10.2'
 
-      - name: Require and prepare the existing signing identity
+      - name: Prepare signing for validation
         run: |
-          test -n "$ANDROID_KEYSTORE_BASE64" && test -n "$ANDROID_KEYSTORE_PASSWORD" && test -n "$ANDROID_KEY_ALIAS" && test -n "$ANDROID_KEY_PASSWORD" || { echo 'Permanent Android signing key is required; existing downloads will not be replaced with debug APKs.'; exit 1; }
-          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$ANDROID_KEYSTORE_PATH"
+          if test -n "$ANDROID_KEYSTORE_BASE64" && test -n "$ANDROID_KEYSTORE_PASSWORD" && test -n "$ANDROID_KEY_ALIAS" && test -n "$ANDROID_KEY_PASSWORD"; then
+            printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$ANDROID_KEYSTORE_PATH"
+            echo 'ANDROID_RELEASE_CONFIGURED=true' >> "$GITHUB_ENV"
+          else
+            echo '::notice::Release signing is not configured. Building with a disposable test key; public installers will remain unchanged.'
+            keytool -genkeypair -keystore "$ANDROID_KEYSTORE_PATH" -storepass android-test-only -keypass android-test-only -alias instrumentation -dname 'CN=Disposable Android Test' -keyalg RSA -keysize 2048 -validity 2
+            echo 'ANDROID_KEYSTORE_PASSWORD=android-test-only' >> "$GITHUB_ENV"
+            echo 'ANDROID_KEY_PASSWORD=android-test-only' >> "$GITHUB_ENV"
+            echo 'ANDROID_KEY_ALIAS=instrumentation' >> "$GITHUB_ENV"
+            echo 'ANDROID_RELEASE_CONFIGURED=false' >> "$GITHUB_ENV"
+          fi
+
+      - name: Choose an increasing Android version
+        run: |
+          previous=$("$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging downloads/Billiards-Trainer-Android.apk | sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" | head -1)
+          echo "ANDROID_VERSION_CODE=$((previous + ${{ github.run_number }} + 1))" >> "$GITHUB_ENV"
 
       - name: Verify complete app and shared behavior
         run: |
@@ -64,12 +78,17 @@ jobs:
           signer="$ANDROID_HOME/build-tools/35.0.0/apksigner"
           "$signer" verify --print-certs downloads/Billiards-Trainer-Android.apk > /tmp/previous-android-cert.txt
           "$signer" verify --print-certs android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk > /tmp/current-android-cert.txt
-          diff <(rg '^Signer #1 certificate SHA-256 digest:' /tmp/previous-android-cert.txt) <(rg '^Signer #1 certificate SHA-256 digest:' /tmp/current-android-cert.txt)
+          if diff <(rg '^Signer #1 certificate SHA-256 digest:' /tmp/previous-android-cert.txt) <(rg '^Signer #1 certificate SHA-256 digest:' /tmp/current-android-cert.txt); then
+            echo 'ANDROID_UPDATE_COMPATIBLE=true' >> "$GITHUB_ENV"
+          else
+            echo 'ANDROID_UPDATE_COMPATIBLE=false' >> "$GITHUB_ENV"
+            echo '::notice::The build certificate differs from the existing Android download; publishing is blocked to protect in-place updates.'
+          fi
           aapt="$ANDROID_HOME/build-tools/35.0.0/aapt"
           previous=$("$aapt" dump badging downloads/Billiards-Trainer-Android.apk | sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" | head -1)
           current=$("$aapt" dump badging android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk | sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" | head -1)
           test "$current" -gt "$previous"
-          echo 'Existing Android certificate retained; version code increases for an in-place update.'
+          echo 'Version code increases; certificate compatibility is recorded separately.'
 
       - name: Enable KVM for the Android runtime test
         run: |
@@ -100,6 +119,16 @@ jobs:
           path: |
             android-wrapper/app/build/reports/androidTests/
             android-wrapper/app/build/outputs/androidTest-results/
+
+      - name: Preserve validated APKs for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: Android-validated-APKs
+          path: android-wrapper/app/build/outputs/apk/*/release/*.apk
+
+      - name: Require compatible release identity before publishing
+        run: |
+          test "$ANDROID_RELEASE_CONFIGURED" = true && test "$ANDROID_UPDATE_COMPATIBLE" = true || { echo 'APK build and runtime checks completed, but publication requires the signing key matching the installed Android app. Existing installer links and APKs are unchanged.'; exit 1; }
 
       - name: Publish signed Android installers
         env:
