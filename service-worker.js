@@ -1,7 +1,7 @@
-const CACHE_NAME = 'billiards-trainer-4-12-play-chase-copy-plus10-v166';
+const CACHE_NAME = 'billiards-trainer-4-12-play-chase-copy-plus10-v167';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
-  './play-narration-data.js?v=2',
+  './play-narration-data.js?v=3',
   './play-narration.js?v=1',
   './play-input.js?v=1',
   './play-training.js?v=1',

@@ -7,7 +7,8 @@ for(const [id,text] of Object.entries(copy.records)){
  const textHash=crypto.createHash('sha256').update(text).digest('hex'),file=`play-audio/${id}.mp3`;let receipt;
  try{receipt=JSON.parse(fs.readFileSync(`play-audio/${id}.json`));}catch{}
  const ready=fs.existsSync(file)&&receipt?.textHash===textHash&&receipt?.voice===copy.voice&&receipt?.rate===copy.rate;
- records[id]={text,textHash,src:file,voice:copy.voice,rate:copy.rate,recordingStatus:ready?'recorded':'pending'};
+ const version=(ready&&receipt.sourceHash?receipt.sourceHash:textHash).slice(0,12);
+ records[id]={text,textHash,src:file+'?v='+version,voice:copy.voice,rate:copy.rate,recordingStatus:ready?'recorded':'pending'};
 }
 for(const [id,g] of Object.entries(E.games)){
  if(!records[`rules-${id}`]?.text.includes(g.rules.toLowerCase()))throw Error(`Narration rules differ from the displayed rules: ${id}`);
