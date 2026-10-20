@@ -24,6 +24,6 @@ The separate `play` flavor bundles the current Play assets and includes a local 
 
 ## Standard app packaging
 
-Trainer and Installer flavors include the complete app in `assets/app`. `scripts/package-android-app.py` uses the shared app asset inventory, adds an early native flag to HTML, and records lengths/hashes. HTTPS requests for the existing public app origin resolve from APK assets, including byte-range media requests; missing assets fail locally. Startup unregisters older site workers without clearing LocalStorage or IndexedDB. The public HTTPS origin and permanent signing identity are retained.
+Trainer and Installer flavors include the complete app in `assets/app`. `scripts/package-android-app.py` uses the shared app asset inventory, adds an early native flag to HTML, and records lengths/hashes. HTTPS requests for the existing public app origin resolve from APK assets, including byte-range media requests; missing assets fail locally. A locally served HTTPS startup page uses document-start injection to unregister older site workers before opening the app, without clearing LocalStorage or IndexedDB. The public HTTPS origin and permanent signing identity are retained.
 
 The release workflow verifies actual APK contents/signatures and tests the signed Trainer/Installer APKs on an Android emulator with internet blocked, including old-worker migration, save storage, media and the WASM classifier. Device-dependent hosting/voice capabilities remain in the separate Play preview.

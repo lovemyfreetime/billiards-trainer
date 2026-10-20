@@ -29,6 +29,9 @@ import android.webkit.WebResourceResponse;
 import android.webkit.ServiceWorkerController;
 import android.webkit.ServiceWorkerClient;
 import java.util.concurrent.atomic.AtomicInteger;
+import androidx.webkit.WebViewCompat;
+import androidx.webkit.WebViewFeature;
+import java.util.Collections;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +46,8 @@ public class MainActivity extends Activity {
 
     WebView webView;
     BundledApp bundledApp;
+    private volatile boolean bootstrapPending;
+    private static final String BOOTSTRAP_PATH=BundledApp.PREFIX+"__android_start__.html";
     final AtomicInteger externalRequests=new AtomicInteger();
     private ValueCallback<Uri[]> fileCallback;
     private Uri cameraOutputUri;
@@ -81,6 +86,12 @@ public class MainActivity extends Activity {
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
 
         webView.addJavascriptInterface(new AndroidBridge(), "BilliardsAndroid");
+        if(bundledApp!=null){
+            if(!WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT))throw new IllegalStateException("Update Android System WebView or Chrome to open this version of Billiards Trainer.");
+            String migration="window.BilliardsBundledAndroid=true;(()=>{if(location.pathname!=="+org.json.JSONObject.quote(BOOTSTRAP_PATH)+")return;"+
+                "(async()=>{try{if('serviceWorker' in navigator){const sw=navigator.serviceWorker;sw.register=()=>Promise.reject(new Error('App files are installed locally'));const registrations=await sw.getRegistrations();await Promise.all(registrations.map(r=>r.unregister()));}BilliardsAndroid.finishBundledStartup();}catch(e){const report=()=>document.body.textContent='Please close and reopen Billiards Trainer. '+String(e);if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',report,{once:true});else report();console.error(e);}})();})();";
+            WebViewCompat.addDocumentStartJavaScript(webView,migration,Collections.singleton(BundledApp.ORIGIN));
+        }
 
         if(bundledApp!=null)ServiceWorkerController.getInstance().setServiceWorkerClient(new ServiceWorkerClient(){
             @Override public WebResourceResponse shouldInterceptRequest(WebResourceRequest request){return resolveRequest(request);}
@@ -91,6 +102,7 @@ public class MainActivity extends Activity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri u = request.getUrl();
+                if(bootstrapPending&&request.isForMainFrame()&&!BOOTSTRAP_PATH.equals(u.getPath()))return true;
                 if (u != null && "lovemyfreetime.github.io".equalsIgnoreCase(u.getHost())) {
                     return false;
                 }
@@ -169,16 +181,15 @@ public class MainActivity extends Activity {
     private WebResourceResponse resolveRequest(WebResourceRequest request){
         if(bundledApp==null)return null;
         if(BundledApp.isAppOrigin(request.getUrl()))return bundledApp.respond(request);
-        if("http".equals(request.getUrl().getScheme())||"https".equals(request.getUrl().getScheme()))externalRequests.incrementAndGet();
+        if("http".equals(request.getUrl().getScheme())||"https".equals(request.getUrl().getScheme())){externalRequests.incrementAndGet();if(bootstrapPending)return BundledApp.empty(503,"Starting installed app",null);}
         return null;
     }
 
     private void startBundledApp(){
-        // loadDataWithBaseURL bypasses a previously controlling web worker while
-        // preserving its HTTPS LocalStorage/IndexedDB origin. Only unregister workers.
-        String html="<!doctype html><meta name='viewport' content='width=device-width,initial-scale=1'><style>html{background:#090b0e;color:#eee;font:18px system-ui}body{display:grid;place-items:center;height:90vh}</style><body>Opening Billiards Trainer…<script>"+
-            "(async()=>{try{if('serviceWorker' in navigator){const registrations=await navigator.serviceWorker.getRegistrations();await Promise.all(registrations.map(r=>r.unregister()));}location.replace("+org.json.JSONObject.quote(APP_URL)+");}catch(e){document.body.textContent='Please close and reopen Billiards Trainer. Your saved layouts are retained.';}})();</script>";
-        webView.loadDataWithBaseURL(APP_URL,html,"text/html","UTF-8",APP_URL);
+        // Use a real HTTPS document, served from the APK. Document-start migration
+        // also runs if an old worker returns a cached page for this first request.
+        bootstrapPending=true;
+        webView.loadUrl(BundledApp.ORIGIN+BOOTSTRAP_PATH+"?native=1");
     }
 
     private void showStartupError(Throwable t) {
@@ -344,6 +355,17 @@ public class MainActivity extends Activity {
     }
 
     public class AndroidBridge {
+        @JavascriptInterface
+        public void finishBundledStartup(){
+            runOnUiThread(()->{
+                if(!bootstrapPending||webView==null)return;
+                Uri current=Uri.parse(webView.getUrl()==null?"":webView.getUrl());
+                if(!BundledApp.isAppOrigin(current)||!BOOTSTRAP_PATH.equals(current.getPath()))return;
+                bootstrapPending=false;
+                webView.loadUrl(APP_URL);
+            });
+        }
+
         @JavascriptInterface
         public boolean isWrapper() { return true; }
 

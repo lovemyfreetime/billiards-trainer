@@ -87,6 +87,16 @@ jobs:
             echo 'ANDROID_UPDATE_COMPATIBLE=false' >> "$GITHUB_ENV"
             echo '::notice::The build certificate differs from the existing Android download; publishing is blocked to protect in-place updates.'
           fi
+          "$signer" verify --print-certs downloads/Billiards-Trainer-Installer-Android.apk > /tmp/previous-installer-cert.txt
+          "$signer" verify --print-certs android-wrapper/app/build/outputs/apk/installer/release/app-installer-release.apk > /tmp/current-installer-cert.txt
+          previous_installer_cert=$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' /tmp/previous-installer-cert.txt)
+          current_installer_cert=$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' /tmp/current-installer-cert.txt)
+          test -n "$previous_installer_cert" && test -n "$current_installer_cert"
+          if test "$previous_installer_cert" = "$current_installer_cert"; then
+            echo 'ANDROID_INSTALLER_COMPATIBLE=true' >> "$GITHUB_ENV"
+          else
+            echo 'ANDROID_INSTALLER_COMPATIBLE=false' >> "$GITHUB_ENV"
+          fi
           aapt="$ANDROID_HOME/build-tools/35.0.0/aapt"
           previous=$("$aapt" dump badging downloads/Billiards-Trainer-Android.apk | sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" | head -1)
           current=$("$aapt" dump badging android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk | sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" | head -1)
@@ -139,7 +149,9 @@ jobs:
         run: |
           mkdir -p android-wrapper/output
           cp android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk android-wrapper/output/Billiards-Trainer-Android.apk
-          cp android-wrapper/app/build/outputs/apk/installer/release/app-installer-release.apk android-wrapper/output/Billiards-Trainer-Installer-Android.apk
+          if test "$ANDROID_INSTALLER_COMPATIBLE" = true; then
+            cp android-wrapper/app/build/outputs/apk/installer/release/app-installer-release.apk android-wrapper/output/Billiards-Trainer-Installer-Android.apk
+          fi
           gh release view android-app --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create android-app --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title 'Billiards Trainer for Android' --notes-file android-wrapper/RELEASE_NOTES.md
           gh release upload android-app --repo "$GITHUB_REPOSITORY" android-wrapper/output/*.apk --clobber
           gh release edit android-app --repo "$GITHUB_REPOSITORY" --title 'Billiards Trainer for Android' --notes-file android-wrapper/RELEASE_NOTES.md
