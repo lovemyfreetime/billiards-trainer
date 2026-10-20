@@ -1,5 +1,5 @@
 {
-  "version": "31ce083d8bd95ae2",
+  "version": "610a4f21319785af",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -683,7 +683,7 @@
     "guide/get-started-tour.js": "e9592f8bf5447b6584c5c3228dc1ad82a515c6b0972313cc82a292ad631e5c41",
     "guide/get-started-tour.json": "f478017d0b5b52d0a280140d69d855271b8d8b1ed3e7de612f57f500e90434ca",
     "guide/guide.css": "e5b8110a35bfdb3b3cade9d4c25a4d7bb58feda8ff34bbe790d50a3a316d2081",
-    "guide/guide.js": "f7c6053ced38aef0fdd42805615e3dafb9c1a106d063fa7770edeedd9b3299f5",
+    "guide/guide.js": "9e8440eb314ec1a95c72ecb1a590ed7b384c92fdd2cb9cfaba3e243cf3975d6a",
     "guide/header-fit-preview.html": "0f544b86273896c6d3eee7cff2aaad7d38301318555ed951c0ff7bc055d58e62",
     "guide/layouts/bank-shot.billiards.json": "0acbc4329a1c5091f00b26ac2f5124d884a1af902f11a2beb9cd0040eae4c57f",
     "guide/layouts/blocked-route.billiards.json": "d174a39a857ef6ccefdf4b54ddf46fb36f1fe5487f2e334c82c88d3382e8587d",

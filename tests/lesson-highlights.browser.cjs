@@ -15,6 +15,12 @@ const server=cp.spawn('python',['-u','-m','http.server','8788','--bind','127.0.0
  const clear=()=>page.waitForFunction(()=>!document.querySelector('.btg-tour-attention'));
  const topics=await page.evaluate(()=>billiardsPoolAudioMap.topics.filter(t=>t.category==='start'&&!t.explorerOnly).map(t=>t.id));
  await page.click('#btg-pool-start');await playing();assert(await glow('animate'));
+ // Next/Previous during the silent output warmup must preserve the request to play.
+ await page.evaluate(()=>{billiardsPoolGuide.openCategory('start');document.querySelector('#bt-guide-pool-root [data-action="⏭"]').click()});
+ await page.waitForFunction(id=>__audio.some(a=>a.dataset.topic===id&&!a.paused&&a.currentTime>0),topics[1]);assert.equal(await page.evaluate(()=>billiardsGetStartedTour.getState().index),1);
+ await page.evaluate(()=>{billiardsPoolGuide.openCategory('start');document.querySelector('#bt-guide-pool-root [data-action="⏮"]').click()});
+ await page.waitForFunction(id=>__audio.some(a=>a.dataset.topic===id&&!a.paused&&a.currentTime>0),topics[0]);assert.equal(await page.evaluate(()=>billiardsGetStartedTour.getState().index),0);
+
  for(let i=0;i<7;i++){
   await select.selectOption(topics[i]);await playing();
   const expected=await page.evaluate(i=>billiardsGetStartedTour.steps[i],i);

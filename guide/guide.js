@@ -80,7 +80,7 @@ function mount(host,options={}){
   }
  }
  function skipRecording(direction){
-  const current=selected(),playing=!audio.paused;pendingResource=null;playback.pause();
+  const current=selected(),playing=!audio.paused||playback.starting;pendingResource=null;playback.pause();
   const target=sequenceIndex+direction;
   if(current&&target>=0&&target<audioFiles(current).length){loadSequenceTrack(current,target);state.position=0;save();if(playing)playback.play().catch(()=>{});render();return;}
   const available=availableLessons(),index=available.findIndex(t=>t.id===state.topicId),next=index<0?(direction>0?0:-1):index+direction;
