@@ -17,9 +17,9 @@ def build(out):
  for name,src in files.items():
   target=out/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(src,target)
   if name in {'install/assets/installer.js','install/windows/index.html'}:
-   text=target.read_text().replace('../../downloads/Billiards-Trainer-Windows-Setup.exe','https://github.com/lovemyfreetime/billiards-trainer/releases/download/windows-offline/Billiards-Trainer-Windows-Setup.exe').replace('../downloads/Billiards-Trainer-Windows-Setup.exe','https://github.com/lovemyfreetime/billiards-trainer/releases/download/windows-offline/Billiards-Trainer-Windows-Setup.exe');target.write_text(text)
+   text=target.read_text(encoding='utf-8').replace('../../downloads/Billiards-Trainer-Windows-Setup.exe','https://github.com/lovemyfreetime/billiards-trainer/releases/download/windows-offline/Billiards-Trainer-Windows-Setup.exe').replace('../downloads/Billiards-Trainer-Windows-Setup.exe','https://github.com/lovemyfreetime/billiards-trainer/releases/download/windows-offline/Billiards-Trainer-Windows-Setup.exe');target.write_text(text,encoding='utf-8',newline='\n')
   manifest[name]=hashlib.sha256(target.read_bytes()).hexdigest()
- (out/'bundle-manifest.json').write_text(json.dumps({'files':manifest},indent=2)+'\n')
+ (out/'bundle-manifest.json').write_text(json.dumps({'files':manifest},indent=2)+'\n',encoding='utf-8',newline='\n')
  print(f'Windows app: {len(files)} files, {sum(p.stat().st_size for p in files.values())/1048576:.1f} MiB, all three experiences/audio/models/runtime included.')
  return manifest
 if __name__=='__main__':
