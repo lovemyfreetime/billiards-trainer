@@ -14,4 +14,6 @@ for apk in args.apks:
    assert name in manifest,name
   assert sum(n.startswith('play-audio/') and n.endswith('.mp3') for n in manifest)==243
   assert not any('source-wav/' in n for n in manifest)
+  for page in ['install/index.html','install/android/index.html']:
+   assert b'https://github.com/lovemyfreetime/billiards-trainer/releases/download/android-app/Billiards-Trainer-Android.apk' in z.read('assets/app/'+page),page
  print(f'{apk}: {len(manifest)} bundled files verified, all 243 Chase recordings and all analysis files included.')

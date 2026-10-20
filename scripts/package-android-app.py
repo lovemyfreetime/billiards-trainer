@@ -10,6 +10,15 @@ def build(out):
  manifest={}
  for name,src in files.items():
   data=src.read_bytes()
+  # Installer pages inside an APK cannot fetch unbundled downloads/ paths.
+  if name.startswith('install/') and name.endswith(('.html','.js')):
+   text=data.decode('utf-8')
+   for apk in ['Billiards-Trainer-Android.apk','Billiards-Trainer-Installer-Android.apk']:
+    for prefix in ['../../downloads/','../downloads/']:
+     text=text.replace(prefix+apk,'https://github.com/lovemyfreetime/billiards-trainer/releases/download/android-app/'+apk)
+   for prefix in ['../../downloads/','../downloads/']:
+    text=text.replace(prefix+'Billiards-Trainer-Windows-Setup.exe','https://github.com/lovemyfreetime/billiards-trainer/releases/download/windows-offline/Billiards-Trainer-Windows-Setup.exe')
+   data=text.encode('utf-8')
   if name.endswith('.html'):
    text=data.decode('utf-8');flag='<script>window.BilliardsBundledAndroid=true;</script>'
    if re.search(r'<head(?:\s[^>]*)?>',text,re.I):text=re.sub(r'(<head(?:\s[^>]*)?>)',lambda m:m[0]+flag,text,count=1,flags=re.I)
