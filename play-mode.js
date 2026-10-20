@@ -185,6 +185,7 @@ function init(){
  function tools(){
   if(!toolDialog){toolDialog=document.createElement('dialog');toolDialog.className='play-tools-dialog';toolDialog.setAttribute('aria-label','Table tools');N.backdrop(toolDialog,()=>toolDialog.close());document.body.append(toolDialog);}
   const top=text('header','','play-tools-top');top.append(text('h2','Table tools'),button('Back to table',backToTable,'play-return'));N.attach(top,'table-tools');toolDialog.replaceChildren(top);
+  if(!window.BilliardsOfflinePlay){const backups=text('a','Back up / restore saved data');backups.href='./backup.html';toolDialog.append(backups);}
   const controls=document.createElement('section');toolDialog.append(controls);window.BilliardsPlayControls.mount(controls,{dispatch:(c,m)=>inputs.dispatch(c,m),voice:(v,m)=>inputs.voice(v,m)});
   const clockBox=text('section');N.attach(clockBox,'clock-help');clockBox.append(text('h3','Shot clock'),text('p','The host owns the clock. Each shot resets it; extensions are limited per player for this match. Expiry announces time without automatically declaring a foul.'));
   function number(label,value,min,max){const l=text('label',label),i=document.createElement('input');i.type='number';i.min=min;i.max=max;i.value=value;l.append(i);return {l,i};}

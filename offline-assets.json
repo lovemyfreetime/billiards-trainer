@@ -1,5 +1,5 @@
 {
-  "version": "507667f93685eda8",
+  "version": "2c04d3627aa95789",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -1020,7 +1020,7 @@
     "play-engine.js": "3277135afa32c2685b017d97b983681b5ca293262b1b89d1c7c018ec4b5b356b",
     "play-input.js": "0ed2633de493036a098364b954cf100de5493437c3f630fbc591100d2171ddfb",
     "play-mode.css": "bc84093857200f65c45b3adac54698545d2f20322b84181cc91e63b025176d69",
-    "play-mode.js": "b163e2357435713e19754a960a3d6ad268c68bd051a147c573b3938e9a2c8a48",
+    "play-mode.js": "7f8bdf167e5ea86d43370b83636bdeb9ed3d80df7cef434b77677fe8a2f19eb8",
     "play-narration-data.js": "bc39f8b3d8a1043a9bb0301ed4e7625feec95e6d07a16ef9778a8505634e8e2c",
     "play-narration.js": "8e72b80bf16cf400a54abf1e9aa75b534a06ab19752c7099844c7f01829d62f6",
     "play-presentation.js": "f4133283179ab85ed844ebfe0b5c46e50d6adb7c87169be64f76ab04b627b962",
