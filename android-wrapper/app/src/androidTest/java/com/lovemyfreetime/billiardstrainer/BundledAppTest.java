@@ -52,6 +52,21 @@ public class BundledAppTest {
             js("localStorage.setItem('android-offline-smoke','kept');(()=>{const r=indexedDB.open('billiards-offline-save-test',1);r.onupgradeneeded=()=>r.result.createObjectStore('layouts');r.onsuccess=()=>{const db=r.result,t=db.transaction('layouts','readwrite');t.objectStore('layouts').put('kept','layout');t.oncomplete=()=>{db.close();document.body.dataset.saved='yes';};};})()");
             waitFor("document.body.dataset.saved==='yes'",10);
             navigate(scenario,"?train=1","#canvas");
+            // Install the probe at document start so it observes the real player's native media.
+            String lessonProbe;
+            try(java.io.InputStream stream=InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("lesson-sequence.js")){
+                java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();byte[] buffer=new byte[8192];int count;
+                while((count=stream.read(buffer))!=-1)bytes.write(buffer,0,count);
+                lessonProbe=new String(bytes.toByteArray(),StandardCharsets.UTF_8);
+            }
+            final String probeSource=lessonProbe;
+            scenario.onActivity(a->androidx.webkit.WebViewCompat.addDocumentStartJavaScript(a.webView,probeSource,Collections.singleton(BundledApp.ORIGIN)));
+            navigate(scenario,"?train=1&lessonSmoke=1","#canvas");
+            waitFor("window.runLessonSequence&&window.billiardsGetStartedTour",25);
+            js("void runLessonSequence()");
+            waitFor("['passed','failed'].includes(window.__lessonSequence?.status)",300);
+            assertEquals(js("JSON.stringify(window.__lessonSequence)"),"\"passed\"",js("window.__lessonSequence.status"));
+            System.out.println("ANDROID LOCAL lesson sequence: "+js("JSON.stringify(window.__lessonSequence)"));
             navigate(scenario,"?zen=1","#zenBar");
             navigate(scenario,"play.html","#playDialog");
             js("window.__audioErrors=[];document.addEventListener('billiards-audio-error',e=>__audioErrors.push(e.detail));BilliardsAudio.speak(['player-2','turn-1'],()=>document.body.dataset.chase='done');");

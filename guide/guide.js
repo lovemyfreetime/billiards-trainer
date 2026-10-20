@@ -12,13 +12,13 @@ function mount(host,options={}){
  host.classList.add('btg-root');
  const STORE=options.storageKey||'billiards-guide-v1';
  const saved=safeLoad(STORE);
- let state=Object.assign({enabled:false,level:0,category:'fundamentals',topicId:null,expanded:null,position:0,detailsOpen:false,autoplay:false,exploring:false},saved);
+ let state=Object.assign({enabled:false,level:0,category:'fundamentals',topicId:null,expanded:null,position:0,detailsOpen:false,autoplay:false,guideAutoplay:true,exploring:false},saved);
  state.exploring=false;
  if(state.category==='explore')state.category='fundamentals';
  if(state.category==='reference'){state.category='fundamentals';state.topicId=null;}
  if(options.initialCategory)state.category=options.initialCategory;
  // Opening Get Started is a user gesture: do not restore an idle open player.
- state.autoplay=state.category==='start';
+ state.autoplay=state.category==='start'||!!options.poolMode&&state.guideAutoplay;
  if(state.category==='start')state.enabled=false;
  let audio=new Audio();audio.preload='auto';audio.loop=false;audio.volume=.8;
  const playback=global.BilliardsAudioStartup.create(audio);
@@ -49,7 +49,7 @@ function mount(host,options={}){
  function openCategory(category){
   selectBrowsing=false;
   if(state.category!==category)state.topicId=null;state.category=category;state.detailsOpen=false;state.expanded=null;
-  state.autoplay=category==='start';
+  state.autoplay=category==='start'||!!options.poolMode&&state.guideAutoplay;
   if(category==='start'){state.topicId=null;state.position=0;sequenceIndex=0;}
   setEnabled(true);
   if(category==='start'){const first=availableLessons()[0];if(first){choose(first.id);play();}}
@@ -58,11 +58,11 @@ function mount(host,options={}){
  function openGuide(){
   selectBrowsing=false;
   state.category='fundamentals';state.topicId=null;state.position=0;sequenceIndex=0;
-  state.detailsOpen=false;state.expanded=null;state.autoplay=false;setEnabled(true);
+  state.detailsOpen=false;state.expanded=null;state.autoplay=!!options.poolMode&&state.guideAutoplay;setEnabled(true);
   const welcome=topics.find(t=>t.guideWelcome);
   if(welcome){choose(welcome.id);play();}else openCategory('fundamentals');
  }
- function availableLessons(){return topics.filter(x=>!x.categoryWelcome&&!x.explorerOnly&&(x.category||'explore')===state.category&&(state.category==='start'||(x.level||0)<=state.level))}
+ function availableLessons(){return topics.filter(x=>!x.categoryWelcome&&!x.explorerOnly&&(x.category||'explore')===state.category&&(options.poolMode||state.category==='start'||(x.level||0)<=state.level)).sort((a,b)=>(a.guideOrder??0)-(b.guideOrder??0))}
  function openResource(t){
   if(state.category!=='more'||!t?.resourceUrl)return;
   try{const url=new URL(t.resourceUrl);if(!['https:','http:'].includes(url.protocol))return;
@@ -74,15 +74,17 @@ function mount(host,options={}){
  function advanceLesson(){
   if(!state.autoplay||!state.enabled||state.exploring){render();return;}
   const available=availableLessons(),index=available.findIndex(t=>t.id===state.topicId);
-  if(index<0&&selected()?.categoryWelcome&&available.length){choose(available[0].id);play();}
-  else if(index>=0&&index+1<available.length){choose(available[index+1].id);play();}else{playback.pause();state.position=0;save();render();}
+  if(index<0&&selected()?.categoryWelcome&&available.length){if(choose(available[0].id)!==false)play();}
+  else if(index>=0&&index+1<available.length){if(choose(available[index+1].id)!==false)play();}else{
+   playback.pause();state.position=0;save();render();
+  }
  }
  function skipRecording(direction){
   const current=selected(),playing=!audio.paused;pendingResource=null;playback.pause();
   const target=sequenceIndex+direction;
   if(current&&target>=0&&target<audioFiles(current).length){loadSequenceTrack(current,target);state.position=0;save();if(playing)playback.play().catch(()=>{});render();return;}
-  const available=availableLessons(),index=available.findIndex(t=>t.id===state.topicId),next=index<0?(direction>0?0:available.length-1):index+direction;
-  if(next>=0&&next<available.length){choose(available[next].id);if(playing)play();}else if(current&&direction<0){audio.currentTime=0;state.position=0;save();render();}
+  const available=availableLessons(),index=available.findIndex(t=>t.id===state.topicId),next=index<0?(direction>0?0:-1):index+direction;
+  if(next>=0&&next<available.length){if(choose(available[next].id)!==false&&playing)play();}else if(current&&direction<0){audio.currentTime=0;state.position=0;save();if(playing)play();render();}
  }
  function clearHighlight(){if(active){active.classList.remove('btg-highlight');active=null}}
  function inspectTarget(e){if(!state.exploring||!isActive()||host.contains(e.target))return;
@@ -166,17 +168,17 @@ function mount(host,options={}){
    btn('◀◀',()=>{audio.currentTime=Math.max(0,(audio.currentTime||0)-10)}).title='Back 10 seconds';
    btn('▶▶',()=>{audio.currentTime=Math.min(audio.duration||Infinity,(audio.currentTime||0)+10)}).title='Forward 10 seconds';
    btn('⏭',()=>skipRecording(1)).title='Next audio file / lesson';
-   const autoplay=btn('A',()=>{state.autoplay=!state.autoplay;save();render()});
+   const autoplay=btn('A',()=>{state.autoplay=!state.autoplay;if(state.category!=='start')state.guideAutoplay=state.autoplay;save();render()});
    autoplay.title='Autoplay next lesson';autoplay.className='btg-autoplay';
    autoplay.setAttribute('aria-label','Autoplay next lesson');autoplay.setAttribute('aria-pressed',String(!!state.autoplay));
    if(state.category==='start'&&options.onTryShot)btn('Try the Shot',practice).title='Pause narration and practice this shot';
    if(state.category!=='start'&&t?.setups?.length&&options.loadLayout)btn('Balls',()=>{options.loadLayout(selected().setups[0].url).catch(error=>global.alert(error.message));}).title='Load / reset starting ball layout';
-   if(state.category!=='start'){const level=document.createElement('label');level.className='btg-level';level.textContent=LEVELS[state.level];
+   if(state.category!=='start'&&!options.poolMode){const level=document.createElement('label');level.className='btg-level';level.textContent=LEVELS[state.level];
    const range=document.createElement('input');range.type='range';range.min='0';range.max='2';range.step='1';range.value=state.level;
    range.setAttribute('aria-label','Guide skill level');range.addEventListener('input',()=>{state.level=Number(range.value);save();render()});level.append(range);toolbar.append(level);}
    btn('Read',()=>{state.expanded=state.expanded==='read'?null:'read';state.detailsOpen=!!state.expanded;save();render()});
    const moreButton=btn('More',()=>{state.expanded=state.expanded==='more'?null:'more';state.detailsOpen=!!state.expanded;save();render()});moreButton.disabled=state.category==='more'&&!t?.resources?.length;
-   if(state.category!=='start')btn('Reset',()=>{if(!confirm('Reset Guide session? The table will not change.'))return;stop();state={enabled:true,exploring:false,autoplay:state.category==='start',level:0,category:options.startOnly||state.category==='start'?'start':'fundamentals',topicId:null,expanded:null,detailsOpen:false,position:0};save();render();if(state.category==='start')openCategory('start')});
+   if(state.category!=='start')btn('Reset',()=>{if(!confirm('Reset Guide session? The table will not change.'))return;stop();state={enabled:true,exploring:false,autoplay:state.category==='start'||!!options.poolMode&&state.guideAutoplay,guideAutoplay:state.guideAutoplay,level:0,category:options.startOnly||state.category==='start'?'start':'fundamentals',topicId:null,expanded:null,detailsOpen:false,position:0};save();render();if(state.category==='start')openCategory('start')});
   }
   view.append(toolbar);if(!state.enabled){root.classList.remove('btg-details-open');patchNode(root,view);return;}
   const cats=document.createElement('div');cats.className='btg-row btg-categories';
@@ -187,7 +189,7 @@ function mount(host,options={}){
   const select=document.createElement('select');select.setAttribute('aria-label','Select Guide lesson');
   const blank=document.createElement('option');blank.value='';blank.textContent='Choose a topic';select.append(blank);
   const lessonGroups=new Map();
-  for(const entry of available){const o=document.createElement('option');o.value=entry.id;o.textContent=entry.title;
+  for(const entry of available){const o=document.createElement('option');o.value=entry.id;o.textContent=(options.poolMode&&state.category!=='start'?(available.indexOf(entry)+1)+'. ':'')+entry.title+(options.poolMode&&entry.level===2&&state.category!=='start'?' (Advanced)':'');
    let parent=select;if(entry.group){if(!lessonGroups.has(entry.group)){const group=document.createElement('optgroup');group.label=entry.group;lessonGroups.set(entry.group,group);select.append(group)}parent=lessonGroups.get(entry.group)}parent.append(o)}
   select.className='btg-lesson-select';
   const measure=document.createElement('canvas').getContext('2d');if(measure){measure.font=options.poolMode?'11px system-ui':'12px system-ui';select.style.width=Math.ceil(Math.max(...Array.from(select.options,o=>measure.measureText(o.textContent).width))+44)+'px';}
@@ -198,7 +200,7 @@ function mount(host,options={}){
   select.onchange=()=>{selectBrowsing=false;const id=select.value;const accepted=choose(id||null);if(accepted!==false&&id){const t=selected();if(state.category==='more'&&t?.resourceUrl)pendingResource=t.id;play();}};
   const drawer=options.poolMode?document.createElement('div'):topic;
   if(options.poolMode){drawer.className='btg-pool-drawer';view.append(drawer)}
-  const playingTitle=document.createElement('strong');playingTitle.className='btg-current-lesson';playingTitle.textContent=t?.title||'Choose a topic';playingTitle.setAttribute('aria-live','polite');drawer.append(playingTitle);
+  const playingTitle=document.createElement('strong');playingTitle.className='btg-current-lesson';playingTitle.textContent=(options.poolMode&&available.includes(t)&&state.category!=='start'?(available.indexOf(t)+1)+' / '+available.length+' · ':'')+(t?.title||'Choose a topic');playingTitle.setAttribute('aria-live','polite');drawer.append(playingTitle);
   if(options.poolMode&&state.category==='start'){const row=document.createElement('div');row.className='btg-lesson-row';const slot=document.createElement('div');slot.className='btg-practice-slot';slot.dataset.guideSlot='practice';row.append(select,slot);drawer.append(row)}else drawer.append(select);
   if(state.expanded&&state.detailsOpen){const detail=document.createElement('div');detail.className='btg-expanded';
    if(state.category!=='start')setupActions(detail,t);

@@ -2958,5 +2958,253 @@
     "cushion-response-quick",
     "table-orientation-quick"
   ],
-  "resources": []
+  "resources": [],
+  "curriculum": {
+    "fundamentals": [
+      {
+        "title": "Set Up and Aim",
+        "topics": [
+          "cue-ball-placement-quick",
+          "pocketed-balls-layout-quick",
+          "aiming-line-quick",
+          "cue-ball-diagram-direct-tip-quick",
+          "hide-cue-ball-guides-quick"
+        ]
+      },
+      {
+        "title": "Contact and Cut Geometry",
+        "topics": [
+          "contact-point-geometry-quick",
+          "cut-angle-geometry-quick",
+          "ball-overlap-quick",
+          "ghost-ball-quick",
+          "ghost-ball-geometry-quick",
+          "pocket-targeting-quick"
+        ]
+      },
+      {
+        "title": "Banks, Kicks and Rails",
+        "topics": [
+          "diamond-grid-quick",
+          "diamond-system-geometry-quick",
+          "bank-kick-overview-quick",
+          "bank-shot-geometry-quick",
+          "kick-shot-geometry-quick",
+          "mirror-aiming-quick",
+          "rail-contact-point-quick",
+          "rail-english-geometry-quick",
+          "multiple-rail-routes-quick"
+        ]
+      },
+      {
+        "title": "Position and Traffic",
+        "topics": [
+          "cue-ball-swerve-advanced",
+          "cue-ball-traffic-quick",
+          "defensive-cue-ball-route-quick"
+        ]
+      },
+      {
+        "title": "Read Contact and Aim",
+        "topics": [
+          "live-stats-contact-aim-quick",
+          "live-stats-cut-angle-quick",
+          "live-stats-overlap-quick",
+          "live-stats-contact-travel-quick"
+        ]
+      }
+    ],
+    "physics": [
+      {
+        "title": "Speed and Tip Contact",
+        "topics": [
+          "trajectory-lines-quick",
+          "shot-speed-controls-quick",
+          "shot-speed-fine-adjustment-quick",
+          "cue-ball-pocket-power-meters-quick",
+          "physics-shot-speed-quick",
+          "ball-collision-quick",
+          "collision-line-quick",
+          "tangent-line-quick",
+          "tangent-line-geometry-quick",
+          "physics-stun-quick",
+          "physics-follow-quick",
+          "physics-draw-quick",
+          "physics-english-quick",
+          "spin-transfer-advanced",
+          "cue-ball-squirt-quick",
+          "rail-speed-loss-advanced"
+        ]
+      },
+      {
+        "title": "Jump and Mass\u00e9",
+        "topics": [
+          "jump-masse-open-controls-quick",
+          "jump-masse-elevation-technique-advanced",
+          "jump-height-quick",
+          "jump-obstacle-clearance-quick",
+          "jump-landing-point-quick",
+          "jump-trajectory-quick",
+          "physics-jump-clearance-quick",
+          "physics-jump-landing-quick",
+          "jump-model-limitations-advanced",
+          "masse-shot-controls-quick",
+          "masse-physics-quick",
+          "masse-versus-jump-advanced"
+        ]
+      },
+      {
+        "title": "Table Physics and Calibration",
+        "topics": [
+          "physics-calibration-overview-quick",
+          "physics-calibration-intro-quick",
+          "calibration-expectations-advanced",
+          "table-geometry-calibration-quick",
+          "calibration-table-ball-dimensions-quick",
+          "rolling-friction-quick",
+          "sliding-friction-quick",
+          "collision-restitution-advanced",
+          "calibration-friction-restitution-advanced",
+          "calibration-jump-physics-controls-advanced",
+          "physics-measurements-quick",
+          "real-table-calibration-quick",
+          "one-variable-calibration-quick",
+          "calibration-notes-quick"
+        ]
+      },
+      {
+        "title": "Read Flight and Power",
+        "topics": [
+          "live-stats-cue-flight-quick",
+          "live-stats-squirt-quick",
+          "live-stats-jump-clearance-quick",
+          "live-stats-masse-quick",
+          "live-stats-power-pocket-quick",
+          "live-stats-power-feel-quick",
+          "live-stats-ball-speeds-advanced"
+        ]
+      }
+    ],
+    "drills": [
+      {
+        "title": "Practice Foundations",
+        "topics": [
+          "practice-session-introduction",
+          "practice-layout-quick",
+          "practice-aiming-quick",
+          "practice-speed-contact-baseline",
+          "practice-speed-control-quick",
+          "practice-shot-two-quick",
+          "practice-undo-history-quick"
+        ]
+      },
+      {
+        "title": "Cue Ball Control",
+        "topics": [
+          "practice-stop-shot-quick",
+          "practice-follow-shot-quick",
+          "practice-draw-shot-quick",
+          "practice-cut-angles-quick",
+          "practice-tangent-line-quick",
+          "practice-english-quick",
+          "practice-position-play-quick",
+          "practice-target-landing",
+          "drill-stop-shot",
+          "drill-stun-tangent",
+          "drill-speed-ladder"
+        ]
+      },
+      {
+        "title": "Pattern Play",
+        "topics": [
+          "practice-rock-around-clock",
+          "drill-l-pattern",
+          "drill-t-pattern",
+          "drill-wagon-wheel"
+        ]
+      },
+      {
+        "title": "Banks, Kicks and Recovery",
+        "topics": [
+          "practice-bank-shots-quick",
+          "practice-kick-shots-quick",
+          "practice-one-rail-kick",
+          "practice-two-rail-kick",
+          "practice-corner-five",
+          "drill-mirror-kick",
+          "drill-two-rail-kick",
+          "drill-two-rail-recovery",
+          "drill-scratch-avoidance"
+        ]
+      },
+      {
+        "title": "Practice Benchmarks",
+        "topics": [
+          "practice-progressive-benchmark"
+        ]
+      }
+    ],
+    "exercises": [
+      {
+        "title": "Set Up and Review",
+        "topics": [
+          "exercise-change-one-ball",
+          "exercise-layout-runout-review",
+          "exercise-save-recall-layout",
+          "exercise-geometry-route-comparison",
+          "exercise-live-stats-cut-overlap"
+        ]
+      },
+      {
+        "title": "Speed and Cue Ball Control",
+        "topics": [
+          "exercise-cue-pocket-threshold",
+          "exercise-table-speed",
+          "exercise-speed-ladder",
+          "exercise-straight-shot-ladder",
+          "exercise-physics-stop-follow-draw",
+          "exercise-stop-follow-draw",
+          "exercise-three-position-zones",
+          "exercise-rail-english",
+          "exercise-live-stats-speed-spin"
+        ]
+      },
+      {
+        "title": "Physics Experiments",
+        "topics": [
+          "exercise-table-speed-calibration-variation",
+          "exercise-sliding-friction",
+          "exercise-squirt-comparison",
+          "exercise-jump-clearance",
+          "exercise-jump-landing",
+          "exercise-masse-route",
+          "exercise-calibration-real-table"
+        ]
+      },
+      {
+        "title": "Runouts and Full Sessions",
+        "topics": [
+          "exercise-three-ball-runout",
+          "exercise-full-rack-review",
+          "exercise-full-rack-training",
+          "exercise-jump-kick-masse",
+          "exercise-runout-improvement",
+          "exercise-focused-practice-session",
+          "exercise-practice-review"
+        ]
+      }
+    ],
+    "more": [
+      {
+        "title": "Zero-X Billiards",
+        "topics": [
+          "recommend-zero-x-overview",
+          "recommend-zero-x-center-ball",
+          "recommend-zero-x-position-play",
+          "recommend-zero-x-eight-ball-patterns",
+          "recommend-zero-x-defense-recovery"
+        ]
+      }
+    ]
+  }
 }

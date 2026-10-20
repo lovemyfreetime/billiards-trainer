@@ -9,3 +9,7 @@ ctx.audio.paused=true;ctx.skipRecording(1);assert.deepEqual(loaded.at(-1),['firs
 ctx.skipRecording(1);assert.equal(state.topicId,'second');ctx.skipRecording(-1);assert.equal(state.topicId,'first');
 ctx.sequenceIndex=0;ctx.audio.currentTime=12;ctx.skipRecording(-1);assert.equal(ctx.audio.currentTime,0);
 console.log('Previous/next audio tracks and lessons preserve playback state; first-file rewind works.');
+
+tracks.push({id:"welcome",audio:["welcome.mp3"]});ctx.availableLessons=()=>tracks.slice(0,2);state.topicId="welcome";ctx.sequenceIndex=0;ctx.audio.currentTime=12;ctx.skipRecording(-1);assert.equal(state.topicId,"welcome","Previous at the welcome must not jump to the final lesson");assert.equal(ctx.audio.currentTime,0);
+
+state.topicId="first";ctx.sequenceIndex=1;ctx.audio.paused=false;ctx.choose=()=>false;const beforeRejected=played;ctx.skipRecording(1);assert.equal(played,beforeRejected,"Rejected lesson navigation must not replay the previous lesson");

@@ -7,7 +7,7 @@ async function mount(guide){
  const response=await fetch('./guide/get-started-tour.json?v=completion-tour-v25');
  if(!response.ok)throw Error('Get Started lessons unavailable');
  const {steps,transition,completion}=await response.json(),seconds=transition?.seconds||10;
- let index=0,original=null,profile=null,checkpoint=null,loading=false,practicing=false,phase='listening',deadline=0,timer=null,advanceTimer=null,voiceTimer=null,epoch=0;
+ let index=0,original=null,profile=null,checkpoint=null,loading=false,practicing=false,phase='listening',deadline=0,timer=null,advanceTimer=null,voiceTimer=null,epoch=0,cleanupAnnouncement=null;
  const announcement=new Audio();announcement.preload='auto';announcement.volume=.8;announcement.dataset.getStartedTransition='1';
  const voice=global.BilliardsAudioStartup.create(announcement);
  const footer=document.createElement('div');footer.className='btg-practice-next';footer.hidden=true;
@@ -16,7 +16,7 @@ async function mount(guide){
  placeControls();const counter=footer.querySelector('[role="timer"]'),nextButton=footer.querySelector('button');
  const active=()=>{const s=guide.getState();return s.enabled&&s.category==='start'};
  const hasNext=()=>index+1<steps.length;
- const topicId=i=>global.billiardsPoolAudioMap?.topics.filter(t=>t.category==='start'&&!t.explorerOnly)[i]?.id;
+ const topicId=i=>steps[i]?.topicId;
  // Highlight the live desktop/table-edge/phone equivalents without intercepting input.
  const equivalents={speed:['tableSpeed1'],follow:['tableFollow1','bottomFollow1'],sideSpin:['tableSpin1','bottomSide1'],tipCanvas:['phoneTip1'],tipCanvas2:['phoneTip2'],speed2:['tableSpeed2'],follow2:['tableFollow2','bottomFollow2'],sideSpin2:['tableSpin2','bottomSide2']};
  const highlighted=new Set();
@@ -39,7 +39,7 @@ async function mount(guide){
  announcement.addEventListener('timeupdate',()=>{if(active()&&!hasNext()&&phase==='announcing'&&!announcement.paused){const t=announcement.currentTime;attention(t>=5.6&&t<8.4?'btg-pool-guide':t>=8.4&&t<11.8?'btg-pool-explore':null)}});
  announcement.addEventListener('pause',clearAttention);
  announcement.addEventListener('ended',clearAttention);
- function cancel(){clearAttention();epoch++;clearInterval(timer);clearTimeout(advanceTimer);clearTimeout(voiceTimer);timer=advanceTimer=voiceTimer=null;deadline=0;voice.pause();}
+ function cancel(){clearAttention();epoch++;cleanupAnnouncement?.();cleanupAnnouncement=null;clearInterval(timer);clearTimeout(advanceTimer);clearTimeout(voiceTimer);timer=advanceTimer=voiceTimer=null;deadline=0;voice.pause();}
  function render(){
   footer.hidden=!active()||phase==='listening'||(!hasNext()&&phase==='announcing');footer.dataset.phase=phase;placeControls();
   const counting=phase==='countdown'||phase==='announcing';footer.querySelector('.btg-countdown').hidden=!counting;nextButton.hidden=counting||!hasNext();footer.querySelector('.btg-last-lesson').hidden=counting||hasNext();
@@ -73,7 +73,10 @@ async function mount(guide){
   const prompt=hasNext()?transition:completion;
   if(prompt?.recordingStatus==='recorded'&&prompt.audio){
    phase='announcing';announcement.src=prompt.audio;announcement.load();
-   const onPlaying=()=>{announcement.removeEventListener('playing',onPlaying);if(phase==='announcing'){clearTimeout(voiceTimer);voiceTimer=null;if(hasNext())beginCountdown(token);else announcement.addEventListener('ended',()=>{if(token===epoch&&active()&&phase==='announcing')finish()},{once:true})}};
+   const onEnded=()=>{if(token===epoch&&active()&&!hasNext()&&phase==='announcing')finish();};
+   const onPlaying=()=>{announcement.removeEventListener('playing',onPlaying);if(token===epoch&&active()&&phase==='announcing'){clearTimeout(voiceTimer);voiceTimer=null;if(hasNext())beginCountdown(token);}};
+   cleanupAnnouncement=()=>{announcement.removeEventListener('playing',onPlaying);announcement.removeEventListener('ended',onEnded);};
+   announcement.addEventListener('ended',onEnded,{once:true});
    announcement.addEventListener('playing',onPlaying,{once:true});
    voiceTimer=setTimeout(()=>{if(token===epoch&&phase==='announcing'){voice.pause();announcement.removeEventListener('playing',onPlaying);beginCountdown(token)}},3000);
    voice.play().catch(()=>{announcement.removeEventListener('playing',onPlaying);beginCountdown(token)});render();
@@ -82,7 +85,7 @@ async function mount(guide){
  }
  function select(topic){
   if(topic?.category!=='start')return true;
-  const nextIndex=steps.findIndex(s=>topic.title.replace(/^\d+\.\s*/, '')===s.title);
+  const nextIndex=steps.findIndex(s=>s.topicId===topic.id);
   if(nextIndex<0)return true;if(bridge.snapshot().busy)return false;
   cancel();practicing=false;phase='listening';
   if(!original){original=bridge.capture();profile=original.state;}

@@ -7,6 +7,7 @@ on:
     paths:
       - 'android-wrapper/**'
       - 'offline-assets.json'
+      - 'tests/webview-assets/**'
       - 'scripts/package-android-app.py'
       - 'scripts/package-windows-app.py'
       - 'scripts/verify-android-app.py'

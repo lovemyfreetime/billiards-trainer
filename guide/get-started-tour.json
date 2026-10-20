@@ -42,7 +42,8 @@
       ],
       "audio": "./guide/audio/get-started-01.mp3",
       "recordingStatus": "recorded",
-      "layout": "./guide/layouts/get-started-01.billiards.json"
+      "layout": "./guide/layouts/get-started-01.billiards.json",
+      "topicId": "first-session-welcome"
     },
     {
       "id": "practice-2",
@@ -75,7 +76,8 @@
       ],
       "audio": "./guide/audio/get-started-02.mp3",
       "recordingStatus": "recorded",
-      "layout": "./guide/layouts/get-started-02.billiards.json"
+      "layout": "./guide/layouts/get-started-02.billiards.json",
+      "topicId": "first-session-aiming"
     },
     {
       "id": "practice-3",
@@ -110,7 +112,8 @@
       ],
       "audio": "./guide/audio/get-started-03.mp3",
       "recordingStatus": "recorded",
-      "layout": "./guide/layouts/get-started-03.billiards.json"
+      "layout": "./guide/layouts/get-started-03.billiards.json",
+      "topicId": "first-session-speed"
     },
     {
       "id": "practice-4",
@@ -145,7 +148,8 @@
       ],
       "audio": "./guide/audio/get-started-04.mp3",
       "recordingStatus": "recorded",
-      "layout": "./guide/layouts/get-started-04.billiards.json"
+      "layout": "./guide/layouts/get-started-04.billiards.json",
+      "topicId": "first-session-execute"
     },
     {
       "id": "practice-5",
@@ -185,7 +189,8 @@
       ],
       "audio": "./guide/audio/get-started-05.mp3",
       "recordingStatus": "recorded",
-      "layout": "./guide/layouts/get-started-05.billiards.json"
+      "layout": "./guide/layouts/get-started-05.billiards.json",
+      "topicId": "first-session-shot-two"
     },
     {
       "id": "practice-6",
@@ -208,7 +213,8 @@
       ],
       "audio": "./guide/audio/get-started-06.mp3",
       "recordingStatus": "recorded",
-      "layout": "./guide/layouts/get-started-06.billiards.json"
+      "layout": "./guide/layouts/get-started-06.billiards.json",
+      "topicId": "first-session-extend-runout"
     },
     {
       "id": "practice-7",
@@ -241,7 +247,8 @@
       ],
       "audio": "./guide/audio/get-started-07.mp3",
       "recordingStatus": "recorded",
-      "layout": "./guide/layouts/get-started-07.billiards.json"
+      "layout": "./guide/layouts/get-started-07.billiards.json",
+      "topicId": "first-session-undo"
     },
     {
       "id": "practice-8",
@@ -295,7 +302,8 @@
       ],
       "audio": "./guide/audio/get-started-08.mp3",
       "recordingStatus": "recorded",
-      "layout": "./guide/layouts/get-started-08.billiards.json"
+      "layout": "./guide/layouts/get-started-08.billiards.json",
+      "topicId": "get-started-explore"
     }
   ],
   "transition": {

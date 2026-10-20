@@ -51,6 +51,7 @@ android {
     }
 
     sourceSets {
+        androidTest.assets.srcDirs += [rootProject.file('../tests/webview-assets')]
         play.assets.srcDirs += ['build/generated/playAssets']
         trainer.assets.srcDirs += ['build/generated/appAssets']
         installer.assets.srcDirs += ['build/generated/appAssets']

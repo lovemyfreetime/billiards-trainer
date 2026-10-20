@@ -43,7 +43,16 @@ async function init(){
  const startButton=document.getElementById('btg-pool-start');
  launchers.dataset.btgAllow='1';
  const ids=[...new Set([...Object.values(catalog.assignments),...Object.values(catalog.sections),...catalog.canvasTopics,catalog.powerMeterTopic])];
- for(const topic of catalog.topics)topic.explorerOnly=topic.category==='reference'||topic.category==='explore'||(topic.category!=='start'&&topic.category!=='reference'&&ids.includes(topic.id));
+ // Explorer mappings explain controls; they must not remove lessons from Guide.
+ for(const topic of catalog.topics)topic.explorerOnly=topic.category==='reference'||topic.category==='explore';
+ for(const [category,groups] of Object.entries(catalog.curriculum)){
+  let order=0;
+  for(const group of groups)for(const id of group.topics){
+   const topic=catalog.topics.find(t=>t.id===id);
+   if(!topic||topic.category!==category)throw Error('Invalid Guide curriculum: '+id);
+   topic.group=group.title;topic.guideOrder=order++;
+  }
+ }
  await BilliardsPracticeLayouts.attach(catalog.topics);
  let tour=null,layoutRequest=0;
  const guide=BilliardsGuide.mount(host,{
@@ -106,6 +115,7 @@ async function init(){
  exploreButton.addEventListener('click',()=>guide.setExploring(!guide.getState().exploring));
  window.billiardsPoolAudioMap=catalog;
  tour=await BilliardsGetStartedTour.mount(guide);
+ if(tour)tour.steps.forEach((step,index)=>{const topic=catalog.topics.find(t=>t.id===step.topicId);if(!topic)throw Error('Quick Start lesson unavailable: '+step.topicId);topic.guideOrder=index;});
  window.billiardsGetStartedTour=tour;
  startButton.addEventListener('click',()=>tour?tour.start():guide.openCategory('start'));
  for(const id of ['analyzePhotoBtn','cameraCaptureBtn'])document.getElementById(id)?.addEventListener('click',()=>{if(!guide.getState().exploring){guide.setEnabled(false);guide.setExploring(false)}},true);

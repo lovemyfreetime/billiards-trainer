@@ -39,6 +39,18 @@ internal static class OfflineSmoke
         await core.ExecuteScriptAsync("(()=>{const s=document.createElement('script');s.src=new URL('./vendor/onnxruntime-1.22.0/ort.wasm.min.js',document.baseURI);s.onload=async()=>{try{ort.env.wasm.numThreads=1;ort.env.wasm.wasmPaths=new URL('./vendor/onnxruntime-1.22.0/',document.baseURI).href;const bytes=await fetch('./ai_model/pool_ball_classifier.onnx').then(r=>r.arrayBuffer());window.__offlineClassifier=await ort.InferenceSession.create(bytes,{executionProviders:['wasm']});document.body.dataset.offlineModel='ready';}catch(e){document.body.dataset.offlineModel=String(e);}};document.head.append(s);})()");
         await Wait("document.body.dataset.offlineModel==='ready'",45);
         Console.WriteLine("OFFLINE local WASM runtime and trained classifier: passed");
+        // Exercise the actual bundled player, not just standalone media loading.
+        using (var stream = typeof(OfflineSmoke).Assembly.GetManifestResourceStream("LessonSequence.js")!)
+        using (var reader = new StreamReader(stream))
+            await core.AddScriptToExecuteOnDocumentCreatedAsync(await reader.ReadToEndAsync());
+        core.Navigate("https://lovemyfreetime.github.io/billiards-trainer/?train=1&lessonSmoke=1");
+        await Wait("window.runLessonSequence && window.billiardsGetStartedTour", 25);
+        await core.ExecuteScriptAsync("void runLessonSequence()");
+        await Wait("['passed','failed'].includes(window.__lessonSequence?.status)", 300);
+        var lessonResult = await core.ExecuteScriptAsync("JSON.stringify(window.__lessonSequence)");
+        Console.WriteLine("OFFLINE lesson sequence: " + lessonResult);
+        if (await core.ExecuteScriptAsync("window.__lessonSequence.status") != "\"passed\"")
+            throw new Exception("Guide/Quick Start sequence failed: " + lessonResult);
         await core.Profile.ClearBrowsingDataAsync(CoreWebView2BrowsingDataKinds.ServiceWorkers | CoreWebView2BrowsingDataKinds.CacheStorage | CoreWebView2BrowsingDataKinds.DiskCache);
         if (await core.ExecuteScriptAsync("localStorage.getItem('offline-smoke-save')") != "\"kept\"") throw new Exception("Save data was cleared");
         Console.WriteLine("OFFLINE save preservation: passed");

@@ -12,6 +12,7 @@
     <Product>Billiards Trainer AI Edition 4.12</Product>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="../tests/webview-assets/lesson-sequence.js" LogicalName="LessonSequence.js" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3537.50" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const src=fs.readFileSync('guide/guide.js','utf8');function source(name){const a=src.indexOf(' function '+name+'(');return src.slice(a,src.indexOf('\n function ',a+10));}
 const lessons=[{id:'first',category:'start',level:0,audio:['a']},{id:'last',category:'start',level:2,audio:['b']}],state={category:'start',topicId:'last',level:0,autoplay:false,position:70,enabled:false},calls=[];
-const env={state,sequenceIndex:2,topics:lessons,availableLessons:()=>lessons,setEnabled(v){state.enabled=v;calls.push('enabled')},choose(id){state.topicId=id;calls.push(id)},play(){calls.push('play')},audio:{pause(){calls.push('pause')}},playback:{pause(){calls.push('pause')}},save(){},render(){}};vm.createContext(env);vm.runInContext(source('openCategory'),env);vm.runInContext(source('advanceLesson'),env);
+const env={options:{},state,sequenceIndex:2,topics:lessons,availableLessons:()=>lessons,setEnabled(v){state.enabled=v;calls.push('enabled')},choose(id){state.topicId=id;calls.push(id)},play(){calls.push('play')},audio:{pause(){calls.push('pause')}},playback:{pause(){calls.push('pause')}},save(){},render(){}};vm.createContext(env);vm.runInContext(source('openCategory'),env);vm.runInContext(source('advanceLesson'),env);
 env.openCategory('start');assert.equal(state.autoplay,true);assert.equal(state.topicId,'first');assert.equal(env.sequenceIndex,0);assert.deepEqual(calls,['enabled','first','play']);
 calls.length=0;env.advanceLesson();assert.equal(state.topicId,'last');assert.deepEqual(calls,['last','play']);
 calls.length=0;env.advanceLesson();assert.equal(state.topicId,'last');assert.deepEqual(calls,['pause'],'End of playlist stops, never chooses first or plays again');
