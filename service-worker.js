@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-home-badge-v169';
+const CACHE_NAME = 'billiards-trainer-4-12-home-badge-v170';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './play-narration-data.js?v=3',
@@ -24,8 +24,8 @@ const APP_SHELL = [
   './tournament.css?v=return-cyan-v2',
   './icons/play-experience-v1.webp',
   './icons/trainer-original-execute-v2.svg',
-  './experience-menu.js?v=home-badge-v12',
-  './experience-menu.css?v=home-badge-v7',
+  './experience-menu.js?v=home-badge-v13',
+  './experience-menu.css?v=home-badge-v8',
   './play-viewport.js?v=android-play-v1',
   './play-catalog.js?v=copy-v2',
   './play-engine.js?v=copy-v3',

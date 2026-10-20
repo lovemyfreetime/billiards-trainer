@@ -9,9 +9,8 @@ function lotusIcon(){return lotus.replaceAll('zenLotusMetal','zenLotusMetal-'+(+
 // Miniature of the opening page, built from the same three experience artworks.
 function homeArt(){
  const preview=document.createElement('span');preview.className='experience-home-preview';preview.setAttribute('aria-hidden','true');
- const title=document.createElement('span');title.className='experience-home-heading';title.textContent='Billiards Trainer';preview.append(title);
  const choices=document.createElement('span');choices.className='experience-home-choices';
- for(const [mode,label] of [['zen','Zen'],['train','Trainer'],['play','Play']]){const card=document.createElement('span');card.className='experience-home-mini experience-home-mini--'+mode;const art=document.createElement('span');art.className='experience-home-mini-art';if(mode==='zen')art.innerHTML=lotusIcon();else{const img=document.createElement('img');img.src=mode==='train'?'./icons/trainer-original-execute-v2.svg':'./icons/play-experience-v1.webp';img.alt='';art.append(img);}const name=document.createElement('span');name.className='experience-home-mini-name';name.textContent=label;const dot=document.createElement('span');dot.className='experience-home-dot';card.append(art,name,dot);choices.append(card);}
+ for(const mode of ['zen','train','play']){const card=document.createElement('span');card.className='experience-home-mini experience-home-mini--'+mode;const art=document.createElement('span');art.className='experience-home-mini-art';if(mode==='zen')art.innerHTML=lotusIcon();else{const img=document.createElement('img');img.src=mode==='train'?'./icons/trainer-original-execute-v2.svg':'./icons/play-experience-v1.webp';img.alt='';art.append(img);}const dot=document.createElement('span');dot.className='experience-home-dot';card.append(art,dot);choices.append(card);}
  preview.append(choices);return preview;
 }
 window.BilliardsExperienceHomeArt=homeArt;
