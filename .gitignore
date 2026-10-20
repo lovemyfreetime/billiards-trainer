@@ -12,3 +12,7 @@ android-wrapper/app/build/
 # Transient narration exports; only final MP3s and voice receipts are tracked.
 play-audio/source-wav/
 play-audio/recording-downloads.json
+
+# Android signing identities stay private.
+*.jks
+*.keystore

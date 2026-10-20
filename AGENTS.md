@@ -9,3 +9,5 @@ The user explicitly restored the public live-app workflow on October 19, 2026.
 - Do not add authentication or app protection as part of ordinary feature work unless the user requests it.
 
 - After changing web app runtime files, run `python scripts/build-offline-assets.py` and publish `offline-assets.json` and `service-worker.js` with those changes. The worker serves complete cached releases immediately; its version follows the generated file hashes.
+
+- Standard Android Trainer/Installer APKs bundle the complete app through `scripts/package-android-app.py`. Preserve the application IDs, HTTPS save-data origin, and signing certificates. Do not replace a published APK with an incompatible/debug certificate; require successful offline emulator checks and an actual certificate match before updating the main installer download. Signing-key backups are private and must never be committed. Keep the normal platform installer names.
