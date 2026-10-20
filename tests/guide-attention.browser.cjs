@@ -5,7 +5,7 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox','--disable-dev-shm-usage','--single-process','--disable-gpu','--disable-software-rasterizer','--no-zygote']});
  const context=await browser.newContext({serviceWorkers:'block',viewport:{width:1365,height:900}}),page=await context.newPage();
  await page.addInitScript(()=>{window.__audio=[];const NativeAudio=Audio;window.Audio=new Proxy(NativeAudio,{construct(target,args){const a=new target(...args);__audio.push(a);return a}})});
- await page.goto('http://127.0.0.1:8765');await page.waitForFunction(()=>window.billiardsPoolGuide);
+ await page.goto('http://127.0.0.1:8765/index.html?train=1');await page.waitForFunction(()=>window.billiardsPoolGuide);
  const host=page.locator('#bt-guide-pool-root'),play=host.locator('[data-action="play-pause"]');
  const glowing=async expected=>{await page.waitForFunction(expected=>document.getElementById('bt-guide-pool-root').classList.contains('btg-narrating')===expected,expected);for(const action of ['Read','More'])assert.equal(await host.locator(`[data-action="${action}"]`).evaluate(el=>getComputedStyle(el).animationName),expected?'btg-narration-glow':'none')};
  const playing=async()=>{await page.waitForFunction(()=>__audio.some(a=>!a.paused&&a.currentTime>0&&a.dataset.topic));await glowing(true)};
