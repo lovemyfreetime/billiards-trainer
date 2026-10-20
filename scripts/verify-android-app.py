@@ -10,7 +10,7 @@ for apk in args.apks:
    b=z.read('assets/app/'+name)
    assert len(b)==meta['length'] and hashlib.sha256(b).hexdigest()==meta['sha256'],f'{apk}: {name}'
    if name.endswith('.html'):assert b'window.BilliardsBundledAndroid=true' in b,name
-  for name in ['welcome.html','index.html','play.html','zen-mode.js','vendor/onnxruntime-1.22.0/ort.wasm.min.js','vendor/onnxruntime-1.22.0/ort-wasm-simd-threaded.mjs','vendor/onnxruntime-1.22.0/ort-wasm-simd-threaded.wasm','ai_model/pool_ball_classifier.onnx','ai_model/pool_ball_detector.part1.bin','ai_model/pool_ball_detector.part2.bin']:
+  for name in ['backup.html','app-backup.js','backup-ui.js','welcome.html','index.html','play.html','zen-mode.js','vendor/onnxruntime-1.22.0/ort.wasm.min.js','vendor/onnxruntime-1.22.0/ort-wasm-simd-threaded.mjs','vendor/onnxruntime-1.22.0/ort-wasm-simd-threaded.wasm','ai_model/pool_ball_classifier.onnx','ai_model/pool_ball_detector.part1.bin','ai_model/pool_ball_detector.part2.bin']:
    assert name in manifest,name
   assert sum(n.startswith('play-audio/') and n.endswith('.mp3') for n in manifest)==243
   assert not any('source-wav/' in n for n in manifest)

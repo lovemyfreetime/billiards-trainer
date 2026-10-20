@@ -60,6 +60,21 @@ public class BundledAppTest {
             waitFor("document.body.dataset.guide==='ready'",20);
             js("(()=>{const s=document.createElement('script');s.src='./vendor/onnxruntime-1.22.0/ort.wasm.min.js';s.onload=async()=>{try{ort.env.wasm.numThreads=1;ort.env.wasm.wasmPaths=new URL('./vendor/onnxruntime-1.22.0/',document.baseURI).href;const b=await fetch('./ai_model/pool_ball_classifier.onnx').then(r=>r.arrayBuffer());window.__classifier=await ort.InferenceSession.create(b,{executionProviders:['wasm']});document.body.dataset.model='ready';}catch(e){document.body.dataset.model=String(e);}};document.head.append(s);})()");
             waitFor("document.body.dataset.model==='ready'",60);
+            navigate(scenario,"backup.html","#create");
+            js("(async()=>{try{window.__backup=await BilliardsBackup.create();localStorage.removeItem('android-offline-smoke');await BilliardsBackup.restore(__backup);document.body.dataset.backup='ready';}catch(e){document.body.dataset.backup=String(e);}})()");
+            waitFor("document.body.dataset.backup==='ready'",20);
+            assertEquals("\"kept\"",js("localStorage.getItem('android-offline-smoke')"));
+            js("BilliardsAndroid.saveBackup(__backup)");
+            // Read the actual app-owned Downloads file to verify it survived outside WebView storage.
+            android.content.Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
+            try(android.database.Cursor cursor=context.getContentResolver().query(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI,new String[]{android.provider.MediaStore.Downloads._ID},android.provider.MediaStore.Downloads.DISPLAY_NAME+" LIKE ?",new String[]{"Billiards-Trainer-Backup-%.json"},android.provider.MediaStore.Downloads._ID+" DESC")){
+                assertNotNull(cursor);assertTrue("Backup exists in Downloads",cursor.moveToFirst());
+                android.net.Uri file=android.content.ContentUris.withAppendedId(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI,cursor.getLong(0));
+                try(java.io.InputStream stream=context.getContentResolver().openInputStream(file)){
+                    java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();byte[] buffer=new byte[8192];int count;while((count=stream.read(buffer))!=-1)bytes.write(buffer,0,count);
+                    assertEquals("billiards-device-backup",new org.json.JSONObject(new String(bytes.toByteArray(),java.nio.charset.StandardCharsets.UTF_8)).getString("format"));
+                }
+            }
             navigate(scenario,"install/","[data-device=android]");
             assertEquals("0",js("[...document.querySelectorAll('iframe')].filter(f=>f.getAttribute('src')).length"));
             scenario.onActivity(a->{WebBackForwardList history=a.webView.copyBackForwardList();for(int i=0;i<history.getSize();i++)assertFalse("Startup page is not a Back destination",history.getItemAtIndex(i).getUrl().contains("__android_start__.html"));});

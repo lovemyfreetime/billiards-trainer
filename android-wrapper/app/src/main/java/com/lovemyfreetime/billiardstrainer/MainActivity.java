@@ -356,6 +356,29 @@ public class MainActivity extends Activity {
 
     public class AndroidBridge {
         @JavascriptInterface
+        public void saveBackup(String json){
+            try {
+                org.json.JSONObject data=new org.json.JSONObject(json);
+                if(!"billiards-device-backup".equals(data.optString("format")))throw new IllegalArgumentException("Not a device backup");
+                ContentValues values=new ContentValues();
+                values.put(MediaStore.Downloads.DISPLAY_NAME,"Billiards-Trainer-Backup-"+System.currentTimeMillis()+".json");
+                values.put(MediaStore.Downloads.MIME_TYPE,"application/json");
+                values.put(MediaStore.Downloads.RELATIVE_PATH,Environment.DIRECTORY_DOWNLOADS);
+                values.put(MediaStore.Downloads.IS_PENDING,1);
+                Uri uri=getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI,values);
+                if(uri==null)throw new IllegalStateException("Downloads is unavailable");
+                try {
+                    try(OutputStream stream=getContentResolver().openOutputStream(uri)){
+                        if(stream==null)throw new IllegalStateException("Could not open backup");
+                        stream.write(json.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                    }
+                    values.clear();values.put(MediaStore.Downloads.IS_PENDING,0);getContentResolver().update(uri,values,null,null);
+                }catch(Exception e){getContentResolver().delete(uri,null,null);throw e;}
+                runOnUiThread(()->Toast.makeText(MainActivity.this,"Backup saved to Downloads",Toast.LENGTH_LONG).show());
+            }catch(Exception e){runOnUiThread(()->Toast.makeText(MainActivity.this,"Backup could not be saved. Keep a copy of the backup text.",Toast.LENGTH_LONG).show());}
+        }
+
+        @JavascriptInterface
         public void finishBundledStartup(){
             runOnUiThread(()->{
                 if(!bootstrapPending||webView==null)return;

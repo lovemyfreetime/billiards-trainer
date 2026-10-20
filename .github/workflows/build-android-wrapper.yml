@@ -3,6 +3,7 @@ name: Build Android wrapper APKs
 on:
   workflow_dispatch:
   push:
+    branches: [main]
     paths:
       - 'android-wrapper/**'
       - 'offline-assets.json'
@@ -60,12 +61,14 @@ jobs:
 
       - name: Choose an increasing Android version
         run: |
-          previous=$("$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging downloads/Billiards-Trainer-Android.apk | sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" | head -1)
-          echo "ANDROID_VERSION_CODE=$((previous + ${{ github.run_number }} + 1))" >> "$GITHUB_ENV"
+          # Run numbers increase across releases; the legacy APK used versionCode 2.
+          echo "ANDROID_VERSION_CODE=$((1000 + ${{ github.run_number }}))" >> "$GITHUB_ENV"
 
       - name: Verify complete app and shared behavior
         run: |
           python3 scripts/build-offline-assets.py --check
+          npm install --prefix /tmp/billiards-backup-tests --no-audit --no-fund fake-indexeddb@6.2.5
+          NODE_PATH=/tmp/billiards-backup-tests/node_modules node --test tests/app-backup.test.cjs
           node --test tests/offline-loading.test.cjs tests/background-update-session.test.cjs tests/experience-entry.test.cjs tests/play-narration.test.cjs tests/play-announcements.test.cjs
 
       - name: Build signed app and installer APKs
@@ -76,32 +79,21 @@ jobs:
         run: |
           python3 scripts/verify-android-app.py android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk android-wrapper/app/build/outputs/apk/installer/release/app-installer-release.apk
           signer="$ANDROID_HOME/build-tools/35.0.0/apksigner"
-          "$signer" verify --print-certs downloads/Billiards-Trainer-Android.apk > /tmp/previous-android-cert.txt
-          "$signer" verify --print-certs android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk > /tmp/current-android-cert.txt
-          previous_cert=$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' /tmp/previous-android-cert.txt)
-          current_cert=$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' /tmp/current-android-cert.txt)
-          test -n "$previous_cert" && test -n "$current_cert"
-          if test "$previous_cert" = "$current_cert"; then
-            echo 'ANDROID_UPDATE_COMPATIBLE=true' >> "$GITHUB_ENV"
-          else
-            echo 'ANDROID_UPDATE_COMPATIBLE=false' >> "$GITHUB_ENV"
-            echo '::notice::The build certificate differs from the existing Android download; publishing is blocked to protect in-place updates.'
-          fi
-          "$signer" verify --print-certs downloads/Billiards-Trainer-Installer-Android.apk > /tmp/previous-installer-cert.txt
-          "$signer" verify --print-certs android-wrapper/app/build/outputs/apk/installer/release/app-installer-release.apk > /tmp/current-installer-cert.txt
-          previous_installer_cert=$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' /tmp/previous-installer-cert.txt)
-          current_installer_cert=$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' /tmp/current-installer-cert.txt)
-          test -n "$previous_installer_cert" && test -n "$current_installer_cert"
-          if test "$previous_installer_cert" = "$current_installer_cert"; then
-            echo 'ANDROID_INSTALLER_COMPATIBLE=true' >> "$GITHUB_ENV"
-          else
-            echo 'ANDROID_INSTALLER_COMPATIBLE=false' >> "$GITHUB_ENV"
-          fi
-          aapt="$ANDROID_HOME/build-tools/35.0.0/aapt"
-          previous=$("$aapt" dump badging downloads/Billiards-Trainer-Android.apk | sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" | head -1)
-          current=$("$aapt" dump badging android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk | sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" | head -1)
-          test "$current" -gt "$previous"
-          echo 'Version code increases; certificate compatibility is recorded separately.'
+          expected=a7e01270b7c40cb939d745d391fd8ae34e89c7051c363c11e125ca1616b4d9c7
+          compatible=true
+          for flavor in trainer installer; do
+            apk="android-wrapper/app/build/outputs/apk/$flavor/release/app-$flavor-release.apk"
+            "$signer" verify --print-certs "$apk" > "/tmp/$flavor-cert.txt"
+            actual=$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' "/tmp/$flavor-cert.txt")
+            test -n "$actual"
+            if test "$actual" != "$expected"; then compatible=false; fi
+            package=$("$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" | head -1)
+            if test "$flavor" = trainer; then expected_id=com.lovemyfreetime.billiardstrainer; else expected_id=com.lovemyfreetime.billiardstrainer.installer; fi
+            echo "$package" | grep -F "name='$expected_id'"
+            echo "$package" | grep -F "versionCode='$ANDROID_VERSION_CODE'"
+          done
+          echo "ANDROID_UPDATE_COMPATIBLE=$compatible" >> "$GITHUB_ENV"
+          if test "$compatible" != true; then echo '::notice::Only the pinned permanent certificate may publish. Disposable validation builds cannot replace installer downloads.'; fi
 
       - name: Enable KVM for the Android runtime test
         run: |
@@ -144,17 +136,29 @@ jobs:
 
       - name: Require compatible release identity before publishing
         run: |
-          test "$ANDROID_RELEASE_CONFIGURED" = true && test "$ANDROID_UPDATE_COMPATIBLE" = true || { echo 'APK build and runtime checks completed, but publication requires the signing key matching the installed Android app. Existing installer links and APKs are unchanged.'; exit 1; }
+          test "$ANDROID_RELEASE_CONFIGURED" = true && test "$ANDROID_UPDATE_COMPATIBLE" = true || { echo 'APK build and runtime checks completed, but publication requires the pinned permanent signing key. Existing installer links and APKs are unchanged.'; exit 1; }
 
       - name: Publish signed Android installers
+        if: github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p android-wrapper/output
           cp android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk android-wrapper/output/Billiards-Trainer-Android.apk
-          if test "$ANDROID_INSTALLER_COMPATIBLE" = true; then
-            cp android-wrapper/app/build/outputs/apk/installer/release/app-installer-release.apk android-wrapper/output/Billiards-Trainer-Installer-Android.apk
-          fi
+          cp android-wrapper/app/build/outputs/apk/installer/release/app-installer-release.apk android-wrapper/output/Billiards-Trainer-Installer-Android.apk
           gh release view android-app --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create android-app --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title 'Billiards Trainer for Android' --notes-file android-wrapper/RELEASE_NOTES.md
           gh release upload android-app --repo "$GITHUB_REPOSITORY" android-wrapper/output/*.apk --clobber
           gh release edit android-app --repo "$GITHUB_REPOSITORY" --title 'Billiards Trainer for Android' --notes-file android-wrapper/RELEASE_NOTES.md
+
+      - name: Connect validated release to normal platform installer page
+        if: github.ref == 'refs/heads/main'
+        run: |
+          python3 scripts/update-android-downloads.py
+          python3 scripts/build-offline-assets.py
+          git add install/index.html install/android/index.html install/assets/installer.js offline-assets.json service-worker.js
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'Point standard Android installers to validated permanent-key release'
+            git push origin HEAD:main
+          fi

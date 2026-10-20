@@ -1,13 +1,16 @@
 {
-  "version": "ec5b518d03ca74b1",
+  "version": "e5a62b85b15dc79f",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
     "ai_model/pool_ball_detector.part2.bin": "c4d0c531ef9454200b16dab8ec30a3d53c39b9c2b22a71585760b3e04f7b0cb2",
+    "app-backup.js": "6b15e9a572970a374a264fa19db35abc89623800003eb7d56489bcd266905bc4",
     "app-display.css": "111896e85bf3718f6863052d99479a36f478e92603dca3530d889201bba04c45",
     "app-display.js": "0b36c90935f54958adf2d74291ad7142b3634ab1c4c9c93d14ef600ad116c7de",
     "app-hotfix-20261003.js": "c7fb00dd82a9b2cf37adafad9cdaa82a99c79d19830f2fca139b55183d1934c0",
     "apple-touch-icon.png": "bdbf38e5f2307bd066e0b499c908ed37f4015c3b14993a3487e2dc0c116673b7",
+    "backup-ui.js": "54041b869cce62ba8f04ecd982111123753255106a2ce994913ec622e51a6852",
+    "backup.html": "72c66ea3ffed0b261dc93185cbb114a8642ec86de7b2b17d8ef01ecd257212ac",
     "beta-config.js": "ae907d550a121123789e137e1cb2599549528df6c09e8761a0573ce0a7c8a5df",
     "beta-ui.js": "59cf5d3fb25dc243d3cfddf0d2f013ce21d5a5cdea46ab30c0317559806178de",
     "billiards-trainer-icon-original.png": "08c85554bd24ca7461e98ebfbfd0a7b1c446e04bfd677075ff0bf848eec24c94",
@@ -745,7 +748,7 @@
     "install/assets/installer.css": "0e02401ab0e87bbaffddf0166c4ac673d1dbb74ee953d8cb4e190d2cf0c34682",
     "install/assets/installer.js": "c0342d9d52022dbcf3d8351b5dc14335b22beed75cf55be32f729d9b42a87303",
     "install/chromebook/index.html": "6ece7c43540db451890dc43430800e6133ab817590e9f29667e746dfcff9400b",
-    "install/index.html": "be13d5ec860bf6822d009b34ed14cb0b1a3f5e22906031e0c6756662cf448695",
+    "install/index.html": "089ce92d7624595c60ad348fcf2d6e78c8bbefed5cb76513a6570fcc581d1961",
     "install/manifest.webmanifest": "ed808dd8d4b027173db45073d65044ac307f4f9de5593fd74db4d062640c14cb",
     "install/qr/android.png": "c0c69358ca0762ca2939e0971ec5245f4b7d074eadb3997a37b3f2de91804b60",
     "install/qr/apple.png": "820640738ffb3fa67761fecb26d5c99b7282aefd2d7aa3b53ff86ba9dfdb1f9a",
@@ -1039,7 +1042,7 @@
     "vendor/onnxruntime-1.22.0/ort-wasm-simd-threaded.mjs": "30dd851d9c00622940500f71ddd2ff8820c5cb65270816080175b958705385a8",
     "vendor/onnxruntime-1.22.0/ort-wasm-simd-threaded.wasm": "71aef04959c5c1b6de461b6538e2058e306610034a85aad2742d0c7fd4533fe4",
     "vendor/onnxruntime-1.22.0/ort.wasm.min.js": "65e09376df69107e881b5c34d2d37aed333a366b6d941073ec518168e269b87d",
-    "welcome.html": "e85967fd8ce4a5bc1c8b48ef7b96f43261f7fb8689757ddee66b8be003b0f361",
+    "welcome.html": "9bd77a247765ab5ce6b6b68b88fd5aae0c106cd6977100e817c224936ac36a90",
     "zen-mode.js": "6c20b14389ec81afba7beeab24951570f19a47612631b483b60e95f0bd331f99"
   }
 }
