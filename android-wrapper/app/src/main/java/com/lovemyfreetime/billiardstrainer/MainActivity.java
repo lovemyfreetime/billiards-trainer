@@ -138,7 +138,7 @@ public class MainActivity extends Activity {
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> callback, FileChooserParams params) {
                 if (fileCallback != null) fileCallback.onReceiveValue(null);
                 fileCallback = callback;
-                launchFileChooser();
+                launchFileChooser(params);
                 return true;
             }
         });
@@ -204,20 +204,29 @@ public class MainActivity extends Activity {
         setContentView(tv);
     }
 
-    private void launchFileChooser() {
+    private void launchFileChooser(WebChromeClient.FileChooserParams params) {
         Intent pick = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         pick.addCategory(Intent.CATEGORY_OPENABLE);
         pick.setType("*/*");
-        pick.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*"});
+        java.util.ArrayList<String> accepts=new java.util.ArrayList<>();
+        if(params!=null)for(String type:params.getAcceptTypes()){
+            if(type==null||type.trim().isEmpty())continue;
+            if(type.equalsIgnoreCase(".json"))type="application/json";
+            if(type.contains("/"))accepts.add(type);
+        }
+        boolean media=accepts.isEmpty();
+        for(String type:accepts)if(type.startsWith("image/")||type.startsWith("video/"))media=true;
+        if(accepts.isEmpty()){accepts.add("image/*");accepts.add("video/*");}
+        pick.putExtra(Intent.EXTRA_MIME_TYPES,accepts.toArray(new String[0]));
 
         Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        cameraOutputUri = createPendingCameraUri();
+        cameraOutputUri = media ? createPendingCameraUri() : null;
         if (cameraOutputUri != null) {
             camera.putExtra(MediaStore.EXTRA_OUTPUT, cameraOutputUri);
             camera.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
 
-        Intent chooser = Intent.createChooser(pick, "Choose pool-table photo or video");
+        Intent chooser = Intent.createChooser(pick, media ? "Choose pool-table photo or video" : "Choose backup or saved session file");
         if (camera.resolveActivity(getPackageManager()) != null && cameraOutputUri != null) {
             chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{camera});
         }
@@ -226,7 +235,7 @@ public class MainActivity extends Activity {
         } catch (Exception e) {
             if (fileCallback != null) fileCallback.onReceiveValue(null);
             fileCallback = null;
-            Toast.makeText(this, "No photo/video chooser is available", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No file chooser is available", Toast.LENGTH_SHORT).show();
         }
     }
 
