@@ -225,7 +225,7 @@ body.zen-mode #panel,body.zen-mode #scoreBoard,body.zen-mode #cameraCaptureBtn,b
 #zenRack button.stripe{background:radial-gradient(circle at 30% 23%,#fff9,transparent 48%),linear-gradient(#f3e8ce 22%,var(--ball) 23% 77%,#f3e8ce 78%)}
 #zenRack button span{display:grid;place-items:center;margin:auto;width:43%;height:43%;border-radius:50%;background:#f9edcf;color:#373c30;font:600 8px system-ui}
 #zenRack button:disabled{opacity:.22;cursor:default;box-shadow:inset 0 1px 5px #655f3822}
-#zenModeMenu{position:fixed;z-index:140;display:flex;gap:10px;padding:0;width:106px;height:48px;background:transparent;border:0}
+#zenModeMenu{position:fixed;z-index:140;display:flex;gap:10px;padding:0;width:164px;height:48px;background:transparent;border:0}
 #zenModeMenu[hidden]{display:none}
 #zenModeMenu button{overflow:hidden;padding:0!important}
 #zenModeMenu button img{display:block;width:100%;height:100%;object-fit:contain;border-radius:50%}
@@ -329,8 +329,9 @@ function init(){
  const menu=document.createElement('div');menu.id='zenModeMenu';menu.className='zen-popover';menu.hidden=true;menu.setAttribute('role','group');menu.setAttribute('aria-label','Choose experience');stones.setAttribute('aria-controls','zenModeMenu');
  const train=document.createElement('button');train.type='button';train.setAttribute('aria-label','Open Trainer');train.title='Open Trainer';train.innerHTML='<img src="./icons/trainer-original-execute-v2.svg" alt="">';train.onclick=()=>{engine.shareTable();const url=new URL(location.href);url.searchParams.delete('zen');url.searchParams.delete('play');url.searchParams.set('train','1');location.href=url.toString()};
  const play=document.createElement('button');play.type='button';play.setAttribute('aria-label','Open Play');play.title='Open Play';play.innerHTML='<img src="./icons/play-experience-v1.webp" alt="">';play.onclick=()=>{engine.shareTable();const url=new URL(location.href);url.searchParams.delete('zen');url.searchParams.delete('play');url.searchParams.delete('train');url.pathname=url.pathname.replace(/(?:index\.html)?$/,'play.html');location.href=url.toString()};
- menu.append(train,play);let modeLeaveTimer=0;
- const positionModeMenu=()=>{const r=stones.getBoundingClientRect();menu.style.left=Math.max(8,Math.min(innerWidth-114,r.left+r.width/2-53))+'px';menu.style.top=Math.max(8,r.top-62)+'px'};
+ const home=document.createElement('button');home.type='button';home.setAttribute('aria-label','Open Home');home.title='Home · Choose your experience';home.append(window.BilliardsExperienceHomeArt());home.onclick=()=>{engine.shareTable();const url=new URL('./welcome.html',location.href);location.href=url.href};
+ menu.append(train,play,home);let modeLeaveTimer=0;
+ const positionModeMenu=()=>{const r=stones.getBoundingClientRect(),width=menu.offsetWidth,height=menu.offsetHeight,left=Math.max(8,Math.min(innerWidth-width-8,r.left+r.width/2-53));let top=Math.max(8,r.top-height-14);const fresh=document.getElementById('zenFreshTable')?.getBoundingClientRect();if(fresh&&left+width>fresh.left-10&&top+height>fresh.top-8&&top<fresh.bottom+8)top=Math.max(8,fresh.top-height-10);menu.style.left=left+'px';menu.style.top=top+'px'};
  const closeMenu=()=>{modeHover.cancel();clearTimeout(modeLeaveTimer);hideZenPopover(menu);stones.setAttribute('aria-expanded','false')};
  const openMenu=()=>{if(engine.status().busy)return;modeHover.cancel();clearTimeout(modeLeaveTimer);hoverTools.forEach(tool=>tool.close());closeRackMenu();showZenPopover(menu,positionModeMenu);stones.setAttribute('aria-expanded','true')};
  const modeHover=zenHoverDelay(openMenu);

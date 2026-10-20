@@ -10,8 +10,8 @@ for(const viewport of [{width:412,height:915},{width:915,height:412},{width:1366
   assert.equal(await toggle.evaluate(e=>getComputedStyle(e).borderRadius),'50%');
   if(!zen){assert.equal(await toggle.locator('img').count(),1);assert((await toggle.locator('img').getAttribute('src')).includes(play?'play-experience':'trainer-original-execute'));}
   await toggle.click();const root=p.locator(zen?'#zenModeMenu.zen-popover-open':'.experience-menu:popover-open');await root.waitFor();
-  const links=root.locator(zen?'button':'a');assert.equal(await links.count(),2);
-  assert.deepEqual(await links.evaluateAll(es=>es.map(e=>e.getAttribute('aria-label'))),zen?['Open Trainer','Open Play']:play?['Open Zen','Open Trainer']:['Open Zen','Open Play']);
+  const links=root.locator(zen?'button':'a');assert.equal(await links.count(),3);
+  assert.deepEqual(await links.evaluateAll(es=>es.map(e=>e.getAttribute('aria-label'))),zen?['Open Trainer','Open Play','Open Home']:play?['Open Zen','Open Trainer','Open Home']:['Open Zen','Open Play','Open Home']);
   assert(await root.locator('img').evaluateAll(es=>es.every(e=>e.complete&&e.naturalWidth>0)));
   await toggle.click();await root.waitFor({state:'hidden'});assert.equal(await toggle.getAttribute('aria-expanded'),'false');
   await toggle.click();await root.waitFor();

@@ -23,3 +23,19 @@ body .experience-menu--zen a{width:max(44px,calc(76 * var(--zu)));height:max(44p
 
 body .experience-switcher .experience-toggle-image,#playRoot .experience-switcher .experience-toggle-image{padding:0;overflow:hidden}
 .experience-toggle-image img{display:block;width:100%;height:100%;object-fit:contain;border-radius:50%}
+
+/* Home is the same circular opening-page preview in every mode. */
+.experience-home-preview{box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;width:100%;height:100%;padding:10% 8%;gap:8%;overflow:hidden;border-radius:50%;background:radial-gradient(ellipse at 50% 35%,#24302e,#10151c 64%,#090c10);color:#eeeae2;font-family:system-ui,sans-serif;text-align:center}
+.experience-home-heading{display:block;font-size:5px;line-height:1.2;font-weight:500;white-space:nowrap}
+.experience-home-choices{display:flex;gap:5%;align-items:stretch;justify-content:center;width:100%}
+.experience-home-mini{display:flex;flex-direction:column;align-items:center;width:30%;min-width:0;padding:9% 2% 5%;gap:3px;border:1px solid #bca77d33;border-radius:4px;background:#ffffff05}
+.experience-home-mini-art{display:grid;place-items:center;width:100%;aspect-ratio:1;overflow:hidden;border-radius:50%;background:linear-gradient(145deg,#343b3e,#171c22)}
+.experience-home-preview .experience-home-mini img,#zenModeMenu .experience-home-preview .experience-home-mini img{display:block;width:100%;height:100%;object-fit:contain;border-radius:50%}
+.experience-home-preview .experience-home-mini svg,#zenModeMenu .experience-home-preview .experience-home-mini svg{width:100%;height:100%}
+.experience-home-mini-name{font-size:3px;line-height:1;font-weight:500}
+.experience-home-dot{width:2px;height:2px;border-radius:50%;background:#d4bb92;box-shadow:0 0 3px currentColor}
+.experience-home-mini--train .experience-home-dot{background:#77c8ff}.experience-home-mini--play .experience-home-dot{background:#60d394}
+/* Trainer: Zen / Play above the current Trainer / Home pair. */
+#btZenLauncher .experience-toggle{width:60px;height:60px;min-width:60px;min-height:60px}
+.experience-menu--train:popover-open{display:grid;grid-template-columns:repeat(2,60px);grid-template-rows:repeat(2,60px);gap:10px;pointer-events:none}
+.experience-menu--train a{pointer-events:auto}.experience-menu--train a[data-experience=zen]{grid-area:1/1}.experience-menu--train a[data-experience=play]{grid-area:1/2}.experience-menu--train a[data-experience=home]{grid-area:2/2}

@@ -4,9 +4,9 @@ function build(current,path){
  const node=()=>({addEventListener(){},children:[],style:{},dataset:{},classList:{add(){}},setAttribute(k,v){this[k]=v},append(...items){this.children.push(...items)},appendChild(item){this.children.push(item)}});
  const ctx={URL,location:{href:'https://example.org/billiards-trainer/'+path},window:{},document:{createElement:node,addEventListener(){}}};vm.createContext(ctx);vm.runInContext(source,ctx);return ctx.window.BilliardsExperienceMenu({current}).children[1].children;
 }
-for(const [mode,path,expected] of [['train','?train=1',['zen','play']],['play','play.html',['zen','train']],['zen','?zen=1',['train','play']]]){
+for(const [mode,path,expected] of [['train','?train=1',['zen','play','home']],['play','play.html',['zen','train','home']],['zen','?zen=1',['train','play','home']]]){
  const links=build(mode,path);assert.deepEqual(links.map(a=>a.dataset.experience),expected);
- for(const a of links){const u=new URL(a.href);assert(u.pathname.startsWith('/billiards-trainer/'));if(a.dataset.experience==='train'){assert.equal(u.search,'?train=1');assert.equal(u.pathname,'/billiards-trainer/');}if(a.dataset.experience==='zen'){assert.equal(u.search,'?zen=1');assert.equal(u.pathname,'/billiards-trainer/');}if(a.dataset.experience==='play'){assert.equal(u.search,'');assert.equal(u.pathname,'/billiards-trainer/play.html');}}
+ for(const a of links){const u=new URL(a.href);assert(u.pathname.startsWith('/billiards-trainer/'));if(a.dataset.experience==='train'){assert.equal(u.search,'?train=1');assert.equal(u.pathname,'/billiards-trainer/');}if(a.dataset.experience==='zen'){assert.equal(u.search,'?zen=1');assert.equal(u.pathname,'/billiards-trainer/');}if(a.dataset.experience==='home'){assert.equal(u.search,'');assert.equal(u.hash,'');assert.equal(u.pathname,'/billiards-trainer/welcome.html');}if(a.dataset.experience==='play'){assert.equal(u.search,'');assert.equal(u.pathname,'/billiards-trainer/play.html');}}
 }
 const welcome=fs.readFileSync('welcome.html','utf8');assert.deepEqual([...welcome.matchAll(/<a href="([^"]+)" aria-label="Open ([^"]+)"/g)].map(m=>[m[2],m[1]]),[['Zen','./?zen=1'],['Trainer','./?train=1'],['Play','./play.html']]);
 const index=fs.readFileSync('index.html','utf8'),entry=index.match(/<script>(if\(!location.search[^<]+)<\/script>/)[1];

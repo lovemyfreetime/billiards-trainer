@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-play-chase-calls-v168';
+const CACHE_NAME = 'billiards-trainer-4-12-home-badge-v169';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './play-narration-data.js?v=3',
@@ -24,8 +24,8 @@ const APP_SHELL = [
   './tournament.css?v=return-cyan-v2',
   './icons/play-experience-v1.webp',
   './icons/trainer-original-execute-v2.svg',
-  './experience-menu.js?v=offline-play-v11',
-  './experience-menu.css?v=6',
+  './experience-menu.js?v=home-badge-v12',
+  './experience-menu.css?v=home-badge-v7',
   './play-viewport.js?v=android-play-v1',
   './play-catalog.js?v=copy-v2',
   './play-engine.js?v=copy-v3',
@@ -36,8 +36,8 @@ const APP_SHELL = [
   './trainer-action-history.js?v=2',
   './trainer-table-exchange.js?v=1',
   './icons/zen-reference-table-v1.webp',
-  './zen-mode.js?v=direct-zen-entry-v58',
-  './beta-ui.js?v=direct-zen-entry-v156',
+  './zen-mode.js?v=home-badge-v59',
+  './beta-ui.js?v=home-badge-v157',
   './index.html',
   './trainer-practice-tools.js?v=3',
   './guide/audio-startup.js?v=native-warmup-v22',
