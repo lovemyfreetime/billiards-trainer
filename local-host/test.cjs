@@ -84,3 +84,5 @@ test('host seat is reserved and synchronized clock exposes no private game snaps
  const player=await api('player',joined.token);assert(player.serverTime>0);assert.deepEqual(player.view.clock,state.localClock);assert(!('localHostSeat' in player.view));assert(!('deck' in player.view));
  state.localHostSeat=1;await api('host/state',host.hostToken,{state});assert.equal((await api('player',joined.token)).approved,false);
 });
+
+ test('assembled Chase calls reserve a bounded lease long enough to finish',()=>{const {createAudioQueue}=require('./audio-queue.cjs');let now=0;const q=createAudioQueue(()=>now);assert.equal(q.request('host','stats',1,28000).remaining,28000);now=15000;assert.equal(q.request('guest','turn',1).granted,false);q.finish('host','stats');now+=800;assert.equal(q.request('guest','turn',1,999999).remaining,45000);});

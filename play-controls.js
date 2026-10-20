@@ -1,13 +1,5 @@
 /* Paired HID remotes and native offline speech feed the same command boundary. */
 (function(){'use strict';
-let nativeSpeaking=false,nativeDone=null,speechSerial=0,activeSpeechId=null;
-window.billiardsNativeSpeech=event=>{if(event.id!==activeSpeechId)return;nativeSpeaking=!!event.speaking;if(!nativeSpeaking){const done=nativeDone;nativeDone=null;done?.();}};
-window.BilliardsAudio={
- available:()=>!!window.speechSynthesis||!!window.BilliardsAndroid?.speakOffline,
- speaking:()=>nativeSpeaking||!!window.speechSynthesis?.speaking||!!window.BilliardsNarration?.speaking(),
- cancel(){activeSpeechId=null;window.speechSynthesis?.cancel();window.BilliardsAndroid?.cancelOfflineSpeech?.();nativeSpeaking=false;const done=nativeDone;nativeDone=null;done?.();},
- speak(message,done=()=>{}){if(window.BilliardsAndroid?.speakOffline){nativeDone=done;nativeSpeaking=true;activeSpeechId='speech-'+(++speechSerial);window.BilliardsAndroid.speakOffline(message,activeSpeechId);return;}if(!window.speechSynthesis){done();return;}const u=new SpeechSynthesisUtterance(message);u.rate=1.08;u.onend=u.onerror=done;window.speechSynthesis.speak(u);}
-};
 let adapter=null,enabled=false,learning=null,voice=false,lastSpeech=0,listening=false,nextListen=0;
 const allowed=['made','miss','foul','scratch','ready','undo','pause','resume','clock-start','clock-pause','clock-extend','drill-made','drill-miss'];
 let mapping={};try{const saved=JSON.parse(localStorage.getItem('billiardsClicker-v1')||'{}');for(const [key,value] of Object.entries(saved))if(allowed.includes(value))mapping[key]=value;}catch{}

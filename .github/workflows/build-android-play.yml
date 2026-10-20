@@ -10,6 +10,7 @@ on:
       - 'play*.css'
       - 'play-audio/**'
       - 'play-narration-copy.json'
+      - 'play-announcements-copy.json'
       - 'local-session.*'
       - 'local-host/player.*'
       - 'scripts/package-play.py'
@@ -37,7 +38,7 @@ jobs:
       - name: Check shared commands and tracking
         run: |
           python3 scripts/package-play.py --android
-          node --test tests/play-input.test.cjs tests/play-controls.test.cjs tests/play-features.test.cjs tests/play-narration.test.cjs
+          node --test tests/play-input.test.cjs tests/play-controls.test.cjs tests/play-features.test.cjs tests/play-narration.test.cjs tests/play-announcements.test.cjs
       - name: Compile standalone Play preview
         working-directory: android-wrapper
         run: gradle :app:assemblePlayDebug

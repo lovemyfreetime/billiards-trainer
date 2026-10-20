@@ -28,7 +28,7 @@ function speak(message){
   if(a.revision!==revision){cancelSpeech();return;}
   const sent=performance.now();
   try{
-   const slot=await api('/audio',{id:a.id,revision:a.revision});
+   const slot=await api('/audio',{id:a.id,revision:a.revision,duration:window.BilliardsAudio.duration(message)});
    if(announcement!==a){api('/audio',{id:a.id,done:true}).catch(()=>{});return;}
    if(!slot.granted){a.timer=setTimeout(attempt,250);return;}
    const budget=slot.remaining-(performance.now()-sent);if(budget<1000){cancelSpeech();return;}

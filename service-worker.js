@@ -1,16 +1,20 @@
-const CACHE_NAME = 'billiards-trainer-4-12-play-chase-copy-plus10-v167';
+const CACHE_NAME = 'billiards-trainer-4-12-play-chase-calls-v168';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './play-narration-data.js?v=3',
+  './play-announcements-data.js?v=1',
+  './play-announcements.js?v=1',
+  './play-recorded-audio.js?v=1',
+
   './play-narration.js?v=1',
   './play-input.js?v=1',
   './play-training.js?v=1',
-  './play-controls.js?v=narration-guard-v2',
+  './play-controls.js?v=chase-gameplay-v1',
   './play-calibration.js',
   './play-calibration.html',
   './app-display.js?v=1',
   './app-display.css?v=1',
-  './local-session.js?v=narration-return-v4',
+  './local-session.js?v=chase-gameplay-v1',
   './local-session.css?v=local-table-v1',
   './welcome.html',
   './play.html',
@@ -26,7 +30,7 @@ const APP_SHELL = [
   './play-catalog.js?v=copy-v2',
   './play-engine.js?v=copy-v3',
   './play-presentation.js?v=play-room-v1',
-  './play-mode.js?v=narration-popups-v3',
+  './play-mode.js?v=chase-gameplay-v1',
   './play-mode.css?v=narration-popups-v2',
 
   './trainer-action-history.js?v=2',
@@ -72,7 +76,7 @@ self.addEventListener('install', event => {
         const cache=await caches.open(CACHE_NAME);
         const response=await fetch('./guide/audio-assets.json');
         if(!response.ok)throw Error('Audio asset list unavailable');
-        const assets=await response.json();const playAudio=await fetch('./play-audio/scripts.json').then(r=>{if(!r.ok)throw Error('Play narration catalog unavailable');return r.json();});assets.push(...Object.values(playAudio.records).filter(r=>r.recordingStatus==='recorded').map(r=>'./'+r.src));const layouts=await fetch('./guide/practice-layouts.json?v=walkthrough-v11').then(r=>r.json());assets.push(...Object.values(layouts.layouts).map(x=>x.url));const tour=await fetch('./guide/get-started-tour.json?v=completion-tour-v25').then(r=>r.json());for(const step of tour.steps){assets.push(step.layout);if(step.recordingStatus==='recorded')assets.push(step.audio);}if(tour.transition?.recordingStatus==='recorded')assets.push(tour.transition.audio);const uniqueAssets=[...new Set(assets)];let next=0;
+        const assets=await response.json();const playAudio=await fetch('./play-audio/scripts.json').then(r=>{if(!r.ok)throw Error('Play narration catalog unavailable');return r.json();});const calls=await fetch('./play-audio/announcements.json').then(r=>{if(!r.ok)throw Error('Chase announcement catalog unavailable');return r.json();});assets.push(...Object.values(calls.records).filter(r=>r.recordingStatus==='recorded').map(r=>'./'+r.src));assets.push(...Object.values(playAudio.records).filter(r=>r.recordingStatus==='recorded').map(r=>'./'+r.src));const layouts=await fetch('./guide/practice-layouts.json?v=walkthrough-v11').then(r=>r.json());assets.push(...Object.values(layouts.layouts).map(x=>x.url));const tour=await fetch('./guide/get-started-tour.json?v=completion-tour-v25').then(r=>r.json());for(const step of tour.steps){assets.push(step.layout);if(step.recordingStatus==='recorded')assets.push(step.audio);}if(tour.transition?.recordingStatus==='recorded')assets.push(tour.transition.audio);const uniqueAssets=[...new Set(assets)];let next=0;
         await Promise.all(Array.from({length:6},async()=>{while(next<uniqueAssets.length){const asset=uniqueAssets[next++];await cache.add(asset);}}));
       })
       .then(() => self.skipWaiting())

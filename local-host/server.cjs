@@ -22,7 +22,7 @@ function view(s,seat){
   if(s.game==='battleship'){personal.fleet=[...p.fleet];personal.attacks=(p.attacks||[]).map(cell=>({cell,hit:s.players[1-seat].fleet.includes(cell)}));}
   if(s.game==='blackjack')personal.total=C.total(p.hand);
  }
- return {clock:s.localClock||null,game:s.game,paused:!!s.localPaused,name:E.games[s.game].name,rules:E.games[s.game].rules,phase:s.phase,round:s.round,rack:s.rack,shots:s.shots,active:current,next,players,last:s.last,result:s.result?{text:s.result.text}:null,you:seat,private:personal,actions:p?actions(s,seat):[]};
+ return {clock:s.localClock||null,game:s.game,paused:!!s.localPaused,name:E.games[s.game].name,rules:E.games[s.game].rules,phase:s.phase,round:s.round,rack:s.rack,shots:s.shots,active:current,next,players,last:s.last,result:s.result?{text:s.result.text,winners:s.result.winners}:null,you:seat,private:personal,actions:p?actions(s,seat):[]};
 }
 const {createAudioQueue}=require('./audio-queue.cjs');
 function createHost({port=8788,bind='0.0.0.0',hostToken=secret(),addressProvider=addresses}={}){
@@ -37,7 +37,7 @@ function createHost({port=8788,bind='0.0.0.0',hostToken=secret(),addressProvider
  function limited(req){const ip=req.socket.remoteAddress,now=Date.now(),r=rates.get(ip)||{time:now,n:0};if(now-r.time>60000){r.time=now;r.n=0;}if(++r.n>12)fail(429,'Please wait before joining again.');rates.set(ip,r);}
  const files=new Map([
  ['/join','local-host/player.html'],['/','local-host/player.html'],['/player.js','local-host/player.js'],['/player.css','local-host/player.css'],
- ...['app-display.js','app-display.css','manifest.webmanifest','tournament.html','tournament-engine.js','tournament-ui.js','tournament.css','play.html','play-input.js','play-training.js','play-controls.js','play-narration-data.js','play-narration.js','play-calibration.js','play-calibration.html','play-mode.js','play-mode.css','play-engine.js','play-catalog.js','play-presentation.js','play-viewport.js','experience-menu.js','experience-menu.css','local-session.js','local-session.css','icons/icon-192.png','icons/play-experience-v1.webp','icons/trainer-original-execute-v2.svg'].map(f=>['/'+f,f])]);
+ ...['app-display.js','app-display.css','manifest.webmanifest','tournament.html','tournament-engine.js','tournament-ui.js','tournament.css','play.html','play-input.js','play-training.js','play-controls.js','play-narration-data.js','play-narration.js','play-announcements.js','play-announcements-data.js','play-recorded-audio.js','play-calibration.js','play-calibration.html','play-mode.js','play-mode.css','play-engine.js','play-catalog.js','play-presentation.js','play-viewport.js','experience-menu.js','experience-menu.css','local-session.js','local-session.css','icons/icon-192.png','icons/play-experience-v1.webp','icons/trainer-original-execute-v2.svg'].map(f=>['/'+f,f])]);
  for(const file of fs.readdirSync(path.join(ROOT,'play-audio')))if(/^[a-z0-9-]+\.mp3$/.test(file))files.set('/play-audio/'+file,'play-audio/'+file);
  const server=http.createServer(async(req,res)=>{
   res.setHeader('Cache-Control','no-store');res.setHeader('Referrer-Policy','no-referrer');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; media-src 'self' blob:; frame-ancestors 'none'; form-action 'self'");
@@ -62,7 +62,7 @@ function createHost({port=8788,bind='0.0.0.0',hostToken=secret(),addressProvider
     if(!state||m.seat===null||state.localPaused||Date.now()-lastHost>=12000)fail(403,'Alerts are unavailable.');
     if(b.revision!==revision)fail(409,'The table changed.');
     if(typeof b.id!=='string'||b.id.length>80||!b.id)fail(400,'Invalid alert.');
-    send(res,200,audio.request(m.id,b.id,revision));return;
+    send(res,200,audio.request(m.id,b.id,revision,b.duration));return;
    }
    if(route==='/api/action'&&req.method==='POST'){
     const m=member(req),b=await body(req);if(!state||m.seat===null||!actions(state,m.seat).includes(b.type))fail(403,'That action is not available for your seat.');
@@ -79,7 +79,7 @@ function createHost({port=8788,bind='0.0.0.0',hostToken=secret(),addressProvider
      if(!state||state.localPaused)fail(403,'Alerts are unavailable.');
      if(b.revision!==revision)fail(409,'The table changed.');
      if(typeof b.id!=='string'||b.id.length>80||!b.id)fail(400,'Invalid alert.');
-     send(res,200,audio.request('host',b.id,revision));return;
+     send(res,200,audio.request('host',b.id,revision,b.duration));return;
     }
     if(route==='/api/host'&&req.method==='GET'){
      send(res,200,{revision,match,invite,urls:addressProvider().map(ip=>`http://${ip}:${actualPort}/join#invite=${invite}`),members:[...members.values()].filter(m=>!m.revoked).map(({id,name,seat,seen})=>({id,name,seat,online:Date.now()-seen<10000})),players:state?.players.map((p,i)=>({id:i,name:p.name}))||[],events:[...queue]});return;
@@ -110,7 +110,7 @@ function createHost({port=8788,bind='0.0.0.0',hostToken=secret(),addressProvider
    }
    if(req.method!=='GET')fail(405,'Method not allowed.');
    const file=files.get(route);if(!file)fail(404,'Not found.');
-   if(!['/join','/','/player.js','/player.css','/icons/icon-192.png','/play-narration-data.js','/play-narration.js'].includes(route)&&!route.startsWith('/play-audio/')&&!loopback(req.socket.remoteAddress))fail(403,'Open the player invitation on this device.');
+   if(!['/join','/','/player.js','/player.css','/icons/icon-192.png','/play-narration-data.js','/play-narration.js','/play-announcements.js','/play-announcements-data.js','/play-recorded-audio.js'].includes(route)&&!route.startsWith('/play-audio/')&&!loopback(req.socket.remoteAddress))fail(403,'Open the player invitation on this device.');
    const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml','.mp3':'audio/mpeg'}[path.extname(file)]||'application/octet-stream';res.writeHead(200,{'Content-Type':mime});fs.createReadStream(path.join(ROOT,file)).pipe(res);
   }catch(err){if(!res.headersSent)send(res,err.status||500,{error:err.status?err.message:'The local table could not complete that request.'});else res.end();}
  });

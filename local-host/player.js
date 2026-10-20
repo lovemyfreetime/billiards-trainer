@@ -9,27 +9,25 @@ $('join').onsubmit=async e=>{e.preventDefault();$('error').textContent='';try{co
 let announcement=null,alertSerial=0,serverOffset=0;
 const timer=document.createElement('p');timer.setAttribute('role','timer');$('game').append(timer);setInterval(()=>{const c=current?.view?.clock;timer.hidden=!c;if(c){const left=c.deadline===null?c.remaining:Math.max(0,c.deadline-(Date.now()+serverOffset));timer.textContent='Shot clock · '+Math.ceil(left/1000)+'s'+(c.deadline===null?' · paused':'');}},200);
 function stopAnnouncement(){
- const a=announcement;if(!a)return;announcement=null;clearTimeout(a.timer);window.speechSynthesis?.cancel();
+ const a=announcement;if(!a)return;announcement=null;clearTimeout(a.timer);window.BilliardsAudio?.cancel();
  api('audio',{id:a.id,done:true}).catch(()=>{});
 }
 function speak(message){
- stopAnnouncement();if(window.BilliardsNarration?.speaking())return;if(!enabled||document.hidden||!current?.approved||!window.speechSynthesis)return;
+ stopAnnouncement();if(window.BilliardsNarration?.speaking())return;if(!enabled||document.hidden||!current?.approved||!window.BilliardsAudio?.available())return;
  const a={id:Date.now()+'-'+(++alertSerial),revision:current.revision,timer:null};announcement=a;
  async function attempt(){
   if(announcement!==a)return;
   if(!enabled||document.hidden||!current.hostOnline||current.view?.paused||current.revision!==a.revision){stopAnnouncement();return;}
   const sent=performance.now();
   try{
-   const slot=await api('audio',{id:a.id,revision:a.revision});
+   const slot=await api('audio',{id:a.id,revision:a.revision,duration:window.BilliardsAudio.duration(message)});
    if(announcement!==a){api('audio',{id:a.id,done:true}).catch(()=>{});return;}
    if(!slot.granted){a.timer=setTimeout(attempt,250);return;}
    // Subtract the entire round trip so a delayed response cannot extend a lease.
    const budget=slot.remaining-(performance.now()-sent);
    if(budget<1000){stopAnnouncement();return;}
-   const u=new SpeechSynthesisUtterance(message);u.rate=1;
-   u.onend=u.onerror=()=>{if(announcement===a)stopAnnouncement();};
    a.timer=setTimeout(()=>{if(announcement===a)stopAnnouncement();},budget);
-   window.speechSynthesis.speak(u);if($('vibrate').checked)navigator.vibrate?.([150,80,150]);
+   window.BilliardsAudio.speak(message,()=>{if(announcement===a)stopAnnouncement();});if($('vibrate').checked)navigator.vibrate?.([150,80,150]);
   }catch{if(announcement===a)stopAnnouncement();}
  }
  attempt();
@@ -38,8 +36,8 @@ $('enableAlerts').onclick=()=>{
  enabled=!enabled;$('enableAlerts').textContent=enabled?'Turn alerts on · Tap to mute':'Enable turn alerts';
  if(enabled){
   // Unlock speech in the tap handler on mobile; the audible confirmation queues.
-  if(window.speechSynthesis){const unlock=new SpeechSynthesisUtterance('');window.speechSynthesis.speak(unlock);}
-  speak('Turn alerts enabled.');
+  window.BilliardsAudio.unlock().catch(()=>{});
+  speak(['alerts-on']);
  }else stopAnnouncement();
 };
 if(!navigator.vibrate){$('vibrate').checked=false;$('vibrate').disabled=true;}
@@ -61,9 +59,10 @@ function render(data){const old=current;current=data;if(old?.revision!==data.rev
  const s=data.view;$('gameName').textContent=s.name;$('rules').textContent=s.rules;if(old?.view?.game!==s.game){const rulesBox=$('rules').parentElement;rulesBox.querySelectorAll('[data-play-narration]').forEach(b=>b.remove());window.BilliardsNarration?.attach(rulesBox,['rules-'+s.game,'house-rules']);}$('round').textContent='Round '+s.round+' · '+s.shots+' strokes recorded';$('notice').textContent=s.result?.text||s.last;
  const me=s.players[s.you],who=s.players[s.active];$('turn').textContent=s.paused?'Paused by your host':s.phase==='result'?'Game complete':s.active===s.you?me.name+', you’re at the table':who.name+' is at the table';$('turn').classList.toggle('mine',s.active===s.you&&s.phase!=='result'&&!s.paused);
  $('scores').replaceChildren(...s.players.map(p=>{const e=node('div','','score'+(p.id===s.active?' active':''));e.append(node('strong',p.name+(p.id===s.you?' · You':'')),node('span',p.stat));return e;}));
- const key=[data.match,s.round,s.shots,s.active,s.phase,s.paused].join(':');if(lastAlert!==null&&lastAlert!==key&&data.hostOnline&&!s.paused){const changed=old?.view?.active!==s.active,phaseChanged=old?.view?.phase!==s.phase;if(s.phase==='result'&&phaseChanged)speak(s.result?.text||'Game complete.');else if(s.active===s.you&&(changed||phaseChanged))speak(me.name+(s.phase==='choose'?', choose your card.':s.phase==='vote'?', your private vote is ready.':s.phase==='fleet'?', choose your fleet.':', it’s your turn.'));else if(s.next===s.you&&changed)speak(me.name+', you’re next in the player order.');}lastAlert=key;
+ const key=[data.match,s.round,s.shots,s.active,s.phase,s.paused].join(':');if(lastAlert!==null&&lastAlert!==key&&data.hostOnline&&!s.paused){const changed=old?.view?.active!==s.active,phaseChanged=old?.view?.phase!==s.phase;if(s.phase==='result'&&phaseChanged)speak(window.BilliardsAnnouncements.guest(s,'result'));else if(s.active===s.you&&(changed||phaseChanged))speak(window.BilliardsAnnouncements.guest(s,'turn'));else if(s.next===s.you&&changed)speak(window.BilliardsAnnouncements.guest(s,'next'));}lastAlert=key;
  if(old?.match!==data.match||old?.view?.you!==s.you)clearPrivate();drawPrivate();
 }
 async function poll(){if(busy||document.hidden)return;if(!token){$('join').hidden=false;$('connection').textContent=invite?'Enter your name to join this table.':'Scan your host’s QR code to join.';$('join').querySelector('button').disabled=!invite;return;}busy=true;try{const sent=Date.now(),data=await api('player');serverOffset=data.serverTime-(sent+Date.now())/2;render(data);}catch(err){stopAnnouncement();clearPrivate();$('connection').textContent='Disconnected · retrying';if(err.status===401){token=null;sessionStorage.removeItem(storeKey);$('game').hidden=true;$('waiting').hidden=true;$('join').hidden=false;$('error').textContent=err.message;}}finally{busy=false;}}
+document.addEventListener('billiards-audio-error',e=>{$('error').textContent=e.detail;});
 window.addEventListener('pagehide',stopAnnouncement);window.addEventListener('blur',clearPrivate);document.addEventListener('visibilitychange',()=>{if(document.hidden){clearPrivate();stopAnnouncement();}else{lastAlert=null;poll();}});poll();setInterval(poll,1000);
 })();

@@ -5,7 +5,7 @@ function link(mode){const url=new URL(location.href);if(url.pathname.endsWith('/
 function init(){
  if(!enabled)return;
  const bridge=window.billiardsPlayBridge||{busy:()=>false,save:()=>{}},KEY='billiardsPlaySession-v1';let state=null,history=[],privacy=false,paused=false,audio=false,storageError='',selected=new Set(),returnFocus=null,catalogChoice='killer',inputRevision=0,hostSeat=null;
- const T=window.BilliardsTraining;let shotClock=null,drillState=null,drillHistory=[],lastClockSecond=null,toolDialog=null;
+ const A=window.BilliardsAnnouncements,T=window.BilliardsTraining;let shotClock=null,drillState=null,drillHistory=[],lastClockSecond=null,toolDialog=null;
  try{const saved=JSON.parse(localStorage.getItem('billiardsPlayTools-v1')||'null');drillState=Array.isArray(saved?.drill?.names)&&Array.isArray(saved?.drill?.results)?saved.drill:null;shotClock=saved?.clock||null;if(shotClock){shotClock.remaining=T.remaining(shotClock,Date.now());shotClock.deadline=null;}}catch{}
  document.body.classList.add('play-mode');
  const root=document.createElement('section');root.id='playRoot';root.setAttribute('aria-label','Billiards Play game room');root.innerHTML=`
@@ -25,7 +25,7 @@ function init(){
  function save(){if(!state)return;try{localStorage.setItem(KEY,JSON.stringify({version:2,...capture(),history}));window.BilliardsLocalSession?.publish({...state,localPaused:paused,localClock:shotClock,localHostSeat:hostSeat,localGameName:E.games[state.game].name,localRules:E.games[state.game].rules,localPlayerStats:state.players.map((p,i)=>C.games[state.game]?C.stat(state,i):state.game==='killer'?`${p.lives} lives`:state.game==='poker'?`${p.hand.length} cards`:state.game==='ghost'?`${state.points[0]} – ${state.points[1]}`:`Balls ${i*5+1}–${i*5+5}`)});storageError='';}catch(e){storageError='Browser storage is full or unavailable. This game is in memory only.';}}
  function commit(event,before){
   if(!state||bridge.busy())return false;
-  try{const next=E.reduce(state,event);history.push(before||capture());history=history.slice(-45);state=next;inputRevision++;selected.clear();syncClock(event);save();render();if(state.phase==='ready')speech(`${state.players[state.active].name}. ${state.isBreak?'Break.':state.game==='ghost'?'Lowest first.':'Your turn.'}`);else if(state.phase==='result')speech(state.result.text);if(state.game==='ghost'&&event.type==='shot')speech(ghostAnnouncement());}
+  try{const previous=state,next=E.reduce(state,event);history.push(before||capture());history=history.slice(-45);state=next;inputRevision++;selected.clear();syncClock(event);save();render();speech(A.event(previous,state,event));}
   catch(e){$('playNotice').textContent=e.message;throw e;}
  }
  function transact(event,before){return inputs.dispatch({type:'engine',event,before});}
@@ -39,6 +39,7 @@ function init(){
  document.addEventListener('fullscreenchange',()=>{if(dialog.open){dialog.close();dialog.showModal();}});
  const modeSwitch=()=>window.BilliardsLocalSession?.active?window.BilliardsLocalSession.button():window.BilliardsExperienceMenu({current:'play',beforeNavigate:()=>{if(bridge.busy())return false;save();bridge.save();return true;}});
  root.querySelector('#playModeSwitch').append(modeSwitch());
+ document.addEventListener('billiards-audio-error',e=>{$('playNotice').textContent=e.detail;});
  function tournamentLink(){const a=text('a','Tournament Play','play-tournament-link');a.href='./tournament.html';return a;}
  root.querySelector('.play-footer nav').append(window.BilliardsLocalSession.button(),tournamentLink());
  function backToTable(){N.stop();if(toolDialog?.open)toolDialog.close();setup();}
@@ -87,7 +88,7 @@ function init(){
   let allowances=null;if(game==='equalizer'){allowances=document.createElement('input');allowances.id='playAllowances';allowances.value='1, 1';const l=text('label','Allowed misses per player (0–2), separated by commas');l.htmlFor=allowances.id;form.append(l,allowances);form.append(text('p','Each player also has one optional cue-ball reset per layout.'));}
   const error=text('p','');error.setAttribute('role','alert');form.append(error);const row=text('div','','play-dialog-actions');row.append(button('Other games',()=>setup()));const start=button(state?'Start new game':'Rack them up',null,'play-primary');start.type='submit';row.append(start);form.append(row);
   if(state)form.append(text('p','Starting a new game replaces the saved game. Back to table keeps your current game.'));
-  form.onsubmit=e=>{e.preventDefault();try{const seed=crypto.getRandomValues(new Uint32Array(1))[0],next=E.create({game,mode:'real',names:names.value.split(',').map(n=>n.slice(0,28)),balls:count?.value,allowances:allowances?.value.split(',').map(Number),seed});window.BilliardsLocalSession?.newGame();state=next;inputRevision++;hostSeat=null;history=[];paused=false;if(shotClock){shotClock=T.clock(shotClock.seconds,shotClock.extension,shotClock.extensions);saveTools();}selected.clear();save();closeDialog();render();}catch(e){error.textContent=e.message;}};dialog.append(form);dismiss();
+  form.onsubmit=e=>{e.preventDefault();try{const seed=crypto.getRandomValues(new Uint32Array(1))[0],next=E.create({game,mode:'real',names:names.value.split(',').map(n=>n.slice(0,28)),balls:count?.value,allowances:allowances?.value.split(',').map(Number),seed});window.BilliardsLocalSession?.newGame();state=next;inputRevision++;hostSeat=null;history=[];paused=false;if(shotClock){shotClock=T.clock(shotClock.seconds,shotClock.extension,shotClock.extensions);saveTools();}selected.clear();save();closeDialog();render();speech(A.start(state));}catch(e){error.textContent=e.message;}};dialog.append(form);dismiss();
  }
  function report(foul=false){if(!state||state.phase!=='ready')return;if(!foul&&needsBalls()&&!selected.size){$('playNotice').textContent='Select the ball numbers made, then Record balls.';return;}if(foul){openDialog('Record a foul');narrate(dialog,'foul-help');dialog.append(text('p',selected.size?`Balls made: ${[...selected].join(', ')}. The foul will be resolved with these balls as one shot.`:'Report any balls made first if this game needs their numbers.'));const row=text('div','','play-dialog-actions');row.append(button('Scratch',()=>{closeDialog();transact({type:'shot',potted:[...selected],foul:true,scratch:true});},'play-foul'),button('Other foul',()=>{closeDialog();transact({type:'shot',potted:[...selected],foul:true});},'play-foul'));dialog.append(row);dismiss('Cancel');return;}transact({type:'shot',potted:[...selected],made:!needsBalls(),pockets:selectedPockets(),now:Date.now()});}
 
@@ -180,7 +181,6 @@ function init(){
  }
  function saveTools(){try{localStorage.setItem('billiardsPlayTools-v1',JSON.stringify({drill:drillState,clock:shotClock}));}catch{$('playNotice').textContent='Tools could not be saved on this device.';}}
  function syncClock(event){if(!shotClock||!['ready','shot','next-hand','stand'].includes(event.type))return;shotClock=T.timer(shotClock,{type:'reset',seat:state.active,running:state.phase==='ready'},Date.now());lastClockSecond=null;saveTools();}
- function ghostAnnouncement(){const g=state.ghostStats||{};return `${state.last} You ${state.points[0]}, ghost ${state.points[1]}. ${state.phase==='ready'?`${state.remaining.length} balls left. Lowest ball ${Math.min(...state.remaining)}.`:''} ${g.bestRun?`Best run ${g.bestRun}.`:''}`;}
  function myPlayer(){if(!state)return;openDialog('My player');narrate(dialog,'host-seat-help');dialog.append(text('p','Choose your seat. This reserves it on the host; a phone assigned to that seat returns to waiting. Keep the screen facing you when opening a private view.'));state.players.forEach((p,i)=>dialog.append(button((hostSeat===i?'✓ ':'')+p.name,()=>{hostSeat=i;save();closeDialog();showPrivate(i);})));dismiss();}
  function tools(){
   if(!toolDialog){toolDialog=document.createElement('dialog');toolDialog.className='play-tools-dialog';toolDialog.setAttribute('aria-label','Table tools');N.backdrop(toolDialog,()=>toolDialog.close());document.body.append(toolDialog);}
@@ -198,7 +198,7 @@ function init(){
    if(id==='playDrillLive'&&!drillState.done)box.append(button('Drill made',()=>inputs.dispatch({type:'drill-made'})),button('Drill miss',()=>inputs.dispatch({type:'drill-miss'})));
   }
  }
- function clockStatus(){const box=$('playShotClock');box.hidden=!shotClock;if(!shotClock)return;const n=Math.ceil(T.remaining(shotClock,Date.now())/1000);box.textContent=`Shot clock · ${n}s${shotClock.deadline===null?' · paused':''}`;if(shotClock.deadline!==null&&lastClockSecond!==n){if([10,5,0].includes(n))speech(n===0?'Time.':`${n} seconds.`);lastClockSecond=n;}if(n===0&&shotClock.deadline!==null){shotClock.remaining=0;shotClock.deadline=null;shotClock.expired=true;saveTools();}}
+ function clockStatus(){const box=$('playShotClock');box.hidden=!shotClock;if(!shotClock)return;const n=Math.ceil(T.remaining(shotClock,Date.now())/1000);box.textContent=`Shot clock · ${n}s${shotClock.deadline===null?' · paused':''}`;if(shotClock.deadline!==null&&lastClockSecond!==n){if([10,5,0].includes(n))speech(n===0?['time']:[...A.number(n),'seconds']);lastClockSecond=n;}if(n===0&&shotClock.deadline!==null){shotClock.remaining=0;shotClock.deadline=null;shotClock.expired=true;saveTools();}}
  setInterval(clockStatus,200);
  const inputs=window.BilliardsInput.create({context:()=>({busy:bridge.busy(),paused,modal:dialog.open||!!toolDialog?.open,hidden:document.hidden,actor:state?.phase==='vote'?state.voteSeat:state?.active,revision:inputRevision}),feedback:r=>{if(r.ok&&r.command==='engine'){if(r.source!=='touch')navigator.vibrate?.(40);return;}if(r.source!=='touch'||!r.ok){$('playNotice').textContent=r.message;if(r.ok)navigator.vibrate?.(40);}},execute(command){
   const type=command.type;
@@ -206,8 +206,8 @@ function init(){
   if(type==='pause'||type==='resume'){const next=type==='pause';if(next===paused)return false;if(state?.game==='speed'&&state.timer&&next)commit({type:'interrupt'});paused=next;if(shotClock){shotClock=T.timer(shotClock,{type:'pause'},Date.now());saveTools();}stopSpeech();save();render();return;}
   if(type==='undo'){if(!history.length)return false;undo();return;}
   if(type==='private'){myPlayer();return;}
-  if(type.startsWith('clock-')){if(!shotClock)return false;shotClock=T.timer(shotClock,{type:type.slice(6)},Date.now());saveTools();save();clockStatus();return;}
-  if(type.startsWith('drill-')){if(!drillState)return false;const before=drillState;drillState=T.attempt(drillState,type==='drill-made');drillHistory.push(before);drillHistory=drillHistory.slice(-100);saveTools();drawDrill();speech(drillState.done?'Drill complete.':`${drillState.names[drillState.active]}, set ${drillState.set}.`);return;}
+  if(type.startsWith('clock-')){if(!shotClock)return false;shotClock=T.timer(shotClock,{type:type.slice(6)},Date.now());saveTools();save();clockStatus();speech([type==='clock-extend'?'extension':type==='clock-start'?'clock-start':'clock-paused']);return;}
+  if(type.startsWith('drill-')){if(!drillState)return false;const before=drillState;drillState=T.attempt(drillState,type==='drill-made');drillHistory.push(before);drillHistory=drillHistory.slice(-100);saveTools();drawDrill();speech(A.drill(drillState,type==='drill-made'));return;}
   if(!state)return false;
   if(type==='ready'){if(state.phase!=='placement')return false;commit({type:'ready'});return;}
   if(state.phase!=='ready')return false;
@@ -218,7 +218,7 @@ function init(){
  window.billiardsPlayInput=inputs;
  $('playTools').onclick=tools;$('playMyView').onclick=myPlayer;
  $('playNew').onclick=()=>{if(!bridge.busy())setup();};$('playRules').onclick=showRules;$('playUndo').onclick=()=>inputs.dispatch({type:'undo'});
- $('playAudio').onclick=()=>{audio=!audio;$('playAudio').textContent=audio?'Audio on':'Audio off';$('playAudio').setAttribute('aria-pressed',String(audio));if(!audio)stopSpeech();else{if(window.BilliardsLocalSession?.active&&window.speechSynthesis)window.speechSynthesis.speak(new SpeechSynthesisUtterance(''));speech('Play audio on.');}};
+ $('playAudio').onclick=()=>{audio=!audio;$('playAudio').textContent=audio?'Audio on':'Audio off';$('playAudio').setAttribute('aria-pressed',String(audio));if(!audio)stopSpeech();else{window.BilliardsAudio.unlock().catch(()=>{});speech(['audio-on']);}};
  $('playPause').onclick=()=>inputs.dispatch({type:paused?'resume':'pause'});
  root.querySelectorAll('.play-footer a').forEach(a=>a.addEventListener('click',e=>{if(bridge.busy()){e.preventDefault();return;}save();bridge.save();}));
  window.billiardsPlayHooks={view:()=>({mode:'real',phase:state?.phase}),canShoot:()=>false,canInteract:()=>false,canPlaceCue:()=>false};

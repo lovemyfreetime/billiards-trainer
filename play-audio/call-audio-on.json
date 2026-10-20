@@ -1,0 +1,11 @@
+{
+  "text": "play audio on.",
+  "textHash": "eeff3098f38b3b99918b0a5557a30b3d69ee7cb124b583ac56c02b11fc9e7aaf",
+  "voice": "chase",
+  "rate": "+10%",
+  "sourceHash": "b4a7d25fdf226d8d89e490479987d9135a076c20c7a44493064254d8b67b6b61",
+  "audioHash": "9a0f51fc832006ce73a89f788615b08449d278b576481faf5f57745548a5e199",
+  "duration": 1.68,
+  "sourceDuration": 2.016,
+  "recordingStatus": "recorded"
+}

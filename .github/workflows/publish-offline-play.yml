@@ -9,6 +9,7 @@ on:
       - 'play*.css'
       - 'play-audio/**'
       - 'play-narration-copy.json'
+      - 'play-announcements-copy.json'
       - 'local-session.*'
       - 'local-host/player.*'
       - 'scripts/package-play.py'
@@ -28,7 +29,7 @@ jobs:
           node-version: '24'
       - name: Verify Chase clips and package all offline assets
         run: |
-          node --test tests/play-narration.test.cjs
+          node --test tests/play-narration.test.cjs tests/play-announcements.test.cjs
           python3 scripts/package-play.py
           python3 -m zipfile --test downloads/Billiards-Play-Offline.zip
       - name: Publish the current offline download
