@@ -25,6 +25,10 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.WebResourceResponse;
+import android.webkit.ServiceWorkerController;
+import android.webkit.ServiceWorkerClient;
+import java.util.concurrent.atomic.AtomicInteger;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,7 +41,9 @@ public class MainActivity extends Activity {
     private static final String APP_URL = BuildConfig.APP_URL;
     private static final int FILE_CHOOSER_REQUEST = 4201;
 
-    private WebView webView;
+    WebView webView;
+    BundledApp bundledApp;
+    final AtomicInteger externalRequests=new AtomicInteger();
     private ValueCallback<Uri[]> fileCallback;
     private Uri cameraOutputUri;
 
@@ -53,7 +59,8 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void createAndLoadWebView(Bundle savedInstanceState) {
+    private void createAndLoadWebView(Bundle savedInstanceState) throws Exception {
+        if(BuildConfig.BUNDLED_APP) bundledApp=new BundledApp(getAssets());
         webView = new WebView(this);
         webView.setBackgroundColor(Color.rgb(9, 11, 14));
         setContentView(webView);
@@ -75,7 +82,12 @@ public class MainActivity extends Activity {
 
         webView.addJavascriptInterface(new AndroidBridge(), "BilliardsAndroid");
 
+        if(bundledApp!=null)ServiceWorkerController.getInstance().setServiceWorkerClient(new ServiceWorkerClient(){
+            @Override public WebResourceResponse shouldInterceptRequest(WebResourceRequest request){return resolveRequest(request);}
+        });
         webView.setWebViewClient(new WebViewClient() {
+            @Override public WebResourceResponse shouldInterceptRequest(WebView view,WebResourceRequest request){return resolveRequest(request);}
+
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri u = request.getUrl();
@@ -139,7 +151,9 @@ public class MainActivity extends Activity {
             }
         });
 
-        if (savedInstanceState != null) {
+        if (bundledApp != null) {
+            startBundledApp();
+        } else if (savedInstanceState != null) {
             try {
                 if (webView.restoreState(savedInstanceState) == null) webView.loadUrl(APP_URL);
             } catch (Throwable ignored) {
@@ -150,6 +164,21 @@ public class MainActivity extends Activity {
         }
 
         scheduleImmersiveMode();
+    }
+
+    private WebResourceResponse resolveRequest(WebResourceRequest request){
+        if(bundledApp==null)return null;
+        if(BundledApp.isAppOrigin(request.getUrl()))return bundledApp.respond(request);
+        if("http".equals(request.getUrl().getScheme())||"https".equals(request.getUrl().getScheme()))externalRequests.incrementAndGet();
+        return null;
+    }
+
+    private void startBundledApp(){
+        // loadDataWithBaseURL bypasses a previously controlling web worker while
+        // preserving its HTTPS LocalStorage/IndexedDB origin. Only unregister workers.
+        String html="<!doctype html><meta name='viewport' content='width=device-width,initial-scale=1'><style>html{background:#090b0e;color:#eee;font:18px system-ui}body{display:grid;place-items:center;height:90vh}</style><body>Opening Billiards Trainer…<script>"+
+            "(async()=>{try{if('serviceWorker' in navigator){const registrations=await navigator.serviceWorker.getRegistrations();await Promise.all(registrations.map(r=>r.unregister()));}location.replace("+org.json.JSONObject.quote(APP_URL)+");}catch(e){document.body.textContent='Please close and reopen Billiards Trainer. Your saved layouts are retained.';}})();</script>";
+        webView.loadDataWithBaseURL(APP_URL,html,"text/html","UTF-8",APP_URL);
     }
 
     private void showStartupError(Throwable t) {

@@ -29,7 +29,10 @@
     const card = document.getElementById("btCommunityCard");
     const frame = document.getElementById("btCommunityFrame");
     if(!card || !frame || !cfg.communityFormUrl) return;
-    frame.src = embedUrl(cfg.communityFormUrl,"installer");
+    const open = document.createElement("button");
+    open.type="button";open.className="btn secondary";open.textContent="Leave your email";
+    open.addEventListener("click",()=>{frame.src=embedUrl(cfg.communityFormUrl,"installer");open.remove();},{once:true});
+    frame.before(open);
     card.hidden = false;
   }
 

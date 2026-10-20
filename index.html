@@ -12513,7 +12513,7 @@
 
 
 <script>
-if ('serviceWorker' in navigator && !window.BilliardsBundledWindows) {
+if ('serviceWorker' in navigator && !(window.BilliardsBundledWindows||window.BilliardsBundledAndroid)) {
   // A newly activated worker takes over caching without reloading the open
   // table. Apply new page code on the next user-initiated navigation/reload;
   // background updates must never discard a shot or a newly arranged Zen rack.

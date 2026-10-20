@@ -17,7 +17,9 @@ android {
         minSdk 29
         targetSdk 35
         versionCode wrapperVersionCode
-        versionName "4.12-wrapper-${wrapperVersionCode}"
+        versionName "4.12.${wrapperVersionCode}"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        buildConfigField 'boolean', 'BUNDLED_APP', 'false'
         manifestPlaceholders = [appLabel: 'Billiards Trainer 4.12']
     }
 
@@ -34,11 +36,13 @@ android {
             manifestPlaceholders = [appLabel: 'Billiards Play Preview']
         }
         trainer {
+            buildConfigField 'boolean', 'BUNDLED_APP', 'true'
             dimension 'target'
             buildConfigField 'String', 'APP_URL', '"https://lovemyfreetime.github.io/billiards-trainer/"'
             manifestPlaceholders = [appLabel: 'Billiards Trainer 4.12']
         }
         installer {
+            buildConfigField 'boolean', 'BUNDLED_APP', 'true'
             dimension 'target'
             applicationIdSuffix '.installer'
             buildConfigField 'String', 'APP_URL', '"https://lovemyfreetime.github.io/billiards-trainer/install/"'
@@ -46,7 +50,13 @@ android {
         }
     }
 
-    sourceSets { play.assets.srcDirs += ['build/generated/playAssets'] }
+    sourceSets {
+        play.assets.srcDirs += ['build/generated/playAssets']
+        trainer.assets.srcDirs += ['build/generated/appAssets']
+        installer.assets.srcDirs += ['build/generated/appAssets']
+    }
+    androidResources { noCompress += ['mp3','onnx','bin','wasm'] }
+    testBuildType 'release'
 
     signingConfigs {
         release {
@@ -69,6 +79,8 @@ android {
 }
 
 dependencies {
+    androidTestImplementation 'androidx.test.ext:junit:1.3.0'
+    androidTestImplementation 'androidx.test:runner:1.7.0'
     playImplementation 'org.nanohttpd:nanohttpd:2.3.1'
     playImplementation 'com.google.zxing:core:3.5.3'
 }
@@ -77,3 +89,11 @@ tasks.register('bundlePlayAssets', Exec) {
     commandLine 'python3', 'scripts/package-play.py', '--android'
 }
 tasks.configureEach { if (name.startsWith('mergePlay') && name.endsWith('Assets')) dependsOn 'bundlePlayAssets' }
+
+tasks.register('bundleAppAssets', Exec) {
+    workingDir rootProject.projectDir.parentFile
+    commandLine 'python3', 'scripts/package-android-app.py'
+}
+tasks.configureEach {
+    if ((name.startsWith('mergeTrainer') || name.startsWith('mergeInstaller')) && name.endsWith('Assets')) dependsOn 'bundleAppAssets'
+}

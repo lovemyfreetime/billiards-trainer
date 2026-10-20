@@ -1,0 +1,91 @@
+package com.lovemyfreetime.billiardstrainer;
+
+import android.content.Intent;
+import android.net.Uri;
+import android.os.SystemClock;
+import android.webkit.*;
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import static org.junit.Assert.*;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
+
+@RunWith(AndroidJUnit4.class)
+public class BundledAppTest {
+    private MainActivity activity;
+    private String js(String source)throws Exception {
+        CountDownLatch done=new CountDownLatch(1);AtomicReference<String> result=new AtomicReference<>();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(()->activity.webView.evaluateJavascript(source,value->{result.set(value);done.countDown();}));
+        assertTrue("JavaScript callback: "+source,done.await(25,TimeUnit.SECONDS));return result.get();
+    }
+    private void waitFor(String predicate,int seconds)throws Exception {
+        long until=SystemClock.elapsedRealtime()+seconds*1000L;
+        while(SystemClock.elapsedRealtime()<until){if("true".equals(js("Boolean("+predicate+")")))return;Thread.sleep(100);}
+        fail("Timed out: "+predicate+"; page="+js("location.href+' '+JSON.stringify(document.body?.dataset)"));
+    }
+    private void navigate(ActivityScenario<MainActivity> scenario,String path,String selector)throws Exception {
+        long start=SystemClock.elapsedRealtime();String url=BundledApp.ORIGIN+BundledApp.PREFIX+path;
+        scenario.onActivity(a->{activity=a;a.webView.loadUrl(url);});
+        waitFor("location.href==="+org.json.JSONObject.quote(url)+"&&window.BilliardsBundledAndroid&&document.querySelector("+org.json.JSONObject.quote(selector)+")",25);
+        System.out.println("ANDROID LOCAL "+path+": "+(SystemClock.elapsedRealtime()-start)+" ms");
+    }
+    @Test public void completeAppWithoutInternetAndLegacyCacheMigration()throws Exception {
+        Intent intent=new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(),MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(intent)){
+            scenario.onActivity(a->{activity=a;a.webView.getSettings().setBlockNetworkLoads(true);ServiceWorkerController.getInstance().getServiceWorkerWebSettings().setBlockNetworkLoads(true);});
+            waitFor("window.BilliardsBundledAndroid&&(document.querySelector('main nav')||document.querySelector('[data-device=android]'))",30);
+            navigate(scenario,"welcome.html","main nav");
+            js("localStorage.setItem('android-offline-smoke','kept');(()=>{const r=indexedDB.open('billiards-offline-save-test',1);r.onupgradeneeded=()=>r.result.createObjectStore('layouts');r.onsuccess=()=>{const db=r.result,t=db.transaction('layouts','readwrite');t.objectStore('layouts').put('kept','layout');t.oncomplete=()=>{db.close();document.body.dataset.saved='yes';};};})()");
+            waitFor("document.body.dataset.saved==='yes'",10);
+            navigate(scenario,"?train=1","#canvas");
+            navigate(scenario,"?zen=1","#zenBar");
+            navigate(scenario,"play.html","#playDialog");
+            js("window.__audioErrors=[];document.addEventListener('billiards-audio-error',e=>__audioErrors.push(e.detail));BilliardsAudio.speak(['player-2','turn-1'],()=>document.body.dataset.chase='done');");
+            waitFor("document.body.dataset.chase==='done'",20);assertEquals("0",js("__audioErrors.length"));
+            js("(()=>{const a=new Audio('./guide/audio/get-started-03.mp3');window.__guide=a;a.oncanplay=()=>a.play().then(()=>{a.pause();document.body.dataset.guide='ready';});a.onerror=()=>document.body.dataset.guide='failed';a.load();})()");
+            waitFor("document.body.dataset.guide==='ready'",20);
+            js("(()=>{const s=document.createElement('script');s.src='./vendor/onnxruntime-1.22.0/ort.wasm.min.js';s.onload=async()=>{try{ort.env.wasm.numThreads=1;ort.env.wasm.wasmPaths=new URL('./vendor/onnxruntime-1.22.0/',document.baseURI).href;const b=await fetch('./ai_model/pool_ball_classifier.onnx').then(r=>r.arrayBuffer());window.__classifier=await ort.InferenceSession.create(b,{executionProviders:['wasm']});document.body.dataset.model='ready';}catch(e){document.body.dataset.model=String(e);}};document.head.append(s);})()");
+            waitFor("document.body.dataset.model==='ready'",60);
+            navigate(scenario,"install/","[data-device=android]");
+            assertEquals("0",js("[...document.querySelectorAll('iframe')].filter(f=>f.getAttribute('src')).length"));
+            assertEquals("No public network requests needed",0,activity.externalRequests.get());
+            assertEquals("All requested app assets were installed",0,activity.bundledApp.missingRequests.get());
+            navigate(scenario,"welcome.html","main nav");
+            // Reproduce a previously installed site worker without putting a test endpoint in the APK.
+            final String workerPath=BundledApp.PREFIX+"__legacy_test_worker.js";
+            final String worker="self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>{if(e.request.mode==='navigate')e.respondWith(new Response('<!doctype html><title>old cached app</title><body>old cached app</body>',{headers:{'Content-Type':'text/html'}}));});";
+            scenario.onActivity(a->{
+                WebViewClient original=a.webView.getWebViewClient();
+                a.webView.setWebViewClient(new WebViewClient(){@Override public WebResourceResponse shouldInterceptRequest(WebView v,WebResourceRequest r){return r.getUrl().getPath().equals(workerPath)?worker(worker):original.shouldInterceptRequest(v,r);}});
+                ServiceWorkerController.getInstance().setServiceWorkerClient(new ServiceWorkerClient(){@Override public WebResourceResponse shouldInterceptRequest(WebResourceRequest r){return r.getUrl().getPath().equals(workerPath)?worker(worker):a.bundledApp.respond(r);}});
+            });
+            js("navigator.serviceWorker.register('./__legacy_test_worker.js').then(()=>navigator.serviceWorker.ready).then(()=>document.body.dataset.legacy='ready').catch(e=>document.body.dataset.legacy=String(e));");
+            waitFor("document.body.dataset.legacy==='ready'&&navigator.serviceWorker.controller",20);
+            scenario.recreate();scenario.onActivity(a->{activity=a;a.webView.getSettings().setBlockNetworkLoads(true);});
+            waitFor("window.BilliardsBundledAndroid&&(document.querySelector('main nav')||document.querySelector('[data-device=android]'))",30);
+            assertEquals("\"kept\"",js("localStorage.getItem('android-offline-smoke')"));
+            js("(()=>{const r=indexedDB.open('billiards-offline-save-test');r.onsuccess=()=>{const db=r.result,q=db.transaction('layouts').objectStore('layouts').get('layout');q.onsuccess=()=>{document.body.dataset.restored=q.result;db.close();};};navigator.serviceWorker.getRegistrations().then(r=>document.body.dataset.workers=String(r.length));})()");
+            waitFor("document.body.dataset.restored==='kept'&&document.body.dataset.workers==='0'",10);
+            assertEquals(0,activity.externalRequests.get());
+            System.out.println("ANDROID LOCAL passed: all experiences, Chase/guide media, trained WASM classifier, installer, worker migration, LocalStorage and IndexedDB; zero internet requests.");
+        }
+    }
+    private static WebResourceResponse worker(String source){return new WebResourceResponse("text/javascript","UTF-8",200,"OK",Collections.singletonMap("Cache-Control","no-store"),new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8)));}
+    @Test public void assetRangesAndMissingFiles()throws Exception {
+        BundledApp app=new BundledApp(InstrumentationRegistry.getInstrumentation().getTargetContext().getAssets());
+        WebResourceResponse r=app.respond(request("play-audio/call-number-1.mp3?v=test","bytes=10-19"));
+        assertEquals(206,r.getStatusCode());assertEquals("10",r.getResponseHeaders().get("Content-Length"));byte[] bytes=new byte[20];assertEquals(10,r.getData().read(bytes));assertEquals(-1,r.getData().read());r.getData().close();
+        assertEquals(416,app.respond(request("play-audio/call-number-1.mp3","bytes=999999999-")).getStatusCode());
+        assertEquals(404,app.respond(request("not-installed.js",null)).getStatusCode());
+        assertEquals(404,app.respond(request("../private.txt",null)).getStatusCode());
+        assertNull(AssetRange.parse("bytes=1-2,8-9",100));assertNull(AssetRange.parse("bytes=-0",100));assertNull(AssetRange.parse("bytes=9-2",100));
+        assertEquals(5,AssetRange.parse("bytes=-5",100).count);assertEquals(10,AssetRange.parse("bytes=90-",100).count);
+    }
+    private static WebResourceRequest request(String path,String range){return new WebResourceRequest(){public Uri getUrl(){return Uri.parse(BundledApp.ORIGIN+BundledApp.PREFIX+path);}public boolean isForMainFrame(){return false;}public boolean isRedirect(){return false;}public boolean hasGesture(){return false;}public String getMethod(){return "GET";}public Map<String,String> getRequestHeaders(){return range==null?Collections.emptyMap():Collections.singletonMap("Range",range);}};}
+}

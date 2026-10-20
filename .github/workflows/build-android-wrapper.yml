@@ -5,14 +5,22 @@ on:
   push:
     paths:
       - 'android-wrapper/**'
+      - 'offline-assets.json'
+      - 'scripts/package-android-app.py'
+      - 'scripts/package-windows-app.py'
+      - 'scripts/verify-android-app.py'
       - '.github/workflows/build-android-wrapper.yml'
 
+concurrency:
+  group: android-wrapper-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     env:
       ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/android-wrapper/app/billiards-trainer-release.jks
       ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -26,6 +34,9 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
       - uses: android-actions/setup-android@v3
         with:
           packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
@@ -33,41 +44,70 @@ jobs:
         with:
           gradle-version: '8.10.2'
 
-      - name: Prepare permanent Android signing key
-        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' && env.ANDROID_KEYSTORE_PASSWORD != '' && env.ANDROID_KEY_ALIAS != '' && env.ANDROID_KEY_PASSWORD != '' }}
-        run: printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$ANDROID_KEYSTORE_PATH"
-
-      - name: Build permanently signed release APKs
-        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' && env.ANDROID_KEYSTORE_PASSWORD != '' && env.ANDROID_KEY_ALIAS != '' && env.ANDROID_KEY_PASSWORD != '' }}
-        working-directory: android-wrapper
-        run: gradle :app:assembleTrainerRelease :app:assembleInstallerRelease
-
-      - name: Build temporary installer APK
-        if: ${{ env.ANDROID_KEYSTORE_BASE64 == '' || env.ANDROID_KEYSTORE_PASSWORD == '' || env.ANDROID_KEY_ALIAS == '' || env.ANDROID_KEY_PASSWORD == '' }}
-        working-directory: android-wrapper
-        run: gradle :app:assembleInstallerDebug
-
-      - name: Publish current Android installers
+      - name: Require and prepare the existing signing identity
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin main
-          mkdir -p downloads
+          test -n "$ANDROID_KEYSTORE_BASE64" && test -n "$ANDROID_KEYSTORE_PASSWORD" && test -n "$ANDROID_KEY_ALIAS" && test -n "$ANDROID_KEY_PASSWORD" || { echo 'Permanent Android signing key is required; existing downloads will not be replaced with debug APKs.'; exit 1; }
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$ANDROID_KEYSTORE_PATH"
 
-          if [ -f android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk ]; then
-            cp android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk downloads/Billiards-Trainer-Android.apk
-          fi
+      - name: Verify complete app and shared behavior
+        run: |
+          python3 scripts/build-offline-assets.py --check
+          node --test tests/offline-loading.test.cjs tests/background-update-session.test.cjs tests/experience-entry.test.cjs tests/play-narration.test.cjs tests/play-announcements.test.cjs
 
-          if [ -f android-wrapper/app/build/outputs/apk/installer/release/app-installer-release.apk ]; then
-            cp android-wrapper/app/build/outputs/apk/installer/release/app-installer-release.apk downloads/Billiards-Trainer-Installer-Android.apk
-          else
-            cp android-wrapper/app/build/outputs/apk/installer/debug/app-installer-debug.apk downloads/Billiards-Trainer-Installer-Android.apk
-          fi
+      - name: Build signed app and installer APKs
+        working-directory: android-wrapper
+        run: gradle :app:assembleTrainerRelease :app:assembleInstallerRelease :app:assembleTrainerReleaseAndroidTest :app:assembleInstallerReleaseAndroidTest
 
-          git add -f downloads/Billiards-Trainer-Android.apk downloads/Billiards-Trainer-Installer-Android.apk
-          if git diff --cached --quiet; then
-            echo "Published APKs are already current."
-          else
-            git commit -m "Publish Android trainer and installer wrappers"
-            git push origin HEAD:main
-          fi
+      - name: Verify packaged files and update compatibility
+        run: |
+          python3 scripts/verify-android-app.py android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk android-wrapper/app/build/outputs/apk/installer/release/app-installer-release.apk
+          signer="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          "$signer" verify --print-certs downloads/Billiards-Trainer-Android.apk > /tmp/previous-android-cert.txt
+          "$signer" verify --print-certs android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk > /tmp/current-android-cert.txt
+          diff <(rg '^Signer #1 certificate SHA-256 digest:' /tmp/previous-android-cert.txt) <(rg '^Signer #1 certificate SHA-256 digest:' /tmp/current-android-cert.txt)
+          aapt="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          previous=$("$aapt" dump badging downloads/Billiards-Trainer-Android.apk | sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" | head -1)
+          current=$("$aapt" dump badging android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk | sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" | head -1)
+          test "$current" -gt "$previous"
+          echo 'Existing Android certificate retained; version code increases for an in-place update.'
+
+      - name: Enable KVM for the Android runtime test
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Test signed APKs on Android with internet blocked
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          working-directory: android-wrapper
+          script: |
+            adb shell cmd connectivity airplane-mode enable
+            adb shell svc wifi disable
+            adb shell svc data disable
+            gradle :app:connectedTrainerReleaseAndroidTest :app:connectedInstallerReleaseAndroidTest
+
+      - name: Preserve Android test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Android-runtime-test-results
+          path: |
+            android-wrapper/app/build/reports/androidTests/
+            android-wrapper/app/build/outputs/androidTest-results/
+
+      - name: Publish signed Android installers
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p android-wrapper/output
+          cp android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk android-wrapper/output/Billiards-Trainer-Android.apk
+          cp android-wrapper/app/build/outputs/apk/installer/release/app-installer-release.apk android-wrapper/output/Billiards-Trainer-Installer-Android.apk
+          gh release view android-app --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create android-app --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title 'Billiards Trainer for Android' --notes-file android-wrapper/RELEASE_NOTES.md
+          gh release upload android-app --repo "$GITHUB_REPOSITORY" android-wrapper/output/*.apk --clobber
+          gh release edit android-app --repo "$GITHUB_REPOSITORY" --title 'Billiards Trainer for Android' --notes-file android-wrapper/RELEASE_NOTES.md
