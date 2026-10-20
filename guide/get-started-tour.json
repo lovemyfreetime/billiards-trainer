@@ -71,7 +71,6 @@
       "sidePercent": 0,
       "targets": [
         "aimRoller",
-        "tableAimRoller",
         "pocketTray"
       ],
       "audio": "./guide/audio/get-started-02.mp3",
@@ -140,7 +139,9 @@
       "sidePercent": 0,
       "targets": [
         "animate",
-        "resetLayoutQuick"
+        "resetLayoutQuick",
+        "speed",
+        "aimRoller"
       ],
       "audio": "./guide/audio/get-started-04.mp3",
       "recordingStatus": "recorded",
@@ -178,7 +179,9 @@
       "sidePercent": 0,
       "targets": [
         "toggleShot2",
-        "animate"
+        "animate",
+        "toggleCueVisuals1Btn",
+        "toggleCueVisuals2Btn"
       ],
       "audio": "./guide/audio/get-started-05.mp3",
       "recordingStatus": "recorded",

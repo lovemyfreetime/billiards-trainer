@@ -17,10 +17,22 @@ async function mount(guide){
  const active=()=>{const s=guide.getState();return s.enabled&&s.category==='start'};
  const hasNext=()=>index+1<steps.length;
  const topicId=i=>global.billiardsPoolAudioMap?.topics.filter(t=>t.category==='start'&&!t.explorerOnly)[i]?.id;
- function attention(target){for(const id of ['btg-pool-guide','btg-pool-explore'])document.getElementById(id)?.classList.toggle('btg-tour-attention',id===target);}
- function clearAttention(){attention(null);}
+ // Highlight the live desktop/table-edge/phone equivalents without intercepting input.
+ const equivalents={speed:['tableSpeed1'],follow:['tableFollow1','bottomFollow1'],sideSpin:['tableSpin1','bottomSide1'],tipCanvas:['phoneTip1'],tipCanvas2:['phoneTip2'],speed2:['tableSpeed2'],follow2:['tableFollow2','bottomFollow2'],sideSpin2:['tableSpin2','bottomSide2']};
+ const highlighted=new Set();
+ function attention(targets){
+  const ids=new Set((Array.isArray(targets)?targets:[targets]).filter(Boolean).flatMap(id=>[id,...equivalents[id]||[]]));
+  const elements=new Set([...ids].flatMap(id=>[document.getElementById(id),...document.querySelectorAll(`[data-trainer-action="${id}"]`)]).filter(Boolean));
+  for(const el of highlighted)if(!elements.has(el)){el.classList.remove('btg-tour-attention');highlighted.delete(el);}
+  for(const el of elements){el.classList.add('btg-tour-attention');highlighted.add(el);}
+ }
+ function clearAttention(){attention([]);}
  function progress(topic,time,playing){
-  if(!active()||index!==steps.length-1||topic?.id!==topicId(index)||!playing){clearAttention();return;}
+  const state=guide.getState();
+  if(!state.enabled||!playing){clearAttention();return;}
+  if(state.category!=='start'){attention(topic?.targets||[]);return;}
+  if(topic?.id!==topicId(index)){clearAttention();return;}
+  if(index!==steps.length-1){attention(steps[index].targets||[]);return;}
   const id=time>=2&&time<6.8?'btg-pool-guide':time>=6.8&&time<11.8?'btg-pool-explore':null;
   attention(id);
  }
@@ -38,6 +50,7 @@ async function mount(guide){
  function hold(pause=true){cancel();practicing=true;phase='practice';if(pause)guide.pause();render();setTimeout(render,0);}
  function listening(){cancel();practicing=false;phase='listening';render();}
  function sync(state){
+  if(!state.enabled)clearAttention();
   if(!state.enabled||state.category!=='start'){if(timer||voiceTimer||advanceTimer||phase!=='listening')cancel();phase='listening';}
   else if(!state.autoplay&&(phase==='countdown'||phase==='announcing'))hold(false);
   render();

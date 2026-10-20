@@ -22,3 +22,7 @@
 #btg-pool-guide.btg-tour-attention,#btg-pool-explore.btg-tour-attention{background:#ffeb00!important;color:#182008!important;border-color:#fff49a!important;outline:3px solid #ffeb00;outline-offset:3px;box-shadow:0 0 0 6px #ffeb0033,0 0 18px #ffeb0099;animation:btg-tour-glow 1.5s ease-in-out infinite}
 @keyframes btg-tour-glow{50%{box-shadow:0 0 0 9px #ffeb0022,0 0 25px #ffeb00cc}}
 @media(prefers-reduced-motion:reduce){#btg-pool-guide.btg-tour-attention,#btg-pool-explore.btg-tour-attention{animation:none}}
+
+/* Lesson targets share the existing learning-tool glow, including range sliders. */
+.btg-tour-attention{outline:3px solid #ffeb00!important;outline-offset:3px;box-shadow:0 0 0 6px #ffeb0033,0 0 18px #ffeb0099!important;animation:btg-tour-glow 1.5s ease-in-out infinite!important}
+@media(prefers-reduced-motion:reduce){.btg-tour-attention{animation:none!important}}

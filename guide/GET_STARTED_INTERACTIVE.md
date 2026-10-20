@@ -23,3 +23,9 @@ The first offline-cache activation does not reload the page. Later controller up
 Floating cue-tip badges start off at each app startup and in every Get Started setup/download, including Undo snapshots. Players may enable them in Options. Lesson 8 gives Guide and Explorer a yellow background/ring at their narration cues; pause or changing lessons clears attention.
 
 The supplied Chase completion recording is `guide/audio/get-started-complete.mp3`, copied without alteration and included offline. It plays after lesson 8 and closes the player on audio end. It does not announce a modal closing. Guide and Explorer highlight at their mentions in this replacement recording. Tapping the table cancels the recording and automatic close without changing aim. No synthesized fallback voice is used.
+
+## Lesson layouts and control attention
+
+Quick Start retains the eight practice setups in the compact player. During narration, the current lesson's controls glow yellow, including Execute Shot, aim, speed, follow/draw, English, Shot 2, cue visibility, racks and Undo. Table-edge sliders and phone action buttons receive the same attention as their desktop equivalents. Pause, buffering, Stop, closing, and switching to Explorer clear lesson attention; resume restores it. Reduced-motion mode keeps a steady outline. The final lesson and completion recording retain their timed Guide/Explorer cues.
+
+Selecting a Guide lesson with a starting setup loads that lesson's first native layout; Balls and Read/More still provide reset and additional setup actions. Busy shots reject layout changes, and delayed responses from an earlier lesson cannot replace a newer lesson or Quick Start table. `tests/lesson-highlights.browser.cjs` covers these behaviors through native audio playback on desktop and phone, including live slider input and reduced motion. Use the explicit Trainer entry (`index.html?train=1`) in browser tests; a fresh plain entry opens the experience chooser.

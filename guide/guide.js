@@ -240,10 +240,10 @@ function mount(host,options={}){
   options.onRendered?.();
 
  }
- audio.addEventListener('timeupdate',()=>{state.position=audio.currentTime;options.onPlaybackProgress?.(selected(),audio.currentTime,!audio.paused);save()});
- audio.addEventListener('playing',()=>{narrationPlaying=true;render()});
+ audio.addEventListener('timeupdate',()=>{state.position=audio.currentTime;options.onPlaybackProgress?.(selected(),audio.currentTime,narrationPlaying&&!audio.paused&&!audio.ended);save()});
+ audio.addEventListener('playing',()=>{narrationPlaying=true;options.onPlaybackProgress?.(selected(),audio.currentTime,true);render()});
  audio.addEventListener('pause',()=>{narrationPlaying=false;options.onPlaybackProgress?.(selected(),audio.currentTime,false);render()});
- for(const event of ['waiting','ended','emptied','error','loadstart'])audio.addEventListener(event,()=>{narrationPlaying=false;syncNarrationAttention()});
+ for(const event of ['waiting','ended','emptied','error','loadstart'])audio.addEventListener(event,()=>{narrationPlaying=false;options.onPlaybackProgress?.(selected(),audio.currentTime,false);syncNarrationAttention()});
  audio.addEventListener('ended',()=>{const t=selected();
   if(!audio.ended||!t||audio.dataset.topic!==t.id)return;
   if(sequenceIndex+1<audioFiles(t).length){loadSequenceTrack(t,sequenceIndex+1);playback.play().catch(()=>{});}

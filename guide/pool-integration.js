@@ -45,10 +45,18 @@ async function init(){
  const ids=[...new Set([...Object.values(catalog.assignments),...Object.values(catalog.sections),...catalog.canvasTopics,catalog.powerMeterTopic])];
  for(const topic of catalog.topics)topic.explorerOnly=topic.category==='reference'||topic.category==='explore'||(topic.category!=='start'&&topic.category!=='reference'&&ids.includes(topic.id));
  await BilliardsPracticeLayouts.attach(catalog.topics);
- let tour=null;
+ let tour=null,layoutRequest=0;
  const guide=BilliardsGuide.mount(host,{
   loadLayout:BilliardsPracticeLayouts.apply,
-  onTopicChange:topic=>tour?.select(topic),
+  onTopicChange(topic){
+   const request=++layoutRequest;
+   if(tour?.select(topic)===false)return false;
+   if(topic?.category==='start'||!topic?.setups?.length)return true;
+   if(window.billiardsTourBridge?.snapshot().busy)return false;
+   // A slower response from a previous lesson must never overwrite the current table.
+   BilliardsPracticeLayouts.apply(topic.setups[0].url,{shouldApply:()=>request===layoutRequest&&guide.getState().enabled&&guide.getState().topicId===topic.id&&!window.billiardsTourBridge?.snapshot().busy}).catch(error=>{if(request===layoutRequest)globalThis.alert(error.message)});
+   return true;
+  },
   onTryShot:()=>tour?.tryShot(),
   onPlaybackProgress:(topic,time,playing)=>tour?.progress(topic,time,playing),
   onPlaybackStart:()=>tour?.listening(),
@@ -58,6 +66,7 @@ async function init(){
   getPracticeSetups:()=>tour?.setups()||[],
   loadPracticeSetup:url=>tour.load(url),
   onStateChange(state){
+   if(!state.enabled)layoutRequest++;
    tour?.sync(state);
    guideButton.setAttribute('aria-pressed',String(state.enabled&&state.category!=='start'));
    startButton.setAttribute('aria-pressed',String(!!tour?.getState().active||(state.enabled&&state.category==='start')));
