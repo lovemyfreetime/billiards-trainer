@@ -19,7 +19,7 @@ def build(out):
   target=out/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
   manifest[name]={'sha256':hashlib.sha256(data).hexdigest(),'length':len(data)}
  # A real HTTPS document can unregister an older worker; data documents cannot.
- bootstrap=b'<!doctype html><html><head><script>window.BilliardsBundledAndroid=true;</script><meta name="viewport" content="width=device-width,initial-scale=1"><style>html{background:#090b0e;color:#eee;font:18px system-ui}body{display:grid;place-items:center;height:90vh}</style></head><body>Opening Billiards Trainer...</body></html>'
+ bootstrap=b'<!doctype html><html><head><script>window.BilliardsBundledAndroid=true;</script><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="./icons/icon-192.png"><style>html{background:#090b0e;color:#eee;font:18px system-ui}body{display:grid;place-items:center;height:90vh}</style></head><body>Opening Billiards Trainer...</body></html>'
  (out/'__android_start__.html').write_bytes(bootstrap)
  manifest['__android_start__.html']={'sha256':hashlib.sha256(bootstrap).hexdigest(),'length':len(bootstrap)}
  (out/'app-manifest.json').write_text(json.dumps({'files':manifest},indent=2)+'\n',encoding='utf-8')

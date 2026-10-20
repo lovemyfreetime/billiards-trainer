@@ -2,8 +2,9 @@ package com.lovemyfreetime.billiardstrainer;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.net.ConnectivityManager;
-import android.content.Context;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.io.IOException;
 import android.os.SystemClock;
 import android.webkit.*;
 import androidx.test.core.app.ActivityScenario;
@@ -38,7 +39,11 @@ public class BundledAppTest {
         System.out.println("ANDROID LOCAL "+path+": "+(SystemClock.elapsedRealtime()-start)+" ms");
     }
     @Test public void completeAppWithoutInternetAndLegacyCacheMigration()throws Exception {
-        assertNull("Emulator must have no active network",((ConnectivityManager)InstrumentationRegistry.getInstrumentation().getTargetContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetwork());
+        // A local network may remain connected; public web access must fail.
+        HttpURLConnection probe=(HttpURLConnection)new URL("https://example.com/").openConnection();
+        probe.setConnectTimeout(1500);probe.setReadTimeout(1500);boolean internet=false;
+        try{probe.getInputStream().close();internet=true;}catch(IOException expected){}finally{probe.disconnect();}
+        assertFalse("Public internet must be blocked",internet);
         Intent intent=new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(),MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(intent)){
             scenario.onActivity(a->{activity=a;a.webView.setWebChromeClient(new WebChromeClient(){@Override public boolean onConsoleMessage(ConsoleMessage m){android.util.Log.d("BilliardsOfflineTest",m.message());return true;}});});
