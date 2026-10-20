@@ -1,4 +1,4 @@
-Complete offline Windows app
+Billiards Trainer for Windows
 
 Includes Trainer, Zen, Play, guided layouts, all narration, trained photo-analysis models and the local ONNX/WASM runtime. Normal app pages and audio load from the installation folder; internet connectivity does not select a different runtime path. The existing save-data origin and local game/layout storage are retained.
 

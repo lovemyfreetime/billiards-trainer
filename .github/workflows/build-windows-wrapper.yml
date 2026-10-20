@@ -148,12 +148,12 @@ jobs:
         run: |
           gh release view windows-offline --repo $env:GITHUB_REPOSITORY
           if ($LASTEXITCODE -ne 0) {
-            gh release create windows-offline --repo $env:GITHUB_REPOSITORY --target "${{ github.sha }}" --title 'Complete offline Windows app' --notes-file windows-wrapper/RELEASE_NOTES.md
+            gh release create windows-offline --repo $env:GITHUB_REPOSITORY --target "${{ github.sha }}" --title 'Billiards Trainer for Windows' --notes-file windows-wrapper/RELEASE_NOTES.md
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
           gh release upload windows-offline --repo $env:GITHUB_REPOSITORY 'windows-wrapper/output/Billiards-Trainer-Windows-Setup.exe' 'windows-wrapper/output-local-play.zip' --clobber
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          gh release edit windows-offline --repo $env:GITHUB_REPOSITORY --notes-file windows-wrapper/RELEASE_NOTES.md
+          gh release edit windows-offline --repo $env:GITHUB_REPOSITORY --title 'Billiards Trainer for Windows' --notes-file windows-wrapper/RELEASE_NOTES.md
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - uses: actions/upload-artifact@v4
