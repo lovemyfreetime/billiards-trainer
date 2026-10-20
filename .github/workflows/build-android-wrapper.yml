@@ -78,7 +78,10 @@ jobs:
           signer="$ANDROID_HOME/build-tools/35.0.0/apksigner"
           "$signer" verify --print-certs downloads/Billiards-Trainer-Android.apk > /tmp/previous-android-cert.txt
           "$signer" verify --print-certs android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk > /tmp/current-android-cert.txt
-          if diff <(rg '^Signer #1 certificate SHA-256 digest:' /tmp/previous-android-cert.txt) <(rg '^Signer #1 certificate SHA-256 digest:' /tmp/current-android-cert.txt); then
+          previous_cert=$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' /tmp/previous-android-cert.txt)
+          current_cert=$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' /tmp/current-android-cert.txt)
+          test -n "$previous_cert" && test -n "$current_cert"
+          if test "$previous_cert" = "$current_cert"; then
             echo 'ANDROID_UPDATE_COMPATIBLE=true' >> "$GITHUB_ENV"
           else
             echo 'ANDROID_UPDATE_COMPATIBLE=false' >> "$GITHUB_ENV"

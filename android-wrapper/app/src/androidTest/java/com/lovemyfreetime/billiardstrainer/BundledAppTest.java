@@ -2,6 +2,8 @@ package com.lovemyfreetime.billiardstrainer;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.net.ConnectivityManager;
+import android.content.Context;
 import android.os.SystemClock;
 import android.webkit.*;
 import androidx.test.core.app.ActivityScenario;
@@ -27,7 +29,7 @@ public class BundledAppTest {
     private void waitFor(String predicate,int seconds)throws Exception {
         long until=SystemClock.elapsedRealtime()+seconds*1000L;
         while(SystemClock.elapsedRealtime()<until){if("true".equals(js("Boolean("+predicate+")")))return;Thread.sleep(100);}
-        fail("Timed out: "+predicate+"; page="+js("location.href+' '+JSON.stringify(document.body?.dataset)"));
+        fail("Timed out: "+predicate+"; page="+js("JSON.stringify({url:location.href,text:document.body?.innerText.slice(0,1200),data:document.body?.dataset,native:window.BilliardsBundledAndroid,ready:document.readyState})"));
     }
     private void navigate(ActivityScenario<MainActivity> scenario,String path,String selector)throws Exception {
         long start=SystemClock.elapsedRealtime();String url=BundledApp.ORIGIN+BundledApp.PREFIX+path;
@@ -36,9 +38,10 @@ public class BundledAppTest {
         System.out.println("ANDROID LOCAL "+path+": "+(SystemClock.elapsedRealtime()-start)+" ms");
     }
     @Test public void completeAppWithoutInternetAndLegacyCacheMigration()throws Exception {
+        assertNull("Emulator must have no active network",((ConnectivityManager)InstrumentationRegistry.getInstrumentation().getTargetContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetwork());
         Intent intent=new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(),MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(intent)){
-            scenario.onActivity(a->{activity=a;a.webView.getSettings().setBlockNetworkLoads(true);ServiceWorkerController.getInstance().getServiceWorkerWebSettings().setBlockNetworkLoads(true);});
+            scenario.onActivity(a->{activity=a;a.webView.setWebChromeClient(new WebChromeClient(){@Override public boolean onConsoleMessage(ConsoleMessage m){android.util.Log.d("BilliardsOfflineTest",m.message());return true;}});});
             waitFor("window.BilliardsBundledAndroid&&(document.querySelector('main nav')||document.querySelector('[data-device=android]'))",30);
             navigate(scenario,"welcome.html","main nav");
             js("localStorage.setItem('android-offline-smoke','kept');(()=>{const r=indexedDB.open('billiards-offline-save-test',1);r.onupgradeneeded=()=>r.result.createObjectStore('layouts');r.onsuccess=()=>{const db=r.result,t=db.transaction('layouts','readwrite');t.objectStore('layouts').put('kept','layout');t.oncomplete=()=>{db.close();document.body.dataset.saved='yes';};};})()");
@@ -67,7 +70,7 @@ public class BundledAppTest {
             });
             js("navigator.serviceWorker.register('./__legacy_test_worker.js').then(()=>navigator.serviceWorker.ready).then(()=>document.body.dataset.legacy='ready').catch(e=>document.body.dataset.legacy=String(e));");
             waitFor("document.body.dataset.legacy==='ready'&&navigator.serviceWorker.controller",20);
-            scenario.recreate();scenario.onActivity(a->{activity=a;a.webView.getSettings().setBlockNetworkLoads(true);});
+            scenario.recreate();scenario.onActivity(a->{activity=a;});
             waitFor("window.BilliardsBundledAndroid&&(document.querySelector('main nav')||document.querySelector('[data-device=android]'))",30);
             assertEquals("\"kept\"",js("localStorage.getItem('android-offline-smoke')"));
             js("(()=>{const r=indexedDB.open('billiards-offline-save-test');r.onsuccess=()=>{const db=r.result,q=db.transaction('layouts').objectStore('layouts').get('layout');q.onsuccess=()=>{document.body.dataset.restored=q.result;db.close();};};navigator.serviceWorker.getRegistrations().then(r=>document.body.dataset.workers=String(r.length));})()");
