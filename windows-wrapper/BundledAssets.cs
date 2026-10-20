@@ -16,7 +16,7 @@ internal sealed class BundledAssets(string root)
         try
         {
             var relative = Uri.UnescapeDataString(url.AbsolutePath[prefix.Length..]);
-            if (relative.Length == 0) relative = url.Query.Contains("train=1", StringComparison.Ordinal) || url.Query.Contains("zen=1", StringComparison.Ordinal) ? "index.html" : "welcome.html";
+            if (relative.Length == 0) relative = "index.html";
             else if (relative.EndsWith('/')) relative += "index.html";
             file = Path.GetFullPath(Path.Combine(directory, relative.Replace('/', Path.DirectorySeparatorChar)));
             if (!file.StartsWith(directory, StringComparison.OrdinalIgnoreCase) || !File.Exists(file)) return Empty(404, "Not Found");
