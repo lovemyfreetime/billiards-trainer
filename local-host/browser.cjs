@@ -3,7 +3,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{cre
 (async()=>{
  const service=createHost({port:0,bind:'127.0.0.1',addressProvider:()=>['127.0.0.1']}),{port,hostUrl}=await service.listen(),base='http://127.0.0.1:'+port;
  const browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,headless:true,args:['--no-sandbox','--disable-dev-shm-usage']}),errors=[];
- async function observeAudio(p){await p.addInitScript(()=>{window.spoken=[];window.speechEvents=[];let recorded;Object.defineProperty(window,'BilliardsAudio',{get:()=>recorded,set(api){recorded=api;const speak=api.speak;api.speak=(ids,done)=>{const event={ids:[...ids],start:Date.now()};window.spoken.push([...ids]);window.speechEvents.push(event);return speak(ids,()=>{event.end=Date.now();done?.();});};}});Object.defineProperty(window,'speechSynthesis',{value:{cancel(){},speak(){throw Error('Device TTS must never be used for Chase calls');}}});});}
+ async function observeAudio(p){await p.addInitScript(()=>{window.spoken=[];window.speechEvents=[];window.audioFailures=[];document.addEventListener('billiards-audio-error',e=>window.audioFailures.push(e.detail));let recorded;Object.defineProperty(window,'BilliardsAudio',{get:()=>recorded,set(api){recorded=api;const speak=api.speak;api.speak=(ids,done)=>{const event={ids:[...ids],start:Date.now()};window.spoken.push([...ids]);window.speechEvents.push(event);return speak(ids,()=>{event.end=Date.now();done?.();});};}});Object.defineProperty(window,'speechSynthesis',{value:{cancel(){},speak(){throw Error('Device TTS must never be used for Chase calls');}}});});}
  const api=async()=>fetch(base+'/api/host',{headers:{Authorization:'Bearer '+service.hostToken}}).then(r=>r.json());
  try{
   const host=await browser.newPage({viewport:{width:1366,height:936},serviceWorkers:'block'});host.on('pageerror',e=>errors.push(e.message));
@@ -33,6 +33,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{cre
   await p1.reload();await p1.locator('#gameName').waitFor({state:'visible'});assert.equal(await p1.locator('#private').isVisible(),false,'Reload keeps private information hidden');
   assert(await p1.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert(await p2.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await host.screenshot({path:process.env.LOCAL_HOST_SCREENSHOT||require('node:path').join(require('node:os').tmpdir(),'local-play-host.png')});await p1.screenshot({path:require('node:path').join(require('node:os').tmpdir(),'local-play-player.png')});
+  for(const p of [host,p1,p2])assert.deepEqual(await p.evaluate(()=>window.audioFailures),[],'Recorded MP3s decode and play without fallback or playback errors');
   assert.deepEqual(errors,[]);console.log('Local Play browser flow passed: isolated player tabs, approval, private choice, private data isolation, host and player speech sequencing, spoken turn event, Undo, reconnect, no external requests, and phone layout.');
  }finally{await browser.close();service.server.closeAllConnections();await new Promise(r=>service.server.close(r));}
 })().catch(err=>{console.error(err);process.exitCode=1;});
