@@ -58,7 +58,7 @@ async function installPresenterApp(btn){
   if(d==='android'){
     const hint=document.getElementById('presenterHint');
     if(hint) hint.textContent='Downloading the separate Billiards Trainer Installer app. Install it once, then open it from your app screen for a clean fullscreen presentation.';
-    window.location.href='../downloads/Billiards-Trainer-Installer-Android.apk';
+    window.location.href='https://github.com/lovemyfreetime/billiards-trainer/releases/download/android-app/Billiards-Trainer-Installer-Android.apk';
     return;
   }
 
