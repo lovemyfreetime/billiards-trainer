@@ -33,7 +33,7 @@ function mount(guide,host,{seconds=5}={}){
  }
  function hold(pause=true){cancel();practicing=true;phase='practice';if(pause)guide.pause();render();}
  function select(topic){
-  if(state().exploring||!topic?.setups?.length||topic.category==='start'||topic.explorerOnly){cancel();current=null;phase='idle';render();return true;}
+  if(state().exploring||!topic?.setups?.length||topic.category==='start'||topic.category==='more'||topic.explorerOnly){cancel();current=null;phase='idle';render();return true;}
   if(bridge.snapshot().busy)return false;
   cancel();checkpoint=null;
   if(topic.scene&&bridge.loadLesson(topic.scene)===false)return false;

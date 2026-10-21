@@ -5,7 +5,7 @@ async function init(){
  const recorded=await BilliardsRecordedAudio.load();
  const stage=document.getElementById('stageWrap');
  if(!stage||!window.BilliardsGuide||document.body.classList.contains('projector'))return;
- const response=await fetch('./guide/pool-audio-map.json?v=native-chase-20261021');
+ const response=await fetch('./guide/pool-audio-map.json?v=resources-v1');
  if(!response.ok)throw Error('Pool Guide audio map could not load');
  const catalog=await response.json();
  BilliardsRecordedAudio.merge(catalog.topics,recorded,'Main');
@@ -63,6 +63,7 @@ async function init(){
    const request=++layoutRequest;
    if(tour?.select(topic)===false)return false;
    if(topic?.category==='start')return true;
+   if(topic?.category==='more'){lessonPractice?.select(null);return true;}
    if(lessonPractice?.select(topic)===false)return false;
    if(topic?.scene||!topic?.setups?.length)return true;
    if(window.billiardsTourBridge?.snapshot().busy)return false;
@@ -71,6 +72,7 @@ async function init(){
    return true;
   },
   onTryShot:()=>guide.getState().category==='start'?tour?.tryShot():lessonPractice?.tryShot(),
+  onResourcePractice:topic=>{guide.pause();if(topic.scene)window.billiardsTourBridge?.loadLesson(topic.scene);},
   onPlaybackProgress:(topic,time,playing)=>tour?.progress(topic,time,playing),
   onPlaybackStart:()=>guide.getState().category==='start'?tour?.listening():lessonPractice?.listening(),
   onRendered:()=>{tour?.placeControls();lessonPractice?.placeControls();},

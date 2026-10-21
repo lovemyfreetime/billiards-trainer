@@ -6758,28 +6758,29 @@
     {
       "topic": {
         "id": "recommend-zero-x-overview",
-        "title": "Tor Lowry and Zero-X Billiards",
-        "audio": "./guide/audio/recommend-zero-x-overview.mp3?v=native-chase-20261021",
-        "text": "We’ve found Tor Lowry’s Zero X Billiards videos helpful in advancing our games, and we recommend them as a companion to your practice in the Trainer. His lessons cover fundamentals, cue ball control, position play, patterns, and defense. Choose a topic that matches what you are practicing. Watch the demonstration, then recreate a manageable layout in the Trainer. Open More for the official channel and training resources.",
-        "summary": "We’ve found Tor Lowry’s Zero X Billiards videos helpful in advancing our games, and we recommend them as a companion to your practice in the Trainer.",
+        "title": "Explore Zero-X Billiards",
+        "audio": "./guide/audio/recommend-zero-x-overview.mp3?v=03b0a690482b",
+        "text": "Zero-X Billiards brings together Tor Lowry's pool instruction, from fundamentals to cue-ball control and game planning. Browse the channel for a topic you want to develop, or use the Free Lessons link to explore the collection by subject.",
+        "summary": "Browse the broader lesson collection by the part of your game you want to develop.",
         "category": "more",
         "level": 0,
-        "group": "Zero-X Billiards",
+        "group": "Tor Lowry · Zero-X Billiards",
         "recordingStatus": "recorded",
         "explorerOnly": false,
         "resources": [
           {
-            "title": "Zero-X Billiards official free lessons",
-            "url": "https://www.zerox-billiards.com/free-pool-lessons",
-            "verification": "Verified on official Zero-X site"
+            "title": "Explore Zero-X Billiards",
+            "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA"
           },
           {
-            "title": "Zero-X Billiards official YouTube channel",
-            "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA",
-            "verification": "Previously supplied channel reference"
+            "title": "Zero-X official free lessons",
+            "url": "https://www.zerox-billiards.com/free-pool-lessons",
+            "action": "Free Lessons"
           }
         ],
-        "resourceUrl": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA"
+        "resourceUrl": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA",
+        "guideOrder": 0,
+        "resourceKind": "Channel"
       },
       "page": "Main",
       "targets": [
@@ -6790,27 +6791,24 @@
     {
       "topic": {
         "id": "recommend-zero-x-center-ball",
-        "title": "Zero-X: center-ball fundamentals",
-        "audio": "./guide/audio/recommend-zero-x-center-ball.mp3?v=native-chase-20261021",
-        "text": "We’ve found Tor Lowry’s center ball lessons helpful for improving pocketing and cue ball control, and we recommend them for building a dependable foundation. Start with the vertical center line, then explore stop, follow, and draw without adding side spin. Keep the same layout and change one setting at a time. Watch his demonstration before practicing, and compare your expected landing point with the result. Open More for Zero X’s official lessons.",
-        "summary": "We’ve found Tor Lowry’s center ball lessons helpful for improving pocketing and cue ball control, and we recommend them for building a dependable foundation.",
+        "title": "Center-ball control",
+        "audio": "./guide/audio/recommend-zero-x-center-ball.mp3?v=d6b1053bd800",
+        "text": "Center Ball Drills focuses on controlling position without relying on side spin. Watch the cue-ball route and the speed of each shot. Then compare stop, follow, and draw on one simple Trainer layout before trying the shots at a real table.",
+        "summary": "Study cue-ball control before adding side spin.",
         "category": "more",
         "level": 0,
-        "group": "Zero-X Billiards",
+        "group": "Tor Lowry · Zero-X Billiards",
         "recordingStatus": "recorded",
         "explorerOnly": false,
         "resources": [
           {
-            "title": "Zero-X: Center Ball Drills",
-            "url": "https://www.youtube.com/watch?v=5_mC1ZePXpA",
-            "verification": "Video embedded beside this lesson title on Zero-X official free pool lessons page"
-          },
-          {
-            "title": "Zero-X Billiards official YouTube channel",
-            "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA"
+            "title": "Center-ball control",
+            "url": "https://www.youtube.com/watch?v=5_mC1ZePXpA"
           }
         ],
-        "resourceUrl": "https://www.youtube.com/watch?v=5_mC1ZePXpA"
+        "resourceUrl": "https://www.youtube.com/watch?v=5_mC1ZePXpA",
+        "guideOrder": 1,
+        "resourceKind": "Video"
       },
       "page": "Main",
       "targets": [
@@ -6821,27 +6819,24 @@
     {
       "topic": {
         "id": "recommend-zero-x-position-play",
-        "title": "Zero-X: position play",
-        "audio": "./guide/audio/recommend-zero-x-position-play.mp3?v=native-chase-20261021",
-        "text": "We’ve found Tor Lowry’s position play lessons helpful in advancing our games, particularly when planning how one shot prepares the next. We recommend watching for the intended angle, cue ball route, and landing area. Pause the demonstration and plan the next position yourself. In the Trainer, use Shot 2 to compare routes, then save the layout and repeat the approach that gives you more room for error. Open More for the Zero X resources.",
-        "summary": "We’ve found Tor Lowry’s position play lessons helpful in advancing our games, particularly when planning how one shot prepares the next.",
+        "title": "Position play: three balls",
+        "audio": "./guide/audio/recommend-zero-x-position-play.mp3?v=40cc54299fc3",
+        "text": "Half Table Position uses three balls to explore how one shot prepares the next. Look for the angle and landing area that keep the sequence manageable. Recreate a small pattern in the Trainer and compare your first two shots.",
+        "summary": "Plan the angle and position needed for the following shot.",
         "category": "more",
         "level": 0,
-        "group": "Zero-X Billiards",
+        "group": "Tor Lowry · Zero-X Billiards",
         "recordingStatus": "recorded",
         "explorerOnly": false,
         "resources": [
           {
-            "title": "Zero-X: Half Table Position — Three Balls, Part 1",
-            "url": "https://www.youtube.com/watch?v=Cya-0vjQ_7Y",
-            "verification": "Video embedded beside this lesson title on Zero-X official free pool lessons page"
-          },
-          {
-            "title": "Zero-X Billiards official YouTube channel",
-            "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA"
+            "title": "Position play: three balls",
+            "url": "https://www.youtube.com/watch?v=Cya-0vjQ_7Y"
           }
         ],
-        "resourceUrl": "https://www.youtube.com/watch?v=Cya-0vjQ_7Y"
+        "resourceUrl": "https://www.youtube.com/watch?v=Cya-0vjQ_7Y",
+        "guideOrder": 2,
+        "resourceKind": "Video"
       },
       "page": "Main",
       "targets": [
@@ -6852,27 +6847,24 @@
     {
       "topic": {
         "id": "recommend-zero-x-eight-ball-patterns",
-        "title": "Zero-X: eight-ball patterns",
-        "audio": "./guide/audio/recommend-zero-x-eight-ball-patterns.mp3?v=native-chase-20261021",
-        "text": "We’ve found Tor Lowry’s eight ball pattern lessons helpful in improving our planning through a full rack, and we recommend them when individual shots feel comfortable but the runout becomes difficult. Study the order of play, the useful angles, and how problems are addressed before they restrict your choices. Begin with a small group of balls in the Trainer and plan a clear route through them. Save the starting layout to compare different patterns. Open More for the Zero X lessons.",
-        "summary": "We’ve found Tor Lowry’s eight ball pattern lessons helpful in improving our planning through a full rack, and we recommend them when individual shots feel comfortable but the runout becomes difficult.",
+        "title": "Eight-ball patterns",
+        "audio": "./guide/audio/recommend-zero-x-eight-ball-patterns.mp3?v=58264f358c15",
+        "text": "Eight-Ball Pattern Run Outs explores the order and connections between shots. Pause before a shot and choose the next position yourself. Then use a saved Trainer layout to compare two possible patterns and the room for error each leaves.",
+        "summary": "Examine shot order and the connections through a pattern.",
         "category": "more",
         "level": 0,
-        "group": "Zero-X Billiards",
+        "group": "Tor Lowry · Zero-X Billiards",
         "recordingStatus": "recorded",
         "explorerOnly": false,
         "resources": [
           {
-            "title": "Zero-X: 8-Ball Pattern Run Outs",
-            "url": "https://www.youtube.com/watch?v=V0dAZInUiTE",
-            "verification": "Video embedded beside this lesson title on Zero-X official free pool lessons page"
-          },
-          {
-            "title": "Zero-X Billiards official YouTube channel",
-            "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA"
+            "title": "Eight-ball patterns",
+            "url": "https://www.youtube.com/watch?v=V0dAZInUiTE"
           }
         ],
-        "resourceUrl": "https://www.youtube.com/watch?v=V0dAZInUiTE"
+        "resourceUrl": "https://www.youtube.com/watch?v=V0dAZInUiTE",
+        "guideOrder": 3,
+        "resourceKind": "Video"
       },
       "page": "Main",
       "targets": [
@@ -6883,27 +6875,24 @@
     {
       "topic": {
         "id": "recommend-zero-x-defense-recovery",
-        "title": "Zero-X: defense and recovery",
-        "audio": "./guide/audio/recommend-zero-x-defense-recovery.mp3?v=native-chase-20261021",
-        "text": "We’ve found Tor Lowry’s defensive lessons helpful in advancing our games, especially when a shot leaves us without ideal position. We recommend studying how cue ball control and ball placement can limit an opponent’s options. Recreate a simple situation in the Trainer and compare an attacking route with a defensive route. Judge both the object ball result and the position you leave. Open More for Zero X’s official lessons on defense and related skills.",
-        "summary": "We’ve found Tor Lowry’s defensive lessons helpful in advancing our games, especially when a shot leaves us without ideal position.",
+        "title": "Defense and recovery",
+        "audio": "./guide/audio/recommend-zero-x-defense-recovery.mp3?v=fb239abc3ebb",
+        "text": "Lock Up Your Opponent introduces defensive choices and useful ball placement. Watch what the opponent is left with, as well as where the cue ball stops. In the Trainer, compare an attacking option with a defensive option from the same position.",
+        "summary": "Compare offensive choices with useful defensive leaves.",
         "category": "more",
         "level": 0,
-        "group": "Zero-X Billiards",
+        "group": "Tor Lowry · Zero-X Billiards",
         "recordingStatus": "recorded",
         "explorerOnly": false,
         "resources": [
           {
-            "title": "Zero-X: Pool Defense — Lock Up Your Opponent, Part 1",
-            "url": "https://www.youtube.com/watch?v=UcTAFFQOHm0",
-            "verification": "Video embedded beside this lesson title on Zero-X official free pool lessons page"
-          },
-          {
-            "title": "Zero-X Billiards official YouTube channel",
-            "url": "https://www.youtube.com/channel/UCYuUos0iwnvdBL8URuNvrNA"
+            "title": "Defense and recovery",
+            "url": "https://www.youtube.com/watch?v=UcTAFFQOHm0"
           }
         ],
-        "resourceUrl": "https://www.youtube.com/watch?v=UcTAFFQOHm0"
+        "resourceUrl": "https://www.youtube.com/watch?v=UcTAFFQOHm0",
+        "guideOrder": 4,
+        "resourceKind": "Video"
       },
       "page": "Main",
       "targets": [
@@ -7239,9 +7228,9 @@
         "category": "more",
         "categoryWelcome": true,
         "level": 0,
-        "audio": "./guide/audio/welcome-more.mp3?v=native-chase-20261021",
-        "text": "We’ve found Tor Lowry’s Zero X Billiards lessons helpful in advancing our games. Welcome to Resources. Explore his training videos and websites. Choose a topic from the drop-down menu to hear its introduction. When the audio finishes, the matching website will open. Use More for the links to that resource.",
-        "summary": "Choose a topic from the drop-down menu to begin.",
+        "audio": "./guide/audio/welcome-more.mp3?v=705064785d9f",
+        "text": "Welcome to Resources. We recommend Tor Lowry's Zero-X Billiards and Jasmin Ouschan's Billiards Explained as excellent companions to Billiards Trainer. Both offer clear instruction and practical demonstrations that can deepen your understanding of the game. Tor's collection explores cue-ball control, position play, patterns, and defense. Jasmin's videos explore technique, playing skills, and equipment from a professional player's perspective. Choose a topic, listen to its short preview, then open the original video or playlist. Bring one idea back to the Trainer to explore, and practice the physical execution at a real table.",
+        "summary": "Two recommended instructors, with practical ways to connect their teaching to your own practice.",
         "recordingStatus": "recorded",
         "explorerOnly": false
       }
@@ -7576,6 +7565,118 @@
         "text": "No balls were detected. Choose Add Missed Ball and tap the center of one visible ball, then assign its identity. Repeat for other missed balls. You can also adjust the corners and analyze again, or try another image.",
         "summary": "No balls were detected.",
         "audio": "./guide/audio/analyze-walkthrough-no-balls.mp3?v=presets-recovery-v13"
+      }
+    },
+    {
+      "page": "Main",
+      "kind": "Recommendation",
+      "targets": [
+        "Guide > Resources > Jasmin Ouschan"
+      ],
+      "topic": {
+        "id": "recommend-jasmin-overview",
+        "title": "Explore Billiards Explained",
+        "text": "Jasmin Ouschan's Billiards Explained channel includes instruction, training ideas, and equipment discussions. Start with the area you want to improve: your physical technique, your playing skills, or your understanding of equipment. Choose one useful idea to test in your next practice session.",
+        "summary": "Browse instruction, training ideas, and equipment discussions.",
+        "category": "more",
+        "level": 0,
+        "recordingStatus": "recorded",
+        "explorerOnly": false,
+        "audio": "./guide/audio/recommend-jasmin-overview.mp3?v=66cf63c36b39",
+        "group": "Jasmin Ouschan · Billiards Explained",
+        "guideOrder": 5,
+        "resourceKind": "Channel",
+        "resourceUrl": "https://www.youtube.com/@jasminouschanbilliards",
+        "resources": [
+          {
+            "title": "Explore Billiards Explained",
+            "url": "https://www.youtube.com/@jasminouschanbilliards"
+          }
+        ]
+      }
+    },
+    {
+      "page": "Main",
+      "kind": "Recommendation",
+      "targets": [
+        "Guide > Resources > Jasmin Ouschan"
+      ],
+      "topic": {
+        "id": "recommend-jasmin-technique",
+        "title": "Stance, technique and stroke",
+        "text": "This playlist concentrates on stance, technique, and stroke. Use it when you want to make your physical shot delivery more consistent. Choose one adjustment to work on at a real table, and repeat an uncomplicated shot while paying attention to that change.",
+        "summary": "Develop the physical delivery behind a repeatable shot.",
+        "category": "more",
+        "level": 0,
+        "recordingStatus": "recorded",
+        "explorerOnly": false,
+        "audio": "./guide/audio/recommend-jasmin-technique.mp3?v=bf9505e2bef0",
+        "group": "Jasmin Ouschan · Billiards Explained",
+        "guideOrder": 6,
+        "resourceKind": "Playlist",
+        "resourceUrl": "https://www.youtube.com/playlist?list=PL8jlzslqlw23IBD-3aEHjGGSR4Y5dDVu0",
+        "resources": [
+          {
+            "title": "Stance, technique and stroke",
+            "url": "https://www.youtube.com/playlist?list=PL8jlzslqlw23IBD-3aEHjGGSR4Y5dDVu0"
+          }
+        ]
+      }
+    },
+    {
+      "page": "Main",
+      "kind": "Recommendation",
+      "targets": [
+        "Guide > Resources > Jasmin Ouschan"
+      ],
+      "topic": {
+        "id": "recommend-jasmin-skills",
+        "title": "Skills, tactics and shot selection",
+        "text": "This playlist explores playing skills, tactics, and different types of shots. Choose a lesson that matches a situation you find difficult. For a layout-based example, pause before the demonstration, predict the outcome, then recreate a manageable version in the Trainer to compare your choices.",
+        "summary": "Explore shot choices and practical skills for different situations.",
+        "category": "more",
+        "level": 0,
+        "recordingStatus": "recorded",
+        "explorerOnly": false,
+        "audio": "./guide/audio/recommend-jasmin-skills.mp3?v=b1717f41a70e",
+        "group": "Jasmin Ouschan · Billiards Explained",
+        "guideOrder": 7,
+        "resourceKind": "Playlist",
+        "resourceUrl": "https://www.youtube.com/playlist?list=PL8jlzslqlw20WTSk5e08eq1YmKC-bnv7l",
+        "resources": [
+          {
+            "title": "Skills, tactics and shot selection",
+            "url": "https://www.youtube.com/playlist?list=PL8jlzslqlw20WTSk5e08eq1YmKC-bnv7l"
+          }
+        ]
+      }
+    },
+    {
+      "page": "Main",
+      "kind": "Recommendation",
+      "targets": [
+        "Guide > Resources > Jasmin Ouschan"
+      ],
+      "topic": {
+        "id": "recommend-jasmin-equipment",
+        "title": "Equipment explained",
+        "text": "This playlist shares Jasmin's explanations and personal views on billiards equipment. Use it to understand what a feature is intended to do and which questions to ask. Compare that advice with your own experience, and try equipment when possible before deciding what suits your game.",
+        "summary": "Understand equipment choices and the questions worth asking.",
+        "category": "more",
+        "level": 0,
+        "recordingStatus": "recorded",
+        "explorerOnly": false,
+        "audio": "./guide/audio/recommend-jasmin-equipment.mp3?v=1308f9d23179",
+        "group": "Jasmin Ouschan · Billiards Explained",
+        "guideOrder": 8,
+        "resourceKind": "Playlist",
+        "resourceUrl": "https://www.youtube.com/playlist?list=PL8jlzslqlw2352xBeHGrzzKmbJkYGe5A4",
+        "resources": [
+          {
+            "title": "Equipment explained",
+            "url": "https://www.youtube.com/playlist?list=PL8jlzslqlw2352xBeHGrzzKmbJkYGe5A4"
+          }
+        ]
       }
     }
   ]

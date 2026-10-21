@@ -24,4 +24,5 @@ jobs:
         run: |
           node tests/guide-platform-parity.browser.cjs
           node tests/guide-scenes.browser.cjs
+          node tests/resources.browser.cjs
           node tests/lesson-sequence.browser.cjs

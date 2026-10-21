@@ -51,11 +51,13 @@ for t in read('learning-catalog.json')['newTopics']:topics[t['id']]=t
 for step in read('get-started-tour.json')['steps']:
  tracks[audio_name(step['audio'])]=dict(text=step['text'],page='Main',selfTargets=[])
 for t in topics.values():
+ if t.get('category')=='more':continue
  audio=t.get('audio');text=t.get('text','')
  if isinstance(audio,list) and len(audio)==1:audio=audio[0]
  if isinstance(audio,str) and text:tracks[audio_name(audio)]=dict(text=text,page='Main',selfTargets=[])
 for r in records:
  t=r['topic'];a=t.get('audio')
+ if t.get('category')=='more':continue
  if isinstance(a,str):
   selectors=[re.sub(r' \([^)]*\)','',s) for s in r.get('targets',[]) if s.startswith(('#','.','['))]
   if not t.get('categoryWelcome'):selectors.insert(0,'[data-guide-topic=\"'+t['id']+'\"]')

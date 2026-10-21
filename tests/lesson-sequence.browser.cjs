@@ -17,19 +17,20 @@ const server=cp.spawn(process.execPath,[require('node:path').join(__dirname,'ran
  const host=p.locator('#bt-guide-pool-root'),select=host.locator('select'),button=name=>host.locator(`[data-action="${name}"]`);
  async function playing(id){try{await p.waitForFunction(id=>__audio.some(a=>a.dataset.topic===id&&!a.paused&&a.currentTime>0&&!a.ended),id)}catch(e){throw Error('Expected narration '+id+'; state '+JSON.stringify(await p.evaluate(()=>billiardsPoolGuide.getState()))+'; '+e.message)}}
  async function finish(id){await playing(id);await p.evaluate(id=>{const a=__audio.find(a=>a.dataset.topic===id&&!a.paused);if(!Number.isFinite(a.duration))throw Error('Missing duration for '+id);a.currentTime=a.duration-.08},id);await p.waitForFunction(id=>__ended.some(e=>e.id===id),id)}
- const curriculum=await p.evaluate(()=>billiardsPoolAudioMap.curriculum),categories=Object.keys(curriculum),counts=[27,49,32,28,5];
+ const curriculum=await p.evaluate(()=>billiardsPoolAudioMap.curriculum),categories=Object.keys(curriculum),counts=[27,49,32,28,9];
  const expectedEnded=[];
  await p.click('#btg-pool-guide');assert.equal(await p.evaluate(()=>billiardsPoolGuide.getState().autoplay),true);
  // Previous at welcome restarts its recording instead of jumping to the end.
  await playing('welcome-guide');await button('⏮').click();assert.equal(await p.evaluate(()=>billiardsPoolGuide.getState().topicId),'welcome-guide');
  for(let k=0;k<categories.length;k++){
-  const category=categories[k],ids=curriculum[category].flatMap(g=>g.topics);
+  const category=categories[k],ids=curriculum[category].flatMap(g=>g.topics),resources=category==='more';
   assert.equal(ids.length,counts[k]);if(k)await host.locator('.btg-categories button').filter({hasText:new RegExp('^'+({physics:'Physics & Tools',drills:'Drills',exercises:'Exercises',more:'Resources'}[category])+'$')}).click();
-  assert.deepEqual(await select.locator('option').evaluateAll(opts=>opts.map(o=>o.value).filter(Boolean)),ids,category+' display order');
+  assert.deepEqual(resources?await host.locator('.btg-resource-card').evaluateAll(cards=>cards.map(c=>c.dataset.resourceId)):await select.locator('option').evaluateAll(opts=>opts.map(o=>o.value).filter(Boolean)),ids,category+' display order');
   assert.equal(await host.getByRole('slider',{name:'Guide skill level'}).count(),0,'All difficulty levels remain visible');
   const welcome=k?'welcome-'+category:'welcome-guide';expectedEnded.push(welcome);await finish(welcome);
   for(const id of ids){
-   await playing(id);const current=await p.evaluate(id=>{const a=__audio.find(a=>a.dataset.topic===id&&!a.paused),t=billiardsPoolAudioMap.topics.find(t=>t.id===id);return {source:a.currentSrc,expected:Array.isArray(t.audio)?t.audio[0]:t.audio,selected:document.querySelector('#bt-guide-pool-root select').value,title:document.querySelector('.btg-current-lesson').textContent,topicTitle:t.title}},id);
+   if(resources)await host.locator('[data-action="resource-listen-'+id+'"]').click();
+   await playing(id);const current=await p.evaluate(id=>{const a=__audio.find(a=>a.dataset.topic===id&&!a.paused),t=billiardsPoolAudioMap.topics.find(t=>t.id===id);return {source:a.currentSrc,expected:Array.isArray(t.audio)?t.audio[0]:t.audio,selected:billiardsPoolGuide.getState().topicId,title:document.querySelector('.btg-current-lesson,.btg-resource-now').textContent,topicTitle:t.title}},id);
    assert.equal(new URL(current.source).pathname,new URL(current.expected,p.url()).pathname);assert.equal(current.selected,id);assert(current.title.includes(current.topicTitle));expectedEnded.push(id);await finish(id);await p.evaluate(()=>{if(billiardsLessonPractice.getState().phase==='countdown')billiardsPoolGuide.nextLesson();});
   }
   await p.waitForFunction(()=>__audio.filter(a=>a.dataset.topic).every(a=>a.paused));assert.equal(await p.evaluate(()=>billiardsPoolGuide.getState().topicId),ids.at(-1),'End stops without wrapping');
@@ -37,7 +38,7 @@ const server=cp.spawn(process.execPath,[require('node:path').join(__dirname,'ran
  }
  assert.deepEqual(await p.evaluate(()=>__ended.map(e=>e.id)),expectedEnded,'No skipped, repeated or unexpected Guide narrations');
  // Guide remembers Auto separately; entering Quick Start must not change that preference.
- await button('A').click();await p.click('#btg-pool-guide');await p.click('#btg-pool-guide');assert.equal(await p.evaluate(()=>billiardsPoolGuide.getState().autoplay),false);await p.click('#btg-pool-start');
+ await p.evaluate(()=>billiardsPoolGuide.openCategory('fundamentals'));await button('A').click();await p.click('#btg-pool-guide');await p.click('#btg-pool-guide');assert.equal(await p.evaluate(()=>billiardsPoolGuide.getState().autoplay),false);await p.click('#btg-pool-start');
  const steps=await p.evaluate(()=>billiardsGetStartedTour.steps);await p.evaluate(()=>__ended=[]);
  for(let i=0;i<steps.length;i++){
   const step=steps[i];await playing(step.topicId);const state=await p.evaluate(()=>({tour:billiardsGetStartedTour.getState(),layout:billiardsTourBridge.capture().state.lastLayoutName,src:__audio.find(a=>a.dataset.topic===billiardsPoolGuide.getState().topicId&&!a.paused).currentSrc}));

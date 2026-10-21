@@ -16,7 +16,7 @@
    check(document.querySelector('.btg-lesson-prompt'),'Shared practice prompt is absent');
    check(billiardsGetStartedTour.transition.seconds===5,'Wrong transition duration');
    check(!billiardsGetStartedTour.transition.audio,'Spoken transition must stay disabled');
-   const expected=[],counts=[27,49,32,28,5],categories=Object.keys(catalog.curriculum);
+   const expected=[],counts=[27,49,32,28,9],categories=Object.keys(catalog.curriculum);
    check(!category||categories.includes(category),'Unknown Guide category '+category);
    check(!(category&&quickStartOnly),'Choose a Guide category or Quick Start');
    if(!quickStartOnly&&(!category||category===categories[0])){result.guide=0;result.categories={};}
@@ -25,20 +25,25 @@
     const categoryIndex=categories.indexOf(selectedCategory),ids=catalog.curriculum[selectedCategory].flatMap(g=>g.topics);
     result.phase='guide/'+selectedCategory;check(ids.length===counts[categoryIndex],'Incomplete '+selectedCategory);
     if(categoryIndex)guide.openCategory(selectedCategory);else guide.openGuide();
-    check(document.querySelector('#bt-guide-pool-root [data-action="A"]').textContent==='Auto On','Old Auto toolbar');
-    const options=[...document.querySelectorAll('#bt-guide-pool-root select option')].map(o=>o.value).filter(Boolean);
+    const resources=selectedCategory==='more';
+    if(!resources)check(document.querySelector('#bt-guide-pool-root [data-action="A"]').textContent==='Auto On','Old Auto toolbar');
+    else document.querySelector('#bt-guide-pool-root [data-action="Replay introduction"]').click();
+    const options=resources?[...document.querySelectorAll('.btg-resource-card')].map(o=>o.dataset.resourceId):[...document.querySelectorAll('#bt-guide-pool-root select option')].map(o=>o.value).filter(Boolean);
     check(JSON.stringify(options)===JSON.stringify(ids),'Display order differs in '+selectedCategory);
     for(const id of [categoryIndex?'welcome-'+selectedCategory:'welcome-guide',...ids]){
+     if(resources&&id!=='welcome-more')document.querySelector('[data-action="resource-listen-'+id+'"]').click();
      result.progress=id;const audio=await playing(id),topic=catalog.topics.find(t=>t.id===id),src=Array.isArray(topic.audio)?topic.audio[0]:topic.audio;
      check(new URL(audio.currentSrc).pathname===new URL(src,location.href).pathname,'Wrong file for '+id);
      check(guide.getState().topicId===id,'Wrong selected topic for '+id);
-     check(topic.scene,'Missing practice layout for '+id);
+     if(!resources){check(topic.scene,'Missing practice layout for '+id);
      const live=billiardsTourBridge.capture().state,layout=topic.scene.file.layout;
      check(live.lastLayoutName===layout.name,'Wrong practice layout for '+id);
      check(live.balls.length===layout.balls.length,'Wrong practice ball count for '+id);
      for(const ball of layout.balls){const b=live.balls.find(b=>b.id===ball.id);check(b&&Math.abs(b.x/live.tableL-ball.x/layout.tableL)<1e-7&&Math.abs(b.y/live.tableW-ball.y/layout.tableW)<1e-7,'Wrong practice ball for '+id);}
+     }
      const position=ended.length;expected.push(id);audio.currentTime=audio.duration-.08;
      await until(()=>ended.length>position,'No native media end for '+id);result.guide++;
+     if(resources){check(guide.getState().topicId===id,'Resource preview advanced automatically');check(billiardsLessonPractice.getState().phase==='idle','Resource preview triggered practice countdown');}
      if(billiardsLessonPractice.getState().phase==='countdown'){check(!document.querySelector('.btg-lesson-prompt').hidden,'Missing visual practice prompt');guide.nextLesson();}
     }
     await until(()=>media.filter(a=>a.dataset.topic).every(a=>a.paused),'Guide did not stop at '+selectedCategory);

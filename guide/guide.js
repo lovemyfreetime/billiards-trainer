@@ -18,17 +18,16 @@ function mount(host,options={}){
  if(state.category==='reference'){state.category='fundamentals';state.topicId=null;}
  if(options.initialCategory)state.category=options.initialCategory;
  // Opening Get Started is a user gesture: do not restore an idle open player.
- state.autoplay=state.category==='start'||!!options.poolMode&&state.guideAutoplay;
+ state.autoplay=state.category!=='more'&&(state.category==='start'||!!options.poolMode&&state.guideAutoplay);
  if(state.category==='start')state.enabled=false;
  let audio=new Audio();audio.preload='auto';audio.loop=false;audio.volume=.8;
  const playback=global.BilliardsAudioStartup.create(audio);
  const cues=options.poolMode?global.BilliardsNarrationCues?.mount(host,{page:'Main'}):null;
- function syncCues(){cues?.update(selected(),audio.currentTime,narrationPlaying&&!audio.paused&&!audio.ended&&(state.enabled||state.exploring),audio.src);}
+ function syncCues(){if(state.category==='more'&&!state.exploring){cues?.clear();return;}cues?.update(selected(),audio.currentTime,narrationPlaying&&!audio.paused&&!audio.ended&&(state.enabled||state.exploring),audio.src);}
  // A topic may reference one MP3 or an ordered sequence of existing MP3s.
  let sequenceIndex=0;
  let narrationPlaying=false;
  function syncNarrationAttention(){host.classList.toggle('btg-narrating',!!state.enabled&&narrationPlaying&&!audio.paused&&!audio.ended);}
- let pendingResource=null;
  function audioFiles(t){return t?(Array.isArray(t.audio)?t.audio.filter(Boolean):(t.audio?[t.audio]:[])):[]}
  function loadSequenceTrack(t,index){const files=audioFiles(t);if(!files.length||index>=files.length)return false;
    sequenceIndex=index;audio.src=files[index];audio.dataset.topic=t.id;audio.load();audio.currentTime=0;return true;}
@@ -38,24 +37,24 @@ function mount(host,options={}){
  function isActive(){return options.isActive?options.isActive():!!host.closest('#photoAnalyzerModal')?.classList.contains('open')}
  function mappedTopic(e){const el=e.target instanceof Element?e.target.closest('[data-guide-topic]'):null;return options.resolveTopic?.(e,el)||el?.dataset.guideTopic}
  function save(){try{localStorage.setItem(STORE,JSON.stringify(state))}catch(_){}}
- function stop(){cues?.clear();options.onPlaybackStop?.();pendingResource=null;playback.pause();const t=selected();if(audioFiles(t).length)loadSequenceTrack(t,0);else audio.currentTime=0;sequenceIndex=0;state.position=0;save()}
+ function stop(){cues?.clear();options.onPlaybackStop?.();playback.pause();const t=selected();if(audioFiles(t).length)loadSequenceTrack(t,0);else audio.currentTime=0;sequenceIndex=0;state.position=0;save()}
  function selected(){return topics.find(t=>t.id===state.topicId)||null}
- function choose(id){cues?.clear();playback.pause();if(options.onTopicChange?.(topics.find(t=>t.id===id)||null)===false){render();return false;}pendingResource=null;audio.removeAttribute('src');audio.load();sequenceIndex=0;state.topicId=id;state.position=0;save();render();return true}
+ function choose(id){cues?.clear();playback.pause();const topic=topics.find(t=>t.id===id)||null;if(options.onTopicChange?.(topic)===false){render();return false;}audio.removeAttribute('src');audio.load();sequenceIndex=0;state.topicId=id;if(topic?.category==='more'&&!topic.categoryWelcome)state.resourceTopicId=id;state.position=0;save();render();return true}
  function play(){options.onPlaybackStart?.();let t=selected();if(!t&&state.enabled){t=availableLessons()[0];if(t)choose(t.id)}if(!t)return;
    if(!audioFiles(t).length)return;
    if(!audio.getAttribute('src')||audio.dataset.topic!==t.id)loadSequenceTrack(t,0);
    playback.play().catch(()=>{}).finally(render);render();}
  function syncInspection(){document.body.classList.toggle('btg-inspection',!!document.querySelector('.btg-exploring'))}
- function setEnabled(value){cues?.clear();pendingResource=null;playback.release();state.enabled=!!value;if(value){state.exploring=false;if(!availableLessons().some(t=>t.id===state.topicId))state.topicId=null;}clearHighlight();save();render()}
- function setExploring(value){cues?.clear();pendingResource=null;playback.release();state.exploring=!!value;if(value)state.enabled=false;clearHighlight();save();render()}
+ function setEnabled(value){cues?.clear();playback.release();state.enabled=!!value;if(value){state.exploring=false;if(!availableLessons().some(t=>t.id===state.topicId))state.topicId=null;}clearHighlight();save();render()}
+ function setExploring(value){cues?.clear();playback.release();state.exploring=!!value;if(value)state.enabled=false;clearHighlight();save();render()}
  function openCategory(category){
   selectBrowsing=false;
   if(state.category!==category)state.topicId=null;state.category=category;state.detailsOpen=false;state.expanded=null;
-  state.autoplay=category==='start'||!!options.poolMode&&state.guideAutoplay;
+  state.autoplay=category!=='more'&&(category==='start'||!!options.poolMode&&state.guideAutoplay);
   if(category==='start'){state.topicId=null;state.position=0;sequenceIndex=0;}
   setEnabled(true);
   if(category==='start'){const first=availableLessons()[0];if(first){choose(first.id);play();}}
-  else{const welcome=topics.find(t=>t.category===category&&t.categoryWelcome&&!t.guideWelcome);if(welcome){choose(welcome.id);play();}}
+  else{const welcome=topics.find(t=>t.category===category&&t.categoryWelcome&&!t.guideWelcome);if(category==='more'&&state.resourcesVisited){choose(availableLessons().some(t=>t.id===state.resourceTopicId)?state.resourceTopicId:welcome?.id);return;}if(welcome){choose(welcome.id);play();}if(category==='more'){state.resourcesVisited=true;save();}}
  }
  function openGuide(){
   selectBrowsing=false;
@@ -65,16 +64,17 @@ function mount(host,options={}){
   if(welcome){choose(welcome.id);play();}else openCategory('fundamentals');
  }
  function availableLessons(){return topics.filter(x=>!x.categoryWelcome&&!x.explorerOnly&&(x.category||'explore')===state.category&&(options.poolMode||state.category==='start'||(x.level||0)<=state.level)).sort((a,b)=>(a.guideOrder??0)-(b.guideOrder??0))}
- function openResource(t){
-  if(state.category!=='more'||!t?.resourceUrl)return;
-  try{const url=new URL(t.resourceUrl);if(!['https:','http:'].includes(url.protocol))return;
+ function openResource(t,destination=t?.resourceUrl){
+  if(state.category!=='more'||!destination)return;
+  try{const url=new URL(destination);if(!['https:','http:'].includes(url.protocol))return;
+   if(selected()?.id!==t.id)choose(t.id);cues?.clear();playback.pause();save();
    // After narration, browsers may block a new tab without a fresh gesture.
    const opened=global.open(url.href,'_blank');
    if(opened)opened.opener=null;else global.location.assign(url.href);
   }catch(_){}
  }
  function advanceLesson(){
-  if(!state.autoplay||!state.enabled||state.exploring){render();return;}
+  if(state.category==='more'||!state.autoplay||!state.enabled||state.exploring){render();return;}
   const available=availableLessons(),index=available.findIndex(t=>t.id===state.topicId);
   if(index<0&&selected()?.categoryWelcome&&available.length){if(choose(available[0].id)!==false)play();}
   else if(index>=0&&index+1<available.length){if(choose(available[index+1].id)!==false)play();}else{
@@ -82,7 +82,7 @@ function mount(host,options={}){
   }
  }
  function skipRecording(direction){
-  const current=selected(),playing=!audio.paused||playback.starting;pendingResource=null;playback.pause();
+  const current=selected(),playing=!audio.paused||playback.starting;playback.pause();
   const target=sequenceIndex+direction;
   if(current&&target>=0&&target<audioFiles(current).length){loadSequenceTrack(current,target);state.position=0;save();if(playing)playback.play().catch(()=>{});render();return;}
   const available=availableLessons(),index=available.findIndex(t=>t.id===state.topicId),next=index<0?(direction>0?0:-1):index+direction;
@@ -160,13 +160,17 @@ function mount(host,options={}){
   const view=document.createElement('div');
   host.classList.toggle('btg-enabled',!!state.enabled);
   const toolbar=document.createElement('div');toolbar.className='btg-row btg-toolbar';
+  const resourceBrowse=!!options.poolMode&&state.category==='more';
+  host.classList.toggle('btg-resources-mode',resourceBrowse);
   function btn(label,fn){const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',fn);b.dataset.action=label==='▶'||label==='Ⅱ'?'play-pause':label;toolbar.append(b);return b}
   if(state.enabled){
-   btn('⏮',()=>skipRecording(-1)).title='Previous audio file / lesson';
+   if(!resourceBrowse)btn('⏮',()=>skipRecording(-1)).title='Previous audio file / lesson';
    btn('■',()=>{stop();render()}).title='Stop';
    const playButton=btn(audio.paused&&!playback.starting?'▶':'Ⅱ',()=>{if(audio.paused&&!playback.starting)play();else playback.pause();render()});
    playButton.disabled=!t||!audioFiles(t).length||t.recordingStatus==='pending';
    playButton.title=playButton.disabled?'Audio recording pending — use Read and More':'Play / Pause';
+   if(resourceBrowse)btn('Replay introduction',()=>{const welcome=topics.find(t=>t.category==='more'&&t.categoryWelcome);if(welcome&&choose(welcome.id)!==false)play();});
+   if(!resourceBrowse){
    btn('◀◀',()=>{audio.currentTime=Math.max(0,(audio.currentTime||0)-10)}).title='Back 10 seconds';
    btn('▶▶',()=>{audio.currentTime=Math.min(audio.duration||Infinity,(audio.currentTime||0)+10)}).title='Forward 10 seconds';
    btn('⏭',()=>skipRecording(1)).title='Next audio file / lesson';
@@ -182,10 +186,20 @@ function mount(host,options={}){
    if(t?.learning)btn('Practice',()=>{practice();state.expanded='practice';state.detailsOpen=true;save();render()}).title='Purpose, instructions, success target, and real-table setup';
    const moreButton=btn('More',()=>{state.expanded=state.expanded==='more'?null:'more';state.detailsOpen=!!state.expanded;save();render()});moreButton.disabled=state.category==='more'&&!t?.resources?.length;
    if(state.category!=='start')btn('Reset',()=>{if(!confirm('Reset Guide session? The table will not change.'))return;stop();state={enabled:true,exploring:false,autoplay:state.category==='start'||!!options.poolMode&&state.guideAutoplay,guideAutoplay:state.guideAutoplay,level:0,category:options.startOnly||state.category==='start'?'start':'fundamentals',topicId:null,expanded:null,detailsOpen:false,position:0};save();render();if(state.category==='start')openCategory('start')});
+   }
   }
   view.append(toolbar);if(!state.enabled){root.classList.remove('btg-details-open');patchNode(root,view);return;}
   const cats=document.createElement('div');cats.className='btg-row btg-categories';
   for(const [id,label] of CATEGORIES.filter(([id])=>id!=='explore'&&id!=='start')){const b=document.createElement('button');b.textContent=label;b.setAttribute('aria-pressed',String(state.category===id));b.onclick=()=>{stop();openCategory(id)};cats.append(b)}if(state.category!=='start')view.append(cats);
+  if(resourceBrowse&&global.BilliardsResources){
+   state.resourceGroups=state.resourceGroups||{};
+   view.append(global.BilliardsResources.render({topics:available,welcome:topics.find(t=>t.category==='more'&&t.categoryWelcome),selected:t,playing:!audio.paused||playback.starting,groups:state.resourceGroups,
+    onGroup:(group,open)=>{state.resourceGroups[group]=open;save();},
+    onListen:id=>{if(selected()?.id===id&&(!audio.paused||playback.starting)){playback.pause();render();}else{if(selected()?.id!==id&&choose(id)===false)return;play();}},
+    onOpen:openResource,onPractice:topic=>{if(choose(topic.id)!==false)options.onResourcePractice?.(topic);}
+   }));
+   view.className=root.className;patchNode(root,view);root.classList.remove('btg-details-open');options.onRendered?.();return;
+  }
   const topic=document.createElement('div');topic.className='btg-topic';
   const title=document.createElement('strong');title.textContent=t?.title||(state.category==='start'?'Get Started':'Select a lesson');topic.append(title);
   const summary=document.createElement('p');summary.textContent=t?.summary||(state.category==='start'?'Choose an introductory lesson to start its audio.':'Choose a technique, practice lesson, or drill to start its audio.');topic.append(summary);
@@ -200,7 +214,7 @@ function mount(host,options={}){
   select.onfocus=()=>{selectBrowsing=true};select.onpointerdown=()=>{selectBrowsing=true};
   select.onblur=()=>{selectBrowsing=false;select.value=availableLessons().some(x=>x.id===state.topicId)?state.topicId:''};
   select.onkeydown=e=>{if(e.key==='Escape'){selectBrowsing=false;select.value=state.topicId||''}else selectBrowsing=true};
-  select.onchange=()=>{selectBrowsing=false;const id=select.value;const accepted=choose(id||null);if(accepted!==false&&id){const t=selected();if(state.category==='more'&&t?.resourceUrl)pendingResource=t.id;play();}};
+  select.onchange=()=>{selectBrowsing=false;const id=select.value;const accepted=choose(id||null);if(accepted!==false&&id)play();};
   const drawer=options.poolMode?document.createElement('div'):topic;
   if(options.poolMode){drawer.className='btg-pool-drawer';view.append(drawer)}
   const playingTitle=document.createElement('strong');playingTitle.className='btg-current-lesson';playingTitle.textContent=(options.poolMode&&available.includes(t)&&state.category!=='start'?(available.indexOf(t)+1)+' / '+available.length+' · ':'')+(t?.title||'Choose a topic');playingTitle.setAttribute('aria-live','polite');drawer.append(playingTitle);
@@ -253,12 +267,12 @@ function mount(host,options={}){
  audio.addEventListener('ended',()=>{const t=selected();
   if(!audio.ended||!t||audio.dataset.topic!==t.id)return;
   if(sequenceIndex+1<audioFiles(t).length){loadSequenceTrack(t,sequenceIndex+1);playback.play().catch(()=>{});}
-  else{state.position=0;save();const resource=pendingResource===t.id?t:null;pendingResource=null;if(options.onLessonEnd?.(t,{...state})!==true)advanceLesson();if(resource)openResource(resource);}
+  else{state.position=0;save();if(state.category==='more'){render();return;}if(options.onLessonEnd?.(t,{...state})!==true)advanceLesson();}
  });
  document.addEventListener('pointerover',inspectTarget,true);
  // Explorer alone enables the inspection shield; validate against real trainer interactions before integration.
  render();
- return {setEnabled,setExploring,openCategory,openGuide,tryShot:practice,hasNextLesson(){const list=availableLessons(),i=list.findIndex(t=>t.id===state.topicId);return i+1<list.length;},nextLesson(){const list=availableLessons(),i=list.findIndex(t=>t.id===state.topicId);const next=i<0&&selected()?.categoryWelcome?0:i+1;if(next<0||next>=list.length||i<0&&!selected()?.categoryWelcome)return false;if(choose(list[next].id)===false)return false;play();return true},pause(){playback.pause();render()},selectTopic(id){choose(id);},getCueState(){return cues?.getState();},destroy(){cues?.destroy();narrationPlaying=false;host.classList.remove('btg-narrating');pendingResource=null;playback.destroy();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
+ return {setEnabled,setExploring,openCategory,openGuide,tryShot:practice,hasNextLesson(){const list=availableLessons(),i=list.findIndex(t=>t.id===state.topicId);return i+1<list.length;},nextLesson(){const list=availableLessons(),i=list.findIndex(t=>t.id===state.topicId);const next=i<0&&selected()?.categoryWelcome?0:i+1;if(next<0||next>=list.length||i<0&&!selected()?.categoryWelcome)return false;if(choose(list[next].id)===false)return false;play();return true},pause(){playback.pause();render()},selectTopic(id){choose(id);},getCueState(){return cues?.getState();},destroy(){cues?.destroy();narrationPlaying=false;host.classList.remove('btg-narrating');playback.destroy();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
 }
 global.BilliardsGuide={mount,CATEGORIES,LEVELS};
 })(window);

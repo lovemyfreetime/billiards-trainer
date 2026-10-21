@@ -17,9 +17,9 @@ const server=cp.spawn(process.execPath,[path.join(__dirname,'range-server.cjs'),
   if(process.env.LESSON_PROBE_MODE==='all')await run({},300000);
   else{
    for(const category of ['fundamentals','physics','drills','exercises','more'])await run({category},300000);
-   assert.equal(await page.evaluate(()=>__lessonSequence.guide),146);
+   assert.equal(await page.evaluate(()=>__lessonSequence.guide),150);
    const result=await run({quickStartOnly:true},180000);assert.equal(result.quickStart,8);
-   assert.deepEqual(result.categories,{fundamentals:28,physics:50,drills:33,exercises:29,more:6});
+   assert.deepEqual(result.categories,{fundamentals:28,physics:50,drills:33,exercises:29,more:10});
   }
   assert.deepEqual(errors,[]);
   // A missing narration must still fail promptly, with the affected phase and topic.

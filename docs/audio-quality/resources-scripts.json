@@ -1,0 +1,59 @@
+{
+  "version": "resources-20261021",
+  "voice": "chase",
+  "model": "simba-3.2",
+  "native_prosody_rate_percent": 0,
+  "post_processing": "none",
+  "records": [
+    {
+      "id": "welcome-more",
+      "title": "Welcome to Resources",
+      "text": "Welcome to Resources. We recommend Tor Lowry's Zero-X Billiards and Jasmin Ouschan's Billiards Explained as excellent companions to Billiards Trainer. Both offer clear instruction and practical demonstrations that can deepen your understanding of the game. Tor's collection explores cue-ball control, position play, patterns, and defense. Jasmin's videos explore technique, playing skills, and equipment from a professional player's perspective. Choose a topic, listen to its short preview, then open the original video or playlist. Bring one idea back to the Trainer to explore, and practice the physical execution at a real table."
+    },
+    {
+      "id": "recommend-zero-x-overview",
+      "title": "Explore Zero-X Billiards",
+      "text": "Zero-X Billiards brings together Tor Lowry's pool instruction, from fundamentals to cue-ball control and game planning. Browse the channel for a topic you want to develop, or use the Free Lessons link to explore the collection by subject."
+    },
+    {
+      "id": "recommend-zero-x-center-ball",
+      "title": "Center-ball control",
+      "text": "Center Ball Drills focuses on controlling position without relying on side spin. Watch the cue-ball route and the speed of each shot. Then compare stop, follow, and draw on one simple Trainer layout before trying the shots at a real table."
+    },
+    {
+      "id": "recommend-zero-x-position-play",
+      "title": "Position play: three balls",
+      "text": "Half Table Position uses three balls to explore how one shot prepares the next. Look for the angle and landing area that keep the sequence manageable. Recreate a small pattern in the Trainer and compare your first two shots."
+    },
+    {
+      "id": "recommend-zero-x-eight-ball-patterns",
+      "title": "Eight-ball patterns",
+      "text": "Eight-Ball Pattern Run Outs explores the order and connections between shots. Pause before a shot and choose the next position yourself. Then use a saved Trainer layout to compare two possible patterns and the room for error each leaves."
+    },
+    {
+      "id": "recommend-zero-x-defense-recovery",
+      "title": "Defense and recovery",
+      "text": "Lock Up Your Opponent introduces defensive choices and useful ball placement. Watch what the opponent is left with, as well as where the cue ball stops. In the Trainer, compare an attacking option with a defensive option from the same position."
+    },
+    {
+      "id": "recommend-jasmin-overview",
+      "title": "Explore Billiards Explained",
+      "text": "Jasmin Ouschan's Billiards Explained channel includes instruction, training ideas, and equipment discussions. Start with the area you want to improve: your physical technique, your playing skills, or your understanding of equipment. Choose one useful idea to test in your next practice session."
+    },
+    {
+      "id": "recommend-jasmin-technique",
+      "title": "Stance, technique and stroke",
+      "text": "This playlist concentrates on stance, technique, and stroke. Use it when you want to make your physical shot delivery more consistent. Choose one adjustment to work on at a real table, and repeat an uncomplicated shot while paying attention to that change."
+    },
+    {
+      "id": "recommend-jasmin-skills",
+      "title": "Skills, tactics and shot selection",
+      "text": "This playlist explores playing skills, tactics, and different types of shots. Choose a lesson that matches a situation you find difficult. For a layout-based example, pause before the demonstration, predict the outcome, then recreate a manageable version in the Trainer to compare your choices."
+    },
+    {
+      "id": "recommend-jasmin-equipment",
+      "title": "Equipment explained",
+      "text": "This playlist shares Jasmin's explanations and personal views on billiards equipment. Use it to understand what a feature is intended to do and which questions to ask. Compare that advice with your own experience, and try equipment when possible before deciding what suits your game."
+    }
+  ]
+}

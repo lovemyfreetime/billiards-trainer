@@ -12,6 +12,7 @@ const server=cp.spawn(process.execPath,[require('node:path').join(__dirname,'ran
   const result=await page.evaluate(()=>{
    const errors=[],seen=new Set();let count=0;
    for(const [category,groups] of Object.entries(billiardsPoolAudioMap.curriculum)){
+    if(category==='more')continue;
     billiardsPoolGuide.openCategory(category);billiardsPoolGuide.pause();
     for(const id of groups.flatMap(g=>g.topics)){
      billiardsPoolGuide.selectTopic(id);const topic=billiardsPoolAudioMap.topics.find(t=>t.id===id),state=billiardsTourBridge.capture().state,layout=topic.scene?.file.layout;
@@ -23,7 +24,7 @@ const server=cp.spawn(process.execPath,[require('node:path').join(__dirname,'ran
     }
    }
    return {errors,count,unique:seen.size};
-  });assert.deepEqual(result.errors,[]);assert.equal(result.count,141);assert.equal(result.unique,141);
+  });assert.deepEqual(result.errors,[]);assert.equal(result.count,136);assert.equal(result.unique,136);
   const host=page.locator('#bt-guide-pool-root');
   await page.click('#btg-pool-guide');await page.evaluate(()=>{if(!billiardsPoolGuide.getState().enabled)billiardsPoolGuide.openGuide();billiardsPoolGuide.openCategory('fundamentals')});
   await host.locator('select').selectOption('aiming-line-quick');
@@ -60,7 +61,7 @@ const server=cp.spawn(process.execPath,[require('node:path').join(__dirname,'ran
    await page.evaluate(()=>{const a=__media.find(a=>a.dataset.topic==='table-geometry-calibration-quick');a.currentTime=a.duration-.05});await page.waitForFunction(()=>billiardsLessonPractice.getState().phase==='countdown');
    assert.equal(await page.locator('body').evaluate(b=>b.classList.contains('phone-controls-open')),false,'Show the table again for the practice wait');assert(await page.locator('.btg-lesson-prompt').isVisible());
   }
-  assert.deepEqual(errors,[]);console.log(`${viewport.width}px: all 141 real layouts, distinct geometry, five-second wait, practice cancellation and current-audio control cue passed.`);await context.close();
+  assert.deepEqual(errors,[]);console.log(`${viewport.width}px: all 136 instructional layouts, distinct geometry, five-second wait, practice cancellation and current-audio control cue passed.`);await context.close();
  }
  }finally{await browser.close()}
 })().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>server.kill());

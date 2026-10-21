@@ -3196,13 +3196,22 @@
     ],
     "more": [
       {
-        "title": "Zero-X Billiards",
+        "title": "Tor Lowry · Zero-X Billiards",
         "topics": [
           "recommend-zero-x-overview",
           "recommend-zero-x-center-ball",
           "recommend-zero-x-position-play",
           "recommend-zero-x-eight-ball-patterns",
           "recommend-zero-x-defense-recovery"
+        ]
+      },
+      {
+        "title": "Jasmin Ouschan · Billiards Explained",
+        "topics": [
+          "recommend-jasmin-overview",
+          "recommend-jasmin-technique",
+          "recommend-jasmin-skills",
+          "recommend-jasmin-equipment"
         ]
       }
     ]

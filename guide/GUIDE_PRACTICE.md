@@ -1,6 +1,6 @@
 # Guide practice layouts and narration cues
 
-Every one of the 141 selectable Main Guide lessons loads a distinct physical arrangement before narration starts. Category welcomes also have authored scenes. The eight Get Started lessons retain their existing calibrated adapters, Shot 2 preparation, and Undo behavior. The current curriculum, narration recordings, Auto preference, and lesson order are preserved.
+Every one of the 136 instructional Main Guide lessons loads a distinct physical arrangement before narration starts. Category welcomes also have authored scenes. Resources has nine deliberate recommendations, organized under Tor Lowry and Jasmin Ouschan; its original five optional practice scenes remain available through Practice in Trainer. The eight Get Started lessons retain their existing calibrated adapters, Shot 2 preparation, and Undo behavior.
 
 With Auto on, a narration finishes and the Guide displays a silent five-second countdown plus a table prompt. Tap the table or prompt to cancel advancement and practice the current arrangement; the first gesture transfers control without moving a ball. Next Lesson resumes the sequence. Auto off holds the current lesson for practice. The last lesson stays available for practice.
 
@@ -9,3 +9,5 @@ Yellow outlines follow spoken controls and canvas objects using the current reco
 `topic-scenes.json` and `layouts/topics/` preserve the authored scenes from the earlier Guide work. `scripts/extend-guide-scenes.py` fills missing current curriculum topics with distinct arrangements from the lesson's practice family while retaining existing authored scenes and exact narrated drill coordinates. It updates practice-sheet pointers without changing the current curriculum. Run `scripts/build-narration-cues.py` only when recordings or cue rules change; its build dependencies are PocketSphinx 5.0.4 and ffmpeg/ffprobe.
 
 The release gate checks all current lesson layouts, distinct physical geometry, cue hashes, actual loaded ball coordinates on desktop and phone, the full five-second wait, tap-to-practice cancellation, and visible control cues. Windows and Android offline lesson probes also check loaded practice geometry while traversing the full narration sequence.
+
+Resources uses ten fresh Chase recordings: one shared welcome and nine specific previews. Listen never opens an external destination or advances to another preview. Watch on YouTube and website actions stop app narration and open only the selected destination. Preview browsing leaves the current practice table unchanged, has no countdown, and preserves the instructional Guide Auto preference. The native release probe explicitly selects each Resources recording and checks that it stops on that entry.
