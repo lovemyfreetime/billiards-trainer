@@ -21,4 +21,6 @@ for(const id of ids){
 }
 assert.equal(read('guide/get-started-tour.json').transition.seconds,5);
 assert.equal(read('guide/get-started-tour.json').transition.recordingStatus,'visual-only');
+for(const target of ['hide-cue-1','hide-cue-2'])assert(cues.tracks['hide-cue-ball-guides-quick.mp3'].cues.some(c=>c.target===target),`Missing visibility-control cue: ${target}`);
+assert(scenes['hide-cue-ball-guides-quick'].controls.planNextBall,'The two-shot visibility lesson needs a prepared next shot');
 console.log(`${ids.length} selectable Guide lessons have distinct physical layouts and visual cues pinned to the current audio; silent practice wait is five seconds.`);

@@ -35648,7 +35648,7 @@
       "setup": {
         "title": "Hide Cue Ball 1 and Cue Ball 2",
         "url": "./guide/layouts/topics/hide-cue-ball-guides-quick.billiards.json",
-        "note": "Approach distance and contact geometry selected for Hide Cue Ball 1 and Cue Ball 2. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+        "note": "Opening pot plus a prepared second-shot plan, so both Hide Cue Ball controls can be compared.",
         "pocket": [
           1,
           1
@@ -35656,7 +35656,7 @@
         "target": 10
       },
       "controls": {
-        "speed": 1.45,
+        "speed": 1.1,
         "follow": 0,
         "sideSpin": 0,
         "cueElevationDeg": 0,
@@ -35666,11 +35666,16 @@
         "showDiamonds": true,
         "shot2Enabled": false,
         "shot2Initialized": false,
-        "activeShot": 1
+        "activeShot": 1,
+        "planNextBall": 2,
+        "nextPocket": [
+          0,
+          0
+        ]
       },
       "objective": "Use Hide Cue Ball 1 and Cue Ball 2 correctly within the current lesson.",
-      "variation": "Approach distance and contact geometry selected for Hide Cue Ball 1 and Cue Ball 2. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
-      "geometryHash": "8f5233662465bca17c3360b6b36e503faf59f11482e6a55611326a000a73c2ca",
+      "variation": "Opening pot plus a prepared second-shot plan, so both Hide Cue Ball controls can be compared.",
+      "geometryHash": "084b7f478f872c9fa4904b787aa4e19e08945466c8c5a8470024acd5fce634dd",
       "file": {
         "format": "billiards-trainer",
         "version": 1,
@@ -35697,6 +35702,13 @@
               "x": 2.0065240843812573,
               "y": 0.9189526205311283,
               "active": true
+            },
+            {
+              "id": 2,
+              "n": "2",
+              "x": 1.143,
+              "y": 0.3175,
+              "active": true
             }
           ],
           "freeAim": {
@@ -35722,6 +35734,13 @@
               "x": 2.0065240843812573,
               "y": 0.9189526205311283,
               "active": true
+            },
+            {
+              "id": 2,
+              "n": "2",
+              "x": 1.143,
+              "y": 0.3175,
+              "active": true
             }
           ],
           "nextId": 4,
@@ -35731,7 +35750,7 @@
             "y": 0.8875372669962918
           },
           "angleLock": false,
-          "speed": 1.45,
+          "speed": 1.1,
           "follow": 0,
           "sideSpin": 0,
           "cueElevationDeg": 0,
@@ -35814,14 +35833,14 @@
         "lesson": {
           "topic": "hide-cue-ball-guides-quick",
           "purpose": "Use Hide Cue Ball 1 and Cue Ball 2 correctly within the current lesson.",
-          "variation": "Approach distance and contact geometry selected for Hide Cue Ball 1 and Cue Ball 2. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "variation": "Opening pot plus a prepared second-shot plan, so both Hide Cue Ball controls can be compared.",
           "pocket": [
             1,
             1
           ],
           "target": 10,
           "controls": {
-            "speed": 1.45,
+            "speed": 1.1,
             "follow": 0,
             "sideSpin": 0,
             "cueElevationDeg": 0,
@@ -35831,7 +35850,12 @@
             "showDiamonds": true,
             "shot2Enabled": false,
             "shot2Initialized": false,
-            "activeShot": 1
+            "activeShot": 1,
+            "planNextBall": 2,
+            "nextPocket": [
+              0,
+              0
+            ]
           },
           "railContacts": []
         }

@@ -269,6 +269,18 @@
       "label": "Diamond grid",
       "region": "grid"
     },
+    "hide-cue-1": {
+      "label": "Hide / Show Cue Ball 1",
+      "selectors": [
+        "#toggleCueVisuals1Btn"
+      ]
+    },
+    "hide-cue-2": {
+      "label": "Hide / Show Cue Ball 2",
+      "selectors": [
+        "#toggleCueVisuals2Btn"
+      ]
+    },
     "geometry-settings": {
       "label": "Table and ball dimensions",
       "selectors": [
@@ -3521,19 +3533,19 @@
           "start": 2.04,
           "target": "cut",
           "quote": "overlap",
-          "end": 3.34
+          "end": 3.07
         },
         {
-          "start": 3.34,
-          "target": "cue",
-          "quote": "cue ball",
-          "end": 4.61
+          "start": 3.07,
+          "target": "hide-cue-1",
+          "quote": "hide cue ball one",
+          "end": 4.35
         },
         {
-          "start": 4.61,
-          "target": "cue",
-          "quote": "cue ball",
-          "end": 6.21
+          "start": 4.35,
+          "target": "hide-cue-2",
+          "quote": "hide cue ball two",
+          "end": 6.01
         }
       ]
     },

@@ -588,7 +588,7 @@
         {
           "title": "Hide Cue Ball 1 and Cue Ball 2",
           "url": "./guide/layouts/topics/hide-cue-ball-guides-quick.billiards.json",
-          "note": "Approach distance and contact geometry selected for Hide Cue Ball 1 and Cue Ball 2. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "note": "Opening pot plus a prepared second-shot plan, so both Hide Cue Ball controls can be compared.",
           "pocket": [
             1,
             1

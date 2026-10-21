@@ -38,6 +38,12 @@ const server=cp.spawn(process.execPath,[require('node:path').join(__dirname,'ran
   const before=await page.evaluate(()=>billiardsTourBridge.capture().state.balls);await page.locator('.btg-lesson-prompt').click();
   assert.equal(await page.evaluate(()=>billiardsLessonPractice.getState().phase),'practice');await page.waitForTimeout(5500);
   assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().topicId),'aiming-line-quick');assert.deepEqual(await page.evaluate(()=>billiardsTourBridge.capture().state.balls),before);
+  await host.locator('select').selectOption('hide-cue-ball-guides-quick');await playing('hide-cue-ball-guides-quick');
+  assert.equal(await page.evaluate(()=>billiardsTourBridge.snapshot().shot2Enabled),true,'The visibility lesson must prepare Shot 2');
+  if(viewport.width<500)await page.locator('#phoneControls').click();
+  await page.locator('#toggleCueVisuals2Btn').click();assert.equal(await page.evaluate(()=>billiardsTourBridge.capture().state.showCueVisuals2),false);
+  assert.equal(await page.evaluate(()=>billiardsTourBridge.capture().state.showCueVisuals1),true,'Hide Shot 2 independently');
+  if(viewport.width<500)await page.locator('#phoneControls').click();
   await page.evaluate(()=>billiardsPoolGuide.openCategory(billiardsPoolAudioMap.topics.find(t=>t.id==='shot-speed-controls-quick').category));
   await host.locator('select').selectOption('shot-speed-controls-quick');await playing('shot-speed-controls-quick');
   const track=JSON.parse(fs.readFileSync('guide/narration-cues.json')).tracks['shot-speed-controls-quick.mp3'],cue=track.cues.find(c=>c.target==='speed');assert(cue);
