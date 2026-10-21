@@ -1,0 +1,118 @@
+{
+  "items": [
+    {
+      "path": "guide/audio/drill-l-pattern.mp3",
+      "sha256": "188809b17299d63a8e9f5a8093c7f6591e1c02efc66699412d3fcc4744ce27ec",
+      "status": "user-approved fresh export",
+      "supersedes_sha256": "592d23c8c6e43873a6dc53e9af642e2f8bfaa368cd4bfc9b4fcad9606ac29e6b"
+    },
+    {
+      "path": "guide/audio/drill-mirror-kick.mp3",
+      "sha256": "fac224ccb4895c790ff380b4586013d5e0c19f35e8d37e1592a9afe0523218e0",
+      "status": "user-approved fresh export",
+      "supersedes_sha256": "06935dd763d691be2179044393b66922ef7ebbe4a66e11caabcd5cbf136f28bf"
+    },
+    {
+      "path": "guide/audio/drill-scratch-avoidance.mp3",
+      "sha256": "754220308630c1cfd7e2435c0f2bdd3d288f0e751cddc707e33e3cc6b6d4f7f2",
+      "status": "user-approved fresh export",
+      "supersedes_sha256": "4873a2364ab058fd490f892291411bcc670a70a8bd223003b2510398a0834dd6"
+    },
+    {
+      "path": "guide/audio/drill-speed-ladder.mp3",
+      "sha256": "85b13fef8948fd1b6293c027cc6119bf15a479dcc516ae3098e6a4d3f8afe69d",
+      "status": "user-approved fresh export",
+      "supersedes_sha256": "072e4976529c947be4b45ad88abcf59df89cb121a0b68ea9696836495be56d83"
+    },
+    {
+      "path": "guide/audio/drill-stop-shot.mp3",
+      "sha256": "0efef1b55c1d4927fca95ff4b97cbddaf1abeddca721834aae005fd201d5b6c9",
+      "status": "user-approved fresh export",
+      "supersedes_sha256": "c44dc4addd909190d2dc16e9955bdbb8d54046ed73d293a2c59ed2c8c151b84e"
+    },
+    {
+      "path": "guide/audio/drill-stun-tangent.mp3",
+      "sha256": "d704893019239d32b958a59ae23f5d38197ada5fc94d15ca60811b38b5203a79",
+      "status": "user-approved fresh export",
+      "supersedes_sha256": "b286d0aeea51e4527ea641923d505e9a42c911fa248e694a76c5de7face84580"
+    },
+    {
+      "path": "guide/audio/drill-t-pattern.mp3",
+      "sha256": "30d125f9d50584a4f5909a1c08b8ea6dcbb05b89cbe7976170b091fef9faf99d",
+      "status": "user-approved fresh export",
+      "supersedes_sha256": "807f996d82cfdd219ff4a805362b2e2ffdaaa9b48565103ea3a0440e49b5bc42"
+    },
+    {
+      "path": "guide/audio/drill-two-rail-kick.mp3",
+      "sha256": "3c5b3abfc5c0ed715043f3ca5b8a89cb06a942b2f06aace71193d9138e7743a2",
+      "status": "user-approved fresh export",
+      "supersedes_sha256": "ac8c9e30dcb406c10cd30a95301bb9b054630fd8ba68f38f3a7160887cb33a5d"
+    },
+    {
+      "path": "guide/audio/drill-two-rail-recovery.mp3",
+      "sha256": "634e9e82d1d3dd8d9c8cf3d892a0d09a672abbb7a7237ae6a99b8c75c0aa3dee",
+      "status": "user-approved fresh export",
+      "supersedes_sha256": "17d9cc510231f7594abfb64cc5d321eabb6ed6a8c39b30837452b63404d5a98d"
+    },
+    {
+      "path": "guide/audio/drill-wagon-wheel.mp3",
+      "sha256": "d3bd22e00bb37d41d0f28dc156ba741364a196f15d9594660a11cb2c2dcdf66d",
+      "status": "user-approved fresh export",
+      "supersedes_sha256": "ad5f5f02e209bf7053d69a2ba5332d0c85d6e33ade6dc279148e80507f61abcf"
+    },
+    {
+      "path": "guide/audio/get-started-01.mp3",
+      "sha256": "604cc96a79c78513f48e10cae521f1645d59b007f166c30239468256311b5427",
+      "status": "user-approved fresh export",
+      "supersedes_sha256": "ff27b284fafe068f11172793a72b5d8d605418ef4d972cb059a89442b4987971"
+    },
+    {
+      "path": "guide/audio/get-started-04.mp3",
+      "sha256": "7dbf3c5d6d3962207d7332bbc9a1bf3f3a9d57b77a504aea3795814056204459",
+      "status": "user-approved fresh export",
+      "supersedes_sha256": "b4fe02e3d9f5d1832950b2c2f47e54fd50bed7f4b8791541d858fdd88d8c2cb5"
+    },
+    {
+      "path": "guide/audio/get-started-06.mp3",
+      "sha256": "31f262d12961e5c58a22177f0361fa273b10e5fc618b2babc88889ebfacddda1",
+      "status": "user-approved fresh export",
+      "supersedes_sha256": "900e280cd26325170ce323124754ac6696c9d1fed54b0752beb4ab60dff081ac"
+    },
+    {
+      "path": "guide/audio/exercise-focused-practice-session.mp3",
+      "sha256": "db36a03288baeaa6b0f3881f70b0b4a8751120723303683edcdbb6bf7d14eb4c",
+      "status": "user-approved fresh export",
+      "supersedes_sha256": "887856d500e78e045d2c94f7e6cfb484637aedba196ca0b06db56cfd9afa8275"
+    },
+    {
+      "path": "guide/audio/exercise-practice-review.mp3",
+      "sha256": "a4a59b843ac4ae2fb895d8c44c472c3380e13e673e654fca8c3bff10b7df413c",
+      "status": "user-approved fresh export",
+      "supersedes_sha256": "d4487dc57282a7ff47afb222c20b4296e2a2a9d4c51a5df74448f1e38932bede"
+    },
+    {
+      "path": "guide/audio/practice-corner-five.mp3",
+      "sha256": "31791308401f5ac7ac184654558aae1603f0a5c571a95e9ac343be50deb0e303",
+      "status": "user-approved fresh export",
+      "supersedes_sha256": "cfb9a982e034186bbb7548cf0ee2efda2b3205f98ca0b0dd8d8b7b73a80c7319"
+    },
+    {
+      "path": "guide/audio/practice-progressive-benchmark.mp3",
+      "sha256": "acb4e42bc002e3333f5d03a1878f604756dee45ee5d706d442b517a6e9d09d90",
+      "status": "user-approved fresh export",
+      "supersedes_sha256": "f030a16b8e1e9892b84e44955db663d93d924383a818b4e1a84873216ca278b4"
+    },
+    {
+      "path": "guide/audio/practice-rock-around-clock.mp3",
+      "sha256": "74c3d0b05d2b79b0fd9ce9dd4b34218290a19c81dff9ce6f3a1c25f294adc792",
+      "status": "user-approved fresh export",
+      "supersedes_sha256": "05170c39f9403762f0685383d016e6c01a4b17586f9b4f72e286d60ee69ee7ea"
+    },
+    {
+      "path": "guide/audio/practice-target-landing.mp3",
+      "sha256": "aaad2f0d7686acc52d02a87a423063bc6c1c9161aee8698e09cfd4b9c2f65385",
+      "status": "user-approved fresh export",
+      "supersedes_sha256": "64285d4f62bc33d3a5ebc2e9ab97de0b83d6f7b2ebcd9166e12c48b4ccb05a55"
+    }
+  ]
+}

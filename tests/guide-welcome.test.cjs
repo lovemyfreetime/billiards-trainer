@@ -7,7 +7,7 @@ env.openGuide();assert.equal(state.autoplay,false);assert.equal(state.position,0
 assert.deepEqual(Array.from(env.availableLessons(),t=>t.id),['first']);
 state.autoplay=true;env.advanceLesson();assert.equal(state.topicId,'first','Auto starts selected category after welcome');env.advanceLesson();assert.equal(state.topicId,'first','End does not loop');
 env.openGuide();assert.equal(state.topicId,'welcome-guide');assert.equal(state.autoplay,false);
-const records=JSON.parse(fs.readFileSync('guide/recorded-audio.json')).records;const welcome=records.find(r=>r.topic.guideWelcome);assert.equal(welcome.page,'Shared');assert.ok(fs.statSync(welcome.topic.audio).size>1000);assert.ok(!welcome.topic.resourceUrl);
+const records=JSON.parse(fs.readFileSync('guide/recorded-audio.json')).records;const welcome=records.find(r=>r.topic.guideWelcome);assert.equal(welcome.page,'Shared');assert.ok(fs.statSync(welcome.topic.audio.split('?')[0]).size>1000);assert.ok(!welcome.topic.resourceUrl);
 console.log('Guide welcome resets at zero, stays out of lessons, respects Trainer Auto preference, and advances into the selected category.');
 
 env.options.poolMode=true;state.guideAutoplay=true;env.openGuide();assert.equal(state.autoplay,true);state.guideAutoplay=false;env.openGuide();assert.equal(state.autoplay,false,"Guide respects its own saved Auto preference");

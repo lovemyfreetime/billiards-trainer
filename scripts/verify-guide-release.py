@@ -4,6 +4,7 @@ import json,runpy,tempfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 def verify():
+ runpy.run_path(str(ROOT/'scripts/verify-narration-release.py'))['verify']()
  runpy.run_path(str(ROOT/'scripts/build-offline-assets.py'))['generate'](check=True)
  with tempfile.TemporaryDirectory(prefix='billiards-guide-parity-') as directory:
   base=Path(directory);windows=base/'windows';android=base/'android'

@@ -5,7 +5,7 @@
       "topic": {
         "id": "main-open-analyze-photo",
         "title": "Open Analyze Photo",
-        "audio": "./guide/audio/main-open-analyze-photo.mp3",
+        "audio": "./guide/audio/main-open-analyze-photo.mp3?v=native-chase-20261021",
         "text": "Open Analyze Real Pool Table to bring a image or a shared table layout into the trainer. When Explorer is on, this button explains its purpose without leaving the trainer. Turn Explorer off when you are ready to open the Analyze page.",
         "summary": "Open Analyze Real Pool Table to bring a image or a shared table layout into the trainer.",
         "category": "reference",
@@ -24,7 +24,7 @@
       "topic": {
         "id": "main-take-a-table-photo",
         "title": "Take a table photo",
-        "audio": "./guide/audio/main-take-a-table-photo.mp3",
+        "audio": "./guide/audio/main-take-a-table-photo.mp3?v=native-chase-20261021",
         "text": "Open your device camera to image a real pool table. Allow camera access if your device asks. In Explorer mode, this button describes the camera instead of opening it.",
         "summary": "Open your device camera to image a real pool table.",
         "category": "reference",
@@ -43,7 +43,7 @@
       "topic": {
         "id": "main-open-main-get-started",
         "title": "Open main Get Started",
-        "audio": "./guide/audio/main-open-main-get-started.mp3",
+        "audio": "./guide/audio/main-open-main-get-started.mp3?v=native-chase-20261021",
         "text": "Open Get Started for the trainer walkthrough. It starts with the first audio file, plays through automatically, and stops after the last file. Select the launcher again to close it.",
         "summary": "Open Get Started for the trainer walkthrough.",
         "category": "reference",
@@ -62,7 +62,7 @@
       "topic": {
         "id": "main-open-technique-guide",
         "title": "Open technique Guide",
-        "audio": "./guide/audio/main-open-technique-guide.mp3",
+        "audio": "./guide/audio/main-open-technique-guide.mp3?v=native-chase-20261021",
         "text": "Open the Guide for Fundamentals, Physics and Tools, Drills, and Exercises. Choose a category and a topic from the menu. Select the Guide launcher again to close it.",
         "summary": "Open the Guide for Fundamentals, Physics and Tools, Drills, and Exercises.",
         "category": "reference",
@@ -81,7 +81,7 @@
       "topic": {
         "id": "main-main-explorer-mode",
         "title": "Main Explorer mode",
-        "audio": "./guide/audio/main-main-explorer-mode.mp3",
+        "audio": "./guide/audio/main-main-explorer-mode.mp3?v=native-chase-20261021",
         "text": "Turn Explorer on, then select a button or an area to hear its explanation. The selected area is highlighted. Turn Explorer off to use the controls normally.",
         "summary": "Turn Explorer on, then select a button or an area to hear its explanation.",
         "category": "reference",
@@ -100,7 +100,7 @@
       "topic": {
         "id": "main-open-quick-layout-menu",
         "title": "Open quick layout menu",
-        "audio": "./guide/audio/main-open-quick-layout-menu.mp3",
+        "audio": "./guide/audio/main-open-quick-layout-menu.mp3?v=native-chase-20261021",
         "text": "Open the compact saved-layout menu at the table edge.",
         "summary": "Open the compact saved-layout menu at the table edge..",
         "category": "reference",
@@ -119,7 +119,7 @@
       "topic": {
         "id": "main-close-quick-layout-menu",
         "title": "Close quick layout menu",
-        "audio": "./guide/audio/main-close-quick-layout-menu.mp3",
+        "audio": "./guide/audio/main-close-quick-layout-menu.mp3?v=native-chase-20261021",
         "text": "Close the quick layout menu and return to the table.",
         "summary": "Close the quick layout menu and return to the table..",
         "category": "reference",
@@ -138,7 +138,7 @@
       "topic": {
         "id": "main-open-cue-and-spin-popup",
         "title": "Open cue and spin popup",
-        "audio": "./guide/audio/main-open-cue-and-spin-popup.mp3",
+        "audio": "./guide/audio/main-open-cue-and-spin-popup.mp3?v=native-chase-20261021",
         "text": "Open the compact Shot 1 and Shot 2 follow, English, and elevation controls next to the table.",
         "summary": "Open the compact Shot 1 and Shot 2 follow, English, and elevation controls next to the table..",
         "category": "reference",
@@ -157,7 +157,7 @@
       "topic": {
         "id": "main-close-cue-and-spin-popup",
         "title": "Close cue and spin popup",
-        "audio": "./guide/audio/main-close-cue-and-spin-popup.mp3",
+        "audio": "./guide/audio/main-close-cue-and-spin-popup.mp3?v=native-chase-20261021",
         "text": "Close the cue-control popup without changing the shot settings.",
         "summary": "Close the cue-control popup without changing the shot settings..",
         "category": "reference",
@@ -176,7 +176,7 @@
       "topic": {
         "id": "main-lock-active-shot-aim",
         "title": "Lock active shot aim",
-        "audio": "./guide/audio/main-lock-active-shot-aim.mp3",
+        "audio": "./guide/audio/main-lock-active-shot-aim.mp3?v=native-chase-20261021",
         "text": "Lock the active shot aiming angle to keep its direction while moving the cue ball. Unlock it when you want to change the angle. Free and Sticky control how the aim behaves when you reposition the ball.",
         "summary": "Lock the active shot aiming angle to keep its direction while moving the cue ball.",
         "category": "reference",
@@ -195,7 +195,7 @@
       "topic": {
         "id": "main-one-rail-bank-tool",
         "title": "One rail bank tool",
-        "audio": "./guide/audio/main-one-rail-bank-tool.mp3",
+        "audio": "./guide/audio/main-one-rail-bank-tool.mp3?v=native-chase-20261021",
         "text": "Turn the one-rail bank guide on or off.",
         "summary": "Turn the one-rail bank guide on or off..",
         "category": "reference",
@@ -214,7 +214,7 @@
       "topic": {
         "id": "main-one-rail-kick-tool",
         "title": "One rail kick tool",
-        "audio": "./guide/audio/main-one-rail-kick-tool.mp3",
+        "audio": "./guide/audio/main-one-rail-kick-tool.mp3?v=native-chase-20261021",
         "text": "Turn the one-rail kick guide on or off.",
         "summary": "Turn the one-rail kick guide on or off..",
         "category": "reference",
@@ -233,7 +233,7 @@
       "topic": {
         "id": "main-open-teaching-compass",
         "title": "Open teaching compass",
-        "audio": "./guide/audio/main-open-teaching-compass.mp3",
+        "audio": "./guide/audio/main-open-teaching-compass.mp3?v=native-chase-20261021",
         "text": "Show or hide the teaching compass for illustrating directions and angles on the table.",
         "summary": "Show or hide the teaching compass for illustrating directions and angles on the table..",
         "category": "reference",
@@ -252,7 +252,7 @@
       "topic": {
         "id": "main-teaching-compass-size",
         "title": "Teaching compass size",
-        "audio": "./guide/audio/main-teaching-compass-size.mp3",
+        "audio": "./guide/audio/main-teaching-compass-size.mp3?v=native-chase-20261021",
         "text": "Change the compass size with its slider while keeping its position and angle.",
         "summary": "Change the compass size with its slider while keeping its position and angle..",
         "category": "reference",
@@ -271,7 +271,7 @@
       "topic": {
         "id": "main-teaching-compass-rotation",
         "title": "Teaching compass rotation",
-        "audio": "./guide/audio/main-teaching-compass-rotation.mp3",
+        "audio": "./guide/audio/main-teaching-compass-rotation.mp3?v=native-chase-20261021",
         "text": "Rotate the teaching compass with its slider and relate the angle to the displayed table reference.",
         "summary": "Rotate the teaching compass with its slider and relate the angle to the displayed table reference..",
         "category": "reference",
@@ -290,7 +290,7 @@
       "topic": {
         "id": "main-shot-1-speed-slider",
         "title": "Shot 1 — Speed slider",
-        "audio": "./guide/audio/main-shot-1-speed-slider.mp3?v=chase-playback-v2",
+        "audio": "./guide/audio/main-shot-1-speed-slider.mp3?v=native-chase-20261021",
         "text": "Adjust Shot 1 stroke speed. Values are in meters per second.",
         "summary": "Adjust Shot 1 stroke speed.",
         "category": "reference",
@@ -310,7 +310,7 @@
       "topic": {
         "id": "main-shot-1-speed-decrease",
         "title": "Shot 1 — decrease speed",
-        "audio": "./guide/audio/main-shot-1-speed-decrease.mp3",
+        "audio": "./guide/audio/main-shot-1-speed-decrease.mp3?v=native-chase-20261021",
         "text": "Decrease Shot 1 speed one fine step. Holding the minus button repeats the adjustment.",
         "summary": "Decrease Shot 1 speed one fine step.",
         "category": "reference",
@@ -329,7 +329,7 @@
       "topic": {
         "id": "main-shot-1-speed-increase",
         "title": "Shot 1 — increase speed",
-        "audio": "./guide/audio/main-shot-1-speed-increase.mp3",
+        "audio": "./guide/audio/main-shot-1-speed-increase.mp3?v=native-chase-20261021",
         "text": "Increase Shot 1 speed one fine step. Holding the plus button repeats the adjustment.",
         "summary": "Increase Shot 1 speed one fine step.",
         "category": "reference",
@@ -348,7 +348,7 @@
       "topic": {
         "id": "main-shot-1-speed-type-value",
         "title": "Shot 1 — type speed value",
-        "audio": "./guide/audio/main-shot-1-speed-type-value.mp3",
+        "audio": "./guide/audio/main-shot-1-speed-type-value.mp3?v=native-chase-20261021",
         "text": "Enter an exact Shot 1 speed value in meters per second, then commit it with Enter or leaving the field.",
         "summary": "Enter an exact Shot 1 speed value in meters per second, then commit it with Enter or leaving the field..",
         "category": "reference",
@@ -367,7 +367,7 @@
       "topic": {
         "id": "main-shot-1-follow-draw-slider",
         "title": "Shot 1 — Follow draw slider",
-        "audio": "./guide/audio/main-shot-1-follow-draw-slider.mp3",
+        "audio": "./guide/audio/main-shot-1-follow-draw-slider.mp3?v=native-chase-20261021",
         "text": "Adjust Shot 1 forward rotation above zero and backspin below zero. Values are in percent.",
         "summary": "Adjust Shot 1 forward rotation above zero and backspin below zero.",
         "category": "reference",
@@ -388,7 +388,7 @@
       "topic": {
         "id": "main-shot-1-follow-draw-decrease",
         "title": "Shot 1 — decrease follow draw",
-        "audio": "./guide/audio/main-shot-1-follow-draw-decrease.mp3",
+        "audio": "./guide/audio/main-shot-1-follow-draw-decrease.mp3?v=native-chase-20261021",
         "text": "Decrease Shot 1 follow and draw one fine step. Holding the minus button repeats the adjustment.",
         "summary": "Decrease Shot 1 follow and draw one fine step.",
         "category": "reference",
@@ -407,7 +407,7 @@
       "topic": {
         "id": "main-shot-1-follow-draw-increase",
         "title": "Shot 1 — increase follow draw",
-        "audio": "./guide/audio/main-shot-1-follow-draw-increase.mp3",
+        "audio": "./guide/audio/main-shot-1-follow-draw-increase.mp3?v=native-chase-20261021",
         "text": "Increase Shot 1 follow and draw one fine step. Holding the plus button repeats the adjustment.",
         "summary": "Increase Shot 1 follow and draw one fine step.",
         "category": "reference",
@@ -426,7 +426,7 @@
       "topic": {
         "id": "main-shot-1-follow-draw-type-value",
         "title": "Shot 1 — type follow draw value",
-        "audio": "./guide/audio/main-shot-1-follow-draw-type-value.mp3",
+        "audio": "./guide/audio/main-shot-1-follow-draw-type-value.mp3?v=native-chase-20261021",
         "text": "Enter an exact Shot 1 follow and draw value in percent, then commit it with Enter or leaving the field.",
         "summary": "Enter an exact Shot 1 follow and draw value in percent, then commit it with Enter or leaving the field..",
         "category": "reference",
@@ -445,7 +445,7 @@
       "topic": {
         "id": "main-shot-1-english-slider",
         "title": "Shot 1 — English slider",
-        "audio": "./guide/audio/main-shot-1-english-slider.mp3",
+        "audio": "./guide/audio/main-shot-1-english-slider.mp3?v=native-chase-20261021",
         "text": "Adjust Shot 1 left and right English. Values are in percent.",
         "summary": "Adjust Shot 1 left and right English.",
         "category": "reference",
@@ -466,7 +466,7 @@
       "topic": {
         "id": "main-shot-1-english-decrease",
         "title": "Shot 1 — decrease english",
-        "audio": "./guide/audio/main-shot-1-english-decrease.mp3",
+        "audio": "./guide/audio/main-shot-1-english-decrease.mp3?v=native-chase-20261021",
         "text": "Decrease Shot 1 English one fine step. Holding the minus button repeats the adjustment.",
         "summary": "Decrease Shot 1 English one fine step.",
         "category": "reference",
@@ -485,7 +485,7 @@
       "topic": {
         "id": "main-shot-1-english-increase",
         "title": "Shot 1 — increase english",
-        "audio": "./guide/audio/main-shot-1-english-increase.mp3",
+        "audio": "./guide/audio/main-shot-1-english-increase.mp3?v=native-chase-20261021",
         "text": "Increase Shot 1 English one fine step. Holding the plus button repeats the adjustment.",
         "summary": "Increase Shot 1 English one fine step.",
         "category": "reference",
@@ -504,7 +504,7 @@
       "topic": {
         "id": "main-shot-1-english-type-value",
         "title": "Shot 1 — type english value",
-        "audio": "./guide/audio/main-shot-1-english-type-value.mp3",
+        "audio": "./guide/audio/main-shot-1-english-type-value.mp3?v=native-chase-20261021",
         "text": "Enter an exact Shot 1 English value in percent, then commit it with Enter or leaving the field.",
         "summary": "Enter an exact Shot 1 English value in percent, then commit it with Enter or leaving the field..",
         "category": "reference",
@@ -523,7 +523,7 @@
       "topic": {
         "id": "main-shot-1-cue-elevation-slider",
         "title": "Shot 1 — Cue elevation slider",
-        "audio": "./guide/audio/main-shot-1-cue-elevation-slider.mp3",
+        "audio": "./guide/audio/main-shot-1-cue-elevation-slider.mp3?v=native-chase-20261021",
         "text": "Adjust the Shot 1 angle of the cue above the cloth. Values are in degrees.",
         "summary": "Adjust the Shot 1 angle of the cue above the cloth.",
         "category": "reference",
@@ -543,7 +543,7 @@
       "topic": {
         "id": "main-shot-1-cue-elevation-decrease",
         "title": "Shot 1 — decrease cue elevation",
-        "audio": "./guide/audio/main-shot-1-cue-elevation-decrease.mp3",
+        "audio": "./guide/audio/main-shot-1-cue-elevation-decrease.mp3?v=native-chase-20261021",
         "text": "Decrease Shot 1 cue elevation one fine step. Holding the minus button repeats the adjustment.",
         "summary": "Decrease Shot 1 cue elevation one fine step.",
         "category": "reference",
@@ -562,7 +562,7 @@
       "topic": {
         "id": "main-shot-1-cue-elevation-increase",
         "title": "Shot 1 — increase cue elevation",
-        "audio": "./guide/audio/main-shot-1-cue-elevation-increase.mp3",
+        "audio": "./guide/audio/main-shot-1-cue-elevation-increase.mp3?v=native-chase-20261021",
         "text": "Increase Shot 1 cue elevation one fine step. Holding the plus button repeats the adjustment.",
         "summary": "Increase Shot 1 cue elevation one fine step.",
         "category": "reference",
@@ -581,7 +581,7 @@
       "topic": {
         "id": "main-shot-1-cue-elevation-type-value",
         "title": "Shot 1 — type cue elevation value",
-        "audio": "./guide/audio/main-shot-1-cue-elevation-type-value.mp3",
+        "audio": "./guide/audio/main-shot-1-cue-elevation-type-value.mp3?v=native-chase-20261021",
         "text": "Enter an exact Shot 1 cue elevation value in degrees, then commit it with Enter or leaving the field.",
         "summary": "Enter an exact Shot 1 cue elevation value in degrees, then commit it with Enter or leaving the field..",
         "category": "reference",
@@ -600,7 +600,7 @@
       "topic": {
         "id": "main-shot-1-micro-aim",
         "title": "Shot 1 — micro aim roller",
-        "audio": "./guide/audio/main-shot-1-micro-aim.mp3",
+        "audio": "./guide/audio/main-shot-1-micro-aim.mp3?v=native-chase-20261021",
         "text": "Make small adjustments to Shot 1 aiming direction by dragging the roller or using the mouse wheel.",
         "summary": "Make small adjustments to Shot 1 aiming direction by dragging the roller or using the mouse wheel..",
         "category": "reference",
@@ -619,7 +619,7 @@
       "topic": {
         "id": "main-shot-1-cue-tip-contact",
         "title": "Shot 1 — cue tip contact diagram",
-        "audio": "./guide/audio/main-shot-1-cue-tip-contact.mp3",
+        "audio": "./guide/audio/main-shot-1-cue-tip-contact.mp3?v=native-chase-20261021",
         "text": "Click, touch, or drag on the cue-ball diagram to place Shot 1 cue-tip contact.",
         "summary": "Click, touch, or drag on the cue-ball diagram to place Shot 1 cue-tip contact..",
         "category": "reference",
@@ -638,7 +638,7 @@
       "topic": {
         "id": "main-shot-1-power-meter-c",
         "title": "Shot 1 — C power meter",
-        "audio": "./guide/audio/main-shot-1-power-meter-c.mp3",
+        "audio": "./guide/audio/main-shot-1-power-meter-c.mp3?v=native-chase-20261021",
         "text": "The C meter shows cue-ball to object-ball power for Shot 1. Adjust speed and cue-tip contact to compare the power delivered at contact.",
         "summary": "The C meter shows cue-ball to object-ball power for Shot 1.",
         "category": "reference",
@@ -657,7 +657,7 @@
       "topic": {
         "id": "main-shot-1-power-meter-p",
         "title": "Shot 1 — P power meter",
-        "audio": "./guide/audio/main-shot-1-power-meter-p.mp3",
+        "audio": "./guide/audio/main-shot-1-power-meter-p.mp3?v=native-chase-20261021",
         "text": "The P meter shows object-ball to pocket power for Shot 1. Adjust the shot settings to compare the object ball power along its route to the pocket.",
         "summary": "The P meter shows object-ball to pocket power for Shot 1.",
         "category": "reference",
@@ -676,7 +676,7 @@
       "topic": {
         "id": "main-shot-1-elevation-side-view",
         "title": "Shot 1 — cue elevation side view",
-        "audio": "./guide/audio/main-shot-1-elevation-side-view.mp3",
+        "audio": "./guide/audio/main-shot-1-elevation-side-view.mp3?v=native-chase-20261021",
         "text": "This shows the side view of Shot 1 cue elevation and strike point. Hover and use the wheel to adjust this shot elevation.",
         "summary": "This shows the side view of Shot 1 cue elevation and strike point.",
         "category": "reference",
@@ -695,7 +695,7 @@
       "topic": {
         "id": "main-shot-1-hide-show-guides",
         "title": "Shot 1 — hide or show cue guides",
-        "audio": "./guide/audio/main-shot-1-hide-show-guides.mp3",
+        "audio": "./guide/audio/main-shot-1-hide-show-guides.mp3?v=native-chase-20261021",
         "text": "Temporarily hide or restore Shot 1 cue-ball visuals and aiming guides so the other plan is easier to inspect. The shot settings remain available.",
         "summary": "Temporarily hide or restore Shot 1 cue-ball visuals and aiming guides so the other plan is easier to inspect.",
         "category": "reference",
@@ -714,7 +714,7 @@
       "topic": {
         "id": "main-shot-2-speed-slider",
         "title": "Shot 2 — Speed slider",
-        "audio": "./guide/audio/main-shot-2-speed-slider.mp3?v=chase-playback-v2",
+        "audio": "./guide/audio/main-shot-2-speed-slider.mp3?v=native-chase-20261021",
         "text": "Adjust Shot 2 stroke speed. Values are in meters per second.",
         "summary": "Adjust Shot 2 stroke speed.",
         "category": "reference",
@@ -734,7 +734,7 @@
       "topic": {
         "id": "main-shot-2-speed-decrease",
         "title": "Shot 2 — decrease speed",
-        "audio": "./guide/audio/main-shot-2-speed-decrease.mp3",
+        "audio": "./guide/audio/main-shot-2-speed-decrease.mp3?v=native-chase-20261021",
         "text": "Decrease Shot 2 speed one fine step. Holding the minus button repeats the adjustment.",
         "summary": "Decrease Shot 2 speed one fine step.",
         "category": "reference",
@@ -753,7 +753,7 @@
       "topic": {
         "id": "main-shot-2-speed-increase",
         "title": "Shot 2 — increase speed",
-        "audio": "./guide/audio/main-shot-2-speed-increase.mp3",
+        "audio": "./guide/audio/main-shot-2-speed-increase.mp3?v=native-chase-20261021",
         "text": "Increase Shot 2 speed one fine step. Holding the plus button repeats the adjustment.",
         "summary": "Increase Shot 2 speed one fine step.",
         "category": "reference",
@@ -772,7 +772,7 @@
       "topic": {
         "id": "main-shot-2-speed-type-value",
         "title": "Shot 2 — type speed value",
-        "audio": "./guide/audio/main-shot-2-speed-type-value.mp3",
+        "audio": "./guide/audio/main-shot-2-speed-type-value.mp3?v=native-chase-20261021",
         "text": "Enter an exact Shot 2 speed value in meters per second, then commit it with Enter or leaving the field.",
         "summary": "Enter an exact Shot 2 speed value in meters per second, then commit it with Enter or leaving the field..",
         "category": "reference",
@@ -791,7 +791,7 @@
       "topic": {
         "id": "main-shot-2-follow-draw-slider",
         "title": "Shot 2 — Follow draw slider",
-        "audio": "./guide/audio/main-shot-2-follow-draw-slider.mp3",
+        "audio": "./guide/audio/main-shot-2-follow-draw-slider.mp3?v=native-chase-20261021",
         "text": "Adjust Shot 2 forward rotation above zero and backspin below zero. Values are in percent.",
         "summary": "Adjust Shot 2 forward rotation above zero and backspin below zero.",
         "category": "reference",
@@ -812,7 +812,7 @@
       "topic": {
         "id": "main-shot-2-follow-draw-decrease",
         "title": "Shot 2 — decrease follow draw",
-        "audio": "./guide/audio/main-shot-2-follow-draw-decrease.mp3",
+        "audio": "./guide/audio/main-shot-2-follow-draw-decrease.mp3?v=native-chase-20261021",
         "text": "Decrease Shot 2 follow and draw one fine step. Holding the minus button repeats the adjustment.",
         "summary": "Decrease Shot 2 follow and draw one fine step.",
         "category": "reference",
@@ -831,7 +831,7 @@
       "topic": {
         "id": "main-shot-2-follow-draw-increase",
         "title": "Shot 2 — increase follow draw",
-        "audio": "./guide/audio/main-shot-2-follow-draw-increase.mp3",
+        "audio": "./guide/audio/main-shot-2-follow-draw-increase.mp3?v=native-chase-20261021",
         "text": "Increase Shot 2 follow and draw one fine step. Holding the plus button repeats the adjustment.",
         "summary": "Increase Shot 2 follow and draw one fine step.",
         "category": "reference",
@@ -850,7 +850,7 @@
       "topic": {
         "id": "main-shot-2-follow-draw-type-value",
         "title": "Shot 2 — type follow draw value",
-        "audio": "./guide/audio/main-shot-2-follow-draw-type-value.mp3",
+        "audio": "./guide/audio/main-shot-2-follow-draw-type-value.mp3?v=native-chase-20261021",
         "text": "Enter an exact Shot 2 follow and draw value in percent, then commit it with Enter or leaving the field.",
         "summary": "Enter an exact Shot 2 follow and draw value in percent, then commit it with Enter or leaving the field..",
         "category": "reference",
@@ -869,7 +869,7 @@
       "topic": {
         "id": "main-shot-2-english-slider",
         "title": "Shot 2 — English slider",
-        "audio": "./guide/audio/main-shot-2-english-slider.mp3",
+        "audio": "./guide/audio/main-shot-2-english-slider.mp3?v=native-chase-20261021",
         "text": "Adjust Shot 2 left and right English. Values are in percent.",
         "summary": "Adjust Shot 2 left and right English.",
         "category": "reference",
@@ -890,7 +890,7 @@
       "topic": {
         "id": "main-shot-2-english-decrease",
         "title": "Shot 2 — decrease english",
-        "audio": "./guide/audio/main-shot-2-english-decrease.mp3",
+        "audio": "./guide/audio/main-shot-2-english-decrease.mp3?v=native-chase-20261021",
         "text": "Decrease Shot 2 English one fine step. Holding the minus button repeats the adjustment.",
         "summary": "Decrease Shot 2 English one fine step.",
         "category": "reference",
@@ -909,7 +909,7 @@
       "topic": {
         "id": "main-shot-2-english-increase",
         "title": "Shot 2 — increase english",
-        "audio": "./guide/audio/main-shot-2-english-increase.mp3",
+        "audio": "./guide/audio/main-shot-2-english-increase.mp3?v=native-chase-20261021",
         "text": "Increase Shot 2 English one fine step. Holding the plus button repeats the adjustment.",
         "summary": "Increase Shot 2 English one fine step.",
         "category": "reference",
@@ -928,7 +928,7 @@
       "topic": {
         "id": "main-shot-2-english-type-value",
         "title": "Shot 2 — type english value",
-        "audio": "./guide/audio/main-shot-2-english-type-value.mp3",
+        "audio": "./guide/audio/main-shot-2-english-type-value.mp3?v=native-chase-20261021",
         "text": "Enter an exact Shot 2 English value in percent, then commit it with Enter or leaving the field.",
         "summary": "Enter an exact Shot 2 English value in percent, then commit it with Enter or leaving the field..",
         "category": "reference",
@@ -947,7 +947,7 @@
       "topic": {
         "id": "main-shot-2-cue-elevation-slider",
         "title": "Shot 2 — Cue elevation slider",
-        "audio": "./guide/audio/main-shot-2-cue-elevation-slider.mp3",
+        "audio": "./guide/audio/main-shot-2-cue-elevation-slider.mp3?v=native-chase-20261021",
         "text": "Adjust the Shot 2 angle of the cue above the cloth. Values are in degrees.",
         "summary": "Adjust the Shot 2 angle of the cue above the cloth.",
         "category": "reference",
@@ -967,7 +967,7 @@
       "topic": {
         "id": "main-shot-2-cue-elevation-decrease",
         "title": "Shot 2 — decrease cue elevation",
-        "audio": "./guide/audio/main-shot-2-cue-elevation-decrease.mp3",
+        "audio": "./guide/audio/main-shot-2-cue-elevation-decrease.mp3?v=native-chase-20261021",
         "text": "Decrease Shot 2 cue elevation one fine step. Holding the minus button repeats the adjustment.",
         "summary": "Decrease Shot 2 cue elevation one fine step.",
         "category": "reference",
@@ -986,7 +986,7 @@
       "topic": {
         "id": "main-shot-2-cue-elevation-increase",
         "title": "Shot 2 — increase cue elevation",
-        "audio": "./guide/audio/main-shot-2-cue-elevation-increase.mp3",
+        "audio": "./guide/audio/main-shot-2-cue-elevation-increase.mp3?v=native-chase-20261021",
         "text": "Increase Shot 2 cue elevation one fine step. Holding the plus button repeats the adjustment.",
         "summary": "Increase Shot 2 cue elevation one fine step.",
         "category": "reference",
@@ -1005,7 +1005,7 @@
       "topic": {
         "id": "main-shot-2-cue-elevation-type-value",
         "title": "Shot 2 — type cue elevation value",
-        "audio": "./guide/audio/main-shot-2-cue-elevation-type-value.mp3",
+        "audio": "./guide/audio/main-shot-2-cue-elevation-type-value.mp3?v=native-chase-20261021",
         "text": "Enter an exact Shot 2 cue elevation value in degrees, then commit it with Enter or leaving the field.",
         "summary": "Enter an exact Shot 2 cue elevation value in degrees, then commit it with Enter or leaving the field..",
         "category": "reference",
@@ -1024,7 +1024,7 @@
       "topic": {
         "id": "main-shot-2-micro-aim",
         "title": "Shot 2 — micro aim roller",
-        "audio": "./guide/audio/main-shot-2-micro-aim.mp3",
+        "audio": "./guide/audio/main-shot-2-micro-aim.mp3?v=native-chase-20261021",
         "text": "Make small adjustments to Shot 2 aiming direction by dragging the roller or using the mouse wheel.",
         "summary": "Make small adjustments to Shot 2 aiming direction by dragging the roller or using the mouse wheel..",
         "category": "reference",
@@ -1043,7 +1043,7 @@
       "topic": {
         "id": "main-shot-2-cue-tip-contact",
         "title": "Shot 2 — cue tip contact diagram",
-        "audio": "./guide/audio/main-shot-2-cue-tip-contact.mp3",
+        "audio": "./guide/audio/main-shot-2-cue-tip-contact.mp3?v=native-chase-20261021",
         "text": "Click, touch, or drag on the cue-ball diagram to place Shot 2 cue-tip contact.",
         "summary": "Click, touch, or drag on the cue-ball diagram to place Shot 2 cue-tip contact..",
         "category": "reference",
@@ -1062,7 +1062,7 @@
       "topic": {
         "id": "main-shot-2-power-meter-c",
         "title": "Shot 2 — C power meter",
-        "audio": "./guide/audio/main-shot-2-power-meter-c.mp3",
+        "audio": "./guide/audio/main-shot-2-power-meter-c.mp3?v=native-chase-20261021",
         "text": "The C meter shows cue-ball to object-ball power for Shot 2. Adjust speed and cue-tip contact to compare the power delivered at contact.",
         "summary": "The C meter shows cue-ball to object-ball power for Shot 2.",
         "category": "reference",
@@ -1081,7 +1081,7 @@
       "topic": {
         "id": "main-shot-2-power-meter-p",
         "title": "Shot 2 — P power meter",
-        "audio": "./guide/audio/main-shot-2-power-meter-p.mp3",
+        "audio": "./guide/audio/main-shot-2-power-meter-p.mp3?v=native-chase-20261021",
         "text": "The P meter shows object-ball to pocket power for Shot 2. Adjust the shot settings to compare the object ball power along its route to the pocket.",
         "summary": "The P meter shows object-ball to pocket power for Shot 2.",
         "category": "reference",
@@ -1100,7 +1100,7 @@
       "topic": {
         "id": "main-shot-2-elevation-side-view",
         "title": "Shot 2 — cue elevation side view",
-        "audio": "./guide/audio/main-shot-2-elevation-side-view.mp3",
+        "audio": "./guide/audio/main-shot-2-elevation-side-view.mp3?v=native-chase-20261021",
         "text": "This shows the side view of Shot 2 cue elevation and strike point. Hover and use the wheel to adjust this shot elevation.",
         "summary": "This shows the side view of Shot 2 cue elevation and strike point.",
         "category": "reference",
@@ -1119,7 +1119,7 @@
       "topic": {
         "id": "main-shot-2-hide-show-guides",
         "title": "Shot 2 — hide or show cue guides",
-        "audio": "./guide/audio/main-shot-2-hide-show-guides.mp3",
+        "audio": "./guide/audio/main-shot-2-hide-show-guides.mp3?v=native-chase-20261021",
         "text": "Temporarily hide or restore Shot 2 cue-ball visuals and aiming guides so the other plan is easier to inspect. The shot settings remain available.",
         "summary": "Temporarily hide or restore Shot 2 cue-ball visuals and aiming guides so the other plan is easier to inspect.",
         "category": "reference",
@@ -1138,7 +1138,7 @@
       "topic": {
         "id": "main-enable-jump-and-masse-features",
         "title": "Enable jump and masse features",
-        "audio": "./guide/audio/main-enable-jump-and-masse-features.mp3",
+        "audio": "./guide/audio/main-enable-jump-and-masse-features.mp3?v=native-chase-20261021",
         "text": "Turn 3D jump and massé controls on or off.",
         "summary": "Turn 3D jump and massé controls on or off..",
         "category": "reference",
@@ -1157,7 +1157,7 @@
       "topic": {
         "id": "main-execute-the-active-shot",
         "title": "Execute the active shot",
-        "audio": "./guide/audio/main-execute-the-active-shot.mp3",
+        "audio": "./guide/audio/main-execute-the-active-shot.mp3?v=native-chase-20261021",
         "text": "Run the active shot's simulation.",
         "summary": "Run the active shot's simulation..",
         "category": "reference",
@@ -1176,7 +1176,7 @@
       "topic": {
         "id": "main-add-or-remove-shot-2-plan",
         "title": "Add or remove Shot 2 plan",
-        "audio": "./guide/audio/main-add-or-remove-shot-2-plan.mp3",
+        "audio": "./guide/audio/main-add-or-remove-shot-2-plan.mp3?v=native-chase-20261021",
         "text": "Enable or remove the second-shot plan.",
         "summary": "Enable or remove the second-shot plan..",
         "category": "reference",
@@ -1195,7 +1195,7 @@
       "topic": {
         "id": "main-undo-last-shot",
         "title": "Undo last shot",
-        "audio": "./guide/audio/main-undo-last-shot.mp3",
+        "audio": "./guide/audio/main-undo-last-shot.mp3?v=native-chase-20261021",
         "text": "Return one step in the shot history.",
         "summary": "Return one step in the shot history..",
         "category": "reference",
@@ -1214,7 +1214,7 @@
       "topic": {
         "id": "main-reset-practice-layout",
         "title": "Reset practice layout",
-        "audio": "./guide/audio/main-reset-practice-layout.mp3",
+        "audio": "./guide/audio/main-reset-practice-layout.mp3?v=native-chase-20261021",
         "text": "Restore the practice layout and restart its run history.",
         "summary": "Restore the practice layout and restart its run history..",
         "category": "reference",
@@ -1234,7 +1234,7 @@
       "topic": {
         "id": "main-add-selected-balls-or-rack",
         "title": "Add selected balls or rack",
-        "audio": "./guide/audio/main-add-selected-balls-or-rack.mp3",
+        "audio": "./guide/audio/main-add-selected-balls-or-rack.mp3?v=native-chase-20261021",
         "text": "Build the ball count or rack chosen in the setup menu.",
         "summary": "Build the ball count or rack chosen in the setup menu..",
         "category": "reference",
@@ -1253,7 +1253,7 @@
       "topic": {
         "id": "main-randomly-shuffle-table-layout",
         "title": "Randomly shuffle table layout",
-        "audio": "./guide/audio/main-randomly-shuffle-table-layout.mp3",
+        "audio": "./guide/audio/main-randomly-shuffle-table-layout.mp3?v=native-chase-20261021",
         "text": "Randomly reposition the current table's object balls for a new practice layout.",
         "summary": "Randomly reposition the current table's object balls for a new practice layout..",
         "category": "reference",
@@ -1272,7 +1272,7 @@
       "topic": {
         "id": "main-choose-ball-count-or-rack",
         "title": "Choose ball count or rack",
-        "audio": "./guide/audio/main-choose-ball-count-or-rack.mp3",
+        "audio": "./guide/audio/main-choose-ball-count-or-rack.mp3?v=native-chase-20261021",
         "text": "Choose how many numbered balls you want for a random practice layout, then press Add Groups of Balls. For a game rack, use the separate Pick and Play Full Racks menu and press Start.",
         "summary": "Choose how many numbered balls you want for a random practice layout, then press Add Groups of Balls.",
         "category": "reference",
@@ -1291,7 +1291,7 @@
       "topic": {
         "id": "main-add-next-ball",
         "title": "Add next ball",
-        "audio": "./guide/audio/main-add-next-ball.mp3",
+        "audio": "./guide/audio/main-add-next-ball.mp3?v=native-chase-20261021",
         "text": "Add the next available numbered ball to the table. If all fifteen object balls are already present, there is no additional numbered ball to add.",
         "summary": "Add the next available numbered ball to the table.",
         "category": "reference",
@@ -1310,7 +1310,7 @@
       "topic": {
         "id": "main-add-selected-ball",
         "title": "Add selected ball",
-        "audio": "./guide/audio/main-add-selected-ball.mp3",
+        "audio": "./guide/audio/main-add-selected-ball.mp3?v=native-chase-20261021",
         "text": "Add the cue ball or numbered ball selected in the ball menu.",
         "summary": "Add the cue ball or numbered ball selected in the ball menu..",
         "category": "reference",
@@ -1329,7 +1329,7 @@
       "topic": {
         "id": "main-remove-selected-ball",
         "title": "Remove selected ball",
-        "audio": "./guide/audio/main-remove-selected-ball.mp3",
+        "audio": "./guide/audio/main-remove-selected-ball.mp3?v=native-chase-20261021",
         "text": "Remove the selected numbered ball from this layout. The cue ball is protected. Removed balls are different from balls registered in the pocketed-ball strip.",
         "summary": "Remove the selected numbered ball from this layout.",
         "category": "reference",
@@ -1348,7 +1348,7 @@
       "topic": {
         "id": "main-choose-ball-identity",
         "title": "Choose ball identity",
-        "audio": "./guide/audio/main-choose-ball-identity.mp3",
+        "audio": "./guide/audio/main-choose-ball-identity.mp3?v=native-chase-20261021",
         "text": "Choose Cue Ball or a numbered object ball from the menu, then use Add Ball or Remove Ball. Choosing a number alone does not change the table.",
         "summary": "Choose Cue Ball or a numbered object ball from the menu, then use Add Ball or Remove Ball.",
         "category": "reference",
@@ -1367,7 +1367,7 @@
       "topic": {
         "id": "main-add-next-marker",
         "title": "Add next marker",
-        "audio": "./guide/audio/main-add-next-marker.mp3",
+        "audio": "./guide/audio/main-add-next-marker.mp3?v=native-chase-20261021",
         "text": "Add the next color marker in the remembered shape. Colors cycle white, red, pink, yellow.",
         "summary": "Add the next color marker in the remembered shape.",
         "category": "reference",
@@ -1386,7 +1386,7 @@
       "topic": {
         "id": "main-add-selected-marker",
         "title": "Add selected marker",
-        "audio": "./guide/audio/main-add-selected-marker.mp3",
+        "audio": "./guide/audio/main-add-selected-marker.mp3?v=native-chase-20261021",
         "text": "Add the marker shape and color currently selected in the marker menu.",
         "summary": "Add the marker shape and color currently selected in the marker menu..",
         "category": "reference",
@@ -1405,7 +1405,7 @@
       "topic": {
         "id": "main-remove-marker",
         "title": "Remove marker",
-        "audio": "./guide/audio/main-remove-marker.mp3",
+        "audio": "./guide/audio/main-remove-marker.mp3?v=native-chase-20261021",
         "text": "Remove the most recently added marker matching the currently selected shape and color.",
         "summary": "Remove the most recently added marker matching the currently selected shape and color..",
         "category": "reference",
@@ -1424,7 +1424,7 @@
       "topic": {
         "id": "main-choose-marker-shape-and-color",
         "title": "Choose marker shape and color",
-        "audio": "./guide/audio/main-choose-marker-shape-and-color.mp3",
+        "audio": "./guide/audio/main-choose-marker-shape-and-color.mp3?v=native-chase-20261021",
         "text": "Choose a circle, square/rectangle, or triangle and its display color.",
         "summary": "Choose a circle, square/rectangle, or triangle and its display color..",
         "category": "reference",
@@ -1443,7 +1443,7 @@
       "topic": {
         "id": "main-choose-individual-practice-target",
         "title": "Choose individual practice target",
-        "audio": "./guide/audio/main-choose-individual-practice-target.mp3",
+        "audio": "./guide/audio/main-choose-individual-practice-target.mp3?v=native-chase-20261021",
         "text": "Select the individual practice target whose size you want to change. Each target keeps its own size.",
         "summary": "Select the individual practice target whose size you want to change.",
         "category": "reference",
@@ -1462,7 +1462,7 @@
       "topic": {
         "id": "main-practice-target-diameter-slider",
         "title": "Practice target diameter slider",
-        "audio": "./guide/audio/main-practice-target-diameter-slider.mp3",
+        "audio": "./guide/audio/main-practice-target-diameter-slider.mp3?v=native-chase-20261021",
         "text": "Change the selected circular target diameter in inches.",
         "summary": "Change the selected circular target diameter in inches..",
         "category": "reference",
@@ -1481,7 +1481,7 @@
       "topic": {
         "id": "main-type-practice-target-diameter",
         "title": "Type practice target diameter",
-        "audio": "./guide/audio/main-type-practice-target-diameter.mp3",
+        "audio": "./guide/audio/main-type-practice-target-diameter.mp3?v=native-chase-20261021",
         "text": "Enter an exact diameter in inches for the selected target and commit the value.",
         "summary": "Enter an exact diameter in inches for the selected target and commit the value..",
         "category": "reference",
@@ -1500,7 +1500,7 @@
       "topic": {
         "id": "main-name-a-saved-layout",
         "title": "Name a saved layout",
-        "audio": "./guide/audio/main-name-a-saved-layout.mp3",
+        "audio": "./guide/audio/main-name-a-saved-layout.mp3?v=native-chase-20261021",
         "text": "Enter a recognizable name for the table layout.",
         "summary": "Enter a recognizable name for the table layout..",
         "category": "reference",
@@ -1520,7 +1520,7 @@
       "topic": {
         "id": "main-choose-browser-saved-layout",
         "title": "Choose browser saved layout",
-        "audio": "./guide/audio/main-choose-browser-saved-layout.mp3",
+        "audio": "./guide/audio/main-choose-browser-saved-layout.mp3?v=native-chase-20261021",
         "text": "Select a named layout saved in this device's browser.",
         "summary": "Select a named layout saved in this device's browser..",
         "category": "reference",
@@ -1540,7 +1540,7 @@
       "topic": {
         "id": "main-save-current-layout-in-browser",
         "title": "Save current layout in browser",
-        "audio": "./guide/audio/main-save-current-layout-in-browser.mp3",
+        "audio": "./guide/audio/main-save-current-layout-in-browser.mp3?v=native-chase-20261021",
         "text": "Save the current ball arrangement under the entered name in this device's browser.",
         "summary": "Save the current ball arrangement under the entered name in this device's browser..",
         "category": "reference",
@@ -1560,7 +1560,7 @@
       "topic": {
         "id": "main-recall-browser-saved-layout",
         "title": "Recall browser saved layout",
-        "audio": "./guide/audio/main-recall-browser-saved-layout.mp3",
+        "audio": "./guide/audio/main-recall-browser-saved-layout.mp3?v=native-chase-20261021",
         "text": "Load the layout chosen in the saved-layout menu into the trainer.",
         "summary": "Load the layout chosen in the saved-layout menu into the trainer..",
         "category": "reference",
@@ -1580,7 +1580,7 @@
       "topic": {
         "id": "main-rename-browser-saved-layout",
         "title": "Rename browser saved layout",
-        "audio": "./guide/audio/main-rename-browser-saved-layout.mp3",
+        "audio": "./guide/audio/main-rename-browser-saved-layout.mp3?v=native-chase-20261021",
         "text": "Select a saved layout, enter its new name, and rename that saved entry.",
         "summary": "Select a saved layout, enter its new name, and rename that saved entry..",
         "category": "reference",
@@ -1599,7 +1599,7 @@
       "topic": {
         "id": "main-delete-browser-saved-layout",
         "title": "Delete browser saved layout",
-        "audio": "./guide/audio/main-delete-browser-saved-layout.mp3",
+        "audio": "./guide/audio/main-delete-browser-saved-layout.mp3?v=native-chase-20261021",
         "text": "Delete the selected browser saved layout.",
         "summary": "Delete the selected browser saved layout..",
         "category": "reference",
@@ -1618,7 +1618,7 @@
       "topic": {
         "id": "main-load-table-or-session-json-file",
         "title": "Load table or session JSON file",
-        "audio": "./guide/audio/main-load-table-or-session-json-file.mp3",
+        "audio": "./guide/audio/main-load-table-or-session-json-file.mp3?v=native-chase-20261021",
         "text": "Open a locally stored or shared trainer JSON file. Table files restore an arrangement; session files can also restore settings and history.",
         "summary": "Open a locally stored or shared trainer JSON file.",
         "category": "reference",
@@ -1637,7 +1637,7 @@
       "topic": {
         "id": "main-save-portable-table-json-file",
         "title": "Save portable table JSON file",
-        "audio": "./guide/audio/main-save-portable-table-json-file.mp3",
+        "audio": "./guide/audio/main-save-portable-table-json-file.mp3?v=native-chase-20261021",
         "text": "Download the current arrangement as a named trainer JSON file for storage or sharing with another student or instructor.",
         "summary": "Download the current arrangement as a named trainer JSON file for storage or sharing with another student or instructor..",
         "category": "reference",
@@ -1656,7 +1656,7 @@
       "topic": {
         "id": "main-save-portable-session-json-file",
         "title": "Save portable session JSON file",
-        "audio": "./guide/audio/main-save-portable-session-json-file.mp3",
+        "audio": "./guide/audio/main-save-portable-session-json-file.mp3?v=native-chase-20261021",
         "text": "Download the current session including table, supported settings, and shot history so practice can resume later.",
         "summary": "Download the current session including table, supported settings, and shot history so practice can resume later..",
         "category": "reference",
@@ -1675,7 +1675,7 @@
       "topic": {
         "id": "main-connect-auto-save-folder",
         "title": "Connect auto save folder",
-        "audio": "./guide/audio/main-connect-auto-save-folder.mp3",
+        "audio": "./guide/audio/main-connect-auto-save-folder.mp3?v=native-chase-20261021",
         "text": "Choose a folder, initially suggested as Downloads, for automatic latest-session saving. Available only on supported browsers.",
         "summary": "Choose a folder, initially suggested as Downloads, for automatic latest-session saving.",
         "category": "reference",
@@ -1694,7 +1694,7 @@
       "topic": {
         "id": "main-player-1-select",
         "title": "Select Player 1",
-        "audio": "./guide/audio/main-player-1-select.mp3",
+        "audio": "./guide/audio/main-player-1-select.mp3?v=native-chase-20261021",
         "text": "Set Player 1 as the active player without executing a shot.",
         "summary": "Set Player 1 as the active player without executing a shot..",
         "category": "reference",
@@ -1713,7 +1713,7 @@
       "topic": {
         "id": "main-player-1-score-decrease",
         "title": "Player 1 — decrease score",
-        "audio": "./guide/audio/main-player-1-score-decrease.mp3",
+        "audio": "./guide/audio/main-player-1-score-decrease.mp3?v=native-chase-20261021",
         "text": "Decrease Player 1 score by one.",
         "summary": "Decrease Player 1 score by one..",
         "category": "reference",
@@ -1732,7 +1732,7 @@
       "topic": {
         "id": "main-player-1-score-increase",
         "title": "Player 1 — increase score",
-        "audio": "./guide/audio/main-player-1-score-increase.mp3",
+        "audio": "./guide/audio/main-player-1-score-increase.mp3?v=native-chase-20261021",
         "text": "Increase Player 1 score by one.",
         "summary": "Increase Player 1 score by one..",
         "category": "reference",
@@ -1751,7 +1751,7 @@
       "topic": {
         "id": "main-player-2-select",
         "title": "Select Player 2",
-        "audio": "./guide/audio/main-player-2-select.mp3",
+        "audio": "./guide/audio/main-player-2-select.mp3?v=native-chase-20261021",
         "text": "Set Player 2 as the active player without executing a shot.",
         "summary": "Set Player 2 as the active player without executing a shot..",
         "category": "reference",
@@ -1770,7 +1770,7 @@
       "topic": {
         "id": "main-player-2-score-decrease",
         "title": "Player 2 — decrease score",
-        "audio": "./guide/audio/main-player-2-score-decrease.mp3",
+        "audio": "./guide/audio/main-player-2-score-decrease.mp3?v=native-chase-20261021",
         "text": "Decrease Player 2 score by one.",
         "summary": "Decrease Player 2 score by one..",
         "category": "reference",
@@ -1789,7 +1789,7 @@
       "topic": {
         "id": "main-player-2-score-increase",
         "title": "Player 2 — increase score",
-        "audio": "./guide/audio/main-player-2-score-increase.mp3",
+        "audio": "./guide/audio/main-player-2-score-increase.mp3?v=native-chase-20261021",
         "text": "Increase Player 2 score by one.",
         "summary": "Increase Player 2 score by one..",
         "category": "reference",
@@ -1808,7 +1808,7 @@
       "topic": {
         "id": "main-switch-turn",
         "title": "Switch player turn",
-        "audio": "./guide/audio/main-switch-turn.mp3",
+        "audio": "./guide/audio/main-switch-turn.mp3?v=native-chase-20261021",
         "text": "Switch the active player between Player 1 and Player 2. This does not execute a shot.",
         "summary": "Switch the active player between Player 1 and Player 2.",
         "category": "reference",
@@ -1827,7 +1827,7 @@
       "topic": {
         "id": "main-playing-table-length",
         "title": "Playing table length",
-        "audio": "./guide/audio/main-playing-table-length.mp3",
+        "audio": "./guide/audio/main-playing-table-length.mp3?v=native-chase-20261021",
         "text": "Set the playing length in inches, measured inside the cushion noses.",
         "summary": "Set the playing length in inches, measured inside the cushion noses..",
         "category": "reference",
@@ -1846,7 +1846,7 @@
       "topic": {
         "id": "main-playing-table-width",
         "title": "Playing table width",
-        "audio": "./guide/audio/main-playing-table-width.mp3",
+        "audio": "./guide/audio/main-playing-table-width.mp3?v=native-chase-20261021",
         "text": "Set the playing width in inches, measured inside the cushion noses.",
         "summary": "Set the playing width in inches, measured inside the cushion noses..",
         "category": "reference",
@@ -1865,7 +1865,7 @@
       "topic": {
         "id": "main-ball-diameter",
         "title": "Ball diameter",
-        "audio": "./guide/audio/main-ball-diameter.mp3",
+        "audio": "./guide/audio/main-ball-diameter.mp3?v=native-chase-20261021",
         "text": "Set ball diameter in inches . This changes ball spacing, contact, and clearance.",
         "summary": "Set ball diameter in inches .",
         "category": "reference",
@@ -1884,7 +1884,7 @@
       "topic": {
         "id": "main-sliding-friction",
         "title": "Sliding friction",
-        "audio": "./guide/audio/main-sliding-friction.mp3",
+        "audio": "./guide/audio/main-sliding-friction.mp3?v=native-chase-20261021",
         "text": "Adjust cloth friction while a ball is sliding.",
         "summary": "Adjust cloth friction while a ball is sliding..",
         "category": "reference",
@@ -1903,7 +1903,7 @@
       "topic": {
         "id": "main-rolling-friction",
         "title": "Rolling friction",
-        "audio": "./guide/audio/main-rolling-friction.mp3",
+        "audio": "./guide/audio/main-rolling-friction.mp3?v=native-chase-20261021",
         "text": "Adjust rolling resistance and the distance a rolling ball travels.",
         "summary": "Adjust rolling resistance and the distance a rolling ball travels..",
         "category": "reference",
@@ -1922,7 +1922,7 @@
       "topic": {
         "id": "main-ball-to-ball-friction",
         "title": "Ball to ball friction",
-        "audio": "./guide/audio/main-ball-to-ball-friction.mp3",
+        "audio": "./guide/audio/main-ball-to-ball-friction.mp3?v=native-chase-20261021",
         "text": "Adjust tangential friction during ball contact and its effect on throw and spin transfer.",
         "summary": "Adjust tangential friction during ball contact and its effect on throw and spin transfer..",
         "category": "reference",
@@ -1941,7 +1941,7 @@
       "topic": {
         "id": "main-ball-collision-restitution",
         "title": "Ball collision restitution",
-        "audio": "./guide/audio/main-ball-collision-restitution.mp3",
+        "audio": "./guide/audio/main-ball-collision-restitution.mp3?v=native-chase-20261021",
         "text": "Adjust how much normal speed is retained during a ball-to-ball collision.",
         "summary": "Adjust how much normal speed is retained during a ball-to-ball collision..",
         "category": "reference",
@@ -1960,7 +1960,7 @@
       "topic": {
         "id": "main-rail-rebound",
         "title": "Rail rebound",
-        "audio": "./guide/audio/main-rail-rebound.mp3",
+        "audio": "./guide/audio/main-rail-rebound.mp3?v=native-chase-20261021",
         "text": "Adjust the normal rebound response when a ball contacts a cushion.",
         "summary": "Adjust the normal rebound response when a ball contacts a cushion..",
         "category": "reference",
@@ -1979,7 +1979,7 @@
       "topic": {
         "id": "main-rail-tangential-damping",
         "title": "Rail tangential damping",
-        "audio": "./guide/audio/main-rail-tangential-damping.mp3",
+        "audio": "./guide/audio/main-rail-tangential-damping.mp3?v=native-chase-20261021",
         "text": "Adjust the along-rail velocity retained during cushion contact.",
         "summary": "Adjust the along-rail velocity retained during cushion contact..",
         "category": "reference",
@@ -1998,7 +1998,7 @@
       "topic": {
         "id": "main-cue-ball-to-cue-end-mass-ratio",
         "title": "Cue ball to cue end mass ratio",
-        "audio": "./guide/audio/main-cue-ball-to-cue-end-mass-ratio.mp3",
+        "audio": "./guide/audio/main-cue-ball-to-cue-end-mass-ratio.mp3?v=native-chase-20261021",
         "text": "Adjust the cue-ball to cue-end mass ratio used by the squirt model. This changes the predicted sideways deviation from off-center cue-tip contact. Compare the squirt readout as you adjust it.",
         "summary": "Adjust the cue-ball to cue-end mass ratio used by the squirt model.",
         "category": "reference",
@@ -2017,7 +2017,7 @@
       "topic": {
         "id": "main-enable-airborne-physics-in-calibration",
         "title": "Enable airborne physics in calibration",
-        "audio": "./guide/audio/main-enable-airborne-physics-in-calibration.mp3",
+        "audio": "./guide/audio/main-enable-airborne-physics-in-calibration.mp3?v=native-chase-20261021",
         "text": "Enable or disable 3D jump and massé physics from the calibration settings.",
         "summary": "Enable or disable 3D jump and massé physics from the calibration settings..",
         "category": "reference",
@@ -2036,7 +2036,7 @@
       "topic": {
         "id": "main-bed-vertical-restitution",
         "title": "Bed vertical restitution",
-        "audio": "./guide/audio/main-bed-vertical-restitution.mp3",
+        "audio": "./guide/audio/main-bed-vertical-restitution.mp3?v=native-chase-20261021",
         "text": "Adjust cue-ball vertical bounce response when landing on the cloth.",
         "summary": "Adjust cue-ball vertical bounce response when landing on the cloth..",
         "category": "reference",
@@ -2055,7 +2055,7 @@
       "topic": {
         "id": "main-bed-impact-friction",
         "title": "Bed impact friction",
-        "audio": "./guide/audio/main-bed-impact-friction.mp3",
+        "audio": "./guide/audio/main-bed-impact-friction.mp3?v=native-chase-20261021",
         "text": "Adjust friction during a landing impact and its effect on the ball after landing.",
         "summary": "Adjust friction during a landing impact and its effect on the ball after landing..",
         "category": "reference",
@@ -2074,7 +2074,7 @@
       "topic": {
         "id": "main-jump-and-masse-measurement-units",
         "title": "Jump and masse measurement units",
-        "audio": "./guide/audio/main-jump-and-masse-measurement-units.mp3",
+        "audio": "./guide/audio/main-jump-and-masse-measurement-units.mp3?v=native-chase-20261021",
         "text": "Choose inches or millimeters for jump and massé distance readouts.",
         "summary": "Choose inches or millimeters for jump and massé distance readouts..",
         "category": "reference",
@@ -2093,7 +2093,7 @@
       "topic": {
         "id": "main-table-preset-7d",
         "title": "Table preset — 7 foot Diamond 80 by 40",
-        "audio": "./guide/audio/main-table-preset-7d.mp3",
+        "audio": "./guide/audio/main-table-preset-7d.mp3?v=native-chase-20261021",
         "text": "Apply the Table preset — 7 foot Diamond 80 by 40 playing-surface dimensions and reset the layout. Table measurements refer to the playing area inside the cushion noses.",
         "summary": "Apply the Table preset — 7 foot Diamond 80 by 40 playing-surface dimensions and reset the layout.",
         "category": "reference",
@@ -2112,7 +2112,7 @@
       "topic": {
         "id": "main-table-preset-7b",
         "title": "Table preset — 7 foot bar 78 by 39",
-        "audio": "./guide/audio/main-table-preset-7b.mp3",
+        "audio": "./guide/audio/main-table-preset-7b.mp3?v=native-chase-20261021",
         "text": "Apply the Table preset — 7 foot bar 78 by 39 playing-surface dimensions and reset the layout. Table measurements refer to the playing area inside the cushion noses.",
         "summary": "Apply the Table preset — 7 foot bar 78 by 39 playing-surface dimensions and reset the layout.",
         "category": "reference",
@@ -2131,7 +2131,7 @@
       "topic": {
         "id": "main-table-preset-8",
         "title": "Table preset — 8 foot 88 by 44",
-        "audio": "./guide/audio/main-table-preset-8.mp3",
+        "audio": "./guide/audio/main-table-preset-8.mp3?v=native-chase-20261021",
         "text": "Apply the Table preset — 8 foot 88 by 44 playing-surface dimensions and reset the layout. Table measurements refer to the playing area inside the cushion noses.",
         "summary": "Apply the Table preset — 8 foot 88 by 44 playing-surface dimensions and reset the layout.",
         "category": "reference",
@@ -2150,7 +2150,7 @@
       "topic": {
         "id": "main-table-preset-9",
         "title": "Table preset — 9 foot 100 by 50",
-        "audio": "./guide/audio/main-table-preset-9.mp3",
+        "audio": "./guide/audio/main-table-preset-9.mp3?v=native-chase-20261021",
         "text": "Apply the Table preset — 9 foot 100 by 50 playing-surface dimensions and reset the layout. Table measurements refer to the playing area inside the cushion noses.",
         "summary": "Apply the Table preset — 9 foot 100 by 50 playing-surface dimensions and reset the layout.",
         "category": "reference",
@@ -2169,7 +2169,7 @@
       "topic": {
         "id": "main-advanced-settings-open-close",
         "title": "Open or close advanced calibration",
-        "audio": "./guide/audio/main-advanced-settings-open-close.mp3",
+        "audio": "./guide/audio/main-advanced-settings-open-close.mp3?v=native-chase-20261021",
         "text": "Expand or collapse the advanced calibration fields.",
         "summary": "Expand or collapse the advanced calibration fields..",
         "category": "reference",
@@ -2188,7 +2188,7 @@
       "topic": {
         "id": "main-show-cue-target-lock-control",
         "title": "Show cue target lock control",
-        "audio": "./guide/audio/main-show-cue-target-lock-control.mp3",
+        "audio": "./guide/audio/main-show-cue-target-lock-control.mp3?v=native-chase-20261021",
         "text": "Show or hide the angle-lock control on the table. This visibility setting is distinct from engaging the lock.",
         "summary": "Show or hide the angle-lock control on the table.",
         "category": "reference",
@@ -2207,7 +2207,7 @@
       "topic": {
         "id": "main-show-impact-cue-ball-and-overlap",
         "title": "Show impact cue ball and overlap",
-        "audio": "./guide/audio/main-show-impact-cue-ball-and-overlap.mp3",
+        "audio": "./guide/audio/main-show-impact-cue-ball-and-overlap.mp3?v=native-chase-20261021",
         "text": "Show or hide the impact cue ball, overlap band, and associated contact references.",
         "summary": "Show or hide the impact cue ball, overlap band, and associated contact references..",
         "category": "reference",
@@ -2226,7 +2226,7 @@
       "topic": {
         "id": "main-show-cue-tip-contact-badge",
         "title": "Show cue tip contact badge",
-        "audio": "./guide/audio/main-show-cue-tip-contact-badge.mp3",
+        "audio": "./guide/audio/main-show-cue-tip-contact-badge.mp3?v=native-chase-20261021",
         "text": "Show or hide the compact cue-tip contact badge near the cue ball.",
         "summary": "Show or hide the compact cue-tip contact badge near the cue ball..",
         "category": "reference",
@@ -2245,7 +2245,7 @@
       "topic": {
         "id": "main-show-trajectory-preview",
         "title": "Show trajectory preview",
-        "audio": "./guide/audio/main-show-trajectory-preview.mp3",
+        "audio": "./guide/audio/main-show-trajectory-preview.mp3?v=native-chase-20261021",
         "text": "Show or hide the predicted ball paths.",
         "summary": "Show or hide the predicted ball paths..",
         "category": "reference",
@@ -2264,7 +2264,7 @@
       "topic": {
         "id": "main-show-diamond-connected-grid",
         "title": "Show diamond connected grid",
-        "audio": "./guide/audio/main-show-diamond-connected-grid.mp3",
+        "audio": "./guide/audio/main-show-diamond-connected-grid.mp3?v=native-chase-20261021",
         "text": "Show or hide the table grid connected to diamond reference positions.",
         "summary": "Show or hide the table grid connected to diamond reference positions..",
         "category": "reference",
@@ -2283,7 +2283,7 @@
       "topic": {
         "id": "main-show-rail-diamonds",
         "title": "Show rail diamonds",
-        "audio": "./guide/audio/main-show-rail-diamonds.mp3",
+        "audio": "./guide/audio/main-show-rail-diamonds.mp3?v=native-chase-20261021",
         "text": "Show or hide rail diamond markers.",
         "summary": "Show or hide rail diamond markers..",
         "category": "reference",
@@ -2302,7 +2302,7 @@
       "topic": {
         "id": "main-show-table-and-balls",
         "title": "Show table and balls",
-        "audio": "./guide/audio/main-show-table-and-balls.mp3",
+        "audio": "./guide/audio/main-show-table-and-balls.mp3?v=native-chase-20261021",
         "text": "Show or hide the table artwork and ball display. This helps you choose which visual references to use for instruction or projection.",
         "summary": "Show or hide the table artwork and ball display.",
         "category": "reference",
@@ -2321,7 +2321,7 @@
       "topic": {
         "id": "main-show-player-controls",
         "title": "Show player controls",
-        "audio": "./guide/audio/main-show-player-controls.mp3",
+        "audio": "./guide/audio/main-show-player-controls.mp3?v=native-chase-20261021",
         "text": "Show or hide the Player 1 and Player 2 score and turn controls.",
         "summary": "Show or hide the Player 1 and Player 2 score and turn controls..",
         "category": "reference",
@@ -2340,7 +2340,7 @@
       "topic": {
         "id": "main-show-bank-and-kick-rail-numbers",
         "title": "Show bank and kick rail numbers",
-        "audio": "./guide/audio/main-show-bank-and-kick-rail-numbers.mp3",
+        "audio": "./guide/audio/main-show-bank-and-kick-rail-numbers.mp3?v=native-chase-20261021",
         "text": "Show or hide numbered rail references used by bank and kick tools.",
         "summary": "Show or hide numbered rail references used by bank and kick tools..",
         "category": "reference",
@@ -2359,7 +2359,7 @@
       "topic": {
         "id": "main-panel-shot",
         "title": "Open or close Shot",
-        "audio": "./guide/audio/main-panel-shot.mp3",
+        "audio": "./guide/audio/main-panel-shot.mp3?v=native-chase-20261021",
         "text": "Open or close the Shot panel to reach execution, shot planning, and cue-ball controls.",
         "summary": "Open or close the Shot panel to reach execution, shot planning, and cue-ball controls..",
         "category": "reference",
@@ -2378,7 +2378,7 @@
       "topic": {
         "id": "main-panel-table-balls",
         "title": "Open or close Table / Balls",
-        "audio": "./guide/audio/main-panel-table-balls.mp3",
+        "audio": "./guide/audio/main-panel-table-balls.mp3?v=native-chase-20261021",
         "text": "Open or close Tables and Balls to choose a rack, add balls or markers, and manage layouts and session files.",
         "summary": "Open or close Tables and Balls to choose a rack, add balls or markers, and manage layouts and session files..",
         "category": "reference",
@@ -2397,7 +2397,7 @@
       "topic": {
         "id": "main-panel-live-stats",
         "title": "Open or close Live Stats",
-        "audio": "./guide/audio/main-panel-live-stats.mp3",
+        "audio": "./guide/audio/main-panel-live-stats.mp3?v=native-chase-20261021",
         "text": "Open or close Live Stats to see the current shot contact, speed, spin, flight, and clearance readouts.",
         "summary": "Open or close Live Stats to see the current shot contact, speed, spin, flight, and clearance readouts..",
         "category": "reference",
@@ -2416,7 +2416,7 @@
       "topic": {
         "id": "main-panel-physics-calibration",
         "title": "Open or close Physics / Calibration",
-        "audio": "./guide/audio/main-panel-physics-calibration.mp3",
+        "audio": "./guide/audio/main-panel-physics-calibration.mp3?v=native-chase-20261021",
         "text": "Open or close Physics and Calibration to set table dimensions, ball size, cloth friction, collision response, and measurement units.",
         "summary": "Open or close Physics and Calibration to set table dimensions, ball size, cloth friction, collision response, and measurement units..",
         "category": "reference",
@@ -2435,7 +2435,7 @@
       "topic": {
         "id": "main-panel-features-options",
         "title": "Open or close Features & Options",
-        "audio": "./guide/audio/main-panel-features-options.mp3",
+        "audio": "./guide/audio/main-panel-features-options.mp3?v=native-chase-20261021",
         "text": "Open or close Features and Options to choose which teaching references, paths, and controls are visible.",
         "summary": "Open or close Features and Options to choose which teaching references, paths, and controls are visible..",
         "category": "reference",
@@ -2454,7 +2454,7 @@
       "topic": {
         "id": "main-shot-1-stats-enlarge",
         "title": "Shot 1 — enlarge or restore stats",
-        "audio": "./guide/audio/main-shot-1-stats-enlarge.mp3",
+        "audio": "./guide/audio/main-shot-1-stats-enlarge.mp3?v=native-chase-20261021",
         "text": "Enlarge Shot 1 Live Stats or restore the view of both shots.",
         "summary": "Enlarge Shot 1 Live Stats or restore the view of both shots..",
         "category": "reference",
@@ -2473,7 +2473,7 @@
       "topic": {
         "id": "main-shot-1-stats-first-ball-hit",
         "title": "Shot 1 — First ball hit",
-        "audio": "./guide/audio/main-shot-1-stats-first-ball-hit.mp3",
+        "audio": "./guide/audio/main-shot-1-stats-first-ball-hit.mp3?v=native-chase-20261021",
         "text": "This shows the first object ball predicted to be contacted for Shot 1. Adjust the shot settings to see the reading change.",
         "summary": "This shows the first object ball predicted to be contacted for Shot 1.",
         "category": "reference",
@@ -2492,7 +2492,7 @@
       "topic": {
         "id": "main-shot-1-stats-cut-angle-at-contact",
         "title": "Shot 1 — Cut angle at contact",
-        "audio": "./guide/audio/main-shot-1-stats-cut-angle-at-contact.mp3",
+        "audio": "./guide/audio/main-shot-1-stats-cut-angle-at-contact.mp3?v=native-chase-20261021",
         "text": "This shows the angle of ball contact for Shot 1. Adjust the shot settings to see the reading change.",
         "summary": "This shows the angle of ball contact for Shot 1.",
         "category": "reference",
@@ -2511,7 +2511,7 @@
       "topic": {
         "id": "main-shot-1-stats-physical-overlap",
         "title": "Shot 1 — Physical overlap",
-        "audio": "./guide/audio/main-shot-1-stats-physical-overlap.mp3",
+        "audio": "./guide/audio/main-shot-1-stats-physical-overlap.mp3?v=native-chase-20261021",
         "text": "This shows the proportion of ball overlap at contact for Shot 1. Adjust the shot settings to see the reading change.",
         "summary": "This shows the proportion of ball overlap at contact for Shot 1.",
         "category": "reference",
@@ -2530,7 +2530,7 @@
       "topic": {
         "id": "main-shot-1-stats-cue-ball-travel-to-contact",
         "title": "Shot 1 — Cue ball travel to contact",
-        "audio": "./guide/audio/main-shot-1-stats-cue-ball-travel-to-contact.mp3",
+        "audio": "./guide/audio/main-shot-1-stats-cue-ball-travel-to-contact.mp3?v=native-chase-20261021",
         "text": "This shows the cue-ball distance before first contact for Shot 1. Adjust the shot settings to see the reading change.",
         "summary": "This shows the cue-ball distance before first contact for Shot 1.",
         "category": "reference",
@@ -2549,7 +2549,7 @@
       "topic": {
         "id": "main-shot-1-stats-first-predicted-event",
         "title": "Shot 1 — First predicted event",
-        "audio": "./guide/audio/main-shot-1-stats-first-predicted-event.mp3",
+        "audio": "./guide/audio/main-shot-1-stats-first-predicted-event.mp3?v=native-chase-20261021",
         "text": "This shows the first predicted collision or rail event for Shot 1. Adjust the shot settings to see the reading change.",
         "summary": "This shows the first predicted collision or rail event for Shot 1.",
         "category": "reference",
@@ -2568,7 +2568,7 @@
       "topic": {
         "id": "main-shot-1-stats-tip-location",
         "title": "Shot 1 — Tip location",
-        "audio": "./guide/audio/main-shot-1-stats-tip-location.mp3",
+        "audio": "./guide/audio/main-shot-1-stats-tip-location.mp3?v=native-chase-20261021",
         "text": "This shows the chosen strike point on the cue ball for Shot 1. Adjust the shot settings to see the reading change.",
         "summary": "This shows the chosen strike point on the cue ball for Shot 1.",
         "category": "reference",
@@ -2587,7 +2587,7 @@
       "topic": {
         "id": "main-shot-1-stats-predicted-cue-ball-squirt",
         "title": "Shot 1 — Predicted cue ball squirt",
-        "audio": "./guide/audio/main-shot-1-stats-predicted-cue-ball-squirt.mp3",
+        "audio": "./guide/audio/main-shot-1-stats-predicted-cue-ball-squirt.mp3?v=native-chase-20261021",
         "text": "This shows the initial aiming deviation from off-center contact for Shot 1. Adjust the shot settings to see the reading change.",
         "summary": "This shows the initial aiming deviation from off-center contact for Shot 1.",
         "category": "reference",
@@ -2606,7 +2606,7 @@
       "topic": {
         "id": "main-shot-1-stats-jump-and-flight",
         "title": "Shot 1 — Jump and flight",
-        "audio": "./guide/audio/main-shot-1-stats-jump-and-flight.mp3",
+        "audio": "./guide/audio/main-shot-1-stats-jump-and-flight.mp3?v=native-chase-20261021",
         "text": "This shows the cue-ball flight and landing readout for Shot 1. Adjust the shot settings to see the reading change.",
         "summary": "This shows the cue-ball flight and landing readout for Shot 1.",
         "category": "reference",
@@ -2625,7 +2625,7 @@
       "topic": {
         "id": "main-shot-1-stats-obstacle-clearance",
         "title": "Shot 1 — Obstacle clearance",
-        "audio": "./guide/audio/main-shot-1-stats-obstacle-clearance.mp3",
+        "audio": "./guide/audio/main-shot-1-stats-obstacle-clearance.mp3?v=native-chase-20261021",
         "text": "This shows the ball clearance during flight for Shot 1. Adjust the shot settings to see the reading change.",
         "summary": "This shows the ball clearance during flight for Shot 1.",
         "category": "reference",
@@ -2644,7 +2644,7 @@
       "topic": {
         "id": "main-shot-1-stats-jump-guide",
         "title": "Shot 1 — Jump guide",
-        "audio": "./guide/audio/main-shot-1-stats-jump-guide.mp3",
+        "audio": "./guide/audio/main-shot-1-stats-jump-guide.mp3?v=native-chase-20261021",
         "text": "This shows the jump guide and its relation to obstacle clearance for Shot 1. Adjust the shot settings to see the reading change.",
         "summary": "This shows the jump guide and its relation to obstacle clearance for Shot 1.",
         "category": "reference",
@@ -2663,7 +2663,7 @@
       "topic": {
         "id": "main-shot-1-stats-curve-and-masse",
         "title": "Shot 1 — Curve and masse",
-        "audio": "./guide/audio/main-shot-1-stats-curve-and-masse.mp3",
+        "audio": "./guide/audio/main-shot-1-stats-curve-and-masse.mp3?v=native-chase-20261021",
         "text": "This shows the predicted curve or massé guidance for Shot 1. Adjust the shot settings to see the reading change.",
         "summary": "This shows the predicted curve or massé guidance for Shot 1.",
         "category": "reference",
@@ -2682,7 +2682,7 @@
       "topic": {
         "id": "main-shot-1-stats-power-feel",
         "title": "Shot 1 — Power feel",
-        "audio": "./guide/audio/main-shot-1-stats-power-feel.mp3",
+        "audio": "./guide/audio/main-shot-1-stats-power-feel.mp3?v=native-chase-20261021",
         "text": "This shows the stroke-power feel reference for Shot 1. Adjust the shot settings to see the reading change.",
         "summary": "This shows the stroke-power feel reference for Shot 1.",
         "category": "reference",
@@ -2701,7 +2701,7 @@
       "topic": {
         "id": "main-shot-1-stats-pocket-speed",
         "title": "Shot 1 — Pocket speed",
-        "audio": "./guide/audio/main-shot-1-stats-pocket-speed.mp3",
+        "audio": "./guide/audio/main-shot-1-stats-pocket-speed.mp3?v=native-chase-20261021",
         "text": "This shows the speed reference for approaching the pocket for Shot 1. Adjust the shot settings to see the reading change.",
         "summary": "This shows the speed reference for approaching the pocket for Shot 1.",
         "category": "reference",
@@ -2720,7 +2720,7 @@
       "topic": {
         "id": "main-shot-1-stats-cue-ball-to-object-ball-speed",
         "title": "Shot 1 — Cue ball to object ball speed",
-        "audio": "./guide/audio/main-shot-1-stats-cue-ball-to-object-ball-speed.mp3",
+        "audio": "./guide/audio/main-shot-1-stats-cue-ball-to-object-ball-speed.mp3?v=native-chase-20261021",
         "text": "This shows the predicted cue-ball speed reaching the object ball for Shot 1. Adjust the shot settings to see the reading change.",
         "summary": "This shows the predicted cue-ball speed reaching the object ball for Shot 1.",
         "category": "reference",
@@ -2739,7 +2739,7 @@
       "topic": {
         "id": "main-shot-1-stats-object-ball-to-pocket-speed",
         "title": "Shot 1 — Object ball to pocket speed",
-        "audio": "./guide/audio/main-shot-1-stats-object-ball-to-pocket-speed.mp3",
+        "audio": "./guide/audio/main-shot-1-stats-object-ball-to-pocket-speed.mp3?v=native-chase-20261021",
         "text": "This shows the predicted object-ball speed reaching the pocket for Shot 1. Adjust the shot settings to see the reading change.",
         "summary": "This shows the predicted object-ball speed reaching the pocket for Shot 1.",
         "category": "reference",
@@ -2758,7 +2758,7 @@
       "topic": {
         "id": "main-shot-2-stats-enlarge",
         "title": "Shot 2 — enlarge or restore stats",
-        "audio": "./guide/audio/main-shot-2-stats-enlarge.mp3",
+        "audio": "./guide/audio/main-shot-2-stats-enlarge.mp3?v=native-chase-20261021",
         "text": "Enlarge Shot 2 Live Stats or restore the view of both shots.",
         "summary": "Enlarge Shot 2 Live Stats or restore the view of both shots..",
         "category": "reference",
@@ -2777,7 +2777,7 @@
       "topic": {
         "id": "main-shot-2-stats-first-ball-hit",
         "title": "Shot 2 — First ball hit",
-        "audio": "./guide/audio/main-shot-2-stats-first-ball-hit.mp3",
+        "audio": "./guide/audio/main-shot-2-stats-first-ball-hit.mp3?v=native-chase-20261021",
         "text": "This shows the first object ball predicted to be contacted for Shot 2. Adjust the shot settings to see the reading change.",
         "summary": "This shows the first object ball predicted to be contacted for Shot 2.",
         "category": "reference",
@@ -2796,7 +2796,7 @@
       "topic": {
         "id": "main-shot-2-stats-cut-angle-at-contact",
         "title": "Shot 2 — Cut angle at contact",
-        "audio": "./guide/audio/main-shot-2-stats-cut-angle-at-contact.mp3",
+        "audio": "./guide/audio/main-shot-2-stats-cut-angle-at-contact.mp3?v=native-chase-20261021",
         "text": "This shows the angle of ball contact for Shot 2. Adjust the shot settings to see the reading change.",
         "summary": "This shows the angle of ball contact for Shot 2.",
         "category": "reference",
@@ -2815,7 +2815,7 @@
       "topic": {
         "id": "main-shot-2-stats-physical-overlap",
         "title": "Shot 2 — Physical overlap",
-        "audio": "./guide/audio/main-shot-2-stats-physical-overlap.mp3",
+        "audio": "./guide/audio/main-shot-2-stats-physical-overlap.mp3?v=native-chase-20261021",
         "text": "This shows the proportion of ball overlap at contact for Shot 2. Adjust the shot settings to see the reading change.",
         "summary": "This shows the proportion of ball overlap at contact for Shot 2.",
         "category": "reference",
@@ -2834,7 +2834,7 @@
       "topic": {
         "id": "main-shot-2-stats-cue-ball-travel-to-contact",
         "title": "Shot 2 — Cue ball travel to contact",
-        "audio": "./guide/audio/main-shot-2-stats-cue-ball-travel-to-contact.mp3",
+        "audio": "./guide/audio/main-shot-2-stats-cue-ball-travel-to-contact.mp3?v=native-chase-20261021",
         "text": "This shows the cue-ball distance before first contact for Shot 2. Adjust the shot settings to see the reading change.",
         "summary": "This shows the cue-ball distance before first contact for Shot 2.",
         "category": "reference",
@@ -2853,7 +2853,7 @@
       "topic": {
         "id": "main-shot-2-stats-first-predicted-event",
         "title": "Shot 2 — First predicted event",
-        "audio": "./guide/audio/main-shot-2-stats-first-predicted-event.mp3",
+        "audio": "./guide/audio/main-shot-2-stats-first-predicted-event.mp3?v=native-chase-20261021",
         "text": "This shows the first predicted collision or rail event for Shot 2. Adjust the shot settings to see the reading change.",
         "summary": "This shows the first predicted collision or rail event for Shot 2.",
         "category": "reference",
@@ -2872,7 +2872,7 @@
       "topic": {
         "id": "main-shot-2-stats-tip-location",
         "title": "Shot 2 — Tip location",
-        "audio": "./guide/audio/main-shot-2-stats-tip-location.mp3",
+        "audio": "./guide/audio/main-shot-2-stats-tip-location.mp3?v=native-chase-20261021",
         "text": "This shows the chosen strike point on the cue ball for Shot 2. Adjust the shot settings to see the reading change.",
         "summary": "This shows the chosen strike point on the cue ball for Shot 2.",
         "category": "reference",
@@ -2891,7 +2891,7 @@
       "topic": {
         "id": "main-shot-2-stats-predicted-cue-ball-squirt",
         "title": "Shot 2 — Predicted cue ball squirt",
-        "audio": "./guide/audio/main-shot-2-stats-predicted-cue-ball-squirt.mp3",
+        "audio": "./guide/audio/main-shot-2-stats-predicted-cue-ball-squirt.mp3?v=native-chase-20261021",
         "text": "This shows the initial aiming deviation from off-center contact for Shot 2. Adjust the shot settings to see the reading change.",
         "summary": "This shows the initial aiming deviation from off-center contact for Shot 2.",
         "category": "reference",
@@ -2910,7 +2910,7 @@
       "topic": {
         "id": "main-shot-2-stats-jump-and-flight",
         "title": "Shot 2 — Jump and flight",
-        "audio": "./guide/audio/main-shot-2-stats-jump-and-flight.mp3",
+        "audio": "./guide/audio/main-shot-2-stats-jump-and-flight.mp3?v=native-chase-20261021",
         "text": "This shows the cue-ball flight and landing readout for Shot 2. Adjust the shot settings to see the reading change.",
         "summary": "This shows the cue-ball flight and landing readout for Shot 2.",
         "category": "reference",
@@ -2929,7 +2929,7 @@
       "topic": {
         "id": "main-shot-2-stats-obstacle-clearance",
         "title": "Shot 2 — Obstacle clearance",
-        "audio": "./guide/audio/main-shot-2-stats-obstacle-clearance.mp3",
+        "audio": "./guide/audio/main-shot-2-stats-obstacle-clearance.mp3?v=native-chase-20261021",
         "text": "This shows the ball clearance during flight for Shot 2. Adjust the shot settings to see the reading change.",
         "summary": "This shows the ball clearance during flight for Shot 2.",
         "category": "reference",
@@ -2948,7 +2948,7 @@
       "topic": {
         "id": "main-shot-2-stats-jump-guide",
         "title": "Shot 2 — Jump guide",
-        "audio": "./guide/audio/main-shot-2-stats-jump-guide.mp3",
+        "audio": "./guide/audio/main-shot-2-stats-jump-guide.mp3?v=native-chase-20261021",
         "text": "This shows the jump guide and its relation to obstacle clearance for Shot 2. Adjust the shot settings to see the reading change.",
         "summary": "This shows the jump guide and its relation to obstacle clearance for Shot 2.",
         "category": "reference",
@@ -2967,7 +2967,7 @@
       "topic": {
         "id": "main-shot-2-stats-curve-and-masse",
         "title": "Shot 2 — Curve and masse",
-        "audio": "./guide/audio/main-shot-2-stats-curve-and-masse.mp3",
+        "audio": "./guide/audio/main-shot-2-stats-curve-and-masse.mp3?v=native-chase-20261021",
         "text": "This shows the predicted curve or massé guidance for Shot 2. Adjust the shot settings to see the reading change.",
         "summary": "This shows the predicted curve or massé guidance for Shot 2.",
         "category": "reference",
@@ -2986,7 +2986,7 @@
       "topic": {
         "id": "main-shot-2-stats-power-feel",
         "title": "Shot 2 — Power feel",
-        "audio": "./guide/audio/main-shot-2-stats-power-feel.mp3",
+        "audio": "./guide/audio/main-shot-2-stats-power-feel.mp3?v=native-chase-20261021",
         "text": "This shows the stroke-power feel reference for Shot 2. Adjust the shot settings to see the reading change.",
         "summary": "This shows the stroke-power feel reference for Shot 2.",
         "category": "reference",
@@ -3005,7 +3005,7 @@
       "topic": {
         "id": "main-shot-2-stats-pocket-speed",
         "title": "Shot 2 — Pocket speed",
-        "audio": "./guide/audio/main-shot-2-stats-pocket-speed.mp3",
+        "audio": "./guide/audio/main-shot-2-stats-pocket-speed.mp3?v=native-chase-20261021",
         "text": "This shows the speed reference for approaching the pocket for Shot 2. Adjust the shot settings to see the reading change.",
         "summary": "This shows the speed reference for approaching the pocket for Shot 2.",
         "category": "reference",
@@ -3024,7 +3024,7 @@
       "topic": {
         "id": "main-shot-2-stats-cue-ball-to-object-ball-speed",
         "title": "Shot 2 — Cue ball to object ball speed",
-        "audio": "./guide/audio/main-shot-2-stats-cue-ball-to-object-ball-speed.mp3",
+        "audio": "./guide/audio/main-shot-2-stats-cue-ball-to-object-ball-speed.mp3?v=native-chase-20261021",
         "text": "This shows the predicted cue-ball speed reaching the object ball for Shot 2. Adjust the shot settings to see the reading change.",
         "summary": "This shows the predicted cue-ball speed reaching the object ball for Shot 2.",
         "category": "reference",
@@ -3043,7 +3043,7 @@
       "topic": {
         "id": "main-shot-2-stats-object-ball-to-pocket-speed",
         "title": "Shot 2 — Object ball to pocket speed",
-        "audio": "./guide/audio/main-shot-2-stats-object-ball-to-pocket-speed.mp3",
+        "audio": "./guide/audio/main-shot-2-stats-object-ball-to-pocket-speed.mp3?v=native-chase-20261021",
         "text": "This shows the predicted object-ball speed reaching the pocket for Shot 2. Adjust the shot settings to see the reading change.",
         "summary": "This shows the predicted object-ball speed reaching the pocket for Shot 2.",
         "category": "reference",
@@ -3655,7 +3655,7 @@
       "topic": {
         "id": "main-marker-hide-show",
         "title": "Hide or show one marker",
-        "audio": "./guide/audio/main-marker-hide-show.mp3",
+        "audio": "./guide/audio/main-marker-hide-show.mp3?v=native-chase-20261021",
         "text": "Hide or restore this individual marker through its rail button.",
         "summary": "Hide or restore this individual marker through its rail button..",
         "category": "reference",
@@ -3674,7 +3674,7 @@
       "topic": {
         "id": "main-marker-remove-individual",
         "title": "Remove one marker",
-        "audio": "./guide/audio/main-marker-remove-individual.mp3",
+        "audio": "./guide/audio/main-marker-remove-individual.mp3?v=native-chase-20261021",
         "text": "Remove this individual marker through its rail button.",
         "summary": "Remove this individual marker through its rail button..",
         "category": "reference",
@@ -3693,7 +3693,7 @@
       "topic": {
         "id": "main-marker-lock-unlock",
         "title": "Lock or unlock one marker",
-        "audio": "./guide/audio/main-marker-lock-unlock.mp3",
+        "audio": "./guide/audio/main-marker-lock-unlock.mp3?v=native-chase-20261021",
         "text": "Lock or unlock a square or triangle position and size before resizing or dragging it.",
         "summary": "Lock or unlock a square or triangle position and size before resizing or dragging it..",
         "category": "reference",
@@ -3712,7 +3712,7 @@
       "topic": {
         "id": "main-marker-rail-reposition",
         "title": "Reposition marker rail controls",
-        "audio": "./guide/audio/main-marker-rail-reposition.mp3",
+        "audio": "./guide/audio/main-marker-rail-reposition.mp3?v=native-chase-20261021",
         "text": "Drag this marker control cluster along the top rail so it is convenient to reach.",
         "summary": "Drag this marker control cluster along the top rail so it is convenient to reach..",
         "category": "reference",
@@ -3731,7 +3731,7 @@
       "topic": {
         "id": "main-pocketed-ball-return",
         "title": "Return pocketed ball to play",
-        "audio": "./guide/audio/main-pocketed-ball-return.mp3",
+        "audio": "./guide/audio/main-pocketed-ball-return.mp3?v=native-chase-20261021",
         "text": "Drag a pocketed object-ball icon onto clear tablecloth, or click it to return to a clear position.",
         "summary": "Drag a pocketed object-ball icon onto clear tablecloth, or click it to return to a clear position..",
         "category": "reference",
@@ -3750,7 +3750,7 @@
       "topic": {
         "id": "main-pocketed-ball-strip",
         "title": "Pocketed balls strip",
-        "audio": "./guide/audio/main-pocketed-ball-strip.mp3",
+        "audio": "./guide/audio/main-pocketed-ball-strip.mp3?v=native-chase-20261021",
         "text": "This shows which balls have been pocketed and the solids/stripes or ordered game display.",
         "summary": "This shows which balls have been pocketed and the solids/stripes or ordered game display..",
         "category": "reference",
@@ -3769,7 +3769,7 @@
       "topic": {
         "id": "main-cue-ball-move",
         "title": "Move cue ball on table",
-        "audio": "./guide/audio/main-cue-ball-move.mp3",
+        "audio": "./guide/audio/main-cue-ball-move.mp3?v=native-chase-20261021",
         "text": "Drag the cue ball to place it.",
         "summary": "Drag the cue ball to place it..",
         "category": "reference",
@@ -3788,7 +3788,7 @@
       "topic": {
         "id": "main-object-ball-move",
         "title": "Move object ball on table",
-        "audio": "./guide/audio/main-object-ball-move.mp3",
+        "audio": "./guide/audio/main-object-ball-move.mp3?v=native-chase-20261021",
         "text": "Drag a numbered ball to a practice position. Dropping into a pocket removes it to the pocketed strip.",
         "summary": "Drag a numbered ball to a practice position.",
         "category": "reference",
@@ -3807,7 +3807,7 @@
       "topic": {
         "id": "main-second-cue-ball-move",
         "title": "Move Shot 2 cue ball plan",
-        "audio": "./guide/audio/main-second-cue-ball-move.mp3",
+        "audio": "./guide/audio/main-second-cue-ball-move.mp3?v=native-chase-20261021",
         "text": "Drag the second planned cue ball and set up the following shot without moving the first plan.",
         "summary": "Drag the second planned cue ball and set up the following shot without moving the first plan..",
         "category": "reference",
@@ -3826,7 +3826,7 @@
       "topic": {
         "id": "main-aim-drag-wheel",
         "title": "Aim by dragging or mouse wheel",
-        "audio": "./guide/audio/main-aim-drag-wheel.mp3",
+        "audio": "./guide/audio/main-aim-drag-wheel.mp3?v=native-chase-20261021",
         "text": "Change the active shot direction on the table with a drag or wheel adjustment.",
         "summary": "Change the active shot direction on the table with a drag or wheel adjustment..",
         "category": "reference",
@@ -3845,7 +3845,7 @@
       "topic": {
         "id": "main-aiming-line",
         "title": "Aiming line on table",
-        "audio": "./guide/audio/main-aiming-line.mp3",
+        "audio": "./guide/audio/main-aiming-line.mp3?v=native-chase-20261021",
         "text": "This shows the active cue-ball direction indicated by the aiming line.",
         "summary": "This shows the active cue-ball direction indicated by the aiming line..",
         "category": "reference",
@@ -3864,7 +3864,7 @@
       "topic": {
         "id": "main-ghost-ball",
         "title": "Impact cue ball on table",
-        "audio": "./guide/audio/main-ghost-ball.mp3",
+        "audio": "./guide/audio/main-ghost-ball.mp3?v=native-chase-20261021",
         "text": "This shows the cue-ball position at predicted object-ball contact.",
         "summary": "This shows the cue-ball position at predicted object-ball contact..",
         "category": "reference",
@@ -3883,7 +3883,7 @@
       "topic": {
         "id": "main-overlap-band",
         "title": "Physical overlap band on table",
-        "audio": "./guide/audio/main-overlap-band.mp3",
+        "audio": "./guide/audio/main-overlap-band.mp3?v=native-chase-20261021",
         "text": "This shows how the overlap band represents fuller versus thinner contact.",
         "summary": "This shows how the overlap band represents fuller versus thinner contact..",
         "category": "reference",
@@ -3902,7 +3902,7 @@
       "topic": {
         "id": "main-tangent-line",
         "title": "Tangent line on table",
-        "audio": "./guide/audio/main-tangent-line.mp3",
+        "audio": "./guide/audio/main-tangent-line.mp3?v=native-chase-20261021",
         "text": "This shows the tangent reference at contact and how follow/draw changes the later cue-ball route.",
         "summary": "This shows the tangent reference at contact and how follow/draw changes the later cue-ball route..",
         "category": "reference",
@@ -3921,7 +3921,7 @@
       "topic": {
         "id": "main-predicted-path",
         "title": "Predicted ball path",
-        "audio": "./guide/audio/main-predicted-path.mp3",
+        "audio": "./guide/audio/main-predicted-path.mp3?v=native-chase-20261021",
         "text": "This shows the displayed cue-ball or object-ball trajectory and its relation to current shot settings.",
         "summary": "This shows the displayed cue-ball or object-ball trajectory and its relation to current shot settings..",
         "category": "reference",
@@ -3940,7 +3940,7 @@
       "topic": {
         "id": "main-rail-cushion",
         "title": "Rail and cushion",
-        "audio": "./guide/audio/main-rail-cushion.mp3",
+        "audio": "./guide/audio/main-rail-cushion.mp3?v=native-chase-20261021",
         "text": "This shows cushion contact and using the rail as a bank or kick reference.",
         "summary": "This shows cushion contact and using the rail as a bank or kick reference..",
         "category": "reference",
@@ -3959,7 +3959,7 @@
       "topic": {
         "id": "main-rail-diamond",
         "title": "Rail diamond reference",
-        "audio": "./guide/audio/main-rail-diamond.mp3",
+        "audio": "./guide/audio/main-rail-diamond.mp3?v=native-chase-20261021",
         "text": "This shows a rail diamond as a fixed distance reference.",
         "summary": "This shows a rail diamond as a fixed distance reference..",
         "category": "reference",
@@ -3978,7 +3978,7 @@
       "topic": {
         "id": "main-diamond-grid",
         "title": "Diamond connected grid area",
-        "audio": "./guide/audio/main-diamond-grid.mp3",
+        "audio": "./guide/audio/main-diamond-grid.mp3?v=native-chase-20261021",
         "text": "This shows horizontal and vertical diamond lines and halfway references for repeatable ball placement.",
         "summary": "This shows horizontal and vertical diamond lines and halfway references for repeatable ball placement..",
         "category": "reference",
@@ -3997,7 +3997,7 @@
       "topic": {
         "id": "main-empty-cloth",
         "title": "Tablecloth and orientation",
-        "audio": "./guide/audio/main-empty-cloth.mp3",
+        "audio": "./guide/audio/main-empty-cloth.mp3?v=native-chase-20261021",
         "text": "This shows table orientation and how empty cloth is used to aim or place teaching references.",
         "summary": "This shows table orientation and how empty cloth is used to aim or place teaching references..",
         "category": "reference",
@@ -4016,7 +4016,7 @@
       "topic": {
         "id": "main-marker-drag",
         "title": "Drag marker center",
-        "audio": "./guide/audio/main-marker-drag.mp3",
+        "audio": "./guide/audio/main-marker-drag.mp3?v=native-chase-20261021",
         "text": "Drag the marker center to move that teaching reference on the table.",
         "summary": "Drag the marker center to move that teaching reference on the table..",
         "category": "reference",
@@ -4035,7 +4035,7 @@
       "topic": {
         "id": "main-marker-wheel-size",
         "title": "Resize marker with wheel or pinch",
-        "audio": "./guide/audio/main-marker-wheel-size.mp3",
+        "audio": "./guide/audio/main-marker-wheel-size.mp3?v=native-chase-20261021",
         "text": "Hover and use the wheel, or use supported touch resizing, to resize the marker.",
         "summary": "Hover and use the wheel, or use supported touch resizing, to resize the marker..",
         "category": "reference",
@@ -4054,7 +4054,7 @@
       "topic": {
         "id": "main-marker-corner-resize",
         "title": "Resize shape with corner handle",
-        "audio": "./guide/audio/main-marker-corner-resize.mp3",
+        "audio": "./guide/audio/main-marker-corner-resize.mp3?v=native-chase-20261021",
         "text": "Drag a corner handle to change a square/rectangle or triangle outline.",
         "summary": "Drag a corner handle to change a square/rectangle or triangle outline..",
         "category": "reference",
@@ -4073,7 +4073,7 @@
       "topic": {
         "id": "main-marker-rotate",
         "title": "Rotate shape with handle",
-        "audio": "./guide/audio/main-marker-rotate.mp3",
+        "audio": "./guide/audio/main-marker-rotate.mp3?v=native-chase-20261021",
         "text": "Drag a shape rotation handle to change marker orientation.",
         "summary": "Drag a shape rotation handle to change marker orientation..",
         "category": "reference",
@@ -4092,7 +4092,7 @@
       "topic": {
         "id": "main-compass-drag",
         "title": "Move teaching compass",
-        "audio": "./guide/audio/main-compass-drag.mp3",
+        "audio": "./guide/audio/main-compass-drag.mp3?v=native-chase-20261021",
         "text": "Drag the teaching compass to the point from which you want to illustrate an angle.",
         "summary": "Drag the teaching compass to the point from which you want to illustrate an angle..",
         "category": "reference",
@@ -4111,7 +4111,7 @@
       "topic": {
         "id": "main-bank-reference-drag",
         "title": "Move bank guide reference",
-        "audio": "./guide/audio/main-bank-reference-drag.mp3",
+        "audio": "./guide/audio/main-bank-reference-drag.mp3?v=native-chase-20261021",
         "text": "Drag the bank guide reference and inspect the object ball rail path.",
         "summary": "Drag the bank guide reference and inspect the object ball rail path..",
         "category": "reference",
@@ -4130,7 +4130,7 @@
       "topic": {
         "id": "main-kick-reference-drag",
         "title": "Move kick guide reference",
-        "audio": "./guide/audio/main-kick-reference-drag.mp3",
+        "audio": "./guide/audio/main-kick-reference-drag.mp3?v=native-chase-20261021",
         "text": "Drag the kick guide reference and inspect the cue ball rail path.",
         "summary": "Drag the kick guide reference and inspect the cue ball rail path..",
         "category": "reference",
@@ -4624,7 +4624,7 @@
       "topic": {
         "id": "main-bank-zero",
         "title": "Bank tool — Choose destination",
-        "audio": "./guide/audio/main-bank-zero.mp3",
+        "audio": "./guide/audio/main-bank-zero.mp3?v=native-chase-20261021",
         "text": "Select the destination pocket or target point. This is the first phase after activating the tool.",
         "summary": "Select the destination pocket or target point.",
         "category": "reference",
@@ -4644,7 +4644,7 @@
       "topic": {
         "id": "main-bank-rail",
         "title": "Bank tool — Choose rail contact",
-        "audio": "./guide/audio/main-bank-rail.mp3",
+        "audio": "./guide/audio/main-bank-rail.mp3?v=native-chase-20261021",
         "text": "Select the intended rail or precise numbered rail point for the route.",
         "summary": "Select the intended rail or precise numbered rail point for the route..",
         "category": "reference",
@@ -4664,7 +4664,7 @@
       "topic": {
         "id": "main-bank-ball",
         "title": "Bank tool — Choose object ball",
-        "audio": "./guide/audio/main-bank-ball.mp3",
+        "audio": "./guide/audio/main-bank-ball.mp3?v=native-chase-20261021",
         "text": "Select the object ball that completes the bank or kick setup.",
         "summary": "Select the object ball that completes the bank or kick setup..",
         "category": "reference",
@@ -4684,7 +4684,7 @@
       "topic": {
         "id": "main-kick-zero",
         "title": "Kick tool — Choose destination",
-        "audio": "./guide/audio/main-kick-zero.mp3",
+        "audio": "./guide/audio/main-kick-zero.mp3?v=native-chase-20261021",
         "text": "Select the destination pocket or target point. This is the first phase after activating the tool.",
         "summary": "Select the destination pocket or target point.",
         "category": "reference",
@@ -4704,7 +4704,7 @@
       "topic": {
         "id": "main-kick-rail",
         "title": "Kick tool — Choose rail contact",
-        "audio": "./guide/audio/main-kick-rail.mp3",
+        "audio": "./guide/audio/main-kick-rail.mp3?v=native-chase-20261021",
         "text": "Select the intended rail or precise numbered rail point for the route.",
         "summary": "Select the intended rail or precise numbered rail point for the route..",
         "category": "reference",
@@ -4724,7 +4724,7 @@
       "topic": {
         "id": "main-kick-ball",
         "title": "Kick tool — Choose object ball",
-        "audio": "./guide/audio/main-kick-ball.mp3",
+        "audio": "./guide/audio/main-kick-ball.mp3?v=native-chase-20261021",
         "text": "Select the object ball that completes the bank or kick setup.",
         "summary": "Select the object ball that completes the bank or kick setup..",
         "category": "reference",
@@ -4744,7 +4744,7 @@
       "topic": {
         "id": "main-compass-rotate-handle",
         "title": "Rotate compass axis on table",
-        "audio": "./guide/audio/main-compass-rotate-handle.mp3",
+        "audio": "./guide/audio/main-compass-rotate-handle.mp3?v=native-chase-20261021",
         "text": "Drag the compass green axis handle to rotate it.",
         "summary": "Drag the compass green axis handle to rotate it..",
         "category": "reference",
@@ -4763,7 +4763,7 @@
       "topic": {
         "id": "main-compass-link-object-ball",
         "title": "Link compass to object ball",
-        "audio": "./guide/audio/main-compass-link-object-ball.mp3",
+        "audio": "./guide/audio/main-compass-link-object-ball.mp3?v=native-chase-20261021",
         "text": "Move the compass hub near an object ball and release to link it.",
         "summary": "Move the compass hub near an object ball and release to link it..",
         "category": "reference",
@@ -4782,7 +4782,7 @@
       "topic": {
         "id": "main-free-aim-target",
         "title": "Move free aim target",
-        "audio": "./guide/audio/main-free-aim-target.mp3",
+        "audio": "./guide/audio/main-free-aim-target.mp3?v=native-chase-20261021",
         "text": "Drag the free aim target to set the active shot direction . This changes aim without moving a ball.",
         "summary": "Drag the free aim target to set the active shot direction .",
         "category": "reference",
@@ -4801,7 +4801,7 @@
       "topic": {
         "id": "main-select-active-shot",
         "title": "Select active shot on table",
-        "audio": "./guide/audio/main-select-active-shot.mp3",
+        "audio": "./guide/audio/main-select-active-shot.mp3?v=native-chase-20261021",
         "text": "Select the first cue ball or the second planned cue ball to choose the active shot. Aim and cue controls then adjust that selected shot.",
         "summary": "Select the first cue ball or the second planned cue ball to choose the active shot.",
         "category": "reference",
@@ -4877,7 +4877,7 @@
       "topic": {
         "id": "main-pocket-1",
         "title": "Pocket 1 on trainer table",
-        "audio": "./guide/audio/main-pocket-1.mp3",
+        "audio": "./guide/audio/main-pocket-1.mp3?v=native-chase-20261021",
         "text": "Pocket 1 is the top-left corner in the trainer orientation. Pocket numbers run clockwise from one through six. Use this pocket as a shot target and an orientation reference.",
         "summary": "Pocket 1 is the top-left corner in the trainer orientation.",
         "category": "reference",
@@ -4915,7 +4915,7 @@
       "topic": {
         "id": "main-pocket-2",
         "title": "Pocket 2 on trainer table",
-        "audio": "./guide/audio/main-pocket-2.mp3",
+        "audio": "./guide/audio/main-pocket-2.mp3?v=native-chase-20261021",
         "text": "Pocket 2 is the top middle side pocket in the trainer orientation. Pocket numbers run clockwise from one through six. Use this pocket as a shot target and an orientation reference.",
         "summary": "Pocket 2 is the top middle side pocket in the trainer orientation.",
         "category": "reference",
@@ -4953,7 +4953,7 @@
       "topic": {
         "id": "main-pocket-3",
         "title": "Pocket 3 on trainer table",
-        "audio": "./guide/audio/main-pocket-3.mp3",
+        "audio": "./guide/audio/main-pocket-3.mp3?v=native-chase-20261021",
         "text": "Pocket 3 is the top-right corner in the trainer orientation. Pocket numbers run clockwise from one through six. Use this pocket as a shot target and an orientation reference.",
         "summary": "Pocket 3 is the top-right corner in the trainer orientation.",
         "category": "reference",
@@ -4991,7 +4991,7 @@
       "topic": {
         "id": "main-pocket-4",
         "title": "Pocket 4 on trainer table",
-        "audio": "./guide/audio/main-pocket-4.mp3",
+        "audio": "./guide/audio/main-pocket-4.mp3?v=native-chase-20261021",
         "text": "Pocket 4 is the bottom-right corner in the trainer orientation. Pocket numbers run clockwise from one through six. Use this pocket as a shot target and an orientation reference.",
         "summary": "Pocket 4 is the bottom-right corner in the trainer orientation.",
         "category": "reference",
@@ -5029,7 +5029,7 @@
       "topic": {
         "id": "main-pocket-5",
         "title": "Pocket 5 on trainer table",
-        "audio": "./guide/audio/main-pocket-5.mp3",
+        "audio": "./guide/audio/main-pocket-5.mp3?v=native-chase-20261021",
         "text": "Pocket 5 is the bottom middle side pocket in the trainer orientation. Pocket numbers run clockwise from one through six. Use this pocket as a shot target and an orientation reference.",
         "summary": "Pocket 5 is the bottom middle side pocket in the trainer orientation.",
         "category": "reference",
@@ -5067,7 +5067,7 @@
       "topic": {
         "id": "main-pocket-6",
         "title": "Pocket 6 on trainer table",
-        "audio": "./guide/audio/main-pocket-6.mp3",
+        "audio": "./guide/audio/main-pocket-6.mp3?v=native-chase-20261021",
         "text": "Pocket 6 is the bottom-left corner in the trainer orientation. Pocket numbers run clockwise from one through six. Use this pocket as a shot target and an orientation reference.",
         "summary": "Pocket 6 is the bottom-left corner in the trainer orientation.",
         "category": "reference",
@@ -5219,7 +5219,7 @@
       "topic": {
         "id": "main-saved-json-select",
         "title": "Choose locally saved JSON file",
-        "audio": "./guide/audio/main-saved-json-select.mp3",
+        "audio": "./guide/audio/main-saved-json-select.mp3?v=native-chase-20261021",
         "text": "Browse the named table and session JSON copies saved or added in this device browser. Selection alone does not load the file.",
         "summary": "Browse the named table and session JSON copies saved or added in this device browser.",
         "category": "reference",
@@ -5238,7 +5238,7 @@
       "topic": {
         "id": "main-saved-json-load",
         "title": "Load Saved JSON file",
-        "audio": "./guide/audio/main-saved-json-load.mp3",
+        "audio": "./guide/audio/main-saved-json-load.mp3?v=native-chase-20261021",
         "text": "Load the selected file into the trainer.",
         "summary": "Load the selected file into the trainer..",
         "category": "reference",
@@ -5257,7 +5257,7 @@
       "topic": {
         "id": "main-saved-json-add",
         "title": "Add Files to saved JSON list",
-        "audio": "./guide/audio/main-saved-json-add.mp3",
+        "audio": "./guide/audio/main-saved-json-add.mp3?v=native-chase-20261021",
         "text": "Select one or more trainer JSON downloads to add to this device browser saved-file list.",
         "summary": "Select one or more trainer JSON downloads to add to this device browser saved-file list..",
         "category": "reference",
@@ -5276,7 +5276,7 @@
       "topic": {
         "id": "main-saved-json-refresh-folder",
         "title": "Refresh connected folder JSON list",
-        "audio": "./guide/audio/main-saved-json-refresh-folder.mp3",
+        "audio": "./guide/audio/main-saved-json-refresh-folder.mp3?v=native-chase-20261021",
         "text": "Scan the connected auto-save folder for trainer JSON files. If no folder is connected, choose one. Supported browsers only.",
         "summary": "Scan the connected auto-save folder for trainer JSON files.",
         "category": "reference",
@@ -5295,7 +5295,7 @@
       "topic": {
         "id": "main-saved-json-status",
         "title": "Saved file storage message",
-        "audio": "./guide/audio/main-saved-json-status.mp3",
+        "audio": "./guide/audio/main-saved-json-status.mp3?v=native-chase-20261021",
         "text": "This shows that the list contains browser copies plus files added or scanned from a connected folder. Files do not transfer automatically to another device.",
         "summary": "This shows that the list contains browser copies plus files added or scanned from a connected folder.",
         "category": "reference",
@@ -5409,7 +5409,7 @@
       "topic": {
         "id": "shared-previous-file",
         "title": "Previous audio file or lesson",
-        "audio": "./guide/audio/shared-previous-file.mp3",
+        "audio": "./guide/audio/shared-previous-file.mp3?v=native-chase-20261021",
         "text": "Skip back to the previous file in this lesson, or to the previous lesson.",
         "summary": "Skip back to the previous file in this lesson, or to the previous lesson..",
         "category": "reference",
@@ -5430,7 +5430,7 @@
       "topic": {
         "id": "shared-stop",
         "title": "Stop audio",
-        "audio": "./guide/audio/shared-stop.mp3",
+        "audio": "./guide/audio/shared-stop.mp3?v=native-chase-20261021",
         "text": "Stop the current narration and reset its playback position.",
         "summary": "Stop the current narration and reset its playback position..",
         "category": "reference",
@@ -5451,7 +5451,7 @@
       "topic": {
         "id": "shared-play-pause",
         "title": "Play or pause audio",
-        "audio": "./guide/audio/shared-play-pause.mp3",
+        "audio": "./guide/audio/shared-play-pause.mp3?v=native-chase-20261021",
         "text": "Start or pause the selected narration.",
         "summary": "Start or pause the selected narration..",
         "category": "reference",
@@ -5472,7 +5472,7 @@
       "topic": {
         "id": "shared-rewind-ten-seconds",
         "title": "Rewind audio ten seconds",
-        "audio": "./guide/audio/shared-rewind-ten-seconds.mp3",
+        "audio": "./guide/audio/shared-rewind-ten-seconds.mp3?v=native-chase-20261021",
         "text": "Move ten seconds backward within the current audio file without switching lessons.",
         "summary": "Move ten seconds backward within the current audio file without switching lessons..",
         "category": "reference",
@@ -5493,7 +5493,7 @@
       "topic": {
         "id": "shared-forward-ten-seconds",
         "title": "Forward audio ten seconds",
-        "audio": "./guide/audio/shared-forward-ten-seconds.mp3",
+        "audio": "./guide/audio/shared-forward-ten-seconds.mp3?v=native-chase-20261021",
         "text": "Move ten seconds forward within the current audio file without switching lessons.",
         "summary": "Move ten seconds forward within the current audio file without switching lessons..",
         "category": "reference",
@@ -5514,7 +5514,7 @@
       "topic": {
         "id": "shared-next-file",
         "title": "Next audio file or lesson",
-        "audio": "./guide/audio/shared-next-file.mp3",
+        "audio": "./guide/audio/shared-next-file.mp3?v=native-chase-20261021",
         "text": "Skip to the next file within the lesson, or the next lesson.",
         "summary": "Skip to the next file within the lesson, or the next lesson..",
         "category": "reference",
@@ -5535,7 +5535,7 @@
       "topic": {
         "id": "shared-autoplay",
         "title": "Autoplay next lesson",
-        "audio": "./guide/audio/shared-autoplay.mp3",
+        "audio": "./guide/audio/shared-autoplay.mp3?v=native-chase-20261021",
         "text": "Turn automatic progression on or off. Get Started opens with this enabled, plays from the first file, and stops after the last.",
         "summary": "Turn automatic progression on or off.",
         "category": "reference",
@@ -5556,7 +5556,7 @@
       "topic": {
         "id": "shared-read",
         "title": "Read narration text",
-        "audio": "./guide/audio/shared-read.mp3",
+        "audio": "./guide/audio/shared-read.mp3?v=native-chase-20261021",
         "text": "Open or close the selected lesson transcript beneath the compact controls.",
         "summary": "Open or close the selected lesson transcript beneath the compact controls..",
         "category": "reference",
@@ -5577,7 +5577,7 @@
       "topic": {
         "id": "shared-more",
         "title": "More lesson resources",
-        "audio": "./guide/audio/shared-more.mp3",
+        "audio": "./guide/audio/shared-more.mp3?v=native-chase-20261021",
         "text": "Open or close resources for the selected lesson.",
         "summary": "Open or close resources for the selected lesson..",
         "category": "reference",
@@ -5598,7 +5598,7 @@
       "topic": {
         "id": "shared-reset-guide",
         "title": "Reset Guide session",
-        "audio": "./guide/audio/shared-reset-guide.mp3",
+        "audio": "./guide/audio/shared-reset-guide.mp3?v=native-chase-20261021",
         "text": "Reset the Guide state after confirmation.",
         "summary": "Reset the Guide state after confirmation..",
         "category": "reference",
@@ -5619,7 +5619,7 @@
       "topic": {
         "id": "shared-open-close-details",
         "title": "Open or close reading area",
-        "audio": "./guide/audio/shared-open-close-details.mp3",
+        "audio": "./guide/audio/shared-open-close-details.mp3?v=native-chase-20261021",
         "text": "Expand or collapse the transcript/resource area while keeping the compact lesson controls visible.",
         "summary": "Expand or collapse the transcript/resource area while keeping the compact lesson controls visible..",
         "category": "reference",
@@ -5640,7 +5640,7 @@
       "topic": {
         "id": "shared-choose-lesson",
         "title": "Choose audio lesson",
-        "audio": "./guide/audio/shared-choose-lesson.mp3",
+        "audio": "./guide/audio/shared-choose-lesson.mp3?v=native-chase-20261021",
         "text": "Select a named lesson from the compact menu.",
         "summary": "Select a named lesson from the compact menu..",
         "category": "reference",
@@ -5661,7 +5661,7 @@
       "topic": {
         "id": "main-guide-skill-level",
         "title": "Technique Guide skill level",
-        "audio": "./guide/audio/main-guide-skill-level.mp3",
+        "audio": "./guide/audio/main-guide-skill-level.mp3?v=native-chase-20261021",
         "text": "Choose the technique Guide learning level. This control appears only in the regular Guide, not either Get Started player.",
         "summary": "Choose the technique Guide learning level.",
         "category": "reference",
@@ -5680,7 +5680,7 @@
       "topic": {
         "id": "main-category-fundamentals",
         "title": "Guide category — Fundamentals",
-        "audio": "./guide/audio/main-category-fundamentals.mp3",
+        "audio": "./guide/audio/main-category-fundamentals.mp3?v=native-chase-20261021",
         "text": "Choose lessons on basic aiming, contact, and ball-control concepts.",
         "summary": "Choose lessons on basic aiming, contact, and ball-control concepts..",
         "category": "reference",
@@ -5699,7 +5699,7 @@
       "topic": {
         "id": "main-category-physics-tools",
         "title": "Guide category — Physics & Tools",
-        "audio": "./guide/audio/main-category-physics-tools.mp3",
+        "audio": "./guide/audio/main-category-physics-tools.mp3?v=native-chase-20261021",
         "text": "Choose explanations of spin, collisions, rails, calibration, and teaching tools.",
         "summary": "Choose explanations of spin, collisions, rails, calibration, and teaching tools..",
         "category": "reference",
@@ -5718,7 +5718,7 @@
       "topic": {
         "id": "main-category-drills",
         "title": "Guide category — Drills",
-        "audio": "./guide/audio/main-category-drills.mp3",
+        "audio": "./guide/audio/main-category-drills.mp3?v=native-chase-20261021",
         "text": "Choose structured practice drills.",
         "summary": "Choose structured practice drills..",
         "category": "reference",
@@ -5737,7 +5737,7 @@
       "topic": {
         "id": "main-category-exercises",
         "title": "Guide category — Exercises",
-        "audio": "./guide/audio/main-category-exercises.mp3",
+        "audio": "./guide/audio/main-category-exercises.mp3?v=native-chase-20261021",
         "text": "Choose guided practice activities.",
         "summary": "Choose guided practice activities..",
         "category": "reference",
@@ -5756,7 +5756,7 @@
       "topic": {
         "id": "main-choose-rack3",
         "title": "Choose 3 ball rack",
-        "audio": "./guide/audio/main-choose-rack3.mp3",
+        "audio": "./guide/audio/main-choose-rack3.mp3?v=native-chase-20261021",
         "text": "Three balls form a small triangle, with one at the front. Choose this rack, then press Start in Pick and Play Full Racks.",
         "summary": "Three balls form a small triangle, with one at the front.",
         "category": "reference",
@@ -5775,7 +5775,7 @@
       "topic": {
         "id": "main-choose-rack8",
         "title": "Choose 8 ball rack",
-        "audio": "./guide/audio/main-choose-rack8.mp3",
+        "audio": "./guide/audio/main-choose-rack8.mp3?v=native-chase-20261021",
         "text": "Fifteen balls form a triangle, with the eight in the center and a solid and stripe in the rear corners. Choose this rack, then press Start in Pick and Play Full Racks.",
         "summary": "Fifteen balls form a triangle, with the eight in the center and a solid and stripe in the rear corners.",
         "category": "reference",
@@ -5794,7 +5794,7 @@
       "topic": {
         "id": "main-choose-rack9",
         "title": "Choose 9 ball rack",
-        "audio": "./guide/audio/main-choose-rack9.mp3",
+        "audio": "./guide/audio/main-choose-rack9.mp3?v=native-chase-20261021",
         "text": "Balls one through nine form a diamond, with one at the front and nine in the center. Choose this rack, then press Start in Pick and Play Full Racks.",
         "summary": "Balls one through nine form a diamond, with one at the front and nine in the center.",
         "category": "reference",
@@ -5813,7 +5813,7 @@
       "topic": {
         "id": "main-choose-rack10",
         "title": "Choose 10 ball rack",
-        "audio": "./guide/audio/main-choose-rack10.mp3",
+        "audio": "./guide/audio/main-choose-rack10.mp3?v=native-chase-20261021",
         "text": "Balls one through ten form a triangle, with one at the front and ten in the center. Choose this rack, then press Start in Pick and Play Full Racks.",
         "summary": "Balls one through ten form a triangle, with one at the front and ten in the center.",
         "category": "reference",
@@ -5832,7 +5832,7 @@
       "topic": {
         "id": "main-choose-random-ball-count",
         "title": "Choose random ball count",
-        "audio": "./guide/audio/main-choose-random-ball-count.mp3",
+        "audio": "./guide/audio/main-choose-random-ball-count.mp3?v=native-chase-20261021",
         "text": "Choose the number of object balls for a random practice layout. Add Groups of Balls creates that setup with a cue ball. Use Pick and Play Full Racks for a game rack.",
         "summary": "Choose the number of object balls for a random practice layout.",
         "category": "reference",
@@ -5851,7 +5851,7 @@
       "topic": {
         "id": "main-choose-cue-ball",
         "title": "Choose Cue Ball for Add Ball",
-        "audio": "./guide/audio/main-choose-cue-ball.mp3",
+        "audio": "./guide/audio/main-choose-cue-ball.mp3?v=native-chase-20261021",
         "text": "Choose Cue Ball, then press Add Ball to restore a missing cue ball in a loaded layout. Drag it to the position you want.",
         "summary": "Choose Cue Ball, then press Add Ball to restore a missing cue ball in a loaded layout.",
         "category": "reference",
@@ -5870,7 +5870,7 @@
       "topic": {
         "id": "main-choose-numbered-ball",
         "title": "Choose numbered object ball",
-        "audio": "./guide/audio/main-choose-numbered-ball.mp3",
+        "audio": "./guide/audio/main-choose-numbered-ball.mp3?v=native-chase-20261021",
         "text": "Choose the required number from 1 through 15 for adding or removing an object ball.",
         "summary": "Choose the required number from 1 through 15 for adding or removing an object ball..",
         "category": "reference",
@@ -5889,7 +5889,7 @@
       "topic": {
         "id": "main-choose-circle",
         "title": "Circular marker",
-        "audio": "./guide/audio/main-choose-circle.mp3",
+        "audio": "./guide/audio/main-choose-circle.mp3?v=native-chase-20261021",
         "text": "This shows a circular teaching target and its center, diameter, and wheel/touch resize. Color choices identify different references without changing the operation.",
         "summary": "This shows a circular teaching target and its center, diameter, and wheel/touch resize.",
         "category": "reference",
@@ -5908,7 +5908,7 @@
       "topic": {
         "id": "main-choose-square",
         "title": "Square or rectangle marker",
-        "audio": "./guide/audio/main-choose-square.mp3",
+        "audio": "./guide/audio/main-choose-square.mp3?v=native-chase-20261021",
         "text": "This shows corner resizing, rotation, locking, and wheel scaling for a square/rectangle. Color choices identify different references without changing the operation.",
         "summary": "This shows corner resizing, rotation, locking, and wheel scaling for a square/rectangle.",
         "category": "reference",
@@ -5927,7 +5927,7 @@
       "topic": {
         "id": "main-choose-triangle",
         "title": "Triangle marker",
-        "audio": "./guide/audio/main-choose-triangle.mp3",
+        "audio": "./guide/audio/main-choose-triangle.mp3?v=native-chase-20261021",
         "text": "This shows triangle vertices, center, rotation, locking, and wheel scaling. Color choices identify different references without changing the operation.",
         "summary": "This shows triangle vertices, center, rotation, locking, and wheel scaling.",
         "category": "reference",
@@ -6174,7 +6174,7 @@
       "topic": {
         "id": "main-saved-layout-count",
         "title": "Saved layout count",
-        "audio": "./guide/audio/main-saved-layout-count.mp3",
+        "audio": "./guide/audio/main-saved-layout-count.mp3?v=native-chase-20261021",
         "text": "This count shows how many named layouts are saved in this device browser. The saved-layout list holds up to twenty entries.",
         "summary": "This count shows how many named layouts are saved in this device browser.",
         "category": "reference",
@@ -6193,7 +6193,7 @@
       "topic": {
         "id": "main-auto-save-status",
         "title": "Auto save folder status",
-        "audio": "./guide/audio/main-auto-save-status.mp3",
+        "audio": "./guide/audio/main-auto-save-status.mp3?v=native-chase-20261021",
         "text": "This status shows whether the session folder is connected, whether automatic writes are paused, or whether the folder needs to be reconnected.",
         "summary": "This status shows whether the session folder is connected, whether automatic writes are paused, or whether the folder needs to be reconnected..",
         "category": "reference",
@@ -6288,7 +6288,7 @@
       "topic": {
         "id": "main-pick-and-play-full-racks",
         "title": "Pick and Play Full Racks",
-        "audio": "./guide/audio/main-pick-and-play-full-racks.mp3",
+        "audio": "./guide/audio/main-pick-and-play-full-racks.mp3?v=native-chase-20261021",
         "category": "reference",
         "level": 0,
         "text": "Pick and Play Full Racks prepares a complete game rack. Choose 3-Ball, 6-Ball, 7-Ball, 8-Ball, 9-Ball, 10-Ball, Ultimate 8 Ball, or Straight Pool from the menu, then press Start. Six Ball uses a small triangle. Seven Ball places the seven in the center of a hexagon. Straight Pool prepares fourteen balls with the front position open. Add a single ball if you want a separate break ball, then drag it and the cue ball to your preferred positions. Ultimate 8 Ball uses the fixed numbered arrangement and puts the eight ball exactly on the foot spot.",
@@ -6305,7 +6305,7 @@
       "topic": {
         "id": "main-start-full-rack",
         "title": "Start selected full rack",
-        "audio": "./guide/audio/main-start-full-rack.mp3",
+        "audio": "./guide/audio/main-start-full-rack.mp3?v=native-chase-20261021",
         "category": "reference",
         "level": 0,
         "text": "Start replaces the current table with the selected full rack and begins a fresh practice run. It prepares the selected rack, including the fourteen-ball straight-pool rack with its front position open. Use Execute Shot when you are ready to shoot.",
@@ -6322,7 +6322,7 @@
       "topic": {
         "id": "main-random-ball-count",
         "title": "Choose random ball count",
-        "audio": "./guide/audio/main-random-ball-count.mp3",
+        "audio": "./guide/audio/main-random-ball-count.mp3?v=native-chase-20261021",
         "category": "reference",
         "level": 0,
         "text": "Choose how many numbered object balls to place randomly, then press Add Groups of Balls. Full racks are available separately in Pick and Play Full Racks.",
@@ -6339,7 +6339,7 @@
       "topic": {
         "id": "main-choose-rack6",
         "title": "Choose Six Ball",
-        "audio": "./guide/audio/main-choose-rack6.mp3",
+        "audio": "./guide/audio/main-choose-rack6.mp3?v=native-chase-20261021",
         "text": "Six Ball uses balls one through six in a three-row triangle. The one is at the front on the foot spot, and the six is in the middle of the back row. Select Six Ball, then press Start.",
         "summary": "Six Ball uses balls one through six in a three-row triangle.",
         "category": "reference",
@@ -6356,7 +6356,7 @@
       "topic": {
         "id": "main-choose-rack7",
         "title": "Choose Seven Ball",
-        "audio": "./guide/audio/main-choose-rack7.mp3",
+        "audio": "./guide/audio/main-choose-rack7.mp3?v=native-chase-20261021",
         "text": "Seven Ball uses a hexagonal rack, with the seven in the center and six balls around it. The one is at the front on the foot spot, and the other numbers continue clockwise. Select Seven Ball, then press Start.",
         "summary": "Seven Ball uses a hexagonal rack, with the seven in the center and six balls around it.",
         "category": "reference",
@@ -6373,7 +6373,7 @@
       "topic": {
         "id": "main-choose-straight14",
         "title": "Choose Straight Pool Open Front",
-        "audio": "./guide/audio/main-choose-straight14.mp3",
+        "audio": "./guide/audio/main-choose-straight14.mp3?v=native-chase-20261021",
         "text": "Straight Pool prepares fourteen object balls in a triangle with its front position empty. Use Add A Single Ball to place a separate break ball, then drag the cue ball and break ball to your preferred positions.",
         "summary": "Straight Pool prepares fourteen object balls in a triangle with its front position empty.",
         "category": "reference",
@@ -6390,7 +6390,7 @@
       "topic": {
         "id": "main-choose-ultimate8",
         "title": "Choose Ultimate Eight Ball",
-        "audio": "./guide/audio/main-choose-ultimate8.mp3",
+        "audio": "./guide/audio/main-choose-ultimate8.mp3?v=native-chase-20261021",
         "text": "Ultimate Eight Ball uses the fixed numbered arrangement in this trainer. The rack is shifted so that the eight ball, rather than the front ball, sits exactly on the foot spot. Select Ultimate Eight Ball, then press Start.",
         "summary": "Ultimate Eight Ball uses the fixed numbered arrangement in this trainer.",
         "category": "reference",
@@ -6410,9 +6410,9 @@
         "group": "Practice Foundations",
         "category": "drills",
         "level": 0,
-        "audio": "./guide/audio/practice-session-introduction.mp3",
+        "audio": "./guide/audio/practice-session-introduction.mp3?v=native-chase-20261021",
         "recordingStatus": "recorded",
-        "plannedAudio": "./guide/audio/practice-session-introduction.mp3",
+        "plannedAudio": "./guide/audio/practice-session-introduction.mp3?v=native-chase-20261021",
         "summary": "Start with cue ball speed and contact, then target landing, pattern play, and kick routes.",
         "text": "Start with cue ball speed and contact, then target landing, pattern play, and kick routes. Finish with a scored benchmark. Open More for the matching video. Watch the creator demonstrate the layout, then build your own practice table. Save a starting layout before changing it so you can repeat the same test. Count pocketing, cue ball position, and legal contact separately. Your score should show what improved and what still needs work.",
         "practice": {
@@ -6462,9 +6462,9 @@
         "group": "Practice Foundations",
         "category": "drills",
         "level": 0,
-        "audio": "./guide/audio/practice-speed-contact-baseline.mp3",
+        "audio": "./guide/audio/practice-speed-contact-baseline.mp3?v=native-chase-20261021",
         "recordingStatus": "recorded",
-        "plannedAudio": "./guide/audio/practice-speed-contact-baseline.mp3",
+        "plannedAudio": "./guide/audio/practice-speed-contact-baseline.mp3?v=native-chase-20261021",
         "summary": "Begin with a straight shot and center cue tip contact.",
         "text": "Begin with a straight shot and center cue tip contact. Find the speed that produces a stop shot, then move the contact point higher for follow and lower for draw. Keep the object ball and pocket fixed while changing one setting at a time. Next, use a cut shot to compare the tangent line with the cue ball route. Before each shot, name the landing point you expect. Repeat each setup five times and record whether the cue ball finished short, long, left, or right.",
         "practice": {
@@ -6494,9 +6494,9 @@
         "group": "Cue Ball Control",
         "category": "drills",
         "level": 0,
-        "audio": "./guide/audio/practice-target-landing.mp3",
+        "audio": "./guide/audio/practice-target-landing.mp3?v=native-chase-20261021",
         "recordingStatus": "recorded",
-        "plannedAudio": "./guide/audio/practice-target-landing.mp3",
+        "plannedAudio": "./guide/audio/practice-target-landing.mp3?v=native-chase-20261021",
         "summary": "Set up a repeatable object ball shot and choose a small cue ball landing zone.",
         "text": "Set up a repeatable object ball shot and choose a small cue ball landing zone. Begin with a generous target, then reduce it as your control improves. For this practice plan, use a three inch target and count a success only when the object ball is pocketed and the cue ball center finishes inside the target. Shoot ten attempts. Change only speed, then contact height, then the cut angle. Aim for eight successes out of ten before making the target smaller. Open More for Dr. Dave’s target practice demonstration.",
         "practice": {
@@ -6526,9 +6526,9 @@
         "group": "Pattern Play",
         "category": "drills",
         "level": 0,
-        "audio": "./guide/audio/practice-rock-around-clock.mp3",
+        "audio": "./guide/audio/practice-rock-around-clock.mp3?v=native-chase-20261021",
         "recordingStatus": "recorded",
-        "plannedAudio": "./guide/audio/practice-rock-around-clock.mp3",
+        "plannedAudio": "./guide/audio/practice-rock-around-clock.mp3?v=native-chase-20261021",
         "summary": "Open More and use Niels Feijen’s demonstration to set up Rock Around the Clock.",
         "text": "Open More and use Niels Feijen’s demonstration to set up Rock Around the Clock. Save the starting layout. Before every shot, choose the next object ball, its pocket, and the cue ball landing zone that leaves a useful angle. Prefer a route with room for a small speed error. Track pocketing and position separately. Complete one rotation first, then work toward three consecutive rotations without disturbing another ball. When you miss position, repeat the previous shot and compare a simpler route before changing the whole pattern.",
         "practice": {
@@ -6558,9 +6558,9 @@
         "group": "Kick Systems",
         "category": "drills",
         "level": 0,
-        "audio": "./guide/audio/practice-one-rail-kick.mp3",
+        "audio": "./guide/audio/practice-one-rail-kick.mp3?v=native-chase-20261021",
         "recordingStatus": "recorded",
-        "plannedAudio": "./guide/audio/practice-one-rail-kick.mp3",
+        "plannedAudio": "./guide/audio/practice-one-rail-kick.mp3?v=native-chase-20261021",
         "summary": "Place an object ball behind a blocker so the cue ball needs one cushion to reach it.",
         "text": "Place an object ball behind a blocker so the cue ball needs one cushion to reach it. Open More for the diamond system tutorial. Identify the cue ball start, the rail aim point, and the intended object ball contact. Keep speed and spin consistent while testing the route. Repeat five attempts, moving the rail aim point by a small amount when the contact misses. Record the adjustment that works, then test a second starting location. Count legal object ball contact according to the game you are practicing.",
         "practice": {
@@ -6590,9 +6590,9 @@
         "group": "Kick Systems",
         "category": "drills",
         "level": 0,
-        "audio": "./guide/audio/practice-two-rail-kick.mp3",
+        "audio": "./guide/audio/practice-two-rail-kick.mp3?v=native-chase-20261021",
         "recordingStatus": "recorded",
-        "plannedAudio": "./guide/audio/practice-two-rail-kick.mp3",
+        "plannedAudio": "./guide/audio/practice-two-rail-kick.mp3?v=native-chase-20261021",
         "summary": "Begin with a two cushion route that has space for the cue ball to travel.",
         "text": "Begin with a two cushion route that has space for the cue ball to travel. Mark the first rail aim point and predict the second rail contact before shooting. Keep the same speed and spin for each attempt. If the first contact is wrong, adjust the aim point. If the first contact is right but the final contact misses, examine the second rail route and speed. Record five attempts from the same start, then move the cue ball to a new starting diamond. Open More for the linked kick reference.",
         "practice": {
@@ -6622,9 +6622,9 @@
         "group": "Kick Systems",
         "category": "drills",
         "level": 0,
-        "audio": "./guide/audio/practice-corner-five.mp3",
+        "audio": "./guide/audio/practice-corner-five.mp3?v=native-chase-20261021",
         "recordingStatus": "recorded",
-        "plannedAudio": "./guide/audio/practice-corner-five.mp3",
+        "plannedAudio": "./guide/audio/practice-corner-five.mp3?v=native-chase-20261021",
         "summary": "Open More for Dr.",
         "text": "Open More for Dr. Dave’s Corner-5 demonstration. Follow its starting, aiming, and arrival number scales together. Identify all three cushion contacts before you shoot. Start with a clear route, consistent speed, and the spin shown in the lesson. Compare the predicted arrival with the actual arrival, then make a small adjustment and repeat. Once the route is calibrated, add a target object ball and a blocker for escape practice. Test five different starting positions and record legal object ball contact separately from the final cue ball position.",
         "practice": {
@@ -6654,9 +6654,9 @@
         "group": "Practice Benchmarks",
         "category": "drills",
         "level": 0,
-        "audio": "./guide/audio/practice-progressive-benchmark.mp3",
+        "audio": "./guide/audio/practice-progressive-benchmark.mp3?v=native-chase-20261021",
         "recordingStatus": "recorded",
-        "plannedAudio": "./guide/audio/practice-progressive-benchmark.mp3",
+        "plannedAudio": "./guide/audio/practice-progressive-benchmark.mp3?v=native-chase-20261021",
         "summary": "Open More for Sharivari’s progressive difficulty drill and use the demonstrated setup.",
         "text": "Open More for Sharivari’s progressive difficulty drill and use the demonstrated setup. Save the starting layout and record your first score. For your Trainer adaptation, begin with a comfortable position zone. After a successful set, reduce the zone or increase the shot difficulty, changing one condition at a time. Count both the pocketed ball and the required cue ball position. If the same error repeats, return to the last successful level. Record the highest level you can repeat, rather than only your best isolated attempt.",
         "practice": {
@@ -6686,9 +6686,9 @@
         "group": "Practice Sessions",
         "category": "exercises",
         "level": 0,
-        "audio": "./guide/audio/exercise-focused-practice-session.mp3",
+        "audio": "./guide/audio/exercise-focused-practice-session.mp3?v=native-chase-20261021",
         "recordingStatus": "recorded",
-        "plannedAudio": "./guide/audio/exercise-focused-practice-session.mp3",
+        "plannedAudio": "./guide/audio/exercise-focused-practice-session.mp3?v=native-chase-20261021",
         "summary": "Use this one hundred and five minute practice plan.",
         "text": "Use this one hundred and five minute practice plan. Spend thirty minutes on speed and target landing, aiming for eight successful pocket and position results out of ten with a three inch target. Spend forty five minutes on Rock Around the Clock, first completing one rotation and then working toward three consecutive rotations without disturbing another ball. Spend thirty minutes on kick escapes, starting with one rail and adding two and three rails as control improves. Test five selected escapes and aim for four legal contacts. Record the result at the end of each phase. If time runs out, save your layout and score, then continue there next session.",
         "practice": {
@@ -6730,9 +6730,9 @@
         "group": "Practice Sessions",
         "category": "exercises",
         "level": 0,
-        "audio": "./guide/audio/exercise-practice-review.mp3",
+        "audio": "./guide/audio/exercise-practice-review.mp3?v=native-chase-20261021",
         "recordingStatus": "recorded",
-        "plannedAudio": "./guide/audio/exercise-practice-review.mp3",
+        "plannedAudio": "./guide/audio/exercise-practice-review.mp3?v=native-chase-20261021",
         "summary": "At the end of practice, record attempts, pocketed balls, successful position results, and legal kick contacts.",
         "text": "At the end of practice, record attempts, pocketed balls, successful position results, and legal kick contacts. Note the most common miss and the single adjustment that helped. Save the table with a name that includes the drill, difficulty, and date. Download its table file if you want to share the same layout with an instructor or student. Begin your next session with that saved layout and the same scoring conditions. Improve the weakest result first, then increase the challenge once you can repeat the improvement.",
         "practice": {
@@ -6759,7 +6759,7 @@
       "topic": {
         "id": "recommend-zero-x-overview",
         "title": "Tor Lowry and Zero-X Billiards",
-        "audio": "./guide/audio/recommend-zero-x-overview.mp3?v=resource-finish-v5",
+        "audio": "./guide/audio/recommend-zero-x-overview.mp3?v=native-chase-20261021",
         "text": "We’ve found Tor Lowry’s Zero X Billiards videos helpful in advancing our games, and we recommend them as a companion to your practice in the Trainer. His lessons cover fundamentals, cue ball control, position play, patterns, and defense. Choose a topic that matches what you are practicing. Watch the demonstration, then recreate a manageable layout in the Trainer. Open More for the official channel and training resources.",
         "summary": "We’ve found Tor Lowry’s Zero X Billiards videos helpful in advancing our games, and we recommend them as a companion to your practice in the Trainer.",
         "category": "more",
@@ -6791,7 +6791,7 @@
       "topic": {
         "id": "recommend-zero-x-center-ball",
         "title": "Zero-X: center-ball fundamentals",
-        "audio": "./guide/audio/recommend-zero-x-center-ball.mp3?v=resource-finish-v5",
+        "audio": "./guide/audio/recommend-zero-x-center-ball.mp3?v=native-chase-20261021",
         "text": "We’ve found Tor Lowry’s center ball lessons helpful for improving pocketing and cue ball control, and we recommend them for building a dependable foundation. Start with the vertical center line, then explore stop, follow, and draw without adding side spin. Keep the same layout and change one setting at a time. Watch his demonstration before practicing, and compare your expected landing point with the result. Open More for Zero X’s official lessons.",
         "summary": "We’ve found Tor Lowry’s center ball lessons helpful for improving pocketing and cue ball control, and we recommend them for building a dependable foundation.",
         "category": "more",
@@ -6822,7 +6822,7 @@
       "topic": {
         "id": "recommend-zero-x-position-play",
         "title": "Zero-X: position play",
-        "audio": "./guide/audio/recommend-zero-x-position-play.mp3?v=resource-finish-v5",
+        "audio": "./guide/audio/recommend-zero-x-position-play.mp3?v=native-chase-20261021",
         "text": "We’ve found Tor Lowry’s position play lessons helpful in advancing our games, particularly when planning how one shot prepares the next. We recommend watching for the intended angle, cue ball route, and landing area. Pause the demonstration and plan the next position yourself. In the Trainer, use Shot 2 to compare routes, then save the layout and repeat the approach that gives you more room for error. Open More for the Zero X resources.",
         "summary": "We’ve found Tor Lowry’s position play lessons helpful in advancing our games, particularly when planning how one shot prepares the next.",
         "category": "more",
@@ -6853,7 +6853,7 @@
       "topic": {
         "id": "recommend-zero-x-eight-ball-patterns",
         "title": "Zero-X: eight-ball patterns",
-        "audio": "./guide/audio/recommend-zero-x-eight-ball-patterns.mp3?v=resource-finish-v5",
+        "audio": "./guide/audio/recommend-zero-x-eight-ball-patterns.mp3?v=native-chase-20261021",
         "text": "We’ve found Tor Lowry’s eight ball pattern lessons helpful in improving our planning through a full rack, and we recommend them when individual shots feel comfortable but the runout becomes difficult. Study the order of play, the useful angles, and how problems are addressed before they restrict your choices. Begin with a small group of balls in the Trainer and plan a clear route through them. Save the starting layout to compare different patterns. Open More for the Zero X lessons.",
         "summary": "We’ve found Tor Lowry’s eight ball pattern lessons helpful in improving our planning through a full rack, and we recommend them when individual shots feel comfortable but the runout becomes difficult.",
         "category": "more",
@@ -6884,7 +6884,7 @@
       "topic": {
         "id": "recommend-zero-x-defense-recovery",
         "title": "Zero-X: defense and recovery",
-        "audio": "./guide/audio/recommend-zero-x-defense-recovery.mp3?v=practice-ready-v8",
+        "audio": "./guide/audio/recommend-zero-x-defense-recovery.mp3?v=native-chase-20261021",
         "text": "We’ve found Tor Lowry’s defensive lessons helpful in advancing our games, especially when a shot leaves us without ideal position. We recommend studying how cue ball control and ball placement can limit an opponent’s options. Recreate a simple situation in the Trainer and compare an attacking route with a defensive route. Judge both the object ball result and the position you leave. Open More for Zero X’s official lessons on defense and related skills.",
         "summary": "We’ve found Tor Lowry’s defensive lessons helpful in advancing our games, especially when a shot leaves us without ideal position.",
         "category": "more",
@@ -6915,7 +6915,7 @@
       "topic": {
         "id": "drill-stop-shot",
         "title": "Stop Shot Calibration",
-        "audio": "./guide/audio/drill-stop-shot.mp3?v=practice-ready-v8",
+        "audio": "./guide/audio/drill-stop-shot.mp3?v=native-chase-20261021",
         "text": "Stop Shot Calibration. Stand at the head end, looking toward the foot end. Place the 1-ball on the center spot. Put the cue ball on the head string, one diamond from the left long rail. This lines up with the foot-right corner pocket. Center a three-inch white circle one ball width behind the 1-ball, toward the cue ball. That is the cue ball’s stopping position. Use no side spin. Start slightly below center and adjust your speed and tip height until the cue ball arrives without forward or backward roll. Pocket the 1-ball and stop the cue ball inside the white circle. Reset both balls after each attempt. Try five shots and count clean stops. In the Trainer, select Execute Shot to watch the result.",
         "summary": "Stop Shot Calibration.",
         "category": "drills",
@@ -6940,7 +6940,7 @@
       "topic": {
         "id": "drill-stun-tangent",
         "title": "90-Degree Stun Tangent Line",
-        "audio": "./guide/audio/drill-stun-tangent.mp3?v=practice-ready-v8",
+        "audio": "./guide/audio/drill-stun-tangent.mp3?v=native-chase-20261021",
         "text": "Ninety-Degree Stun Tangent Line. Stand at the head end, looking toward the foot. Place the 1-ball one diamond inward from the right side pocket. Put the cue ball on the table’s center line, half a diamond toward the foot end from the center spot. Place a three-inch yellow square one and a half diamonds toward the head end from the 1-ball, and one ball width to its left. Pocket the 1-ball into the right side pocket. Use no side spin and enough low tip contact and speed for the cue ball to be sliding at impact. It should leave along the tangent line, perpendicular to the object ball’s path. Adjust speed to finish inside the yellow square. Reset both balls and repeat five times. Select Execute Shot in the Trainer to compare the path with the tangent line.",
         "summary": "Ninety-Degree Stun Tangent Line.",
         "category": "drills",
@@ -6965,7 +6965,7 @@
       "topic": {
         "id": "drill-speed-ladder",
         "title": "Speed Ladder — Four Zones",
-        "audio": "./guide/audio/drill-speed-ladder.mp3?v=practice-ready-v8",
+        "audio": "./guide/audio/drill-speed-ladder.mp3?v=native-chase-20261021",
         "text": "Speed Ladder. Stand at the head end, looking toward the foot. Use only the cue ball. Start on the center line, half a diamond behind the head string. Place four three-inch circles on the center line: white on the center spot, red on the foot spot, yellow one diamond from the foot cushion, and pink one diamond from the head cushion. Reset the cue ball to the same starting position before every shot. First, stop on white. Second, stop on red. Third, touch the foot cushion and return to yellow. Fourth, touch the foot cushion and return all the way to pink. Use a level cue and no side spin. Change your stroke speed while keeping your delivery smooth. Score one point for each finish inside its circle, for a maximum of four. Repeat the ladder and compare your scores.",
         "summary": "Speed Ladder.",
         "category": "drills",
@@ -6990,7 +6990,7 @@
       "topic": {
         "id": "drill-l-pattern",
         "title": "L-Drill — Five-Ball Rotation",
-        "audio": "./guide/audio/drill-l-pattern.mp3?v=practice-ready-v8",
+        "audio": "./guide/audio/drill-l-pattern.mp3?v=native-chase-20261021",
         "text": "The L-Drill. Stand at the head end, looking toward the foot. Place balls one, two, and three half a diamond from the right long rail, respectively one, two, and three diamonds from the foot cushion. Place ball four one diamond from the right long rail and half a diamond from the foot cushion. Place ball five on the center line, also half a diamond from the foot cushion. These five balls form an L. Put a white square at the center spot, one diamond wide. Start the cue ball on the center line, half a diamond behind the head string. Pocket balls one through five in order, choosing clear corner pockets. Plan the next angle before every shot. Use the center square as a recovery option when it helps the next shot. Count balls pocketed in sequence, then reset the full pattern and try again.",
         "summary": "The L-Drill.",
         "category": "drills",
@@ -7015,7 +7015,7 @@
       "topic": {
         "id": "drill-t-pattern",
         "title": "T-Drill — Center and Foot String",
-        "audio": "./guide/audio/drill-t-pattern.mp3?v=practice-ready-v8",
+        "audio": "./guide/audio/drill-t-pattern.mp3?v=native-chase-20261021",
         "text": "The T-Drill. Stand at the head end, looking toward the foot. Place ball one on the center spot. Place ball two one diamond farther toward the foot, and ball three on the foot spot. Put ball four on the foot string, one diamond to the left of ball three, and ball five one diamond to its right. Start the cue ball on the head string, one diamond from the right long rail. Place two yellow circles, each half a diamond wide, halfway between the center spot and the side pockets. Pocket balls one through five in order into corner pockets. Choose the yellow zone that gives you a useful angle for the next ball. Use a cushion when it helps the route. Keep the cue ball clear of the remaining balls. Count your run, reset the full pattern, and work toward completing all five.",
         "summary": "The T-Drill.",
         "category": "drills",
@@ -7040,7 +7040,7 @@
       "topic": {
         "id": "drill-wagon-wheel",
         "title": "Wagon Wheel — Six Target Zones",
-        "audio": "./guide/audio/drill-wagon-wheel.mp3?v=practice-ready-v8",
+        "audio": "./guide/audio/drill-wagon-wheel.mp3?v=native-chase-20261021",
         "text": "The Wagon Wheel. Stand at the head end, looking toward the foot. Place the 1-ball one diamond inward from the right side pocket. Put the cue ball on the center line, half a diamond toward the foot from the center spot. Set six three-inch circles on the head side of the 1-ball. Marker one is one and a half diamonds from the left rail and three and a half from the head rail. Marker two is two from the left and three from the head. Marker three is one ball width left of the 1-ball’s line and three from the head. Marker four is three and a quarter from the left and three from the head. Marker five is three and a half from the left and two and a half from the head. Marker six is directly headward of marker three, one and a half diamonds from the head rail. Reset both balls before every attempt and pocket the 1-ball into the right side pocket. Work through the markers in order, varying draw, follow, and speed. Start without side spin. Record the combinations that produce repeatable finishes.",
         "summary": "The Wagon Wheel.",
         "category": "drills",
@@ -7065,7 +7065,7 @@
       "topic": {
         "id": "drill-two-rail-recovery",
         "title": "Two-Rail Center Recovery",
-        "audio": "./guide/audio/drill-two-rail-recovery.mp3?v=practice-ready-v8",
+        "audio": "./guide/audio/drill-two-rail-recovery.mp3?v=native-chase-20261021",
         "text": "Two-Rail Center Recovery. Stand at the head end, looking toward the foot. Place the 1-ball one diamond from the right long rail and one diamond from the foot cushion. Put the cue ball on the same rail offset, three diamonds from the foot cushion. Place a white square on the center line, one diamond from the head cushion. Make the square one diamond wide. Pocket the 1-ball into the foot-right corner. Start with natural forward roll and no side spin. Look for the cue ball to contact the foot cushion, then the left long cushion, and travel toward the white recovery zone. Adjust your stroke speed to finish in the square. Keep the ball placements fixed so you can compare attempts. Score the pocketed ball and the position result separately. Try five shots, then repeat your most successful speed.",
         "summary": "Two-Rail Center Recovery.",
         "category": "drills",
@@ -7090,7 +7090,7 @@
       "topic": {
         "id": "drill-scratch-avoidance",
         "title": "Side Pocket Scratch Avoidance",
-        "audio": "./guide/audio/drill-scratch-avoidance.mp3?v=practice-ready-v8",
+        "audio": "./guide/audio/drill-scratch-avoidance.mp3?v=native-chase-20261021",
         "text": "Side Pocket Scratch Avoidance. Stand at the head end, looking toward the foot. Place the 1-ball half a diamond inward from the right side pocket. Start the cue ball on the foot spot. Place a red square beside the head-right corner pocket, centered a quarter diamond from each cushion. Make it half a diamond wide. Place a white square on the center line, one diamond from the foot cushion, and make it one diamond wide. Pocket the 1-ball into the right side pocket. Compare forward roll, stun, and controlled draw, starting without side spin. Watch the whole cue ball route, including any cushion rebounds. Find a stroke that keeps the cue ball clear of the red danger zone and returns it toward white. In the Trainer, judge whether the path enters the red zone, even if cue ball pocketing is prevented. Reset both balls and repeat five times.",
         "summary": "Side Pocket Scratch Avoidance.",
         "category": "drills",
@@ -7115,7 +7115,7 @@
       "topic": {
         "id": "drill-mirror-kick",
         "title": "One-Rail Mirror Kick",
-        "audio": "./guide/audio/drill-mirror-kick.mp3?v=practice-ready-v8",
+        "audio": "./guide/audio/drill-mirror-kick.mp3?v=native-chase-20261021",
         "text": "One-Rail Mirror Kick. Stand at the head end, looking toward the foot. Put the cue ball on the head string, one diamond from the right long rail. Place the 1-ball on that same line, three diamonds from the foot cushion. Put the 8-ball halfway between them to block the direct shot. The cue ball and the 1-ball are now equally distant from the left cushion. Mark the left cushion halfway between their lengthwise positions: three and a half diamonds from the head cushion. Center a yellow circle one ball radius inside that cushion as the cue ball contact reference. Use a level cue, moderate speed, and no side spin. Send the cue ball to the left cushion, then into the 1-ball without touching the 8-ball first. Begin with the midpoint reference and make small aiming adjustments from your observed results. Reset the cue ball after each attempt and count five clean contacts.",
         "summary": "One-Rail Mirror Kick.",
         "category": "drills",
@@ -7140,7 +7140,7 @@
       "topic": {
         "id": "drill-two-rail-kick",
         "title": "Two-Rail Corner Kick",
-        "audio": "./guide/audio/drill-two-rail-kick.mp3?v=practice-ready-v8",
+        "audio": "./guide/audio/drill-two-rail-kick.mp3?v=native-chase-20261021",
         "text": "Two-Rail Corner Kick. Stand at the head end, looking toward the foot. Place the cue ball one diamond from the head cushion and one and a quarter diamonds from the right long rail. Put the 1-ball one diamond from the foot cushion and three quarters of a diamond from the right long rail. Place the 8-ball level with the side pockets, one diamond from the right rail. Put balls two and three on the same line, two ball widths to either side of the 8-ball toward the head and foot ends. This blocks the direct shot. Place yellow marker A at the right cushion on the foot string, with its center one ball radius inside the cloth. Place yellow marker B half a diamond left of the foot-right corner, also one ball radius inside the foot cushion. Use moderate speed and no side spin. Aim the cue ball center toward A. Look for right cushion, then foot cushion near B, then contact with the 1-ball. Make small aiming adjustments and count five successful escapes.",
         "summary": "Two-Rail Corner Kick.",
         "category": "drills",
@@ -7171,7 +7171,7 @@
         "category": "fundamentals",
         "categoryWelcome": true,
         "level": 0,
-        "audio": "./guide/audio/welcome-fundamentals.mp3",
+        "audio": "./guide/audio/welcome-fundamentals.mp3?v=native-chase-20261021",
         "text": "Welcome to Fundamentals. Explore aiming, cue ball control, and the basics of a dependable stroke. Open the drop-down menu and choose a topic you want to practice. Listen to the lesson and follow along at your own pace.",
         "summary": "Choose a topic from the drop-down menu to begin.",
         "recordingStatus": "recorded",
@@ -7188,7 +7188,7 @@
         "category": "physics",
         "categoryWelcome": true,
         "level": 0,
-        "audio": "./guide/audio/welcome-physics.mp3",
+        "audio": "./guide/audio/welcome-physics.mp3?v=native-chase-20261021",
         "text": "Welcome to Physics and Tools. Explore how speed, spin, and contact affect a shot, and learn to use the table’s visual tools. Choose a topic from the drop-down menu, then try the idea on the table and compare the result.",
         "summary": "Choose a topic from the drop-down menu to begin.",
         "recordingStatus": "recorded",
@@ -7205,7 +7205,7 @@
         "category": "drills",
         "categoryWelcome": true,
         "level": 0,
-        "audio": "./guide/audio/welcome-drills.mp3",
+        "audio": "./guide/audio/welcome-drills.mp3?v=native-chase-20261021",
         "text": "Welcome to Drills. Choose a drill from the drop-down menu and listen to its setup instructions. Place the balls and markers, then work through the shots at your own pace. Repeat the same arrangement to build control and compare your results.",
         "summary": "Choose a topic from the drop-down menu to begin.",
         "recordingStatus": "recorded",
@@ -7222,7 +7222,7 @@
         "category": "exercises",
         "categoryWelcome": true,
         "level": 0,
-        "audio": "./guide/audio/welcome-exercises.mp3",
+        "audio": "./guide/audio/welcome-exercises.mp3?v=native-chase-20261021",
         "text": "Welcome to Exercises. Explore short challenges that connect aiming, cue ball control, and planning your next shot. Choose an exercise from the drop-down menu, listen to its instructions, and work through it on the table. Repeat it whenever you want to sharpen that skill.",
         "summary": "Choose a topic from the drop-down menu to begin.",
         "recordingStatus": "recorded",
@@ -7239,7 +7239,7 @@
         "category": "more",
         "categoryWelcome": true,
         "level": 0,
-        "audio": "./guide/audio/welcome-more.mp3?v=resource-finish-v5",
+        "audio": "./guide/audio/welcome-more.mp3?v=native-chase-20261021",
         "text": "We’ve found Tor Lowry’s Zero X Billiards lessons helpful in advancing our games. Welcome to Resources. Explore his training videos and websites. Choose a topic from the drop-down menu to hear its introduction. When the audio finishes, the matching website will open. Use More for the links to that resource.",
         "summary": "Choose a topic from the drop-down menu to begin.",
         "recordingStatus": "recorded",
@@ -7257,7 +7257,7 @@
         "categoryWelcome": true,
         "guideWelcome": true,
         "level": 0,
-        "audio": "./guide/audio/welcome-guide.mp3",
+        "audio": "./guide/audio/welcome-guide.mp3?v=native-chase-20261021",
         "text": "Welcome to the Guide. Use Play and Pause to listen at your own pace. Turn on Auto to play through the lessons in your selected category without choosing each one. Tap Read to follow along with the narration. Reading while you listen can help you get more from each lesson. Open More for additional resources and links related to that topic. Explore Fundamentals, Physics and Tools, Drills, Exercises, and Resources. Tap any category, then choose a topic from its drop-down menu. Pick something that interests you, listen, and try it on the table.",
         "summary": "Play, Pause, Auto, Read, More, and the lesson categories.",
         "recordingStatus": "recorded",
@@ -7527,7 +7527,7 @@
         "explorerOnly": true,
         "text": "Cue and Shaft Preset is in Advanced Physics and Calibration. Standard shaft keeps the original squirt setting. Low-deflection shaft reduces squirt while keeping the same tip spin. Custom opens the cue ball to end-mass ratio for individual adjustment. The choice applies to both shots and is saved with your settings.",
         "summary": "Cue and Shaft Preset is in Advanced Physics and Calibration.",
-        "audio": "./guide/audio/main-cue-shaft-preset.mp3?v=presets-recovery-v13"
+        "audio": "./guide/audio/main-cue-shaft-preset.mp3?v=native-chase-20261021"
       }
     },
     {

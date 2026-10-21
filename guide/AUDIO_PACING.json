@@ -83,5 +83,6 @@
       "before_wpm": 240.4643449419569,
       "after_wpm": 174.27884615384613
     }
-  ]
+  ],
+  "status": "Historical processing record only; superseded by native Speechify Chase exports in docs/audio-quality/narration-release.json. Do not reapply these tempo factors."
 }

@@ -5,7 +5,7 @@
     {
       "id": "practice-1",
       "title": "Welcome to Focused Practice",
-      "text": "Welcome to the Billiards Trainer\u2014your digital practice arena. Master shot geometry, unlock cue-ball control, and explore real billiard physics. From core fundamentals to pro runouts, step up to the table and practice on your terms.",
+      "text": "Welcome to the Billiards Trainer—your digital practice arena. Master shot geometry, unlock cue-ball control, and explore real billiard physics. From core fundamentals to pro runouts, step up to the table and practice on your terms.",
       "prompt": "Pocket the 1-ball, then look at your cue-ball leave.",
       "balls": [
         [
@@ -40,7 +40,7 @@
       "targets": [
         "animate"
       ],
-      "audio": "./guide/audio/get-started-01.mp3",
+      "audio": "./guide/audio/get-started-01.mp3?v=native-chase-20261021",
       "recordingStatus": "recorded",
       "layout": "./guide/layouts/get-started-01.billiards.json",
       "topicId": "first-session-welcome"
@@ -74,7 +74,7 @@
         "aimRoller",
         "pocketTray"
       ],
-      "audio": "./guide/audio/get-started-02.mp3",
+      "audio": "./guide/audio/get-started-02.mp3?v=native-chase-20261021",
       "recordingStatus": "recorded",
       "layout": "./guide/layouts/get-started-02.billiards.json",
       "topicId": "first-session-aiming"
@@ -110,7 +110,7 @@
         "follow",
         "sideSpin"
       ],
-      "audio": "./guide/audio/get-started-03.mp3",
+      "audio": "./guide/audio/get-started-03.mp3?v=native-chase-20261021",
       "recordingStatus": "recorded",
       "layout": "./guide/layouts/get-started-03.billiards.json",
       "topicId": "first-session-speed"
@@ -146,7 +146,7 @@
         "speed",
         "aimRoller"
       ],
-      "audio": "./guide/audio/get-started-04.mp3",
+      "audio": "./guide/audio/get-started-04.mp3?v=native-chase-20261021",
       "recordingStatus": "recorded",
       "layout": "./guide/layouts/get-started-04.billiards.json",
       "topicId": "first-session-execute"
@@ -154,7 +154,7 @@
     {
       "id": "practice-5",
       "title": "Plan and Execute Shot 2",
-      "text": "Great pool is played two shots ahead. With Shot 2, plan your next ball before shooting your first. Set your landing zone and aim at your next target.\n\nTable looking busy? Use the Show and Hide controls for Cue Ball 1 and Cue Ball 2 to hide either cue ball and its shot lines. Show them again whenever you\u2019re ready to compare both shots.\n\nNow press Execute Shot. The trainer fires the opener and transitions straight into shot two\u2014ready for your next strike!",
+      "text": "Great pool is played two shots ahead. With Shot 2, plan your next ball before shooting your first. Set your landing zone and aim at your next target.\n\nTable looking busy? Use the Show and Hide controls for Cue Ball 1 and Cue Ball 2 to hide either cue ball and its shot lines. Show them again whenever you’re ready to compare both shots.\n\nNow press Execute Shot. The trainer fires the opener and transitions straight into shot two—ready for your next strike!",
       "prompt": "Execute Shot plays the 2. Press it again to play the second plan on the 3.",
       "balls": [
         [
@@ -187,7 +187,7 @@
         "toggleCueVisuals1Btn",
         "toggleCueVisuals2Btn"
       ],
-      "audio": "./guide/audio/get-started-05.mp3",
+      "audio": "./guide/audio/get-started-05.mp3?v=native-chase-20261021",
       "recordingStatus": "recorded",
       "layout": "./guide/layouts/get-started-05.billiards.json",
       "topicId": "first-session-shot-two"
@@ -211,7 +211,7 @@
         "startFullRack",
         "animate"
       ],
-      "audio": "./guide/audio/get-started-06.mp3",
+      "audio": "./guide/audio/get-started-06.mp3?v=native-chase-20261021",
       "recordingStatus": "recorded",
       "layout": "./guide/layouts/get-started-06.billiards.json",
       "topicId": "first-session-extend-runout"
@@ -245,7 +245,7 @@
         "undoShot",
         "resetLayoutQuick"
       ],
-      "audio": "./guide/audio/get-started-07.mp3",
+      "audio": "./guide/audio/get-started-07.mp3?v=native-chase-20261021",
       "recordingStatus": "recorded",
       "layout": "./guide/layouts/get-started-07.billiards.json",
       "topicId": "first-session-undo"
@@ -300,7 +300,7 @@
         "btg-pool-explore",
         "tipCanvas"
       ],
-      "audio": "./guide/audio/get-started-08.mp3",
+      "audio": "./guide/audio/get-started-08.mp3?v=native-chase-20261021",
       "recordingStatus": "recorded",
       "layout": "./guide/layouts/get-started-08.billiards.json",
       "topicId": "get-started-explore"
@@ -314,7 +314,7 @@
   "completion": {
     "seconds": 0,
     "text": "You're ready to make this table your own! Try a shot, explore the controls and settings, or open the Guide to go deeper. Turn on Explorer to discover what any control does. Your next move is yours!",
-    "audio": "./guide/audio/get-started-complete.mp3",
+    "audio": "./guide/audio/get-started-complete.mp3?v=native-chase-20261021",
     "recordingStatus": "recorded",
     "closeOnEnd": true
   }
