@@ -1,0 +1,173 @@
+{
+  "format": "billiards-trainer",
+  "version": 1,
+  "kind": "session",
+  "name": "Compass tool — introduction",
+  "layout": {
+    "name": "Compass tool — introduction",
+    "tableL": 2.54,
+    "tableW": 1.27,
+    "ballR": 0.028575,
+    "setupMode": "custom",
+    "allowMissingCueBall": false,
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 2.0213429019585094,
+        "y": 1.1252627227065048,
+        "active": true
+      },
+      {
+        "id": 4,
+        "n": "4",
+        "x": 1.4522026393676253,
+        "y": 1.066277962404206,
+        "active": true
+      }
+    ],
+    "freeAim": {
+      "x": 1.4982685671369167,
+      "y": 1.100101811959726
+    }
+  },
+  "state": {
+    "tableL": 2.54,
+    "tableW": 1.27,
+    "ballR": 0.028575,
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 2.0213429019585094,
+        "y": 1.1252627227065048,
+        "active": true
+      },
+      {
+        "id": 4,
+        "n": "4",
+        "x": 1.4522026393676253,
+        "y": 1.066277962404206,
+        "active": true
+      }
+    ],
+    "nextId": 4,
+    "markerSeq": 1000,
+    "freeAim": {
+      "x": 1.4982685671369167,
+      "y": 1.100101811959726
+    },
+    "angleLock": false,
+    "speed": 2.2,
+    "follow": 0,
+    "sideSpin": 0,
+    "cueElevationDeg": 0,
+    "shot2Enabled": false,
+    "activeShot": 1,
+    "shot2Initialized": false,
+    "showShot1": true,
+    "showShot2": true,
+    "showCueVisuals": true,
+    "showShotStats1": true,
+    "showShotStats2": true,
+    "showCueVisuals1": true,
+    "showCueVisuals2": true,
+    "showAngleLockControl": false,
+    "shot2": {
+      "x": 1.05,
+      "y": 0.72,
+      "freeAim": {
+        "x": 1.7,
+        "y": 0.72
+      },
+      "angleLock": false,
+      "autoGhostLock": false,
+      "speed": 2.42,
+      "follow": 0,
+      "sideSpin": 0,
+      "cueElevationDeg": 3,
+      "preview": null
+    },
+    "teachingCompass": {
+      "enabled": true,
+      "x": 1.4522026393676253,
+      "y": 1.066277962404206,
+      "sizePct": 45,
+      "angle": 0,
+      "linkedBallId": null
+    },
+    "setupMode": "custom",
+    "pocketedLog": [],
+    "player1Score": 0,
+    "player2Score": 0,
+    "activePlayer": 1,
+    "showScoreBoard": false,
+    "allowMissingCueBall": false,
+    "showBankKickNumbers": false,
+    "bankKick": {
+      "mode": null,
+      "phase": null,
+      "zero": null,
+      "railName": null,
+      "railU": null,
+      "autoAim": true,
+      "ballId": null,
+      "solution": null
+    },
+    "muSlide": 0.25,
+    "muRoll": 0.01,
+    "muBall": 0.01,
+    "ballRest": 0.96,
+    "railRest": 0.9,
+    "railTang": 0.9,
+    "cueEndmassRatio": 20.151,
+    "cuePreset": "standard",
+    "jumpUnits": "in",
+    "airbornePhysics": false,
+    "tableRest": 0.6,
+    "bedImpactMu": 0.2,
+    "showImpact": true,
+    "showTipBadge": false,
+    "showPaths": true,
+    "showGrid": true,
+    "showDiamonds": true,
+    "showTable": true,
+    "preview": null,
+    "firstEvent": "CB → 1",
+    "lastLayoutName": "Compass tool — introduction",
+    "name": "Compass tool — introduction"
+  },
+  "history": [],
+  "lesson": {
+    "topic": "compass-tool-intro-quick",
+    "purpose": "Use an angle reference to explain a direction rather than assume it predicts the whole route.",
+    "variation": "Approach distance and contact geometry selected for Compass tool — introduction. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+    "pocket": [
+      0,
+      0
+    ],
+    "target": 4,
+    "controls": {
+      "speed": 2.2,
+      "follow": 0,
+      "sideSpin": 0,
+      "cueElevationDeg": 0,
+      "airbornePhysics": false,
+      "showPaths": true,
+      "showImpact": true,
+      "showDiamonds": true,
+      "shot2Enabled": false,
+      "shot2Initialized": false,
+      "activeShot": 1,
+      "teachingCompass": {
+        "enabled": true,
+        "x": 1.4522026393676253,
+        "y": 1.066277962404206,
+        "sizePct": 45,
+        "angle": 0,
+        "linkedBallId": null
+      }
+    },
+    "railContacts": []
+  }
+}

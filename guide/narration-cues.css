@@ -1,0 +1,8 @@
+.btg-cue-layer{position:fixed;inset:0;pointer-events:none;z-index:2147483000;overflow:hidden}
+.btg-cue-ring{pointer-events:none}
+.btg-cue-vectors{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;pointer-events:none}
+.btg-cue-ball{fill:none;stroke:#ffe14f}
+.btg-cue-line{fill:none;stroke:#ffe14f;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.btg-cue-box{position:absolute;box-sizing:border-box;border:3px solid #ffe14f;border-radius:9px;background:rgba(255,221,36,.10);box-shadow:0 0 0 2px #251e08,0 0 14px rgba(255,218,50,.65);animation:btg-cue-pulse 1.3s ease-in-out infinite}
+@keyframes btg-cue-pulse{50%{box-shadow:0 0 0 2px #251e08,0 0 22px rgba(255,218,50,.95)}}
+@media(prefers-reduced-motion:reduce){.btg-cue-box{animation:none}}

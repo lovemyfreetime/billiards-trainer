@@ -129,10 +129,22 @@
       "success": "For each of five attempts, record the intended pocket and whether the object ball entered it. Separate an aim miss from a positional miss.",
       "transfer": "Place the ball centers using the setup sheet. Visualize the ghost-ball center while standing, align the cue, and deliver the shot. Use five physical attempts; the software cannot measure your alignment or stroke.",
       "progression": "Increase cue-ball distance or cut angle, one at a time, after a repeatable baseline.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Aiming line",
+          "url": "./guide/layouts/topics/aiming-line-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Aiming line. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 13
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "aiming-line-quick"
     },
     "ghost-ball-quick": {
       "title": "Ghost ball",
@@ -147,14 +159,20 @@
       "progression": "Increase cue-ball distance or cut angle, one at a time, after a repeatable baseline.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Ghost ball",
+          "url": "./guide/layouts/topics/ghost-ball-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Ghost ball. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 5
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "ghost-ball-quick"
     },
     "tangent-line-quick": {
       "title": "Tangent line",
@@ -167,10 +185,22 @@
       "success": "Predict the initial exit side on three cuts, then record the pot and whether the initial route follows your tangent reference. Do not grade the entire follow/draw curve as a straight tangent.",
       "transfer": "Use the cut layout and identify a rail crossing along the tangent. Test five attempts; watch the initial exit separately from the eventual stopping point.",
       "progression": "Change cut angle, then compare how follow/draw move the route away from the reference.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Tangent line",
+          "url": "./guide/layouts/topics/tangent-line-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Tangent line. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            1
+          ],
+          "target": 12
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "tangent-line-quick"
     },
     "diamond-grid-quick": {
       "title": "Diamond references",
@@ -183,10 +213,22 @@
       "success": "Record rail reference and bank made/missed over five attempts. Note whether the rebound runs short or long.",
       "transfer": "Copy the ball centers and identify the same rail point using diamonds. Start without added sidespin and adjust aim from observed rebounds.",
       "progression": "Change object-ball distance or speed individually, retaining the same target pocket.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Diamond references",
+          "url": "./guide/layouts/topics/diamond-grid-quick.billiards.json",
+          "note": "A 3-cushion object-ball bank via top, left, bottom. Yellow references mark the intended rail contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            0
+          ],
+          "target": 4
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "diamond-grid-quick"
     },
     "trajectory-lines-quick": {
       "title": "Trajectory guides",
@@ -199,10 +241,22 @@
       "success": "The intended operation completes and you can state what changed. This is an interface check, not a scored pool drill.",
       "transfer": "Use the linked skill lesson or saved setup for physical practice. This software operation has no independent physical-shot score.",
       "progression": "Return to a skill lesson and use the control only when it helps the objective.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Trajectory guides",
+          "url": "./guide/layouts/topics/trajectory-lines-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Trajectory guides. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            0
+          ],
+          "target": 11
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "trajectory-lines-quick"
     },
     "pocket-targeting-quick": {
       "title": "Pocket targeting",
@@ -217,14 +271,20 @@
       "progression": "Increase cue-ball distance or cut angle, one at a time, after a repeatable baseline.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Pocket targeting",
+          "url": "./guide/layouts/topics/pocket-targeting-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Pocket targeting. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            0
+          ],
+          "target": 3
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "pocket-targeting-quick"
     },
     "table-markers-quick": {
       "title": "Table markers",
@@ -237,7 +297,18 @@
       "success": "Record inside/outside for five attempts and keep the same marker size throughout the set. Shape/rotation changes the objective, not ball physics.",
       "transfer": "Use flat cloth-safe references that do not obstruct balls. Recreate the target size and center from the setup sheet; keep the boundary definition consistent.",
       "progression": "Start generously and shrink only after repeatable success.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Table markers",
+          "url": "./guide/layouts/topics/table-markers-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Table markers. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            0
+          ],
+          "target": 1
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -334,7 +405,13 @@
       "success": "Retain a baseline and at least five physical observations. Check any adjustment on a second shot; one matching result does not validate all physics.",
       "transfer": "Measure the cushion-nose playing dimensions. Match ball starts with the setup sheet and record travel/finish. Normal practice does not require changing friction or restitution.",
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Physics and calibration overview",
+          "url": "./guide/layouts/topics/physics-calibration-overview-quick.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -379,7 +456,7 @@
       "profile": "interface",
       "visible": false,
       "purpose": "Use Players and turns correctly within the current lesson.",
-      "instruction": "When working with player or turn information, use the table display to keep track of whose shot you are studying. The trainer\u2019s main learning tools still work best when you focus on the current shot and the position it creates.",
+      "instruction": "When working with player or turn information, use the table display to keep track of whose shot you are studying. The trainer’s main learning tools still work best when you focus on the current shot and the position it creates.",
       "success": "The intended operation completes and you can state what changed. This is an interface check, not a scored pool drill.",
       "transfer": "Use the linked skill lesson or saved setup for physical practice. This software operation has no independent physical-shot score.",
       "progression": "Return to a skill lesson and use the control only when it helps the objective.",
@@ -399,7 +476,18 @@
       "success": "Correctly identify bank versus kick on both layouts, then trace each cushion route before execution.",
       "transfer": "Copy the ball centers and identify the same rail point using diamonds. Start without added sidespin and adjust aim from observed rebounds.",
       "progression": "Change object-ball distance or speed individually, retaining the same target pocket.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Banks and kicks",
+          "url": "./guide/layouts/topics/bank-kick-overview-quick.billiards.json",
+          "note": "Prepared 3-cushion object-ball bank to pocket 5 via bottom, right, top. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 15
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -492,14 +580,26 @@
       "profile": "interface",
       "visible": false,
       "purpose": "Use Hide Cue Ball 1 and Cue Ball 2 correctly within the current lesson.",
-      "instruction": "When planning two shots, the aiming lines and guides can overlap. Select Hide Cue Ball 1 or Hide Cue Ball 2 to temporarily clear that shot\u2019s visual guides. This lets you focus on the other shot while making adjustments. Select Show to bring the hidden guides back.",
+      "instruction": "When planning two shots, the aiming lines and guides can overlap. Select Hide Cue Ball 1 or Hide Cue Ball 2 to temporarily clear that shot’s visual guides. This lets you focus on the other shot while making adjustments. Select Show to bring the hidden guides back.",
       "success": "The intended operation completes and you can state what changed. This is an interface check, not a scored pool drill.",
       "transfer": "Use the linked skill lesson or saved setup for physical practice. This software operation has no independent physical-shot score.",
       "progression": "Return to a skill lesson and use the control only when it helps the objective.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Hide Cue Ball 1 and Cue Ball 2",
+          "url": "./guide/layouts/topics/hide-cue-ball-guides-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Hide Cue Ball 1 and Cue Ball 2. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 10
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "hide-cue-ball-guides-quick"
     },
     "shot-speed-controls-quick": {
       "title": "Shot speed",
@@ -512,10 +612,17 @@
       "success": "Record short, inside, or long for five physical attempts at a named band. In the simulator, predict the ordering of three stopping distances.",
       "transfer": "Use a cue-ball-only route and flat target band. Translate stroke strength by observed travel; simulator speed values are not a measurement of your physical stroke.",
       "progression": "Narrow the band or add a cushion only after establishing a consistent baseline.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Shot speed",
+          "url": "./guide/layouts/topics/shot-speed-controls-quick.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "shot-speed-controls-quick"
     },
     "shot-speed-fine-adjustment-quick": {
       "title": "Fine speed adjustment",
@@ -528,7 +635,13 @@
       "success": "Record short, inside, or long for five physical attempts at a named band. In the simulator, predict the ordering of three stopping distances.",
       "transfer": "Use a cue-ball-only route and flat target band. Translate stroke strength by observed travel; simulator speed values are not a measurement of your physical stroke.",
       "progression": "Narrow the band or add a cushion only after establishing a consistent baseline.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Fine speed adjustment",
+          "url": "./guide/layouts/topics/shot-speed-fine-adjustment-quick.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -657,7 +770,13 @@
       "success": "In the simulator, record blocker avoided, target contacted, and landing inside a chosen zone separately. Missing clearance data is not evidence of clearance.",
       "transfer": "For physical practice, first confirm the venue permits jumps and use a suitable jump cue and supervised technique. Copy ball positions; start with an easy separation and score clearance and landing separately.",
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Jump height",
+          "url": "./guide/layouts/topics/jump-height-quick.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -674,7 +793,13 @@
       "success": "In the simulator, record blocker avoided, target contacted, and landing inside a chosen zone separately. Missing clearance data is not evidence of clearance.",
       "transfer": "For physical practice, first confirm the venue permits jumps and use a suitable jump cue and supervised technique. Copy ball positions; start with an easy separation and score clearance and landing separately.",
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Obstacle clearance",
+          "url": "./guide/layouts/topics/jump-obstacle-clearance-quick.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -691,14 +816,20 @@
       "success": "In the simulator, record blocker avoided, target contacted, and landing inside a chosen zone separately. Missing clearance data is not evidence of clearance.",
       "transfer": "For physical practice, first confirm the venue permits jumps and use a suitable jump cue and supervised technique. Copy ball positions; start with an easy separation and score clearance and landing separately.",
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Landing point",
+          "url": "./guide/layouts/topics/jump-landing-point-quick.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
       "sceneId": "jump-landing-point-quick"
     },
     "masse-shot-controls-quick": {
-      "title": "Mass\u00e9 shot controls",
+      "title": "Massé shot controls",
       "category": "physics",
       "group": "Elevated shots and route choices",
       "profile": "masse",
@@ -708,7 +839,13 @@
       "success": "Record obstacle avoidance, legal target first-contact, and cue-ball finish separately. Compare with a kick on the same layout.",
       "transfer": "Study the route on screen first. Attempt elevated curve shots only where permitted and with competent technique instruction; use a kick for ordinary physical practice if appropriate.",
       "progression": "Prefer the route you can repeat with the largest clearance margin.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Massé shot controls",
+          "url": "./guide/layouts/topics/masse-shot-controls-quick.billiards.json",
+          "note": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -789,10 +926,22 @@
       "success": "Name a target zone before shooting. Record pot and cue-ball center in the zone separately over five attempts.",
       "transfer": "Place a flat visual target beyond contact. Reproduce the layout and aim for the same finish; judge your stroke by travel rather than copying a slider percentage.",
       "progression": "Use a smaller zone only after consistent pocketing and position; then increase approach distance.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Direct cue-tip contact",
+          "url": "./guide/layouts/topics/cue-ball-diagram-direct-tip-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Direct cue-tip contact. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            1
+          ],
+          "target": 9
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "cue-ball-diagram-direct-tip-quick"
     },
     "cue-ball-pocket-power-meters-quick": {
       "title": "C and P power meters",
@@ -805,10 +954,22 @@
       "success": "Identify whether the cue ball reaches the target and whether the object ball reaches the pocket. Enough power is not proof of correct aim or a successful pot.",
       "transfer": "Use the same shot and find the gentlest repeatable physical stroke that pockets the ball with a useful leave. Record pot and position separately.",
       "progression": "Compare a longer approach while keeping the target/pocket fixed.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "C and P power meters",
+          "url": "./guide/layouts/topics/cue-ball-pocket-power-meters-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for C and P power meters. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            0
+          ],
+          "target": 1
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "cue-ball-pocket-power-meters-quick"
     },
     "exercise-cue-pocket-threshold": {
       "title": "Power meter",
@@ -823,9 +984,14 @@
       "progression": "Compare a longer approach while keeping the target/pocket fixed.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Power meter",
+          "url": "./guide/layouts/topics/exercise-cue-pocket-threshold.billiards.json",
+          "note": "Approach distance and contact geometry selected for Power meter. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            0
+          ],
+          "target": 12
         }
       ],
       "kind": "lesson",
@@ -834,7 +1000,7 @@
       "sceneId": "exercise-cue-pocket-threshold"
     },
     "jump-masse-open-controls-quick": {
-      "title": "Opening 3D jump and mass\u00e9 controls",
+      "title": "Opening 3D jump and massé controls",
       "category": "physics",
       "group": "Elevated shots and route choices",
       "profile": "jump",
@@ -844,10 +1010,17 @@
       "success": "In the simulator, record blocker avoided, target contacted, and landing inside a chosen zone separately. Missing clearance data is not evidence of clearance.",
       "transfer": "For physical practice, first confirm the venue permits jumps and use a suitable jump cue and supervised technique. Copy ball positions; start with an easy separation and score clearance and landing separately.",
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Opening 3D jump and massé controls",
+          "url": "./guide/layouts/topics/jump-masse-open-controls-quick.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "jump-masse-open-controls-quick"
     },
     "jump-masse-elevation-technique-advanced": {
       "title": "Cue elevation for advanced shots",
@@ -860,7 +1033,13 @@
       "success": "In the simulator, record blocker avoided, target contacted, and landing inside a chosen zone separately. Missing clearance data is not evidence of clearance.",
       "transfer": "For physical practice, first confirm the venue permits jumps and use a suitable jump cue and supervised technique. Copy ball positions; start with an easy separation and score clearance and landing separately.",
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Cue elevation for advanced shots",
+          "url": "./guide/layouts/topics/jump-masse-elevation-technique-advanced.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -877,7 +1056,18 @@
       "success": "For each of five attempts, record the intended pocket and whether the object ball entered it. Separate an aim miss from a positional miss.",
       "transfer": "Place the ball centers using the setup sheet. Visualize the ghost-ball center while standing, align the cue, and deliver the shot. Use five physical attempts; the software cannot measure your alignment or stroke.",
       "progression": "Increase cue-ball distance or cut angle, one at a time, after a repeatable baseline.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Contact point",
+          "url": "./guide/layouts/topics/contact-point-geometry-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Contact point. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 11
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -894,7 +1084,18 @@
       "success": "Correctly predict the fuller/thinner contact on three comparisons, then record pocketing on five attempts at each angle.",
       "transfer": "Use the same object-ball spot and pocket. Mark three cue-ball starts by diamond references; reset the balls after each attempt.",
       "progression": "Increase distance before adding English; keep the same scoring conditions.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Cut angle",
+          "url": "./guide/layouts/topics/cut-angle-geometry-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Cut angle. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            1
+          ],
+          "target": 3
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -911,7 +1112,18 @@
       "success": "Correctly predict the fuller/thinner contact on three comparisons, then record pocketing on five attempts at each angle.",
       "transfer": "Use the same object-ball spot and pocket. Mark three cue-ball starts by diamond references; reset the balls after each attempt.",
       "progression": "Increase distance before adding English; keep the same scoring conditions.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Ball overlap",
+          "url": "./guide/layouts/topics/ball-overlap-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Ball overlap. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            0
+          ],
+          "target": 10
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -930,9 +1142,14 @@
       "progression": "Increase cue-ball distance or cut angle, one at a time, after a repeatable baseline.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Ghost-ball position",
+          "url": "./guide/layouts/topics/ghost-ball-geometry-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Ghost-ball position. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            0
+          ],
+          "target": 2
         }
       ],
       "kind": "lesson",
@@ -953,9 +1170,14 @@
       "progression": "Compare no sidespin with a small sidespin input after the geometry baseline.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Collision line",
+          "url": "./guide/layouts/topics/collision-line-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Collision line. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            0
+          ],
+          "target": 9
         }
       ],
       "kind": "lesson",
@@ -974,7 +1196,18 @@
       "success": "Predict the initial exit side on three cuts, then record the pot and whether the initial route follows your tangent reference. Do not grade the entire follow/draw curve as a straight tangent.",
       "transfer": "Use the cut layout and identify a rail crossing along the tangent. Test five attempts; watch the initial exit separately from the eventual stopping point.",
       "progression": "Change cut angle, then compare how follow/draw move the route away from the reference.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "The tangent line",
+          "url": "./guide/layouts/topics/tangent-line-geometry-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for The tangent line. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 1
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -991,7 +1224,18 @@
       "success": "Predict the initial exit side on three cuts, then record the pot and whether the initial route follows your tangent reference. Do not grade the entire follow/draw curve as a straight tangent.",
       "transfer": "Use the cut layout and identify a rail crossing along the tangent. Test five attempts; watch the initial exit separately from the eventual stopping point.",
       "progression": "Change cut angle, then compare how follow/draw move the route away from the reference.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "The ninety-degree rule",
+          "url": "./guide/layouts/topics/ninety-degree-rule-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for The ninety-degree rule. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 8
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -1008,7 +1252,18 @@
       "success": "Explain which trial arrives rolling and which arrives in stun. Predict the departure side before three different cuts; the 30-degree reference is an approximation over its useful hit range.",
       "transfer": "Recreate the cut and observe the cue-ball route from rolling and stun deliveries. Use the direction as a starting reference, then check it on your table.",
       "progression": "Compare a fuller and a thinner hit to learn where the natural-angle approximation stops being useful.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "The thirty-degree rule",
+          "url": "./guide/layouts/topics/thirty-degree-rule-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for The thirty-degree rule. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            1
+          ],
+          "target": 15
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -1025,10 +1280,22 @@
       "success": "Record rail reference and bank made/missed over five attempts. Note whether the rebound runs short or long.",
       "transfer": "Copy the ball centers and identify the same rail point using diamonds. Start without added sidespin and adjust aim from observed rebounds.",
       "progression": "Change object-ball distance or speed individually, retaining the same target pocket.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Bank-shot geometry",
+          "url": "./guide/layouts/topics/bank-shot-geometry-quick.billiards.json",
+          "note": "A 2-cushion object-ball bank via top, right. Yellow references mark the intended rail contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 15
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "bank-shot-geometry-quick"
     },
     "kick-shot-geometry-quick": {
       "title": "Kick-shot geometry",
@@ -1041,10 +1308,17 @@
       "success": "Record target first-contact, scratch, and the game-required rail/pot condition on five attempts. A target touch is a contact score, not automatically a legal shot.",
       "transfer": "Copy the blocker and target. Identify the cushion-nose contact by diamond reference; reset all balls after each escape.",
       "progression": "Aim for four target contacts in five as a suggested practice goal, then change the starting diamond.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Kick-shot geometry",
+          "url": "./guide/layouts/topics/kick-shot-geometry-quick.billiards.json",
+          "note": "A 3-cushion cue-ball escape via bottom, right, top. Yellow references mark the intended rail contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "kick-shot-geometry-quick"
     },
     "incidence-reflection-quick": {
       "title": "Angle of incidence and reflection",
@@ -1073,7 +1347,18 @@
       "success": "Record rail reference and bank made/missed over five attempts. Note whether the rebound runs short or long.",
       "transfer": "Copy the ball centers and identify the same rail point using diamonds. Start without added sidespin and adjust aim from observed rebounds.",
       "progression": "Change object-ball distance or speed individually, retaining the same target pocket.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Diamond references",
+          "url": "./guide/layouts/topics/diamond-system-geometry-quick.billiards.json",
+          "note": "Prepared 2-cushion object-ball bank to pocket 3 via left, bottom. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            0
+          ],
+          "target": 7
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -1090,7 +1375,18 @@
       "success": "Record rail reference and bank made/missed over five attempts. Note whether the rebound runs short or long.",
       "transfer": "Copy the ball centers and identify the same rail point using diamonds. Start without added sidespin and adjust aim from observed rebounds.",
       "progression": "Change object-ball distance or speed individually, retaining the same target pocket.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Mirror aiming",
+          "url": "./guide/layouts/topics/mirror-aiming-quick.billiards.json",
+          "note": "Prepared 2-cushion object-ball bank to pocket 4 via top, left. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 14
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -1107,7 +1403,18 @@
       "success": "Record rail reference and bank made/missed over five attempts. Note whether the rebound runs short or long.",
       "transfer": "Copy the ball centers and identify the same rail point using diamonds. Start without added sidespin and adjust aim from observed rebounds.",
       "progression": "Change object-ball distance or speed individually, retaining the same target pocket.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Choosing the rail contact point",
+          "url": "./guide/layouts/topics/rail-contact-point-quick.billiards.json",
+          "note": "Prepared 2-cushion object-ball bank to pocket 5 via top, left. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 6
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -1142,9 +1449,9 @@
       "progression": "Add a target zone; then compare a second speed without changing the layout.",
       "setups": [
         {
-          "title": "Rail rebound and English",
-          "url": "./guide/layouts/rail-spin.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "English off a cushion",
+          "url": "./guide/layouts/topics/rail-english-geometry-quick.billiards.json",
+          "note": "One-cushion lane with a marked first rail reference, for no/left/right English comparisons. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -1163,7 +1470,13 @@
       "success": "Record the rail sequence, target contact, and legal outcome separately for five attempts. Do not infer a specific diamond-system formula from an unlabeled starter.",
       "transfer": "Use the printed diagram and diamond references. For a named system such as Corner-5, use the linked creator lesson for its exact numbering and spin convention.",
       "progression": "Test a second start only after the original route repeats; record each adjustment.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Multiple-rail routes",
+          "url": "./guide/layouts/topics/multiple-rail-routes-quick.billiards.json",
+          "note": "Prepared 3-cushion cue-ball escape to the target ball via bottom, left, top. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -1182,19 +1495,14 @@
       "progression": "Change object-ball distance or speed individually, retaining the same target pocket.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "One-rail bank starter",
-          "url": "./guide/layouts/bank-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "One-Rail Mirror Kick",
-          "url": "./guide/layouts/drill-mirror-kick.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 \u00d7 50-inch playing surface."
+          "title": "Geometry practice challenge",
+          "url": "./guide/layouts/topics/exercise-geometry-route-comparison.billiards.json",
+          "note": "Prepared 3-cushion object-ball bank to pocket 2 via left, bottom, right. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            0
+          ],
+          "target": 12
         }
       ],
       "kind": "lesson",
@@ -1203,7 +1511,7 @@
       "sceneId": "exercise-geometry-route-comparison"
     },
     "compass-tool-intro-quick": {
-      "title": "Compass tool \u2014 introduction",
+      "title": "Compass tool — introduction",
       "category": "physics",
       "group": "Readouts and teaching tools",
       "profile": "compass",
@@ -1213,14 +1521,25 @@
       "success": "Identify the reference angle before three trials and explain why roll, stun, or draw can produce different departures.",
       "transfer": "Use diamond/visual angle references while standing. Compare the observed departure; the compass is a teaching aid rather than a physical measuring instrument.",
       "progression": "Repeat with another cut and distinguish initial and eventual direction.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Compass tool — introduction",
+          "url": "./guide/layouts/topics/compass-tool-intro-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Compass tool — introduction. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            0
+          ],
+          "target": 4
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
       "sceneId": "compass-tool-intro-quick"
     },
     "compass-rotate-size-quick": {
-      "title": "Compass tool \u2014 rotate and resize",
+      "title": "Compass tool — rotate and resize",
       "category": "explore",
       "group": "Readouts and teaching tools",
       "profile": "compass",
@@ -1236,7 +1555,7 @@
       "physicalCheck": false
     },
     "compass-reference-advanced": {
-      "title": "Compass tool \u2014 advanced note",
+      "title": "Compass tool — advanced note",
       "category": "explore",
       "group": "Readouts and teaching tools",
       "profile": "compass",
@@ -1280,14 +1599,20 @@
       "progression": "Save baseline and variation under different names; keep physical results with the matching setup.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Positioning the cue ball",
+          "url": "./guide/layouts/topics/cue-ball-placement-quick.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 14
         }
       ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "cue-ball-placement-quick"
     },
     "add-object-ball-quick": {
       "title": "Adding an object ball",
@@ -1334,9 +1659,14 @@
       "progression": "Save baseline and variation under different names; keep physical results with the matching setup.",
       "setups": [
         {
-          "title": "First shot and next-ball position",
-          "url": "./guide/layouts/position-two-balls.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Creating a simple practice layout",
+          "url": "./guide/layouts/topics/practice-layout-quick.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            0
+          ],
+          "target": 11
         }
       ],
       "kind": "lesson",
@@ -1435,10 +1765,22 @@
       "success": "Restore the same ball centers and reproduce the intended comparison. Distinguish ball-layout reset from a complete session/stroke-settings restoration.",
       "transfer": "Use the coordinate sheet and a written record of the intended stroke. Mark or measure original ball centers and reset them between attempts.",
       "progression": "Save baseline and variation under different names; keep physical results with the matching setup.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Pocketed-ball tracking",
+          "url": "./guide/layouts/topics/pocketed-balls-layout-quick.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            1
+          ],
+          "target": 6
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "pocketed-balls-layout-quick"
     },
     "restore-layout-practice-quick": {
       "title": "Restoring a practice arrangement",
@@ -1533,9 +1875,14 @@
       "progression": "Increase distance before adding English; keep the same scoring conditions.",
       "setups": [
         {
-          "title": "Cut shot \u2014 right side pocket",
-          "url": "./guide/layouts/cut-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Exercise: change one ball",
+          "url": "./guide/layouts/topics/exercise-change-one-ball.billiards.json",
+          "note": "Approach distance and contact geometry selected for Exercise: change one ball. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            0
+          ],
+          "target": 3
         }
       ],
       "kind": "lesson",
@@ -1556,19 +1903,9 @@
       "progression": "Improve the earliest weak transition before increasing layout difficulty.",
       "setups": [
         {
-          "title": "8-ball full rack",
-          "url": "./guide/layouts/rack-8ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "9-ball full rack",
-          "url": "./guide/layouts/rack-9ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Exercise: build and review a rack",
+          "url": "./guide/layouts/topics/exercise-layout-runout-review.billiards.json",
+          "note": "Correct full rack with a distinct break starting point; continue planning from the resulting spread. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -1577,7 +1914,7 @@
       "sceneId": "exercise-layout-runout-review"
     },
     "save-recall-layout-intro-quick": {
-      "title": "Save / Recall Layout \u2014 introduction",
+      "title": "Save / Recall Layout — introduction",
       "category": "explore",
       "group": "Layouts, repeatability, and review",
       "profile": "layout",
@@ -1609,7 +1946,7 @@
       "physicalCheck": false
     },
     "exercise-save-recall-layout": {
-      "title": "\u2014 save, change, and recall",
+      "title": "— save, change, and recall",
       "category": "exercises",
       "group": "Layouts, repeatability, and review",
       "profile": "layout",
@@ -1621,9 +1958,14 @@
       "progression": "Save baseline and variation under different names; keep physical results with the matching setup.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "— save, change, and recall",
+          "url": "./guide/layouts/topics/exercise-save-recall-layout.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 2
         }
       ],
       "kind": "lesson",
@@ -1692,9 +2034,9 @@
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
       "setups": [
         {
-          "title": "Cue-ball speed \u2014 clear table",
-          "url": "./guide/layouts/clear-speed.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Table Speed",
+          "url": "./guide/layouts/topics/exercise-table-speed.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -1713,10 +2055,17 @@
       "success": "Retain a baseline and at least five physical observations. Check any adjustment on a second shot; one matching result does not validate all physics.",
       "transfer": "Measure the cushion-nose playing dimensions. Match ball starts with the setup sheet and record travel/finish. Normal practice does not require changing friction or restitution.",
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Physics and Calibration overview",
+          "url": "./guide/layouts/topics/physics-calibration-intro-quick.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "physics-calibration-intro-quick"
     },
     "calibration-expectations-advanced": {
       "title": "What calibration can and cannot do",
@@ -1729,7 +2078,13 @@
       "success": "Retain a baseline and at least five physical observations. Check any adjustment on a second shot; one matching result does not validate all physics.",
       "transfer": "Measure the cushion-nose playing dimensions. Match ball starts with the setup sheet and record travel/finish. Normal practice does not require changing friction or restitution.",
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "What calibration can and cannot do",
+          "url": "./guide/layouts/topics/calibration-expectations-advanced.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -1746,10 +2101,17 @@
       "success": "Retain a baseline and at least five physical observations. Check any adjustment on a second shot; one matching result does not validate all physics.",
       "transfer": "Measure the cushion-nose playing dimensions. Match ball starts with the setup sheet and record travel/finish. Normal practice does not require changing friction or restitution.",
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Rolling friction and table speed",
+          "url": "./guide/layouts/topics/rolling-friction-quick.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "rolling-friction-quick"
     },
     "sliding-friction-quick": {
       "title": "Sliding friction",
@@ -1762,10 +2124,17 @@
       "success": "Retain a baseline and at least five physical observations. Check any adjustment on a second shot; one matching result does not validate all physics.",
       "transfer": "Measure the cushion-nose playing dimensions. Match ball starts with the setup sheet and record travel/finish. Normal practice does not require changing friction or restitution.",
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Sliding friction",
+          "url": "./guide/layouts/topics/sliding-friction-quick.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "sliding-friction-quick"
     },
     "rolling-sliding-comparison-advanced": {
       "title": "Rolling versus sliding",
@@ -1794,7 +2163,18 @@
       "success": "Explain which trial arrives rolling and which arrives in stun. Predict the departure side before three different cuts; the 30-degree reference is an approximation over its useful hit range.",
       "transfer": "Recreate the cut and observe the cue-ball route from rolling and stun deliveries. Use the direction as a starting reference, then check it on your table.",
       "progression": "Compare a fuller and a thinner hit to learn where the natural-angle approximation stops being useful.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Natural roll",
+          "url": "./guide/layouts/topics/natural-roll-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Natural roll. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            0
+          ],
+          "target": 8
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -1811,7 +2191,13 @@
       "success": "Record short, inside, or long for five physical attempts at a named band. In the simulator, predict the ordering of three stopping distances.",
       "transfer": "Use a cue-ball-only route and flat target band. Translate stroke strength by observed travel; simulator speed values are not a measurement of your physical stroke.",
       "progression": "Narrow the band or add a cushion only after establishing a consistent baseline.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Shot speed and distance",
+          "url": "./guide/layouts/topics/physics-shot-speed-quick.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -1828,7 +2214,18 @@
       "success": "Predict which ball travels along the collision line and distinguish path changes from speed changes in three comparisons.",
       "transfer": "Reproduce the cut without changing equipment mid-set. Record the object-ball result and cue-ball leave separately; precise spin transfer needs closer observation than the final leave alone.",
       "progression": "Compare no sidespin with a small sidespin input after the geometry baseline.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Cue ball collisions",
+          "url": "./guide/layouts/topics/ball-collision-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Cue ball collisions. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 7
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -1845,10 +2242,22 @@
       "success": "Predict which ball travels along the collision line and distinguish path changes from speed changes in three comparisons.",
       "transfer": "Reproduce the cut without changing equipment mid-set. Record the object-ball result and cue-ball leave separately; precise spin transfer needs closer observation than the final leave alone.",
       "progression": "Compare no sidespin with a small sidespin input after the geometry baseline.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Collision energy and restitution",
+          "url": "./guide/layouts/topics/collision-restitution-advanced.billiards.json",
+          "note": "Approach distance and contact geometry selected for Collision energy and restitution. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 4
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "collision-restitution-advanced"
     },
     "physics-follow-quick": {
       "title": "Follow through contact",
@@ -1861,7 +2270,18 @@
       "success": "Name a target zone before shooting. Record pot and cue-ball center in the zone separately over five attempts.",
       "transfer": "Place a flat visual target beyond contact. Reproduce the layout and aim for the same finish; judge your stroke by travel rather than copying a slider percentage.",
       "progression": "Use a smaller zone only after consistent pocketing and position; then increase approach distance.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Follow through contact",
+          "url": "./guide/layouts/topics/physics-follow-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Follow through contact. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 14
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -1878,7 +2298,18 @@
       "success": "Record the pot and whether the cue-ball center returns into the selected zone on five attempts; distinguish no draw, short draw, and excessive draw.",
       "transfer": "Place a flat target on the approach side of the object ball. Use your own cue delivery to reproduce the finish, resetting both balls for each attempt.",
       "progression": "Move the cue ball farther away while retaining the same return-zone objective.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Draw through contact",
+          "url": "./guide/layouts/topics/physics-draw-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Draw through contact. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            1
+          ],
+          "target": 6
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -1895,7 +2326,18 @@
       "success": "Predict the initial exit side on three cuts, then record the pot and whether the initial route follows your tangent reference. Do not grade the entire follow/draw curve as a straight tangent.",
       "transfer": "Use the cut layout and identify a rail crossing along the tangent. Test five attempts; watch the initial exit separately from the eventual stopping point.",
       "progression": "Change cut angle, then compare how follow/draw move the route away from the reference.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Stop and stun",
+          "url": "./guide/layouts/topics/physics-stun-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Stop and stun. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            0
+          ],
+          "target": 13
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -1912,7 +2354,13 @@
       "success": "Predict the change of rebound side before each comparison. On the physical table, record the rail arrival and finish for five shots at each setting.",
       "transfer": "Use the rail layout and the same cushion reference. Establish a no-English baseline before compensating aim for sidespin.",
       "progression": "Add a target zone; then compare a second speed without changing the layout.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Side spin or English",
+          "url": "./guide/layouts/topics/physics-english-quick.billiards.json",
+          "note": "One-cushion lane with a marked first rail reference, for no/left/right English comparisons. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -1929,7 +2377,18 @@
       "success": "Predict which ball travels along the collision line and distinguish path changes from speed changes in three comparisons.",
       "transfer": "Reproduce the cut without changing equipment mid-set. Record the object-ball result and cue-ball leave separately; precise spin transfer needs closer observation than the final leave alone.",
       "progression": "Compare no sidespin with a small sidespin input after the geometry baseline.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Spin transfer",
+          "url": "./guide/layouts/topics/spin-transfer-advanced.billiards.json",
+          "note": "Approach distance and contact geometry selected for Spin transfer. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            0
+          ],
+          "target": 12
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -1946,10 +2405,22 @@
       "success": "Predict the initial deflection side and identify the correction needed. Record contact accuracy for five physical trials, keeping the cue/shaft the same.",
       "transfer": "Recreate a long approach. Observe initial departure separately from later curvature; use your own cue response rather than assuming the preset matches it exactly.",
       "progression": "Compare distances before introducing elevation and swerve.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Cue ball deflection or squirt",
+          "url": "./guide/layouts/topics/cue-ball-squirt-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Cue ball deflection or squirt. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 11
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "cue-ball-squirt-quick"
     },
     "cue-ball-swerve-advanced": {
       "title": "Swerve and cloth interaction",
@@ -1962,7 +2433,18 @@
       "success": "Identify initial deflection versus later curvature in three comparisons. Record whether the target contact shifts left or right.",
       "transfer": "Use a permitted low-elevation setup with clear cue access. Observe the path from a consistent view or video; the simulator cannot diagnose delivery.",
       "progression": "Compare the same shot with a near-level cue before increasing elevation.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Swerve and cloth interaction",
+          "url": "./guide/layouts/topics/cue-ball-swerve-advanced.billiards.json",
+          "note": "Approach distance and contact geometry selected for Swerve and cloth interaction. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 4
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -1995,7 +2477,13 @@
       "success": "Record short, inside, or long for five physical attempts at a named band. In the simulator, predict the ordering of three stopping distances.",
       "transfer": "Use a cue-ball-only route and flat target band. Translate stroke strength by observed travel; simulator speed values are not a measurement of your physical stroke.",
       "progression": "Narrow the band or add a cushion only after establishing a consistent baseline.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Rail speed loss",
+          "url": "./guide/layouts/topics/rail-speed-loss-advanced.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -2028,7 +2516,13 @@
       "success": "In the simulator, record blocker avoided, target contacted, and landing inside a chosen zone separately. Missing clearance data is not evidence of clearance.",
       "transfer": "For physical practice, first confirm the venue permits jumps and use a suitable jump cue and supervised technique. Copy ball positions; start with an easy separation and score clearance and landing separately.",
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Jump trajectory",
+          "url": "./guide/layouts/topics/jump-trajectory-quick.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -2047,9 +2541,9 @@
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
       "setups": [
         {
-          "title": "Jump clearance and landing",
-          "url": "./guide/layouts/jump-obstacle.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Clearing an obstacle",
+          "url": "./guide/layouts/topics/physics-jump-clearance-quick.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -2068,7 +2562,13 @@
       "success": "In the simulator, record blocker avoided, target contacted, and landing inside a chosen zone separately. Missing clearance data is not evidence of clearance.",
       "transfer": "For physical practice, first confirm the venue permits jumps and use a suitable jump cue and supervised technique. Copy ball positions; start with an easy separation and score clearance and landing separately.",
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Landing position",
+          "url": "./guide/layouts/topics/physics-jump-landing-quick.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -2085,14 +2585,20 @@
       "success": "In the simulator, record blocker avoided, target contacted, and landing inside a chosen zone separately. Missing clearance data is not evidence of clearance.",
       "transfer": "For physical practice, first confirm the venue permits jumps and use a suitable jump cue and supervised technique. Copy ball positions; start with an easy separation and score clearance and landing separately.",
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Understanding jump trajectory",
+          "url": "./guide/layouts/topics/jump-model-limitations-advanced.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
       "sceneId": "jump-model-limitations-advanced"
     },
     "masse-physics-quick": {
-      "title": "Mass\u00e9 shot",
+      "title": "Massé shot",
       "category": "physics",
       "group": "Elevated shots and route choices",
       "profile": "masse",
@@ -2102,14 +2608,20 @@
       "success": "Record obstacle avoidance, legal target first-contact, and cue-ball finish separately. Compare with a kick on the same layout.",
       "transfer": "Study the route on screen first. Attempt elevated curve shots only where permitted and with competent technique instruction; use a kick for ordinary physical practice if appropriate.",
       "progression": "Prefer the route you can repeat with the largest clearance margin.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Massé shot",
+          "url": "./guide/layouts/topics/masse-physics-quick.billiards.json",
+          "note": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
       "sceneId": "masse-physics-quick"
     },
     "masse-versus-jump-advanced": {
-      "title": "Mass\u00e9 versus jump",
+      "title": "Massé versus jump",
       "category": "physics",
       "group": "Elevated shots and route choices",
       "profile": "masse",
@@ -2119,7 +2631,13 @@
       "success": "Record obstacle avoidance, legal target first-contact, and cue-ball finish separately. Compare with a kick on the same layout.",
       "transfer": "Study the route on screen first. Attempt elevated curve shots only where permitted and with competent technique instruction; use a kick for ordinary physical practice if appropriate.",
       "progression": "Prefer the route you can repeat with the largest clearance margin.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Massé versus jump",
+          "url": "./guide/layouts/topics/masse-versus-jump-advanced.billiards.json",
+          "note": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -2136,7 +2654,13 @@
       "success": "Retain a baseline and at least five physical observations. Check any adjustment on a second shot; one matching result does not validate all physics.",
       "transfer": "Measure the cushion-nose playing dimensions. Match ball starts with the setup sheet and record travel/finish. Normal practice does not require changing friction or restitution.",
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Table dimensions and ball geometry",
+          "url": "./guide/layouts/topics/table-geometry-calibration-quick.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -2153,10 +2677,17 @@
       "success": "Retain a baseline and at least five physical observations. Check any adjustment on a second shot; one matching result does not validate all physics.",
       "transfer": "Measure the cushion-nose playing dimensions. Match ball starts with the setup sheet and record travel/finish. Normal practice does not require changing friction or restitution.",
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Reading physical measurements",
+          "url": "./guide/layouts/topics/physics-measurements-quick.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "physics-measurements-quick"
     },
     "real-table-calibration-quick": {
       "title": "Calibrating against a real table",
@@ -2169,7 +2700,13 @@
       "success": "Retain a baseline and at least five physical observations. Check any adjustment on a second shot; one matching result does not validate all physics.",
       "transfer": "Measure the cushion-nose playing dimensions. Match ball starts with the setup sheet and record travel/finish. Normal practice does not require changing friction or restitution.",
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Calibrating against a real table",
+          "url": "./guide/layouts/topics/real-table-calibration-quick.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -2186,7 +2723,13 @@
       "success": "Retain a baseline and at least five physical observations. Check any adjustment on a second shot; one matching result does not validate all physics.",
       "transfer": "Measure the cushion-nose playing dimensions. Match ball starts with the setup sheet and record travel/finish. Normal practice does not require changing friction or restitution.",
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Change one variable at a time",
+          "url": "./guide/layouts/topics/one-variable-calibration-quick.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -2203,7 +2746,13 @@
       "success": "Retain a baseline and at least five physical observations. Check any adjustment on a second shot; one matching result does not validate all physics.",
       "transfer": "Measure the cushion-nose playing dimensions. Match ball starts with the setup sheet and record travel/finish. Normal practice does not require changing friction or restitution.",
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Save your calibration observations",
+          "url": "./guide/layouts/topics/calibration-notes-quick.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -2222,9 +2771,9 @@
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
       "setups": [
         {
-          "title": "Cue-ball speed \u2014 clear table",
-          "url": "./guide/layouts/clear-speed.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "table speed",
+          "url": "./guide/layouts/topics/exercise-table-speed-calibration-variation.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -2245,9 +2794,14 @@
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "sliding friction",
+          "url": "./guide/layouts/topics/exercise-sliding-friction.billiards.json",
+          "note": "Straight collision exposes slide-to-roll changes instead of only free rolling distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 5
         }
       ],
       "kind": "lesson",
@@ -2268,9 +2822,9 @@
       "progression": "Narrow the band or add a cushion only after establishing a consistent baseline.",
       "setups": [
         {
-          "title": "Cue-ball speed \u2014 clear table",
-          "url": "./guide/layouts/clear-speed.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "speed ladder",
+          "url": "./guide/layouts/topics/exercise-speed-ladder.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -2291,9 +2845,14 @@
       "progression": "Increase approach distance; regain the stop with speed and tip height rather than assuming center-tip contact always means stun.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "stop, follow, draw",
+          "url": "./guide/layouts/topics/exercise-physics-stop-follow-draw.billiards.json",
+          "note": "Approach distance and contact geometry selected for stop, follow, draw. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            0
+          ],
+          "target": 4
         }
       ],
       "kind": "lesson",
@@ -2314,9 +2873,9 @@
       "progression": "Add a target zone; then compare a second speed without changing the layout.",
       "setups": [
         {
-          "title": "Rail rebound and English",
-          "url": "./guide/layouts/rail-spin.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "rail and English",
+          "url": "./guide/layouts/topics/exercise-rail-english.billiards.json",
+          "note": "One-cushion lane with a marked first rail reference, for no/left/right English comparisons. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -2337,9 +2896,14 @@
       "progression": "Compare distances before introducing elevation and swerve.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "squirt comparison",
+          "url": "./guide/layouts/topics/exercise-squirt-comparison.billiards.json",
+          "note": "Approach distance and contact geometry selected for squirt comparison. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            0
+          ],
+          "target": 3
         }
       ],
       "kind": "lesson",
@@ -2360,9 +2924,9 @@
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
       "setups": [
         {
-          "title": "Jump clearance and landing",
-          "url": "./guide/layouts/jump-obstacle.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "jump clearance",
+          "url": "./guide/layouts/topics/exercise-jump-clearance.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -2383,9 +2947,9 @@
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
       "setups": [
         {
-          "title": "Jump clearance and landing",
-          "url": "./guide/layouts/jump-obstacle.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "jump landing",
+          "url": "./guide/layouts/topics/exercise-jump-landing.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -2394,7 +2958,7 @@
       "sceneId": "exercise-jump-landing"
     },
     "exercise-masse-route": {
-      "title": "mass\u00e9 route",
+      "title": "massé route",
       "category": "exercises",
       "group": "Elevated shots and route choices",
       "profile": "masse",
@@ -2406,9 +2970,9 @@
       "progression": "Prefer the route you can repeat with the largest clearance margin.",
       "setups": [
         {
-          "title": "Blocked route \u2014 kick, jump, or mass\u00e9",
-          "url": "./guide/layouts/blocked-route.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "massé route",
+          "url": "./guide/layouts/topics/exercise-masse-route.billiards.json",
+          "note": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -2429,9 +2993,9 @@
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "real-table comparison",
+          "url": "./guide/layouts/topics/exercise-calibration-real-table.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -2450,10 +3014,17 @@
       "success": "Retain a baseline and at least five physical observations. Check any adjustment on a second shot; one matching result does not validate all physics.",
       "transfer": "Measure the cushion-nose playing dimensions. Match ball starts with the setup sheet and record travel/finish. Normal practice does not require changing friction or restitution.",
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Table and ball geometry settings",
+          "url": "./guide/layouts/topics/calibration-table-ball-dimensions-quick.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "calibration-table-ball-dimensions-quick"
     },
     "calibration-friction-restitution-advanced": {
       "title": "Surface and collision settings",
@@ -2466,10 +3037,17 @@
       "success": "Retain a baseline and at least five physical observations. Check any adjustment on a second shot; one matching result does not validate all physics.",
       "transfer": "Measure the cushion-nose playing dimensions. Match ball starts with the setup sheet and record travel/finish. Normal practice does not require changing friction or restitution.",
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Surface and collision settings",
+          "url": "./guide/layouts/topics/calibration-friction-restitution-advanced.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "calibration-friction-restitution-advanced"
     },
     "calibration-jump-physics-controls-advanced": {
       "title": "Advanced jump physics settings",
@@ -2482,13 +3060,20 @@
       "success": "Retain a baseline and at least five physical observations. Check any adjustment on a second shot; one matching result does not validate all physics.",
       "transfer": "Measure the cushion-nose playing dimensions. Match ball starts with the setup sheet and record travel/finish. Normal practice does not require changing friction or restitution.",
       "progression": "Keep separate baseline and experimental settings; do not tune a table from one inconsistent stroke.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Advanced jump physics settings",
+          "url": "./guide/layouts/topics/calibration-jump-physics-controls-advanced.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "calibration-jump-physics-controls-advanced"
     },
     "continuous-runout-master-quick": {
-      "title": "Continuous runout planning \u2014 canonical narration",
+      "title": "Continuous runout planning — canonical narration",
       "category": "explore",
       "group": "Patterns and runout decisions",
       "profile": "rack",
@@ -2536,7 +3121,7 @@
       "physicalCheck": false
     },
     "undo-last-shot-quick": {
-      "title": "Undo Last Shot \u2014 full-rack history",
+      "title": "Undo Last Shot — full-rack history",
       "category": "explore",
       "group": "Layouts, repeatability, and review",
       "profile": "layout",
@@ -2612,19 +3197,9 @@
       "progression": "Improve the earliest weak transition before increasing layout difficulty.",
       "setups": [
         {
-          "title": "8-ball full rack",
-          "url": "./guide/layouts/rack-8ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "9-ball full rack",
-          "url": "./guide/layouts/rack-9ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Full Rack Runout Analysis",
+          "url": "./guide/layouts/topics/exercise-full-rack-review.billiards.json",
+          "note": "Correct full rack with a distinct break starting point; continue planning from the resulting spread. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -2645,9 +3220,14 @@
       "progression": "Shrink the useful zone or add a third ball; do not count an attractive leave that is blocked.",
       "setups": [
         {
-          "title": "First shot and next-ball position",
-          "url": "./guide/layouts/position-two-balls.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Practicing with Shot 2",
+          "url": "./guide/layouts/topics/practice-shot-two-quick.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            0
+          ],
+          "target": 15
         }
       ],
       "kind": "lesson",
@@ -2668,19 +3248,14 @@
       "progression": "Save baseline and variation under different names; keep physical results with the matching setup.",
       "setups": [
         {
-          "title": "8-ball full rack",
-          "url": "./guide/layouts/rack-8ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "9-ball full rack",
-          "url": "./guide/layouts/rack-9ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Practicing with Undo Last Shot",
+          "url": "./guide/layouts/topics/practice-undo-history-quick.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 7
         }
       ],
       "kind": "lesson",
@@ -2701,9 +3276,14 @@
       "progression": "Add a ball or a blocker while retaining a readable, explained pattern.",
       "setups": [
         {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "The Three-Ball Runout",
+          "url": "./guide/layouts/topics/exercise-three-ball-runout.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 14
         }
       ],
       "kind": "lesson",
@@ -2724,19 +3304,9 @@
       "progression": "Improve the earliest weak transition before increasing layout difficulty.",
       "setups": [
         {
-          "title": "8-ball full rack",
-          "url": "./guide/layouts/rack-8ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "9-ball full rack",
-          "url": "./guide/layouts/rack-9ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Full-Rack Runout Review",
+          "url": "./guide/layouts/topics/exercise-full-rack-training.billiards.json",
+          "note": "Correct full rack with a distinct break starting point; continue planning from the resulting spread. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -2745,7 +3315,7 @@
       "sceneId": "exercise-full-rack-training"
     },
     "obstacle-route-choice-quick": {
-      "title": "Choosing a jump or mass\u00e9 route",
+      "title": "Choosing a jump or massé route",
       "category": "explore",
       "group": "Elevated shots and route choices",
       "profile": "masse",
@@ -2761,7 +3331,7 @@
       "physicalCheck": false
     },
     "exercise-jump-kick-masse": {
-      "title": "Jump, Kick, or Mass\u00e9",
+      "title": "Jump, Kick, or Massé",
       "category": "exercises",
       "group": "Elevated shots and route choices",
       "profile": "masse",
@@ -2773,9 +3343,9 @@
       "progression": "Prefer the route you can repeat with the largest clearance margin.",
       "setups": [
         {
-          "title": "Blocked route \u2014 kick, jump, or mass\u00e9",
-          "url": "./guide/layouts/blocked-route.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Jump, Kick, or Massé",
+          "url": "./guide/layouts/topics/exercise-jump-kick-masse.billiards.json",
+          "note": "Native curved escape around a ball blocking the direct route. The cue ball reaches its target without any cushion contact; vary elevation, draw and side spin to compare the curve. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -2796,19 +3366,9 @@
       "progression": "Improve the earliest weak transition before increasing layout difficulty.",
       "setups": [
         {
-          "title": "8-ball full rack",
-          "url": "./guide/layouts/rack-8ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "9-ball full rack",
-          "url": "./guide/layouts/rack-9ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "Three-ball runout starter",
-          "url": "./guide/layouts/three-ball.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "The Runout Improvement Challenge",
+          "url": "./guide/layouts/topics/exercise-runout-improvement.billiards.json",
+          "note": "Correct full rack with a distinct break starting point; continue planning from the resulting spread. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -2827,7 +3387,18 @@
       "success": "Record balls cleared, lost position, and unintended contacts for three runs. Explain one concrete advantage of the preferred sequence; no automatic best-pattern claim is made.",
       "transfer": "Choose 8-ball-style open practice or lowest-ball-first rotation before starting. Play each run from the actual leaves; reset only at the end of a run.",
       "progression": "Add a ball or a blocker while retaining a readable, explained pattern.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Understanding pattern play",
+          "url": "./guide/layouts/topics/pattern-play-quick.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            0
+          ],
+          "target": 12
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -2844,7 +3415,18 @@
       "success": "Record balls cleared, lost position, and unintended contacts for three runs. Explain one concrete advantage of the preferred sequence; no automatic best-pattern claim is made.",
       "transfer": "Choose 8-ball-style open practice or lowest-ball-first rotation before starting. Play each run from the actual leaves; reset only at the end of a run.",
       "progression": "Add a ball or a blocker while retaining a readable, explained pattern.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Planning backward from the final ball",
+          "url": "./guide/layouts/topics/final-ball-backward-planning-quick.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 4
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -2861,7 +3443,18 @@
       "success": "Record balls cleared, lost position, and unintended contacts for three runs. Explain one concrete advantage of the preferred sequence; no automatic best-pattern claim is made.",
       "transfer": "Choose 8-ball-style open practice or lowest-ball-first rotation before starting. Play each run from the actual leaves; reset only at the end of a run.",
       "progression": "Add a ball or a blocker while retaining a readable, explained pattern.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Recognizing problem balls",
+          "url": "./guide/layouts/topics/problem-balls-quick.billiards.json",
+          "note": "Two close object balls explicitly create the problem-ball decision described in the lesson. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 11
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -2878,7 +3471,18 @@
       "success": "Record balls cleared, lost position, and unintended contacts for three runs. Explain one concrete advantage of the preferred sequence; no automatic best-pattern claim is made.",
       "transfer": "Choose 8-ball-style open practice or lowest-ball-first rotation before starting. Play each run from the actual leaves; reset only at the end of a run.",
       "progression": "Add a ball or a blocker while retaining a readable, explained pattern.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Managing cue-ball traffic",
+          "url": "./guide/layouts/topics/cue-ball-traffic-quick.billiards.json",
+          "note": "Extra balls occupy the cue-ball travel corridor, making traffic avoidance visible. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            1
+          ],
+          "target": 3
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -2895,7 +3499,18 @@
       "success": "Record balls cleared, lost position, and unintended contacts for three runs. Explain one concrete advantage of the preferred sequence; no automatic best-pattern claim is made.",
       "transfer": "Choose 8-ball-style open practice or lowest-ball-first rotation before starting. Play each run from the actual leaves; reset only at the end of a run.",
       "progression": "Add a ball or a blocker while retaining a readable, explained pattern.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Choosing between simple and complex routes",
+          "url": "./guide/layouts/topics/route-selection-quick.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            0
+          ],
+          "target": 10
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -2912,7 +3527,18 @@
       "success": "Record balls cleared, lost position, and unintended contacts for three runs. Explain one concrete advantage of the preferred sequence; no automatic best-pattern claim is made.",
       "transfer": "Choose 8-ball-style open practice or lowest-ball-first rotation before starting. Play each run from the actual leaves; reset only at the end of a run.",
       "progression": "Add a ball or a blocker while retaining a readable, explained pattern.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Recovering from poor position",
+          "url": "./guide/layouts/topics/position-recovery-quick.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            0
+          ],
+          "target": 2
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -2929,7 +3555,18 @@
       "success": "Count legal contact and the required post-contact rail/pot condition separately from hiding the cue ball. From the opponent cue-ball position, check whether a direct legal target is blocked.",
       "transfer": "Recreate the balls and specify the game rules. Play five safeties and inspect the opponent reply each time; an obstructed line alone does not establish a legal safety.",
       "progression": "Compare distance safety with a containing safety, then add a realistic escape test.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Understanding safety play",
+          "url": "./guide/layouts/topics/safety-play-quick.billiards.json",
+          "note": "An attacking ball, screening ball, and candidate hiding area for inspecting the opponent reply. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            0
+          ],
+          "target": 9
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -2948,9 +3585,14 @@
       "progression": "Compare distance safety with a containing safety, then add a realistic escape test.",
       "setups": [
         {
-          "title": "Attack or safety \u2014 comparison starter",
-          "url": "./guide/layouts/defense-starter.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Planning a defensive cue-ball route",
+          "url": "./guide/layouts/topics/defensive-cue-ball-route-quick.billiards.json",
+          "note": "An attacking ball, screening ball, and candidate hiding area for inspecting the opponent reply. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 1
         }
       ],
       "kind": "lesson",
@@ -2969,7 +3611,18 @@
       "success": "Count legal contact and the required post-contact rail/pot condition separately from hiding the cue ball. From the opponent cue-ball position, check whether a direct legal target is blocked.",
       "transfer": "Recreate the balls and specify the game rules. Play five safeties and inspect the opponent reply each time; an obstructed line alone does not establish a legal safety.",
       "progression": "Compare distance safety with a containing safety, then add a realistic escape test.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Escaping from a safety",
+          "url": "./guide/layouts/topics/safety-escape-quick.billiards.json",
+          "note": "An attacking ball, screening ball, and candidate hiding area for inspecting the opponent reply. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 8
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -3002,7 +3655,18 @@
       "success": "Record balls cleared, lost position, and unintended contacts for three runs. Explain one concrete advantage of the preferred sequence; no automatic best-pattern claim is made.",
       "transfer": "Choose 8-ball-style open practice or lowest-ball-first rotation before starting. Play each run from the actual leaves; reset only at the end of a run.",
       "progression": "Add a ball or a blocker while retaining a readable, explained pattern.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Evaluating the quality of a runout",
+          "url": "./guide/layouts/topics/runout-quality-quick.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            1
+          ],
+          "target": 15
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -3037,9 +3701,14 @@
       "progression": "Increase cue-ball distance or cut angle, one at a time, after a repeatable baseline.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Learning to aim accurately",
+          "url": "./guide/layouts/topics/practice-aiming-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Learning to aim accurately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            0
+          ],
+          "target": 7
         }
       ],
       "kind": "lesson",
@@ -3060,9 +3729,9 @@
       "progression": "Narrow the band or add a cushion only after establishing a consistent baseline.",
       "setups": [
         {
-          "title": "Cue-ball speed \u2014 clear table",
-          "url": "./guide/layouts/clear-speed.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Developing speed control",
+          "url": "./guide/layouts/topics/practice-speed-control-quick.billiards.json",
+          "note": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -3083,9 +3752,14 @@
       "progression": "Increase approach distance; regain the stop with speed and tip height rather than assuming center-tip contact always means stun.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Understanding stop shots",
+          "url": "./guide/layouts/topics/practice-stop-shot-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Understanding stop shots. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            0
+          ],
+          "target": 6
         }
       ],
       "kind": "lesson",
@@ -3106,9 +3780,14 @@
       "progression": "Use a smaller zone only after consistent pocketing and position; then increase approach distance.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Practicing follow shots",
+          "url": "./guide/layouts/topics/practice-follow-shot-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Practicing follow shots. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 13
         }
       ],
       "kind": "lesson",
@@ -3129,9 +3808,14 @@
       "progression": "Move the cue ball farther away while retaining the same return-zone objective.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Practicing draw shots",
+          "url": "./guide/layouts/topics/practice-draw-shot-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Practicing draw shots. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 5
         }
       ],
       "kind": "lesson",
@@ -3152,9 +3836,14 @@
       "progression": "Increase distance before adding English; keep the same scoring conditions.",
       "setups": [
         {
-          "title": "Cut shot \u2014 right side pocket",
-          "url": "./guide/layouts/cut-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Practicing cut angles",
+          "url": "./guide/layouts/topics/practice-cut-angles-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Practicing cut angles. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            1
+          ],
+          "target": 12
         }
       ],
       "kind": "lesson",
@@ -3175,9 +3864,14 @@
       "progression": "Change cut angle, then compare how follow/draw move the route away from the reference.",
       "setups": [
         {
-          "title": "Cut shot \u2014 right side pocket",
-          "url": "./guide/layouts/cut-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Practicing the tangent line",
+          "url": "./guide/layouts/topics/practice-tangent-line-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Practicing the tangent line. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            0
+          ],
+          "target": 4
         }
       ],
       "kind": "lesson",
@@ -3198,9 +3892,14 @@
       "progression": "Change object-ball distance or speed individually, retaining the same target pocket.",
       "setups": [
         {
-          "title": "One-rail bank starter",
-          "url": "./guide/layouts/bank-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Practicing bank shots",
+          "url": "./guide/layouts/topics/practice-bank-shots-quick.billiards.json",
+          "note": "Prepared 4-cushion object-ball bank to pocket 4 via top, right, bottom, left. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 11
         }
       ],
       "kind": "lesson",
@@ -3221,9 +3920,9 @@
       "progression": "Aim for four target contacts in five as a suggested practice goal, then change the starting diamond.",
       "setups": [
         {
-          "title": "One-Rail Mirror Kick",
-          "url": "./guide/layouts/drill-mirror-kick.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 \u00d7 50-inch playing surface."
+          "title": "Practicing kick shots",
+          "url": "./guide/layouts/topics/practice-kick-shots-quick.billiards.json",
+          "note": "Prepared 3-cushion cue-ball escape to the target ball via bottom, left, top. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -3244,9 +3943,9 @@
       "progression": "Add a target zone; then compare a second speed without changing the layout.",
       "setups": [
         {
-          "title": "Rail rebound and English",
-          "url": "./guide/layouts/rail-spin.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Practicing English",
+          "url": "./guide/layouts/topics/practice-english-quick.billiards.json",
+          "note": "One-cushion lane with a marked first rail reference, for no/left/right English comparisons. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -3267,9 +3966,14 @@
       "progression": "Shrink the useful zone or add a third ball; do not count an attractive leave that is blocked.",
       "setups": [
         {
-          "title": "First shot and next-ball position",
-          "url": "./guide/layouts/position-two-balls.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Practicing cue-ball position",
+          "url": "./guide/layouts/topics/practice-position-play-quick.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 2
         }
       ],
       "kind": "lesson",
@@ -3290,19 +3994,14 @@
       "progression": "Increase cue-ball distance or cut angle, one at a time, after a repeatable baseline.",
       "setups": [
         {
-          "title": "Straight-shot ladder \u2014 distance 1",
-          "url": "./guide/layouts/straight-distance-1.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "Straight-shot ladder \u2014 distance 2",
-          "url": "./guide/layouts/straight-distance-2.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
-        },
-        {
-          "title": "Straight-shot ladder \u2014 distance 3",
-          "url": "./guide/layouts/straight-distance-3.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "The Straight-Shot Ladder",
+          "url": "./guide/layouts/topics/exercise-straight-shot-ladder.billiards.json",
+          "note": "Approach distance and contact geometry selected for The Straight-Shot Ladder. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            1
+          ],
+          "target": 9
         }
       ],
       "kind": "lesson",
@@ -3323,9 +4022,14 @@
       "progression": "Increase approach distance; regain the stop with speed and tip height rather than assuming center-tip contact always means stun.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Stop, Follow, Draw",
+          "url": "./guide/layouts/topics/exercise-stop-follow-draw.billiards.json",
+          "note": "Approach distance and contact geometry selected for Stop, Follow, Draw. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            0
+          ],
+          "target": 1
         }
       ],
       "kind": "lesson",
@@ -3346,9 +4050,14 @@
       "progression": "Shrink the useful zone or add a third ball; do not count an attractive leave that is blocked.",
       "setups": [
         {
-          "title": "Three cue-ball position zones",
-          "url": "./guide/layouts/three-zones.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Three Position Zones",
+          "url": "./guide/layouts/topics/exercise-three-position-zones.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            0
+          ],
+          "target": 8
         }
       ],
       "kind": "lesson",
@@ -3371,6 +4080,7 @@
         {
           "title": "Welcome to Focused Practice",
           "url": "./guide/layouts/get-started-01.billiards.json",
+          "note": "Get Started snapshot; physical setup sheet uses its starting positions, including the saved before-shot state in Undo practice.",
           "pocket": [
             0.5,
             0
@@ -3398,6 +4108,7 @@
         {
           "title": "Set Up and Aim Precisely",
           "url": "./guide/layouts/get-started-02.billiards.json",
+          "note": "Get Started snapshot; physical setup sheet uses its starting positions, including the saved before-shot state in Undo practice.",
           "pocket": [
             1,
             0
@@ -3425,6 +4136,7 @@
         {
           "title": "Speed, Tip Contact, and English",
           "url": "./guide/layouts/get-started-03.billiards.json",
+          "note": "Get Started snapshot; physical setup sheet uses its starting positions, including the saved before-shot state in Undo practice.",
           "pocket": [
             0.5,
             0
@@ -3452,6 +4164,7 @@
         {
           "title": "Execute and Compare Variations",
           "url": "./guide/layouts/get-started-04.billiards.json",
+          "note": "Get Started snapshot; physical setup sheet uses its starting positions, including the saved before-shot state in Undo practice.",
           "pocket": [
             1,
             1
@@ -3479,6 +4192,7 @@
         {
           "title": "Plan and Execute Shot 2",
           "url": "./guide/layouts/get-started-05.billiards.json",
+          "note": "Get Started snapshot; physical setup sheet uses its starting positions, including the saved before-shot state in Undo practice.",
           "pocket": [
             0.5,
             1
@@ -3506,11 +4220,7 @@
         {
           "title": "Full Racks and Runout Planning",
           "url": "./guide/layouts/get-started-06.billiards.json",
-          "pocket": [
-            1,
-            0.5
-          ],
-          "target": 1
+          "note": "Get Started snapshot; physical setup sheet uses its starting positions, including the saved before-shot state in Undo practice."
         }
       ],
       "kind": "lesson",
@@ -3533,6 +4243,7 @@
         {
           "title": "Undo and Reset the Layout",
           "url": "./guide/layouts/get-started-07.billiards.json",
+          "note": "Get Started snapshot; physical setup sheet uses its starting positions, including the saved before-shot state in Undo practice.",
           "pocket": [
             1,
             0
@@ -3560,6 +4271,7 @@
         {
           "title": "Guide and Explorer",
           "url": "./guide/layouts/get-started-08.billiards.json",
+          "note": "Get Started snapshot; physical setup sheet uses its starting positions, including the saved before-shot state in Undo practice.",
           "pocket": [
             1,
             0
@@ -3611,7 +4323,7 @@
       "profile": "interface",
       "visible": false,
       "purpose": "Use Help Shape Billiards Trainer invitation correctly within the current lesson.",
-      "instruction": "We\u2019d love to hear what you think of Billiards Trainer. Open Help Shape Billiards Trainer near the bottom of Features & Options. Tell us what you\u2019d change or add, include your email if you\u2019d like a response, and select Share Your Feedback. Your ideas help improve the trainer for everyone.",
+      "instruction": "We’d love to hear what you think of Billiards Trainer. Open Help Shape Billiards Trainer near the bottom of Features & Options. Tell us what you’d change or add, include your email if you’d like a response, and select Share Your Feedback. Your ideas help improve the trainer for everyone.",
       "success": "The intended operation completes and you can state what changed. This is an interface check, not a scored pool drill.",
       "transfer": "Use the linked skill lesson or saved setup for physical practice. This software operation has no independent physical-shot score.",
       "progression": "Return to a skill lesson and use the control only when it helps the objective.",
@@ -3663,7 +4375,18 @@
       "success": "Correctly predict the fuller/thinner contact on three comparisons, then record pocketing on five attempts at each angle.",
       "transfer": "Use the same object-ball spot and pocket. Mark three cue-ball starts by diamond references; reset the balls after each attempt.",
       "progression": "Increase distance before adding English; keep the same scoring conditions.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Contact & Aim",
+          "url": "./guide/layouts/topics/live-stats-contact-aim-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Contact & Aim. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 11
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -3696,10 +4419,22 @@
       "success": "Correctly predict the fuller/thinner contact on three comparisons, then record pocketing on five attempts at each angle.",
       "transfer": "Use the same object-ball spot and pocket. Mark three cue-ball starts by diamond references; reset the balls after each attempt.",
       "progression": "Increase distance before adding English; keep the same scoring conditions.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Cut angle",
+          "url": "./guide/layouts/topics/live-stats-cut-angle-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Cut angle. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 1
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "live-stats-cut-angle-quick"
     },
     "live-stats-overlap-quick": {
       "title": "Physical overlap",
@@ -3712,10 +4447,22 @@
       "success": "Correctly predict the fuller/thinner contact on three comparisons, then record pocketing on five attempts at each angle.",
       "transfer": "Use the same object-ball spot and pocket. Mark three cue-ball starts by diamond references; reset the balls after each attempt.",
       "progression": "Increase distance before adding English; keep the same scoring conditions.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Physical overlap",
+          "url": "./guide/layouts/topics/live-stats-overlap-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Physical overlap. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 8
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "live-stats-overlap-quick"
     },
     "live-stats-contact-travel-quick": {
       "title": "Travel to contact",
@@ -3728,10 +4475,22 @@
       "success": "For three adjustments, explain the direction of change and verify the corresponding simulated path. These readouts are predictions, not measurements of your physical attempts.",
       "transfer": "Take the same layout to the table and compare observable outcomes: contact, rail crossing, pot, and finish. Log physical results separately from simulator values.",
       "progression": "Hide the readout, predict the outcome, then reveal it to check your reasoning.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Travel to contact",
+          "url": "./guide/layouts/topics/live-stats-contact-travel-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Travel to contact. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            1
+          ],
+          "target": 15
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "live-stats-contact-travel-quick"
     },
     "live-stats-first-event-quick": {
       "title": "First predicted event",
@@ -3760,7 +4519,18 @@
       "success": "For three adjustments, explain the direction of change and verify the corresponding simulated path. These readouts are predictions, not measurements of your physical attempts.",
       "transfer": "Take the same layout to the table and compare observable outcomes: contact, rail crossing, pot, and finish. Log physical results separately from simulator values.",
       "progression": "Hide the readout, predict the outcome, then reveal it to check your reasoning.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Cue & Flight",
+          "url": "./guide/layouts/topics/live-stats-cue-flight-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Cue & Flight. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            1
+          ],
+          "target": 3
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -3793,10 +4563,22 @@
       "success": "Predict the initial deflection side and identify the correction needed. Record contact accuracy for five physical trials, keeping the cue/shaft the same.",
       "transfer": "Recreate a long approach. Observe initial departure separately from later curvature; use your own cue response rather than assuming the preset matches it exactly.",
       "progression": "Compare distances before introducing elevation and swerve.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Predicted squirt",
+          "url": "./guide/layouts/topics/live-stats-squirt-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Predicted squirt. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            0
+          ],
+          "target": 7
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "live-stats-squirt-quick"
     },
     "live-stats-jump-clearance-quick": {
       "title": "Jump and clearance",
@@ -3809,13 +4591,20 @@
       "success": "In the simulator, record blocker avoided, target contacted, and landing inside a chosen zone separately. Missing clearance data is not evidence of clearance.",
       "transfer": "For physical practice, first confirm the venue permits jumps and use a suitable jump cue and supervised technique. Copy ball positions; start with an easy separation and score clearance and landing separately.",
       "progression": "Compare a simpler kick first; reduce the landing zone only after consistent clearance.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Jump and clearance",
+          "url": "./guide/layouts/topics/live-stats-jump-clearance-quick.billiards.json",
+          "note": "Distinct obstacle spacing and an open landing area; compare clearance at the blocker and landing separately. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "live-stats-jump-clearance-quick"
     },
     "live-stats-masse-quick": {
-      "title": "Curve and mass\u00e9",
+      "title": "Curve and massé",
       "category": "physics",
       "group": "Elevated shots and route choices",
       "profile": "masse",
@@ -3825,10 +4614,17 @@
       "success": "Record obstacle avoidance, legal target first-contact, and cue-ball finish separately. Compare with a kick on the same layout.",
       "transfer": "Study the route on screen first. Attempt elevated curve shots only where permitted and with competent technique instruction; use a kick for ordinary physical practice if appropriate.",
       "progression": "Prefer the route you can repeat with the largest clearance margin.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Curve and massé",
+          "url": "./guide/layouts/topics/live-stats-masse-quick.billiards.json",
+          "note": "Blocked direct lane plus room for lateral curvature; compare with a cushion escape. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "live-stats-masse-quick"
     },
     "live-stats-power-pocket-quick": {
       "title": "Power & Pocket",
@@ -3841,7 +4637,18 @@
       "success": "For three adjustments, explain the direction of change and verify the corresponding simulated path. These readouts are predictions, not measurements of your physical attempts.",
       "transfer": "Take the same layout to the table and compare observable outcomes: contact, rail crossing, pot, and finish. Log physical results separately from simulator values.",
       "progression": "Hide the readout, predict the outcome, then reveal it to check your reasoning.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Power & Pocket",
+          "url": "./guide/layouts/topics/live-stats-power-pocket-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Power & Pocket. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            0
+          ],
+          "target": 10
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
       "physicalCheck": false,
@@ -3858,10 +4665,22 @@
       "success": "For three adjustments, explain the direction of change and verify the corresponding simulated path. These readouts are predictions, not measurements of your physical attempts.",
       "transfer": "Take the same layout to the table and compare observable outcomes: contact, rail crossing, pot, and finish. Log physical results separately from simulator values.",
       "progression": "Hide the readout, predict the outcome, then reveal it to check your reasoning.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Power feel and pocket speed",
+          "url": "./guide/layouts/topics/live-stats-power-feel-quick.billiards.json",
+          "note": "Approach distance and contact geometry selected for Power feel and pocket speed. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 13
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "live-stats-power-feel-quick"
     },
     "live-stats-ball-speeds-advanced": {
       "title": "Ball speeds",
@@ -3874,10 +4693,22 @@
       "success": "For three adjustments, explain the direction of change and verify the corresponding simulated path. These readouts are predictions, not measurements of your physical attempts.",
       "transfer": "Take the same layout to the table and compare observable outcomes: contact, rail crossing, pot, and finish. Log physical results separately from simulator values.",
       "progression": "Hide the readout, predict the outcome, then reveal it to check your reasoning.",
-      "setups": [],
+      "setups": [
+        {
+          "title": "Ball speeds",
+          "url": "./guide/layouts/topics/live-stats-ball-speeds-advanced.billiards.json",
+          "note": "Approach distance and contact geometry selected for Ball speeds. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 5
+        }
+      ],
       "kind": "lesson",
       "existingPractice": {},
-      "physicalCheck": false
+      "physicalCheck": false,
+      "sceneId": "live-stats-ball-speeds-advanced"
     },
     "exercise-live-stats-cut-overlap": {
       "title": "Live adjustment",
@@ -3892,9 +4723,14 @@
       "progression": "Increase distance before adding English; keep the same scoring conditions.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Live adjustment",
+          "url": "./guide/layouts/topics/exercise-live-stats-cut-overlap.billiards.json",
+          "note": "Approach distance and contact geometry selected for Live adjustment. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            0
+          ],
+          "target": 2
         }
       ],
       "kind": "lesson",
@@ -3915,9 +4751,14 @@
       "progression": "Hide the readout, predict the outcome, then reveal it to check your reasoning.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Speed and spin",
+          "url": "./guide/layouts/topics/exercise-live-stats-speed-spin.billiards.json",
+          "note": "Approach distance and contact geometry selected for Speed and spin. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            0
+          ],
+          "target": 9
         }
       ],
       "kind": "lesson",
@@ -4034,29 +4875,14 @@
       "progression": "Increase one difficulty factor only after consistent results; suggested targets are practice goals, not certified ratings.",
       "setups": [
         {
-          "title": "Stop Shot Calibration",
-          "url": "./guide/layouts/drill-stop-shot.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 \u00d7 50-inch playing surface."
-        },
-        {
-          "title": "Pattern rotation \u2014 Trainer starter",
-          "url": "./guide/layouts/pattern-clock.billiards.json",
-          "note": "Trainer rotation adaptation. Use the linked Niels Feijen video to match his demonstrated layout and sequence."
-        },
-        {
-          "title": "One-Rail Mirror Kick",
-          "url": "./guide/layouts/drill-mirror-kick.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 \u00d7 50-inch playing surface."
-        },
-        {
-          "title": "Two-Rail Corner Kick",
-          "url": "./guide/layouts/drill-two-rail-kick.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 \u00d7 50-inch playing surface."
-        },
-        {
-          "title": "Three-rail escape starter",
-          "url": "./guide/layouts/three-rail.billiards.json",
-          "note": "Trainer three-rail example. Use the linked Corner-5 video for the creator\u2019s number scales and exact starting references."
+          "title": "Practice pathway",
+          "url": "./guide/layouts/topics/practice-session-introduction.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            1,
+            1
+          ],
+          "target": 1
         }
       ],
       "kind": "lesson",
@@ -4082,9 +4908,14 @@
       "progression": "Increase approach distance; regain the stop with speed and tip height rather than assuming center-tip contact always means stun.",
       "setups": [
         {
-          "title": "First shot \u2014 straight-in",
-          "url": "./guide/layouts/first-shot.billiards.json",
-          "note": "Trainer practice starter; adjust the shot controls as directed by the lesson."
+          "title": "Speed and contact baseline",
+          "url": "./guide/layouts/topics/practice-speed-contact-baseline.billiards.json",
+          "note": "Approach distance and contact geometry selected for Speed and contact baseline. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 8
         }
       ],
       "kind": "lesson",
@@ -4110,9 +4941,14 @@
       "progression": "Shrink the useful zone or add a third ball; do not count an attractive leave that is blocked.",
       "setups": [
         {
-          "title": "Stop Shot Calibration",
-          "url": "./guide/layouts/drill-stop-shot.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 \u00d7 50-inch playing surface."
+          "title": "Target landing precision",
+          "url": "./guide/layouts/topics/practice-target-landing.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            1
+          ],
+          "target": 15
         }
       ],
       "kind": "lesson",
@@ -4138,15 +4974,20 @@
       "progression": "Add a ball or a blocker while retaining a readable, explained pattern.",
       "setups": [
         {
-          "title": "Pattern rotation \u2014 Trainer starter",
-          "url": "./guide/layouts/pattern-clock.billiards.json",
-          "note": "Trainer rotation adaptation. Use the linked Niels Feijen video to match his demonstrated layout and sequence."
+          "title": "Rock Around the Clock",
+          "url": "./guide/layouts/topics/practice-rock-around-clock.billiards.json",
+          "note": "A distinct open pattern for comparing order, next angles, and route complexity. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            0
+          ],
+          "target": 7
         }
       ],
       "kind": "lesson",
       "existingPractice": {
         "Goal": "Plan the next shot before shooting the current one.",
-        "Setup": "Use the linked demonstration for the creator\u2019s ball layout and sequence.",
+        "Setup": "Use the linked demonstration for the creator’s ball layout and sequence.",
         "Measure": "For this plan, complete 3 consecutive rotations without disturbing a secondary ball.",
         "Trainer": "Use Shot 2 to preview the next shot and Undo Last Shot to revisit a position error."
       },
@@ -4166,9 +5007,9 @@
       "progression": "Aim for four target contacts in five as a suggested practice goal, then change the starting diamond.",
       "setups": [
         {
-          "title": "One-Rail Mirror Kick",
-          "url": "./guide/layouts/drill-mirror-kick.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 \u00d7 50-inch playing surface."
+          "title": "One-rail kick reference",
+          "url": "./guide/layouts/topics/practice-one-rail-kick.billiards.json",
+          "note": "Prepared 1-cushion cue-ball escape to the target ball via bottom. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -4194,9 +5035,9 @@
       "progression": "Test a second start only after the original route repeats; record each adjustment.",
       "setups": [
         {
-          "title": "Two-Rail Corner Kick",
-          "url": "./guide/layouts/drill-two-rail-kick.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 \u00d7 50-inch playing surface."
+          "title": "Two-rail kick extension",
+          "url": "./guide/layouts/topics/practice-two-rail-kick.billiards.json",
+          "note": "Prepared 2-cushion cue-ball escape to the target ball via bottom, right. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -4222,9 +5063,9 @@
       "progression": "Test a second start only after the original route repeats; record each adjustment.",
       "setups": [
         {
-          "title": "Three-rail escape starter",
-          "url": "./guide/layouts/three-rail.billiards.json",
-          "note": "Trainer three-rail example. Use the linked Corner-5 video for the creator\u2019s number scales and exact starting references."
+          "title": "Corner-5 three-rail route",
+          "url": "./guide/layouts/topics/practice-corner-five.billiards.json",
+          "note": "Prepared 3-cushion cue-ball escape to the target ball via left, top, right. Aim and speed verified in the native solver; yellow references show the contacts. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons."
         }
       ],
       "kind": "lesson",
@@ -4250,9 +5091,14 @@
       "progression": "Increase one difficulty factor only after consistent results; suggested targets are practice goals, not certified ratings.",
       "setups": [
         {
-          "title": "Progressive target \u2014 Trainer starter",
-          "url": "./guide/layouts/progressive-target.billiards.json",
-          "note": "Trainer progression starter; shrink the target or move the cue ball. The linked Sharivari video supplies the creator\u2019s demonstrated drill."
+          "title": "Progressive difficulty benchmark",
+          "url": "./guide/layouts/topics/practice-progressive-benchmark.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0.5,
+            1
+          ],
+          "target": 5
         }
       ],
       "kind": "lesson",
@@ -4278,29 +5124,14 @@
       "progression": "Increase one difficulty factor only after consistent results; suggested targets are practice goals, not certified ratings.",
       "setups": [
         {
-          "title": "Stop Shot Calibration",
-          "url": "./guide/layouts/drill-stop-shot.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 \u00d7 50-inch playing surface."
-        },
-        {
-          "title": "Pattern rotation \u2014 Trainer starter",
-          "url": "./guide/layouts/pattern-clock.billiards.json",
-          "note": "Trainer rotation adaptation. Use the linked Niels Feijen video to match his demonstrated layout and sequence."
-        },
-        {
-          "title": "One-Rail Mirror Kick",
-          "url": "./guide/layouts/drill-mirror-kick.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 \u00d7 50-inch playing surface."
-        },
-        {
-          "title": "Two-Rail Corner Kick",
-          "url": "./guide/layouts/drill-two-rail-kick.billiards.json",
-          "note": "Matches the narrated diamond coordinates on a 100 \u00d7 50-inch playing surface."
-        },
-        {
-          "title": "Three-rail escape starter",
-          "url": "./guide/layouts/three-rail.billiards.json",
-          "note": "Trainer three-rail example. Use the linked Corner-5 video for the creator\u2019s number scales and exact starting references."
+          "title": "105-minute practice session",
+          "url": "./guide/layouts/topics/exercise-focused-practice-session.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            1
+          ],
+          "target": 12
         }
       ],
       "kind": "lesson",
@@ -4326,14 +5157,19 @@
       "progression": "Increase one difficulty factor only after consistent results; suggested targets are practice goals, not certified ratings.",
       "setups": [
         {
-          "title": "Progressive target \u2014 Trainer starter",
-          "url": "./guide/layouts/progressive-target.billiards.json",
-          "note": "Trainer progression starter; shrink the target or move the cue ball. The linked Sharivari video supplies the creator\u2019s demonstrated drill."
+          "title": "Review, save, and repeat",
+          "url": "./guide/layouts/topics/exercise-practice-review.billiards.json",
+          "note": "Current pot plus a next-ball angle and a visible position zone. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+          "pocket": [
+            0,
+            0
+          ],
+          "target": 4
         }
       ],
       "kind": "lesson",
       "existingPractice": {
-        "Goal": "Turn a practice result into the next session\u2019s starting point.",
+        "Goal": "Turn a practice result into the next session’s starting point.",
         "Setup": "Keep a simple score record and the matching starting layout.",
         "Measure": "Compare results under the same conditions in the next session.",
         "Trainer": "Save or download the layout; load it again on either Trainer or Analyze."

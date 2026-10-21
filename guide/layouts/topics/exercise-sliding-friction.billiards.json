@@ -1,0 +1,165 @@
+{
+  "format": "billiards-trainer",
+  "version": 1,
+  "kind": "session",
+  "name": "sliding friction",
+  "layout": {
+    "name": "sliding friction",
+    "tableL": 2.54,
+    "tableW": 1.27,
+    "ballR": 0.028575,
+    "setupMode": "custom",
+    "allowMissingCueBall": false,
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 0.716812104896388,
+        "y": 0.0824542880114787,
+        "active": true
+      },
+      {
+        "id": 5,
+        "n": "5",
+        "x": 1.104351458321282,
+        "y": 0.9143971079105612,
+        "active": true
+      }
+    ],
+    "freeAim": {
+      "x": 1.0802193858161453,
+      "y": 0.8625920350256899
+    }
+  },
+  "state": {
+    "tableL": 2.54,
+    "tableW": 1.27,
+    "ballR": 0.028575,
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 0.716812104896388,
+        "y": 0.0824542880114787,
+        "active": true
+      },
+      {
+        "id": 5,
+        "n": "5",
+        "x": 1.104351458321282,
+        "y": 0.9143971079105612,
+        "active": true
+      }
+    ],
+    "nextId": 4,
+    "markerSeq": 1000,
+    "freeAim": {
+      "x": 1.0802193858161453,
+      "y": 0.8625920350256899
+    },
+    "angleLock": false,
+    "speed": 1.4,
+    "follow": -0.25,
+    "sideSpin": 0,
+    "cueElevationDeg": 0,
+    "shot2Enabled": false,
+    "activeShot": 1,
+    "shot2Initialized": false,
+    "showShot1": true,
+    "showShot2": true,
+    "showCueVisuals": true,
+    "showShotStats1": true,
+    "showShotStats2": true,
+    "showCueVisuals1": true,
+    "showCueVisuals2": true,
+    "showAngleLockControl": false,
+    "shot2": {
+      "x": 1.05,
+      "y": 0.72,
+      "freeAim": {
+        "x": 1.7,
+        "y": 0.72
+      },
+      "angleLock": false,
+      "autoGhostLock": false,
+      "speed": 2.42,
+      "follow": 0,
+      "sideSpin": 0,
+      "cueElevationDeg": 3,
+      "preview": null
+    },
+    "teachingCompass": {
+      "enabled": false,
+      "x": 0.9,
+      "y": 0.56,
+      "angle": 0,
+      "sizePct": 45,
+      "linkedBallId": null
+    },
+    "setupMode": "custom",
+    "pocketedLog": [],
+    "player1Score": 0,
+    "player2Score": 0,
+    "activePlayer": 1,
+    "showScoreBoard": false,
+    "allowMissingCueBall": false,
+    "showBankKickNumbers": false,
+    "bankKick": {
+      "mode": null,
+      "phase": null,
+      "zero": null,
+      "railName": null,
+      "railU": null,
+      "autoAim": true,
+      "ballId": null,
+      "solution": null
+    },
+    "muSlide": 0.25,
+    "muRoll": 0.01,
+    "muBall": 0.01,
+    "ballRest": 0.96,
+    "railRest": 0.9,
+    "railTang": 0.9,
+    "cueEndmassRatio": 20.151,
+    "cuePreset": "standard",
+    "jumpUnits": "in",
+    "airbornePhysics": false,
+    "tableRest": 0.6,
+    "bedImpactMu": 0.2,
+    "showImpact": true,
+    "showTipBadge": false,
+    "showPaths": true,
+    "showGrid": true,
+    "showDiamonds": true,
+    "showTable": true,
+    "preview": null,
+    "firstEvent": "CB → 1",
+    "lastLayoutName": "sliding friction",
+    "name": "sliding friction"
+  },
+  "history": [],
+  "lesson": {
+    "topic": "exercise-sliding-friction",
+    "purpose": "Compare repeatable table behavior without confusing stroke changes with table changes.",
+    "variation": "Straight collision exposes slide-to-roll changes instead of only free rolling distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+    "pocket": [
+      0.5,
+      1
+    ],
+    "target": 5,
+    "controls": {
+      "speed": 1.4,
+      "follow": -0.25,
+      "sideSpin": 0,
+      "cueElevationDeg": 0,
+      "airbornePhysics": false,
+      "showPaths": true,
+      "showImpact": true,
+      "showDiamonds": true,
+      "shot2Enabled": false,
+      "shot2Initialized": false,
+      "activeShot": 1
+    },
+    "railContacts": []
+  }
+}

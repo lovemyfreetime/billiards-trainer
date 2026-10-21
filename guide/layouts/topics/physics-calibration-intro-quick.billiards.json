@@ -1,0 +1,178 @@
+{
+  "format": "billiards-trainer",
+  "version": 1,
+  "kind": "session",
+  "name": "Physics and Calibration overview",
+  "layout": {
+    "name": "Physics and Calibration overview",
+    "tableL": 2.54,
+    "tableW": 1.27,
+    "ballR": 0.028575,
+    "setupMode": "custom",
+    "allowMissingCueBall": false,
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 0.5622019765593409,
+        "y": 0.9333452848842042,
+        "active": true
+      },
+      {
+        "id": 1000,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "white",
+        "markerShape": "circle",
+        "markerDiameterIn": 5,
+        "markerWidthIn": 5,
+        "markerHeightIn": 5,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 1.1811553162495927,
+        "y": 0.8445398436884685,
+        "active": true
+      }
+    ],
+    "freeAim": {
+      "x": 1.1811553162495927,
+      "y": 0.8445398436884685
+    }
+  },
+  "state": {
+    "tableL": 2.54,
+    "tableW": 1.27,
+    "ballR": 0.028575,
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 0.5622019765593409,
+        "y": 0.9333452848842042,
+        "active": true
+      },
+      {
+        "id": 1000,
+        "n": "MARKER",
+        "marker": true,
+        "markerType": "white",
+        "markerShape": "circle",
+        "markerDiameterIn": 5,
+        "markerWidthIn": 5,
+        "markerHeightIn": 5,
+        "markerAngle": 0,
+        "markerLocked": false,
+        "x": 1.1811553162495927,
+        "y": 0.8445398436884685,
+        "active": true
+      }
+    ],
+    "nextId": 4,
+    "markerSeq": 1000,
+    "freeAim": {
+      "x": 1.1811553162495927,
+      "y": 0.8445398436884685
+    },
+    "angleLock": false,
+    "speed": 0.384,
+    "follow": 0,
+    "sideSpin": 0,
+    "cueElevationDeg": 0,
+    "shot2Enabled": false,
+    "activeShot": 1,
+    "shot2Initialized": false,
+    "showShot1": true,
+    "showShot2": true,
+    "showCueVisuals": true,
+    "showShotStats1": true,
+    "showShotStats2": true,
+    "showCueVisuals1": true,
+    "showCueVisuals2": true,
+    "showAngleLockControl": false,
+    "shot2": {
+      "x": 1.05,
+      "y": 0.72,
+      "freeAim": {
+        "x": 1.7,
+        "y": 0.72
+      },
+      "angleLock": false,
+      "autoGhostLock": false,
+      "speed": 2.42,
+      "follow": 0,
+      "sideSpin": 0,
+      "cueElevationDeg": 3,
+      "preview": null
+    },
+    "teachingCompass": {
+      "enabled": false,
+      "x": 0.9,
+      "y": 0.56,
+      "angle": 0,
+      "sizePct": 45,
+      "linkedBallId": null
+    },
+    "setupMode": "custom",
+    "pocketedLog": [],
+    "player1Score": 0,
+    "player2Score": 0,
+    "activePlayer": 1,
+    "showScoreBoard": false,
+    "allowMissingCueBall": false,
+    "showBankKickNumbers": false,
+    "bankKick": {
+      "mode": null,
+      "phase": null,
+      "zero": null,
+      "railName": null,
+      "railU": null,
+      "autoAim": true,
+      "ballId": null,
+      "solution": null
+    },
+    "muSlide": 0.25,
+    "muRoll": 0.01,
+    "muBall": 0.01,
+    "ballRest": 0.96,
+    "railRest": 0.9,
+    "railTang": 0.9,
+    "cueEndmassRatio": 20.151,
+    "cuePreset": "standard",
+    "jumpUnits": "in",
+    "airbornePhysics": false,
+    "tableRest": 0.6,
+    "bedImpactMu": 0.2,
+    "showImpact": true,
+    "showTipBadge": false,
+    "showPaths": true,
+    "showGrid": true,
+    "showDiamonds": true,
+    "showTable": true,
+    "preview": null,
+    "firstEvent": "CB → 1",
+    "lastLayoutName": "Physics and Calibration overview",
+    "name": "Physics and Calibration overview"
+  },
+  "history": [],
+  "lesson": {
+    "topic": "physics-calibration-intro-quick",
+    "purpose": "Compare repeatable table behavior without confusing stroke changes with table changes.",
+    "variation": "An open rolling lane in a new direction, with a stopping zone at a distinct distance. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+    "pocket": null,
+    "target": null,
+    "controls": {
+      "speed": 0.384,
+      "follow": 0,
+      "sideSpin": 0,
+      "cueElevationDeg": 0,
+      "airbornePhysics": false,
+      "showPaths": true,
+      "showImpact": true,
+      "showDiamonds": true,
+      "shot2Enabled": false,
+      "shot2Initialized": false,
+      "activeShot": 1
+    },
+    "railContacts": []
+  }
+}

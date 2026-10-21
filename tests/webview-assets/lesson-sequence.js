@@ -32,6 +32,11 @@
      result.progress=id;const audio=await playing(id),topic=catalog.topics.find(t=>t.id===id),src=Array.isArray(topic.audio)?topic.audio[0]:topic.audio;
      check(new URL(audio.currentSrc).pathname===new URL(src,location.href).pathname,'Wrong file for '+id);
      check(guide.getState().topicId===id,'Wrong selected topic for '+id);
+     check(topic.scene,'Missing practice layout for '+id);
+     const live=billiardsTourBridge.capture().state,layout=topic.scene.file.layout;
+     check(live.lastLayoutName===layout.name,'Wrong practice layout for '+id);
+     check(live.balls.length===layout.balls.length,'Wrong practice ball count for '+id);
+     for(const ball of layout.balls){const b=live.balls.find(b=>b.id===ball.id);check(b&&Math.abs(b.x/live.tableL-ball.x/layout.tableL)<1e-7&&Math.abs(b.y/live.tableW-ball.y/layout.tableW)<1e-7,'Wrong practice ball for '+id);}
      const position=ended.length;expected.push(id);audio.currentTime=audio.duration-.08;
      await until(()=>ended.length>position,'No native media end for '+id);result.guide++;
      if(billiardsLessonPractice.getState().phase==='countdown'){check(!document.querySelector('.btg-lesson-prompt').hidden,'Missing visual practice prompt');guide.nextLesson();}

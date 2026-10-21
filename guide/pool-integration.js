@@ -55,6 +55,7 @@ async function init(){
  }
  await BilliardsPracticeLayouts.attach(catalog.topics);
  await BilliardsLearning.attach(catalog.topics);
+ await BilliardsLessonPractice.attach(catalog.topics);
  let tour=null,lessonPractice=null,layoutRequest=0;
  const guide=BilliardsGuide.mount(host,{
   loadLayout:url=>lessonPractice?lessonPractice.resetUrl(url):BilliardsPracticeLayouts.apply(url),
@@ -63,7 +64,7 @@ async function init(){
    if(tour?.select(topic)===false)return false;
    if(topic?.category==='start')return true;
    if(lessonPractice?.select(topic)===false)return false;
-   if(!topic?.setups?.length)return true;
+   if(topic?.scene||!topic?.setups?.length)return true;
    if(window.billiardsTourBridge?.snapshot().busy)return false;
    // A slower response from a previous lesson must never overwrite the current table.
    BilliardsPracticeLayouts.apply(topic.setups[0].url,{shouldApply:()=>request===layoutRequest&&guide.getState().enabled&&guide.getState().topicId===topic.id&&!window.billiardsTourBridge?.snapshot().busy}).then(applied=>{if(applied!==false&&request===layoutRequest)lessonPractice?.loaded(topic);}).catch(error=>{if(request===layoutRequest)globalThis.alert(error.message)});

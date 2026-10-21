@@ -1,0 +1,274 @@
+{
+  "format": "billiards-trainer",
+  "version": 1,
+  "kind": "session",
+  "name": "Full Rack Runout Analysis",
+  "layout": {
+    "name": "Full Rack Runout Analysis",
+    "tableL": 2.54,
+    "tableW": 1.27,
+    "ballR": 0.028575,
+    "setupMode": "custom",
+    "allowMissingCueBall": false,
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 0.3937,
+        "y": 0.40640000000000004,
+        "active": true
+      },
+      {
+        "id": 1,
+        "n": "1",
+        "x": 1.905,
+        "y": 0.635,
+        "active": true
+      },
+      {
+        "id": 2,
+        "n": "2",
+        "x": 0.7402178147476505,
+        "y": 0.4060096011682547,
+        "active": true
+      },
+      {
+        "id": 3,
+        "n": "3",
+        "x": 2.0625173305181685,
+        "y": 0.5734533962166483,
+        "active": true
+      },
+      {
+        "id": 4,
+        "n": "4",
+        "x": 1.2211091903488944,
+        "y": 0.505485728399483,
+        "active": true
+      },
+      {
+        "id": 9,
+        "n": "9",
+        "x": 2.0039867036525614,
+        "y": 0.635,
+        "active": true
+      },
+      {
+        "id": 5,
+        "n": "5",
+        "x": 2.1295935514190174,
+        "y": 0.3096925697114682,
+        "active": true
+      },
+      {
+        "id": 6,
+        "n": "6",
+        "x": 0.6581376379660644,
+        "y": 0.5892236454036102,
+        "active": true
+      },
+      {
+        "id": 7,
+        "n": "7",
+        "x": 0.5992445927910155,
+        "y": 0.8522060146444057,
+        "active": true
+      },
+      {
+        "id": 8,
+        "n": "8",
+        "x": 2.102973407305123,
+        "y": 0.635,
+        "active": true
+      }
+    ],
+    "freeAim": {
+      "x": 1.905,
+      "y": 0.635
+    }
+  },
+  "state": {
+    "tableL": 2.54,
+    "tableW": 1.27,
+    "ballR": 0.028575,
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "x": 0.3937,
+        "y": 0.40640000000000004,
+        "active": true
+      },
+      {
+        "id": 1,
+        "n": "1",
+        "x": 1.905,
+        "y": 0.635,
+        "active": true
+      },
+      {
+        "id": 2,
+        "n": "2",
+        "x": 0.7402178147476505,
+        "y": 0.4060096011682547,
+        "active": true
+      },
+      {
+        "id": 3,
+        "n": "3",
+        "x": 2.0625173305181685,
+        "y": 0.5734533962166483,
+        "active": true
+      },
+      {
+        "id": 4,
+        "n": "4",
+        "x": 1.2211091903488944,
+        "y": 0.505485728399483,
+        "active": true
+      },
+      {
+        "id": 9,
+        "n": "9",
+        "x": 2.0039867036525614,
+        "y": 0.635,
+        "active": true
+      },
+      {
+        "id": 5,
+        "n": "5",
+        "x": 2.1295935514190174,
+        "y": 0.3096925697114682,
+        "active": true
+      },
+      {
+        "id": 6,
+        "n": "6",
+        "x": 0.6581376379660644,
+        "y": 0.5892236454036102,
+        "active": true
+      },
+      {
+        "id": 7,
+        "n": "7",
+        "x": 0.5992445927910155,
+        "y": 0.8522060146444057,
+        "active": true
+      },
+      {
+        "id": 8,
+        "n": "8",
+        "x": 2.102973407305123,
+        "y": 0.635,
+        "active": true
+      }
+    ],
+    "nextId": 4,
+    "markerSeq": 1000,
+    "freeAim": {
+      "x": 1.905,
+      "y": 0.635
+    },
+    "angleLock": false,
+    "speed": 5,
+    "follow": 0,
+    "sideSpin": 0,
+    "cueElevationDeg": 0,
+    "shot2Enabled": false,
+    "activeShot": 1,
+    "shot2Initialized": false,
+    "showShot1": true,
+    "showShot2": true,
+    "showCueVisuals": true,
+    "showShotStats1": true,
+    "showShotStats2": true,
+    "showCueVisuals1": true,
+    "showCueVisuals2": true,
+    "showAngleLockControl": false,
+    "shot2": {
+      "x": 1.05,
+      "y": 0.72,
+      "freeAim": {
+        "x": 1.7,
+        "y": 0.72
+      },
+      "angleLock": false,
+      "autoGhostLock": false,
+      "speed": 2.42,
+      "follow": 0,
+      "sideSpin": 0,
+      "cueElevationDeg": 3,
+      "preview": null
+    },
+    "teachingCompass": {
+      "enabled": false,
+      "x": 0.9,
+      "y": 0.56,
+      "angle": 0,
+      "sizePct": 45,
+      "linkedBallId": null
+    },
+    "setupMode": "custom",
+    "pocketedLog": [],
+    "player1Score": 0,
+    "player2Score": 0,
+    "activePlayer": 1,
+    "showScoreBoard": false,
+    "allowMissingCueBall": false,
+    "showBankKickNumbers": false,
+    "bankKick": {
+      "mode": null,
+      "phase": null,
+      "zero": null,
+      "railName": null,
+      "railU": null,
+      "autoAim": true,
+      "ballId": null,
+      "solution": null
+    },
+    "muSlide": 0.25,
+    "muRoll": 0.01,
+    "muBall": 0.01,
+    "ballRest": 0.96,
+    "railRest": 0.9,
+    "railTang": 0.9,
+    "cueEndmassRatio": 20.151,
+    "cuePreset": "standard",
+    "jumpUnits": "in",
+    "airbornePhysics": false,
+    "tableRest": 0.6,
+    "bedImpactMu": 0.2,
+    "showImpact": true,
+    "showTipBadge": false,
+    "showPaths": true,
+    "showGrid": true,
+    "showDiamonds": true,
+    "showTable": true,
+    "preview": null,
+    "firstEvent": "CB → 1",
+    "lastLayoutName": "Full Rack Runout Analysis",
+    "name": "Full Rack Runout Analysis"
+  },
+  "history": [],
+  "lesson": {
+    "topic": "exercise-full-rack-review",
+    "purpose": "Carry a plan through a full rack and identify the decision that created a difficult continuation.",
+    "variation": "Correct full rack with a distinct break starting point; continue planning from the resulting spread. Approach, pocket and ball palette vary by topic; preserve this setup for within-lesson comparisons.",
+    "pocket": null,
+    "target": 1,
+    "controls": {
+      "speed": 5,
+      "follow": 0,
+      "sideSpin": 0,
+      "cueElevationDeg": 0,
+      "airbornePhysics": false,
+      "showPaths": true,
+      "showImpact": true,
+      "showDiamonds": true,
+      "shot2Enabled": false,
+      "shot2Initialized": false,
+      "activeShot": 1
+    },
+    "railContacts": []
+  }
+}

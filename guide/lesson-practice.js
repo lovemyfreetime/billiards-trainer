@@ -10,6 +10,9 @@ function positionPrompt(){const b=global.billiardsTourBridge?.feltBounds();if(!b
 prompt.addEventListener('click',()=>promptAction?.());
 global.addEventListener('resize',positionPrompt);new ResizeObserver(positionPrompt).observe(document.getElementById('stageWrap'));
 global.BilliardsPracticePrompt={show(owner,action){promptOwner=owner;promptAction=action;prompt.hidden=false;positionPrompt();},hide(owner){if(promptOwner===owner){prompt.hidden=true;promptOwner=null;promptAction=null;}}};
+let pending;
+function load(){return pending||(pending=fetch('./guide/topic-scenes.json?v=lesson-scenes-v1').then(r=>{if(!r.ok)throw Error('Topic layouts unavailable');return r.json();}));}
+async function attach(topics){const data=await load();for(const t of topics){const scene=data.topics[t.id];if(scene){t.scene=scene;t.setups=[scene.setup];if(t.learning)t.learning.setups=t.setups;}}return data;}
 function mount(guide,host,{seconds=5}={}){
  const bridge=global.billiardsTourBridge;
  let current=null,checkpoint=null,phase='idle',deadline=0,interval=null,epoch=0,practicing=false,blocked=null;
@@ -33,7 +36,8 @@ function mount(guide,host,{seconds=5}={}){
   if(state().exploring||!topic?.setups?.length||topic.category==='start'||topic.explorerOnly){cancel();current=null;phase='idle';render();return true;}
   if(bridge.snapshot().busy)return false;
   cancel();checkpoint=null;
-  current=topic;phase=topic.recordingStatus==='pending'?'practice':'listening';practicing=false;render();return true;
+  if(topic.scene&&bridge.loadLesson(topic.scene)===false)return false;
+  current=topic;if(topic.scene)checkpoint=bridge.capture();phase=topic.recordingStatus==='pending'?'practice':'listening';practicing=false;render();return true;
  }
  function listening(){if(current){cancel();practicing=false;phase='listening';render();}}
  function sync(s){if(!s.enabled||s.exploring||s.category==='start'||(current&&s.topicId!==current.id)){cancel();footer.hidden=true;return;}if(!s.autoplay&&phase==='countdown')hold(false);render();}
@@ -74,5 +78,5 @@ function mount(guide,host,{seconds=5}={}){
  for(const event of ['billiards:shot-complete','billiards:undo-complete'])global.addEventListener(event,()=>{if(active())render();});
  return {loaded(topic){if(current?.id===topic.id){checkpoint=bridge.capture();render();}},select,listening,sync,ended,retry,resetUrl,placeControls,hold,tryShot:()=>hold(),getState:()=>({active:active(),topicId:current?.id,phase,remaining:deadline?Math.max(0,Math.ceil((deadline-performance.now())/1000)):null})};
 }
-global.BilliardsLessonPractice={mount};
+global.BilliardsLessonPractice={attach,load,mount};
 })(window);

@@ -1,0 +1,68 @@
+/* Word-aligned narration cues. Presentation only: never activate a trainer control. */
+(function(global){
+'use strict';
+let pending;
+function load(){return pending||(pending=fetch('./guide/narration-cues.json?v=lesson-scenes-v1').then(r=>{if(!r.ok)throw Error('Narration cues unavailable');return r.json();}));}
+function mount(host,{page='Main'}={}){
+ let data=null,current=null,frame=0,source=null,signature='',disposed=false,vectors=null,nodes=[];
+ let openedPhone=false,openedCue=false,openedLayout=false;
+ function closePhone(){if(openedPhone&&document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls')?.click();openedPhone=false;}
+ function ownControl(event){if(!event.isTrusted)return;if(event.target.closest?.('#panel'))openedPhone=false;if(event.target.closest?.('#cuePopup'))openedCue=false;if(event.target.closest?.('#layoutQuickPanel'))openedLayout=false;}
+ for(const name of ['pointerdown','input','keydown'])document.addEventListener(name,ownControl,true);
+ const layer=document.createElement('div');layer.className='btg-cue-layer';layer.setAttribute('aria-hidden','true');document.body.append(layer);
+ load().then(value=>{data=value;if(source)update(...source);}).catch(error=>console.warn(error.message));
+ const visible=el=>!!el&&!el.hidden&&el.getClientRects().length>0&&getComputedStyle(el).visibility!=='hidden';
+ function clear(){current=null;signature='';layer.replaceChildren();vectors=null;nodes=[];cancelAnimationFrame(frame);frame=0;}
+ function stop(){source=null;clear();closePhone();if(openedCue&&document.getElementById('cuePopup')?.classList.contains('open'))document.getElementById('cueRailBtn')?.click();if(openedLayout&&document.getElementById('layoutQuickPanel')?.classList.contains('open'))document.getElementById('quickLayoutRecall')?.click();openedCue=false;openedLayout=false;}
+ function selectElement(cue){
+  const binding=data.bindings[cue.target];if(!binding)return null;
+  const scoped=selector=>selector.startsWith('@guide ')?host.querySelectorAll(selector.slice(7)):document.querySelectorAll(selector);
+  const candidates=(cue.selectors||binding.selectors||[]).flatMap(s=>{try{return [...scoped(s)]}catch(_){return []}});
+  const controls=candidates.map(el=>el.tagName==='OPTION'?el.closest('select'):el);return controls.find(visible)||controls[0]||null;
+ }
+ function reveal(el){
+  if(!el)return;
+  if(el.closest('#cuePopup')&&!document.getElementById('cuePopup').classList.contains('open')){openedCue=true;document.getElementById('cueRailBtn')?.click();}
+  if(el.closest('#layoutQuickPanel')&&!document.getElementById('layoutQuickPanel').classList.contains('open')){openedLayout=true;document.getElementById('quickLayoutRecall')?.click();}
+  // Only disclosure/navigation changes; no click on a shot, input, or feature switch.
+  for(let p=el.parentElement;p;p=p.parentElement){if(p.matches('.section'))p.classList.add('open');if(p.tagName==='DETAILS')p.open=true;}
+  const advanced=el.closest('.advancedBody');if(advanced){advanced.classList.add('open');document.querySelector('[data-advanced="'+advanced.id+'"]')?.classList.add('open');}
+  const panel=el.closest('#panel');if(panel){if(document.body.classList.contains('phone-layout')&&!document.body.classList.contains('phone-controls-open')){openedPhone=true;document.getElementById('phoneControls')?.click();}const a=el.getBoundingClientRect(),b=panel.getBoundingClientRect();if(a.top<b.top+12||a.bottom>b.bottom-12)panel.scrollTop+=a.top-b.top-Math.min(50,b.height*.15);}
+  else if(!el.closest('#bt-guide-pool-root')){const r=el.getBoundingClientRect();if(r.bottom>innerHeight||r.top<0)el.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});}
+ }
+ function paint(){
+  if(!current||disposed)return;
+  const binding=data.bindings[current.target];let boxes=[];
+  if(binding?.region&&page==='Main')boxes=global.billiardsTourBridge?.narrationRegions(binding.region)||[];
+  else{const el=selectElement(current);if(visible(el)){const r=el.getBoundingClientRect();boxes=[{x:r.x,y:r.y,width:r.width,height:r.height}];}}
+  while(nodes.length>boxes.length)nodes.pop().remove();
+  const ns='http://www.w3.org/2000/svg';
+  boxes.forEach((r,i)=>{
+   const shape=r.shape||'box',tag=shape==='circle'?'circle':shape==='polyline'?'polyline':'div';let node=nodes[i];
+   if(node?.localName!==tag){node?.remove();node=tag==='div'?document.createElement(tag):document.createElementNS(ns,tag);nodes[i]=node;node.setAttribute('class','btg-cue-ring btg-cue-'+(shape==='circle'?'ball':shape==='polyline'?'line':'box'));
+    if(tag==='div')layer.append(node);else{if(!vectors){vectors=document.createElementNS(ns,'svg');vectors.setAttribute('class','btg-cue-vectors');layer.prepend(vectors);}vectors.append(node);}}
+   if(shape==='circle'){node.setAttribute('cx',r.cx);node.setAttribute('cy',r.cy);node.setAttribute('r',r.radius);node.setAttribute('stroke-width',r.strokeWidth);}
+   else if(shape==='polyline')node.setAttribute('points',r.points.map(p=>p.x+','+p.y).join(' '));
+   else{const pad=binding?.region?5:4;Object.assign(node.style,{left:(r.x-pad)+'px',top:(r.y-pad)+'px',width:Math.max(12,r.width+pad*2)+'px',height:Math.max(12,r.height+pad*2)+'px'});}
+   node.dataset.target=current.target;node.dataset.shape=shape;
+  });
+  layer.dataset.target=current.target;frame=requestAnimationFrame(paint);
+ }
+ function update(topic,time,playing,src){
+  source=[topic,time,playing,src];
+  if(!playing||!topic||disposed){clear();return;}
+  if(!data)return;
+  const file=(src||'').split('/').pop().split('?')[0],track=data.tracks[file];
+  const cues=track?.cues||[],cue=cues.find(c=>time>=c.start&&time<c.end);
+  if(!cue){clear();return;}
+  const key=file+':'+cue.start+':'+cue.target;
+  if(signature===key)return;
+  clear();signature=key;current=cue;
+  const binding=data.bindings[cue.target];if(binding?.region){closePhone();const canvas=document.getElementById('canvas');const r=canvas?.getBoundingClientRect();if(r&&(r.top<0||r.bottom>innerHeight))canvas.scrollIntoView({block:'nearest',behavior:'instant'});}
+  else reveal(selectElement(cue));
+  paint();
+ }
+ return {update,clear:stop,destroy(){disposed=true;stop();for(const name of ['pointerdown','input','keydown'])document.removeEventListener(name,ownControl,true);layer.remove();},getState(){return {target:current?.target||null,track:source?.[3]||null,ready:!!data};}};
+}
+global.BilliardsNarrationCues={load,mount};
+})(window);

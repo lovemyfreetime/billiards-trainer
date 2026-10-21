@@ -22,6 +22,8 @@ function mount(host,options={}){
  if(state.category==='start')state.enabled=false;
  let audio=new Audio();audio.preload='auto';audio.loop=false;audio.volume=.8;
  const playback=global.BilliardsAudioStartup.create(audio);
+ const cues=options.poolMode?global.BilliardsNarrationCues?.mount(host,{page:'Main'}):null;
+ function syncCues(){cues?.update(selected(),audio.currentTime,narrationPlaying&&!audio.paused&&!audio.ended&&(state.enabled||state.exploring),audio.src);}
  // A topic may reference one MP3 or an ordered sequence of existing MP3s.
  let sequenceIndex=0;
  let narrationPlaying=false;
@@ -36,16 +38,16 @@ function mount(host,options={}){
  function isActive(){return options.isActive?options.isActive():!!host.closest('#photoAnalyzerModal')?.classList.contains('open')}
  function mappedTopic(e){const el=e.target instanceof Element?e.target.closest('[data-guide-topic]'):null;return options.resolveTopic?.(e,el)||el?.dataset.guideTopic}
  function save(){try{localStorage.setItem(STORE,JSON.stringify(state))}catch(_){}}
- function stop(){options.onPlaybackStop?.();pendingResource=null;playback.pause();const t=selected();if(audioFiles(t).length)loadSequenceTrack(t,0);else audio.currentTime=0;sequenceIndex=0;state.position=0;save()}
+ function stop(){cues?.clear();options.onPlaybackStop?.();pendingResource=null;playback.pause();const t=selected();if(audioFiles(t).length)loadSequenceTrack(t,0);else audio.currentTime=0;sequenceIndex=0;state.position=0;save()}
  function selected(){return topics.find(t=>t.id===state.topicId)||null}
- function choose(id){playback.pause();if(options.onTopicChange?.(topics.find(t=>t.id===id)||null)===false){render();return false;}pendingResource=null;audio.removeAttribute('src');audio.load();sequenceIndex=0;state.topicId=id;state.position=0;save();render();return true}
+ function choose(id){cues?.clear();playback.pause();if(options.onTopicChange?.(topics.find(t=>t.id===id)||null)===false){render();return false;}pendingResource=null;audio.removeAttribute('src');audio.load();sequenceIndex=0;state.topicId=id;state.position=0;save();render();return true}
  function play(){options.onPlaybackStart?.();let t=selected();if(!t&&state.enabled){t=availableLessons()[0];if(t)choose(t.id)}if(!t)return;
    if(!audioFiles(t).length)return;
    if(!audio.getAttribute('src')||audio.dataset.topic!==t.id)loadSequenceTrack(t,0);
    playback.play().catch(()=>{}).finally(render);render();}
  function syncInspection(){document.body.classList.toggle('btg-inspection',!!document.querySelector('.btg-exploring'))}
- function setEnabled(value){pendingResource=null;playback.release();state.enabled=!!value;if(value){state.exploring=false;if(!availableLessons().some(t=>t.id===state.topicId))state.topicId=null;}clearHighlight();save();render()}
- function setExploring(value){pendingResource=null;playback.release();state.exploring=!!value;if(value)state.enabled=false;clearHighlight();save();render()}
+ function setEnabled(value){cues?.clear();pendingResource=null;playback.release();state.enabled=!!value;if(value){state.exploring=false;if(!availableLessons().some(t=>t.id===state.topicId))state.topicId=null;}clearHighlight();save();render()}
+ function setExploring(value){cues?.clear();pendingResource=null;playback.release();state.exploring=!!value;if(value)state.enabled=false;clearHighlight();save();render()}
  function openCategory(category){
   selectBrowsing=false;
   if(state.category!==category)state.topicId=null;state.category=category;state.detailsOpen=false;state.expanded=null;
@@ -137,7 +139,7 @@ function mount(host,options={}){
   while(old.childNodes.length>incoming.length)old.lastChild.remove();
   old.scrollTop=scroll;
  }
- function practice(){playback.pause();state.detailsOpen=false;state.expanded=null;options.onTryShot?.();save();render()}
+ function practice(){cues?.clear();playback.pause();state.detailsOpen=false;state.expanded=null;options.onTryShot?.();save();render()}
  function setupActions(container,t){
   if(!t?.setups?.length||!options.loadLayout)return;
   const group=document.createElement('div');group.className='btg-setup-actions';
@@ -244,10 +246,10 @@ function mount(host,options={}){
   options.onRendered?.();
 
  }
- audio.addEventListener('timeupdate',()=>{state.position=audio.currentTime;options.onPlaybackProgress?.(selected(),audio.currentTime,narrationPlaying&&!audio.paused&&!audio.ended);save()});
- audio.addEventListener('playing',()=>{narrationPlaying=true;options.onPlaybackProgress?.(selected(),audio.currentTime,true);render()});
- audio.addEventListener('pause',()=>{narrationPlaying=false;options.onPlaybackProgress?.(selected(),audio.currentTime,false);render()});
- for(const event of ['waiting','ended','emptied','error','loadstart'])audio.addEventListener(event,()=>{narrationPlaying=false;options.onPlaybackProgress?.(selected(),audio.currentTime,false);syncNarrationAttention()});
+ audio.addEventListener('timeupdate',()=>{syncCues();state.position=audio.currentTime;options.onPlaybackProgress?.(selected(),audio.currentTime,narrationPlaying&&!audio.paused&&!audio.ended);save()});
+ audio.addEventListener('playing',()=>{narrationPlaying=true;syncCues();options.onPlaybackProgress?.(selected(),audio.currentTime,true);render()});
+ audio.addEventListener('pause',()=>{cues?.clear();narrationPlaying=false;options.onPlaybackProgress?.(selected(),audio.currentTime,false);render()});
+ for(const event of ['waiting','ended','emptied','error','loadstart'])audio.addEventListener(event,()=>{cues?.clear();narrationPlaying=false;options.onPlaybackProgress?.(selected(),audio.currentTime,false);syncNarrationAttention()});
  audio.addEventListener('ended',()=>{const t=selected();
   if(!audio.ended||!t||audio.dataset.topic!==t.id)return;
   if(sequenceIndex+1<audioFiles(t).length){loadSequenceTrack(t,sequenceIndex+1);playback.play().catch(()=>{});}
@@ -256,7 +258,7 @@ function mount(host,options={}){
  document.addEventListener('pointerover',inspectTarget,true);
  // Explorer alone enables the inspection shield; validate against real trainer interactions before integration.
  render();
- return {setEnabled,setExploring,openCategory,openGuide,tryShot:practice,hasNextLesson(){const list=availableLessons(),i=list.findIndex(t=>t.id===state.topicId);return i+1<list.length;},nextLesson(){const list=availableLessons(),i=list.findIndex(t=>t.id===state.topicId);if(i<0||i+1>=list.length)return false;if(choose(list[i+1].id)===false)return false;play();return true},pause(){playback.pause();render()},selectTopic(id){choose(id);},destroy(){narrationPlaying=false;host.classList.remove('btg-narrating');pendingResource=null;playback.destroy();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
+ return {setEnabled,setExploring,openCategory,openGuide,tryShot:practice,hasNextLesson(){const list=availableLessons(),i=list.findIndex(t=>t.id===state.topicId);return i+1<list.length;},nextLesson(){const list=availableLessons(),i=list.findIndex(t=>t.id===state.topicId);const next=i<0&&selected()?.categoryWelcome?0:i+1;if(next<0||next>=list.length||i<0&&!selected()?.categoryWelcome)return false;if(choose(list[next].id)===false)return false;play();return true},pause(){playback.pause();render()},selectTopic(id){choose(id);},getCueState(){return cues?.getState();},destroy(){cues?.destroy();narrationPlaying=false;host.classList.remove('btg-narrating');pendingResource=null;playback.destroy();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
 }
 global.BilliardsGuide={mount,CATEGORIES,LEVELS};
 })(window);

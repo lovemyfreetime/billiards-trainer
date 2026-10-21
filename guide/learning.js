@@ -2,7 +2,7 @@
 (function(global){
 'use strict';
 let pending;
-function load(){return pending||(pending=fetch('./guide/learning-catalog.json?v=guided-cues-v1').then(r=>{if(!r.ok)throw Error('Practice instructions unavailable');return r.json();}));}
+function load(){return pending||(pending=fetch('./guide/learning-catalog.json?v=guide-practice-v2').then(r=>{if(!r.ok)throw Error('Practice instructions unavailable');return r.json();}));}
 async function attach(topics){
  const data=await load();
  for(const topic of topics){
