@@ -4,14 +4,14 @@
 async function mount(guide){
  const bridge=global.billiardsTourBridge,host=document.getElementById('bt-guide-pool-root');
  if(!bridge||!guide||!host)return null;
- const response=await fetch('./guide/get-started-tour.json?v=completion-tour-v25');
+ const response=await fetch('./guide/get-started-tour.json?v=shared-guide-v1');
  if(!response.ok)throw Error('Get Started lessons unavailable');
- const {steps,transition,completion}=await response.json(),seconds=transition?.seconds||10;
+ const {steps,transition,completion}=await response.json(),seconds=transition?.seconds||5;
  let index=0,original=null,profile=null,checkpoint=null,loading=false,practicing=false,phase='listening',deadline=0,timer=null,advanceTimer=null,voiceTimer=null,epoch=0,cleanupAnnouncement=null;
  const announcement=new Audio();announcement.preload='auto';announcement.volume=.8;announcement.dataset.getStartedTransition='1';
  const voice=global.BilliardsAudioStartup.create(announcement);
  const footer=document.createElement('div');footer.className='btg-practice-next';footer.hidden=true;
- footer.innerHTML='<div class="btg-countdown"><span>Next lesson in</span><strong role="timer" aria-live="off">10</strong><span>Tap the table to try this shot.</span></div><button type="button" class="btg-next-lesson">Next Lesson ▶</button><p class="btg-last-lesson">Final lesson</p>';
+ footer.innerHTML='<div class="btg-countdown"><span>Next lesson in</span><strong role="timer" aria-live="off">5</strong><span>Tap the table to try this shot.</span></div><button type="button" class="btg-next-lesson">Next Lesson ▶</button><p class="btg-last-lesson">Final lesson</p>';
  function placeControls(){const slot=host.querySelector('[data-guide-slot="practice"]');if(slot&&footer.parentNode!==slot)slot.append(footer);}
  placeControls();const counter=footer.querySelector('[role="timer"]'),nextButton=footer.querySelector('button');
  const active=()=>{const s=guide.getState();return s.enabled&&s.category==='start'};
@@ -39,10 +39,10 @@ async function mount(guide){
  announcement.addEventListener('timeupdate',()=>{if(active()&&!hasNext()&&phase==='announcing'&&!announcement.paused){const t=announcement.currentTime;attention(t>=5.6&&t<8.4?'btg-pool-guide':t>=8.4&&t<11.8?'btg-pool-explore':null)}});
  announcement.addEventListener('pause',clearAttention);
  announcement.addEventListener('ended',clearAttention);
- function cancel(){clearAttention();epoch++;cleanupAnnouncement?.();cleanupAnnouncement=null;clearInterval(timer);clearTimeout(advanceTimer);clearTimeout(voiceTimer);timer=advanceTimer=voiceTimer=null;deadline=0;voice.pause();}
+ function cancel(){clearAttention();epoch++;cleanupAnnouncement?.();cleanupAnnouncement=null;clearInterval(timer);clearTimeout(advanceTimer);clearTimeout(voiceTimer);timer=advanceTimer=voiceTimer=null;deadline=0;voice.pause();global.BilliardsPracticePrompt?.hide('start');}
  function render(){
   footer.hidden=!active()||phase==='listening'||(!hasNext()&&phase==='announcing');footer.dataset.phase=phase;placeControls();
-  const counting=phase==='countdown'||phase==='announcing';footer.querySelector('.btg-countdown').hidden=!counting;nextButton.hidden=counting||!hasNext();footer.querySelector('.btg-last-lesson').hidden=counting||hasNext();
+  const counting=phase==='countdown'||phase==='announcing';if(active()&&hasNext()&&phase==='countdown')global.BilliardsPracticePrompt?.show('start',()=>guide.tryShot());else global.BilliardsPracticePrompt?.hide('start');footer.querySelector('.btg-countdown').hidden=!counting;nextButton.hidden=counting||!hasNext();footer.querySelector('.btg-last-lesson').hidden=counting||hasNext();
   const remaining=deadline?Math.max(0,Math.ceil((deadline-performance.now())/1000)):seconds;
   if(counter.textContent!==String(remaining))counter.textContent=remaining;
   const label=hasNext()?'Next lesson in ':'Get Started closes in ';counter.setAttribute('aria-label',label+remaining+' seconds');counter.title=hasNext()?transition.text:completion?.text||label+remaining+' seconds';footer.querySelector('.btg-countdown>span').textContent=label;nextButton.disabled=bridge.snapshot().busy;
@@ -70,7 +70,8 @@ async function mount(guide){
   cancel();practicing=false;
   if(!state.autoplay){hold(false);return true;}
   const token=epoch;
-  const prompt=hasNext()?transition:completion;
+  if(hasNext()){beginCountdown(token);return true;}
+  const prompt=completion;
   if(prompt?.recordingStatus==='recorded'&&prompt.audio){
    phase='announcing';announcement.src=prompt.audio;announcement.load();
    const onEnded=()=>{if(token===epoch&&active()&&!hasNext()&&phase==='announcing')finish();};
@@ -109,14 +110,14 @@ async function mount(guide){
    if(event.type==='click'){clearTimeout(clearBlocked);blocked=null;}
    return;
   }
-  if(!active()||practicing||!event.target.closest?.('#canvas'))return;
+  if(!active()||practicing||!event.target.closest?.('#canvas,.btg-lesson-prompt'))return;
   if(!['pointerdown','mousedown','touchstart'].includes(event.type))return;
   blocked={id:event.pointerId,ended:false};stop(event);guide.tryShot();
  }
  for(const name of ['pointerdown','pointermove','pointerup','pointercancel','mousedown','mousemove','mouseup','touchstart','touchmove','touchend','click'])global.addEventListener(name,handoff,{capture:true,passive:false});
  document.addEventListener('pointerdown',event=>{
-  if(!active())return;
-  if(event.target.closest('#bt-guide-pool-root')){if((timer||voiceTimer||advanceTimer)&&event.target.closest('select,[data-action="Read"],[data-action="More"]'))hold();return;}
+  if(!active()||event.target.closest('#btg-fullscreen,#phoneControls,#phoneDismiss'))return;
+  if(event.target.closest('#bt-guide-pool-root')){if((timer||voiceTimer||advanceTimer)&&event.target.closest('select,[data-action="Read"],[data-action="More"],[data-action="Practice"]'))hold();return;}
   if(event.target.closest('#tipCanvas,#tipCanvas2,#phoneTip1,#phoneTip2,#stageWrap input,#phoneActions button,#panel input,#panel button,#pocketTray')){hold();setTimeout(render,0);}
  },true);
  document.addEventListener('keydown',event=>{if(active()&&!event.target.closest('#bt-guide-pool-root')&&['Enter',' '].includes(event.key))hold();},true);

@@ -26,3 +26,9 @@
 /* Lesson targets share the existing learning-tool glow, including range sliders. */
 .btg-tour-attention{outline:3px solid #ffeb00!important;outline-offset:3px;box-shadow:0 0 0 6px #ffeb0033,0 0 18px #ffeb0099!important;animation:btg-tour-glow 1.5s ease-in-out infinite!important}
 @media(prefers-reduced-motion:reduce){.btg-tour-attention{animation:none!important}}
+
+.btg-lesson-prompt{position:absolute;z-index:35;box-sizing:border-box;border:3px solid #ffe24a;border-radius:12px;padding:11px 14px;background:#102c27ee;color:#fff8d5;text-align:left;box-shadow:0 0 0 3px #ffe24a30,0 5px 18px #0008;cursor:pointer;font:13px/1.4 system-ui;touch-action:manipulation}
+.btg-lesson-prompt[hidden]{display:none!important}.btg-lesson-prompt strong,.btg-lesson-prompt span{display:block}.btg-lesson-prompt strong{color:#ffe24a;font-size:16px;margin-bottom:4px}.btg-lesson-prompt:focus-visible{outline:3px solid white;outline-offset:3px}
+@media(max-width:600px){.btg-lesson-prompt{font-size:11px;padding:7px 9px}.btg-lesson-prompt strong{font-size:13px}}
+
+.btg-lesson-prompt[data-compact="true"]{padding:3px 4px;border-width:2px;border-radius:6px;font-size:9px;line-height:1.15}.btg-lesson-prompt[data-compact="true"] strong{font-size:11px;line-height:1.15;margin:0 0 2px}.btg-lesson-prompt[data-compact="true"] span:last-child{display:none}

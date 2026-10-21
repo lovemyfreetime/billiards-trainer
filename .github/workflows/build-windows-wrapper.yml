@@ -33,6 +33,9 @@ on:
       - 'play.html'
       - 'tournament*'
       - '.github/workflows/build-windows-wrapper.yml'
+      - '.github/workflows/verify-guide-parity.yml'
+      - 'scripts/verify-guide-release.py'
+      - 'tests/guide-platform-parity.browser.cjs'
 
 concurrency:
   group: windows-wrapper-${{ github.ref }}
@@ -42,7 +45,10 @@ permissions:
   contents: write
 
 jobs:
+  guide-parity:
+    uses: ./.github/workflows/verify-guide-parity.yml
   build:
+    needs: guide-parity
     runs-on: windows-latest
     timeout-minutes: 20
     steps:

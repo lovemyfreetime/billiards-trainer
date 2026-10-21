@@ -54,29 +54,32 @@ async function init(){
   }
  }
  await BilliardsPracticeLayouts.attach(catalog.topics);
- let tour=null,layoutRequest=0;
+ await BilliardsLearning.attach(catalog.topics);
+ let tour=null,lessonPractice=null,layoutRequest=0;
  const guide=BilliardsGuide.mount(host,{
-  loadLayout:BilliardsPracticeLayouts.apply,
+  loadLayout:url=>lessonPractice?lessonPractice.resetUrl(url):BilliardsPracticeLayouts.apply(url),
   onTopicChange(topic){
    const request=++layoutRequest;
    if(tour?.select(topic)===false)return false;
-   if(topic?.category==='start'||!topic?.setups?.length)return true;
+   if(topic?.category==='start')return true;
+   if(lessonPractice?.select(topic)===false)return false;
+   if(!topic?.setups?.length)return true;
    if(window.billiardsTourBridge?.snapshot().busy)return false;
    // A slower response from a previous lesson must never overwrite the current table.
-   BilliardsPracticeLayouts.apply(topic.setups[0].url,{shouldApply:()=>request===layoutRequest&&guide.getState().enabled&&guide.getState().topicId===topic.id&&!window.billiardsTourBridge?.snapshot().busy}).catch(error=>{if(request===layoutRequest)globalThis.alert(error.message)});
+   BilliardsPracticeLayouts.apply(topic.setups[0].url,{shouldApply:()=>request===layoutRequest&&guide.getState().enabled&&guide.getState().topicId===topic.id&&!window.billiardsTourBridge?.snapshot().busy}).then(applied=>{if(applied!==false&&request===layoutRequest)lessonPractice?.loaded(topic);}).catch(error=>{if(request===layoutRequest)globalThis.alert(error.message)});
    return true;
   },
-  onTryShot:()=>tour?.tryShot(),
+  onTryShot:()=>guide.getState().category==='start'?tour?.tryShot():lessonPractice?.tryShot(),
   onPlaybackProgress:(topic,time,playing)=>tour?.progress(topic,time,playing),
-  onPlaybackStart:()=>tour?.listening(),
-  onRendered:()=>tour?.placeControls(),
-  onPlaybackStop:()=>tour?.hold(false),
-  onLessonEnd:(topic,state)=>tour?.ended(topic,state),
+  onPlaybackStart:()=>guide.getState().category==='start'?tour?.listening():lessonPractice?.listening(),
+  onRendered:()=>{tour?.placeControls();lessonPractice?.placeControls();},
+  onPlaybackStop:()=>guide.getState().category==='start'?tour?.hold(false):lessonPractice?.hold(false),
+  onLessonEnd:(topic,state)=>topic?.category==='start'?tour?.ended(topic,state):lessonPractice?.ended(topic,state),
   getPracticeSetups:()=>tour?.setups()||[],
   loadPracticeSetup:url=>tour.load(url),
   onStateChange(state){
    if(!state.enabled)layoutRequest++;
-   tour?.sync(state);
+   tour?.sync(state);lessonPractice?.sync(state);
    guideButton.setAttribute('aria-pressed',String(state.enabled&&state.category!=='start'));
    startButton.setAttribute('aria-pressed',String(!!tour?.getState().active||(state.enabled&&state.category==='start')));
    exploreButton.setAttribute('aria-pressed',String(state.exploring));
@@ -116,6 +119,8 @@ async function init(){
  window.billiardsPoolAudioMap=catalog;
  tour=await BilliardsGetStartedTour.mount(guide);
  if(tour)tour.steps.forEach((step,index)=>{const topic=catalog.topics.find(t=>t.id===step.topicId);if(!topic)throw Error('Quick Start lesson unavailable: '+step.topicId);topic.guideOrder=index;});
+ lessonPractice=BilliardsLessonPractice.mount(guide,host);
+ window.billiardsLessonPractice=lessonPractice;
  window.billiardsGetStartedTour=tour;
  startButton.addEventListener('click',()=>tour?tour.start():guide.openCategory('start'));
  for(const id of ['analyzePhotoBtn','cameraCaptureBtn'])document.getElementById(id)?.addEventListener('click',()=>{if(!guide.getState().exploring){guide.setEnabled(false);guide.setExploring(false)}},true);

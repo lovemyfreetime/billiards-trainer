@@ -30,7 +30,7 @@ const server=cp.spawn(process.execPath,[require('node:path').join(__dirname,'ran
   const welcome=k?'welcome-'+category:'welcome-guide';expectedEnded.push(welcome);await finish(welcome);
   for(const id of ids){
    await playing(id);const current=await p.evaluate(id=>{const a=__audio.find(a=>a.dataset.topic===id&&!a.paused),t=billiardsPoolAudioMap.topics.find(t=>t.id===id);return {source:a.currentSrc,expected:Array.isArray(t.audio)?t.audio[0]:t.audio,selected:document.querySelector('#bt-guide-pool-root select').value,title:document.querySelector('.btg-current-lesson').textContent,topicTitle:t.title}},id);
-   assert.equal(new URL(current.source).pathname,new URL(current.expected,p.url()).pathname);assert.equal(current.selected,id);assert(current.title.includes(current.topicTitle));expectedEnded.push(id);await finish(id);
+   assert.equal(new URL(current.source).pathname,new URL(current.expected,p.url()).pathname);assert.equal(current.selected,id);assert(current.title.includes(current.topicTitle));expectedEnded.push(id);await finish(id);await p.evaluate(()=>{if(billiardsLessonPractice.getState().phase==='countdown')billiardsPoolGuide.nextLesson();});
   }
   await p.waitForFunction(()=>__audio.filter(a=>a.dataset.topic).every(a=>a.paused));assert.equal(await p.evaluate(()=>billiardsPoolGuide.getState().topicId),ids.at(-1),'End stops without wrapping');
   console.log(category+': all '+ids.length+' lessons played in displayed order');

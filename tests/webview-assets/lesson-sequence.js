@@ -13,6 +13,9 @@
   delete result.error;ended.length=0;result.elapsedMs=0;const started=performance.now();
   try{
    await until(()=>window.billiardsGetStartedTour,'Tour initialization');const guide=billiardsPoolGuide,catalog=billiardsPoolAudioMap;
+   check(document.querySelector('.btg-lesson-prompt'),'Shared practice prompt is absent');
+   check(billiardsGetStartedTour.transition.seconds===5,'Wrong transition duration');
+   check(!billiardsGetStartedTour.transition.audio,'Spoken transition must stay disabled');
    const expected=[],counts=[27,49,32,28,5],categories=Object.keys(catalog.curriculum);
    check(!category||categories.includes(category),'Unknown Guide category '+category);
    check(!(category&&quickStartOnly),'Choose a Guide category or Quick Start');
@@ -22,6 +25,7 @@
     const categoryIndex=categories.indexOf(selectedCategory),ids=catalog.curriculum[selectedCategory].flatMap(g=>g.topics);
     result.phase='guide/'+selectedCategory;check(ids.length===counts[categoryIndex],'Incomplete '+selectedCategory);
     if(categoryIndex)guide.openCategory(selectedCategory);else guide.openGuide();
+    check(document.querySelector('#bt-guide-pool-root [data-action="A"]').textContent==='Auto On','Old Auto toolbar');
     const options=[...document.querySelectorAll('#bt-guide-pool-root select option')].map(o=>o.value).filter(Boolean);
     check(JSON.stringify(options)===JSON.stringify(ids),'Display order differs in '+selectedCategory);
     for(const id of [categoryIndex?'welcome-'+selectedCategory:'welcome-guide',...ids]){
@@ -30,6 +34,7 @@
      check(guide.getState().topicId===id,'Wrong selected topic for '+id);
      const position=ended.length;expected.push(id);audio.currentTime=audio.duration-.08;
      await until(()=>ended.length>position,'No native media end for '+id);result.guide++;
+     if(billiardsLessonPractice.getState().phase==='countdown'){check(!document.querySelector('.btg-lesson-prompt').hidden,'Missing visual practice prompt');guide.nextLesson();}
     }
     await until(()=>media.filter(a=>a.dataset.topic).every(a=>a.paused),'Guide did not stop at '+selectedCategory);
     result.categories[selectedCategory]=ids.length+1;
