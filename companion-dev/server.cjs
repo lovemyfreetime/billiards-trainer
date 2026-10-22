@@ -31,7 +31,13 @@ async function collectResponse(response,signal,withOutput=false){
   if(type==='response.output_item.done'&&e.item)items.set(e.output_index??e.item.id,e.item);
   if(type==='response.completed'||e.object==='response'&&e.status==='completed'){
    const final=e.response||e;if(final.status&&final.status!=='completed')throw publicError('ChatGPT ended the response with status '+safeDetail(final.status)+'. Press Retry.');
-   complete=true;output=Array.isArray(final.output)?final.output:[...items.values()];
+   complete=true;
+   // ChatGPT plan streams may omit completed items from the terminal envelope.
+   // Keep output_item.done items (including tool calls and encrypted reasoning).
+   const finalItems=Array.isArray(final.output)?final.output:[];
+   const merged=new Map([...items.entries()]);
+   for(let i=0;i<finalItems.length;i++){const item=finalItems[i],key=[...merged.keys()].find(k=>item.id&&merged.get(k)?.id===item.id)??i;merged.set(key,{...(merged.get(key)||{}),...item});}
+   output=[...merged.values()];
    // The completed response is authoritative; deltas are optional transport fragments.
    text=outputText(output)||[...parts.values()].join('')||text;
   }

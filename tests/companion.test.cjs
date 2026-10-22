@@ -41,7 +41,7 @@ test('shared app contract preserves marker geometry and validates control propos
 test('tool round trip preserves reasoning, uses medium, and binds continuation to expected calls',async()=>{
  const calls=[],shot={aim:{x:1.2,y:.4},speed:2.2,follow:0,sideSpin:0,cueElevation:3,airbornePhysics:false};let count=0;
  const fake={session:()=>({connected:true,sharing:true}),models:async()=>[{slug:'gpt-6.1-sol',displayName:'Test'}],access:()=> 'fixture-token'};
- const completed=output=>'data: '+JSON.stringify({type:'response.completed',response:{output}})+'\n\n';
+ const completed=output=>output.map((item,output_index)=>'data: '+JSON.stringify({type:'response.output_item.done',output_index,item})+'\n\n').join('')+'data: '+JSON.stringify({type:'response.completed',response:{status:'completed',output:[]}})+'\n\n';
  const host=createServer({port:0,auth:fake,fetchRemote:async(url,options)=>{const p=JSON.parse(options.body);calls.push(p);assert.equal(p.reasoning.effort,'medium');assert.equal(p.tools[0].type,'namespace');assert.match(p.instructions,/APP CONTRACT/);count++;
   if(count===1)return new Response(completed([{type:'reasoning',id:'reason',encrypted_content:'fixture-encrypted'},{type:'function_call',name:'app_help',namespace:'trainer',call_id:'help',arguments:'{"query":"markers"}'}]));
   if(count===2)return new Response(completed([{type:'function_call',name:'preview_shot',namespace:'trainer',call_id:'preview',arguments:JSON.stringify(shot)}]));
@@ -86,4 +86,11 @@ test('stream reader preserves final events without blank terminators and authori
  assert.equal(await collectResponse(Response.json({object:'response',status:'completed',output:final.response.output})),'A complete café reply.');
  const headerOnly={response:final.response};assert.equal(await collectResponse(new Response('event: response.completed\ndata: '+JSON.stringify(headerOnly))),'A complete café reply.');
  await assert.rejects(()=>collectResponse(new Response('data: '+JSON.stringify({type:'response.output_text.done',text:'Unconfirmed partial'})+'\n\n')),/No completion event arrived/);
+});
+
+test('ChatGPT plan completion envelope cannot erase streamed tool calls and encrypted reasoning',async()=>{
+ const reasoning={type:'reasoning',id:'r1',encrypted_content:'fixture-encrypted'},call={type:'function_call',id:'fc1',namespace:'trainer',name:'read_state',call_id:'call1',arguments:'{}'};
+ const events=[{type:'response.output_item.done',output_index:0,item:reasoning},{type:'response.function_call_arguments.done',arguments:'{}'},{type:'response.output_item.done',output_index:1,item:call},{type:'response.completed',response:{status:'completed',output:[]}}];
+ const result=await collectResponse(new Response(events.map(e=>'data: '+JSON.stringify(e)+'\n\n').join('')),undefined,true);assert.deepEqual(result.output,[reasoning,call]);
+ const textItem={type:'message',id:'m1',content:[{type:'output_text',text:'A streamed completed reply.'}]};assert.equal(await collectResponse(new Response([{type:'response.output_item.done',output_index:0,item:textItem},events.at(-1)].map(e=>'data: '+JSON.stringify(e)+'\n\n').join(''))),'A streamed completed reply.');
 });
