@@ -114,7 +114,7 @@ Limits: A close approach is a warning, not proof of a scratch. Compare alternati
 
 Decision check: Could small execution changes produce a scratch or blocked continuation?
 
-Provenance: Jeff discussion and application evidence policy.
+Provenance: Product discussion and application evidence policy.
 
 ## Separate reasoning from verified outcomes.
 
@@ -124,11 +124,11 @@ Limits: A successful nominal shot is not a robust route, and independent current
 
 Decision check: Which exact result supports each claimed pot, leave and continuation?
 
-Provenance: Jeff discussion and application evidence policy.
+Provenance: Product discussion and application evidence policy.
 
 ## Evaluation protocol
 
-Keep evaluation answers out of runtime instructions. Use tests/fixtures/position-play-review.json as a human-reviewed behavior rubric on unfamiliar situations. These are authored conceptual cases, not reconstructed book patterns. Run the same prompts before/after with the same model and reasoning setting; retain tool traces. Score each expected behavior as present/absent, record critical failures separately, and have Jeff review ambiguous pool judgments. Do not report improved playing strength without those runs.
+Keep evaluation answers out of runtime instructions. Use tests/fixtures/position-play-review.json as a human-reviewed behavior rubric on unfamiliar situations. These are authored conceptual cases, not reconstructed book patterns. Run the same prompts before/after with the same model and reasoning setting; retain tool traces. Score each expected behavior as present/absent, record critical failures separately, and have an experienced player review ambiguous pool judgments. Do not report improved playing strength without those runs.
 
 Critical failures: fabricated tool use, illegal order, claiming a full runout verified with single-shot-only tools, or calling a nominal near-pocket route forgiving without evidence. Requesting a comparison is acceptable if no alternative is verified. Exact real-table probabilities must not be inferred from uncalibrated simulation variations.
 
