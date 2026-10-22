@@ -77,3 +77,13 @@ test('network and incomplete-stream failures reach the browser with their actual
  const send=()=>fetch(origin+'/api/companion/reply',{method:'POST',headers:{'Content-Type':'application/json','X-Companion-Request':'1'},body:JSON.stringify({model:'test-model',messages:[{role:'user',text:'Hello'}]})});
  try{let r=await send(),p=await r.json();assert.match(p.error,/connecting to ChatGPT/);assert.match(p.error,/ECONNRESET/);r=await send();p=await r.json();assert.match(p.error,/stream ended without a completed reply/);assert(!p.error.includes('fixture-token'));}finally{await new Promise(r=>host.server.close(r));}
 });
+
+test('stream reader preserves final events without blank terminators and authoritative completed text',async()=>{
+ const final={type:'response.completed',response:{status:'completed',output:[{type:'message',content:[{type:'output_text',text:'A complete café reply.'}]}]}},encoded=new TextEncoder().encode('event: response.completed\r\ndata: '+JSON.stringify(final));
+ const stream=new ReadableStream({start(controller){for(let i=0;i<encoded.length;i+=7)controller.enqueue(encoded.slice(i,i+7));controller.close();}});
+ assert.equal(await collectResponse(new Response(stream)), 'A complete café reply.');
+ const s='data: '+JSON.stringify({type:'response.output_text.delta',delta:'partial'})+'\n\ndata: '+JSON.stringify(final)+'\n\n';assert.equal(await collectResponse(new Response(s)),'A complete café reply.');
+ assert.equal(await collectResponse(Response.json({object:'response',status:'completed',output:final.response.output})),'A complete café reply.');
+ const headerOnly={response:final.response};assert.equal(await collectResponse(new Response('event: response.completed\ndata: '+JSON.stringify(headerOnly))),'A complete café reply.');
+ await assert.rejects(()=>collectResponse(new Response('data: '+JSON.stringify({type:'response.output_text.done',text:'Unconfirmed partial'})+'\n\n')),/No completion event arrived/);
+});
