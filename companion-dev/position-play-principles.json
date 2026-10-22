@@ -1,0 +1,982 @@
+{
+  "version": "position-play-v2",
+  "principles": [
+    {
+      "id": "transition-first",
+      "group": "Assessment",
+      "title": "Identify the transition that constrains the run",
+      "sourcePages": [
+        36,
+        74,
+        102,
+        150,
+        154
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Before selecting the opening, locate the transfer with the fewest viable approaches and plan earlier leaves to support it.",
+      "exceptions": "A difficult pot and a difficult position transfer are different problems; do not assume the visibly hardest pot is the bottleneck.",
+      "check": "Which later transfer removes the most options?"
+    },
+    {
+      "id": "multiple-bottlenecks",
+      "group": "Assessment",
+      "title": "Track more than one bottleneck",
+      "sourcePages": [
+        124,
+        132,
+        148,
+        156
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Identify separate early and late constraints so solving the first does not sacrifice the second.",
+      "exceptions": "Do not force every layout into one key-shot explanation.",
+      "check": "What must remain possible after the first problem is solved?"
+    },
+    {
+      "id": "restricted-pockets",
+      "group": "Assessment",
+      "title": "Count usable pockets before choosing position",
+      "sourcePages": [
+        24,
+        70,
+        82,
+        176,
+        214
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "When a ball has limited pocket access, work from its feasible pocket and approach region.",
+      "exceptions": "An apparent opening in a drawing is not a measured clearance.",
+      "check": "Which pockets remain feasible after accounting for blockers?"
+    },
+    {
+      "id": "position-problem",
+      "group": "Assessment",
+      "title": "An easy pot can be a difficult position ball",
+      "sourcePages": [
+        84,
+        90,
+        198
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Treat pocketing ease and the ability to leave the next angle as separate attributes.",
+      "exceptions": "Do not call a hanging ball an automatic position solution.",
+      "check": "Can this easy ball actually send the cue ball where it is needed?"
+    },
+    {
+      "id": "open-is-not-easy",
+      "group": "Assessment",
+      "title": "Open balls still require a connected plan",
+      "sourcePages": [
+        194,
+        202,
+        218,
+        270,
+        376
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Evaluate the connections between open balls and the remaining obstacles before declaring a run easy.",
+      "exceptions": "Do not invent complications where a simple stop-shot chain works.",
+      "check": "Does each open pot lead to a useful subsequent shot?"
+    },
+    {
+      "id": "isolated-ball",
+      "group": "Assessment",
+      "title": "Recognize an isolated ball as an access problem",
+      "sourcePages": [
+        358
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Check how the cue ball can enter and leave an isolated ball's area without relying on nearby linking balls.",
+      "exceptions": "Isolation alone does not prove difficulty; examine available angles and pockets.",
+      "check": "What shot provides a practical bridge to this area?"
+    },
+    {
+      "id": "backward-dependencies",
+      "group": "Assessment",
+      "title": "Work backward through necessary approach angles",
+      "sourcePages": [
+        150,
+        174,
+        206,
+        230
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Start with a constrained finish or transition, identify its useful approach, and work backward to reachable predecessor leaves.",
+      "exceptions": "Backward reasoning generates candidates; it does not verify forward reachability.",
+      "check": "Can the preceding shot reach the required approach without disturbing the plan?"
+    },
+    {
+      "id": "continuation-angle",
+      "group": "Angles",
+      "title": "Plan the angle on the next ball for the ball after it",
+      "sourcePages": [
+        36,
+        84,
+        112,
+        136
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Choose a leave that supports the following transfer rather than merely exposing the next pot.",
+      "exceptions": "The final ball may need no further movement.",
+      "check": "What can the cue ball do after pocketing the next ball?"
+    },
+    {
+      "id": "reference-line",
+      "group": "Angles",
+      "title": "Use the selected pocket line as a geometric reference",
+      "sourcePages": [
+        60,
+        140,
+        146,
+        368
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Define the object-ball-to-intended-pocket line and identify the useful cue-ball side relative to the desired continuation.",
+      "exceptions": "Left and right depend on orientation and pocket choice; never memorize them as universal labels.",
+      "check": "Which actual side of this selected line supports the route?"
+    },
+    {
+      "id": "deliberate-crossing",
+      "group": "Angles",
+      "title": "Cross a pocket line deliberately when the next route needs it",
+      "sourcePages": [
+        12,
+        16,
+        20,
+        144,
+        338
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Recognize when an earlier shot must carry the cue ball across a later pocket line to create the necessary departure angle.",
+      "exceptions": "Crossing too far can replace one unsuitable angle with another.",
+      "check": "How much crossing preserves a makeable pot and usable departure?"
+    },
+    {
+      "id": "preserve-side",
+      "group": "Angles",
+      "title": "Avoid an unintended pocket-line crossing",
+      "sourcePages": [
+        162,
+        276,
+        300,
+        322,
+        376
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Treat the pocket line as a boundary when crossing it would reverse or complicate the next route.",
+      "exceptions": "Another pocket or recovery route may make the other side usable.",
+      "check": "What continuation is lost if the leave crosses this boundary?"
+    },
+    {
+      "id": "intentional-straight",
+      "group": "Angles",
+      "title": "Straight position can be the correct objective",
+      "sourcePages": [
+        192,
+        212,
+        284,
+        310,
+        362
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Use straight or nearly straight leaves when controlled stop, follow or draw supports the planned sequence.",
+      "exceptions": "Avoid treating straightness as always good or always bad.",
+      "check": "Does straight position simplify this transfer or remove needed movement?"
+    },
+    {
+      "id": "small-angle",
+      "group": "Angles",
+      "title": "Preserve a small angle for controlled local movement",
+      "sourcePages": [
+        18,
+        20,
+        98,
+        318
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Prefer a manageable small angle when only modest lateral travel or a short transfer is needed.",
+      "exceptions": "A small angle may demand excessive force for a distant transfer.",
+      "check": "How much angle is sufficient for the actual movement required?"
+    },
+    {
+      "id": "travel-angle",
+      "group": "Angles",
+      "title": "Create sufficient angle for a substantial transfer",
+      "sourcePages": [
+        22,
+        58,
+        86,
+        94,
+        120
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Set up enough angle to reach a distant region using a controllable stroke and suitable cushions.",
+      "exceptions": "More angle can increase pot difficulty; do not maximize angle independently.",
+      "check": "Does the angle reduce forcing without making the pot unreasonably difficult?"
+    },
+    {
+      "id": "contact-thickness",
+      "group": "Angles",
+      "title": "Reassess route and speed when contact thickness changes",
+      "sourcePages": [
+        28,
+        44
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Recognize that a thicker or thinner hit changes cue-ball departure and retained motion; recheck both clearance and distance.",
+      "exceptions": "Do not infer exact energy transfer from an uncalibrated image.",
+      "check": "Does the changed cut still clear the blocker and reach the region?"
+    },
+    {
+      "id": "region-not-dot",
+      "group": "Windows",
+      "title": "Seek a useful region rather than a single stopping point",
+      "sourcePages": [
+        3,
+        26,
+        28,
+        74,
+        108
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Judge leaves by the range of positions preserving the next pot and continuation.",
+      "exceptions": "A drawn region is a hypothesis until its continuations have been checked.",
+      "check": "Which nearby outcomes remain useful?"
+    },
+    {
+      "id": "along-window",
+      "group": "Windows",
+      "title": "Prefer an approach that travels along the useful region",
+      "sourcePages": [
+        26,
+        74,
+        100,
+        108
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Compare travel direction through the landing region; an aligned approach may preserve the angle over a larger stopping range.",
+      "exceptions": "The aligned route can be worse if its path encounters pockets or blockers.",
+      "check": "Does short or long travel still leave the intended continuation?"
+    },
+    {
+      "id": "short-side",
+      "group": "Windows",
+      "title": "Evaluate the consequence of coming up short",
+      "sourcePages": [
+        26,
+        32,
+        116,
+        138,
+        182
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Compare routes by the quality of plausible short leaves, not only the ideal endpoint.",
+      "exceptions": "The tolerable error direction depends on the layout.",
+      "check": "Does a slightly short leave become straight, blocked or wrong-sided?"
+    },
+    {
+      "id": "long-side",
+      "group": "Windows",
+      "title": "Evaluate the consequence of going too far",
+      "sourcePages": [
+        26,
+        60,
+        122,
+        278,
+        320
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Inspect long leaves for line crossing, lost angle or excess travel after a cushion.",
+      "exceptions": "Long is not always worse than short; compare actual recovery options.",
+      "check": "What changes first as the cue ball passes the intended region?"
+    },
+    {
+      "id": "speed-sensitive-count",
+      "group": "Windows",
+      "title": "Reduce the number of precision-speed demands in a sequence",
+      "sourcePages": [
+        3,
+        5,
+        56,
+        176
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Compare whole routes by how many transitions depend on narrowly judged stopping distances.",
+      "exceptions": "A longer route with several sensitive cushion contacts can be worse than a short precise shot.",
+      "check": "How many shots in this plan require unusually narrow speed control?"
+    },
+    {
+      "id": "short-local",
+      "group": "Windows",
+      "title": "Exploit a short controlled move when it removes a larger speed demand",
+      "sourcePages": [
+        56,
+        196,
+        258,
+        308
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Consider a small follow, draw or hold move that preserves the following angle and avoids a delicate longer roll.",
+      "exceptions": "Short movement is not inherently easier if it needs a very thin cut or awkward stroke.",
+      "check": "Does this local move simplify both the current and following shot?"
+    },
+    {
+      "id": "stroke-room",
+      "group": "Windows",
+      "title": "Include physical cueing room in the useful region",
+      "sourcePages": [
+        34,
+        172,
+        222
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Leave space from a cushion when the next shot requires accessible low contact or a level stroke.",
+      "exceptions": "A rail-adjacent leave may be suitable for a different stroke or continuation.",
+      "check": "Can the intended next tip position and stroke be delivered from this leave?"
+    },
+    {
+      "id": "impact-state",
+      "group": "Stroke",
+      "title": "Distinguish tip location from cue-ball state at impact",
+      "sourcePages": [
+        6,
+        10,
+        48
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Reason about sliding, rolling or residual backspin at object-ball contact rather than predicting solely from the tip badge.",
+      "exceptions": "Distance, speed, cloth and initial spin affect the state; exact values need simulation or observation.",
+      "check": "What spin state is needed when the cue ball reaches the object ball?"
+    },
+    {
+      "id": "low-not-draw",
+      "group": "Stroke",
+      "title": "A low strike need not produce backward travel",
+      "sourcePages": [
+        6,
+        16,
+        18,
+        178
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Allow below-center contact to create stun or controlled forward/lateral movement when appropriate.",
+      "exceptions": "Do not promise that every soft low strike kills the ball; impact state and geometry matter.",
+      "check": "Is the desired outcome draw, stun or reduced forward motion?"
+    },
+    {
+      "id": "draw-survival",
+      "group": "Stroke",
+      "title": "Retain enough draw to reach contact when draw is needed",
+      "sourcePages": [
+        10,
+        160
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Account for travel to the object ball before prescribing a draw-dependent route.",
+      "exceptions": "A tip diagram alone does not quantify surviving backspin.",
+      "check": "Will the proposed launch conditions preserve the required backspin at contact?"
+    },
+    {
+      "id": "stun-reference",
+      "group": "Stroke",
+      "title": "Use the sliding departure as a reference before modifying it",
+      "sourcePages": [
+        48,
+        68,
+        170
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Compare the sliding cue-ball departure with the required route and adjust the impact state when needed.",
+      "exceptions": "Ideal tangent geometry is a starting approximation, not proof of the full trajectory.",
+      "check": "Does the sliding route point toward a useful cushion or region?"
+    },
+    {
+      "id": "stop-link",
+      "group": "Stroke",
+      "title": "Use stop shots to connect compatible positions",
+      "sourcePages": [
+        158,
+        192,
+        310,
+        330,
+        362
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Recognize sequences where holding the cue ball after a pot naturally exposes the next required angle.",
+      "exceptions": "A stop requires appropriate alignment and impact state; low spin alone does not ensure it.",
+      "check": "Does holding this position preserve the next shot rather than stall the plan?"
+    },
+    {
+      "id": "kill-control",
+      "group": "Stroke",
+      "title": "Use controlled hold shots to preserve a useful nearby angle",
+      "sourcePages": [
+        16,
+        18,
+        186,
+        226,
+        344
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Consider limiting cue-ball motion when larger travel would lose an already useful connection.",
+      "exceptions": "Do not imply that the cue ball can be held arbitrarily on any cut.",
+      "check": "How much movement is geometrically unavoidable and still acceptable?"
+    },
+    {
+      "id": "follow-angle",
+      "group": "Stroke",
+      "title": "Use controlled forward travel to create an angle",
+      "sourcePages": [
+        20,
+        118,
+        274,
+        322
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Use a measured forward move when it deliberately establishes the next useful side or cut.",
+      "exceptions": "Too much follow can cross the wrong boundary or approach a pocket.",
+      "check": "What is the acceptable forward range before the angle becomes unhelpful?"
+    },
+    {
+      "id": "small-draw",
+      "group": "Stroke",
+      "title": "Use a small draw move to create rather than force an angle",
+      "sourcePages": [
+        106,
+        196,
+        258,
+        308,
+        374
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Compare a short backward move with longer position routes when it sets up a manageable continuation.",
+      "exceptions": "Short draw still depends on distance, stroke access and retained spin.",
+      "check": "Does the draw distance create the needed angle without excessive precision?"
+    },
+    {
+      "id": "angle-before-force",
+      "group": "Stroke",
+      "title": "Improve the incoming angle before demanding more power",
+      "sourcePages": [
+        30,
+        40,
+        50,
+        52,
+        84,
+        130
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "When alternatives are comparable, choose the previous leave that permits controlled motion instead of forcing a poor angle.",
+      "exceptions": "Some transfers genuinely require speed; soft is not an unconditional objective.",
+      "check": "Is the force requirement a consequence of an avoidable earlier leave?"
+    },
+    {
+      "id": "cushion-window",
+      "group": "Rails",
+      "title": "Use a cushion to reshape the position approach",
+      "sourcePages": [
+        26,
+        28,
+        66,
+        80,
+        108
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Compare a cushion-assisted approach with a direct stopping route when the rebound preserves a wider useful range.",
+      "exceptions": "Cushions add calibration and spin sensitivity; the source's confidence is not a guarantee.",
+      "check": "Does the rebound improve the region enough to justify extra uncertainty?"
+    },
+    {
+      "id": "rail-target",
+      "group": "Rails",
+      "title": "Treat the cushion contact location as an intermediate target",
+      "sourcePages": [
+        38,
+        58,
+        110,
+        126,
+        180
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Connect a feasible cushion-contact region to the desired outgoing direction.",
+      "exceptions": "A precise diamond or contact point from a diagram is not transferable to an arbitrary table.",
+      "check": "How wide is the acceptable cushion-contact region?"
+    },
+    {
+      "id": "running-spin",
+      "group": "Rails",
+      "title": "Use running spin for suitable rebound and travel demands",
+      "sourcePages": [
+        40,
+        46,
+        78,
+        90
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Consider side spin that assists the intended cushion route when angle alone is insufficient.",
+      "exceptions": "Running spin is defined relative to the cushion approach, not a universal left/right setting.",
+      "check": "Which rebound and travel changes are needed at each cushion?"
+    },
+    {
+      "id": "spin-overrun",
+      "group": "Rails",
+      "title": "Avoid running spin that carries the ball beyond position",
+      "sourcePages": [
+        122,
+        278,
+        320
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Compare reduced or absent side spin when extra cushion travel would flatten the next angle or overshoot the region.",
+      "exceptions": "Do not simply remove spin without checking the changed rebound direction.",
+      "check": "Does the added spin improve the route or merely increase overrun?"
+    },
+    {
+      "id": "reverse-control",
+      "group": "Rails",
+      "title": "Use reverse spin selectively to hold or reshape a rebound",
+      "sourcePages": [
+        262,
+        340
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Consider a checking rebound when it helps preserve the required angle and travel distance.",
+      "exceptions": "Reverse can affect direction and speed together; it is not a universal brake.",
+      "check": "What useful angle is preserved and what new miss risk is introduced?"
+    },
+    {
+      "id": "spin-angle-trim",
+      "group": "Rails",
+      "title": "Use small spin changes to adjust a rebound direction",
+      "sourcePages": [
+        98,
+        292,
+        338
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Consider a modest side-spin adjustment when it corrects the outgoing route without unnecessary extra travel.",
+      "exceptions": "A small tip change can have a large effect; no fixed percentage follows from qualitative wording.",
+      "check": "Is the adjustment changing the needed direction, distance or both?"
+    },
+    {
+      "id": "multi-rail-options",
+      "group": "Rails",
+      "title": "Keep multi-rail routes among alternatives",
+      "sourcePages": [
+        54,
+        86,
+        88,
+        96,
+        114,
+        256
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Do not discard a longer cushion route solely because it has more rails; it may provide a natural angle and forgiving approach.",
+      "exceptions": "Do not prefer extra rails automatically or ignore accumulated error and pocket approaches.",
+      "check": "Which route has the better combined pot, path and continuation margin?"
+    },
+    {
+      "id": "order-dependencies",
+      "group": "Ordering",
+      "title": "Choose order by connections rather than isolated pot ease",
+      "sourcePages": [
+        194,
+        218,
+        282,
+        312
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "In order-choice play, compare how one ball's leave makes another accessible and preserves the finish.",
+      "exceptions": "Rotation first-contact requirements restrict these choices.",
+      "check": "Which order creates the simplest chain of feasible transfers?"
+    },
+    {
+      "id": "early-problem",
+      "group": "Ordering",
+      "title": "Use a good opportunity to address a restricted ball",
+      "sourcePages": [
+        188,
+        208,
+        250,
+        272,
+        316
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Consider resolving a ball while a useful approach or predecessor remains available.",
+      "exceptions": "Hardest-first is not a rule; a linking shot may be needed before the problem ball.",
+      "check": "What useful access disappears if this ball is deferred?"
+    },
+    {
+      "id": "delayed-problem",
+      "group": "Ordering",
+      "title": "A problem ball may be appropriate late or last",
+      "sourcePages": [
+        200,
+        238,
+        266,
+        282,
+        298,
+        320
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Allow a restricted ball later when the preceding chain reaches it well and it provides a workable finish.",
+      "exceptions": "Deferring the problem is justified only by a feasible approach and exit.",
+      "check": "Why does delaying this ball improve the complete chain?"
+    },
+    {
+      "id": "key-not-nearest",
+      "group": "Ordering",
+      "title": "The ball nearest the winner need not be the key ball",
+      "sourcePages": [
+        166,
+        168,
+        198,
+        232,
+        240,
+        242
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Select the final object ball by reachable approach and useful exit to the winner, not distance alone.",
+      "exceptions": "A nearby ball can still be excellent if the required leave is accessible.",
+      "check": "Can the candidate key ball be reached and used without a fragile transfer?"
+    },
+    {
+      "id": "finish-first",
+      "group": "Ordering",
+      "title": "Plan access to the winning ball before committing to order",
+      "sourcePages": [
+        174,
+        176,
+        206,
+        216,
+        230,
+        254
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Choose a feasible finish and arrange the final predecessor and its incoming angle accordingly.",
+      "exceptions": "An attractive finish is insufficient if the opening cannot connect to it.",
+      "check": "Which earlier shot establishes the key ball's useful angle?"
+    },
+    {
+      "id": "clear-pocket",
+      "group": "Ordering",
+      "title": "Remove a pocket obstruction as a prerequisite",
+      "sourcePages": [
+        306,
+        370
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Recognize when another ball must be removed to open a needed pocket or position route.",
+      "exceptions": "Removing a ball may also remove a useful connection; check the complete updated layout.",
+      "check": "What access opens and what option disappears after the clearance?"
+    },
+    {
+      "id": "sequence-economy",
+      "group": "Ordering",
+      "title": "Limit unnecessary movement when connections remain sound",
+      "sourcePages": [
+        196,
+        258,
+        310,
+        362
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Compare compact controlled chains against larger transfers when their finish and risk are comparable.",
+      "exceptions": "Shortest total distance alone does not establish the best pattern.",
+      "check": "Can the same useful angles be retained with less demanding movement?"
+    },
+    {
+      "id": "opponent-obstacles",
+      "group": "Ordering",
+      "title": "Preserve awareness of opponent balls throughout the route",
+      "sourcePages": [
+        218,
+        224,
+        232,
+        376
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Account for opponent balls blocking pots and cue-ball corridors even when all own balls are open.",
+      "exceptions": "Do not assume an opponent ball stays untouched if the simulated path contacts it.",
+      "check": "Does each transfer retain a clear path around the remaining balls?"
+    },
+    {
+      "id": "pocket-switch",
+      "group": "Adaptation",
+      "title": "Reconsider the next pocket when the leave differs",
+      "sourcePages": [
+        108,
+        136,
+        162
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Compare another legal pocket when it gives a better continuation from the actual leave.",
+      "exceptions": "A pocket switch changes its reference line and all downstream angles.",
+      "check": "Does the new pocket restore a workable chain?"
+    },
+    {
+      "id": "conditional-recovery",
+      "group": "Adaptation",
+      "title": "Keep more than one continuation for plausible leaves",
+      "sourcePages": [
+        42,
+        60,
+        92,
+        162,
+        212,
+        284,
+        296
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Describe recovery branches tied to observed angle or position rather than blindly repeating the nominal controls.",
+      "exceptions": "A recovery suggestion remains provisional until tested from that actual state.",
+      "check": "Which branch matches the cue ball's actual position?"
+    },
+    {
+      "id": "controlled-cannon",
+      "group": "Adaptation",
+      "title": "An intentional secondary contact can be a recovery option",
+      "sourcePages": [
+        244
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Consider using a secondary ball to limit travel only when the resulting table and legality are understood.",
+      "exceptions": "Unintended contact is not equivalent; it may alter the finish or create a foul.",
+      "check": "What happens to both balls after contact and is the continuation still valid?"
+    },
+    {
+      "id": "pocket-entry",
+      "group": "Adaptation",
+      "title": "Pocket-entry variation can create an otherwise unavailable route",
+      "sourcePages": [
+        340
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Consider a feasible entry offset when it changes cue-ball departure usefully.",
+      "exceptions": "This reduces pot margin; pocket geometry and speed must validate it. It is an advanced option, not a default fix.",
+      "check": "Does the recovered position justify the narrower pot margin?"
+    },
+    {
+      "id": "rail-first-hanger",
+      "group": "Adaptation",
+      "title": "A rail-first approach to a hanger can change the cue-ball exit",
+      "sourcePages": [
+        342
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Consider cushion-before-object contact when a near-pocket ball offers a useful alternate exit.",
+      "exceptions": "This is not an object-ball bank; confirm clearance, first object contact and applicable rules.",
+      "check": "Does the rail-first route produce a useful exit with adequate pot margin?"
+    },
+    {
+      "id": "ball-in-hand-scope",
+      "group": "Learning",
+      "title": "Distinguish setup freedom from an ongoing rack",
+      "sourcePages": [
+        3
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "When a drill grants ball in hand, choose an opening that establishes the pattern; preserve actual cue-ball position during an ongoing run.",
+      "exceptions": "Book exercises granting ball in hand do not grant it in a player's live game.",
+      "check": "Is placement freedom actually part of this situation?"
+    },
+    {
+      "id": "constraint-practice",
+      "group": "Learning",
+      "title": "Use constraints to isolate cue-ball control",
+      "sourcePages": [
+        5
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Offer optional practice limiting side spin or table area to develop rolling and sliding control.",
+      "exceptions": "The source's half-table restriction is an exercise condition, not a general strategic rule.",
+      "check": "Which constraint teaches the intended skill without confusing normal play?"
+    },
+    {
+      "id": "graduated-help",
+      "group": "Learning",
+      "title": "Reveal a small useful hint before the entire explanation when wanted",
+      "sourcePages": [
+        5
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Offer the opening idea or a decisive transition as optional scaffolding, then let the player explore.",
+      "exceptions": "Direct questions deserve direct answers; do not force guessing or conceal requested help.",
+      "check": "Does the player want exploration, a hint or an explanation?"
+    },
+    {
+      "id": "difficulty-context",
+      "group": "Learning",
+      "title": "Interpret difficulty relative to task family",
+      "sourcePages": [
+        3
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Distinguish task length and type from within-family difficulty; do not compare source skill meters as absolute ratings.",
+      "exceptions": "No player rating or success percentage follows from a printed difficulty gauge.",
+      "check": "What aspect of the task is demanding for this player?"
+    },
+    {
+      "id": "equipment-transfer",
+      "group": "Learning",
+      "title": "Treat source spin illustrations as qualitative starting guidance",
+      "sourcePages": [
+        5,
+        6
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Account for cue, table, stroke and starting-position differences before transferring settings.",
+      "exceptions": "The author reports testing the patterns; that does not calibrate exact Trainer inputs or real-table guarantees.",
+      "check": "Which conditions differ from the demonstration?"
+    },
+    {
+      "id": "last-pocket-rule",
+      "group": "Learning",
+      "title": "Last-pocket play changes the finishing constraint",
+      "sourcePages": [
+        323,
+        324,
+        330,
+        332,
+        338
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "When that variant is selected, plan the final group-ball pocket jointly with the required winning-ball pocket.",
+      "exceptions": "Do not impose this exercise rule on standard 8-ball; verify the selected variant.",
+      "check": "Does the complete finish obey the chosen same-pocket constraint?"
+    },
+    {
+      "id": "dual-ball-control",
+      "group": "Defence",
+      "title": "A defensive option must consider both balls' destinations",
+      "sourcePages": [
+        133,
+        134
+      ],
+      "origin": "diagram-supported inference",
+      "apply": "From the defensive diagrams, assess cue-ball separation and the legal target ball's resulting access together.",
+      "exceptions": "The diagrams show candidates, not universally successful safeties or computed opponent odds.",
+      "check": "What reasonable return does the opponent retain?"
+    },
+    {
+      "id": "opponent-outlook",
+      "group": "Defence",
+      "title": "A legal hit alone may not solve the strategic problem",
+      "sourcePages": [
+        285,
+        286
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "Compare the likely opponent opportunity after a difficult escape with alternatives, rather than treating contact as the only goal.",
+      "exceptions": "Do not invent opponent runout probabilities or claim a foul is harmless.",
+      "check": "What changes in the opponent's practical options after this choice?"
+    },
+    {
+      "id": "foul-cost",
+      "group": "Defence",
+      "title": "A deliberate foul is a separately labeled strategic tradeoff",
+      "sourcePages": [
+        286
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "If discussing the source's tie-up choices, explicitly identify the foul and ball-in-hand concession and compare legal options first.",
+      "exceptions": "Confirm the actual rules and any consecutive-foul penalty before recommending; never label it a legal runout continuation.",
+      "check": "Does the obstruction created plausibly justify the known penalty under these rules?"
+    },
+    {
+      "id": "separate-objective",
+      "group": "Defence",
+      "title": "Keep defence separate from offensive pattern verification",
+      "sourcePages": [
+        133,
+        134,
+        285,
+        286
+      ],
+      "origin": "source-informed conditional abstraction",
+      "apply": "When no attractive offensive route is established, distinguish a safety search from a runout claim.",
+      "exceptions": "A failed bounded runout search is not proof that no runout exists.",
+      "check": "Which objective is being evaluated and what evidence supports it?"
+    },
+    {
+      "id": "full-path-risk",
+      "group": "Application safeguards",
+      "title": "Inspect the full cue-ball path, not only the endpoint.",
+      "sourcePages": [],
+      "origin": "application-authored safeguard",
+      "apply": "Inspect scratch risk along the full cue-ball trajectory, including side-pocket mouths, jaws, blockers and unintended collisions; compare tested alternatives.",
+      "exceptions": "A close visual pass is a warning, not measured scratch probability.",
+      "check": "What observed or computed evidence supports this statement?"
+    },
+    {
+      "id": "robustness-evidence",
+      "group": "Application safeguards",
+      "title": "Distinguish nominal success from tolerance.",
+      "sourcePages": [],
+      "origin": "application-authored safeguard",
+      "apply": "Perturb plausible aim, speed and tip placement before calling a route forgiving.",
+      "exceptions": "An arbitrary drawn region and one nominal success do not establish tolerance.",
+      "check": "What observed or computed evidence supports this statement?"
+    },
+    {
+      "id": "recorded-tool-evidence",
+      "group": "Application safeguards",
+      "title": "Only recorded tool results support verification.",
+      "sourcePages": [],
+      "origin": "application-authored safeguard",
+      "apply": "Tie computed claims to actual tool inputs, results and starting snapshot.",
+      "exceptions": "Do not invent tests or retract genuine evidence merely because the recommendation was poor.",
+      "check": "What observed or computed evidence supports this statement?"
+    },
+    {
+      "id": "actual-successors",
+      "group": "Application safeguards",
+      "title": "Preserve every ball in successor states.",
+      "sourcePages": [],
+      "origin": "application-authored safeguard",
+      "apply": "Chain verified final states without repositioning balls; replan from actual results after execution.",
+      "exceptions": "Current preview_shot cannot chain; independent previews do not prove a runout.",
+      "check": "What observed or computed evidence supports this statement?"
+    },
+    {
+      "id": "budget-honesty",
+      "group": "Application safeguards",
+      "title": "Describe search coverage precisely.",
+      "sourcePages": [],
+      "origin": "application-authored safeguard",
+      "apply": "Report checked depth, alternatives and budget limits.",
+      "exceptions": "Best found is not a global optimum; no solution found is not impossibility.",
+      "check": "What observed or computed evidence supports this statement?"
+    },
+    {
+      "id": "source-boundary",
+      "group": "Application safeguards",
+      "title": "Do not overgeneralize this source.",
+      "sourcePages": [],
+      "origin": "application-authored safeguard",
+      "apply": "Separate pattern-play abstractions, defensive diagrams, drill constraints and app safeguards.",
+      "exceptions": "The source excludes banks/combinations from pattern puzzles; defensive interludes include other objectives.",
+      "check": "What observed or computed evidence supports this statement?"
+    },
+    {
+      "id": "visual-uncertainty",
+      "group": "Application safeguards",
+      "title": "Use diagrams as evidence with uncertainty.",
+      "sourcePages": [],
+      "origin": "application-authored safeguard",
+      "apply": "Check labels, ball roles, route keys and text together; explain ambiguity instead of fabricating calibrated values.",
+      "exceptions": "Cue-ball numbers can denote shot sequence; black obstacle symbols need not be the 8 ball.",
+      "check": "What observed or computed evidence supports this statement?"
+    },
+    {
+      "id": "low-friction-coaching",
+      "group": "Application safeguards",
+      "title": "Match the explanation to the player request.",
+      "sourcePages": [],
+      "origin": "application-authored safeguard",
+      "apply": "Give the decisive reason and an optional next cue; expand when requested.",
+      "exceptions": "Do not dump the principle catalog or require logging and interrogation.",
+      "check": "What observed or computed evidence supports this statement?"
+    }
+  ]
+}
