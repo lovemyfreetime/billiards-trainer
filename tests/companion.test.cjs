@@ -70,3 +70,10 @@ test('Windows credential storage keeps secrets in stdin, encrypts on disk, and h
 test('provider errors preserve useful diagnostics while redacting credentials',async()=>{
  await assert.rejects(()=>collectResponse(Response.json({error:{message:'Unsupported tools; Bearer secret-value sk-testvalue',code:'invalid_parameter',param:'tools'}},{status:400})),e=>e.expose&&/HTTP 400/.test(e.message)&&/tools/.test(e.message)&&!e.message.includes('secret-value')&&!e.message.includes('sk-testvalue'));
 });
+
+test('network and incomplete-stream failures reach the browser with their actual stage',async()=>{
+ let attempt=0;const fake={session:()=>({connected:true,sharing:true}),models:async()=>[{slug:'test-model',displayName:'Test'}],access:()=> 'fixture-token'};
+ const host=createServer({port:0,auth:fake,fetchRemote:async()=>{if(++attempt===1)throw Object.assign(Error('fetch failed'),{cause:{code:'ECONNRESET'}});return new Response('data: '+JSON.stringify({type:'response.output_text.delta',delta:'partial'})+'\n\n');}}),origin=await host.listen();
+ const send=()=>fetch(origin+'/api/companion/reply',{method:'POST',headers:{'Content-Type':'application/json','X-Companion-Request':'1'},body:JSON.stringify({model:'test-model',messages:[{role:'user',text:'Hello'}]})});
+ try{let r=await send(),p=await r.json();assert.match(p.error,/connecting to ChatGPT/);assert.match(p.error,/ECONNRESET/);r=await send();p=await r.json();assert.match(p.error,/stream ended without a completed reply/);assert(!p.error.includes('fixture-token'));}finally{await new Promise(r=>host.server.close(r));}
+});
