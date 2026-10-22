@@ -36,7 +36,7 @@ The author reports testing the examples, but that is source-reported testing, no
 
 ## How this reaches the Companion
 
-A compact decision process is included in every request. The complete conditional cards are available through the existing `trainer.app_help` tool, with their exceptions and source-page references. They are marked non-actionable coaching reference, not Guide lessons. This avoids sending the entire catalog on every turn. It does not change model weights, add chained simulation or remove the existing preview limits.
+A compact decision process is included in every request. The complete conditional cards are available through the existing `trainer.app_help` tool, with their exceptions and source-page references. They are marked non-actionable coaching reference, not Guide lessons. This avoids sending the entire catalog on every turn. It does not change model weights. The separate development simulation milestone now adds private successor-state simulation and a bounded one-to-three-ball 9-ball search; ordinary root previews retain their ten-call limit. See docs/COMPANION_RUNOUT_DEVELOPMENT.md.
 
 Use the process: identify the player's goal and actual rules → locate bottlenecks → work backward to useful approach angles → compare reachable routes and error outcomes → verify with available tools → explain the decisive tradeoff. The model must state when its tool cannot verify a sequence. Do not make the player read or complete this internal checklist.
 
@@ -719,7 +719,7 @@ Use the process: identify the player's goal and actual rules → locate bottlene
 
 **Use:** Chain verified final states without repositioning balls; replan from actual results after execution.
 
-**Conditions and exceptions:** Current preview_shot cannot chain; independent previews do not prove a runout.
+**Conditions and exceptions:** Independent preview_shot calls do not prove a runout; use simulate_shot successor states or a recorded search_runout replay.
 
 **Check:** What observed or computed evidence supports this statement?
 

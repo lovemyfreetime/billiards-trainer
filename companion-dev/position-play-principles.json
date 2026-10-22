@@ -935,7 +935,7 @@
       "sourcePages": [],
       "origin": "application-authored safeguard",
       "apply": "Chain verified final states without repositioning balls; replan from actual results after execution.",
-      "exceptions": "Current preview_shot cannot chain; independent previews do not prove a runout.",
+      "exceptions": "Independent preview_shot calls do not prove a runout; use simulate_shot successor states or a recorded search_runout replay.",
       "check": "What observed or computed evidence supports this statement?"
     },
     {

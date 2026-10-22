@@ -1,7 +1,7 @@
 (function(root){
 'use strict';
 // One reviewed capability contract is used by the browser, server and every player.
-const version='trainer-companion-2026-10-22.1';
+const version='trainer-companion-2026-10-22.2';
 const controls={
  speed:{key:'speed',min:.25,max:6,unit:'m/s',label:'Shot 1 speed'},
  follow:{key:'follow',min:-1,max:1,unit:'fraction (-1 draw, +1 follow); multiply by 100 for UI percent',label:'Shot 1 follow / draw'},

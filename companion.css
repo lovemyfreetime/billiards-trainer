@@ -62,3 +62,6 @@ body.practice-open #practiceNav{display:none!important}
 #practiceHub .ph-action pre{white-space:pre-wrap;font-size:11px}
 #phBackTable{border-color:#448ac0!important;color:#abd9ff!important}
 #phPhoneLaunch{background:#287db5;border-color:#67b7ec}
+
+#practiceHub .ph-strike-badge{width:80px!important;height:90px!important;display:block;margin:6px 0}
+#practiceHub .ph-card details{border-top:1px solid #3c5165;padding:8px 0}#practiceHub .ph-card summary{cursor:pointer;color:#b7e2ff}

@@ -117,7 +117,7 @@ function createServer({port=8791,auth:providedAuth,fetchRemote=fetch,metadataDir
       phase='processing Trainer tool calls';turn.input.push(...result.output);const previews=[];
       for(const call of calls){
        try{const name=knowledge.callName(call),args=JSON.parse(call.arguments);
-        if(name==='preview_shot'){require('../companion-capabilities.js').shot(args);previews.push({...call,name,arguments:args});}
+        if(['preview_shot','simulate_shot','search_runout'].includes(name)){knowledge.validateSimulationCall(name,args);previews.push({...call,name,arguments:args});}
         else{const data=name==='app_help'?knowledge.help(args.query):turn.state||{error:'No current Trainer state was shared.'};turn.input.push({type:'function_call_output',call_id:call.call_id,output:JSON.stringify(data)});}
        }catch(e){turn.input.push({type:'function_call_output',call_id:call.call_id,output:JSON.stringify({error:safeDetail(e.message),instruction:'Correct these arguments before retrying. Speed is 0.25..6 m/s; follow and sideSpin are fractions -1..1, not percent. Normal mode requires cueElevation:3; other elevations require airbornePhysics:true. No simulation or table change occurred.'})});}
       }
