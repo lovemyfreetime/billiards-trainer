@@ -3,6 +3,7 @@ name: Build Windows wrapper installer
 on:
   workflow_dispatch:
   push:
+    branches: [main]
     paths:
       - 'windows-wrapper/**'
       - 'index.html'

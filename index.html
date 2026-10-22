@@ -1872,6 +1872,7 @@
 <script src="./trainer-action-history.js?v=2"></script>
 <script src="./trainer-layout-files.js?v=2"></script>
 <script src="./trainer-table-exchange.js?v=1"></script>
+<script src="./companion-core.js?v=1"></script>
 <script src="./trainer-saved-files.js?v=1"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
 <script src="./photo-table-spots.js?v=3"></script>
@@ -2478,6 +2479,19 @@
         if(saveAfter)saveBallLayout(d.name);
         toast((file.kind==='session'?'Session resumed: ':'Table loaded: ')+d.name);
     }
+    // Companion transfers use the native loader and a separate return stack.
+    window.billiardsCompanionTable=(()=>{
+        const previous=[];
+        function capture(){if(animation)throw Error('Wait for the shot to finish before sharing the table.');return window.BilliardsCompanionCore.checkedLayout(captureBallLayout(S.lastLayoutName));}
+        function apply(layout){
+            if(animation)throw Error('Wait for the shot to finish before changing the table.');
+            const checked=window.BilliardsCompanionCore.checkedLayout(layout),file=window.BilliardsLayoutFiles.parse(JSON.stringify({layout:checked}));
+            const saved=window.billiardsTourBridge.capture();
+            applyTableFile(file,false,null,true);previous.push(saved);if(previous.length>12)previous.shift();
+        }
+        function restore(){if(animation)throw Error('Wait for the shot to finish.');const saved=previous.pop();if(!saved)throw Error('No earlier table to restore.');window.billiardsTourBridge.restore(saved);}
+        return {capture,apply,restore,canRestore:()=>previous.length>0,saved:()=>readSavedLayouts().map(d=>window.BilliardsCompanionCore.checkedLayout(d)),point(nx,ny){const c=canvas.getBoundingClientRect(),p=mapper().map({x:nx*S.tableL,y:ny*S.tableW});return {x:c.left+p.x*c.width/(canvas.width/DPR),y:c.top+p.y*c.height/(canvas.height/DPR)};}};
+    })();
     // Get Started uses the same table, solver, shot commit, and Undo history as normal play.
     window.billiardsTourBridge=(()=>{
         const copy=v=>JSON.parse(JSON.stringify(v,(key,value)=>key==='preview'?null:value));
@@ -12556,7 +12570,7 @@
 
 
 <script>
-if ('serviceWorker' in navigator && !(window.BilliardsBundledWindows||window.BilliardsBundledAndroid)) {
+if ('serviceWorker' in navigator && !(window.BilliardsBundledWindows||window.BilliardsBundledAndroid) && !['127.0.0.1','localhost'].includes(location.hostname)) {
   // A newly activated worker takes over caching without reloading the open
   // table. Apply new page code on the next user-initiated navigation/reload;
   // background updates must never discard a shot or a newly arranged Zen rack.
@@ -12603,6 +12617,8 @@ if ('serviceWorker' in navigator && !(window.BilliardsBundledWindows||window.Bil
   <link rel="stylesheet" href="./experience-menu.css?v=home-badge-v8">
   <script src="./experience-menu.js?v=home-badge-v13"></script>
   <script src="./beta-ui.js?v=offline-startup-v158"></script>
+  <link rel="stylesheet" href="./companion.css?v=1">
+  <script src="./practice-companion.js?v=1"></script>
 
 
 </body>

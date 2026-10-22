@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-offline-e91cab25b3af6fb2';
+const CACHE_NAME = 'billiards-trainer-4-12-offline-6d10e0981a12dc33';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './play-narration-data.js?v=3',
@@ -128,6 +128,8 @@ async function respond(request){
   try {return await timedFetch(request);}catch{return Response.error();}
 }
 self.addEventListener('fetch',event=>{
+  // Connection state and AI requests are live operations, never app-shell fallbacks.
+  if(new URL(event.request.url).pathname.includes('/api/companion/')||new URL(event.request.url).pathname.endsWith('/auth/callback'))return;
   if(event.request.method!=='GET'||new URL(event.request.url).origin!==self.location.origin)return;
   event.respondWith(respond(event.request));
 });

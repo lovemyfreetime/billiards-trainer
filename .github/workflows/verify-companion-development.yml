@@ -1,0 +1,41 @@
+name: Verify Companion development
+on:
+  push:
+    branches: [development/practice-companion]
+  pull_request:
+    paths:
+      - 'companion*'
+      - 'companion-dev/**'
+      - 'practice-companion.js'
+      - 'tests/companion*'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Core, connector, table exchange and manifest checks
+        run: |
+          node --test tests/companion.test.cjs
+          node tests/shared-table-exchange.test.cjs
+          node tests/practice-layouts.test.cjs
+          python3 scripts/verify-guide-release.py
+      - name: Install browser test tools
+        run: |
+          npm install --prefix /tmp/companion-browser-tools playwright@1.62.1
+          /tmp/companion-browser-tools/node_modules/.bin/playwright install --with-deps chromium
+      - name: Desktop and phone interaction checks
+        env:
+          NODE_PATH: /tmp/companion-browser-tools/node_modules
+          COMPANION_TEST_OUTPUT: /tmp/companion-checks
+        run: node tests/companion.browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: companion-development-browser-checks
+          path: /tmp/companion-checks
