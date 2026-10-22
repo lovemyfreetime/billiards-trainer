@@ -12,6 +12,8 @@ Play is available at https://lovemyfreetime.github.io/billiards-trainer/play.htm
 
 ## Development and release history
 
+Companion work is currently isolated on `development/practice-companion`, copied from the October 21 live release. See [Companion development](docs/PRACTICE_COMPANION_DEVELOPMENT.md) for the local app and ChatGPT connection. Do not publish this work to production or platform installers until Jeff requests it.
+
 `main` in `lovemyfreetime/billiards-trainer` is the active app and publishes directly through GitHub Pages. As requested October 19, 2026, implement, verify, and publish requested changes here by default. Private repositories, account-gated previews, and separate ChatGPT Sites previews are not the working or viewing workflow unless explicitly requested. Development and private repository copies may remain as history; they are not the release target.
 
 `release/2026-10-14` preserves the accepted development snapshot. `archive/production-before-2026-10-14` preserves the prior production version for rollback.

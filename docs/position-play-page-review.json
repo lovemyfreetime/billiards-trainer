@@ -1,0 +1,3381 @@
+{
+  "source": "PatternPuzzles.pdf",
+  "sourceSha256": "f3fcb181203f9175ced61a84720dcb41186d419e70b377846a24e8873bcd5508",
+  "pages": 377,
+  "method": "All extracted explanatory text reviewed; front matter OCR reviewed; 16 contact sheets cover every page; selected diagrams enlarged. No exact coordinate reconstruction or physical validation.",
+  "fullPageVisualReview": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    8,
+    26,
+    122,
+    133,
+    134,
+    172,
+    200,
+    244,
+    262,
+    278,
+    286,
+    320,
+    338,
+    340,
+    342,
+    370
+  ],
+  "entries": [
+    {
+      "page": 1,
+      "kind": "front matter",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Contents and section navigation."
+    },
+    {
+      "page": 2,
+      "kind": "front matter",
+      "review": "text/OCR plus full-page visual",
+      "principles": [],
+      "note": "Notation, setup, solution symbols and cue-ball strike indicators."
+    },
+    {
+      "page": 3,
+      "kind": "front matter",
+      "review": "text/OCR plus full-page visual",
+      "principles": [
+        "region-not-dot",
+        "speed-sensitive-count",
+        "ball-in-hand-scope",
+        "difficulty-context"
+      ],
+      "note": "Within-family difficulty, pattern flow and ball-in-hand scope."
+    },
+    {
+      "page": 4,
+      "kind": "front matter",
+      "review": "text/OCR plus full-page visual",
+      "principles": [],
+      "note": "Rail-sequence notation and distinction between cue-ball order and object-ball identity."
+    },
+    {
+      "page": 5,
+      "kind": "front matter",
+      "review": "text/OCR plus full-page visual",
+      "principles": [
+        "speed-sensitive-count",
+        "constraint-practice",
+        "graduated-help",
+        "equipment-transfer"
+      ],
+      "note": "Variable equipment, optional hints and restricted half-table practice."
+    },
+    {
+      "page": 6,
+      "kind": "front matter",
+      "review": "text/OCR plus full-page visual",
+      "principles": [
+        "impact-state",
+        "low-not-draw",
+        "equipment-transfer"
+      ],
+      "note": "Low tip does not imply draw; route notation and pattern-puzzle scope."
+    },
+    {
+      "page": 7,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 8. Compare opening angle and proximity to reduce precision demands in constrained practice."
+    },
+    {
+      "page": 8,
+      "kind": "pattern explanation",
+      "review": "text/OCR plus full-page visual",
+      "principles": [],
+      "note": "Compare opening angle and proximity to reduce precision demands in constrained practice."
+    },
+    {
+      "page": 9,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "impact-state",
+        "draw-survival"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 10. Maintain the useful side of a pocket line and enough spin at contact."
+    },
+    {
+      "page": 10,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "impact-state",
+        "draw-survival"
+      ],
+      "note": "Maintain the useful side of a pocket line and enough spin at contact."
+    },
+    {
+      "page": 11,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "deliberate-crossing"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 12. Distinguish deliberately crossing a reference line from approaching on its useful side."
+    },
+    {
+      "page": 12,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "deliberate-crossing"
+      ],
+      "note": "Distinguish deliberately crossing a reference line from approaching on its useful side."
+    },
+    {
+      "page": 13,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 14. Create a chain of modest angles rather than isolated easy pots."
+    },
+    {
+      "page": 14,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Create a chain of modest angles rather than isolated easy pots."
+    },
+    {
+      "page": 15,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "deliberate-crossing",
+        "low-not-draw",
+        "kill-control"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 16. Combine deliberate line crossing with controlled hold shots."
+    },
+    {
+      "page": 16,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "deliberate-crossing",
+        "low-not-draw",
+        "kill-control"
+      ],
+      "note": "Combine deliberate line crossing with controlled hold shots."
+    },
+    {
+      "page": 17,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "small-angle",
+        "low-not-draw",
+        "kill-control"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 18. Use small angles and near-line leaves to connect alternative routes."
+    },
+    {
+      "page": 18,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "small-angle",
+        "low-not-draw",
+        "kill-control"
+      ],
+      "note": "Use small angles and near-line leaves to connect alternative routes."
+    },
+    {
+      "page": 19,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "deliberate-crossing",
+        "small-angle",
+        "follow-angle"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 20. Plan sequential reference-line relationships rather than only the next position."
+    },
+    {
+      "page": 20,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "deliberate-crossing",
+        "small-angle",
+        "follow-angle"
+      ],
+      "note": "Plan sequential reference-line relationships rather than only the next position."
+    },
+    {
+      "page": 21,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "travel-angle"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 22. Create sufficient angle for transfers requiring substantial cue-ball travel."
+    },
+    {
+      "page": 22,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "travel-angle"
+      ],
+      "note": "Create sufficient angle for transfers requiring substantial cue-ball travel."
+    },
+    {
+      "page": 23,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "restricted-pockets"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 24. Work from limited pocket access and preserve the next useful side."
+    },
+    {
+      "page": 24,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "restricted-pockets"
+      ],
+      "note": "Work from limited pocket access and preserve the next useful side."
+    },
+    {
+      "page": 25,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "region-not-dot",
+        "along-window",
+        "short-side",
+        "long-side",
+        "cushion-window"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 26. Compare the stopping tolerance of direct and cushion-assisted approaches."
+    },
+    {
+      "page": 26,
+      "kind": "pattern explanation",
+      "review": "text/OCR plus full-page visual",
+      "principles": [
+        "region-not-dot",
+        "along-window",
+        "short-side",
+        "long-side",
+        "cushion-window"
+      ],
+      "note": "Compare the stopping tolerance of direct and cushion-assisted approaches."
+    },
+    {
+      "page": 27,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "contact-thickness",
+        "region-not-dot",
+        "cushion-window"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 28. Evaluate landing tolerance alongside contact thickness and blocker clearance."
+    },
+    {
+      "page": 28,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "contact-thickness",
+        "region-not-dot",
+        "cushion-window"
+      ],
+      "note": "Evaluate landing tolerance alongside contact thickness and blocker clearance."
+    },
+    {
+      "page": 29,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "angle-before-force"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 30. An earlier leave can reduce later power requirements."
+    },
+    {
+      "page": 30,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "angle-before-force"
+      ],
+      "note": "An earlier leave can reduce later power requirements."
+    },
+    {
+      "page": 31,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "short-side"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 32. Choose an approach whose short outcomes still preserve an angle."
+    },
+    {
+      "page": 32,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "short-side"
+      ],
+      "note": "Choose an approach whose short outcomes still preserve an angle."
+    },
+    {
+      "page": 33,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "stroke-room"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 34. Preserve both the useful line side and cueing space away from a cushion."
+    },
+    {
+      "page": 34,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "stroke-room"
+      ],
+      "note": "Preserve both the useful line side and cueing space away from a cushion."
+    },
+    {
+      "page": 35,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "transition-first",
+        "continuation-angle"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 36. A makeable next ball is insufficient without its continuation angle."
+    },
+    {
+      "page": 36,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "transition-first",
+        "continuation-angle"
+      ],
+      "note": "A makeable next ball is insufficient without its continuation angle."
+    },
+    {
+      "page": 37,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "rail-target"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 38. Compare a narrow draw landing with a cushion-target alternative."
+    },
+    {
+      "page": 38,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "rail-target"
+      ],
+      "note": "Compare a narrow draw landing with a cushion-target alternative."
+    },
+    {
+      "page": 39,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "angle-before-force",
+        "running-spin"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 40. An appropriate angle and running spin can enable a controlled longer transfer."
+    },
+    {
+      "page": 40,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "angle-before-force",
+        "running-spin"
+      ],
+      "note": "An appropriate angle and running spin can enable a controlled longer transfer."
+    },
+    {
+      "page": 41,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "conditional-recovery"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 42. Recognize danger boundaries and alternate recovery strokes for short leaves."
+    },
+    {
+      "page": 42,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "conditional-recovery"
+      ],
+      "note": "Recognize danger boundaries and alternate recovery strokes for short leaves."
+    },
+    {
+      "page": 43,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "contact-thickness"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 44. Contact thickness changes cue-ball route and travel distance together."
+    },
+    {
+      "page": 44,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "contact-thickness"
+      ],
+      "note": "Contact thickness changes cue-ball route and travel distance together."
+    },
+    {
+      "page": 45,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "running-spin"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 46. Use a feasible alternative angle when blockers prevent the ideal approach."
+    },
+    {
+      "page": 46,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "running-spin"
+      ],
+      "note": "Use a feasible alternative angle when blockers prevent the ideal approach."
+    },
+    {
+      "page": 47,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "impact-state",
+        "stun-reference"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 48. Compare sliding departure with a modified impact state to establish the next angle."
+    },
+    {
+      "page": 48,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "impact-state",
+        "stun-reference"
+      ],
+      "note": "Compare sliding departure with a modified impact state to establish the next angle."
+    },
+    {
+      "page": 49,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "angle-before-force"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 50. A cushion-adjacent approach can simplify movement when the subsequent stroke permits it."
+    },
+    {
+      "page": 50,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "angle-before-force"
+      ],
+      "note": "A cushion-adjacent approach can simplify movement when the subsequent stroke permits it."
+    },
+    {
+      "page": 51,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "angle-before-force"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 52. More suitable angle can replace forced position with controlled travel."
+    },
+    {
+      "page": 52,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "angle-before-force"
+      ],
+      "note": "More suitable angle can replace forced position with controlled travel."
+    },
+    {
+      "page": 53,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "multi-rail-options"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 54. Retain multi-rail alternatives when an open table permits them."
+    },
+    {
+      "page": 54,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "multi-rail-options"
+      ],
+      "note": "Retain multi-rail alternatives when an open table permits them."
+    },
+    {
+      "page": 55,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "speed-sensitive-count",
+        "short-local"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 56. A short local move can replace a delicate longer roll."
+    },
+    {
+      "page": 56,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "speed-sensitive-count",
+        "short-local"
+      ],
+      "note": "A short local move can replace a delicate longer roll."
+    },
+    {
+      "page": 57,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "travel-angle",
+        "rail-target"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 58. Plan the opening transfer with its intermediate cushion target and later continuation."
+    },
+    {
+      "page": 58,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "travel-angle",
+        "rail-target"
+      ],
+      "note": "Plan the opening transfer with its intermediate cushion target and later continuation."
+    },
+    {
+      "page": 59,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "reference-line",
+        "long-side",
+        "conditional-recovery"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 60. Select the useful line side before shooting and keep a recovery for excessive travel."
+    },
+    {
+      "page": 60,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "reference-line",
+        "long-side",
+        "conditional-recovery"
+      ],
+      "note": "Select the useful line side before shooting and keep a recovery for excessive travel."
+    },
+    {
+      "page": 61,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 62. Repeated cushion-assisted transfers can preserve useful approach angles."
+    },
+    {
+      "page": 62,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Repeated cushion-assisted transfers can preserve useful approach angles."
+    },
+    {
+      "page": 63,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 64. Maintain orientation-specific line relationships through successive shots."
+    },
+    {
+      "page": 64,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Maintain orientation-specific line relationships through successive shots."
+    },
+    {
+      "page": 65,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "cushion-window"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 66. A cushion return can establish the necessary side of the following pocket line."
+    },
+    {
+      "page": 66,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "cushion-window"
+      ],
+      "note": "A cushion return can establish the necessary side of the following pocket line."
+    },
+    {
+      "page": 67,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "stun-reference"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 68. Use departure geometry to connect a planned cushion contact to the next angle."
+    },
+    {
+      "page": 68,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "stun-reference"
+      ],
+      "note": "Use departure geometry to connect a planned cushion contact to the next angle."
+    },
+    {
+      "page": 69,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "restricted-pockets"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 70. Limited pocket access constrains the preceding shot's leave."
+    },
+    {
+      "page": 70,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "restricted-pockets"
+      ],
+      "note": "Limited pocket access constrains the preceding shot's leave."
+    },
+    {
+      "page": 71,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 72. Connect natural departure angles with controlled strokes."
+    },
+    {
+      "page": 72,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Connect natural departure angles with controlled strokes."
+    },
+    {
+      "page": 73,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "transition-first",
+        "region-not-dot",
+        "along-window"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 74. Work backward from a later transition and approach its region along a useful direction."
+    },
+    {
+      "page": 74,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "transition-first",
+        "region-not-dot",
+        "along-window"
+      ],
+      "note": "Work backward from a later transition and approach its region along a useful direction."
+    },
+    {
+      "page": 75,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 76. Use an opening cushion route to establish a controlled subsequent departure."
+    },
+    {
+      "page": 76,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Use an opening cushion route to establish a controlled subsequent departure."
+    },
+    {
+      "page": 77,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "running-spin"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 78. Suitable angle and side spin can reduce the stroke needed for a long transfer."
+    },
+    {
+      "page": 78,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "running-spin"
+      ],
+      "note": "Suitable angle and side spin can reduce the stroke needed for a long transfer."
+    },
+    {
+      "page": 79,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "cushion-window"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 80. Compare an end-cushion return with a precise short forward crossing."
+    },
+    {
+      "page": 80,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "cushion-window"
+      ],
+      "note": "Compare an end-cushion return with a precise short forward crossing."
+    },
+    {
+      "page": 81,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "restricted-pockets"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 82. A restricted pocket creates a multi-shot dependency chain."
+    },
+    {
+      "page": 82,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "restricted-pockets"
+      ],
+      "note": "A restricted pocket creates a multi-shot dependency chain."
+    },
+    {
+      "page": 83,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "position-problem",
+        "continuation-angle",
+        "angle-before-force"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 84. An easier next pot can produce a harder following transfer."
+    },
+    {
+      "page": 84,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "position-problem",
+        "continuation-angle",
+        "angle-before-force"
+      ],
+      "note": "An easier next pot can produce a harder following transfer."
+    },
+    {
+      "page": 85,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "travel-angle",
+        "multi-rail-options"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 86. Plan the angle needed for an end-to-end transfer several shots in advance."
+    },
+    {
+      "page": 86,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "travel-angle",
+        "multi-rail-options"
+      ],
+      "note": "Plan the angle needed for an end-to-end transfer several shots in advance."
+    },
+    {
+      "page": 87,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "multi-rail-options"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 88. A wider route can outperform a narrow direct position attempt."
+    },
+    {
+      "page": 88,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "multi-rail-options"
+      ],
+      "note": "A wider route can outperform a narrow direct position attempt."
+    },
+    {
+      "page": 89,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "position-problem",
+        "running-spin"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 90. A hanging ball can still be the principal position problem."
+    },
+    {
+      "page": 90,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "position-problem",
+        "running-spin"
+      ],
+      "note": "A hanging ball can still be the principal position problem."
+    },
+    {
+      "page": 91,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "conditional-recovery"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 92. Choose an approach that lowers execution demands and adjust for changed angles."
+    },
+    {
+      "page": 92,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "conditional-recovery"
+      ],
+      "note": "Choose an approach that lowers execution demands and adjust for changed angles."
+    },
+    {
+      "page": 93,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "travel-angle"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 94. Prioritize a later high-angle leave before selecting earlier position shots."
+    },
+    {
+      "page": 94,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "travel-angle"
+      ],
+      "note": "Prioritize a later high-angle leave before selecting earlier position shots."
+    },
+    {
+      "page": 95,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "multi-rail-options"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 96. Create enough angle to clear a nearby object ball without unwanted contact."
+    },
+    {
+      "page": 96,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "multi-rail-options"
+      ],
+      "note": "Create enough angle to clear a nearby object ball without unwanted contact."
+    },
+    {
+      "page": 97,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "small-angle",
+        "spin-angle-trim"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 98. Small rebound adjustments can establish the next useful angle."
+    },
+    {
+      "page": 98,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "small-angle",
+        "spin-angle-trim"
+      ],
+      "note": "Small rebound adjustments can establish the next useful angle."
+    },
+    {
+      "page": 99,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "along-window"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 100. Approaching along the useful angle is a candidate-selection preference."
+    },
+    {
+      "page": 100,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "along-window"
+      ],
+      "note": "Approaching along the useful angle is a candidate-selection preference."
+    },
+    {
+      "page": 101,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "transition-first"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 102. An apparently late problem can determine earlier approach regions."
+    },
+    {
+      "page": 102,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "transition-first"
+      ],
+      "note": "An apparently late problem can determine earlier approach regions."
+    },
+    {
+      "page": 103,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 104. Include a narrow inter-ball corridor in the preceding angle decision."
+    },
+    {
+      "page": 104,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Include a narrow inter-ball corridor in the preceding angle decision."
+    },
+    {
+      "page": 105,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "small-draw"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 106. Near-line position followed by a small draw can unlock a constrained transfer."
+    },
+    {
+      "page": 106,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "small-draw"
+      ],
+      "note": "Near-line position followed by a small draw can unlock a constrained transfer."
+    },
+    {
+      "page": 107,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "region-not-dot",
+        "along-window",
+        "cushion-window",
+        "pocket-switch"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 108. Changing the intended pocket can enlarge the usable position window."
+    },
+    {
+      "page": 108,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "region-not-dot",
+        "along-window",
+        "cushion-window",
+        "pocket-switch"
+      ],
+      "note": "Changing the intended pocket can enlarge the usable position window."
+    },
+    {
+      "page": 109,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "rail-target"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 110. An intermediate cushion-contact region supports a later high-angle leave."
+    },
+    {
+      "page": 110,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "rail-target"
+      ],
+      "note": "An intermediate cushion-contact region supports a later high-angle leave."
+    },
+    {
+      "page": 111,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "continuation-angle"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 112. Track separate early and late transition constraints."
+    },
+    {
+      "page": 112,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "continuation-angle"
+      ],
+      "note": "Track separate early and late transition constraints."
+    },
+    {
+      "page": 113,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "multi-rail-options"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 114. Evaluate a chain of multi-rail approaches instead of dismissing longer routes."
+    },
+    {
+      "page": 114,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "multi-rail-options"
+      ],
+      "note": "Evaluate a chain of multi-rail approaches instead of dismissing longer routes."
+    },
+    {
+      "page": 115,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "short-side"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 116. An underhit leave can flatten a later angle; compare a different cushion route."
+    },
+    {
+      "page": 116,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "short-side"
+      ],
+      "note": "An underhit leave can flatten a later angle; compare a different cushion route."
+    },
+    {
+      "page": 117,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "follow-angle"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 118. Create line crossing deliberately while preserving a natural following transfer."
+    },
+    {
+      "page": 118,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "follow-angle"
+      ],
+      "note": "Create line crossing deliberately while preserving a natural following transfer."
+    },
+    {
+      "page": 119,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "travel-angle"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 120. A difficult opening transfer can unlock an otherwise connected sequence."
+    },
+    {
+      "page": 120,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "travel-angle"
+      ],
+      "note": "A difficult opening transfer can unlock an otherwise connected sequence."
+    },
+    {
+      "page": 121,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "long-side",
+        "spin-overrun"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 122. Too much running spin can overshoot the useful angle."
+    },
+    {
+      "page": 122,
+      "kind": "pattern explanation",
+      "review": "text/OCR plus full-page visual",
+      "principles": [
+        "long-side",
+        "spin-overrun"
+      ],
+      "note": "Too much running spin can overshoot the useful angle."
+    },
+    {
+      "page": 123,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "multiple-bottlenecks"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 124. Plan for two distinct positional bottlenecks in one run."
+    },
+    {
+      "page": 124,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "multiple-bottlenecks"
+      ],
+      "note": "Plan for two distinct positional bottlenecks in one run."
+    },
+    {
+      "page": 125,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "rail-target"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 126. Cushion approach and modest spin adjustment establish successive useful line sides."
+    },
+    {
+      "page": 126,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "rail-target"
+      ],
+      "note": "Cushion approach and modest spin adjustment establish successive useful line sides."
+    },
+    {
+      "page": 127,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 128. Controlled local movement can set up a later larger transfer."
+    },
+    {
+      "page": 128,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Controlled local movement can set up a later larger transfer."
+    },
+    {
+      "page": 129,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "angle-before-force"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 130. Compare angles by the power and precision demanded on the next shot."
+    },
+    {
+      "page": 130,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "angle-before-force"
+      ],
+      "note": "Compare angles by the power and precision demanded on the next shot."
+    },
+    {
+      "page": 131,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "multiple-bottlenecks"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 132. Use near-line draw and deliberate side selection to address multiple constraints."
+    },
+    {
+      "page": 132,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "multiple-bottlenecks"
+      ],
+      "note": "Use near-line draw and deliberate side selection to address multiple constraints."
+    },
+    {
+      "page": 133,
+      "kind": "defensive diagram interlude",
+      "review": "text/OCR plus full-page visual",
+      "principles": [
+        "dual-ball-control",
+        "separate-objective"
+      ],
+      "note": "Visual comparison of cue-ball and target-ball separation; no detailed prose explanation supplied."
+    },
+    {
+      "page": 134,
+      "kind": "defensive diagram interlude",
+      "review": "text/OCR plus full-page visual",
+      "principles": [
+        "dual-ball-control",
+        "separate-objective"
+      ],
+      "note": "Visual comparison of cue-ball and target-ball separation; no detailed prose explanation supplied."
+    },
+    {
+      "page": 135,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "continuation-angle",
+        "pocket-switch"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 136. Choose the next pocket for continuation quality rather than convenience alone."
+    },
+    {
+      "page": 136,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "continuation-angle",
+        "pocket-switch"
+      ],
+      "note": "Choose the next pocket for continuation quality rather than convenience alone."
+    },
+    {
+      "page": 137,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "short-side"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 138. Compare opening pockets by the quality of short position outcomes."
+    },
+    {
+      "page": 138,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "short-side"
+      ],
+      "note": "Compare opening pockets by the quality of short position outcomes."
+    },
+    {
+      "page": 139,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "reference-line"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 140. Establish a useful reference-line side before a longer transfer."
+    },
+    {
+      "page": 140,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "reference-line"
+      ],
+      "note": "Establish a useful reference-line side before a longer transfer."
+    },
+    {
+      "page": 141,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 142. Preserve several successive line-side dependencies."
+    },
+    {
+      "page": 142,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Preserve several successive line-side dependencies."
+    },
+    {
+      "page": 143,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "deliberate-crossing"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 144. Identify the opening bottleneck and a deliberate later line crossing."
+    },
+    {
+      "page": 144,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "deliberate-crossing"
+      ],
+      "note": "Identify the opening bottleneck and a deliberate later line crossing."
+    },
+    {
+      "page": 145,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "reference-line"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 146. Connect multiple angle dependencies rather than planning one leave at a time."
+    },
+    {
+      "page": 146,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "reference-line"
+      ],
+      "note": "Connect multiple angle dependencies rather than planning one leave at a time."
+    },
+    {
+      "page": 147,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "multiple-bottlenecks"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 148. Separate two bottlenecks and route around an obstacle between them."
+    },
+    {
+      "page": 148,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "multiple-bottlenecks"
+      ],
+      "note": "Separate two bottlenecks and route around an obstacle between them."
+    },
+    {
+      "page": 149,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "transition-first",
+        "backward-dependencies"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 150. Determine a later approach region before selecting the opening route."
+    },
+    {
+      "page": 150,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "transition-first",
+        "backward-dependencies"
+      ],
+      "note": "Determine a later approach region before selecting the opening route."
+    },
+    {
+      "page": 151,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 152. Compare distance, blockers and next-shot quality together."
+    },
+    {
+      "page": 152,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Compare distance, blockers and next-shot quality together."
+    },
+    {
+      "page": 153,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "transition-first"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 154. A key middle transfer determines earlier angle requirements."
+    },
+    {
+      "page": 154,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "transition-first"
+      ],
+      "note": "A key middle transfer determines earlier angle requirements."
+    },
+    {
+      "page": 155,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "multiple-bottlenecks"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 156. Near-neighbor balls constrain access while a later finish creates another dependency."
+    },
+    {
+      "page": 156,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "multiple-bottlenecks"
+      ],
+      "note": "Near-neighbor balls constrain access while a later finish creates another dependency."
+    },
+    {
+      "page": 157,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "stop-link"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 158. A stop shot can preserve the next angle without additional travel."
+    },
+    {
+      "page": 158,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "stop-link"
+      ],
+      "note": "A stop shot can preserve the next angle without additional travel."
+    },
+    {
+      "page": 159,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "draw-survival"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 160. Compare draw-dependent rebound with an alternative approach direction."
+    },
+    {
+      "page": 160,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "draw-survival"
+      ],
+      "note": "Compare draw-dependent rebound with an alternative approach direction."
+    },
+    {
+      "page": 161,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "preserve-side",
+        "pocket-switch",
+        "conditional-recovery"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 162. Adapt pocket choice when the actual leave differs from the preferred angle."
+    },
+    {
+      "page": 162,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "preserve-side",
+        "pocket-switch",
+        "conditional-recovery"
+      ],
+      "note": "Adapt pocket choice when the actual leave differs from the preferred angle."
+    },
+    {
+      "page": 163,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 164. A visually awkward cut can increase position precision demands."
+    },
+    {
+      "page": 164,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "A visually awkward cut can increase position precision demands."
+    },
+    {
+      "page": 165,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "key-not-nearest"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 166. The ball nearest the winner is not necessarily a usable final predecessor."
+    },
+    {
+      "page": 166,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "key-not-nearest"
+      ],
+      "note": "The ball nearest the winner is not necessarily a usable final predecessor."
+    },
+    {
+      "page": 167,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "key-not-nearest"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 168. Do not preserve the nearest ball automatically when another finish connects better."
+    },
+    {
+      "page": 168,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "key-not-nearest"
+      ],
+      "note": "Do not preserve the nearest ball automatically when another finish connects better."
+    },
+    {
+      "page": 169,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "stun-reference"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 170. Stop and stun can form a simple connected finish."
+    },
+    {
+      "page": 170,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "stun-reference"
+      ],
+      "note": "Stop and stun can form a simple connected finish."
+    },
+    {
+      "page": 171,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "stroke-room"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 172. Leave cueing clearance when the following shot requires low contact."
+    },
+    {
+      "page": 172,
+      "kind": "pattern explanation",
+      "review": "text/OCR plus full-page visual",
+      "principles": [
+        "stroke-room"
+      ],
+      "note": "Leave cueing clearance when the following shot requires low contact."
+    },
+    {
+      "page": 173,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "backward-dependencies",
+        "finish-first"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 174. Plan the final transition before committing to the first ball."
+    },
+    {
+      "page": 174,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "backward-dependencies",
+        "finish-first"
+      ],
+      "note": "Plan the final transition before committing to the first ball."
+    },
+    {
+      "page": 175,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "restricted-pockets",
+        "speed-sensitive-count",
+        "finish-first"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 176. A restricted winning-ball pocket governs predecessor selection."
+    },
+    {
+      "page": 176,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "restricted-pockets",
+        "speed-sensitive-count",
+        "finish-first"
+      ],
+      "note": "A restricted winning-ball pocket governs predecessor selection."
+    },
+    {
+      "page": 177,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "low-not-draw"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 178. Resolve restricted balls while creating the angle for a later substantial transfer."
+    },
+    {
+      "page": 178,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "low-not-draw"
+      ],
+      "note": "Resolve restricted balls while creating the angle for a later substantial transfer."
+    },
+    {
+      "page": 179,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "rail-target"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 180. Use a specific cushion approach to navigate a restricted ball near opponents."
+    },
+    {
+      "page": 180,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "rail-target"
+      ],
+      "note": "Use a specific cushion approach to navigate a restricted ball near opponents."
+    },
+    {
+      "page": 181,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "short-side"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 182. Compare order and pocket choices by recovery from a short leave."
+    },
+    {
+      "page": 182,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "short-side"
+      ],
+      "note": "Compare order and pocket choices by recovery from a short leave."
+    },
+    {
+      "page": 183,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 184. Address multiple restrictions while preserving winning-ball access."
+    },
+    {
+      "page": 184,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Address multiple restrictions while preserving winning-ball access."
+    },
+    {
+      "page": 185,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "kill-control"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 186. Controlled hold position can link a restricted ball to the finish."
+    },
+    {
+      "page": 186,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "kill-control"
+      ],
+      "note": "Controlled hold position can link a restricted ball to the finish."
+    },
+    {
+      "page": 187,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "early-problem"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 188. Use a current access opportunity before a ball becomes a run stopper."
+    },
+    {
+      "page": 188,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "early-problem"
+      ],
+      "note": "Use a current access opportunity before a ball becomes a run stopper."
+    },
+    {
+      "page": 189,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 190. Resolve an early restriction without losing the route to the winner."
+    },
+    {
+      "page": 190,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Resolve an early restriction without losing the route to the winner."
+    },
+    {
+      "page": 191,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "intentional-straight",
+        "stop-link"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 192. Intentional straight position can establish the following useful angle."
+    },
+    {
+      "page": 192,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "intentional-straight",
+        "stop-link"
+      ],
+      "note": "Intentional straight position can establish the following useful angle."
+    },
+    {
+      "page": 193,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "open-is-not-easy",
+        "order-dependencies"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 194. Open balls still require a connected order."
+    },
+    {
+      "page": 194,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "open-is-not-easy",
+        "order-dependencies"
+      ],
+      "note": "Open balls still require a connected order."
+    },
+    {
+      "page": 195,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "short-local",
+        "small-draw",
+        "sequence-economy"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 196. Prefer a compact chain when it preserves the necessary angles."
+    },
+    {
+      "page": 196,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "short-local",
+        "small-draw",
+        "sequence-economy"
+      ],
+      "note": "Prefer a compact chain when it preserves the necessary angles."
+    },
+    {
+      "page": 197,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "position-problem",
+        "key-not-nearest"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 198. Select a reachable key ball rather than a superficially convenient one."
+    },
+    {
+      "page": 198,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "position-problem",
+        "key-not-nearest"
+      ],
+      "note": "Select a reachable key ball rather than a superficially convenient one."
+    },
+    {
+      "page": 199,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "delayed-problem"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 200. A restricted ball can appropriately serve as the final predecessor."
+    },
+    {
+      "page": 200,
+      "kind": "pattern explanation",
+      "review": "text/OCR plus full-page visual",
+      "principles": [
+        "delayed-problem"
+      ],
+      "note": "A restricted ball can appropriately serve as the final predecessor."
+    },
+    {
+      "page": 201,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "open-is-not-easy"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 202. Create a later high angle through simple earlier links."
+    },
+    {
+      "page": 202,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "open-is-not-easy"
+      ],
+      "note": "Create a later high angle through simple earlier links."
+    },
+    {
+      "page": 203,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 204. Cushion proximity can enable a controlled lateral move to the winner."
+    },
+    {
+      "page": 204,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Cushion proximity can enable a controlled lateral move to the winner."
+    },
+    {
+      "page": 205,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "backward-dependencies",
+        "finish-first"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 206. Choose the final predecessor by its useful exit and reachable entry."
+    },
+    {
+      "page": 206,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "backward-dependencies",
+        "finish-first"
+      ],
+      "note": "Choose the final predecessor by its useful exit and reachable entry."
+    },
+    {
+      "page": 207,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "early-problem"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 208. Address balls before their available approaches deteriorate."
+    },
+    {
+      "page": 208,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "early-problem"
+      ],
+      "note": "Address balls before their available approaches deteriorate."
+    },
+    {
+      "page": 209,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 210. Resolve an early restriction while protecting later line-side requirements."
+    },
+    {
+      "page": 210,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Resolve an early restriction while protecting later line-side requirements."
+    },
+    {
+      "page": 211,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "intentional-straight",
+        "conditional-recovery"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 212. Preserve both straight-stop and angled-cushion recovery options."
+    },
+    {
+      "page": 212,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "intentional-straight",
+        "conditional-recovery"
+      ],
+      "note": "Preserve both straight-stop and angled-cushion recovery options."
+    },
+    {
+      "page": 213,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "restricted-pockets"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 214. Restricted winning-ball access requires a suitable final predecessor angle."
+    },
+    {
+      "page": 214,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "restricted-pockets"
+      ],
+      "note": "Restricted winning-ball access requires a suitable final predecessor angle."
+    },
+    {
+      "page": 215,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "finish-first"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 216. Choose a key ball and the side of its pocket line together."
+    },
+    {
+      "page": 216,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "finish-first"
+      ],
+      "note": "Choose a key ball and the side of its pocket line together."
+    },
+    {
+      "page": 217,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "open-is-not-easy",
+        "order-dependencies",
+        "opponent-obstacles"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 218. Opponent balls can complicate an otherwise open layout."
+    },
+    {
+      "page": 218,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "open-is-not-easy",
+        "order-dependencies",
+        "opponent-obstacles"
+      ],
+      "note": "Opponent balls can complicate an otherwise open layout."
+    },
+    {
+      "page": 219,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 220. Resolve connected problem areas through a deliberate order."
+    },
+    {
+      "page": 220,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Resolve connected problem areas through a deliberate order."
+    },
+    {
+      "page": 221,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "stroke-room"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 222. Keep cueing room for a draw-dependent next shot."
+    },
+    {
+      "page": 222,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "stroke-room"
+      ],
+      "note": "Keep cueing room for a draw-dependent next shot."
+    },
+    {
+      "page": 223,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "opponent-obstacles"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 224. Plan open balls around remaining opponent-ball obstacles."
+    },
+    {
+      "page": 224,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "opponent-obstacles"
+      ],
+      "note": "Plan open balls around remaining opponent-ball obstacles."
+    },
+    {
+      "page": 225,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "kill-control"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 226. A controlled hold shot can preserve an existing useful angle."
+    },
+    {
+      "page": 226,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "kill-control"
+      ],
+      "note": "A controlled hold shot can preserve an existing useful angle."
+    },
+    {
+      "page": 227,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 228. Preserve a key-ball approach through preceding cushion transfers."
+    },
+    {
+      "page": 228,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Preserve a key-ball approach through preceding cushion transfers."
+    },
+    {
+      "page": 229,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "backward-dependencies",
+        "finish-first"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 230. The angle on the key ball matters as much as its identity."
+    },
+    {
+      "page": 230,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "backward-dependencies",
+        "finish-first"
+      ],
+      "note": "The angle on the key ball matters as much as its identity."
+    },
+    {
+      "page": 231,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "key-not-nearest",
+        "opponent-obstacles"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 232. Compare plausible key balls rather than accept the obvious-looking one."
+    },
+    {
+      "page": 232,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "key-not-nearest",
+        "opponent-obstacles"
+      ],
+      "note": "Compare plausible key balls rather than accept the obvious-looking one."
+    },
+    {
+      "page": 233,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 234. Find a workable finishing connection before optimizing early order."
+    },
+    {
+      "page": 234,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Find a workable finishing connection before optimizing early order."
+    },
+    {
+      "page": 235,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 236. Several restricted balls and the winning ball create competing dependencies."
+    },
+    {
+      "page": 236,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Several restricted balls and the winning ball create competing dependencies."
+    },
+    {
+      "page": 237,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "delayed-problem"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 238. A preparatory linking shot can be better than shooting the problem ball immediately."
+    },
+    {
+      "page": 238,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "delayed-problem"
+      ],
+      "note": "A preparatory linking shot can be better than shooting the problem ball immediately."
+    },
+    {
+      "page": 239,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "key-not-nearest"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 240. Reject a last-ball candidate with no practical exit to the winner."
+    },
+    {
+      "page": 240,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "key-not-nearest"
+      ],
+      "note": "Reject a last-ball candidate with no practical exit to the winner."
+    },
+    {
+      "page": 241,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "key-not-nearest"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 242. An exacting finish can justify using a different ball order."
+    },
+    {
+      "page": 242,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "key-not-nearest"
+      ],
+      "note": "An exacting finish can justify using a different ball order."
+    },
+    {
+      "page": 243,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "controlled-cannon"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 244. Conditional secondary contact can be considered for a changed leave."
+    },
+    {
+      "page": 244,
+      "kind": "pattern explanation",
+      "review": "text/OCR plus full-page visual",
+      "principles": [
+        "controlled-cannon"
+      ],
+      "note": "Conditional secondary contact can be considered for a changed leave."
+    },
+    {
+      "page": 245,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 246. An open group can conceal difficult access to the winning ball."
+    },
+    {
+      "page": 246,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "An open group can conceal difficult access to the winning ball."
+    },
+    {
+      "page": 247,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 248. Resolve multiple restrictions while retaining an end-to-end connection."
+    },
+    {
+      "page": 248,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Resolve multiple restrictions while retaining an end-to-end connection."
+    },
+    {
+      "page": 249,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "early-problem"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 250. Use an available early approach to a problem ball and preserve later access."
+    },
+    {
+      "page": 250,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "early-problem"
+      ],
+      "note": "Use an available early approach to a problem ball and preserve later access."
+    },
+    {
+      "page": 251,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 252. A relatively flat angle may be intentional when the continuation uses draw."
+    },
+    {
+      "page": 252,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "A relatively flat angle may be intentional when the continuation uses draw."
+    },
+    {
+      "page": 253,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "finish-first"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 254. Compare complete orders for a workable final predecessor."
+    },
+    {
+      "page": 254,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "finish-first"
+      ],
+      "note": "Compare complete orders for a workable final predecessor."
+    },
+    {
+      "page": 255,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "multi-rail-options"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 256. Long cushion routes remain candidates when supported by the needed angles."
+    },
+    {
+      "page": 256,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "multi-rail-options"
+      ],
+      "note": "Long cushion routes remain candidates when supported by the needed angles."
+    },
+    {
+      "page": 257,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "short-local",
+        "small-draw",
+        "sequence-economy"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 258. Small local moves can maintain a connected sequence through open balls."
+    },
+    {
+      "page": 258,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "short-local",
+        "small-draw",
+        "sequence-economy"
+      ],
+      "note": "Small local moves can maintain a connected sequence through open balls."
+    },
+    {
+      "page": 259,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 260. Resolve an early restricted ball while preserving successive angle relationships."
+    },
+    {
+      "page": 260,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Resolve an early restricted ball while preserving successive angle relationships."
+    },
+    {
+      "page": 261,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "reverse-control"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 262. Side spin can check speed and change rebound direction together."
+    },
+    {
+      "page": 262,
+      "kind": "pattern explanation",
+      "review": "text/OCR plus full-page visual",
+      "principles": [
+        "reverse-control"
+      ],
+      "note": "Side spin can check speed and change rebound direction together."
+    },
+    {
+      "page": 263,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 264. Work around several restrictions by preserving connecting angles."
+    },
+    {
+      "page": 264,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Work around several restrictions by preserving connecting angles."
+    },
+    {
+      "page": 265,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "delayed-problem"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 266. A problem ball need not be removed first when it forms a good finish."
+    },
+    {
+      "page": 266,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "delayed-problem"
+      ],
+      "note": "A problem ball need not be removed first when it forms a good finish."
+    },
+    {
+      "page": 267,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 268. A stop shot can simplify a chain containing several restricted balls."
+    },
+    {
+      "page": 268,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "A stop shot can simplify a chain containing several restricted balls."
+    },
+    {
+      "page": 269,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "open-is-not-easy"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 270. Open balls still benefit from deliberate order and return angles."
+    },
+    {
+      "page": 270,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "open-is-not-easy"
+      ],
+      "note": "Open balls still benefit from deliberate order and return angles."
+    },
+    {
+      "page": 271,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "early-problem"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 272. Prioritize restricted access while keeping two later transfers reachable."
+    },
+    {
+      "page": 272,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "early-problem"
+      ],
+      "note": "Prioritize restricted access while keeping two later transfers reachable."
+    },
+    {
+      "page": 273,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "follow-angle"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 274. Near-line position can connect simple strokes to a larger finishing transfer."
+    },
+    {
+      "page": 274,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "follow-angle"
+      ],
+      "note": "Near-line position can connect simple strokes to a larger finishing transfer."
+    },
+    {
+      "page": 275,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "preserve-side"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 276. Avoid crossing a useful boundary while linking an early problem to the finish."
+    },
+    {
+      "page": 276,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "preserve-side"
+      ],
+      "note": "Avoid crossing a useful boundary while linking an early problem to the finish."
+    },
+    {
+      "page": 277,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "long-side",
+        "spin-overrun"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 278. Omitting unnecessary running spin can prevent excessive rebound travel."
+    },
+    {
+      "page": 278,
+      "kind": "pattern explanation",
+      "review": "text/OCR plus full-page visual",
+      "principles": [
+        "long-side",
+        "spin-overrun"
+      ],
+      "note": "Omitting unnecessary running spin can prevent excessive rebound travel."
+    },
+    {
+      "page": 279,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 280. Use a stop shot to preserve the next useful departure."
+    },
+    {
+      "page": 280,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Use a stop shot to preserve the next useful departure."
+    },
+    {
+      "page": 281,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "order-dependencies",
+        "delayed-problem"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 282. Shooting every problem ball immediately can damage the remaining connections."
+    },
+    {
+      "page": 282,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "order-dependencies",
+        "delayed-problem"
+      ],
+      "note": "Shooting every problem ball immediately can damage the remaining connections."
+    },
+    {
+      "page": 283,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "intentional-straight",
+        "conditional-recovery"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 284. Plan different continuations for near-line and angled leaves."
+    },
+    {
+      "page": 284,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "intentional-straight",
+        "conditional-recovery"
+      ],
+      "note": "Plan different continuations for near-line and angled leaves."
+    },
+    {
+      "page": 285,
+      "kind": "strategic question",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "opponent-outlook",
+        "separate-objective"
+      ],
+      "note": "Separate legal defence and intentional-foul tie-up choices; penalties and alternatives require explicit evaluation."
+    },
+    {
+      "page": 286,
+      "kind": "strategic answer",
+      "review": "text/OCR plus full-page visual",
+      "principles": [
+        "opponent-outlook",
+        "foul-cost",
+        "separate-objective"
+      ],
+      "note": "Separate legal defence and intentional-foul tie-up choices; penalties and alternatives require explicit evaluation."
+    },
+    {
+      "page": 287,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 288. Short backward and controlled hold moves preserve connecting angles."
+    },
+    {
+      "page": 288,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Short backward and controlled hold moves preserve connecting angles."
+    },
+    {
+      "page": 289,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 290. Resolving one restriction can create the route to the next."
+    },
+    {
+      "page": 290,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Resolving one restriction can create the route to the next."
+    },
+    {
+      "page": 291,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "spin-angle-trim"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 292. Small side spin can straighten the rebound toward a useful reference line."
+    },
+    {
+      "page": 292,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "spin-angle-trim"
+      ],
+      "note": "Small side spin can straighten the rebound toward a useful reference line."
+    },
+    {
+      "page": 293,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 294. Preserve line side while drawing away from an opponent-ball obstruction."
+    },
+    {
+      "page": 294,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Preserve line side while drawing away from an opponent-ball obstruction."
+    },
+    {
+      "page": 295,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "conditional-recovery"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 296. Retain a draw recovery when a preferred angled leave becomes straight."
+    },
+    {
+      "page": 296,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "conditional-recovery"
+      ],
+      "note": "Retain a draw recovery when a preferred angled leave becomes straight."
+    },
+    {
+      "page": 297,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "delayed-problem"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 298. A restricted final predecessor is acceptable when the approach chain supports it."
+    },
+    {
+      "page": 298,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "delayed-problem"
+      ],
+      "note": "A restricted final predecessor is acceptable when the approach chain supports it."
+    },
+    {
+      "page": 299,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "preserve-side"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 300. Avoid line crossing on separate transfers within one sequence."
+    },
+    {
+      "page": 300,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "preserve-side"
+      ],
+      "note": "Avoid line crossing on separate transfers within one sequence."
+    },
+    {
+      "page": 301,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 302. Use earlier open balls to establish access to a later restriction."
+    },
+    {
+      "page": 302,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Use earlier open balls to establish access to a later restriction."
+    },
+    {
+      "page": 303,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 304. Plan both deliberate crossing and cushion separation before a later transfer."
+    },
+    {
+      "page": 304,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Plan both deliberate crossing and cushion separation before a later transfer."
+    },
+    {
+      "page": 305,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "clear-pocket"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 306. Clear an obstruction before trying to use the blocked ball's pocket."
+    },
+    {
+      "page": 306,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "clear-pocket"
+      ],
+      "note": "Clear an obstruction before trying to use the blocked ball's pocket."
+    },
+    {
+      "page": 307,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "short-local",
+        "small-draw"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 308. Small forward and backward moves can build the key-ball approach."
+    },
+    {
+      "page": 308,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "short-local",
+        "small-draw"
+      ],
+      "note": "Small forward and backward moves can build the key-ball approach."
+    },
+    {
+      "page": 309,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "intentional-straight",
+        "stop-link",
+        "sequence-economy"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 310. Multiple stop and hold shots can simplify a connected pattern."
+    },
+    {
+      "page": 310,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "intentional-straight",
+        "stop-link",
+        "sequence-economy"
+      ],
+      "note": "Multiple stop and hold shots can simplify a connected pattern."
+    },
+    {
+      "page": 311,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "order-dependencies"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 312. Prefer orders in which each leave creates the next practical connection."
+    },
+    {
+      "page": 312,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "order-dependencies"
+      ],
+      "note": "Prefer orders in which each leave creates the next practical connection."
+    },
+    {
+      "page": 313,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 314. Resolve early access while preserving a later cushion-assisted finish."
+    },
+    {
+      "page": 314,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Resolve early access while preserving a later cushion-assisted finish."
+    },
+    {
+      "page": 315,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "early-problem"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 316. Use an early opportunity for the restricted ball, then connect the open balls."
+    },
+    {
+      "page": 316,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "early-problem"
+      ],
+      "note": "Use an early opportunity for the restricted ball, then connect the open balls."
+    },
+    {
+      "page": 317,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "small-angle"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 318. Controlled rolling links can establish a useful final angle."
+    },
+    {
+      "page": 318,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "small-angle"
+      ],
+      "note": "Controlled rolling links can establish a useful final angle."
+    },
+    {
+      "page": 319,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "long-side",
+        "spin-overrun",
+        "delayed-problem"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 320. Use a restricted finishing ball while controlling spin-induced overrun."
+    },
+    {
+      "page": 320,
+      "kind": "pattern explanation",
+      "review": "text/OCR plus full-page visual",
+      "principles": [
+        "long-side",
+        "spin-overrun",
+        "delayed-problem"
+      ],
+      "note": "Use a restricted finishing ball while controlling spin-induced overrun."
+    },
+    {
+      "page": 321,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "preserve-side",
+        "follow-angle"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 322. Keep deliberate line-side constraints across several successive transfers."
+    },
+    {
+      "page": 322,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "preserve-side",
+        "follow-angle"
+      ],
+      "note": "Keep deliberate line-side constraints across several successive transfers."
+    },
+    {
+      "page": 323,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "last-pocket-rule"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 324. Same-pocket finishing constraints change the key-ball and winning-ball plan."
+    },
+    {
+      "page": 324,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "last-pocket-rule"
+      ],
+      "note": "Same-pocket finishing constraints change the key-ball and winning-ball plan."
+    },
+    {
+      "page": 325,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 326. Line crossing and near-line leaves establish a last-pocket finish."
+    },
+    {
+      "page": 326,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Line crossing and near-line leaves establish a last-pocket finish."
+    },
+    {
+      "page": 327,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 328. Open balls do not remove the same-pocket finishing dependency."
+    },
+    {
+      "page": 328,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Open balls do not remove the same-pocket finishing dependency."
+    },
+    {
+      "page": 329,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "stop-link",
+        "last-pocket-rule"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 330. Stop-shot links can support a last-pocket finishing angle."
+    },
+    {
+      "page": 330,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "stop-link",
+        "last-pocket-rule"
+      ],
+      "note": "Stop-shot links can support a last-pocket finishing angle."
+    },
+    {
+      "page": 331,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "last-pocket-rule"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 332. Resolve a restriction while preserving the final shared-pocket relationship."
+    },
+    {
+      "page": 332,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "last-pocket-rule"
+      ],
+      "note": "Resolve a restriction while preserving the final shared-pocket relationship."
+    },
+    {
+      "page": 333,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 334. Line-side choices must support the variant-specific final connection."
+    },
+    {
+      "page": 334,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Line-side choices must support the variant-specific final connection."
+    },
+    {
+      "page": 335,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 336. Small local links can establish the same-pocket final predecessor."
+    },
+    {
+      "page": 336,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Small local links can establish the same-pocket final predecessor."
+    },
+    {
+      "page": 337,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "deliberate-crossing",
+        "spin-angle-trim",
+        "last-pocket-rule"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 338. Rebound-direction adjustment can support a constrained same-pocket finish."
+    },
+    {
+      "page": 338,
+      "kind": "pattern explanation",
+      "review": "text/OCR plus full-page visual",
+      "principles": [
+        "deliberate-crossing",
+        "spin-angle-trim",
+        "last-pocket-rule"
+      ],
+      "note": "Rebound-direction adjustment can support a constrained same-pocket finish."
+    },
+    {
+      "page": 339,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "reverse-control",
+        "pocket-entry"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 340. Choose different recovery controls for angled versus straight leaves; entry offsets need validation."
+    },
+    {
+      "page": 340,
+      "kind": "pattern explanation",
+      "review": "text/OCR plus full-page visual",
+      "principles": [
+        "reverse-control",
+        "pocket-entry"
+      ],
+      "note": "Choose different recovery controls for angled versus straight leaves; entry offsets need validation."
+    },
+    {
+      "page": 341,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "rail-first-hanger"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 342. A rail-first approach to a hanger can create a different exit route."
+    },
+    {
+      "page": 342,
+      "kind": "pattern explanation",
+      "review": "text/OCR plus full-page visual",
+      "principles": [
+        "rail-first-hanger"
+      ],
+      "note": "A rail-first approach to a hanger can create a different exit route."
+    },
+    {
+      "page": 343,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "kill-control"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 344. Controlled hold position can provide the key ball's useful angle."
+    },
+    {
+      "page": 344,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "kill-control"
+      ],
+      "note": "Controlled hold position can provide the key ball's useful angle."
+    },
+    {
+      "page": 345,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 346. Preserve either near-line or slightly crossed-line recovery options."
+    },
+    {
+      "page": 346,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Preserve either near-line or slightly crossed-line recovery options."
+    },
+    {
+      "page": 347,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 348. Stop shots can preserve useful angles within a multi-problem sequence."
+    },
+    {
+      "page": 348,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Stop shots can preserve useful angles within a multi-problem sequence."
+    },
+    {
+      "page": 349,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 350. A stop-shot link can connect the opening to a later restricted ball."
+    },
+    {
+      "page": 350,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "A stop-shot link can connect the opening to a later restricted ball."
+    },
+    {
+      "page": 351,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 352. Controlled hold motion can establish the final useful angle."
+    },
+    {
+      "page": 352,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Controlled hold motion can establish the final useful angle."
+    },
+    {
+      "page": 353,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 354. Near-line and small-draw links can simplify a multi-problem sequence."
+    },
+    {
+      "page": 354,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Near-line and small-draw links can simplify a multi-problem sequence."
+    },
+    {
+      "page": 355,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 356. Address a ball before its remaining approaches become difficult."
+    },
+    {
+      "page": 356,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Address a ball before its remaining approaches become difficult."
+    },
+    {
+      "page": 357,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "isolated-ball"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 358. An isolated ball requires deliberate entry and exit planning."
+    },
+    {
+      "page": 358,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "isolated-ball"
+      ],
+      "note": "An isolated ball requires deliberate entry and exit planning."
+    },
+    {
+      "page": 359,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 360. Near-line leaves and controlled local moves create later travel angles."
+    },
+    {
+      "page": 360,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Near-line leaves and controlled local moves create later travel angles."
+    },
+    {
+      "page": 361,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "intentional-straight",
+        "stop-link",
+        "sequence-economy"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 362. Several consecutive stop shots can be the most connected route."
+    },
+    {
+      "page": 362,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "intentional-straight",
+        "stop-link",
+        "sequence-economy"
+      ],
+      "note": "Several consecutive stop shots can be the most connected route."
+    },
+    {
+      "page": 363,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 364. Holding position can establish a useful angle toward a restricted ball."
+    },
+    {
+      "page": 364,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Holding position can establish a useful angle toward a restricted ball."
+    },
+    {
+      "page": 365,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 366. Natural departure angles can navigate around another ball."
+    },
+    {
+      "page": 366,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Natural departure angles can navigate around another ball."
+    },
+    {
+      "page": 367,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "reference-line"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 368. Preserve a chain of side-of-line dependencies to the finish."
+    },
+    {
+      "page": 368,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "reference-line"
+      ],
+      "note": "Preserve a chain of side-of-line dependencies to the finish."
+    },
+    {
+      "page": 369,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "clear-pocket"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 370. Opening a needed pocket is a prerequisite rather than an optional pot."
+    },
+    {
+      "page": 370,
+      "kind": "pattern explanation",
+      "review": "text/OCR plus full-page visual",
+      "principles": [
+        "clear-pocket"
+      ],
+      "note": "Opening a needed pocket is a prerequisite rather than an optional pot."
+    },
+    {
+      "page": 371,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Visual setup paired with explanation on PDF page 372. Small rolling links can connect two restricted regions."
+    },
+    {
+      "page": 372,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Small rolling links can connect two restricted regions."
+    },
+    {
+      "page": 373,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "small-draw"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 374. Kill shots and small draw can preserve successive useful angles."
+    },
+    {
+      "page": 374,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "small-draw"
+      ],
+      "note": "Kill shots and small draw can preserve successive useful angles."
+    },
+    {
+      "page": 375,
+      "kind": "pattern question diagram",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "open-is-not-easy",
+        "preserve-side",
+        "opponent-obstacles"
+      ],
+      "note": "Visual setup paired with explanation on PDF page 376. Opponent balls still constrain cue-ball routes in an open own-ball layout."
+    },
+    {
+      "page": 376,
+      "kind": "pattern explanation",
+      "review": "text plus contact-sheet visual",
+      "principles": [
+        "open-is-not-easy",
+        "preserve-side",
+        "opponent-obstacles"
+      ],
+      "note": "Opponent balls still constrain cue-ball routes in an open own-ball layout."
+    },
+    {
+      "page": 377,
+      "kind": "resource page",
+      "review": "text plus contact-sheet visual",
+      "principles": [],
+      "note": "Promotional/resource material; no additional playing principle extracted."
+    }
+  ]
+}

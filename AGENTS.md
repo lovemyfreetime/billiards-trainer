@@ -1,5 +1,9 @@
 # App working and publishing preferences
 
+## Companion development exception — October 21, 2026
+
+Jeff explicitly requested a full copy of the current live app and Companion work in development. The branch `development/practice-companion` starts at live/main commit `1456c56e728f1ce0e4c4a1cadbfc2f5803195a3c`. Keep this work on that branch. Do not merge to `main`, change the production Pages source, or publish Windows/APK releases until requested. The live-release defaults below apply to other work, not this development task. See `docs/PRACTICE_COMPANION_DEVELOPMENT.md`.
+
 The user explicitly restored the public live-app workflow on October 19, 2026.
 
 - Work from the current `main` branch of `lovemyfreetime/billiards-trainer`; preserve newer existing changes.

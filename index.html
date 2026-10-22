@@ -1872,6 +1872,9 @@
 <script src="./trainer-action-history.js?v=2"></script>
 <script src="./trainer-layout-files.js?v=2"></script>
 <script src="./trainer-table-exchange.js?v=1"></script>
+<script src="./companion-capabilities.js?v=1"></script>
+<script src="./companion-core.js?v=2"></script>
+<script src="./companion-search.js?v=1"></script>
 <script src="./trainer-saved-files.js?v=1"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
 <script src="./photo-table-spots.js?v=3"></script>
@@ -2478,6 +2481,64 @@
         if(saveAfter)saveBallLayout(d.name);
         toast((file.kind==='session'?'Session resumed: ':'Table loaded: ')+d.name);
     }
+    // Companion transfers use the native loader and a separate return stack.
+    window.billiardsCompanionTable=(()=>{
+        const previous=[];
+        function capture(){if(animation)throw Error('Wait for the shot to finish before sharing the table.');return window.BilliardsCompanionCore.checkedLayout(captureBallLayout(S.lastLayoutName));}
+        function apply(layout){
+            if(animation)throw Error('Wait for the shot to finish before changing the table.');
+            const checked=window.BilliardsCompanionCore.checkedLayout(layout),file=window.BilliardsLayoutFiles.parse(JSON.stringify({layout:checked}));
+            const saved=window.billiardsTourBridge.capture();
+            applyTableFile(file,false,null,true);previous.push(saved);if(previous.length>12)previous.shift();
+        }
+        function restore(){if(animation)throw Error('Wait for the shot to finish.');const saved=previous.pop();if(!saved)throw Error('No earlier table to restore.');window.billiardsTourBridge.restore(saved);}
+        const caps=window.BilliardsCompanionCapabilities;
+        const copy=v=>JSON.parse(JSON.stringify(v,(key,value)=>key==='preview'?null:value));
+        function context(){
+            if(animation)throw Error('Wait for the shot to finish before sharing Trainer settings.');
+            return {version:caps.version,layout:capture(),settings:Object.fromEntries(Object.entries(caps.controls).map(([id,d])=>[id,S[d.key]])),activeShot:S.activeShot,shot2Enabled:S.shot2Enabled,shot2:copy(S.shot2||null),physics:Object.fromEntries(['muSlide','muRoll','muBall','ballRest','railRest','railTang','cueShaftPreset','cueEndmassRatio','tableRest','bedImpactMu'].map(k=>[k,S[k]]))};
+        }
+        // Simulations run against a private state copy; no animation, history or storage writes.
+        const nativeCompanionSimulation=()=>simulate(false);
+        function simulationSession(){
+            if(animation)throw Error('Wait for the shot to finish.');
+            const baseline=copy(S),states=new Map([['root',baseline]]);let count=0,previews=0;
+            const engine=window.BilliardsCompanionSearch;
+            const state=id=>{if(!states.has(id))throw Error('Unknown or expired private simulation state.');return copy(states.get(id));};
+            const layout=id=>{const s=state(id);return {name:'Private simulated position',tableL:s.tableL,tableW:s.tableW,ballR:s.ballR,balls:s.balls.filter(b=>b.active!==false),freeAim:s.freeAim};};
+            const geometry=(()=>{const live=S;try{S=copy(baseline);const g=pocketModel(),L=g.L,W=g.W,c=g.cornerLeg,m=g.sideMouth/2;return {jaws:jawSegments(),mouths:[[{x:c,y:0},{x:0,y:c}],[{x:L-c,y:0},{x:L,y:c}],[{x:c,y:W},{x:0,y:W-c}],[{x:L-c,y:W},{x:L,y:W-c}],[{x:L/2-m,y:0},{x:L/2+m,y:0}],[{x:L/2-m,y:W},{x:L/2+m,y:W}]]};}finally{S=live;}})();
+            function simulate({stateId='root',shot:raw,retain=true}){
+                if(++count>1400)throw Error('Private simulation budget reached. Send a new message to continue.');
+                const before=state(stateId),shot=caps.shot(raw),live=S;if(!before.balls.some(b=>b.id===0&&b.active!==false))throw Error('This state has no active cue ball.');
+                if(Math.abs(shot.aim.x)>before.tableL*4||Math.abs(shot.aim.y)>before.tableW*4)throw Error('Aim is outside the supported range.');
+                try{S=copy(before);S.activeShot=1;S.shot2Enabled=false;for(const [id,d]of Object.entries(caps.controls))if(shot[id]!==undefined)S[d.key]=shot[id];S.freeAim=copy(shot.aim);
+                    const p=simulateNative(),after=copy(S),result={source:'simulation_result',settings:shot,startStateId:stateId,settled:p.settled===true,terminationReason:p.terminationReason,firstBallContact:p.firstBallContact,pocketed:p.pocketEvents.map(e=>e.id),pocketEvents:p.pocketEvents.map(e=>({...e,pocket:nearestLogicalPocket(e)?.name||null})),railEvents:p.railEvents,finalBalls:p.finalBalls,cueBallPath:engine.compactPath([...(p.paths[0]||[]),...p.railEvents.filter(e=>e.id===0)].sort((a,b)=>a.t-b.t)),pathRisk:{minPocketClearanceM:engine.clearance(p.paths[0]||[],geometry,before.ballR),meaning:'Minimum cue-ball edge distance to native mouth/jaw segments along sampled path; proximity proxy only.'}};
+                    result.legality=engine.legality(before,result);
+                    const final=new Map(p.finalBalls.map(b=>[b.id,b]));after.balls=before.balls.map(b=>final.has(b.id)?{...b,...final.get(b.id)}:b);
+                    result.stateId=null;if(retain&&result.settled&&result.finalBalls.some(b=>b.id===0&&b.active)){result.stateId='state-'+count;states.set(result.stateId,after);}
+                    return result;
+                }finally{S=live;}
+            }
+            // Separate binding avoids shadowing the native solver with the adapter.
+            function simulateNative(){return nativeCompanionSimulation();}
+            const preview=raw=>{if(++previews>10)throw Error('This turn has reached its ten preview limit.');return simulate({stateId:'root',shot:raw});};
+            preview.simulate=simulate;preview.state=state;preview.layout=layout;preview.geometry=geometry;preview.physicsVersion='native-600hz-20s-search-v1';
+            preview.squirt=(side,follow)=>{const live=S;try{S=copy(baseline);return cueSquirtAngleFor(side,follow,S.cueEndmassRatio);}finally{S=live;}};
+            preview.search=(args,options)=>engine.search(preview,args,options);
+            return preview;
+        }
+        function applyAction(raw){
+            if(animation)throw Error('Wait for the shot to finish.');const a=caps.actions([raw])[0];
+            if(a.type==='lesson')throw Error('Open lessons through the Companion library.');
+            const values=a.type==='shot'?a.shot:a.settings;caps.settings(Object.fromEntries(Object.entries(values).filter(([id])=>id!=='aim')),S);
+            if(a.type==='shot'&&(Math.abs(values.aim.x)>S.tableL*4||Math.abs(values.aim.y)>S.tableW*4))throw Error('Invalid aim point.');
+            const saved=window.billiardsTourBridge.capture();
+            for(const [id,d]of Object.entries(caps.controls))if(values[id]!==undefined)S[d.key]=values[id];
+            if(a.type==='shot'){S.activeShot=1;S.shot2Enabled=false;S.freeAim=copy(values.aim);S.showTipBadge=true;S.showPaths=true;}
+            updateUI();updateShot2UIState();refreshPreview();saveState();syncProjector();previous.push(saved);if(previous.length>12)previous.shift();return context();
+        }
+        return {capture,apply,restore,context,simulationSession,applyAction,drawStrikeBadge(canvas,raw,label){const shot=caps.shot(raw);canvas.width=160;canvas.height=180;const ctx=canvas.getContext('2d');ctx.scale(2,2);drawTipBadgeDisk(ctx,{r:25,cx:40,cy:35},shot,String(label).slice(0,8));},canRestore:()=>previous.length>0,saved:()=>readSavedLayouts().map(d=>window.BilliardsCompanionCore.checkedLayout(d)),point(nx,ny){const c=canvas.getBoundingClientRect(),p=mapper().map({x:nx*S.tableL,y:ny*S.tableW});return {x:c.left+p.x*c.width/(canvas.width/DPR),y:c.top+p.y*c.height/(canvas.height/DPR)};}};
+    })();
     // Get Started uses the same table, solver, shot commit, and Undo history as normal play.
     window.billiardsTourBridge=(()=>{
         const copy=v=>JSON.parse(JSON.stringify(v,(key,value)=>key==='preview'?null:value));
@@ -4458,7 +4519,7 @@
             paths[b.id] = [{ x: b.x, y: b.y, z: b.z, t: 0 }];
         const frames = [];
         let firstEvent = '—', firstBallContact = null, sampleEvery = 6, frameEvery = 10;
-        let simTime = 0;
+        let simTime = 0, settled = false;
         const pocketEvents = [];
         const railEvents = [];
         const landings = [], clearanceMap = new Map();
@@ -4819,8 +4880,7 @@
             }
             if (makeFrames && step % frameEvery === 0)
                 frames.push(B.map(b => ({ id: b.id, x: b.x, y: b.y, z: b.z, active: b.active })));
-            if (!moving && step > 30)
-                break;
+            if (!moving && step > 30) { settled = true; break; }
         }
         const clearances = Array.from(clearanceMap.values());
         let primaryClearance = null;
@@ -4834,7 +4894,7 @@
                 primaryClearance = candidates[0];
             }
         }
-        return { paths, frames, firstEvent, firstBallContact, pocketEvents, railEvents,
+        return { paths, frames, firstEvent, firstBallContact, pocketEvents, railEvents, settled, terminationReason: settled ? 'settled' : 'time_limit',
             airborne: airborneMode ? {
                 maxCueHeight: Math.max(0, maxCueHeight - R), airborneDistance, bedBounceCount,
                 takeoff, landings, clearances, primaryClearance
@@ -12556,7 +12616,7 @@
 
 
 <script>
-if ('serviceWorker' in navigator && !(window.BilliardsBundledWindows||window.BilliardsBundledAndroid)) {
+if ('serviceWorker' in navigator && !(window.BilliardsBundledWindows||window.BilliardsBundledAndroid) && !['127.0.0.1','localhost'].includes(location.hostname)) {
   // A newly activated worker takes over caching without reloading the open
   // table. Apply new page code on the next user-initiated navigation/reload;
   // background updates must never discard a shot or a newly arranged Zen rack.
@@ -12603,6 +12663,8 @@ if ('serviceWorker' in navigator && !(window.BilliardsBundledWindows||window.Bil
   <link rel="stylesheet" href="./experience-menu.css?v=home-badge-v8">
   <script src="./experience-menu.js?v=home-badge-v13"></script>
   <script src="./beta-ui.js?v=offline-startup-v158"></script>
+  <link rel="stylesheet" href="./companion.css?v=1">
+  <script src="./practice-companion.js?v=1"></script>
 
 
 </body>

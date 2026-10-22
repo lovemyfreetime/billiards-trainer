@@ -166,7 +166,7 @@
     document.body.classList.toggle('phone-controls-open', open && phone.matches);
     controls.setAttribute('aria-expanded', String(open && phone.matches));
     controls.textContent = open && phone.matches ? 'Close' : 'Controls';
-    panel.inert = phone.matches && !open;
+    panel.inert = phone.matches && !open && !document.body.classList.contains('practice-open');
     syncScroll();
     if (!open && panel.contains(document.activeElement)) controls.focus();
   }

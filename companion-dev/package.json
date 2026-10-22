@@ -1,0 +1,7 @@
+{
+  "name": "billiards-companion-local-audio",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Optional server-only OpenAI read-aloud dependency",
+  "dependencies": { "ws": "8.22.0" }
+}

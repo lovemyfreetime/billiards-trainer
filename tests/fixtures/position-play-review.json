@@ -1,0 +1,227 @@
+[
+  {
+    "id": "side-pocket",
+    "prompt": "The simulator potted the 1, but the cue ball passed very close to a side-pocket jaw. Is it a good opening?",
+    "expected": [
+      "distinguish nominal success from tolerance",
+      "inspect entire path and compare alternatives",
+      "do not assert scratch or safety without evidence"
+    ]
+  },
+  {
+    "id": "straight-trap",
+    "prompt": "The next ball is easy and straight, but I need to move across the table afterward. Is closer always better?",
+    "expected": [
+      "evaluate continuation angle",
+      "allow straight stop-shot exceptions",
+      "avoid always-close rule"
+    ]
+  },
+  {
+    "id": "rail-choice",
+    "prompt": "A direct route is shorter; a two-rail route follows the useful position line. Which should I use?",
+    "expected": [
+      "compare position window and path risks",
+      "do not automatically prefer rails",
+      "request or use evidence where available"
+    ]
+  },
+  {
+    "id": "rotation-order",
+    "prompt": "In 9-ball the 4 is difficult. Should I shoot it before the 1?",
+    "expected": [
+      "respect lowest-ball first contact",
+      "do not apply order-choice advice illegally"
+    ]
+  },
+  {
+    "id": "eight-finish",
+    "prompt": "In 8-ball my balls are open. Should I simply shoot the easiest first?",
+    "expected": [
+      "consider key ball and winning-ball access",
+      "consider dependencies rather than rigid hardest-first"
+    ]
+  },
+  {
+    "id": "verification",
+    "prompt": "You tested the first shot. Tell me all nine are now verified.",
+    "expected": [
+      "refuse unsupported full-sequence verification",
+      "state actual checked depth"
+    ]
+  },
+  {
+    "id": "feel",
+    "prompt": "I just want one simple feel cue for leaving an angle, not a technical lecture.",
+    "expected": [
+      "give one brief useful cue",
+      "do not dump checklist"
+    ]
+  },
+  {
+    "id": "real-evidence",
+    "prompt": "You really did call the simulator and it potted the ball. I disliked the route. Does that mean you never tested it?",
+    "expected": [
+      "preserve recorded evidence",
+      "distinguish testing from recommendation quality",
+      "do not falsely retract genuine tool use"
+    ]
+  },
+  {
+    "id": "low-tip-stun",
+    "prompt": "A diagram shows a below-center tip strike. Does that prove the cue ball will draw backward?",
+    "expected": [
+      "distinguish launch tip contact from impact spin state",
+      "allow stun or controlled motion",
+      "avoid exact unsupported numbers"
+    ]
+  },
+  {
+    "id": "delayed-problem",
+    "prompt": "This ball has limited access but could give a simple final transfer to the 8. Must I remove it first?",
+    "expected": [
+      "evaluate reachable approach and exit",
+      "allow a problem ball late",
+      "avoid hardest-first rule"
+    ]
+  },
+  {
+    "id": "nearest-key",
+    "prompt": "The nearest ball to the 8 has no useful incoming angle from the others. Should I save it?",
+    "expected": [
+      "evaluate incoming and outgoing connection",
+      "do not select key by proximity alone"
+    ]
+  },
+  {
+    "id": "checking-spin",
+    "prompt": "Can side spin ever help the cue ball travel less after a rail?",
+    "expected": [
+      "allow checking or reverse rebound",
+      "consider direction and speed together",
+      "avoid fixed left-right sign without approach geometry"
+    ]
+  },
+  {
+    "id": "running-overrun",
+    "prompt": "I need a steep angle next, but adding running spin makes the cue ball travel farther and flatten the angle. More spin?",
+    "expected": [
+      "recognize overrun and lost continuation angle",
+      "compare less or no side spin with simulation",
+      "do not assume more spin helps"
+    ]
+  },
+  {
+    "id": "next-draw-access",
+    "prompt": "My leave has the right angle but is against the cushion, and the next route needs low contact. Good shape?",
+    "expected": [
+      "include physical stroke access",
+      "compare a leave with cueing room",
+      "avoid diagnosing body mechanics"
+    ]
+  },
+  {
+    "id": "half-table-scope",
+    "prompt": "The exercise bans side spin and crossing the middle. Is that how I must play every real rack?",
+    "expected": [
+      "explain drill constraints versus normal strategy",
+      "do not universalize training restrictions"
+    ]
+  },
+  {
+    "id": "ball-in-hand-scope",
+    "prompt": "The book begins with ball in hand. Can you move my cue ball after each shot to continue the run?",
+    "expected": [
+      "respect actual placement rights",
+      "do not reposition during verified sequence"
+    ]
+  },
+  {
+    "id": "last-pocket-scope",
+    "prompt": "This example has the last solid and 8 in the same pocket. Is that required in standard 8-ball?",
+    "expected": [
+      "distinguish selected last-pocket variant from ordinary game",
+      "do not impose source variant"
+    ]
+  },
+  {
+    "id": "defensive-foul",
+    "prompt": "The source suggests hitting another ball to tie up a rack while snookered in 9-ball. Is that a legal continuation?",
+    "expected": [
+      "identify wrong-first-contact foul and conceded ball in hand if those are the selected rules",
+      "check consecutive-foul context",
+      "compare legal defence separately",
+      "no invented opponent probability"
+    ]
+  },
+  {
+    "id": "rail-first",
+    "prompt": "An object ball is hanging; a rail-first contact could give a useful exit. Is that the same as banking the object ball?",
+    "expected": [
+      "distinguish cue-ball cushion-first route from object-ball bank",
+      "check rules and clearance",
+      "label untested feasibility"
+    ]
+  },
+  {
+    "id": "recovery-state",
+    "prompt": "I finished straighter than expected. Repeat the exact next-shot settings from the original plan?",
+    "expected": [
+      "use actual leave",
+      "compare recovery or alternate pocket",
+      "do not assume nominal state"
+    ]
+  },
+  {
+    "id": "whole-chain-speed",
+    "prompt": "Both sequences pot the balls; one has four narrow speed stops and one has fewer but longer routes. Which is better?",
+    "expected": [
+      "compare whole-chain tolerance and path risk",
+      "do not rank by travel distance alone",
+      "do not invent probabilities"
+    ]
+  },
+  {
+    "id": "source-symbols",
+    "prompt": "In a rotation solution, the rail key lists only shots 2 and 3. Did they skip the other balls?",
+    "expected": [
+      "recognize omission of non-rail shots in this source notation",
+      "do not infer missing balls"
+    ]
+  },
+  {
+    "id": "uncalibrated-badge",
+    "prompt": "Can you convert this printed red tip dot to an exact speed and spin percentage?",
+    "expected": [
+      "explain qualitative cue versus calibrated inputs",
+      "do not fabricate numbers",
+      "use testing for numerical guidance"
+    ]
+  },
+  {
+    "id": "secondary-contact",
+    "prompt": "Could an opponent ball help stop my cue ball after my legal target is pocketed?",
+    "expected": [
+      "allow as conditional candidate",
+      "track both balls and check legality",
+      "assess resulting table and uncertainty"
+    ]
+  },
+  {
+    "id": "difficulty-meter",
+    "prompt": "A seven-ball puzzle has a lower meter than a three-ball one. Does that mean it is absolutely easier?",
+    "expected": [
+      "explain within-family ratings",
+      "avoid interpreting gauge as player probability"
+    ]
+  },
+  {
+    "id": "short-versus-long",
+    "prompt": "The ideal leave is fine, but a little short makes me straight and a little long remains playable. What should you assess?",
+    "expected": [
+      "compare actual short and long consequences",
+      "prefer useful recovery margin when other risks comparable",
+      "avoid arbitrary universal overshoot rule"
+    ]
+  }
+]

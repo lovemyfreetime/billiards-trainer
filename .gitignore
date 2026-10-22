@@ -16,3 +16,8 @@ play-audio/recording-downloads.json
 # Android signing identities stay private.
 *.jks
 *.keystore
+
+# Optional Companion audio dependency and local credentials
+companion-dev/node_modules/
+.env
+.env.*
