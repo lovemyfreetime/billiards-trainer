@@ -1,5 +1,5 @@
 {
-  "version": "39013411b1127e13",
+  "version": "9e5bbf91a1799be4",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -920,7 +920,7 @@
     "icons/play-experience-v1.webp": "8fb008260a29dc4d1c26208e1e92872b242902fbc3b256d49e3c2209c7dd53b1",
     "icons/trainer-original-execute-v2.svg": "eaf1f45d99634cdbe87582d857cc2dd6017439dadf9ce251136485422c127da4",
     "icons/zen-reference-table-v1.webp": "0d9352c54cccca69fbb78fd8bc7a173957424fad151950a3888f895069030da0",
-    "index.html": "a38cf291e469f218d36178d83e4c5796fb9d281fb0930acb856772d8ff4a8d02",
+    "index.html": "ac6399aa6a422971f5e5652b118a6c15ba56c76bd383041ceb708144bd82904f",
     "install/android/index.html": "862dff4245e200376ff30ee6763f007bb510a3c0cdf0634f8ef3d0d2c25630ff",
     "install/apple/index.html": "baad9dae78322db69bebb071456f37d83e9ba1a7ac849dbe70ef9a88480cf253",
     "install/assets/android-guide/Billiards_Trainer_Android_Installer_Screenshots/android-app-installed.jpg": "545867686776eb4a4ecae0b6d12e6c5df3c58623919fd7935c6c09530e9f7500",
@@ -1222,8 +1222,8 @@
     "trainer-practice-tools.js": "4f3be4afca8e51274aa1b9eb8c9dcd696e466c26a8974650bafe4dccd950650d",
     "trainer-saved-files.js": "07b48339b39478d2bede82b6b6be4db004d045ee7c6039bf460fdf2b6bab762e",
     "trainer-table-exchange.js": "481759a0cf233361d10cb1e3c7335510da6f317dcf7e777bcdbf3485a1e20df4",
-    "trainer-table-zoom.css": "0f4170781c369d689228dd22f382661b96e7a3e4714870a2d4ef19700f8d9b52",
-    "trainer-table-zoom.js": "e86a6b3c86aa28aae70d287f36f3333afeb01c2b2ea28dc442a8bf444d46445d",
+    "trainer-table-zoom.css": "2f3abf6fefade1bb9d9a795cf89689f28d442a11c81da93995f0b44303cb1b2a",
+    "trainer-table-zoom.js": "f2f6c8c45cb87ae16f997466a178c362db34449e49771239b6585a7910149c2c",
     "vendor/onnxruntime-1.22.0/LICENSE": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c",
     "vendor/onnxruntime-1.22.0/ThirdPartyNotices.txt": "e9e90971a8e75a9a8ac0c6412e29c1202d079998389915aa485f46c816c3b4cc",
     "vendor/onnxruntime-1.22.0/ort-wasm-simd-threaded.mjs": "30dd851d9c00622940500f71ddd2ff8820c5cb65270816080175b958705385a8",

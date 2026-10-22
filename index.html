@@ -5304,7 +5304,9 @@
         if (zoomButton) {
             const zoomLeft = Math.min(canvas.clientWidth - 46, rightRailX + halfRailW + 6);
             zoomButton.style.left = Math.max(2, zoomLeft) + 'px';
-            zoomButton.style.top = railBandTop + 'px';
+            // Keep inspection below the outer artwork, in the black control area.
+            const artworkBottom = bottomY + tableH * (ORIGINAL_ASSET_GEOM.height - ORIGINAL_ASSET_GEOM.y1) / (ORIGINAL_ASSET_GEOM.y1 - ORIGINAL_ASSET_GEOM.y0);
+            zoomButton.style.top = Math.min(viewportH - 38, Math.max(railBandTop + 40, artworkBottom + 8)) + 'px';
             // Leave room for the inspection button alongside Shot 2.
             if (aim2) aim2.style.width = Math.max(120, Math.min(halfRailW, zoomLeft - rightRailX - 6)) + 'px';
         }

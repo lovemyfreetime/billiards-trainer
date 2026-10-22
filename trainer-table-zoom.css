@@ -1,4 +1,4 @@
-#tableZoom { position:absolute; z-index:9; width:42px; height:34px; padding:0; border:1px solid #8fa6b8; border-radius:17px; background:#101820ed; color:#dbe9ef; font:600 16px system-ui; touch-action:manipulation; cursor:pointer; }
+#tableZoom { position:absolute; z-index:9; width:42px; height:34px; padding:0; border:1px solid #77c8ff; border-radius:17px; background:#101820ed; color:#dbe9ef; font:600 12px system-ui; touch-action:manipulation; cursor:pointer; }
 #tableZoom[aria-pressed=true] { border-color:#77c8ff; color:#77c8ff; box-shadow:0 0 10px #77c8ff55; }
 #tableZoom:focus-visible,.aimRollerControl .rollerDir:focus-visible { outline:2px solid #77c8ff; outline-offset:2px; }
 .aimRollerControl .rollerDir { pointer-events:auto; cursor:pointer; border:0; background:transparent; padding:0; flex:0 0 28px; width:28px; height:28px; min-width:0; border-radius:50%; touch-action:manipulation; }

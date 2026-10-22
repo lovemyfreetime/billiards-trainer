@@ -7,7 +7,7 @@
   const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
   const size=()=>({w:canvas.clientWidth,h:canvas.clientHeight});
   function bounds(){const {w,h}=size();x=clamp(x,w*(1-scale),0);y=clamp(y,h*(1-scale),0);}
-  function paint(){bounds();button.setAttribute('aria-pressed',String(enabled));button.title=enabled?'Restore full table view':'Inspect table: tap for pinch / pan, or hover and scroll to zoom';button.textContent=enabled?scale.toFixed(1)+'×':'⌕';canvas.style.cursor=enabled?'move':'';redraw();}
+  function paint(){bounds();button.setAttribute('aria-pressed',String(enabled));button.title=enabled?'Restore full table view':'Inspect table: tap for pinch / pan, or hover and scroll to zoom';button.textContent=enabled?scale.toFixed(1)+'×':'Zoom';canvas.style.cursor=enabled?'move':'';redraw();}
   function reset(){enabled=false;scale=1;x=y=0;previous=mouse=null;pointers.clear();paint();}
   function zoom(factor,point){const next=clamp(scale*factor,1,6),ratio=next/scale;x=point.x-(point.x-x)*ratio;y=point.y-(point.y-y)*ratio;scale=next;paint();}
   function point(event){const r=canvas.getBoundingClientRect();return {x:(event.clientX-r.left)*canvas.clientWidth/r.width,y:(event.clientY-r.top)*canvas.clientHeight/r.height};}
