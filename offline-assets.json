@@ -1,5 +1,5 @@
 {
-  "version": "101f09473a97a994",
+  "version": "f5a8772e3a085330",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -891,6 +891,7 @@
     "guide/layouts/topics/welcome-guide.billiards.json": "8d4a536f15dcc5bd25e7bd42c689afa615f5810726017d73710458e30af871ff",
     "guide/layouts/topics/welcome-more.billiards.json": "b90cb7482a65e8377ccc5e93a5d0f18b4b3444a458b532d0ca716d783bddf7b7",
     "guide/layouts/topics/welcome-physics.billiards.json": "0d1288995d809cf21fe23adfb6e8010b99c568021469951ddcf7e6fbd2ef8a44",
+    "guide/layouts/zero-x-safety-low.billiards.json": "7708a0f731d385322321c766e371c43817457da9e63b6d0e17e390f2e077466d",
     "guide/learning-catalog.json": "c3da9335f356397be96c89e00ee382ce9b9266d9a281f95fd1dc27fe1283a586",
     "guide/learning.js": "43f90a58a29fcc8dbc5972368b97108c919653a36f7e9b26455f8baeba7340c8",
     "guide/lesson-practice.js": "380ca3f47576b57ba4ba8475854dc0d3c533fe9f879987c93ec6c39d6db407ee",
@@ -919,7 +920,7 @@
     "icons/play-experience-v1.webp": "8fb008260a29dc4d1c26208e1e92872b242902fbc3b256d49e3c2209c7dd53b1",
     "icons/trainer-original-execute-v2.svg": "eaf1f45d99634cdbe87582d857cc2dd6017439dadf9ce251136485422c127da4",
     "icons/zen-reference-table-v1.webp": "0d9352c54cccca69fbb78fd8bc7a173957424fad151950a3888f895069030da0",
-    "index.html": "e49e3c6bc116d23ec80d2d78ce38fe8c4a21af4bcd2770f8c5fbb9c1c471313c",
+    "index.html": "2f40deade61f999c49c5f8030a234c46a17b0dd618c50a17307c07dc4cbf6525",
     "install/android/index.html": "862dff4245e200376ff30ee6763f007bb510a3c0cdf0634f8ef3d0d2c25630ff",
     "install/apple/index.html": "baad9dae78322db69bebb071456f37d83e9ba1a7ac849dbe70ef9a88480cf253",
     "install/assets/android-guide/Billiards_Trainer_Android_Installer_Screenshots/android-app-installed.jpg": "545867686776eb4a4ecae0b6d12e6c5df3c58623919fd7935c6c09530e9f7500",

@@ -1755,7 +1755,7 @@
       <div class="row"><label>Bed vertical restitution</label><input id="tableRest" type="number" min="0" max="0.95" step="0.01"></div>
       <div class="row"><label>Bed impact friction μ</label><input id="bedImpactMu" type="number" min="0" max="0.5" step="0.01"></div>
       <div class="row"><label for="jumpUnits">Jump / massé distance units</label><select id="jumpUnits" aria-label="Jump measurement units"><option value="in">Inches (in)</option><option value="mm">Millimeters (mm)</option></select></div>
-       <div class="hint">Cue ratio controls squirt: higher = lower deflection. 3D airborne mode extends cue elevation to 70° and models the immediate bed rebound, projectile flight, repeated hops, 3D ball collisions, and massé return-to-cloth dynamics. Normal mode stays capped at 15°.</div>
+       <div class="hint">Shaft presets control cue-ball deflection. Choose Custom to match your shaft; a higher cue ratio gives less squirt. 3D airborne mode extends cue elevation to 70° and models the immediate bed rebound, projectile flight, repeated hops, 3D ball collisions, and massé return-to-cloth dynamics. Normal mode stays capped at 15°.</div>
       </div>
       </div>
     </div>
@@ -1921,12 +1921,17 @@
         railVelDampingY: 0.90,
         railSpinDamping: 0.10
     });
+    // Practical named-shaft calibration, revised after repeated real-table comparisons.
+    // These are adjustable response presets, not measurements of every shaft.
+    // Preserve the TP A.31 equation; a larger ball/end-mass ratio reduces squirt.
+    const CUE_SHAFT_PRESETS = Object.freeze({ standard: 35, low: 50 });
+    const LEGACY_CUE_SHAFT_PRESETS = Object.freeze({ standard: 20.151, low: 29.158 });
     // Physics-model constants that are not table-calibration variables.
     // maxTipOffsetR is the practical normal-play miscue limit (tip-center offset / ball radius).
     // Cue end-mass ratio is m_ball / m_effective-tip and drives squirt from the rigid-impact model.
     const PHYSICS_MODEL = Object.freeze({
         maxTipOffsetR: 0.50,
-        defaultCueEndmassRatio: 20.151,
+        defaultCueEndmassRatio: CUE_SHAFT_PRESETS.standard,
         defaultCueElevationDeg: 3.0,
         maxPlanarCueElevationDeg: 15.0,
         maxAirborneCueElevationDeg: 70.0,
@@ -3802,9 +3807,21 @@
     }
     function currentCuePreset(){
         const ratio=Number(S.cueEndmassRatio);
-        if(S.cuePreset==='custom')return 'custom';
-        const preset=Math.abs(ratio-20.151)<.0005?'standard':Math.abs(ratio-29.158)<.0005?'low':'custom';
-        S.cuePreset=preset;return preset;
+        const valid=Number.isFinite(ratio)&&ratio>0;
+        // Explicit Custom values, including the old preset numbers, are intentional.
+        if(S.cuePreset==='custom'){
+            S.cueEndmassRatio=valid?clamp(ratio,8,60):PHYSICS_MODEL.defaultCueEndmassRatio;
+            return 'custom';
+        }
+        // Recognize both generations so saved tables, sessions and undo snapshots
+        // adopt the revised named response without clearing layouts or spin settings.
+        const named=Object.keys(CUE_SHAFT_PRESETS).find(key=>
+            Math.abs(ratio-CUE_SHAFT_PRESETS[key])<.0005||
+            Math.abs(ratio-LEGACY_CUE_SHAFT_PRESETS[key])<.0005);
+        const preset=named||(!valid?(S.cuePreset==='low'?'low':'standard'):'custom');
+        S.cuePreset=preset;
+        S.cueEndmassRatio=preset==='custom'?clamp(ratio,8,60):CUE_SHAFT_PRESETS[preset];
+        return preset;
     }
     function cueSquirtAngleFor(side, follow = 0, cueEndmassRatio = S.cueEndmassRatio) {
         // Rigid cue/ball impact model (TP A.31): squirt is an immediate deflection
@@ -5042,6 +5059,7 @@
             s.freeAim = { x: s.freeAim.x + dx, y: s.freeAim.y + dy };
     }
     function refreshPreview() {
+        currentCuePreset();
         S.preview = simulate(false);
         S.firstEvent = S.preview.firstEvent;
         if (S.airbornePhysics) attachAirborneGuidance(1, S.preview);
@@ -7612,8 +7630,8 @@
         $('ballRest').value = S.ballRest;
         $('railRest').value = S.railRest;
         $('railTang').value = S.railTang;
-        $('cueEndmassRatio').value = (+S.cueEndmassRatio).toFixed(3);
         $('cueShaftPreset').value=currentCuePreset();$('cueEndmassRow').hidden=S.cuePreset!=='custom';
+        $('cueEndmassRatio').value = (+S.cueEndmassRatio).toFixed(3);
         $('airbornePhysics').checked = S.airbornePhysics === true;
          $('jumpUnits').value = S.jumpUnits === 'mm' ? 'mm' : 'in';
         $('tableRest').value = (+S.tableRest).toFixed(2);
@@ -12107,7 +12125,7 @@
             refreshPreview();
         });
         const changeIds = ['tableL', 'tableW', 'ballD', 'muSlide', 'muRoll', 'muBall', 'ballRest', 'railRest', 'railTang', 'cueEndmassRatio', 'airbornePhysics', 'jumpUnits', 'tableRest', 'bedImpactMu', 'showImpact', 'showTipBadge', 'showPaths', 'showGrid', 'showDiamonds', 'showTable', 'showAngleLockControl'];
-        $('cueShaftPreset').addEventListener('change',()=>{S.cuePreset=$('cueShaftPreset').value;if(S.cuePreset==='standard')S.cueEndmassRatio=20.151;if(S.cuePreset==='low')S.cueEndmassRatio=29.158;updateUI();refreshPreview();saveState();});
+        $('cueShaftPreset').addEventListener('change',()=>{S.cuePreset=$('cueShaftPreset').value;if(CUE_SHAFT_PRESETS[S.cuePreset])S.cueEndmassRatio=CUE_SHAFT_PRESETS[S.cuePreset];updateUI();refreshPreview();saveState();});
         $('cueEndmassRatio').addEventListener('change',()=>{S.cuePreset='custom';});
         changeIds.forEach(id => $(id).addEventListener('change', applyUI));
         ['speed', 'follow', 'sideSpin', 'cueElevation'].forEach(id => $(id).addEventListener('input', applyUI));

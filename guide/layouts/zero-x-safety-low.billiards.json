@@ -1,0 +1,77 @@
+{
+  "format": "billiards-trainer",
+  "version": 1,
+  "kind": "session",
+  "name": "Zero-X safety — screenshot estimate",
+  "layout": {
+    "name": "Zero-X safety — screenshot estimate",
+    "tableL": 2.54,
+    "tableW": 1.27,
+    "ballR": 0.028575,
+    "balls": [
+      {
+        "id": 0,
+        "n": "CB",
+        "active": true,
+        "x": 1.4972438672438673,
+        "y": 1.1415317919075145
+      },
+      {
+        "id": 7,
+        "n": "7",
+        "active": true,
+        "x": 2.3915584415584417,
+        "y": 0.9121242774566475
+      },
+      {
+        "id": 8,
+        "n": "8",
+        "active": true,
+        "x": 2.3457431457431457,
+        "y": 0.19820809248554913
+      },
+      {
+        "id": 9,
+        "n": "9",
+        "active": true,
+        "x": 0.689062049062049,
+        "y": 0.9176300578034683
+      }
+    ],
+    "freeAim": {
+      "x": 2.298095238095238,
+      "y": 0.9194653179190752
+    },
+    "setupMode": "custom",
+    "allowMissingCueBall": false
+  },
+  "state": {
+    "speed": 2.48,
+    "follow": -0.9,
+    "sideSpin": 0.44,
+    "cueElevationDeg": 3,
+    "cuePreset": "low",
+    "cueEndmassRatio": 50,
+    "muSlide": 0.25,
+    "muRoll": 0.01,
+    "muBall": 0.01,
+    "ballRest": 0.96,
+    "railRest": 0.9,
+    "railTang": 0.9,
+    "airbornePhysics": false,
+    "activeShot": 1,
+    "shot2Enabled": false,
+    "showPaths": true,
+    "showImpact": true,
+    "showDiamonds": true,
+    "showGrid": true
+  },
+  "history": [],
+  "reference": {
+    "source": "User-supplied original video and Trainer screenshots, October 22 2026",
+    "tableSize": "100 x 50 inch assumed playing surface; not independently measured",
+    "cue": "Low-deflection comparison; exact Predator model unconfirmed",
+    "cloth": "Existing baseline friction; no numeric Simonis specification inferred from brand or wear",
+    "purpose": "Compare the 7 short-rail return and cue-ball leave near the 8; this is an estimated setup, not a validated reproduction"
+  }
+}
