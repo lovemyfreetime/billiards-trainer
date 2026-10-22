@@ -142,8 +142,16 @@
   const readouts = [];
   for(const [id,kind] of [['tableSpeed1','speed'],['tableSpeed2','speed'],['bottomFollow1','percent'],['bottomFollow2','percent'],['bottomSide1','percent'],['bottomSide2','percent']]) {
     const input=document.getElementById(id); if(!input)continue;
-    const output=document.createElement('output');output.id=id+'Readout';output.className='phoneSliderValue';
-    output.setAttribute('for',id);output.setAttribute('aria-label',input.getAttribute('aria-label')+' value');
+    const output=document.createElement('button');output.type='button';output.id=id+'Readout';output.className='phoneSliderValue sliderStep';
+    output.setAttribute('aria-label','Decrease '+input.getAttribute('aria-label'));
+    output.title='Decrease one step';
+    output.addEventListener('click',()=>window.billiardsStepTableSlider?.(id,-1));
+    const label=input.parentNode.querySelector('.tableSpeedLabel,.miniSpinLabel');
+    if(label){
+      const plus=document.createElement('button');plus.type='button';plus.className=label.className+' sliderStep';plus.id=label.id;plus.textContent=label.textContent;
+      plus.setAttribute('aria-label','Increase '+input.getAttribute('aria-label'));plus.title='Increase one step';
+      plus.addEventListener('click',()=>window.billiardsStepTableSlider?.(id,1));label.replaceWith(plus);
+    }
     input.parentNode.append(output);readouts.push({input,output,kind});
   }
   window.billiardsPhoneReadouts = () => {

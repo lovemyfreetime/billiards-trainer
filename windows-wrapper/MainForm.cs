@@ -109,6 +109,7 @@ public sealed class MainForm : Form
                     if (message.RootElement.TryGetProperty("type", out var type))
                     {
                         if (publicApp && type.GetString() == "start-local-play") await StartLocalHostAsync();
+                        else if (type.GetString() == "close-app") Close();
                         else if (type.GetString() == "set-fullscreen" &&
                                  message.RootElement.TryGetProperty("active", out var active) &&
                                  active.ValueKind is JsonValueKind.True or JsonValueKind.False)

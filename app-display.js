@@ -1,10 +1,12 @@
 /* Shared display policy: installed apps launch fullscreen; browser tabs use a trusted gesture. */
 (function(){
 'use strict';
-let automatic=true,pending=false,nativeActive=!!window.BilliardsWindowsFullscreen;
+let automatic=true,pending=false,nativeActive=!!(window.BilliardsWindowsFullscreen||window.BilliardsBundledAndroid);
 const fullscreen=()=>document.fullscreenElement||document.webkitFullscreenElement;
 const installed=()=>navigator.standalone||matchMedia('(display-mode:standalone), (display-mode:fullscreen)').matches;
-const native=()=>!!window.BilliardsWindowsHostAvailable&&!!window.chrome?.webview;
+const android=()=>!!window.BilliardsAndroid?.setFullscreen;
+const native=()=>android()||!!window.BilliardsWindowsHostAvailable&&!!window.chrome?.webview;
+function nativeFullscreen(value){if(android())window.BilliardsAndroid.setFullscreen(value);else window.chrome.webview.postMessage({type:'set-fullscreen',active:value});}
 let menu,action,hint,control;
 function active(){return native()?nativeActive:!!fullscreen()||matchMedia('(display-mode:fullscreen)').matches;}
 function sync(){
@@ -19,7 +21,7 @@ function explain(){
 async function enter(quiet=false){
  automatic=false;if(pending||active())return;pending=true;
  try{
-  if(native()){window.chrome.webview.postMessage({type:'set-fullscreen',active:true});return;}
+  if(native()){nativeFullscreen(true);return;}
   const root=document.documentElement,request=root.requestFullscreen||root.webkitRequestFullscreen;
   if(!request)throw Error('Fullscreen unavailable');
   await request.call(root,{navigationUI:'hide'});
@@ -27,7 +29,7 @@ async function enter(quiet=false){
 }
 async function exit(){
  automatic=false;
- if(native()){window.chrome.webview.postMessage({type:'set-fullscreen',active:false});return;}
+ if(native()){nativeFullscreen(false);return;}
  const leave=document.exitFullscreen||document.webkitExitFullscreen;
  if(fullscreen()&&leave){try{await leave.call(document);}catch(_){explain();}}else explain();
  sync();

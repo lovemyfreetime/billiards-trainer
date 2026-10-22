@@ -81,7 +81,7 @@ const source=fs.readFileSync('index.html','utf8');
 const start=source.indexOf('        function bindAimRoller(');
 const stop=source.indexOf("        bindAimRoller('aimRoller', 1)",start);
 for(const vertical of [true,false]) {
- const roller=new Element();const ticks=new Element();roller.querySelector=()=>ticks;roller.setPointerCapture=()=>{};
+ const roller=new Element();const ticks=new Element();roller.querySelector=()=>ticks;roller.querySelectorAll=()=>[];roller.setPointerCapture=()=>{};
  let rotation=0;
  const context={$:()=>roller,S:{shot2Enabled:true},document:{body:{classList:{contains:()=>vertical}}},setActiveShot(){},rotateAimMicro:r=>rotation+=r,setTimeout(){}};
  vm.runInNewContext(source.slice(start,stop)+';bindAimRoller("aimRoller",1)',context);

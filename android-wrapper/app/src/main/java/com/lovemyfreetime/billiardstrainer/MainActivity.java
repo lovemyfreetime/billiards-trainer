@@ -47,6 +47,18 @@ public class MainActivity extends Activity {
     WebView webView;
     BundledApp bundledApp;
     private volatile boolean bootstrapPending;
+    private boolean fullscreenEnabled=true;
+    private android.speech.tts.TextToSpeech descriptionVoice;
+    private boolean descriptionVoiceReady,descriptionVoiceFailed;
+    private String pendingDescription;
+    private void descriptionSpeechState(String state){
+        if(webView!=null)webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('billiards:description-speech',{detail:"+org.json.JSONObject.quote(state)+"}))",null);
+    }
+    private void readDescription(){
+        if(!descriptionVoiceReady||pendingDescription==null)return;
+        String text=pendingDescription;pendingDescription=null;
+        if(descriptionVoice.speak(text,android.speech.tts.TextToSpeech.QUEUE_FLUSH,null,"description")!=android.speech.tts.TextToSpeech.SUCCESS)descriptionSpeechState("error");
+    }
     private static final String BOOTSTRAP_PATH=BundledApp.PREFIX+"__android_start__.html";
     final AtomicInteger externalRequests=new AtomicInteger();
     private ValueCallback<Uri[]> fileCallback;
@@ -275,6 +287,7 @@ public class MainActivity extends Activity {
     }
 
     private void enterImmersiveModeSafely() {
+        if(!fullscreenEnabled)return;
         try {
             if (android.os.Build.VERSION.SDK_INT >= 30) {
                 WindowInsetsController c = getWindow().getInsetsController();
@@ -319,6 +332,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onPause() {
+        pendingDescription=null;if(descriptionVoice!=null)descriptionVoice.stop();
         if (webView != null) webView.onPause();
         super.onPause();
     }
@@ -363,7 +377,50 @@ public class MainActivity extends Activity {
         }
     }
 
+    @Override
+    protected void onDestroy(){
+        if(descriptionVoice!=null){descriptionVoice.stop();descriptionVoice.shutdown();}
+        super.onDestroy();
+    }
+
     public class AndroidBridge {
+        @JavascriptInterface
+        public void closeApp(){runOnUiThread(()->finishAndRemoveTask());}
+
+        @JavascriptInterface
+        public void setFullscreen(boolean active){runOnUiThread(()->{
+            fullscreenEnabled=active;
+            if(active)enterImmersiveModeSafely();
+            else if(android.os.Build.VERSION.SDK_INT>=30){
+                WindowInsetsController controller=getWindow().getInsetsController();
+                if(controller!=null)controller.show(WindowInsets.Type.statusBars()|WindowInsets.Type.navigationBars());
+            }else getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('billiards:native-fullscreen',{detail:"+active+"}))",null);
+        });}
+
+        @JavascriptInterface
+        public void cancelDescriptionSpeech(){runOnUiThread(()->{pendingDescription=null;if(descriptionVoice!=null)descriptionVoice.stop();});}
+
+        @JavascriptInterface
+        public void speakDescription(String text){runOnUiThread(()->{
+            if(text==null||text.length()>2000)return;
+            pendingDescription=text;
+            if(descriptionVoiceFailed){pendingDescription=null;descriptionSpeechState("error");return;}
+            if(descriptionVoice!=null){readDescription();return;}
+            descriptionVoice=new android.speech.tts.TextToSpeech(MainActivity.this,result->runOnUiThread(()->{
+                if(result!=android.speech.tts.TextToSpeech.SUCCESS){descriptionVoiceFailed=true;pendingDescription=null;descriptionSpeechState("error");return;}
+                int language=descriptionVoice.setLanguage(java.util.Locale.US);
+                if(language<0){descriptionVoiceFailed=true;pendingDescription=null;descriptionSpeechState("error");return;}
+                descriptionVoiceReady=true;
+                descriptionVoice.setOnUtteranceProgressListener(new android.speech.tts.UtteranceProgressListener(){
+                    public void onStart(String id){}
+                    public void onDone(String id){runOnUiThread(()->descriptionSpeechState("end"));}
+                    public void onError(String id){runOnUiThread(()->descriptionSpeechState("error"));}
+                });
+                readDescription();
+            }));
+        });}
+
         @JavascriptInterface
         public void saveBackup(String json){
             try {

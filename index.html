@@ -1426,6 +1426,7 @@
 <link rel="stylesheet" href="./phone-play.css?v=11">
 <link rel="stylesheet" href="./app-display.css?v=1">
 <script src="./app-display.js?v=1" defer></script>
+<link rel="stylesheet" href="./trainer-table-zoom.css?v=1">
 </head>
 <body>
 <div id="app">
@@ -1529,18 +1530,19 @@
     </div>
     <div id="aimControls" class="aimControlRow activeAim">
       <div id="aimRoller" class="aimRollerControl" aria-label="Shot 1 micro aim roller">
-        <span class="rollerDir">↶</span>
+        <button class="rollerDir" type="button" data-aim-step="-1" aria-label="Aim left one step" title="Aim left 0.15°">↶</button>
         <div class="rollerTrack"><div class="rollerTicks"></div><div class="rollerCenter"></div></div>
-        <span class="rollerDir">↷</span>
+        <button class="rollerDir" type="button" data-aim-step="1" aria-label="Aim right one step" title="Aim right 0.15°">↷</button>
       </div>
     </div>
     <div id="aimControls2" class="aimControlRow">
       <div id="aimRoller2" class="aimRollerControl" aria-label="Shot 2 micro aim roller">
-        <span class="rollerDir">↶</span>
+        <button class="rollerDir" type="button" data-aim-step="-1" aria-label="Aim left one step" title="Aim left 0.15°">↶</button>
         <div class="rollerTrack"><div class="rollerTicks"></div><div class="rollerCenter"></div></div>
-        <span class="rollerDir">↷</span>
+        <button class="rollerDir" type="button" data-aim-step="1" aria-label="Aim right one step" title="Aim right 0.15°">↷</button>
       </div>
     </div>
+    <button id="tableZoom" type="button" aria-label="Inspect table zoom or restore full view" aria-pressed="false">⌕</button>
     <button id="angleLock" type="button" aria-pressed="false" title="Lock or unlock the active shot aiming angle">∠</button>
     <div id="toast"></div>
   </div>
@@ -1876,6 +1878,7 @@
 <script src="./photo-ball-crops.js?v=1"></script>
 <script src="./photo-table-spots.js?v=3"></script>
 <script src="./photo-cloth-filter.js?v=2"></script>
+<script src="./trainer-table-zoom.js?v=1"></script>
 <script>
 // AI Camera Edition wrapper: v4.12 trainer, app-mode launch package. v4 adds scoreboard placement/default-off + local analysis-photo recall.
 // v4.12: virtual diamond extensions beyond physical corners; fixes source references that previously clipped at the first visible table boundary.
@@ -2070,7 +2073,7 @@
     function installActionUndo(){
         actionHistory=window.BilliardsActionHistory.create(60);
         const relevant=e=>e.target instanceof Element&&!!e.target.closest('#app,#zenBar,#zenRack,#zenRackMenu,#zenFreshTable,#zenEdgeControls,.zen-hover-panel');
-        const excluded=e=>!!e.target.closest?.('#undoAction,#redoAction,#undoShot,#redoShot,#zenUndoAction,#zenShotHistory,.zen-history-menu,.zen-history-trigger');
+        const excluded=e=>!!e.target.closest?.('#tableZoom,#undoAction,#redoAction,#undoShot,#redoShot,#zenUndoAction,#zenShotHistory,.zen-history-menu,.zen-history-trigger');
         const later=delay=>{clearTimeout(actionUndoTimer);actionUndoTimer=setTimeout(finishActionUndo,delay);};
         document.addEventListener('pointerdown',e=>{if(e.button!==0||!relevant(e)||excluded(e)||animation)return;actionPointer=false;actionKeys=false;finishActionUndo();beginActionUndo();actionPointer=true;},true);
         document.addEventListener('pointerup',()=>{actionPointer=false;later(0);});
@@ -5279,6 +5282,14 @@
             spin2.style.width = halfRailW + 'px';
         }
 
+        const zoomButton = $('tableZoom');
+        if (zoomButton) {
+            const zoomLeft = Math.min(canvas.clientWidth - 46, rightRailX + halfRailW + 6);
+            zoomButton.style.left = Math.max(2, zoomLeft) + 'px';
+            zoomButton.style.top = railBandTop + 'px';
+            // Leave room for the inspection button alongside Shot 2.
+            if (aim2) aim2.style.width = Math.max(120, Math.min(halfRailW, zoomLeft - rightRailX - 6)) + 'px';
+        }
         if (cueBtn) {
             cueBtn.style.left = (rightX - 18) + 'px';
             cueBtn.style.top = (sideTop + sideH * .52) + 'px';
@@ -7020,6 +7031,7 @@
         const M = mapper(), map = M.map;
         if (!map)
             return;
+        window.BilliardsTableZoom?.begin(ctx);
         drawTable(map, M);
 
         // Marker balls are table-position references, not physical balls.
@@ -7068,6 +7080,7 @@
         if (!document.body.classList.contains('zen-mode')) drawTeachingCompass(map);
         if (!document.body.classList.contains('zen-mode')) drawRollingReferences(map);
         if (!document.body.classList.contains('zen-mode')) drawCalibration(M);
+        window.BilliardsTableZoom?.end(ctx);
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }
     function friendlyEventText(v) {
@@ -8196,6 +8209,16 @@
     canvas.addEventListener('pointercancel', () => {const zenGesture=document.body.classList.contains('zen-mode')&&drag;drag=null;if(zenGesture)finishZenDragPaint();});
     // Mouse-wheel fine controls.  Hovering any shot slider uses the same increment
     // as its +/- controls, so the mouse can stay over the table or sidebar.
+    window.billiardsStepTableSlider = (id, direction) => {
+        const input=$(id);
+        if(!input || input.disabled || animation || isProjector || (id.endsWith('2')&&!S.shot2Enabled)) return;
+        finishActionUndo(); beginActionUndo();
+        const value=clamp(Number(input.value)+direction*(Number(input.step)||.01),Number(input.min),Number(input.max));
+        input.value=value.toFixed(2);
+        input.dispatchEvent(new Event('input',{bubbles:true}));
+        input.dispatchEvent(new Event('change',{bubbles:true}));
+        saveState(); finishActionUndo();
+    };
     function installWheelRange(id) {
         const el = $(id);
         if (!el) return;
@@ -8405,6 +8428,17 @@
             const roller = $(rollerId);
             if (!roller)
                 return;
+            roller.querySelectorAll('[data-aim-step]').forEach(button => {
+                button.addEventListener('pointerdown', event => event.stopPropagation());
+                button.addEventListener('click', event => {
+                    event.stopPropagation();
+                    if (animation || (shotNo === 2 && !S.shot2Enabled)) return;
+                    finishActionUndo(); beginActionUndo();
+                    setActiveShot(shotNo);
+                    rotateAimMicro(Number(button.dataset.aimStep) * 0.15 * Math.PI / 180);
+                    requestAnimationFrame(finishActionUndo);
+                });
+            });
             const ticks = roller.querySelector('.rollerTicks');
             let rollerDrag = false, rollerLastX = 0, rollerVisual = 0;
             roller.addEventListener('pointerdown', ev => {
@@ -8442,6 +8476,7 @@
         }
         bindAimRoller('aimRoller', 1);
         bindAimRoller('aimRoller2', 2);
+        if (!isZenPage && !isProjector) window.BilliardsTableZoom.attach({canvas, button:$('tableZoom'), redraw:draw});
     }
     function commitAnimatedShot(sim, preShot) {
         if (!sim.frames.length)

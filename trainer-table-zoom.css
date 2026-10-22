@@ -1,0 +1,20 @@
+#tableZoom { position:absolute; z-index:9; width:42px; height:34px; padding:0; border:1px solid #8fa6b8; border-radius:17px; background:#101820ed; color:#dbe9ef; font:600 16px system-ui; touch-action:manipulation; cursor:pointer; }
+#tableZoom[aria-pressed=true] { border-color:#77c8ff; color:#77c8ff; box-shadow:0 0 10px #77c8ff55; }
+#tableZoom:focus-visible,.aimRollerControl .rollerDir:focus-visible { outline:2px solid #77c8ff; outline-offset:2px; }
+.aimRollerControl .rollerDir { pointer-events:auto; cursor:pointer; border:0; background:transparent; padding:0; flex:0 0 28px; width:28px; height:28px; min-width:0; border-radius:50%; touch-action:manipulation; }
+.aimRollerControl .rollerDir:hover { background:#ffffff20; opacity:1; }
+body.phone-layout #tableZoom { top:4px!important; right:8px!important; left:auto!important; }
+body.phone-layout .aimRollerControl .rollerDir { flex:0 0 28px; }
+body.zen-mode #tableZoom,body.projector #tableZoom { display:none; }
+
+/* The familiar values and labels are the two discrete step targets. */
+.tableSpeedControl .sliderStep,.miniSpinControl .sliderStep { pointer-events:auto; cursor:pointer; padding:0; border:0; background:transparent; min-width:0; margin:0; touch-action:manipulation; height:30px; border-radius:12px; }
+.tableSpeedControl .phoneSliderValue,.miniSpinControl .phoneSliderValue { left:0; width:44px; }
+.tableSpeedControl .tableSpeedLabel { right:0; width:50px; }
+.miniSpinControl .miniSpinLabel { right:0; width:28px; }
+.sliderStep:hover { background:#ffffff16; }
+.sliderStep:focus-visible { outline:2px solid #77c8ff; outline-offset:1px; }
+body.phone-layout .tableSpeedControl,body.phone-layout .miniSpinControl { padding-top:56px; }
+body.phone-layout .tableSpeedControl .sliderStep,body.phone-layout .miniSpinControl .sliderStep { left:0; right:0; width:100%; height:26px; transform:none; pointer-events:auto; }
+body.phone-layout .tableSpeedControl .tableSpeedLabel,body.phone-layout .miniSpinControl .miniSpinLabel { top:0; }
+body.phone-layout .tableSpeedControl .phoneSliderValue,body.phone-layout .miniSpinControl .phoneSliderValue { top:26px; }
