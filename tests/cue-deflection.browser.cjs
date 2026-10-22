@@ -21,8 +21,8 @@ const probe=`window.__deflectionProbe=(options={})=>{
   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.route('http://127.0.0.1:8788/?train=1',r=>r.fulfill({contentType:'text/html',body:raw.replace('window.__BT_PHYSICS_SELF_TEST__ = runPhysicsSelfTests;','window.__BT_PHYSICS_SELF_TEST__ = runPhysicsSelfTests;'+probe)}));
   await page.goto('http://127.0.0.1:8788/?train=1');await page.waitForFunction(()=>window.__deflectionProbe&&window.billiardsTourBridge);
-  assert.equal(await page.locator('#cueShaftPreset').inputValue(),'standard');
-  assert.equal(await page.locator('#cueEndmassRatio').inputValue(),'35.000');
+  assert.equal(await page.locator('#cueShaftPreset').inputValue(),'low');
+  assert.equal(await page.locator('#cueEndmassRatio').inputValue(),'50.000');
   const data=await page.evaluate(()=>({self:__BT_PHYSICS_SELF_TEST__(),old:__deflectionProbe({ratio:20.151}),standard:__deflectionProbe({ratio:35}),low:__deflectionProbe({ratio:50}),centerOld:__deflectionProbe({ratio:20.151,side:0}),centerNew:__deflectionProbe({ratio:35,side:0})}));
   assert(data.self.ok);assert.deepEqual(data.centerOld.first,data.centerNew.first,'Center-ball physics is unchanged');
   for(const key of ['old','standard','low'])assert.deepEqual(data[key].first,data[key].second,'Both shot engines use identical shaft calibration');

@@ -1931,7 +1931,7 @@
     // Cue end-mass ratio is m_ball / m_effective-tip and drives squirt from the rigid-impact model.
     const PHYSICS_MODEL = Object.freeze({
         maxTipOffsetR: 0.50,
-        defaultCueEndmassRatio: CUE_SHAFT_PRESETS.standard,
+        defaultCueEndmassRatio: CUE_SHAFT_PRESETS.low,
         defaultCueElevationDeg: 3.0,
         maxPlanarCueElevationDeg: 15.0,
         maxAirborneCueElevationDeg: 70.0,
@@ -2003,7 +2003,7 @@
                 solution: null
             },
             muSlide: APK.muSliding, muRoll: APK.muRolling, muBall: APK.muBallBall, ballRest: .96,
-            railRest: .90, railTang: .90, cueEndmassRatio: PHYSICS_MODEL.defaultCueEndmassRatio, cuePreset: 'standard',
+            railRest: .90, railTang: .90, cueEndmassRatio: PHYSICS_MODEL.defaultCueEndmassRatio, cuePreset: 'low',
             jumpUnits: 'in', airbornePhysics: false, tableRest: PHYSICS_MODEL.defaultTableVerticalRestitution, bedImpactMu: PHYSICS_MODEL.defaultBedImpactFriction, showImpact: true, showTipBadge: false, showPaths: true, showGrid: true, showDiamonds: true, showTable: true,
             preview: null, firstEvent: '—'
         };
@@ -3818,7 +3818,7 @@
         const named=Object.keys(CUE_SHAFT_PRESETS).find(key=>
             Math.abs(ratio-CUE_SHAFT_PRESETS[key])<.0005||
             Math.abs(ratio-LEGACY_CUE_SHAFT_PRESETS[key])<.0005);
-        const preset=named||(!valid?(S.cuePreset==='low'?'low':'standard'):'custom');
+        const preset=named||(!valid?(S.cuePreset==='standard'?'standard':'low'):'custom');
         S.cuePreset=preset;
         S.cueEndmassRatio=preset==='custom'?clamp(ratio,8,60):CUE_SHAFT_PRESETS[preset];
         return preset;

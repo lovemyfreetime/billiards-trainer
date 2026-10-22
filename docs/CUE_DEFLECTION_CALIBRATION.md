@@ -8,10 +8,12 @@ This release retains that equation, tip-offset mapping, speed independence of in
 
 | Setting | Previous ball/end-mass ratio | Revised ratio | Squirt at +44% right / −90% draw, before → after |
 | --- | ---: | ---: | ---: |
-| Standard (default) | 20.151 | 35 | 1.304° → 0.800° |
-| Low-deflection | 29.158 | 50 | 0.943° → 0.575° |
+| Standard | 20.151 | 35 | 1.304° → 0.800° |
+| Low-deflection (default) | 29.158 | 50 | 0.943° → 0.575° |
 
 At 44% side with no vertical offset, the pre-October 6 curve gave about 0.822°. Standard now gives about 0.801°, bringing moderate-English response near that earlier baseline while retaining the physical equation's smooth near-linear shape. These revised presets are provisional practical calibration choices informed by the reported over-deflection, not independently measured population averages or proof of a particular cue's performance.
+
+New setups default to Low-deflection (ratio 50). Saved Standard and Custom selections remain selected; the default change does not overwrite a saved shaft choice.
 
 ## Existing data
 
