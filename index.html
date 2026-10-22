@@ -1872,7 +1872,8 @@
 <script src="./trainer-action-history.js?v=2"></script>
 <script src="./trainer-layout-files.js?v=2"></script>
 <script src="./trainer-table-exchange.js?v=1"></script>
-<script src="./companion-core.js?v=1"></script>
+<script src="./companion-capabilities.js?v=1"></script>
+<script src="./companion-core.js?v=2"></script>
 <script src="./trainer-saved-files.js?v=1"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
 <script src="./photo-table-spots.js?v=3"></script>
@@ -2490,7 +2491,35 @@
             applyTableFile(file,false,null,true);previous.push(saved);if(previous.length>12)previous.shift();
         }
         function restore(){if(animation)throw Error('Wait for the shot to finish.');const saved=previous.pop();if(!saved)throw Error('No earlier table to restore.');window.billiardsTourBridge.restore(saved);}
-        return {capture,apply,restore,canRestore:()=>previous.length>0,saved:()=>readSavedLayouts().map(d=>window.BilliardsCompanionCore.checkedLayout(d)),point(nx,ny){const c=canvas.getBoundingClientRect(),p=mapper().map({x:nx*S.tableL,y:ny*S.tableW});return {x:c.left+p.x*c.width/(canvas.width/DPR),y:c.top+p.y*c.height/(canvas.height/DPR)};}};
+        const caps=window.BilliardsCompanionCapabilities;
+        const copy=v=>JSON.parse(JSON.stringify(v,(key,value)=>key==='preview'?null:value));
+        function context(){
+            if(animation)throw Error('Wait for the shot to finish before sharing Trainer settings.');
+            return {version:caps.version,layout:capture(),settings:Object.fromEntries(Object.entries(caps.controls).map(([id,d])=>[id,S[d.key]])),activeShot:S.activeShot,shot2Enabled:S.shot2Enabled,shot2:copy(S.shot2||null),physics:Object.fromEntries(['muSlide','muRoll','muBall','ballRest','railRest','railTang','cueShaftPreset','cueEndmassRatio','tableRest','bedImpactMu'].map(k=>[k,S[k]]))};
+        }
+        // Simulations run against a private state copy; no animation, history or storage writes.
+        function simulationSession(){
+            if(animation)throw Error('Wait for the shot to finish.');const baseline=copy(S);let count=0;
+            return raw=>{
+                if(++count>10)throw Error('This turn has reached its ten preview limit.');
+                const shot=caps.shot(raw),live=S;
+                if(Math.abs(shot.aim.x)>baseline.tableL*4||Math.abs(shot.aim.y)>baseline.tableW*4)throw Error('Aim is outside the supported range.');
+                try{S=copy(baseline);S.activeShot=1;S.shot2Enabled=false;for(const [id,d]of Object.entries(caps.controls))if(shot[id]!==undefined)S[d.key]=shot[id];S.freeAim=copy(shot.aim);
+                    const p=simulate(false);return {source:'simulation_result',settings:shot,firstBallContact:p.firstBallContact,pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls.map(b=>({id:b.id,x:b.x,y:b.y,active:b.active})),cueBallPath:(p.paths[0]||[]).filter((_,i)=>i%8===0).map(q=>({x:q.x,y:q.y})),note:'Single shot 1 simulation from the frozen table at Send; a model prediction, not a physical outcome.'};
+                }finally{S=live;}
+            };
+        }
+        function applyAction(raw){
+            if(animation)throw Error('Wait for the shot to finish.');const a=caps.actions([raw])[0];
+            if(a.type==='lesson')throw Error('Open lessons through the Companion library.');
+            const values=a.type==='shot'?a.shot:a.settings;caps.settings(Object.fromEntries(Object.entries(values).filter(([id])=>id!=='aim')),S);
+            if(a.type==='shot'&&(Math.abs(values.aim.x)>S.tableL*4||Math.abs(values.aim.y)>S.tableW*4))throw Error('Invalid aim point.');
+            const saved=window.billiardsTourBridge.capture();
+            for(const [id,d]of Object.entries(caps.controls))if(values[id]!==undefined)S[d.key]=values[id];
+            if(a.type==='shot'){S.activeShot=1;S.shot2Enabled=false;S.freeAim=copy(values.aim);S.showTipBadge=true;S.showPaths=true;}
+            updateUI();updateShot2UIState();refreshPreview();saveState();syncProjector();previous.push(saved);if(previous.length>12)previous.shift();return context();
+        }
+        return {capture,apply,restore,context,simulationSession,applyAction,canRestore:()=>previous.length>0,saved:()=>readSavedLayouts().map(d=>window.BilliardsCompanionCore.checkedLayout(d)),point(nx,ny){const c=canvas.getBoundingClientRect(),p=mapper().map({x:nx*S.tableL,y:ny*S.tableW});return {x:c.left+p.x*c.width/(canvas.width/DPR),y:c.top+p.y*c.height/(canvas.height/DPR)};}};
     })();
     // Get Started uses the same table, solver, shot commit, and Undo history as normal play.
     window.billiardsTourBridge=(()=>{

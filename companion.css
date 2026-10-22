@@ -39,3 +39,26 @@ body.zen-mode #practiceNav,body.zen-mode #practiceHub,body.zen-mode #phPhoneLaun
  #practiceHub h2{font-size:21px}.ph-message{padding:10px}.ph-composer textarea{min-height:62px}.ph-transfer button{font-size:11px}
  body.practice-open #phonePanelScroll{display:none!important}
 }
+/* Match the Trainer's blue section headers and green action controls. */
+#practiceNav{display:block;margin:0 0 10px;padding:0}
+#practiceNav #phHubTab{width:100%;text-align:left;background:#3498db;color:#fff;border:0;border-radius:7px;font-weight:700;letter-spacing:.4px;padding:12px}
+#practiceNav #phHubTab:hover{background:#4aa8ff}
+#practiceNav #phHubTab:after{content:'↗';float:right}
+body.practice-open #practiceNav{display:none!important}
+#practiceHub{--ph-border:#3c5165;--ph-muted:#bfccd9}
+#practiceHub .ph-primary,#practiceHub #phConnect{background:#238754;color:#fff;border-color:#45b77c;font-weight:650}
+#practiceHub .ph-primary:hover,#practiceHub #phConnect:hover{background:#2da367}
+#practiceHub .ph-tabs{background:#162e47;padding:4px;border-radius:9px;border:1px solid #34628b}
+#practiceHub .ph-tabs button[aria-selected=true]{background:#287db5!important;border-color:#67b7ec!important;color:#fff}
+#practiceHub .ph-connection{background:#162b40;border-color:#355e82}
+#practiceHub .ph-transfer button:first-child{background:#225781;border-color:#478dbe}
+#practiceHub .ph-transfer button:last-child:not(:disabled){background:#6b5230;border-color:#b28a51}
+#practiceHub .ph-eyebrow{color:#73b9ed}
+#practiceHub .ph-message[data-role=assistant]{border-left:3px solid #3498db}
+#practiceHub .ph-message[data-role=user]{border-left:3px solid #43b981}
+#practiceHub .ph-card{border-left:3px solid #3498db}
+#practiceHub .ph-note{border-left:3px solid #43b981}
+#practiceHub .ph-action{padding:10px;margin:10px 0;border:1px solid #3c8764;border-radius:9px;background:#142e26}
+#practiceHub .ph-action pre{white-space:pre-wrap;font-size:11px}
+#phBackTable{border-color:#448ac0!important;color:#abd9ff!important}
+#phPhoneLaunch{background:#287db5;border-color:#67b7ec}
