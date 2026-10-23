@@ -42,6 +42,14 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),http=require('n
   const keys=await page.evaluate(()=>caches.keys());assert(keys.some(k=>k.endsWith('fixture-2')));assert(!keys.some(k=>k.endsWith('fixture-3')),'Partial releases are never retained instead of the prior complete release');
   await page.screenshot({path:'/tmp/android-update-ready.png'});
   await context.close();
+  // Zen keeps downloading complete releases but never renders update notices.
+  version=5;const zenContext=await browser.newContext({...devices['Pixel 7']}),zenPage=await zenContext.newPage();
+  await zenPage.goto(base+'/?zen=1');await zenPage.waitForFunction(()=>navigator.serviceWorker.controller);await zenPage.reload();
+  version=6;await zenPage.evaluate(()=>BilliardsAppUpdates.check());
+  await zenPage.waitForFunction(async()=>{const cache=await caches.open('billiards-trainer-4-12-fixture-6');return !!await cache.match('./offline-assets.json')&&(await navigator.serviceWorker.getRegistration()).active?.state==='activated';});
+  assert.equal(await zenPage.locator('#appUpdateNotice').count(),0,'Zen never creates update text, including after manual checks and activation');
+  assert.equal(await zenPage.locator('#release').textContent(),'Release 5','Zen update never interrupts the current page');
+  await zenContext.close();
   const native=await browser.newContext();await native.addInitScript(()=>{window.BilliardsBundledAndroid=true;});const wrapped=await native.newPage();await wrapped.goto(base);
   assert.equal(await wrapped.evaluate(()=>BilliardsAppUpdates.supported),false);
   assert.equal(await wrapped.getByRole('button',{name:'Check for updates'}).isVisible(),false,'Bundled wrappers do not register a web update flow');await native.close();

@@ -1,8 +1,19 @@
 .trainer-title-color{color:#77c8ff}
-/* A small, keyboard-accessible corner chevron reveals the screen action. */
-body #appDisplayControl{position:fixed;right:max(7px,env(safe-area-inset-right));top:max(4px,env(safe-area-inset-top));z-index:120;width:32px;height:28px;min-width:32px;min-height:28px;padding:0;border:0;border-radius:0 0 8px 8px;background:#10151c99;color:#aebbc8;font:20px/1 system-ui;cursor:pointer;opacity:.65}
-body #appDisplayControl:hover,body #appDisplayControl:focus-visible{opacity:1;background:#263442;outline:2px solid #77c8ff}
+/* One quiet glowing dot toggles fullscreen directly; the larger target stays easy to tap. */
+body #appDisplayControl{--display-glow:#77c8ff;position:fixed;right:max(7px,env(safe-area-inset-right));top:max(4px,env(safe-area-inset-top));z-index:120;display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;margin:0;padding:0;border:0;border-radius:50%;background:transparent;cursor:pointer;touch-action:manipulation}
+body.zen-mode #appDisplayControl{--display-glow:#d4bb92}
+#appDisplayControl .display-dot{position:relative;display:block;width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 50% 22%,#fff 0%,var(--display-glow) 45%,var(--display-glow) 100%);box-shadow:0 -2px 8px 2px color-mix(in srgb,var(--display-glow) 65%,transparent),0 0 14px color-mix(in srgb,var(--display-glow) 45%,transparent)}
+#appDisplayControl .display-dot::after{content:'';position:absolute;inset:-5px;border-radius:50%;background:radial-gradient(circle at 50% 30%,color-mix(in srgb,var(--display-glow) 45%,transparent),transparent 70%);animation:display-glow 2.8s ease-in-out infinite;pointer-events:none}
+#appDisplayControl:hover .display-dot{box-shadow:0 -2px 10px 3px var(--display-glow),0 0 18px var(--display-glow)}
+#appDisplayControl:focus-visible{outline:2px solid var(--display-glow);outline-offset:2px}
+@keyframes display-glow{0%,100%{opacity:.35;transform:scale(.75)}50%{opacity:.95;transform:scale(1.5)}}
+@media(prefers-reduced-motion:reduce){#appDisplayControl .display-dot::after{animation:none;opacity:.55}}
 body:has(#btg-fullscreen):not(.zen-mode) #appDisplayControl{display:none}
+body.zen-mode #appDisplayMenu,body.zen-mode #appUpdateNotice{display:none!important}
+/* Leave separate touch targets for the catalog speaker and corner dot. */
+#playDialog:has(#appDisplayControl) .play-catalog-heading{padding-right:44px}
+#playDialog:has(#appDisplayControl)>.play-popup-audio{right:60px}
+#playDialog:has(#appDisplayControl):not(.play-catalog-dialog)>h2{padding-right:106px}
 #appDisplayMenu{position:fixed;inset:8px 8px auto auto;max-width:min(310px,calc(100vw - 32px));margin:0;padding:10px;border:1px solid #566476;border-radius:10px;background:#17212c;color:#eef2f5;box-shadow:0 8px 24px #0008;font:14px/1.5 system-ui}
 #appDisplayMenu button{min-height:44px;padding:8px 14px;border:1px solid #718395;border-radius:7px;background:#263442;color:#fff;font:inherit;cursor:pointer}
 #appDisplayMenu p{margin:8px 0 0}#appDisplayMenu p:empty{display:none}
