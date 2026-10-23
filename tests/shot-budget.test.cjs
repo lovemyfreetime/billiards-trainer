@@ -45,16 +45,16 @@ assert(html.indexOf('id="shotBudget"')<html.indexOf('id="jumpMasseFeatures"'));a
 assert(html.includes('grid-template-columns:repeat(2,minmax(0,1fr))'));assert(!html.includes('3D JUMP / MASSÉ FEATURES'));
 console.log('Shot budget: motion + spin, shared energy baseline, unchanged simulation/paths, collision records, pocket residual, upright offset labels, collision avoidance and equal button placement pass.');
 
-assert(labels.some(p=>p.type==='loss'&&p.color==='#ff7777'&&p.loss>0));
+const railCards=budget.railLabels(pocketed,map,{width:1200,height:700});assert(railCards.some(p=>p.loss>0&&p.rows[0].text.startsWith('Rail loss · ')));
 assert(labels.some(p=>p.type==='feel'&&p.color==='#69e5ff'));
 assert(labels.some(p=>p.type==='feel'&&p.endpoint&&p.id===0&&!p.text.includes('total')));
-assert(labels.some(p=>p.type==='diamond-loss'&&p.diamondLoss>0));
-for(const item of labels.filter(p=>p.type==='loss'))assert(Math.abs(item.loss-item.parts.reduce((sum,[before,after])=>sum+before-after,0))<1e-7);
+assert(railCards.some(p=>p.diamondLoss>0));
+for(const item of railCards)assert(Math.abs(item.loss-item.parts.reduce((sum,[before,after])=>sum+before-after,0))<1e-7);
 const firstCue=pocketed.budgetPaths[0][0];
 assert(Math.abs(firstCue.feel-pocketed.strokeFeel)<1e-9);
 assert(Math.abs(pocketed.strokeFeel-c.rollingPowerReferenceDistance(c.S.speed)/(c.S.tableL/8))<1e-9,'Uses the actual existing lag calibration');
 for(const sample of pocketed.budgetPaths[0])assert(Math.abs(sample.feel-pocketed.strokeFeel*sample.percent/100)<1e-9,'Diamond budget shares the percent denominator');
-for(const item of labels.filter(p=>p.type==='loss'))assert(Math.abs(item.diamondLoss-pocketed.strokeFeel*item.loss/100)<1e-9);
+for(const item of railCards)assert(Math.abs(item.diamondLoss-pocketed.strokeFeel*item.loss/100)<1e-9);
 const ledger=budget.create({id:0,x:0,y:0,vx:2,vy:0},.03,9.81,{diamonds:8});
 ledger.record({id:0,x:1,y:0,vx:Math.sqrt(3),vy:0},'before',1);
 ledger.record({id:0,x:1,y:0,vx:1,vy:0},'after',1);
@@ -62,12 +62,12 @@ ledger.record({id:0,x:2,y:0,vx:0,vy:0},'end',2);
 assert.deepEqual(ledger.paths[0].map(p=>Math.round(p.feel)),[8,6,2,0]);
 const ledgerLabels=budget.labels({paths:{0:[{x:0,y:0,t:0},{x:1,y:0,t:1},{x:2,y:0,t:2}]},budgetPaths:ledger.paths,strokeFeel:8},p=>({x:100+p.x*400,y:250}),{width:1100,height:500});
 assert(ledgerLabels.some(p=>p.type==='feel'&&p.endpoint&&p.text==='0D'));
-assert(ledgerLabels.some(p=>p.type==='diamond-loss'&&p.text==='−4D'));
+const ledgerRails=budget.railLabels({budgetPaths:ledger.paths,strokeFeel:8},p=>({x:100+p.x*400,y:250}),{width:1100,height:500});assert(ledgerRails.some(p=>Math.abs(p.diamondLoss-4)<1e-8&&p.rows[0].text.includes('4D')));
 for(const item of labels.filter(p=>p.type==='energy')){
  const paired=labels.find(p=>p.type==='feel'&&p.id===item.id&&p.linePoint.x===item.linePoint.x&&p.linePoint.y===item.linePoint.y);
  if(paired)assert.equal(paired.side,-item.side,'Diamond feel stays on the opposite side of the same path');
 }
-console.log('Contact-loss deltas, red labels, opposite cyan feel, additive diamond deductions and zero stopped endpoint pass.');
+console.log('Contact-loss deltas, rail badges, opposite cyan feel, additive diamond deductions and zero stopped endpoint pass.');
 
 // Long multi-cushion shot: later legs must retain regular paired readings.
 c.S=c.defaultState();Object.assign(c.S,{tableL:2.54,tableW:1.27,speed:6,follow:0,sideSpin:0,showShotBudget:true});
@@ -110,7 +110,7 @@ for(const angle of [0,2.5]){
  const boxes=[],cards=budget.contactLabels(shot,map,{width:1200,height:700,occupied:boxes});
  assert(cards.length);assert.equal(cards[0].rows.length,1);
  for(const r of cards[0].rows.slice(1))assert(r.text.includes('%')&&r.text.includes('D'),'Every exchange amount includes both units');
- assert(cards[0].rows[0].text.startsWith('B1 · '));
+ assert(cards[0].rows[0].text.startsWith('B1 loss · '));
  assert(Math.abs(budget.exchange(event).received-received)<1e-9);
  assert(boxes.every(b=>b.left>=0&&b.right<=1200&&b.top>=0&&b.bottom<=700));
 }
@@ -120,7 +120,7 @@ const ca={id:0,n:'CB',x:0,y:0,vx:2,vy:0},ob={id:2,n:'2',x:.06,y:0,vx:-1,vy:0};
 const finish=exchange.contact(ob,ca,1);ob.vx=1.8;ca.vx=-.8;finish(ob,ca);
 assert.equal(exchange.contacts[0].incoming,125);
 const card=budget.contactLabels({budgetContacts:exchange.contacts,strokeFeel:8},map,{width:1200,height:700})[0];
-assert(card.rows[0].text.startsWith('B2 · '));assert.equal(budget.exchange(exchange.contacts[0]).donor,1);
+assert(card.rows[0].text.startsWith('B2 loss · '));assert.equal(budget.exchange(exchange.contacts[0]).donor,1);
 console.log('Contact exchange: full/thin overlap, conserved split, cue reduction, moving target, both units and bounded callouts pass.');
 
 assert.equal(budget.format(.024),'<0.1');assert.equal(budget.format(0),'0');

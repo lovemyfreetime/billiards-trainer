@@ -37,3 +37,14 @@ body .experience-switcher .experience-toggle-image,#playRoot .experience-switche
 #btZenLauncher .experience-toggle{width:60px;height:60px;min-width:60px;min-height:60px}
 .experience-menu--train:popover-open{display:grid;grid-template-columns:repeat(2,60px);grid-template-rows:repeat(2,60px);gap:10px;pointer-events:none}
 .experience-menu--train a{pointer-events:auto}.experience-menu--train a[data-experience=zen]{grid-area:1/1}.experience-menu--train a[data-experience=play]{grid-area:1/2}.experience-menu--train a[data-experience=home]{grid-area:2/2}
+
+/* Update tools stay inside the existing mode menu. */
+.experience-menu:has(.experience-update):popover-open{display:grid;grid-template-columns:repeat(3,max-content);grid-template-rows:28px auto}
+body .experience-menu .experience-update{grid-column:1/-1;grid-row:1;pointer-events:auto;box-sizing:border-box;width:100%;min-height:28px;margin:0;padding:4px 9px;border:1px solid #547388;border-radius:7px;background:#20323e;color:#d1e5ef;font:600 11px system-ui;cursor:pointer}
+.experience-menu--train:has(.experience-update):popover-open{grid-template-columns:repeat(2,60px);grid-template-rows:28px 60px 60px}
+.experience-menu--train:has(.experience-update) a[data-experience=zen]{grid-area:2/1}.experience-menu--train:has(.experience-update) a[data-experience=play]{grid-area:2/2}.experience-menu--train:has(.experience-update) a[data-experience=home]{grid-area:3/2}
+
+body.zen-mode #zenModeMenu:has(.zen-update){display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:28px 48px;gap:10px;width:164px;height:86px}
+body.zen-mode #zenModeMenu .zen-update{grid-column:1/-1;grid-row:1;width:100%;height:28px;min-height:28px;padding:4px 6px!important;border:1px solid #547388;border-radius:7px;background:#20323e;color:#d1e5ef;font:600 11px system-ui}
+
+body .experience-menu .experience-update,body.zen-mode #zenModeMenu .zen-update{white-space:nowrap}

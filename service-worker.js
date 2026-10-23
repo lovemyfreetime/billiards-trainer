@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-offline-e7d3925d472a41e1';
+const CACHE_NAME = 'billiards-trainer-4-12-offline-7810030f4481b49b';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './play-narration-data.js?v=3',
@@ -80,28 +80,38 @@ async function verifiedResponse(response,hash){
   const headers=new Headers(response.headers);for(const name of ['content-encoding','content-length','transfer-encoding'])headers.delete(name);
   headers.set('X-Billiards-SHA256',hash);return new Response(response.body,{status:response.status,statusText:response.statusText,headers});
 }
+async function notifyUpdate(message){
+  if(!self.clients.matchAll)return;
+  for(const client of await self.clients.matchAll({type:'window',includeUncontrolled:true}))client.postMessage(message);
+}
 self.addEventListener('install',event=>{
   event.waitUntil((async()=>{
+   try {
     const response=await timedFetch('./offline-assets.json',12000);if(!response.ok)throw Error('Offline content manifest unavailable');
-    const manifest=await response.json(),cache=await caches.open(CACHE_NAME),previous=[];
+    const manifest=await response.json();
+    if(manifest.version&&!CACHE_NAME.endsWith('-'+manifest.version))throw Error('Offline release changed during download; retry the update.');
+    const cache=await caches.open(CACHE_NAME),previous=[];
     for(const name of await caches.keys())if(name!==CACHE_NAME&&name.startsWith(CACHE_PREFIX))previous.push(await caches.open(name));
-    const entries=Object.entries(manifest.files);let next=0;
+    const entries=Object.entries(manifest.files);let next=0,done=0;
+    async function progress(){done++;if(done%25===0||done===entries.length)await notifyUpdate({type:'BILLIARDS_UPDATE_PROGRESS',done,total:entries.length});}
     await Promise.all(Array.from({length:4},async()=>{while(next<entries.length){
       const [path,hash]=entries[next++],url='./'+path;let content;
-      const existing=await cache.match(url);if(existing?.headers.get('X-Billiards-SHA256')===hash)continue;
+      const existing=await cache.match(url);if(existing?.headers.get('X-Billiards-SHA256')===hash){await progress();continue;}
       for(const old of previous){const candidate=await old.match(url,{ignoreSearch:true});if(candidate&&candidate.ok&&(candidate.headers.get('X-Billiards-SHA256')===hash||await sha256(candidate)===hash)){content=candidate;break;}}
       if(!content){content=await timedFetch(url,12000);if(!content.ok||await sha256(content)!==hash)throw Error('Offline content incomplete: '+path);}
-      await cache.put(url,await verifiedResponse(content,hash));
+      await cache.put(url,await verifiedResponse(content,hash));await progress();
     }}));
     // This marker is written only after every required file has been verified.
     await cache.put('./offline-assets.json',new Response(JSON.stringify(manifest),{headers:{'Content-Type':'application/json'}}));
     await self.skipWaiting();
+   }catch(error){await notifyUpdate({type:'BILLIARDS_UPDATE_FAILED'});throw error;}
   })());
 });
 self.addEventListener('activate',event=>{event.waitUntil((async()=>{
   // Keep one prior release for already-open pages using older versioned assets.
-  const keys=(await caches.keys()).filter(k=>k.startsWith(CACHE_PREFIX)&&k!==CACHE_NAME);
-  for(const key of keys.slice(0,-1))await caches.delete(key);
+  const keys=(await caches.keys()).filter(k=>k.startsWith(CACHE_PREFIX)&&k!==CACHE_NAME),complete=[];
+  for(const key of keys){const cache=await caches.open(key);if(await cache.match('./offline-assets.json'))complete.push(key);else await caches.delete(key);}
+  for(const key of complete.slice(0,-1))await caches.delete(key);
   await self.clients.claim();
 })());});
 function navigationShell(url){

@@ -23,12 +23,11 @@ function toggleQR(id){document.getElementById(id)?.classList.toggle('show')}
 
 function prepareTrainerWrapper(){
   if(window.BilliardsBundledWindows||window.BilliardsBundledAndroid||!('serviceWorker' in navigator)) return;
-  try{
-    const marker='/install/';
-    const i=location.pathname.indexOf(marker);
-    const root=(i>=0?location.pathname.slice(0,i):'/billiards-trainer')+'/';
-    navigator.serviceWorker.register(root+'service-worker.js',{scope:root}).catch(()=>{});
-  }catch(e){}
+  const marker='/install/',i=location.pathname.indexOf(marker),root=(i>=0?location.pathname.slice(0,i):'/billiards-trainer')+'/';
+  if(document.querySelector('script[data-app-updates]'))return;
+  const script=document.createElement('script');script.src=root+'app-updates.js?v=1';script.dataset.appUpdates='true';
+  const button=document.createElement('button');button.type='button';button.className='btn secondary';button.textContent='Check for updates';button.setAttribute('data-app-update','');button.hidden=true;
+  (document.querySelector('footer')||document.body).append(button);document.head.append(script);
 }
 
 function isStandaloneInstaller(){

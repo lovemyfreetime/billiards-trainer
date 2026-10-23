@@ -18,7 +18,7 @@ const assert=require('node:assert/strict'),cp=require('node:child_process'),{chr
    await page.locator('#shotBudget').click();await page.waitForFunction(()=>window.__budgetLabels?.length>1);
    assert.equal(await page.locator('#shotBudget').getAttribute('aria-pressed'),'true');
    const cards=await page.evaluate(()=>__budgetContacts),transfers=cards.filter(c=>c.event);
-   assert(transfers.length,'Compact ball transfer badge is visible');assert(transfers.every(c=>c.rows.length===1&&/^(B[0-9]+|CB) · /.test(c.rows[0].text)));
+   assert(transfers.length,'Compact ball transfer badge is visible');assert(transfers.every(c=>c.rows.length===1&&/^(B[0-9]+|CB) loss · /.test(c.rows[0].text)));
    assert(cards.some(c=>c.type==='overlap'),'Overlap is isolated in its own badge');
    assert.equal(await page.locator('#budgetInfo,#budgetInfoPanel').count(),0,'Budget has no extra sidebar controls');
    assert.deepEqual(await page.evaluate(()=>billiardsTourBridge.predict()),before,'Budget toggle leaves actual shot prediction unchanged');

@@ -1573,7 +1573,7 @@
         <div class="fineRow"><label>Left right spin</label><button id="spin2Minus" type="button">−</button><input id="sideSpin2" type="range" min="-1" max="1" step="0.01" value="0"><button id="spin2Plus" type="button">+</button><input id="spin2Number" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 2 left right spin percent"></div>
         <div id="cueElevationAdvanced2" class="cueElevationSlider"><div class="fineRow"><label>Cue elevation</label><button id="elev2Minus" type="button">−</button><input id="cueElevation2" type="range" min="0" max="15" step="0.1" value="3"><button id="elev2Plus" type="button">+</button><input id="elev2Number" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 2 cue elevation degrees"></div></div>
       </div>
-      <div class="shotFeatureButtons"><button id="shotBudget" type="button" aria-pressed="false" title="Remaining % and cyan D along each path; red cushion losses; small badges show energy transferred to balls. Percentages use the starting shot. D is a share of its calibrated energy budget, not literal travel remaining; 16D is one lag.">SHOT BUDGET</button><button id="jumpMasseFeatures" class="jumpMasseFeatures" type="button" aria-pressed="false">JUMP / MASSÉ</button></div>
+      <div class="shotFeatureButtons"><button id="shotBudget" type="button" aria-pressed="false" title="Remaining % and cyan D along each path; compact ball and rail loss badges show deductions at each contact. Percentages use the starting shot. D is a share of its calibrated energy budget, not literal travel remaining; 16D is one lag.">SHOT BUDGET</button><button id="jumpMasseFeatures" class="jumpMasseFeatures" type="button" aria-pressed="false">JUMP / MASSÉ</button></div>
       <div id="tipArea">
         <div class="tipPane" id="tipPane1">
           <div class="shotPaneTitle">SHOT 1</div>
@@ -6616,7 +6616,7 @@
         if(S.showShotBudget&&S.showPaths){
             for(const {which,preview} of previews){
                 const contacts=api.contactLabels(preview,map,{...options,shot:S.shot2Enabled?which:null});
-                badges.push(...contacts);
+                badges.push(...contacts,...api.railLabels(preview,map,options));
             }
             for(const {preview} of previews)api.draw(ctx,api.labels(preview,map,options));
         }
@@ -12727,6 +12727,7 @@
         updateStatsTitles();
         updateUI();
         refreshPreview();
+        window.addEventListener('billiards:before-reload',()=>saveState());
         installActionUndo();
         requestAnimationFrame(() => requestAnimationFrame(() => drawTipControl()));
         window.addEventListener('resize', () => requestAnimationFrame(() => { drawTipControl(); fitLiveStats(); }));
@@ -12737,18 +12738,7 @@
 
 
 
-<script>
-if ('serviceWorker' in navigator && !(window.BilliardsBundledWindows||window.BilliardsBundledAndroid)) {
-  // A newly activated worker takes over caching without reloading the open
-  // table. Apply new page code on the next user-initiated navigation/reload;
-  // background updates must never discard a shot or a newly arranged Zen rack.
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js')
-      .then(reg => reg.update())
-      .catch(err => console.warn('Service worker registration failed:', err));
-  });
-}
-</script>
+
 
   <div id="btFeedbackModal" aria-hidden="true">
     <div class="btFeedbackPanel" role="dialog" aria-modal="true" aria-labelledby="btFeedbackTitle">
@@ -12783,7 +12773,8 @@ if ('serviceWorker' in navigator && !(window.BilliardsBundledWindows||window.Bil
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
   <link rel="stylesheet" href="./experience-menu.css?v=home-badge-v8">
-  <script src="./experience-menu.js?v=home-badge-v13"></script>
+  <script src="./app-updates.js?v=1"></script>
+<script src="./experience-menu.js?v=home-badge-v13"></script>
   <script src="./beta-ui.js?v=offline-startup-v158"></script>
 
 

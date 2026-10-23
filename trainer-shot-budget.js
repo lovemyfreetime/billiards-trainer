@@ -80,7 +80,7 @@ function contactLabels(preview,map,options={}){
   const {target,received}=exchange(event);
   if(received<=.005)continue;
   const text=format(received)+'%'+(Number.isFinite(preview.strokeFeel)?' · '+format(preview.strokeFeel*received/100)+'D':'');
-  const rows=[{text:(target.id===0?'CB':'B'+target.name)+' · '+text,color:'#f0f4ed'}];
+  const rows=[{text:(target.id===0?'CB':'B'+target.name)+' loss · '+text,color:'#f0f4ed'}];
   const card=placeBadge(rows,map(event),options);if(card)result.push({...card,event});
  }
  return result;
@@ -98,7 +98,7 @@ function journey(preview){
     const after=points[i+1];
     if(after?.kind==='after'&&after.t===point.t){
      const ball=(preview.budgetContacts||[]).some(e=>e.t===point.t&&e.before.some(p=>p.id===+id&&Math.abs(p.percent-point.percent)<1e-8));
-     if(!ball)items.push({kind:'cushion',id:+id,t:point.t,from:point.percent,to:after.percent,loss:point.percent-after.percent});
+     if(!ball)items.push({kind:'cushion',id:+id,t:point.t,x:point.x,y:point.y,from:point.percent,to:after.percent,loss:point.percent-after.percent});
      previous=after;i++;continue;
     }
    }else items.push({kind:point.kind,id:+id,t:point.t,to:point.percent});
@@ -107,6 +107,22 @@ function journey(preview){
  }
  const order={travel:0,ball:1,cushion:1,pocket:2,end:2};
  return items.sort((a,b)=>a.t-b.t||order[a.kind]-order[b.kind]);
+}
+function railLabels(preview,map,options={}){
+ const losses=[];
+ for(const item of journey(preview).filter(item=>item.kind==='cushion'&&item.loss>.005)){
+  const anchor=map(item),last=losses.at(-1);
+  if(last&&last.id===item.id&&item.t-last.t<.05&&Math.hypot(anchor.x-last.anchor.x,anchor.y-last.anchor.y)<10){last.loss+=item.loss;last.t=item.t;last.parts.push([item.from,item.to]);}
+  else losses.push({...item,anchor,parts:[[item.from,item.to]]});
+ }
+ const cards=[];
+ for(const item of losses){
+  const diamondLoss=Number.isFinite(preview.strokeFeel)?preview.strokeFeel*item.loss/100:null;
+  const text='Rail loss · '+format(item.loss)+'%'+(diamondLoss!==null?' · '+format(diamondLoss)+'D':'');
+  const card=placeBadge([{text,color:'#f0f4ed'}],item.anchor,options);
+  if(card)cards.push({...card,type:'rail-loss',loss:item.loss,diamondLoss,parts:item.parts,id:item.id});
+ }
+ return cards;
 }
 function drawContacts(ctx,cards){
  ctx.save();ctx.textAlign='left';ctx.textBaseline='middle';
@@ -163,35 +179,6 @@ function labels(preview,map,options={}){
    }
    return null;
   }
-  // Contact loss uses the common initial-energy denominator, so a 70 -> 36
-  // reading produces -34%, rather than an unrelated local loss percentage.
-  const losses=[];
-  for(let i=0;i<samples.length-1;i++){
-   const before=samples[i],after=samples[i+1];
-   if(before.kind!=='before'||after.kind!=='after'||before.t!==after.t)continue;
-   const loss=before.percent-after.percent;if(loss<=.005)continue;
-   if((preview.budgetContacts||[]).some(e=>e.t===before.t&&e.before.some(p=>p.id===Number(id)&&Math.abs(p.percent-before.percent)<1e-8)))continue;
-   const s=station(before.t),last=losses.at(-1);
-   if(last&&Math.abs(last.s-s)<10){last.loss+=loss;last.after=after.percent;last.parts.push([before.percent,after.percent]);}
-   else losses.push({s,loss,before:before.percent,after:after.percent,parts:[[before.percent,after.percent]]});
-  }
-  for(const loss of losses){
-   const text='−'+(loss.loss<.1?'<0.1':loss.loss<1?number(loss.loss):Math.round(loss.loss))+'%';
-   const diamondLoss=Number.isFinite(preview.strokeFeel)?preview.strokeFeel*loss.loss/100:null;
-   const extra={loss:loss.loss,diamondLoss,before:loss.before,after:loss.after,parts:loss.parts};
-   let placed=false;
-   for(const offset of [30,46,62]){
-    if(placed)break;
-    for(const side of [1,-1]){
-     const nr=result.length,nb=occupied.length;
-     const pct=place(loss.s,text,'#ff7777','loss',[side],[offset],extra);
-     const diamonds=pct&&diamondLoss!==null?place(loss.s,'−'+(diamondLoss<.1?'<0.1':number(diamondLoss))+'D','#ff7777','diamond-loss',[-side],[offset],extra):null;
-     if(pct&&(diamondLoss===null||diamonds)){placed=true;break;}
-     result.length=nr;occupied.length=nb;
-    }
-   }
-   if(!placed)place(loss.s,text+(diamondLoss!==null?' / −'+number(diamondLoss)+'D':''),'#ff7777','loss',[1,-1],[30,46,62],extra);
-  }
   const first=samples[0],last=samples.at(-1),endS=Math.max(length*.7,length-46);
   const candidates=[{s:Math.min(64,length*.3),percent:first.percent,feel:first.feel,start:true},{s:endS,percent:last.percent,feel:last.feel,end:true}];
   for(const p of samples)if(p.kind==='before'||p.kind==='after')candidates.push({s:station(p.t)+(p.kind==='before'?-30:30),percent:p.percent,feel:p.feel});
@@ -236,7 +223,7 @@ function draw(ctx,items){
  for(const p of items){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle);ctx.font='700 '+(p.fontSize||11)+'px Segoe UI, sans-serif';ctx.strokeStyle='#07100fe6';ctx.lineWidth=3.5;ctx.strokeText(p.text,0,0);ctx.fillStyle=p.color||(p.id===0?'#ffffff':'#ffe5a0');ctx.fillText(p.text,0,0);ctx.restore();}
  ctx.restore();
 }
-const api={energy,create,labels,draw,contactLabels,drawContacts,format,exchange,placeBadge,segmentIntersects,journey};
+const api={energy,create,labels,draw,contactLabels,drawContacts,format,exchange,placeBadge,segmentIntersects,journey,railLabels};
 if(typeof module==='object'&&module.exports)module.exports=api;
 else root.BilliardsShotBudget=api;
 })(typeof window==='object'?window:globalThis);
