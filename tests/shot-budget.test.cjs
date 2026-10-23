@@ -47,14 +47,24 @@ console.log('Shot budget: motion + spin, shared energy baseline, unchanged simul
 
 assert(labels.some(p=>p.type==='loss'&&p.color==='#ff7777'&&p.loss>0));
 assert(labels.some(p=>p.type==='feel'&&p.color==='#69e5ff'));
-assert(labels.some(p=>p.type==='feel'&&p.endpoint&&p.id===0&&p.text.endsWith('D total')));
+assert(labels.some(p=>p.type==='feel'&&p.endpoint&&p.id===0&&!p.text.includes('total')));
+assert(labels.some(p=>p.type==='diamond-loss'&&p.diamondLoss>0));
 for(const item of labels.filter(p=>p.type==='loss'))assert(Math.abs(item.loss-item.parts.reduce((sum,[before,after])=>sum+before-after,0))<1e-7);
 const firstCue=pocketed.budgetPaths[0][0];
 assert(Math.abs(firstCue.feel-pocketed.strokeFeel)<1e-9);
 assert(Math.abs(pocketed.strokeFeel-c.rollingPowerReferenceDistance(c.S.speed)/(c.S.tableL/8))<1e-9,'Uses the actual existing lag calibration');
-for(const sample of pocketed.budgetPaths[0])assert(Number.isFinite(sample.feel)&&sample.feel>=0);
+for(const sample of pocketed.budgetPaths[0])assert(Math.abs(sample.feel-pocketed.strokeFeel*sample.percent/100)<1e-9,'Diamond budget shares the percent denominator');
+for(const item of labels.filter(p=>p.type==='loss'))assert(Math.abs(item.diamondLoss-pocketed.strokeFeel*item.loss/100)<1e-9);
+const ledger=budget.create({id:0,x:0,y:0,vx:2,vy:0},.03,9.81,{diamonds:8});
+ledger.record({id:0,x:1,y:0,vx:Math.sqrt(3),vy:0},'before',1);
+ledger.record({id:0,x:1,y:0,vx:1,vy:0},'after',1);
+ledger.record({id:0,x:2,y:0,vx:0,vy:0},'end',2);
+assert.deepEqual(ledger.paths[0].map(p=>Math.round(p.feel)),[8,6,2,0]);
+const ledgerLabels=budget.labels({paths:{0:[{x:0,y:0,t:0},{x:1,y:0,t:1},{x:2,y:0,t:2}]},budgetPaths:ledger.paths,strokeFeel:8},p=>({x:100+p.x*400,y:250}),{width:1100,height:500});
+assert(ledgerLabels.some(p=>p.type==='feel'&&p.endpoint&&p.text==='0D'));
+assert(ledgerLabels.some(p=>p.type==='diamond-loss'&&p.text==='−4D'));
 for(const item of labels.filter(p=>p.type==='energy')){
  const paired=labels.find(p=>p.type==='feel'&&p.id===item.id&&p.linePoint.x===item.linePoint.x&&p.linePoint.y===item.linePoint.y);
  if(paired)assert.equal(paired.side,-item.side,'Diamond feel stays on the opposite side of the same path');
 }
-console.log('Contact-loss deltas, red labels, opposite cyan feel, exact launch lag reference and endpoint stroke total pass.');
+console.log('Contact-loss deltas, red labels, opposite cyan feel, additive diamond deductions and zero stopped endpoint pass.');

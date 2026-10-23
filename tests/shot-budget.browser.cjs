@@ -25,8 +25,9 @@ const assert=require('node:assert/strict'),cp=require('node:child_process'),{chr
    assert(await page.evaluate(()=>__budgetLabels.every(p=>Math.abs(p.angle)<=Math.PI/2)));
    const readings=await page.evaluate(()=>__budgetLabels.map(p=>({type:p.type,text:p.text,side:p.side,loss:p.loss,feel:p.feel,strokeFeel:p.strokeFeel,endpoint:p.endpoint})));
    assert(readings.some(p=>p.type==='loss'&&p.loss>0),'Red contact losses are rendered');
+   assert(readings.some(p=>p.type==='diamond-loss'),'Red diamond contact losses are rendered');
    assert(readings.some(p=>p.type==='feel'&&Number.isFinite(p.feel)),'Live diamond feel is rendered');
-   if(viewport.width>=600)assert(readings.some(p=>p.type==='feel'&&p.endpoint&&p.text.endsWith('D total')),'Endpoint repeats the required stroke total');
+   if(viewport.width>=600)assert(readings.some(p=>p.type==='feel'&&p.endpoint&&!p.text.includes('total')),'Endpoint shows remaining diamond budget');
 
    if(viewport.width<600)await page.locator('#phoneControls').click();
    await page.screenshot({path:'/tmp/shot-budget-'+viewport.width+'.png'});

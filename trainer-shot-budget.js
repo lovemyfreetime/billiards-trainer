@@ -16,9 +16,10 @@ function create(cue,radius,gravity=9.81,reference={}){
   return a.diamonds+(b.diamonds-a.diamonds)*f;
  }
  const base=lookup(strokeSpeed),strokeFeel=reference.diamonds??base;
+ // One common energy budget makes travel and contact deductions additive.
+ // D is a share of the calibrated launch stroke, not literal travel remaining.
  function feel(percent){
-  if(base===null||strokeFeel===null)return null;
-  return base>1e-12?lookup(strokeSpeed*Math.sqrt(Math.max(0,percent)/100))*strokeFeel/base:0;
+  return Number.isFinite(strokeFeel)?strokeFeel*Math.max(0,percent)/100:null;
  }
  function record(ball,kind,t){
   const e=energy(ball,radius,gravity);
@@ -84,7 +85,20 @@ function labels(preview,map,options={}){
   }
   for(const loss of losses){
    const text='−'+(loss.loss<.1?'<0.1':loss.loss<1?number(loss.loss):Math.round(loss.loss))+'%';
-   place(loss.s,text,'#ff7777','loss',[1,-1],[30,46,62],{loss:loss.loss,before:loss.before,after:loss.after,parts:loss.parts});
+   const diamondLoss=Number.isFinite(preview.strokeFeel)?preview.strokeFeel*loss.loss/100:null;
+   const extra={loss:loss.loss,diamondLoss,before:loss.before,after:loss.after,parts:loss.parts};
+   let placed=false;
+   for(const offset of [30,46,62]){
+    if(placed)break;
+    for(const side of [1,-1]){
+     const nr=result.length,nb=occupied.length;
+     const pct=place(loss.s,text,'#ff7777','loss',[side],[offset],extra);
+     const diamonds=pct&&diamondLoss!==null?place(loss.s,'−'+(diamondLoss<.1?'<0.1':number(diamondLoss))+'D','#ff7777','diamond-loss',[-side],[offset],extra):null;
+     if(pct&&(diamondLoss===null||diamonds)){placed=true;break;}
+     result.length=nr;occupied.length=nb;
+    }
+   }
+   if(!placed)place(loss.s,text+(diamondLoss!==null?' / −'+number(diamondLoss)+'D':''),'#ff7777','loss',[1,-1],[30,46,62],extra);
   }
   const first=samples[0],last=samples.at(-1),endS=Math.max(length*.7,length-46);
   const candidates=[{s:Math.min(64,length*.3),percent:first.percent,feel:first.feel,start:true},{s:endS,percent:last.percent,feel:last.feel,end:true}];
@@ -96,8 +110,7 @@ function labels(preview,map,options={}){
    const color=Number(id)===0?'#ffffff':Number(id)===preview.firstBallContact?.objId?'#ffe5a0':'#a5d7ff';
    const energyText=Math.max(0,Math.round(candidate.percent))+'%';
    let feelText=Number.isFinite(candidate.feel)?number(Math.max(0,candidate.feel))+'D':null;
-   if(feelText&&Number(id)===0&&candidate.start)feelText+=' feel';
-   if(feelText&&Number(id)===0&&candidate.end&&Number.isFinite(preview.strokeFeel))feelText=number(preview.strokeFeel)+'D total';
+
    let item=null;
    // Reserve a readable pair together, rather than placing the percentage first
    // and leaving no room for its feel value on the opposite side.
