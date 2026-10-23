@@ -34,7 +34,7 @@ function fixture(mobile=true){
  return {ids,body,root,doc,media,get:id=>doc.getElementById(id),observers};
 }
 (async()=>{
- const f=fixture();assert(f.body.classList.contains('phone-layout'));assert.equal(f.ids.title.parentNode.id,'phoneHeader');assert.equal(f.ids.panel.inert,true);
+ const f=fixture();assert(f.body.classList.contains('phone-layout'));assert.equal(f.ids.title.parentNode.id,'panel');assert.equal(f.ids.panel.inert,true);
  await f.get('phoneControls').click();assert(f.body.classList.contains('phone-controls-open'));assert.equal(f.ids.panel.inert,false);
  await f.get('phoneDismiss').click();assert(!f.body.classList.contains('phone-controls-open'));
  f.ids.panel.scrollHeight=2000; f.ids.panel.clientHeight=300; f.ids.panel.scrollTop=0;
@@ -44,7 +44,7 @@ function fixture(mobile=true){
  assert(f.ids.panel.scrollTop>500,'Dragging the separate rail scrolls the panel');
  const before=f.ids.panel.scrollTop;await rail.emit('wheel',{deltaY:100,preventDefault(){}});assert.equal(f.ids.panel.scrollTop,before+100);
  await rail.emit('keydown',{key:'Home',preventDefault(){},stopPropagation(){}});assert.equal(f.ids.panel.scrollTop,0);
- const actions=f.get('phoneActions').children;assert.equal(actions.length,6);
+ const actions=f.get('phoneActions').children.filter(x=>x.dataset.trainerAction);assert.equal(actions.length,6);
  assert.equal(actions[0].textContent,'Shoot');assert.equal(actions[0].getAttribute('aria-label'),'Execute Shot');
  assert.equal(actions[5].hidden,true,'CB2 action stays hidden while Shot 2 is off');
  f.ids.toggleShot2.textContent='− SHOT 2';for(const o of f.observers.filter(o=>o.el===f.ids.toggleShot2))o.fn();
@@ -62,7 +62,7 @@ function fixture(mobile=true){
  f.root.requestFullscreen=async()=>{throw Error('unsupported')};await f.get('btg-fullscreen').click();assert(f.get('phoneNotice').classList.contains('visible'));
  await f.body.emit('keydown',{key:'Escape'});assert.equal(f.get('btg-fullscreen').getAttribute('aria-pressed'),'false');
  f.media.matches=false;f.media.change();assert.equal(f.ids.title.parentNode,f.ids.panel);assert.equal(f.ids.panel.inert,false);
- f.media.matches=true;f.media.change();assert.equal(f.ids.title.parentNode.id,'phoneHeader');
+ f.media.matches=true;f.media.change();assert.equal(f.ids.title.parentNode.id,'panel');
  const auto=fixture();let entries=0;
  auto.root.requestFullscreen=async()=>{entries++;auto.doc.fullscreenElement=auto.root};
  await auto.body.emit('pointerup',{target:{closest:q=>q.includes('#stage')}});
@@ -83,7 +83,7 @@ const stop=source.indexOf("        bindAimRoller('aimRoller', 1)",start);
 for(const vertical of [true,false]) {
  const roller=new Element();const ticks=new Element();roller.querySelector=()=>ticks;roller.querySelectorAll=()=>[];roller.setPointerCapture=()=>{};
  let rotation=0;
- const context={$:()=>roller,S:{shot2Enabled:true},document:{body:{classList:{contains:()=>vertical}}},setActiveShot(){},rotateAimMicro:r=>rotation+=r,setTimeout(){}};
+ const context={$:()=>roller,S:{shot2Enabled:true},document:{body:{classList:{contains:name=>name==='phone-layout'&&vertical}}},setActiveShot(){},rotateAimMicro:r=>rotation+=r,setTimeout(){}};
  vm.runInNewContext(source.slice(start,stop)+';bindAimRoller("aimRoller",1)',context);
  const event=(x,y)=>({clientX:x,clientY:y,pointerId:1,preventDefault(){}});
  roller.emit('pointerdown',event(10,10));roller.emit('pointermove',event(vertical?10:22,vertical?22:10));

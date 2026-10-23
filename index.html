@@ -4052,6 +4052,7 @@
         updateAngleLockButton();
         draw();
     }
+    window.billiardsSelectShot=setActiveShot;
     function len(x, y) { return Math.hypot(x, y); }
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
     function dot(a, b) { return a.x * b.x + a.y * b.y; }
@@ -5182,11 +5183,9 @@
         }
 
         if(!zen && document.body.classList.contains('phone-layout')) {
-            // Fit the OUTSIDE of the artwork between only the visible control banks.
-            // Reserving two banks for one shot needlessly shrank tablet layouts.
-            const A=ORIGINAL_ASSET_GEOM, landscape=w>h;
-            const left=landscape&&w>600?168:126, right=S.shot2Enabled?left:12;
-            const top=42,bottom=26,artW=S.tableL*A.width/(A.x1-A.x0),artH=S.tableW*A.height/(A.y1-A.y0);
+            // The phone drawer overlays the table; closed controls reserve no side banks.
+            const A=ORIGINAL_ASSET_GEOM;
+            const left=8,right=8,top=8,bottom=12,artW=S.tableL*A.width/(A.x1-A.x0),artH=S.tableW*A.height/(A.y1-A.y0);
             const scale=Math.max(.01,Math.min((w-left-right)/artW,(h-top-bottom)/artH));
             const ox=left+(w-left-right-artW*scale)/2+S.tableL*A.x0/(A.x1-A.x0)*scale;
             const oy=top+(h-top-bottom-artH*scale)/2+S.tableW*A.y0/(A.y1-A.y0)*scale;
@@ -7838,6 +7837,8 @@
         const b = $('angleLock');
         if (!b)
             return;
+        if ($('aimControls')) $('aimControls').classList.toggle('activeAim', S.activeShot !== 2);
+        if ($('aimControls2')) $('aimControls2').classList.toggle('activeAim', S.activeShot === 2 && S.shot2Enabled);
         const enabled = S.showAngleLockControl === true;
         b.style.display = enabled ? '' : 'none';
         if (!enabled)
@@ -7847,8 +7848,6 @@
         b.title = (S.activeShot === 2 ? 'Shot 2: ' : 'Shot 1: ') + (locked ? 'ghost-ball target is sticky — click to unlock' : 'ghost-ball target is free — click to lock');
         b.classList.toggle('locked', locked);
         b.setAttribute('aria-pressed', locked ? 'true' : 'false');
-        if ($('aimControls')) $('aimControls').classList.toggle('activeAim', S.activeShot !== 2);
-        if ($('aimControls2')) $('aimControls2').classList.toggle('activeAim', S.activeShot === 2 && S.shot2Enabled);
     }
     function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, cuePreset:S.cuePreset, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showPracticeCounter:S.showPracticeCounter, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; Object.assign(S,{balls:[],allowMissingCueBall:true,freeAim:{x:S.tableL*.75,y:S.tableW*.5},pocketedLog:[],nextId:1}); resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
     function keepCueOnTable(q){
@@ -8624,16 +8623,16 @@
                     return;
                 setActiveShot(shotNo);
                 rollerDrag = true;
-                rollerLastX = document.body.classList.contains('phone-layout') ? ev.clientY : ev.clientX;
+                rollerLastX = document.body.classList.contains('phone-layout') && !document.body.classList.contains('phone-focus') ? ev.clientY : ev.clientX;
                 roller.setPointerCapture(ev.pointerId);
                 ev.preventDefault();
             });
             roller.addEventListener('pointermove', ev => {
                 if (!rollerDrag)
                     return;
-                const vertical = document.body.classList.contains('phone-layout');
+                const vertical = document.body.classList.contains('phone-layout') && !document.body.classList.contains('phone-focus');
                 const dx = (vertical ? ev.clientY : ev.clientX) - rollerLastX;
-                rollerLastX = document.body.classList.contains('phone-layout') ? ev.clientY : ev.clientX;
+                rollerLastX = document.body.classList.contains('phone-layout') && !document.body.classList.contains('phone-focus') ? ev.clientY : ev.clientX;
                 if (Math.abs(dx) < 0.01)
                     return;
                 setActiveShot(shotNo);

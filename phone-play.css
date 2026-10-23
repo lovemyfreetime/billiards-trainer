@@ -149,3 +149,40 @@ body.phone-layout #phoneTip2 { right:44px; }
  body.phone-layout .tableSpeedLabel,body.phone-layout .miniSpinLabel { top:3px; }
  body.phone-layout .speedTickScale { top:31px;bottom:7px; }
 }
+
+/* Table-first phone layout: the complete sidebar opens over the playing view. */
+body.phone-focus:not(.zen-mode):not(.projector) #stageWrap{inset:env(safe-area-inset-top) env(safe-area-inset-right) calc(54px + env(safe-area-inset-bottom)) env(safe-area-inset-left)!important}
+body.phone-focus:not(.zen-mode) #phoneHeader{display:contents!important}
+body.phone-focus:not(.zen-mode) #phoneControls{position:fixed;z-index:66;right:calc(6px + env(safe-area-inset-right));bottom:calc(6px + env(safe-area-inset-bottom));width:42px;height:42px;min-height:42px;padding:0;border-radius:50%;font:22px/1 system-ui;background:#24323be8;border:1px solid #7695a5;color:#edf6f9}
+body.phone-focus:not(.zen-mode) #btg-fullscreen{position:fixed;z-index:46;right:calc(6px + env(safe-area-inset-right));top:calc(6px + env(safe-area-inset-top));width:36px;height:36px}
+body.phone-focus:not(.zen-mode) #panel{z-index:60;top:env(safe-area-inset-top)!important;bottom:env(safe-area-inset-bottom)!important;max-height:none;width:min(360px,calc(100vw - 42px));padding:12px 24px 64px 12px;overflow-y:auto;border-left:1px solid #66828f;border-radius:16px 0 0 16px;background:#171e26f7}
+body.phone-focus .btg-pool-title{flex-wrap:wrap;gap:6px;margin:4px 0 12px}
+body.phone-focus .btg-pool-title h1{font-size:16px}
+body.phone-focus #btg-pool-launchers{margin-left:auto}
+body.phone-focus.phone-controls-open #phoneDismiss{z-index:55;inset:0!important;background:#0005}
+body.phone-focus.phone-controls-open #phonePanelScroll{z-index:65;top:12px;bottom:62px}
+body.phone-focus:not(.zen-mode) #phoneActions,body.phone-focus.phone-two-shots:not(.zen-mode) #phoneActions{position:fixed;z-index:46;left:calc(46px + env(safe-area-inset-left));right:calc(54px + env(safe-area-inset-right));bottom:env(safe-area-inset-bottom);width:auto;min-height:50px;padding:4px 0;gap:6px;background:transparent;border:0;overflow:visible;align-items:center;justify-content:center}
+body.phone-focus #phoneActions>[data-trainer-action]{flex:0 0 auto;min-width:44px;max-width:88px;min-height:40px;border-radius:10px;padding:6px 10px;font-size:12px}
+body.phone-focus #phoneActions>[data-trainer-action]:not([data-trainer-action=animate]):not([data-trainer-action=undoShot]){display:none}
+body.phone-focus #phoneActions>.aimControlRow{display:none!important;position:relative!important;inset:auto!important;transform:none!important;width:auto!important;height:40px!important;flex:1 1 150px;max-width:380px;min-width:70px}
+body.phone-focus #phoneActions>.aimControlRow.activeAim{display:flex!important}
+body.phone-focus #phoneActions .aimRollerControl{flex-direction:row;min-width:0;width:100%;height:38px;padding:4px 7px;gap:5px;border:1px solid #779099;border-radius:14px;box-shadow:none;cursor:ew-resize}
+body.phone-focus #phoneActions .rollerDir{flex:none;min-width:24px;width:24px;height:28px;font-size:17px;padding:0}
+body.phone-focus #phoneActions .rollerTrack{width:auto;height:24px;min-height:0;flex:1}
+body.phone-focus #phoneActions .rollerTicks{background:repeating-linear-gradient(90deg,#ffffff73 0px,#ffffff73 1px,transparent 1px,transparent 12px)}
+body.phone-focus #phoneActions .rollerCenter{left:50%;top:0;bottom:0;width:2px;height:auto;transform:translateX(-1px)}
+body.phone-focus #phoneActions>#phoneAimChoice{display:none;min-width:32px;width:32px;flex:none;padding:0;border-radius:50%;min-height:32px}
+body.phone-focus.phone-two-shots #phoneActions>#phoneAimChoice{display:block}
+body.phone-focus #bottomSpeedControls,body.phone-focus #bottomSpin1,body.phone-focus #bottomSpin2,body.phone-focus .phoneTipControl,body.phone-focus #cueRailBtn,body.phone-focus #cuePopup{display:none!important}
+body.phone-focus:not(.zen-mode) #btZenLauncher{left:calc(5px + env(safe-area-inset-left))!important;bottom:calc(9px + env(safe-area-inset-bottom))!important}
+body.phone-layout.phone-focus #tableZoom{position:fixed!important;left:calc(6px + env(safe-area-inset-left))!important;top:calc(6px + env(safe-area-inset-top))!important;width:36px!important;height:36px!important;font-size:10px!important}
+body.phone-focus #phoneToolShelf{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:8px 0 14px}
+body.phone-focus #phoneToolShelf>button,body.phone-focus #phoneToolShelf>label{position:static!important;inset:auto!important;transform:none!important;min-height:36px;height:36px;width:auto;min-width:36px;padding:0 10px;font-size:11px}
+body.phone-focus #phoneToolShelf>#angleLock{height:36px!important}
+body.phone-focus #bt-guide-pool-root{top:calc(46px + env(safe-area-inset-top));max-width:calc(100% - 12px)}
+body.phone-focus #phoneToolShelf>.compassSideControl,body.phone-focus #phoneToolShelf>.compassTopControl{position:static!important;inset:auto!important;transform:none!important;width:100%!important;height:38px!important;padding:0 10px;gap:8px}
+body.phone-focus #phoneToolShelf .compassSideControl input,body.phone-focus #phoneToolShelf .compassTopControl input{writing-mode:horizontal-tb;direction:ltr;width:auto;height:28px;flex:1;min-width:0}
+body.phone-focus #phoneToolShelf .compassSideLabel,body.phone-focus #phoneToolShelf .compassTopLabel{position:static;transform:none}
+
+body.phone-focus:not(.zen-mode) #btZenLauncher{width:40px!important;height:40px!important;bottom:calc(7px + env(safe-area-inset-bottom))!important}
+body.phone-focus:not(.zen-mode) #btZenLauncher .experience-toggle{width:40px!important;height:40px!important}

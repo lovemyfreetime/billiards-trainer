@@ -6,7 +6,7 @@
  let registration,starting,checking=false,lastCheck=0,manual=false,ready=false,dismissed=false,reloading=false,previous=supported?navigator.serviceWorker.controller:null;
  let bar,status,reload,close;
  function render(message,canReload=false){
-  if(!document.body||dismissed||new URLSearchParams(location.search).get('zen')==='1'||document.body.classList.contains('zen-mode'))return;
+  if(!document.body||dismissed||document.body.classList.contains('welcome-screen')||new URLSearchParams(location.search).get('zen')==='1'||document.body.classList.contains('zen-mode'))return;
   if(!bar){
    const style=document.createElement('style');style.textContent='#appUpdateNotice{position:fixed;z-index:25000;top:max(12px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);box-sizing:border-box;width:max-content;max-width:calc(100vw - 24px);display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid #6595ad;border-radius:9px;background:#172b36;color:#edf6fa;box-shadow:0 3px 15px #0006;font:12px/1.4 system-ui,sans-serif}#appUpdateNotice[hidden]{display:none!important}#appUpdateNotice button{flex:none;min-height:32px;margin:0;padding:4px 8px;border:1px solid #6595ad;border-radius:5px;background:#2b5064;color:#fff;font:600 12px system-ui;cursor:pointer}#appUpdateNotice button[hidden]{display:none}#appUpdateNotice .appUpdateClose{border:0;background:transparent;font-size:18px;padding:0 4px}';document.head.append(style);
    bar=document.createElement('div');bar.id='appUpdateNotice';bar.setAttribute('role','status');bar.setAttribute('aria-live','polite');status=document.createElement('span');reload=document.createElement('button');reload.type='button';reload.textContent='Reload app';reload.onclick=()=>{

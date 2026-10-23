@@ -164,6 +164,16 @@
   };
   for(const {input} of readouts)input.addEventListener('input',window.billiardsPhoneReadouts);
   window.billiardsPhoneReadouts();
+  // Reuse the existing controls and event handlers in a table-first phone layout.
+  const toolShelf=document.createElement('div');toolShelf.id='phoneToolShelf';toolShelf.setAttribute('aria-label','Table tools');title.after(toolShelf);
+  const relocated=[];
+  for(const id of ['analyzePhotoBtn','cameraCaptureBtn','quickLayoutRecall','kickToolToggle','bankToolToggle','teachingCompassToggle','compassSizeWrap','compassRotateWrap','angleLock','aimControls','aimControls2']){
+    const element=document.getElementById(id);if(!element)continue;
+    const anchor=document.createComment(id+' desktop position');element.before(anchor);relocated.push({element,anchor,aim:id.startsWith('aimControls')});
+  }
+  const aimChoice=document.createElement('button');aimChoice.id='phoneAimChoice';aimChoice.type='button';aimChoice.textContent='1';aimChoice.setAttribute('aria-label','Switch active shot');aimChoice.onclick=()=>window.billiardsSelectShot?.(document.getElementById('aimControls2')?.classList.contains('activeAim')?1:2);actions.prepend(aimChoice);
+  const syncAim=()=>{const second=document.getElementById('aimControls2')?.classList.contains('activeAim');aimChoice.textContent=second?'2':'1';aimChoice.setAttribute('aria-label','Adjusting shot '+(second?'2':'1')+'. Switch shot');};
+  for(const id of ['aimControls','aimControls2']){const el=document.getElementById(id);if(el)new MutationObserver(syncAim).observe(el,{attributes:true,attributeFilter:['class']});}
   const phone = matchMedia('(max-width:600px), (max-width:1000px) and (max-height:500px) and (pointer:coarse)');
   let fallback = false;
   const fullscreenElement = () => document.fullscreenElement || document.webkitFullscreenElement;
@@ -173,15 +183,19 @@
   function setControls(open) {
     document.body.classList.toggle('phone-controls-open', open && phone.matches);
     controls.setAttribute('aria-expanded', String(open && phone.matches));
-    controls.textContent = open && phone.matches ? 'Close' : 'Controls';
+    controls.textContent = open && phone.matches ? '×' : '☰';
+    controls.setAttribute('aria-label',open && phone.matches ? 'Close trainer controls' : 'Open trainer controls');
+    controls.title=open && phone.matches ? 'Close controls' : 'Controls';
     panel.inert = phone.matches && !open;
     syncScroll();
     if (!open && panel.contains(document.activeElement)) controls.focus();
   }
   function layout() {
     document.body.classList.toggle('phone-layout', phone.matches);
-    if(phone.matches) { if(title.parentNode !== header) header.prepend(title); }
-    else { if(title.parentNode !== panel) home.after(title); }
+    document.body.classList.toggle('phone-focus',phone.matches);
+    if(title.parentNode !== panel)home.after(title);
+    if(phone.matches){header.prepend(fullscreen);for(const {element,aim}of relocated){if(aim)actions.prepend(element);else toolShelf.append(element);}}
+    else{launchers.append(fullscreen);for(const {element,anchor}of relocated)anchor.after(element);}
     setControls(false);
     refreshSize();
     syncGuideSpace();
