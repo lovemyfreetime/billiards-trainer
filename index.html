@@ -1598,7 +1598,7 @@
       <div class="sectionBody">
       <div class="tableControlGroup layoutSetupGroup" id="fullRackGroup"><div class="tableControlTitle">PICK AND PLAY FULL RACKS</div>
         <div class="layoutSetupSelect"><select id="fullRackSelect" aria-label="Pick and play full rack">
-          <option value="rack3">3-Ball</option><option value="rack6">6-Ball</option><option value="rack7">7-Ball</option><option value="rack8" selected>8-Ball</option><option value="rack9">9-Ball</option><option value="rack10">10-Ball</option><option value="ultimate8">Ultimate 8 Ball</option><option value="straight14">Straight Pool — 14 Balls (Open Front)</option>
+          <option value="rack3">3-Ball — Original</option><option value="rack3-crosswise">3-Ball — Crosswise</option><option value="rack3-backwards">3-Ball — Backwards</option><option value="rack3-straight">3-Ball — Straight</option><option value="rack3-ll" title="L left, viewed from the breaker">3-Ball — LL</option><option value="rack3-lr" title="L right, viewed from the breaker">3-Ball — LR</option><option value="rack6">6-Ball</option><option value="rack7">7-Ball</option><option value="rack8" selected>8-Ball</option><option value="rack9">9-Ball</option><option value="rack10">10-Ball</option><option value="ultimate8">Ultimate 8 Ball</option><option value="straight14">Straight Pool — 14 Balls (Open Front)</option>
         </select></div>
         <div class="fullRackStart"><button id="startFullRack" type="button">Start</button></div>
       </div>
@@ -2906,22 +2906,31 @@
         saveState();
         toast(msg);
     }
-    function randomThreeBallRack() {
+    function randomThreeBallRack(formation = 'original') {
         const cue = cueBall();
         const R = S.ballR, L = S.tableL, W = S.tableW;
         const apexX = L * .75, apexY = W * .5;
         const dx = Math.sqrt(3) * R;
         const rear = Math.random() < .5 ? [2, 3] : [3, 2];
-        const layout = [
-            { id: 1, x: apexX, y: apexY },
-            { id: rear[0], x: apexX + dx, y: apexY - R },
-            { id: rear[1], x: apexX + dx, y: apexY + R }
-        ];
+        // Coordinates are viewed from the breaker: +x heads toward the foot
+        // rail, -y is left. Backwards straddles the spot with its front pair.
+        const patterns = {
+            original: [[0, 0], [dx, -R], [dx, R]],
+            crosswise: [[0, 0], [0, -2 * R], [0, 2 * R]],
+            backwards: [[0, -R], [0, R], [dx, 0]],
+            straight: [[0, 0], [2 * R, 0], [4 * R, 0]],
+            ll: [[0, 0], [2 * R, 0], [2 * R, -2 * R]],
+            lr: [[0, 0], [2 * R, 0], [2 * R, 2 * R]]
+        };
+        const labels = { original: 'Original', crosswise: 'Crosswise', backwards: 'Backwards', straight: 'Straight', ll: 'LL', lr: 'LR' };
+        const offsets = patterns[formation] || patterns.original;
+        const ids = [1, ...rear];
+        const layout = offsets.map(([x, y], i) => ({ id: ids[i], x: apexX + x, y: apexY + y }));
         const balls = [cue ? Object.assign({}, cue) : { id: 0, n: 'CB', x: L * .25, y: W * .5, active: true }];
         for (const p of layout)
             balls.push({ id: p.id, n: String(p.id), x: p.x, y: p.y, active: true });
         rackCueBallIfNeeded(balls, apexX, apexY);
-        finishRackSetup(balls, '3-ball rack created', '3ball');
+        finishRackSetup(balls, '3-ball ' + (labels[formation] || labels.original) + ' rack created', '3ball');
     }
     function randomNineBallRack() {
         const cue = cueBall();
@@ -3124,6 +3133,8 @@
         const v = $('fullRackSelect').value;
         if (v === 'rack3')
             randomThreeBallRack();
+        else if (v.startsWith('rack3-'))
+            randomThreeBallRack(v.slice(6));
         else if (v === 'rack6')
             sixBallRack();
         else if (v === 'rack7')
