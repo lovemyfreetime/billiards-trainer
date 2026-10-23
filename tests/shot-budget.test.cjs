@@ -46,8 +46,8 @@ assert(html.includes('grid-template-columns:repeat(2,minmax(0,1fr))'));assert(!h
 console.log('Shot budget: motion + spin, shared energy baseline, unchanged simulation/paths, collision records, pocket residual, upright offset labels, collision avoidance and equal button placement pass.');
 
 const railCards=budget.railLabels(pocketed,map,{width:1200,height:700});assert(railCards.some(p=>p.loss>0&&p.rows[0].text.startsWith('Rail loss · ')));
-assert(labels.some(p=>p.type==='feel'&&p.color==='#69e5ff'));
-assert(labels.some(p=>p.type==='feel'&&p.endpoint&&p.id===0&&!p.text.includes('total')));
+assert(labels.every(p=>p.type==='energy'&&p.text.includes(' / ')&&p.runs[1].color==='#69e5ff'));
+assert(labels.some(p=>p.type==='energy'&&p.endpoint&&p.id===0&&!p.text.includes('total')));
 assert(railCards.some(p=>p.diamondLoss>0));
 for(const item of railCards)assert(Math.abs(item.loss-item.parts.reduce((sum,[before,after])=>sum+before-after,0))<1e-7);
 const firstCue=pocketed.budgetPaths[0][0];
@@ -61,13 +61,15 @@ ledger.record({id:0,x:1,y:0,vx:1,vy:0},'after',1);
 ledger.record({id:0,x:2,y:0,vx:0,vy:0},'end',2);
 assert.deepEqual(ledger.paths[0].map(p=>Math.round(p.feel)),[8,6,2,0]);
 const ledgerLabels=budget.labels({paths:{0:[{x:0,y:0,t:0},{x:1,y:0,t:1},{x:2,y:0,t:2}]},budgetPaths:ledger.paths,strokeFeel:8},p=>({x:100+p.x*400,y:250}),{width:1100,height:500});
-assert(ledgerLabels.some(p=>p.type==='feel'&&p.endpoint&&p.text==='0D'));
+assert(ledgerLabels.some(p=>p.type==='energy'&&p.endpoint&&p.text==='0% / 0D'));
 const ledgerRails=budget.railLabels({budgetPaths:ledger.paths,strokeFeel:8},p=>({x:100+p.x*400,y:250}),{width:1100,height:500});assert(ledgerRails.some(p=>Math.abs(p.diamondLoss-4)<1e-8&&p.rows[0].text.includes('4D')));
-for(const item of labels.filter(p=>p.type==='energy')){
- const paired=labels.find(p=>p.type==='feel'&&p.id===item.id&&p.linePoint.x===item.linePoint.x&&p.linePoint.y===item.linePoint.y);
- if(paired)assert.equal(paired.side,-item.side,'Diamond feel stays on the opposite side of the same path');
-}
-console.log('Contact-loss deltas, rail badges, opposite cyan feel, additive diamond deductions and zero stopped endpoint pass.');
+// The renderer preserves the cyan diamond run within each single centered label.
+const painted=[];const ctx={save(){},restore(){},translate(){},rotate(){},measureText(text){return {width:text.length*6};},strokeText(){},fillText(text,x){painted.push({text,x,color:this.fillStyle});}};
+budget.draw(ctx,[labels[0]]);
+assert.equal(painted.length,2);assert.equal(painted[1].color,'#69e5ff');
+assert.equal(painted.map(p=>p.text).join(''),labels[0].text);
+assert.equal(painted[0].x,-labels[0].text.length*3,'Joined reading is centered as one label');
+console.log('Contact-loss deltas, rail badges, joined cyan diamonds, additive deductions and zero stopped endpoint pass.');
 
 // Long multi-cushion shot: later legs must retain regular paired readings.
 c.S=c.defaultState();Object.assign(c.S,{tableL:2.54,tableW:1.27,speed:6,follow:0,sideSpin:0,showShotBudget:true});

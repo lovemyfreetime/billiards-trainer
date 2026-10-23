@@ -28,9 +28,9 @@ const assert=require('node:assert/strict'),cp=require('node:child_process'),{chr
    await page.evaluate(()=>{const input=document.getElementById('tableSpeed1');input.value='3.2';input.dispatchEvent(new Event('input',{bubbles:true}));});
    await page.waitForFunction(old=>JSON.stringify(window.__budgetLabels)!==old,original);
    assert(await page.evaluate(()=>__budgetLabels.every(p=>Math.abs(p.angle)<=Math.PI/2)));
-   const readings=await page.evaluate(()=>__budgetLabels.map(p=>({type:p.type,text:p.text,side:p.side,loss:p.loss,feel:p.feel,strokeFeel:p.strokeFeel,endpoint:p.endpoint})));
-   assert(readings.some(p=>(p.type==='feel'&&Number.isFinite(p.feel))||(p.type==='energy'&&p.text.includes('D'))),'Live diamond feel is rendered');
-   if(viewport.width>=600)assert(readings.some(p=>p.type==='feel'&&p.endpoint&&!p.text.includes('total')),'Endpoint shows remaining diamond budget');
+   const readings=await page.evaluate(()=>__budgetLabels.map(p=>({type:p.type,text:p.text,side:p.side,loss:p.loss,feel:p.feel,strokeFeel:p.strokeFeel,endpoint:p.endpoint,runs:p.runs})));
+   assert(readings.length&&readings.every(p=>p.type==='energy'&&p.text.includes(' / ')&&p.runs[1]?.color==='#69e5ff'),'Every live reading pairs percent and cyan diamonds');
+   if(viewport.width>=600)assert(readings.some(p=>p.type==='energy'&&p.endpoint&&!p.text.includes('total')),'Endpoint shows remaining diamond budget');
 
    if(viewport.width<600)await page.locator('#phoneControls').click();
    await page.screenshot({path:'/tmp/shot-budget-'+viewport.width+'.png'});

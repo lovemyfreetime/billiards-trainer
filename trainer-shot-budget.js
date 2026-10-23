@@ -190,28 +190,16 @@ function labels(preview,map,options={}){
    if(candidate.s<8||candidate.s>length-8||used.some(s=>Math.abs(s-candidate.s)<55))continue;
    const color=Number(id)===0?'#ffffff':Number(id)===preview.firstBallContact?.objId?'#ffe5a0':'#a5d7ff';
    const energyText=Math.max(0,Math.round(candidate.percent))+'%';
-   let feelText=Number.isFinite(candidate.feel)?number(Math.max(0,candidate.feel))+'D':null;
-
+   const feelText=Number.isFinite(candidate.feel)?number(Math.max(0,candidate.feel))+'D':null;
+   const text=energyText+(feelText?' / '+feelText:'');
+   const runs=feelText?[{text:energyText+' / ',color},{text:feelText,color:'#69e5ff'}]:[{text:energyText,color}];
    let item=null;
-   // Reserve a readable pair together, rather than placing the percentage first
-   // and leaving no room for its feel value on the opposite side.
+   // Keep both units in one reading, including where the path has plenty of room.
    for(const shift of candidate.start||candidate.end?[0,-24,24,-48,48]:[0]){
-    if(item)break;
     const distance=candidate.s+shift;if(distance<8||distance>length-8)continue;
-    for(const offset of [14,26,42]){
-     if(item)break;
-     for(const side of [1,-1]){
-      const startResult=result.length,startBoxes=occupied.length;
-      const energyItem=place(distance,energyText,color,'energy',[side],[offset],{percent:candidate.percent});
-      const feelItem=energyItem&&feelText?place(distance,feelText,'#69e5ff','feel',[-side],[offset],{feel:candidate.feel,strokeFeel:preview.strokeFeel,endpoint:!!candidate.end,percent:candidate.percent}):null;
-      if(energyItem&&(!feelText||feelItem)){item=energyItem;break;}
-      result.length=startResult;occupied.length=startBoxes;
-     }
-    }
+    item=place(distance,text,color,'energy',[1,-1],[14,26,42],{runs,percent:candidate.percent,feel:candidate.feel,strokeFeel:preview.strokeFeel,endpoint:!!candidate.end});
+    if(item)break;
    }
-   // In a tight space keep both units in one label instead of silently
-   // dropping the diamond reading when its opposite-side position is blocked.
-   if(!item)item=place(candidate.s,energyText+(feelText?' / '+feelText:''),color,'energy',[1,-1],[14,26,42],{percent:candidate.percent,feel:candidate.feel});
    if(item)used.push(candidate.s);
 
   }
@@ -220,7 +208,14 @@ function labels(preview,map,options={}){
 }
 function draw(ctx,items){
  ctx.save();ctx.font='700 11px Segoe UI, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';
- for(const p of items){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle);ctx.font='700 '+(p.fontSize||11)+'px Segoe UI, sans-serif';ctx.strokeStyle='#07100fe6';ctx.lineWidth=3.5;ctx.strokeText(p.text,0,0);ctx.fillStyle=p.color||(p.id===0?'#ffffff':'#ffe5a0');ctx.fillText(p.text,0,0);ctx.restore();}
+ for(const p of items){
+  ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle);ctx.font='700 '+(p.fontSize||11)+'px Segoe UI, sans-serif';ctx.strokeStyle='#07100fe6';ctx.lineWidth=3.5;
+  const runs=p.runs||[{text:p.text,color:p.color||(p.id===0?'#ffffff':'#ffe5a0')}];
+  const widths=runs.map(run=>ctx.measureText(run.text).width);
+  let x=-widths.reduce((sum,width)=>sum+width,0)/2;ctx.textAlign='left';
+  runs.forEach((run,i)=>{ctx.strokeText(run.text,x,0);ctx.fillStyle=run.color;ctx.fillText(run.text,x,0);x+=widths[i];});
+  ctx.restore();
+ }
  ctx.restore();
 }
 const api={energy,create,labels,draw,contactLabels,drawContacts,format,exchange,placeBadge,segmentIntersects,journey,railLabels};
