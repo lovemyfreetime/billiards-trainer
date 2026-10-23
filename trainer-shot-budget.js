@@ -104,9 +104,11 @@ function labels(preview,map,options={}){
   const candidates=[{s:Math.min(64,length*.3),percent:first.percent,feel:first.feel,start:true},{s:endS,percent:last.percent,feel:last.feel,end:true}];
   for(const p of samples)if(p.kind==='before'||p.kind==='after')candidates.push({s:station(p.t)+(p.kind==='before'?-30:30),percent:p.percent,feel:p.feel});
   for(let s=145;s<length-65;s+=170){const p=at(s);if(p)candidates.push({s,percent:reading(p.t,'percent'),feel:reading(p.t,'feel')});}
-  const used=[];let count=0;
+  // Sample the whole path: a global reading cap used to spend every slot on
+  // early contacts and leave later cushion-to-cushion legs unlabelled.
+  const used=[];
   for(const candidate of candidates){
-   if(count>=14||candidate.s<8||candidate.s>length-8||used.some(s=>Math.abs(s-candidate.s)<55))continue;
+   if(candidate.s<8||candidate.s>length-8||used.some(s=>Math.abs(s-candidate.s)<55))continue;
    const color=Number(id)===0?'#ffffff':Number(id)===preview.firstBallContact?.objId?'#ffe5a0':'#a5d7ff';
    const energyText=Math.max(0,Math.round(candidate.percent))+'%';
    let feelText=Number.isFinite(candidate.feel)?number(Math.max(0,candidate.feel))+'D':null;
@@ -117,7 +119,7 @@ function labels(preview,map,options={}){
    for(const shift of candidate.start||candidate.end?[0,-24,24,-48,48]:[0]){
     if(item)break;
     const distance=candidate.s+shift;if(distance<8||distance>length-8)continue;
-    for(const offset of candidate.start||candidate.end?[14,26,42]:[14]){
+    for(const offset of [14,26,42]){
      if(item)break;
      for(const side of [1,-1]){
       const startResult=result.length,startBoxes=occupied.length;
@@ -128,8 +130,10 @@ function labels(preview,map,options={}){
      }
     }
    }
-   if(!item)item=place(candidate.s,energyText,color,'energy',[1,-1],[14],{percent:candidate.percent});
-   if(item){used.push(candidate.s);count++;}
+   // In a tight space keep both units in one label instead of silently
+   // dropping the diamond reading when its opposite-side position is blocked.
+   if(!item)item=place(candidate.s,energyText+(feelText?' / '+feelText:''),color,'energy',[1,-1],[14,26,42],{percent:candidate.percent,feel:candidate.feel});
+   if(item)used.push(candidate.s);
 
   }
  }

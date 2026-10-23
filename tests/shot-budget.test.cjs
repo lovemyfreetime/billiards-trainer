@@ -68,3 +68,32 @@ for(const item of labels.filter(p=>p.type==='energy')){
  if(paired)assert.equal(paired.side,-item.side,'Diamond feel stays on the opposite side of the same path');
 }
 console.log('Contact-loss deltas, red labels, opposite cyan feel, additive diamond deductions and zero stopped endpoint pass.');
+
+// Long multi-cushion shot: later legs must retain regular paired readings.
+c.S=c.defaultState();Object.assign(c.S,{tableL:2.54,tableW:1.27,speed:6,follow:0,sideSpin:0,showShotBudget:true});
+c.S.balls=[{id:0,n:'CB',x:.2,y:1.12,active:true}];c.S.freeAim={x:2.45,y:.85};
+const longShot=solve();
+const longLabels=budget.labels(longShot,p=>({x:40+p.x*530,y:40+p.y*530}),{width:1456,height:800});
+const contacts=longShot.budgetPaths[0].filter(p=>p.kind==='after');
+assert(contacts.length>=3,'Regression shot reaches at least three cushions');
+for(let i=1;i<contacts.length;i++){
+ const a=contacts[i-1],b=contacts[i],leg=longShot.paths[0].filter(p=>p.t>=a.t&&p.t<=b.t);
+ const legLength=leg.slice(1).reduce((sum,p,j)=>sum+Math.hypot(p.x-leg[j].x,p.y-leg[j].y),0);
+ if(legLength*530<300)continue;
+ const onLeg=p=>{
+  const x=(p.linePoint.x-40)/530,y=(p.linePoint.y-40)/530;
+  // The simulated leg can curve as cushion spin wears off. Match the actual
+  // polyline instead of treating the two cushion contacts as a straight line.
+  return leg.slice(1).some((q,j)=>{
+   const r=leg[j],dx=q.x-r.x,dy=q.y-r.y,d2=dx*dx+dy*dy;
+   const f=d2?Math.max(0,Math.min(1,((x-r.x)*dx+(y-r.y)*dy)/d2)):0;
+   const t=r.t+(q.t-r.t)*f;
+   return t>a.t+.1*(b.t-a.t)&&t<b.t-.1*(b.t-a.t)&&Math.hypot(x-r.x-f*dx,y-r.y-f*dy)<1e-6;
+  });
+ };
+ const energies=longLabels.filter(p=>p.type==='energy'&&onLeg(p));
+ assert(energies.length>=2,'Each long leg after the second cushion has intermediate percentages');
+ for(const p of energies)assert(longLabels.some(d=>d.type==='feel'&&d.linePoint.x===p.linePoint.x&&d.linePoint.y===p.linePoint.y)||p.text.includes('D'),'Every intermediate percent retains diamonds');
+}
+assert(longLabels.filter(p=>p.type==='energy').length>14,'Long shots are not truncated at fourteen readings');
+console.log('Long multi-cushion shot: intermediate percentages and diamonds continue beyond the second cushion.');
