@@ -9210,7 +9210,7 @@
         return m ? String(+m[1]) : 'ignore';
     }
     function pvUpdateAIButton() {
-        const b=$('photoAiModeBtn'); if(!b)return;
+        const b=$('photoAiModeBtn'); if(!b)return;b.setAttribute('aria-pressed',String(!!photoVision.aiEnabled));
         if(!photoVision.aiEnabled){ b.textContent='AI: OFF'; b.classList.remove('activeToggle'); return; }
         if(photoAI.ready){ b.textContent='AI: READY'; b.classList.add('activeToggle'); return; }
         if(photoAI.loading){ b.textContent='AI: LOADING'; b.classList.add('activeToggle'); return; }
@@ -11833,7 +11833,7 @@
             }
         });
         $('photoAiModeBtn').addEventListener('click', () => {
-            if(photoVision.aiEnabled && photoAI.failed){
+            if(photoVision.aiEnabled && photoAI.failed && !document.body.classList.contains('phone-focus')){
                 photoAI.failed=false;photoAI.error='';photoAI.loading=null;photoAI.runtimeLoading=null;
                 pvUpdateAIButton();
                 pvStatus('Retrying trained AI…');

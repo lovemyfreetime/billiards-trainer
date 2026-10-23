@@ -219,3 +219,26 @@ body.phone-focus #panel #bt-guide-pool-root{position:static!important;inset:auto
 body.phone-focus:not(.phone-controls-open) #bt-guide-pool-root{display:none!important}
 @media(orientation:portrait){body.phone-focus:not(.zen-mode) #phoneAimRail,body.phone-focus:not(.zen-mode) #phoneSpeedRail{top:65px;bottom:auto;height:160px}}
 @media(max-width:430px){body.phone-focus #phoneActions>[data-trainer-action]{min-width:38px;padding:4px 6px;font-size:11px}body.phone-focus #phoneActions>.bottomSpinGroup{gap:4px}body.phone-focus #phoneActions>#phoneAimChoice{width:25px;min-width:25px}}
+
+/* Phone actions sit beside the top corner tools; the lower dock is for spin. */
+body.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=animate],body.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=undoShot]{position:fixed;top:calc(6px + env(safe-area-inset-top));height:36px;min-height:36px;min-width:0;width:52px;padding:3px;font-size:11px;z-index:46}
+body.phone-focus #phoneActions>[data-trainer-action=animate]{right:calc(49px + env(safe-area-inset-right))}
+body.phone-focus #phoneActions>[data-trainer-action=undoShot]{left:calc(49px + env(safe-area-inset-left))}
+body.phone-focus:not(.zen-mode) #phoneActions,body.phone-focus.phone-two-shots:not(.zen-mode) #phoneActions{right:calc(54px + env(safe-area-inset-right));gap:5px}
+body.phone-focus #phoneActions>.bottomSpinGroup{max-width:none;min-width:0;flex:1 1 0;height:52px!important;grid-template-columns:minmax(0,1fr) 52px minmax(0,1fr);grid-template-rows:52px;gap:6px;align-items:center}
+body.phone-focus #phoneActions>.bottomSpinGroup.activeSpin{display:grid!important}
+body.phone-focus #phoneActions .miniSpinControl{height:48px;padding:17px 39px 3px;grid-row:1}
+body.phone-focus #phoneActions .miniSpinControl:first-child{grid-column:1}
+body.phone-focus #phoneActions .miniSpinControl:nth-child(2){grid-column:3}
+body.phone-focus #phoneActions .miniSpinControl input{min-width:0;height:28px}
+body.phone-focus #phoneActions .miniSpinLabel,body.phone-focus #phoneActions .phoneSliderValue{top:0!important;bottom:0!important;width:36px!important;height:46px!important;min-height:46px;font:600 22px/1 system-ui;display:grid;place-items:center;border-radius:10px;background:#25353e88;pointer-events:auto}
+body.phone-focus #phoneActions .phoneSliderValue{left:0!important;right:auto!important}
+body.phone-focus #phoneActions .miniSpinLabel{left:auto!important;right:0!important}
+.phoneSpinCaption{display:none}
+body.phone-focus #phoneActions .phoneSpinCaption{display:block;position:absolute;top:2px;left:36px;right:36px;pointer-events:none;text-align:center;font:600 9px/12px system-ui;white-space:nowrap}
+body.phone-focus #phoneActions .bottomSpinGroup .phoneTipControl:not([hidden]){position:relative!important;inset:auto!important;grid-column:2;grid-row:1;margin:auto;width:52px;height:55px}
+#phoneTrayToggle{display:none}
+body.phone-focus:not(.zen-mode) #phoneTrayToggle{display:block;position:fixed;left:calc(62px + env(safe-area-inset-left));bottom:calc(69px + env(safe-area-inset-bottom));z-index:46;width:36px;height:32px;min-height:32px;padding:0;border-radius:10px;border:1px solid #78969f;background:#16232bed;color:#edf6f9;font:600 10px system-ui}
+body.phone-focus.phone-tray-hidden #pocketTray{display:none!important}
+body.phone-focus #phoneTrayToggle[aria-expanded=false]{opacity:.65}
+@media(max-width:430px){body.phone-focus #phoneActions .miniSpinControl{padding-left:29px;padding-right:29px}body.phone-focus #phoneActions .miniSpinLabel,body.phone-focus #phoneActions .phoneSliderValue{width:28px!important}body.phone-focus #phoneActions .phoneSpinCaption{left:25px;right:25px;font-size:8px}}

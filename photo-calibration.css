@@ -171,3 +171,27 @@ body.phone-focus .photoDetectionDot{width:40px;height:40px}
 body.phone-focus .photoDetectionRow select{font-size:11px;min-height:28px}
 body.phone-focus .photoDetectionRow button{font-size:9px;min-height:28px;padding:3px}
 body.phone-focus .photoAnalyzerFooter .bt-file-status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+
+/* The close control has its own column and never covers a toolbar action. */
+#phoneAnalyzeBar,#phonePhotosButton{display:none}
+body.phone-focus #phoneAnalyzeBar{display:grid;grid-row:3;grid-template-columns:minmax(0,1fr) 32px;grid-template-rows:40px;gap:2px;align-items:center;padding-right:3px;min-width:0;background:#171e26}
+body.phone-focus #phoneAnalyzeBar .photoAnalyzerToolbar{grid-row:1!important;grid-column:1;min-width:0;padding:4px!important;gap:3px!important;scroll-padding:4px}
+body.phone-focus #phoneAnalyzeBar #photoAnalyzerClose{grid-row:1;grid-column:2;position:static!important;inset:auto!important;width:30px;height:30px;min-height:30px;padding:0;background:#23313e;border:1px solid #7695a5;border-radius:50%;font-size:20px;line-height:1}
+body.phone-focus #phoneAnalyzeBar .photoAnalyzerToolbar button,body.phone-focus #phoneAnalyzeBar .photoAnalyzerToolbar select{font-size:10px!important;padding:4px 5px!important}
+body.phone-focus #phoneAnalyzeBar #photoRackType{width:62px;min-width:62px;max-width:62px}
+body.phone-focus #phonePhotosButton{display:block;order:7!important}
+body.phone-focus #photoAiModeBtn{order:9!important;width:32px;min-width:32px;border-radius:50%;border:1px solid #72808b;background:#23313e;color:#fff}
+body.phone-focus #photoAiModeBtn[aria-pressed=true]{border:2px solid #6fff58!important;box-shadow:0 0 5px #6fff5844}
+body.phone-focus #btg-analyze-explore{order:10!important;min-width:28px}
+#phonePhotoMenu{display:none;position:fixed;inset:auto;margin:0;box-sizing:border-box;width:min(320px,calc(100vw - 8px));padding:10px;gap:7px;flex-wrap:wrap;align-items:center;border:1px solid #78969f;border-radius:12px;background:#1a2630;color:#fff;box-shadow:0 5px 22px #0009}
+#phonePhotoMenu:popover-open{display:flex}
+#phonePhotoMenu select{flex:0 0 100%;width:100%;min-width:0;max-width:100%!important;height:34px;font:12px system-ui}
+#phonePhotoMenu button{min-height:34px;padding:5px 8px;font:11px system-ui;border:1px solid #78969f;border-radius:6px;background:#293a48;color:#fff}
+body.phone-focus .photoAnalyzerFooter #photoLayoutName{width:105px;min-width:105px}
+body.phone-focus .photoAnalyzerFooter .bt-file-library{flex:1 0 235px;width:auto;min-width:0}
+body.phone-focus .photoAnalyzerFooter .bt-saved-files label{min-width:65px}
+body.phone-focus .photoAnalyzerFooter .bt-saved-files button{padding:3px 4px}
+@media(orientation:portrait){body.phone-focus .photoAnalyzerPanel{grid-template-rows:0 auto 40px minmax(0,1fr) 78px}body.phone-focus .photoAnalyzerFooter{height:78px;max-height:78px;flex-wrap:wrap;align-content:center}body.phone-focus .photoAnalyzerFooter #photoLayoutName{width:85px;min-width:85px}body.phone-focus .photoAnalyzerFooter .bt-file-library{flex:0 0 100%;width:100%}}
+body.phone-focus .photoAnalyzerFooter #photoLayoutName{flex:0 0 105px!important;width:105px;max-width:105px}
+body.phone-focus #photoWalkthroughBtn{order:8!important}
+@media(orientation:portrait){body.phone-focus .photoAnalyzerFooter #photoLayoutName{flex-basis:85px!important;width:85px;max-width:85px}}
