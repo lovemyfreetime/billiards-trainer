@@ -10,12 +10,14 @@ const assert=require('node:assert/strict'),cp=require('node:child_process'),{chr
    await page.goto('http://127.0.0.1:8793/?train=1');await page.waitForFunction(()=>window.billiardsTourBridge&&window.BilliardsShotBudget);
    await page.evaluate(()=>{
     billiardsTourBridge.apply({id:'budget',title:'Budget test',balls:[[0,.25,.5],[1,.65,.5],[2,.75,.25]],target:1,pocket:[1,1],speed:2.4,followPercent:0,sidePercent:0},{tableL:2.54,tableW:1.27});
+    const drawContacts=BilliardsShotBudget.drawContacts;BilliardsShotBudget.drawContacts=(ctx,cards)=>{window.__budgetContacts=cards;drawContacts(ctx,cards);};
     const draw=BilliardsShotBudget.draw;BilliardsShotBudget.draw=(ctx,items)=>{window.__budgetLabels=items;draw(ctx,items);};
    });
    const before=await page.evaluate(()=>billiardsTourBridge.predict());
    if(viewport.width<600)await page.locator('#phoneControls').click();
    await page.locator('#shotBudget').click();await page.waitForFunction(()=>window.__budgetLabels?.length>1);
    assert.equal(await page.locator('#shotBudget').getAttribute('aria-pressed'),'true');
+   const cards=await page.evaluate(()=>__budgetContacts);assert(cards.length,'Ball contact summary is visible');assert(cards[0].rows.some(r=>r.text.includes('CB gives')));assert(cards[0].rows.every((r,i)=>i===0||(r.text.includes('%')&&r.text.includes('D'))));
    assert.deepEqual(await page.evaluate(()=>billiardsTourBridge.predict()),before,'Budget toggle leaves actual shot prediction unchanged');
    const a=await page.locator('#shotBudget').boundingBox(),b=await page.locator('#jumpMasseFeatures').boundingBox(),tip=await page.locator('#tipArea').boundingBox();
    assert(Math.abs(a.width-b.width)<1&&Math.abs(a.height-b.height)<1);assert(a.x<b.x&&a.y+a.height<=tip.y+1);assert.equal(await page.locator('#jumpMasseFeatures').textContent(),'JUMP / MASSÉ');
@@ -24,8 +26,9 @@ const assert=require('node:assert/strict'),cp=require('node:child_process'),{chr
    await page.waitForFunction(old=>JSON.stringify(window.__budgetLabels)!==old,original);
    assert(await page.evaluate(()=>__budgetLabels.every(p=>Math.abs(p.angle)<=Math.PI/2)));
    const readings=await page.evaluate(()=>__budgetLabels.map(p=>({type:p.type,text:p.text,side:p.side,loss:p.loss,feel:p.feel,strokeFeel:p.strokeFeel,endpoint:p.endpoint})));
-   assert(readings.some(p=>p.type==='loss'&&p.loss>0),'Red contact losses are rendered');
-   assert(readings.some(p=>p.type==='diamond-loss'),'Red diamond contact losses are rendered');
+   const updatedCards=await page.evaluate(()=>__budgetContacts);
+   assert(readings.some(p=>p.type==='loss'&&p.loss>0)||updatedCards.some(c=>c.event.loss>0&&c.rows.some(r=>r.color==='#ff7777')),'Red contact losses are rendered beside the path or in its contact summary');
+   assert(readings.some(p=>p.type==='diamond-loss')||updatedCards.some(c=>c.rows.some(r=>r.color==='#ff7777'&&r.text.includes('D'))),'Red diamond contact losses are rendered');
    assert(readings.some(p=>p.type==='feel'&&Number.isFinite(p.feel)),'Live diamond feel is rendered');
    if(viewport.width>=600)assert(readings.some(p=>p.type==='feel'&&p.endpoint&&!p.text.includes('total')),'Endpoint shows remaining diamond budget');
 

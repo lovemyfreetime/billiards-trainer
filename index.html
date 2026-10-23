@@ -4809,7 +4809,7 @@
                                         cutAngle: ca, distanceBalls: cue.travel / (2 * R), t
                                     };
                                 }
-                                budget?.record(a, 'before', t); budget?.record(b, 'before', t);
+                                const finishBudgetContact = budget?.contact(a, b, t);
                                 lastColl.set(key, step);
                                 const jn = -(1 + S.ballRest) * relN / 2;
                                 a.vx -= jn * nx; a.vy -= jn * ny;
@@ -4824,7 +4824,7 @@
                                 const dwT = 2.5 * jz / R;
                                 a.wx += dwT * tx; a.wy += dwT * ty;
                                 b.wx += dwT * tx; b.wy += dwT * ty;
-                                budget?.record(a, 'after', t); budget?.record(b, 'after', t);
+                                finishBudgetContact?.(a, b);
                                 if(firstBallContact&&firstBallContact.t===t&&!firstBallContact.after&&(a.id===0||b.id===0)){
                                     const cue=a.id===0?a:b;firstBallContact.after={vx:cue.vx,vy:cue.vy,wx:cue.wx,wy:cue.wy};
                                 }
@@ -4870,7 +4870,7 @@
                                         cueHeight: cue.z, verticalNormal: (a.id === 0 ? nz : -nz), t
                                     };
                                 }
-                                budget?.record(a, 'before', t); budget?.record(b, 'before', t);
+                                const finishBudgetContact = budget?.contact(a, b, t);
                                 lastColl.set(key, step);
                                 const jn = -(1 + S.ballRest) * relN / 2;
                                 a.vx -= jn * nx; a.vy -= jn * ny; a.vz -= jn * nz;
@@ -4893,7 +4893,7 @@
                                 const k = -2.5 / R;
                                 a.wx += k * jcx; a.wy += k * jcy; a.wz += k * jcz;
                                 b.wx += k * jcx; b.wy += k * jcy; b.wz += k * jcz;
-                                budget?.record(a, 'after', t); budget?.record(b, 'after', t);
+                                finishBudgetContact?.(a, b);
                                 if (firstEvent === "—") firstEvent = `${a.n} → ${b.n}`;
                             }
                         }
@@ -4924,7 +4924,7 @@
         }
         if (budget) for (const b of B) if (b.active) budget.record(b, 'end', simTime);
         return { paths, frames, firstEvent, firstBallContact, pocketEvents, railEvents,
-            budgetPaths: budget?.paths, initialEnergy: budget?.initial, strokeFeel: budget?.strokeFeel,
+            budgetPaths: budget?.paths, budgetContacts: budget?.contacts, initialEnergy: budget?.initial, strokeFeel: budget?.strokeFeel,
             airborne: airborneMode ? {
                 maxCueHeight: Math.max(0, maxCueHeight - R), airborneDistance, bedBounceCount,
                 takeoff, landings, clearances, primaryClearance
@@ -6590,8 +6590,11 @@
                 const q=map(preview.firstBallContact.cuePos);
                 occupied.push({left:q.x-60,right:q.x+60,top:q.y-35,bottom:q.y-12});
             }
-            const labels=window.BilliardsShotBudget.labels(preview,map,{occupied,width:canvas.width/DPR,height:canvas.height/DPR});
+            const options={occupied,width:canvas.width/DPR,height:canvas.height/DPR};
+            const contacts=window.BilliardsShotBudget.contactLabels(preview,map,options);
+            const labels=window.BilliardsShotBudget.labels(preview,map,options);
             window.BilliardsShotBudget.draw(ctx,labels);
+            window.BilliardsShotBudget.drawContacts(ctx,contacts);
         }
     }
     function drawPreview(map) {
@@ -7161,7 +7164,6 @@
             if (!document.body.classList.contains('zen-mode')) drawShot2(map);
         }
 
-        if (!document.body.classList.contains('zen-mode')) drawShotBudget(map);
         if (!animation && (S.showTable || !isProjector || !projectorProjectionOnly)) {
             for (const b of S.balls) {
                 if (b.marker)
@@ -7188,6 +7190,7 @@
         if (!document.body.classList.contains('zen-mode')) drawTeachingCompass(map);
         if (!document.body.classList.contains('zen-mode')) drawRollingReferences(map);
         if (!document.body.classList.contains('zen-mode')) drawCalibration(M);
+        if (!document.body.classList.contains('zen-mode')) drawShotBudget(map);
         window.BilliardsTableZoom?.end(ctx);
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }

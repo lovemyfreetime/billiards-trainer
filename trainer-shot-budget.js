@@ -6,7 +6,7 @@ function energy(ball,radius,gravity=9.81){
  return .5*v2+.2*radius*radius*w2+gravity*Math.max(0,(ball.z||radius)-radius);
 }
 function create(cue,radius,gravity=9.81,reference={}){
- const initial=energy(cue,radius,gravity),paths={};
+ const initial=energy(cue,radius,gravity),paths={},contacts=[];
  const strokeSpeed=reference.speed||Math.hypot(cue.vx,cue.vy,cue.vz||0),table=reference.table||[];
  function lookup(speed){
   if(!table.length)return null;
@@ -29,7 +29,65 @@ function create(cue,radius,gravity=9.81,reference={}){
   points.push({x:ball.x,y:ball.y,t,percent,feel:feel(percent),kind});
  }
  record(cue,'start',0);
- return {paths,initial,strokeFeel,record};
+ function contact(a,b,t){
+  const snapshot=ball=>{const percent=initial>1e-12?100*energy(ball,radius,gravity)/initial:0;return {id:ball.id,name:ball.id===0?'CB':String(ball.n||ball.id),x:ball.x,y:ball.y,percent,feel:feel(percent)};};
+  const before=[snapshot(a),snapshot(b)];
+  const vx=a.vx-b.vx,vy=a.vy-b.vy,speed=Math.hypot(vx,vy);
+  const lateral=speed?Math.abs(vx*(b.y-a.y)-vy*(b.x-a.x))/speed:0;
+  const overlap=100*Math.max(0,Math.min(1,1-lateral/(2*radius)));
+  record(a,'before',t);record(b,'before',t);
+  return (a,b)=>{
+   record(a,'after',t);record(b,'after',t);
+   const after=[snapshot(a),snapshot(b)],incoming=before[0].percent+before[1].percent;
+   contacts.push({t,before,after,incoming,loss:incoming-after[0].percent-after[1].percent,overlap,x:(a.x+b.x)/2,y:(a.y+b.y)/2});
+  };
+ }
+ return {paths,contacts,initial,strokeFeel,record,contact};
+}
+function contactLabels(preview,map,options={}){
+ const result=[],occupied=options.occupied||[],width=options.width||Infinity,height=options.height||Infinity;
+ const fontSize=width<600?9:11,row=fontSize+7,pad=9;
+ const number=v=>Number(Math.max(0,v).toFixed(1)).toString();
+ const amount=p=>number(p)+'%'+(Number.isFinite(preview.strokeFeel)?' / '+number(preview.strokeFeel*p/100)+'D':'');
+ for(const event of preview?.budgetContacts||[]){
+  // Identify the ball giving energy, regardless of simulation array order.
+  const donor=event.before[0].percent-event.after[0].percent>=event.before[1].percent-event.after[1].percent?0:1,receiver=1-donor;
+  const source=event.before[donor],target=event.before[receiver],given=source.percent-event.after[donor].percent;
+  const rows=[
+   {text:Math.round(event.overlap)+'% overlap · % of shot',color:'#b7c8ce'},
+   {text:'Incoming total  '+amount(event.incoming),color:'#ffffff'},
+   {text:source.name+' keeps  '+amount(event.after[donor].percent),color:source.id===0?'#ffffff':'#ffe5a0'},
+   {text:target.name+(target.percent<.01?' receives  ':' carries  ')+amount(event.after[receiver].percent),color:target.id===0?'#ffffff':'#ffe5a0'},
+   {text:source.name+' gives  −'+amount(given),color:'#ff9999'},
+   {text:'Collision loss  '+amount(event.loss),color:'#ff7777'}
+  ];
+  const w=Math.max(...rows.map(r=>r.text.length))*fontSize*.62+pad*2,h=rows.length*row+pad*2,anchor=map(event);
+  let box=null;
+  for(const gap of [36,72,116,164]){
+   for(const [dx,dy] of [[-w-gap,-h/2],[gap,-h/2],[-w/2,-h-gap],[-w/2,gap],[-w-gap,-h-gap],[gap,-h-gap],[-w-gap,gap],[gap,gap]]){
+    const left=Math.max(4,Math.min(width-w-4,anchor.x+dx)),top=Math.max(4,Math.min(height-h-4,anchor.y+dy));
+    const candidate={left,top,right:left+w,bottom:top+h};
+    if(occupied.some(b=>candidate.left<b.right+6&&candidate.right>b.left-6&&candidate.top<b.bottom+6&&candidate.bottom>b.top-6))continue;
+    box=candidate;break;
+   }
+   if(box)break;
+  }
+  if(!box)continue;
+  occupied.push(box);result.push({box,anchor,rows,fontSize,row,pad,event});
+ }
+ return result;
+}
+function drawContacts(ctx,cards){
+ ctx.save();ctx.textAlign='left';ctx.textBaseline='middle';
+ for(const card of cards){
+  const {box,anchor,rows,fontSize,row,pad}=card;
+  const x=Math.max(box.left,Math.min(box.right,anchor.x)),y=Math.max(box.top,Math.min(box.bottom,anchor.y));
+  ctx.strokeStyle='#a4d9e299';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(anchor.x,anchor.y);ctx.lineTo(x,y);ctx.stroke();
+  ctx.fillStyle='#0c171eeb';ctx.strokeStyle='#68818f';ctx.beginPath();ctx.roundRect(box.left,box.top,box.right-box.left,box.bottom-box.top,7);ctx.fill();ctx.stroke();
+  ctx.font='600 '+fontSize+'px Segoe UI, sans-serif';
+  rows.forEach((r,i)=>{ctx.fillStyle=r.color;ctx.fillText(r.text,box.left+pad,box.top+pad+row*(i+.5));});
+ }
+ ctx.restore();
 }
 function labels(preview,map,options={}){
  const result=[],occupied=options.occupied||[],width=options.width||Infinity,height=options.height||Infinity;
@@ -144,7 +202,7 @@ function draw(ctx,items){
  for(const p of items){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle);ctx.font='700 '+(p.fontSize||11)+'px Segoe UI, sans-serif';ctx.strokeStyle='#07100fe6';ctx.lineWidth=3.5;ctx.strokeText(p.text,0,0);ctx.fillStyle=p.color||(p.id===0?'#ffffff':'#ffe5a0');ctx.fillText(p.text,0,0);ctx.restore();}
  ctx.restore();
 }
-const api={energy,create,labels,draw};
+const api={energy,create,labels,draw,contactLabels,drawContacts};
 if(typeof module==='object'&&module.exports)module.exports=api;
 else root.BilliardsShotBudget=api;
 })(typeof window==='object'?window:globalThis);

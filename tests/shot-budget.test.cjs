@@ -97,3 +97,30 @@ for(let i=1;i<contacts.length;i++){
 }
 assert(longLabels.filter(p=>p.type==='energy').length>14,'Long shots are not truncated at fourteen readings');
 console.log('Long multi-cushion shot: intermediate percentages and diamonds continue beyond the second cushion.');
+
+// Contact summaries use exact pre/post collision states, including spin.
+for(const angle of [0,2.5]){
+ setup(2.4,angle);c.S.showShotBudget=true;const shot=solve(),event=shot.budgetContacts[0];
+ assert(event,'Ball collision has an exchange record');
+ assert(Math.abs(event.incoming-event.after.reduce((sum,p)=>sum+p.percent,0)-event.loss)<1e-9);
+ const given=event.before[0].percent-event.after[0].percent,received=event.after[1].percent-event.before[1].percent;
+ assert(Math.abs(given-received-event.loss)<1e-9,'Cue-ball reduction equals transfer plus collision loss');
+ assert(event.overlap>0&&event.overlap<=100);
+ if(angle===0)assert(event.overlap>99.9,'Head-on overlap is full');else assert(event.overlap<60,'Thin cut uses measured overlap');
+ const boxes=[],cards=budget.contactLabels(shot,map,{width:1200,height:700,occupied:boxes});
+ assert(cards.length);assert.equal(cards[0].rows.length,6);
+ for(const r of cards[0].rows.slice(1))assert(r.text.includes('%')&&r.text.includes('D'),'Every exchange amount includes both units');
+ assert(cards[0].rows.some(r=>r.text.startsWith('CB keeps')));
+ assert(cards[0].rows.some(r=>r.text.startsWith('1 receives')));
+ assert(cards[0].rows.some(r=>r.text.startsWith('CB gives')));
+ assert(cards[0].rows.some(r=>r.text.startsWith('Collision loss')));
+ assert(boxes.every(b=>b.left>=0&&b.right<=1200&&b.top>=0&&b.bottom<=700));
+}
+// A moving target's incoming energy must also be counted; array order is immaterial.
+const exchange=budget.create({id:0,n:'CB',x:0,y:0,vx:2,vy:0},.03,9.81,{diamonds:8});
+const ca={id:0,n:'CB',x:0,y:0,vx:2,vy:0},ob={id:2,n:'2',x:.06,y:0,vx:-1,vy:0};
+const finish=exchange.contact(ob,ca,1);ob.vx=1.8;ca.vx=-.8;finish(ob,ca);
+assert.equal(exchange.contacts[0].incoming,125);
+const card=budget.contactLabels({budgetContacts:exchange.contacts,strokeFeel:8},map,{width:1200,height:700})[0];
+assert(card.rows.some(r=>r.text.startsWith('CB gives')));assert(card.rows.some(r=>r.text.startsWith('2 carries')));
+console.log('Contact exchange: full/thin overlap, conserved split, cue reduction, moving target, both units and bounded callouts pass.');
