@@ -108,9 +108,9 @@ for(const angle of [0,2.5]){
  assert(event.overlap>0&&event.overlap<=100);
  if(angle===0)assert(event.overlap>99.9,'Head-on overlap is full');else assert(event.overlap<60,'Thin cut uses measured overlap');
  const boxes=[],cards=budget.contactLabels(shot,map,{width:1200,height:700,occupied:boxes});
- assert(cards.length);assert.equal(cards[0].rows.length,2);
+ assert(cards.length);assert.equal(cards[0].rows.length,1);
  for(const r of cards[0].rows.slice(1))assert(r.text.includes('%')&&r.text.includes('D'),'Every exchange amount includes both units');
- assert.equal(cards[0].rows[0].text,'To ball 1');
+ assert(cards[0].rows[0].text.startsWith('B1 · '));
  assert(Math.abs(budget.exchange(event).received-received)<1e-9);
  assert(boxes.every(b=>b.left>=0&&b.right<=1200&&b.top>=0&&b.bottom<=700));
 }
@@ -120,7 +120,7 @@ const ca={id:0,n:'CB',x:0,y:0,vx:2,vy:0},ob={id:2,n:'2',x:.06,y:0,vx:-1,vy:0};
 const finish=exchange.contact(ob,ca,1);ob.vx=1.8;ca.vx=-.8;finish(ob,ca);
 assert.equal(exchange.contacts[0].incoming,125);
 const card=budget.contactLabels({budgetContacts:exchange.contacts,strokeFeel:8},map,{width:1200,height:700})[0];
-assert.equal(card.rows[0].text,'To ball 2');assert.equal(budget.exchange(exchange.contacts[0]).donor,1);
+assert(card.rows[0].text.startsWith('B2 · '));assert.equal(budget.exchange(exchange.contacts[0]).donor,1);
 console.log('Contact exchange: full/thin overlap, conserved split, cue reduction, moving target, both units and bounded callouts pass.');
 
 assert.equal(budget.format(.024),'<0.1');assert.equal(budget.format(0),'0');

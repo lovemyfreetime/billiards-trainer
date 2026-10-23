@@ -58,12 +58,12 @@ function segmentIntersects(box,a,b){
  return true;
 }
 function placeBadge(rows,anchor,options={}){
- const occupied=options.occupied||[],fontSize=options.fontSize||(options.width<600?9:11),row=fontSize+5,pad=6;
- const w=Math.max(...rows.map(r=>r.text.length))*fontSize*.62+pad*2,h=rows.length*row+pad*2;
+ const occupied=options.occupied||[],fontSize=options.fontSize||(options.width<600?9:10),row=fontSize+(options.rowGap??2),pad=options.pad??2;
+ const w=Math.max(...rows.map(r=>options.measureText?options.measureText(r.text,fontSize):r.text.length*fontSize*.62))+pad*2,h=rows.length*row+pad*2;
  const bounds=options.bounds||{left:3,top:3,right:(options.width||Infinity)-3,bottom:(options.height||Infinity)-3};
  const clear=box=>box.left>=bounds.left&&box.right<=bounds.right&&box.top>=bounds.top&&box.bottom<=bounds.bottom&&!occupied.some(b=>box.left<b.right+6&&box.right>b.left-6&&box.top<b.bottom+6&&box.bottom>b.top-6)&&!(options.segments||[]).some(([a,b])=>segmentIntersects({left:box.left-4,right:box.right+4,top:box.top-4,bottom:box.bottom+4},a,b));
  // Search nearest clear space first, including diagonal positions around a hit.
- for(const distance of [28,44,64,90,124,164,216,280,360,460,600]){
+ for(const distance of options.distances||[12,20,28,44,64,90,124,164,216,280,360,460,600]){
   for(let i=0;i<16;i++){
    const angle=-Math.PI/2+i*Math.PI/8,dx=Math.cos(angle),dy=Math.sin(angle);
    const x=anchor.x+dx*(distance+w/2),y=anchor.y+dy*(distance+h/2);
@@ -80,7 +80,7 @@ function contactLabels(preview,map,options={}){
   const {target,received}=exchange(event);
   if(received<=.005)continue;
   const text=format(received)+'%'+(Number.isFinite(preview.strokeFeel)?' · '+format(preview.strokeFeel*received/100)+'D':'');
-  const rows=[{text:(options.shot?'S'+options.shot+' · ':'')+'To '+(target.id===0?'cue ball':'ball '+target.name),color:'#b7c8ce'},{text,color:target.id===0?'#ffffff':'#ffe5a0'}];
+  const rows=[{text:(target.id===0?'CB':'B'+target.name)+' · '+text,color:'#f0f4ed'}];
   const card=placeBadge(rows,map(event),options);if(card)result.push({...card,event});
  }
  return result;
@@ -113,10 +113,12 @@ function drawContacts(ctx,cards){
  for(const card of cards){
   const {box,anchor,rows,fontSize,row,pad}=card;
   const x=Math.max(box.left,Math.min(box.right,anchor.x)),y=Math.max(box.top,Math.min(box.bottom,anchor.y));
-  ctx.strokeStyle='#a4d9e299';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(anchor.x,anchor.y);ctx.lineTo(x,y);ctx.stroke();
-  ctx.fillStyle='#0c171eeb';ctx.strokeStyle='#68818f';ctx.beginPath();ctx.roundRect(box.left,box.top,box.right-box.left,box.bottom-box.top,7);ctx.fill();ctx.stroke();
+  if(card.type!=='overlap'){
+   ctx.strokeStyle='#b8dce24d';ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(anchor.x,anchor.y);ctx.lineTo(x,y);ctx.stroke();
+   ctx.fillStyle='#5a99a5c7';ctx.beginPath();ctx.roundRect(box.left,box.top,box.right-box.left,box.bottom-box.top,3);ctx.fill();
+  }
   ctx.font='600 '+fontSize+'px Segoe UI, sans-serif';
-  rows.forEach((r,i)=>{ctx.fillStyle=r.color;ctx.fillText(r.text,box.left+pad,box.top+pad+row*(i+.5));});
+  rows.forEach((r,i)=>{const x=box.left+pad,y=box.top+pad+row*(i+.5);if(card.type==='overlap'){ctx.strokeStyle='#153c4866';ctx.lineWidth=2;ctx.strokeText(r.text,x,y);}ctx.fillStyle=card.type==='overlap'?'#ffffff':r.color;ctx.fillText(r.text,x,y);});
  }
  ctx.restore();
 }

@@ -1,5 +1,5 @@
 {
-  "version": "73b29cf1b1830940",
+  "version": "b143f024ba8efe01",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -920,7 +920,7 @@
     "icons/play-experience-v1.webp": "8fb008260a29dc4d1c26208e1e92872b242902fbc3b256d49e3c2209c7dd53b1",
     "icons/trainer-original-execute-v2.svg": "eaf1f45d99634cdbe87582d857cc2dd6017439dadf9ce251136485422c127da4",
     "icons/zen-reference-table-v1.webp": "0d9352c54cccca69fbb78fd8bc7a173957424fad151950a3888f895069030da0",
-    "index.html": "dcf44f7b002733fcd1be95de8c63233f57e46bce31c4e59b3b2b7f20215c632b",
+    "index.html": "d74cd0f98c48720e60dec470542c9e4e0e26590bd12005745572ee2cd05906c8",
     "install/android/index.html": "862dff4245e200376ff30ee6763f007bb510a3c0cdf0634f8ef3d0d2c25630ff",
     "install/apple/index.html": "baad9dae78322db69bebb071456f37d83e9ba1a7ac849dbe70ef9a88480cf253",
     "install/assets/android-guide/Billiards_Trainer_Android_Installer_Screenshots/android-app-installed.jpg": "545867686776eb4a4ecae0b6d12e6c5df3c58623919fd7935c6c09530e9f7500",
@@ -1223,7 +1223,7 @@
     "trainer-layout-files.js": "584904ca55d1ff7dd5e07be34915550b4cba3318fdab500f4cf9c3439c8527fa",
     "trainer-practice-tools.js": "4f3be4afca8e51274aa1b9eb8c9dcd696e466c26a8974650bafe4dccd950650d",
     "trainer-saved-files.js": "07b48339b39478d2bede82b6b6be4db004d045ee7c6039bf460fdf2b6bab762e",
-    "trainer-shot-budget.js": "89c53abfc0e388b10df15aaddb67000b8cae372d250d55005e58da6f014dd5c9",
+    "trainer-shot-budget.js": "e91b8dfb5279e23112e57bbf9a54cdc4393353c098b83595dbeda6baee9dee30",
     "trainer-table-exchange.js": "481759a0cf233361d10cb1e3c7335510da6f317dcf7e777bcdbf3485a1e20df4",
     "trainer-table-zoom.css": "2f3abf6fefade1bb9d9a795cf89689f28d442a11c81da93995f0b44303cb1b2a",
     "trainer-table-zoom.js": "f2f6c8c45cb87ae16f997466a178c362db34449e49771239b6585a7910149c2c",

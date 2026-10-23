@@ -6612,11 +6612,14 @@
             const p=local(r.left-rect.left,r.top-rect.top),q=local(r.right-rect.left,r.bottom-rect.top);
             occupied.push({left:p.x,right:q.x,top:p.y,bottom:q.y});
         }
-        const options={occupied,segments,bounds,width:canvas.width/DPR,height:canvas.height/DPR};
+        const measureText=(text,size)=>{ctx.save();ctx.font='600 '+size+'px Segoe UI, sans-serif';const width=ctx.measureText(text).width;ctx.restore();return width;};
+        const options={occupied,segments,bounds,measureText,width:canvas.width/DPR,height:canvas.height/DPR};
         const badges=[];
+        const clothA=map({x:0,y:0}),clothB=map({x:S.tableL,y:S.tableW});
+        const overlapBounds={left:Math.max(bounds.left,Math.min(clothA.x,clothB.x)+6),right:Math.min(bounds.right,Math.max(clothA.x,clothB.x)-6),top:Math.max(bounds.top,Math.min(clothA.y,clothB.y)+6),bottom:Math.min(bounds.bottom,Math.max(clothA.y,clothB.y)-6)};
         for(const item of shotBudgetOverlaps){
-            const text=(S.shot2Enabled?'S'+item.which+' · ':'')+item.contact.overlap.toFixed(1)+'% overlap';
-            const badge=api.placeBadge([{text,color:item.color}],map(item.contact.cuePos),options);
+            const text=item.contact.overlap.toFixed(1)+'% overlap';
+            const badge=api.placeBadge([{text,color:'#ffffff'}],map(item.contact.cuePos),{...options,bounds:overlapBounds,fontSize:11,pad:0,rowGap:2,distances:[4,8,12,20,28,40,60,90,124,164,216]});
             if(badge)badges.push({...badge,type:'overlap'});
         }
         if(S.showShotBudget&&S.showPaths){

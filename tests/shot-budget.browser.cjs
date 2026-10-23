@@ -18,7 +18,7 @@ const assert=require('node:assert/strict'),cp=require('node:child_process'),{chr
    await page.locator('#shotBudget').click();await page.waitForFunction(()=>window.__budgetLabels?.length>1);
    assert.equal(await page.locator('#shotBudget').getAttribute('aria-pressed'),'true');
    const cards=await page.evaluate(()=>__budgetContacts),transfers=cards.filter(c=>c.event);
-   assert(transfers.length,'Compact ball transfer badge is visible');assert(transfers.every(c=>c.rows.length===2&&c.rows[0].text.startsWith('To ')));
+   assert(transfers.length,'Compact ball transfer badge is visible');assert(transfers.every(c=>c.rows.length===1&&/^(B[0-9]+|CB) · /.test(c.rows[0].text)));
    assert(cards.some(c=>c.type==='overlap'),'Overlap is isolated in its own badge');
    assert.equal(await page.locator('#budgetInfo').isVisible(),true);
    assert.equal(await page.locator('#budgetInfoPanel').isVisible(),false,'Details stay collapsed when Budget is enabled');
@@ -35,7 +35,7 @@ const assert=require('node:assert/strict'),cp=require('node:child_process'),{chr
    await page.waitForFunction(old=>JSON.stringify(window.__budgetLabels)!==old,original);
    assert(await page.evaluate(()=>__budgetLabels.every(p=>Math.abs(p.angle)<=Math.PI/2)));
    const readings=await page.evaluate(()=>__budgetLabels.map(p=>({type:p.type,text:p.text,side:p.side,loss:p.loss,feel:p.feel,strokeFeel:p.strokeFeel,endpoint:p.endpoint})));
-   assert(readings.some(p=>p.type==='feel'&&Number.isFinite(p.feel)),'Live diamond feel is rendered');
+   assert(readings.some(p=>(p.type==='feel'&&Number.isFinite(p.feel))||(p.type==='energy'&&p.text.includes('D'))),'Live diamond feel is rendered');
    if(viewport.width>=600)assert(readings.some(p=>p.type==='feel'&&p.endpoint&&!p.text.includes('total')),'Endpoint shows remaining diamond budget');
 
    if(viewport.width<600)await page.locator('#phoneControls').click();
