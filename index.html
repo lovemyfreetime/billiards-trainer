@@ -1573,7 +1573,7 @@
         <div class="fineRow"><label>Left right spin</label><button id="spin2Minus" type="button">−</button><input id="sideSpin2" type="range" min="-1" max="1" step="0.01" value="0"><button id="spin2Plus" type="button">+</button><input id="spin2Number" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 2 left right spin percent"></div>
         <div id="cueElevationAdvanced2" class="cueElevationSlider"><div class="fineRow"><label>Cue elevation</label><button id="elev2Minus" type="button">−</button><input id="cueElevation2" type="range" min="0" max="15" step="0.1" value="3"><button id="elev2Plus" type="button">+</button><input id="elev2Number" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 2 cue elevation degrees"></div></div>
       </div>
-      <div class="shotFeatureButtons"><button id="shotBudget" type="button" aria-pressed="false" title="Remaining energy along each path, as a percent of the initial cue-ball energy (motion + spin).">SHOT BUDGET</button><button id="jumpMasseFeatures" class="jumpMasseFeatures" type="button" aria-pressed="false">JUMP / MASSÉ</button></div>
+      <div class="shotFeatureButtons"><button id="shotBudget" type="button" aria-pressed="false" title="Energy left (%); red: energy given away at contact (% of initial). Cyan D: equivalent stroke feel, not literal travel remaining. Start/end show the applied stroke reference; 16D = one lag.">SHOT BUDGET</button><button id="jumpMasseFeatures" class="jumpMasseFeatures" type="button" aria-pressed="false">JUMP / MASSÉ</button></div>
       <div id="tipArea">
         <div class="tipPane" id="tipPane1">
           <div class="shotPaneTitle">SHOT 1</div>
@@ -4395,6 +4395,19 @@
             }
         }
     }
+    let shotBudgetFeelCache = null;
+    function shotBudgetFeelReference() {
+        const key=[S.tableL,S.ballR,S.muRoll,S.muSlide,S.railRest].join('|');
+        if (!shotBudgetFeelCache || shotBudgetFeelCache.key!==key) {
+            const table=[];
+            for(let i=0;i<=128;i++) {
+                const speed=i*6/128;
+                table.push({speed,diamonds:rollingPowerReferenceDistance(speed)/(S.tableL/8)});
+            }
+            shotBudgetFeelCache={key,table};
+        }
+        return {table:shotBudgetFeelCache.table,speed:S.speed,diamonds:rollingPowerReferenceDistance(S.speed)/(S.tableL/8)};
+    }
     function powerFeel() {
         const d = rollingPowerReferenceDistance(S.speed);
         const diamond = S.tableL / 8;
@@ -4497,7 +4510,7 @@
             cb.wx = cueOmega.wx; cb.wy = cueOmega.wy; cb.wz = cueOmega.wz;
         }
         const dt = 1 / 600, maxT = 20, maxSteps = Math.ceil(maxT / dt), g = APK.gravity, R = S.ballR;
-        const budget = S.showShotBudget ? window.BilliardsShotBudget.create(cb, R, g) : null;
+        const budget = S.showShotBudget ? window.BilliardsShotBudget.create(cb, R, g, shotBudgetFeelReference()) : null;
         const paths = {};
         for (const b of B)
             paths[b.id] = [{ x: b.x, y: b.y, z: b.z, t: 0 }];
@@ -4911,7 +4924,7 @@
         }
         if (budget) for (const b of B) if (b.active) budget.record(b, 'end', simTime);
         return { paths, frames, firstEvent, firstBallContact, pocketEvents, railEvents,
-            budgetPaths: budget?.paths, initialEnergy: budget?.initial,
+            budgetPaths: budget?.paths, initialEnergy: budget?.initial, strokeFeel: budget?.strokeFeel,
             airborne: airborneMode ? {
                 maxCueHeight: Math.max(0, maxCueHeight - R), airborneDistance, bedBounceCount,
                 takeoff, landings, clearances, primaryClearance
@@ -6573,6 +6586,10 @@
         for (const which of [1,2]) {
             if (!cueVisualsVisible(which) || (which===2 && !S.shot2Enabled)) continue;
             const preview=which===1?S.preview:ensureShot2().preview;
+            if (S.showImpact && preview?.firstBallContact) {
+                const q=map(preview.firstBallContact.cuePos);
+                occupied.push({left:q.x-60,right:q.x+60,top:q.y-35,bottom:q.y-12});
+            }
             const labels=window.BilliardsShotBudget.labels(preview,map,{occupied,width:canvas.width/DPR,height:canvas.height/DPR});
             window.BilliardsShotBudget.draw(ctx,labels);
         }

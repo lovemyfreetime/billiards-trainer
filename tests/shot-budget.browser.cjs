@@ -23,6 +23,12 @@ const assert=require('node:assert/strict'),cp=require('node:child_process'),{chr
    await page.evaluate(()=>{const input=document.getElementById('tableSpeed1');input.value='3.2';input.dispatchEvent(new Event('input',{bubbles:true}));});
    await page.waitForFunction(old=>JSON.stringify(window.__budgetLabels)!==old,original);
    assert(await page.evaluate(()=>__budgetLabels.every(p=>Math.abs(p.angle)<=Math.PI/2)));
+   const readings=await page.evaluate(()=>__budgetLabels.map(p=>({type:p.type,text:p.text,side:p.side,loss:p.loss,feel:p.feel,strokeFeel:p.strokeFeel,endpoint:p.endpoint})));
+   assert(readings.some(p=>p.type==='loss'&&p.loss>0),'Red contact losses are rendered');
+   assert(readings.some(p=>p.type==='feel'&&Number.isFinite(p.feel)),'Live diamond feel is rendered');
+   if(viewport.width>=600)assert(readings.some(p=>p.type==='feel'&&p.endpoint&&p.text.endsWith('D total')),'Endpoint repeats the required stroke total');
+
+   if(viewport.width<600)await page.locator('#phoneControls').click();
    await page.screenshot({path:'/tmp/shot-budget-'+viewport.width+'.png'});
    await page.reload();await page.waitForFunction(()=>window.billiardsTourBridge);assert.equal(await page.locator('#shotBudget').getAttribute('aria-pressed'),'true','Toggle is saved');
    if(viewport.width<600)await page.locator('#phoneControls').click();

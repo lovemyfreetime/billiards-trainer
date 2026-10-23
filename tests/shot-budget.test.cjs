@@ -2,7 +2,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const html=fs.readFileSync('index.html','utf8');
 function extract(name){const a=html.indexOf('    function '+name+'('),begin=html.indexOf('{',a);assert(a>=0,name);let depth=0;for(let i=begin;i<html.length;i++){if(html[i]==='{')depth++;if(html[i]==='}'&&--depth===0)return html.slice(a,i+1);}throw Error(name);}
 const budget=require('../trainer-shot-budget.js');
-const c={Math,Map,Set,window:{BilliardsShotBudget:budget}};vm.createContext(c);
+const c={Math,Map,Set,shotBudgetFeelCache:null,window:{BilliardsShotBudget:budget}};vm.createContext(c);
 vm.runInContext(html.slice(html.indexOf('    const APK ='),html.indexOf('    const ORIGINAL_TABLE_ASSET =')),c);
 for(const name of ['defaultState','simulate'])vm.runInContext(extract(name),c);
 function solve(frames=false){
@@ -36,7 +36,7 @@ for(const event of pocketed.pocketEvents){const points=pocketed.budgetPaths[even
 // Layout labels beside the original sampled lines: rotated, upright, and clear of one another.
 const map=p=>({x:50+p.x*400,y:50+p.y*400});
 const occupied=[];const labels=budget.labels(pocketed,map,{width:1200,height:700,occupied});assert(labels.length>2);
-for(const label of labels){assert(Math.abs(label.angle)<=Math.PI/2);assert(Math.abs(Math.hypot(label.x-label.linePoint.x,label.y-label.linePoint.y)-14)<1e-9);}
+for(const label of labels){assert(Math.abs(label.angle)<=Math.PI/2);assert(Math.abs(Math.hypot(label.x-label.linePoint.x,label.y-label.linePoint.y)-label.offset)<1e-9);}
 for(let i=0;i<occupied.length;i++)for(let j=i+1;j<occupied.length;j++){const a=occupied[i],b=occupied[j];assert(a.right<=b.left||b.right<=a.left||a.bottom<=b.top||b.bottom<=a.top);}
 const reverse={paths:{0:[{x:2,y:.4,t:0},{x:.2,y:.5,t:1}]},budgetPaths:{0:[{x:2,y:.4,t:0,kind:'start',percent:100},{x:.2,y:.5,t:1,kind:'end',percent:0}]}};
 assert(budget.labels(reverse,map,{width:1200,height:700}).every(p=>Math.abs(p.angle)<=Math.PI/2));
@@ -44,3 +44,17 @@ const ball={vx:2,vy:0,vz:0,wx:0,wy:0,wz:100,z:.03};assert(budget.energy(ball,.03
 assert(html.indexOf('id="shotBudget"')<html.indexOf('id="jumpMasseFeatures"'));assert(html.indexOf('id="jumpMasseFeatures"')<html.indexOf('id="tipArea"'));
 assert(html.includes('grid-template-columns:repeat(2,minmax(0,1fr))'));assert(!html.includes('3D JUMP / MASSÉ FEATURES'));
 console.log('Shot budget: motion + spin, shared energy baseline, unchanged simulation/paths, collision records, pocket residual, upright offset labels, collision avoidance and equal button placement pass.');
+
+assert(labels.some(p=>p.type==='loss'&&p.color==='#ff7777'&&p.loss>0));
+assert(labels.some(p=>p.type==='feel'&&p.color==='#69e5ff'));
+assert(labels.some(p=>p.type==='feel'&&p.endpoint&&p.id===0&&p.text.endsWith('D total')));
+for(const item of labels.filter(p=>p.type==='loss'))assert(Math.abs(item.loss-item.parts.reduce((sum,[before,after])=>sum+before-after,0))<1e-7);
+const firstCue=pocketed.budgetPaths[0][0];
+assert(Math.abs(firstCue.feel-pocketed.strokeFeel)<1e-9);
+assert(Math.abs(pocketed.strokeFeel-c.rollingPowerReferenceDistance(c.S.speed)/(c.S.tableL/8))<1e-9,'Uses the actual existing lag calibration');
+for(const sample of pocketed.budgetPaths[0])assert(Number.isFinite(sample.feel)&&sample.feel>=0);
+for(const item of labels.filter(p=>p.type==='energy')){
+ const paired=labels.find(p=>p.type==='feel'&&p.id===item.id&&p.linePoint.x===item.linePoint.x&&p.linePoint.y===item.linePoint.y);
+ if(paired)assert.equal(paired.side,-item.side,'Diamond feel stays on the opposite side of the same path');
+}
+console.log('Contact-loss deltas, red labels, opposite cyan feel, exact launch lag reference and endpoint stroke total pass.');
