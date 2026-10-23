@@ -231,7 +231,8 @@
   #liveStatsSection .shotMetricsWrap.focusShot2 #shot2Metrics { display:flex; }
   #liveStatsSection #shot1Metrics[hidden], #liveStatsSection #shot2Metrics[hidden] { display:none; }
   .cueElevationSlider[hidden] { display:none; }
-  .jumpMasseFeatures { width:100%; margin:6px 0; min-height:38px; font-size:12px; font-weight:800; }
+  .shotFeatureButtons { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; margin:6px 0; }
+  .shotFeatureButtons button { width:100%; min-width:0; margin:0; min-height:38px; padding:6px 4px; font-size:11px; font-weight:800; }
   .shotExecuteRow { display:grid; grid-template-columns:1fr; gap:8px; margin-top:6px; }
   .shotExecuteRow.dual { grid-template-columns:1fr 1fr; }
   #animate { width:100%; height:48px; background:#60d394; color:#071b10; border:1px solid #60d394; font-weight:800; transition:background .08s; }
@@ -1572,7 +1573,7 @@
         <div class="fineRow"><label>Left right spin</label><button id="spin2Minus" type="button">−</button><input id="sideSpin2" type="range" min="-1" max="1" step="0.01" value="0"><button id="spin2Plus" type="button">+</button><input id="spin2Number" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 2 left right spin percent"></div>
         <div id="cueElevationAdvanced2" class="cueElevationSlider"><div class="fineRow"><label>Cue elevation</label><button id="elev2Minus" type="button">−</button><input id="cueElevation2" type="range" min="0" max="15" step="0.1" value="3"><button id="elev2Plus" type="button">+</button><input id="elev2Number" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 2 cue elevation degrees"></div></div>
       </div>
-      <button id="jumpMasseFeatures" class="jumpMasseFeatures" type="button" aria-pressed="false">3D JUMP / MASSÉ FEATURES</button>
+      <div class="shotFeatureButtons"><button id="shotBudget" type="button" aria-pressed="false" title="Remaining energy along each path, as a percent of the initial cue-ball energy (motion + spin).">SHOT BUDGET</button><button id="jumpMasseFeatures" class="jumpMasseFeatures" type="button" aria-pressed="false">JUMP / MASSÉ</button></div>
       <div id="tipArea">
         <div class="tipPane" id="tipPane1">
           <div class="shotPaneTitle">SHOT 1</div>
@@ -1879,6 +1880,7 @@
 <script src="./photo-table-spots.js?v=3"></script>
 <script src="./photo-cloth-filter.js?v=2"></script>
 <script src="./trainer-table-zoom.js?v=1"></script>
+<script src="./trainer-shot-budget.js?v=1"></script>
 <script>
 // AI Camera Edition wrapper: v4.12 trainer, app-mode launch package. v4 adds scoreboard placement/default-off + local analysis-photo recall.
 // v4.12: virtual diamond extensions beyond physical corners; fixes source references that previously clipped at the first visible table boundary.
@@ -2005,7 +2007,7 @@
             muSlide: APK.muSliding, muRoll: APK.muRolling, muBall: APK.muBallBall, ballRest: .96,
             railRest: .90, railTang: .90, cueEndmassRatio: PHYSICS_MODEL.defaultCueEndmassRatio, cuePreset: 'low',
             jumpUnits: 'in', airbornePhysics: false, tableRest: PHYSICS_MODEL.defaultTableVerticalRestitution, bedImpactMu: PHYSICS_MODEL.defaultBedImpactFriction, showImpact: true, showTipBadge: false, showPaths: true, showGrid: true, showDiamonds: true, showTable: true,
-            preview: null, firstEvent: '—'
+            showShotBudget: false, preview: null, firstEvent: '—'
         };
     }
     let S = defaultState();
@@ -4495,6 +4497,7 @@
             cb.wx = cueOmega.wx; cb.wy = cueOmega.wy; cb.wz = cueOmega.wz;
         }
         const dt = 1 / 600, maxT = 20, maxSteps = Math.ceil(maxT / dt), g = APK.gravity, R = S.ballR;
+        const budget = S.showShotBudget ? window.BilliardsShotBudget.create(cb, R, g) : null;
         const paths = {};
         for (const b of B)
             paths[b.id] = [{ x: b.x, y: b.y, z: b.z, t: 0 }];
@@ -4627,6 +4630,7 @@
             if (vn >= 0)
                 return false;
             const tx = -ny, ty = nx;
+            budget?.record(b, 'before', simTime);
             // Normal impulse / rebound.
             railEvents.push({id:b.id,x:b.x,y:b.y,t:simTime,rail:name});
             const jn = -(1 + S.railRest) * vn;
@@ -4652,6 +4656,7 @@
             b.vx = vnAfter * nx + vtDamped * tx;
             b.vy = vnAfter * ny + vtDamped * ty;
             b.wz *= 1 - APK.railSpinDamping;
+            budget?.record(b, 'after', simTime);
             if (firstEvent === '—')
                 firstEvent = `${b.n} → ${name}`;
             return true;
@@ -4700,6 +4705,7 @@
             for (const b of B) {
                 const lowEnoughForPocket = !airborneMode || b.z <= R * 1.12;
                 if (b.active && lowEnoughForPocket && pocketCapture(b)) {
+                    budget?.record(b, 'pocket', t);
                     pocketEvents.push({id:b.id,x:b.x,y:b.y,t,speed:Math.hypot(b.vx,b.vy)});
                     paths[b.id].push({x:b.x,y:b.y,z:b.z,t});
                     b.active = false;
@@ -4737,9 +4743,13 @@
             for (const b of B) {
                 if (!b.active || !canReachCushion(b))
                     continue;
-                for (let ji = 0; ji < jaws.length; ji++)
-                    if (collideWithJaw(b, jaws[ji][0], jaws[ji][1], 'pocket jaw') && firstEvent === '—')
-                        firstEvent = `${b.n} → pocket jaw`;
+                for (let ji = 0; ji < jaws.length; ji++) {
+                    const incoming = budget ? {...b} : null;
+                    if (collideWithJaw(b, jaws[ji][0], jaws[ji][1], 'pocket jaw')) {
+                        if (budget) { budget.record(incoming, 'before', t); budget.record(b, 'after', t); }
+                        if (firstEvent === '—') firstEvent = `${b.n} → pocket jaw`;
+                    }
+                }
             }
             // Equal-mass solid-sphere collisions. Normal impulse transfers the line-of-centers
             // component; Coulomb-limited tangential impulse produces collision-induced throw.
@@ -4786,6 +4796,7 @@
                                         cutAngle: ca, distanceBalls: cue.travel / (2 * R), t
                                     };
                                 }
+                                budget?.record(a, 'before', t); budget?.record(b, 'before', t);
                                 lastColl.set(key, step);
                                 const jn = -(1 + S.ballRest) * relN / 2;
                                 a.vx -= jn * nx; a.vy -= jn * ny;
@@ -4800,6 +4811,7 @@
                                 const dwT = 2.5 * jz / R;
                                 a.wx += dwT * tx; a.wy += dwT * ty;
                                 b.wx += dwT * tx; b.wy += dwT * ty;
+                                budget?.record(a, 'after', t); budget?.record(b, 'after', t);
                                 if(firstBallContact&&firstBallContact.t===t&&!firstBallContact.after&&(a.id===0||b.id===0)){
                                     const cue=a.id===0?a:b;firstBallContact.after={vx:cue.vx,vy:cue.vy,wx:cue.wx,wy:cue.wy};
                                 }
@@ -4845,6 +4857,7 @@
                                         cueHeight: cue.z, verticalNormal: (a.id === 0 ? nz : -nz), t
                                     };
                                 }
+                                budget?.record(a, 'before', t); budget?.record(b, 'before', t);
                                 lastColl.set(key, step);
                                 const jn = -(1 + S.ballRest) * relN / 2;
                                 a.vx -= jn * nx; a.vy -= jn * ny; a.vz -= jn * nz;
@@ -4867,12 +4880,14 @@
                                 const k = -2.5 / R;
                                 a.wx += k * jcx; a.wy += k * jcy; a.wz += k * jcz;
                                 b.wx += k * jcx; b.wy += k * jcy; b.wz += k * jcz;
+                                budget?.record(a, 'after', t); budget?.record(b, 'after', t);
                                 if (firstEvent === "—") firstEvent = `${a.n} → ${b.n}`;
                             }
                         }
                     }
                 }
             if (step % sampleEvery === 0) {
+                if (budget) for (const b of B) if (b.active) budget.record(b, 'travel', t);
                 for (const b of B)
                     if (b.active)
                         paths[b.id].push({ x: b.x, y: b.y, z: b.z, t });
@@ -4894,7 +4909,9 @@
                 primaryClearance = candidates[0];
             }
         }
+        if (budget) for (const b of B) if (b.active) budget.record(b, 'end', simTime);
         return { paths, frames, firstEvent, firstBallContact, pocketEvents, railEvents,
+            budgetPaths: budget?.paths, initialEnergy: budget?.initial,
             airborne: airborneMode ? {
                 maxCueHeight: Math.max(0, maxCueHeight - R), airborneDistance, bedBounceCount,
                 takeoff, landings, clearances, primaryClearance
@@ -6547,6 +6564,19 @@
             } else drawTipBadgeDisk(ctx, badge, values, which === 2 ? 'TIP 2' : 'TIP');
         }
     }
+    function drawShotBudget(map) {
+        if (!S.showShotBudget || !S.showPaths || animation) return;
+        const occupied = S.balls.filter(b => b.active && !b.marker).map(b => {
+            const p=map(b),edge=map({x:b.x+S.ballR,y:b.y}),r=Math.hypot(edge.x-p.x,edge.y-p.y)+4;
+            return {left:p.x-r,right:p.x+r,top:p.y-r,bottom:p.y+r};
+        });
+        for (const which of [1,2]) {
+            if (!cueVisualsVisible(which) || (which===2 && !S.shot2Enabled)) continue;
+            const preview=which===1?S.preview:ensureShot2().preview;
+            const labels=window.BilliardsShotBudget.labels(preview,map,{occupied,width:canvas.width/DPR,height:canvas.height/DPR});
+            window.BilliardsShotBudget.draw(ctx,labels);
+        }
+    }
     function drawPreview(map) {
         if (!S.showPaths || !S.preview)
             return;
@@ -7114,6 +7144,7 @@
             if (!document.body.classList.contains('zen-mode')) drawShot2(map);
         }
 
+        if (!document.body.classList.contains('zen-mode')) drawShotBudget(map);
         if (!animation && (S.showTable || !isProjector || !projectorProjectionOnly)) {
             for (const b of S.balls) {
                 if (b.marker)
@@ -7533,6 +7564,10 @@
         $('tipArea').classList.toggle('dual', on);
         $('shotExecuteRow').classList.toggle('dual', on);
         [1,2].forEach(which => $('cueElevationAdvanced'+which).hidden = !S.airbornePhysics);
+        const budgetBtn = $('shotBudget');
+        budgetBtn.setAttribute('aria-pressed', String(!!S.showShotBudget));
+        budgetBtn.classList.toggle('visibilityOn', !!S.showShotBudget);
+        budgetBtn.classList.toggle('visibilityOff', !S.showShotBudget);
         const jumpBtn = $('jumpMasseFeatures');
         jumpBtn.setAttribute('aria-pressed', String(!!S.airbornePhysics));
         jumpBtn.classList.toggle('visibilityOn', !!S.airbornePhysics);
@@ -12289,6 +12324,10 @@
             setTip2FromPointer(ev); });
         tc2.addEventListener('pointerup', () => tip2Drag = false);
         tc2.addEventListener('pointercancel', () => tip2Drag = false);
+        $('shotBudget').onclick = () => {
+            S.showShotBudget = !S.showShotBudget;
+            updateUI(); refreshPreview(); saveState(); syncProjector();
+        };
         $('jumpMasseFeatures').onclick = () => {
             S.airbornePhysics = !S.airbornePhysics;
             if (!S.airbornePhysics) {
