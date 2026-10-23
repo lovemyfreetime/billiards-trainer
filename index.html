@@ -3734,10 +3734,8 @@
             const e = Math.max(.72, S.railRest * .92);
             b.vx -= (1 + e) * vn * nx;
             b.vy -= (1 + e) * vn * ny;
-            if (firstEvent === '—')
-                firstEvent = `${b.n} → ${name}`;
         }
-        return true;
+        return vn < 0;
     }
     function cueBall() { return S.balls.find(b => b.id === 0); }
     function compassState() {
@@ -4461,6 +4459,19 @@
             return true;
         return false;
     }
+    function planarContactRewind(a, b, diameter, maxTime) {
+        // Recover first touch within this integration step, before any positional
+        // separation. Using the penetrated centers distorts both cut and overlap.
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const vx = b.vx - a.vx, vy = b.vy - a.vy;
+        const closing = dx * vx + dy * vy;
+        const penetration = diameter * diameter - dx * dx - dy * dy;
+        const speed2 = vx * vx + vy * vy;
+        if (closing >= 0 || penetration <= 0 || speed2 < 1e-18) return 0;
+        // Stable positive root of |relativePosition - relativeVelocity*t| = D.
+        const rewind = penetration / (Math.sqrt(closing * closing + speed2 * penetration) - closing);
+        return rewind <= maxTime + 1e-12 ? Math.min(maxTime, rewind) : 0;
+    }
     function simulate(makeFrames = false) {
         const B = cloneBallsForPhysics();
         const cb = B.find(b => b.id === 0);
@@ -4727,7 +4738,8 @@
                 if (!b.active || !canReachCushion(b))
                     continue;
                 for (let ji = 0; ji < jaws.length; ji++)
-                    collideWithJaw(b, jaws[ji][0], jaws[ji][1], `pocket jaw`);
+                    if (collideWithJaw(b, jaws[ji][0], jaws[ji][1], 'pocket jaw') && firstEvent === '—')
+                        firstEvent = `${b.n} → pocket jaw`;
             }
             // Equal-mass solid-sphere collisions. Normal impulse transfers the line-of-centers
             // component; Coulomb-limited tangential impulse produces collision-induced throw.
@@ -4742,10 +4754,19 @@
                         let dist = Math.hypot(dx, dy);
                         if (dist < minD && dist > 1e-9) {
                             const key = a.id < b.id ? `${a.id}:${b.id}` : `${b.id}:${a.id}`;
-                            const nx = dx / dist, ny = dy / dist, tx = -ny, ty = nx;
+                            const rewind = planarContactRewind(a, b, minD, dt);
+                            if (rewind > 0) {
+                                for (const ball of [a, b]) {
+                                    ball.x -= ball.vx * rewind; ball.y -= ball.vy * rewind;
+                                    ball.travel -= Math.hypot(ball.vx, ball.vy) * rewind;
+                                }
+                            }
+                            const contactDx = b.x - a.x, contactDy = b.y - a.y;
+                            dist = Math.hypot(contactDx, contactDy);
+                            const nx = contactDx / dist, ny = contactDy / dist, tx = -ny, ty = nx;
                             const rvx = b.vx - a.vx, rvy = b.vy - a.vy;
                             const relN = rvx * nx + rvy * ny;
-                            const overlap = minD - dist;
+                            const overlap = Math.max(0, minD - dist);
                             a.x -= nx * overlap * .501; a.y -= ny * overlap * .501;
                             b.x += nx * overlap * .501; b.y += ny * overlap * .501;
                             if (relN < 0 && (!lastColl.has(key) || step - lastColl.get(key) > 2)) {
@@ -4783,6 +4804,14 @@
                                     const cue=a.id===0?a:b;firstBallContact.after={vx:cue.vx,vy:cue.vy,wx:cue.wx,wy:cue.wy};
                                 }
                                 if (firstEvent === "—") firstEvent = `${a.n} → ${b.n}`;
+                            }
+                            // Complete the remaining fraction using post-impact velocities.
+                            // The exact contact normal drives the actual shot as well as UI metrics.
+                            if (rewind > 0) {
+                                for (const ball of [a, b]) {
+                                    ball.x += ball.vx * rewind; ball.y += ball.vy * rewind;
+                                    ball.travel += Math.hypot(ball.vx, ball.vy) * rewind;
+                                }
                             }
                         }
                     }
