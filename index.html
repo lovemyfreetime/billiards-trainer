@@ -8279,6 +8279,45 @@
         input.dispatchEvent(new Event('change',{bubbles:true}));
         saveState(); finishActionUndo();
     };
+    function bindHoldAdjust(button, adjust, enabled = () => true) {
+        if (!button) return;
+        let pointer = null, timer = 0;
+        const allowed = () => !button.disabled && enabled();
+        const stop = () => {
+            clearTimeout(timer); timer = 0;
+            const id = pointer; pointer = null;
+            if (id !== null && button.hasPointerCapture(id)) button.releasePointerCapture(id);
+        };
+        const repeat = () => {
+            timer = 0;
+            if (pointer === null || !allowed()) { stop(); return; }
+            adjust(); timer = setTimeout(repeat, 100);
+        };
+        button.style.touchAction = 'none';
+        button.addEventListener('pointerdown', event => {
+            if (event.button !== 0 || event.isPrimary === false || pointer !== null || !allowed()) return;
+            event.preventDefault(); pointer = event.pointerId;
+            button.setPointerCapture(pointer);
+            adjust(); timer = setTimeout(repeat, 360);
+        });
+        button.addEventListener('pointermove', event => {
+            if (event.pointerId !== pointer) return;
+            const r = button.getBoundingClientRect();
+            if (!allowed() || event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) stop();
+        });
+        for (const type of ['pointerup', 'pointercancel', 'lostpointercapture'])
+            button.addEventListener(type, event => { if (event.pointerId === pointer) stop(); });
+        button.addEventListener('pointerleave', stop);
+        window.addEventListener('blur', stop);
+        document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); });
+        button.addEventListener('click', event => {
+            event.preventDefault();
+            // Pointer taps already adjusted on press; keyboard/assistive clicks still work.
+            if (event.detail === 0 && allowed()) adjust();
+        });
+    }
+    window.billiardsBindHoldAdjust = (button, adjust, enabled = () => true) =>
+        bindHoldAdjust(button, adjust, () => !animation && !isProjector && enabled());
     function installWheelRange(id) {
         const el = $(id);
         if (!el) return;
@@ -8490,14 +8529,12 @@
                 return;
             roller.querySelectorAll('[data-aim-step]').forEach(button => {
                 button.addEventListener('pointerdown', event => event.stopPropagation());
-                button.addEventListener('click', event => {
-                    event.stopPropagation();
-                    if (animation || (shotNo === 2 && !S.shot2Enabled)) return;
+                window.billiardsBindHoldAdjust(button, () => {
                     finishActionUndo(); beginActionUndo();
                     setActiveShot(shotNo);
                     rotateAimMicro(Number(button.dataset.aimStep) * 0.15 * Math.PI / 180);
                     requestAnimationFrame(finishActionUndo);
-                });
+                }, () => shotNo !== 2 || S.shot2Enabled);
             });
             const ticks = roller.querySelector('.rollerTicks');
             let rollerDrag = false, rollerLastX = 0, rollerVisual = 0;
@@ -12192,42 +12229,7 @@
         // Tap = one normal increment. Hold = repeat after a short pause.
         // The repeat rate is deliberately moderate for precise tablet teaching use.
         function installHoldAdjust(id, adjustFn) {
-            const btn = $(id);
-            let holdTimer = null, repeatTimer = null, active = false;
-            const stop = () => {
-                active = false;
-                if (holdTimer) {
-                    clearTimeout(holdTimer);
-                    holdTimer = null;
-                }
-                if (repeatTimer) {
-                    clearInterval(repeatTimer);
-                    repeatTimer = null;
-                }
-            };
-            btn.addEventListener('pointerdown', ev => {
-                ev.preventDefault();
-                stop();
-                active = true;
-                adjustFn(); // one immediate increment, same behavior as a tap
-                try {
-                    btn.setPointerCapture(ev.pointerId);
-                }
-                catch (e) { }
-                holdTimer = setTimeout(() => {
-                    if (!active)
-                        return;
-                    repeatTimer = setInterval(() => { if (active)
-                        adjustFn(); }, 120);
-                }, 360);
-            });
-            btn.addEventListener('pointerup', stop);
-            btn.addEventListener('pointercancel', stop);
-            btn.addEventListener('lostpointercapture', stop);
-            btn.addEventListener('pointerleave', ev => { if (ev.buttons === 0)
-                stop(); });
-            // Prevent the synthetic click after pointerup from adding an extra step.
-            btn.addEventListener('click', ev => ev.preventDefault());
+            window.billiardsBindHoldAdjust($(id), adjustFn);
         }
         installHoldAdjust('speedMinus', () => fineAdjust('speed', -0.01, 0.25, 6));
         installHoldAdjust('speedPlus', () => fineAdjust('speed', 0.01, 0.25, 6));

@@ -145,12 +145,12 @@
     const output=document.createElement('button');output.type='button';output.id=id+'Readout';output.className='phoneSliderValue sliderStep';
     output.setAttribute('aria-label','Decrease '+input.getAttribute('aria-label'));
     output.title='Decrease one step';
-    output.addEventListener('click',()=>window.billiardsStepTableSlider?.(id,-1));
+    window.billiardsBindHoldAdjust(output,()=>window.billiardsStepTableSlider?.(id,-1),()=>!input.disabled);
     const label=input.parentNode.querySelector('.tableSpeedLabel,.miniSpinLabel');
     if(label){
       const plus=document.createElement('button');plus.type='button';plus.className=label.className+' sliderStep';plus.id=label.id;plus.textContent=label.textContent;
       plus.setAttribute('aria-label','Increase '+input.getAttribute('aria-label'));plus.title='Increase one step';
-      plus.addEventListener('click',()=>window.billiardsStepTableSlider?.(id,1));label.replaceWith(plus);
+      window.billiardsBindHoldAdjust(plus,()=>window.billiardsStepTableSlider?.(id,1),()=>!input.disabled);label.replaceWith(plus);
     }
     input.parentNode.append(output);readouts.push({input,output,kind});
   }
