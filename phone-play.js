@@ -171,8 +171,24 @@
     const element=document.getElementById(id);if(!element)continue;
     const anchor=document.createComment(id+' desktop position');element.before(anchor);relocated.push({element,anchor,aim:id.startsWith('aimControls')});
   }
+  const leftRail=document.createElement('div');leftRail.id='phoneAimRail';leftRail.setAttribute('aria-label','Fine aim');
+  const rightRail=document.createElement('div');rightRail.id='phoneSpeedRail';rightRail.setAttribute('aria-label','Shot speed');
+  document.body.append(leftRail,rightRail);
+  for(const id of ['tableSpeed1Wrap','tableSpeed2Wrap','bottomSpin1','bottomSpin2']){
+    const element=document.getElementById(id);if(!element)continue;
+    const anchor=document.createComment(id+' desktop position');element.before(anchor);relocated.push({element,anchor,speed:id.startsWith('tableSpeed'),spin:id.startsWith('bottomSpin')});
+  }
+  let guideAnchor;
+  function dockGuide(){const guide=document.getElementById('bt-guide-pool-root');if(!guide)return;if(phone.matches){if(!guideAnchor){guideAnchor=document.createComment('Guide desktop position');guide.before(guideAnchor);}if(guide.parentNode!==panel)toolShelf.after(guide);}else if(guideAnchor&&guide.parentNode!==guideAnchor.parentNode)guideAnchor.after(guide);}
+  new MutationObserver(dockGuide).observe(document.body,{childList:true,subtree:true});
+  const analyzeToolbar=document.querySelector('.photoAnalyzerToolbar'),analyzeHeader=document.querySelector('.photoAnalyzerHeader'),analyzeMoves=[];
+  if(analyzeToolbar&&analyzeHeader){for(const element of [...analyzeHeader.children]){if(element.classList.contains('btg-analyze-title'))continue;const anchor=document.createComment('Analyze header position');element.before(anchor);analyzeMoves.push({element,anchor});}}
+  for(const id of ['photoWelcomePlay','photoWelcomeStop']){const element=document.getElementById(id);if(element&&analyzeToolbar){const anchor=document.createComment('Analyze welcome position');element.before(anchor);analyzeMoves.push({element,anchor});}}
+  const compactText={photoChooseImage:'Image',photoFindCorners:'Corners',photoResetCorners:'Reset',photoFineTune:'Layout',photoAutoRailsBtn:'Sense',photoAnalyzeNow:'Analyze',photoAddMissed:'+ Ball',photoWalkthroughBtn:'Guide',photoWelcomePlay:'Welcome',photoWelcomeStop:'Stop voice',photoApplyTable:'Apply',photoApplySave:'Apply + Save',photoLoadTableFile:'Load',photoSaveTableFile:'Save'};
+  const originalText=new Map();for(const id of Object.keys(compactText)){const el=document.getElementById(id);if(el){originalText.set(el,el.textContent);if(!el.getAttribute('aria-label'))el.setAttribute('aria-label',el.textContent);}}
+  if(analyzeToolbar)new MutationObserver(()=>{if(!phone.matches)return;for(const [el,text]of originalText)if(el.textContent===text&&text!==compactText[el.id])el.textContent=compactText[el.id];}).observe(analyzeToolbar,{childList:true,subtree:true});
   const aimChoice=document.createElement('button');aimChoice.id='phoneAimChoice';aimChoice.type='button';aimChoice.textContent='1';aimChoice.setAttribute('aria-label','Switch active shot');aimChoice.onclick=()=>window.billiardsSelectShot?.(document.getElementById('aimControls2')?.classList.contains('activeAim')?1:2);actions.prepend(aimChoice);
-  const syncAim=()=>{const second=document.getElementById('aimControls2')?.classList.contains('activeAim');aimChoice.textContent=second?'2':'1';aimChoice.setAttribute('aria-label','Adjusting shot '+(second?'2':'1')+'. Switch shot');};
+  const syncAim=()=>{const second=document.getElementById('aimControls2')?.classList.contains('activeAim');document.body.classList.toggle('phone-active-shot-2',!!second);aimChoice.textContent=second?'2':'1';aimChoice.setAttribute('aria-label','Adjusting shot '+(second?'2':'1')+'. Switch shot');};
   for(const id of ['aimControls','aimControls2']){const el=document.getElementById(id);if(el)new MutationObserver(syncAim).observe(el,{attributes:true,attributeFilter:['class']});}
   const phone = matchMedia('(max-width:600px), (max-width:1000px) and (max-height:500px) and (pointer:coarse)');
   let fallback = false;
@@ -194,8 +210,10 @@
     document.body.classList.toggle('phone-layout', phone.matches);
     document.body.classList.toggle('phone-focus',phone.matches);
     if(title.parentNode !== panel)home.after(title);
-    if(phone.matches){header.prepend(fullscreen);for(const {element,aim}of relocated){if(aim)actions.prepend(element);else toolShelf.append(element);}}
-    else{launchers.append(fullscreen);for(const {element,anchor}of relocated)anchor.after(element);}
+    if(phone.matches){header.prepend(fullscreen);for(const {element,aim,speed,spin}of relocated){if(aim)leftRail.append(element);else if(speed)rightRail.append(element);else if(spin)actions.prepend(element);else toolShelf.append(element);}for(const {element}of analyzeMoves)analyzeToolbar.append(element);}
+    else{launchers.append(fullscreen);for(const {element,anchor}of relocated)anchor.after(element);for(const {element,anchor}of analyzeMoves)anchor.after(element);}
+    for(const [el,text]of originalText)el.textContent=phone.matches?compactText[el.id]:text;
+    dockGuide();syncAim();
     setControls(false);
     refreshSize();
     syncGuideSpace();

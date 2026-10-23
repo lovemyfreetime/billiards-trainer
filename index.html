@@ -8623,16 +8623,16 @@
                     return;
                 setActiveShot(shotNo);
                 rollerDrag = true;
-                rollerLastX = document.body.classList.contains('phone-layout') && !document.body.classList.contains('phone-focus') ? ev.clientY : ev.clientX;
+                rollerLastX = document.body.classList.contains('phone-layout') ? ev.clientY : ev.clientX;
                 roller.setPointerCapture(ev.pointerId);
                 ev.preventDefault();
             });
             roller.addEventListener('pointermove', ev => {
                 if (!rollerDrag)
                     return;
-                const vertical = document.body.classList.contains('phone-layout') && !document.body.classList.contains('phone-focus');
+                const vertical = document.body.classList.contains('phone-layout');
                 const dx = (vertical ? ev.clientY : ev.clientX) - rollerLastX;
-                rollerLastX = document.body.classList.contains('phone-layout') && !document.body.classList.contains('phone-focus') ? ev.clientY : ev.clientX;
+                rollerLastX = document.body.classList.contains('phone-layout') ? ev.clientY : ev.clientX;
                 if (Math.abs(dx) < 0.01)
                     return;
                 setActiveShot(shotNo);
@@ -11872,6 +11872,7 @@
         $('photoAnalyzeNow').addEventListener('click', analyzeCurrentPhoto);
         $('photoAddMissed').addEventListener('click', () => {
             if(photoVision.corners.length!==4)return;
+            if(document.body.classList.contains('phone-focus'))pvSetCalibrationVisible(false);
             photoVision.refining=false;photoVision.pendingDiamond=null;pvUpdateCalibrationDiagram();
             photoVision.addMissedMode=!photoVision.addMissedMode;
             $('photoAddMissed').classList.toggle('activeToggle',photoVision.addMissedMode);

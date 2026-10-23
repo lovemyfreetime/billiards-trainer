@@ -185,4 +185,37 @@ body.phone-focus #phoneToolShelf .compassSideControl input,body.phone-focus #pho
 body.phone-focus #phoneToolShelf .compassSideLabel,body.phone-focus #phoneToolShelf .compassTopLabel{position:static;transform:none}
 
 body.phone-focus:not(.zen-mode) #btZenLauncher{width:40px!important;height:40px!important;bottom:calc(7px + env(safe-area-inset-bottom))!important}
-body.phone-focus:not(.zen-mode) #btZenLauncher .experience-toggle{width:40px!important;height:40px!important}
+body.phone-focus:not(.zen-mode) #btZenLauncher .experience-toggle{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important}
+
+/* Visible phone rails and direct spin controls use the black margins. */
+#phoneAimRail,#phoneSpeedRail{display:none}
+body.phone-focus:not(.zen-mode) #phoneAimRail,body.phone-focus:not(.zen-mode) #phoneSpeedRail{display:block;position:fixed;top:54px;bottom:68px;width:40px;z-index:46}
+body.phone-focus #phoneAimRail{left:calc(12px + env(safe-area-inset-left))}
+body.phone-focus #phoneSpeedRail{right:calc(12px + env(safe-area-inset-right))}
+body.phone-focus #phoneAimRail>.aimControlRow{display:none!important;position:static!important;inset:auto!important;transform:none!important;width:40px!important;height:100%!important}
+body.phone-focus #phoneAimRail>.aimControlRow.activeAim{display:flex!important}
+body.phone-focus #phoneAimRail .aimRollerControl{height:100%;width:40px;min-width:0;flex-direction:column;gap:5px;padding:5px;border:1px solid #78969f;border-radius:17px;background:#111a20}
+body.phone-focus #phoneAimRail .rollerDir{flex:none;width:28px;height:28px;padding:0}
+body.phone-focus #phoneAimRail .rollerTrack{width:22px;height:auto;min-height:20px;flex:1}
+body.phone-focus #phoneAimRail .rollerTicks{background:repeating-linear-gradient(0deg,#ffffff73 0px,#ffffff73 1px,transparent 1px,transparent 12px)}
+body.phone-focus #phoneAimRail .rollerCenter{left:0;top:50%;bottom:auto;width:100%;height:2px;transform:translateY(-1px)}
+body.phone-focus #phoneSpeedRail>.tableSpeedControl{display:none!important;position:static!important;inset:auto!important;transform:none!important;width:40px!important;height:100%!important;flex-direction:column;padding:48px 3px 9px;border:1px solid #78969f;border-radius:17px;background:#111a20}
+body.phone-focus #phoneSpeedRail>.tableSpeedControl.activeSpeed{display:flex!important}
+body.phone-focus #phoneSpeedRail input{writing-mode:vertical-lr;direction:rtl;width:28px;height:100%;min-height:25px;flex:1;margin:0;touch-action:none}
+body.phone-focus #phoneSpeedRail .tableSpeedLabel{font-size:8px!important;top:0!important}
+body.phone-focus #phoneSpeedRail .tableSpeedLabel::after{display:none!important}
+body.phone-focus #phoneSpeedRail .phoneSliderValue{top:22px!important;font-size:10px}
+body.phone-focus #phoneSpeedRail .speedTickScale{top:49px;bottom:13px}
+body.phone-focus:not(.zen-mode) #phoneActions,body.phone-focus.phone-two-shots:not(.zen-mode) #phoneActions{right:calc(106px + env(safe-area-inset-right));gap:5px}
+body.phone-focus #phoneActions>.bottomSpinGroup{display:none!important;position:relative!important;inset:auto!important;transform:none!important;width:auto!important;height:44px!important;flex:1 1 200px;min-width:90px;max-width:500px;flex-direction:row;gap:7px}
+body.phone-focus #phoneActions>.bottomSpinGroup.activeSpin{display:flex!important}
+body.phone-focus #phoneActions .miniSpinControl{position:relative;flex:1;min-width:0;width:auto;height:44px;padding:17px 6px 2px;flex-direction:row;gap:0;border:1px solid #78969f;border-radius:12px;background:#111a20}
+body.phone-focus #phoneActions .miniSpinControl input{writing-mode:horizontal-tb;direction:ltr;width:100%;height:22px;min-height:0;flex:1;margin:0}
+body.phone-focus #phoneActions .miniSpinLabel{position:absolute;inset:0 auto auto 3px!important;transform:none;min-height:16px;height:16px!important;width:28px!important;font-size:8px;line-height:16px}
+body.phone-focus #phoneActions .phoneSliderValue{position:absolute;inset:0 3px auto auto!important;transform:none;height:16px!important;width:30px!important;min-height:16px;font-size:9px;line-height:16px}
+body.phone-focus:not(.zen-mode) .phoneTipControl:not([hidden]){display:block!important;inset:auto!important;left:auto!important;right:calc(51px + env(safe-area-inset-right))!important;bottom:calc(1px + env(safe-area-inset-bottom))!important;width:48px;height:51px;z-index:46}
+body.phone-focus:not(.phone-active-shot-2) #phoneTip2,body.phone-focus.phone-active-shot-2 #phoneTip1{display:none!important}
+body.phone-focus #panel #bt-guide-pool-root{position:static!important;inset:auto!important;width:100%!important;max-width:100%!important;margin:8px 0}
+body.phone-focus:not(.phone-controls-open) #bt-guide-pool-root{display:none!important}
+@media(orientation:portrait){body.phone-focus:not(.zen-mode) #phoneAimRail,body.phone-focus:not(.zen-mode) #phoneSpeedRail{top:65px;bottom:auto;height:160px}}
+@media(max-width:430px){body.phone-focus #phoneActions>[data-trainer-action]{min-width:38px;padding:4px 6px;font-size:11px}body.phone-focus #phoneActions>.bottomSpinGroup{gap:4px}body.phone-focus #phoneActions>#phoneAimChoice{width:25px;min-width:25px}}

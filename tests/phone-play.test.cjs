@@ -25,7 +25,7 @@ function fixture(mobile=true){
  const panel=ids.panel=new Element('panel'),title=ids.title=new Element('title'),launchers=ids['btg-pool-launchers']=new Element('btg-pool-launchers');title.append(launchers);panel.append(title);body.append(panel);
  for(const id of ['animate','undoShot','resetLayoutQuick','toggleShot2','toggleCueVisuals1Btn','toggleCueVisuals2Btn']){ids[id]=new Element(id);ids[id].calls=0;ids[id].click=()=>ids[id].calls++;panel.append(ids[id])}
  const media={matches:mobile,addEventListener(t,f){this.change=f}};
- const doc={body,documentElement:root,createComment:()=>new Element(),createElement:()=>new Element(),getElementById(id){return ids[id]||find(body,id)},addEventListener:body.addEventListener.bind(body)};
+ const doc={body,documentElement:root,querySelector:()=>null,createComment:()=>new Element(),createElement:()=>new Element(),getElementById(id){return ids[id]||find(body,id)},addEventListener:body.addEventListener.bind(body)};
  const window={innerHeight:430,visualViewport:{height:430,addEventListener(){}},addEventListener(){},dispatchEvent(){}};
  function find(el,id){if(el.id===id)return el;for(const c of el.children){const r=find(c,id);if(r)return r}}
  const observers=[];
