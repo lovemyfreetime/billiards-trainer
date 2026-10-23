@@ -6553,7 +6553,7 @@
         const fixed = !isProjector && document.body.classList.contains('phone-layout');
         for (const which of [1, 2]) {
             const badge = fixed
-                ? ((which === 1 ? !!cueBall() : !!S.shot2Enabled) ? {which} : null)
+                ? ((which === 1 || S.shot2Enabled) ? {which} : null)
                 : tipBadgeGeometry(map, which);
             const disk = $('phoneTip' + which);
             // On phones, keep the controls below their respective slider sets.
