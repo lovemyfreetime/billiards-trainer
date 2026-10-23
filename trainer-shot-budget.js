@@ -44,38 +44,69 @@ function create(cue,radius,gravity=9.81,reference={}){
  }
  return {paths,contacts,initial,strokeFeel,record,contact};
 }
-function contactLabels(preview,map,options={}){
- const result=[],occupied=options.occupied||[],width=options.width||Infinity,height=options.height||Infinity;
- const fontSize=width<600?9:11,row=fontSize+7,pad=9;
- const number=v=>Number(Math.max(0,v).toFixed(1)).toString();
- const amount=p=>number(p)+'%'+(Number.isFinite(preview.strokeFeel)?' / '+number(preview.strokeFeel*p/100)+'D':'');
- for(const event of preview?.budgetContacts||[]){
-  // Identify the ball giving energy, regardless of simulation array order.
-  const donor=event.before[0].percent-event.after[0].percent>=event.before[1].percent-event.after[1].percent?0:1,receiver=1-donor;
-  const source=event.before[donor],target=event.before[receiver],given=source.percent-event.after[donor].percent;
-  const rows=[
-   {text:Math.round(event.overlap)+'% overlap · % of shot',color:'#b7c8ce'},
-   {text:'Incoming total  '+amount(event.incoming),color:'#ffffff'},
-   {text:source.name+' keeps  '+amount(event.after[donor].percent),color:source.id===0?'#ffffff':'#ffe5a0'},
-   {text:target.name+(target.percent<.01?' receives  ':' carries  ')+amount(event.after[receiver].percent),color:target.id===0?'#ffffff':'#ffe5a0'},
-   {text:source.name+' gives  −'+amount(given),color:'#ff9999'},
-   {text:'Collision loss  '+amount(event.loss),color:'#ff7777'}
-  ];
-  const w=Math.max(...rows.map(r=>r.text.length))*fontSize*.62+pad*2,h=rows.length*row+pad*2,anchor=map(event);
-  let box=null;
-  for(const gap of [36,72,116,164]){
-   for(const [dx,dy] of [[-w-gap,-h/2],[gap,-h/2],[-w/2,-h-gap],[-w/2,gap],[-w-gap,-h-gap],[gap,-h-gap],[-w-gap,gap],[gap,gap]]){
-    const left=Math.max(4,Math.min(width-w-4,anchor.x+dx)),top=Math.max(4,Math.min(height-h-4,anchor.y+dy));
-    const candidate={left,top,right:left+w,bottom:top+h};
-    if(occupied.some(b=>candidate.left<b.right+6&&candidate.right>b.left-6&&candidate.top<b.bottom+6&&candidate.bottom>b.top-6))continue;
-    box=candidate;break;
-   }
-   if(box)break;
+function format(value){return value>0&&value<.05?'<0.1':Number(Math.max(0,value).toFixed(1)).toString();}
+function exchange(event){
+ const donor=event.before[0].percent-event.after[0].percent>=event.before[1].percent-event.after[1].percent?0:1,receiver=1-donor;
+ return {donor,receiver,source:event.before[donor],target:event.before[receiver],given:event.before[donor].percent-event.after[donor].percent,received:event.after[receiver].percent-event.before[receiver].percent};
+}
+function segmentIntersects(box,a,b){
+ let lo=0,hi=1;const dx=b.x-a.x,dy=b.y-a.y;
+ for(const [p,q] of [[-dx,a.x-box.left],[dx,box.right-a.x],[-dy,a.y-box.top],[dy,box.bottom-a.y]]){
+  if(Math.abs(p)<1e-9){if(q<0)return false;continue;}
+  const r=q/p;if(p<0)lo=Math.max(lo,r);else hi=Math.min(hi,r);if(lo>hi)return false;
+ }
+ return true;
+}
+function placeBadge(rows,anchor,options={}){
+ const occupied=options.occupied||[],fontSize=options.fontSize||(options.width<600?9:11),row=fontSize+5,pad=6;
+ const w=Math.max(...rows.map(r=>r.text.length))*fontSize*.62+pad*2,h=rows.length*row+pad*2;
+ const bounds=options.bounds||{left:3,top:3,right:(options.width||Infinity)-3,bottom:(options.height||Infinity)-3};
+ const clear=box=>box.left>=bounds.left&&box.right<=bounds.right&&box.top>=bounds.top&&box.bottom<=bounds.bottom&&!occupied.some(b=>box.left<b.right+6&&box.right>b.left-6&&box.top<b.bottom+6&&box.bottom>b.top-6)&&!(options.segments||[]).some(([a,b])=>segmentIntersects({left:box.left-4,right:box.right+4,top:box.top-4,bottom:box.bottom+4},a,b));
+ // Search nearest clear space first, including diagonal positions around a hit.
+ for(const distance of [28,44,64,90,124,164,216,280,360,460,600]){
+  for(let i=0;i<16;i++){
+   const angle=-Math.PI/2+i*Math.PI/8,dx=Math.cos(angle),dy=Math.sin(angle);
+   const x=anchor.x+dx*(distance+w/2),y=anchor.y+dy*(distance+h/2);
+   const box={left:x-w/2,right:x+w/2,top:y-h/2,bottom:y+h/2};
+   if(!clear(box))continue;
+   occupied.push(box);return {box,anchor,rows,fontSize,row,pad};
   }
-  if(!box)continue;
-  occupied.push(box);result.push({box,anchor,rows,fontSize,row,pad,event});
+ }
+ return null;
+}
+function contactLabels(preview,map,options={}){
+ const result=[];
+ for(const event of preview?.budgetContacts||[]){
+  const {target,received}=exchange(event);
+  if(received<=.005)continue;
+  const text=format(received)+'%'+(Number.isFinite(preview.strokeFeel)?' · '+format(preview.strokeFeel*received/100)+'D':'');
+  const rows=[{text:(options.shot?'S'+options.shot+' · ':'')+'To '+(target.id===0?'cue ball':'ball '+target.name),color:'#b7c8ce'},{text,color:target.id===0?'#ffffff':'#ffe5a0'}];
+  const card=placeBadge(rows,map(event),options);if(card)result.push({...card,event});
  }
  return result;
+}
+function journey(preview){
+ const items=(preview?.budgetContacts||[]).map((event,index)=>({kind:'ball',t:event.t,event,index}));
+ for(const [id,points] of Object.entries(preview?.budgetPaths||{})){
+  let previous=points[0];if(!previous)continue;
+  for(let i=1;i<points.length;i++){
+   const point=points[i];
+   if(!['before','pocket','end'].includes(point.kind))continue;
+   const loss=previous.percent-point.percent;
+   if(Math.abs(loss)>.00001)items.push({kind:'travel',id:+id,t:point.t,from:previous.percent,to:point.percent,loss});
+   if(point.kind==='before'){
+    const after=points[i+1];
+    if(after?.kind==='after'&&after.t===point.t){
+     const ball=(preview.budgetContacts||[]).some(e=>e.t===point.t&&e.before.some(p=>p.id===+id&&Math.abs(p.percent-point.percent)<1e-8));
+     if(!ball)items.push({kind:'cushion',id:+id,t:point.t,from:point.percent,to:after.percent,loss:point.percent-after.percent});
+     previous=after;i++;continue;
+    }
+   }else items.push({kind:point.kind,id:+id,t:point.t,to:point.percent});
+   previous=point;
+  }
+ }
+ const order={travel:0,ball:1,cushion:1,pocket:2,end:2};
+ return items.sort((a,b)=>a.t-b.t||order[a.kind]-order[b.kind]);
 }
 function drawContacts(ctx,cards){
  ctx.save();ctx.textAlign='left';ctx.textBaseline='middle';
@@ -91,7 +122,7 @@ function drawContacts(ctx,cards){
 }
 function labels(preview,map,options={}){
  const result=[],occupied=options.occupied||[],width=options.width||Infinity,height=options.height||Infinity;
- const number=value=>Number(value.toFixed(1)).toString(),fontSize=width<600?9:11;
+ const number=value=>format(value),fontSize=width<600?9:11;
  for(const [id,samples] of Object.entries(preview?.budgetPaths||{})){
   const raw=preview.paths?.[id];if(!raw||raw.length<2||!samples.length)continue;
   const path=raw.map(p=>({...map(p),t:p.t,s:0}));
@@ -137,6 +168,7 @@ function labels(preview,map,options={}){
    const before=samples[i],after=samples[i+1];
    if(before.kind!=='before'||after.kind!=='after'||before.t!==after.t)continue;
    const loss=before.percent-after.percent;if(loss<=.005)continue;
+   if((preview.budgetContacts||[]).some(e=>e.t===before.t&&e.before.some(p=>p.id===Number(id)&&Math.abs(p.percent-before.percent)<1e-8)))continue;
    const s=station(before.t),last=losses.at(-1);
    if(last&&Math.abs(last.s-s)<10){last.loss+=loss;last.after=after.percent;last.parts.push([before.percent,after.percent]);}
    else losses.push({s,loss,before:before.percent,after:after.percent,parts:[[before.percent,after.percent]]});
@@ -202,7 +234,7 @@ function draw(ctx,items){
  for(const p of items){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle);ctx.font='700 '+(p.fontSize||11)+'px Segoe UI, sans-serif';ctx.strokeStyle='#07100fe6';ctx.lineWidth=3.5;ctx.strokeText(p.text,0,0);ctx.fillStyle=p.color||(p.id===0?'#ffffff':'#ffe5a0');ctx.fillText(p.text,0,0);ctx.restore();}
  ctx.restore();
 }
-const api={energy,create,labels,draw,contactLabels,drawContacts};
+const api={energy,create,labels,draw,contactLabels,drawContacts,format,exchange,placeBadge,segmentIntersects,journey};
 if(typeof module==='object'&&module.exports)module.exports=api;
 else root.BilliardsShotBudget=api;
 })(typeof window==='object'?window:globalThis);

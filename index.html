@@ -1428,6 +1428,7 @@
 <link rel="stylesheet" href="./app-display.css?v=1">
 <script src="./app-display.js?v=1" defer></script>
 <link rel="stylesheet" href="./trainer-table-zoom.css?v=1">
+<link rel="stylesheet" href="./trainer-budget-info.css?v=1">
 </head>
 <body>
 <div id="app">
@@ -1573,7 +1574,9 @@
         <div class="fineRow"><label>Left right spin</label><button id="spin2Minus" type="button">−</button><input id="sideSpin2" type="range" min="-1" max="1" step="0.01" value="0"><button id="spin2Plus" type="button">+</button><input id="spin2Number" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 2 left right spin percent"></div>
         <div id="cueElevationAdvanced2" class="cueElevationSlider"><div class="fineRow"><label>Cue elevation</label><button id="elev2Minus" type="button">−</button><input id="cueElevation2" type="range" min="0" max="15" step="0.1" value="3"><button id="elev2Plus" type="button">+</button><input id="elev2Number" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 2 cue elevation degrees"></div></div>
       </div>
-      <div class="shotFeatureButtons"><button id="shotBudget" type="button" aria-pressed="false" title="Budget remaining: % and cyan D decrease along the path. Red: % and D given away at each contact. D divides the calibrated starting stroke into additive energy shares, not literal travel distance; 16D = one lag. Stopped balls finish at zero; pocketed balls show their arrival budget.">SHOT BUDGET</button><button id="jumpMasseFeatures" class="jumpMasseFeatures" type="button" aria-pressed="false">JUMP / MASSÉ</button></div>
+      <div class="shotFeatureButtons"><button id="shotBudget" type="button" aria-pressed="false" title="Remaining % and cyan D along each path; red cushion losses; small badges show energy transferred to balls. Budget Info opens the full ledger. Percentages use the starting shot. D is a share of its calibrated energy budget, not literal travel remaining; 16D is one lag.">SHOT BUDGET</button><button id="jumpMasseFeatures" class="jumpMasseFeatures" type="button" aria-pressed="false">JUMP / MASSÉ</button></div>
+      <div class="budgetInfoRow"><button id="budgetInfo" type="button" aria-expanded="false" aria-controls="budgetInfoPanel" hidden>BUDGET INFO</button></div>
+      <div id="budgetInfoPanel" role="region" aria-label="Shot budget details" hidden></div>
       <div id="tipArea">
         <div class="tipPane" id="tipPane1">
           <div class="shotPaneTitle">SHOT 1</div>
@@ -1880,7 +1883,8 @@
 <script src="./photo-table-spots.js?v=3"></script>
 <script src="./photo-cloth-filter.js?v=2"></script>
 <script src="./trainer-table-zoom.js?v=1"></script>
-<script src="./trainer-shot-budget.js?v=1"></script>
+<script src="./trainer-shot-budget.js?v=2"></script>
+<script src="./trainer-budget-info.js?v=1"></script>
 <script>
 // AI Camera Edition wrapper: v4.12 trainer, app-mode launch package. v4 adds scoreboard placement/default-off + local analysis-photo recall.
 // v4.12: virtual diamond extensions beyond physical corners; fixes source references that previously clipped at the first visible table boundary.
@@ -5154,6 +5158,7 @@
             if (S.airbornePhysics) attachAirborneGuidance(2, s2.preview);
         }
         updateMetrics();
+        updateBudgetInfo();
         drawTipControl();
         saveState();
         syncProjector();
@@ -6478,6 +6483,7 @@
         ctx.stroke();
         ctx.restore();
     }
+    let shotBudgetOverlaps = [];
     function drawContactOverlay(preview, map, opts = {}) {
         if (!S.showImpact || !preview || !preview.firstBallContact)
             return;
@@ -6499,16 +6505,7 @@
             const p2 = { x: c.objPos.x + t.x * z2, y: c.objPos.y + t.y * z2 };
             pathPoly([p1, p2], map, opts.bandColor || '#ff5b5b', isProjector ? 10 : 8, .72);
         }
-        if (!isProjector) {
-            const q = map(c.objPos);
-            ctx.save();
-            ctx.fillStyle = opts.labelColor || '#fff';
-            ctx.font = '600 11px Segoe UI';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'bottom';
-            ctx.fillText(c.overlap.toFixed(1) + '% overlap', q.x, q.y - 18);
-            ctx.restore();
-        }
+        if (!isProjector) shotBudgetOverlaps.push({which:opts.which||1,contact:c,color:opts.labelColor||'#fff',tangentSeg});
     }
     function drawImpactOverlay(map) {
         drawContactOverlay(S.preview, map, { tangentColor: '#6fff58', ghostFill: '#ffffff22', ghostStroke: '#ffffff', contactColor: '#ff5b5b', bandColor: '#ff5b5b', labelColor: '#fff' });
@@ -6577,25 +6574,59 @@
             } else drawTipBadgeDisk(ctx, badge, values, which === 2 ? 'TIP 2' : 'TIP');
         }
     }
+    function updateBudgetInfo() {
+        if(isProjector)return;
+        window.BilliardsBudgetInfo.update(S.showShotBudget,[{which:1,preview:S.preview},...(S.shot2Enabled?[{which:2,preview:ensureShot2().preview}]:[])]);
+    }
     function drawShotBudget(map) {
-        if (!S.showShotBudget || !S.showPaths || animation) return;
-        const occupied = S.balls.filter(b => b.active && !b.marker).map(b => {
-            const p=map(b),edge=map({x:b.x+S.ballR,y:b.y}),r=Math.hypot(edge.x-p.x,edge.y-p.y)+4;
-            return {left:p.x-r,right:p.x+r,top:p.y-r,bottom:p.y+r};
-        });
-        for (const which of [1,2]) {
-            if (!cueVisualsVisible(which) || (which===2 && !S.shot2Enabled)) continue;
+        if(animation)return;
+        const api=window.BilliardsShotBudget,occupied=[],segments=[];
+        const reserve=(ball,radius=S.ballR)=>{
+            const p=map(ball),edge=map({x:ball.x+radius,y:ball.y}),r=Math.hypot(edge.x-p.x,edge.y-p.y)+8;
+            occupied.push({left:p.x-r,right:p.x+r,top:p.y-r,bottom:p.y+r});
+        };
+        for(const ball of S.balls)if(ball.active&&!ball.marker)reserve(ball);
+        if(S.shot2Enabled)reserve(ensureShot2());
+        const addLine=points=>{if(points?.length>1)for(let i=1;i<points.length;i++)segments.push([map(points[i-1]),map(points[i])]);};
+        const previews=[];
+        for(const which of [1,2]){
+            if(!cueVisualsVisible(which)||(which===2&&!S.shot2Enabled))continue;
             const preview=which===1?S.preview:ensureShot2().preview;
-            if (S.showImpact && preview?.firstBallContact) {
-                const q=map(preview.firstBallContact.cuePos);
-                occupied.push({left:q.x-60,right:q.x+60,top:q.y-35,bottom:q.y-12});
-            }
-            const options={occupied,width:canvas.width/DPR,height:canvas.height/DPR};
-            const contacts=window.BilliardsShotBudget.contactLabels(preview,map,options);
-            const labels=window.BilliardsShotBudget.labels(preview,map,options);
-            window.BilliardsShotBudget.draw(ctx,labels);
-            window.BilliardsShotBudget.drawContacts(ctx,contacts);
+            previews.push({which,preview});
+            if(S.showPaths)for(const path of Object.values(preview?.paths||{}))addLine(path);
+            const cb=which===1?cueBall():ensureShot2();
+            if(cb)addLine(clippedLineThroughRect(cb,shotAimDirection(which),S.tableL,S.tableW));
         }
+        for(const item of shotBudgetOverlaps){
+            reserve(item.contact.cuePos);reserve(item.contact.objPos);addLine(item.tangentSeg);
+        }
+        // Convert fixed HTML control bounds into the current drawing coordinates,
+        // including zoom, so badges never sit underneath a slider or button.
+        const inverse=ctx.getTransform().inverse(),rect=canvas.getBoundingClientRect();
+        const local=(x,y)=>new DOMPoint(x*DPR,y*DPR).matrixTransform(inverse);
+        const a=local(0,0),b=local(canvas.width/DPR,canvas.height/DPR);
+        const bounds={left:a.x+4,top:a.y+4,right:b.x-4,bottom:b.y-4};
+        for(const el of document.querySelectorAll('#stageWrap button,#stageWrap input,#phoneTip1,#phoneTip2,#aimControls,#aimControls2,.tableSpeedControl,.miniSpinControl')){
+            if(!el.getClientRects().length)continue;
+            const r=el.getBoundingClientRect();if(r.right<rect.left||r.left>rect.right||r.bottom<rect.top||r.top>rect.bottom)continue;
+            const p=local(r.left-rect.left,r.top-rect.top),q=local(r.right-rect.left,r.bottom-rect.top);
+            occupied.push({left:p.x,right:q.x,top:p.y,bottom:q.y});
+        }
+        const options={occupied,segments,bounds,width:canvas.width/DPR,height:canvas.height/DPR};
+        const badges=[];
+        for(const item of shotBudgetOverlaps){
+            const text=(S.shot2Enabled?'S'+item.which+' · ':'')+item.contact.overlap.toFixed(1)+'% overlap';
+            const badge=api.placeBadge([{text,color:item.color}],map(item.contact.cuePos),options);
+            if(badge)badges.push({...badge,type:'overlap'});
+        }
+        if(S.showShotBudget&&S.showPaths){
+            for(const {which,preview} of previews){
+                const contacts=api.contactLabels(preview,map,{...options,shot:S.shot2Enabled?which:null});
+                badges.push(...contacts);
+            }
+            for(const {preview} of previews)api.draw(ctx,api.labels(preview,map,options));
+        }
+        api.drawContacts(ctx,badges);
     }
     function drawPreview(map) {
         if (!S.showPaths || !S.preview)
@@ -6687,15 +6718,15 @@
                 drawContactOverlay(
                     { firstBallContact: exactContact },
                     map,
-                    { tangentColor: '#6fff58', ghostFill: '#00e5ff22', ghostStroke: '#9df7ff', contactColor: '#00e5ff', bandColor: '#ffd86b', labelColor: '#9df7ff', pivotAtGhostCenter: true }
+                    { which:2, tangentColor: '#6fff58', ghostFill: '#00e5ff22', ghostStroke: '#9df7ff', contactColor: '#00e5ff', bandColor: '#ffd86b', labelColor: '#9df7ff', pivotAtGhostCenter: true }
                 );
             }
             else {
-                drawContactOverlay(s.preview, map, { tangentColor: '#6fff58', ghostFill: '#00e5ff22', ghostStroke: '#9df7ff', contactColor: '#00e5ff', bandColor: '#ffd86b', labelColor: '#9df7ff' });
+                drawContactOverlay(s.preview, map, { which:2, tangentColor: '#6fff58', ghostFill: '#00e5ff22', ghostStroke: '#9df7ff', contactColor: '#00e5ff', bandColor: '#ffd86b', labelColor: '#9df7ff' });
             }
         }
         else {
-            drawContactOverlay(s.preview, map, { tangentColor: '#6fff58', ghostFill: '#00e5ff22', ghostStroke: '#9df7ff', contactColor: '#00e5ff', bandColor: '#ffd86b', labelColor: '#9df7ff' });
+            drawContactOverlay(s.preview, map, { which:2, tangentColor: '#6fff58', ghostFill: '#00e5ff22', ghostStroke: '#9df7ff', contactColor: '#00e5ff', bandColor: '#ffd86b', labelColor: '#9df7ff' });
         }
         if (!cueVisualsVisible(2))
             return;
@@ -7131,6 +7162,7 @@
         });
     }
     function draw() {
+        shotBudgetOverlaps = [];
         window.billiardsPhoneReadouts?.();
         if ($('phoneFlightCanvas')) $('phoneFlightCanvas').style.display = 'none';
         updateMarkerRailControls();
@@ -7588,6 +7620,7 @@
         budgetBtn.setAttribute('aria-pressed', String(!!S.showShotBudget));
         budgetBtn.classList.toggle('visibilityOn', !!S.showShotBudget);
         budgetBtn.classList.toggle('visibilityOff', !S.showShotBudget);
+        updateBudgetInfo();
         const jumpBtn = $('jumpMasseFeatures');
         jumpBtn.setAttribute('aria-pressed', String(!!S.airbornePhysics));
         jumpBtn.classList.toggle('visibilityOn', !!S.airbornePhysics);
@@ -12344,6 +12377,7 @@
             setTip2FromPointer(ev); });
         tc2.addEventListener('pointerup', () => tip2Drag = false);
         tc2.addEventListener('pointercancel', () => tip2Drag = false);
+        $('budgetInfo').onclick = () => window.BilliardsBudgetInfo.toggle();
         $('shotBudget').onclick = () => {
             S.showShotBudget = !S.showShotBudget;
             updateUI(); refreshPreview(); saveState(); syncProjector();

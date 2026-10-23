@@ -108,12 +108,10 @@ for(const angle of [0,2.5]){
  assert(event.overlap>0&&event.overlap<=100);
  if(angle===0)assert(event.overlap>99.9,'Head-on overlap is full');else assert(event.overlap<60,'Thin cut uses measured overlap');
  const boxes=[],cards=budget.contactLabels(shot,map,{width:1200,height:700,occupied:boxes});
- assert(cards.length);assert.equal(cards[0].rows.length,6);
+ assert(cards.length);assert.equal(cards[0].rows.length,2);
  for(const r of cards[0].rows.slice(1))assert(r.text.includes('%')&&r.text.includes('D'),'Every exchange amount includes both units');
- assert(cards[0].rows.some(r=>r.text.startsWith('CB keeps')));
- assert(cards[0].rows.some(r=>r.text.startsWith('1 receives')));
- assert(cards[0].rows.some(r=>r.text.startsWith('CB gives')));
- assert(cards[0].rows.some(r=>r.text.startsWith('Collision loss')));
+ assert.equal(cards[0].rows[0].text,'To ball 1');
+ assert(Math.abs(budget.exchange(event).received-received)<1e-9);
  assert(boxes.every(b=>b.left>=0&&b.right<=1200&&b.top>=0&&b.bottom<=700));
 }
 // A moving target's incoming energy must also be counted; array order is immaterial.
@@ -122,5 +120,15 @@ const ca={id:0,n:'CB',x:0,y:0,vx:2,vy:0},ob={id:2,n:'2',x:.06,y:0,vx:-1,vy:0};
 const finish=exchange.contact(ob,ca,1);ob.vx=1.8;ca.vx=-.8;finish(ob,ca);
 assert.equal(exchange.contacts[0].incoming,125);
 const card=budget.contactLabels({budgetContacts:exchange.contacts,strokeFeel:8},map,{width:1200,height:700})[0];
-assert(card.rows.some(r=>r.text.startsWith('CB gives')));assert(card.rows.some(r=>r.text.startsWith('2 carries')));
+assert.equal(card.rows[0].text,'To ball 2');assert.equal(budget.exchange(exchange.contacts[0]).donor,1);
 console.log('Contact exchange: full/thin overlap, conserved split, cue reduction, moving target, both units and bounded callouts pass.');
+
+assert.equal(budget.format(.024),'<0.1');assert.equal(budget.format(0),'0');
+const items=budget.journey(longShot);assert(items.some(p=>p.kind==='cushion'));assert(items.some(p=>p.kind==='travel'));
+const ledgerLoss=items.filter(p=>['travel','cushion'].includes(p.kind)).reduce((sum,p)=>sum+p.loss,0);
+assert(Math.abs(ledgerLoss-(100-longShot.budgetPaths[0].at(-1).percent))<1e-7,'Entire multi-rail journey accounts for all energy deductions');
+const space={occupied:[{left:170,right:230,top:170,bottom:230}],segments:[[{x:0,y:200},{x:500,y:200}],[{x:200,y:0},{x:200,y:500}]],width:500,height:500};
+const badge=budget.placeBadge([{text:'48% overlap'}],{x:200,y:200},space);assert(badge);
+assert(space.segments.every(([a,b])=>!budget.segmentIntersects(badge.box,a,b)),'Overlap badge clears crossing lines');
+assert(badge.box.right<170||badge.box.left>230||badge.box.bottom<170||badge.box.top>230,'Overlap clears ghost and object bounds');
+console.log('Compact transfer badges, tiny nonzero values, complete journey and line/ball collision avoidance pass.');
