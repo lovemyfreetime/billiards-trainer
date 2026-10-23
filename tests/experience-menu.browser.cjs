@@ -13,7 +13,8 @@ for(const viewport of [{width:412,height:915},{width:915,height:412},{width:1366
   const links=root.locator(zen?'button[aria-label^="Open "]':'a');assert.equal(await links.count(),3);
   assert.deepEqual(await links.evaluateAll(es=>es.map(e=>e.getAttribute('aria-label'))),zen?['Open Trainer','Open Play','Open Home']:play?['Open Zen','Open Trainer','Open Home']:['Open Zen','Open Play','Open Home']);
   assert(await root.locator('img').evaluateAll(es=>es.every(e=>e.complete&&e.naturalWidth>0)));
-  assert.equal(await root.getByRole('button',{name:'Check for updates',exact:true}).isVisible(),true);
+  const update=root.getByRole('button',{name:'Check for updates',exact:true});
+  if(!zen&&!play)assert.equal(await update.count(),0,'Trainer menu contains only experience links');else assert.equal(await update.isVisible(),true);
   await p.waitForFunction(el=>Number(getComputedStyle(el).opacity)>.99,await root.elementHandle());
   await p.screenshot({path:'/tmp/update-menu-'+(zen?'zen':play?'play':'trainer')+'-'+viewport.width+'.png'});
   await toggle.click();await root.waitFor({state:'hidden'});await p.waitForFunction(el=>el.getAttribute('aria-expanded')==='false',await toggle.elementHandle());assert.equal(await toggle.getAttribute('aria-expanded'),'false');

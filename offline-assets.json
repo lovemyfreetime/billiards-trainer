@@ -1,5 +1,5 @@
 {
-  "version": "6849d9a8303fb972",
+  "version": "4fc477b4716ba4be",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -16,7 +16,7 @@
     "beta-ui.js": "59cf5d3fb25dc243d3cfddf0d2f013ce21d5a5cdea46ab30c0317559806178de",
     "billiards-trainer-icon-original.png": "08c85554bd24ca7461e98ebfbfd0a7b1c446e04bfd677075ff0bf848eec24c94",
     "experience-menu.css": "e50536e8637263f281c45044d14dd495e009f49a8cb55ff87459f6655f9d9915",
-    "experience-menu.js": "b57cef6905e8faab6319c8c98820c997aaadecf4914b1b805b8ce3b9ff92dc9b",
+    "experience-menu.js": "cb1e8a28d22f2983fd7c5be17caf8728706c9e4fbfac6b5112e04e3dd2a7ae39",
     "guide/AUDIO_PACING.json": "a64863380d46205d3f08a08404b683deb57c761c92d966b63134499f25e2b950",
     "guide/Practice-Drill-Layouts.json": "e56bb066516134ab14f48eaa640e1079d0f021633d012147289ffb6c895d00eb",
     "guide/Practice-Drill-Menu.json": "c3188c591bc9dda861f31b4c8ab5de7b617bd80977542a53942080e66ff9f151",
