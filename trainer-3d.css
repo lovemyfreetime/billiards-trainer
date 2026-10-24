@@ -44,3 +44,13 @@ body.table-3d-pan #stageWrap #table3DCanvas{cursor:grab}
 body.table-3d-pan #stageWrap #table3DCanvas:active{cursor:grabbing}
 /* The complete slider panels, including their padding, consume gestures. */
 body.table-3d .aimControlRow.activeAim,body.table-3d .bottomSpinGroup.activeSpin,body.table-3d .tableSpeedControl.activeSpeed,body.table-3d #phoneAimRail,body.table-3d #phoneSpeedRail,body.table-3d #phoneActions{pointer-events:auto;touch-action:none}
+
+/* Phone camera buttons share the empty top margin instead of covering the table. */
+#table3DPhoneControls[hidden]{display:none!important}
+body.phone-focus #table3DPhoneControls{position:fixed;z-index:47;left:50%;top:calc(6px + env(safe-area-inset-top));transform:translateX(-50%);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px;width:max-content;max-width:calc(100% - 220px);padding:4px;border:1px solid #607d8a;border-radius:12px;background:#14232ded;touch-action:none}
+body.phone-focus #table3DPhoneControls #table3DViews,body.phone-focus #table3DPhoneControls #table3DTools{position:static;inset:auto!important;transform:none;display:flex;flex-direction:row;align-items:center;gap:3px;width:auto;max-width:none;padding:0;background:none}
+body.phone-focus #table3DPhoneControls #table3DViews>button{width:auto;min-width:45px;height:30px;min-height:30px;padding:3px 5px;font-size:10px}
+body.phone-focus #table3DPhoneControls #table3DTools>button{width:30px;height:30px;min-height:30px}
+@media(orientation:portrait){body.phone-focus #table3DPhoneControls{top:calc(49px + env(safe-area-inset-top));max-width:calc(100% - 112px)}}
+
+body.phone-focus #phoneToolShelf>#table3DPhoneControls{position:static;transform:none;width:100%;max-width:100%}

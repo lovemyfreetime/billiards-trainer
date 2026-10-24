@@ -14,6 +14,7 @@
  const zoomIn=action('+','Zoom camera in',()=>zoom(1/1.15)),zoomOut=action('−','Zoom camera out',()=>zoom(1.15));
  const viewLock=action('Lock view','Lock view for ball placement and aiming',()=>setViewLocked(!viewLocked));viewLock.id='table3DLock';viewLock.setAttribute('aria-pressed','false');views.append(standingButton,alongButton,viewLock);stage.append(tools);for(const b of [standingButton,alongButton,viewLock])b.hidden=true;
  const panButton=action('','Move table: drag to slide the view',()=>setPanEnabled(!panEnabled));panButton.id='table3DPan';panButton.setAttribute('aria-pressed','false');panButton.innerHTML='<svg width=18 height=18 viewBox="0 0 24 24" aria-hidden=true><path d="M7 12V6a1.5 1.5 0 0 1 3 0v5-7a1.5 1.5 0 0 1 3 0v7-6a1.5 1.5 0 0 1 3 0v7-4a1.5 1.5 0 0 1 3 0v7c0 4-2 6-6 6h-1c-2 0-3-1-4-2l-4-5c-1-2 1-3 2-2l3 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';panButton.title='Move table: drag with one finger or mouse. Two fingers always slide and pinch.';tools.replaceChildren(panButton,zoomIn,zoomOut);
+ const phoneBox=document.createElement('div');phoneBox.id='table3DPhoneControls';phoneBox.setAttribute('role','group');phoneBox.setAttribute('aria-label','3D table controls');phoneBox.hidden=true;stage.append(phoneBox);
  let active=false,viewLocked=false,panEnabled=false,loading=false,lastFrame=null,engine=null,scheduled=0;
  const cameraState={azimuth:Math.PI/4,elevation:.5,radius:3,target:null};
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -24,7 +25,12 @@
   views.style.left=clamp(left,4,Math.max(4,stage.clientWidth-views.offsetWidth-4))+'px';
   views.style.top=clamp(top+42,4,Math.max(4,stage.clientHeight-views.offsetHeight-4))+'px';
  }
- function dock(){const shelf=document.getElementById('phoneToolShelf');if(document.body.classList.contains('phone-focus')&&document.body.classList.contains('phone-controls-open')&&shelf)shelf.append(views,status);else{stage.append(views,status);positionToggle();}if(document.body.classList.contains('zen-mode'))disable();}
+ function dock(){
+  const shelf=document.getElementById('phoneToolShelf'),phone=document.body.classList.contains('phone-focus');
+  if(phone&&active){phoneBox.hidden=false;phoneBox.append(views,tools);if(document.body.classList.contains('phone-controls-open')&&shelf){shelf.append(phoneBox,status);}else stage.append(phoneBox,status);}
+  else{phoneBox.hidden=true;stage.append(tools);if(phone&&document.body.classList.contains('phone-controls-open')&&shelf)shelf.append(views,status);else{stage.append(views,status);positionToggle();}}
+  if(document.body.classList.contains('zen-mode'))disable();
+ }
  new MutationObserver(dock).observe(document.body,{attributes:true,attributeFilter:['class']});dock();
  function setPanEnabled(value){
   engine?.cancelInput();panEnabled=!!value;if(panEnabled&&viewLocked)setViewLocked(false);
