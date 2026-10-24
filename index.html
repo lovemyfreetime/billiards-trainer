@@ -7874,6 +7874,18 @@
         return nearestLogicalPocket(q, Math.max(S.ballR * 4.8, .135));
     }
     function pointerPos(ev) { const r = canvas.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
+    // Projected 3D interactions use the same handlers and save/undo rules as 2D.
+    // The visible 3D canvas keeps native pointer capture; this canvas receives
+    // table coordinates mapped back into its original control-view pixels.
+    window.billiards3DTableInput=(type,q,info={})=>{
+        if(isProjector||!q||!Number.isFinite(q.x)||!Number.isFinite(q.y)||(animation&&type!=='pointercancel'))return false;
+        if(!['pointerdown','pointermove','pointerup','pointercancel','wheel'].includes(type))return false;
+        const p=controlMap().map(q),r=canvas.getBoundingClientRect(),options={...info,bubbles:true,cancelable:true,clientX:r.left+p.x,clientY:r.top+p.y,button:0,buttons:type==='pointerup'||type==='pointercancel'?0:1,isPrimary:true};
+        const capture=canvas.setPointerCapture,release=canvas.releasePointerCapture;
+        try{canvas.setPointerCapture=()=>{};canvas.releasePointerCapture=()=>{};if(type==='wheel')beginActionUndo();canvas.dispatchEvent(type==='wheel'?new WheelEvent(type,options):new PointerEvent(type,options));}
+        finally{canvas.setPointerCapture=capture;canvas.releasePointerCapture=release;}
+        return true;
+    };
     // Read-only Guide hit testing uses the trainer's actual drawing geometry.
     // A canvas element contains many different targets, so it cannot inherit
     // one cue-ball explanation for every ball, pocket, and trajectory.
@@ -12762,8 +12774,8 @@
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=shared-guide-v1">
   <script src="./phone-play.js?v=12"></script>
-  <link rel="stylesheet" href="./trainer-3d.css?v=3">
-  <script src="./trainer-3d.js?v=3"></script>
+  <link rel="stylesheet" href="./trainer-3d.css?v=4">
+  <script src="./trainer-3d.js?v=4"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">

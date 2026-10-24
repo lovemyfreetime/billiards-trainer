@@ -25,6 +25,7 @@ jobs:
         run: |
           node tests/cue-deflection.browser.cjs
           node tests/trainer-3d.browser.cjs
+          node tests/trainer-3d-edit.browser.cjs
           node tests/guide-platform-parity.browser.cjs
           node tests/guide-scenes.browser.cjs
           node tests/resources.browser.cjs

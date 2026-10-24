@@ -7,17 +7,15 @@ body.table-3d #stageWrap #table3DCanvas{display:block}
 body.table-3d #canvas{visibility:hidden;pointer-events:none}
 body.table-3d #tableZoom,body.table-3d #pocketTray,body.table-3d #phoneTrayToggle,body.table-3d #practiceCounter{display:none!important}
 #table3DTools[hidden]{display:none}
-#table3DTools{position:absolute;z-index:25;left:50%;top:8px;bottom:auto;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:5px;width:max-content;max-width:calc(100% - 100px);padding:6px 8px;border:1px solid #6d8b98;border-radius:12px;background:#14232ded;color:#e5f1f7;font:11px system-ui;touch-action:manipulation}
-#table3DTools button{min-width:32px;min-height:32px;padding:4px 8px;border:1px solid #526d7d;border-radius:7px;background:#293d4b;color:inherit;font:600 11px system-ui;white-space:nowrap}
+#table3DTools{position:absolute;z-index:25;left:50%;top:8px;bottom:auto;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px;width:max-content;max-width:calc(100% - 100px);padding:3px 6px;border:1px solid #6d8b98;border-radius:12px;background:#14232ded;color:#e5f1f7;font:11px system-ui;touch-action:manipulation}
+#table3DTools button{min-width:28px;min-height:28px;padding:3px 6px;border:1px solid #526d7d;border-radius:7px;background:#293d4b;color:inherit;font:600 10px system-ui;white-space:nowrap}
 #table3DTools label{display:flex;align-items:center;gap:4px}
-#table3DTools input{width:70px;height:24px;accent-color:#65d3ff}
-.table3DHint{flex:0 0 100%;text-align:center;font-size:10px;color:#a9bec9;pointer-events:none}
+#table3DTools input{width:54px;height:22px;accent-color:#65d3ff}
 body.phone-focus #phoneToolShelf #table3DToggle{position:static!important}
 body.phone-focus #phoneToolShelf #table3DStatus{position:static}
 body.zen-mode #table3DToggle,body.zen-mode #table3DStatus{display:none!important}
-@media(max-width:600px){#table3DTools{max-width:calc(100% - 16px);gap:3px;padding:5px}#table3DTools button{padding:4px 6px}#table3DTools input{width:50px}.table3DHint{font-size:9px}}
+@media(max-width:600px){#table3DTools{max-width:calc(100% - 16px);gap:3px;padding:5px}#table3DTools button{padding:4px 6px}#table3DTools input{width:50px}}
 
-body.phone-focus .table3DHint{display:none}
 body.phone-focus #table3DTools{gap:3px;padding:5px 6px;top:6px;bottom:auto;max-width:calc(100% - 220px)}
 body.phone-focus #table3DTools button{min-width:28px;min-height:30px;padding:3px 6px;font-size:10px}
 body.phone-focus #table3DTools input{width:50px}
@@ -28,3 +26,10 @@ body.table-3d:not(.phone-focus) #aimControls,body.table-3d:not(.phone-focus) #ai
 body.table-3d:not(.phone-focus) .tableSpeedControl{top:auto!important;bottom:56px!important;z-index:22}
 body.table-3d:not(.phone-focus) .bottomSpinGroup{top:auto!important;bottom:10px!important;z-index:22}
 @media(max-width:600px){body.phone-focus #table3DTools{top:50px;max-width:calc(100% - 120px)}}
+
+body.table-3d-locked #table3DCanvas{cursor:crosshair}
+#table3DLock[aria-pressed=true]{border-color:#8cceba;background:#204a43;color:#edfff8}
+body.table-3d:not(.phone-focus) #teachingCompassToggle,body.table-3d:not(.phone-focus) #bankToolToggle,body.table-3d:not(.phone-focus) #kickToolToggle,body.table-3d:not(.phone-focus) #angleLock{z-index:22}
+body.table-3d:not(.phone-focus) #compassSizeWrap{z-index:22;left:8px!important;top:60px!important;bottom:158px!important;height:auto!important;transform:none!important}
+body.table-3d:not(.phone-focus) #compassRotateWrap{z-index:22;left:60px!important;top:52px!important;width:220px!important;height:34px}
+@media(max-width:1100px){body.table-3d:not(.phone-focus) #teachingCompassToggle,body.table-3d:not(.phone-focus) #bankToolToggle,body.table-3d:not(.phone-focus) #kickToolToggle,body.table-3d:not(.phone-focus) #angleLock{top:50px}}

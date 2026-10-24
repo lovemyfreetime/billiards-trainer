@@ -16,9 +16,8 @@
  action('Standing','Standing perspective from beside the table',()=>standing());
  action('Along shot','Look along the active cue-ball shot line',()=>alongShot());
  action('−','Zoom camera out',()=>zoom(1.15));action('+','Zoom camera in',()=>zoom(1/1.15));
- action('2D','Return to the top-down table',()=>disable());
- const hint=document.createElement('span');hint.className='table3DHint';hint.textContent='Drag to rotate and tilt · Pinch to zoom';tools.append(hint);stage.append(tools);
- let active=false,loading=false,lastFrame=null,engine=null,scheduled=0;
+ const viewLock=action('Lock view','Lock view for ball placement and aiming',()=>setViewLocked(!viewLocked));viewLock.id='table3DLock';viewLock.setAttribute('aria-pressed','false');stage.append(tools);
+ let active=false,viewLocked=false,loading=false,lastFrame=null,engine=null,scheduled=0;
  const cameraState={azimuth:Math.PI/4,elevation:.5,radius:3,target:null};
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
  function positionToggle(){
@@ -30,6 +29,12 @@
  }
  function dock(){const shelf=document.getElementById('phoneToolShelf');if(document.body.classList.contains('phone-focus')&&shelf)shelf.append(button,status);else{stage.append(button,status);positionToggle();}if(document.body.classList.contains('zen-mode'))disable();}
  new MutationObserver(dock).observe(document.body,{attributes:true,attributeFilter:['class']});dock();
+ function setViewLocked(value){
+  engine?.cancelInput();viewLocked=!!value;document.body.classList.toggle('table-3d-locked',active&&viewLocked);
+  viewLock.textContent=viewLocked?'Unlock view':'Lock view';viewLock.setAttribute('aria-pressed',String(viewLocked));viewLock.setAttribute('aria-label',viewLocked?'Unlock view to rotate the table':'Lock view for ball placement and aiming');viewLock.title=viewLock.getAttribute('aria-label');
+  document.getElementById('table3DCanvas')?.setAttribute('aria-label',viewLocked?'3D table editing. Drag a ball to move it. Tap the cloth to aim.':'3D table camera. Drag to rotate and tilt. Pinch to zoom. Lock view to edit.');
+ }
+ for(const id of ['teachingCompassToggle','bankToolToggle','kickToolToggle'])document.getElementById(id)?.addEventListener('click',()=>{if(!active)return;setViewLocked(true);if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();});
  function requestRender(){if(!active||!engine||scheduled)return;scheduled=requestAnimationFrame(()=>{scheduled=0;if(active)engine.render();});}
  function orbit(dx,dy){cameraState.azimuth+=dx;cameraState.elevation=clamp(cameraState.elevation+dy,8*Math.PI/180,88*Math.PI/180);requestRender();}
  function zoom(factor){if(!lastFrame)return;cameraState.radius=clamp(cameraState.radius*factor,lastFrame.L*.65,lastFrame.L*8);requestRender();}
@@ -58,24 +63,24 @@
   const x=a.cue.x-dx*setback-lastFrame.L/2-cameraState.target.x,z=a.cue.y-dz*setback-lastFrame.W/2-cameraState.target.z,y=.87-cameraState.target.y;
   cameraState.azimuth=Math.atan2(x,z);cameraState.radius=Math.hypot(x,y,z);cameraState.elevation=Math.asin(y/cameraState.radius);requestRender();
  }
- function disable(){if(!active)return;active=false;document.body.classList.remove('table-3d');button.setAttribute('aria-pressed','false');button.textContent='3D View';tools.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
+ function disable(){if(!active)return;active=false;document.body.classList.remove('table-3d','table-3d-locked');button.setAttribute('aria-pressed','false');button.textContent='3D View';tools.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
  button.onclick=async()=>{
   if(active){disable();return;}if(loading)return;loading=true;button.disabled=true;status.textContent='';
-  try{if(!engine){const three=await import('./vendor/three/three-renderer.js?v=3');engine=createEngine(three);}if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
+  try{if(!engine){const three=await import('./vendor/three/three-renderer.js?v=4');engine=createEngine(three);}if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
    active=true;document.body.classList.add('table-3d');button.setAttribute('aria-pressed','true');button.textContent='2D View';tools.hidden=false;
    if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();
-   window.dispatchEvent(new Event('resize'));standing();requestRender();
+   window.dispatchEvent(new Event('resize'));standing();setViewLocked(viewLocked);requestRender();
   }catch(error){disable();status.textContent='3D view is unavailable on this device. The top-down table is ready.';console.warn('3D camera unavailable:',error.message);}
   finally{loading=false;button.disabled=false;}
  };
- window.Billiards3D={get active(){return active;},update(frame){lastFrame=frame;if(active){engine?.update(frame);requestRender();}},disable,
+ window.Billiards3D={get active(){return active;},get locked(){return active&&viewLocked;},project(point,height=0){return engine?.project(point,height)||null;},update(frame){lastFrame=frame;if(active){engine?.update(frame);requestRender();}},disable,
   camera(){return {azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},...engine?.projection()};},renderedBalls(){return engine?.ballViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];}};
  window.addEventListener('resize',()=>{positionToggle();requestRender();});new MutationObserver(positionToggle).observe(document.getElementById('tableZoom'),{attributes:true,attributeFilter:['style']});document.addEventListener('visibilitychange',()=>{if(!document.hidden)requestRender();});
  function createEngine(T){
   const renderer=new T.WebGLRenderer({antialias:true,alpha:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.setClearColor(0x080d13);renderer.outputColorSpace=T.SRGBColorSpace;
   renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1;
   renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;
-  const canvas=renderer.domElement;canvas.style.removeProperty('display');canvas.id='table3DCanvas';canvas.tabIndex=0;canvas.setAttribute('aria-label','3D table. Drag to rotate and tilt. Pinch or use the camera buttons to zoom. Use 2D to place balls.');canvas.setAttribute('role','img');stage.append(canvas);
+  const canvas=renderer.domElement;canvas.style.removeProperty('display');canvas.id='table3DCanvas';canvas.tabIndex=0;canvas.setAttribute('aria-label','3D table. Drag to rotate and tilt. Use Lock view for ball placement and aiming.');canvas.setAttribute('role','img');stage.append(canvas);
   const scene=new T.Scene(),camera=new T.PerspectiveCamera(44,1,.01,100),table=new T.Group(),balls=new T.Group();scene.add(table,balls);scene.fog=new T.Fog(0x080d13,7,25);
   scene.add(new T.HemisphereLight(0xf2f5f4,0x303941,.75));
   const light=new T.DirectionalLight(0xfff8ed,1.8);light.position.set(-3,5,2);light.castShadow=true;
@@ -173,14 +178,42 @@
    for(const x of [-w*.36,w*.36])for(const z of [-d*.31,d*.31])box(.12,.54,.12,x,-.54,z,legMaterial);
    dimensions=tableKey(f);renderer.shadowMap.needsUpdate=true;
   }
-  const pointers=new Map();
-  canvas.addEventListener('pointerdown',e=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});});
-  canvas.addEventListener('pointermove',e=>{const p=pointers.get(e.pointerId);if(!p)return;e.preventDefault();e.stopPropagation();if(pointers.size===2){const q=[...pointers].find(([id])=>id!==e.pointerId)[1],before=Math.hypot(p.x-q.x,p.y-q.y),after=Math.hypot(e.clientX-q.x,e.clientY-q.y);if(before>8&&after>8)zoom(before/after);}else orbit(-(e.clientX-p.x)*.008,(e.clientY-p.y)*.006);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});});
-  for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,e=>{pointers.delete(e.pointerId);e.stopPropagation();});
-  canvas.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();zoom(Math.exp(clamp(e.deltaY,-120,120)*.002));},{passive:false});
+  const pointers=new Map();let edit=null;
+  const inputRay=new T.Raycaster();
+  function cast(e){const r=canvas.getBoundingClientRect();scene.updateMatrixWorld(true);camera.updateMatrixWorld(true);inputRay.setFromCamera({x:2*(e.clientX-r.left)/r.width-1,y:1-2*(e.clientY-r.top)/r.height},camera);}
+  function planePoint(height=0){const direction=inputRay.ray.direction;if(Math.abs(direction.y)<1e-6)return null;const distance=(height-inputRay.ray.origin.y)/direction.y;if(distance<0)return null;return inputRay.ray.at(distance,new T.Vector3());}
+  function logical(p){const f=frame||lastFrame;return p&&f?{x:p.x+f.L/2,y:p.z+f.W/2}:null;}
+  function pick(e){
+   const f=frame||lastFrame;if(!f||f.animating)return null;cast(e);
+   const obstruction=inputRay.intersectObjects(table.children,true).find(hit=>!hit.object.material?.userData?.pocketOwned);
+   const hit=inputRay.intersectObjects([...ballMeshes.values()].filter(g=>g.visible),true)[0];
+   if(hit&&(!obstruction||hit.distance<obstruction.distance+.00001)){
+    const group=hit.object.parent,point=planePoint(f.R);if(!point)return null;
+    return {point:logical(group.position),height:f.R,offset:{x:point.x-group.position.x,z:point.z-group.position.z}};
+   }
+   const point=obstruction?.point||planePoint();if(!point)return null;
+   const q=logical(point);if(q.x<-.3||q.x>f.L+.3||q.y<-.3||q.y>f.W+.3)return null;
+   return {point:q,height:0,offset:{x:0,z:0}};
+  }
+  function forward(type,point,e){return window.billiards3DTableInput?.(type,point,{pointerId:e.pointerId||1,pointerType:e.pointerType||'mouse',shiftKey:!!e.shiftKey,altKey:!!e.altKey,ctrlKey:!!e.ctrlKey,metaKey:!!e.metaKey,deltaY:e.deltaY||0,deltaX:e.deltaX||0,deltaMode:e.deltaMode||0});}
+  function cancelInput(){if(edit){forward('pointercancel',edit.last,{pointerId:edit.id,pointerType:edit.pointerType});edit=null;}pointers.clear();}
+  canvas.addEventListener('pointerdown',e=>{
+   if(e.button!==0)return;e.preventDefault();e.stopPropagation();canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});
+   if(viewLocked){if(edit)return;const hit=pick(e);if(!hit)return;edit={id:e.pointerId,pointerType:e.pointerType,height:hit.height,offset:hit.offset,last:hit.point};if(!forward('pointerdown',hit.point,e))edit=null;return;}
+   pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  });
+  canvas.addEventListener('pointermove',e=>{
+   if(viewLocked){if(!edit||edit.id!==e.pointerId)return;e.preventDefault();e.stopPropagation();cast(e);const p=planePoint(edit.height);if(!p)return;const q=logical(new T.Vector3(p.x-edit.offset.x,0,p.z-edit.offset.z));edit.last=q;forward('pointermove',q,e);return;}
+   const p=pointers.get(e.pointerId);if(!p)return;e.preventDefault();e.stopPropagation();if(pointers.size===2){const q=[...pointers].find(([id])=>id!==e.pointerId)[1],before=Math.hypot(p.x-q.x,p.y-q.y),after=Math.hypot(e.clientX-q.x,e.clientY-q.y);if(before>8&&after>8)zoom(before/after);}else orbit(-(e.clientX-p.x)*.008,(e.clientY-p.y)*.006);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  });
+  for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,e=>{
+   if(edit?.id===e.pointerId){const current=edit;edit=null;forward(type==='pointerup'?'pointerup':'pointercancel',current.last,e);}
+   pointers.delete(e.pointerId);e.stopPropagation();
+  });
+  canvas.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();if(viewLocked){cast(e);const p=logical(planePoint());if(p)forward('wheel',p,e);}else zoom(Math.exp(clamp(e.deltaY,-120,120)*.002));},{passive:false});
   canvas.addEventListener('keydown',e=>{const actions={ArrowLeft:()=>orbit(-.08,0),ArrowRight:()=>orbit(.08,0),ArrowUp:()=>orbit(0,.06),ArrowDown:()=>orbit(0,-.06),'+':()=>zoom(.9),'-':()=>zoom(1.1),Escape:disable};if(actions[e.key]){e.preventDefault();e.stopPropagation();actions[e.key]();}});
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();disable();status.textContent='3D graphics paused. The top-down table is ready.';});
-  return {ballViews(){return [...ballMeshes].filter(([,g])=>g.visible).map(([id,g])=>({id,x:g.position.x,y:g.position.y,z:g.position.z,rotation:g.children[0].quaternion.toArray()}));},pocketViews(){scene.updateMatrixWorld(true);const ray=new T.Raycaster();return pocketSpecs.map(p=>{const height=v=>{ray.set(new T.Vector3(v.x,1,v.z),new T.Vector3(0,-1,0));return ray.intersectObjects(table.children,true).find(hit=>!hit.object.material?.userData?.pocketOwned)?.point.y;};return {id:p.id,floorHeight:height(p.probe),backHeight:height(p.back)};});},projection(){return {verticalFov:camera.fov,horizontalFov:2*Math.atan(Math.tan(camera.fov*Math.PI/360)*camera.aspect)*180/Math.PI};},stop(){pointers.clear();},update(f){frame=f;dirty=true;renderer.shadowMap.needsUpdate=true;},render(){
+  return {cancelInput,project(point,height=0){const f=frame||lastFrame;if(!f)return null;camera.updateMatrixWorld(true);const v=new T.Vector3(point.x-f.L/2,height,point.y-f.W/2).project(camera),r=canvas.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2,visible:v.z>=-1&&v.z<=1};},ballViews(){return [...ballMeshes].filter(([,g])=>g.visible).map(([id,g])=>({id,x:g.position.x,y:g.position.y,z:g.position.z,rotation:g.children[0].quaternion.toArray()}));},pocketViews(){scene.updateMatrixWorld(true);const ray=new T.Raycaster();return pocketSpecs.map(p=>{const height=v=>{ray.set(new T.Vector3(v.x,1,v.z),new T.Vector3(0,-1,0));return ray.intersectObjects(table.children,true).find(hit=>!hit.object.material?.userData?.pocketOwned)?.point.y;};return {id:p.id,floorHeight:height(p.probe),backHeight:height(p.back)};});},projection(){return {verticalFov:camera.fov,horizontalFov:2*Math.atan(Math.tan(camera.fov*Math.PI/360)*camera.aspect)*180/Math.PI};},stop(){cancelInput();},update(f){if(f.animating&&edit)cancelInput();frame=f;dirty=true;renderer.shadowMap.needsUpdate=true;},render(){
    const f=frame||lastFrame;if(!f)return;const rect=canvas.getBoundingClientRect();if(rect.width<1||rect.height<1)return;
    const size=rect.width+':'+rect.height;if(size!==lastSize){renderer.setSize(rect.width,rect.height);camera.aspect=rect.width/rect.height;camera.fov=2*Math.atan(viewTangent(camera.aspect))*180/Math.PI;camera.updateProjectionMatrix();lastSize=size;}
    if(dimensions!==tableKey(f))rebuild(f);
