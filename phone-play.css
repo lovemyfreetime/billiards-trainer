@@ -242,3 +242,12 @@ body.phone-focus:not(.zen-mode) #phoneTrayToggle{display:block;position:fixed;le
 body.phone-focus.phone-tray-hidden #pocketTray{display:none!important}
 body.phone-focus #phoneTrayToggle[aria-expanded=false]{opacity:.65}
 @media(max-width:430px){body.phone-focus #phoneActions .miniSpinControl{padding-left:29px;padding-right:29px}body.phone-focus #phoneActions .miniSpinLabel,body.phone-focus #phoneActions .phoneSliderValue{width:28px!important}body.phone-focus #phoneActions .phoneSpinCaption{left:25px;right:25px;font-size:8px}}
+
+/* Speed is a relative phone roller, with full-width hold-to-repeat end buttons. */
+.phoneSpeedValue{display:none}
+body.phone-focus #phoneSpeedRail>.tableSpeedControl{position:relative!important;padding:47px 2px 35px}
+body.phone-focus #phoneSpeedRail input{width:34px;cursor:ns-resize}
+body.phone-focus #phoneSpeedRail .tableSpeedLabel{position:absolute;left:0;right:0;top:0!important;width:100%;height:44px!important;min-height:44px;padding:5px 0 24px;transform:none;border-radius:16px 16px 7px 7px;background:#25353e88;touch-action:none}
+body.phone-focus #phoneSpeedRail .phoneSpeedValue{display:block;position:absolute;top:23px;left:0;right:0;text-align:center;font:700 10px/14px system-ui;color:#fff;pointer-events:none;z-index:4}
+body.phone-focus #phoneSpeedRail .phoneSliderValue{position:absolute;top:auto!important;bottom:0;left:0;right:0;width:100%;height:32px;min-height:32px;padding:0;transform:none;pointer-events:auto;border-radius:7px 7px 16px 16px;background:#25353e88;touch-action:none}
+body.phone-focus #phoneSpeedRail .speedTickScale{top:49px;bottom:38px}

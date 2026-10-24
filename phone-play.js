@@ -153,17 +153,48 @@
       plus.setAttribute('aria-label','Increase '+input.getAttribute('aria-label'));plus.title='Increase one step';
       window.billiardsBindHoldAdjust(plus,()=>window.billiardsStepTableSlider?.(id,1),()=>!input.disabled);label.replaceWith(plus);
     }
-    input.parentNode.append(output);const plusLabel=input.parentNode.querySelector('.miniSpinLabel');if(plusLabel)plusLabel.dataset.stepLabel=plusLabel.textContent;const caption=kind==='percent'?document.createElement('span'):null;if(caption){caption.className='phoneSpinCaption';input.parentNode.append(caption);let spinDrag=null;
-      input.addEventListener('pointerdown',event=>{if(!document.body.classList.contains('phone-focus')||(event.button!=null&&event.button!==0))return;event.preventDefault();event.stopPropagation();spinDrag={id:event.pointerId,x:event.clientX,value:Number(input.value),width:Math.max(60,input.getBoundingClientRect().width-22)};input.setPointerCapture(event.pointerId);},true);
-      input.addEventListener('pointermove',event=>{if(!spinDrag||event.pointerId!==spinDrag.id)return;event.preventDefault();const value=spinDrag.value+(event.clientX-spinDrag.x)/spinDrag.width*(Number(input.max)-Number(input.min));input.value=String(Math.round(Math.max(Number(input.min),Math.min(Number(input.max),value))*100)/100);input.dispatchEvent(new Event('input',{bubbles:true}));});
-      for(const type of ['pointerup','pointercancel','lostpointercapture'])input.addEventListener(type,event=>{if(!spinDrag||event.pointerId!==spinDrag.id)return;spinDrag=null;input.dispatchEvent(new Event('change',{bubbles:true}));});}readouts.push({input,output,kind,plusLabel,caption});
+    input.parentNode.append(output);
+    const plusLabel=input.parentNode.querySelector('.miniSpinLabel');
+    if(plusLabel)plusLabel.dataset.stepLabel=plusLabel.textContent;
+    const caption=document.createElement('span');
+    caption.className=kind==='percent'?'phoneSpinCaption':'phoneSpeedValue';
+    input.parentNode.append(caption);
+    // Phone ranges act as relative rollers: a new touch never changes the value.
+    // Each drag starts from the current setting, so lifting and swiping again adds to it.
+    let drag=null;
+    input.addEventListener('touchstart',event=>{if(document.body.classList.contains('phone-focus'))event.preventDefault();},{passive:false});
+    input.addEventListener('pointerdown',event=>{
+      if(!document.body.classList.contains('phone-focus')||input.disabled||event.isPrimary===false||drag||(event.button!=null&&event.button!==0))return;
+      event.preventDefault();event.stopPropagation();
+      drag={id:event.pointerId,x:event.clientX,y:event.clientY,value:Number(input.value),width:Math.max(60,input.getBoundingClientRect().width-22)};
+      input.setPointerCapture(event.pointerId);
+    },true);
+    input.addEventListener('pointermove',event=>{
+      if(!drag||event.pointerId!==drag.id)return;
+      event.preventDefault();
+      const delta=kind==='speed'?(drag.y-event.clientY)*.01:(event.clientX-drag.x)/drag.width*(Number(input.max)-Number(input.min));
+      const value=Math.round(Math.max(Number(input.min),Math.min(Number(input.max),drag.value+delta))*100)/100;
+      if(Number(input.value)===value)return;
+      input.value=String(value);input.dispatchEvent(new Event('input',{bubbles:true}));
+    });
+    for(const type of ['pointerup','pointercancel','lostpointercapture'])input.addEventListener(type,event=>{
+      if(!drag||event.pointerId!==drag.id)return;
+      drag=null;input.dispatchEvent(new Event('change',{bubbles:true}));
+    });
+    readouts.push({input,output,kind,plusLabel,caption});
   }
   window.billiardsPhoneReadouts = () => {
     for(const {input,output,kind,plusLabel,caption} of readouts) {
       const value=Number(input.value)||0;
       const percent=Math.round(value*100);
       const text=kind==='speed'?value.toFixed(2):((percent>0?'+':'')+percent+'%');
-      const compact=kind==='percent'&&document.body.classList.contains('phone-focus');const valueText=compact?'−':text;if(output.textContent!==valueText)output.textContent=valueText;if(plusLabel)plusLabel.textContent=compact?'+':plusLabel.dataset.stepLabel;if(caption)caption.textContent=(input.id.includes('Follow')?'F/D ':'L/R ')+text;
+      const phoneFocus=document.body.classList.contains('phone-focus');
+      const compact=kind==='percent'&&phoneFocus;
+      const valueText=phoneFocus?(kind==='speed'?'':'−'):text;
+      if(output.textContent!==valueText)output.textContent=valueText;
+      if(plusLabel){const label=compact?'+':plusLabel.dataset.stepLabel;if(plusLabel.textContent!==label)plusLabel.textContent=label;}
+      const captionText=kind==='speed'?text:(input.id.includes('Follow')?'F/D ':'L/R ')+text;
+      if(caption.textContent!==captionText)caption.textContent=captionText;
     }
   };
   for(const {input} of readouts)input.addEventListener('input',window.billiardsPhoneReadouts);
