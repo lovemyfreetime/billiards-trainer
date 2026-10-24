@@ -8,6 +8,7 @@ const server=cp.spawn(process.execPath,[require('node:path').join(__dirname,'ran
   const context=await browser.newContext({viewport,hasTouch:viewport.width<500,isMobile:viewport.width<500,serviceWorkers:'block'}),page=await context.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(()=>{window.__media=[];const A=Audio;window.Audio=new Proxy(A,{construct(C,args){const a=new C(...args);__media.push(a);return a}})});
+  await page.addInitScript(()=>{window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=true;window.chrome={webview:{postMessage(){}}};});
   await page.goto('http://127.0.0.1:8796/index.html?train=1');await page.waitForFunction(()=>window.billiardsLessonPractice&&window.billiardsGetStartedTour);
   const result=await page.evaluate(()=>{
    const errors=[],seen=new Set();let count=0;
@@ -25,36 +26,38 @@ const server=cp.spawn(process.execPath,[require('node:path').join(__dirname,'ran
    }
    return {errors,count,unique:seen.size};
   });assert.deepEqual(result.errors,[]);assert.equal(result.count,136);assert.equal(result.unique,136);
+  async function table(){if(await page.evaluate(()=>document.body.classList.contains('phone-controls-open')))await page.locator('#phoneControls').click();}
+  async function controls(){if(await page.evaluate(()=>document.body.classList.contains('phone-focus')&&!document.body.classList.contains('phone-controls-open')))await page.locator('#phoneControls').click();}
   const host=page.locator('#bt-guide-pool-root');
-  await page.click('#btg-pool-guide');await page.evaluate(()=>{if(!billiardsPoolGuide.getState().enabled)billiardsPoolGuide.openGuide();billiardsPoolGuide.openCategory('fundamentals')});
-  await host.locator('select').selectOption('aiming-line-quick');
+  await controls();await page.click('#btg-pool-guide');await page.evaluate(()=>{if(!billiardsPoolGuide.getState().enabled)billiardsPoolGuide.openGuide();billiardsPoolGuide.openCategory('fundamentals')});
+  await controls();await host.locator('select').selectOption('aiming-line-quick');
   const playing=id=>page.waitForFunction(id=>__media.some(a=>a.dataset.topic===id&&!a.paused&&a.currentTime>0),id);
   await playing('aiming-line-quick');await page.evaluate(()=>{const a=__media.find(a=>a.dataset.topic==='aiming-line-quick');a.currentTime=a.duration-.05});
   await page.waitForFunction(()=>billiardsLessonPractice.getState().phase==='countdown');const started=Date.now();
-  assert.equal(await host.locator('[role=timer]:visible').innerText(),'5');
+  assert.equal(await host.locator('[role=timer][aria-label*="Tap the table"]').textContent(),'5');
   await page.waitForTimeout(3500);assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().topicId),'aiming-line-quick');
   await page.waitForFunction(()=>billiardsPoolGuide.getState().topicId!=='aiming-line-quick');assert(Date.now()-started>=4500,'Practice wait ended early');
-  await host.locator('select').selectOption('aiming-line-quick');await playing('aiming-line-quick');
+  await controls();await host.locator('select').selectOption('aiming-line-quick');await playing('aiming-line-quick');
   await page.evaluate(()=>{const a=__media.find(a=>a.dataset.topic==='aiming-line-quick');a.currentTime=a.duration-.05});await page.waitForFunction(()=>billiardsLessonPractice.getState().phase==='countdown');
-  const before=await page.evaluate(()=>billiardsTourBridge.capture().state.balls);await page.locator('.btg-lesson-prompt').click();
+  const before=await page.evaluate(()=>billiardsTourBridge.capture().state.balls);await table();await page.locator('.btg-lesson-prompt').click();
   assert.equal(await page.evaluate(()=>billiardsLessonPractice.getState().phase),'practice');await page.waitForTimeout(5500);
   assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().topicId),'aiming-line-quick');assert.deepEqual(await page.evaluate(()=>billiardsTourBridge.capture().state.balls),before);
-  await host.locator('select').selectOption('hide-cue-ball-guides-quick');await playing('hide-cue-ball-guides-quick');
+  await controls();await host.locator('select').selectOption('hide-cue-ball-guides-quick');await playing('hide-cue-ball-guides-quick');
   assert.equal(await page.evaluate(()=>billiardsTourBridge.snapshot().shot2Enabled),true,'The visibility lesson must prepare Shot 2');
-  if(viewport.width<500)await page.locator('#phoneControls').click();
+  await controls();
   await page.locator('#toggleCueVisuals2Btn').click();assert.equal(await page.evaluate(()=>billiardsTourBridge.capture().state.showCueVisuals2),false);
   assert.equal(await page.evaluate(()=>billiardsTourBridge.capture().state.showCueVisuals1),true,'Hide Shot 2 independently');
   if(viewport.width<500)await page.locator('#phoneControls').click();
   await page.evaluate(()=>billiardsPoolGuide.openCategory(billiardsPoolAudioMap.topics.find(t=>t.id==='shot-speed-controls-quick').category));
-  await host.locator('select').selectOption('shot-speed-controls-quick');await playing('shot-speed-controls-quick');
+  await controls();await host.locator('select').selectOption('shot-speed-controls-quick');await playing('shot-speed-controls-quick');
   const track=JSON.parse(fs.readFileSync('guide/narration-cues.json')).tracks['shot-speed-controls-quick.mp3'],cue=track.cues.find(c=>c.target==='speed');assert(cue);
   const original=await page.evaluate(()=>billiardsTourBridge.capture().state.balls);
   await page.evaluate(t=>{const a=__media.find(a=>a.dataset.topic==='shot-speed-controls-quick');a.currentTime=t;a.dispatchEvent(new Event('timeupdate'))},(cue.start+cue.end)/2);
   await page.locator('.btg-cue-layer[data-target="speed"] .btg-cue-box').waitFor({state:'visible'});
   assert.deepEqual(await page.evaluate(()=>billiardsTourBridge.capture().state.balls),original,'Highlights must not change the practice layout');
-  await host.locator('[data-action="play-pause"]').click();await page.waitForFunction(()=>!document.querySelector('.btg-cue-ring'));
+  await controls();await host.locator('[data-action="play-pause"]').click();await page.waitForFunction(()=>!document.querySelector('.btg-cue-ring'));
   if(viewport.width<500){
-   await page.evaluate(()=>billiardsPoolGuide.openCategory('physics'));await host.locator('select').selectOption('table-geometry-calibration-quick');await playing('table-geometry-calibration-quick');
+   await page.evaluate(()=>billiardsPoolGuide.openCategory('physics'));await controls();await host.locator('select').selectOption('table-geometry-calibration-quick');await table();await playing('table-geometry-calibration-quick');
    const track=JSON.parse(fs.readFileSync('guide/narration-cues.json')).tracks['table-geometry-calibration-quick.mp3'],cue=track.cues.find(c=>c.target==='geometry-settings');assert(cue);
    await page.evaluate(t=>{const a=__media.find(a=>a.dataset.topic==='table-geometry-calibration-quick');a.currentTime=t;a.dispatchEvent(new Event('timeupdate'))},(cue.start+cue.end)/2);
    await page.locator('.btg-cue-layer[data-target="geometry-settings"] .btg-cue-box').waitFor({state:'visible'});assert(await page.locator('body').evaluate(b=>b.classList.contains('phone-controls-open')));

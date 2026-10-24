@@ -7,8 +7,10 @@ const server=cp.spawn(process.execPath,[require('node:path').join(__dirname,'ran
   const ctx=await browser.newContext({viewport,serviceWorkers:'block',hasTouch:viewport.width<500,isMobile:viewport.width<500}),page=await ctx.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(()=>{window.__media=[];window.__opened=[];window.open=url=>{__opened.push(url);return {opener:null}};const A=Audio;window.Audio=new Proxy(A,{construct(C,args){const a=new C(...args);__media.push(a);return a}})});
+  await page.addInitScript(()=>{window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=true;window.chrome={webview:{postMessage(){}}};});
   await page.goto('http://127.0.0.1:8797/index.html?train=1');await page.waitForFunction(()=>window.billiardsLessonPractice&&window.billiardsGetStartedTour);
-  const host=page.locator('#bt-guide-pool-root');await page.click('#btg-pool-guide');
+  async function controls(){if(await page.evaluate(()=>document.body.classList.contains('phone-focus')&&!document.body.classList.contains('phone-controls-open')))await page.locator('#phoneControls').click();}
+  const host=page.locator('#bt-guide-pool-root');await controls();await page.click('#btg-pool-guide');
   const before=await page.evaluate(()=>billiardsTourBridge.capture().state.balls);
   await host.getByRole('button',{name:'Resources',exact:true}).click();
   const ids=await page.evaluate(()=>billiardsPoolAudioMap.curriculum.more.flatMap(g=>g.topics));assert.equal(ids.length,9);
