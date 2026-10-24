@@ -4907,7 +4907,7 @@
                         paths[b.id].push({ x: b.x, y: b.y, z: b.z, t });
             }
             if (makeFrames && step % frameEvery === 0)
-                frames.push(B.map(b => ({ id: b.id, x: b.x, y: b.y, z: b.z, active: b.active })));
+                frames.push(B.map(b => ({ id: b.id, x: b.x, y: b.y, z: b.z, wx:b.wx, wy:b.wy, wz:b.wz, t, active: b.active })));
             if (!moving && step > 30)
                 break;
         }
@@ -5375,7 +5375,7 @@
             zoomButton.style.left = Math.max(2, zoomLeft) + 'px';
             // Keep inspection below the outer artwork, in the black control area.
             const artworkBottom = bottomY + tableH * (ORIGINAL_ASSET_GEOM.height - ORIGINAL_ASSET_GEOM.y1) / (ORIGINAL_ASSET_GEOM.y1 - ORIGINAL_ASSET_GEOM.y0);
-            zoomButton.style.top = Math.min(viewportH - 38, Math.max(railBandTop + 40, artworkBottom + 8)) + 'px';
+            zoomButton.style.top = Math.min(viewportH - 82, Math.max(railBandTop + 40, artworkBottom + 8)) + 'px';
             // Leave room for the inspection button alongside Shot 2.
             if (aim2) aim2.style.width = Math.max(120, Math.min(halfRailW, zoomLeft - rightRailX - 6)) + 'px';
         }
@@ -6073,7 +6073,7 @@
                 { n: 6, p: { x: off, y: W + off } }
             ];
             ctx.globalAlpha = 1;
-            for (const item of pocketLabels) {
+            for (const item of window.Billiards3D?.active?[]:pocketLabels) {
                 const q = map(item.p);
                 const rr = isProjector ? 9 : 7.5;
                 ctx.fillStyle = 'rgba(8,10,13,.76)';
@@ -7223,7 +7223,7 @@
             const live=(animation?.current||S.balls).map(b=>({...S.balls.find(x=>x.id===b.id),...b})).filter(b=>b.id!==0||cueVisualsVisible(1));
             if(S.shot2Enabled&&cueVisualsVisible(2))live.push({id:'CB2',x:S.shot2.x,y:S.shot2.y,active:true});
             const second=S.activeShot===2&&S.shot2Enabled,cb=second?S.shot2:cueBall();
-            window.Billiards3D.update({L:S.tableL,W:S.tableW,R:S.ballR,balls:live,map,aim:cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
+            window.Billiards3D.update({L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),animating:!!animation,balls:live,map,aim:cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
         }
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }
@@ -12762,8 +12762,8 @@
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=shared-guide-v1">
   <script src="./phone-play.js?v=12"></script>
-  <link rel="stylesheet" href="./trainer-3d.css?v=1">
-  <script src="./trainer-3d.js?v=2"></script>
+  <link rel="stylesheet" href="./trainer-3d.css?v=3">
+  <script src="./trainer-3d.js?v=3"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">
