@@ -13,7 +13,7 @@
  const alongButton=action('Along shot','Look along the active cue-ball shot line',()=>alongShot());
  const zoomIn=action('+','Zoom camera in',()=>zoom(1/1.15)),zoomOut=action('−','Zoom camera out',()=>zoom(1.15));
  const viewLock=action('Lock view','Lock view for ball placement and aiming',()=>setViewLocked(!viewLocked));viewLock.id='table3DLock';viewLock.setAttribute('aria-pressed','false');views.append(standingButton,alongButton,viewLock);stage.append(tools);for(const b of [standingButton,alongButton,viewLock])b.hidden=true;
- const panButton=action('','Move table: drag to slide the view',()=>setPanEnabled(!panEnabled));panButton.id='table3DPan';panButton.setAttribute('aria-pressed','false');panButton.innerHTML='<svg width=18 height=18 viewBox="0 0 24 24" aria-hidden=true><path d="M7 12V6a1.5 1.5 0 0 1 3 0v5-7a1.5 1.5 0 0 1 3 0v7-6a1.5 1.5 0 0 1 3 0v7-4a1.5 1.5 0 0 1 3 0v7c0 4-2 6-6 6h-1c-2 0-3-1-4-2l-4-5c-1-2 1-3 2-2l3 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';panButton.title='Move table: drag with one finger or mouse. Two fingers always slide and pinch.';tools.replaceChildren(panButton,zoomIn,zoomOut);
+ const panButton=action('','Move table: drag to slide the view',()=>chooseCameraMode(true));panButton.id='table3DPan';panButton.setAttribute('aria-pressed','false');panButton.innerHTML='<svg width=18 height=18 viewBox="0 0 24 24" aria-hidden=true><path d="M7 12V6a1.5 1.5 0 0 1 3 0v5-7a1.5 1.5 0 0 1 3 0v7-6a1.5 1.5 0 0 1 3 0v7-4a1.5 1.5 0 0 1 3 0v7c0 4-2 6-6 6h-1c-2 0-3-1-4-2l-4-5c-1-2 1-3 2-2l3 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';panButton.title='Move table: drag with one finger or mouse. Two fingers always slide and pinch.';const rotateButton=action('','Rotate table: drag to orbit and tilt the view',()=>chooseCameraMode(false));rotateButton.id='table3DRotate';rotateButton.setAttribute('aria-pressed','false');rotateButton.innerHTML='<svg width=18 height=18 viewBox="0 0 24 24" aria-hidden=true><path d="M19 8a8 8 0 1 0 1 8M19 3v6h-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';tools.replaceChildren(panButton,rotateButton,zoomIn,zoomOut);
  const phoneBox=document.createElement('div');phoneBox.id='table3DPhoneControls';phoneBox.setAttribute('role','group');phoneBox.setAttribute('aria-label','3D table controls');phoneBox.hidden=true;stage.append(phoneBox);
  let active=false,viewLocked=false,panEnabled=false,loading=false,lastFrame=null,engine=null,scheduled=0;
  const cameraState={azimuth:Math.PI/4,elevation:.5,radius:3,target:null};
@@ -32,14 +32,20 @@
   if(document.body.classList.contains('zen-mode'))disable();
  }
  new MutationObserver(dock).observe(document.body,{attributes:true,attributeFilter:['class']});dock();
- function setPanEnabled(value){
-  engine?.cancelInput();panEnabled=!!value;if(panEnabled&&viewLocked)setViewLocked(false);
-  document.getElementById('table3DCanvas')?.style.removeProperty('cursor');document.body.classList.toggle('table-3d-pan',active&&panEnabled);panButton.setAttribute('aria-pressed',String(panEnabled));
+ function syncCameraMode(){
+  const moving=active&&!viewLocked;
+  document.body.classList.toggle('table-3d-pan',moving&&panEnabled);document.body.classList.toggle('table-3d-rotate',moving&&!panEnabled);
+  panButton.setAttribute('aria-pressed',String(moving&&panEnabled));rotateButton.setAttribute('aria-pressed',String(moving&&!panEnabled));
+  document.getElementById('table3DCanvas')?.style.removeProperty('cursor');
  }
+ function chooseCameraMode(pan){if(viewLocked)setViewLocked(false);setPanEnabled(pan);}
+ function setPanEnabled(value){engine?.cancelInput();panEnabled=!!value;syncCameraMode();}
  function setViewLocked(value){
-  engine?.cancelInput();document.getElementById('table3DCanvas')?.style.removeProperty('cursor');viewLocked=!!value;if(viewLocked)setPanEnabled(false);document.body.classList.toggle('table-3d-locked',active&&viewLocked);
-  viewLock.innerHTML='<svg width="12" height="14" viewBox="0 0 16 18" aria-hidden="true"><path d="M4 8V5a4 4 0 0 1 8 0'+(viewLocked?'v3':'')+'M3 8h10v8H3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg><span>'+(viewLocked?'Locked':'Lock')+'</span>';viewLock.setAttribute('aria-pressed',String(viewLocked));viewLock.setAttribute('aria-label',viewLocked?'Unlock view to rotate the table':'Lock view for ball placement and aiming');viewLock.title=viewLock.getAttribute('aria-label');
-  document.getElementById('table3DCanvas')?.setAttribute('aria-label',viewLocked?'3D table editing. Drag a ball to move it. Tap the cloth to aim.':'3D table camera. Drag to rotate and tilt. Pinch to zoom. Double-tap a ball for a close view. Lock view to edit.');
+  engine?.cancelInput();viewLocked=!!value;document.body.classList.toggle('table-3d-locked',active&&viewLocked);syncCameraMode();
+  const icon='<svg width="11" height="13" viewBox="0 0 16 18" aria-hidden="true"><path d="M4 8V5a4 4 0 0 1 8 0'+(viewLocked?'v3':'')+'M3 8h10v8H3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+  viewLock.innerHTML='<span class="table3DLockTitle">'+icon+(viewLocked?'Locked':'Lock table')+'</span><span class="table3DLockHint">'+(viewLocked?'● Move balls':'Move view')+'</span>';
+  viewLock.setAttribute('aria-pressed',String(viewLocked));viewLock.setAttribute('aria-label',viewLocked?'Table locked: drag balls to move them; click to unlock the view':'Lock table to move balls; the unlocked view moves the camera');viewLock.title=viewLock.getAttribute('aria-label');
+  document.getElementById('table3DCanvas')?.setAttribute('aria-label',viewLocked?'Table locked. Drag balls to move them or tap cloth to aim.':'Move the camera. Select Hand to slide or Rotate to orbit. Lock table to move balls.');
  }
  for(const id of ['teachingCompassToggle','bankToolToggle','kickToolToggle'])document.getElementById(id)?.addEventListener('click',()=>{if(!active)return;setViewLocked(true);if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();});
  function requestRender(){if(!active||!engine||scheduled)return;scheduled=requestAnimationFrame(()=>{scheduled=0;if(active)engine.render();});}
@@ -70,7 +76,7 @@
   const x=a.cue.x-dx*setback-lastFrame.L/2-cameraState.target.x,z=a.cue.y-dz*setback-lastFrame.W/2-cameraState.target.z,y=.10-cameraState.target.y;
   cameraState.azimuth=Math.atan2(x,z);cameraState.radius=Math.hypot(x,y,z);cameraState.elevation=Math.asin(y/cameraState.radius);requestRender();
  }
- function disable(){if(!active)return;active=false;document.body.classList.remove('table-3d','table-3d-locked','table-3d-pan');button.setAttribute('aria-pressed','false');button.textContent='3D View';tools.hidden=true;for(const b of [standingButton,alongButton,viewLock])b.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
+ function disable(){if(!active)return;active=false;document.body.classList.remove('table-3d','table-3d-locked','table-3d-pan','table-3d-rotate');button.setAttribute('aria-pressed','false');button.textContent='3D View';tools.hidden=true;for(const b of [standingButton,alongButton,viewLock])b.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
  button.onclick=async()=>{
   if(active){disable();return;}if(loading)return;loading=true;button.disabled=true;status.textContent='';
   try{if(!engine){const three=await import('./vendor/three/three-renderer.js?v=4');engine=createEngine(three);}if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
@@ -81,7 +87,7 @@
   finally{loading=false;button.disabled=false;}
  };
  window.Billiards3D={get active(){return active;},get locked(){return active&&viewLocked;},get panning(){return active&&panEnabled;},project(point,height=0){return engine?.project(point,height)||null;},update(frame){lastFrame=frame;if(active){engine?.update(frame);requestRender();}},disable,
-  camera(){return {azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},...engine?.projection()};},renderedBalls(){return engine?.ballViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];},railGeometry(){return engine?.railViews()||[];}};
+  camera(){return {azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},...engine?.projection()};},renderedBalls(){return engine?.ballViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];},railGeometry(){return engine?.railViews()||[];},contactMarkers(){return engine?.contactViews()||[];}};
  window.addEventListener('resize',()=>{positionToggle();requestRender();});new MutationObserver(positionToggle).observe(document.getElementById('tableZoom'),{attributes:true,attributeFilter:['style']});document.addEventListener('visibilitychange',()=>{if(!document.hidden)requestRender();});
  function createEngine(T){
   const renderer=new T.WebGLRenderer({antialias:true,alpha:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.setClearColor(0x080d13);renderer.outputColorSpace=T.SRGBColorSpace;
@@ -108,7 +114,7 @@
    const options={roughness:.3,metalness:0,envMapIntensity:.7};
    if(id===0){
     // A standard practice-ball pattern makes cue-ball rotation visible as well.
-    const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');x.fillStyle='#f5f3e9';x.fillRect(0,0,512,256);x.fillStyle='#bd5149';
+    const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');x.fillStyle='#f5f3e9';x.fillRect(0,0,512,256);x.fillStyle='#969b96';
     for(const u of [0,.25,.5,.75,1]){x.beginPath();x.arc(u*512,128,7,0,Math.PI*2);x.fill();}x.fillRect(0,0,512,6);x.fillRect(0,250,512,6);
     const map=new T.CanvasTexture(c);map.colorSpace=T.SRGBColorSpace;options.map=map;
    }
@@ -126,6 +132,19 @@
   const contactCanvas=document.createElement('canvas');contactCanvas.width=contactCanvas.height=64;const contactCtx=contactCanvas.getContext('2d'),contactGradient=contactCtx.createRadialGradient(32,32,2,32,32,30);
   contactGradient.addColorStop(0,'rgba(0,0,0,.24)');contactGradient.addColorStop(.45,'rgba(0,0,0,.13)');contactGradient.addColorStop(1,'rgba(0,0,0,0)');contactCtx.fillStyle=contactGradient;contactCtx.fillRect(0,0,64,64);
   const contactTexture=new T.CanvasTexture(contactCanvas),contactGeometry=new T.PlaneGeometry(1,1);contactGeometry.rotateX(-Math.PI/2);
+  const tipMarkers=new Map(),tipGroup=new T.Group();scene.add(tipGroup);
+  const tipRing=new T.SphereGeometry(1.006,24,10,0,Math.PI*2,0,.12),tipDot=new T.SphereGeometry(1.009,24,10,0,Math.PI*2,0,.085);
+  const tipRingMaterial=new T.MeshBasicMaterial({color:0xfff8df,toneMapped:false}),tipDotMaterial=new T.MeshBasicMaterial({color:0xff3535,toneMapped:false});
+  function updateTipMarkers(f){
+   const showing=new Set();
+   for(const tip of f.cueTips||[]){
+    const ball=ballMeshes.get(tip.id);if(!ball?.visible)continue;showing.add(tip.id);let marker=tipMarkers.get(tip.id);
+    if(!marker){marker=new T.Group();marker.add(new T.Mesh(tipRing,tipRingMaterial),new T.Mesh(tipDot,tipDotMaterial));tipGroup.add(marker);tipMarkers.set(tip.id,marker);}
+    const direction=new T.Vector3(tip.dx*tip.rear-tip.dy*tip.sideR,tip.height,tip.dy*tip.rear+tip.dx*tip.sideR).normalize();
+    marker.visible=true;marker.position.copy(ball.position);marker.scale.setScalar(f.R);marker.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),direction);marker.userData.tip={...tip,normal:direction.toArray()};
+   }
+   for(const [id,marker]of tipMarkers)if(!showing.has(id))marker.visible=false;
+  }
   function box(w,h,d,x,y,z,material){const mesh=new T.Mesh(new T.RoundedBoxGeometry(w,h,d,2,Math.min(.014,h*.2,w*.1,d*.1)),material);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;table.add(mesh);}
   const pocketLiner=new T.MeshStandardMaterial({color:0x070a0c,roughness:.94,side:T.BackSide,envMapIntensity:.08});
   const woodMaterial=new T.MeshStandardMaterial({color:0x4b3023,roughness:.42,envMapIntensity:.4});
@@ -249,9 +268,9 @@
   });
   canvas.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();if(viewLocked){cast(e);const p=logical(planePoint());if(p)forward('wheel',p,e);}else zoom(Math.exp(clamp(e.deltaY,-120,120)*.002));},{passive:false});
   function focusBall(e){cast(e);const hit=inputRay.intersectObjects([...ballMeshes.values()].filter(g=>g.visible),true)[0];if(!hit)return;const p=hit.object.parent.position;cameraState.target={x:p.x,y:p.y,z:p.z};cameraState.radius=.55;cameraState.elevation=8*Math.PI/180;requestRender();}
-  canvas.addEventListener('keydown',e=>{const actions={ArrowLeft:()=>orbit(-.08,0),ArrowRight:()=>orbit(.08,0),ArrowUp:()=>orbit(0,.06),ArrowDown:()=>orbit(0,-.06),'+':()=>zoom(.9),'-':()=>zoom(1.1),Escape:disable};if(actions[e.key]){e.preventDefault();e.stopPropagation();actions[e.key]();}});
+  canvas.addEventListener('keydown',e=>{if(viewLocked&&e.key.startsWith('Arrow')){e.preventDefault();return;}const actions={ArrowLeft:()=>orbit(-.08,0),ArrowRight:()=>orbit(.08,0),ArrowUp:()=>orbit(0,.06),ArrowDown:()=>orbit(0,-.06),'+':()=>zoom(.9),'-':()=>zoom(1.1),Escape:disable};if(actions[e.key]){e.preventDefault();e.stopPropagation();actions[e.key]();}});
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();disable();status.textContent='3D graphics paused. The top-down table is ready.';});
-  return {cancelInput,pan,railViews(){return table.children.filter(m=>m.userData.sight).map(m=>({x:m.position.x,y:m.position.y,z:m.position.z,width:.006,length:.010}));},project(point,height=0){const f=frame||lastFrame;if(!f)return null;camera.updateMatrixWorld(true);const v=new T.Vector3(point.x-f.L/2,height,point.y-f.W/2).project(camera),r=canvas.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2,visible:v.z>=-1&&v.z<=1};},ballViews(){return [...ballMeshes].filter(([,g])=>g.visible).map(([id,g])=>({id,x:g.position.x,y:g.position.y,z:g.position.z,rotation:g.children[0].quaternion.toArray()}));},pocketViews(){scene.updateMatrixWorld(true);const ray=new T.Raycaster();return pocketSpecs.map(p=>{const height=v=>{ray.set(new T.Vector3(v.x,1,v.z),new T.Vector3(0,-1,0));return ray.intersectObjects(table.children,true).find(hit=>!hit.object.material?.userData?.pocketOwned)?.point.y;};return {id:p.id,floorHeight:height(p.probe),backHeight:height(p.back),woodHeight:height(p.wood)};});},projection(){return {verticalFov:camera.fov,horizontalFov:2*Math.atan(Math.tan(camera.fov*Math.PI/360)*camera.aspect)*180/Math.PI};},stop(){cancelInput();},update(f){if(f.animating&&edit)cancelInput();frame=f;dirty=true;renderer.shadowMap.needsUpdate=true;},render(){
+  return {cancelInput,pan,contactViews(){return [...tipMarkers].filter(([,m])=>m.visible).map(([id,m])=>({id,...m.userData.tip,center:m.position.toArray()}));},railViews(){return table.children.filter(m=>m.userData.sight).map(m=>({x:m.position.x,y:m.position.y,z:m.position.z,width:.006,length:.010}));},project(point,height=0){const f=frame||lastFrame;if(!f)return null;camera.updateMatrixWorld(true);const v=new T.Vector3(point.x-f.L/2,height,point.y-f.W/2).project(camera),r=canvas.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2,visible:v.z>=-1&&v.z<=1};},ballViews(){return [...ballMeshes].filter(([,g])=>g.visible).map(([id,g])=>({id,x:g.position.x,y:g.position.y,z:g.position.z,rotation:g.children[0].quaternion.toArray()}));},pocketViews(){scene.updateMatrixWorld(true);const ray=new T.Raycaster();return pocketSpecs.map(p=>{const height=v=>{ray.set(new T.Vector3(v.x,1,v.z),new T.Vector3(0,-1,0));return ray.intersectObjects(table.children,true).find(hit=>!hit.object.material?.userData?.pocketOwned)?.point.y;};return {id:p.id,floorHeight:height(p.probe),backHeight:height(p.back),woodHeight:height(p.wood)};});},projection(){return {verticalFov:camera.fov,horizontalFov:2*Math.atan(Math.tan(camera.fov*Math.PI/360)*camera.aspect)*180/Math.PI};},stop(){cancelInput();},update(f){if(f.animating&&edit)cancelInput();frame=f;dirty=true;renderer.shadowMap.needsUpdate=true;},render(){
    const f=frame||lastFrame;if(!f)return;const rect=canvas.getBoundingClientRect();if(rect.width<1||rect.height<1)return;
    const size=rect.width+':'+rect.height;if(size!==lastSize){renderer.setSize(rect.width,rect.height);camera.aspect=rect.width/rect.height;camera.fov=2*Math.atan(viewTangent(camera.aspect))*180/Math.PI;camera.updateProjectionMatrix();lastSize=size;}
    if(dimensions!==tableKey(f))rebuild(f);
@@ -283,7 +302,7 @@
    }
    for(const [id,group]of ballMeshes)if(!visible.has(id)){group.visible=false;contacts.get(id).visible=false;}
 
-   renderer.render(scene,camera);
+   updateTipMarkers(f);renderer.render(scene,camera);
   }};
  }
 })();

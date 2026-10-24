@@ -3799,6 +3799,16 @@
         return S.shot2;
     }
     function shot2Cue() { const s = ensureShot2(); return { id: -2, n: 'CB2', x: s.x, y: s.y, active: true }; }
+    function cueTipsFor3D(){
+        const tips=[];
+        for(const which of [1,2]){
+            if(!cueVisualsVisible(which)||(which===2&&!S.shot2Enabled))continue;
+            const values=which===2?ensureShot2():S,ball=which===2?values:cueBall();if(!ball)continue;
+            const contact=cueSideContact(values.sideSpin,values.follow,values.cueElevationDeg),d=shotAimDirection(which);
+            tips.push({id:which===2?'CB2':0,dx:d.x,dy:d.y,rear:contact.x,height:contact.z,sideR:contact.tip.sideR,followR:contact.tip.followR});
+        }
+        return tips;
+    }
     function shotAimDirection(which = 1) {
         if (which === 2) {
             const s = ensureShot2(), v = { x: s.freeAim.x - s.x, y: s.freeAim.y - s.y };
@@ -7225,7 +7235,7 @@
             const live=(animation?.current||S.balls).map(b=>({...S.balls.find(x=>x.id===b.id),...b})).filter(b=>b.id!==0||cueVisualsVisible(1));
             if(S.shot2Enabled&&cueVisualsVisible(2))live.push({id:'CB2',x:S.shot2.x,y:S.shot2.y,active:true});
             const second=S.activeShot===2&&S.shot2Enabled,cb=second?S.shot2:cueBall();
-            window.Billiards3D.update({L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,balls:live,map,aim:cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
+            window.Billiards3D.update({L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,cueTips:animation?.cueTips||cueTipsFor3D(),balls:live,map,aim:cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
         }
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }
@@ -8829,7 +8839,7 @@
         let idx = 0;
         const start = performance.now();
         const fps = 60;
-        animation = { current: sim.frames[0] };
+        animation = { current: sim.frames[0], cueTips:cueTipsFor3D() };
         syncHistoryButtons();
         const runningAnimation = animation;
         function tick(now) {
@@ -12776,8 +12786,8 @@
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=shared-guide-v1">
   <script src="./phone-play.js?v=12"></script>
-  <link rel="stylesheet" href="./trainer-3d.css?v=8">
-  <script src="./trainer-3d.js?v=8"></script>
+  <link rel="stylesheet" href="./trainer-3d.css?v=9">
+  <script src="./trainer-3d.js?v=9"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">
