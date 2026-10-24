@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "1d5f83cef3643e009ef1d557cb3d54b68c7594deac4c9c2c32bbd09ad4f81d84",
-  "sequence": 1792877247,
+  "version": "257d84e8eafe91e3507526d90f7f3e8bfdb39e5bd9e8b420381d73935613aa73",
+  "sequence": 1792877870,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -33,8 +33,8 @@
       "length": 8767
     },
     "app-updates.js": {
-      "sha256": "914822971c6ce39d691657df4a62751bedb74407e10826bf0e0bcb00483e50e5",
-      "length": 8267
+      "sha256": "67d95fd3517172fc28f49791f3c31601564c4fd15c734268433eee25a0de9a38",
+      "length": 8405
     },
     "apple-touch-icon.png": {
       "sha256": "bdbf38e5f2307bd066e0b499c908ed37f4015c3b14993a3487e2dc0c116673b7",
@@ -3781,7 +3781,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "8779b01896dcb74397d59a838319f3e6a76c44c2183f4e9bcc477506d858e7e9",
+      "sha256": "c70a9cccef57e78a15f87f83340c120a8649cf216e7b8b9433d00105643acd2a",
       "length": 143387
     },
     "phone-play.css": {
@@ -4861,7 +4861,7 @@
       "length": 1895
     },
     "service-worker.js": {
-      "sha256": "edccd6fe101546418b8fdbdddac2ed0a7bd9ea98d4635af9d6febc1eae25ded6",
+      "sha256": "3896d890e56c47290064f73c6beedfc2215a41722bba74ef1806c28216f28bdd",
       "length": 7739
     },
     "tournament-engine.js": {

@@ -3,11 +3,12 @@
  'use strict';
  const script=document.currentScript,base=new URL('./',script.src);
  const native=Number(window.BilliardsContentUpdateProtocol)>=1&&!!(window.BilliardsBundledAndroid&&window.BilliardsAndroid?.checkContentUpdates||window.BilliardsBundledWindows&&window.chrome?.webview);
- const supported=native||'serviceWorker' in navigator&&!(window.BilliardsBundledWindows||window.BilliardsBundledAndroid);
+ const supported=native||'serviceWorker' in navigator&&!(window.BilliardsBundledWindows||window.BilliardsBundledAndroid||window.BilliardsOfflinePlay);
  const nativeMessage=(type,extra={})=>{if(window.BilliardsBundledAndroid){if(type==='status')receiveNative(JSON.parse(BilliardsAndroid.contentUpdateStatus()));else if(type==='check')BilliardsAndroid.checkContentUpdates(!!extra.force);else BilliardsAndroid.applyContentUpdate();}else window.chrome.webview.postMessage({type:'content-update-'+type,...extra});};
  let registration,starting,checking=false,lastCheck=0,manual=false,ready=false,dismissed=false,reloading=false,previous=supported&&!native?navigator.serviceWorker.controller:null;
  let bar,status,reload,close;
  function render(message,canReload=false){
+  if(!navigator.onLine&&!message.toLowerCase().includes('offline'))message='You’re offline. '+message;
   if(!document.body||dismissed||document.body.classList.contains('welcome-screen')||new URLSearchParams(location.search).get('zen')==='1'||document.body.classList.contains('zen-mode'))return;
   if(!bar){
    const style=document.createElement('style');style.textContent='#appUpdateNotice{position:fixed;z-index:25000;top:max(12px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);box-sizing:border-box;width:max-content;max-width:calc(100vw - 24px);display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid #6595ad;border-radius:9px;background:#172b36;color:#edf6fa;box-shadow:0 3px 15px #0006;font:12px/1.4 system-ui,sans-serif}#appUpdateNotice[hidden]{display:none!important}#appUpdateNotice button{flex:none;min-height:32px;margin:0;padding:4px 8px;border:1px solid #6595ad;border-radius:5px;background:#2b5064;color:#fff;font:600 12px system-ui;cursor:pointer}#appUpdateNotice button[hidden]{display:none}#appUpdateNotice .appUpdateClose{border:0;background:transparent;font-size:18px;padding:0 4px}';document.head.append(style);
@@ -50,7 +51,7 @@
  }
  async function check(show=false){
   if(!supported)return;
-  if(show&&!navigator.onLine){dismissed=false;render(ready?(native?'Update ready. Restart when you’re ready.':'Update ready. Reload when you’re ready.'):'You’re offline. Your saved app is still available.',ready);return;}
+  if(!navigator.onLine){if(show){dismissed=false;render(ready?(native?'Update ready. Restart when you’re ready.':'Update ready. Reload when you’re ready.'):'You’re offline. Your saved app is still available.',ready);}return;}
   if(native){if(!show&&Date.now()-lastCheck<60000)return;lastCheck=Date.now();manual=show;if(show){dismissed=false;render(ready?'Update ready. Restart when you’re ready.':'Checking for updates…',ready);}if(navigator.onLine)nativeMessage('check',{force:show});return;}
   if(checking){if(show){manual=true;dismissed=false;render('Checking for updates…');}return;}
   if(!show&&Date.now()-lastCheck<60000)return;

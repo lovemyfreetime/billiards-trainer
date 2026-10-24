@@ -1,5 +1,5 @@
 {
-  "version": "3193938f746eacd2",
+  "version": "5157771c4d5a7a13",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -8,7 +8,7 @@
     "app-display.css": "0caefb6f9606e1c9494b07da2be9295abdf07fa28b2f087aef7963b9e20a04ef",
     "app-display.js": "08a9f705979a30d0fa01b884d1216b629029bd47776a76a14678c18e60ce4e4d",
     "app-hotfix-20261003.js": "c7fb00dd82a9b2cf37adafad9cdaa82a99c79d19830f2fca139b55183d1934c0",
-    "app-updates.js": "914822971c6ce39d691657df4a62751bedb74407e10826bf0e0bcb00483e50e5",
+    "app-updates.js": "67d95fd3517172fc28f49791f3c31601564c4fd15c734268433eee25a0de9a38",
     "apple-touch-icon.png": "bdbf38e5f2307bd066e0b499c908ed37f4015c3b14993a3487e2dc0c116673b7",
     "backup-ui.js": "54041b869cce62ba8f04ecd982111123753255106a2ce994913ec622e51a6852",
     "backup.html": "1521165f563d9d7755b8c632530ca224c1ff37774c700f09c49c3d9f1b65d14c",
