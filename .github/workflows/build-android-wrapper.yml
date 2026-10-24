@@ -8,6 +8,7 @@ on:
       - 'android-wrapper/**'
       - 'offline-assets.json'
       - 'tests/webview-assets/**'
+      - 'tests/trainer-3d*.browser.cjs'
       - 'scripts/package-android-app.py'
       - 'scripts/package-windows-app.py'
       - 'scripts/verify-android-app.py'
