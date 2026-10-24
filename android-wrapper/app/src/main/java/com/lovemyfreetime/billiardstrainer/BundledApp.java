@@ -16,6 +16,7 @@ final class BundledApp {
     static final String PREFIX="/billiards-trainer/";
     private final AssetManager assets;
     private final JSONObject files;
+    ContentUpdates updates;
     final AtomicInteger missingRequests=new AtomicInteger();
     BundledApp(AssetManager assets) throws Exception {
         this.assets=assets;
@@ -24,6 +25,7 @@ final class BundledApp {
         }
         if(!files.has("welcome.html")||!files.has("index.html")||!files.has("play.html"))throw new IOException("The installed app files are incomplete. Reinstall the current Android app.");
     }
+    void enableUpdates(File directory)throws Exception {updates=new ContentUpdates(directory,name->assets.open("app/"+name),files,ContentUpdates.network());}
     static boolean isAppOrigin(Uri uri){return "https".equals(uri.getScheme())&&"lovemyfreetime.github.io".equalsIgnoreCase(uri.getHost())&&(uri.getPort()==-1||uri.getPort()==443);}
     WebResourceResponse respond(WebResourceRequest request) {
         Uri uri=request.getUrl();String path=uri.getPath();String method=request.getMethod();
@@ -32,7 +34,7 @@ final class BundledApp {
         String name=path.substring(PREFIX.length());
         if(name.isEmpty())name="index.html";else if(name.endsWith("/"))name+="index.html";
         for(String part:name.split("/",-1))if(part.equals("..")||part.equals(".")||part.indexOf('\\')>=0||part.indexOf('\0')>=0)return missing();
-        JSONObject info=files.optJSONObject(name);if(info==null)return missing();
+        JSONObject info=(updates==null||name.equals("__android_start__.html")?files:updates.files()).optJSONObject(name);if(info==null)return missing();
         long length=info.optLong("length",-1);if(length<0)return missing();
         Map<String,String> headers=new HashMap<>();headers.put("Accept-Ranges","bytes");headers.put("Cache-Control","no-store");headers.put("X-Content-Type-Options","nosniff");
         String range=null;for(Map.Entry<String,String> h:request.getRequestHeaders().entrySet())if(h.getKey().equalsIgnoreCase("Range"))range=h.getValue();
@@ -42,12 +44,12 @@ final class BundledApp {
         try {
             InputStream body=new ByteArrayInputStream(new byte[0]);
             if(!"HEAD".equals(method)){
-                InputStream input=assets.open("app/"+name,AssetManager.ACCESS_RANDOM);
+                InputStream input=updates==null||name.equals("__android_start__.html")?assets.open("app/"+name,AssetManager.ACCESS_RANDOM):updates.open(name);
                 try {long skipped=0;while(skipped<start){long n=input.skip(start-skipped);if(n==0){if(input.read()<0)throw new EOFException();n=1;}skipped+=n;}body=new LimitedStream(input,count);}
                 catch(IOException e){input.close();throw e;}
             }
             return new WebResourceResponse(mime,encoding,range==null?200:206,range==null?"OK":"Partial Content",headers,body);
-        }catch(IOException e){return missing();}
+        }catch(Exception e){return missing();}
     }
     private WebResourceResponse missing(){missingRequests.incrementAndGet();return empty(404,"Not Found",null);}
     static WebResourceResponse empty(int status,String reason,Map<String,String> source){Map<String,String> h=source==null?new HashMap<>():source;h.put("Content-Length","0");h.put("Cache-Control","no-store");return new WebResourceResponse("text/plain","UTF-8",status,reason,h,new ByteArrayInputStream(new byte[0]));}

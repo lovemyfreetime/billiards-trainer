@@ -3,7 +3,7 @@ using System.Globalization;
 namespace BilliardsTrainer.Windows;
 
 // Resolve only packaged public app files. Never fall through to a slow network request.
-internal sealed class BundledAssets(string root)
+internal sealed class BundledAssets(string root, ContentUpdates? updates = null)
 {
     private readonly string directory = Path.GetFullPath(root) + Path.DirectorySeparatorChar;
     internal sealed record Reply(int Status, string Reason, string Headers, Stream? Body);
@@ -19,9 +19,12 @@ internal sealed class BundledAssets(string root)
             if (relative.Length == 0) relative = "index.html";
             else if (relative.EndsWith('/')) relative += "index.html";
             file = Path.GetFullPath(Path.Combine(directory, relative.Replace('/', Path.DirectorySeparatorChar)));
-            if (!file.StartsWith(directory, StringComparison.OrdinalIgnoreCase) || !File.Exists(file)) return Empty(404, "Not Found");
+            if (!file.StartsWith(directory, StringComparison.OrdinalIgnoreCase) || (updates == null && !File.Exists(file))) return Empty(404, "Not Found");
         }
         catch { return Empty(404, "Not Found"); }
+        var name = Uri.UnescapeDataString(url.AbsolutePath[prefix.Length..]);
+        if (name.Length == 0) name = "index.html"; else if (name.EndsWith('/')) name += "index.html";
+        if (updates != null) { file = updates.Resolve(name)!; if (file == null || !File.Exists(file)) return Empty(404, "Not Found"); }
         var length = new FileInfo(file).Length;
         long start = 0, end = length - 1;
         var partial = !string.IsNullOrEmpty(range);
@@ -30,7 +33,7 @@ internal sealed class BundledAssets(string root)
             if (!TryRange(range!, length, out start, out end)) return new(416, "Range Not Satisfiable", $"Content-Range: bytes */{length}\r\nContent-Length: 0\r\n", null);
         }
         var count = Math.Max(0, end - start + 1);
-        var headers = $"Content-Type: {Mime(file)}\r\nContent-Length: {count}\r\nAccept-Ranges: bytes\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\n";
+        var headers = $"Content-Type: {Mime(name)}\r\nContent-Length: {count}\r\nAccept-Ranges: bytes\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\n";
         if (partial) headers += $"Content-Range: bytes {start}-{end}/{length}\r\n";
         if (method == "HEAD") return new(partial ? 206 : 200, partial ? "Partial Content" : "OK", headers, null);
         // A seekable memory stream gives WebView2 fast media/range reads without

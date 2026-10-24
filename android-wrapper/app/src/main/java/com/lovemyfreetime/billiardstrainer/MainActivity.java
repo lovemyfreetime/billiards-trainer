@@ -77,7 +77,7 @@ public class MainActivity extends Activity {
     }
 
     private void createAndLoadWebView(Bundle savedInstanceState) throws Exception {
-        if(BuildConfig.BUNDLED_APP) bundledApp=new BundledApp(getAssets());
+        if(BuildConfig.BUNDLED_APP){bundledApp=new BundledApp(getAssets());try{bundledApp.enableUpdates(new java.io.File(getFilesDir(),"content-updates"));}catch(Exception ignored){/* Packaged files remain usable if update storage is unavailable. */}}
         webView = new WebView(this);
         webView.setBackgroundColor(Color.rgb(9, 11, 14));
         setContentView(webView);
@@ -100,7 +100,7 @@ public class MainActivity extends Activity {
         webView.addJavascriptInterface(new AndroidBridge(), "BilliardsAndroid");
         if(bundledApp!=null){
             if(!WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT))throw new IllegalStateException("Update Android System WebView or Chrome to open this version of Billiards Trainer.");
-            String migration="window.BilliardsBundledAndroid=true;(()=>{if(location.pathname!=="+org.json.JSONObject.quote(BOOTSTRAP_PATH)+")return;"+
+            String migration="window.BilliardsBundledAndroid=true;window.BilliardsContentUpdateProtocol="+(bundledApp.updates==null?0:ContentUpdates.PROTOCOL)+";(()=>{if(location.pathname!=="+org.json.JSONObject.quote(BOOTSTRAP_PATH)+")return;"+
                 "(async()=>{try{if('serviceWorker' in navigator){const sw=navigator.serviceWorker;sw.register=()=>Promise.reject(new Error('App files are installed locally'));const registrations=await sw.getRegistrations();await Promise.all(registrations.map(r=>r.unregister()));}BilliardsAndroid.finishBundledStartup();}catch(e){const report=()=>document.body.textContent='Please close and reopen Billiards Trainer. '+String(e);if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',report,{once:true});else report();console.error(e);}})();})();";
             WebViewCompat.addDocumentStartJavaScript(webView,migration,Collections.singleton(BundledApp.ORIGIN));
         }
@@ -454,6 +454,24 @@ public class MainActivity extends Activity {
                 webView.evaluateJavascript("location.replace("+org.json.JSONObject.quote(APP_URL)+")",null);
             });
         }
+
+        @JavascriptInterface
+        public String contentUpdateStatus(){return bundledApp!=null&&bundledApp.updates!=null?bundledApp.updates.status().toString():"{}";}
+
+        @JavascriptInterface
+        public void checkContentUpdates(boolean force){
+            runOnUiThread(()->{if(!contentPage()||bundledApp.updates==null)return;
+                bundledApp.updates.check(force,state->runOnUiThread(()->{if(contentPage())webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('billiards:content-update',{detail:"+state.toString()+"}))",null);}));
+            });
+        }
+
+        @JavascriptInterface
+        public void applyContentUpdate(){
+            runOnUiThread(()->{if(!contentPage()||bundledApp.updates==null||!"ready".equals(bundledApp.updates.status().optString("state")))return;
+                try{bundledApp.updates.apply();webView.reload();}catch(Exception e){Toast.makeText(MainActivity.this,"The working version is still available. Close and reopen the app to try the update.",Toast.LENGTH_LONG).show();}
+            });
+        }
+        private boolean contentPage(){if(webView==null||bundledApp==null)return false;Uri u=Uri.parse(webView.getUrl()==null?"":webView.getUrl());return BundledApp.isAppOrigin(u)&&u.getPath()!=null&&u.getPath().startsWith(BundledApp.PREFIX);}
 
         @JavascriptInterface
         public boolean isWrapper() { return true; }

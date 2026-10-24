@@ -16,3 +16,4 @@ try{
  Check(assets.Read(Url("clip.mp3"),"POST",null).Status==405,"Only read methods allowed");
  Console.WriteLine("Bundled asset tests passed: local entry, versioned paths, media ranges, HEAD, immediate misses, traversal protection.");
 }finally{Directory.Delete(folder,true);}
+await UpdateTests.Run();

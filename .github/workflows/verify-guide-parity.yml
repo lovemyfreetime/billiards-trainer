@@ -23,6 +23,8 @@ jobs:
         env:
           NODE_PATH: ./local-host/node_modules
         run: |
+          node tests/native-content-updates.browser.cjs
+          node tests/app-updates.browser.cjs
           node tests/cue-deflection.browser.cjs
           node tests/trainer-3d.browser.cjs
           node tests/trainer-3d-edit.browser.cjs

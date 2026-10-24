@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-const html=fs.readFileSync('index.html','utf8');assert.match(html,/<script src="\.\/app-updates\.js\?v=1"><\/script>/);
+const html=fs.readFileSync('index.html','utf8');assert.match(html,/<script src="\.\/app-updates\.js\?v=\d+"><\/script>/);
 let reloads=0,registered=0,updated=0;const pageEvents={},workerEvents={};
 const location={search:'?train=1',reload(){reloads++}},serviceWorker={controller:{},addEventListener(name,fn){workerEvents[name]=fn},register:async(url,options)=>{assert.equal(url.href,'https://example.com/trainer/service-worker.js');assert.equal(options.updateViaCache,'none');registered++;return {addEventListener(){},update:async()=>{updated++}}}};
 const context={URL,URLSearchParams,navigator:{serviceWorker,onLine:true},location,document:{currentScript:{src:'https://example.com/trainer/app-updates.js'},readyState:'loading',hidden:false,body:{classList:{contains:name=>name==='welcome-screen'}},querySelectorAll:()=>[],addEventListener(){}},window:{location,addEventListener(name,fn){pageEvents[name]=fn}},setInterval(){},console};

@@ -1,5 +1,5 @@
 {
-  "version": "7e16527eebe8b9b6",
+  "version": "3193938f746eacd2",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -8,7 +8,7 @@
     "app-display.css": "0caefb6f9606e1c9494b07da2be9295abdf07fa28b2f087aef7963b9e20a04ef",
     "app-display.js": "08a9f705979a30d0fa01b884d1216b629029bd47776a76a14678c18e60ce4e4d",
     "app-hotfix-20261003.js": "c7fb00dd82a9b2cf37adafad9cdaa82a99c79d19830f2fca139b55183d1934c0",
-    "app-updates.js": "22fbeb1304d0afc1299bce60fb33f243b0f7c4d1265cd5fbbe729cd4fe9681e1",
+    "app-updates.js": "914822971c6ce39d691657df4a62751bedb74407e10826bf0e0bcb00483e50e5",
     "apple-touch-icon.png": "bdbf38e5f2307bd066e0b499c908ed37f4015c3b14993a3487e2dc0c116673b7",
     "backup-ui.js": "54041b869cce62ba8f04ecd982111123753255106a2ce994913ec622e51a6852",
     "backup.html": "1521165f563d9d7755b8c632530ca224c1ff37774c700f09c49c3d9f1b65d14c",
@@ -921,7 +921,7 @@
     "icons/play-experience-v1.webp": "8fb008260a29dc4d1c26208e1e92872b242902fbc3b256d49e3c2209c7dd53b1",
     "icons/trainer-original-execute-v2.svg": "eaf1f45d99634cdbe87582d857cc2dd6017439dadf9ce251136485422c127da4",
     "icons/zen-reference-table-v1.webp": "0d9352c54cccca69fbb78fd8bc7a173957424fad151950a3888f895069030da0",
-    "index.html": "f51c86c66201ba34c4954f9508293200563e0b7307d80c9f6cd0ccb30b390eb5",
+    "index.html": "77e941cd854342db0117c5323d15a1ea8940374db4970fa78da71ec99699b561",
     "install/android/index.html": "862dff4245e200376ff30ee6763f007bb510a3c0cdf0634f8ef3d0d2c25630ff",
     "install/apple/index.html": "baad9dae78322db69bebb071456f37d83e9ba1a7ac849dbe70ef9a88480cf253",
     "install/assets/android-guide/Billiards_Trainer_Android_Installer_Screenshots/android-app-installed.jpg": "545867686776eb4a4ecae0b6d12e6c5df3c58623919fd7935c6c09530e9f7500",
@@ -1213,7 +1213,7 @@
     "play-recorded-audio.js": "956d093babb6bcedc3a248a0509bf58e2a0178826bae3d9162a848bbc4b4578d",
     "play-training.js": "14fbd78f8872b183ba30ae8d33524ba93a11d41f53d35c75ee0874f0594e5afb",
     "play-viewport.js": "38e6adaace64e498f511703362e92c1be9602faa576f554725e9665fa3647312",
-    "play.html": "d50705df4ee179cbf6bea4e0a396d7cae9ead9c67ea823327ee1943a601c27d2",
+    "play.html": "548bf10adb71b24ddaef7a98323cb7b1fd8c898112b5381f974137b6f3c49ba3",
     "tournament-engine.js": "2bcd8befb4ab63c983347b5d43bdc815e0f0b9c454fc5db49a66370517331288",
     "tournament-ui.js": "9e4bfc6c444562b6119686706050c4301417cd7583e1e893539864d8401aff8e",
     "tournament.css": "88d1214bbc88f482e96642898ef74885eaa46d11150e1e3fa58eeae3151b6115",
@@ -1237,7 +1237,7 @@
     "vendor/three/package.json": "d03c48c743777764e4606db690be74b1363132573ba02c18f214c92c74164f9e",
     "vendor/three/three-renderer.js": "ce733d03f481af90ddcdbe8f4dde56f58b5e0b32fd6e99cc103e180591ca3715",
     "welcome-controls.js": "554a17bf2bb2230dd0587c8aadb058c73968eca36495ae2a74d6f1116222a448",
-    "welcome.html": "82a046d550d2d3b014a3ae6bcef3f0899b2a5a0b41c338d0827a03299bd55346",
+    "welcome.html": "415b390764fb30bba231d984c933b64755e49abd6d5cb058a5055b50bf3c6f27",
     "zen-mode.js": "c797e9ad79f26813609ba97858d62eb3586a66a9e6ad903cb46a6c5777e121ca"
   }
 }

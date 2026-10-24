@@ -63,7 +63,15 @@ public sealed class MainForm : Form
             // Remove the old web-only worker/cache so it cannot intercept the installed bundle.
             await core.Profile.ClearBrowsingDataAsync(CoreWebView2BrowsingDataKinds.ServiceWorkers |
                 CoreWebView2BrowsingDataKinds.CacheStorage | CoreWebView2BrowsingDataKinds.DiskCache);
-            var bundle = new BundledAssets(bundlePath);
+            ContentUpdates? updates = null;
+            try { updates = new ContentUpdates(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Billiards Trainer AI", "ContentUpdates"), bundlePath); }
+            catch { /* A read-only/full update cache never prevents packaged startup. */ }
+            var bundle = new BundledAssets(bundlePath, updates);
+            void NotifyUpdate(ContentUpdates.UpdateState state)
+            {
+                if (IsDisposed || !IsHandleCreated) return;
+                BeginInvoke(async () => { try { await core.ExecuteScriptAsync("window.dispatchEvent(new CustomEvent('billiards:content-update',{detail:" + JsonSerializer.Serialize(state, ContentUpdates.Json) + "}))"); } catch { } });
+            }
             core.AddWebResourceRequestedFilter("https://lovemyfreetime.github.io/*", CoreWebView2WebResourceContext.All,
                 CoreWebView2WebResourceRequestSourceKinds.All);
             core.WebResourceRequested += (_, request) =>
@@ -90,7 +98,7 @@ public sealed class MainForm : Form
             core.Settings.AreBrowserAcceleratorKeysEnabled = true;
             core.Settings.IsZoomControlEnabled = true;
 
-            await core.AddScriptToExecuteOnDocumentCreatedAsync("if(location.origin==='https://lovemyfreetime.github.io'){window.BilliardsBundledWindows=true;window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=true;}");
+            await core.AddScriptToExecuteOnDocumentCreatedAsync("if(location.origin==='https://lovemyfreetime.github.io'){window.BilliardsBundledWindows=true;window.BilliardsContentUpdateProtocol=" + (updates == null ? 0 : ContentUpdates.Protocol) + ";window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=true;}");
             core.NavigationCompleted += async (_, _) =>
             {
                 await core.ExecuteScriptAsync("window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=" +
@@ -108,7 +116,15 @@ public sealed class MainForm : Form
                     using var message = JsonDocument.Parse(e.WebMessageAsJson);
                     if (message.RootElement.TryGetProperty("type", out var type))
                     {
-                        if (publicApp && type.GetString() == "start-local-play") await StartLocalHostAsync();
+                        if (publicApp && updates != null && type.GetString() == "content-update-status") NotifyUpdate(updates.Status);
+                        else if (publicApp && updates != null && type.GetString() == "content-update-check")
+                        {
+                            bool force = message.RootElement.TryGetProperty("force", out var forced) && forced.ValueKind == JsonValueKind.True;
+                            _ = Task.Run(() => updates.Check(force, NotifyUpdate));
+                        }
+                        else if (publicApp && updates != null && type.GetString() == "content-update-apply" && updates.Status.State == "ready")
+                        { updates.Apply(); core.Reload(); }
+                        else if (publicApp && type.GetString() == "start-local-play") await StartLocalHostAsync();
                         else if (type.GetString() == "close-app") Close();
                         else if (type.GetString() == "set-fullscreen" &&
                                  message.RootElement.TryGetProperty("active", out var active) &&

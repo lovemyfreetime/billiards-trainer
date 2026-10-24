@@ -37,6 +37,6 @@
 document.querySelectorAll('[data-about]').forEach(button=>button.addEventListener('click',()=>document.getElementById('about-'+button.dataset.about).showModal()));
 document.querySelectorAll('.experience-description').forEach(dialog=>dialog.addEventListener('click',event=>{if(event.target!==dialog)return;const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();}));
 </script>
-<script src="./app-updates.js?v=1"></script>
+<script src="./app-updates.js?v=2"></script>
 </body>
 </html>
