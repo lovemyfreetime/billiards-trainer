@@ -6242,6 +6242,7 @@
             : {x:center.x,y:center.y};
     }
     function drawBall(b, map, label = true) {
+        if(window.Billiards3D?.active&&!b.marker)return;
         if (!b.active)
             return;
         if (b.id === 0 && !cueVisualsVisible(1))
@@ -6638,6 +6639,7 @@
         if (S.airbornePhysics) drawAirborneTableOverlay(S.preview, map, 1, '#ffffff');
     }
     function drawShot2CueBall(map) {
+        if(window.Billiards3D?.active)return;
         if (!S.shot2Enabled || !cueVisualsVisible(2)) return;
         const s = ensureShot2(), cb = { x:s.x, y:s.y };
         logicalCircle(cb, S.ballR, map, '#f7f7f3', '#00e5ff', 2.2);
@@ -7217,6 +7219,12 @@
         if (!document.body.classList.contains('zen-mode')) drawCalibration(M);
         if (!document.body.classList.contains('zen-mode')) drawShotBudget(map);
         window.BilliardsTableZoom?.end(ctx);
+        if(window.Billiards3D){
+            const live=(animation?.current||S.balls).map(b=>({...S.balls.find(x=>x.id===b.id),...b})).filter(b=>b.id!==0||cueVisualsVisible(1));
+            if(S.shot2Enabled&&cueVisualsVisible(2))live.push({id:'CB2',x:S.shot2.x,y:S.shot2.y,active:true});
+            const second=S.activeShot===2&&S.shot2Enabled,cb=second?S.shot2:cueBall();
+            window.Billiards3D.update({L:S.tableL,W:S.tableW,R:S.ballR,balls:live,map,aim:cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
+        }
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }
     function friendlyEventText(v) {
@@ -12754,6 +12762,8 @@
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=shared-guide-v1">
   <script src="./phone-play.js?v=12"></script>
+  <link rel="stylesheet" href="./trainer-3d.css?v=1">
+  <script src="./trainer-3d.js?v=1"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">

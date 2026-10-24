@@ -24,6 +24,7 @@ jobs:
           NODE_PATH: ./local-host/node_modules
         run: |
           node tests/cue-deflection.browser.cjs
+          node tests/trainer-3d.browser.cjs
           node tests/guide-platform-parity.browser.cjs
           node tests/guide-scenes.browser.cjs
           node tests/resources.browser.cjs
