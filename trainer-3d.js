@@ -15,6 +15,20 @@
  const viewLock=action('Lock view','Lock view for ball placement and aiming',()=>setViewLocked(!viewLocked));viewLock.id='table3DLock';viewLock.setAttribute('aria-pressed','false');views.append(standingButton,alongButton,viewLock);stage.append(tools);for(const b of [standingButton,alongButton,viewLock])b.hidden=true;
  const panButton=action('','Move table: drag to slide the view',()=>chooseCameraMode(true));panButton.id='table3DPan';panButton.setAttribute('aria-pressed','false');panButton.innerHTML='<svg width=18 height=18 viewBox="0 0 24 24" aria-hidden=true><path d="M7 12V6a1.5 1.5 0 0 1 3 0v5-7a1.5 1.5 0 0 1 3 0v7-6a1.5 1.5 0 0 1 3 0v7-4a1.5 1.5 0 0 1 3 0v7c0 4-2 6-6 6h-1c-2 0-3-1-4-2l-4-5c-1-2 1-3 2-2l3 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';panButton.title='Move table: drag with one finger or mouse. Two fingers always slide and pinch.';const rotateButton=action('','Rotate table: drag to orbit and tilt the view',()=>chooseCameraMode(false));rotateButton.id='table3DRotate';rotateButton.setAttribute('aria-pressed','false');rotateButton.innerHTML='<svg width=18 height=18 viewBox="0 0 24 24" aria-hidden=true><path d="M19 8a8 8 0 1 0 1 8M19 3v6h-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';tools.replaceChildren(panButton,rotateButton,zoomIn,zoomOut);
  const phoneBox=document.createElement('div');phoneBox.id='table3DPhoneControls';phoneBox.setAttribute('role','group');phoneBox.setAttribute('aria-label','3D table controls');phoneBox.hidden=true;stage.append(phoneBox);
+ const panel=document.getElementById('panel'),drawer=document.createElement('button'),dismiss=document.createElement('button');
+ drawer.type='button';drawer.id='table3DDrawer';drawer.setAttribute('aria-controls','panel');
+ dismiss.type='button';dismiss.id='table3DDismiss';dismiss.setAttribute('aria-label','Close tools');dismiss.hidden=true;document.body.append(dismiss);stage.append(drawer);
+ function setDrawer(open){
+  open=!!open&&active&&!document.body.classList.contains('phone-focus');
+  document.body.classList.toggle('table-3d-tools-open',open);drawer.setAttribute('aria-expanded',String(open));drawer.setAttribute('aria-label',open?'Close tools':'Open tools');drawer.textContent=open?'× Tools':'☰ Tools';dismiss.hidden=!open;
+  if(!open&&panel?.contains(document.activeElement))drawer.focus();
+ }
+ drawer.onclick=()=>setDrawer(!document.body.classList.contains('table-3d-tools-open'));dismiss.onclick=()=>setDrawer(false);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('table-3d-tools-open')){setDrawer(false);e.preventDefault();}});
+ const shotActions=document.createElement('nav');shotActions.id='table3DShotActions';shotActions.setAttribute('aria-label','Shot actions');
+ for(const [id,label] of [['animate','Execute Shot'],['undoShot','Undo']]){const original=document.getElementById(id),copy=document.createElement('button');copy.type='button';copy.textContent=label;copy.onclick=()=>original?.click();const sync=()=>{copy.disabled=!original||original.disabled;};if(original)new MutationObserver(sync).observe(original,{attributes:true,attributeFilter:['disabled']});sync();shotActions.append(copy);}
+ stage.append(shotActions);
+ panel?.addEventListener('click',e=>{if(e.target.closest('#animate,#undoShot,#redoShot,#resetLayoutQuick'))setDrawer(false);});
  let active=false,viewLocked=false,panEnabled=false,loading=false,lastFrame=null,engine=null,scheduled=0;
  const cameraState={azimuth:Math.PI/4,elevation:.5,radius:3,target:null};
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -30,6 +44,7 @@
   if(phone&&active){phoneBox.hidden=false;phoneBox.append(views,tools);if(document.body.classList.contains('phone-controls-open')&&shelf){shelf.append(phoneBox,status);}else stage.append(phoneBox,status);}
   else{phoneBox.hidden=true;stage.append(tools);if(phone&&document.body.classList.contains('phone-controls-open')&&shelf)shelf.append(views,status);else{stage.append(views,status);positionToggle();}}
   if(document.body.classList.contains('zen-mode'))disable();
+  if(document.body.classList.contains('phone-focus')&&document.body.classList.contains('table-3d-tools-open'))setDrawer(false);
  }
  new MutationObserver(dock).observe(document.body,{attributes:true,attributeFilter:['class']});dock();
  function syncCameraMode(){
@@ -47,7 +62,7 @@
   viewLock.setAttribute('aria-pressed',String(viewLocked));viewLock.setAttribute('aria-label',viewLocked?'Table locked: drag balls to move them; click to unlock the view':'Lock table to move balls; the unlocked view moves the camera');viewLock.title=viewLock.getAttribute('aria-label');
   document.getElementById('table3DCanvas')?.setAttribute('aria-label',viewLocked?'Table locked. Drag balls to move them or tap cloth to aim.':'Move the camera. Select Hand to slide or Rotate to orbit. Lock table to move balls.');
  }
- for(const id of ['teachingCompassToggle','bankToolToggle','kickToolToggle'])document.getElementById(id)?.addEventListener('click',()=>{if(!active)return;setViewLocked(true);if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();});
+ for(const id of ['teachingCompassToggle','bankToolToggle','kickToolToggle'])document.getElementById(id)?.addEventListener('click',()=>{if(!active)return;setViewLocked(true);setDrawer(false);if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();});
  function requestRender(){if(!active||!engine||scheduled)return;scheduled=requestAnimationFrame(()=>{scheduled=0;if(active)engine.render();});}
  function orbit(dx,dy){cameraState.azimuth+=dx;cameraState.elevation=clamp(cameraState.elevation+dy,2*Math.PI/180,88*Math.PI/180);requestRender();}
  function zoom(factor){if(!lastFrame)return;cameraState.radius=clamp(cameraState.radius*factor,Math.max(lastFrame.R*5,lastFrame.L*.06),lastFrame.L*8);requestRender();}
@@ -56,15 +71,14 @@
  function standing(){
   if(!lastFrame)return;
   const rect=(active?document.getElementById('table3DCanvas'):stage).getBoundingClientRect(),aspect=rect.width/Math.max(1,rect.height),L=lastFrame.L,W=lastFrame.W;
-  cameraState.target={x:0,y:0,z:0};cameraState.azimuth=Math.PI/4;
-  // Fit every cushion corner while keeping the eye 87 cm above the bed
-  // (about 1.65 m above the floor), rather than fitting an arbitrary camera height.
-  let radius=Math.max(.94,L*.65),elevation;
+  cameraState.target={x:0,y:0,z:0};cameraState.azimuth=0;
+  // Centered elevated overview, with the long rails horizontal like the reference.
+  let radius=Math.max(.94,L*.65);const elevation=60*Math.PI/180;
   for(let step=0;step<70;step++){
-   elevation=Math.asin(Math.min(.95,.87/radius));const sn=Math.sin(elevation),cs=Math.cos(elevation),side=Math.SQRT1_2,tan=viewTangent(aspect);let fits=true;
+   const sn=Math.sin(elevation),cs=Math.cos(elevation),tan=viewTangent(aspect);let fits=true;
    for(const x of [-L*.548,L*.548])for(const z of [-W*.595,W*.595]){
-    const depth=radius-side*cs*(x+z),horizontal=side*(x-z)/(depth*tan*aspect),vertical=-side*sn*(x+z)/(depth*tan);
-    if(depth<.2||Math.abs(horizontal)>(document.body.classList.contains('phone-focus')?.80:.90)||Math.abs(vertical)>.72)fits=false;
+    const depth=radius-cs*z,horizontal=x/(depth*tan*aspect),vertical=-sn*z/(depth*tan);
+    if(depth<.2||Math.abs(horizontal)>(document.body.classList.contains('phone-focus')?.80:.90)||Math.abs(vertical)>.84)fits=false;
    }
    if(fits)break;radius*=1.035;
   }
@@ -73,16 +87,18 @@
  function alongShot(){const a=lastFrame?.aim;if(!a)return;const length=Math.hypot(a.target.x-a.cue.x,a.target.y-a.cue.y);if(length<1e-5)return;const dx=(a.target.x-a.cue.x)/length,dz=(a.target.y-a.cue.y)/length;
   const focus=clamp(length*.18,.05,.22),setback=.48;
   cameraState.target={x:a.cue.x+dx*focus-lastFrame.L/2,y:lastFrame.R,z:a.cue.y+dz*focus-lastFrame.W/2};
-  const x=a.cue.x-dx*setback-lastFrame.L/2-cameraState.target.x,z=a.cue.y-dz*setback-lastFrame.W/2-cameraState.target.z,y=.10-cameraState.target.y;
+  const x=a.cue.x-dx*setback-lastFrame.L/2-cameraState.target.x,z=a.cue.y-dz*setback-lastFrame.W/2-cameraState.target.z,y=.25-cameraState.target.y;
   cameraState.azimuth=Math.atan2(x,z);cameraState.radius=Math.hypot(x,y,z);cameraState.elevation=Math.asin(y/cameraState.radius);requestRender();
  }
- function disable(){if(!active)return;active=false;document.body.classList.remove('table-3d','table-3d-locked','table-3d-pan','table-3d-rotate');button.setAttribute('aria-pressed','false');button.textContent='3D View';tools.hidden=true;for(const b of [standingButton,alongButton,viewLock])b.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
+ function disable(){if(!active)return;setDrawer(false);active=false;document.body.classList.remove('table-3d','table-3d-locked','table-3d-pan','table-3d-rotate');button.setAttribute('aria-pressed','false');button.textContent='3D View';tools.hidden=true;for(const b of [standingButton,alongButton,viewLock])b.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
  button.onclick=async()=>{
   if(active){disable();return;}if(loading)return;loading=true;button.disabled=true;status.textContent='';
+  // Request within the entry gesture, before loading WebGL can consume activation.
+  window.BilliardsDisplay?.enter(true);
   try{if(!engine){const three=await import('./vendor/three/three-renderer.js?v=4');engine=createEngine(three);}if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
    active=true;document.body.classList.add('table-3d');button.setAttribute('aria-pressed','true');button.textContent='2D View';tools.hidden=false;for(const b of [standingButton,alongButton,viewLock])b.hidden=false;positionToggle();
    if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();
-   window.dispatchEvent(new Event('resize'));standing();setViewLocked(viewLocked);setPanEnabled(panEnabled);requestRender();
+   setDrawer(false);window.dispatchEvent(new Event('resize'));standing();setViewLocked(viewLocked);setPanEnabled(panEnabled);requestRender();
   }catch(error){disable();status.textContent='3D view is unavailable on this device. The top-down table is ready.';console.warn('3D camera unavailable:',error.message);}
   finally{loading=false;button.disabled=false;}
  };

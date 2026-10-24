@@ -61,3 +61,17 @@ body.phone-focus #phoneToolShelf>#table3DPhoneControls{position:static;transform
 body.phone-focus #table3DPhoneControls #table3DLock{min-width:62px}
 
 #table3DPan[aria-pressed=true],#table3DRotate[aria-pressed=true]{border-color:#7bc7ff;background:#24506c;color:#edf8ff}
+
+/* 3D fills the window; desktop settings open over it without shifting the camera. */
+#table3DDrawer,#table3DDismiss,#table3DShotActions{display:none}
+body.table-3d:not(.phone-focus) #app{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);height:100dvh}
+body.table-3d:not(.phone-focus) #panel{display:none;position:fixed;z-index:60;top:54px;right:0;bottom:0;box-sizing:border-box;width:min(370px,calc(100vw - 52px));border:1px solid #66828f;border-radius:14px 0 0 0;background:#171e26fa;overscroll-behavior:contain;box-shadow:-8px 0 28px #0009}
+body.table-3d.table-3d-tools-open:not(.phone-focus) #panel{display:block}
+body.table-3d:not(.phone-focus) #table3DDrawer{display:block;position:absolute;z-index:61;top:8px;right:10px;min-width:82px;min-height:38px;padding:5px 9px;border:1px solid #7898a7;border-radius:12px;background:#1c303bf5;color:#edf7fb;font:600 13px system-ui;touch-action:manipulation}
+body.table-3d:not(.phone-focus) #table3DDismiss:not([hidden]){display:block;position:fixed;inset:0;z-index:59;width:100%;height:100%;border:0;border-radius:0;background:#0003}
+body.table-3d:not(.phone-focus) #teachingCompassToggle{right:104px;top:8px}
+body.table-3d:not(.phone-focus) #bankToolToggle{right:152px;top:8px}
+body.table-3d:not(.phone-focus) #kickToolToggle{right:208px;top:8px}
+body.table-3d:not(.phone-focus) #table3DShotActions{display:flex;position:absolute;top:8px;left:10px;z-index:24;gap:6px;touch-action:manipulation}
+#table3DShotActions button{min-height:38px;padding:5px 12px;border:1px solid #7898a7;border-radius:10px;background:#1c303be8;color:#edf7fb;font:600 12px system-ui}
+#table3DShotActions button:first-child{background:#58c894;color:#071b13;border-color:#8ce3b9}
