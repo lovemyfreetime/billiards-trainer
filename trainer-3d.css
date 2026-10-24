@@ -34,12 +34,17 @@ body.table-3d:not(.phone-focus) #compassSizeWrap{z-index:22;left:8px!important;t
 body.table-3d:not(.phone-focus) #compassRotateWrap{z-index:22;left:60px!important;top:52px!important;width:220px!important;height:34px}
 @media(max-width:1100px){body.table-3d:not(.phone-focus) #teachingCompassToggle,body.table-3d:not(.phone-focus) #bankToolToggle,body.table-3d:not(.phone-focus) #kickToolToggle,body.table-3d:not(.phone-focus) #angleLock{top:50px}}
 
-/* View lock lives directly beneath the view switch, away from camera presets. */
-#table3DLock{display:flex;align-items:center;justify-content:center;gap:3px;position:absolute;z-index:24;width:62px;min-height:34px;padding:4px 2px;border:1px solid #7898a7;border-radius:10px;background:#1c303be8;color:#edf7fb;font:600 10px system-ui;white-space:nowrap}
-#table3DLock[hidden]{display:none!important}
-body.phone-focus #phoneToolShelf #table3DLock{position:static!important}
+/* The viewpoint stack stays beside the table, above the shot controls. */
+#table3DViews{position:absolute;z-index:24;display:flex;flex-direction:column;gap:4px;width:66px;touch-action:none}
+#table3DViews>button{display:flex;align-items:center;justify-content:center;gap:3px;position:static;width:66px;height:34px;min-height:34px;padding:4px 2px;border:1px solid #7898a7;border-radius:10px;background:#1c303be8;color:#edf7fb;font:600 10px system-ui;white-space:nowrap}
+#table3DViews>button[hidden]{display:none!important}
+#table3DViews #table3DLock[aria-pressed=true],#table3DPan[aria-pressed=true]{border-color:#8cceba;background:#204a43;color:#edfff8}
+body.phone-focus #stageWrap>#table3DViews{position:fixed;left:auto!important;top:auto!important;right:calc(56px + env(safe-area-inset-right));bottom:61px;width:60px;gap:3px}
+body.phone-focus #table3DViews>button{width:60px;height:30px;min-height:30px;font-size:9px}
+body.phone-focus #phoneToolShelf>#table3DViews{position:static;flex-direction:column}
+body.zen-mode #table3DViews{display:none!important}
 body.table-3d-locked #stageWrap #table3DCanvas:active{cursor:crosshair}
-
-body.phone-focus #stageWrap>#table3DToggle,body.phone-focus #stageWrap>#table3DLock{position:fixed!important;left:auto!important;top:auto!important;right:calc(56px + env(safe-area-inset-right));width:56px;min-height:30px;height:30px;font-size:10px}
-body.phone-focus #stageWrap>#table3DToggle{bottom:96px}
-body.phone-focus #stageWrap>#table3DLock{bottom:61px}
+body.table-3d-pan #stageWrap #table3DCanvas{cursor:grab}
+body.table-3d-pan #stageWrap #table3DCanvas:active{cursor:grabbing}
+/* The complete slider panels, including their padding, consume gestures. */
+body.table-3d .aimControlRow.activeAim,body.table-3d .bottomSpinGroup.activeSpin,body.table-3d .tableSpeedControl.activeSpeed,body.table-3d #phoneAimRail,body.table-3d #phoneSpeedRail,body.table-3d #phoneActions{pointer-events:auto;touch-action:none}
