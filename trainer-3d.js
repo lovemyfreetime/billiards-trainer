@@ -1,4 +1,4 @@
-/* Optional camera-only view. Physics, shot editing and saved layouts remain in the Trainer. */
+/* Optional 3D view with camera controls and projected Trainer editing. */
 (() => {
  'use strict';
  if(new URLSearchParams(location.search).has('projector')||new URLSearchParams(location.search).get('zen')==='1')return;
@@ -11,12 +11,12 @@
  const action=(label,title,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('aria-label',title);b.title=title;b.onclick=fn;tools.append(b);return b;};
  action('↶','Rotate camera left',()=>orbit(-Math.PI/12,0));
  action('↷','Rotate camera right',()=>orbit(Math.PI/12,0));
- const tiltLabel=document.createElement('label');tiltLabel.textContent='Tilt';const tilt=document.createElement('input');tilt.type='range';tilt.min='8';tilt.max='88';tilt.step='1';tilt.setAttribute('aria-label','3D camera tilt');tiltLabel.append(tilt);tools.append(tiltLabel);
+ const tiltLabel=document.createElement('label');tiltLabel.textContent='Tilt';const tilt=document.createElement('input');tilt.type='range';tilt.min='2';tilt.max='88';tilt.step='1';tilt.setAttribute('aria-label','3D camera tilt');tiltLabel.append(tilt);tools.append(tiltLabel);
  tilt.oninput=()=>{cameraState.elevation=Number(tilt.value)*Math.PI/180;requestRender();};
  action('Standing','Standing perspective from beside the table',()=>standing());
  action('Along shot','Look along the active cue-ball shot line',()=>alongShot());
  action('−','Zoom camera out',()=>zoom(1.15));action('+','Zoom camera in',()=>zoom(1/1.15));
- const viewLock=action('Lock view','Lock view for ball placement and aiming',()=>setViewLocked(!viewLocked));viewLock.id='table3DLock';viewLock.setAttribute('aria-pressed','false');stage.append(tools);
+ const viewLock=action('Lock view','Lock view for ball placement and aiming',()=>setViewLocked(!viewLocked));viewLock.id='table3DLock';viewLock.setAttribute('aria-pressed','false');stage.append(tools,viewLock);viewLock.hidden=true;
  let active=false,viewLocked=false,loading=false,lastFrame=null,engine=null,scheduled=0;
  const cameraState={azimuth:Math.PI/4,elevation:.5,radius:3,target:null};
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -25,19 +25,20 @@
   const zoom=document.getElementById('tableZoom');if(!zoom)return;
   const left=Number.parseFloat(zoom.style.left)||0,top=Number.parseFloat(zoom.style.top)||0;
   button.style.left=clamp(left,4,Math.max(4,stage.clientWidth-button.offsetWidth-4))+'px';
-  button.style.top=clamp(top+42,4,Math.max(4,stage.clientHeight-button.offsetHeight-4))+'px';
+  button.style.top=clamp(top+42,4,Math.max(4,stage.clientHeight-button.offsetHeight-(active?44:4)))+'px';
+  viewLock.style.left=button.style.left;viewLock.style.top=(Number.parseFloat(button.style.top)+button.offsetHeight+5)+'px';
  }
- function dock(){const shelf=document.getElementById('phoneToolShelf');if(document.body.classList.contains('phone-focus')&&shelf)shelf.append(button,status);else{stage.append(button,status);positionToggle();}if(document.body.classList.contains('zen-mode'))disable();}
+ function dock(){const shelf=document.getElementById('phoneToolShelf');if(document.body.classList.contains('phone-focus')&&document.body.classList.contains('phone-controls-open')&&shelf){shelf.append(button,status);stage.append(viewLock);}else{stage.append(button,viewLock,status);positionToggle();}if(document.body.classList.contains('zen-mode'))disable();}
  new MutationObserver(dock).observe(document.body,{attributes:true,attributeFilter:['class']});dock();
  function setViewLocked(value){
-  engine?.cancelInput();viewLocked=!!value;document.body.classList.toggle('table-3d-locked',active&&viewLocked);
-  viewLock.textContent=viewLocked?'Unlock view':'Lock view';viewLock.setAttribute('aria-pressed',String(viewLocked));viewLock.setAttribute('aria-label',viewLocked?'Unlock view to rotate the table':'Lock view for ball placement and aiming');viewLock.title=viewLock.getAttribute('aria-label');
-  document.getElementById('table3DCanvas')?.setAttribute('aria-label',viewLocked?'3D table editing. Drag a ball to move it. Tap the cloth to aim.':'3D table camera. Drag to rotate and tilt. Pinch to zoom. Lock view to edit.');
+  engine?.cancelInput();document.getElementById('table3DCanvas')?.style.removeProperty('cursor');viewLocked=!!value;document.body.classList.toggle('table-3d-locked',active&&viewLocked);
+  viewLock.innerHTML='<svg width="12" height="14" viewBox="0 0 16 18" aria-hidden="true"><path d="M4 8V5a4 4 0 0 1 8 0'+(viewLocked?'v3':'')+'M3 8h10v8H3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg><span>'+(viewLocked?'Locked':'Lock')+'</span>';viewLock.setAttribute('aria-pressed',String(viewLocked));viewLock.setAttribute('aria-label',viewLocked?'Unlock view to rotate the table':'Lock view for ball placement and aiming');viewLock.title=viewLock.getAttribute('aria-label');
+  document.getElementById('table3DCanvas')?.setAttribute('aria-label',viewLocked?'3D table editing. Drag a ball to move it. Tap the cloth to aim.':'3D table camera. Drag to rotate and tilt. Pinch to zoom. Double-tap a ball for a close view. Lock view to edit.');
  }
  for(const id of ['teachingCompassToggle','bankToolToggle','kickToolToggle'])document.getElementById(id)?.addEventListener('click',()=>{if(!active)return;setViewLocked(true);if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();});
  function requestRender(){if(!active||!engine||scheduled)return;scheduled=requestAnimationFrame(()=>{scheduled=0;if(active)engine.render();});}
- function orbit(dx,dy){cameraState.azimuth+=dx;cameraState.elevation=clamp(cameraState.elevation+dy,8*Math.PI/180,88*Math.PI/180);requestRender();}
- function zoom(factor){if(!lastFrame)return;cameraState.radius=clamp(cameraState.radius*factor,lastFrame.L*.65,lastFrame.L*8);requestRender();}
+ function orbit(dx,dy){cameraState.azimuth+=dx;cameraState.elevation=clamp(cameraState.elevation+dy,2*Math.PI/180,88*Math.PI/180);requestRender();}
+ function zoom(factor){if(!lastFrame)return;cameraState.radius=clamp(cameraState.radius*factor,Math.max(lastFrame.R*5,lastFrame.L*.06),lastFrame.L*8);requestRender();}
  // Keep the longer screen dimension at a natural 58° field of view.
  function viewTangent(aspect){return Math.tan(29*Math.PI/180)/Math.max(1,aspect);}
  function standing(){
@@ -58,23 +59,23 @@
   cameraState.radius=radius;cameraState.elevation=elevation;requestRender();
  }
  function alongShot(){const a=lastFrame?.aim;if(!a)return;const length=Math.hypot(a.target.x-a.cue.x,a.target.y-a.cue.y);if(length<1e-5)return;const dx=(a.target.x-a.cue.x)/length,dz=(a.target.y-a.cue.y)/length;
-  const focus=clamp(length*.55,.1,lastFrame.L*.65),setback=Math.max(1.8,lastFrame.L*.8);
+  const focus=clamp(length*.18,.05,.22),setback=.48;
   cameraState.target={x:a.cue.x+dx*focus-lastFrame.L/2,y:lastFrame.R,z:a.cue.y+dz*focus-lastFrame.W/2};
-  const x=a.cue.x-dx*setback-lastFrame.L/2-cameraState.target.x,z=a.cue.y-dz*setback-lastFrame.W/2-cameraState.target.z,y=.87-cameraState.target.y;
+  const x=a.cue.x-dx*setback-lastFrame.L/2-cameraState.target.x,z=a.cue.y-dz*setback-lastFrame.W/2-cameraState.target.z,y=.10-cameraState.target.y;
   cameraState.azimuth=Math.atan2(x,z);cameraState.radius=Math.hypot(x,y,z);cameraState.elevation=Math.asin(y/cameraState.radius);requestRender();
  }
- function disable(){if(!active)return;active=false;document.body.classList.remove('table-3d','table-3d-locked');button.setAttribute('aria-pressed','false');button.textContent='3D View';tools.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
+ function disable(){if(!active)return;active=false;document.body.classList.remove('table-3d','table-3d-locked');button.setAttribute('aria-pressed','false');button.textContent='3D View';tools.hidden=true;viewLock.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
  button.onclick=async()=>{
   if(active){disable();return;}if(loading)return;loading=true;button.disabled=true;status.textContent='';
   try{if(!engine){const three=await import('./vendor/three/three-renderer.js?v=4');engine=createEngine(three);}if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
-   active=true;document.body.classList.add('table-3d');button.setAttribute('aria-pressed','true');button.textContent='2D View';tools.hidden=false;
+   active=true;document.body.classList.add('table-3d');button.setAttribute('aria-pressed','true');button.textContent='2D View';tools.hidden=false;viewLock.hidden=false;positionToggle();
    if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();
    window.dispatchEvent(new Event('resize'));standing();setViewLocked(viewLocked);requestRender();
   }catch(error){disable();status.textContent='3D view is unavailable on this device. The top-down table is ready.';console.warn('3D camera unavailable:',error.message);}
   finally{loading=false;button.disabled=false;}
  };
  window.Billiards3D={get active(){return active;},get locked(){return active&&viewLocked;},project(point,height=0){return engine?.project(point,height)||null;},update(frame){lastFrame=frame;if(active){engine?.update(frame);requestRender();}},disable,
-  camera(){return {azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},...engine?.projection()};},renderedBalls(){return engine?.ballViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];}};
+  camera(){return {azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},...engine?.projection()};},renderedBalls(){return engine?.ballViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];},railGeometry(){return engine?.railViews()||[];}};
  window.addEventListener('resize',()=>{positionToggle();requestRender();});new MutationObserver(positionToggle).observe(document.getElementById('tableZoom'),{attributes:true,attributeFilter:['style']});document.addEventListener('visibilitychange',()=>{if(!document.hidden)requestRender();});
  function createEngine(T){
   const renderer=new T.WebGLRenderer({antialias:true,alpha:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.setClearColor(0x080d13);renderer.outputColorSpace=T.SRGBColorSpace;
@@ -121,8 +122,11 @@
   const contactTexture=new T.CanvasTexture(contactCanvas),contactGeometry=new T.PlaneGeometry(1,1);contactGeometry.rotateX(-Math.PI/2);
   function box(w,h,d,x,y,z,material){const mesh=new T.Mesh(new T.RoundedBoxGeometry(w,h,d,2,Math.min(.014,h*.2,w*.1,d*.1)),material);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;table.add(mesh);}
   const pocketLiner=new T.MeshStandardMaterial({color:0x070a0c,roughness:.94,side:T.BackSide,envMapIntensity:.08});
+  const woodMaterial=new T.MeshStandardMaterial({color:0x4b3023,roughness:.42,envMapIntensity:.4});
+  const cushionMaterial=new T.MeshStandardMaterial({color:0x28687b,roughness:.94,envMapIntensity:.12});
+  const sightMaterial=new T.MeshStandardMaterial({color:0xe3dbc6,roughness:.4});
   const pocketLeather=new T.MeshStandardMaterial({color:0x24292b,roughness:.78,side:T.DoubleSide,envMapIntensity:.25});
-  function tableKey(f){return [f.L,f.W,f.R,JSON.stringify(f.G||{})].join(':');}
+  function tableKey(f){return [f.L,f.W,f.R,JSON.stringify(f.G||{}),f.showDiamonds].join(':');}
   function makePockets(f){
    const G=f.G||{cornerMouth:.110,cornerLeg:.110/Math.SQRT2,cornerJawOut:.043,cornerThroatInset:.014,sideMouth:.120,sideThroat:.096,sideJawOut:.026};
    return [[1,-1,-1],[2,0,-1],[3,1,-1],[4,1,1],[5,0,1],[6,-1,1]].map(([id,sx,sz])=>{
@@ -137,7 +141,7 @@
     const quadratic=(a,b,c,t)=>a*(1-t)*(1-t)+2*b*t*(1-t)+c*t*t;
     for(let i=1;i<=16;i++){const t=i/16;samples.push([quadratic(throat,rear,rear,t),quadratic(neck,neck,0,t)]);}
     for(let i=1;i<=16;i++){const t=i/16;samples.push([quadratic(rear,rear,throat,t),quadratic(0,-neck,-neck,t)]);}samples.push([front,-half]);
-    return {id,shape,at,samples,probe:at((throat+rear)/2,0),back:at(rear+.014,0),nx,nz,tx,tz};
+    return {id,shape,at,samples,probe:at((throat+rear)/2,0),back:at(rear+.014,0),wood:at(rear+.045,0),nx,nz,tx,tz};
    });
   }
   function addPocket(p){
@@ -145,14 +149,18 @@
    // 7.5 inches below the cloth, instead of painting a black disk on the bed.
    const well=new T.Mesh(new T.ExtrudeGeometry(p.shape,{depth:.19,steps:1,curveSegments:24,bevelEnabled:false}),pocketLiner);
    well.rotation.x=-Math.PI/2;well.position.y=-.19;well.receiveShadow=true;table.add(well);
-   const positions=[],indices=[],rim=[];
+   const positions=[],indices=[],rim=[],woodPositions=[],woodIndices=[];
    p.samples.forEach(([n,t],i)=>{
     const a=p.samples[Math.max(0,i-1)],b=p.samples[Math.min(p.samples.length-1,i+1)],dn=b[0]-a[0],dt=b[1]-a[1],length=Math.hypot(dn,dt)||1;
     const on=-dt/length,ot=dn/length,inner=p.at(n,t),outer=p.at(n+on*.028,t+ot*.028);
     positions.push(inner.x,-.02,inner.z,inner.x,.026,inner.z,outer.x,.026,outer.z,outer.x,-.04,outer.z);
     rim.push(p.at(n+on*.014,t+ot*.014,.026));
+    // Carry the wooden cap around the entire raised leather back.
+    for(const [offset,y] of [[.028,-.055],[.028,.035],[.060,.035],[.060,-.055]]){const v=p.at(n+on*offset,t+ot*offset,y);woodPositions.push(v.x,v.y,v.z);}
+    if(i){const prev=(i-1)*4,next=i*4;for(let face=0;face<3;face++){const a=prev+face,b=next+face;woodIndices.push(a,a+1,b,b,a+1,b+1);}}
     if(i){const prev=(i-1)*4,next=i*4;for(let face=0;face<3;face++){const a=prev+face,b=next+face;indices.push(a,b,a+1,b,b+1,a+1);}}
    });
+   const capGeometry=new T.BufferGeometry();capGeometry.setAttribute('position',new T.Float32BufferAttribute(woodPositions,3));capGeometry.setIndex(woodIndices);capGeometry.computeVertexNormals();const cap=new T.Mesh(capGeometry,woodMaterial);cap.castShadow=true;cap.receiveShadow=true;table.add(cap);
    const cuffGeometry=new T.BufferGeometry();cuffGeometry.setAttribute('position',new T.Float32BufferAttribute(positions,3));cuffGeometry.setIndex(indices);cuffGeometry.computeVertexNormals();
    const cuff=new T.Mesh(cuffGeometry,pocketLeather);cuff.castShadow=true;cuff.receiveShadow=true;table.add(cuff);
    const lip=new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(rim),72,.012,10,false),pocketLeather);lip.castShadow=true;lip.receiveShadow=true;table.add(lip);
@@ -171,14 +179,27 @@
    // The case has the same six openings, so no hidden solid slab blocks the wells.
    const caseGeometry=new T.ExtrudeGeometry(outline,{depth:.255,steps:1,curveSegments:24,bevelEnabled:true,bevelSegments:2,bevelThickness:.003,bevelSize:.003});caseGeometry.rotateX(-Math.PI/2);
    const body=new T.Mesh(caseGeometry,bodyMaterial);body.position.y=-.26;body.castShadow=true;body.receiveShadow=true;table.add(body);
-   function rail(width,depth,x,z){const geometry=new T.RoundedBoxGeometry(width,.035,depth,2,.007),positions=geometry.attributes.position,uv=geometry.attributes.uv;for(let i=0;i<positions.count;i++)uv.setXY(i,(positions.getX(i)+x+w/2)/w,(d/2-positions.getZ(i)-z)/d);const mesh=new T.Mesh(geometry,[bodyMaterial,bodyMaterial,surfaceMaterial,bodyMaterial,bodyMaterial,bodyMaterial]);mesh.position.set(x,.0175,z);mesh.castShadow=true;mesh.receiveShadow=true;table.add(mesh);}
+   function rail(width,depth,x,z){box(width,.075,depth,x,-.0025,z,woodMaterial);}
    const G=f.G||{cornerLeg:.110/Math.SQRT2,sideMouth:.120},cl=G.cornerLeg,sm=G.sideMouth/2,segment=f.L/2-cl-sm;
-   for(const sign of [-1,1]){rail(px,f.W-cl*2,sign*(f.L+px)/2,0);for(const side of [-1,1])rail(segment,pz,side*(f.L/4-(cl-sm)/2),sign*(f.W+pz)/2);}
+   for(const sign of [-1,1]){
+    rail(px-.032,f.W-cl*2,sign*(f.L+px+.032)/2,0);
+    box(.032,.035,f.W-cl*2,sign*(f.L+.032)/2,.0175,0,cushionMaterial);
+    for(const side of [-1,1]){
+     const x=side*(f.L/4-(cl-sm)/2);rail(segment,pz-.032,x,sign*(f.W+pz+.032)/2);
+     box(segment,.035,.032,x,.0175,sign*(f.W+.032)/2,cushionMaterial);
+    }
+   }
+   // Real-size inlaid sights sit on the wood cap, beyond the cloth cushion.
+   if(f.showDiamonds!==false){
+    function sight(x,z){const mesh=new T.Mesh(new T.PlaneGeometry(.006,.010),sightMaterial);mesh.rotation.set(-Math.PI/2,0,Math.PI/4);mesh.position.set(x,.0352,z);mesh.userData.sight=true;table.add(mesh);}
+    for(const i of [1,2,3,5,6,7])for(const sign of [-1,1])sight(f.L*(i/8-.5),sign*(f.W/2+pz*.65));
+    for(const j of [1,2,3])for(const sign of [-1,1])sight(sign*(f.L/2+px*.65),f.W*(j/4-.5));
+   }
    for(const p of pocketSpecs)addPocket(p);
    for(const x of [-w*.36,w*.36])for(const z of [-d*.31,d*.31])box(.12,.54,.12,x,-.54,z,legMaterial);
    dimensions=tableKey(f);renderer.shadowMap.needsUpdate=true;
   }
-  const pointers=new Map();let edit=null;
+  const pointers=new Map();let edit=null,lastTap=null;
   const inputRay=new T.Raycaster();
   function cast(e){const r=canvas.getBoundingClientRect();scene.updateMatrixWorld(true);camera.updateMatrixWorld(true);inputRay.setFromCamera({x:2*(e.clientX-r.left)/r.width-1,y:1-2*(e.clientY-r.top)/r.height},camera);}
   function planePoint(height=0){const direction=inputRay.ray.direction;if(Math.abs(direction.y)<1e-6)return null;const distance=(height-inputRay.ray.origin.y)/direction.y;if(distance<0)return null;return inputRay.ray.at(distance,new T.Vector3());}
@@ -195,25 +216,28 @@
    const q=logical(point);if(q.x<-.3||q.x>f.L+.3||q.y<-.3||q.y>f.W+.3)return null;
    return {point:q,height:0,offset:{x:0,z:0}};
   }
-  function forward(type,point,e){return window.billiards3DTableInput?.(type,point,{pointerId:e.pointerId||1,pointerType:e.pointerType||'mouse',shiftKey:!!e.shiftKey,altKey:!!e.altKey,ctrlKey:!!e.ctrlKey,metaKey:!!e.metaKey,deltaY:e.deltaY||0,deltaX:e.deltaX||0,deltaMode:e.deltaMode||0});}
+  function forward(type,point,e){return window.billiards3DTableInput?.(type,point,{buttons:e.buttons??0,pointerId:e.pointerId||1,pointerType:e.pointerType||'mouse',shiftKey:!!e.shiftKey,altKey:!!e.altKey,ctrlKey:!!e.ctrlKey,metaKey:!!e.metaKey,deltaY:e.deltaY||0,deltaX:e.deltaX||0,deltaMode:e.deltaMode||0});}
   function cancelInput(){if(edit){forward('pointercancel',edit.last,{pointerId:edit.id,pointerType:edit.pointerType});edit=null;}pointers.clear();}
   canvas.addEventListener('pointerdown',e=>{
    if(e.button!==0)return;e.preventDefault();e.stopPropagation();canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});
    if(viewLocked){if(edit)return;const hit=pick(e);if(!hit)return;edit={id:e.pointerId,pointerType:e.pointerType,height:hit.height,offset:hit.offset,last:hit.point};if(!forward('pointerdown',hit.point,e))edit=null;return;}
-   pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+   pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY});
   });
   canvas.addEventListener('pointermove',e=>{
-   if(viewLocked){if(!edit||edit.id!==e.pointerId)return;e.preventDefault();e.stopPropagation();cast(e);const p=planePoint(edit.height);if(!p)return;const q=logical(new T.Vector3(p.x-edit.offset.x,0,p.z-edit.offset.z));edit.last=q;forward('pointermove',q,e);return;}
-   const p=pointers.get(e.pointerId);if(!p)return;e.preventDefault();e.stopPropagation();if(pointers.size===2){const q=[...pointers].find(([id])=>id!==e.pointerId)[1],before=Math.hypot(p.x-q.x,p.y-q.y),after=Math.hypot(e.clientX-q.x,e.clientY-q.y);if(before>8&&after>8)zoom(before/after);}else orbit(-(e.clientX-p.x)*.008,(e.clientY-p.y)*.006);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+   if(viewLocked){if(!edit){cast(e);const q=logical(planePoint());if(q)forward('pointermove',q,e);canvas.style.cursor=source.style.cursor||'crosshair';return;}if(edit.id!==e.pointerId)return;e.preventDefault();e.stopPropagation();cast(e);const p=planePoint(edit.height);if(!p)return;const q=logical(new T.Vector3(p.x-edit.offset.x,0,p.z-edit.offset.z));edit.last=q;forward('pointermove',q,e);return;}
+   const p=pointers.get(e.pointerId);if(!p)return;e.preventDefault();e.stopPropagation();if(pointers.size===2){const q=[...pointers].find(([id])=>id!==e.pointerId)[1],before=Math.hypot(p.x-q.x,p.y-q.y),after=Math.hypot(e.clientX-q.x,e.clientY-q.y);if(before>8&&after>8)zoom(before/after);}else orbit(-(e.clientX-p.x)*.008,(e.clientY-p.y)*.006);pointers.set(e.pointerId,{...p,x:e.clientX,y:e.clientY});
   });
   for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,e=>{
    if(edit?.id===e.pointerId){const current=edit;edit=null;forward(type==='pointerup'?'pointerup':'pointercancel',current.last,e);}
+   const point=pointers.get(e.pointerId);
+   if(!viewLocked&&type==='pointerup'&&pointers.size===1&&point&&Math.hypot(e.clientX-point.sx,e.clientY-point.sy)<6){const now=performance.now();if(lastTap&&now-lastTap.time<350&&Math.hypot(e.clientX-lastTap.x,e.clientY-lastTap.y)<20){focusBall(e);lastTap=null;}else lastTap={time:now,x:e.clientX,y:e.clientY};}else if(type!=='lostpointercapture')lastTap=null;
    pointers.delete(e.pointerId);e.stopPropagation();
   });
   canvas.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();if(viewLocked){cast(e);const p=logical(planePoint());if(p)forward('wheel',p,e);}else zoom(Math.exp(clamp(e.deltaY,-120,120)*.002));},{passive:false});
+  function focusBall(e){cast(e);const hit=inputRay.intersectObjects([...ballMeshes.values()].filter(g=>g.visible),true)[0];if(!hit)return;const p=hit.object.parent.position;cameraState.target={x:p.x,y:p.y,z:p.z};cameraState.radius=.55;cameraState.elevation=8*Math.PI/180;requestRender();}
   canvas.addEventListener('keydown',e=>{const actions={ArrowLeft:()=>orbit(-.08,0),ArrowRight:()=>orbit(.08,0),ArrowUp:()=>orbit(0,.06),ArrowDown:()=>orbit(0,-.06),'+':()=>zoom(.9),'-':()=>zoom(1.1),Escape:disable};if(actions[e.key]){e.preventDefault();e.stopPropagation();actions[e.key]();}});
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();disable();status.textContent='3D graphics paused. The top-down table is ready.';});
-  return {cancelInput,project(point,height=0){const f=frame||lastFrame;if(!f)return null;camera.updateMatrixWorld(true);const v=new T.Vector3(point.x-f.L/2,height,point.y-f.W/2).project(camera),r=canvas.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2,visible:v.z>=-1&&v.z<=1};},ballViews(){return [...ballMeshes].filter(([,g])=>g.visible).map(([id,g])=>({id,x:g.position.x,y:g.position.y,z:g.position.z,rotation:g.children[0].quaternion.toArray()}));},pocketViews(){scene.updateMatrixWorld(true);const ray=new T.Raycaster();return pocketSpecs.map(p=>{const height=v=>{ray.set(new T.Vector3(v.x,1,v.z),new T.Vector3(0,-1,0));return ray.intersectObjects(table.children,true).find(hit=>!hit.object.material?.userData?.pocketOwned)?.point.y;};return {id:p.id,floorHeight:height(p.probe),backHeight:height(p.back)};});},projection(){return {verticalFov:camera.fov,horizontalFov:2*Math.atan(Math.tan(camera.fov*Math.PI/360)*camera.aspect)*180/Math.PI};},stop(){cancelInput();},update(f){if(f.animating&&edit)cancelInput();frame=f;dirty=true;renderer.shadowMap.needsUpdate=true;},render(){
+  return {cancelInput,railViews(){return table.children.filter(m=>m.userData.sight).map(m=>({x:m.position.x,y:m.position.y,z:m.position.z,width:.006,length:.010}));},project(point,height=0){const f=frame||lastFrame;if(!f)return null;camera.updateMatrixWorld(true);const v=new T.Vector3(point.x-f.L/2,height,point.y-f.W/2).project(camera),r=canvas.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2,visible:v.z>=-1&&v.z<=1};},ballViews(){return [...ballMeshes].filter(([,g])=>g.visible).map(([id,g])=>({id,x:g.position.x,y:g.position.y,z:g.position.z,rotation:g.children[0].quaternion.toArray()}));},pocketViews(){scene.updateMatrixWorld(true);const ray=new T.Raycaster();return pocketSpecs.map(p=>{const height=v=>{ray.set(new T.Vector3(v.x,1,v.z),new T.Vector3(0,-1,0));return ray.intersectObjects(table.children,true).find(hit=>!hit.object.material?.userData?.pocketOwned)?.point.y;};return {id:p.id,floorHeight:height(p.probe),backHeight:height(p.back),woodHeight:height(p.wood)};});},projection(){return {verticalFov:camera.fov,horizontalFov:2*Math.atan(Math.tan(camera.fov*Math.PI/360)*camera.aspect)*180/Math.PI};},stop(){cancelInput();},update(f){if(f.animating&&edit)cancelInput();frame=f;dirty=true;renderer.shadowMap.needsUpdate=true;},render(){
    const f=frame||lastFrame;if(!f)return;const rect=canvas.getBoundingClientRect();if(rect.width<1||rect.height<1)return;
    const size=rect.width+':'+rect.height;if(size!==lastSize){renderer.setSize(rect.width,rect.height);camera.aspect=rect.width/rect.height;camera.fov=2*Math.atan(viewTangent(camera.aspect))*180/Math.PI;camera.updateProjectionMatrix();lastSize=size;}
    if(dimensions!==tableKey(f))rebuild(f);

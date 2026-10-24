@@ -5952,7 +5952,9 @@
         const G = pocketModel(), L = S.tableL, W = S.tableW;
         // CONTROL VIEW: draw the actual original APK table asset, anchored so its
         // cushion-nose rectangle maps to the true logical playing surface.
-        if (!isProjector && ORIGINAL_TABLE_ASSET.complete) {
+        if(window.Billiards3D?.active){
+            const a=map({x:-.15,y:-.15}),b=map({x:L+.15,y:W+.15});ctx.fillStyle='#347d91';ctx.fillRect(a.x,a.y,b.x-a.x,b.y-a.y);
+        } else if (!isProjector && ORIGINAL_TABLE_ASSET.complete) {
             const A = ORIGINAL_ASSET_GEOM;
             const sx = (A.x1 - A.x0) / L, sy = (A.y1 - A.y0) / W;
             const logicalLeft = -A.x0 / sx, logicalTop = -A.y0 / sy;
@@ -6172,7 +6174,7 @@
         // Place them on the brown rail-cap area, slightly OUTSIDE the cushion nose,
         // instead of directly on the playing-surface boundary. This matches the
         // original APK artwork and the reference table photos more closely.
-        if (S.showDiamonds) {
+        if (S.showDiamonds && !window.Billiards3D?.active) {
             const dr = isProjector ? 4.4 : 4.0;
             const diamondOffset = 0.041; // ≈ 1.61 in from cushion nose into the rail cap.
             ctx.save();
@@ -7223,7 +7225,7 @@
             const live=(animation?.current||S.balls).map(b=>({...S.balls.find(x=>x.id===b.id),...b})).filter(b=>b.id!==0||cueVisualsVisible(1));
             if(S.shot2Enabled&&cueVisualsVisible(2))live.push({id:'CB2',x:S.shot2.x,y:S.shot2.y,active:true});
             const second=S.activeShot===2&&S.shot2Enabled,cb=second?S.shot2:cueBall();
-            window.Billiards3D.update({L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),animating:!!animation,balls:live,map,aim:cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
+            window.Billiards3D.update({L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,balls:live,map,aim:cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
         }
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }
@@ -7880,7 +7882,7 @@
     window.billiards3DTableInput=(type,q,info={})=>{
         if(isProjector||!q||!Number.isFinite(q.x)||!Number.isFinite(q.y)||(animation&&type!=='pointercancel'))return false;
         if(!['pointerdown','pointermove','pointerup','pointercancel','wheel'].includes(type))return false;
-        const p=controlMap().map(q),r=canvas.getBoundingClientRect(),options={...info,bubbles:true,cancelable:true,clientX:r.left+p.x,clientY:r.top+p.y,button:0,buttons:type==='pointerup'||type==='pointercancel'?0:1,isPrimary:true};
+        const p=controlMap().map(q),r=canvas.getBoundingClientRect(),options={...info,bubbles:true,cancelable:true,clientX:r.left+p.x,clientY:r.top+p.y,button:0,buttons:info.buttons??(type==='pointerup'||type==='pointercancel'||type==='pointermove'?0:1),isPrimary:true};
         const capture=canvas.setPointerCapture,release=canvas.releasePointerCapture;
         try{canvas.setPointerCapture=()=>{};canvas.releasePointerCapture=()=>{};if(type==='wheel')beginActionUndo();canvas.dispatchEvent(type==='wheel'?new WheelEvent(type,options):new PointerEvent(type,options));}
         finally{canvas.setPointerCapture=capture;canvas.releasePointerCapture=release;}
@@ -12774,8 +12776,8 @@
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=shared-guide-v1">
   <script src="./phone-play.js?v=12"></script>
-  <link rel="stylesheet" href="./trainer-3d.css?v=4">
-  <script src="./trainer-3d.js?v=4"></script>
+  <link rel="stylesheet" href="./trainer-3d.css?v=5">
+  <script src="./trainer-3d.js?v=5"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">
