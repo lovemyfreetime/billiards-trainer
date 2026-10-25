@@ -4,7 +4,7 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,6 +26,7 @@ jobs:
           node tests/native-content-updates.browser.cjs
           node tests/app-updates.browser.cjs
           node tests/cue-deflection.browser.cjs
+          node tests/trainer-3d-controls.browser.cjs
           node tests/trainer-3d.browser.cjs
           node tests/trainer-3d-edit.browser.cjs
           node tests/guide-platform-parity.browser.cjs

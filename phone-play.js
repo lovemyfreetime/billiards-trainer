@@ -19,7 +19,7 @@
   dismiss.setAttribute('aria-label', 'Close controls'); dismiss.tabIndex = -1;
   const actions = document.createElement('nav');
   actions.id = 'phoneActions'; actions.setAttribute('aria-label', 'Table actions');
-  for (const [id, label] of [['animate', 'Execute Shot'], ['undoShot', 'Undo'], ['resetLayoutQuick', 'Reset'], ['toggleShot2', '+ Shot 2'], ['toggleCueVisuals1Btn', 'Hide CB 1'], ['toggleCueVisuals2Btn', 'Hide CB 2']]) {
+  for (const [id, label] of [['animate', 'Execute Shot'], ['undoShot', 'Undo'], ['redoShot', 'Redo'], ['resetLayoutQuick', 'Reset'], ['toggleShot2', '+ Shot 2'], ['toggleCueVisuals1Btn', 'Hide CB 1'], ['toggleCueVisuals2Btn', 'Hide CB 2']]) {
     const source = document.getElementById(id);
     const button = document.createElement('button');
     button.type = 'button'; button.textContent = label;
@@ -130,7 +130,7 @@
   function syncGuideSpace() {
     const guide = document.getElementById('bt-guide-pool-root');
     if(guide && guide !== observedGuide && guideResize) {guideResize.disconnect(); guideResize.observe(guide); observedGuide=guide}
-    const height = phone.matches && guide?.classList.contains('btg-enabled') ? guide.getBoundingClientRect().height : 0;
+    const height = focused() && guide?.classList.contains('btg-enabled') ? guide.getBoundingClientRect().height : 0;
     document.documentElement.style.setProperty('--phone-guide-height',height+'px');
   }
   new MutationObserver(syncGuideSpace).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
@@ -214,7 +214,7 @@
     const anchor=document.createComment(id+' desktop position');element.before(anchor);relocated.push({element,anchor,speed:id.startsWith('tableSpeed'),spin:id.startsWith('bottomSpin')});
   }
   let guideAnchor;
-  function dockGuide(){const guide=document.getElementById('bt-guide-pool-root');if(!guide)return;if(phone.matches){if(!guideAnchor){guideAnchor=document.createComment('Guide desktop position');guide.before(guideAnchor);}if(guide.parentNode!==panel)toolShelf.after(guide);}else if(guideAnchor&&guide.parentNode!==guideAnchor.parentNode)guideAnchor.after(guide);}
+  function dockGuide(){const guide=document.getElementById('bt-guide-pool-root');if(!guide)return;if(focused()){if(!guideAnchor){guideAnchor=document.createComment('Guide desktop position');guide.before(guideAnchor);}if(guide.parentNode!==panel)toolShelf.after(guide);}else if(guideAnchor&&guide.parentNode!==guideAnchor.parentNode)guideAnchor.after(guide);}
   new MutationObserver(dockGuide).observe(document.body,{childList:true,subtree:true});
   const analyzeToolbar=document.querySelector('.photoAnalyzerToolbar'),analyzeHeader=document.querySelector('.photoAnalyzerHeader'),analyzeMoves=[];
   if(analyzeToolbar&&analyzeHeader){for(const element of [...analyzeHeader.children]){if(element.classList.contains('btg-analyze-title'))continue;const anchor=document.createComment('Analyze header position');element.before(anchor);analyzeMoves.push({element,anchor});}}
@@ -230,40 +230,42 @@
   function layoutAnalyze(){
     if(!analyzeToolbar)return;
     const close=document.getElementById('photoAnalyzerClose');
-    if(phone.matches){photoBar.append(analyzeToolbar,close);for(const {element}of archiveMoves)photoMenu.append(element);for(const id of ['photoWelcomePlay','photoWelcomeStop']){const el=document.getElementById(id);if(el)photoMenu.append(el);}if(autoRack)autoRack.textContent='Rack';}
+    if(focused()){photoBar.append(analyzeToolbar,close);for(const {element}of archiveMoves)photoMenu.append(element);for(const id of ['photoWelcomePlay','photoWelcomeStop']){const el=document.getElementById(id);if(el)photoMenu.append(el);}if(autoRack)autoRack.textContent='Rack';}
     else{const ai=document.getElementById('photoAiModeBtn');if(ai&&ai.textContent==='AI')ai.textContent=ai.getAttribute('aria-label')||'AI: AUTO';toolbarAnchor.after(analyzeToolbar);for(const {element,anchor}of archiveMoves)anchor.after(element);if(autoRack)autoRack.textContent=autoRackText;photoMenu.hidePopover();}
   }
   document.getElementById('photoAnalyzerClose')?.addEventListener('click',()=>photoMenu.hidePopover());
   const compactText={photoChooseImage:'Image',photoFindCorners:'Corners',photoResetCorners:'Reset',photoFineTune:'Layout',photoAutoRailsBtn:'Sense',photoAnalyzeNow:'Analyze',photoAddMissed:'+ Ball',photoWalkthroughBtn:'Walkthrough',photoWelcomePlay:'Welcome',photoWelcomeStop:'Stop voice',photoApplyTable:'Apply',photoApplySave:'Apply + Save',photoLoadTableFile:'Load',photoSaveTableFile:'Save'};
   const originalText=new Map();for(const id of Object.keys(compactText)){const el=document.getElementById(id);if(el){originalText.set(el,el.textContent);if(!el.getAttribute('aria-label'))el.setAttribute('aria-label',el.textContent);}}
-  if(analyzeToolbar)new MutationObserver(()=>{if(!phone.matches)return;const ai=document.getElementById('photoAiModeBtn');if(ai&&ai.textContent!=='AI'){ai.setAttribute('aria-label',ai.textContent);ai.textContent='AI';}for(const [el,text]of originalText)if(el.textContent===text&&text!==compactText[el.id])el.textContent=compactText[el.id];}).observe(analyzeToolbar,{childList:true,subtree:true});
-  const aimChoice=document.createElement('button');aimChoice.id='phoneAimChoice';aimChoice.type='button';aimChoice.textContent='1';aimChoice.setAttribute('aria-label','Switch active shot');aimChoice.onclick=()=>window.billiardsSelectShot?.(document.getElementById('aimControls2')?.classList.contains('activeAim')?1:2);actions.prepend(aimChoice);
-  const syncAim=()=>{const second=document.getElementById('aimControls2')?.classList.contains('activeAim');document.body.classList.toggle('phone-active-shot-2',!!second);aimChoice.textContent=second?'2':'1';aimChoice.setAttribute('aria-label','Adjusting shot '+(second?'2':'1')+'. Switch shot');};
+  if(analyzeToolbar)new MutationObserver(()=>{if(!focused())return;const ai=document.getElementById('photoAiModeBtn');if(ai&&ai.textContent!=='AI'){ai.setAttribute('aria-label',ai.textContent);ai.textContent='AI';}for(const [el,text]of originalText)if(el.textContent===text&&text!==compactText[el.id])el.textContent=compactText[el.id];}).observe(analyzeToolbar,{childList:true,subtree:true});
+  const aimChoice=document.createElement('button');aimChoice.id='phoneAimChoice';aimChoice.type='button';aimChoice.textContent='1';aimChoice.setAttribute('aria-label','Switch active shot');aimChoice.onclick=()=>{const second=document.getElementById('aimControls2')?.classList.contains('activeAim');if(!second&&document.body.classList.contains('table-3d')&&!document.body.classList.contains('phone-two-shots'))shot2Source?.click();window.billiardsSelectShot?.(second?1:2);};actions.prepend(aimChoice);
+  const syncAim=()=>{const second=document.getElementById('aimControls2')?.classList.contains('activeAim');document.body.classList.toggle('phone-active-shot-2',!!second);aimChoice.textContent=document.body.classList.contains('table-3d')?(second?'Shot 2':'Shot 1'):(second?'2':'1');aimChoice.setAttribute('aria-pressed',String(!!second));aimChoice.setAttribute('aria-label','Adjusting shot '+(second?'2':'1')+'. Switch shot');};
   for(const id of ['aimControls','aimControls2']){const el=document.getElementById(id);if(el)new MutationObserver(syncAim).observe(el,{attributes:true,attributeFilter:['class']});}
   const phone = matchMedia('(max-width:600px), (max-width:1000px) and (max-height:500px) and (pointer:coarse)');
+  const focused=()=>phone.matches||document.body.classList.contains('table-3d');
   let fallback = false;
   const fullscreenElement = () => document.fullscreenElement || document.webkitFullscreenElement;
   function refreshSize() {
     document.documentElement.style.setProperty('--phone-height', (window.visualViewport?.height || window.innerHeight)+'px');
   }
   function setControls(open) {
-    document.body.classList.toggle('phone-controls-open', open && phone.matches);
-    controls.setAttribute('aria-expanded', String(open && phone.matches));
-    controls.textContent = open && phone.matches ? '×' : '☰';
-    controls.setAttribute('aria-label',open && phone.matches ? 'Close trainer controls' : 'Open trainer controls');
-    controls.title=open && phone.matches ? 'Close controls' : 'Controls';
-    panel.inert = phone.matches && !open;
+    document.body.classList.toggle('phone-controls-open', open && focused());
+    controls.setAttribute('aria-expanded', String(open && focused()));
+    controls.textContent = open && focused() ? '×' : '☰';
+    controls.setAttribute('aria-label',document.body.classList.contains('table-3d')?(open?'Close tools':'Open tools'):(open && focused() ? 'Close trainer controls' : 'Open trainer controls'));
+    controls.title=open && focused() ? 'Close controls' : 'Controls';
+    panel.inert = focused() && !open;
     syncScroll();
     if (!open && panel.contains(document.activeElement)) controls.focus();
   }
   function layout() {
-    document.body.classList.toggle('phone-layout', phone.matches);
-    document.body.classList.toggle('phone-focus',phone.matches);
+    document.body.classList.toggle('phone-layout', focused());
+    document.body.classList.toggle('phone-focus',focused());
     if(title.parentNode !== panel)home.after(title);
-    if(phone.matches){header.prepend(fullscreen);for(const {element,aim,speed,spin}of relocated){if(aim)leftRail.append(element);else if(speed)rightRail.append(element);else if(spin)actions.prepend(element);else toolShelf.append(element);}for(const {element}of analyzeMoves)analyzeToolbar.append(element);}
+    if(focused()){header.prepend(fullscreen);for(const {element,aim,speed,spin}of relocated){if(aim)leftRail.append(element);else if(speed)rightRail.append(element);else if(spin)actions.prepend(element);else toolShelf.append(element);}for(const {element}of analyzeMoves)analyzeToolbar.append(element);}
     else{launchers.append(fullscreen);for(const {element,anchor}of relocated)anchor.after(element);for(const {element,anchor}of analyzeMoves)anchor.after(element);}
-    for(const [el,text]of originalText)el.textContent=phone.matches?compactText[el.id]:text;
-    for(const which of [1,2]){const disk=document.getElementById('phoneTip'+which),spin=document.getElementById('bottomSpin'+which);if(disk){if(phone.matches&&spin)spin.append(disk);else document.body.append(disk);}}
+    for(const [el,text]of originalText)el.textContent=focused()?compactText[el.id]:text;
+    for(const which of [1,2]){const disk=document.getElementById('phoneTip'+which),spin=document.getElementById('bottomSpin'+which);if(disk){if(focused()&&spin)spin.append(disk);else document.body.append(disk);}}
+    if(document.body.classList.contains('table-3d'))toolShelf.prepend(fullscreen);
     layoutAnalyze();
     dockGuide();syncAim();
     setControls(false);
@@ -296,7 +298,7 @@
     try {
       await request.call(root);
       startupFullscreen = false;
-      if(phone.matches && screen.orientation?.lock) { try { await screen.orientation.lock('landscape'); } catch (_) {} }
+      if(focused() && screen.orientation?.lock) { try { await screen.orientation.lock('landscape'); } catch (_) {} }
       syncFullscreen();
     } catch (_) { if(!automatic) showFallback(); }
   }
@@ -335,5 +337,8 @@
   for(const type of ['contextmenu','selectstart','dragstart']) document.addEventListener(type,event => {
     if(event.target?.closest?.('#stageWrap,#phoneActions,#phoneHeader,.phoneTipControl')) event.preventDefault();
   },{capture:true});
+  let previous3D=document.body.classList.contains('table-3d');
+  new MutationObserver(()=>{const value=document.body.classList.contains('table-3d');if(value!==previous3D){previous3D=value;layout();}}).observe(document.body,{attributes:true,attributeFilter:['class']});
+  window.billiardsControlLayout=layout;
   layout();
 })();

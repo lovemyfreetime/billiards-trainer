@@ -9,11 +9,15 @@
  const views=document.createElement('nav');views.id='table3DViews';views.setAttribute('aria-label','Table viewpoints');views.append(button);stage.append(views,status);
  const tools=document.createElement('nav');tools.id='table3DTools';tools.hidden=true;tools.setAttribute('aria-label','3D camera controls');
  const action=(label,title,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('aria-label',title);b.title=title;b.onclick=fn;tools.append(b);return b;};
- const standingButton=action('Standing','Standing perspective from beside the table',()=>standing());
- const alongButton=action('Along shot','Look along the active cue-ball shot line',()=>alongShot());
+ const standingButton=action('Full View','Full View: standing perspective from beside the table',()=>standing());
+ const alongButton=action('Cue View','Cue View: look along the active cue-ball shot line',()=>alongShot());
  const zoomIn=action('+','Zoom camera in',()=>zoom(1/1.15)),zoomOut=action('−','Zoom camera out',()=>zoom(1.15));
  const viewLock=action('Lock view','Lock view for ball placement and aiming',()=>setViewLocked(!viewLocked));viewLock.id='table3DLock';viewLock.setAttribute('aria-pressed','false');views.append(standingButton,alongButton,viewLock);stage.append(tools);for(const b of [standingButton,alongButton,viewLock])b.hidden=true;
- const panButton=action('','Move table: drag to slide the view',()=>chooseCameraMode(true));panButton.id='table3DPan';panButton.setAttribute('aria-pressed','false');panButton.innerHTML='<svg width=18 height=18 viewBox="0 0 24 24" aria-hidden=true><path d="M7 12V6a1.5 1.5 0 0 1 3 0v5-7a1.5 1.5 0 0 1 3 0v7-6a1.5 1.5 0 0 1 3 0v7-4a1.5 1.5 0 0 1 3 0v7c0 4-2 6-6 6h-1c-2 0-3-1-4-2l-4-5c-1-2 1-3 2-2l3 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';panButton.title='Move table: drag with one finger or mouse. Two fingers always slide and pinch.';const rotateButton=action('','Rotate table: drag to orbit and tilt the view',()=>chooseCameraMode(false));rotateButton.id='table3DRotate';rotateButton.setAttribute('aria-pressed','false');rotateButton.innerHTML='<svg width=18 height=18 viewBox="0 0 24 24" aria-hidden=true><path d="M19 8a8 8 0 1 0 1 8M19 3v6h-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';tools.replaceChildren(panButton,rotateButton,zoomIn,zoomOut);
+ const panButton=action('','Move table: drag to slide the view',()=>chooseCameraMode(true));panButton.id='table3DPan';panButton.setAttribute('aria-pressed','false');panButton.innerHTML='<svg width=18 height=18 viewBox="0 0 24 24" aria-hidden=true><path d="M7 12V6a1.5 1.5 0 0 1 3 0v5-7a1.5 1.5 0 0 1 3 0v7-6a1.5 1.5 0 0 1 3 0v7-4a1.5 1.5 0 0 1 3 0v7c0 4-2 6-6 6h-1c-2 0-3-1-4-2l-4-5c-1-2 1-3 2-2l3 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';panButton.title='Move table: drag with one finger or mouse. Two fingers always slide and pinch.';const rotateButton=action('','Rotate table: drag to orbit and tilt the view',()=>chooseCameraMode(false));rotateButton.id='table3DRotate';rotateButton.setAttribute('aria-pressed','false');rotateButton.innerHTML='<svg width=18 height=18 viewBox="0 0 24 24" aria-hidden=true><path d="M19 8a8 8 0 1 0 1 8M19 3v6h-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';zoomIn.id='table3DZoomIn';zoomOut.id='table3DZoomOut';
+ const zoomSlider=document.createElement('input');zoomSlider.id='table3DZoomSlider';zoomSlider.type='range';zoomSlider.min='0';zoomSlider.max='100';zoomSlider.step='.1';zoomSlider.setAttribute('aria-label','3D zoom');
+ const zoomGroup=document.createElement('div');zoomGroup.id='table3DZoomGroup';zoomGroup.append(zoomOut,zoomSlider,zoomIn);tools.replaceChildren(panButton,rotateButton,zoomGroup);
+ zoomSlider.addEventListener('input',()=>{if(!lastFrame)return;const min=Math.max(lastFrame.R*5,lastFrame.L*.06),max=lastFrame.L*8;cameraState.radius=Math.exp(Math.log(max)+(Math.log(min)-Math.log(max))*Number(zoomSlider.value)/100);requestRender();});
+ for(const type of ['pointerdown','touchstart','wheel'])zoomGroup.addEventListener(type,event=>event.stopPropagation());
  const phoneBox=document.createElement('div');phoneBox.id='table3DPhoneControls';phoneBox.setAttribute('role','group');phoneBox.setAttribute('aria-label','3D table controls');phoneBox.hidden=true;stage.append(phoneBox);
  const panel=document.getElementById('panel'),drawer=document.createElement('button'),dismiss=document.createElement('button');
  drawer.type='button';drawer.id='table3DDrawer';drawer.setAttribute('aria-controls','panel');
@@ -40,6 +44,7 @@
   views.style.top=clamp(top+42,4,Math.max(4,stage.clientHeight-views.offsetHeight-4))+'px';
  }
  function dock(){
+  const tablet=active&&!/Windows/i.test(navigator.userAgent)&&(navigator.maxTouchPoints||0)>0&&innerWidth>=768&&innerHeight>=500;if(document.body.classList.contains('table-3d-tablet')!==tablet)document.body.classList.toggle('table-3d-tablet',tablet);
   const shelf=document.getElementById('phoneToolShelf'),phone=document.body.classList.contains('phone-focus');
   if(phone&&active){phoneBox.hidden=false;phoneBox.append(views,tools);if(document.body.classList.contains('phone-controls-open')&&shelf){shelf.append(phoneBox,status);}else stage.append(phoneBox,status);}
   else{phoneBox.hidden=true;stage.append(tools);if(phone&&document.body.classList.contains('phone-controls-open')&&shelf)shelf.append(views,status);else{stage.append(views,status);positionToggle();}}
@@ -57,13 +62,13 @@
  function setPanEnabled(value){engine?.cancelInput();panEnabled=!!value;syncCameraMode();}
  function setViewLocked(value){
   engine?.cancelInput();viewLocked=!!value;document.body.classList.toggle('table-3d-locked',active&&viewLocked);syncCameraMode();
-  const icon='<svg width="11" height="13" viewBox="0 0 16 18" aria-hidden="true"><path d="M4 8V5a4 4 0 0 1 8 0'+(viewLocked?'v3':'')+'M3 8h10v8H3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
-  viewLock.innerHTML='<span class="table3DLockTitle">'+icon+(viewLocked?'Locked':'Lock table')+'</span><span class="table3DLockHint">'+(viewLocked?'● Move balls':'Move view')+'</span>';
-  viewLock.setAttribute('aria-pressed',String(viewLocked));viewLock.setAttribute('aria-label',viewLocked?'Table locked: drag balls to move them; click to unlock the view':'Lock table to move balls; the unlocked view moves the camera');viewLock.title=viewLock.getAttribute('aria-label');
+  viewLock.innerHTML='<span class="table3DAdjustmentTitle">Adjustment</span><span class="table3DAdjustmentOptions"><span data-adjust="edit" class="'+(viewLocked?'selected':'')+'">Shot/Ball</span><span data-adjust="view" class="'+(!viewLocked?'selected':'')+'">3D View</span></span>';
+  viewLock.setAttribute('aria-pressed',String(viewLocked));viewLock.setAttribute('aria-label',viewLocked?'Adjustment: Shot/Ball. Move balls and aim; switch to 3D View to move the camera':'Adjustment: 3D View. Move the camera; switch to Shot/Ball to move balls and aim');viewLock.title=viewLock.getAttribute('aria-label');
   document.getElementById('table3DCanvas')?.setAttribute('aria-label',viewLocked?'Table locked. Drag balls to move them or tap cloth to aim.':'Move the camera. Select Hand to slide or Rotate to orbit. Lock table to move balls.');
  }
  for(const id of ['teachingCompassToggle','bankToolToggle','kickToolToggle'])document.getElementById(id)?.addEventListener('click',()=>{if(!active)return;setViewLocked(true);setDrawer(false);if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();});
- function requestRender(){if(!active||!engine||scheduled)return;scheduled=requestAnimationFrame(()=>{scheduled=0;if(active)engine.render();});}
+ viewLock.onclick=event=>{const target=event.target.closest('[data-adjust]');setViewLocked(target?target.dataset.adjust==='edit':!viewLocked);};
+ function requestRender(){if(lastFrame){const min=Math.max(lastFrame.R*5,lastFrame.L*.06),max=lastFrame.L*8;zoomSlider.value=String(100*(Math.log(max)-Math.log(cameraState.radius))/(Math.log(max)-Math.log(min)));}if(!active||!engine||scheduled)return;scheduled=requestAnimationFrame(()=>{scheduled=0;if(active)engine.render();});}
  function orbit(dx,dy){cameraState.azimuth+=dx;cameraState.elevation=clamp(cameraState.elevation+dy,2*Math.PI/180,88*Math.PI/180);requestRender();}
  function zoom(factor){if(!lastFrame)return;cameraState.radius=clamp(cameraState.radius*factor,Math.max(lastFrame.R*5,lastFrame.L*.06),lastFrame.L*8);requestRender();}
  // Keep the longer screen dimension at a natural 58° field of view.
@@ -78,7 +83,7 @@
    const sn=Math.sin(elevation),cs=Math.cos(elevation),tan=viewTangent(aspect);let fits=true;
    for(const x of [-L*.548,L*.548])for(const z of [-W*.595,W*.595]){
     const depth=radius-cs*z,horizontal=x/(depth*tan*aspect),vertical=-sn*z/(depth*tan);
-    if(depth<.2||Math.abs(horizontal)>(document.body.classList.contains('phone-focus')?.80:.90)||Math.abs(vertical)>.84)fits=false;
+    if(depth<.2||Math.abs(horizontal)>(innerWidth<1000&&!document.body.classList.contains('table-3d-tablet')?.80:.90)||Math.abs(vertical)>.84)fits=false;
    }
    if(fits)break;radius*=1.035;
   }
@@ -96,15 +101,15 @@
   // Request within the entry gesture, before loading WebGL can consume activation.
   window.BilliardsDisplay?.enter(true);
   try{if(!engine){const three=await import('./vendor/three/three-renderer.js?v=4');engine=createEngine(three);}if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
-   active=true;document.body.classList.add('table-3d');button.setAttribute('aria-pressed','true');button.textContent='2D View';tools.hidden=false;for(const b of [standingButton,alongButton,viewLock])b.hidden=false;positionToggle();
+   active=true;document.body.classList.add('table-3d');button.setAttribute('aria-pressed','true');button.textContent='2D Mode';tools.hidden=false;for(const b of [standingButton,alongButton,viewLock])b.hidden=false;positionToggle();
    if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();
-   setDrawer(false);window.dispatchEvent(new Event('resize'));standing();setViewLocked(viewLocked);setPanEnabled(panEnabled);requestRender();
+   window.billiardsControlLayout?.();dock();setDrawer(false);window.dispatchEvent(new Event('resize'));standing();setViewLocked(viewLocked);setPanEnabled(panEnabled);requestRender();
   }catch(error){disable();status.textContent='3D view is unavailable on this device. The top-down table is ready.';console.warn('3D camera unavailable:',error.message);}
   finally{loading=false;button.disabled=false;}
  };
  window.Billiards3D={get active(){return active;},get locked(){return active&&viewLocked;},get panning(){return active&&panEnabled;},project(point,height=0){return engine?.project(point,height)||null;},update(frame){lastFrame=frame;if(active){engine?.update(frame);requestRender();}},disable,
   camera(){return {azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},...engine?.projection()};},renderedBalls(){return engine?.ballViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];},railGeometry(){return engine?.railViews()||[];},contactMarkers(){return engine?.contactViews()||[];}};
- window.addEventListener('resize',()=>{positionToggle();requestRender();});new MutationObserver(positionToggle).observe(document.getElementById('tableZoom'),{attributes:true,attributeFilter:['style']});document.addEventListener('visibilitychange',()=>{if(!document.hidden)requestRender();});
+ window.addEventListener('resize',()=>{dock();positionToggle();requestRender();});new MutationObserver(positionToggle).observe(document.getElementById('tableZoom'),{attributes:true,attributeFilter:['style']});document.addEventListener('visibilitychange',()=>{if(!document.hidden)requestRender();});
  function createEngine(T){
   const renderer=new T.WebGLRenderer({antialias:true,alpha:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.setClearColor(0x080d13);renderer.outputColorSpace=T.SRGBColorSpace;
   renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1;
