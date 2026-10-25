@@ -4,7 +4,7 @@
  if(new URLSearchParams(location.search).has('projector')||new URLSearchParams(location.search).get('zen')==='1')return;
  const stage=document.getElementById('stageWrap'),source=document.getElementById('canvas');
  if(!stage||!source)return;
- const button=document.createElement('button');button.type='button';button.id='table3DToggle';button.textContent='3D View';button.setAttribute('aria-pressed','false');
+ const button=document.createElement('button');button.type='button';button.id='table3DToggle';button.textContent='3D Mode';button.setAttribute('aria-pressed','false');
  const status=document.createElement('span');status.id='table3DStatus';status.setAttribute('role','status');
  const views=document.createElement('nav');views.id='table3DViews';views.setAttribute('aria-label','Table viewpoints');views.append(button);stage.append(views,status);
  const tools=document.createElement('nav');tools.id='table3DTools';tools.hidden=true;tools.setAttribute('aria-label','3D camera controls');
@@ -46,7 +46,7 @@
  function dock(){
   const tablet=active&&!/Windows/i.test(navigator.userAgent)&&(navigator.maxTouchPoints||0)>0&&innerWidth>=768&&innerHeight>=500;if(document.body.classList.contains('table-3d-tablet')!==tablet)document.body.classList.toggle('table-3d-tablet',tablet);
   const shelf=document.getElementById('phoneToolShelf'),phone=document.body.classList.contains('phone-focus');
-  if(phone&&active){phoneBox.hidden=false;phoneBox.append(views,tools);if(document.body.classList.contains('phone-controls-open')&&shelf){shelf.append(phoneBox,status);}else stage.append(phoneBox,status);}
+  if(phone&&active){phoneBox.hidden=false;phoneBox.append(views,tools);stage.append(phoneBox,status);}
   else{phoneBox.hidden=true;stage.append(tools);if(phone&&document.body.classList.contains('phone-controls-open')&&shelf)shelf.append(views,status);else{stage.append(views,status);positionToggle();}}
   if(document.body.classList.contains('zen-mode'))disable();
   if(document.body.classList.contains('phone-focus')&&document.body.classList.contains('table-3d-tools-open'))setDrawer(false);
@@ -95,7 +95,7 @@
   const x=a.cue.x-dx*setback-lastFrame.L/2-cameraState.target.x,z=a.cue.y-dz*setback-lastFrame.W/2-cameraState.target.z,y=.25-cameraState.target.y;
   cameraState.azimuth=Math.atan2(x,z);cameraState.radius=Math.hypot(x,y,z);cameraState.elevation=Math.asin(y/cameraState.radius);requestRender();
  }
- function disable(){if(!active)return;setDrawer(false);active=false;document.body.classList.remove('table-3d','table-3d-locked','table-3d-pan','table-3d-rotate');button.setAttribute('aria-pressed','false');button.textContent='3D View';tools.hidden=true;for(const b of [standingButton,alongButton,viewLock])b.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
+ function disable(){if(!active)return;setDrawer(false);active=false;document.body.classList.remove('table-3d','table-3d-locked','table-3d-pan','table-3d-rotate');button.setAttribute('aria-pressed','false');button.textContent='3D Mode';tools.hidden=true;for(const b of [standingButton,alongButton,viewLock])b.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
  button.onclick=async()=>{
   if(active){disable();return;}if(loading)return;loading=true;button.disabled=true;status.textContent='';
   // Request within the entry gesture, before loading WebGL can consume activation.
