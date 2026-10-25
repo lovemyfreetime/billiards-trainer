@@ -26,7 +26,9 @@
     button.dataset.trainerAction = id;
     if (id === 'animate') { button.classList.add('primary');button.textContent='Shoot';button.setAttribute('aria-label','Execute Shot'); }
     const sync = () => {
-      button.disabled = !source || !!source.disabled;
+      const running=id==='animate'&&source?.dataset.running==='true';
+      button.disabled = !source || !!source.disabled || running;
+      if(id==='animate'){button.classList.toggle('shot-running',running);button.setAttribute('aria-busy',String(running));}
       if(source?.dataset.guideTopic) button.dataset.guideTopic=source.dataset.guideTopic;
       if(id === 'toggleShot2') button.textContent = source?.textContent?.includes('−') ? '− Shot 2' : '+ Shot 2';
       if(id.startsWith('toggleCueVisuals')) {
@@ -37,7 +39,7 @@
       }
     };
     sync();
-    if (source) new MutationObserver(sync).observe(source, {attributes:true,attributeFilter:['disabled','data-guide-topic','aria-pressed'],childList:true,characterData:true,subtree:true});
+    if (source) new MutationObserver(sync).observe(source, {attributes:true,attributeFilter:['disabled','data-guide-topic','aria-pressed','data-running'],childList:true,characterData:true,subtree:true});
     button.addEventListener('click', () => { if (source && !source.disabled) source.click(); });
     actions.append(button);
   }
@@ -158,6 +160,7 @@
     if(plusLabel)plusLabel.dataset.stepLabel=plusLabel.textContent;
     const caption=document.createElement('span');
     caption.className=kind==='percent'?'phoneSpinCaption':'phoneSpeedValue';
+    if(kind==='percent'){caption.dataset.start=input.id.includes('Follow')?'Draw':'Left spin';caption.dataset.end=input.id.includes('Follow')?'Follow':'Right spin';}
     input.parentNode.append(caption);
     // Phone ranges act as relative rollers: a new touch never changes the value.
     // Each drag starts from the current setting, so lifting and swiping again adds to it.
@@ -193,7 +196,7 @@
       const valueText=phoneFocus?(kind==='speed'?'':'−'):text;
       if(output.textContent!==valueText)output.textContent=valueText;
       if(plusLabel){const label=compact?'+':plusLabel.dataset.stepLabel;if(plusLabel.textContent!==label)plusLabel.textContent=label;}
-      const captionText=kind==='speed'?text:(input.id.includes('Follow')?'F/D ':'L/R ')+text;
+      const captionText=kind==='speed'?text:(document.body.classList.contains('table-3d')?'':(input.id.includes('Follow')?'F/D ':'L/R '))+text;
       if(caption.textContent!==captionText)caption.textContent=captionText;
     }
   };
@@ -207,6 +210,7 @@
     const anchor=document.createComment(id+' desktop position');element.before(anchor);relocated.push({element,anchor,aim:id.startsWith('aimControls')});
   }
   const leftRail=document.createElement('div');leftRail.id='phoneAimRail';leftRail.setAttribute('aria-label','Fine aim');
+  const aimLabel=document.createElement('span');aimLabel.className='phoneAimLabel';aimLabel.textContent='AIM';leftRail.append(aimLabel);
   const rightRail=document.createElement('div');rightRail.id='phoneSpeedRail';rightRail.setAttribute('aria-label','Shot speed');
   document.body.append(leftRail,rightRail);
   for(const id of ['tableSpeed1Wrap','tableSpeed2Wrap','bottomSpin1','bottomSpin2']){
@@ -238,7 +242,7 @@
   const originalText=new Map();for(const id of Object.keys(compactText)){const el=document.getElementById(id);if(el){originalText.set(el,el.textContent);if(!el.getAttribute('aria-label'))el.setAttribute('aria-label',el.textContent);}}
   if(analyzeToolbar)new MutationObserver(()=>{if(!focused())return;const ai=document.getElementById('photoAiModeBtn');if(ai&&ai.textContent!=='AI'){ai.setAttribute('aria-label',ai.textContent);ai.textContent='AI';}for(const [el,text]of originalText)if(el.textContent===text&&text!==compactText[el.id])el.textContent=compactText[el.id];}).observe(analyzeToolbar,{childList:true,subtree:true});
   const aimChoice=document.createElement('button');aimChoice.id='phoneAimChoice';aimChoice.type='button';aimChoice.textContent='1';aimChoice.setAttribute('aria-label','Switch active shot');aimChoice.onclick=()=>{const second=document.getElementById('aimControls2')?.classList.contains('activeAim');if(!document.body.classList.contains('phone-two-shots'))return;window.billiardsSelectShot?.(second?1:2);};actions.prepend(aimChoice);
-  const syncAim=()=>{const second=document.getElementById('aimControls2')?.classList.contains('activeAim');document.body.classList.toggle('phone-active-shot-2',!!second);aimChoice.textContent=document.body.classList.contains('table-3d')?(second?'Shot 2':'Shot 1'):(second?'2':'1');aimChoice.setAttribute('aria-pressed',String(!!second));const available=document.body.classList.contains('phone-two-shots');aimChoice.disabled=!available;aimChoice.title=available?'Switch adjustments between the two loaded shots':'Load or enable Shot 2 in Tools to switch shots';aimChoice.setAttribute('aria-label','Adjusting shot '+(second?'2':'1')+(available?'. Switch shot':'. Load Shot 2 in Tools to switch'));};
+  const syncAim=()=>{const second=document.getElementById('aimControls2')?.classList.contains('activeAim');document.body.classList.toggle('phone-active-shot-2',!!second);aimChoice.textContent=document.body.classList.contains('table-3d')?(second?'Shot 2':'Shot 1'):(second?'2':'1');aimChoice.setAttribute('aria-pressed',String(!!second));const available=document.body.classList.contains('phone-two-shots');aimChoice.disabled=!available;aimChoice.hidden=!available;aimChoice.title=available?'Switch adjustments between the two loaded shots':'Load or enable Shot 2 in Tools to switch shots';aimChoice.setAttribute('aria-label','Adjusting shot '+(second?'2':'1')+(available?'. Switch shot':'. Load Shot 2 in Tools to switch'));};
   if(shot2Source)new MutationObserver(syncAim).observe(shot2Source,{childList:true,characterData:true,subtree:true});
   for(const id of ['aimControls','aimControls2']){const el=document.getElementById(id);if(el)new MutationObserver(syncAim).observe(el,{attributes:true,attributeFilter:['class']});}
   const phone = matchMedia('(max-width:600px), (max-width:1000px) and (max-height:500px) and (pointer:coarse)');
@@ -268,7 +272,7 @@
     for(const which of [1,2]){const disk=document.getElementById('phoneTip'+which),spin=document.getElementById('bottomSpin'+which);if(disk){if(focused()&&spin)spin.append(disk);else document.body.append(disk);}}
     if(document.body.classList.contains('table-3d'))launchers.append(fullscreen);
     layoutAnalyze();
-    dockGuide();syncAim();
+    dockGuide();syncAim();window.billiardsPhoneReadouts();
     setControls(false);
     refreshSize();
     syncGuideSpace();

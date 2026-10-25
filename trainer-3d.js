@@ -62,12 +62,26 @@
  function setPanEnabled(value){engine?.cancelInput();panEnabled=!!value;syncCameraMode();}
  function setViewLocked(value){
   engine?.cancelInput();viewLocked=!!value;document.body.classList.toggle('table-3d-locked',active&&viewLocked);syncCameraMode();
-  viewLock.innerHTML='<span class="table3DAdjustmentTitle">Adjustment</span><span class="table3DAdjustmentOptions"><span data-adjust="edit" class="'+(viewLocked?'selected':'')+'">Shot/Ball</span><span data-adjust="view" class="'+(!viewLocked?'selected':'')+'">3D View</span></span>';
-  viewLock.setAttribute('aria-pressed',String(viewLocked));viewLock.setAttribute('aria-label',viewLocked?'Adjustment: Shot/Ball. Move balls and aim; switch to 3D View to move the camera':'Adjustment: 3D View. Move the camera; switch to Shot/Ball to move balls and aim');viewLock.title=viewLock.getAttribute('aria-label');
+  if(!viewLock.querySelector('.table3DAdjustmentOptions'))viewLock.innerHTML='<span class="table3DAdjustmentOptions"><span data-adjust="edit"><span class="table3DAdjustmentLabel">Balls and shot adjust&shy;ment</span></span><span data-adjust="view"><span class="table3DAdjustmentLabel">3D View adjust&shy;ment</span></span></span>';
+  for(const option of viewLock.querySelectorAll('[data-adjust]'))option.classList.toggle('selected',option.dataset.adjust===(viewLocked?'edit':'view'));
+  fitViewLabels();
+  viewLock.setAttribute('aria-pressed',String(viewLocked));viewLock.setAttribute('aria-label',viewLocked?'Balls and shot adjustment. Move balls and aim; switch to 3D View adjustment to move the camera':'3D View adjustment. Move the camera; switch to Balls and shot adjustment to move balls and aim');viewLock.title=viewLock.getAttribute('aria-label');
   document.getElementById('table3DCanvas')?.setAttribute('aria-label',viewLocked?'Table locked. Drag balls to move them or tap cloth to aim.':'Move the camera. Select Hand to slide or Rotate to orbit. Lock table to move balls.');
  }
  for(const id of ['teachingCompassToggle','bankToolToggle','kickToolToggle'])document.getElementById(id)?.addEventListener('click',()=>{if(!active)return;setViewLocked(true);setDrawer(false);if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();});
  viewLock.onclick=event=>{const target=event.target.closest('[data-adjust]');setViewLocked(target?target.dataset.adjust==='edit':!viewLocked);};
+ function fitViewLabels(){
+  if(!active)return;
+  for(const el of [button,standingButton,alongButton,...viewLock.querySelectorAll('.table3DAdjustmentLabel')]){
+   if(!el.clientWidth||!el.clientHeight)continue;
+   let size=el.classList.contains('table3DAdjustmentLabel')?18:24;
+   el.style.fontSize=size+'px';
+   const range=document.createRange();range.selectNodeContents(el);
+   const fits=()=>{const text=range.getBoundingClientRect();return text.width<=el.clientWidth-6&&text.height<=el.clientHeight-6;};
+   while(size>6.5&&!fits()){size-=.5;el.style.fontSize=size+'px';}
+  }
+ }
+ if(window.ResizeObserver)new ResizeObserver(fitViewLabels).observe(phoneBox);
  function requestRender(){if(lastFrame){const min=Math.max(lastFrame.R*5,lastFrame.L*.06),max=lastFrame.L*8;zoomSlider.value=String(100*(Math.log(max)-Math.log(cameraState.radius))/(Math.log(max)-Math.log(min)));}if(!active||!engine||scheduled)return;scheduled=requestAnimationFrame(()=>{scheduled=0;if(active)engine.render();});}
  function orbit(dx,dy){cameraState.azimuth+=dx;cameraState.elevation=clamp(cameraState.elevation+dy,2*Math.PI/180,88*Math.PI/180);requestRender();}
  function zoom(factor){if(!lastFrame)return;cameraState.radius=clamp(cameraState.radius*factor,Math.max(lastFrame.R*5,lastFrame.L*.06),lastFrame.L*8);requestRender();}
@@ -95,7 +109,7 @@
   const x=a.cue.x-dx*setback-lastFrame.L/2-cameraState.target.x,z=a.cue.y-dz*setback-lastFrame.W/2-cameraState.target.z,y=.25-cameraState.target.y;
   cameraState.azimuth=Math.atan2(x,z);cameraState.radius=Math.hypot(x,y,z);cameraState.elevation=Math.asin(y/cameraState.radius);requestRender();
  }
- function disable(){if(!active)return;setDrawer(false);active=false;document.body.classList.remove('table-3d','table-3d-locked','table-3d-pan','table-3d-rotate');button.setAttribute('aria-pressed','false');button.textContent='3D Mode';tools.hidden=true;for(const b of [standingButton,alongButton,viewLock])b.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
+ function disable(){if(!active)return;setDrawer(false);active=false;document.body.classList.remove('table-3d','table-3d-locked','table-3d-pan','table-3d-rotate');button.setAttribute('aria-pressed','false');button.textContent='3D Mode';for(const b of [button,standingButton,alongButton])b.style.removeProperty('font-size');tools.hidden=true;for(const b of [standingButton,alongButton,viewLock])b.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
  button.onclick=async()=>{
   if(active){disable();return;}if(loading)return;loading=true;button.disabled=true;status.textContent='';
   // Request within the entry gesture, before loading WebGL can consume activation.

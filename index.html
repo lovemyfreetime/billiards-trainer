@@ -2043,6 +2043,8 @@
         return {state:JSON.parse(JSON.stringify(S,(key,value)=>key==='preview'||key==='firstEvent'?null:value)),undo:undoStack.slice(),history:runHistory.slice(),redo:redoStack.slice()};
     }
     function syncHistoryButtons(){
+        const shoot=$('animate'), running=String(!!animation);
+        if(shoot && shoot.dataset.running!==running)shoot.dataset.running=running;
         for(const [id,available] of [['undoShot',undoStack.length],['redoShot',redoStack.length],['undoAction',actionHistory?.count],['redoAction',actionHistory?.redoCount]]){
             const button=$(id);if(button)button.disabled=!!animation||!available;
         }
@@ -12785,9 +12787,9 @@
     </div>
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=shared-guide-v1">
-  <script src="./phone-play.js?v=14"></script>
-  <link rel="stylesheet" href="./trainer-3d.css?v=12">
-  <script src="./trainer-3d.js?v=12"></script>
+  <script src="./phone-play.js?v=15"></script>
+  <link rel="stylesheet" href="./trainer-3d.css?v=13">
+  <script src="./trainer-3d.js?v=13"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">
