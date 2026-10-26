@@ -62,7 +62,7 @@
  function setPanEnabled(value){engine?.cancelInput();panEnabled=!!value;syncCameraMode();}
  function setViewLocked(value){
   engine?.cancelInput();viewLocked=!!value;document.body.classList.toggle('table-3d-locked',active&&viewLocked);syncCameraMode();
-  if(!viewLock.querySelector('.table3DAdjustmentOptions'))viewLock.innerHTML='<span class="table3DAdjustmentOptions"><span data-adjust="edit"><span class="table3DAdjustmentLabel">Balls and shot adjust&shy;ment</span></span><span data-adjust="view"><span class="table3DAdjustmentLabel">3D View adjust&shy;ment</span></span></span>';
+  if(!viewLock.querySelector('.table3DAdjustmentOptions'))viewLock.innerHTML='<span class="table3DAdjustmentOptions"><span data-adjust="edit"><span class="table3DAdjustmentLabel"><span>Balls and shot </span><span>adjust&shy;ment</span></span></span><span data-adjust="view"><span class="table3DAdjustmentLabel"><span>3D View </span><span>adjust&shy;ment</span></span></span></span>';
   for(const option of viewLock.querySelectorAll('[data-adjust]'))option.classList.toggle('selected',option.dataset.adjust===(viewLocked?'edit':'view'));
   fitViewLabels();
   viewLock.setAttribute('aria-pressed',String(viewLocked));viewLock.setAttribute('aria-label',viewLocked?'Balls and shot adjustment. Move balls and aim; switch to 3D View adjustment to move the camera':'3D View adjustment. Move the camera; switch to Balls and shot adjustment to move balls and aim');viewLock.title=viewLock.getAttribute('aria-label');

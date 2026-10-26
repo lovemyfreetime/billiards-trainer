@@ -139,10 +139,10 @@ body.table-3d.phone-focus #btg-pool-launchers .btg-launcher{position:static!impo
  body.table-3d.phone-focus .btg-pool-title h1{font-size:13px}
 }
 
-/* Shoot remains orange for the actual animation, including non-pointer execution. */
-body.table-3d.phone-focus #phoneActions>[data-trainer-action=animate].shot-running,body.table-3d.phone-focus #phoneActions>[data-trainer-action=animate]:active{background:#ff9a32!important;color:#291300!important;border-color:#ffc174!important;opacity:1}
+/* A soft glow marks the shot while preserving the green button. */
+body.table-3d.phone-focus #phoneActions>[data-trainer-action=animate].shot-running,body.table-3d.phone-focus #phoneActions>[data-trainer-action=animate]:active{box-shadow:0 0 0 2px #b4ffd1aa,0 0 16px 4px #65f99b99;opacity:1}
 body.table-3d.phone-focus #phoneActions>#phoneAimChoice[hidden]{display:none!important}
-.table3DAdjustmentLabel{display:grid;place-items:center;box-sizing:border-box;width:100%;height:100%;min-height:0;padding:2px;white-space:normal;line-height:1.05;hyphens:manual;overflow:hidden}
+.table3DAdjustmentLabel{display:flex;flex-direction:column;align-items:center;justify-content:center;box-sizing:border-box;width:100%;height:100%;min-height:0;padding:2px;white-space:normal;line-height:1.05;hyphens:manual;overflow:hidden}
 .phoneAimLabel{display:none}
 body.table-3d.phone-focus .phoneAimLabel{display:block;position:absolute;top:3px;left:0;right:0;text-align:center;font:700 10px/16px system-ui;z-index:1;pointer-events:none}
 body.table-3d.phone-focus #phoneAimRail .aimRollerControl{padding-top:24px}
@@ -158,3 +158,14 @@ body.table-3d.phone-focus #phoneActions .phoneSpinCaption::after{content:attr(da
 /* Empty toolbar space must not intercept the side controls on narrow screens. */
 body.table-3d.phone-focus #table3DPhoneControls{pointer-events:none}
 body.table-3d.phone-focus #table3DPhoneControls>nav{pointer-events:auto}
+
+/* Small breathing room around shot controls, without shifting the camera row. */
+body.table-3d.phone-focus #phoneAimRail,body.table-3d.phone-focus #phoneSpeedRail{bottom:calc(var(--control-bottom) + var(--control-height)*2 + 20px)}
+body.table-3d.phone-focus #phoneActions>.bottomSpinGroup{margin:0 8px;width:calc(100% - 16px);grid-template-columns:minmax(0,1fr) calc(var(--control-gap) + 12px) minmax(0,1fr)}
+body.table-3d.phone-focus #phoneActions .bottomSpinGroup .phoneTipControl:not([hidden]){width:calc(var(--control-height) + 6px);height:calc(var(--control-height) + 9px)}
+.phoneSpeedFeel{display:none}
+body.table-3d.phone-focus #phoneSpeedRail .phoneSpeedFeel{display:block;position:absolute;top:37px;left:0;right:0;text-align:center;font:600 8px/12px system-ui,sans-serif;color:#c9e6df;pointer-events:none;z-index:4}
+body.table-3d.phone-focus #phoneSpeedRail>.tableSpeedControl{padding-top:60px}
+body.table-3d.phone-focus #phoneSpeedRail .tableSpeedLabel{height:57px!important;min-height:57px}
+body.table-3d.phone-focus #phoneSpeedRail .speedTickScale{top:62px}
+@media(max-width:600px) and (orientation:portrait){body.table-3d.phone-focus #phoneAimRail{bottom:calc(var(--control-bottom) + var(--control-height)*3 + 26px)}}

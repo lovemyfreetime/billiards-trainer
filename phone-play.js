@@ -165,6 +165,7 @@
     caption.className=kind==='percent'?'phoneSpinCaption':'phoneSpeedValue';
     if(kind==='percent'){caption.dataset.start=input.id.includes('Follow')?'Draw':'Left spin';caption.dataset.end=input.id.includes('Follow')?'Follow':'Right spin';}
     input.parentNode.append(caption);
+    if(kind==='speed'){const feel=document.createElement('span');feel.className='phoneSpeedFeel';feel.id=input.id+'Feel';feel.setAttribute('aria-label','Speed feel in diamonds');input.parentNode.append(feel);}
     // Phone ranges act as relative rollers: a new touch never changes the value.
     // Each drag starts from the current setting, so lifting and swiping again adds to it.
     let drag=null;

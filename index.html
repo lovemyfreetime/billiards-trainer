@@ -6468,11 +6468,11 @@
         if (!cb)
             return;
         const d = aimDirection(), end = extendedAimEnd(cb, d);
-        pathPoly([cb, end], map, '#6fff58', 1.55, .92, []);
+        pathPoly([cb, end], map, '#6fff58', 1.55, window.Billiards3D?.active ? .782 : .92, []);
         const sd = strikeDirection();
         const actualEnd = { x: cb.x + sd.x * S.ballR * 5.2, y: cb.y + sd.y * S.ballR * 5.2 };
         if (Math.abs(S.sideSpin) > .01)
-            pathPoly([cb, actualEnd], map, '#ffffff', 1.35, .72, [4, 4]);
+            pathPoly([cb, actualEnd], map, '#ffffff', 1.35, window.Billiards3D?.active ? .612 : .72, [4, 4]);
         if (!cueVisualsVisible(1))
             return;
         const tip = { x: cb.x - d.x * S.ballR * 1.08, y: cb.y - d.y * S.ballR * 1.08 };
@@ -6500,7 +6500,7 @@
         const tangent = { x: -c.normal.y, y: c.normal.x };
         const tangentSeg = clippedLineThroughRect(c.cuePos, tangent, S.tableL, S.tableW);
         if (tangentSeg)
-            pathPoly(tangentSeg, map, opts.tangentColor || '#6fff58', isProjector ? 2.2 : 1.8, .92);
+            pathPoly(tangentSeg, map, opts.tangentColor || '#6fff58', isProjector ? 2.2 : 1.8, window.Billiards3D?.active ? .782 : .92);
         logicalCircle(c.cuePos, R, map, opts.ghostFill || '#ffffff22', opts.ghostStroke || '#ffffff', 1.6, .8);
         const contact = opts.pivotAtGhostCenter
             ? { x: c.cuePos.x, y: c.cuePos.y }
@@ -6694,15 +6694,15 @@
         const lockedGuide = s.angleLock ? shot2LockedGhostPoint() : null;
         if (lockedGuide) {
             // Fixed geometric CB2 -> ghost-center guide.
-            pathPoly([cb, { x: lockedGuide.x, y: lockedGuide.y }], map, '#00e5ff', 1.8, .96);
+            pathPoly([cb, { x: lockedGuide.x, y: lockedGuide.y }], map, '#00e5ff', 1.8, window.Billiards3D?.active ? .816 : .96);
         }
         else {
             const end = extendedAimEnd(cb, d);
-            pathPoly([cb, end], map, '#00e5ff', 1.45, .85, [6, 4]);
+            pathPoly([cb, end], map, '#00e5ff', 1.45, window.Billiards3D?.active ? .7225 : .85, [6, 4]);
         }
         const sd = shot2StrikeDirection(), actualEnd = { x: cb.x + sd.x * S.ballR * 5.2, y: cb.y + sd.y * S.ballR * 5.2 };
         if (Math.abs(s.sideSpin) > .01)
-            pathPoly([cb, actualEnd], map, '#b6f7ff', 1.25, .72, [3, 4]);
+            pathPoly([cb, actualEnd], map, '#b6f7ff', 1.25, window.Billiards3D?.active ? .612 : .72, [3, 4]);
         // When Shot 2 is locked, draw the teaching ghost/tangent from the
         // exact fixed ghost-ball pivot.  Physics paths can still show squirt,
         // throw and speed effects, but the geometric teaching target itself
@@ -7291,6 +7291,7 @@
         }
         const pf = powerFeel();
         $('powerFeelText').textContent = pf.diamonds.toFixed(1) + ' diamonds · ' + formatLagFraction(pf.lagFraction);
+        if($('tableSpeed1Feel')) $('tableSpeed1Feel').textContent = pf.diamonds.toFixed(1) + ' ♦';
         const pa = teachingPowerState(1);
         if (pa.mode === 'ball') {
             $('pocketNeedLabel').textContent = 'Pocket speed';
@@ -7342,6 +7343,7 @@
                 $('masseGuide2Text').textContent = '—';
             }
             $('powerFeel2Text').textContent = pf2.diamonds.toFixed(1) + ' diamonds · ' + formatLagFraction(pf2.lagFraction);
+            if($('tableSpeed2Feel')) $('tableSpeed2Feel').textContent = pf2.diamonds.toFixed(1) + ' ♦';
             const pa2 = teachingPowerState(2);
             if (pa2.mode === 'ball') {
                 $('pocketNeed2Label').textContent = 'Pocket speed';
@@ -12787,9 +12789,9 @@
     </div>
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=shared-guide-v1">
-  <script src="./phone-play.js?v=17"></script>
-  <link rel="stylesheet" href="./trainer-3d.css?v=15">
-  <script src="./trainer-3d.js?v=14"></script>
+  <script src="./phone-play.js?v=18"></script>
+  <link rel="stylesheet" href="./trainer-3d.css?v=16">
+  <script src="./trainer-3d.js?v=15"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">
