@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "174d0b25fa267745d3172cf6ece3a5b1166fd1cb7e18484cfa29a2c9a39f4a1f",
-  "sequence": 1792991962,
+  "version": "d36f9d10ff77d70dd941199443836e71ddbdd3d5aabb4c02044bd2ddbfa5157a",
+  "sequence": 1792994405,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -2749,12 +2749,12 @@
       "length": 9516
     },
     "guide/guide.css": {
-      "sha256": "2272e4df95477320461d8440b6bf584774eed1e4f1b02919d76ab278e103ce5d",
-      "length": 10332
+      "sha256": "767e4b454643690236628c3d36a0a38601087f0ecd21419ad2e12a631f6ec2a8",
+      "length": 10380
     },
     "guide/guide.js": {
-      "sha256": "0a12bc66bb7c20caa513ee76059c2d274f0c713b8a55093362c5771de5b8627f",
-      "length": 27327
+      "sha256": "38218b0bf64e1fc7a53779b871f815b27ff404da563d7d4473fe3bc333432217",
+      "length": 27761
     },
     "guide/header-fit-preview.html": {
       "sha256": "0f544b86273896c6d3eee7cff2aaad7d38301318555ed951c0ff7bc055d58e62",
@@ -3601,12 +3601,12 @@
       "length": 168850
     },
     "guide/pool-guide.css": {
-      "sha256": "8654ae0ab938390fe0b15a6f5e49d21ca643b9a85d44b71e679b218219c086ad",
-      "length": 3806
+      "sha256": "08fe7152ec6e7821f39a800ff232320935c996ea90cc3a017ab7375a07583606",
+      "length": 6039
     },
     "guide/pool-integration.js": {
-      "sha256": "a06ea1b8520414b47312392d436fb479c7deadceff4fa76f117930c591f256ee",
-      "length": 9767
+      "sha256": "658dbbaab4969797dbf2927f25fe8bd1a99dfe6655ea3ed47149ae4d78304014",
+      "length": 10556
     },
     "guide/practice-layouts.js": {
       "sha256": "ad75059a68dae3f380375fd8d846e0021cdfc2031a21ab76fd3d819382d66e40",
@@ -3685,8 +3685,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "d1c6fa9c7dcc68175cb13fdb3d7b8a5d4e4434046af0eba6795fe64972d10a50",
-      "length": 828801
+      "sha256": "60eaf3edc9e01fdc602b10f1e260a419a4c614e3e53078602552299da9df5915",
+      "length": 829181
     },
     "install/android/index.html": {
       "sha256": "862dff4245e200376ff30ee6763f007bb510a3c0cdf0634f8ef3d0d2c25630ff",
@@ -3781,7 +3781,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "8b7f3ca538d5cb35b52a7c370107e9e3b61f8e3a726a045c9aad9026d6c4bcc2",
+      "sha256": "d98be711fac43bc09136cab54a397b67cd61505971ff30ce4bec832268667d46",
       "length": 143387
     },
     "phone-play.css": {
@@ -4861,7 +4861,7 @@
       "length": 1895
     },
     "service-worker.js": {
-      "sha256": "b58c4bd9379c4fd3cc3c3037b3e37d23e85dcfdf51d4ea2192170e6d3ddb58a6",
+      "sha256": "14c02b91d1f4b6517d2ffaf850d9ea4169679a4a02c421a27be93c597f73f632",
       "length": 7739
     },
     "tournament-engine.js": {

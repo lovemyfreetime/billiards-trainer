@@ -209,7 +209,7 @@ function mount(host,options={}){
   for(const entry of available){const o=document.createElement('option');o.value=entry.id;o.textContent=(options.poolMode&&state.category!=='start'?(available.indexOf(entry)+1)+'. ':'')+entry.title+(options.poolMode&&entry.level===2&&state.category!=='start'?' (Advanced)':'');
    let parent=select;if(entry.group){if(!lessonGroups.has(entry.group)){const group=document.createElement('optgroup');group.label=entry.group;lessonGroups.set(entry.group,group);select.append(group)}parent=lessonGroups.get(entry.group)}parent.append(o)}
   select.className='btg-lesson-select';
-  const measure=document.createElement('canvas').getContext('2d');if(measure){measure.font=options.poolMode?'11px system-ui':'12px system-ui';select.style.width=Math.ceil(Math.max(...Array.from(select.options,o=>measure.measureText(o.textContent).width))+44)+'px';}
+  const measure=document.createElement('canvas').getContext('2d');if(measure&&!options.poolMode){measure.font='12px system-ui';select.style.width=Math.ceil(Math.max(...Array.from(select.options,o=>measure.measureText(o.textContent).width))+44)+'px';}
   select.value=available.some(x=>x.id===state.topicId)?state.topicId:'';
   select.onfocus=()=>{selectBrowsing=true};select.onpointerdown=()=>{selectBrowsing=true};
   select.onblur=()=>{selectBrowsing=false;select.value=availableLessons().some(x=>x.id===state.topicId)?state.topicId:''};
@@ -248,12 +248,18 @@ function mount(host,options={}){
    drawer.append(detail)}
   if(!options.poolMode)view.append(topic);
   const toggle=document.createElement('button');toggle.type='button';toggle.className='btg-expansion-tab';
-  toggle.textContent=(options.poolMode||host.classList.contains('btg-header-mode'))?(state.detailsOpen?'×':'+'):(state.detailsOpen?'⌃':'⌄');
+  toggle.textContent=(options.poolMode||host.classList.contains('btg-header-mode'))?(state.detailsOpen?'−':'+'):(state.detailsOpen?'⌃':'⌄');
   toggle.title=state.detailsOpen?'Close reading area':'Open reading area';
   toggle.setAttribute('aria-label',state.detailsOpen?'Close Guide details':'Open Guide details');
   toggle.setAttribute('aria-expanded',String(!!state.detailsOpen));
   toggle.addEventListener('click',()=>{state.detailsOpen=!state.detailsOpen;if(state.detailsOpen&&!state.expanded)state.expanded='read';if(!state.detailsOpen)state.expanded=null;save();render()});
-  if(options.poolMode)toolbar.append(toggle);else view.append(toggle);
+  if(options.poolMode){
+   const secondary=document.createElement('div');secondary.className='btg-secondary-row';
+   if(cats.parentNode){cats.replaceWith(secondary);secondary.append(cats);}else view.insertBefore(secondary,drawer);
+   const actions=document.createElement('div');actions.className='btg-guide-actions';
+   for(const control of toolbar.querySelectorAll('[data-action="More"],[data-action="Reset"]'))actions.append(control);
+   actions.append(toggle);secondary.append(actions);
+  }else view.append(toggle);
   if(host.classList.contains('btg-header-mode')){view.insertBefore(select,topic);topic.hidden=!state.detailsOpen;}
   view.className=root.className;patchNode(root,view);
   root.classList.toggle('btg-details-open',!!state.detailsOpen);

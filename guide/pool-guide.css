@@ -35,3 +35,24 @@
 
 /* Auto needs a readable state label alongside the circular transport icons. */
 #bt-guide-pool-root .btg-toolbar>button.btg-autoplay{width:auto;min-width:52px;flex-shrink:0;border-radius:12px;padding:2px 6px}
+
+/* Three compact rows: transport, categories/details, then lesson/Next Lesson. */
+#bt-guide-pool-root{right:0;width:376px;max-width:calc(100% - 8px);box-sizing:border-box;padding:3px}
+#bt-guide-pool-root .btg-toolbar{overflow-x:auto;scrollbar-width:none;gap:2px;margin-bottom:2px}
+#bt-guide-pool-root .btg-toolbar>button{font-size:8.5px;padding:2px 3px;height:24px;min-height:24px}
+#bt-guide-pool-root .btg-toolbar>button:nth-child(-n+6){width:20px;min-width:20px;flex:0 0 20px}
+#bt-guide-pool-root .btg-toolbar>button.btg-autoplay{min-width:43px;padding:2px 3px}
+#bt-guide-pool-root .btg-secondary-row{display:flex;align-items:center;gap:4px;margin-bottom:2px;min-width:0}
+#bt-guide-pool-root .btg-secondary-row .btg-categories{flex:1;min-width:0;margin:0!important;gap:2px}
+#bt-guide-pool-root .btg-categories button{font-size:8px;padding:2px}
+#bt-guide-pool-root .btg-guide-actions{display:flex;flex:none;align-items:center;gap:2px;margin-left:auto}
+#bt-guide-pool-root .btg-guide-actions button{flex:none}
+#bt-guide-pool-root .btg-guide-actions>button:not(.btg-expansion-tab){font-size:9px;padding:2px 4px}
+#bt-guide-pool-root .btg-guide-actions .btg-expansion-tab{display:flex;align-items:center;justify-content:center;position:static;transform:none;flex:0 0 24px;width:24px;height:24px;min-height:24px;margin:0;padding:0;border:1px solid #ffe898;border-radius:50%;background:#f0cc55;color:#302400;font:800 19px/1 system-ui,sans-serif}
+#bt-guide-pool-root .btg-guide-actions .btg-expansion-tab:hover{background:#ffe58d}
+#bt-guide-pool-root .btg-guide-actions .btg-expansion-tab[aria-expanded=true]{background:#ffe58d;border-color:#fff1ba}
+#bt-guide-pool-root .btg-pool-drawer,#bt-guide-pool-root .btg-lesson-row{min-width:0}
+#bt-guide-pool-root .btg-pool-drawer .btg-lesson-row,#bt-guide-pool-root .btg-pool-drawer .btg-practice-slot{min-height:24px}
+#bt-guide-pool-root .btg-pool-drawer select.btg-lesson-select{width:100%!important;max-width:100%;min-width:0;box-sizing:border-box;text-overflow:ellipsis;height:24px;padding:2px 4px;font-size:10px}
+#bt-guide-pool-root .btg-practice-slot button.btg-next-lesson{min-height:24px;height:24px;padding:2px}
+body.phone-focus #panel #bt-guide-pool-root{margin-left:0;margin-right:0}

@@ -75,7 +75,7 @@ async function init(){
   onResourcePractice:topic=>{guide.pause();if(topic.scene)window.billiardsTourBridge?.loadLesson(topic.scene);},
   onPlaybackProgress:(topic,time,playing)=>tour?.progress(topic,time,playing),
   onPlaybackStart:()=>guide.getState().category==='start'?tour?.listening():lessonPractice?.listening(),
-  onRendered:()=>{tour?.placeControls();lessonPractice?.placeControls();},
+  onRendered:()=>{tour?.placeControls();lessonPractice?.placeControls();positionPlayer();},
   onPlaybackStop:()=>guide.getState().category==='start'?tour?.hold(false):lessonPractice?.hold(false),
   onLessonEnd:(topic,state)=>topic?.category==='start'?tour?.ended(topic,state):lessonPractice?.ended(topic,state),
   getPracticeSetups:()=>tour?.setups()||[],
@@ -132,6 +132,15 @@ async function init(){
  // Also pause if Analyze is opened through another trainer action.
  const modalObserver=new MutationObserver(()=>{if(modal.classList.contains('open')){tour?.pause();guide.setEnabled(false);guide.setExploring(false)}});
  modalObserver.observe(modal,{attributes:true,attributeFilter:['class']});
+ // Keep the player to the right of the jump profile; stack only when space is tight.
+ function positionPlayer(){
+  if(document.body.classList.contains('phone-focus')||document.body.classList.contains('table-3d')){host.style.removeProperty('top');return;}
+  const profile=window.billiardsTourBridge?.flightProfileBounds?.(),r=host.getBoundingClientRect();
+  if(host.classList.contains('btg-enabled')&&profile&&r.left<profile.right+6&&r.right>profile.left)host.style.top=(profile.bottom-stage.getBoundingClientRect().top+6)+'px';
+  else host.style.removeProperty('top');
+ }
+ for(const event of ['resize','input','change'])window.addEventListener(event,()=>requestAnimationFrame(positionPlayer));
+ if(window.ResizeObserver)new ResizeObserver(positionPlayer).observe(stage);
  // Leaving 2D stops audio, pending lessons and narration spotlights together.
  let was3D=false;
  function sync3D(){const in3D=document.body.classList.contains('table-3d');if(in3D&&!was3D){tour?.pause();guide.setEnabled(false);guide.setExploring(false);}was3D=in3D;}

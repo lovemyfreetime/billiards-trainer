@@ -27,6 +27,7 @@ jobs:
           node tests/app-updates.browser.cjs
           node tests/cue-deflection.browser.cjs
           node tests/chromebook-sliders.browser.cjs
+          node tests/compact-guide-player.browser.cjs
           node tests/trainer-tools-menu.browser.cjs
           node tests/trainer-3d-controls.browser.cjs
           node tests/trainer-3d.browser.cjs
