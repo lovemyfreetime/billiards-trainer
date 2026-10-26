@@ -169,3 +169,27 @@ body.table-3d.phone-focus #phoneSpeedRail>.tableSpeedControl{padding-top:60px}
 body.table-3d.phone-focus #phoneSpeedRail .tableSpeedLabel{height:57px!important;min-height:57px}
 body.table-3d.phone-focus #phoneSpeedRail .speedTickScale{top:62px}
 @media(max-width:600px) and (orientation:portrait){body.table-3d.phone-focus #phoneAimRail{bottom:calc(var(--control-bottom) + var(--control-height)*3 + 26px)}}
+
+/* Equal-size numeric speed and diamond readouts, with wider touch rails. */
+body.table-3d.phone-focus #phoneAimRail,body.table-3d.phone-focus #phoneSpeedRail{width:64px}
+body.table-3d.phone-focus #phoneAimRail>.aimControlRow,body.table-3d.phone-focus #phoneSpeedRail>.tableSpeedControl{width:64px!important}
+body.table-3d.phone-focus #phoneAimRail .aimRollerControl{width:64px}
+body.table-3d.phone-focus #phoneAimRail .rollerTrack{width:40px}
+body.table-3d.phone-focus #phoneSpeedRail input{width:54px}
+body.table-3d.phone-focus #phoneSpeedRail .phoneSpeedValue,body.table-3d.phone-focus #phoneSpeedRail .phoneSpeedFeel{font:700 12px/16px system-ui,sans-serif}
+body.table-3d.phone-focus #phoneSpeedRail .phoneSpeedFeel{top:39px}
+body.table-3d.phone-focus #phoneSpeedRail>.tableSpeedControl{padding-top:65px}
+body.table-3d.phone-focus #phoneSpeedRail .tableSpeedLabel{height:62px!important;min-height:62px}
+body.table-3d.phone-focus #phoneSpeedRail .speedTickScale{top:67px}
+/* Keep endpoint words inward and leave the percentage clear of center ticks. */
+body.table-3d.phone-focus #phoneActions .phoneSpinCaption::before{left:clamp(8px,3vw,48px)}
+body.table-3d.phone-focus #phoneActions .phoneSpinCaption::after{right:clamp(8px,3vw,48px)}
+body.table-3d.phone-focus #phoneActions .miniSpinControl::before,body.table-3d.phone-focus #phoneActions .miniSpinControl::after{content:"";position:absolute;left:50%;width:1px;background:#cce4df;opacity:.28;pointer-events:none}
+body.table-3d.phone-focus #phoneActions .miniSpinControl::before{top:calc(50% + 7px);bottom:3px}
+body.table-3d.phone-focus #phoneActions .miniSpinControl::after{top:calc(50% + 1px);height:4px}
+body.table-3d.phone-focus #phoneActions>.bottomSpinGroup{grid-template-columns:minmax(0,1fr) calc(var(--control-gap) + 24px) minmax(0,1fr)}
+body.table-3d.phone-focus #phoneActions .bottomSpinGroup .phoneTipControl:not([hidden]){width:calc(var(--control-height) + 16px);height:calc(var(--control-height) + 17px);margin:0 auto;align-self:end}
+@media(max-width:600px) and (orientation:portrait){
+ body.table-3d.phone-focus #phoneActions .phoneSpinCaption::before{left:2px}
+ body.table-3d.phone-focus #phoneActions .phoneSpinCaption::after{right:2px}
+}

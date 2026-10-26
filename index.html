@@ -1483,13 +1483,13 @@
       <div id="tableSpeed1Wrap" class="tableSpeedControl">
         <div class="speedTickScale lagTicks" id="lagTicks1" aria-hidden="true"></div>
         <div class="speedTickScale feelTicks" id="feelTicks1" aria-hidden="true"></div>
-        <input id="tableSpeed1" type="range" min="0.25" max="6" step="0.01" value="2.42" aria-label="Shot 1 speed on table edge">
+        <input id="tableSpeed1" type="range" min="0.25" max="6" step="0.01" value="1.50" aria-label="Shot 1 speed on table edge">
         <span id="tableSpeed1Label" class="tableSpeedLabel">SPEED</span>
       </div>
       <div id="tableSpeed2Wrap" class="tableSpeedControl">
         <div class="speedTickScale lagTicks" id="lagTicks2" aria-hidden="true"></div>
         <div class="speedTickScale feelTicks" id="feelTicks2" aria-hidden="true"></div>
-        <input id="tableSpeed2" type="range" min="0.25" max="6" step="0.01" value="2.42" aria-label="Shot 2 speed on table edge">
+        <input id="tableSpeed2" type="range" min="0.25" max="6" step="0.01" value="1.50" aria-label="Shot 2 speed on table edge">
         <span class="tableSpeedLabel">SPEED 2</span>
       </div>
     </div>
@@ -1561,14 +1561,14 @@
       <div class="sectionBody">
 <div id="shot1Controls">
       <div class="shotMiniTitle">SHOT 1 CONTROLS</div>
-<div class="fineRow"><label>Shot speed <span id="speedText"></span></label><button id="speedMinus" type="button">−</button><input id="speed" type="range" min="0.25" max="6" step="0.01" value="2.42"><button id="speedPlus" type="button">+</button><input id="speedNumber" type="number" min="0.25" max="6" step="0.01" inputmode="decimal" aria-label="Shot 1 speed value"></div>
+<div class="fineRow"><label>Shot speed <span id="speedText"></span></label><button id="speedMinus" type="button">−</button><input id="speed" type="range" min="0.25" max="6" step="0.01" value="1.50"><button id="speedPlus" type="button">+</button><input id="speedNumber" type="number" min="0.25" max="6" step="0.01" inputmode="decimal" aria-label="Shot 1 speed value"></div>
       <div class="fineRow"><label>Follow draw <span id="followText"></span></label><button id="followMinus" type="button">−</button><input id="follow" type="range" min="-1" max="1" step="0.01" value="0"><button id="followPlus" type="button">+</button><input id="followNumber" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 1 follow draw percent"></div>
       <div class="fineRow"><label>Left right spin <span id="spinText"></span></label><button id="spinMinus" type="button">−</button><input id="sideSpin" type="range" min="-1" max="1" step="0.01" value="0"><button id="spinPlus" type="button">+</button><input id="spinNumber" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 1 left right spin percent"></div>
       <div id="cueElevationAdvanced1" class="cueElevationSlider"><div class="fineRow"><label>Cue elevation <span id="elevText"></span></label><button id="elevMinus" type="button">−</button><input id="cueElevation" type="range" min="0" max="15" step="0.1" value="3"><button id="elevPlus" type="button">+</button><input id="elevNumber" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 1 cue elevation degrees"></div></div>
       </div>
       <div id="shot2Controls">
         <div class="shotMiniTitle">SHOT 2 CONTROLS</div>
-        <div class="fineRow"><label>Shot speed</label><button id="speed2Minus" type="button">−</button><input id="speed2" type="range" min="0.25" max="6" step="0.01" value="2.42"><button id="speed2Plus" type="button">+</button><input id="speed2Number" type="number" min="0.25" max="6" step="0.01" inputmode="decimal" aria-label="Shot 2 speed value"></div>
+        <div class="fineRow"><label>Shot speed</label><button id="speed2Minus" type="button">−</button><input id="speed2" type="range" min="0.25" max="6" step="0.01" value="1.50"><button id="speed2Plus" type="button">+</button><input id="speed2Number" type="number" min="0.25" max="6" step="0.01" inputmode="decimal" aria-label="Shot 2 speed value"></div>
         <div class="fineRow"><label>Follow draw</label><button id="follow2Minus" type="button">−</button><input id="follow2" type="range" min="-1" max="1" step="0.01" value="0"><button id="follow2Plus" type="button">+</button><input id="follow2Number" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 2 follow draw percent"></div>
         <div class="fineRow"><label>Left right spin</label><button id="spin2Minus" type="button">−</button><input id="sideSpin2" type="range" min="-1" max="1" step="0.01" value="0"><button id="spin2Plus" type="button">+</button><input id="spin2Number" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 2 left right spin percent"></div>
         <div id="cueElevationAdvanced2" class="cueElevationSlider"><div class="fineRow"><label>Cue elevation</label><button id="elev2Minus" type="button">−</button><input id="cueElevation2" type="range" min="0" max="15" step="0.1" value="3"><button id="elev2Plus" type="button">+</button><input id="elev2Number" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 2 cue elevation degrees"></div></div>
@@ -1971,7 +1971,7 @@
         return {
             tableL: 88 * inch, tableW: 44 * inch, ballR: 2.25 * inch / 2,
             balls: [],
-            nextId: 1, markerSeq: 1000, freeAim: initialAim, angleLock: false, speed: 2.42, follow: 0, sideSpin: 0, cueElevationDeg: PHYSICS_MODEL.defaultCueElevationDeg,
+            nextId: 1, markerSeq: 1000, freeAim: initialAim, angleLock: false, speed: 1.50, follow: 0, sideSpin: 0, cueElevationDeg: PHYSICS_MODEL.defaultCueElevationDeg,
             shot2Enabled: false, activeShot: 1, shot2Initialized: false,
             showShot1: true,
             showShot2: true,
@@ -1981,7 +1981,7 @@
             showCueVisuals1: true,
             showCueVisuals2: true,
             showAngleLockControl: false,
-            shot2: { x: 1.05, y: .72, freeAim: { x: 1.70, y: .72 }, angleLock: false, autoGhostLock: false, speed: 2.42, follow: 0, sideSpin: 0, cueElevationDeg: PHYSICS_MODEL.defaultCueElevationDeg, preview: null },
+            shot2: { x: 1.05, y: .72, freeAim: { x: 1.70, y: .72 }, angleLock: false, autoGhostLock: false, speed: 1.50, follow: 0, sideSpin: 0, cueElevationDeg: PHYSICS_MODEL.defaultCueElevationDeg, preview: null },
             teachingCompass: {
                 enabled: false,
                 x: .90, y: .56,
@@ -8795,7 +8795,7 @@
                     ? { x: cb.x + ux * ar, y: cb.y + uy * ar }
                     : Object.assign({}, shot2Handoff.freeAim),
                 angleLock: false,
-                speed: 2.42,
+                speed: 1.50,
                 follow: 0,
                 sideSpin: 0,
                 cueElevationDeg: PHYSICS_MODEL.defaultCueElevationDeg,
@@ -8804,7 +8804,7 @@
         }
         else {
             // Normal single-shot play retains the established neutral teaching default.
-            S.speed = 2.42;
+            S.speed = 1.50;
             S.follow = 0;
             S.sideSpin = 0;
             S.cueElevationDeg = PHYSICS_MODEL.defaultCueElevationDeg;
@@ -8981,7 +8981,7 @@
                 const r = Math.max(S.tableL, S.tableW) * .45;
                 s.freeAim = { x: s.x + d.x * r, y: s.y + d.y * r };
                 // Treat re-adding Shot 2 as a fresh second-shot plan.
-                s.speed = 2.42;
+                s.speed = 1.50;
                 s.follow = 0;
                 s.sideSpin = 0;
                 s.cueElevationDeg = PHYSICS_MODEL.defaultCueElevationDeg;
@@ -12790,7 +12790,7 @@
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=shared-guide-v1">
   <script src="./phone-play.js?v=18"></script>
-  <link rel="stylesheet" href="./trainer-3d.css?v=16">
+  <link rel="stylesheet" href="./trainer-3d.css?v=17">
   <script src="./trainer-3d.js?v=15"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
