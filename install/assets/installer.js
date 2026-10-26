@@ -94,6 +94,7 @@ async function installPresenterApp(btn){
 }
 
 async function toggleInstallerFullscreen(btn){
+  if(window.BilliardsDisplay){await window.BilliardsDisplay.toggle();return;}
   try{
     if(document.fullscreenElement){
       await document.exitFullscreen();

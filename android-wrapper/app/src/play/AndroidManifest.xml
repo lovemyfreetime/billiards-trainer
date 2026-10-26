@@ -7,7 +7,7 @@
  <queries><intent><action android:name="android.speech.RecognitionService"/></intent></queries>
  <application android:usesCleartextTraffic="true" tools:replace="android:usesCleartextTraffic">
   <activity android:name=".MainActivity" tools:node="remove"/>
-  <activity android:name=".PlayActivity" android:exported="true" android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|uiMode">
+  <activity android:name=".PlayActivity" android:screenOrientation="sensorLandscape" android:exported="true" android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|uiMode">
    <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
   </activity>
  </application>

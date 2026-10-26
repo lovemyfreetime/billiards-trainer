@@ -5,7 +5,8 @@
   "description": "Install Billiards Trainer: visual training, 20 table-side social games, and distraction-free Zen practice.",
   "start_url": "./",
   "scope": "./",
-  "display": "standalone",
+  "display": "fullscreen",
+  "orientation": "any",
   "background_color": "#090d12",
   "theme_color": "#11151b",
   "icons": [

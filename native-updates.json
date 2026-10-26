@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "51aa8abc5f35f3487f15559f3188b50a367e98b3ac07064de20a985f91e72a61",
-  "sequence": 1793002683,
+  "version": "10b64f02ce7d18b1d45e8d1af70e303dc5231abf4307d486af74b190cb9c9fd3",
+  "sequence": 1793049112,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -21,12 +21,12 @@
       "length": 3831
     },
     "app-display.css": {
-      "sha256": "bddfad93db50708204138f5836b1bac40b9f403993a31da9993087d39c159a65",
-      "length": 2723
+      "sha256": "6bfa277d0144f50c01c3ab8b2647615212df1dd44521a619cf3830dda6a506d2",
+      "length": 2998
     },
     "app-display.js": {
-      "sha256": "e4c3e19a450268c99be3fbcba474826a70a34acbd5bd423d4c19c8ab8cc9d5b3",
-      "length": 4815
+      "sha256": "ea0b7f182c5969026cc46c6823b73fc209cc9708f431adbf4c74ecea083be365",
+      "length": 8430
     },
     "app-hotfix-20261003.js": {
       "sha256": "c7fb00dd82a9b2cf37adafad9cdaa82a99c79d19830f2fca139b55183d1934c0",
@@ -3685,8 +3685,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "e4af24b20d79c32af6bedbdf51b86318552f6447a0678d052edbe0c860b1c205",
-      "length": 830919
+      "sha256": "40dc83910c202ce39a264b70ec5f2ac178150fc177c2d64ced4cebbfc8215190",
+      "length": 830985
     },
     "install/android/index.html": {
       "sha256": "862dff4245e200376ff30ee6763f007bb510a3c0cdf0634f8ef3d0d2c25630ff",
@@ -3725,24 +3725,24 @@
       "length": 51772
     },
     "install/assets/installer.css": {
-      "sha256": "0e02401ab0e87bbaffddf0166c4ac673d1dbb74ee953d8cb4e190d2cf0c34682",
-      "length": 11100
+      "sha256": "28724588911771d238c7679faa0e3641a553254cec500646dd1cb1637588c22f",
+      "length": 12211
     },
     "install/assets/installer.js": {
-      "sha256": "f3509b3e6b105a1b8a85d027a4b91ea3abb782817e19b88f7f21ec0d1ce8203a",
-      "length": 7726
+      "sha256": "807234e19d0e108acbd064278d87caff65e60e214ee436c67e32307080556c88",
+      "length": 7804
     },
     "install/chromebook/index.html": {
       "sha256": "6ece7c43540db451890dc43430800e6133ab817590e9f29667e746dfcff9400b",
       "length": 3271
     },
     "install/index.html": {
-      "sha256": "c61e50bfc718d04fae09005359144c5f5d40e63b04d3218eba5124765579ce8c",
-      "length": 13941
+      "sha256": "e3c10ea1e663fc479cdb80178d5fcf0e54f2bde3915b220244375e06d3091761",
+      "length": 14156
     },
     "install/manifest.webmanifest": {
-      "sha256": "ed808dd8d4b027173db45073d65044ac307f4f9de5593fd74db4d062640c14cb",
-      "length": 678
+      "sha256": "9fc5dc7146b84f8d9120d63390dfdb729da045ec98a81e90f2b11f93a1bdd2d7",
+      "length": 702
     },
     "install/qr/android.png": {
       "sha256": "c0c69358ca0762ca2939e0971ec5245f4b7d074eadb3997a37b3f2de91804b60",
@@ -3781,7 +3781,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "13fb2a32287df2d0000f30e59bb084b146ee2fa3f73de6c8d4bdc3de88f2ee6c",
+      "sha256": "e5874241735794e75377f92ed9c2b0345acb779683ff48a375b0c34b16642fe3",
       "length": 143387
     },
     "phone-play.css": {
@@ -4857,11 +4857,11 @@
       "length": 497
     },
     "play.html": {
-      "sha256": "7f2525f824862f578b00e296f850cf66319f67b7bb0f2229719d2798f896532d",
+      "sha256": "03e18a0f7b30c37061c2cdc37b7f9bb5c80e88a9101daebee03bb4003ebba72c",
       "length": 1895
     },
     "service-worker.js": {
-      "sha256": "043e5bd94e623a24c1c4fcd39c656a9755730e5dddfb81851056ead419a54f33",
+      "sha256": "e3962f2c967b584abdbbb1049fc7bac82879bdd971c227b3aa300abef3feb525",
       "length": 7739
     },
     "tournament-engine.js": {
@@ -4957,12 +4957,12 @@
       "length": 3295
     },
     "welcome.html": {
-      "sha256": "415b390764fb30bba231d984c933b64755e49abd6d5cb058a5055b50bf3c6f27",
+      "sha256": "91b3a934a3502c126116a418805be0a61b2efa81489905edfc859a656e962292",
       "length": 11389
     },
     "zen-mode.js": {
-      "sha256": "c797e9ad79f26813609ba97858d62eb3586a66a9e6ad903cb46a6c5777e121ca",
-      "length": 60268
+      "sha256": "27e036779fb79ccbecdf1437c0855dde730e16af29cf8a9ea9c205bbc7188a66",
+      "length": 60490
     }
   }
 }

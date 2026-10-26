@@ -25,6 +25,7 @@ jobs:
         run: |
           node tests/native-content-updates.browser.cjs
           node tests/app-updates.browser.cjs
+          node tests/display-startup.browser.cjs
           node tests/cue-deflection.browser.cjs
           node tests/chromebook-sliders.browser.cjs
           node tests/compact-guide-player.browser.cjs
