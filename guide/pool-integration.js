@@ -139,7 +139,7 @@ async function init(){
   if(host.classList.contains('btg-enabled')&&profile&&r.left<profile.right+6&&r.right>profile.left)host.style.top=(profile.bottom-stage.getBoundingClientRect().top+6)+'px';
   else host.style.removeProperty('top');
  }
- for(const event of ['resize','input','change'])window.addEventListener(event,()=>requestAnimationFrame(positionPlayer));
+ for(const event of ['resize','input','change','click'])window.addEventListener(event,()=>requestAnimationFrame(positionPlayer));
  if(window.ResizeObserver)new ResizeObserver(positionPlayer).observe(stage);
  // Leaving 2D stops audio, pending lessons and narration spotlights together.
  let was3D=false;
