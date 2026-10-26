@@ -158,7 +158,7 @@ function mount(host,options={}){
   host.hidden=!state.enabled;host.classList.toggle('btg-exploring',!!state.exploring);syncInspection();
   options.onStateChange?.({...state});
   const view=document.createElement('div');
-  host.classList.toggle('btg-enabled',!!state.enabled);
+  host.classList.toggle('btg-enabled',!!state.enabled);host.classList.toggle('btg-get-started',state.category==='start');
   const toolbar=document.createElement('div');toolbar.className='btg-row btg-toolbar';
   const resourceBrowse=!!options.poolMode&&state.category==='more';
   host.classList.toggle('btg-resources-mode',resourceBrowse);
@@ -178,14 +178,14 @@ function mount(host,options={}){
    autoplay.dataset.action='A';autoplay.title='Autoplay next lesson';autoplay.className='btg-autoplay';
    autoplay.setAttribute('aria-label','Autoplay next lesson');autoplay.setAttribute('aria-pressed',String(!!state.autoplay));
    if((state.category==='start'||t?.setups?.length)&&options.onTryShot)btn('Try the Shot',practice).title='Pause narration and practice this shot';
-   if(state.category!=='start'&&t?.setups?.length&&options.loadLayout)btn('Balls',()=>{options.loadLayout(selected().setups[0].url).catch(error=>global.alert(error.message));}).title='Load / reset starting ball layout';
+   if(!options.poolMode&&state.category!=='start'&&t?.setups?.length&&options.loadLayout)btn('Balls',()=>{options.loadLayout(selected().setups[0].url).catch(error=>global.alert(error.message));}).title='Load / reset starting ball layout';
    if(state.category!=='start'&&!options.poolMode){const level=document.createElement('label');level.className='btg-level';level.textContent=LEVELS[state.level];
    const range=document.createElement('input');range.type='range';range.min='0';range.max='2';range.step='1';range.value=state.level;
    range.setAttribute('aria-label','Guide skill level');range.addEventListener('input',()=>{state.level=Number(range.value);save();render()});level.append(range);toolbar.append(level);}
    btn('Read',()=>{state.expanded=state.expanded==='read'?null:'read';state.detailsOpen=!!state.expanded;save();render()});
    if(t?.learning)btn('Practice',()=>{practice();state.expanded='practice';state.detailsOpen=true;save();render()}).title='Purpose, instructions, success target, and real-table setup';
    const moreButton=btn('More',()=>{state.expanded=state.expanded==='more'?null:'more';state.detailsOpen=!!state.expanded;save();render()});moreButton.disabled=state.category==='more'&&!t?.resources?.length;
-   if(state.category!=='start')btn('Reset',()=>{if(!confirm('Reset Guide session? The table will not change.'))return;stop();state={enabled:true,exploring:false,autoplay:state.category==='start'||!!options.poolMode&&state.guideAutoplay,guideAutoplay:state.guideAutoplay,level:0,category:options.startOnly||state.category==='start'?'start':'fundamentals',topicId:null,expanded:null,detailsOpen:false,position:0};save();render();if(state.category==='start')openCategory('start')});
+   if(!options.poolMode&&state.category!=='start')btn('Reset',()=>{if(!confirm('Reset Guide session? The table will not change.'))return;stop();state={enabled:true,exploring:false,autoplay:state.category==='start'||!!options.poolMode&&state.guideAutoplay,guideAutoplay:state.guideAutoplay,level:0,category:options.startOnly||state.category==='start'?'start':'fundamentals',topicId:null,expanded:null,detailsOpen:false,position:0};save();render();if(state.category==='start')openCategory('start')});
    }
   }
   view.append(toolbar);if(!state.enabled){root.classList.remove('btg-details-open');patchNode(root,view);return;}
@@ -254,11 +254,14 @@ function mount(host,options={}){
   toggle.setAttribute('aria-expanded',String(!!state.detailsOpen));
   toggle.addEventListener('click',()=>{state.detailsOpen=!state.detailsOpen;if(state.detailsOpen&&!state.expanded)state.expanded='read';if(!state.detailsOpen)state.expanded=null;save();render()});
   if(options.poolMode){
-   const secondary=document.createElement('div');secondary.className='btg-secondary-row';
-   if(cats.parentNode){cats.replaceWith(secondary);secondary.append(cats);}else view.insertBefore(secondary,drawer);
-   const actions=document.createElement('div');actions.className='btg-guide-actions';
-   for(const control of toolbar.querySelectorAll('[data-action="More"],[data-action="Reset"]'))actions.append(control);
-   actions.append(toggle);secondary.append(actions);
+   toolbar.append(toggle);
+   if(state.category!=='start'){
+    const secondary=document.createElement('div');secondary.className='btg-secondary-row';
+    cats.replaceWith(secondary);secondary.append(cats);
+    const actions=document.createElement('div');actions.className='btg-guide-actions';
+    for(const control of toolbar.querySelectorAll('[data-action="Practice"],[data-action="More"]'))actions.append(control);
+    secondary.append(actions);
+   }
   }else view.append(toggle);
   if(host.classList.contains('btg-header-mode')){view.insertBefore(select,topic);topic.hidden=!state.detailsOpen;}
   view.className=root.className;patchNode(root,view);

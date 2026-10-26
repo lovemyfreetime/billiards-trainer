@@ -2585,7 +2585,7 @@
             if(kind==='table'||kind==='grid'){const a=M.map({x:0,y:0}),b=M.map({x:S.tableL,y:S.tableW});return [{x:c.left+a.x*sx,y:c.top+a.y*sy,width:b.x*sx-a.x*sx,height:b.y*sy-a.y*sy}];}
             return [];
         }
-        return {capture,restore,apply,loadLesson,narrationRegions,snapshot,feltBounds(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR);return {left:c.left-s.left+m.corners[0].x*sx,top:c.top-s.top+m.corners[0].y*sy,right:c.left-s.left+m.corners[1].x*sx,width:(m.corners[1].x-m.corners[0].x)*sx,height:(m.corners[2].y-m.corners[0].y)*sy};},exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},flightProfileBounds(){const which=S.activeShot===2&&S.shot2Enabled?2:1,preview=which===2?S.shot2?.preview:S.preview;if(document.body.classList.contains('phone-layout')||!shouldShowFlightOverlay(preview,which))return null;const r=canvas.getBoundingClientRect(),w=canvas.width/DPR;return {left:r.left+6,right:r.left+6+Math.min(w-12,680,Math.max(510,w*.62)),bottom:r.top+140};},rollingReference(which=1){return rollingReferenceForShot(which);},predict(){const p=simulate(false);return {pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact};}};
+        return {capture,restore,apply,loadLesson,narrationRegions,snapshot,feltBounds(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR);return {left:c.left-s.left+m.corners[0].x*sx,top:c.top-s.top+m.corners[0].y*sy,right:c.left-s.left+m.corners[1].x*sx,width:(m.corners[1].x-m.corners[0].x)*sx,height:(m.corners[2].y-m.corners[0].y)*sy};},exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},flightProfileBounds(){const which=S.activeShot===2&&S.shot2Enabled?2:1,preview=which===2?S.shot2?.preview:S.preview;if(document.body.classList.contains('phone-layout')||!shouldShowFlightOverlay(preview,which))return null;const r=canvas.getBoundingClientRect(),w=canvas.width/DPR;return {left:r.left+6,right:r.left+6+flightSideProfileWidth(w,false),bottom:r.top+140};},rollingReference(which=1){return rollingReferenceForShot(which);},predict(){const p=simulate(false);return {pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact};}};
     })();
 
     function freshZenTable(){
@@ -5572,6 +5572,16 @@
         if (!isProjector && S.activeShot === which)
             drawFlightSideProfile(preview, which, stroke);
     }
+    function flightSideProfileWidth(w,phoneProfile){
+        if(phoneProfile)return Math.min(510,w-240);
+        let width=Math.min(w-12,520,Math.max(280,w*.48));
+        const guide=$('bt-guide-pool-root');
+        if(!document.body.classList.contains('phone-layout')&&guide?.classList.contains('btg-enabled')&&!guide.hidden){
+            const r=canvas.getBoundingClientRect(),g=guide.getBoundingClientRect();
+            if(g.width&&r.width)width=Math.min(width,(g.left-r.left-12)*w/r.width);
+        }
+        return Math.max(120,width);
+    }
     function drawFlightSideProfile(preview, which, stroke) {
         const a = preview && preview.airborne, path = preview && preview.paths && preview.paths[0];
         if (!shouldShowFlightOverlay(preview, which) || !path || path.length < 2) return;
@@ -5579,7 +5589,7 @@
         const phoneCanvas = $('phoneFlightCanvas');
         const phoneProfile = document.body.classList.contains('phone-layout') && w >= 650 && phoneCanvas;
         const profileCtx = phoneProfile ? phoneCanvas.getContext('2d') : ctx;
-        const boxW = phoneProfile ? Math.min(510,w-240) : Math.min(w - 12, 680, Math.max(510, w * .62));
+        const boxW = flightSideProfileWidth(w,phoneProfile);
         // Pocket 1 side: keep the profile away from the upper-right rail tools.
         const boxH = phoneProfile ? 50 : 132, x0 = phoneProfile ? 0 : 6, y0 = phoneProfile ? 0 : 8;
         if (phoneProfile) {
@@ -5587,7 +5597,7 @@
             phoneCanvas.style.width = boxW+'px'; phoneCanvas.style.height = boxH+'px'; phoneCanvas.style.display = 'block';
             profileCtx.setTransform(DPR,0,0,DPR,0,0);
         }
-        const padL = phoneProfile ? 8 : Math.min(125,boxW*.25), padR = phoneProfile ? 8 : 22, padT = phoneProfile ? 19 : 36, padB = phoneProfile ? 5 : 22;
+        const padL = phoneProfile ? 8 : Math.min(100,boxW*.25), padR = phoneProfile ? 8 : Math.min(18,boxW*.05), padT = phoneProfile ? 19 : 36, padB = phoneProfile ? 5 : 22;
         const plotW = boxW-padL-padR, plotH = boxH-padT-padB;
         const pts = [];
         let travel = 0, prev = path[0], maxZ = S.ballR * 4;
@@ -12788,7 +12798,7 @@
       <iframe id="btFeedbackFrame" title="Billiards Trainer feedback form" loading="lazy" scrolling="no"></iframe>
     </div>
   </div>
-  <link rel="stylesheet" href="./guide/pool-guide.css?v=compact-rows-v3">
+  <link rel="stylesheet" href="./guide/pool-guide.css?v=touch-player-v4">
   <script src="./phone-play.js?v=19"></script>
   <link rel="stylesheet" href="./trainer-3d.css?v=18">
   <script src="./trainer-3d.js?v=15"></script>
@@ -12798,13 +12808,13 @@
   <script src="./guide/narration-cues.js?v=lesson-scenes-v1"></script>
   <link rel="stylesheet" href="./guide/resources.css?v=resources-v1">
   <script src="./guide/resources.js?v=resources-v1"></script>
-  <script src="./guide/guide.js?v=compact-rows-v3"></script>
+  <script src="./guide/guide.js?v=touch-player-v4"></script>
   <script src="./guide/recorded-audio.js?v=resources-v1"></script>
   <link rel="stylesheet" href="./guide/get-started-tour.css?v=compact-player-v2">
   <script src="./guide/get-started-tour.js?v=guide-practice-v2"></script>
   <script src="./guide/learning.js?v=guide-practice-v2"></script>
   <script src="./guide/lesson-practice.js?v=resources-v1"></script>
-  <script src="./guide/pool-integration.js?v=compact-rows-v3"></script>
+  <script src="./guide/pool-integration.js?v=touch-player-v4"></script>
   <script src="./guide/analyze-integration.js?v=completion-tour-v25"></script>
   <script src="./guide/analyze-welcome.js?v=analyze-welcome-v16"></script>
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>

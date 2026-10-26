@@ -56,7 +56,7 @@ async function init(){
  await BilliardsPracticeLayouts.attach(catalog.topics);
  await BilliardsLearning.attach(catalog.topics);
  await BilliardsLessonPractice.attach(catalog.topics);
- let tour=null,lessonPractice=null,layoutRequest=0;
+ let tour=null,lessonPractice=null,layoutRequest=0,lastProfileWidth=0;
  const guide=BilliardsGuide.mount(host,{
   loadLayout:url=>lessonPractice?lessonPractice.resetUrl(url):BilliardsPracticeLayouts.apply(url),
   onTopicChange(topic){
@@ -132,12 +132,11 @@ async function init(){
  // Also pause if Analyze is opened through another trainer action.
  const modalObserver=new MutationObserver(()=>{if(modal.classList.contains('open')){tour?.pause();guide.setEnabled(false);guide.setExploring(false)}});
  modalObserver.observe(modal,{attributes:true,attributeFilter:['class']});
- // Keep the player to the right of the jump profile; stack only when space is tight.
+ // The player stays in the top margin; the jump profile fits the remaining width.
  function positionPlayer(){
-  if(document.body.classList.contains('phone-focus')||document.body.classList.contains('table-3d')){host.style.removeProperty('top');return;}
-  const profile=window.billiardsTourBridge?.flightProfileBounds?.(),r=host.getBoundingClientRect();
-  if(host.classList.contains('btg-enabled')&&profile&&r.left<profile.right+6&&r.right>profile.left)host.style.top=(profile.bottom-stage.getBoundingClientRect().top+6)+'px';
-  else host.style.removeProperty('top');
+  host.style.removeProperty('top');
+  const profile=window.billiardsTourBridge?.flightProfileBounds?.(),width=profile?profile.right-profile.left:0;
+  if(Math.abs(width-lastProfileWidth)>.5){lastProfileWidth=width;requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));}
  }
  for(const event of ['resize','input','change','click'])window.addEventListener(event,()=>requestAnimationFrame(positionPlayer));
  if(window.ResizeObserver)new ResizeObserver(positionPlayer).observe(stage);
