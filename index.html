@@ -1872,7 +1872,7 @@
 <link rel="stylesheet" href="./photo-calibration.css?v=focused-start-v17">
 <script src="./photo-calibration.js?v=walkthrough-v11"></script>
 <script src="./trainer-practice-tools.js?v=3"></script>
-<script src="./trainer-action-history.js?v=2"></script>
+<script src="./trainer-action-history.js?v=3"></script>
 <script src="./trainer-layout-files.js?v=2"></script>
 <script src="./trainer-table-exchange.js?v=1"></script>
 <script src="./trainer-saved-files.js?v=1"></script>
@@ -2038,7 +2038,12 @@
     // the starting layout plus each committed ending layout.
     let undoStack = [], redoStack = [];
     let runHistory = [];
-    let actionHistory=null,actionUndoTimer=0,actionPointer=false,actionKeys=false;
+    let actionHistory=null,actionUndoTimer=0,actionPointer=false,actionKeys=false,savedSharedActions=null;
+    const SHARED_SESSION_KEY="billiardsSharedSession-v1";
+    function saveSharedSession(){
+        if(isProjector||animation)return;
+        try{localStorage.setItem(SHARED_SESSION_KEY,JSON.stringify({version:1,table:localStorage.getItem(tableExchange.key),snapshot:captureActionState(),actions:actionHistory?.export()||savedSharedActions},(key,value)=>key==="preview"||key==="firstEvent"?null:value));}catch(e){}
+    }
     function captureActionState(){
         return {state:JSON.parse(JSON.stringify(S,(key,value)=>key==='preview'||key==='firstEvent'?null:value)),undo:undoStack.slice(),history:runHistory.slice(),redo:redoStack.slice()};
     }
@@ -2058,6 +2063,7 @@
         if(!actionHistory||animation||actionPointer||actionKeys)return;
         if(actionHistory.commit(captureActionState())&&preserveShotRedo!==true)redoStack=[];
         syncActionUndo();
+        saveState();
     }
     function beginActionUndo(){
         if(!actionHistory||animation)return;
@@ -2081,6 +2087,8 @@
     }
     function installActionUndo(){
         actionHistory=window.BilliardsActionHistory.create(60);
+        if(savedSharedActions)actionHistory.restore(savedSharedActions);
+        syncActionUndo();
         const relevant=e=>e.target instanceof Element&&!!e.target.closest('#app,#zenBar,#zenRack,#zenRackMenu,#zenFreshTable,#zenEdgeControls,.zen-hover-panel');
         const excluded=e=>!!e.target.closest?.('#tableZoom,#undoAction,#redoAction,#undoShot,#redoShot,#zenUndoAction,#zenShotHistory,.zen-history-menu,.zen-history-trigger');
         const later=delay=>{clearTimeout(actionUndoTimer);actionUndoTimer=setTimeout(finishActionUndo,delay);};
@@ -2603,7 +2611,7 @@
         return {left:top.x,top:top.y,right:bottom.x,bottom:bottom.y,cushionTop:point(839,98).y};
     }
     window.billiardsZenControls={
-        enter(){S.activeShot=1;S.shot2Enabled=false;S.cueElevationDeg=0;S.airbornePhysics=false;normalizeBallSet();actionHistory=window.BilliardsActionHistory.create(60);updateUI();refreshPreview();syncActionUndo();},
+        enter(){normalizeBallSet();updateUI();refreshPreview();syncActionUndo();},
         aim(degrees){if(!animation){S.activeShot=1;rotateAimMicro(degrees*Math.PI/180);}},
         status(){return {overlap:S.preview?.firstBallContact?.overlap||0,busy:!!animation,undo:undoStack.length>0,redo:redoStack.length>0,undoAction:!!actionHistory?.count,redoAction:!!actionHistory?.redoCount,tip:{...effectiveTipOffsetValues(S.sideSpin,S.follow),limit:PHYSICS_MODEL.maxTipOffsetR},balls:S.balls.filter(b=>b.active&&!b.marker).map(b=>b.id)};},
         freshTable:freshZenTable,tableBounds:zenTableScreenBounds,shareTable(){saveState();},
@@ -2681,8 +2689,8 @@
         $('sessionFolder').onclick=chooseSessionFolder;if(!window.showDirectoryPicker)$('sessionFolder').hidden=true;
         window.BilliardsSavedFiles?.mount({targets:[[$('sessionFolderStatus').parentElement,false],[$('photoFilesFooter'),true]],onLoad:(file,analysis)=>analysis?stageTableFile(file):applyTableFile(file),getFolder:()=>sessionFolder,chooseFolder:chooseSessionFolder});
         reconnectSessionFolder();
-        document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){saveState();if(sessionFolder)writeSessionFolder();}});
-        window.addEventListener('pagehide',saveState);
+        document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){actionPointer=false;actionKeys=false;finishActionUndo();saveState();if(sessionFolder)writeSessionFolder();}});
+        window.addEventListener('pagehide',()=>{actionPointer=false;actionKeys=false;finishActionUndo();saveState();});
     }
 
     function saveState() { try {
@@ -2691,6 +2699,7 @@
             localStorage.setItem(PROGRESS_STORE_KEY,JSON.stringify({history:runHistory.slice(-30)},(key,value)=>key==='preview'?null:value));lastSavedHistory=runHistory;lastSavedHistoryLength=runHistory.length;lastSavedHistoryEnd=runHistory.at(-1);
         }
         if(!isProjector)tableExchange.publish(S,TABLE_SOURCE);
+        saveSharedSession();
         scheduleSessionFolder();
     }
     catch (e) { } }
@@ -3167,6 +3176,13 @@
         S.showTipBadge = false; // Start with a clear table; players may enable the badge in Options.
         normalizeBallSet();
         try{const saved=JSON.parse(localStorage.getItem(PROGRESS_STORE_KEY)||'null');if(saved?.history?.length)runHistory=saved.history.filter(h=>h&&Array.isArray(h.balls)&&h.tableL===S.tableL&&h.tableW===S.tableW).slice(-30);undoStack=runHistory.slice(0,-1).map(h=>JSON.parse(JSON.stringify(h)));}catch(e){}
+        // A full session belongs to the shared table; a new Play table invalidates it.
+        try{const saved=JSON.parse(localStorage.getItem(SHARED_SESSION_KEY)||'null');
+            if(saved?.version===1&&saved.table===localStorage.getItem(tableExchange.key)&&saved.snapshot?.state?.balls&&Array.isArray(saved.snapshot.undo)&&Array.isArray(saved.snapshot.history)){
+                S={...defaultState(),...saved.snapshot.state,preview:null};undoStack=saved.snapshot.undo;redoStack=saved.snapshot.redo||[];runHistory=saved.snapshot.history;savedSharedActions=saved.actions;normalizeBallSet();
+            }
+        }catch(e){}
+
 
     }
     function pocketModel() {

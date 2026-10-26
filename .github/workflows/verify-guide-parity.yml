@@ -29,6 +29,7 @@ jobs:
           node tests/chromebook-sliders.browser.cjs
           node tests/compact-guide-player.browser.cjs
           node tests/trainer-tools-menu.browser.cjs
+          node tests/shared-session-history.browser.cjs
           node tests/trainer-3d-controls.browser.cjs
           node tests/trainer-3d.browser.cjs
           node tests/trainer-3d-edit.browser.cjs

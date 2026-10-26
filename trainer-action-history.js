@@ -5,6 +5,8 @@ function create(limit=60){
  const entries=[],future=[];let pending=null;
  const key=s=>JSON.stringify(s.state)+'|'+s.undo.length+'|'+s.history.length+'|'+(s.redo?.length||0);
  return {
+  export(){return {entries:entries.slice(),future:future.slice()};},
+  restore(saved){pending=null;entries.splice(0,entries.length,...(Array.isArray(saved?.entries)?saved.entries.slice(-limit):[]));future.splice(0,future.length,...(Array.isArray(saved?.future)?saved.future.slice(-limit):[]));},
   begin(snapshot){if(!pending)pending={snapshot,key:key(snapshot)};},
   commit(snapshot){if(!pending)return false;const before=pending;pending=null;if(before.key===key(snapshot))return false;entries.push(before.snapshot);if(entries.length>limit)entries.shift();future.length=0;return true;},
   cancel(){pending=null;},
