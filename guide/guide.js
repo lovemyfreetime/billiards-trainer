@@ -49,7 +49,7 @@ function mount(host,options={}){
  function setExploring(value){cues?.clear();playback.release();state.exploring=!!value;if(value)state.enabled=false;clearHighlight();save();render()}
  function openCategory(category){
   selectBrowsing=false;
-  if(state.category!==category)state.topicId=null;state.category=category;state.detailsOpen=false;state.expanded=null;
+  if(state.category!==category)state.topicId=null;state.resourcesCollapsed=false;state.category=category;state.detailsOpen=false;state.expanded=null;
   state.autoplay=category!=='more'&&(category==='start'||!!options.poolMode&&state.guideAutoplay);
   if(category==='start'){state.topicId=null;state.position=0;sequenceIndex=0;}
   setEnabled(true);
@@ -192,12 +192,16 @@ function mount(host,options={}){
   const cats=document.createElement('div');cats.className='btg-row btg-categories';
   for(const [id,label] of CATEGORIES.filter(([id])=>id!=='explore'&&id!=='start')){const b=document.createElement('button');b.textContent=label;b.setAttribute('aria-pressed',String(state.category===id));b.onclick=()=>{stop();openCategory(id)};cats.append(b)}if(state.category!=='start')view.append(cats);
   if(resourceBrowse&&global.BilliardsResources){
+   const toggle=document.createElement('button');toggle.type='button';toggle.className='btg-expansion-tab';
+   toggle.textContent=state.resourcesCollapsed?'+':'−';toggle.title=state.resourcesCollapsed?'Open Resources':'Close Resources';
+   toggle.setAttribute('aria-label',toggle.title);toggle.setAttribute('aria-expanded',String(!state.resourcesCollapsed));
+   toggle.onclick=()=>{state.resourcesCollapsed=!state.resourcesCollapsed;if(state.resourcesCollapsed)stop();save();render()};toolbar.append(toggle);
    state.resourceGroups=state.resourceGroups||{};
-   view.append(global.BilliardsResources.render({topics:available,welcome:topics.find(t=>t.category==='more'&&t.categoryWelcome),selected:t,playing:!audio.paused||playback.starting,groups:state.resourceGroups,
+   const resourcesPanel=global.BilliardsResources.render({topics:available,welcome:topics.find(t=>t.category==='more'&&t.categoryWelcome),selected:t,playing:!audio.paused||playback.starting,groups:state.resourceGroups,
     onGroup:(group,open)=>{state.resourceGroups[group]=open;save();},
     onListen:id=>{if(selected()?.id===id&&(!audio.paused||playback.starting)){playback.pause();render();}else{if(selected()?.id!==id&&choose(id)===false)return;play();}},
     onOpen:openResource,onPractice:topic=>{if(choose(topic.id)!==false)options.onResourcePractice?.(topic);}
-   }));
+   });resourcesPanel.hidden=!!state.resourcesCollapsed;view.append(resourcesPanel);
    view.className=root.className;patchNode(root,view);root.classList.remove('btg-details-open');options.onRendered?.();return;
   }
   const topic=document.createElement('div');topic.className='btg-topic';
