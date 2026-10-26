@@ -1,5 +1,5 @@
 {
-  "version": "d9a563355d34c94a",
+  "version": "71d50865d55bb93b",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -900,7 +900,7 @@
     "guide/narration-cues.js": "37ba338ea63ed80e78ff1ec7f55271fc8f786ce165f76cac5e969be0b1cedca3",
     "guide/narration-cues.json": "5aa24f09f976eb2b0ebaabb971708845d19a413dc7c7cadf729b923522952ed1",
     "guide/pool-audio-map.json": "1d4afbee84910702d53ef12513301fdeccc30a801f93d39fa096c240cc69b5be",
-    "guide/pool-guide.css": "9f35dc7170554ee285db15edb2502d970ff71b57463d7ca31cd9b362c2cef830",
+    "guide/pool-guide.css": "bde3370c7fc94c80de833520b3521d5d36c57b8786c62854ac2a0ff4640689e9",
     "guide/pool-integration.js": "45e2f3ce7f6c6a9aea132d7a993370e371344754f2af4ff929d2a3ba7406d0fb",
     "guide/practice-layouts.js": "ad75059a68dae3f380375fd8d846e0021cdfc2031a21ab76fd3d819382d66e40",
     "guide/practice-layouts.json": "61e00bbdc2371789ae71e616a13f615d6af5ea76d95555d7974c513a0314de66",
@@ -921,7 +921,7 @@
     "icons/play-experience-v1.webp": "8fb008260a29dc4d1c26208e1e92872b242902fbc3b256d49e3c2209c7dd53b1",
     "icons/trainer-original-execute-v2.svg": "eaf1f45d99634cdbe87582d857cc2dd6017439dadf9ce251136485422c127da4",
     "icons/zen-reference-table-v1.webp": "0d9352c54cccca69fbb78fd8bc7a173957424fad151950a3888f895069030da0",
-    "index.html": "a9ab92026e716574b2d06a8d5d34df9178f7183ea7d4c12f85169c14cfd5d108",
+    "index.html": "8fd4e6be1b27b0ce06affa0213a29e3a30b5b64dbe74d1d8d3608f4b87b5aadb",
     "install/android/index.html": "862dff4245e200376ff30ee6763f007bb510a3c0cdf0634f8ef3d0d2c25630ff",
     "install/apple/index.html": "baad9dae78322db69bebb071456f37d83e9ba1a7ac849dbe70ef9a88480cf253",
     "install/assets/android-guide/Billiards_Trainer_Android_Installer_Screenshots/android-app-installed.jpg": "545867686776eb4a4ecae0b6d12e6c5df3c58623919fd7935c6c09530e9f7500",

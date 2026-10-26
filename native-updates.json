@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "090529c494532c8afdff71c289675930866cd716749f32cef458c61063ecd9b1",
-  "sequence": 1793000033,
+  "version": "b3c76436c9051abcc24fc44cfc7d24393220ceba578b52fdcd3cfd9fc30b7f92",
+  "sequence": 1793000391,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3601,8 +3601,8 @@
       "length": 168850
     },
     "guide/pool-guide.css": {
-      "sha256": "9f35dc7170554ee285db15edb2502d970ff71b57463d7ca31cd9b362c2cef830",
-      "length": 7344
+      "sha256": "bde3370c7fc94c80de833520b3521d5d36c57b8786c62854ac2a0ff4640689e9",
+      "length": 7897
     },
     "guide/pool-integration.js": {
       "sha256": "45e2f3ce7f6c6a9aea132d7a993370e371344754f2af4ff929d2a3ba7406d0fb",
@@ -3685,8 +3685,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "a9ab92026e716574b2d06a8d5d34df9178f7183ea7d4c12f85169c14cfd5d108",
-      "length": 829708
+      "sha256": "8fd4e6be1b27b0ce06affa0213a29e3a30b5b64dbe74d1d8d3608f4b87b5aadb",
+      "length": 829696
     },
     "install/android/index.html": {
       "sha256": "862dff4245e200376ff30ee6763f007bb510a3c0cdf0634f8ef3d0d2c25630ff",
@@ -3781,7 +3781,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "a30874c06ec1c674312f83057cdec1d7b0e4d96fcedcbcd14b3521f36fb13461",
+      "sha256": "9e784c757e9cb0ccd663a2b6d0522bac99b9912735656bd9321c0ecf2a090119",
       "length": 143387
     },
     "phone-play.css": {
@@ -4861,7 +4861,7 @@
       "length": 1895
     },
     "service-worker.js": {
-      "sha256": "176808e3139646a791033c95cd196404be27979943b6248a45c412ac11b127fe",
+      "sha256": "a2636587e08b3a1e3f3fe41804b487ef7215dd868c32c3c4b193ec0433cbe05a",
       "length": 7739
     },
     "tournament-engine.js": {

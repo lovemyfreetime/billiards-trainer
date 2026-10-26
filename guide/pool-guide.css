@@ -73,3 +73,14 @@ body.phone-focus #panel #bt-guide-pool-root{margin-left:0;margin-right:0}
 body.phone-layout #bt-guide-pool-root{width:560px;max-width:calc(100% - 8px)}
 body.phone-layout #bt-guide-pool-root.btg-get-started{width:640px}
 @media(max-width:800px){body:not(.phone-focus) #bt-guide-pool-root{width:560px;max-width:calc(100% - 8px)}}
+/* Keep Read and More in the marked top-row space on desktop/tablet. */
+@media(min-width:801px){
+#bt-guide-pool-root .btg-toolbar{flex-wrap:nowrap}
+#bt-guide-pool-root .btg-toolbar>button:nth-child(-n+6){flex:1 1 36px;width:36px;min-width:18px;max-width:36px;padding:2px}
+#bt-guide-pool-root .btg-reading-actions{margin-left:auto}
+#bt-guide-pool-root .btg-reading-actions button{padding:3px 5px}
+}
+@media(min-width:801px) and (max-width:1100px){
+#bt-guide-pool-root .btg-toolbar{flex-wrap:wrap}
+#bt-guide-pool-root .btg-reading-actions{margin-left:0}
+}
