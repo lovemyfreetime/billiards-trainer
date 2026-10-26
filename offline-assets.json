@@ -1,5 +1,5 @@
 {
-  "version": "cd5008581bd5cf1d",
+  "version": "c36c3e7a6a11dd25",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -932,9 +932,9 @@
     "install/assets/android-guide/Billiards_Trainer_Android_Installer_Screenshots/android-package-installer.jpg": "316e8d799c83651a7fce065736fd64e2998e1a50cc2bdd23ae56f4ccffbb437e",
     "install/assets/billiards-trainer-icon.png": "bdbf38e5f2307bd066e0b499c908ed37f4015c3b14993a3487e2dc0c116673b7",
     "install/assets/installer.css": "06a0d9494d3bdb431a3865b2e0e9e8450140165a2f3199c4a9f011873cd906d3",
-    "install/assets/installer.js": "807234e19d0e108acbd064278d87caff65e60e214ee436c67e32307080556c88",
+    "install/assets/installer.js": "870b99f035f3484acba7dbcdd044c4051afdf39db268f275d2e0b8ac26fc84bf",
     "install/chromebook/index.html": "6ece7c43540db451890dc43430800e6133ab817590e9f29667e746dfcff9400b",
-    "install/index.html": "f99ef407e6dc6613490fe527f3b25d4daf9f97cb3538b59d401d1f8735065e2b",
+    "install/index.html": "b561e18cf99d0eb7d13fc1a63435db83e03ccbde3aebd4a4c00e7b4dfe35920a",
     "install/manifest.webmanifest": "9fc5dc7146b84f8d9120d63390dfdb729da045ec98a81e90f2b11f93a1bdd2d7",
     "install/qr/android.png": "c0c69358ca0762ca2939e0971ec5245f4b7d074eadb3997a37b3f2de91804b60",
     "install/qr/apple.png": "820640738ffb3fa67761fecb26d5c99b7282aefd2d7aa3b53ff86ba9dfdb1f9a",

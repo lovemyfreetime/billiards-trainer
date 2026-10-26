@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "202a33760c51bd0f1cd48041b186fe64af17ee064b6c3c57c634a7f91cba4bf9",
-  "sequence": 1793050749,
+  "version": "e1b827f9e5899b83395ab5d061b0c8c4d00d1c768a97c9491b8bcc85b1968aab",
+  "sequence": 1793051590,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3729,15 +3729,15 @@
       "length": 12056
     },
     "install/assets/installer.js": {
-      "sha256": "807234e19d0e108acbd064278d87caff65e60e214ee436c67e32307080556c88",
-      "length": 7804
+      "sha256": "870b99f035f3484acba7dbcdd044c4051afdf39db268f275d2e0b8ac26fc84bf",
+      "length": 7783
     },
     "install/chromebook/index.html": {
       "sha256": "6ece7c43540db451890dc43430800e6133ab817590e9f29667e746dfcff9400b",
       "length": 3271
     },
     "install/index.html": {
-      "sha256": "f99ef407e6dc6613490fe527f3b25d4daf9f97cb3538b59d401d1f8735065e2b",
+      "sha256": "b561e18cf99d0eb7d13fc1a63435db83e03ccbde3aebd4a4c00e7b4dfe35920a",
       "length": 14260
     },
     "install/manifest.webmanifest": {
@@ -3781,7 +3781,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "78df1c3f93bb0c6157906ad9531bbc8c1756d16c3cfcf2448fec9c31d9028308",
+      "sha256": "e03c08bbdca8d76e8e5a0a0df0f8477702618b1be531b2bcbf73462f019b9e2c",
       "length": 143387
     },
     "phone-play.css": {
@@ -4861,7 +4861,7 @@
       "length": 1895
     },
     "service-worker.js": {
-      "sha256": "60d72952b126d8b9aaf1235284e19ff527d036bddfcddac3d674af004207757a",
+      "sha256": "c67e75af3b19ca8be3004fc1490a83a4541236975dcffb63871805d2cc9be09b",
       "length": 7739
     },
     "tournament-engine.js": {
