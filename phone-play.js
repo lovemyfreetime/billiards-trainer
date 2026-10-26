@@ -1,6 +1,9 @@
 (function () {
   'use strict';
   if (document.body.classList.contains('projector')) return;
+  // Older Chrome needs its native vertical-range appearance, not writing-mode alone.
+  const chromiumVersion=Number(/(?:Chrome|Chromium)\/(\d+)/.exec(navigator.userAgent)?.[1]);
+  document.body.classList.toggle('legacy-vertical-ranges',chromiumVersion>0&&chromiumVersion<124);
   const panel = document.getElementById('panel');
   const title = panel?.querySelector('.btg-pool-title');
   const launchers = document.getElementById('btg-pool-launchers');
@@ -225,8 +228,14 @@
   for(const id of ['photoWelcomePlay','photoWelcomeStop']){const element=document.getElementById(id);if(element&&analyzeToolbar){const anchor=document.createComment('Analyze welcome position');element.before(anchor);analyzeMoves.push({element,anchor});}}
   const photoMenu=document.createElement('div');photoMenu.id='phonePhotoMenu';photoMenu.setAttribute('popover','auto');photoMenu.setAttribute('aria-label','Saved photos');document.body.append(photoMenu);
   const photoButton=document.createElement('button');photoButton.id='phonePhotosButton';photoButton.type='button';photoButton.textContent='Photos';photoButton.setAttribute('aria-label','Saved photos');photoButton.setAttribute('aria-expanded','false');
-  photoButton.onclick=()=>{if(photoMenu.matches(':popover-open'))photoMenu.hidePopover();else{photoMenu.showPopover();const r=photoButton.getBoundingClientRect();photoMenu.style.left=Math.max(4,Math.min(innerWidth-photoMenu.offsetWidth-4,r.left))+'px';photoMenu.style.top=(r.bottom+5)+'px';}};
-  photoMenu.addEventListener('toggle',()=>photoButton.setAttribute('aria-expanded',String(photoMenu.matches(':popover-open'))));
+  const nativePhotoPopover=typeof photoMenu.showPopover==='function';
+  if(!nativePhotoPopover)photoMenu.removeAttribute?.('popover');
+  const photoMenuOpen=()=>nativePhotoPopover?photoMenu.matches(':popover-open'):photoMenu.classList.contains('legacy-popover-open');
+  function closePhotoMenu(){if(nativePhotoPopover)photoMenu.hidePopover();else photoMenu.classList.remove('legacy-popover-open');photoButton.setAttribute('aria-expanded','false');}
+  function openPhotoMenu(){if(nativePhotoPopover)photoMenu.showPopover();else photoMenu.classList.add('legacy-popover-open');photoButton.setAttribute('aria-expanded','true');}
+  if(!nativePhotoPopover){document.addEventListener('pointerdown',event=>{if(!photoMenu.contains(event.target)&&!photoButton.contains(event.target))closePhotoMenu();});document.addEventListener('keydown',event=>{if(event.key==='Escape')closePhotoMenu();});}
+  photoButton.onclick=()=>{if(photoMenuOpen())closePhotoMenu();else{openPhotoMenu();const r=photoButton.getBoundingClientRect();photoMenu.style.left=Math.max(4,Math.min(innerWidth-photoMenu.offsetWidth-4,r.left))+'px';photoMenu.style.top=(r.bottom+5)+'px';}};
+  photoMenu.addEventListener('toggle',()=>photoButton.setAttribute('aria-expanded',String(photoMenuOpen())));
   const archiveMoves=[];for(const id of ['photoArchiveSelect','photoArchiveLoad','photoArchiveDelete','photoArchiveSave','photoArchiveExport']){const element=document.getElementById(id);if(element){const anchor=document.createComment('Photo archive position');element.before(anchor);archiveMoves.push({element,anchor});}}
   const photoBar=document.createElement('div');photoBar.id='phoneAnalyzeBar';let toolbarAnchor;
   if(analyzeToolbar){toolbarAnchor=document.createComment('Analyze toolbar desktop position');analyzeToolbar.before(toolbarAnchor);analyzeToolbar.parentNode.append(photoBar);analyzeToolbar.append(photoButton);}
@@ -235,9 +244,9 @@
     if(!analyzeToolbar)return;
     const close=document.getElementById('photoAnalyzerClose');
     if(focused()){photoBar.append(analyzeToolbar,close);for(const {element}of archiveMoves)photoMenu.append(element);for(const id of ['photoWelcomePlay','photoWelcomeStop']){const el=document.getElementById(id);if(el)photoMenu.append(el);}if(autoRack)autoRack.textContent='Rack';}
-    else{const ai=document.getElementById('photoAiModeBtn');if(ai&&ai.textContent==='AI')ai.textContent=ai.getAttribute('aria-label')||'AI: AUTO';toolbarAnchor.after(analyzeToolbar);for(const {element,anchor}of archiveMoves)anchor.after(element);if(autoRack)autoRack.textContent=autoRackText;photoMenu.hidePopover();}
+    else{const ai=document.getElementById('photoAiModeBtn');if(ai&&ai.textContent==='AI')ai.textContent=ai.getAttribute('aria-label')||'AI: AUTO';toolbarAnchor.after(analyzeToolbar);for(const {element,anchor}of archiveMoves)anchor.after(element);if(autoRack)autoRack.textContent=autoRackText;closePhotoMenu();}
   }
-  document.getElementById('photoAnalyzerClose')?.addEventListener('click',()=>photoMenu.hidePopover());
+  document.getElementById('photoAnalyzerClose')?.addEventListener('click',closePhotoMenu);
   const compactText={photoChooseImage:'Image',photoFindCorners:'Corners',photoResetCorners:'Reset',photoFineTune:'Layout',photoAutoRailsBtn:'Sense',photoAnalyzeNow:'Analyze',photoAddMissed:'+ Ball',photoWalkthroughBtn:'Walkthrough',photoWelcomePlay:'Welcome',photoWelcomeStop:'Stop voice',photoApplyTable:'Apply',photoApplySave:'Apply + Save',photoLoadTableFile:'Load',photoSaveTableFile:'Save'};
   const originalText=new Map();for(const id of Object.keys(compactText)){const el=document.getElementById(id);if(el){originalText.set(el,el.textContent);if(!el.getAttribute('aria-label'))el.setAttribute('aria-label',el.textContent);}}
   if(analyzeToolbar)new MutationObserver(()=>{if(!focused())return;const ai=document.getElementById('photoAiModeBtn');if(ai&&ai.textContent!=='AI'){ai.setAttribute('aria-label',ai.textContent);ai.textContent='AI';}for(const [el,text]of originalText)if(el.textContent===text&&text!==compactText[el.id])el.textContent=compactText[el.id];}).observe(analyzeToolbar,{childList:true,subtree:true});

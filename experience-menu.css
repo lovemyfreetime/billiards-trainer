@@ -48,3 +48,8 @@ body.zen-mode #zenModeMenu:has(.zen-update){display:grid;grid-template-columns:r
 body.zen-mode #zenModeMenu .zen-update{grid-column:1/-1;grid-row:1;width:100%;height:28px;min-height:28px;padding:4px 6px!important;border:1px solid #547388;border-radius:7px;background:#20323e;color:#d1e5ef;font:600 11px system-ui}
 
 body .experience-menu .experience-update,body.zen-mode #zenModeMenu .zen-update{white-space:nowrap}
+
+/* Older Chromebook browsers do not provide the popover top layer. */
+.experience-menu.legacy-popover{display:none!important}
+.experience-menu.legacy-popover-open{display:flex!important;gap:10px;z-index:2000}
+.experience-menu--train.legacy-popover-open{display:grid!important;grid-template-columns:repeat(2,60px);grid-template-rows:repeat(2,60px);gap:10px;pointer-events:none}

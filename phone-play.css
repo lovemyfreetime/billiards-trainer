@@ -251,3 +251,7 @@ body.phone-focus #phoneSpeedRail .tableSpeedLabel{position:absolute;left:0;right
 body.phone-focus #phoneSpeedRail .phoneSpeedValue{display:block;position:absolute;top:23px;left:0;right:0;text-align:center;font:700 10px/14px system-ui;color:#fff;pointer-events:none;z-index:4}
 body.phone-focus #phoneSpeedRail .phoneSliderValue{position:absolute;top:auto!important;bottom:0;left:0;right:0;width:100%;height:32px;min-height:32px;padding:0;transform:none;pointer-events:auto;border-radius:7px 7px 16px 16px;background:#25353e88;touch-action:none}
 body.phone-focus #phoneSpeedRail .speedTickScale{top:49px;bottom:38px}
+
+/* Chrome versions without vertical writing-mode support for native ranges. */
+body.legacy-vertical-ranges.phone-focus #phoneSpeedRail input{-webkit-appearance:slider-vertical;appearance:slider-vertical;writing-mode:horizontal-tb;direction:ltr}
+#phonePhotoMenu.legacy-popover-open{display:flex;z-index:2000}
