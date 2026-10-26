@@ -254,12 +254,14 @@ function mount(host,options={}){
   toggle.setAttribute('aria-expanded',String(!!state.detailsOpen));
   toggle.addEventListener('click',()=>{state.detailsOpen=!state.detailsOpen;if(state.detailsOpen&&!state.expanded)state.expanded='read';if(!state.detailsOpen)state.expanded=null;save();render()});
   if(options.poolMode){
-   toolbar.append(toggle);
+   const reading=document.createElement('span');reading.className='btg-reading-actions';
+   for(const control of toolbar.querySelectorAll('[data-action="Read"],[data-action="More"]'))reading.append(control);
+   toolbar.append(reading,toggle);
    if(state.category!=='start'){
     const secondary=document.createElement('div');secondary.className='btg-secondary-row';
     cats.replaceWith(secondary);secondary.append(cats);
     const actions=document.createElement('div');actions.className='btg-guide-actions';
-    for(const control of toolbar.querySelectorAll('[data-action="Practice"],[data-action="More"]'))actions.append(control);
+    for(const control of toolbar.querySelectorAll('[data-action="Practice"]'))actions.append(control);
     secondary.append(actions);
    }
   }else view.append(toggle);

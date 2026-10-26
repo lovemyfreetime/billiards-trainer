@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "a7c47d73697f5ae603a011b2c91d853fd695c2c3fba581876842bad2ed43eafa",
-  "sequence": 1792997830,
+  "version": "090529c494532c8afdff71c289675930866cd716749f32cef458c61063ecd9b1",
+  "sequence": 1793000033,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -2753,8 +2753,8 @@
       "length": 10380
     },
     "guide/guide.js": {
-      "sha256": "5e92a9756fef0cbeb52e7351e2caed748ad516e5b1ea0c61ac433e3e3f7a34aa",
-      "length": 27853
+      "sha256": "ddc0f566de10f7aefca3597a5199f4292d511b452f75fe1f7f2f5e9f935c7734",
+      "length": 28048
     },
     "guide/header-fit-preview.html": {
       "sha256": "0f544b86273896c6d3eee7cff2aaad7d38301318555ed951c0ff7bc055d58e62",
@@ -3601,8 +3601,8 @@
       "length": 168850
     },
     "guide/pool-guide.css": {
-      "sha256": "4896bbe09d8e9848aed5d2430d954bea6b43ec1f57354bb1604b627c8fc5ca3f",
-      "length": 6497
+      "sha256": "9f35dc7170554ee285db15edb2502d970ff71b57463d7ca31cd9b362c2cef830",
+      "length": 7344
     },
     "guide/pool-integration.js": {
       "sha256": "45e2f3ce7f6c6a9aea132d7a993370e371344754f2af4ff929d2a3ba7406d0fb",
@@ -3685,8 +3685,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "d193bf58a2bbd08b3e9e9346759f84c317e768aabe32dac33887b17477d43ce9",
-      "length": 829697
+      "sha256": "a9ab92026e716574b2d06a8d5d34df9178f7183ea7d4c12f85169c14cfd5d108",
+      "length": 829708
     },
     "install/android/index.html": {
       "sha256": "862dff4245e200376ff30ee6763f007bb510a3c0cdf0634f8ef3d0d2c25630ff",
@@ -3781,7 +3781,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "6c0accec6afebafe3b481530fe2fa109f180a0249e936ec2b0d1dabdef90ddc8",
+      "sha256": "a30874c06ec1c674312f83057cdec1d7b0e4d96fcedcbcd14b3521f36fb13461",
       "length": 143387
     },
     "phone-play.css": {
@@ -4861,7 +4861,7 @@
       "length": 1895
     },
     "service-worker.js": {
-      "sha256": "5227401a207f3fa3f4ef4452a54fccdbf02e83dfebcaff3751da543d2e151a9e",
+      "sha256": "176808e3139646a791033c95cd196404be27979943b6248a45c412ac11b127fe",
       "length": 7739
     },
     "tournament-engine.js": {

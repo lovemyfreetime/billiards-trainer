@@ -37,9 +37,10 @@
 #bt-guide-pool-root .btg-toolbar>button.btg-autoplay{width:auto;min-width:52px;flex-shrink:0;border-radius:12px;padding:2px 6px}
 
 /* Wider players make transport controls usable with fingers without moving the table. */
-#bt-guide-pool-root{right:0;width:560px;max-width:calc(100% - 8px);box-sizing:border-box;padding:5px}
-#bt-guide-pool-root.btg-get-started{width:640px}
-body:not(.phone-focus) #bt-guide-pool-root{max-width:max(300px,calc(100% - 240px))}
+#bt-guide-pool-root{right:0;width:50%;max-width:calc(100% - 8px);box-sizing:border-box;padding:5px}
+#bt-guide-pool-root.btg-get-started{width:50%}
+body:not(.phone-focus) #bt-guide-pool-root{max-width:50%}
+body.phone-focus #panel #bt-guide-pool-root{width:100%;max-width:100%}
 #bt-guide-pool-root .btg-toolbar{overflow:visible;gap:3px;margin-bottom:3px;flex-wrap:wrap;align-items:center;position:relative;padding-right:34px}
 #bt-guide-pool-root .btg-toolbar>button{font-size:10px;padding:3px 7px;height:28px;min-height:28px;flex-shrink:0}
 #bt-guide-pool-root .btg-toolbar>button:nth-child(-n+6){width:36px;min-width:36px;flex:0 0 36px;height:28px}
@@ -59,3 +60,16 @@ body:not(.phone-focus) #bt-guide-pool-root{max-width:max(300px,calc(100% - 240px
 body.phone-focus #panel #bt-guide-pool-root{margin-left:0;margin-right:0}
 
 @media(max-width:1100px){#bt-guide-pool-root .btg-toolbar{gap:2px}#bt-guide-pool-root .btg-toolbar>button:nth-child(-n+6){width:32px;min-width:32px;flex-basis:32px}}
+
+/* Reserve a finger-sized Next Lesson button beside a shorter picker. */
+#bt-guide-pool-root .btg-pool-drawer .btg-lesson-row{grid-template-columns:minmax(0,1fr) 116px;gap:5px}
+#bt-guide-pool-root .btg-pool-drawer .btg-practice-slot{width:116px}
+#bt-guide-pool-root button.btg-next-lesson{font-size:11px}
+
+#bt-guide-pool-root .btg-reading-actions{display:inline-flex;flex:none;gap:3px}
+#bt-guide-pool-root .btg-reading-actions button{min-height:28px;padding:3px 9px}
+
+/* The split applies to the desktop canvas; phone drawer space stays full width. */
+body.phone-layout #bt-guide-pool-root{width:560px;max-width:calc(100% - 8px)}
+body.phone-layout #bt-guide-pool-root.btg-get-started{width:640px}
+@media(max-width:800px){body:not(.phone-focus) #bt-guide-pool-root{width:560px;max-width:calc(100% - 8px)}}
