@@ -5574,7 +5574,7 @@
     }
     function flightSideProfileWidth(w,phoneProfile){
         if(phoneProfile)return Math.min(510,w-240);
-        let width=Math.min(w-12,680,Math.max(280,w*.5-18));
+        let width=Math.min(w-12,Math.max(280,w*.54-18));
         const guide=$('bt-guide-pool-root');
         if(!document.body.classList.contains('phone-layout')&&guide?.classList.contains('btg-enabled')&&!guide.hidden){
             const r=canvas.getBoundingClientRect(),g=guide.getBoundingClientRect();
@@ -12798,7 +12798,7 @@
       <iframe id="btFeedbackFrame" title="Billiards Trainer feedback form" loading="lazy" scrolling="no"></iframe>
     </div>
   </div>
-  <link rel="stylesheet" href="./guide/pool-guide.css?v=reading-row-v6">
+  <link rel="stylesheet" href="./guide/pool-guide.css?v=jump-width-v7">
   <script src="./phone-play.js?v=19"></script>
   <link rel="stylesheet" href="./trainer-3d.css?v=18">
   <script src="./trainer-3d.js?v=15"></script>
@@ -12808,13 +12808,13 @@
   <script src="./guide/narration-cues.js?v=lesson-scenes-v1"></script>
   <link rel="stylesheet" href="./guide/resources.css?v=resources-v1">
   <script src="./guide/resources.js?v=resources-v1"></script>
-  <script src="./guide/guide.js?v=reading-row-v6"></script>
+  <script src="./guide/guide.js?v=jump-width-v7"></script>
   <script src="./guide/recorded-audio.js?v=resources-v1"></script>
   <link rel="stylesheet" href="./guide/get-started-tour.css?v=compact-player-v2">
   <script src="./guide/get-started-tour.js?v=guide-practice-v2"></script>
   <script src="./guide/learning.js?v=guide-practice-v2"></script>
   <script src="./guide/lesson-practice.js?v=resources-v1"></script>
-  <script src="./guide/pool-integration.js?v=reading-row-v6"></script>
+  <script src="./guide/pool-integration.js?v=jump-width-v7"></script>
   <script src="./guide/analyze-integration.js?v=completion-tour-v25"></script>
   <script src="./guide/analyze-welcome.js?v=analyze-welcome-v16"></script>
   <script src="./guide/analyze-walkthrough.js?v=presets-recovery-v13"></script>

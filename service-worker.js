@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-offline-71d50865d55bb93b';
+const CACHE_NAME = 'billiards-trainer-4-12-offline-881066d3903c623e';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './play-narration-data.js?v=3',
