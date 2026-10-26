@@ -155,3 +155,6 @@ body.table-3d.phone-focus #phoneActions .phoneSpinCaption::after{content:attr(da
  body.table-3d.phone-focus #table3DPhoneControls #table3DTools{width:calc(100% - 62px)}
  body.table-3d.phone-focus #table3DPhoneControls #table3DViews{width:calc(100% - 96px)}
 }
+/* Empty toolbar space must not intercept the side controls on narrow screens. */
+body.table-3d.phone-focus #table3DPhoneControls{pointer-events:none}
+body.table-3d.phone-focus #table3DPhoneControls>nav{pointer-events:auto}
