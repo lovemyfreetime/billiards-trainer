@@ -74,7 +74,7 @@
   if(!active)return;
   for(const el of [button,standingButton,alongButton,...viewLock.querySelectorAll('.table3DAdjustmentLabel')]){
    if(!el.clientWidth||!el.clientHeight)continue;
-   let size=el.classList.contains('table3DAdjustmentLabel')?18:24;
+   let size=el.classList.contains('table3DAdjustmentLabel')?9:(innerWidth<=1000?9:11);
    el.style.fontSize=size+'px';
    const range=document.createRange();range.selectNodeContents(el);
    const fits=()=>{const text=range.getBoundingClientRect();return text.width<=el.clientWidth-6&&text.height<=el.clientHeight-6;};

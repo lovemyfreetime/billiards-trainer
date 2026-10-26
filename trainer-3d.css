@@ -81,7 +81,7 @@ body.table-3d.phone-focus{--control-height:clamp(44px,6vh,58px);--control-left:c
 body.table-3d.phone-focus #phoneControls{top:calc(6px + env(safe-area-inset-top))!important;bottom:auto!important}
 body.table-3d.phone-focus #phoneActions>#phoneAimChoice{display:block!important;position:fixed;top:calc(6px + env(safe-area-inset-top));right:calc(56px + env(safe-area-inset-right));bottom:auto;width:76px;min-width:76px;height:42px;min-height:42px;border-radius:10px;font:600 12px system-ui}
 body.table-3d.phone-focus #phoneActions>#phoneAimChoice:disabled{opacity:.65}
-body.table-3d.phone-focus #phoneActions>[data-trainer-action=animate]{top:auto!important;bottom:var(--control-bottom)!important;right:calc(6px + env(safe-area-inset-right))!important;width:90px!important;max-width:90px!important;height:calc(var(--control-height)*2 + 8px)!important;min-height:96px!important;font-size:22px!important;background:#3dd56d!important;color:#062310!important;border-color:#82f6a4!important;opacity:1}
+body.table-3d.phone-focus #phoneActions>[data-trainer-action=animate]{top:auto!important;bottom:var(--control-bottom)!important;right:calc(6px + env(safe-area-inset-right))!important;width:90px!important;max-width:90px!important;height:calc(var(--control-height)*2 + 8px)!important;min-height:96px!important;font-size:17px!important;background:#3dd56d!important;color:#062310!important;border-color:#82f6a4!important;opacity:1}
 body.table-3d.phone-focus #phoneActions>[data-trainer-action=undoShot],body.table-3d.phone-focus #phoneActions>[data-trainer-action=redoShot]{display:block!important;position:fixed;top:calc(6px + env(safe-area-inset-top));bottom:auto;width:52px;min-width:52px;height:36px;min-height:36px;padding:3px;font-size:11px;z-index:46;border-radius:10px}
 body.table-3d.phone-focus #phoneActions>[data-trainer-action=redoShot]{left:64px}
 body.table-3d.phone-focus #phoneActions>[data-trainer-action=undoShot]{left:6px}
@@ -110,10 +110,10 @@ body.table-3d.phone-focus #table3DPhoneControls #table3DTools,body.table-3d.phon
 body.table-3d.phone-focus #table3DPhoneControls #table3DTools{grid-column:1;grid-row:1}
 body.table-3d.phone-focus #table3DPhoneControls #table3DViews{grid-column:3;grid-row:1}
 body.table-3d.phone-focus #table3DPhoneControls #table3DTools>button{width:var(--control-height);min-width:var(--control-height);height:var(--control-height);min-height:var(--control-height)}
-body.table-3d.phone-focus #table3DPhoneControls #table3DViews>button{flex:1;width:auto;min-width:0;height:var(--control-height);min-height:var(--control-height);padding:3px;font-size:24px;white-space:normal;line-height:1.1}
+body.table-3d.phone-focus #table3DPhoneControls #table3DViews>button{flex:1;width:auto;min-width:0;height:var(--control-height);min-height:var(--control-height);padding:3px;font-size:11px;white-space:normal;font-family:system-ui,sans-serif;line-height:1.1}
 body.table-3d.phone-focus #table3DPhoneControls #table3DViews #table3DLock{flex:1.8;width:auto;min-width:0!important;height:var(--control-height);padding:0!important;gap:0;background:#172d36;border-color:#7898a7}
 body.table-3d #table3DViews #table3DLock[aria-pressed=true]{background:#172d36;color:#edf7fb}
-.table3DAdjustmentOptions{display:flex;width:100%;flex:1;align-items:stretch;height:100%;border-radius:9px;overflow:hidden;font:600 18px/1.05 system-ui}
+.table3DAdjustmentOptions{display:flex;width:100%;flex:1;align-items:stretch;height:100%;border-radius:9px;overflow:hidden;font:600 9px/1.05 system-ui,sans-serif}
 .table3DAdjustmentOptions>span{display:grid;place-items:center;flex:1;min-width:0;min-height:0;padding:0;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);overflow:hidden}
 .table3DAdjustmentOptions .selected,body.table-3d #table3DPan[aria-pressed=true],body.table-3d #table3DRotate[aria-pressed=true]{background:#3dd56d;color:#062310;border-color:#82f6a4}
 #table3DZoomGroup{display:flex;align-items:center;gap:3px;touch-action:none;flex:1;min-width:0}

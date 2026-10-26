@@ -207,6 +207,7 @@
   window.billiardsPhoneReadouts();
   // Reuse the existing controls and event handlers in a table-first phone layout.
   const toolShelf=document.createElement('div');toolShelf.id='phoneToolShelf';toolShelf.setAttribute('aria-label','Table tools');title.after(toolShelf);
+  const updateButton=document.createElement('button');updateButton.id='trainerUpdateCheck';updateButton.type='button';updateButton.textContent='Check for updates';updateButton.setAttribute('data-app-update','');updateButton.hidden=true;toolShelf.append(updateButton);
   const relocated=[];
   for(const id of ['analyzePhotoBtn','cameraCaptureBtn','quickLayoutRecall','kickToolToggle','bankToolToggle','teachingCompassToggle','compassSizeWrap','compassRotateWrap','angleLock','aimControls','aimControls2']){
     const element=document.getElementById(id);if(!element)continue;
