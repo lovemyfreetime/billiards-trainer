@@ -32,3 +32,13 @@
 @media(max-width:600px){.btg-lesson-prompt{font-size:11px;padding:7px 9px}.btg-lesson-prompt strong{font-size:13px}}
 
 .btg-lesson-prompt[data-compact="true"]{padding:3px 4px;border-width:2px;border-radius:6px;font-size:9px;line-height:1.15}.btg-lesson-prompt[data-compact="true"] strong{font-size:11px;line-height:1.15;margin:0 0 2px}.btg-lesson-prompt[data-compact="true"] span:last-child{display:none}
+
+/* The lesson selector already names the topic: remove the duplicate visual row. */
+#bt-guide-pool-root .btg-current-lesson{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#bt-guide-pool-root .btg-lesson-row{grid-template-columns:minmax(0,1fr) 94px;gap:5px;min-height:28px}
+#bt-guide-pool-root .btg-practice-slot{width:94px;min-height:28px}
+#bt-guide-pool-root button.btg-next-lesson{min-height:28px;height:28px;padding:3px;font-size:10px}
+#bt-guide-pool-root .btg-countdown strong{width:26px;height:26px;font-size:16px;border-width:1px}
+#bt-guide-pool-root .btg-pool-drawer{margin:0;padding:0}
+#bt-guide-pool-root .btg-last-lesson{font-size:10px;line-height:1.1}
+#bt-guide-pool-root .btg-categories{margin-bottom:3px}

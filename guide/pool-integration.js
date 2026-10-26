@@ -88,7 +88,7 @@ async function init(){
    exploreButton.setAttribute('aria-pressed',String(state.exploring));
   },
   poolMode:true,storageKey:'billiards-pool-guide-v1',topics:catalog.topics,resources:catalog.resources,exploreTopicIds:ids,
-  isActive:()=>!modal.classList.contains('open'),
+  isActive:()=>!modal.classList.contains('open')&&!document.body.classList.contains('table-3d'),
   resolveTopic(event,element){
    const direct=BilliardsRecordedAudio.resolve(event,recorded,'Main');if(direct)return direct;
    const target=event.target;
@@ -117,6 +117,8 @@ async function init(){
    return event.type==='wheel'&&!!target.closest('#panel')&&!target.closest('input,canvas');
   }
  });
+ function showLearningIn2D(){if(!document.body.classList.contains('table-3d'))return;document.getElementById('table3DToggle')?.click();requestAnimationFrame(()=>{if(document.body.classList.contains('phone-focus')&&!document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls')?.click();});}
+ for(const launcher of [startButton,guideButton,exploreButton])launcher.addEventListener('click',showLearningIn2D,{capture:true});
  guideButton.addEventListener('click',()=>{if(guide.getState().enabled&&guide.getState().category!=='start')guide.setEnabled(false);else guide.openGuide()});
  exploreButton.addEventListener('click',()=>guide.setExploring(!guide.getState().exploring));
  window.billiardsPoolAudioMap=catalog;
@@ -130,6 +132,10 @@ async function init(){
  // Also pause if Analyze is opened through another trainer action.
  const modalObserver=new MutationObserver(()=>{if(modal.classList.contains('open')){tour?.pause();guide.setEnabled(false);guide.setExploring(false)}});
  modalObserver.observe(modal,{attributes:true,attributeFilter:['class']});
+ // Leaving 2D stops audio, pending lessons and narration spotlights together.
+ let was3D=false;
+ function sync3D(){const in3D=document.body.classList.contains('table-3d');if(in3D&&!was3D){tour?.pause();guide.setEnabled(false);guide.setExploring(false);}was3D=in3D;}
+ new MutationObserver(sync3D).observe(document.body,{attributes:true,attributeFilter:['class']});sync3D();
  window.billiardsPoolGuide=guide;
  window.billiardsPoolAudioMap=catalog;
 }

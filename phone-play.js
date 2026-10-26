@@ -137,6 +137,7 @@
     if(guide && guide !== observedGuide && guideResize) {guideResize.disconnect(); guideResize.observe(guide); observedGuide=guide}
     const height = focused() && guide?.classList.contains('btg-enabled') ? guide.getBoundingClientRect().height : 0;
     document.documentElement.style.setProperty('--phone-guide-height',height+'px');
+
   }
   new MutationObserver(syncGuideSpace).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
   const fullscreen = document.createElement('button');
@@ -208,7 +209,7 @@
   window.billiardsPhoneReadouts();
   // Reuse the existing controls and event handlers in a table-first phone layout.
   const toolShelf=document.createElement('div');toolShelf.id='phoneToolShelf';toolShelf.setAttribute('aria-label','Table tools');title.after(toolShelf);
-  const updateButton=document.createElement('button');updateButton.id='trainerUpdateCheck';updateButton.type='button';updateButton.textContent='Check for updates';updateButton.setAttribute('data-app-update','');updateButton.hidden=true;toolShelf.append(updateButton);
+  const updateButton=document.createElement('button');updateButton.id='trainerUpdateCheck';updateButton.type='button';updateButton.textContent='Updates';updateButton.setAttribute('data-app-update','');updateButton.hidden=true;const updateRow=document.createElement('div');updateRow.id='trainerUpdateRow';toolShelf.after(updateRow);updateRow.append(updateButton);
   const relocated=[];
   for(const id of ['analyzePhotoBtn','cameraCaptureBtn','quickLayoutRecall','kickToolToggle','bankToolToggle','teachingCompassToggle','compassSizeWrap','compassRotateWrap','angleLock','aimControls','aimControls2']){
     const element=document.getElementById(id);if(!element)continue;
@@ -281,7 +282,7 @@
     else{launchers.append(fullscreen);for(const {element,anchor}of relocated)anchor.after(element);for(const {element,anchor}of analyzeMoves)anchor.after(element);}
     for(const [el,text]of originalText)el.textContent=focused()?compactText[el.id]:text;
     for(const which of [1,2]){const disk=document.getElementById('phoneTip'+which),spin=document.getElementById('bottomSpin'+which);if(disk){if(focused()&&spin)spin.append(disk);else document.body.append(disk);}}
-    if(document.body.classList.contains('table-3d'))launchers.append(fullscreen);
+    if(document.body.classList.contains('table-3d')){launchers.append(fullscreen);if(updateButton.parentNode!==title)title.append(updateButton);}else if(updateButton.parentNode!==updateRow)updateRow.append(updateButton);
     layoutAnalyze();
     dockGuide();syncAim();window.billiardsPhoneReadouts();
     setControls(false);
