@@ -1599,7 +1599,7 @@
       <div class="sectionBody">
       <div class="tableControlGroup layoutSetupGroup" id="fullRackGroup"><div class="tableControlTitle">PICK AND PLAY FULL RACKS</div>
         <div class="layoutSetupSelect"><select id="fullRackSelect" aria-label="Pick and play full rack">
-          <option value="rack3">3-Ball — Original</option><option value="rack3-crosswise">3-Ball — Crosswise</option><option value="rack3-backwards">3-Ball — Backwards</option><option value="rack3-straight">3-Ball — Straight</option><option value="rack3-ll" title="L left, viewed from the breaker">3-Ball — LL</option><option value="rack3-lr" title="L right, viewed from the breaker">3-Ball — LR</option><option value="rack6">6-Ball</option><option value="rack7">7-Ball</option><option value="rack8" selected>8-Ball</option><option value="rack9">9-Ball</option><option value="rack10">10-Ball</option><option value="ultimate8">Ultimate 8 Ball</option><option value="straight14">Straight Pool — 14 Balls (Open Front)</option>
+          <option value="rack3">3-Ball — Original</option><option value="rack3-crosswise">3-Ball — Crosswise</option><option value="rack3-backwards">3-Ball — Backwards</option><option value="rack3-straight">3-Ball — Straight</option><option value="rack3-ll" title="Tight triangle, 3-ball left of the 1–2 line viewed from the breaker">3-Ball — Left</option><option value="rack3-lr" title="Tight triangle, 3-ball right of the 1–2 line viewed from the breaker">3-Ball — Right</option><option value="rack6">6-Ball</option><option value="rack7">7-Ball</option><option value="rack8" selected>8-Ball</option><option value="rack9">9-Ball</option><option value="rack10">10-Ball</option><option value="ultimate8">Ultimate 8 Ball</option><option value="straight14">Straight Pool — 14 Balls (Open Front)</option>
         </select></div>
         <div class="fullRackStart"><button id="startFullRack" type="button">Start</button></div>
       </div>
@@ -2932,12 +2932,14 @@
             crosswise: [[0, 0], [0, -2 * R], [0, 2 * R]],
             backwards: [[0, -R], [0, R], [dx, 0]],
             straight: [[0, 0], [2 * R, 0], [4 * R, 0]],
-            ll: [[0, 0], [2 * R, 0], [2 * R, -2 * R]],
-            lr: [[0, 0], [2 * R, 0], [2 * R, 2 * R]]
+            ll: [[0, 0], [2 * R, 0], [R, -dx]],
+            lr: [[0, 0], [2 * R, 0], [R, dx]]
         };
-        const labels = { original: 'Original', crosswise: 'Crosswise', backwards: 'Backwards', straight: 'Straight', ll: 'LL', lr: 'LR' };
+        const labels = { original: 'Original', crosswise: 'Crosswise', backwards: 'Backwards', straight: 'Straight', ll: 'Left', lr: 'Right' };
         const offsets = patterns[formation] || patterns.original;
-        const ids = [1, ...rear];
+        // Preserve the foot-spot anchor and all three touching pairs when
+        // rotating the triangle. Side variants keep 1–2 on the table axis.
+        const ids = formation === 'll' || formation === 'lr' ? [1, 2, 3] : [1, ...rear];
         const layout = offsets.map(([x, y], i) => ({ id: ids[i], x: apexX + x, y: apexY + y }));
         const balls = [cue ? Object.assign({}, cue) : { id: 0, n: 'CB', x: L * .25, y: W * .5, active: true }];
         for (const p of layout)

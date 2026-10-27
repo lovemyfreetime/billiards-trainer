@@ -65,9 +65,9 @@ console.log('Six-ball, seven-ball clockwise hexagon, and open-front straight-poo
 for(const script of src.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g))new vm.Script(script[1]);
 console.log('Inline scripts parse.');
 
-// House racks: verify anchors, touching distances, mirrored Ls and dispatch.
+// Three-ball variants: verify anchors, tight mirrored triangles and dispatch.
 for (const [L,W,R] of [[2.032,1.016,.028575],[2.54,1.27,.028575],[1.9812,.9906,.028575]]) {
- const expected={original:[[0,0],[Math.sqrt(3),-1],[Math.sqrt(3),1]],crosswise:[[0,0],[0,-2],[0,2]],backwards:[[0,-1],[0,1],[Math.sqrt(3),0]],straight:[[0,0],[2,0],[4,0]],ll:[[0,0],[2,0],[2,-2]],lr:[[0,0],[2,0],[2,2]]};
+ const expected={original:[[0,0],[Math.sqrt(3),-1],[Math.sqrt(3),1]],crosswise:[[0,0],[0,-2],[0,2]],backwards:[[0,-1],[0,1],[Math.sqrt(3),0]],straight:[[0,0],[2,0],[4,0]],ll:[[0,0],[2,0],[1,-Math.sqrt(3)]],lr:[[0,0],[2,0],[1,Math.sqrt(3)]]};
  for (const [formation,offsets] of Object.entries(expected)) {
   let result;
   const ctx={S:{tableL:L,tableW:W,ballR:R},cueBall:()=>null,rackCueBallIfNeeded:()=>{},finishRackSetup:(balls,msg,mode)=>result={balls,msg,mode}};
@@ -75,6 +75,11 @@ for (const [L,W,R] of [[2.032,1.016,.028575],[2.54,1.27,.028575],[1.9812,.9906,.
   assert.equal(result.mode,'3ball');assert.equal(result.balls.length,4);
   assert.equal(new Set(result.balls.map(b=>b.id)).size,4);
   const objects=result.balls.slice(1);
+  if(formation==='ll'||formation==='lr') {
+   assert.deepEqual(Array.from(objects,b=>b.id),[1,2,3]);
+   for(const a of objects)for(const b of objects)if(a!==b)
+    assert(Math.abs(Math.hypot(a.x-b.x,a.y-b.y)-2*R)<1e-12,'Every triangle pair touches');
+  }
   objects.forEach((b,i)=>{
    assert(Math.abs(b.x-(L*.75+offsets[i][0]*R))<1e-12);
    assert(Math.abs(b.y-(W*.5+offsets[i][1]*R))<1e-12);
