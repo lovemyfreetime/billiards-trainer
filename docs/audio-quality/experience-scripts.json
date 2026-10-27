@@ -1,0 +1,36 @@
+{
+  "voice": "chase",
+  "playback_rate": 1,
+  "post_processing": "none",
+  "status": "recorded; listening review pending",
+  "records": [
+    {
+      "id": "experience-zen",
+      "text": "Slow down and enjoy the table. A calm, uncluttered setting gives you room to experiment with aim, speed, follow, draw, and spin. Choose a rack or create your own layout, watch the paths unfold, and use Undo to try a different approach. It’s a relaxed space for curiosity and practice at your own pace.",
+      "script_sha256": "3ceeffb90ba503cdea7f0f5046501f0bc1619d25a3161f1b0691dd4a6b2d656a",
+      "path": "guide/audio/experience-zen.mp3",
+      "sha256": "bef776d864538b543cb4f63998187dbc058dc26b6883287b2d0769b9e4bef90b",
+      "duration_seconds": 18.408,
+      "source_url": "https://app.speechify.com/item/19b8fb04-f05d-4901-9c17-ebf412919055"
+    },
+    {
+      "id": "experience-trainer",
+      "text": "See the shot. Understand the next one. Build layouts, explore banks and kicks, and compare how speed and English change the cue-ball path. Guided lessons, drills, two-shot planning, and jump and massé tools help you practice with purpose. Bring in an image of your real table, save setups to revisit, or use a projector to take your practice onto the cloth.",
+      "script_sha256": "92888a28342c14414fb96cd4da9a089c92fb1b24a0f76565c710b59833a1e074",
+      "path": "guide/audio/experience-trainer.mp3",
+      "sha256": "ce747543e825d67ff16052379278f7ddb88e2155704c5f28ec84be155b399209",
+      "duration_seconds": 23.4,
+      "source_url": "https://app.speechify.com/item/5506c9c8-e651-46a4-a706-edab243a5ed8"
+    },
+    {
+      "id": "experience-play",
+      "text": "Bring something new to your next game night. Choose from 20 social games, including Kelly Pool, Killer, Cutthroat, Poker Pool, and Bowliards. Clear house rules, player prompts, and simple scorekeeping keep things moving at your real pool table. Turn on audio for spoken turn and result announcements, correct an entry with Undo, and resume a saved game when you’re ready.",
+      "script_sha256": "5de1bf07b91c87b5e99d03c75180cf967aa1ce58a337bd04c1fde5bce1c15ff2",
+      "path": "guide/audio/experience-play.mp3",
+      "sha256": "de38f06f43b5d3cbfb257f1c599ed3d3be0fff416db4129cd00585c207d7a595",
+      "duration_seconds": 21.336,
+      "source_url": "https://app.speechify.com/item/37ab4da4-da0d-4569-9864-8cb23ed1a64f"
+    }
+  ],
+  "provider": "Speechify Reader MP3 export"
+}

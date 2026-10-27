@@ -28,6 +28,8 @@ jobs:
           node tests/display-startup.browser.cjs
           node tests/installer-updates.browser.cjs
           node tests/cue-deflection.browser.cjs
+          node tests/experience-narration.test.cjs
+          node tests/experience-narration.browser.cjs
           node tests/chromebook-sliders.browser.cjs
           node tests/compact-guide-player.browser.cjs
           node tests/trainer-tools-menu.browser.cjs
