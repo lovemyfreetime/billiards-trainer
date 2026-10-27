@@ -35,6 +35,7 @@ jobs:
           node tests/trainer-3d-controls.browser.cjs
           node tests/trainer-3d.browser.cjs
           node tests/bank-kick-selection.test.cjs
+          node tests/bank-kick-candidates.test.cjs
           node tests/bank-kick-routing.browser.cjs
           node tests/bank-kick-practical.browser.cjs
           node tests/trainer-3d-edit.browser.cjs

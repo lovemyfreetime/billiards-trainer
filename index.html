@@ -3726,15 +3726,23 @@
             scratch:best.scratch,verifiedPocket:preview.pocketEvents.find(e=>e.id===t.ballId&&Math.hypot(e.x-t.zero.x,e.y-t.zero.y)<.16)||null},
             message:(best.scratch?'Object ball pockets, but the cue ball scratches. ':'')+(setupNeeded?'Complete cue-ball shot verified, including the object-ball collision. Tap Use shot setup to apply the aim and speed.':'Current cue-ball shot verified through the selected rails to the destination.')};
     }
+    function bankKickShotCandidates(railCount) {
+        const maxSpeed=railCount>=3?6:5;
+        const speeds=[1.5,2.5,3.25,4,4.5,5,...(railCount>=3?[5.5,6]:[])];
+        const candidates=speeds.map(speed=>({speed,follow:0,sideSpin:0}));
+        // Prefer center ball, then modest English, before stronger tip offsets.
+        for(const sideSpin of [.15,-.15,.3,-.3])for(const speed of [3.25,maxSpeed])candidates.push({speed,follow:0,sideSpin});
+        for(const follow of [.3,-.3])for(const speed of [3.25,maxSpeed])candidates.push({speed,follow,sideSpin:0});
+        for(const controls of [{follow:0,sideSpin:.5},{follow:0,sideSpin:-.5},{follow:.5,sideSpin:0},{follow:-.5,sideSpin:0},
+            {follow:.3,sideSpin:.3},{follow:.3,sideSpin:-.3},{follow:-.3,sideSpin:.3},{follow:-.3,sideSpin:-.3}])candidates.push({speed:maxSpeed,...controls});
+        return candidates;
+    }
     function calculateBankKickRoute(t) {
         // Recommendations are independent of every current shot control, including aim.
-        // Keep the real layout and calibrated table/cue physics; search a bounded,
-        // center-ball-first set of ordinary shots rather than extreme rescue shots.
+        // Keep the real layout and calibrated physics; favor simple shots before
+        // allowing a firmer stroke and stronger spin for demanding routes.
         const original=S,second=S.activeShot===2&&S.shot2Enabled;
-        const candidates=[1.5,2.5,3.25,4].map(speed=>({speed,follow:0,sideSpin:0}));
-        for(const sideSpin of [.15,-.15])for(const speed of [2.5,3.25,4])candidates.push({speed,follow:0,sideSpin});
-        for(const follow of [.25,-.25])for(const speed of [3.25,4])candidates.push({speed,follow,sideSpin:0});
-        for(const sideSpin of [.25,-.25])for(const speed of [3.25,4])candidates.push({speed,follow:0,sideSpin});
+        const candidates=bankKickShotCandidates(t.rails.length);
         try {
             for(const controls of candidates){
                 const shot={...controls,cueElevationDeg:3,freeAim:{x:0,y:0},angleLock:false,autoGhostLock:false,ghostLock:null,ghostLockDirty:false};
@@ -3750,7 +3758,7 @@
                 }
             }
         } finally { S=original; }
-        return {message:'No practical shot verified for this layout and rail order (maximum 4 m/s, 25% spin, no cue-ball scratch). Try a different rail order or destination.'};
+        return {message:'No practical shot verified for this layout and rail order (maximum '+(t.rails.length>=3?'6':'5')+' m/s, 50% follow/draw or English, no cue-ball scratch). Try a different rail order or destination.'};
     }
     function computeBankKickSolution() {
         const t=bankKickState();
