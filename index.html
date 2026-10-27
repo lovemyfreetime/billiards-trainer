@@ -3647,7 +3647,7 @@
         const cb=second?shot:cueBall();if(!cb)return null;
         S={...S,...(second?shot:{}),activeShot:1,angleLock:false,ghostLock:null,
             freeAim:{x:cb.x+Math.cos(angle)*S.tableL,y:cb.y+Math.sin(angle)*S.tableL},
-            balls:S.balls.map(b=>b.id===0?{...b,x:cb.x,y:cb.y}:b)};
+            balls:S.balls.filter(b=>!search||!t.screenOnly||b.id===0||b.id===t.ballId).map(b=>b.id===0?{...b,x:cb.x,y:cb.y}:b)};
         try{return yield* simulateSteps(false,search?{mode:t.mode,ballId:t.ballId,rails:t.rails,target:t.zero}:null,true);}
         finally{S=original;}
     }
@@ -3706,7 +3706,7 @@
             }
             samples.sort((a,b)=>a.score-b.score);
             for(const initial of samples.slice(0,Number.isFinite(t.searchHint)?1:3)){
-                let angle=initial.angle,step=2*width/72;
+                let angle=initial.angle,step=Number.isFinite(t.searchHint)?.004:2*width/72;
                 for(let iteration=0;iteration<15;iteration++){
                     let local={angle,score:Infinity};
                     for(const candidateAngle of [angle-step,angle,angle+step]){const candidate=yield* evaluate(candidateAngle);if(candidate&&candidate.score<local.score)local=candidate;}
@@ -3715,7 +3715,7 @@
             }
             samples.sort((a,b)=>a.score-b.score);
             // Final acceptance always reruns the complete, unshortened simulator.
-            for(const candidate of samples.slice(0,5)){
+            for(const candidate of samples.filter(candidate=>candidate.reached).slice(0,5)){
                 const actual=assessBankKickShot(t,yield* runBankKickShot(t,candidate.angle),candidate.angle);yield;
                 if(actual?.reached&&(!best||actual.score<best.score))best=actual;
                 if(best&&!best.scratch)break;
@@ -3753,12 +3753,12 @@
         const second=snapshot.activeShot===2&&snapshot.shot2Enabled,started=performance.now(),diagnostics={slices:0,maxSliceMs:0};
         const candidates=bankKickShotCandidates(t.rails.length);
         const stopped=()=>cancelled()||performance.now()-started>30000;
-        async function solve(controls,hint){
+        async function solve(controls,hint,screenOnly=false){
             const shot={...controls,cueElevationDeg:3,freeAim:{x:0,y:0},angleLock:false,autoGhostLock:false,ghostLock:null,ghostLockDirty:false};
             let searchState={...snapshot,airbornePhysics:false,...(second?{shot2:{...snapshot.shot2,...shot}}:shot)};
-            const search=calculateBankKickRouteAtCurrentSpeed({...t,searchHint:hint});
+            const search=calculateBankKickRouteAtCurrentSpeed({...t,searchHint:hint,screenOnly});
             while(true){
-                if(stopped())throw new Error('Bank search cancelled or timed out');
+                if(stopped()){const error=new Error('Bank search cancelled or timed out');error.code='BANK_KICK_TIMEOUT';throw error;}
                 const live=S,sliceStart=performance.now();let step;
                 try{S=searchState;step=search.next();searchState=S;}finally{S=live;diagnostics.slices++;diagnostics.maxSliceMs=Math.max(diagnostics.maxSliceMs,performance.now()-sliceStart);}
                 if(step.done)return step.value;
@@ -3770,10 +3770,14 @@
         const verifiedSpins=new Set();
         const reserveFor=sol=>sol.verifiedPocket?sol.verifiedPocket.speed**2/(2*Math.max(1e-6,snapshot.muRoll)*9.81)/(snapshot.tableL/8):null;
         const finish=result=>{Object.assign(result.solution,{setupNeeded:true,shotElevation:3,shotAirborne:false,pocketReserveDiamonds:reserveFor(result.solution),searchDiagnostics:diagnostics});result.message='Shot verified. Tap Use setup to apply the calculated aim, speed and spin.';return result;};
-        for(const controls of candidates){
+        // First screen candidates with the same physics on the cue/object pair.
+        // Every acceptance still runs the complete scene, including all blockers
+        // and cue-ball scratches. Retain a full-scene search fallback as well.
+        const stages=[...candidates.map(controls=>({controls,screenOnly:true})),...candidates.map(controls=>({controls,screenOnly:false}))];
+        for(const {controls,screenOnly} of stages){
             const spinKey=controls.follow+':'+controls.sideSpin;
             if(verifiedSpins.has(spinKey))continue;
-            let candidate;try{candidate=await solve(controls);}catch(error){if(cancelled())throw error;if(fallback)return finish(fallback);throw error;}
+            let candidate;try{candidate=await solve(controls,undefined,screenOnly);}catch(error){if(cancelled())throw error;if(fallback)return finish(fallback);throw error;}
             if(!candidate.solution?.reached||candidate.solution.scratch)continue;
             verifiedSpins.add(spinKey);
             let best=candidate;
@@ -3787,7 +3791,7 @@
                 for(let i=0;i<9&&!stopped();i++){
                     const remaining=reserve(best.solution);if(remaining>=.5&&remaining<=1)break;
                     const speed=(low+high)/2;
-                    let trial;try{trial=await solve({...controls,speed},best.solution.angle);}catch(error){if(cancelled())throw error;break;}
+                    let trial;try{trial=await solve({...controls,speed},best.solution.angle,screenOnly);}catch(error){if(cancelled())throw error;break;}
                     if(trial.solution?.reached&&!trial.solution.scratch){
                         const trialReserve=reserve(trial.solution);
                         if(Math.abs(trialReserve-.75)<Math.abs(remaining-.75))best=trial;
@@ -3840,7 +3844,8 @@
             bankKickState().solution=bankKickRouteCache.solution;
         }catch(error){
             if(cancelled())return;
-            bankKickRouteCache={key,solution:null,pending:false,message:'Search stopped. Try another rail order or tap Calculate again.'};
+            bankKickRouteCache={key,solution:null,pending:false,message:error.code==='BANK_KICK_TIMEOUT'?'Search stopped at the time limit. This does not mean the shot is impossible. Tap Calculate to retry.':'Search stopped because the calculation could not finish. Tap Calculate to retry.'};
+            if(error.code!=='BANK_KICK_TIMEOUT')console.warn('Bank/Kick search failed',error);
         }finally{
             if(job===bankKickJobId){
                 if(cancelled()){invalidateBankKickRoute();bankKickRouteCache.message='Search stopped. Tap Calculate when ready.';}
@@ -5254,13 +5259,19 @@
                 const before=search.mode==='kick'?(firstBallContact?.t??Infinity):Infinity;
                 const hits=railEvents.filter(e=>e.id===carrier&&e.t<=before);
                 if(hits.some((e,i)=>e.rail!==search.rails[i]+' rail'))break;
-                if(search.mode==='bank'&&firstBallContact&&railEvents.some(e=>e.id===0&&e.t<firstBallContact.t))break;
+                if(search.mode==='bank'&&railEvents.some(e=>e.id===0&&(!firstBallContact||e.t<firstBallContact.t)))break;
                 if(firstBallContact&&hits.length===search.rails.length){
                     const object=B.find(b=>b.id===search.ballId);
                     const distance=Math.hypot(object.x-search.target.x,object.y-search.target.y);
                     if(!searchClosest||distance<searchClosest.distance)searchClosest={distance,t,x:object.x,y:object.y};
                     else if(distance>searchClosest.distance+.0005)break;
                     if(!object.active)break;
+                }
+                if(firstBallContact){
+                    const object=B.find(b=>b.id===search.ballId);
+                    // A stopped carrier cannot finish this bank/kick by itself.
+                    // Do not wait for unrelated balls to finish rolling.
+                    if(t>firstBallContact.t+.05&&(!object.active||(Math.hypot(object.vx,object.vy)<.002&&R*Math.hypot(object.wx,object.wy)<.002)))break;
                 }
                 if(!cb.active&&!firstBallContact)break;
             }
