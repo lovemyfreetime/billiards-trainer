@@ -18,7 +18,7 @@ There is no evidence here that the models target red/yellow English pool or Euro
 
 Fifteen controlled green, blue and red scenes exercise off-center, oblique, portrait and rotated tables, with gradients, ball occlusions and pocket cutouts. Corner error is below eight source pixels in these fixtures. Blank and clipped-table controls reject.
 
-Twelve real photographs sampled across the public Pix2Pockets archive were visually compared against the former fitter. They exposed background rectangles incorrectly accepted by the old algorithm, as well as angled tables missed by its center/axis assumptions. Some distant, bright, clipped or cluttered tables still require manual corners; this is not a measured corner accuracy claim without annotated corner ground truth.
+Twelve real photographs sampled across the public Pix2Pockets archive were visually compared against the former fitter. They exposed background rectangles incorrectly accepted by the old algorithm, as well as angled tables missed by its center/axis assumptions. A final inspection found a small carpet region passing as a table; candidates occupying less than 9% of the image now require manual corners, and a regression covers that case. Some distant, bright, clipped or cluttered tables still require manual corners; this is not a measured corner accuracy claim without annotated corner ground truth.
 
 Three real photographs were also processed through the actual local ONNX detector and classifier, with Original and Lighting assist. The initial test accidentally exercised hybrid fallback because the test server served `.mjs` with the wrong MIME type; that fixture was corrected and all reported results below are from the trained AI.
 
