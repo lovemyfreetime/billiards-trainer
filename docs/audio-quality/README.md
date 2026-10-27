@@ -9,3 +9,7 @@ Fresh recordings use Chase, Simba 3.2, the Speech endpoint, MP3 output, and nati
 `scripts/verify-narration-release.py` rejects changed pinned bytes, restored rejected bytes, or an active Main/Get Started clip missing provenance. The shared Guide release gate runs this check before comparing web, Windows, and Android bundle bytes. Future intentional narration changes must update provenance after source and listening review; do not simply replace the hash to silence a failure.
 
 The former `guide/AUDIO_PACING.json` is retained only as a historical record of the superseded time-stretched drill files. Do not run its tempo factors on new exports.
+
+## Experience descriptions — 2026-10-27
+
+Zen, Trainer, and Play on the welcome page now use three original Chase MP3 downloads from Speechify Reader. `experience-scripts.json` records the exact displayed scripts, source document URLs, durations, and SHA-256 hashes. The Reader export does not expose its synthesis model; these files are not labeled as Simba 3.2 exports. Their original download bytes are unchanged, and app playback is 1.0. Listening review remains pending. These recordings are included in the web and native content inventories; no device speech fallback is used for these descriptions.
