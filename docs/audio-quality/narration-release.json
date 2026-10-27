@@ -1562,7 +1562,7 @@
       "voice": "chase",
       "provider": "Speechify Reader MP3 export",
       "status": "original Chase reader export; listening review pending",
-      "playback_rate": 1,
+      "playback_rate": 1.3,
       "post_processing": "none",
       "model": "not exposed by Reader export"
     },
@@ -1577,7 +1577,7 @@
       "voice": "chase",
       "provider": "Speechify Reader MP3 export",
       "status": "original Chase reader export; listening review pending",
-      "playback_rate": 1,
+      "playback_rate": 1.3,
       "post_processing": "none",
       "model": "not exposed by Reader export"
     },
@@ -1592,7 +1592,7 @@
       "voice": "chase",
       "provider": "Speechify Reader MP3 export",
       "status": "original Chase reader export; listening review pending",
-      "playback_rate": 1,
+      "playback_rate": 1.3,
       "post_processing": "none",
       "model": "not exposed by Reader export"
     },

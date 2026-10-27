@@ -22,7 +22,7 @@
       const audio=new Audio('./guide/audio/experience-'+dialog.id.replace('about-','')+'.mp3');
       narration=audio;speaking=button;
       button.setAttribute('aria-pressed','true');button.setAttribute('aria-label','Stop reading description');
-      audio.playbackRate=1;
+      audio.playbackRate=1.3;
       audio.onended=()=>{if(narration===audio)stop();};
       audio.onerror=()=>speechError(dialog,audio);
       audio.play().catch(()=>speechError(dialog,audio));

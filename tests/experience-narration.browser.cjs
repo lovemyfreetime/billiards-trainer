@@ -8,7 +8,7 @@ for(const viewport of [{width:1366,height:768},{width:915,height:412}]){
  for(const mode of ['zen','trainer','play']){
   await p.getByRole('button',{name:'About '+(mode==='zen'?'Zen':mode==='trainer'?'Trainer':'Play'),exact:true}).click();const dialog=p.locator('#about-'+mode),speaker=dialog.locator('.description-speaker');await speaker.click();
   await p.waitForFunction(()=>{const a=testNarrations.at(-1);return a&&!a.paused&&a.currentTime>.15&&a.duration>12;});
-  assert.equal(await p.evaluate(()=>testNarrations.at(-1).playbackRate),1);assert.equal(await speaker.getAttribute('aria-pressed'),'true');
+  assert.equal(await p.evaluate(()=>testNarrations.at(-1).playbackRate),1.3);assert.equal(await speaker.getAttribute('aria-pressed'),'true');
   if(mode==='trainer')await p.screenshot({path:'/tmp/experience-chase-'+viewport.width+'.png'});
   if(mode==='zen'){await speaker.click();assert(await p.evaluate(()=>testNarrations.at(-1).paused));await speaker.click();await p.waitForFunction(()=>!testNarrations.at(-1).paused);}
   if(mode==='play'){await p.evaluate(()=>{const a=testNarrations.at(-1);a.currentTime=a.duration-.1;});await p.waitForFunction(()=>document.querySelector('#about-play .description-speaker').getAttribute('aria-pressed')==='false');}
