@@ -1738,6 +1738,18 @@
       <div class="sectionBody">
       <button class="advancedToggle" type="button" data-advanced="physicsAdvanced">ADVANCED</button>
       <div class="advancedBody" id="physicsAdvanced">
+        <div class="buttons" aria-label="Physics settings presets">
+          <button id="physicsDefaults" type="button">Revert to Defaults</button>
+          <button id="physicsSave" type="button">Save Settings</button>
+          <button id="physicsLoad" type="button">Load Settings</button>
+        </div>
+        <div id="physicsPresetPanel" hidden style="padding:8px 0">
+          <label id="physicsPresetLabel" for="physicsPresetName">Settings name</label>
+          <input id="physicsPresetName" type="text" maxlength="100" placeholder="Location, table, or cue" style="width:100%;box-sizing:border-box;margin:6px 0">
+          <select id="physicsPresetList" aria-label="Saved physics settings" hidden style="width:100%;margin:6px 0"></select>
+          <div class="buttons"><button id="physicsPresetApply" type="button">Save</button><button id="physicsPresetCancel" type="button">Cancel</button></div>
+        </div>
+        <div class="hint" id="physicsPresetStatus" role="status" aria-live="polite"></div>
         <div class="tableControlTitle">TABLE SIZE &amp; BALLS</div>
         <div class="row"><label>Playing length (in)</label><input id="tableL" type="number" min="60" max="120" step="0.01"></div>
         <div class="row"><label>Playing width (in)</label><input id="tableW" type="number" min="30" max="60" step="0.01"></div>
@@ -7832,6 +7844,83 @@
         syncCompassControls();
         syncBankKickControls();
     }
+    const PHYSICS_PRESETS_KEY = 'billiardsPhysicsPresets-v1';
+    const physicsSettingKeys = ['tableL','tableW','ballR','muSlide','muRoll','muBall','ballRest','railRest','railTang','cuePreset','cueEndmassRatio','airbornePhysics','tableRest','bedImpactMu','jumpUnits'];
+    function capturePhysicsSettings(state = S) {
+        return Object.fromEntries(physicsSettingKeys.map(key => [key, state[key]]));
+    }
+    function readPhysicsPresets() {
+        const saved = JSON.parse(localStorage.getItem(PHYSICS_PRESETS_KEY) || '[]');
+        if (!Array.isArray(saved)) throw new Error('Invalid saved settings');
+        return saved.filter(p => p && typeof p.name === 'string' && p.settings);
+    }
+    function applyPhysicsSettings(settings) {
+        if (animation) { toast('Wait for the shot to finish'); return false; }
+        const defaults = defaultState(), values = {};
+        for (const key of physicsSettingKeys) {
+            const value = settings[key] ?? defaults[key];
+            if (typeof value !== typeof defaults[key] || (typeof value === 'number' && !Number.isFinite(value))) {
+                toast('These saved settings are invalid'); return false;
+            }
+            values[key] = value;
+        }
+        if (!['standard','low','custom'].includes(values.cuePreset) || !['in','mm'].includes(values.jumpUnits)) return false;
+        const limits = {tableL:[60*.0254,120*.0254],tableW:[30*.0254,60*.0254],ballR:[1.5*.0254/2,3*.0254/2],muSlide:[0,.5],muRoll:[0,.1],muBall:[0,.2],ballRest:[.5,1],railRest:[.3,1],railTang:[.5,1],cueEndmassRatio:[8,60],tableRest:[0,.95],bedImpactMu:[0,.5]};
+        for (const [key,[min,max]] of Object.entries(limits)) values[key] = clamp(values[key],min,max);
+        beginActionUndo();
+        Object.assign(S, values);
+        S.cueElevationDeg = Math.min(S.cueElevationDeg, cueElevationMax());
+        if (S.shot2) S.shot2.cueElevationDeg = Math.min(S.shot2.cueElevationDeg, cueElevationMax());
+        updateUI(); refreshPreview(); saveState(); syncProjector();
+        return true;
+    }
+    function setupPhysicsPresets() {
+        let mode = 'save';
+        const panel = $('physicsPresetPanel'), status = $('physicsPresetStatus');
+        const close = () => { panel.hidden = true; };
+        function open(nextMode) {
+            mode = nextMode;
+            try {
+                const presets = readPhysicsPresets();
+                if (mode === 'load' && !presets.length) { status.textContent = 'No saved settings yet. Use Save Settings to create a preset.'; return; }
+                $('physicsPresetList').replaceChildren(...presets.map(p => { const option = document.createElement('option'); option.textContent = p.name; option.value = p.name; return option; }));
+                $('physicsPresetName').hidden = mode !== 'save';
+                $('physicsPresetList').hidden = mode !== 'load';
+                $('physicsPresetLabel').textContent = mode === 'save' ? 'Settings name' : 'Saved settings';
+                $('physicsPresetLabel').htmlFor = mode === 'save' ? 'physicsPresetName' : 'physicsPresetList';
+                $('physicsPresetApply').textContent = mode === 'save' ? 'Save' : 'Load';
+                panel.hidden = false;
+                $(mode === 'save' ? 'physicsPresetName' : 'physicsPresetList').focus();
+            } catch (_) { status.textContent = 'Saved settings could not be read on this device.'; }
+        }
+        $('physicsDefaults').onclick = () => {
+            if (applyPhysicsSettings(capturePhysicsSettings(defaultState()))) { close(); status.textContent = 'Default physics and calibration restored. Named presets are kept.'; }
+        };
+        $('physicsSave').onclick = () => open('save');
+        $('physicsLoad').onclick = () => open('load');
+        $('physicsPresetCancel').onclick = close;
+        $('physicsPresetApply').onclick = () => {
+            try {
+                const presets = readPhysicsPresets();
+                if (mode === 'save') {
+                    const name = $('physicsPresetName').value.trim();
+                    if (!name) { status.textContent = 'Enter a name for these settings.'; $('physicsPresetName').focus(); return; }
+                    const index = presets.findIndex(p => p.name.toLocaleLowerCase() === name.toLocaleLowerCase());
+                    if (index >= 0 && !confirm('Replace saved settings “' + presets[index].name + '”?')) return;
+                    const preset = {name, settings:capturePhysicsSettings()};
+                    if (index >= 0) presets[index] = preset; else presets.push(preset);
+                    localStorage.setItem(PHYSICS_PRESETS_KEY, JSON.stringify(presets));
+                    status.textContent = 'Saved “' + name + '” on this device.';
+                } else {
+                    const preset = presets.find(p => p.name === $('physicsPresetList').value);
+                    if (!preset || !applyPhysicsSettings(preset.settings)) return;
+                    status.textContent = 'Loaded “' + preset.name + '”.';
+                }
+                close();
+            } catch (_) { status.textContent = 'Settings could not be saved or loaded. Check device storage.'; }
+        };
+        $('physicsPresetName').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('physicsPresetApply').click(); } });
+    }
     function applyUI() {
         const inch = .0254;
         S.speed = +$('speed').value;
@@ -12348,6 +12437,7 @@
             updateUI();
             refreshPreview();
         });
+        setupPhysicsPresets();
         const changeIds = ['tableL', 'tableW', 'ballD', 'muSlide', 'muRoll', 'muBall', 'ballRest', 'railRest', 'railTang', 'cueEndmassRatio', 'airbornePhysics', 'jumpUnits', 'tableRest', 'bedImpactMu', 'showImpact', 'showTipBadge', 'showPaths', 'showGrid', 'showDiamonds', 'showTable', 'showAngleLockControl'];
         $('cueShaftPreset').addEventListener('change',()=>{S.cuePreset=$('cueShaftPreset').value;if(CUE_SHAFT_PRESETS[S.cuePreset])S.cueEndmassRatio=CUE_SHAFT_PRESETS[S.cuePreset];updateUI();refreshPreview();saveState();});
         $('cueEndmassRatio').addEventListener('change',()=>{S.cuePreset='custom';});
