@@ -16,15 +16,20 @@ for(const mobile of [false,true]){
  await set('kick',['bottom'],{x:2.032,y:0},{x:1.3,y:.4});await solved(1);
  const kicks=[[{x:1.0609298357,y:.6928765768},{x:.8675562404,y:.6418211887}],[{x:1.3324658513,y:.4831880186},{x:1.1658567895,y:.3725470654}],[{x:.3388150444,y:.2196625482},{x:.1621589740,y:.3134315878}],[{x:.5106782124,y:.6545010524},{x:.6604397466,y:.7870585225}]];
  for(let n=1;n<=4;n++){await set('kick',['bottom','right','top','left'].slice(0,n),kicks[n-1][1],kicks[n-1][0],{x:1.3,y:.65});const sol=await solved(n);assert(sol.objectPath.length>2);}
- await set('bank',['bottom','right','top','left'],targets[3],undefined,undefined,.25);await page.waitForTimeout(200);await page.waitForFunction(()=>!document.querySelector('#bankKickRouteStatus').textContent.includes('Calculating'),{},{timeout:60000});assert.equal((await state()).bankKick.solution,null);assert.match(await page.locator('#bankKickRouteStatus').innerText(),/No route/);
+ await set('bank',['bottom','right'],{x:0,y:0},{x:1.3,y:.8},undefined,1.5);const suggested=await solved(2);assert(suggested.suggestedSpeed>1.5);assert.equal((await state()).speed,1.5,'Suggested route never silently changes shot speed');assert(await page.locator('#bankKickUseSpeed').isVisible());await page.locator('#bankKickUseSpeed').click();await page.waitForTimeout(150);const applied=await solved(2);assert.equal((await state()).speed,suggested.suggestedSpeed);assert.equal(applied.suggestedSpeed,undefined);
+ }
+ if(!mobile){
+ await set(null,[],null,{x:1.3,y:.8});
+ const flatTap=async q=>{const p=await page.evaluate(q=>{const b=billiardsTourBridge.feltBounds(),r=document.querySelector('#stageWrap').getBoundingClientRect(),s=billiardsTourBridge.capture().state;return {x:r.left+b.left+q.x/s.tableL*b.width,y:r.top+b.top+q.y/s.tableW*b.height};},q);await page.mouse.click(p.x,p.y);};
+ await page.locator('#bankToolToggle').click();await flatTap({x:.01,y:.01});await flatTap({x:.65,y:1.026});await flatTap({x:2.042,y:.5});await flatTap({x:1.3,y:.8});await solved(2);assert.deepEqual((await state()).bankKick.rails,['bottom','right']);
  }
  // Real mouse/touch taps in 3D share the ordered-selection flow with 2D.
- await set(null,[],null);if(mobile)await page.locator('#phoneControls').click();await page.locator('#table3DToggle').click();await page.waitForFunction(()=>Billiards3D.active);await page.waitForTimeout(250);
+ await set(null,[],null,{x:1.3,y:.8});if(mobile)await page.locator('#phoneControls').click();await page.locator('#table3DToggle').click();await page.waitForFunction(()=>Billiards3D.active);await page.waitForTimeout(250);
  async function tool(id){if(await page.locator('#phoneControls').getAttribute('aria-expanded')!=='true')await page.locator('#phoneControls').click();await page.locator('#'+id).click();}
  async function tap(q,height=0){const p=await page.evaluate(({q,height})=>Billiards3D.project(q,height),{q,height});if(mobile)await page.touchscreen.tap(p.x,p.y);else await page.mouse.click(p.x,p.y);}
- await tool('bankToolToggle');await tap({x:0,y:1.016});assert.equal((await state()).bankKick.phase,'rail');
- await tap({x:.6,y:-.04},.035);await tap({x:2.07,y:.5},.035);assert.deepEqual((await state()).bankKick.rails,['top','right']);await tap({x:1.3,y:.65},.028575);assert.equal((await state()).bankKick.phase,null);assert.equal((await state()).bankKick.ballId,1);
- assert(await page.locator('#bankKickRoutePanel').isVisible());await page.locator('#bankKickUndoRail').click();assert.deepEqual((await state()).bankKick.rails,['top']);assert.equal((await state()).bankKick.phase,'ball');await page.locator('#bankKickClose').click();assert.equal((await state()).bankKick.mode,null);
- assert.deepEqual(errors,[]);console.log((mobile?'Phone touch':'Desktop mouse')+': ordered 3D rail/ball selection, undo rail and close passed'+(!mobile?'; physics-verified 1–4 rail banks/kicks, pocket bank and insufficient-speed rejection passed.':'.'));await context.close();
+ await tool('bankToolToggle');await tap({x:0,y:0});assert.equal((await state()).bankKick.phase,'rail');
+ await tap({x:.6,y:1.056},.035);await tap({x:2.07,y:.5},.035);assert.deepEqual((await state()).bankKick.rails,['bottom','right']);await tap({x:1.3,y:.8},.028575);await solved(2);assert.equal((await state()).bankKick.phase,null);assert.equal((await state()).bankKick.ballId,1);
+ assert(await page.locator('#bankKickRoutePanel').isVisible());await page.locator('#bankKickUndoRail').click();assert.deepEqual((await state()).bankKick.rails,['bottom']);assert.equal((await state()).bankKick.phase,'ball');await page.locator('#bankKickClose').click();assert.equal((await state()).bankKick.mode,null);
+ assert.deepEqual(errors,[]);console.log((mobile?'Phone touch':'Desktop mouse')+': ordered 3D rail/ball selection, undo rail and close passed'+(!mobile?'; physics-verified 1–4 rail banks/kicks, pocket bank, 2D taps and explicit route-speed assistance passed.':'.'));await context.close();
 }
 }finally{await browser.close();server.kill();}})().catch(e=>{console.error(e);process.exitCode=1});

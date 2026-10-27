@@ -1477,7 +1477,7 @@
     <button id="bankToolToggle" class="bankKickToggle" type="button" title="Bank guide: destination, up to four rails, then object ball">BANK</button>
     <div id="bankKickRoutePanel" hidden>
       <div id="bankKickRouteStatus" role="status" aria-live="polite"></div>
-      <div class="buttons" style="margin-top:5px"><button id="bankKickUndoRail" type="button">Undo rail</button><button id="bankKickClose" type="button">Close guide</button></div>
+      <div class="buttons" style="margin-top:5px"><button id="bankKickUseSpeed" type="button" hidden style="grid-column:1/-1">Use route speed</button><button id="bankKickUndoRail" type="button">Undo rail</button><button id="bankKickClose" type="button">Close guide</button></div>
     </div>
     <button id="teachingCompassToggle" type="button" title="Teaching compass · 5° / 10° degree dots">◎</button>
     <div id="compassSizeWrap" class="compassSideControl">
@@ -3614,7 +3614,7 @@
         try{return simulate(false,{mode:t.mode,ballId:t.ballId,angle,probe,target,stopAtTarget:t.mode==='bank'&&!nearestLogicalPocket(t.zero,.02),rails:t.rails});}
         finally{S=original;}
     }
-    function calculateBankKickRoute(t) {
+    function calculateBankKickRouteAtCurrentSpeed(t) {
         const ball=S.balls.find(b=>b.id===t.ballId&&b.active!==false&&!b.marker),cue=S.activeShot===2&&S.shot2Enabled?ensureShot2():cueBall();
         if(!ball||!t.zero||t.mode==='kick'&&!cue)return {message:'Choose an active object ball and cue ball.'};
         const source=t.mode==='bank'?ball:cue;
@@ -3647,6 +3647,26 @@
         if(t.mode==='kick')points.push(contact.cuePos);
         const bounces=verified.hits.map(e=>({x:e.x,y:e.y,rail:railByName(e.rail.replace(' rail',''))}));
         return {solution:{mode:t.mode,multiRail:true,source:{x:source.x,y:source.y},target,destination:t.zero,ballId:ball.id,points,bounces,objectPath:t.mode==='kick'?preview.paths[ball.id]:null,reached:verified.reached,angle:verified.angle},message:verified.reached?'Physics route reaches the destination.':'Kick contact found; the object-ball path does not reach the destination. Adjust speed, spin, or rail order.'};
+    }
+    function calculateBankKickRoute(t) {
+        const current=calculateBankKickRouteAtCurrentSpeed(t);
+        if(current.solution?.reached)return current;
+        const original=S,second=S.activeShot===2&&S.shot2Enabled;
+        const speed=second?ensureShot2().speed:S.speed;
+        try {
+            for(const candidateSpeed of [2.5,4,6]) {
+                if(candidateSpeed<=speed+.01)continue;
+                S=second?{...original,shot2:{...original.shot2,speed:candidateSpeed}}:{...original,speed:candidateSpeed};
+                const candidate=calculateBankKickRouteAtCurrentSpeed(t);
+                if(candidate.solution?.reached){
+                    candidate.solution.suggestedSpeed=candidateSpeed;
+                    candidate.solution.currentSpeed=speed;
+                    candidate.message='Route shown at '+candidateSpeed.toFixed(2)+' m/s. Current speed '+speed.toFixed(2)+' cannot complete this route. Tap Use route speed to apply.';
+                    return candidate;
+                }
+            }
+        } finally { S=original; }
+        return current;
     }
     function computeBankKickSolution() {
         const t=bankKickState();
@@ -3791,6 +3811,9 @@
             let instruction=t.phase==='zero'?'Tap the destination pocket or location.':t.phase==='kickStart'?'Tap the first rail, or choose the destination first.':t.phase==='zeroEnd'?'Tap the object-ball destination pocket or location.':t.phase==='rail'?'Tap the first rail.':t.phase==='ball'?'Tap another rail (up to 4), or tap the object ball to finish.':bankKickRouteCache.message;
             $('bankKickRouteStatus').textContent=(t.mode||'').toUpperCase()+(order?' · '+order:'')+' — '+instruction+(t.mode==='bank'&&!t.phase?' Bank route starts at the object ball; speed is its launch speed.':'');
             $('bankKickUndoRail').disabled=!(t.rails?.length);
+            const suggested=!t.phase&&bankKickRouteCache.solution?.suggestedSpeed;
+            $('bankKickUseSpeed').hidden=!suggested;
+            if(suggested)$('bankKickUseSpeed').textContent='Use route speed · '+suggested.toFixed(2)+' m/s';
         }
         for (const [id, mode] of [['bankToolToggle', 'bank'], ['kickToolToggle', 'kick']]) {
             const b = $(id);
@@ -6951,7 +6974,7 @@
             });
             if(sol?.multiRail){
                 const trace=(points,stroke,dash=[])=>{if(!points?.length)return;ctx.strokeStyle=stroke;ctx.lineWidth=2.4;ctx.setLineDash(dash);ctx.beginPath();points.forEach((p,i)=>{const q=map(p);if(i)ctx.lineTo(q.x,q.y);else ctx.moveTo(q.x,q.y);});ctx.stroke();ctx.setLineDash([]);};
-                trace(sol.points,color,t.mode==='kick'?[7,4]:[]);
+                trace(sol.points,color,t.mode==='kick'||sol.suggestedSpeed?[7,4]:[]);
                 trace(sol.objectPath,'#9aff91');
                 sol.bounces.forEach((p,i)=>{const q=map(p),n=dynamicRailNumber(t.zero,p.rail,p);ctx.fillStyle=color;ctx.beginPath();ctx.arc(q.x,q.y,4,0,Math.PI*2);ctx.fill();ctx.font='bold 12px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';const label=(i+1)+' · '+fmtRailNumber(n);ctx.strokeStyle='#132029';ctx.lineWidth=4;ctx.strokeText(label,q.x,q.y+(p.rail.name==='top'?18:-18));ctx.fillStyle='#fff';ctx.fillText(label,q.x,q.y+(p.rail.name==='top'?18:-18));});
             }
@@ -11997,6 +12020,7 @@
             syncProjector(); });
         $('bankToolToggle').addEventListener('click', () => beginBankKick('bank'));
         $('bankKickClose').onclick=clearBankKickTool;
+        $('bankKickUseSpeed').onclick=()=>{const speed=bankKickRouteCache.solution?.suggestedSpeed;if(!speed||animation)return;beginActionUndo();if(S.activeShot===2&&S.shot2Enabled)ensureShot2().speed=speed;else S.speed=speed;updateUI();refreshPreview();saveState();};
         $('bankKickUndoRail').onclick=()=>{const t=bankKickState();t.rails.pop();t.railName=t.rails[0]||null;t.ballId=null;t.solution=null;t.phase=t.rails.length?'ball':(t.zero?'rail':'kickStart');bankKickRouteCache={key:null,solution:null,pending:false,message:''};syncBankKickControls();draw();saveState();};
         $('kickToolToggle').addEventListener('click', () => beginBankKick('kick'));
         $('analyzePhotoBtn').addEventListener('click', openPhotoAnalyzer);
