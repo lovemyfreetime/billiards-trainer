@@ -1477,7 +1477,7 @@
     <button id="bankToolToggle" class="bankKickToggle" type="button" title="Bank guide: destination, up to four rails, then object ball">BANK</button>
     <div id="bankKickRoutePanel" hidden>
       <div id="bankKickRouteStatus" role="status" aria-live="polite"></div>
-      <div class="buttons" style="margin-top:5px"><button id="bankKickUseSpeed" type="button" hidden style="grid-column:1/-1">Use route speed</button><button id="bankKickUndoRail" type="button">Undo rail</button><button id="bankKickClose" type="button">Close guide</button></div>
+      <div class="buttons" style="margin-top:5px"><button id="bankKickUseSpeed" type="button" hidden style="grid-column:1/-1">Use shot setup</button><button id="bankKickUndoRail" type="button">Undo rail</button><button id="bankKickClose" type="button">Close guide</button></div>
     </div>
     <button id="teachingCompassToggle" type="button" title="Teaching compass · 5° / 10° degree dots">◎</button>
     <div id="compassSizeWrap" class="compassSideControl">
@@ -2024,7 +2024,7 @@
                 routeVersion: 2,
                 railName: null, // first rail (legacy compatibility)
                 railU: null, // current aim station; BANK auto-solves this from the selected ball
-                autoAim: true, // BANK: derive rail/source numbers from ball position and ZERO
+                autoAim: true, // plan cue aim, collision and the ordered cushion route together
                 ballId: null,
                 solution: null
             },
@@ -2617,7 +2617,7 @@
             if(kind==='table'||kind==='grid'){const a=M.map({x:0,y:0}),b=M.map({x:S.tableL,y:S.tableW});return [{x:c.left+a.x*sx,y:c.top+a.y*sy,width:b.x*sx-a.x*sx,height:b.y*sy-a.y*sy}];}
             return [];
         }
-        return {capture,restore,apply,loadLesson,narrationRegions,snapshot,feltBounds(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR);return {left:c.left-s.left+m.corners[0].x*sx,top:c.top-s.top+m.corners[0].y*sy,right:c.left-s.left+m.corners[1].x*sx,width:(m.corners[1].x-m.corners[0].x)*sx,height:(m.corners[2].y-m.corners[0].y)*sy};},exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},flightProfileBounds(){const which=S.activeShot===2&&S.shot2Enabled?2:1,preview=which===2?S.shot2?.preview:S.preview;if(document.body.classList.contains('phone-layout')||!shouldShowFlightOverlay(preview,which))return null;const r=canvas.getBoundingClientRect(),w=canvas.width/DPR;return {left:r.left+6,right:r.left+6+flightSideProfileWidth(w,false),bottom:r.top+140};},rollingReference(which=1){return rollingReferenceForShot(which);},predict(){const p=simulate(false);return {pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact};}};
+        return {capture,restore,apply,loadLesson,narrationRegions,snapshot,feltBounds(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR);return {left:c.left-s.left+m.corners[0].x*sx,top:c.top-s.top+m.corners[0].y*sy,right:c.left-s.left+m.corners[1].x*sx,width:(m.corners[1].x-m.corners[0].x)*sx,height:(m.corners[2].y-m.corners[0].y)*sy};},exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},flightProfileBounds(){const which=S.activeShot===2&&S.shot2Enabled?2:1,preview=which===2?S.shot2?.preview:S.preview;if(document.body.classList.contains('phone-layout')||!shouldShowFlightOverlay(preview,which))return null;const r=canvas.getBoundingClientRect(),w=canvas.width/DPR;return {left:r.left+6,right:r.left+6+flightSideProfileWidth(w,false),bottom:r.top+140};},rollingReference(which=1){return rollingReferenceForShot(which);},predict(){const p=simulate(false);return {pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact,railEvents:p.railEvents,pocketEvents:p.pocketEvents};}};
     })();
 
     function freshZenTable(){
@@ -3606,47 +3606,94 @@
     let bankKickRouteCache = {key:null,solution:null,pending:false,message:''};
     let bankKickRouteTimer = 0;
     function bankKickRouteKey(t) {
-        return JSON.stringify([t.mode,t.zero,t.rails,t.ballId,S.activeShot,S.shot2Enabled,S.shot2,S.speed,S.follow,S.sideSpin,S.cueElevationDeg,S.tableL,S.tableW,S.ballR,S.muSlide,S.muRoll,S.muBall,S.ballRest,S.railRest,S.railTang,S.cueEndmassRatio,S.balls.map(b=>[b.id,b.x,b.y,b.active,b.marker])],(k,v)=>k==='preview'?undefined:v);
+        return JSON.stringify([t.mode,t.zero,t.rails,t.ballId,S.activeShot,S.shot2Enabled,S.shot2,S.speed,S.follow,S.sideSpin,S.cueElevationDeg,S.freeAim,S.angleLock,S.tableL,S.tableW,S.ballR,S.muSlide,S.muRoll,S.muBall,S.ballRest,S.railRest,S.railTang,S.cueEndmassRatio,S.balls.map(b=>[b.id,b.x,b.y,b.active,b.marker])],(k,v)=>k==='preview'?undefined:v);
     }
-    function runBankKickSimulation(t,angle,probe,target) {
-        const original=S;
-        if(S.activeShot===2 && S.shot2Enabled){const shot=ensureShot2();S={...S,...shot,activeShot:1,balls:S.balls.map(b=>b.id===0?{...b,x:shot.x,y:shot.y}:b)};}
-        try{return simulate(false,{mode:t.mode,ballId:t.ballId,angle,probe,target,stopAtTarget:t.mode==='bank'&&!nearestLogicalPocket(t.zero,.02),rails:t.rails});}
+    function runBankKickShot(t,angle,search=false) {
+        const original=S,second=S.activeShot===2&&S.shot2Enabled,shot=second?ensureShot2():S;
+        const cb=second?shot:cueBall();if(!cb)return null;
+        S={...S,...(second?shot:{}),activeShot:1,angleLock:false,ghostLock:null,
+            freeAim:{x:cb.x+Math.cos(angle)*S.tableL,y:cb.y+Math.sin(angle)*S.tableL},
+            balls:S.balls.map(b=>b.id===0?{...b,x:cb.x,y:cb.y}:b)};
+        try{return simulate(false,search?{mode:t.mode,ballId:t.ballId,rails:t.rails,target:t.zero}:null);}
         finally{S=original;}
     }
-    function calculateBankKickRouteAtCurrentSpeed(t) {
-        const ball=S.balls.find(b=>b.id===t.ballId&&b.active!==false&&!b.marker),cue=S.activeShot===2&&S.shot2Enabled?ensureShot2():cueBall();
-        if(!ball||!t.zero||t.mode==='kick'&&!cue)return {message:'Choose an active object ball and cue ball.'};
-        const source=t.mode==='bank'?ball:cue;
-        const toPocket=norm({x:t.zero.x-ball.x,y:t.zero.y-ball.y});
-        if(Math.hypot(t.zero.x-ball.x,t.zero.y-ball.y)<S.ballR*2)return {message:'Choose a destination away from the object ball.'};
-        const target=t.mode==='bank'?t.zero:{x:ball.x-toPocket.x*2*S.ballR,y:ball.y-toPocket.y*2*S.ballR};
-        const pocket=nearestLogicalPocket(t.zero,.02);
-        const result=window.BilliardsBankKickRouting.solve({source,target,rails:t.rails.map(railByName),tolerance:t.mode==='bank'&&pocket ? .05 : .004,
-            evaluate(angle){const preview=runBankKickSimulation(t,angle,true,target);if(!preview.guideClosest)return null;const hits=preview.railEvents.filter(e=>e.id===0);if(hits.length<t.rails.length||hits.slice(0,t.rails.length).some((e,i)=>e.rail!==t.rails[i]+' rail'))return null;return {distance:preview.guideClosest.distance};}});
-        if(!result)return {message:'No route at this speed through those rails. Try more speed, less spin, or another rail order.'};
-        const targetId=t.mode==='bank'?0:ball.id;
-        function assess(angle){
-            const preview=runBankKickSimulation(t,angle,false,target),contact=preview.firstBallContact;
-            const end=t.mode==='kick'?contact?.t:(preview.pocketEvents.find(e=>e.id===0)?.t??preview.guideClosest?.t);
-            const hits=preview.railEvents.filter(e=>e.id===0&&(end==null||e.t<=end));
-            if(hits.length!==t.rails.length||hits.some((e,i)=>e.rail!==t.rails[i]+' rail') || t.mode==='kick'&&contact?.objId!==ball.id || t.mode==='bank'&&contact)return null;
-            const targetPath=preview.paths[targetId]||[];
-            let distance=Infinity;
-            for(const p of targetPath)distance=Math.min(distance,Math.hypot(p.x-t.zero.x,p.y-t.zero.y));
-            const pocketed=preview.pocketEvents.some(e=>e.id===targetId&&Math.hypot(e.x-t.zero.x,e.y-t.zero.y)<.16);
-            return {preview,angle,hits,distance,reached:pocket?pocketed:distance<S.ballR};
+    function assessBankKickShot(t,preview,angle) {
+        if(!preview||preview.firstBallContact?.objId!==t.ballId)return null;
+        const contact=preview.firstBallContact,carrier=t.mode==='bank'?t.ballId:0;
+        if(t.mode==='bank'&&preview.railEvents.some(e=>e.id===0&&e.t<contact.t))return null;
+        const allHits=preview.railEvents.filter(e=>e.id===carrier&&(t.mode!=='kick'||e.t<=contact.t));
+        if(allHits.length<t.rails.length||!t.rails.every((r,i)=>allHits[i].rail===r+' rail'))return null;
+        const targetPocket=nearestLogicalPocket(t.zero,.02);
+        const pocket=preview.pocketEvents.find(e=>e.id===t.ballId&&Math.hypot(e.x-t.zero.x,e.y-t.zero.y)<.16);
+        const fromTime=t.mode==='bank'?allHits[t.rails.length-1].t:contact.t;
+        const until=t.mode==='bank'?(allHits[t.rails.length]?.t??Infinity):Infinity;
+        let distance=preview.searchClosest?.distance??Infinity,closestTime=preview.searchClosest?.t??Infinity;
+        if(!Number.isFinite(distance)){
+            const path=preview.paths[t.ballId]||[];
+            for(let i=1;i<path.length;i++){
+                const a=path[i-1],b=path[i];if(b.t<fromTime||a.t>until)continue;
+                const dx=b.x-a.x,dy=b.y-a.y,span=b.t-a.t;
+                const lo=span>0?clamp((fromTime-a.t)/span,0,1):0,hi=span>0?clamp((until-a.t)/span,0,1):1;
+                const u=clamp(((t.zero.x-a.x)*dx+(t.zero.y-a.y)*dy)/(dx*dx+dy*dy||1),lo,hi);
+                const d=Math.hypot(a.x+dx*u-t.zero.x,a.y+dy*u-t.zero.y);
+                if(d<distance){distance=d;closestTime=a.t+span*u;}
+            }
         }
-        let verified=assess(result.angle);
-        if(t.mode==='kick'&&!verified?.reached){for(const offset of [-.001,.001,-.003,.003,-.006,.006]){const candidate=assess(result.angle+offset);if(candidate&&(!verified||candidate.reached||candidate.distance<verified.distance))verified=candidate;if(verified?.reached)break;}}
-        if(!verified)return {message:'The selected route is blocked, reaches another ball first, or misses the intended contact.'};
-        if(t.mode==='bank'&&!verified.reached)return {message:'The physics path does not reach that destination at this speed. Try another speed or rail order.'};
-        const preview=verified.preview,contact=preview.firstBallContact;
-        const cutoff=t.mode==='kick'?contact.t:(preview.pocketEvents.find(e=>e.id===0)?.t??Infinity);
-        const points=(preview.paths[0]||[]).filter(p=>p.t<=cutoff);
-        if(t.mode==='kick')points.push(contact.cuePos);
-        const bounces=verified.hits.map(e=>({x:e.x,y:e.y,rail:railByName(e.rail.replace(' rail',''))}));
-        return {solution:{mode:t.mode,multiRail:true,source:{x:source.x,y:source.y},target,destination:t.zero,ballId:ball.id,points,bounces,objectPath:t.mode==='kick'?preview.paths[ball.id]:null,reached:verified.reached,angle:verified.angle},message:verified.reached?'Physics route reaches the destination.':'Kick contact found; the object-ball path does not reach the destination. Adjust speed, spin, or rail order.'};
+        const end=t.mode==='kick'?contact.t:(targetPocket?(pocket?.t??closestTime):closestTime);
+        const hits=allHits.filter(e=>e.t<=end);
+        const reached=hits.length===t.rails.length&&(targetPocket?!!pocket:distance<S.ballR*.35);
+        const scratch=preview.pocketEvents.some(e=>e.id===0);
+        return {angle,distance,reached,scratch,end:targetPocket?(pocket?.t??Infinity):closestTime,score:reached?-1+distance+(scratch ? .25 : 0):distance,hits:hits.slice(0,t.rails.length),preview};
+    }
+    function calculateBankKickRouteAtCurrentSpeed(t) {
+        const ball=S.balls.find(b=>b.id===t.ballId&&b.active!==false&&!b.marker),second=S.activeShot===2&&S.shot2Enabled,shot=second?ensureShot2():S,cb=second?shot:cueBall();
+        if(!ball||!cb||!t.zero)return {message:'Choose an active cue ball, object ball and destination.'};
+        const currentAngle=Math.atan2(shot.freeAim.y-cb.y,shot.freeAim.x-cb.x);
+        const current=assessBankKickShot(t,runBankKickShot(t,currentAngle),currentAngle);
+        let best=current?.reached&&!current.scratch?current:null;
+        if(!best){
+            const toPocket=norm({x:t.zero.x-ball.x,y:t.zero.y-ball.y});
+            const ghost={x:ball.x-2*S.ballR*toPocket.x,y:ball.y-2*S.ballR*toPocket.y};
+            const rails=t.rails.map(railByName);if(rails.some(r=>!r))return {message:'Choose valid cushions in travel order.'};
+            const geometric=window.BilliardsBankKickRouting.seedAngle(t.mode==='bank'?ball:cb,t.mode==='bank'?t.zero:ghost,rails);
+            const bankGhost={x:ball.x-2*S.ballR*Math.cos(geometric),y:ball.y-2*S.ballR*Math.sin(geometric)};
+            const squirt=cueSquirtAngleFor(shot.sideSpin,shot.follow,S.cueEndmassRatio);
+            const seed=(t.mode==='bank'?Math.atan2(bankGhost.y-cb.y,bankGhost.x-cb.x):geometric)-squirt;
+            const center=Math.atan2(ball.y-cb.y,ball.x-cb.x)-squirt;
+            const half=Math.asin(Math.min(.99,2*S.ballR/Math.max(2*S.ballR,Math.hypot(ball.x-cb.x,ball.y-cb.y))));
+            const samples=[];
+            const evaluate=angle=>{const assessed=assessBankKickShot(t,runBankKickShot(t,angle,true),angle);if(!assessed||!Number.isFinite(assessed.distance))return null;const candidate={angle,score:assessed.score,reached:assessed.reached,distance:assessed.distance};samples.push(candidate);return candidate;};
+            const width=t.mode==='bank'?half*1.12+.004:.12;
+            const scanCenter=t.mode==='bank'?center:seed;
+            for(let i=0;i<=72;i++)evaluate(scanCenter-width+2*width*i/72);
+            for(let i=-10;i<=10;i++)evaluate(seed+i*(t.mode==='bank'?half/100:.001));
+            samples.sort((a,b)=>a.score-b.score);
+            for(const initial of samples.slice(0,3)){
+                let angle=initial.angle,step=2*width/72;
+                for(let iteration=0;iteration<15;iteration++){
+                    let local={angle,score:Infinity};
+                    for(const candidateAngle of [angle-step,angle,angle+step]){const candidate=evaluate(candidateAngle);if(candidate&&candidate.score<local.score)local=candidate;}
+                    angle=local.angle;step*=.5;
+                }
+            }
+            samples.sort((a,b)=>a.score-b.score);
+            // Final acceptance always reruns the complete, unshortened simulator.
+            for(const candidate of samples.slice(0,5)){
+                const actual=assessBankKickShot(t,runBankKickShot(t,candidate.angle),candidate.angle);
+                if(actual?.reached&&(!best||actual.score<best.score))best=actual;
+                if(best&&!best.scratch)break;
+            }
+        }
+        if(!best)return {message:'No complete cue-ball shot was verified for this rail order at the current speed and spin. Try another rail order, ball position, or shot settings.'};
+        const preview=best.preview,contact=preview.firstBallContact,objectPath=(preview.paths[t.ballId]||[]).filter(p=>p.t<=best.end);
+        const cuePath=(preview.paths[0]||[]).filter(p=>p.t<=contact.t);cuePath.push(contact.cuePos);
+        const aim={x:cb.x+Math.cos(best.angle)*S.tableL,y:cb.y+Math.sin(best.angle)*S.tableL};
+        const setupNeeded=Math.abs(Math.atan2(Math.sin(best.angle-currentAngle),Math.cos(best.angle-currentAngle)))>1e-6||shot.angleLock;
+        return {solution:{mode:t.mode,multiRail:true,fullShot:true,source:t.mode==='bank'?{x:ball.x,y:ball.y}:{x:cb.x,y:cb.y},target:t.zero,destination:t.zero,ballId:ball.id,
+            points:t.mode==='bank'?objectPath:cuePath,cuePath:t.mode==='bank'?cuePath:null,objectPath:t.mode==='kick'?objectPath:null,
+            bounces:best.hits.map(e=>({x:e.x,y:e.y,rail:railByName(e.rail.replace(' rail',''))})),reached:true,angle:best.angle,aim,shotSpeed:shot.speed,setupNeeded,
+            scratch:best.scratch,verifiedPocket:preview.pocketEvents.find(e=>e.id===t.ballId&&Math.hypot(e.x-t.zero.x,e.y-t.zero.y)<.16)||null},
+            message:(best.scratch?'Object ball pockets, but the cue ball scratches. ':'')+(setupNeeded?'Complete cue-ball shot verified, including the object-ball collision. Tap Use shot setup to apply the aim and speed.':'Current cue-ball shot verified through the selected rails to the destination.')};
     }
     function calculateBankKickRoute(t) {
         const current=calculateBankKickRouteAtCurrentSpeed(t);
@@ -3661,7 +3708,8 @@
                 if(candidate.solution?.reached){
                     candidate.solution.suggestedSpeed=candidateSpeed;
                     candidate.solution.currentSpeed=speed;
-                    candidate.message='Route shown at '+candidateSpeed.toFixed(2)+' m/s. Current speed '+speed.toFixed(2)+' cannot complete this route. Tap Use route speed to apply.';
+                    candidate.solution.setupNeeded=true;
+                    candidate.message=(candidate.solution.scratch?'Warning: cue ball scratches. ':'')+'Complete shot verified at cue speed '+candidateSpeed.toFixed(2)+' m/s. Tap Use shot setup to apply the calculated aim and speed.';
                     return candidate;
                 }
             }
@@ -3671,7 +3719,7 @@
     function computeBankKickSolution() {
         const t=bankKickState();
         if(!t.mode||t.ballId==null||t.phase)return null;
-        if(!t.rails?.length)return t.railName?computeLegacyBankKickSolution():null;
+        if(!t.rails?.length){if(t.railName)t.rails=[t.railName];else return null;}
         const key=bankKickRouteKey(t);
         if(bankKickRouteCache.key===key)return bankKickRouteCache.solution;
         clearTimeout(bankKickRouteTimer);
@@ -3679,6 +3727,7 @@
         syncBankKickControls();
         bankKickRouteTimer=setTimeout(()=>{
             if(bankKickRouteKey(bankKickState())!==key)return;
+            if(animation){bankKickRouteCache.key=null;return;}
             const result=calculateBankKickRoute(bankKickState());
             bankKickRouteCache={key,solution:result.solution||null,pending:false,message:result.message};
             bankKickState().solution=bankKickRouteCache.solution;
@@ -3809,11 +3858,12 @@
             panel.hidden=!t.mode;
             const order=(t.rails||[]).map((r,i)=>(i+1)+'. '+r).join(' → ');
             let instruction=t.phase==='zero'?'Tap the destination pocket or location.':t.phase==='kickStart'?'Tap the first rail, or choose the destination first.':t.phase==='zeroEnd'?'Tap the object-ball destination pocket or location.':t.phase==='rail'?'Tap the first rail.':t.phase==='ball'?'Tap another rail (up to 4), or tap the object ball to finish.':bankKickRouteCache.message;
-            $('bankKickRouteStatus').textContent=(t.mode||'').toUpperCase()+(order?' · '+order:'')+' — '+instruction+(t.mode==='bank'&&!t.phase?' Bank route starts at the object ball; speed is its launch speed.':'');
+            $('bankKickRouteStatus').textContent=(t.mode||'').toUpperCase()+(order?' · '+order:'')+' — '+instruction;
             $('bankKickUndoRail').disabled=!(t.rails?.length);
-            const suggested=!t.phase&&bankKickRouteCache.solution?.suggestedSpeed;
+            const setup=!t.phase&&bankKickRouteCache.solution;
+            const suggested=setup?.setupNeeded;
             $('bankKickUseSpeed').hidden=!suggested;
-            if(suggested)$('bankKickUseSpeed').textContent='Use route speed · '+suggested.toFixed(2)+' m/s';
+            if(suggested)$('bankKickUseSpeed').textContent='Use shot setup · '+setup.shotSpeed.toFixed(2)+' m/s';
         }
         for (const [id, mode] of [['bankToolToggle', 'bank'], ['kickToolToggle', 'kick']]) {
             const b = $(id);
@@ -4661,18 +4711,13 @@
         const rewind = penetration / (Math.sqrt(closing * closing + speed2 * penetration) - closing);
         return rewind <= maxTime + 1e-12 ? Math.min(maxTime, rewind) : 0;
     }
-    function simulate(makeFrames = false, guide = null) {
-        let B = cloneBallsForPhysics();
-        if (guide) {
-            const selected = guide.mode === 'bank' ? guide.ballId : 0;
-            B = B.filter(b => guide.probe ? b.id === selected : (guide.mode !== 'bank' || b.id !== 0));
-            B = B.map(b => b.id === selected ? {...b,id:0} : b);
-        }
+    function simulate(makeFrames = false, search = null) {
+        const B = cloneBallsForPhysics();
         const cb = B.find(b => b.id === 0);
         if (!cb)
             return { paths: {}, frames: [], firstEvent: '—', firstBallContact: null, pocketEvents:[],railEvents:[],finalBalls:[] };
-        const aimD = guide ? {x:Math.cos(guide.angle),y:Math.sin(guide.angle)} : aimDirection(), d = guide ? aimD : strikeDirection();
-        const airborneMode = !guide && S.airbornePhysics === true;
+        const aimD = aimDirection(), d = strikeDirection();
+        const airborneMode = S.airbornePhysics === true;
         if (airborneMode) {
             const theta = clamp(+S.cueElevationDeg || 0, 0, PHYSICS_MODEL.maxAirborneCueElevationDeg) * Math.PI / 180;
             const horizontalSpeed = S.speed * Math.cos(theta);
@@ -4688,10 +4733,9 @@
             const cueOmega = cueInitialAngularVelocity(aimD, S.speed, S.sideSpin, S.follow, S.cueElevationDeg);
             cb.wx = cueOmega.wx; cb.wy = cueOmega.wy; cb.wz = cueOmega.wz;
         }
-        if (guide && guide.mode === 'bank') { cb.wx = -cb.vy / S.ballR; cb.wy = cb.vx / S.ballR; cb.wz = 0; }
-        let guideClosest = null, guidePassed = false;
+        let searchClosest = null;
         const dt = 1 / 600, maxT = 20, maxSteps = Math.ceil(maxT / dt), g = APK.gravity, R = S.ballR;
-        const budget = !guide && S.showShotBudget ? window.BilliardsShotBudget.create(cb, R, g, shotBudgetFeelReference()) : null;
+        const budget = !search && S.showShotBudget ? window.BilliardsShotBudget.create(cb, R, g, shotBudgetFeelReference()) : null;
         const paths = {};
         for (const b of B)
             paths[b.id] = [{ x: b.x, y: b.y, z: b.z, t: 0 }];
@@ -5080,15 +5124,21 @@
                         }
                     }
                 }
-            if (guide) {
-                const hits = railEvents.filter(e => e.id === 0);
-                if (hits.some((e,i) => e.rail !== guide.rails[i] + ' rail')) break;
-                if ((guide.probe || guide.stopAtTarget) && hits.length === guide.rails.length) {
-                    const distance = Math.hypot(cb.x-guide.target.x, cb.y-guide.target.y);
-                    if (!guideClosest || distance < guideClosest.distance) guideClosest = {distance,x:cb.x,y:cb.y,t};
-                    else if (distance > guideClosest.distance + .0005) guidePassed = true;
+            if (search) {
+                if(firstBallContact&&firstBallContact.objId!==search.ballId)break;
+                const carrier=search.mode==='bank'?search.ballId:0;
+                const before=search.mode==='kick'?(firstBallContact?.t??Infinity):Infinity;
+                const hits=railEvents.filter(e=>e.id===carrier&&e.t<=before);
+                if(hits.some((e,i)=>e.rail!==search.rails[i]+' rail'))break;
+                if(search.mode==='bank'&&firstBallContact&&railEvents.some(e=>e.id===0&&e.t<firstBallContact.t))break;
+                if(firstBallContact&&hits.length===search.rails.length){
+                    const object=B.find(b=>b.id===search.ballId);
+                    const distance=Math.hypot(object.x-search.target.x,object.y-search.target.y);
+                    if(!searchClosest||distance<searchClosest.distance)searchClosest={distance,t,x:object.x,y:object.y};
+                    else if(distance>searchClosest.distance+.0005)break;
+                    if(!object.active)break;
                 }
-                if ((guide.probe || guide.stopAtTarget) && (guidePassed || !cb.active)) { paths[0].push({x:cb.x,y:cb.y,z:cb.z,t}); break; }
+                if(!cb.active&&!firstBallContact)break;
             }
             if (step % sampleEvery === 0) {
                 if (budget) for (const b of B) if (b.active) budget.record(b, 'travel', t);
@@ -5114,7 +5164,7 @@
             }
         }
         if (budget) for (const b of B) if (b.active) budget.record(b, 'end', simTime);
-        return { guideClosest, paths, frames, firstEvent, firstBallContact, pocketEvents, railEvents,
+        return { searchClosest, paths, frames, firstEvent, firstBallContact, pocketEvents, railEvents,
             budgetPaths: budget?.paths, budgetContacts: budget?.contacts, initialEnergy: budget?.initial, strokeFeel: budget?.strokeFeel,
             airborne: airborneMode ? {
                 maxCueHeight: Math.max(0, maxCueHeight - R), airborneDistance, bedBounceCount,
@@ -6974,7 +7024,8 @@
             });
             if(sol?.multiRail){
                 const trace=(points,stroke,dash=[])=>{if(!points?.length)return;ctx.strokeStyle=stroke;ctx.lineWidth=2.4;ctx.setLineDash(dash);ctx.beginPath();points.forEach((p,i)=>{const q=map(p);if(i)ctx.lineTo(q.x,q.y);else ctx.moveTo(q.x,q.y);});ctx.stroke();ctx.setLineDash([]);};
-                trace(sol.points,color,t.mode==='kick'||sol.suggestedSpeed?[7,4]:[]);
+                trace(sol.cuePath,'#98dfff',[3,4]);
+                trace(sol.points,color,t.mode==='kick'||sol.setupNeeded?[7,4]:[]);
                 trace(sol.objectPath,'#9aff91');
                 sol.bounces.forEach((p,i)=>{const q=map(p),n=dynamicRailNumber(t.zero,p.rail,p);ctx.fillStyle=color;ctx.beginPath();ctx.arc(q.x,q.y,4,0,Math.PI*2);ctx.fill();ctx.font='bold 12px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';const label=(i+1)+' · '+fmtRailNumber(n);ctx.strokeStyle='#132029';ctx.lineWidth=4;ctx.strokeText(label,q.x,q.y+(p.rail.name==='top'?18:-18));ctx.fillStyle='#fff';ctx.fillText(label,q.x,q.y+(p.rail.name==='top'?18:-18));});
             }
@@ -12020,7 +12071,7 @@
             syncProjector(); });
         $('bankToolToggle').addEventListener('click', () => beginBankKick('bank'));
         $('bankKickClose').onclick=clearBankKickTool;
-        $('bankKickUseSpeed').onclick=()=>{const speed=bankKickRouteCache.solution?.suggestedSpeed;if(!speed||animation)return;beginActionUndo();if(S.activeShot===2&&S.shot2Enabled)ensureShot2().speed=speed;else S.speed=speed;updateUI();refreshPreview();saveState();};
+        $('bankKickUseSpeed').onclick=()=>{const sol=bankKickRouteCache.solution;if(!sol?.fullShot||!sol.aim||animation)return;beginActionUndo();const shot=S.activeShot===2&&S.shot2Enabled?ensureShot2():S;shot.speed=sol.shotSpeed;shot.freeAim={...sol.aim};shot.angleLock=false;shot.autoGhostLock=false;shot.ghostLock=null;shot.ghostLockDirty=false;updateUI();refreshPreview();saveState();};
         $('bankKickUndoRail').onclick=()=>{const t=bankKickState();t.rails.pop();t.railName=t.rails[0]||null;t.ballId=null;t.solution=null;t.phase=t.rails.length?'ball':(t.zero?'rail':'kickStart');bankKickRouteCache={key:null,solution:null,pending:false,message:''};syncBankKickControls();draw();saveState();};
         $('kickToolToggle').addEventListener('click', () => beginBankKick('kick'));
         $('analyzePhotoBtn').addEventListener('click', openPhotoAnalyzer);

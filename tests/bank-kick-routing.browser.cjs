@@ -3,20 +3,33 @@ const assert=require('node:assert/strict'),cp=require('node:child_process'),{chr
 for(const mobile of [false,true]){
  const context=await browser.newContext({viewport:mobile?{width:844,height:390}:{width:1366,height:900},isMobile:mobile,hasTouch:mobile,ignoreHTTPSErrors:true,serviceWorkers:'block'});
  await context.addInitScript(()=>{window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=true;window.chrome={webview:{postMessage(){}}};});const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(process.env.LIVE_URL||'http://127.0.0.1:8822/?train=1');await page.waitForFunction(()=>window.billiardsTourBridge&&window.Billiards3D);
- async function set(mode,rails,target,ball={x:1.3,y:.65},cue={x:.4,y:.6},speed=6){await page.evaluate(({mode,rails,target,ball,cue,speed})=>{const snap=billiardsTourBridge.capture();Object.assign(snap.state,{tableL:2.032,tableW:1.016,speed,sideSpin:0,follow:0,airbornePhysics:false,activeShot:1,shot2Enabled:false,balls:[{id:0,n:'CB',...cue,active:true},{id:1,n:'1',...ball,active:true}],bankKick:{mode,phase:rails.length?null:'zero',zero:target,rails,railName:rails[0]||null,ballId:rails.length?1:null,routeVersion:2}});billiardsTourBridge.restore(snap);},{mode,rails,target,ball,cue,speed});}
+ const base=await page.evaluate(()=>billiardsTourBridge.capture().state);
+ async function set(mode,rails,target,ball={x:1.3,y:.65},cue={x:.4,y:.6},speed=6,extra={}){await page.evaluate(({mode,rails,target,ball,cue,speed,base,extra})=>{const snap=billiardsTourBridge.capture();Object.assign(snap.state,base,{tableL:2.032,tableW:1.016,speed,sideSpin:0,follow:0,airbornePhysics:false,activeShot:1,shot2Enabled:false,balls:[{id:0,n:'CB',...cue,active:true},{id:1,n:'1',...ball,active:true}],bankKick:{mode,phase:rails.length?null:'zero',zero:target,rails,railName:rails[0]||null,ballId:rails.length?1:null,routeVersion:2}},extra);billiardsTourBridge.restore(snap);},{mode,rails,target,ball,cue,speed,base,extra});}
  const state=()=>page.evaluate(()=>billiardsTourBridge.capture().state);
  async function solved(count){await page.waitForFunction(()=>!!billiardsTourBridge.capture().state.bankKick.solution,{},{timeout:60000});const sol=(await state()).bankKick.solution;assert.equal(sol.bounces.length,count);assert(sol.reached);return sol;}
+ async function applyAndVerify(mode,rails){
+  const plan=await solved(rails.length);assert(plan.fullShot,'Guide must verify the complete cue-ball shot');
+  const before=await state();if(await page.locator('#bankKickUseSpeed').isVisible()){await page.locator('#bankKickUseSpeed').click();await page.waitForTimeout(150);await solved(rails.length);}
+  const prediction=await page.evaluate(()=>billiardsTourBridge.predict()),after=await state();
+  assert.equal(after.follow,before.follow);assert.equal(after.sideSpin,before.sideSpin);assert.deepEqual(after.balls,before.balls);
+  assert.equal(prediction.firstBallContact.objId,1);
+  const carrier=mode==='bank'?1:0,hitTime=prediction.firstBallContact.t;
+  const hits=prediction.railEvents.filter(e=>e.id===carrier&&(mode!=='kick'||e.t<=hitTime));
+  assert.deepEqual(hits.slice(0,rails.length).map(e=>e.rail.replace(' rail','')),rails);
+  if(plan.verifiedPocket){assert(prediction.pocketed.includes(1),'The actual Execute Shot predictor must pocket the banked ball');assert.deepEqual(prediction.pocketEvents.find(e=>e.id===1),plan.verifiedPocket,'Guide and real shot have identical pocket position, time and speed');}
+  return plan;
+ }
  if(!mobile){
- const targets=[{x:1.1092177883,y:.5796229306},{x:1.3862677359,y:.5244082681},{x:.3483910704,y:.2453739337},{x:.1542752312,y:.7410542158}];
- for(let n=1;n<=4;n++){const rails=['bottom','right','top','left'].slice(0,n);await set('bank',rails,targets[n-1]);const sol=await solved(n);assert.deepEqual(sol.bounces.map(b=>b.rail.name),rails);}
- // A real two-cushion bank reaches the selected corner pocket.
- await set('bank',['bottom','right'],{x:0,y:0},{x:1.3,y:.8});const firstBank=await solved(2);
- await page.evaluate(()=>{const snap=billiardsTourBridge.capture();snap.state.balls.find(b=>b.id===1).y=.81;billiardsTourBridge.restore(snap);});await page.waitForTimeout(150);const movedBank=await solved(2);assert.notEqual(movedBank.bounces[0].x,firstBank.bounces[0].x,'Moving the bank ball recalculates the route');
- await set('bank',['bottom','right','top'],{x:0,y:1.016},{x:1.3,y:.8});await solved(3);
- await set('kick',['bottom'],{x:2.032,y:0},{x:1.3,y:.4});await solved(1);
+ await set('bank',['bottom'],{x:0,y:0},{x:1.3,y:.65},{x:1.487,y:.484});await applyAndVerify('bank',['bottom']);
+ await set('bank',['bottom','right'],{x:0,y:0},{x:1.3,y:.8});await applyAndVerify('bank',['bottom','right']);
+ await page.locator('#animate').click();await page.waitForFunction(()=>billiardsTourBridge.capture().state.pocketedLog.includes(1),{},{timeout:30000});
+ await set('bank',['bottom','right'],{x:0,y:0},{x:1.3,y:.8},undefined,6,{follow:1,sideSpin:.26});await applyAndVerify('bank',['bottom','right']);
+ await set('bank',['bottom','right','top'],{x:0,y:1.016},{x:1.3,y:.8});await applyAndVerify('bank',['bottom','right','top']);
+ await set('bank',['bottom','top','bottom','top'],{x:2.032,y:1.016},{x:.3,y:.5},{x:.229,y:.312},6,{muRoll:.002,railRest:1,railTang:1});const four=await applyAndVerify('bank',['bottom','top','bottom','top']);assert.equal(four.scratch,(await page.evaluate(()=>billiardsTourBridge.predict())).pocketed.includes(0));if(four.scratch)assert.match(await page.locator('#bankKickRouteStatus').innerText(),/scratch/i);
+ await set('kick',['bottom'],{x:2.032,y:0},{x:1.3,y:.4});await applyAndVerify('kick',['bottom']);
  const kicks=[[{x:1.0609298357,y:.6928765768},{x:.8675562404,y:.6418211887}],[{x:1.3324658513,y:.4831880186},{x:1.1658567895,y:.3725470654}],[{x:.3388150444,y:.2196625482},{x:.1621589740,y:.3134315878}],[{x:.5106782124,y:.6545010524},{x:.6604397466,y:.7870585225}]];
- for(let n=1;n<=4;n++){await set('kick',['bottom','right','top','left'].slice(0,n),kicks[n-1][1],kicks[n-1][0],{x:1.3,y:.65});const sol=await solved(n);assert(sol.objectPath.length>2);}
- await set('bank',['bottom','right'],{x:0,y:0},{x:1.3,y:.8},undefined,1.5);const suggested=await solved(2);assert(suggested.suggestedSpeed>1.5);assert.equal((await state()).speed,1.5,'Suggested route never silently changes shot speed');assert(await page.locator('#bankKickUseSpeed').isVisible());await page.locator('#bankKickUseSpeed').click();await page.waitForTimeout(150);const applied=await solved(2);assert.equal((await state()).speed,suggested.suggestedSpeed);assert.equal(applied.suggestedSpeed,undefined);
+ for(let n=1;n<=4;n++){const rails=['bottom','right','top','left'].slice(0,n);await set('kick',rails,kicks[n-1][1],kicks[n-1][0],{x:1.3,y:.65});await applyAndVerify('kick',rails);}
+ await set('bank',['bottom','right'],{x:0,y:0},{x:1.3,y:.8},undefined,1.5);const suggested=await solved(2);assert(suggested.shotSpeed>1.5);assert.equal((await state()).speed,1.5,'Planning never silently changes cue speed');await applyAndVerify('bank',['bottom','right']);
  }
  if(!mobile){
  await set(null,[],null,{x:1.3,y:.8});
@@ -30,6 +43,6 @@ for(const mobile of [false,true]){
  await tool('bankToolToggle');await tap({x:0,y:0});assert.equal((await state()).bankKick.phase,'rail');
  await tap({x:.6,y:1.056},.035);await tap({x:2.07,y:.5},.035);assert.deepEqual((await state()).bankKick.rails,['bottom','right']);await tap({x:1.3,y:.8},.028575);await solved(2);assert.equal((await state()).bankKick.phase,null);assert.equal((await state()).bankKick.ballId,1);
  assert(await page.locator('#bankKickRoutePanel').isVisible());await page.locator('#bankKickUndoRail').click();assert.deepEqual((await state()).bankKick.rails,['bottom']);assert.equal((await state()).bankKick.phase,'ball');await page.locator('#bankKickClose').click();assert.equal((await state()).bankKick.mode,null);
- assert.deepEqual(errors,[]);console.log((mobile?'Phone touch':'Desktop mouse')+': ordered 3D rail/ball selection, undo rail and close passed'+(!mobile?'; physics-verified 1–4 rail banks/kicks, pocket bank, 2D taps and explicit route-speed assistance passed.':'.'));await context.close();
+ assert.deepEqual(errors,[]);console.log((mobile?'Phone touch':'Desktop mouse')+': ordered 3D rail/ball selection, undo rail and close passed'+(!mobile?'; full cue-to-object physics, executed bank, 1–4 rail banks/kicks, spin, scratch warning and applied shot setup passed.':'.'));await context.close();
 }
 }finally{await browser.close();server.kill();}})().catch(e=>{console.error(e);process.exitCode=1});
