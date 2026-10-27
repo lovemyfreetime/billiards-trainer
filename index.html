@@ -3681,8 +3681,7 @@
         const ball=S.balls.find(b=>b.id===t.ballId&&b.active!==false&&!b.marker),second=S.activeShot===2&&S.shot2Enabled,shot=second?ensureShot2():S,cb=second?shot:cueBall();
         if(!ball||!cb||!t.zero)return {message:'Choose an active cue ball, object ball and destination.'};
         const currentAngle=Math.atan2(shot.freeAim.y-cb.y,shot.freeAim.x-cb.x);
-        const current=assessBankKickShot(t,runBankKickShot(t,currentAngle),currentAngle);
-        let best=current?.reached&&!current.scratch?current:null;
+        let best=null;
         if(!best){
             const toPocket=norm({x:t.zero.x-ball.x,y:t.zero.y-ball.y});
             const ghost={x:ball.x-2*S.ballR*toPocket.x,y:ball.y-2*S.ballR*toPocket.y};
@@ -3728,25 +3727,30 @@
             message:(best.scratch?'Object ball pockets, but the cue ball scratches. ':'')+(setupNeeded?'Complete cue-ball shot verified, including the object-ball collision. Tap Use shot setup to apply the aim and speed.':'Current cue-ball shot verified through the selected rails to the destination.')};
     }
     function calculateBankKickRoute(t) {
-        const current=calculateBankKickRouteAtCurrentSpeed(t);
-        if(current.solution?.reached)return current;
+        // Recommendations are independent of every current shot control, including aim.
+        // Keep the real layout and calibrated table/cue physics; search a bounded,
+        // center-ball-first set of ordinary shots rather than extreme rescue shots.
         const original=S,second=S.activeShot===2&&S.shot2Enabled;
-        const speed=second?ensureShot2().speed:S.speed;
+        const candidates=[1.5,2.5,3.25,4].map(speed=>({speed,follow:0,sideSpin:0}));
+        for(const sideSpin of [.15,-.15])for(const speed of [2.5,3.25,4])candidates.push({speed,follow:0,sideSpin});
+        for(const follow of [.25,-.25])for(const speed of [3.25,4])candidates.push({speed,follow,sideSpin:0});
+        for(const sideSpin of [.25,-.25])for(const speed of [3.25,4])candidates.push({speed,follow:0,sideSpin});
         try {
-            for(const candidateSpeed of [2.5,4,6]) {
-                if(candidateSpeed<=speed+.01)continue;
-                S=second?{...original,shot2:{...original.shot2,speed:candidateSpeed}}:{...original,speed:candidateSpeed};
+            for(const controls of candidates){
+                const shot={...controls,cueElevationDeg:3,freeAim:{x:0,y:0},angleLock:false,autoGhostLock:false,ghostLock:null,ghostLockDirty:false};
+                S={...original,airbornePhysics:false,...(second?{shot2:{...original.shot2,...shot}}:shot)};
                 const candidate=calculateBankKickRouteAtCurrentSpeed(t);
-                if(candidate.solution?.reached){
-                    candidate.solution.suggestedSpeed=candidateSpeed;
-                    candidate.solution.currentSpeed=speed;
-                    candidate.solution.setupNeeded=true;
-                    candidate.message=(candidate.solution.scratch?'Warning: cue ball scratches. ':'')+'Complete shot verified at cue speed '+candidateSpeed.toFixed(2)+' m/s. Tap Use shot setup to apply the calculated aim and speed.';
+                if(candidate.solution?.reached&&!candidate.solution.scratch){
+                    const previous=second?original.shot2:original,sol=candidate.solution;
+                    const cb=second?previous:original.balls.find(b=>b.id===0),angle=Math.atan2(previous.freeAim.y-cb.y,previous.freeAim.x-cb.x);
+                    const setupNeeded=Math.abs(Math.atan2(Math.sin(sol.angle-angle),Math.cos(sol.angle-angle)))>1e-6||previous.angleLock||previous.ghostLock||previous.autoGhostLock||previous.speed!==sol.shotSpeed||previous.follow!==sol.shotFollow||previous.sideSpin!==sol.shotSide||previous.cueElevationDeg!==3||original.airbornePhysics;
+                    Object.assign(sol,{setupNeeded:!!setupNeeded,shotElevation:3,shotAirborne:false});
+                    candidate.message='Practical shot verified independently of your controls. Tap Use setup to apply the calculated aim, speed and spin.';
                     return candidate;
                 }
             }
         } finally { S=original; }
-        return current;
+        return {message:'No practical shot verified for this layout and rail order (maximum 4 m/s, 25% spin, no cue-ball scratch). Try a different rail order or destination.'};
     }
     function computeBankKickSolution() {
         const t=bankKickState();
@@ -12114,7 +12118,7 @@
         $('bankKickTarget').onclick=()=>{invalidateBankKickRoute();const t=bankKickState();t.phase='zero';syncBankKickControls();draw();};
         document.querySelectorAll('[data-bank-rail]').forEach(button=>{button.onclick=()=>{const t=bankKickState();if(!t.zero)return;invalidateBankKickRoute();t.editRailIndex=Number(button.dataset.bankRail);t.phase='editRail';syncBankKickControls();draw();};});
         $('bankKickCalculate').onclick=requestBankKickCalculation;
-        $('bankKickUseSpeed').onclick=()=>{const sol=bankKickRouteCache.solution;if(!sol?.fullShot||!sol.aim||animation)return;beginActionUndo();const shot=S.activeShot===2&&S.shot2Enabled?ensureShot2():S;shot.speed=sol.shotSpeed;shot.follow=sol.shotFollow;shot.sideSpin=sol.shotSide;shot.freeAim={...sol.aim};shot.angleLock=false;shot.autoGhostLock=false;shot.ghostLock=null;shot.ghostLockDirty=false;updateUI();refreshPreview();saveState();};
+        $('bankKickUseSpeed').onclick=()=>{const sol=bankKickRouteCache.solution;if(!sol?.fullShot||!sol.aim||animation)return;beginActionUndo();const shot=S.activeShot===2&&S.shot2Enabled?ensureShot2():S;shot.speed=sol.shotSpeed;shot.follow=sol.shotFollow;shot.sideSpin=sol.shotSide;shot.cueElevationDeg=sol.shotElevation;S.airbornePhysics=sol.shotAirborne;shot.freeAim={...sol.aim};shot.angleLock=false;shot.autoGhostLock=false;shot.ghostLock=null;shot.ghostLockDirty=false;updateUI();refreshPreview();saveState();};
         $('bankKickUndoRail').onclick=()=>{const t=bankKickState();t.rails.pop();t.railName=t.rails[0]||null;t.ballId=null;t.solution=null;t.phase=t.rails.length?'ball':(t.zero?'rail':'kickStart');bankKickRouteCache={key:null,solution:null,pending:false,message:''};syncBankKickControls();draw();saveState();};
         $('kickToolToggle').addEventListener('click', () => beginBankKick('kick'));
         $('analyzePhotoBtn').addEventListener('click', openPhotoAnalyzer);

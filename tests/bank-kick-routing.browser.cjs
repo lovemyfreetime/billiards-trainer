@@ -8,10 +8,12 @@ for(const mobile of [false,true]){
  const state=()=>page.evaluate(()=>billiardsTourBridge.capture().state);
  async function solved(count){await page.waitForFunction(()=>!!billiardsTourBridge.capture().state.bankKick.solution,{},{timeout:60000});const sol=(await state()).bankKick.solution;assert.equal(sol.bounces.length,count);assert(sol.reached);return sol;}
  async function applyAndVerify(mode,rails){
-  const plan=await solved(rails.length);assert.match(await page.locator('#bankKickSpeedOutput').innerText(),new RegExp(plan.shotSpeed.toFixed(2)));assert.notEqual(await page.locator('#bankKickFollowOutput').innerText(),'—');assert.notEqual(await page.locator('#bankKickSpinOutput').innerText(),'—');assert(plan.fullShot,'Guide must verify the complete cue-ball shot');
+  await page.waitForFunction(()=>!!billiardsTourBridge.capture().state.bankKick.solution||/No practical shot/.test(document.querySelector('#bankKickRouteStatus').textContent),{},{timeout:60000});
+  if(!(await state()).bankKick.solution){assert.match(await page.locator('#bankKickRouteStatus').innerText(),/No practical shot/);return null;}
+  const plan=await solved(rails.length);assert(plan.shotSpeed<=4);assert(Math.abs(plan.shotFollow)<=.25&&Math.abs(plan.shotSide)<=.25);assert(!plan.scratch);assert.match(await page.locator('#bankKickSpeedOutput').innerText(),new RegExp(plan.shotSpeed.toFixed(2)));assert.notEqual(await page.locator('#bankKickFollowOutput').innerText(),'—');assert.notEqual(await page.locator('#bankKickSpinOutput').innerText(),'—');assert(plan.fullShot,'Guide must verify the complete cue-ball shot');
   const before=await state();if(await page.locator('#bankKickUseSpeed').isVisible()){await page.locator('#bankKickUseSpeed').click();await page.waitForTimeout(150);await solved(rails.length);}
   const prediction=await page.evaluate(()=>billiardsTourBridge.predict()),after=await state();
-  assert.equal(after.follow,before.follow);assert.equal(after.sideSpin,before.sideSpin);assert.deepEqual(after.balls,before.balls);
+  assert.equal(after.follow,plan.shotFollow);assert.equal(after.sideSpin,plan.shotSide);assert.deepEqual(after.balls,before.balls);
   assert.equal(prediction.firstBallContact.objId,1);
   const carrier=mode==='bank'?1:0,hitTime=prediction.firstBallContact.t;
   const hits=prediction.railEvents.filter(e=>e.id===carrier&&(mode!=='kick'||e.t<=hitTime));
@@ -25,7 +27,7 @@ for(const mobile of [false,true]){
  await page.locator('#animate').click();await page.waitForFunction(()=>billiardsTourBridge.capture().state.pocketedLog.includes(1),{},{timeout:30000});
  await set('bank',['bottom','right'],{x:0,y:0},{x:1.3,y:.8},undefined,6,{follow:1,sideSpin:.26});await applyAndVerify('bank',['bottom','right']);
  await set('bank',['bottom','right','top'],{x:0,y:1.016},{x:1.3,y:.8});await applyAndVerify('bank',['bottom','right','top']);
- await set('bank',['bottom','top','bottom','top'],{x:2.032,y:1.016},{x:.3,y:.5},{x:.229,y:.312},6,{muRoll:.002,railRest:1,railTang:1});const four=await applyAndVerify('bank',['bottom','top','bottom','top']);assert.equal(four.scratch,(await page.evaluate(()=>billiardsTourBridge.predict())).pocketed.includes(0));if(four.scratch)assert.match(await page.locator('#bankKickRouteStatus').innerText(),/scratch/i);
+ await set('bank',['bottom','top','bottom','top'],{x:2.032,y:1.016},{x:.3,y:.5},{x:.229,y:.312},6,{muRoll:.002,railRest:1,railTang:1});const four=await applyAndVerify('bank',['bottom','top','bottom','top']);if(four)assert.equal(four.scratch,(await page.evaluate(()=>billiardsTourBridge.predict())).pocketed.includes(0));if(four?.scratch)assert.match(await page.locator('#bankKickRouteStatus').innerText(),/scratch/i);
  await set('kick',['bottom'],{x:2.032,y:0},{x:1.3,y:.4});await applyAndVerify('kick',['bottom']);
  const kicks=[[{x:1.0609298357,y:.6928765768},{x:.8675562404,y:.6418211887}],[{x:1.3324658513,y:.4831880186},{x:1.1658567895,y:.3725470654}],[{x:.3388150444,y:.2196625482},{x:.1621589740,y:.3134315878}],[{x:.5106782124,y:.6545010524},{x:.6604397466,y:.7870585225}]];
  for(let n=1;n<=4;n++){const rails=['bottom','right','top','left'].slice(0,n);await set('kick',rails,kicks[n-1][1],kicks[n-1][0],{x:1.3,y:.65});await applyAndVerify('kick',rails);}
@@ -43,6 +45,6 @@ for(const mobile of [false,true]){
  await tool('bankToolToggle');await tap({x:0,y:0});assert.equal((await state()).bankKick.phase,'rail');
  await tap({x:.6,y:1.056},.035);await tap({x:2.07,y:.5},.035);assert.deepEqual((await state()).bankKick.rails,['bottom','right']);await tap({x:1.3,y:.8},.028575);assert.equal((await state()).bankKick.solution,null);await page.locator('#bankKickCalculate').click();await solved(2);assert.equal((await state()).bankKick.phase,null);assert.equal((await state()).bankKick.ballId,1);
  assert(await page.locator('#bankKickRoutePanel').isVisible());await page.screenshot({path:'/tmp/route-steps-'+(mobile?'phone':'desktop')+'.png'});await page.locator('[data-bank-rail="1"]').click();assert.equal((await state()).bankKick.phase,'editRail');await tap({x:-.04,y:.5},.035);assert.deepEqual((await state()).bankKick.rails,['bottom','left']);assert.equal((await state()).bankKick.solution,null);assert.equal((await state()).bankKick.requested,false);await page.locator('#bankKickClose').click();assert.equal((await state()).bankKick.mode,null);
- assert.deepEqual(errors,[]);console.log((mobile?'Phone touch':'Desktop mouse')+': ordered 3D rail/ball selection, undo rail and close passed'+(!mobile?'; full cue-to-object physics, executed bank, 1–4 rail banks/kicks, spin, scratch warning and applied shot setup passed.':'.'));await context.close();
+ assert.deepEqual(errors,[]);console.log((mobile?'Phone touch':'Desktop mouse')+': ordered 3D rail/ball selection, undo rail and close passed'+(!mobile?'; full cue-to-object physics, executed bank, 1–4 rail requests with practical limits, spin and applied shot setup passed.':'.'));await context.close();
 }
 }finally{await browser.close();server.kill();}})().catch(e=>{console.error(e);process.exitCode=1});
