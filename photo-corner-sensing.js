@@ -15,7 +15,7 @@ function detect(img){
  for(const mode of chosen){const mask=new Uint8Array(n),seen=new Uint8Array(n);for(let i=0;i<n;i++)mask[i]=sats[i]>.20&&values[i]>.10&&hd(hues[i],mode.h)<25?1:0;
   for(let start=0;start<n;start++){if(!mask[start]||seen[start])continue;const q=[start];seen[start]=1;const boundary=[];
    for(let j=0;j<q.length;j++){const at=q[j],x=at%w,y=Math.floor(at/w);let edge=false;for(const [dx,dy]of [[1,0],[-1,0],[0,1],[0,-1]]){const xx=x+dx,yy=y+dy,k=yy*w+xx;if(xx<0||yy<0||xx>=w||yy>=h||!mask[k]){edge=true;continue;}if(!seen[k]){seen[k]=1;q.push(k);}}if(edge)boundary.push({x,y});}
-   if(q.length<n*.035||boundary.length<80)continue;
+   if(q.length<n*.09||boundary.length<80)continue;
    const outline=hull(boundary);if(outline.length<4)continue;const initialArea=area(outline),quad=outline.slice();while(quad.length>4){let at=0,min=Infinity;for(let i=0;i<quad.length;i++){const v=Math.abs(cross(quad[(i+quad.length-1)%quad.length],quad[i],quad[(i+1)%quad.length]));if(v<min){min=v;at=i;}}quad.splice(at,1);}
    if(area(quad)<initialArea*.80)continue;
    const edgeGroups=[[],[],[],[]],limit=Math.max(4,Math.hypot(w,h)*.045);
@@ -23,7 +23,7 @@ function detect(img){
    const lines=edgeGroups.map(fit);if(lines.some(l=>!l))continue;let corners=lines.map((l,i)=>intersect(lines[(i+3)%4],l));if(corners.some(p=>!p||p.x<1||p.y<1||p.x>w-2||p.y>h-2))continue;
    if(corners.some((a,i)=>cross(a,corners[(i+1)%4],corners[(i+2)%4])<=0))continue;
    const lengths=corners.map((a,i)=>Math.hypot(a.x-corners[(i+1)%4].x,a.y-corners[(i+1)%4].y));if(Math.min(...lengths)<Math.min(w,h)*.12||Math.max(...lengths)/Math.min(...lengths)>7)continue;
-   const A=area(corners);if(A<n*.035||A>n*.94||q.length/A<.60||q.length/A>1.18)continue;
+   const A=area(corners);if(A<n*.09||A>n*.94||q.length/A<.60||q.length/A>1.18)continue;
    const cx=corners.reduce((s,p)=>s+p.x,0)/4,cy=corners.reduce((s,p)=>s+p.y,0)/4;let rail=0,samples=0,pockets=0;
    const sample=(x,y)=>{x=Math.round(x);y=Math.round(y);return x>=0&&y>=0&&x<w&&y<h?y*w+x:null;};
    for(let k=0;k<4;k++){const a=corners[k],b=corners[(k+1)%4];for(let t=.15;t<.9;t+=.14){const x=a.x+(b.x-a.x)*t,y=a.y+(b.y-a.y)*t,dx=cx-x,dy=cy-y,len=Math.hypot(dx,dy),inside=sample(x+dx/len*5,y+dy/len*5),outside=sample(x-dx/len*5,y-dy/len*5);if(inside==null||outside==null)continue;samples++;if(!mask[outside]||Math.abs(values[inside]-values[outside])>.09)rail++;}
@@ -31,7 +31,6 @@ function detect(img){
     let dark=0,count=0;for(let dy=-7;dy<=7;dy+=2)for(let dx=-7;dx<=7;dx+=2){const i=sample(a.x+dx,a.y+dy);if(i!=null){count++;if(values[i]<.22)dark++;}}if(dark/Math.max(1,count)>.16)pockets++;
    }
    const railSupport=rail/Math.max(1,samples);if(railSupport<.42)continue;
-   if(A<n*.09&&(pockets<1||railSupport<.7))continue;
    const confidence=Math.min(.96,.4+railSupport*.25+(q.length/A)*.16+pockets*.035),score=A*confidence;
    if(!best||score>best.score){let first=0;for(let i=1;i<4;i++)if(corners[i].x+corners[i].y<corners[first].x+corners[first].y)first=i;corners=[...corners.slice(first),...corners.slice(0,first)].map(p=>({x:p.x/scale,y:p.y/scale}));best={corners,confidence,railSupport,pocketSupport:pockets,score};}
   }

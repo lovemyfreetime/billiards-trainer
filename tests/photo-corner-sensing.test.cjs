@@ -13,6 +13,7 @@ const cases=[
 ];
 if(require.main===module){
 for(const color of [[25,155,105],[25,120,190],[155,35,65]])for(const quad of cases){const start=performance.now(),r=detect(scene(quad,color));assert(r,'corner detection '+JSON.stringify(quad));for(const p of quad)assert(Math.min(...r.corners.map(c=>Math.hypot(c.x-p.x,c.y-p.y)))<8,JSON.stringify({expected:p,got:r.corners}));assert(r.railSupport>.4);assert(performance.now()-start<1500);}
+const distant=scene([{x:300,y:240},{x:405,y:240},{x:450,y:310},{x:270,y:310}]);assert.equal(detect(distant),null,'Small ambiguous colored regions need manual corners');
 const blank={width:160,height:120,data:new Uint8ClampedArray(160*120*4).fill(90)};assert.equal(detect(blank),null);const cropped=scene([{x:0,y:0},{x:719,y:0},{x:719,y:479},{x:0,y:479}]);assert.equal(detect(cropped),null);
 console.log('15 green/blue/red, angled, rotated, portrait and off-center scenes with gradients, balls and pocket cutouts pass; blank/clipped scenes reject.');
 }
