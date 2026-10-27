@@ -33,6 +33,7 @@ jobs:
           node tests/trainer-tools-menu.browser.cjs
           node tests/shared-session-history.browser.cjs
           node tests/trainer-3d-controls.browser.cjs
+          node tests/trainer-view-refinements.browser.cjs
           node tests/trainer-3d.browser.cjs
           node tests/bank-kick-selection.test.cjs
           node tests/bank-kick-candidates.test.cjs

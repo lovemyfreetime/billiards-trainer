@@ -202,3 +202,29 @@ body.table-3d.phone-focus #phoneToolShelf{gap:4px;margin:4px 0 8px}
 body.table-3d.phone-focus #phoneToolShelf>button,body.table-3d.phone-focus #phoneToolShelf>label{font-size:10px;padding:0 7px;min-width:30px;height:32px!important;min-height:32px!important}
 body.table-3d.phone-focus #phoneToolShelf>#analyzePhotoBtn{flex:1;min-width:80px;padding:0 4px;font-size:9px}
 body.table-3d.phone-focus #phoneToolShelf>#cameraCaptureBtn,body.table-3d.phone-focus #phoneToolShelf>#quickLayoutRecall,body.table-3d.phone-focus #phoneToolShelf>#teachingCompassToggle{width:32px;min-width:32px;padding:0}
+
+/* View switching belongs above the sidebar shot controls in 2D. */
+#trainerUpdateRow>#table3DViews{position:static;display:flex;flex-direction:row;width:auto;margin-right:auto}
+#trainerUpdateRow #table3DToggle{position:static;width:90px;min-height:34px;border:2px solid #55e869;box-shadow:0 0 7px #55e86938}
+#bankKickSpeedOutput{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:2px 7px}
+#bankKickSpeedOutput .bankKickDiamonds{color:#69e5ff;font-size:inherit;white-space:nowrap}
+/* Larger tip disk occupies the center of both existing control rows. */
+body.table-3d.phone-focus{--control-gap:calc(var(--control-height)*2 + 20px)}
+body.table-3d.phone-focus #phoneActions>.bottomSpinGroup{margin:0;width:100%;grid-template-columns:minmax(0,1fr) var(--control-gap) minmax(0,1fr)}
+body.table-3d.phone-focus #phoneActions .bottomSpinGroup .phoneTipControl:not([hidden]){width:calc(var(--control-height)*2 + 8px);height:calc(var(--control-height)*2 + 8px);align-self:end;margin:0 auto;touch-action:none}
+body.table-3d.phone-focus #table3DTools{min-width:0}
+body.table-3d.phone-focus #phoneAimRail,body.table-3d.phone-focus #phoneSpeedRail{top:clamp(112px,16vh,144px)}
+body.table-3d.phone-focus #stageWrap>#table3DToggle{position:fixed;z-index:48;left:auto;right:calc(8px + env(safe-area-inset-right));top:calc(clamp(112px,16vh,144px) - 44px);width:64px;height:34px;min-height:34px;border:2px solid #55e869;box-shadow:0 0 9px #55e86955;font:600 11px system-ui}
+body.table-3d.phone-focus #phoneActions>[data-trainer-action=undoShot],body.table-3d.phone-focus #phoneActions>[data-trainer-action=redoShot]{left:calc(8px + env(safe-area-inset-left));width:64px;min-width:64px;height:26px;min-height:26px}
+body.table-3d.phone-focus #phoneActions>[data-trainer-action=undoShot]{top:calc(clamp(112px,16vh,144px) - 60px)}
+body.table-3d.phone-focus #phoneActions>[data-trainer-action=redoShot]{top:calc(clamp(112px,16vh,144px) - 30px)}
+@media(max-width:600px) and (orientation:portrait){
+ body.table-3d.phone-focus{--control-gap:calc(var(--control-height)*2 + 12px)}
+ body.table-3d.phone-focus #phoneActions .bottomSpinGroup .phoneTipControl:not([hidden]){width:calc(var(--control-height)*2);height:calc(var(--control-height)*2)}
+}
+body.table-3d.phone-focus{--control-right:calc(clamp(104px,8vw,128px) + 4px)}
+@media(max-width:600px) and (orientation:portrait){
+ body.table-3d.phone-focus{--control-gap:76px;--control-right:108px}
+ body.table-3d.phone-focus #phoneActions .bottomSpinGroup .phoneTipControl:not([hidden]){width:72px;height:72px}
+}
+#bankKickOutputs #bankKickSpeedValue{font-size:inherit;color:inherit}

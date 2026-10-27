@@ -37,7 +37,7 @@
  const cameraState={azimuth:Math.PI/4,elevation:.5,radius:3,target:null};
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
  function positionToggle(){
-  if(document.body.classList.contains('phone-focus'))return;
+  if(!active||document.body.classList.contains('phone-focus'))return;
   const zoom=document.getElementById('tableZoom');if(!zoom)return;
   const left=Number.parseFloat(zoom.style.left)||0,top=Number.parseFloat(zoom.style.top)||0;
   views.style.left=clamp(left,4,Math.max(4,stage.clientWidth-views.offsetWidth-4))+'px';
@@ -46,8 +46,9 @@
  function dock(){
   const tablet=active&&!/Windows/i.test(navigator.userAgent)&&(navigator.maxTouchPoints||0)>0&&innerWidth>=768&&innerHeight>=500;if(document.body.classList.contains('table-3d-tablet')!==tablet)document.body.classList.toggle('table-3d-tablet',tablet);
   const shelf=document.getElementById('phoneToolShelf'),phone=document.body.classList.contains('phone-focus');
-  if(phone&&active){phoneBox.hidden=false;phoneBox.append(views,tools);stage.append(phoneBox,status);}
-  else{phoneBox.hidden=true;stage.append(tools);if(phone&&document.body.classList.contains('phone-controls-open')&&shelf)shelf.append(views,status);else{stage.append(views,status);positionToggle();}}
+  if(phone&&active){phoneBox.hidden=false;phoneBox.append(views,tools);stage.append(phoneBox,status,button);}
+  else if(!active){phoneBox.hidden=true;stage.append(tools,status);views.prepend(button);const row=document.getElementById('trainerUpdateRow');if(row)row.prepend(views);else stage.append(views);}
+  else{phoneBox.hidden=true;views.prepend(button);stage.append(tools,views,status);positionToggle();}
   if(document.body.classList.contains('zen-mode'))disable();
   if(document.body.classList.contains('phone-focus')&&document.body.classList.contains('table-3d-tools-open'))setDrawer(false);
  }

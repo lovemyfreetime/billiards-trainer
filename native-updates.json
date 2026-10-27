@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "f41d9e54bbef876c18f201954421a016d0cf2138643e1b6ad276a7e9ae577295",
-  "sequence": 1793092265,
+  "version": "72683d5e42c024846d7548396f8bd77c52b4011c9785c09bec62adb210a08984",
+  "sequence": 1793103717,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3689,8 +3689,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "114b116c1ea7bd7e437a1706bd7cf8684640b07652db5b10de035d2616f95f6b",
-      "length": 864447
+      "sha256": "cb811ce5f7176a91fd297e13e25c682966a5a5e53520fa93dbb44df92d7b12dd",
+      "length": 865232
     },
     "install/android/index.html": {
       "sha256": "862dff4245e200376ff30ee6763f007bb510a3c0cdf0634f8ef3d0d2c25630ff",
@@ -3785,7 +3785,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "ee1a52e0bedb16150740faa0336a78e7ac2b9e100986c791c9d9ba566704e208",
+      "sha256": "de98c4da6d3e7ec87f24a962c18c89255ecf00cec6f2f29bc2de386f5258d2d3",
       "length": 143483
     },
     "phone-play.css": {
@@ -4865,7 +4865,7 @@
       "length": 1895
     },
     "service-worker.js": {
-      "sha256": "062858d84b2b4eb77d7f29e78a93978ba3b817e2bbb62ef1c669f590d1f1d05a",
+      "sha256": "b5aa70b33cf8fd5f3948a8d042b821b378482def81188f9f085554986443b294",
       "length": 7739
     },
     "tournament-engine.js": {
@@ -4885,12 +4885,12 @@
       "length": 928
     },
     "trainer-3d.css": {
-      "sha256": "5cc4ff4eced8833eb4fc1948aaf64191eb66195afeae17ecaff4072a649a6ed4",
-      "length": 23571
+      "sha256": "9f1d8b5a9ef7fba7dedf58fd2dff8111d38183588aa1e857a2a2eca0b259fbc1",
+      "length": 26197
     },
     "trainer-3d.js": {
-      "sha256": "4ac4e8acddbb435f84d9bd08e1af78715399f4d506fc98911264451ef32d488d",
-      "length": 41092
+      "sha256": "23a60fdbce55300ebf7f23b349784ecc6f919203d6a5c7ad4887d0e32a623d83",
+      "length": 41206
     },
     "trainer-action-history.js": {
       "sha256": "83f2afc6a65e2dc18b66313cc709a66407e72144c2278cc2d2acbfb600e4cfb4",

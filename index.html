@@ -1504,7 +1504,7 @@
         <button id="bankKickCalculate" type="button">Calculate</button><button id="bankKickUseSpeed" type="button" hidden>Use setup</button>
       </div>
       <div id="bankKickOutputs" aria-label="Verified shot settings">
-        <output><span>Speed</span><strong id="bankKickSpeedOutput">—</strong></output>
+        <output><span>Speed</span><strong id="bankKickSpeedOutput"><span id="bankKickSpeedValue">—</span><span id="bankKickSpeedDiamonds" class="bankKickDiamonds"></span></strong></output>
         <output><span>Follow / draw</span><strong id="bankKickFollowOutput">—</strong></output>
         <output><span>Left / right English</span><strong id="bankKickSpinOutput">—</strong></output>
       </div>
@@ -3835,7 +3835,7 @@
         try{
             const result=await calculateBankKickRoute(request,snapshot,cancelled);
             if(cancelled())return;
-            if(result.solution){result.solution.layoutKey=key;result.solution.setupNeeded=bankKickSetupNeeded(result.solution);}
+            if(result.solution){result.solution.shotDiamonds=powerFeelForSpeed(result.solution.shotSpeed).diamonds;result.solution.layoutKey=key;result.solution.setupNeeded=bankKickSetupNeeded(result.solution);}
             bankKickRouteCache={key,solution:result.solution||null,pending:false,message:result.message};
             bankKickState().solution=bankKickRouteCache.solution;
         }catch(error){
@@ -3980,7 +3980,9 @@
             calculate.classList.toggle('ready',!!t.zero&&!!t.rails.length&&!bankKickRouteCache.pending&&!t.solution);calculate.classList.toggle('selected',!!t.solution);calculate.setAttribute('aria-busy',String(bankKickRouteCache.pending));calculate.textContent=bankKickRouteCache.pending?'Cancel':t.phase==='calculateBall'?'Tap ball':'Calculate';
             const setup=t.requested&&!t.phase?bankKickRouteCache.solution:null;
             $('bankKickRouteStatus').textContent=bankKickRouteCache.pending?'Calculating…':!setup?bankKickRouteCache.message:setup?.scratch?'Cue ball scratches':setup?.pocketReserveDiamonds!=null?(setup.pocketReserveDiamonds<=1.1?'Pocket pace · ':'Firmer route · ')+setup.pocketReserveDiamonds.toFixed(1)+' ♦ reserve':'';
-            $('bankKickSpeedOutput').textContent=setup?setup.shotSpeed.toFixed(2)+' m/s':'—';
+            if(setup&&!Number.isFinite(setup.shotDiamonds))setup.shotDiamonds=powerFeelForSpeed(setup.shotSpeed).diamonds;
+            $('bankKickSpeedValue').textContent=setup?setup.shotSpeed.toFixed(2)+' m/s':'—';
+            $('bankKickSpeedDiamonds').textContent=Number.isFinite(setup?.shotDiamonds)?setup.shotDiamonds.toFixed(1)+' ♦':'';
             $('bankKickFollowOutput').textContent=setup?(Math.abs(setup.shotFollow)<.005?'Center':Math.round(Math.abs(setup.shotFollow)*100)+'% '+(setup.shotFollow>0?'Follow':'Draw')):'—';
             $('bankKickSpinOutput').textContent=setup?(Math.abs(setup.shotSide)<.005?'Center':Math.round(Math.abs(setup.shotSide)*100)+'% '+(setup.shotSide>0?'Right':'Left')):'—';
             $('bankKickUndoRail').disabled=!(t.rails?.length);
@@ -6937,9 +6939,10 @@
             const values = which === 2 ? ensureShot2() : S;
             if (fixed) {
                 if (!disk) continue;
-                disk.width = Math.round(60 * DPR); disk.height = Math.round(64 * DPR);
-                const c = disk.getContext('2d'); c.setTransform(DPR,0,0,DPR,0,0);
-                drawTipBadgeDisk(c, {r:20,cx:30,cy:27}, values, 'CB ' + which);
+                const large=!!window.Billiards3D?.active,w=large?Math.max(60,disk.clientWidth):60,h=large?w:64;
+                disk.width = Math.round(w * DPR); disk.height = Math.round(h * DPR);
+                const c = disk.getContext('2d');c.setTransform(disk.width/60,0,0,disk.height/(large?60:64),0,0);
+                drawTipBadgeDisk(c, large?{r:24,cx:30,cy:30}:{r:20,cx:30,cy:27}, values, large?'':'CB ' + which);
             } else drawTipBadgeDisk(ctx, badge, values, which === 2 ? 'TIP 2' : 'TIP');
         }
     }
@@ -8419,9 +8422,10 @@
         const disk = $('phoneTip' + which);
         if (!disk || disk.hidden || (which === 2 && !S.shot2Enabled)) return;
         const rect = disk.getBoundingClientRect(), base = canvas.getBoundingClientRect();
-        updateTipBadge(ev, {which, r:20 * rect.width / 60,
+        const large=!!window.Billiards3D?.active;
+        updateTipBadge(ev, {which, r:(large?24:20) * rect.width / 60,
             cx:rect.left - base.left + rect.width / 2,
-            cy:rect.top - base.top + rect.height * 27 / 64});
+            cy:rect.top - base.top + rect.height * (large?.5:27/64)});
     };
     function stopTipBadgeEvent(ev) { ev.preventDefault(); ev.stopImmediatePropagation(); }
     canvas.addEventListener('pointerdown', ev => {
@@ -10799,6 +10803,7 @@
         if ($('photoAnalyzerStatus')) $('photoAnalyzerStatus').textContent = msg;
     }
     function openPhotoAnalyzer() {
+        if(window.Billiards3D?.active){window.Billiards3D.disable();window.billiardsControlLayout?.();}
         $('photoAnalyzerModal').classList.add('open');
         $('photoAnalyzerModal').setAttribute('aria-hidden','false');
         renderPhotoBallSummary();
@@ -13185,8 +13190,8 @@
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=resources-toggle-v8">
   <script src="./phone-play.js?v=19"></script>
-  <link rel="stylesheet" href="./trainer-3d.css?v=18">
-  <script src="./trainer-3d.js?v=15"></script>
+  <link rel="stylesheet" href="./trainer-3d.css?v=19">
+  <script src="./trainer-3d.js?v=16"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">
