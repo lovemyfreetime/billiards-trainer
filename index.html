@@ -839,11 +839,33 @@
     color:#071107;
     border-color:#8dff7b;
   }
-  #bankKickRoutePanel { position:absolute;right:8px;top:58px;z-index:35;width:min(330px,calc(100% - 16px));padding:8px 10px;box-sizing:border-box;border:1px solid #78a6b5;border-radius:10px;background:rgba(18,31,39,.94);font:13px Segoe UI;color:#edf8ff;pointer-events:none; }
-  #bankKickRoutePanel .buttons { pointer-events:auto; }
-  body.phone-focus #bankKickRoutePanel:not([hidden]) { position:fixed;top:4px;left:126px;right:58px;width:auto;display:grid;grid-template-columns:minmax(0,1fr) 90px;align-items:center;gap:6px;padding:3px 6px;border-radius:6px;font-size:11px;line-height:12px; }
-  body.phone-focus #bankKickRoutePanel .buttons { display:grid;gap:2px;margin:0!important; }
-  body.phone-focus #bankKickRoutePanel button { padding:2px 4px;min-height:20px;font-size:10px;line-height:14px; }
+  #bankKickRoutePanel { position:absolute;right:8px;top:54px;z-index:35;width:min(340px,calc(100% - 16px));padding:6px;box-sizing:border-box;border:1px solid #506b7b;border-radius:12px;background:rgba(18,31,39,.94);font:11px Segoe UI;color:#edf8ff;pointer-events:none; }
+  #bankKickRoutePanel button { pointer-events:auto; }
+  #bankKickSteps { display:grid;grid-template-columns:repeat(5,minmax(0,1fr)) 1.4fr;gap:5px;align-items:center; }
+  #bankKickSteps button { border-radius:50%;aspect-ratio:1;min-width:0;padding:2px;font:700 10px Segoe UI;color:#dce8ee;background:#26323e;border:1px solid #748894; }
+  #bankKickSteps #bankKickUseSpeed { grid-column:6;grid-row:1;aspect-ratio:auto;min-height:40px;border-radius:18px;background:#327d43;color:white; }
+  #bankKickSteps #bankKickCalculate { grid-column:6;grid-row:1;aspect-ratio:auto;min-height:40px;border-radius:18px; }
+  #bankKickSteps button.selected { background:#28654b;border-color:#73df9d;color:#fff; }
+  #bankKickSteps button.next,#bankKickSteps button.ready { border-color:#99ff8f;animation:bankStepPulse 1.6s ease-in-out infinite; }
+  #bankKickSteps button.ready { background:#327d43;color:white; }
+  #bankKickSteps button:disabled { opacity:.65;animation:none; }
+  @keyframes bankStepPulse { 0%,100% { box-shadow:0 0 2px #8eff94;background-color:#24563c; } 50% { box-shadow:0 0 12px #8eff94;background-color:#368454; } }
+  #bankKickOutputs { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:5px; }
+  #bankKickOutputs output { text-align:center;background:#101b24;border:1px solid #526d7d;border-radius:6px;padding:3px; }
+  #bankKickOutputs span { display:block;font-size:10px;color:#b6cbd6; }
+  #bankKickOutputs strong { display:block;font-size:13px; }
+  #bankKickRouteStatus:empty { display:none; }
+  #bankKickRouteStatus { margin-top:4px;color:#ffe0a3; }
+  #bankKickRoutePanel .buttons { margin-top:4px;pointer-events:auto; }
+  #bankKickUndoRail { display:none; }
+  #bankKickClose { position:absolute;right:-8px;top:-8px;width:22px;height:22px;min-height:22px;padding:0;border-radius:50%; }
+  body.phone-focus #bankKickRoutePanel:not([hidden]) { position:fixed;top:4px;left:126px;right:58px;width:auto;font-size:10px;padding:4px; }
+  body.phone-focus #bankKickSteps button { aspect-ratio:auto;min-height:30px;border-radius:16px;font-size:9px; }
+  body.phone-focus #bankKickSteps #bankKickCalculate,body.phone-focus #bankKickSteps #bankKickUseSpeed { min-height:30px; }
+  body.phone-focus #bankKickOutputs strong { font-size:11px; }
+  body.phone-focus #bankKickOutputs output { padding:1px; }
+  body.phone-focus #bankKickRoutePanel .buttons button { min-height:24px;padding:2px 5px;font-size:10px; }
+  @media(prefers-reduced-motion:reduce) { #bankKickSteps button { animation:none!important; } }
   .bankKickToggle {
     position:absolute;
     z-index:9;
@@ -1476,8 +1498,18 @@
     <button id="kickToolToggle" class="bankKickToggle" type="button" title="Kick guide: select up to four rails in travel order">KICK</button>
     <button id="bankToolToggle" class="bankKickToggle" type="button" title="Bank guide: destination, up to four rails, then object ball">BANK</button>
     <div id="bankKickRoutePanel" hidden>
+      <div id="bankKickSteps" aria-label="Route selection">
+        <button id="bankKickTarget" type="button" aria-label="Choose destination target">Target</button>
+        <button type="button" data-bank-rail="0">Rail 1</button><button type="button" data-bank-rail="1">Rail 2</button><button type="button" data-bank-rail="2">Rail 3</button><button type="button" data-bank-rail="3">Rail 4</button>
+        <button id="bankKickCalculate" type="button">Calculate</button><button id="bankKickUseSpeed" type="button" hidden>Use setup</button>
+      </div>
+      <div id="bankKickOutputs" aria-label="Verified shot settings">
+        <output><span>Speed</span><strong id="bankKickSpeedOutput">—</strong></output>
+        <output><span>Follow / draw</span><strong id="bankKickFollowOutput">—</strong></output>
+        <output><span>Left / right English</span><strong id="bankKickSpinOutput">—</strong></output>
+      </div>
       <div id="bankKickRouteStatus" role="status" aria-live="polite"></div>
-      <div class="buttons" style="margin-top:5px"><button id="bankKickUseSpeed" type="button" hidden style="grid-column:1/-1">Use shot setup</button><button id="bankKickUndoRail" type="button">Undo rail</button><button id="bankKickClose" type="button">Close guide</button></div>
+      <div class="buttons"><button id="bankKickUndoRail" type="button">Undo rail</button><button id="bankKickClose" type="button" aria-label="Close bank or kick guide">×</button></div>
     </div>
     <button id="teachingCompassToggle" type="button" title="Teaching compass · 5° / 10° degree dots">◎</button>
     <div id="compassSizeWrap" class="compassSideControl">
@@ -3691,7 +3723,7 @@
         const setupNeeded=Math.abs(Math.atan2(Math.sin(best.angle-currentAngle),Math.cos(best.angle-currentAngle)))>1e-6||shot.angleLock;
         return {solution:{mode:t.mode,multiRail:true,fullShot:true,source:t.mode==='bank'?{x:ball.x,y:ball.y}:{x:cb.x,y:cb.y},target:t.zero,destination:t.zero,ballId:ball.id,
             points:t.mode==='bank'?objectPath:cuePath,cuePath:t.mode==='bank'?cuePath:null,objectPath:t.mode==='kick'?objectPath:null,
-            bounces:best.hits.map(e=>({x:e.x,y:e.y,rail:railByName(e.rail.replace(' rail',''))})),reached:true,angle:best.angle,aim,shotSpeed:shot.speed,setupNeeded,
+            bounces:best.hits.map(e=>({x:e.x,y:e.y,rail:railByName(e.rail.replace(' rail',''))})),reached:true,angle:best.angle,aim,shotSpeed:shot.speed,shotFollow:shot.follow,shotSide:shot.sideSpin,setupNeeded,
             scratch:best.scratch,verifiedPocket:preview.pocketEvents.find(e=>e.id===t.ballId&&Math.hypot(e.x-t.zero.x,e.y-t.zero.y)<.16)||null},
             message:(best.scratch?'Object ball pockets, but the cue ball scratches. ':'')+(setupNeeded?'Complete cue-ball shot verified, including the object-ball collision. Tap Use shot setup to apply the aim and speed.':'Current cue-ball shot verified through the selected rails to the destination.')};
     }
@@ -3718,7 +3750,7 @@
     }
     function computeBankKickSolution() {
         const t=bankKickState();
-        if(!t.mode||t.ballId==null||t.phase)return null;
+        if(!t.mode||t.ballId==null||t.phase||t.requested!==true)return null;
         if(!t.rails?.length){if(t.railName)t.rails=[t.railName];else return null;}
         const key=bankKickRouteKey(t);
         if(bankKickRouteCache.key===key)return bankKickRouteCache.solution;
@@ -3735,6 +3767,15 @@
         },120);
         return null;
     }
+    function invalidateBankKickRoute() {
+        const t=bankKickState();t.requested=false;t.pendingCalculate=false;t.solution=null;
+        clearTimeout(bankKickRouteTimer);bankKickRouteCache={key:null,solution:null,pending:false,message:''};
+    }
+    function requestBankKickCalculation() {
+        const t=bankKickState();if(!t.zero||!t.rails.length)return;
+        if(t.ballId==null){t.phase='calculateBall';t.pendingCalculate=true;syncBankKickControls();return;}
+        t.phase=null;t.requested=true;t.pendingCalculate=false;syncBankKickControls();draw();saveState();
+    }
     function bankKickPick(q) {
         const t=bankKickState();if(!t.mode||!t.phase)return false;
         const rail=nearestRailToPoint(q,.24),pocket=nearestLogicalPocket(q,Math.max(S.ballR*5,.11));
@@ -3742,16 +3783,21 @@
             if(!rail){toast('Tap a cushion, or select the object ball after choosing rails.');return;}
             if(t.rails.length>=4){toast('Up to four rails. Use Undo rail to change the route.');return;}
             if(t.rails.at(-1)===rail.name){toast('Choose a different cushion for the next contact.');return;}
-            t.rails.push(rail.name);t.railName=t.rails[0];t.railU=null;t.phase='ball';
+            invalidateBankKickRoute();t.rails.push(rail.name);t.railName=t.rails[0];t.railU=null;t.phase='ball';
         }
-        if(t.phase==='zero'||t.phase==='zeroEnd'||t.phase==='kickStart'){
+        if(t.phase==='editRail'){
+            if(!rail)return true;
+            const i=t.editRailIndex;
+            if(t.rails[i-1]===rail.name||t.rails[i+1]===rail.name){toast('Adjacent contacts need different cushions');return true;}
+            invalidateBankKickRoute();t.rails[i]=rail.name;t.railName=t.rails[0];t.phase=t.ballId!=null?null:'ball';t.editRailIndex=null;
+        }else if(t.phase==='zero'||t.phase==='zeroEnd'||t.phase==='kickStart'){
             if(t.phase==='kickStart'&&rail&&!pocket){addRail();}
-            else{t.zero=pocket?{x:pocket.x,y:pocket.y}:{x:clamp(q.x,0,S.tableL),y:clamp(q.y,0,S.tableW)};t.phase=t.ballId!=null?null:'rail';}
+            else{invalidateBankKickRoute();t.zero=pocket?{x:pocket.x,y:pocket.y}:{x:clamp(q.x,0,S.tableL),y:clamp(q.y,0,S.tableW)};t.phase=t.ballId!=null?null:'rail';}
         }else if(t.phase==='rail'){addRail();}
-        else if(t.phase==='ball'){
+        else if(t.phase==='ball'||t.phase==='calculateBall'){
             let best=null,distance=S.ballR*2;
             for(const ball of S.balls){if(ball.id===0||ball.marker||ball.active===false)continue;const d=Math.hypot(q.x-ball.x,q.y-ball.y);if(d<distance){best=ball;distance=d;}}
-            if(best){t.ballId=best.id;t.phase=t.zero?null:'zeroEnd';}
+            if(best){const calculate=t.pendingCalculate;invalidateBankKickRoute();t.ballId=best.id;t.phase=t.zero?null:'zeroEnd';if(calculate)requestBankKickCalculation();}
             else addRail();
         }
         syncBankKickControls();draw();saveState();return true;
@@ -3856,14 +3902,18 @@
         const panel=$('bankKickRoutePanel');
         if(panel){
             panel.hidden=!t.mode;
-            const order=(t.rails||[]).map((r,i)=>(i+1)+'. '+r).join(' → ');
-            let instruction=t.phase==='zero'?'Tap the destination pocket or location.':t.phase==='kickStart'?'Tap the first rail, or choose the destination first.':t.phase==='zeroEnd'?'Tap the object-ball destination pocket or location.':t.phase==='rail'?'Tap the first rail.':t.phase==='ball'?'Tap another rail (up to 4), or tap the object ball to finish.':bankKickRouteCache.message;
-            $('bankKickRouteStatus').textContent=(t.mode||'').toUpperCase()+(order?' · '+order:'')+' — '+instruction;
+            const target=$('bankKickTarget');target.classList.toggle('selected',!!t.zero);target.classList.toggle('next',!t.zero||['zero','zeroEnd'].includes(t.phase));
+            document.querySelectorAll('[data-bank-rail]').forEach(button=>{const i=Number(button.dataset.bankRail),selected=!!t.rails[i];button.disabled=!t.zero||i>t.rails.length;button.classList.toggle('selected',selected);button.classList.toggle('next',!!t.zero&&!t.requested&&(t.phase==='editRail'?i===t.editRailIndex:i===t.rails.length));button.setAttribute('aria-pressed',String(selected));button.title=selected?'Replace rail '+(i+1)+' ('+t.rails[i]+')':'Choose rail '+(i+1);});
+            const calculate=$('bankKickCalculate');calculate.disabled=!t.zero||!t.rails.length||bankKickRouteCache.pending;
+            calculate.classList.toggle('ready',!!t.zero&&!!t.rails.length&&!bankKickRouteCache.pending&&!t.solution);calculate.classList.toggle('selected',!!t.solution);calculate.setAttribute('aria-busy',String(bankKickRouteCache.pending));calculate.textContent=bankKickRouteCache.pending?'…':t.phase==='calculateBall'?'Tap ball':'Calculate';
+            const setup=t.requested&&!t.phase?bankKickRouteCache.solution:null;
+            $('bankKickRouteStatus').textContent=bankKickRouteCache.pending?'Calculating…':t.requested&&!setup?bankKickRouteCache.message:setup?.scratch?'Cue ball scratches':'';
+            $('bankKickSpeedOutput').textContent=setup?setup.shotSpeed.toFixed(2)+' m/s':'—';
+            $('bankKickFollowOutput').textContent=setup?(Math.abs(setup.shotFollow)<.005?'Center':Math.round(Math.abs(setup.shotFollow)*100)+'% '+(setup.shotFollow>0?'Follow':'Draw')):'—';
+            $('bankKickSpinOutput').textContent=setup?(Math.abs(setup.shotSide)<.005?'Center':Math.round(Math.abs(setup.shotSide)*100)+'% '+(setup.shotSide>0?'Right':'Left')):'—';
             $('bankKickUndoRail').disabled=!(t.rails?.length);
-            const setup=!t.phase&&bankKickRouteCache.solution;
-            const suggested=setup?.setupNeeded;
-            $('bankKickUseSpeed').hidden=!suggested;
-            if(suggested)$('bankKickUseSpeed').textContent='Use shot setup · '+setup.shotSpeed.toFixed(2)+' m/s';
+            $('bankKickUseSpeed').hidden=!setup?.setupNeeded;$('bankKickUseSpeed').classList.toggle('ready',!!setup?.setupNeeded);calculate.hidden=!!setup?.setupNeeded;
+            if(setup?.setupNeeded)$('bankKickUseSpeed').textContent='Use setup';
         }
         for (const [id, mode] of [['bankToolToggle', 'bank'], ['kickToolToggle', 'kick']]) {
             const b = $(id);
@@ -3872,16 +3922,7 @@
             const active = t.mode === mode;
             b.classList.toggle('active', active);
             b.classList.toggle('pick', active && !!t.phase);
-            if (!active)
-                b.textContent = mode.toUpperCase();
-            else if (['zero','zeroEnd'].includes(t.phase))
-                b.textContent = 'TARGET';
-            else if (['rail','kickStart'].includes(t.phase))
-                b.textContent = 'RAIL';
-            else if (t.phase === 'ball')
-                b.textContent = 'RAILS';
-            else
-                b.textContent = mode.toUpperCase();
+            b.textContent = mode.toUpperCase();
         }
     }
     function beginBankKick(mode) {
@@ -3901,8 +3942,8 @@
         t.autoAim = true;
         t.zero = null;
         t.routeVersion=2;
-        t.phase = mode==='kick'?'kickStart':'zero';
-        toast((mode === 'bank' ? 'BANK' : 'KICK') + ': click destination pocket or target location');
+        t.requested=false;t.pendingCalculate=false;t.phase='zero';
+
         syncBankKickControls();
         draw();
         saveState();
@@ -7015,7 +7056,7 @@
             ctx.fillText('ZERO / TARGET', z.x, z.y - 15);
         }
         if (t.rails?.length) {
-            const color=t.mode==='bank'?'#ffd34e':'#00e5ff';
+            const color='#e995ff';
             t.rails.forEach((name,i)=>{
                 const rail=systemRailByName(name);if(!rail)return;
                 const a=map(systemRailPoint(rail,rail.min)),b=map(systemRailPoint(rail,rail.max));
@@ -7023,10 +7064,9 @@
                 if(!sol){const label=map(systemRailPoint(rail,(rail.min+rail.max)/2));ctx.fillStyle=color;ctx.font='bold 12px Segoe UI';ctx.fillText('Rail '+(i+1),label.x+8,label.y+15*(i+1));}
             });
             if(sol?.multiRail){
-                const trace=(points,stroke,dash=[])=>{if(!points?.length)return;ctx.strokeStyle=stroke;ctx.lineWidth=2.4;ctx.setLineDash(dash);ctx.beginPath();points.forEach((p,i)=>{const q=map(p);if(i)ctx.lineTo(q.x,q.y);else ctx.moveTo(q.x,q.y);});ctx.stroke();ctx.setLineDash([]);};
-                trace(sol.cuePath,'#98dfff',[3,4]);
-                trace(sol.points,color,t.mode==='kick'||sol.setupNeeded?[7,4]:[]);
-                trace(sol.objectPath,'#9aff91');
+                const trace=(points,stroke)=>{if(!points?.length)return;const path=points.map(map);ctx.strokeStyle=stroke;ctx.lineWidth=1.5;ctx.lineCap='round';ctx.setLineDash([2,5]);
+                    for(const side of [-1,1]){ctx.beginPath();path.forEach((p,i)=>{const before=path[Math.max(0,i-1)],after=path[Math.min(path.length-1,i+1)],dx=after.x-before.x,dy=after.y-before.y,length=Math.hypot(dx,dy)||1;const x=p.x-side*dy/length*3.5,y=p.y+side*dx/length*3.5;if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);});ctx.stroke();}ctx.setLineDash([]);};
+                trace(sol.cuePath,'#8ddaff');trace(sol.points,color);trace(sol.objectPath,color);
                 sol.bounces.forEach((p,i)=>{const q=map(p),n=dynamicRailNumber(t.zero,p.rail,p);ctx.fillStyle=color;ctx.beginPath();ctx.arc(q.x,q.y,4,0,Math.PI*2);ctx.fill();ctx.font='bold 12px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';const label=(i+1)+' · '+fmtRailNumber(n);ctx.strokeStyle='#132029';ctx.lineWidth=4;ctx.strokeText(label,q.x,q.y+(p.rail.name==='top'?18:-18));ctx.fillStyle='#fff';ctx.fillText(label,q.x,q.y+(p.rail.name==='top'?18:-18));});
             }
             ctx.restore();return;
@@ -12071,7 +12111,10 @@
             syncProjector(); });
         $('bankToolToggle').addEventListener('click', () => beginBankKick('bank'));
         $('bankKickClose').onclick=clearBankKickTool;
-        $('bankKickUseSpeed').onclick=()=>{const sol=bankKickRouteCache.solution;if(!sol?.fullShot||!sol.aim||animation)return;beginActionUndo();const shot=S.activeShot===2&&S.shot2Enabled?ensureShot2():S;shot.speed=sol.shotSpeed;shot.freeAim={...sol.aim};shot.angleLock=false;shot.autoGhostLock=false;shot.ghostLock=null;shot.ghostLockDirty=false;updateUI();refreshPreview();saveState();};
+        $('bankKickTarget').onclick=()=>{invalidateBankKickRoute();const t=bankKickState();t.phase='zero';syncBankKickControls();draw();};
+        document.querySelectorAll('[data-bank-rail]').forEach(button=>{button.onclick=()=>{const t=bankKickState();if(!t.zero)return;invalidateBankKickRoute();t.editRailIndex=Number(button.dataset.bankRail);t.phase='editRail';syncBankKickControls();draw();};});
+        $('bankKickCalculate').onclick=requestBankKickCalculation;
+        $('bankKickUseSpeed').onclick=()=>{const sol=bankKickRouteCache.solution;if(!sol?.fullShot||!sol.aim||animation)return;beginActionUndo();const shot=S.activeShot===2&&S.shot2Enabled?ensureShot2():S;shot.speed=sol.shotSpeed;shot.follow=sol.shotFollow;shot.sideSpin=sol.shotSide;shot.freeAim={...sol.aim};shot.angleLock=false;shot.autoGhostLock=false;shot.ghostLock=null;shot.ghostLockDirty=false;updateUI();refreshPreview();saveState();};
         $('bankKickUndoRail').onclick=()=>{const t=bankKickState();t.rails.pop();t.railName=t.rails[0]||null;t.ballId=null;t.solution=null;t.phase=t.rails.length?'ball':(t.zero?'rail':'kickStart');bankKickRouteCache={key:null,solution:null,pending:false,message:''};syncBankKickControls();draw();saveState();};
         $('kickToolToggle').addEventListener('click', () => beginBankKick('kick'));
         $('analyzePhotoBtn').addEventListener('click', openPhotoAnalyzer);

@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const src=fs.readFileSync('index.html','utf8'),start=src.indexOf('    function bankKickPick('),end=src.indexOf('\n    function ',start+5);
-let state;const ctx={S:{ballR:.028575,tableL:2.032,tableW:1.016,balls:[{id:1,x:1.3,y:.65,active:true}]},bankKickState:()=>state,nearestRailToPoint:q=>q.rail?{name:q.rail}:null,nearestLogicalPocket:q=>q.pocket?{x:0,y:0}:null,toast(){},syncBankKickControls(){},draw(){},saveState(){},clamp:(v,a,b)=>Math.max(a,Math.min(b,v))};vm.createContext(ctx);vm.runInContext(src.slice(start,end),ctx);
+let state;const ctx={S:{ballR:.028575,tableL:2.032,tableW:1.016,balls:[{id:1,x:1.3,y:.65,active:true}]},bankKickState:()=>state,invalidateBankKickRoute(){state.requested=false;state.solution=null;},requestBankKickCalculation(){state.requested=true;state.phase=null;},nearestRailToPoint:q=>q.rail?{name:q.rail}:null,nearestLogicalPocket:q=>q.pocket?{x:0,y:0}:null,toast(){},syncBankKickControls(){},draw(){},saveState(){},clamp:(v,a,b)=>Math.max(a,Math.min(b,v))};vm.createContext(ctx);vm.runInContext(src.slice(start,end),ctx);
 function tap(q){ctx.q=q;return vm.runInContext('bankKickPick(q)',ctx);}
 for(let n=1;n<=4;n++){
  state={mode:'bank',phase:'zero',rails:[],zero:null,ballId:null};tap({x:0,y:0,pocket:true});assert.equal(state.phase,'rail');
