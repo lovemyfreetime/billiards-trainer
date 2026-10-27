@@ -35,6 +35,10 @@ jobs:
           node tests/trainer-tools-menu.browser.cjs
           node tests/shared-session-history.browser.cjs
           node tests/trainer-3d-controls.browser.cjs
+          node tests/layout-sharing.test.cjs
+          node tests/photo-lighting.test.cjs
+          node tests/photo-corner-sensing.test.cjs
+          node tests/trainer-sharing-controls.browser.cjs
           node tests/trainer-view-refinements.browser.cjs
           node tests/trainer-3d.browser.cjs
           node tests/bank-kick-selection.test.cjs

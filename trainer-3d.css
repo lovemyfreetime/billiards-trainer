@@ -228,3 +228,8 @@ body.table-3d.phone-focus{--control-right:calc(clamp(104px,8vw,128px) + 4px)}
  body.table-3d.phone-focus #phoneActions .bottomSpinGroup .phoneTipControl:not([hidden]){width:72px;height:72px}
 }
 #bankKickOutputs #bankKickSpeedValue{font-size:inherit;color:inherit}
+
+/* Keep route planning compact, and the return-to-2D action easy to find. */
+body.table-3d.phone-focus #bankKickRoutePanel:not([hidden]){left:auto;right:calc(150px + env(safe-area-inset-right));top:8px;width:min(340px,calc(100vw - 186px));max-width:340px}
+body.table-3d.phone-focus #stageWrap>#table3DToggle{width:92px;height:42px;min-height:42px;top:calc(clamp(112px,16vh,144px) - 50px);border:3px solid #8bff99;background:#163c30;font:700 13px system-ui;box-shadow:0 0 0 2px #55e86944,0 0 16px 3px #55e86977}
+@media(max-width:600px) and (orientation:portrait){body.table-3d.phone-focus #bankKickRoutePanel:not([hidden]){right:112px;top:60px}}

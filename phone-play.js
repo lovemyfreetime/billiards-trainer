@@ -166,7 +166,7 @@
     caption.className=kind==='percent'?'phoneSpinCaption':'phoneSpeedValue';
     if(kind==='percent'){caption.dataset.start=input.id.includes('Follow')?'Draw':'Left spin';caption.dataset.end=input.id.includes('Follow')?'Follow':'Right spin';}
     input.parentNode.append(caption);
-    if(kind==='speed'){const feel=document.createElement('span');feel.className='phoneSpeedFeel';feel.id=input.id+'Feel';feel.setAttribute('aria-label','Speed feel in diamonds');const initialFeel=parseFloat(document.getElementById(input.id==='tableSpeed1'?'powerFeelText':'powerFeel2Text')?.textContent);if(Number.isFinite(initialFeel))feel.textContent=initialFeel.toFixed(1)+' ♦';input.parentNode.append(feel);}
+    if(kind==='speed'&&!document.getElementById(input.id+'Feel')){const feel=document.createElement('span');feel.className='phoneSpeedFeel';feel.id=input.id+'Feel';feel.setAttribute('aria-label','Speed feel in diamonds');const initialFeel=parseFloat(document.getElementById(input.id==='tableSpeed1'?'powerFeelText':'powerFeel2Text')?.textContent);if(Number.isFinite(initialFeel))feel.textContent=initialFeel.toFixed(1)+' ♦';input.parentNode.append(feel);}
     // Phone ranges act as relative rollers: a new touch never changes the value.
     // Each drag starts from the current setting, so lifting and swiping again adds to it.
     let drag=null;
@@ -342,6 +342,7 @@
     await enterFullscreen();
   });
   controls.addEventListener('click', () => setControls(!document.body.classList.contains('phone-controls-open')));
+  document.getElementById('quickLayoutRecall')?.addEventListener('click',()=>setControls(false));
   dismiss.addEventListener('click', () => { setControls(false); controls.focus(); });
   document.addEventListener('keydown', event => { if(event.key==='Escape') { startupFullscreen=false; setControls(false); fallback=false; notice.classList.remove('visible'); syncFullscreen(); } });
   document.addEventListener('billiards:display-change',syncFullscreen);

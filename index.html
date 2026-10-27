@@ -3,7 +3,14 @@
 <head>
 <meta charset="utf-8" />
 <script>if(new URLSearchParams(location.search).get('zen')==='1')document.documentElement.classList.add('zen-starting');</script>
-<style>html.zen-starting{background:#0A0C0E!important}html.zen-starting body{visibility:hidden!important}</style>
+<style>html.zen-starting{background:#0A0C0E!important}html.zen-starting body{visibility:hidden!important}
+.layoutShareDialog{max-width:min(560px,calc(100vw - 32px));box-sizing:border-box;border:1px solid #6fae98;border-radius:14px;background:#18232d;color:#edf6f8;padding:20px;z-index:10000}.layoutShareDialog::backdrop{background:#0009}.layoutShareDialog textarea{box-sizing:border-box;width:100%;height:76px;background:#0e1720;color:#eef6fb;resize:vertical}.layoutShareDialog .buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.layoutShareDialog .buttons>*{padding:10px 12px;border:1px solid #698091;border-radius:8px;background:#263a47;color:#fff;font:600 13px system-ui;text-decoration:none}.layoutShareDialog h2{font-size:18px}.fineRow label .speedDiamonds{display:block;color:#69e5ff;font:600 11px system-ui}.layoutManageRow{grid-template-columns:minmax(0,1fr) auto}
+body:not(.table-3d) .tableSpeedControl .phoneSpeedFeel{display:block;position:absolute;right:8px;top:26px;font:700 10px/12px system-ui;color:#69e5ff;white-space:nowrap;pointer-events:none}
+body:not(.table-3d):not(.phone-focus) .tableSpeedControl .tableSpeedLabel{top:13px}
+body.phone-focus:not(.table-3d) #phoneSpeedRail .phoneSpeedFeel{top:39px;left:0;right:0;text-align:center;font-size:11px;line-height:14px}
+body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:62px}
+
+</style>
 <script>if(!location.search&&!location.hash)location.replace(new URL("./welcome.html",location.href).href);</script>
 <script>if(new URLSearchParams(location.search).get("play")==="1"){const playURL=new URL("./play.html",location.href);playURL.search=location.search;location.replace(playURL.href);}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -288,7 +295,7 @@
 
   #layoutQuickPanel {
     position:absolute;
-    z-index:20;
+    z-index:70;
     top:52px;
     right:205px;
     width:310px;
@@ -1486,6 +1493,9 @@
         <button id="layoutQuickLoad" type="button">Load Selected</button>
       </div>
       <div class="layoutQuickActions layoutQuickEditActions">
+        <button id="layoutQuickShare" type="button">Share Selected</button>
+        <button id="layoutQuickShareCurrent" type="button">Share Current</button>
+      </div><div class="layoutQuickActions layoutQuickEditActions">
         <button id="layoutQuickRename" type="button">Rename Selected</button>
         <button id="layoutQuickDelete" type="button">Delete Selected</button>
       </div>
@@ -1525,12 +1535,14 @@
         <div class="speedTickScale lagTicks" id="lagTicks1" aria-hidden="true"></div>
         <div class="speedTickScale feelTicks" id="feelTicks1" aria-hidden="true"></div>
         <input id="tableSpeed1" type="range" min="0.25" max="6" step="0.01" value="1.50" aria-label="Shot 1 speed on table edge">
+        <span id="tableSpeed1Feel" class="phoneSpeedFeel" aria-label="Shot 1 speed feel in diamonds"></span>
         <span id="tableSpeed1Label" class="tableSpeedLabel">SPEED</span>
       </div>
       <div id="tableSpeed2Wrap" class="tableSpeedControl">
         <div class="speedTickScale lagTicks" id="lagTicks2" aria-hidden="true"></div>
         <div class="speedTickScale feelTicks" id="feelTicks2" aria-hidden="true"></div>
         <input id="tableSpeed2" type="range" min="0.25" max="6" step="0.01" value="1.50" aria-label="Shot 2 speed on table edge">
+        <span id="tableSpeed2Feel" class="phoneSpeedFeel" aria-label="Shot 2 speed feel in diamonds"></span>
         <span class="tableSpeedLabel">SPEED 2</span>
       </div>
     </div>
@@ -1602,14 +1614,14 @@
       <div class="sectionBody">
 <div id="shot1Controls">
       <div class="shotMiniTitle">SHOT 1 CONTROLS</div>
-<div class="fineRow"><label>Shot speed <span id="speedText"></span></label><button id="speedMinus" type="button">−</button><input id="speed" type="range" min="0.25" max="6" step="0.01" value="1.50"><button id="speedPlus" type="button">+</button><input id="speedNumber" type="number" min="0.25" max="6" step="0.01" inputmode="decimal" aria-label="Shot 1 speed value"></div>
+<div class="fineRow"><label>Shot speed <span id="speedText"></span><span id="speed1Diamonds" class="speedDiamonds"></span></label><button id="speedMinus" type="button">−</button><input id="speed" type="range" min="0.25" max="6" step="0.01" value="1.50"><button id="speedPlus" type="button">+</button><input id="speedNumber" type="number" min="0.25" max="6" step="0.01" inputmode="decimal" aria-label="Shot 1 speed value"></div>
       <div class="fineRow"><label>Follow draw <span id="followText"></span></label><button id="followMinus" type="button">−</button><input id="follow" type="range" min="-1" max="1" step="0.01" value="0"><button id="followPlus" type="button">+</button><input id="followNumber" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 1 follow draw percent"></div>
       <div class="fineRow"><label>Left right spin <span id="spinText"></span></label><button id="spinMinus" type="button">−</button><input id="sideSpin" type="range" min="-1" max="1" step="0.01" value="0"><button id="spinPlus" type="button">+</button><input id="spinNumber" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 1 left right spin percent"></div>
       <div id="cueElevationAdvanced1" class="cueElevationSlider"><div class="fineRow"><label>Cue elevation <span id="elevText"></span></label><button id="elevMinus" type="button">−</button><input id="cueElevation" type="range" min="0" max="15" step="0.1" value="3"><button id="elevPlus" type="button">+</button><input id="elevNumber" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 1 cue elevation degrees"></div></div>
       </div>
       <div id="shot2Controls">
         <div class="shotMiniTitle">SHOT 2 CONTROLS</div>
-        <div class="fineRow"><label>Shot speed</label><button id="speed2Minus" type="button">−</button><input id="speed2" type="range" min="0.25" max="6" step="0.01" value="1.50"><button id="speed2Plus" type="button">+</button><input id="speed2Number" type="number" min="0.25" max="6" step="0.01" inputmode="decimal" aria-label="Shot 2 speed value"></div>
+        <div class="fineRow"><label>Shot speed <span id="speed2Diamonds" class="speedDiamonds"></span></label><button id="speed2Minus" type="button">−</button><input id="speed2" type="range" min="0.25" max="6" step="0.01" value="1.50"><button id="speed2Plus" type="button">+</button><input id="speed2Number" type="number" min="0.25" max="6" step="0.01" inputmode="decimal" aria-label="Shot 2 speed value"></div>
         <div class="fineRow"><label>Follow draw</label><button id="follow2Minus" type="button">−</button><input id="follow2" type="range" min="-1" max="1" step="0.01" value="0"><button id="follow2Plus" type="button">+</button><input id="follow2Number" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 2 follow draw percent"></div>
         <div class="fineRow"><label>Left right spin</label><button id="spin2Minus" type="button">−</button><input id="sideSpin2" type="range" min="-1" max="1" step="0.01" value="0"><button id="spin2Plus" type="button">+</button><input id="spin2Number" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 2 left right spin percent"></div>
         <div id="cueElevationAdvanced2" class="cueElevationSlider"><div class="fineRow"><label>Cue elevation</label><button id="elev2Minus" type="button">−</button><input id="cueElevation2" type="range" min="0" max="15" step="0.1" value="3"><button id="elev2Plus" type="button">+</button><input id="elev2Number" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 2 cue elevation degrees"></div></div>
@@ -1714,6 +1726,7 @@
           </select>
           <button id="loadLayoutBtn" type="button">RECALL</button>
         </div>
+        <div class="buttons"><button id="layoutShareSelected" type="button">Share Selected</button><button id="layoutShareCurrent" type="button">Share Current</button></div>
       </div>
 
       </div>
@@ -1870,6 +1883,7 @@
         <select id="photoRackType" aria-label="Rack type" title="Rack type">
           <option value="auto">Rack: Auto</option><option value="9ball">9-Ball</option><option value="10ball">10-Ball</option><option value="8ball">8-Ball</option><option value="custom">Custom</option>
         </select>
+        <select id="photoLightingMode" aria-label="Analysis lighting" title="Standard American pool-ball colors. Lighting assist compares exposure-adjusted crops with the originals; the photo is preserved."><option value="original">Original lighting</option><option value="assist">Lighting assist · experimental</option></select>
         <button id="photoAnalyzeNow" class="visionPrimary" type="button" disabled>Analyze Balls</button>
         <button id="photoAddMissed" type="button" disabled>Add Missed Ball</button>
       </div></div>
@@ -1928,11 +1942,14 @@
 <script src="./trainer-practice-tools.js?v=3"></script>
 <script src="./trainer-action-history.js?v=3"></script>
 <script src="./trainer-layout-files.js?v=2"></script>
+<script src="./layout-sharing.js?v=1"></script>
 <script src="./trainer-table-exchange.js?v=1"></script>
-<script src="./trainer-saved-files.js?v=1"></script>
+<script src="./trainer-saved-files.js?v=2"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
 <script src="./photo-table-spots.js?v=3"></script>
 <script src="./photo-cloth-filter.js?v=2"></script>
+<script src="./photo-corner-sensing.js?v=1"></script>
+<script src="./photo-lighting.js?v=1"></script>
 <script src="./trainer-table-zoom.js?v=1"></script>
 <script src="./trainer-shot-budget.js?v=2"></script>
 <script>
@@ -2366,6 +2383,7 @@
             $('layoutQuickLoad').disabled = !layouts.length;
         if ($('layoutQuickRename'))
             $('layoutQuickRename').disabled = !layouts.length;
+        for(const id of ['layoutQuickShare','layoutShareSelected'])if($(id))$(id).disabled=!layouts.length;
         if ($('layoutQuickDelete'))
             $('layoutQuickDelete').disabled = !layouts.length;
     }
@@ -2536,6 +2554,9 @@
             a.href=url;a.download=(file.name.replace(/[^a-z0-9 _-]/gi,'').trim()||'Table')+(session?'.session':'')+'.billiards.json';a.click();window.BilliardsSavedFiles?.remember(file,a.download).catch(()=>toast('File downloaded; could not keep a browser copy.'));setTimeout(()=>URL.revokeObjectURL(url),10000);
             toast(session?'Session file downloaded':'Table file downloaded');
         }catch(e){toast(e.message);}
+    }
+    function shareLayout(selected=false,quick=false){
+        try{const saved=selected?readSavedLayouts().find(d=>String(d.id)===String($(quick?'layoutQuickSelect':'layoutSelect').value)):null;if(selected&&!saved){toast('Choose a saved layout first');return;}const file=selected?window.BilliardsLayoutFiles.create(saved):portableTableFile();window.BilliardsLayoutSharing.share(file).catch(e=>toast('Could not share layout: '+e.message));}catch(e){toast(e.message);}
     }
     function applyTableFile(file,saveAfter=false,detections=null,preserveControls=false){
         const d=file.layout,defaults=defaultState(),state=preserveControls?window.BilliardsLayoutFiles.settings(cleanSnapshot(),defaults):{...defaults};
@@ -2739,11 +2760,14 @@
         try{const f=await sessionFolderStore();if(f&&await f.queryPermission({mode:'readwrite'})==='granted'){sessionFolder=f;$('sessionFolderStatus').textContent='Auto-save folder connected: '+f.name;await window.BilliardsSavedFiles?.scanFolder(f);}else if(f)$('sessionFolderStatus').textContent='Choose Auto-save Folder to reconnect '+f.name;}catch(e){}
     }
     function setupTableFiles(){
+        $('layoutQuickShare').onclick=()=>shareLayout(true,true);$('layoutQuickShareCurrent').onclick=()=>shareLayout();$('layoutShareSelected').onclick=()=>shareLayout(true);$('layoutShareCurrent').onclick=()=>shareLayout();
+        function openSharedLink(){try{const shared=window.BilliardsLayoutSharing.fromHash(location.hash);if(shared){applyTableFile(shared);window.history.replaceState(null,'',location.pathname+location.search);toast('Shared layout opened');}}catch(e){toast('Could not open shared layout: '+e.message);}}
+        window.addEventListener('hashchange',openSharedLink);openSharedLink();
         $('trainerLoadFile').onclick=()=>$('trainerLayoutFileInput').click();$('trainerSaveFile').onclick=()=>downloadTableFile();$('trainerSaveSession').onclick=()=>downloadTableFile(true);
         $('photoLoadTableFile').onclick=()=>$('photoLayoutFileInput').click();$('photoSaveTableFile').onclick=()=>downloadTableFile(false,true);
         $('trainerLayoutFileInput').onchange=()=>readTableFile($('trainerLayoutFileInput'),false);$('photoLayoutFileInput').onchange=()=>readTableFile($('photoLayoutFileInput'),true);
         $('sessionFolder').onclick=chooseSessionFolder;if(!window.showDirectoryPicker)$('sessionFolder').hidden=true;
-        window.BilliardsSavedFiles?.mount({targets:[[$('sessionFolderStatus').parentElement,false],[$('photoFilesFooter'),true]],onLoad:(file,analysis)=>analysis?stageTableFile(file):applyTableFile(file),getFolder:()=>sessionFolder,chooseFolder:chooseSessionFolder});
+        window.BilliardsSavedFiles?.mount({targets:[[$('sessionFolderStatus').parentElement,false],[$('photoFilesFooter'),true]],onLoad:(file,analysis)=>analysis?stageTableFile(file):applyTableFile(file),getFolder:()=>sessionFolder,chooseFolder:chooseSessionFolder,onShare:file=>window.BilliardsLayoutSharing.share(window.BilliardsLayoutFiles.create(file.layout,file.state,file.history))});
         reconnectSessionFolder();
         document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){actionPointer=false;actionKeys=false;finishActionUndo();saveState();if(sessionFolder)writeSessionFolder();}});
         window.addEventListener('pagehide',()=>{actionPointer=false;actionKeys=false;finishActionUndo();saveState();});
@@ -7680,6 +7704,7 @@
             $('masseGuideText').textContent = '—';
         }
         const pf = powerFeel();
+        if($('speed1Diamonds'))$('speed1Diamonds').textContent=pf.diamonds.toFixed(1)+' ♦';
         $('powerFeelText').textContent = pf.diamonds.toFixed(1) + ' diamonds · ' + formatLagFraction(pf.lagFraction);
         if($('tableSpeed1Feel')) $('tableSpeed1Feel').textContent = pf.diamonds.toFixed(1) + ' ♦';
         const pa = teachingPowerState(1);
@@ -7704,6 +7729,7 @@
             const s = ensureShot2();
             const c2 = s.preview && s.preview.firstBallContact;
             const pf2 = powerFeelForSpeed(s.speed);
+            if($('speed2Diamonds'))$('speed2Diamonds').textContent=pf2.diamonds.toFixed(1)+' ♦';
             $('tip2Text').textContent = tipDescriptionValues(s.sideSpin, s.follow);
             $('squirt2Text').textContent = (cueSquirtAngleFor(s.sideSpin, s.follow, S.cueEndmassRatio) * 180 / Math.PI).toFixed(2) + '°';
             if (S.airbornePhysics && s.preview && s.preview.airborne) {
@@ -9438,6 +9464,7 @@
         autoRailRawCorners: null,
         sharpen: false,
         aiEnabled: true,
+        lightingMode: 'original',
         aiBusy: false,
         rackType: 'auto',
         inferredRackType: 'custom',
@@ -9921,7 +9948,7 @@
     }
     function pvAppearanceAdjustedScores(combo,appearance) {
         const adjusted=combo.slice();
-        const cueLike=appearance.white>.50 && appearance.color<.24 && appearance.meanSat<.25;
+        const cueLike=appearance.white>.50 && appearance.color<.12 && (appearance.outerColor||0)<.10 && appearance.meanSat<.20;
         const stripeLike=(appearance.outerWhite||0)>.17 && appearance.color>.10;
         const solidLike=appearance.color>.23 && (appearance.outerWhite||0)<.14;
         const hue=appearance.dominantHue;
@@ -9936,6 +9963,7 @@
                 bonus += Math.max(-.075,Math.min(.10,(appearance.white-.40)*.19));
                 if(appearance.color>.26) bonus-=Math.min(.12,(appearance.color-.26)*.30);
                 if(cueLike) bonus+=.05;
+                if(appearance.color>.13&&(appearance.outerColor||0)>.12)hardFactor*=.35;
                 // A strongly saturated colored ball is not the cue ball.
                 if(strongHue && appearance.color>.24) hardFactor*=.52;
             } else if(id==='8'){
@@ -10313,9 +10341,14 @@
             d.duplicateWarning=false;
             d.reviewReason='rack';
 
-            // Confidence reflects combined number/color/rack evidence. Do not leave a
-            // clearly reconstructed legal ball as "Unassigned / Check".
-            d.confidence=Math.max(.72,Math.min(.99,.58+visualScore*.32+(Number(d.detConfidence)||0)*.10));
+            // Rack legality is not proof of identity. Keep close calls marked for
+            // review and retain truly weak identities as unassigned.
+            const alternatives=allowed.filter(id=>id!==chosen).map(id=>pvManualRackIdentityScore(d,id));
+            const margin=visualScore-Math.max(0,...alternatives);
+            d.closeCall=margin<.07;d.duplicateWarning=d.closeCall||d.constraintAdjusted;
+            d.confidence=Math.max(.20,Math.min(.94,.24+visualScore*.40+(Number(d.detConfidence)||0)*.12+Math.max(0,margin)*.30));
+            if(d.closeCall)d.confidence=Math.min(.59,d.confidence);
+            if(visualScore<.40&&d.identityConfidence<.25){d.suggestedId=d.id;d.id='ignore';d.confidence=Math.min(.49,d.confidence);d.duplicateWarning=true;d.reviewReason='weak';}
         }
         return true;
     }
@@ -10443,7 +10476,7 @@
             const best=cueRank[0],secondCue=cueRank[1];
             if(best){
                 const gap=(best.visual+best.ai*.35)-((secondCue?.visual||-1)+(secondCue?.ai||0)*.35);
-                const cueLike=best.white>.43&&best.color<.30&&best.sat<.31;
+                const cueLike=best.white>.55&&best.color<.12&&best.sat<.22&&(best.d.appearance?.outerColor||0)<.10;
                 if(cueLike&&(best.visual>.34||best.ai>.20)&&(gap>.055||best.ai>.28)){
                     const d=best.d;
                     d.id='0';d.identityConfidence=Math.max(d.identityConfidence||0,best.ai);
@@ -10494,11 +10527,24 @@
             y2:Math.max(0,Math.min(baseH-1,Math.max(...ys)))
         };
     }
-    async function pvRunAIClassifierRotationEnsemble(crop,detScores){
+    async function pvRunAIClassifierRotationEnsemble(crop,detScores,lightingMode=photoVision.lightingMode){
         const runs=[];
         for(let turn=0;turn<4;turn++){
             const rc=pvRotateCanvasQuarter(crop,turn);
             runs.push(await pvRunAIClassifier(rc,detScores));
+        }
+        const originalAppearance=pvAnalyzeBallAppearance(crop);
+        let lightingDisagreement=false;
+        const nativeVotes=runs.map(r=>r.top?.i);
+        if(lightingMode==='assist'&&window.BilliardsPhotoLighting){
+            const first=runs[0],gap=(first.order?.[0]?.v||0)-(first.order?.[1]?.v||0);
+            if(gap<.12||originalAppearance.meanVal<.38){
+                const source=crop.getContext('2d',{willReadFrequently:true}).getImageData(0,0,crop.width,crop.height),balanced=window.BilliardsPhotoLighting.balance(source);
+                if(Math.abs(balanced.gamma-1)>.06){
+                    const assisted=document.createElement('canvas');assisted.width=crop.width;assisted.height=crop.height;assisted.getContext('2d').putImageData(new ImageData(balanced.data,crop.width,crop.height),0,0);
+                    for(const turn of [0,2]){const r=await pvRunAIClassifier(pvRotateCanvasQuarter(assisted,turn),detScores);r.adjusted=pvAppearanceAdjustedScores(r.combined,originalAppearance);r.top=r.adjusted.map((v,i)=>({i,v})).sort((a,b)=>b.v-a.v)[0];runs.push(r);if(!nativeVotes.includes(r.top?.i))lightingDisagreement=true;}
+                }
+            }
         }
         const n=PV_AI_CLASSES.length;
         const avgCombined=new Array(n).fill(0),avgAdjusted=new Array(n).fill(0),avgProbs=new Array(n).fill(0);
@@ -10512,12 +10558,13 @@
         const appearance=pvAnalyzeBallAppearance(crop);
         const order=avgAdjusted.map((v,i)=>({i,v,raw:avgCombined[i],delta:v-avgCombined[i]})).sort((a,b)=>b.v-a.v);
         const rawOrder=avgCombined.map((v,i)=>({i,v})).sort((a,b)=>b.v-a.v);
-        return {probs:avgProbs,combined:avgCombined,adjusted:avgAdjusted,appearance,order,rawOrder,top:order[0],rawTop:rawOrder[0]};
+        return {lightingDisagreement,classificationRuns:runs.length,probs:avgProbs,combined:avgCombined,adjusted:avgAdjusted,appearance,order,rawOrder,top:order[0],rawTop:rawOrder[0]};
     }
     async function pvDetectWithAI() {
         if(!photoAI.ready)throw new Error('AI models are not ready.');
         const src=photoVision.analysisCanvas;
-        const displaySource=photoVision.sharpen?photoVision.sourceCanvas:photoVision.analysisCanvas;
+        const lightingMode=photoVision.lightingMode;
+        const displaySource=photoVision.analysisCanvas;
         const inputName=photoAI.detector.inputNames[0],outputName=photoAI.detector.outputNames[0];
         const raw=[];
         const baseW=src.width,baseH=src.height;
@@ -10571,12 +10618,13 @@
         for(let i=0;i<candidates.length;i++){
             pvStatus('AI identity check '+(i+1)+' / '+candidates.length+'…');
             const d=candidates[i],crop=pvSquareCropCanvas(displaySource,d,.35,224);
-            const id=await pvRunAIClassifierRotationEnsemble(crop,d.detScores);
-            identified.push({...d,engine:'ai',aiOrder:id.order,aiRawOrder:id.rawOrder,appearance:id.appearance,identityConfidence:id.top?.v||0,confidence:(id.top?.v||0)*.8+d.detConfidence*.2,thumb:pvThumbFromCanvas(crop)});
+            const id=await pvRunAIClassifierRotationEnsemble(crop,d.detScores,lightingMode);
+            identified.push({...d,lightingDisagreement:id.lightingDisagreement,classificationRuns:id.classificationRuns,engine:'ai',aiOrder:id.order,aiRawOrder:id.rawOrder,appearance:id.appearance,identityConfidence:id.top?.v||0,confidence:(id.top?.v||0)*.8+d.detConfidence*.2,thumb:pvThumbFromCanvas(crop)});
             if(i%2===1)await new Promise(r=>setTimeout(r,0));
         }
         pvApplyRackContext(identified);
         pvResolveUniqueAI(identified);
+        for(const d of identified)if(d.lightingDisagreement){d.duplicateWarning=true;d.reviewReason='lighting';d.confidence=Math.min(.59,d.confidence);}
         identified.sort((a,b)=>(b.detConfidence*.42+b.identityConfidence*.58)-(a.detConfidence*.42+a.identityConfidence*.58));
         return identified.slice(0,16);
     }
@@ -10838,6 +10886,7 @@
         if($('photoStraighten')) $('photoStraighten').value=String(photoVision.fineRotation||0);
         if($('photoStraightenValue')) $('photoStraightenValue').textContent=(photoVision.fineRotation||0).toFixed(1)+'°';
         if($('photoRackType')) $('photoRackType').value=photoVision.rackType||'auto';
+        if($('photoLightingMode'))$('photoLightingMode').value=photoVision.lightingMode||'original';
         if(sharp){
             sharp.textContent = 'SHARPEN: ' + (photoVision.sharpen ? 'ON' : 'OFF');
             sharp.classList.toggle('activeToggle', !!photoVision.sharpen);
@@ -11045,6 +11094,16 @@
         const canvas=photoVision.analysisCanvas,ctx=photoVision.analysisCtx,w=canvas.width,h=canvas.height;
         if(!w||!h)return false;
         const img=ctx.getImageData(0,0,w,h),d=img.data;
+        const sensed=window.BilliardsCornerSensing?.detect(img);
+        if(sensed){
+            let corners=sensed.corners;
+            corners=photoVision.orientation&&photoVision.orientation!=='auto'?photoCal.cornersForHead(corners,photoVision.orientation):photoCal.orderDetectedCorners(corners);
+            photoVision.cornerSensingEvidence={confidence:sensed.confidence,railSupport:sensed.railSupport,pocketSupport:sensed.pocketSupport};
+            photoVision.autoRailRawCorners=corners.map(p=>({x:p.x,y:p.y}));photoVision.corners=pvInsetQuad(corners,photoVision.railInset||0);photoVision.detections=[];
+            renderPhotoDetectionList();renderPhotoAnalyzer();$('photoAnalyzeNow').disabled=false;$('photoAddMissed').disabled=false;
+            pvStatus('Corner Sensing fitted the cloth boundary using rail contrast and pocket evidence. Check the four markers before analyzing.');return true;
+        }
+        if(window.BilliardsCornerSensing){photoVision.cornerSensingEvidence=null;pvStatus('Corner Sensing could not fit a reliable full table. Keep or adjust the four manual markers.');return false;}
         const rs=[],gs=[],bs=[];
         for(let gy=3;gy<=7;gy++)for(let gx=3;gx<=7;gx++){
             const x=Math.round(w*gx/10),y=Math.round(h*gy/10),i=(y*w+x)*4;
@@ -12104,7 +12163,7 @@
         const ids=photoVision.detections.map(d=>String(d.id)),assigned=ids.filter(id=>id!=='ignore'),unique=new Set(assigned).size===assigned.length;
         const reviewReady=assigned.length>0&&assigned.length===ids.length&&unique;
         return {imageReady:photoVision.imageReady,imageVersion:photoVision.imageVersion,loadedTableFile:photoVision.loadedTableFile,
-            cornersValid:!!pvCalibration(),busy:!!photoVision.aiBusy,analysisRevision:photoVision.analysisRevision||0,reviewReady,
+            corners:photoVision.corners.map(p=>({...p})),cornerSensingEvidence:photoVision.cornerSensingEvidence||null,analysisEngine:photoVision.lastAnalysisEngine,detections:photoVision.detections.map(d=>({id:d.id,nx:d.nx,ny:d.ny,confidence:d.confidence,lightingDisagreement:!!d.lightingDisagreement})),cornersValid:!!pvCalibration(),busy:!!photoVision.aiBusy,analysisRevision:photoVision.analysisRevision||0,reviewReady,
             imageError:photoVision.imageError||'',analysisError:photoVision.analysisError||'',detectionCount:photoVision.detections.length,archiveBusy:!!photoVision.archiveBusy,imageSaved:!!photoVision.archiveId,
             cornerHint:pvCalibrationPrompt(),orientationHint:$('photoOrientationHint').textContent,footSpotHint:$('photoFootSpotHint').textContent,
             reviewHint:!ids.length?'No balls found yet. Add missed balls or return to Analyze.':!unique?'Correct duplicate identities before continuing.':assigned.length<ids.length?'Assign every remaining question mark or delete that false detection.':assigned.length+' unique balls assigned. Check their positions, then Next.'};
@@ -12297,6 +12356,7 @@
                 pvStatus('AI disabled. ANALYZE BALLS will use the original hybrid detector.');
             }
         });
+        $('photoLightingMode').onchange=()=>{photoVision.lightingMode=$('photoLightingMode').value;pvStatus('Lighting mode changed. Tap Analyze Balls to compare a new result.');};
         $('photoRackType').addEventListener('change', () => {
             photoVision.rackType=$('photoRackType').value||'auto';
             const label=pvRackTypeLabel(photoVision.rackType);
@@ -13200,8 +13260,8 @@
     </div>
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=resources-toggle-v8">
-  <script src="./phone-play.js?v=19"></script>
-  <link rel="stylesheet" href="./trainer-3d.css?v=19">
+  <script src="./phone-play.js?v=share-analysis-1"></script>
+  <link rel="stylesheet" href="./trainer-3d.css?v=share-analysis-1">
   <script src="./trainer-3d.js?v=16"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>

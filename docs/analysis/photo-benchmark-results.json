@@ -1,0 +1,95 @@
+{
+  "source": "https://github.com/viktorseba/pix2pockets/blob/main/8-Ball-Pool-3.zip",
+  "date": "2026-10-27",
+  "notes": [
+    "Three convenience samples, not held-out validation. Labels distinguish cue, black, solids and stripes, not individual numbers.",
+    "Extra objects require manual deletion/review. Matching tolerance is 1.7 annotation radii; no claim of exact placement accuracy.",
+    "No image data is bundled in the app."
+  ],
+  "results": [
+    {
+      "path": "2.jpg",
+      "lighting": "original",
+      "milliseconds": 8135.617969999999,
+      "engine": "ai",
+      "error": "",
+      "expected": 13,
+      "matched": 13,
+      "falsePositives": 2,
+      "missed": 0,
+      "correctGroup": 11,
+      "correctNumber": null,
+      "sourceImage": "8-Ball-Pool-3/train/images/134_png.rf.eafc70891a991c969df70bd817a63375.jpg"
+    },
+    {
+      "path": "2.jpg",
+      "lighting": "assist",
+      "milliseconds": 7922.527498000001,
+      "engine": "ai",
+      "error": "",
+      "expected": 13,
+      "matched": 13,
+      "falsePositives": 2,
+      "missed": 0,
+      "correctGroup": 11,
+      "correctNumber": null,
+      "sourceImage": "8-Ball-Pool-3/train/images/134_png.rf.eafc70891a991c969df70bd817a63375.jpg"
+    },
+    {
+      "path": "8.jpg",
+      "lighting": "original",
+      "milliseconds": 7704.921276000001,
+      "engine": "ai",
+      "error": "",
+      "expected": 12,
+      "matched": 12,
+      "falsePositives": 2,
+      "missed": 0,
+      "correctGroup": 9,
+      "correctNumber": null,
+      "sourceImage": "8-Ball-Pool-3/train/images/4a_png.rf.a6bb5c5706fd8628eb53d34a122cf441.jpg"
+    },
+    {
+      "path": "8.jpg",
+      "lighting": "assist",
+      "milliseconds": 7433.9804,
+      "engine": "ai",
+      "error": "",
+      "expected": 12,
+      "matched": 12,
+      "falsePositives": 2,
+      "missed": 0,
+      "correctGroup": 9,
+      "correctNumber": null,
+      "sourceImage": "8-Ball-Pool-3/train/images/4a_png.rf.a6bb5c5706fd8628eb53d34a122cf441.jpg"
+    },
+    {
+      "path": "9.jpg",
+      "lighting": "original",
+      "milliseconds": 7441.999502999999,
+      "engine": "ai",
+      "error": "",
+      "expected": 15,
+      "matched": 15,
+      "falsePositives": 1,
+      "missed": 0,
+      "correctGroup": 15,
+      "correctNumber": null,
+      "sourceImage": "8-Ball-Pool-3/train/images/67_png.rf.1f3b76172afb30906fa89dde6248e1c9.jpg"
+    },
+    {
+      "path": "9.jpg",
+      "lighting": "assist",
+      "milliseconds": 8423.636282,
+      "engine": "ai",
+      "error": "",
+      "expected": 15,
+      "matched": 15,
+      "falsePositives": 1,
+      "missed": 0,
+      "correctGroup": 15,
+      "correctNumber": null,
+      "sourceImage": "8-Ball-Pool-3/train/images/67_png.rf.1f3b76172afb30906fa89dde6248e1c9.jpg"
+    }
+  ]
+}
