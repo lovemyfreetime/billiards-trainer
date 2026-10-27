@@ -11,7 +11,7 @@ Object.assign(ctx.S,{muRoll:.025,railRest:.8,cuePreset:'custom',cueEndmassRatio:
 const expected=JSON.parse(vm.runInContext('JSON.stringify(capturePhysicsSettings())',ctx));
 $('physicsSave').click();$('physicsPresetName').value='Tournament table / carbon cue';$('physicsPresetApply').click();
 assert.equal(JSON.parse([...storage.values()][0])[0].name,'Tournament table / carbon cue');
-$('physicsDefaults').click();for(const key of keys)assert.equal(ctx.S[key],defaults[key]);assert.equal(JSON.stringify(ctx.S.balls),layout);assert.equal(ctx.S.speed,2);assert.equal(ctx.S.follow,.5);
+$('physicsDefaults').click();for(const key of keys)assert.equal(ctx.S[key],key==='tableL'?80*.0254:key==='tableW'?40*.0254:defaults[key]);assert.equal(JSON.stringify(ctx.S.balls),layout);assert.equal(ctx.S.speed,2);assert.equal(ctx.S.follow,.5);
 $('physicsLoad').click();$('physicsPresetApply').click();for(const key of keys)assert.equal(ctx.S[key],expected[key]);assert.equal(JSON.stringify(ctx.S.balls),layout);assert.equal(undo,2);assert.equal(saved,2);
 // A fresh session reads the named preset from storage.
 vm.runInContext('setupPhysicsPresets()',ctx);$('physicsLoad').click();assert.equal($('physicsPresetList').children.length,1);

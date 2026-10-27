@@ -7894,7 +7894,7 @@
             } catch (_) { status.textContent = 'Saved settings could not be read on this device.'; }
         }
         $('physicsDefaults').onclick = () => {
-            if (applyPhysicsSettings(capturePhysicsSettings(defaultState()))) { close(); status.textContent = 'Default physics and calibration restored. Named presets are kept.'; }
+            if (applyPhysicsSettings({...capturePhysicsSettings(defaultState()), tableL:80*.0254, tableW:40*.0254})) { close(); status.textContent = 'Default physics restored with a 7-foot Diamond 80×40 table. Named presets are kept.'; }
         };
         $('physicsSave').onclick = () => open('save');
         $('physicsLoad').onclick = () => open('load');
