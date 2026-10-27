@@ -38,6 +38,7 @@ jobs:
           node tests/bank-kick-candidates.test.cjs
           node tests/bank-kick-routing.browser.cjs
           node tests/bank-kick-practical.browser.cjs
+          node tests/bank-kick-performance.browser.cjs
           node tests/trainer-3d-edit.browser.cjs
           node tests/guide-platform-parity.browser.cjs
           node tests/guide-scenes.browser.cjs

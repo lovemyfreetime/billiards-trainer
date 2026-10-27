@@ -4,7 +4,7 @@ for(const mobile of [false]){
  const context=await browser.newContext({viewport:mobile?{width:844,height:390}:{width:1366,height:900},isMobile:mobile,hasTouch:mobile,ignoreHTTPSErrors:true,serviceWorkers:'block'});
  await context.addInitScript(()=>{window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=true;window.chrome={webview:{postMessage(){}}};});const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(process.env.LIVE_URL||'http://127.0.0.1:8822/?train=1');await page.waitForFunction(()=>window.billiardsTourBridge&&window.Billiards3D);
  const base=await page.evaluate(()=>billiardsTourBridge.capture().state);
- async function set(mode,rails,target,ball={x:1.3,y:.65},cue={x:.4,y:.6},speed=6,extra={}){await page.evaluate(({mode,rails,target,ball,cue,speed,base,extra})=>{const snap=billiardsTourBridge.capture();Object.assign(snap.state,base,{tableL:2.032,tableW:1.016,speed,sideSpin:0,follow:0,airbornePhysics:false,activeShot:1,shot2Enabled:false,balls:[{id:0,n:'CB',...cue,active:true},{id:1,n:'1',...ball,active:true}],bankKick:{mode,phase:rails.length?null:'zero',zero:target,rails,railName:rails[0]||null,ballId:rails.length?1:null,routeVersion:2,requested:!!rails.length}},extra);billiardsTourBridge.restore(snap);},{mode,rails,target,ball,cue,speed,base,extra});}
+ async function set(mode,rails,target,ball={x:1.3,y:.65},cue={x:.4,y:.6},speed=6,extra={}){await page.evaluate(({mode,rails,target,ball,cue,speed,base,extra})=>{const snap=billiardsTourBridge.capture();Object.assign(snap.state,base,{tableL:2.032,tableW:1.016,speed,sideSpin:0,follow:0,airbornePhysics:false,activeShot:1,shot2Enabled:false,balls:[{id:0,n:'CB',...cue,active:true},{id:1,n:'1',...ball,active:true}],bankKick:{mode,phase:rails.length?null:'zero',zero:target,rails,railName:rails[0]||null,ballId:rails.length?1:null,routeVersion:2,requested:!!rails.length}},extra);billiardsTourBridge.restore(snap);},{mode,rails,target,ball,cue,speed,base,extra});if(mode&&rails.length)await page.locator("#bankKickCalculate").click();}
  const state=()=>page.evaluate(()=>billiardsTourBridge.capture().state);
  async function solved(count){await page.waitForFunction(()=>!!billiardsTourBridge.capture().state.bankKick.solution,{},{timeout:60000});const sol=(await state()).bankKick.solution;assert.equal(sol.bounces.length,count);assert(sol.reached);return sol;}
  async function applyAndVerify(mode,rails){
@@ -23,7 +23,8 @@ for(const mobile of [false]){
  const rails=['bottom','right'],target={x:0,y:0},ball={x:1.3,y:.8};
  await set('bank',rails,target,ball,undefined,6,{follow:1,sideSpin:1,cueElevationDeg:70,airbornePhysics:true,freeAim:{x:-10,y:-10},angleLock:true});
  const exaggerated=await state(),first=await solved(2);
- console.log('Independent bank:',first.shotSpeed,first.shotFollow,first.shotSide);
+ console.log('Independent bank:',first.shotSpeed,first.shotFollow,first.shotSide,'pocket reserve',first.pocketReserveDiamonds);
+ assert(first.pocketReserveDiamonds>=.5&&first.pocketReserveDiamonds<=1.1,'Pocket arrival has half to one diamond of rolling reserve');
  assert(first.shotSpeed<=(rails.length>=3?6:5));assert(Math.abs(first.shotFollow)<=.5);assert(Math.abs(first.shotSide)<=.5);assert(!first.scratch);
  assert.equal((await state()).follow,1);assert.equal((await state()).speed,6,'Planning leaves controls untouched');
  await applyAndVerify('bank',rails);
@@ -34,7 +35,7 @@ for(const mobile of [false]){
  const second=await solved(2);assert(second.shotSpeed<=(rails.length>=3?6:5));assert(Math.abs(second.shotFollow)<=.5&&Math.abs(second.shotSide)<=.5);
  await page.locator('#bankKickUseSpeed').click();await page.waitForTimeout(200);const applied=(await state()).shot2;assert.equal(applied.speed,second.shotSpeed);assert.equal(applied.follow,second.shotFollow);assert.equal(applied.sideSpin,second.shotSide);
  await set('bank',['bottom','right','top'],{x:0,y:1.016},{x:1.3,y:.8});
- const extended=await solved(3);assert(extended.shotSpeed>4&&extended.shotSpeed<=6,'A three-rail route can use modestly more power');assert.equal(extended.shotFollow,0);assert.equal(extended.shotSide,0);await applyAndVerify('bank',['bottom','right','top']);
+ const extended=await solved(3);assert(extended.shotSpeed<=6,'Three-rail refinement stays within the power range');assert(Number.isFinite(extended.pocketReserveDiamonds));await applyAndVerify('bank',['bottom','right','top']);
  await set('bank',rails,target,ball,undefined,6,{muRoll:10});
  await page.waitForFunction(()=>/No practical shot/.test(document.querySelector('#bankKickRouteStatus').textContent),{},{timeout:60000});assert.equal((await state()).bankKick.solution,null);
  assert.deepEqual(errors,[]);console.log('Practical bank: independent aim/speed/spin/elevation, unchanged controls until apply, exact executed physics, shot 2 and bounded failure passed.');await context.close();

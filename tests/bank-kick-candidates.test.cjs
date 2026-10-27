@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-const source=fs.readFileSync('index.html','utf8'),start=source.indexOf('    function bankKickShotCandidates('),end=source.indexOf('    function calculateBankKickRoute(t)',start),ctx={};
+const source=fs.readFileSync('index.html','utf8'),start=source.indexOf('    function bankKickShotCandidates('),end=source.indexOf('    function bankKickSetupNeeded(',start),ctx={};
 vm.createContext(ctx);vm.runInContext(source.slice(start,end),ctx);
 for(const rails of [1,2,3,4]){
  const candidates=ctx.bankKickShotCandidates(rails),max=rails>=3?6:5;

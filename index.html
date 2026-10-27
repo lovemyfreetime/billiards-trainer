@@ -3284,6 +3284,7 @@
         return S.bankKick;
     }
     function clearBankKickTool() {
+        invalidateBankKickRoute();
         const t = bankKickState();
         t.mode = null;
         S.showBankKickNumbers = false;
@@ -3636,17 +3637,18 @@
         return Math.abs(b - z) / unit * 10;
     }
     let bankKickRouteCache = {key:null,solution:null,pending:false,message:''};
-    let bankKickRouteTimer = 0;
+    let bankKickJobId = 0;
     function bankKickRouteKey(t) {
-        return JSON.stringify([t.mode,t.zero,t.rails,t.ballId,S.activeShot,S.shot2Enabled,S.shot2,S.speed,S.follow,S.sideSpin,S.cueElevationDeg,S.freeAim,S.angleLock,S.tableL,S.tableW,S.ballR,S.muSlide,S.muRoll,S.muBall,S.ballRest,S.railRest,S.railTang,S.cueEndmassRatio,S.balls.map(b=>[b.id,b.x,b.y,b.active,b.marker])],(k,v)=>k==='preview'?undefined:v);
+        const second=S.activeShot===2&&S.shot2Enabled;
+        return JSON.stringify([t.mode,t.zero,t.rails,t.ballId,second,second?[S.shot2?.x,S.shot2?.y]:null,S.tableL,S.tableW,S.ballR,S.muSlide,S.muRoll,S.muBall,S.ballRest,S.railRest,S.railTang,S.cueEndmassRatio,S.tableRest,S.bedImpactMu,S.balls.map(b=>[b.id,b.x,b.y,b.active,b.marker])]);
     }
-    function runBankKickShot(t,angle,search=false) {
+    function* runBankKickShot(t,angle,search=false) {
         const original=S,second=S.activeShot===2&&S.shot2Enabled,shot=second?ensureShot2():S;
         const cb=second?shot:cueBall();if(!cb)return null;
         S={...S,...(second?shot:{}),activeShot:1,angleLock:false,ghostLock:null,
             freeAim:{x:cb.x+Math.cos(angle)*S.tableL,y:cb.y+Math.sin(angle)*S.tableL},
             balls:S.balls.map(b=>b.id===0?{...b,x:cb.x,y:cb.y}:b)};
-        try{return simulate(false,search?{mode:t.mode,ballId:t.ballId,rails:t.rails,target:t.zero}:null);}
+        try{return yield* simulateSteps(false,search?{mode:t.mode,ballId:t.ballId,rails:t.rails,target:t.zero}:null,true);}
         finally{S=original;}
     }
     function assessBankKickShot(t,preview,angle) {
@@ -3677,7 +3679,7 @@
         const scratch=preview.pocketEvents.some(e=>e.id===0);
         return {angle,distance,reached,scratch,end:targetPocket?(pocket?.t??Infinity):closestTime,score:reached?-1+distance+(scratch ? .25 : 0):distance,hits:hits.slice(0,t.rails.length),preview};
     }
-    function calculateBankKickRouteAtCurrentSpeed(t) {
+    function* calculateBankKickRouteAtCurrentSpeed(t) {
         const ball=S.balls.find(b=>b.id===t.ballId&&b.active!==false&&!b.marker),second=S.activeShot===2&&S.shot2Enabled,shot=second?ensureShot2():S,cb=second?shot:cueBall();
         if(!ball||!cb||!t.zero)return {message:'Choose an active cue ball, object ball and destination.'};
         const currentAngle=Math.atan2(shot.freeAim.y-cb.y,shot.freeAim.x-cb.x);
@@ -3693,24 +3695,28 @@
             const center=Math.atan2(ball.y-cb.y,ball.x-cb.x)-squirt;
             const half=Math.asin(Math.min(.99,2*S.ballR/Math.max(2*S.ballR,Math.hypot(ball.x-cb.x,ball.y-cb.y))));
             const samples=[];
-            const evaluate=angle=>{const assessed=assessBankKickShot(t,runBankKickShot(t,angle,true),angle);if(!assessed||!Number.isFinite(assessed.distance))return null;const candidate={angle,score:assessed.score,reached:assessed.reached,distance:assessed.distance};samples.push(candidate);return candidate;};
+            const evaluate=function*(angle){const assessed=assessBankKickShot(t,yield* runBankKickShot(t,angle,true),angle);if(!assessed||!Number.isFinite(assessed.distance))return null;const candidate={angle,score:assessed.score,reached:assessed.reached,distance:assessed.distance};samples.push(candidate);return candidate;};
             const width=t.mode==='bank'?half*1.12+.004:.12;
             const scanCenter=t.mode==='bank'?center:seed;
-            for(let i=0;i<=72;i++)evaluate(scanCenter-width+2*width*i/72);
-            for(let i=-10;i<=10;i++)evaluate(seed+i*(t.mode==='bank'?half/100:.001));
+            if(Number.isFinite(t.searchHint)){
+                for(let i=-10;i<=10;i++){yield* evaluate(t.searchHint+i*.002);if(i%4===0)yield;}
+            }else{
+                for(let i=0;i<=72;i++){yield* evaluate(scanCenter-width+2*width*i/72);if(i%4===3)yield;}
+                for(let i=-10;i<=10;i++){yield* evaluate(seed+i*(t.mode==='bank'?half/100:.001));if(i%4===0)yield;}
+            }
             samples.sort((a,b)=>a.score-b.score);
-            for(const initial of samples.slice(0,3)){
+            for(const initial of samples.slice(0,Number.isFinite(t.searchHint)?1:3)){
                 let angle=initial.angle,step=2*width/72;
                 for(let iteration=0;iteration<15;iteration++){
                     let local={angle,score:Infinity};
-                    for(const candidateAngle of [angle-step,angle,angle+step]){const candidate=evaluate(candidateAngle);if(candidate&&candidate.score<local.score)local=candidate;}
-                    angle=local.angle;step*=.5;
+                    for(const candidateAngle of [angle-step,angle,angle+step]){const candidate=yield* evaluate(candidateAngle);if(candidate&&candidate.score<local.score)local=candidate;}
+                    angle=local.angle;step*=.5;yield;
                 }
             }
             samples.sort((a,b)=>a.score-b.score);
             // Final acceptance always reruns the complete, unshortened simulator.
             for(const candidate of samples.slice(0,5)){
-                const actual=assessBankKickShot(t,runBankKickShot(t,candidate.angle),candidate.angle);
+                const actual=assessBankKickShot(t,yield* runBankKickShot(t,candidate.angle),candidate.angle);yield;
                 if(actual?.reached&&(!best||actual.score<best.score))best=actual;
                 if(best&&!best.scratch)break;
             }
@@ -3737,56 +3743,110 @@
             {follow:.3,sideSpin:.3},{follow:.3,sideSpin:-.3},{follow:-.3,sideSpin:.3},{follow:-.3,sideSpin:-.3}])candidates.push({speed:maxSpeed,...controls});
         return candidates;
     }
-    function calculateBankKickRoute(t) {
-        // Recommendations are independent of every current shot control, including aim.
-        // Keep the real layout and calibrated physics; favor simple shots before
-        // allowing a firmer stroke and stronger spin for demanding routes.
-        const original=S,second=S.activeShot===2&&S.shot2Enabled;
+    function bankKickSetupNeeded(sol) {
+        const second=S.activeShot===2&&S.shot2Enabled,shot=second?S.shot2:S,cb=second?shot:cueBall();
+        if(!cb||!shot?.freeAim)return true;
+        const angle=Math.atan2(shot.freeAim.y-cb.y,shot.freeAim.x-cb.x);
+        return !!(Math.abs(Math.atan2(Math.sin(sol.angle-angle),Math.cos(sol.angle-angle)))>1e-6||shot.angleLock||shot.ghostLock||shot.autoGhostLock||shot.speed!==sol.shotSpeed||shot.follow!==sol.shotFollow||shot.sideSpin!==sol.shotSide||shot.cueElevationDeg!==3||S.airbornePhysics);
+    }
+    async function calculateBankKickRoute(t,snapshot,cancelled) {
+        const second=snapshot.activeShot===2&&snapshot.shot2Enabled,started=performance.now(),diagnostics={slices:0,maxSliceMs:0};
         const candidates=bankKickShotCandidates(t.rails.length);
-        try {
-            for(const controls of candidates){
-                const shot={...controls,cueElevationDeg:3,freeAim:{x:0,y:0},angleLock:false,autoGhostLock:false,ghostLock:null,ghostLockDirty:false};
-                S={...original,airbornePhysics:false,...(second?{shot2:{...original.shot2,...shot}}:shot)};
-                const candidate=calculateBankKickRouteAtCurrentSpeed(t);
-                if(candidate.solution?.reached&&!candidate.solution.scratch){
-                    const previous=second?original.shot2:original,sol=candidate.solution;
-                    const cb=second?previous:original.balls.find(b=>b.id===0),angle=Math.atan2(previous.freeAim.y-cb.y,previous.freeAim.x-cb.x);
-                    const setupNeeded=Math.abs(Math.atan2(Math.sin(sol.angle-angle),Math.cos(sol.angle-angle)))>1e-6||previous.angleLock||previous.ghostLock||previous.autoGhostLock||previous.speed!==sol.shotSpeed||previous.follow!==sol.shotFollow||previous.sideSpin!==sol.shotSide||previous.cueElevationDeg!==3||original.airbornePhysics;
-                    Object.assign(sol,{setupNeeded:!!setupNeeded,shotElevation:3,shotAirborne:false});
-                    candidate.message='Practical shot verified independently of your controls. Tap Use setup to apply the calculated aim, speed and spin.';
-                    return candidate;
+        const stopped=()=>cancelled()||performance.now()-started>30000;
+        async function solve(controls,hint){
+            const shot={...controls,cueElevationDeg:3,freeAim:{x:0,y:0},angleLock:false,autoGhostLock:false,ghostLock:null,ghostLockDirty:false};
+            let searchState={...snapshot,airbornePhysics:false,...(second?{shot2:{...snapshot.shot2,...shot}}:shot)};
+            const search=calculateBankKickRouteAtCurrentSpeed({...t,searchHint:hint});
+            while(true){
+                if(stopped())throw new Error('Bank search cancelled or timed out');
+                const live=S,sliceStart=performance.now();let step;
+                try{S=searchState;step=search.next();searchState=S;}finally{S=live;diagnostics.slices++;diagnostics.maxSliceMs=Math.max(diagnostics.maxSliceMs,performance.now()-sliceStart);}
+                if(step.done)return step.value;
+                // Always restore live state before yielding so controls keep working.
+                await new Promise(resolve=>setTimeout(resolve,0));
+            }
+        }
+        let fallback=null;
+        const verifiedSpins=new Set();
+        const reserveFor=sol=>sol.verifiedPocket?sol.verifiedPocket.speed**2/(2*Math.max(1e-6,snapshot.muRoll)*9.81)/(snapshot.tableL/8):null;
+        const finish=result=>{Object.assign(result.solution,{setupNeeded:true,shotElevation:3,shotAirborne:false,pocketReserveDiamonds:reserveFor(result.solution),searchDiagnostics:diagnostics});result.message='Shot verified. Tap Use setup to apply the calculated aim, speed and spin.';return result;};
+        for(const controls of candidates){
+            const spinKey=controls.follow+':'+controls.sideSpin;
+            if(verifiedSpins.has(spinKey))continue;
+            let candidate;try{candidate=await solve(controls);}catch(error){if(cancelled())throw error;if(fallback)return finish(fallback);throw error;}
+            if(!candidate.solution?.reached||candidate.solution.scratch)continue;
+            verifiedSpins.add(spinKey);
+            let best=candidate;
+            // Refine the verified stroke toward a gentle pocket arrival. This is
+            // the OBJECT ball's remaining rolling distance, not cue launch speed.
+            const unit=snapshot.tableL/8,mu=Math.max(1e-6,snapshot.muRoll);
+            const reserve=sol=>sol.verifiedPocket?sol.verifiedPocket.speed**2/(2*mu*9.81)/unit:null;
+            if(reserve(best.solution)!==null){
+                let low=.2,high=controls.speed;
+                if(reserve(best.solution)<.5){low=controls.speed;high=Math.min(t.rails.length>=3?6:5,controls.speed+.5);}
+                for(let i=0;i<9&&!stopped();i++){
+                    const remaining=reserve(best.solution);if(remaining>=.5&&remaining<=1)break;
+                    const speed=(low+high)/2;
+                    let trial;try{trial=await solve({...controls,speed},best.solution.angle);}catch(error){if(cancelled())throw error;break;}
+                    if(trial.solution?.reached&&!trial.solution.scratch){
+                        const trialReserve=reserve(trial.solution);
+                        if(Math.abs(trialReserve-.75)<Math.abs(remaining-.75))best=trial;
+                        if(trialReserve<.5)low=speed;else high=speed;
+                    }else low=speed;
+                    if(high-low<.01)break;
                 }
             }
-        } finally { S=original; }
+            const remaining=reserve(best.solution);
+            if(remaining===null||(remaining>=.5&&remaining<=1))return finish(best);
+            if(!fallback||Math.abs(remaining-.75)<Math.abs(reserve(fallback.solution)-.75))fallback=best;
+        }
+        if(fallback)return finish(fallback);
         return {message:'No practical shot verified for this layout and rail order (maximum '+(t.rails.length>=3?'6':'5')+' m/s, 50% follow/draw or English, no cue-ball scratch). Try a different rail order or destination.'};
     }
     function computeBankKickSolution() {
+        // Drawing is read-only: only an explicit Calculate press starts work.
         const t=bankKickState();
         if(!t.mode||t.ballId==null||t.phase||t.requested!==true)return null;
-        if(!t.rails?.length){if(t.railName)t.rails=[t.railName];else return null;}
         const key=bankKickRouteKey(t);
-        if(bankKickRouteCache.key===key)return bankKickRouteCache.solution;
-        clearTimeout(bankKickRouteTimer);
-        bankKickRouteCache={key,solution:null,pending:true,message:'Calculating the physics route…'};
-        syncBankKickControls();
-        bankKickRouteTimer=setTimeout(()=>{
-            if(bankKickRouteKey(bankKickState())!==key)return;
-            if(animation){bankKickRouteCache.key=null;return;}
-            const result=calculateBankKickRoute(bankKickState());
-            bankKickRouteCache={key,solution:result.solution||null,pending:false,message:result.message};
-            bankKickState().solution=bankKickRouteCache.solution;
-            syncBankKickControls();draw();saveState();
-        },120);
+        if(bankKickRouteCache.key===key&&(bankKickRouteCache.pending||!bankKickRouteCache.solution||t.solution?.layoutKey===key))return bankKickRouteCache.solution;
+        if(t.solution?.layoutKey===key){bankKickRouteCache={key,solution:t.solution,pending:false,message:''};return t.solution;}
+        if(bankKickRouteCache.pending||bankKickRouteCache.solution||t.solution){
+            invalidateBankKickRoute();bankKickRouteCache.message='Layout changed. Tap Calculate for a new route.';syncBankKickControls();
+        }
         return null;
     }
     function invalidateBankKickRoute() {
+        bankKickJobId++;
         const t=bankKickState();t.requested=false;t.pendingCalculate=false;t.solution=null;
-        clearTimeout(bankKickRouteTimer);bankKickRouteCache={key:null,solution:null,pending:false,message:''};
+        bankKickRouteCache={key:null,solution:null,pending:false,message:''};
     }
-    function requestBankKickCalculation() {
-        const t=bankKickState();if(!t.zero||!t.rails.length)return;
+    async function requestBankKickCalculation() {
+        if(bankKickRouteCache.pending){invalidateBankKickRoute();syncBankKickControls();draw();return;}
+        const t=bankKickState();if(!t.zero||!t.rails.length||animation)return;
         if(t.ballId==null){t.phase='calculateBall';t.pendingCalculate=true;syncBankKickControls();return;}
-        t.phase=null;t.requested=true;t.pendingCalculate=false;syncBankKickControls();draw();saveState();
+        invalidateBankKickRoute();t.phase=null;t.requested=true;
+        const job=bankKickJobId,key=bankKickRouteKey(t);
+        const snapshot=JSON.parse(JSON.stringify(S,(k,v)=>k==='preview'||k==='solution'?undefined:v));
+        const request={...t,rails:[...t.rails],zero:{...t.zero}};
+        const cancelled=()=>job!==bankKickJobId||animation||bankKickRouteKey(bankKickState())!==key;
+        bankKickRouteCache={key,solution:null,pending:true,message:'Calculating…'};
+        syncBankKickControls();draw();
+        await new Promise(resolve=>setTimeout(resolve,0));
+        try{
+            const result=await calculateBankKickRoute(request,snapshot,cancelled);
+            if(cancelled())return;
+            if(result.solution){result.solution.layoutKey=key;result.solution.setupNeeded=bankKickSetupNeeded(result.solution);}
+            bankKickRouteCache={key,solution:result.solution||null,pending:false,message:result.message};
+            bankKickState().solution=bankKickRouteCache.solution;
+        }catch(error){
+            if(cancelled())return;
+            bankKickRouteCache={key,solution:null,pending:false,message:'Search stopped. Try another rail order or tap Calculate again.'};
+        }finally{
+            if(job===bankKickJobId){
+                if(cancelled()){invalidateBankKickRoute();bankKickRouteCache.message='Search stopped. Tap Calculate when ready.';}
+                bankKickRouteCache.pending=false;syncBankKickControls();draw();saveState();
+            }
+        }
     }
     function bankKickPick(q) {
         const t=bankKickState();if(!t.mode||!t.phase)return false;
@@ -3916,14 +3976,15 @@
             panel.hidden=!t.mode;
             const target=$('bankKickTarget');target.classList.toggle('selected',!!t.zero);target.classList.toggle('next',!t.zero||['zero','zeroEnd'].includes(t.phase));
             document.querySelectorAll('[data-bank-rail]').forEach(button=>{const i=Number(button.dataset.bankRail),selected=!!t.rails[i];button.disabled=!t.zero||i>t.rails.length;button.classList.toggle('selected',selected);button.classList.toggle('next',!!t.zero&&!t.requested&&(t.phase==='editRail'?i===t.editRailIndex:i===t.rails.length));button.setAttribute('aria-pressed',String(selected));button.title=selected?'Replace rail '+(i+1)+' ('+t.rails[i]+')':'Choose rail '+(i+1);});
-            const calculate=$('bankKickCalculate');calculate.disabled=!t.zero||!t.rails.length||bankKickRouteCache.pending;
-            calculate.classList.toggle('ready',!!t.zero&&!!t.rails.length&&!bankKickRouteCache.pending&&!t.solution);calculate.classList.toggle('selected',!!t.solution);calculate.setAttribute('aria-busy',String(bankKickRouteCache.pending));calculate.textContent=bankKickRouteCache.pending?'…':t.phase==='calculateBall'?'Tap ball':'Calculate';
+            const calculate=$('bankKickCalculate');calculate.disabled=!t.zero||!t.rails.length;
+            calculate.classList.toggle('ready',!!t.zero&&!!t.rails.length&&!bankKickRouteCache.pending&&!t.solution);calculate.classList.toggle('selected',!!t.solution);calculate.setAttribute('aria-busy',String(bankKickRouteCache.pending));calculate.textContent=bankKickRouteCache.pending?'Cancel':t.phase==='calculateBall'?'Tap ball':'Calculate';
             const setup=t.requested&&!t.phase?bankKickRouteCache.solution:null;
-            $('bankKickRouteStatus').textContent=bankKickRouteCache.pending?'Calculating…':t.requested&&!setup?bankKickRouteCache.message:setup?.scratch?'Cue ball scratches':'';
+            $('bankKickRouteStatus').textContent=bankKickRouteCache.pending?'Calculating…':!setup?bankKickRouteCache.message:setup?.scratch?'Cue ball scratches':setup?.pocketReserveDiamonds!=null?(setup.pocketReserveDiamonds<=1.1?'Pocket pace · ':'Firmer route · ')+setup.pocketReserveDiamonds.toFixed(1)+' ♦ reserve':'';
             $('bankKickSpeedOutput').textContent=setup?setup.shotSpeed.toFixed(2)+' m/s':'—';
             $('bankKickFollowOutput').textContent=setup?(Math.abs(setup.shotFollow)<.005?'Center':Math.round(Math.abs(setup.shotFollow)*100)+'% '+(setup.shotFollow>0?'Follow':'Draw')):'—';
             $('bankKickSpinOutput').textContent=setup?(Math.abs(setup.shotSide)<.005?'Center':Math.round(Math.abs(setup.shotSide)*100)+'% '+(setup.shotSide>0?'Right':'Left')):'—';
             $('bankKickUndoRail').disabled=!(t.rails?.length);
+            if(setup)setup.setupNeeded=bankKickSetupNeeded(setup);
             $('bankKickUseSpeed').hidden=!setup?.setupNeeded;$('bankKickUseSpeed').classList.toggle('ready',!!setup?.setupNeeded);calculate.hidden=!!setup?.setupNeeded;
             if(setup?.setupNeeded)$('bankKickUseSpeed').textContent='Use setup';
         }
@@ -3943,6 +4004,7 @@
             clearBankKickTool();
             return;
         }
+        invalidateBankKickRoute();
         t.mode = mode;
         S.showBankKickNumbers = true;
         if (!isProjector && $('showBankKickNumbers')) $('showBankKickNumbers').checked=true;
@@ -4765,6 +4827,11 @@
         return rewind <= maxTime + 1e-12 ? Math.min(maxTime, rewind) : 0;
     }
     function simulate(makeFrames = false, search = null) {
+        const simulation=simulateSteps(makeFrames,search);let step;
+        do{step=simulation.next();}while(!step.done);
+        return step.value;
+    }
+    function* simulateSteps(makeFrames = false, search = null, cooperative = false) {
         const B = cloneBallsForPhysics();
         const cb = B.find(b => b.id === 0);
         if (!cb)
@@ -4953,7 +5020,9 @@
             return true;
         }
         if (airborneMode && cb.vz < 0) bedHit(cb, true);
+        let sliceStarted=cooperative?performance.now():0;
         for (let step = 0; step < maxSteps; step++) {
+            if(cooperative&&step%16===0&&performance.now()-sliceStarted>=8){yield;sliceStarted=performance.now();}
             const t = step * dt;
             simTime = t;
             let moving = false;
