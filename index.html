@@ -839,6 +839,11 @@
     color:#071107;
     border-color:#8dff7b;
   }
+  #bankKickRoutePanel { position:absolute;right:8px;top:58px;z-index:35;width:min(330px,calc(100% - 16px));padding:8px 10px;box-sizing:border-box;border:1px solid #78a6b5;border-radius:10px;background:rgba(18,31,39,.94);font:13px Segoe UI;color:#edf8ff;pointer-events:none; }
+  #bankKickRoutePanel .buttons { pointer-events:auto; }
+  body.phone-focus #bankKickRoutePanel:not([hidden]) { position:fixed;top:4px;left:126px;right:58px;width:auto;display:grid;grid-template-columns:minmax(0,1fr) 90px;align-items:center;gap:6px;padding:3px 6px;border-radius:6px;font-size:11px;line-height:12px; }
+  body.phone-focus #bankKickRoutePanel .buttons { display:grid;gap:2px;margin:0!important; }
+  body.phone-focus #bankKickRoutePanel button { padding:2px 4px;min-height:20px;font-size:10px;line-height:14px; }
   .bankKickToggle {
     position:absolute;
     z-index:9;
@@ -1468,8 +1473,12 @@
       <div id="practiceCounterPanel" hidden><button id="practiceCounterMinus" type="button" aria-label="Decrease practice count">−</button><output id="practiceCounterValue" aria-live="polite" aria-label="Practice count">000</output><button id="practiceCounterPlus" type="button" aria-label="Increase practice count">+</button></div>
     </div>
     <div id="markerRailControls" aria-label="Individual marker visibility and removal"></div>
-    <button id="kickToolToggle" class="bankKickToggle" type="button" title="One-rail kick guide">KICK</button>
-    <button id="bankToolToggle" class="bankKickToggle" type="button" title="One-rail bank guide">BANK</button>
+    <button id="kickToolToggle" class="bankKickToggle" type="button" title="Kick guide: select up to four rails in travel order">KICK</button>
+    <button id="bankToolToggle" class="bankKickToggle" type="button" title="Bank guide: destination, up to four rails, then object ball">BANK</button>
+    <div id="bankKickRoutePanel" hidden>
+      <div id="bankKickRouteStatus" role="status" aria-live="polite"></div>
+      <div class="buttons" style="margin-top:5px"><button id="bankKickUndoRail" type="button">Undo rail</button><button id="bankKickClose" type="button">Close guide</button></div>
+    </div>
     <button id="teachingCompassToggle" type="button" title="Teaching compass · 5° / 10° degree dots">◎</button>
     <div id="compassSizeWrap" class="compassSideControl">
       <input id="compassSize" type="range" min="10" max="100" step="1" value="45" aria-label="Teaching compass size">
@@ -1882,6 +1891,7 @@
 </div>
 
 <link rel="stylesheet" href="./photo-calibration.css?v=focused-start-v17">
+<script src="./bank-kick-routing.js?v=1"></script>
 <script src="./photo-calibration.js?v=walkthrough-v11"></script>
 <script src="./trainer-practice-tools.js?v=3"></script>
 <script src="./trainer-action-history.js?v=3"></script>
@@ -2010,7 +2020,9 @@
                 mode: null,
                 phase: null,
                 zero: null, // selected destination / pocket (the system's zero reference)
-                railName: null, // rail explicitly selected by the user
+                rails: [], // ordered cushion sequence, one to four
+                routeVersion: 2,
+                railName: null, // first rail (legacy compatibility)
                 railU: null, // current aim station; BANK auto-solves this from the selected ball
                 autoAim: true, // BANK: derive rail/source numbers from ball position and ZERO
                 ballId: null,
@@ -3236,6 +3248,7 @@
     function bankKickState() {
         if (!S.bankKick || typeof S.bankKick !== 'object')
             S.bankKick = Object.assign({}, defaultState().bankKick);
+        if (!Array.isArray(S.bankKick.rails)) S.bankKick.rails=[];
         return S.bankKick;
     }
     function clearBankKickTool() {
@@ -3245,6 +3258,7 @@
         if (!isProjector && $('showBankKickNumbers')) $('showBankKickNumbers').checked=false;
         t.phase = null;
         t.zero = null;
+        t.rails = [];
         t.railName = null;
         t.railU = null;
         t.autoAim = true;
@@ -3589,7 +3603,91 @@
         const unit = rail.axis === 'h' ? (S.tableL / 8) : (S.tableW / 4);
         return Math.abs(b - z) / unit * 10;
     }
+    let bankKickRouteCache = {key:null,solution:null,pending:false,message:''};
+    let bankKickRouteTimer = 0;
+    function bankKickRouteKey(t) {
+        return JSON.stringify([t.mode,t.zero,t.rails,t.ballId,S.activeShot,S.shot2Enabled,S.shot2,S.speed,S.follow,S.sideSpin,S.cueElevationDeg,S.tableL,S.tableW,S.ballR,S.muSlide,S.muRoll,S.muBall,S.ballRest,S.railRest,S.railTang,S.cueEndmassRatio,S.balls.map(b=>[b.id,b.x,b.y,b.active,b.marker])],(k,v)=>k==='preview'?undefined:v);
+    }
+    function runBankKickSimulation(t,angle,probe,target) {
+        const original=S;
+        if(S.activeShot===2 && S.shot2Enabled){const shot=ensureShot2();S={...S,...shot,activeShot:1,balls:S.balls.map(b=>b.id===0?{...b,x:shot.x,y:shot.y}:b)};}
+        try{return simulate(false,{mode:t.mode,ballId:t.ballId,angle,probe,target,stopAtTarget:t.mode==='bank'&&!nearestLogicalPocket(t.zero,.02),rails:t.rails});}
+        finally{S=original;}
+    }
+    function calculateBankKickRoute(t) {
+        const ball=S.balls.find(b=>b.id===t.ballId&&b.active!==false&&!b.marker),cue=S.activeShot===2&&S.shot2Enabled?ensureShot2():cueBall();
+        if(!ball||!t.zero||t.mode==='kick'&&!cue)return {message:'Choose an active object ball and cue ball.'};
+        const source=t.mode==='bank'?ball:cue;
+        const toPocket=norm({x:t.zero.x-ball.x,y:t.zero.y-ball.y});
+        if(Math.hypot(t.zero.x-ball.x,t.zero.y-ball.y)<S.ballR*2)return {message:'Choose a destination away from the object ball.'};
+        const target=t.mode==='bank'?t.zero:{x:ball.x-toPocket.x*2*S.ballR,y:ball.y-toPocket.y*2*S.ballR};
+        const pocket=nearestLogicalPocket(t.zero,.02);
+        const result=window.BilliardsBankKickRouting.solve({source,target,rails:t.rails.map(railByName),tolerance:t.mode==='bank'&&pocket ? .05 : .004,
+            evaluate(angle){const preview=runBankKickSimulation(t,angle,true,target);if(!preview.guideClosest)return null;const hits=preview.railEvents.filter(e=>e.id===0);if(hits.length<t.rails.length||hits.slice(0,t.rails.length).some((e,i)=>e.rail!==t.rails[i]+' rail'))return null;return {distance:preview.guideClosest.distance};}});
+        if(!result)return {message:'No route at this speed through those rails. Try more speed, less spin, or another rail order.'};
+        const targetId=t.mode==='bank'?0:ball.id;
+        function assess(angle){
+            const preview=runBankKickSimulation(t,angle,false,target),contact=preview.firstBallContact;
+            const end=t.mode==='kick'?contact?.t:(preview.pocketEvents.find(e=>e.id===0)?.t??preview.guideClosest?.t);
+            const hits=preview.railEvents.filter(e=>e.id===0&&(end==null||e.t<=end));
+            if(hits.length!==t.rails.length||hits.some((e,i)=>e.rail!==t.rails[i]+' rail') || t.mode==='kick'&&contact?.objId!==ball.id || t.mode==='bank'&&contact)return null;
+            const targetPath=preview.paths[targetId]||[];
+            let distance=Infinity;
+            for(const p of targetPath)distance=Math.min(distance,Math.hypot(p.x-t.zero.x,p.y-t.zero.y));
+            const pocketed=preview.pocketEvents.some(e=>e.id===targetId&&Math.hypot(e.x-t.zero.x,e.y-t.zero.y)<.16);
+            return {preview,angle,hits,distance,reached:pocket?pocketed:distance<S.ballR};
+        }
+        let verified=assess(result.angle);
+        if(t.mode==='kick'&&!verified?.reached){for(const offset of [-.001,.001,-.003,.003,-.006,.006]){const candidate=assess(result.angle+offset);if(candidate&&(!verified||candidate.reached||candidate.distance<verified.distance))verified=candidate;if(verified?.reached)break;}}
+        if(!verified)return {message:'The selected route is blocked, reaches another ball first, or misses the intended contact.'};
+        if(t.mode==='bank'&&!verified.reached)return {message:'The physics path does not reach that destination at this speed. Try another speed or rail order.'};
+        const preview=verified.preview,contact=preview.firstBallContact;
+        const cutoff=t.mode==='kick'?contact.t:(preview.pocketEvents.find(e=>e.id===0)?.t??Infinity);
+        const points=(preview.paths[0]||[]).filter(p=>p.t<=cutoff);
+        if(t.mode==='kick')points.push(contact.cuePos);
+        const bounces=verified.hits.map(e=>({x:e.x,y:e.y,rail:railByName(e.rail.replace(' rail',''))}));
+        return {solution:{mode:t.mode,multiRail:true,source:{x:source.x,y:source.y},target,destination:t.zero,ballId:ball.id,points,bounces,objectPath:t.mode==='kick'?preview.paths[ball.id]:null,reached:verified.reached,angle:verified.angle},message:verified.reached?'Physics route reaches the destination.':'Kick contact found; the object-ball path does not reach the destination. Adjust speed, spin, or rail order.'};
+    }
     function computeBankKickSolution() {
+        const t=bankKickState();
+        if(!t.mode||t.ballId==null||t.phase)return null;
+        if(!t.rails?.length)return t.railName?computeLegacyBankKickSolution():null;
+        const key=bankKickRouteKey(t);
+        if(bankKickRouteCache.key===key)return bankKickRouteCache.solution;
+        clearTimeout(bankKickRouteTimer);
+        bankKickRouteCache={key,solution:null,pending:true,message:'Calculating the physics route…'};
+        syncBankKickControls();
+        bankKickRouteTimer=setTimeout(()=>{
+            if(bankKickRouteKey(bankKickState())!==key)return;
+            const result=calculateBankKickRoute(bankKickState());
+            bankKickRouteCache={key,solution:result.solution||null,pending:false,message:result.message};
+            bankKickState().solution=bankKickRouteCache.solution;
+            syncBankKickControls();draw();saveState();
+        },120);
+        return null;
+    }
+    function bankKickPick(q) {
+        const t=bankKickState();if(!t.mode||!t.phase)return false;
+        const rail=nearestRailToPoint(q,.24),pocket=nearestLogicalPocket(q,Math.max(S.ballR*5,.11));
+        function addRail(){
+            if(!rail){toast('Tap a cushion, or select the object ball after choosing rails.');return;}
+            if(t.rails.length>=4){toast('Up to four rails. Use Undo rail to change the route.');return;}
+            if(t.rails.at(-1)===rail.name){toast('Choose a different cushion for the next contact.');return;}
+            t.rails.push(rail.name);t.railName=t.rails[0];t.railU=null;t.phase='ball';
+        }
+        if(t.phase==='zero'||t.phase==='zeroEnd'||t.phase==='kickStart'){
+            if(t.phase==='kickStart'&&rail&&!pocket){addRail();}
+            else{t.zero=pocket?{x:pocket.x,y:pocket.y}:{x:clamp(q.x,0,S.tableL),y:clamp(q.y,0,S.tableW)};t.phase=t.ballId!=null?null:'rail';}
+        }else if(t.phase==='rail'){addRail();}
+        else if(t.phase==='ball'){
+            let best=null,distance=S.ballR*2;
+            for(const ball of S.balls){if(ball.id===0||ball.marker||ball.active===false)continue;const d=Math.hypot(q.x-ball.x,q.y-ball.y);if(d<distance){best=ball;distance=d;}}
+            if(best){t.ballId=best.id;t.phase=t.zero?null:'zeroEnd';}
+            else addRail();
+        }
+        syncBankKickControls();draw();saveState();return true;
+    }
+    function computeLegacyBankKickSolution() {
         const t = bankKickState();
         if (!t.mode || t.ballId == null || !t.railName)
             return null;
@@ -3686,6 +3784,14 @@
         if (isProjector)
             return;
         const t = bankKickState();
+        const panel=$('bankKickRoutePanel');
+        if(panel){
+            panel.hidden=!t.mode;
+            const order=(t.rails||[]).map((r,i)=>(i+1)+'. '+r).join(' → ');
+            let instruction=t.phase==='zero'?'Tap the destination pocket or location.':t.phase==='kickStart'?'Tap the first rail, or choose the destination first.':t.phase==='zeroEnd'?'Tap the object-ball destination pocket or location.':t.phase==='rail'?'Tap the first rail.':t.phase==='ball'?'Tap another rail (up to 4), or tap the object ball to finish.':bankKickRouteCache.message;
+            $('bankKickRouteStatus').textContent=(t.mode||'').toUpperCase()+(order?' · '+order:'')+' — '+instruction+(t.mode==='bank'&&!t.phase?' Bank route starts at the object ball; speed is its launch speed.':'');
+            $('bankKickUndoRail').disabled=!(t.rails?.length);
+        }
         for (const [id, mode] of [['bankToolToggle', 'bank'], ['kickToolToggle', 'kick']]) {
             const b = $(id);
             if (!b)
@@ -3695,12 +3801,12 @@
             b.classList.toggle('pick', active && !!t.phase);
             if (!active)
                 b.textContent = mode.toUpperCase();
-            else if (t.phase === 'zero')
+            else if (['zero','zeroEnd'].includes(t.phase))
                 b.textContent = 'TARGET';
-            else if (t.phase === 'rail')
+            else if (['rail','kickStart'].includes(t.phase))
                 b.textContent = 'RAIL';
             else if (t.phase === 'ball')
-                b.textContent = 'BALL';
+                b.textContent = 'RAILS';
             else
                 b.textContent = mode.toUpperCase();
         }
@@ -3716,11 +3822,13 @@
         if (!isProjector && $('showBankKickNumbers')) $('showBankKickNumbers').checked=true;
         t.solution = null;
         t.ballId = null;
+        t.rails = [];
         t.railName = null;
         t.railU = null;
         t.autoAim = true;
         t.zero = null;
-        t.phase = 'zero';
+        t.routeVersion=2;
+        t.phase = mode==='kick'?'kickStart':'zero';
         toast((mode === 'bank' ? 'BANK' : 'KICK') + ': click destination pocket or target location');
         syncBankKickControls();
         draw();
@@ -4530,13 +4638,18 @@
         const rewind = penetration / (Math.sqrt(closing * closing + speed2 * penetration) - closing);
         return rewind <= maxTime + 1e-12 ? Math.min(maxTime, rewind) : 0;
     }
-    function simulate(makeFrames = false) {
-        const B = cloneBallsForPhysics();
+    function simulate(makeFrames = false, guide = null) {
+        let B = cloneBallsForPhysics();
+        if (guide) {
+            const selected = guide.mode === 'bank' ? guide.ballId : 0;
+            B = B.filter(b => guide.probe ? b.id === selected : (guide.mode !== 'bank' || b.id !== 0));
+            B = B.map(b => b.id === selected ? {...b,id:0} : b);
+        }
         const cb = B.find(b => b.id === 0);
         if (!cb)
             return { paths: {}, frames: [], firstEvent: '—', firstBallContact: null, pocketEvents:[],railEvents:[],finalBalls:[] };
-        const aimD = aimDirection(), d = strikeDirection();
-        const airborneMode = S.airbornePhysics === true;
+        const aimD = guide ? {x:Math.cos(guide.angle),y:Math.sin(guide.angle)} : aimDirection(), d = guide ? aimD : strikeDirection();
+        const airborneMode = !guide && S.airbornePhysics === true;
         if (airborneMode) {
             const theta = clamp(+S.cueElevationDeg || 0, 0, PHYSICS_MODEL.maxAirborneCueElevationDeg) * Math.PI / 180;
             const horizontalSpeed = S.speed * Math.cos(theta);
@@ -4552,8 +4665,10 @@
             const cueOmega = cueInitialAngularVelocity(aimD, S.speed, S.sideSpin, S.follow, S.cueElevationDeg);
             cb.wx = cueOmega.wx; cb.wy = cueOmega.wy; cb.wz = cueOmega.wz;
         }
+        if (guide && guide.mode === 'bank') { cb.wx = -cb.vy / S.ballR; cb.wy = cb.vx / S.ballR; cb.wz = 0; }
+        let guideClosest = null, guidePassed = false;
         const dt = 1 / 600, maxT = 20, maxSteps = Math.ceil(maxT / dt), g = APK.gravity, R = S.ballR;
-        const budget = S.showShotBudget ? window.BilliardsShotBudget.create(cb, R, g, shotBudgetFeelReference()) : null;
+        const budget = !guide && S.showShotBudget ? window.BilliardsShotBudget.create(cb, R, g, shotBudgetFeelReference()) : null;
         const paths = {};
         for (const b of B)
             paths[b.id] = [{ x: b.x, y: b.y, z: b.z, t: 0 }];
@@ -4942,6 +5057,16 @@
                         }
                     }
                 }
+            if (guide) {
+                const hits = railEvents.filter(e => e.id === 0);
+                if (hits.some((e,i) => e.rail !== guide.rails[i] + ' rail')) break;
+                if ((guide.probe || guide.stopAtTarget) && hits.length === guide.rails.length) {
+                    const distance = Math.hypot(cb.x-guide.target.x, cb.y-guide.target.y);
+                    if (!guideClosest || distance < guideClosest.distance) guideClosest = {distance,x:cb.x,y:cb.y,t};
+                    else if (distance > guideClosest.distance + .0005) guidePassed = true;
+                }
+                if ((guide.probe || guide.stopAtTarget) && (guidePassed || !cb.active)) { paths[0].push({x:cb.x,y:cb.y,z:cb.z,t}); break; }
+            }
             if (step % sampleEvery === 0) {
                 if (budget) for (const b of B) if (b.active) budget.record(b, 'travel', t);
                 for (const b of B)
@@ -4966,7 +5091,7 @@
             }
         }
         if (budget) for (const b of B) if (b.active) budget.record(b, 'end', simTime);
-        return { paths, frames, firstEvent, firstBallContact, pocketEvents, railEvents,
+        return { guideClosest, paths, frames, firstEvent, firstBallContact, pocketEvents, railEvents,
             budgetPaths: budget?.paths, budgetContacts: budget?.contacts, initialEnergy: budget?.initial, strokeFeel: budget?.strokeFeel,
             airborne: airborneMode ? {
                 maxCueHeight: Math.max(0, maxCueHeight - R), airborneDistance, bedBounceCount,
@@ -6789,7 +6914,7 @@
     function drawBankKickGuide(map) {
         var _a;
         const t = bankKickState();
-        if (!t.mode)
+        if (!t.mode || animation)
             return;
         const sol = computeBankKickSolution();
         t.solution = sol;
@@ -6815,6 +6940,22 @@
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
             ctx.fillText('ZERO / TARGET', z.x, z.y - 15);
+        }
+        if (t.rails?.length) {
+            const color=t.mode==='bank'?'#ffd34e':'#00e5ff';
+            t.rails.forEach((name,i)=>{
+                const rail=systemRailByName(name);if(!rail)return;
+                const a=map(systemRailPoint(rail,rail.min)),b=map(systemRailPoint(rail,rail.max));
+                ctx.strokeStyle=color;ctx.globalAlpha=.35;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.globalAlpha=1;
+                if(!sol){const label=map(systemRailPoint(rail,(rail.min+rail.max)/2));ctx.fillStyle=color;ctx.font='bold 12px Segoe UI';ctx.fillText('Rail '+(i+1),label.x+8,label.y+15*(i+1));}
+            });
+            if(sol?.multiRail){
+                const trace=(points,stroke,dash=[])=>{if(!points?.length)return;ctx.strokeStyle=stroke;ctx.lineWidth=2.4;ctx.setLineDash(dash);ctx.beginPath();points.forEach((p,i)=>{const q=map(p);if(i)ctx.lineTo(q.x,q.y);else ctx.moveTo(q.x,q.y);});ctx.stroke();ctx.setLineDash([]);};
+                trace(sol.points,color,t.mode==='kick'?[7,4]:[]);
+                trace(sol.objectPath,'#9aff91');
+                sol.bounces.forEach((p,i)=>{const q=map(p),n=dynamicRailNumber(t.zero,p.rail,p);ctx.fillStyle=color;ctx.beginPath();ctx.arc(q.x,q.y,4,0,Math.PI*2);ctx.fill();ctx.font='bold 12px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';const label=(i+1)+' · '+fmtRailNumber(n);ctx.strokeStyle='#132029';ctx.lineWidth=4;ctx.strokeText(label,q.x,q.y+(p.rail.name==='top'?18:-18));ctx.fillStyle='#fff';ctx.fillText(label,q.x,q.y+(p.rail.name==='top'?18:-18));});
+            }
+            ctx.restore();return;
         }
         // Show selected cushion-nose rail and exact snapped aim station, even before a ball is chosen.
         if (t.railName) {
@@ -8188,73 +8329,8 @@
             return;
         }
         const M = controlMap(), q = M.inv(p);
-        // Bank / kick teaching tools get first chance at pointer selection.
-        // Workflow for both modes: TARGET -> RAIL -> OBJECT BALL.
-        const bkt = bankKickState();
-        if (bkt.mode) {
-            if (bkt.phase === 'zero') {
-                const snap = nearestLogicalPocket(q, Math.max(S.ballR * 5, .11));
-                bkt.zero = snap ? { x: snap.x, y: snap.y } : { x: clamp(q.x, 0, S.tableL), y: clamp(q.y, 0, S.tableW) };
-                bkt.phase = 'rail';
-                toast((bkt.mode === 'bank' ? 'BANK' : 'KICK') + ': now click the exact rail aim point');
-                syncBankKickControls();
-                draw();
-                saveState();
-                return;
-            }
-            if (bkt.phase === 'rail') {
-                const rail = nearestRailToPoint(q, .24);
-                if (rail) {
-                    const sysRail = systemRailByName(rail.name);
-                    bkt.railName = rail.name;
-                    if (bkt.mode === 'bank') {
-                        // For a bank the rail click chooses the rail only. The object-ball
-                        // location will determine the exact numbered aim station automatically.
-                        bkt.railU = null;
-                        bkt.autoAim = true;
-                        bkt.phase = 'ball';
-                        toast('BANK: ' + rail.name + ' rail selected · click the object ball for the best line to 0');
-                    }
-                    else {
-                        // Kicks still allow deliberate selection of an exact numbered station.
-                        const rawU = sysRail.axis === 'h' ? q.x : q.y;
-                        bkt.railU = snapSystemRailU(sysRail, rawU);
-                        bkt.autoAim = false;
-                        bkt.phase = 'ball';
-                        const n = systemNumberFromZero(bkt.zero, sysRail, bkt.railU);
-                        toast('KICK: ' + rail.name + ' rail aim ' + n.toFixed(0) + ' · now click the object ball');
-                    }
-                    syncBankKickControls();
-                    draw();
-                    saveState();
-                    return;
-                }
-                toast(bkt.mode === 'bank' ? 'Click the rail you want the bank to use' : 'Click the exact numbered point on the rail you want to use');
-                return;
-            }
-            if (bkt.phase === 'ball') {
-                let best = null, bd = S.ballR * 2.0;
-                for (const b of S.balls) {
-                    if (b.id === 0 || b.active === false || b.marker)
-                        continue;
-                    const d = Math.hypot(q.x - b.x, q.y - b.y);
-                    if (d < bd) {
-                        bd = d;
-                        best = b;
-                    }
-                }
-                if (best) {
-                    bkt.ballId = best.id;
-                    bkt.phase = null;
-                    bkt.solution = computeBankKickSolution();
-                    toast(bkt.mode === 'bank' ? ('BANK: Ball ' + best.id + ' auto line to 0 calculated') : ('KICK: ' + bkt.railName + ' rail guide set for Ball ' + best.id));
-                    syncBankKickControls();
-                    draw();
-                    saveState();
-                    return;
-                }
-            }
-        }
+        // Route selections consume the tap so choosing a ball never starts a drag.
+        if (bankKickPick(q)) return;
         // Teaching compass gets first chance at pointer interaction.
         const tc = compassState();
         if (tc.enabled) {
@@ -11920,6 +11996,8 @@
         window.addEventListener('message', ev => { if (ev.data && ev.data.type === 'projectorReady')
             syncProjector(); });
         $('bankToolToggle').addEventListener('click', () => beginBankKick('bank'));
+        $('bankKickClose').onclick=clearBankKickTool;
+        $('bankKickUndoRail').onclick=()=>{const t=bankKickState();t.rails.pop();t.railName=t.rails[0]||null;t.ballId=null;t.solution=null;t.phase=t.rails.length?'ball':(t.zero?'rail':'kickStart');bankKickRouteCache={key:null,solution:null,pending:false,message:''};syncBankKickControls();draw();saveState();};
         $('kickToolToggle').addEventListener('click', () => beginBankKick('kick'));
         $('analyzePhotoBtn').addEventListener('click', openPhotoAnalyzer);
         $('photoAnalyzerClose').addEventListener('click', closePhotoAnalyzer);
