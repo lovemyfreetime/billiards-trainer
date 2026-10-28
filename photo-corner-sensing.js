@@ -12,7 +12,7 @@ function detect(img){
  const modes=Array.from(hist,(_,i)=>({h:i*10+5,count:hist[(i+35)%36]+hist[i]+hist[(i+1)%36]})).sort((a,b)=>b.count-a.count),chosen=[];
  const hd=(a,b)=>Math.min(Math.abs(a-b),360-Math.abs(a-b));for(const m of modes){if(m.count<n*.025)break;if(chosen.every(t=>hd(t.h,m.h)>20))chosen.push(m);if(chosen.length===3)break;}
  let best=null;
- for(const mode of chosen){const mask=new Uint8Array(n),seen=new Uint8Array(n);for(let i=0;i<n;i++)mask[i]=sats[i]>.20&&values[i]>.10&&hd(hues[i],mode.h)<25?1:0;
+ for(const minValue of [.10,.25,.40]){if(best)break;for(const mode of chosen){const mask=new Uint8Array(n),seen=new Uint8Array(n);for(let i=0;i<n;i++)mask[i]=sats[i]>.20&&values[i]>minValue&&hd(hues[i],mode.h)<25?1:0;
   for(let start=0;start<n;start++){if(!mask[start]||seen[start])continue;const q=[start];seen[start]=1;const boundary=[];
    for(let j=0;j<q.length;j++){const at=q[j],x=at%w,y=Math.floor(at/w);let edge=false;for(const [dx,dy]of [[1,0],[-1,0],[0,1],[0,-1]]){const xx=x+dx,yy=y+dy,k=yy*w+xx;if(xx<0||yy<0||xx>=w||yy>=h||!mask[k]){edge=true;continue;}if(!seen[k]){seen[k]=1;q.push(k);}}if(edge)boundary.push({x,y});}
    if(q.length<n*.09||boundary.length<80)continue;
@@ -31,9 +31,12 @@ function detect(img){
     let dark=0,count=0;for(let dy=-7;dy<=7;dy+=2)for(let dx=-7;dx<=7;dx+=2){const i=sample(a.x+dx,a.y+dy);if(i!=null){count++;if(values[i]<.22)dark++;}}if(dark/Math.max(1,count)>.16)pockets++;
    }
    const railSupport=rail/Math.max(1,samples);if(railSupport<.42)continue;
+   if(minValue>.10&&(pockets<2||railSupport<.65))continue;
+   if(minValue>.10&&mode.h>20&&mode.h<70&&pockets<2)continue;
    const confidence=Math.min(.96,.4+railSupport*.25+(q.length/A)*.16+pockets*.035),score=A*confidence;
    if(!best||score>best.score){let first=0;for(let i=1;i<4;i++)if(corners[i].x+corners[i].y<corners[first].x+corners[first].y)first=i;corners=[...corners.slice(first),...corners.slice(0,first)].map(p=>({x:p.x/scale,y:p.y/scale}));best={corners,confidence,railSupport,pocketSupport:pockets,score};}
   }
+ }
  }
  return best;
 }
