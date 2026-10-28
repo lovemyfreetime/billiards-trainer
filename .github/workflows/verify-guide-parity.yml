@@ -38,6 +38,8 @@ jobs:
           node tests/layout-sharing.test.cjs
           node tests/photo-lighting.test.cjs
           node tests/photo-ball-evidence.test.cjs
+          node tests/photo-ball-identity.test.cjs
+          node tests/photo-detection-dedupe.test.cjs
           node tests/photo-corner-sensing.test.cjs
           node tests/trainer-sharing-controls.browser.cjs
           node tests/trainer-view-refinements.browser.cjs

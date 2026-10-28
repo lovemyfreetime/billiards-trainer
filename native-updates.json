@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "6edc70f597861429ffe5211376df8e36f051dbb20bd60dbdbf64c47152a13bcb",
-  "sequence": 1793211643,
+  "version": "49a92055c557cd9ec927a54de6781187d58b8a38db66d0cf8d7df0b0fcae1e18",
+  "sequence": 1793228251,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3701,8 +3701,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "e1d50c265234f3889f8a12f1467999eab8e05eb7cb6bbc23c203c12333639cc4",
-      "length": 873261
+      "sha256": "cf1dbc06d531eb7d64c21d08f5d5b9b0fad73a79f4657bbb6b329be5bd53dad7",
+      "length": 875614
     },
     "install/android/index.html": {
       "sha256": "862dff4245e200376ff30ee6763f007bb510a3c0cdf0634f8ef3d0d2c25630ff",
@@ -3801,8 +3801,8 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "b438029447171e6d812b3b62b85648b3749b16f4374cdfed04b16b25ea7c1729",
-      "length": 144189
+      "sha256": "6647420be55bbe604e05ee48a31346276a83f6918fd8566e4f9bae1453d374f6",
+      "length": 144391
     },
     "phone-play.css": {
       "sha256": "cec5017ee25f788690420d4e67241754a1fbb2c047779ad0e7e59d87f7eac720",
@@ -3819,6 +3819,14 @@
     "photo-ball-evidence.js": {
       "sha256": "0ec117717f5a080479ca33a4c1c7406d09a5f82fbe910aa4eee763e4b214acae",
       "length": 2327
+    },
+    "photo-ball-identity-model.js": {
+      "sha256": "8da789d19caac45072ca19520d6380a09b2eeb74e3ca20c15103b29fa0301bcb",
+      "length": 306931
+    },
+    "photo-ball-identity.js": {
+      "sha256": "8e049c9804d4e2f0598702c5a4884d5acb067541a38a219a706779b94bd88a23",
+      "length": 9736
     },
     "photo-calibration.css": {
       "sha256": "f3899711304737cc90ccc2204926c22534b17da755daaf8ca8e3ffae922d66f0",
@@ -4893,7 +4901,7 @@
       "length": 1895
     },
     "service-worker.js": {
-      "sha256": "9c365e1b2972fac3fe0360bc367967502665f5382245796e2fcd710f222b00a4",
+      "sha256": "986c0bf3d4cbed2ca418f957aa151ec796ec39c785ff68708ff73a7bf571479c",
       "length": 7739
     },
     "tournament-engine.js": {
