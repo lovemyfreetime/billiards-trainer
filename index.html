@@ -3730,31 +3730,48 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const seed=(t.mode==='bank'?Math.atan2(bankGhost.y-cb.y,bankGhost.x-cb.x):geometric)-squirt;
             const center=Math.atan2(ball.y-cb.y,ball.x-cb.x)-squirt;
             const half=Math.asin(Math.min(.99,2*S.ballR/Math.max(2*S.ballR,Math.hypot(ball.x-cb.x,ball.y-cb.y))));
-            const samples=[];
-            const evaluate=function*(angle){const assessed=assessBankKickShot(t,yield* runBankKickShot(t,angle,true),angle);if(!assessed||!Number.isFinite(assessed.distance))return null;const candidate={angle,score:assessed.score,reached:assessed.reached,distance:assessed.distance};samples.push(candidate);return candidate;};
+            const samples=[],evaluated=new Map();
+            const evaluate=function*(angle){
+                if(evaluated.has(angle))return evaluated.get(angle);
+                const assessed=assessBankKickShot(t,yield* runBankKickShot(t,angle,true),angle);
+                if(!assessed||!Number.isFinite(assessed.distance)){evaluated.set(angle,null);return null;}
+                const candidate={angle,score:assessed.score,reached:assessed.reached,distance:assessed.distance};
+                evaluated.set(angle,candidate);samples.push(candidate);return candidate;
+            };
             const width=t.mode==='bank'?half*1.12+.004:.12;
             const scanCenter=t.mode==='bank'?center:seed;
-            if(Number.isFinite(t.searchHint)){
-                for(let i=-10;i<=10;i++){yield* evaluate(t.searchHint+i*.002);if(i%4===0)yield;}
-            }else{
-                for(let i=0;i<=72;i++){yield* evaluate(scanCenter-width+2*width*i/72);if(i%4===3)yield;}
-                for(let i=-10;i<=10;i++){yield* evaluate(seed+i*(t.mode==='bank'?half/100:.001));if(i%4===0)yield;}
-            }
-            samples.sort((a,b)=>a.score-b.score);
-            for(const initial of samples.slice(0,Number.isFinite(t.searchHint)?1:3)){
-                let angle=initial.angle,step=Number.isFinite(t.searchHint)?.004:2*width/72;
-                for(let iteration=0;iteration<15;iteration++){
-                    let local={angle,score:Infinity};
-                    for(const candidateAngle of [angle-step,angle,angle+step]){const candidate=yield* evaluate(candidateAngle);if(candidate&&candidate.score<local.score)local=candidate;}
-                    angle=local.angle;step*=.5;yield;
+            // Try the direct geometric seed first for a single rail, but never
+            // accept it without the same complete physics and scratch checks.
+            if(t.rails.length===1){
+                const direct=yield* evaluate(Number.isFinite(t.searchHint)?t.searchHint:seed);
+                if(direct?.reached){
+                    const actual=assessBankKickShot(t,yield* runBankKickShot(t,direct.angle),direct.angle);
+                    if(actual?.reached&&!actual.scratch)best=actual;
                 }
             }
-            samples.sort((a,b)=>a.score-b.score);
-            // Final acceptance always reruns the complete, unshortened simulator.
-            for(const candidate of samples.filter(candidate=>candidate.reached).slice(0,5)){
-                const actual=assessBankKickShot(t,yield* runBankKickShot(t,candidate.angle),candidate.angle);yield;
-                if(actual?.reached&&(!best||actual.score<best.score))best=actual;
-                if(best&&!best.scratch)break;
+            if(!best){
+                if(Number.isFinite(t.searchHint)){
+                    for(let i=-10;i<=10;i++){yield* evaluate(t.searchHint+i*.002);if(i%4===0)yield;}
+                }else{
+                    for(let i=0;i<=72;i++){yield* evaluate(scanCenter-width+2*width*i/72);if(i%4===3)yield;}
+                    for(let i=-10;i<=10;i++){yield* evaluate(seed+i*(t.mode==='bank'?half/100:.001));if(i%4===0)yield;}
+                }
+                samples.sort((a,b)=>a.score-b.score);
+                for(const initial of samples.slice(0,Number.isFinite(t.searchHint)?1:3)){
+                    let angle=initial.angle,step=Number.isFinite(t.searchHint)?.004:2*width/72;
+                    for(let iteration=0;iteration<15;iteration++){
+                        let local={angle,score:Infinity};
+                        for(const candidateAngle of [angle-step,angle,angle+step]){const candidate=yield* evaluate(candidateAngle);if(candidate&&candidate.score<local.score)local=candidate;}
+                        angle=local.angle;step*=.5;yield;
+                    }
+                }
+                samples.sort((a,b)=>a.score-b.score);
+                // Final acceptance always reruns the complete, unshortened simulator.
+                for(const candidate of samples.filter(candidate=>candidate.reached).slice(0,5)){
+                    const actual=assessBankKickShot(t,yield* runBankKickShot(t,candidate.angle),candidate.angle);yield;
+                    if(actual?.reached&&(!best||actual.score<best.score))best=actual;
+                    if(best&&!best.scratch)break;
+                }
             }
         }
         if(!best)return {message:'No complete cue-ball shot was verified for this rail order at the current speed and spin. Try another rail order, ball position, or shot settings.'};
@@ -3796,7 +3813,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             while(true){
                 if(stopped()){const error=new Error('Bank search cancelled or timed out');error.code='BANK_KICK_TIMEOUT';throw error;}
                 const live=S,sliceStart=performance.now();let step;
-                try{S=searchState;step=search.next();searchState=S;}finally{S=live;diagnostics.slices++;diagnostics.maxSliceMs=Math.max(diagnostics.maxSliceMs,performance.now()-sliceStart);}
+                // Batch cooperative checkpoints into a short work slice. A timer at
+                // every checkpoint adds thousands of browser timer delays.
+                try{S=searchState;do{step=search.next();}while(!step.done&&performance.now()-sliceStart<8);searchState=S;}finally{S=live;diagnostics.slices++;diagnostics.maxSliceMs=Math.max(diagnostics.maxSliceMs,performance.now()-sliceStart);}
                 if(step.done)return step.value;
                 // Always restore live state before yielding so controls keep working.
                 await new Promise(resolve=>setTimeout(resolve,0));
