@@ -11,3 +11,11 @@ state={mode:'kick',phase:'kickStart',rails:[],zero:null,ballId:null};tap({x:0,y:
 state={mode:'kick',phase:'kickStart',rails:[],zero:null,ballId:null};tap({x:0,y:0,pocket:true});assert.equal(state.phase,'rail');tap({x:0,y:0,rail:'bottom'});tap({x:0,y:0,rail:'bottom'});assert.equal(state.rails.length,1);for(const rail of ['right','top','left','bottom'])tap({x:0,y:0,rail});assert.equal(state.rails.length,4);tap({x:1.3,y:.65});assert.equal(state.phase,null);
 assert.equal(tap({x:1,y:.5}),false,'Completed tool releases ordinary table gestures');
 console.log('Ordered Bank/Kick selection: 1–4 rails, both Kick orders, ball completion, repeated-rail prevention and four-rail limit passed.');
+
+ctx.S.balls.unshift({id:0,x:.4,y:.4,active:true});
+for(const phase of ['ball','calculateBall']){
+ state={mode:'kick',phase,rails:['bottom'],zero:{x:1,y:.5},ballId:null,pendingCalculate:phase==='calculateBall'};
+ tap({x:.4,y:.4});assert.equal(state.ballId,0);assert.equal(state.phase,null);assert.equal(!!state.requested,phase==='calculateBall');
+}
+state={mode:'bank',phase:'ball',rails:['bottom'],zero:{x:1,y:.5},ballId:null};tap({x:.4,y:.4});assert.equal(state.ballId,null,'Bank still requires an object ball');
+console.log('Kick accepts the cue ball for a location route, including Calculate-then-select; Bank retains object-ball selection.');

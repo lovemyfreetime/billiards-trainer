@@ -2670,7 +2670,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if(kind==='table'||kind==='grid'){const a=M.map({x:0,y:0}),b=M.map({x:S.tableL,y:S.tableW});return [{x:c.left+a.x*sx,y:c.top+a.y*sy,width:b.x*sx-a.x*sx,height:b.y*sy-a.y*sy}];}
             return [];
         }
-        return {capture,restore,apply,loadLesson,narrationRegions,snapshot,feltBounds(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR);return {left:c.left-s.left+m.corners[0].x*sx,top:c.top-s.top+m.corners[0].y*sy,right:c.left-s.left+m.corners[1].x*sx,width:(m.corners[1].x-m.corners[0].x)*sx,height:(m.corners[2].y-m.corners[0].y)*sy};},exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},flightProfileBounds(){const which=S.activeShot===2&&S.shot2Enabled?2:1,preview=which===2?S.shot2?.preview:S.preview;if(document.body.classList.contains('phone-layout')||!shouldShowFlightOverlay(preview,which))return null;const r=canvas.getBoundingClientRect(),w=canvas.width/DPR;return {left:r.left+6,right:r.left+6+flightSideProfileWidth(w,false),bottom:r.top+140};},rollingReference(which=1){return rollingReferenceForShot(which);},predict(){const p=simulate(false);return {pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact,railEvents:p.railEvents,pocketEvents:p.pocketEvents};}};
+        return {capture,restore,apply,loadLesson,narrationRegions,snapshot,feltBounds(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR);return {left:c.left-s.left+m.corners[0].x*sx,top:c.top-s.top+m.corners[0].y*sy,right:c.left-s.left+m.corners[1].x*sx,width:(m.corners[1].x-m.corners[0].x)*sx,height:(m.corners[2].y-m.corners[0].y)*sy};},exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},flightProfileBounds(){const which=S.activeShot===2&&S.shot2Enabled?2:1,preview=which===2?S.shot2?.preview:S.preview;if(document.body.classList.contains('phone-layout')||!shouldShowFlightOverlay(preview,which))return null;const r=canvas.getBoundingClientRect(),w=canvas.width/DPR;return {left:r.left+6,right:r.left+6+flightSideProfileWidth(w,false),bottom:r.top+140};},rollingReference(which=1){return rollingReferenceForShot(which);},predict(options={}){const p=simulate(false);return {...(options.paths?{paths:p.paths}:{}),pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact,railEvents:p.railEvents,pocketEvents:p.pocketEvents};}};
     })();
 
     function freshZenTable(){
@@ -3676,16 +3676,17 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         finally{S=original;}
     }
     function assessBankKickShot(t,preview,angle) {
-        if(!preview||preview.firstBallContact?.objId!==t.ballId)return null;
+        const locationKick=t.mode==='kick'&&t.ballId===0;
+        if(!preview||(locationKick?!!preview.firstBallContact:preview.firstBallContact?.objId!==t.ballId))return null;
         const contact=preview.firstBallContact,carrier=t.mode==='bank'?t.ballId:0;
         if(t.mode==='bank'&&preview.railEvents.some(e=>e.id===0&&e.t<contact.t))return null;
-        const allHits=preview.railEvents.filter(e=>e.id===carrier&&(t.mode!=='kick'||e.t<=contact.t));
+        const allHits=preview.railEvents.filter(e=>e.id===carrier&&(t.mode!=='kick'||e.t<=(contact?.t??Infinity)));
         if(allHits.length<t.rails.length||!t.rails.every((r,i)=>allHits[i].rail===r+' rail'))return null;
-        const targetPocket=nearestLogicalPocket(t.zero,.02);
+        const targetPocket=locationKick?null:nearestLogicalPocket(t.zero,.02);
         const pocket=preview.pocketEvents.find(e=>e.id===t.ballId&&Math.hypot(e.x-t.zero.x,e.y-t.zero.y)<.16);
-        const fromTime=t.mode==='bank'?allHits[t.rails.length-1].t:contact.t;
-        const until=t.mode==='bank'?(allHits[t.rails.length]?.t??Infinity):Infinity;
-        let distance=preview.searchClosest?.distance??Infinity,closestTime=preview.searchClosest?.t??Infinity;
+        const fromTime=t.mode==='bank'||locationKick?allHits[t.rails.length-1].t:contact.t;
+        const until=t.mode==='bank'||locationKick?(allHits[t.rails.length]?.t??Infinity):Infinity;
+        let distance=preview.searchClosest?.distance??Infinity,closestTime=preview.searchClosest?.t??Infinity,closestPoint=preview.searchClosest?{x:preview.searchClosest.x,y:preview.searchClosest.y,t:preview.searchClosest.t}:null;
         if(!Number.isFinite(distance)){
             const path=preview.paths[t.ballId]||[];
             for(let i=1;i<path.length;i++){
@@ -3694,25 +3695,26 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 const lo=span>0?clamp((fromTime-a.t)/span,0,1):0,hi=span>0?clamp((until-a.t)/span,0,1):1;
                 const u=clamp(((t.zero.x-a.x)*dx+(t.zero.y-a.y)*dy)/(dx*dx+dy*dy||1),lo,hi);
                 const d=Math.hypot(a.x+dx*u-t.zero.x,a.y+dy*u-t.zero.y);
-                if(d<distance){distance=d;closestTime=a.t+span*u;}
+                if(d<distance){distance=d;closestTime=a.t+span*u;closestPoint={x:a.x+dx*u,y:a.y+dy*u,t:closestTime};}
             }
         }
-        const end=t.mode==='kick'?contact.t:(targetPocket?(pocket?.t??closestTime):closestTime);
+        const end=t.mode==='kick'&&!locationKick?contact.t:(targetPocket?(pocket?.t??closestTime):closestTime);
         const hits=allHits.filter(e=>e.t<=end);
         const reached=hits.length===t.rails.length&&(targetPocket?!!pocket:distance<S.ballR*.35);
         const scratch=preview.pocketEvents.some(e=>e.id===0);
-        return {angle,distance,reached,scratch,end:targetPocket?(pocket?.t??Infinity):closestTime,score:reached?-1+distance+(scratch ? .25 : 0):distance,hits:hits.slice(0,t.rails.length),preview};
+        return {angle,distance,reached,scratch,closestPoint,end:targetPocket?(pocket?.t??Infinity):closestTime,score:reached?-1+distance+(scratch ? .25 : 0):distance,hits:hits.slice(0,t.rails.length),preview};
     }
     function* calculateBankKickRouteAtCurrentSpeed(t) {
         const ball=S.balls.find(b=>b.id===t.ballId&&b.active!==false&&!b.marker),second=S.activeShot===2&&S.shot2Enabled,shot=second?ensureShot2():S,cb=second?shot:cueBall();
-        if(!ball||!cb||!t.zero)return {message:'Choose an active cue ball, object ball and destination.'};
+        const locationKick=t.mode==='kick'&&t.ballId===0;
+        if(!ball||!cb||!t.zero)return {message:'Choose an active cue ball, destination, and object ball or cue ball for a location kick.'};
         const currentAngle=Math.atan2(shot.freeAim.y-cb.y,shot.freeAim.x-cb.x);
         let best=null;
         if(!best){
             const toPocket=norm({x:t.zero.x-ball.x,y:t.zero.y-ball.y});
             const ghost={x:ball.x-2*S.ballR*toPocket.x,y:ball.y-2*S.ballR*toPocket.y};
             const rails=t.rails.map(railByName);if(rails.some(r=>!r))return {message:'Choose valid cushions in travel order.'};
-            const geometric=window.BilliardsBankKickRouting.seedAngle(t.mode==='bank'?ball:cb,t.mode==='bank'?t.zero:ghost,rails);
+            const geometric=window.BilliardsBankKickRouting.seedAngle(t.mode==='bank'?ball:cb,t.mode==='bank'||locationKick?t.zero:ghost,rails);
             const bankGhost={x:ball.x-2*S.ballR*Math.cos(geometric),y:ball.y-2*S.ballR*Math.sin(geometric)};
             const squirt=cueSquirtAngleFor(shot.sideSpin,shot.follow,S.cueEndmassRatio);
             const seed=(t.mode==='bank'?Math.atan2(bankGhost.y-cb.y,bankGhost.x-cb.x):geometric)-squirt;
@@ -3747,14 +3749,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         }
         if(!best)return {message:'No complete cue-ball shot was verified for this rail order at the current speed and spin. Try another rail order, ball position, or shot settings.'};
         const preview=best.preview,contact=preview.firstBallContact,objectPath=(preview.paths[t.ballId]||[]).filter(p=>p.t<=best.end);
-        const cuePath=(preview.paths[0]||[]).filter(p=>p.t<=contact.t);cuePath.push(contact.cuePos);
+        const cuePath=(preview.paths[0]||[]).filter(p=>p.t<=(locationKick?best.end:contact.t));cuePath.push(locationKick?best.closestPoint:contact.cuePos);
         const aim={x:cb.x+Math.cos(best.angle)*S.tableL,y:cb.y+Math.sin(best.angle)*S.tableL};
         const setupNeeded=Math.abs(Math.atan2(Math.sin(best.angle-currentAngle),Math.cos(best.angle-currentAngle)))>1e-6||shot.angleLock;
-        return {solution:{mode:t.mode,multiRail:true,fullShot:true,source:t.mode==='bank'?{x:ball.x,y:ball.y}:{x:cb.x,y:cb.y},target:t.zero,destination:t.zero,ballId:ball.id,
-            points:t.mode==='bank'?objectPath:cuePath,cuePath:t.mode==='bank'?cuePath:null,objectPath:t.mode==='kick'?objectPath:null,
+        return {solution:{mode:t.mode,locationKick,multiRail:true,fullShot:true,source:t.mode==='bank'?{x:ball.x,y:ball.y}:{x:cb.x,y:cb.y},target:t.zero,destination:t.zero,ballId:ball.id,
+            points:t.mode==='bank'?objectPath:cuePath,cuePath:t.mode==='bank'?cuePath:null,objectPath:t.mode==='kick'&&!locationKick?objectPath:null,
             bounces:best.hits.map(e=>({x:e.x,y:e.y,rail:railByName(e.rail.replace(' rail',''))})),reached:true,angle:best.angle,aim,shotSpeed:shot.speed,shotFollow:shot.follow,shotSide:shot.sideSpin,setupNeeded,
             scratch:best.scratch,verifiedPocket:preview.pocketEvents.find(e=>e.id===t.ballId&&Math.hypot(e.x-t.zero.x,e.y-t.zero.y)<.16)||null},
-            message:(best.scratch?'Object ball pockets, but the cue ball scratches. ':'')+(setupNeeded?'Complete cue-ball shot verified, including the object-ball collision. Tap Use shot setup to apply the aim and speed.':'Current cue-ball shot verified through the selected rails to the destination.')};
+            message:(best.scratch?'Object ball pockets, but the cue ball scratches. ':'')+(setupNeeded?(locationKick?'Cue-ball route to the selected location verified. Tap Use setup to apply.':'Complete cue-ball shot verified, including the object-ball collision. Tap Use shot setup to apply the aim and speed.'):'Current cue-ball shot verified through the selected rails to the destination.')};
     }
     function bankKickShotCandidates(railCount) {
         const maxSpeed=railCount>=3?6:5;
@@ -3881,7 +3883,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const t=bankKickState();if(!t.mode||!t.phase)return false;
         const rail=nearestRailToPoint(q,.24),pocket=nearestLogicalPocket(q,Math.max(S.ballR*5,.11));
         function addRail(){
-            if(!rail){toast('Tap a cushion, or select the object ball after choosing rails.');return;}
+            if(!rail){toast(t.mode==='kick'?'Tap a cushion, an object ball, or the cue ball for a route to your target location.':'Tap a cushion, or select the object ball after choosing rails.');return;}
             if(t.rails.length>=4){toast('Up to four rails. Use Undo rail to change the route.');return;}
             if(t.rails.at(-1)===rail.name){toast('Choose a different cushion for the next contact.');return;}
             invalidateBankKickRoute();t.rails.push(rail.name);t.railName=t.rails[0];t.railU=null;t.phase='ball';
@@ -3897,7 +3899,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         }else if(t.phase==='rail'){addRail();}
         else if(t.phase==='ball'||t.phase==='calculateBall'){
             let best=null,distance=S.ballR*2;
-            for(const ball of S.balls){if(ball.id===0||ball.marker||ball.active===false)continue;const d=Math.hypot(q.x-ball.x,q.y-ball.y);if(d<distance){best=ball;distance=d;}}
+            for(const ball of S.balls){if((ball.id===0&&t.mode!=='kick')||ball.marker||ball.active===false)continue;const position=ball.id===0&&S.activeShot===2&&S.shot2Enabled?ensureShot2():ball;const d=Math.hypot(q.x-position.x,q.y-position.y);if(d<distance){best=ball;distance=d;}}
             if(best){const calculate=t.pendingCalculate;invalidateBankKickRoute();t.ballId=best.id;t.phase=t.zero?null:'zeroEnd';if(calculate)requestBankKickCalculation();}
             else addRail();
         }
@@ -4006,9 +4008,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const target=$('bankKickTarget');target.classList.toggle('selected',!!t.zero);target.classList.toggle('next',!t.zero||['zero','zeroEnd'].includes(t.phase));
             document.querySelectorAll('[data-bank-rail]').forEach(button=>{const i=Number(button.dataset.bankRail),selected=!!t.rails[i];button.disabled=!t.zero||i>t.rails.length;button.classList.toggle('selected',selected);button.classList.toggle('next',!!t.zero&&!t.requested&&(t.phase==='editRail'?i===t.editRailIndex:i===t.rails.length));button.setAttribute('aria-pressed',String(selected));button.title=selected?'Replace rail '+(i+1)+' ('+t.rails[i]+')':'Choose rail '+(i+1);});
             const calculate=$('bankKickCalculate');calculate.disabled=!t.zero||!t.rails.length;
-            calculate.classList.toggle('ready',!!t.zero&&!!t.rails.length&&!bankKickRouteCache.pending&&!t.solution);calculate.classList.toggle('selected',!!t.solution);calculate.setAttribute('aria-busy',String(bankKickRouteCache.pending));calculate.textContent=bankKickRouteCache.pending?'Cancel':t.phase==='calculateBall'?'Tap ball':'Calculate';
+            calculate.classList.toggle('ready',!!t.zero&&!!t.rails.length&&!bankKickRouteCache.pending&&!t.solution);calculate.classList.toggle('selected',!!t.solution);calculate.setAttribute('aria-busy',String(bankKickRouteCache.pending));calculate.title=t.mode==='kick'?'Select rails, then tap an object ball for contact or the cue ball to reach the target location.':'Select rails and the object ball to bank.';calculate.textContent=bankKickRouteCache.pending?'Cancel':t.phase==='calculateBall'?'Tap ball':'Calculate';
             const setup=t.requested&&!t.phase?bankKickRouteCache.solution:null;
-            $('bankKickRouteStatus').textContent=bankKickRouteCache.pending?'Calculating…':!setup?bankKickRouteCache.message:setup?.scratch?'Cue ball scratches':setup?.pocketReserveDiamonds!=null?(setup.pocketReserveDiamonds<=1.1?'Pocket pace · ':'Firmer route · ')+setup.pocketReserveDiamonds.toFixed(1)+' ♦ reserve':'';
+            $('bankKickRouteStatus').textContent=bankKickRouteCache.pending?'Calculating…':!setup?bankKickRouteCache.message:setup?.scratch?'Cue ball scratches':setup?.locationKick?'Cue ball → target location':setup?.pocketReserveDiamonds!=null?(setup.pocketReserveDiamonds<=1.1?'Pocket pace · ':'Firmer route · ')+setup.pocketReserveDiamonds.toFixed(1)+' ♦ reserve':'';
             if(setup&&!Number.isFinite(setup.shotDiamonds))setup.shotDiamonds=powerFeelForSpeed(setup.shotSpeed).diamonds;
             $('bankKickSpeedValue').textContent=setup?setup.shotSpeed.toFixed(2)+' m/s':'—';
             $('bankKickSpeedDiamonds').textContent=Number.isFinite(setup?.shotDiamonds)?setup.shotDiamonds.toFixed(1)+' ♦':'';
@@ -5284,7 +5286,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 const hits=railEvents.filter(e=>e.id===carrier&&e.t<=before);
                 if(hits.some((e,i)=>e.rail!==search.rails[i]+' rail'))break;
                 if(search.mode==='bank'&&railEvents.some(e=>e.id===0&&(!firstBallContact||e.t<firstBallContact.t)))break;
-                if(firstBallContact&&hits.length===search.rails.length){
+                if((firstBallContact||(search.mode==='kick'&&search.ballId===0))&&hits.length===search.rails.length){
                     const object=B.find(b=>b.id===search.ballId);
                     const distance=Math.hypot(object.x-search.target.x,object.y-search.target.y);
                     if(!searchClosest||distance<searchClosest.distance)searchClosest={distance,t,x:object.x,y:object.y};
