@@ -11,6 +11,7 @@ on:
       - 'scripts/build-native-updates.py'
       - 'tests/app-updates.browser.cjs'
       - 'tests/native-content-updates.browser.cjs'
+      - 'tests/display-startup.browser.cjs'
       - 'tests/webview-assets/**'
       - 'tests/trainer-3d*.browser.cjs'
       - 'scripts/package-android-app.py'
