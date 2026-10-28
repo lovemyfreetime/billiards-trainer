@@ -29,9 +29,11 @@ A development photograph that originally had 10 correct of 16 balls now has all 
 
 On this host, inference remained approximately 6.5–12 seconds per image, depending on content. These are desktop measurements, not physical-phone performance guarantees. Broad 90% recognition across arbitrary photographs has not been established.
 
-## Automatic corners: deliberately not released
+## Automatic corners and manual starting points
 
-Private experiments examined exterior-only contour fitting, bounded line-supported extrapolation, and inward gradient refinement. Some table outlines were recovered, but several fits still followed cushion/outer cloth boundaries rather than the playing-surface nose. An apparent acceptance increase therefore was not a validated calibration improvement. The production corner detector is unchanged.
+Corner Sensing now offers an approximate four-marker cloth outline when a plausible bounded region is available but the stricter rail/pocket checks fail. The user can drag just the misplaced markers. Approximate results have no confidence claim, never start ball analysis automatically, and do not change the strict detector API. If no usable outline exists, existing manual markers and refinements are preserved. This is a manual calibration aid, not verified inner-cushion calibration.
+
+Private experiments examined exterior-only contour fitting, bounded line-supported extrapolation, and inward gradient refinement. Some table outlines were recovered, but several fits still followed cushion/outer cloth boundaries rather than the playing-surface nose. An apparent acceptance increase therefore was not a validated calibration improvement. Those experimental calibration replacements remain withheld; strict automatic detection is unchanged by the manual-suggestion option.
 
 Reliable inner-edge labels across varied perspectives and a stronger segmentation/line model are still needed. Partial views must not be assigned fabricated full-table corners. Ball-image-center projection above the cloth also remains an uncalibrated source of positional error; this release does not claim a correction.
 

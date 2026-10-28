@@ -55,3 +55,11 @@ sandbox.pvSetCalibrationVisible(true);assert.equal($('photoCalibrationPanel').hi
 state.orientation='auto';state.regionEnd='full';sandbox.pvResetDetectionsAndCorners();
 for(const p of [{x:100,y:100},{x:450,y:100},{x:450,y:900},{x:100,y:900}])sandbox.pvHandlePhotoTap(p);
 assert.deepEqual(JSON.parse(JSON.stringify(state.corners[0])),{x:450,y:100});assert.equal(sandbox.pvImageOrientation(),'top');
+
+// An unsuccessful suggestion must preserve the user's current calibration work.
+sandbox.window.BilliardsCornerSensing={suggest:()=>null};
+state.refinements=[{image:{x:200,y:150},id:'top-1'}];state.refining=true;state.pendingDiamond='top-2';state.calibrationCache={manual:true};
+const manualWork=JSON.stringify({corners:state.corners,refinements:state.refinements,refining:state.refining,pendingDiamond:state.pendingDiamond,calibrationCache:state.calibrationCache});
+vm.runInContext(source('pvAutoFindRailCorners'),sandbox);assert.equal(sandbox.pvAutoFindRailCorners(),false);
+assert.equal(JSON.stringify({corners:state.corners,refinements:state.refinements,refining:state.refining,pendingDiamond:state.pendingDiamond,calibrationCache:state.calibrationCache}),manualWork);
+console.log('A failed corner suggestion preserves manual markers, diamond refinements and calibration state.');

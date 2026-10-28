@@ -1879,7 +1879,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         <button id="photoFindCorners" type="button">Find / Add Corners</button>
         <button id="photoResetCorners" type="button">Reset Corners</button>
         <button id="photoFineTune" type="button" aria-expanded="false" aria-controls="photoCalibrationPanel" title="Open Custom Table Layouts">Custom Table Layouts</button>
-        <button id="photoAutoRailsBtn" type="button">Corner Sensing</button>
+        <button id="photoAutoRailsBtn" type="button" title="Estimate four corners, then drag any misplaced marker to correct it.">Corner Sensing</button>
         <select id="photoRackType" aria-label="Rack type" title="Rack type">
           <option value="auto">Rack: Auto</option><option value="9ball">9-Ball</option><option value="10ball">10-Ball</option><option value="8ball">8-Ball</option><option value="custom">Custom</option>
         </select>
@@ -11049,16 +11049,18 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const canvas=photoVision.analysisCanvas,ctx=photoVision.analysisCtx,w=canvas.width,h=canvas.height;
         if(!w||!h)return false;
         const img=ctx.getImageData(0,0,w,h),d=img.data;
-        const sensed=window.BilliardsCornerSensing?.detect(img);
+        const sensing=window.BilliardsCornerSensing;
+        const sensed=sensing?.suggest?sensing.suggest(img):sensing?.detect(img);
         if(sensed){
             let corners=sensed.corners;
             corners=photoVision.orientation&&photoVision.orientation!=='auto'?photoCal.cornersForHead(corners,photoVision.orientation):photoCal.orderDetectedCorners(corners);
-            photoVision.cornerSensingEvidence={confidence:sensed.confidence,railSupport:sensed.railSupport,pocketSupport:sensed.pocketSupport};
+            photoVision.refinements=[];photoVision.refining=false;photoVision.pendingDiamond=null;photoVision.calibrationCache=null;
+            photoVision.cornerSensingEvidence={approximate:!!sensed.approximate,confidence:sensed.confidence,railSupport:sensed.railSupport,pocketSupport:sensed.pocketSupport};
             photoVision.autoRailRawCorners=corners.map(p=>({x:p.x,y:p.y}));photoVision.corners=pvInsetQuad(corners,photoVision.railInset||0);photoVision.detections=[];
             renderPhotoDetectionList();renderPhotoAnalyzer();$('photoAnalyzeNow').disabled=false;$('photoAddMissed').disabled=false;
-            pvStatus('Corner Sensing fitted the cloth boundary using rail contrast and pocket evidence. Check the four markers before analyzing.');return true;
+            pvStatus(sensed.approximate?'Suggested four corners. Drag any misplaced marker to the inside cushion edge before analyzing.':'Four corners estimated. Check the inside cushion edges and drag any misplaced marker before analyzing.');return true;
         }
-        if(window.BilliardsCornerSensing){photoVision.cornerSensingEvidence=null;pvStatus('Corner Sensing could not fit a reliable full table. Keep or adjust the four manual markers.');return false;}
+        if(sensing){pvStatus('No usable table outline found. Use Find / Add Corners, or keep adjusting your existing markers.');return false;}
         const rs=[],gs=[],bs=[];
         for(let gy=3;gy<=7;gy++)for(let gx=3;gx<=7;gx++){
             const x=Math.round(w*gx/10),y=Math.round(h*gy/10),i=(y*w+x)*4;
@@ -11097,6 +11099,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const area=Math.abs(corners.reduce((s,p,i)=>{const q=corners[(i+1)%4];return s+p.x*q.y-q.x*p.y;},0))/2;
         if(area<w*h*.25){pvStatus('Corner Sensing found an implausibly small table. Use manual crosshairs for this image.');return false;}
         corners=photoVision.orientation&&photoVision.orientation!=='auto'?photoCal.cornersForHead(corners,photoVision.orientation):photoCal.orderDetectedCorners(corners);
+        photoVision.refinements=[];photoVision.refining=false;photoVision.pendingDiamond=null;photoVision.calibrationCache=null;
         photoVision.autoRailRawCorners=corners.map(p=>({x:p.x,y:p.y}));
         photoVision.corners=pvInsetQuad(photoVision.autoRailRawCorners,photoVision.railInset||0);
         photoVision.detections=[];
@@ -12259,7 +12262,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         });
         $('photoAutoRailsBtn').addEventListener('click', () => {
             if(photoVision.regionEnd!=='full'){pvStatus('Corner Sensing needs a full-table image. For partial coverage, use Custom Table Layouts and Find / Add Corners.');return;}
-            photoVision.refinements=[];photoVision.refining=false;photoVision.pendingDiamond=null;photoVision.calibrationCache=null;pvAutoFindRailCorners();pvUpdateCalibrationDiagram();
+            pvAutoFindRailCorners();pvUpdateCalibrationDiagram();
         });
         $('photoRotateBtn').addEventListener('click', () => {
             const hasRaw = photoVision.rawCanvas.width && photoVision.rawCanvas.height;
