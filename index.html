@@ -3672,8 +3672,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         S={...S,...(second?shot:{}),activeShot:1,angleLock:false,ghostLock:null,
             freeAim:{x:cb.x+Math.cos(angle)*S.tableL,y:cb.y+Math.sin(angle)*S.tableL},
             balls:S.balls.filter(b=>!search||!t.screenOnly||b.id===0||b.id===t.ballId).map(b=>b.id===0?{...b,x:cb.x,y:cb.y}:b)};
-        try{return yield* simulateSteps(false,search?{mode:t.mode,ballId:t.ballId,rails:t.rails,target:t.zero}:null,true);}
+        try{return yield* simulateSteps(false,search?{mode:t.mode,ballId:t.ballId,rails:t.rails,target:t.zero,contactOnly:bankKickTargetsContact(t)}:null,true);}
         finally{S=original;}
+    }
+    function bankKickTargetsContact(t) {
+        const ball=S.balls.find(b=>b.id===t.ballId&&b.active!==false&&!b.marker);
+        return t.mode==='kick'&&t.ballId>0&&!!ball&&!!t.zero&&!nearestLogicalPocket(t.zero,.02)&&Math.hypot(t.zero.x-ball.x,t.zero.y-ball.y)<=S.ballR*2.2;
     }
     function assessBankKickShot(t,preview,angle) {
         const locationKick=t.mode==='kick'&&t.ballId===0;
@@ -3682,6 +3686,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if(t.mode==='bank'&&preview.railEvents.some(e=>e.id===0&&e.t<contact.t))return null;
         const allHits=preview.railEvents.filter(e=>e.id===carrier&&(t.mode!=='kick'||e.t<=(contact?.t??Infinity)));
         if(allHits.length<t.rails.length||!t.rails.every((r,i)=>allHits[i].rail===r+' rail'))return null;
+        if(bankKickTargetsContact(t)){
+            const distance=(1-(contact.overlap||0)/100)*S.ballR,scratch=preview.pocketEvents.some(e=>e.id===0),reached=allHits.length===t.rails.length;
+            return {angle,distance,reached,scratch,end:contact.t,closestPoint:contact.cuePos,score:reached?-1+distance+(scratch ? .25 : 0):distance,hits:allHits.slice(0,t.rails.length),preview};
+        }
         const targetPocket=locationKick?null:nearestLogicalPocket(t.zero,.02);
         const pocket=preview.pocketEvents.find(e=>e.id===t.ballId&&Math.hypot(e.x-t.zero.x,e.y-t.zero.y)<.16);
         const fromTime=t.mode==='bank'||locationKick?allHits[t.rails.length-1].t:contact.t;
@@ -3706,7 +3714,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     function* calculateBankKickRouteAtCurrentSpeed(t) {
         const ball=S.balls.find(b=>b.id===t.ballId&&b.active!==false&&!b.marker),second=S.activeShot===2&&S.shot2Enabled,shot=second?ensureShot2():S,cb=second?shot:cueBall();
-        const locationKick=t.mode==='kick'&&t.ballId===0;
+        const locationKick=t.mode==='kick'&&t.ballId===0,contactKick=bankKickTargetsContact(t);
         if(!ball||!cb||!t.zero)return {message:'Choose an active cue ball, destination, and object ball or cue ball for a location kick.'};
         const currentAngle=Math.atan2(shot.freeAim.y-cb.y,shot.freeAim.x-cb.x);
         let best=null;
@@ -3714,7 +3722,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const toPocket=norm({x:t.zero.x-ball.x,y:t.zero.y-ball.y});
             const ghost={x:ball.x-2*S.ballR*toPocket.x,y:ball.y-2*S.ballR*toPocket.y};
             const rails=t.rails.map(railByName);if(rails.some(r=>!r))return {message:'Choose valid cushions in travel order.'};
-            const geometric=window.BilliardsBankKickRouting.seedAngle(t.mode==='bank'?ball:cb,t.mode==='bank'||locationKick?t.zero:ghost,rails);
+            const geometric=window.BilliardsBankKickRouting.seedAngle(t.mode==='bank'?ball:cb,t.mode==='bank'||locationKick?t.zero:contactKick?ball:ghost,rails);
             const bankGhost={x:ball.x-2*S.ballR*Math.cos(geometric),y:ball.y-2*S.ballR*Math.sin(geometric)};
             const squirt=cueSquirtAngleFor(shot.sideSpin,shot.follow,S.cueEndmassRatio);
             const seed=(t.mode==='bank'?Math.atan2(bankGhost.y-cb.y,bankGhost.x-cb.x):geometric)-squirt;
@@ -3752,10 +3760,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const cuePath=(preview.paths[0]||[]).filter(p=>p.t<=(locationKick?best.end:contact.t));cuePath.push(locationKick?best.closestPoint:contact.cuePos);
         const aim={x:cb.x+Math.cos(best.angle)*S.tableL,y:cb.y+Math.sin(best.angle)*S.tableL};
         const setupNeeded=Math.abs(Math.atan2(Math.sin(best.angle-currentAngle),Math.cos(best.angle-currentAngle)))>1e-6||shot.angleLock;
-        return {solution:{mode:t.mode,locationKick,multiRail:true,fullShot:true,source:t.mode==='bank'?{x:ball.x,y:ball.y}:{x:cb.x,y:cb.y},target:t.zero,destination:t.zero,ballId:ball.id,
-            points:t.mode==='bank'?objectPath:cuePath,cuePath:t.mode==='bank'?cuePath:null,objectPath:t.mode==='kick'&&!locationKick?objectPath:null,
+        return {solution:{mode:t.mode,locationKick,contactKick,multiRail:true,fullShot:true,source:t.mode==='bank'?{x:ball.x,y:ball.y}:{x:cb.x,y:cb.y},target:t.zero,destination:t.zero,ballId:ball.id,
+            points:t.mode==='bank'?objectPath:cuePath,cuePath:t.mode==='bank'?cuePath:null,objectPath:t.mode==='kick'&&!locationKick&&!contactKick?objectPath:null,
             bounces:best.hits.map(e=>({x:e.x,y:e.y,rail:railByName(e.rail.replace(' rail',''))})),reached:true,angle:best.angle,aim,shotSpeed:shot.speed,shotFollow:shot.follow,shotSide:shot.sideSpin,setupNeeded,
-            scratch:best.scratch,verifiedPocket:preview.pocketEvents.find(e=>e.id===t.ballId&&Math.hypot(e.x-t.zero.x,e.y-t.zero.y)<.16)||null},
+            scratch:best.scratch,verifiedPocket:contactKick?null:preview.pocketEvents.find(e=>e.id===t.ballId&&Math.hypot(e.x-t.zero.x,e.y-t.zero.y)<.16)||null},
             message:(best.scratch?'Object ball pockets, but the cue ball scratches. ':'')+(setupNeeded?(locationKick?'Cue-ball route to the selected location verified. Tap Use setup to apply.':'Complete cue-ball shot verified, including the object-ball collision. Tap Use shot setup to apply the aim and speed.'):'Current cue-ball shot verified through the selected rails to the destination.')};
     }
     function bankKickShotCandidates(railCount) {
@@ -3854,6 +3862,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if(bankKickRouteCache.pending){invalidateBankKickRoute();syncBankKickControls();draw();return;}
         const t=bankKickState();if(!t.zero||!t.rails.length||animation)return;
         if(t.ballId==null){t.phase='calculateBall';t.pendingCalculate=true;syncBankKickControls();return;}
+        if(t.mode==='kick'&&t.ballId===0){
+            const occupied=S.balls.find(b=>b.id!==0&&!b.marker&&b.active!==false&&Math.hypot(b.x-t.zero.x,b.y-t.zero.y)<S.ballR*1.65);
+            if(occupied){invalidateBankKickRoute();t.ballId=null;t.phase='calculateBall';t.pendingCalculate=true;bankKickRouteCache.message='Target overlaps ball '+(occupied.n||occupied.id)+'. Tap that ball for a contact kick, or choose a clear target point.';syncBankKickControls();draw();saveState();return;}
+        }
         invalidateBankKickRoute();t.phase=null;t.requested=true;
         const job=bankKickJobId,key=bankKickRouteKey(t);
         const snapshot=JSON.parse(JSON.stringify(S,(k,v)=>k==='preview'||k==='solution'?undefined:v));
@@ -4010,7 +4022,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const calculate=$('bankKickCalculate');calculate.disabled=!t.zero||!t.rails.length;
             calculate.classList.toggle('ready',!!t.zero&&!!t.rails.length&&!bankKickRouteCache.pending&&!t.solution);calculate.classList.toggle('selected',!!t.solution);calculate.setAttribute('aria-busy',String(bankKickRouteCache.pending));calculate.title=t.mode==='kick'?'Select rails, then tap an object ball for contact or the cue ball to reach the target location.':'Select rails and the object ball to bank.';calculate.textContent=bankKickRouteCache.pending?'Cancel':t.phase==='calculateBall'?'Tap ball':'Calculate';
             const setup=t.requested&&!t.phase?bankKickRouteCache.solution:null;
-            $('bankKickRouteStatus').textContent=bankKickRouteCache.pending?'Calculating…':!setup?bankKickRouteCache.message:setup?.scratch?'Cue ball scratches':setup?.locationKick?'Cue ball → target location':setup?.pocketReserveDiamonds!=null?(setup.pocketReserveDiamonds<=1.1?'Pocket pace · ':'Firmer route · ')+setup.pocketReserveDiamonds.toFixed(1)+' ♦ reserve':'';
+            $('bankKickRouteStatus').textContent=bankKickRouteCache.pending?'Calculating…':!setup?bankKickRouteCache.message:setup?.scratch?'Cue ball scratches':setup?.locationKick?'Cue ball → target location':setup?.contactKick?'Kick contact verified':setup?.pocketReserveDiamonds!=null?(setup.pocketReserveDiamonds<=1.1?'Pocket pace · ':'Firmer route · ')+setup.pocketReserveDiamonds.toFixed(1)+' ♦ reserve':'';
             if(setup&&!Number.isFinite(setup.shotDiamonds))setup.shotDiamonds=powerFeelForSpeed(setup.shotSpeed).diamonds;
             $('bankKickSpeedValue').textContent=setup?setup.shotSpeed.toFixed(2)+' m/s':'—';
             $('bankKickSpeedDiamonds').textContent=Number.isFinite(setup?.shotDiamonds)?setup.shotDiamonds.toFixed(1)+' ♦':'';
@@ -5281,6 +5293,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 }
             if (search) {
                 if(firstBallContact&&firstBallContact.objId!==search.ballId)break;
+                if(firstBallContact&&search.contactOnly)break;
                 const carrier=search.mode==='bank'?search.ballId:0;
                 const before=search.mode==='kick'?(firstBallContact?.t??Infinity):Infinity;
                 const hits=railEvents.filter(e=>e.id===carrier&&e.t<=before);
