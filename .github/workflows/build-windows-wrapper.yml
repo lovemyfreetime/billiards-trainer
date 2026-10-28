@@ -20,6 +20,7 @@ on:
       - 'tests/app-updates.browser.cjs'
       - 'tests/native-content-updates.browser.cjs'
       - 'tests/display-startup.browser.cjs'
+      - 'tests/chromebook-sliders.browser.cjs'
       - 'tests/webview-assets/**'
       - 'scripts/package-windows-app.py'
       - 'scripts/build-offline-assets.py'
