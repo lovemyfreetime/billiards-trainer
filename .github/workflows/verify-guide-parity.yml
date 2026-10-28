@@ -45,6 +45,7 @@ jobs:
           node tests/bank-kick-candidates.test.cjs
           node tests/bank-kick-location.test.cjs
           node tests/bank-kick-contact.browser.cjs
+          node tests/bank-kick-arrival.browser.cjs
           node tests/bank-kick-location.browser.cjs
           node tests/bank-kick-routing.browser.cjs
           node tests/bank-kick-practical.browser.cjs

@@ -3681,7 +3681,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     function assessBankKickShot(t,preview,angle) {
         const locationKick=t.mode==='kick'&&t.ballId===0;
-        if(!preview||(locationKick?!!preview.firstBallContact:preview.firstBallContact?.objId!==t.ballId))return null;
+        if(!preview||(!locationKick&&preview.firstBallContact?.objId!==t.ballId))return null;
         const contact=preview.firstBallContact,carrier=t.mode==='bank'?t.ballId:0;
         if(t.mode==='bank'&&preview.railEvents.some(e=>e.id===0&&e.t<contact.t))return null;
         const allHits=preview.railEvents.filter(e=>e.id===carrier&&(t.mode!=='kick'||e.t<=(contact?.t??Infinity)));
@@ -3693,10 +3693,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const targetPocket=locationKick?null:nearestLogicalPocket(t.zero,.02);
         const pocket=preview.pocketEvents.find(e=>e.id===t.ballId&&Math.hypot(e.x-t.zero.x,e.y-t.zero.y)<.16);
         const fromTime=t.mode==='bank'||locationKick?allHits[t.rails.length-1].t:contact.t;
-        const until=t.mode==='bank'||locationKick?(allHits[t.rails.length]?.t??Infinity):Infinity;
+        const until=Math.min(t.mode==='bank'||locationKick?(allHits[t.rails.length]?.t??Infinity):Infinity,locationKick?(contact?.t??Infinity):Infinity);
         let distance=preview.searchClosest?.distance??Infinity,closestTime=preview.searchClosest?.t??Infinity,closestPoint=preview.searchClosest?{x:preview.searchClosest.x,y:preview.searchClosest.y,t:preview.searchClosest.t}:null;
-        if(!Number.isFinite(distance)){
-            const path=preview.paths[t.ballId]||[];
+        if(locationKick&&contact&&contact.t>=fromTime&&contact.t<=until){const d=Math.hypot(contact.cuePos.x-t.zero.x,contact.cuePos.y-t.zero.y);if(d<distance){distance=d;closestTime=contact.t;closestPoint={...contact.cuePos,t:contact.t};}}
+        if(!Number.isFinite(distance)||locationKick){
+            const path=(preview.paths[t.ballId]||[]).filter(p=>!locationKick||p.t<=until);
+            if(locationKick&&contact)path.push({...contact.cuePos,t:contact.t});
             for(let i=1;i<path.length;i++){
                 const a=path[i-1],b=path[i];if(b.t<fromTime||a.t>until)continue;
                 const dx=b.x-a.x,dy=b.y-a.y,span=b.t-a.t;
