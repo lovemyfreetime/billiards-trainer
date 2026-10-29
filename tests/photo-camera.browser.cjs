@@ -20,7 +20,7 @@ const railCapture=await page.evaluate(()=>{
  const c=document.createElement('canvas');c.width=800;c.height=460;c.videoWidth=800;c.videoHeight=460;const x=c.getContext('2d');x.fillStyle='rgb(125,90,60)';x.fillRect(0,0,800,460);x.fillStyle='rgb(35,145,85)';x.fillRect(100,80,600,300);
  const q=[{x:105/800,y:74/460},{x:705/800,y:74/460},{x:705/800,y:374/460},{x:105/800,y:374/460}];
  const r=BilliardsTableCamera.capture(c,q,true,{refineRails:true,tableLength:2.54,tableWidth:1.27});
- return {method:r.evidence?.method,width:r.canvas.width,corners:r.corners};
+ const outside=r.canvas.getContext('2d').getImageData(Math.round((400-59)),Math.round((378-28)),1,1).data;return {method:r.evidence?.method,width:r.canvas.width,corners:r.corners,outside:[...outside]};
 });assert.equal(railCapture.method,'wood-cloth-inset','rail refinement occurs before masking');assert(railCapture.width>640&&railCapture.width<800,'capture retains rail evidence outside the calibration');assert.equal(railCapture.corners.length,4);
 const points=()=>page.locator('#tableCamera svg > polygon').getAttribute('points');const before=await points(),box=await page.locator('#tableCamera svg').boundingBox();assert(box.width>100&&box.height>100);
 const session=await context.newCDPSession(page),touch=async(type,p)=>session.send('Input.dispatchTouchEvent',{type,touchPoints:p.map(([x,y,id])=>({x:box.x+box.width*x,y:box.y+box.height*y,id}))});
