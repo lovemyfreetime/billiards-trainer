@@ -3739,7 +3739,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 const assessed=assessBankKickShot(t,yield* runBankKickShot(t,angle,true),angle);
                 if(!assessed||!Number.isFinite(assessed.distance)){evaluated.set(angle,null);return null;}
                 const candidate={angle,score:assessed.score,reached:assessed.reached,distance:assessed.distance};
-                evaluated.set(angle,candidate);samples.push(candidate);return candidate;
+                evaluated.set(angle,candidate);samples.push(candidate);
+                // Stop angle exploration as soon as a candidate passes the full
+                // scene, including blockers and scratches. Speed refinement follows.
+                if(t.rails.length===1&&candidate.reached&&!assessed.scratch){
+                    const actual=assessBankKickShot(t,yield* runBankKickShot(t,angle),angle);
+                    if(actual?.reached&&!actual.scratch)best=actual;
+                }
+                return candidate;
             };
             const width=t.mode==='bank'?half*1.12+.004:.12;
             const scanCenter=t.mode==='bank'?center:seed;
@@ -3754,15 +3761,16 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             }
             if(!best){
                 if(Number.isFinite(t.searchHint)){
-                    for(let i=-10;i<=10;i++){yield* evaluate(t.searchHint+i*.002);if(i%4===0)yield;}
+                    for(let i=-10;i<=10&&!best;i++){yield* evaluate(t.searchHint+i*.002);if(i%4===0)yield;}
                 }else{
-                    for(let i=0;i<=72;i++){yield* evaluate(scanCenter-width+2*width*i/72);if(i%4===3)yield;}
-                    for(let i=-10;i<=10;i++){yield* evaluate(seed+i*(t.mode==='bank'?half/100:.001));if(i%4===0)yield;}
+                    for(let i=0;i<=72&&!best;i++){yield* evaluate(scanCenter-width+2*width*i/72);if(i%4===3)yield;}
+                    for(let i=-10;i<=10&&!best;i++){yield* evaluate(seed+i*(t.mode==='bank'?half/100:.001));if(i%4===0)yield;}
                 }
                 samples.sort((a,b)=>a.score-b.score);
                 for(const initial of samples.slice(0,Number.isFinite(t.searchHint)?1:3)){
+                    if(best)break;
                     let angle=initial.angle,step=Number.isFinite(t.searchHint)?.004:2*width/72;
-                    for(let iteration=0;iteration<15;iteration++){
+                    for(let iteration=0;iteration<15&&!best;iteration++){
                         let local={angle,score:Infinity};
                         for(const candidateAngle of [angle-step,angle,angle+step]){const candidate=yield* evaluate(candidateAngle);if(candidate&&candidate.score<local.score)local=candidate;}
                         angle=local.angle;step*=.5;yield;
@@ -3790,7 +3798,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     function bankKickShotCandidates(railCount) {
         const maxSpeed=railCount>=3?6:5;
-        const speeds=[1.5,2.5,3.25,4,4.5,5,...(railCount>=3?[5.5,6]:[])];
+        // Establish a reachable route before refining its speed downward.
+        const speeds=railCount===1?[5,4.5,4,3.25,2.5,1.5]:[1.5,2.5,3.25,4,4.5,5,...(railCount>=3?[5.5,6]:[])];
         const candidates=speeds.map(speed=>({speed,follow:0,sideSpin:0}));
         // Prefer center ball, then modest English, before stronger tip offsets.
         for(const sideSpin of [.15,-.15,.3,-.3])for(const speed of [3.25,maxSpeed])candidates.push({speed,follow:0,sideSpin});
