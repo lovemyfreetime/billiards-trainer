@@ -139,26 +139,34 @@ function refineCushionNoses(img,inset){
  const L=inset.tableLength||2.54,W=inset.tableWidth||1.27,d=inset.cushionInset;
  const fx=d/(L+2*d),fy=d/(W+2*d),edges=[],lines=[];
  const median=v=>v.sort((a,b)=>a-b)[Math.floor(v.length/2)];
- const light=p=>{const x=Math.round(p.x),y=Math.round(p.y);if(x<0||y<0||x>=w||y>=h)return null;const k=(y*w+x)*4;return .2126*data[k]+.7152*data[k+1]+.0722*data[k+2];};
+ const color=p=>{const x=Math.round(p.x),y=Math.round(p.y);if(x<0||y<0||x>=w||y>=h)return null;const k=(y*w+x)*4;return [data[k],data[k+1],data[k+2]];};
+ const chroma=c=>{const [r,g,b]=c,hi=Math.max(...c),lo=Math.min(...c),d=hi-lo;return {s:d/Math.max(1,hi),h:d?60*(hi===r?((g-b)/d+6)%6:hi===g?(b-r)/d+2:(r-g)/d+4):0};};
+ const bed=[];for(let y=0;y<5;y++)for(let x=0;x<5;x++){const c=color(cal.apply(H.H,{x:.35+x*.075,y:.35+y*.075}));if(c)bed.push(c);}
+ if(!bed.length)return inset;
+ const cloth=chroma([0,1,2].map(i=>median(bed.map(c=>c[i]))));
+ const light=p=>{const c=color(p);if(!c)return null;const h=chroma(c),dh=Math.abs(h.h-cloth.h);if(cloth.s>.15&&(h.s<.12||Math.min(dh,360-dh)>35))return null;return .2126*c[0]+.7152*c[1]+.0722*c[2];};
  for(let edge=0;edge<4;edge++){
   const f=edge%2===0?fy:fx,point=(t,k,slope=0)=>{k+=slope*(t-.5);return cal.apply(H.H,edge===0?{x:t,y:k*f}:edge===1?{x:1-k*f,y:t}:edge===2?{x:1-t,y:1-k*f}:{x:k*f,y:1-t});};
   // Sample in table coordinates so the near and far ends get different pixel
   // offsets. Ignore corners and side pockets; require agreement along the rail.
   let best=null,bestStep=null;
-  for(let k=.8;k<=3.5;k+=.05)for(const slope of [-.4,-.2,0,.2,.4]){
-   const scores=[],steps=[];let supported=0,stepSupport=0,weakSupported=0;
+  // Stay within one approximate cushion width of the physical estimate. Deep
+  // cloth shadows are not plausible replacements for the adjacent nose.
+  for(let k=.35;k<=2.2;k+=.05)for(const slope of [-.4,-.2,0,.2,.4]){
+   const scores=[],steps=[],sections=[0,0,0],stepSections=[0,0,0];let supported=0,stepSupport=0,weakSupported=0;
    for(let j=0;j<33;j++){
     const t=.12+.76*j/32;if(Math.abs(t-.5)<.08)continue;
     const c=light(point(t,k,slope)),a=light(point(t,k-.30,slope)),b=light(point(t,k+.30,slope)),wideA=light(point(t,k-.60,slope)),wideB=light(point(t,k+.60,slope));
-    if(c===null||a===null||b===null||wideA===null||wideB===null||Math.min(a,b,c,wideA,wideB)<8)continue;
-    const ridge=Math.max(Math.min(a,b)-c,(Math.min(wideA,wideB)-c)*.85),step=Math.max(Math.abs(b-a),Math.abs(wideB-wideA)*.7);
+    if(c===null||a===null||b===null||Math.min(a,b,c)<8)continue;
+    const wide=wideA!==null&&wideB!==null&&Math.min(wideA,wideB)>=8;
+    const ridge=Math.max(Math.min(a,b)-c,wide?(Math.min(wideA,wideB)-c)*.85:0),step=Math.max(Math.abs(b-a),wide?Math.abs(wideB-wideA)*.7:0);
     scores.push(ridge);steps.push(step);
-    if(ridge>4)supported++;if(ridge>3)weakSupported++;if(step>16)stepSupport++;
+    if(ridge>4)supported++;if(ridge>3){weakSupported++;sections[Math.min(2,Math.floor(t*3))]++;}if(step>16){stepSupport++;stepSections[Math.min(2,Math.floor(t*3))]++;}
    }
    const support=supported/26,score=scores.length>=22?median(scores)-Math.abs(k-1)*.4-Math.abs(slope)*.3:0;
-   if(((support>=.54&&score>4)||(weakSupported/26>=.80&&score>3))&&(!best||score>best.score))best={k,slope,score,support:Math.max(support,weakSupported/26)};
+   if(sections.every(n=>n>=3)&&((support>=.54&&score>4)||(weakSupported/26>=.80&&score>3))&&(!best||score>best.score))best={k,slope,score,support:Math.max(support,weakSupported/26)};
    const stepScore=steps.length>=22?median(steps)-Math.abs(k-1)*.65-Math.abs(slope)*.3:0;
-   if(stepSupport/26>=.65&&stepScore>18&&(!bestStep||stepScore>bestStep.score))bestStep={k,slope,score:stepScore,support:stepSupport/26};
+   if(stepSections.every(n=>n>=3)&&stepSupport/26>=.65&&stepScore>18&&(!bestStep||stepScore>bestStep.score))bestStep={k,slope,score:stepScore,support:stepSupport/26};
   }
   best=best||bestStep;
   const k=best?.k??1,slope=best?.slope||0,a=point(0,k,slope),b=point(1,k,slope),len=Math.hypot(b.x-a.x,b.y-a.y),line={nx:-(b.y-a.y)/len,ny:(b.x-a.x)/len};line.c=line.nx*a.x+line.ny*a.y;lines.push(line);
@@ -229,7 +237,16 @@ function snapPoint(point,targets){
  return nearest;
 }
 
+// Shift one line along its normal. Intersect it with the unchanged adjoining
+// lines, so the opposite rail and perspective directions remain fixed.
+function moveEdge(quad,edge,delta){
+ const cal=root.BilliardsPhotoCalibration||(typeof require==='function'?require('./photo-calibration.js'):null);
+ if(!cal?.validQuad(quad)||!Number.isInteger(edge)||edge<0||edge>3||!Number.isFinite(delta?.x)||!Number.isFinite(delta?.y))return null;
+ const lines=quad.map((p,i)=>{const q=quad[(i+1)%4],len=Math.hypot(q.x-p.x,q.y-p.y),nx=-(q.y-p.y)/len,ny=(q.x-p.x)/len;return {nx,ny,c:nx*p.x+ny*p.y+(i===edge?nx*delta.x+ny*delta.y:0)};});
+ const corners=lines.map((l,i)=>intersect(lines[(i+3)%4],l));
+ return corners.every(p=>p&&Number.isFinite(p.x)&&Number.isFinite(p.y))&&cal.validQuad(corners)&&area(corners)>area(quad)*.5&&area(corners)<area(quad)*1.5?corners:null;
+}
 function unitRotations(q){return q.map((_,i)=>q.slice(i).concat(q.slice(0,i)));}
 function suggestOutline(img){return detect(img,{allowApproximate:true});}
-const api={cornerTargets,snapPoint,snap,calibrate,detect,guided,woodGuided,insetFromBoundary,refineCushionNoses,suggest:img=>detect(img,{allowApproximate:true})};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCornerSensing=api;
+const api={moveEdge,cornerTargets,snapPoint,snap,calibrate,detect,guided,woodGuided,insetFromBoundary,refineCushionNoses,suggest:img=>detect(img,{allowApproximate:true})};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCornerSensing=api;
 })(typeof window==='object'?window:globalThis);

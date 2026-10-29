@@ -9534,6 +9534,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     let pvPinchStart = null;
     let pvGesturePinched = false;
     let pvTouchCornerCandidate = -1;
+    let pvRailDrag = null;
     photoVision.rawCtx = photoVision.rawCanvas.getContext('2d', { willReadFrequently:true });
     photoVision.analysisCtx = photoVision.analysisCanvas.getContext('2d', { willReadFrequently:true });
     photoVision.sourceCtx = photoVision.sourceCanvas.getContext('2d', { willReadFrequently:true });
@@ -10639,7 +10640,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const target=pvCalibrationReferences().find(d=>d.id===photoVision.pendingDiamond);
             return target?'Tap the inside cushion edge aligned with '+target.label+' in the photograph.':'Select a visible pocket or diamond on the diagram, then tap its matching inside cushion reference in the photo.';
         }
-        return 'Outline complete. Analyze Balls, or optionally Refine Alignment with visible diamonds.';
+        return 'Outline complete. Drag a green edge to adjust one rail, or drag a corner. Then Analyze Balls.';
     }
     function pvIsTableSpot(nx,ny,rackCheck=false){
         const filter=window.BilliardsTableSpots,fit=pvCalibration();
@@ -10795,7 +10796,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             $('photoCalibrationPanel').hidden=false;$('photoReviewPane').classList.add('calibrating');
             $('photoFineTune').setAttribute('aria-expanded','true');$('photoFineTune').title='Close Custom Table Layouts';
             pvUpdateCalibrationDiagram();renderPhotoAnalyzer();
-            pvStatus(photoVision.corners.length===4?'Four corners are already marked. Drag a corner to adjust it, or use Reset Corners to start again.':pvCalibrationPrompt());
+            pvStatus(photoVision.corners.length===4?'Drag a green edge to adjust one rail, or drag a corner. Use Reset Corners to start again.':pvCalibrationPrompt());
         });
         $('photoOrientation').addEventListener('change',()=>pvChangeOrientation($('photoOrientation').value));
         $('photoFlipEnds').addEventListener('click',()=>pvChangeOrientation({top:'bottom',bottom:'top',left:'right',right:'left'}[pvImageOrientation()]));
@@ -10868,6 +10869,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         pvUpdateAIButton();
     }
     function pvResetDetectionsAndCorners() {
+        pvRailDrag=null;
         photoVision.manualCorners=false;photoVision.manualCornerSeed=null;photoVision.cornerDropCache=null;photoVision.pendingCornerTap=null;
         photoVision.corners=[];
         photoVision.refinements=[];photoVision.refining=false;photoVision.pendingDiamond=null;photoVision.calibrationCache=null;
@@ -11087,7 +11089,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         photoVision.manualCornerSeed=seed.map(p=>({...p}));
         photoVision.corners=sensed.corners.map(p=>({...p}));
         photoVision.autoRailRawCorners=sensed.snappedEdges===4?sensed.boundaryCorners.map(p=>({...p})):null;
-        photoVision.cornerSensingEvidence={method:sensed.method,approximate:true,confidence:null,snappedEdges:sensed.snappedEdges,cushionInset:sensed.cushionInset};
+        photoVision.cornerSensingEvidence={method:sensed.method,approximate:true,confidence:null,snappedEdges:sensed.snappedEdges,cushionInset:sensed.cushionInset,noseEvidence:sensed.noseEvidence||[]};
         photoVision.refinements=[];photoVision.refining=false;photoVision.pendingDiamond=null;
         pvCalibrationChanged();
         pvStatus(sensed.snappedEdges===4?'Four rails snapped to estimated cushion noses. Check the green outline; drag any corner for a fine correction.':sensed.snappedEdges+' of 4 rails snapped. Unresolved rail lines kept at your marks. Drag a corner or retry Corner Sensing.');
@@ -11112,11 +11114,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             let corners=sensed.corners;
             if(!sensed.guided)corners=photoVision.orientation&&photoVision.orientation!=='auto'?photoCal.cornersForHead(corners,photoVision.orientation):photoCal.orderDetectedCorners(corners);
             photoVision.refinements=[];photoVision.refining=false;photoVision.pendingDiamond=null;photoVision.calibrationCache=null;
-            photoVision.cornerSensingEvidence={approximate:!!sensed.approximate,confidence:sensed.confidence,railSupport:sensed.railSupport,pocketSupport:sensed.pocketSupport,method:sensed.method||'',cushionInset:sensed.cushionInset||0};
+            photoVision.cornerSensingEvidence={approximate:!!sensed.approximate,confidence:sensed.confidence,railSupport:sensed.railSupport,pocketSupport:sensed.pocketSupport,method:sensed.method||'',cushionInset:sensed.cushionInset||0,noseEvidence:sensed.noseEvidence||[]};
             photoVision.autoRailRawCorners=(sensed.boundaryCorners||corners).map(p=>({x:p.x,y:p.y}));
             photoVision.corners=sensed.method==='wood-cloth-inset'?corners.map(p=>({x:p.x,y:p.y})):pvInsetQuad(corners,photoVision.railInset||0);photoVision.detections=[];
             renderPhotoDetectionList();renderPhotoAnalyzer();$('photoAnalyzeNow').disabled=false;$('photoAddMissed').disabled=false;
-            pvStatus(sensed.method==='wood-cloth-inset'?'Amber outline marks the wood–cloth edge; green corners use a '+(sensed.cushionInset*39.3701).toFixed(2)+' in cushion inset for the playing surface. Check the green line before analyzing.':sensed.guided?'Refined '+sensed.edges.filter(e=>e.refined).length+' of 4 frame edges. Unresolved edges kept in place. Check corners before analyzing.':sensed.approximate?'Suggested four corners. Drag any misplaced marker to the inside cushion edge before analyzing.':'Four corners estimated. Check the inside cushion edges and drag any misplaced marker before analyzing.');return true;
+            pvStatus(sensed.method==='wood-cloth-inset'?'Amber outline marks the wood–cloth edge; green corners use a '+(sensed.cushionInset*39.3701).toFixed(2)+' in cushion inset for the playing surface. Drag a green edge or corner to fine-tune before analyzing.':sensed.guided?'Refined '+sensed.edges.filter(e=>e.refined).length+' of 4 frame edges. Unresolved edges kept in place. Check corners before analyzing.':sensed.approximate?'Suggested four corners. Drag any misplaced marker to the inside cushion edge before analyzing.':'Four corners estimated. Check the inside cushion edges and drag any misplaced marker before analyzing.');return true;
         }
         if(sensing){pvStatus('No usable table outline found. Use Find / Add Corners, or keep adjusting your existing markers.');return false;}
         const rs=[],gs=[],bs=[];
@@ -11545,6 +11547,30 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if(d<bestD){bestD=d;best=i;}
         });
         return bestD<70?best:-1;
+    }
+    function pvBeginRailDrag(p,ev){
+        if(photoVision.corners.length!==4||photoVision.addMissedMode||photoVision.refining||pvPhotoDetectionHit(p)||pvCornerHitIndex(p)>=0)return false;
+        const canvas=$('photoAnalyzerCanvas'),r=canvas.getBoundingClientRect(),scale=r.width?canvas.width/r.width:1,q=pvSourceToCanvas(p);
+        let best=-1,distance=14*scale;
+        photoVision.corners.forEach((v,i)=>{
+            const a=pvSourceToCanvas(v),b=pvSourceToCanvas(photoVision.corners[(i+1)%4]),dx=b.x-a.x,dy=b.y-a.y,len=dx*dx+dy*dy,t=((q.x-a.x)*dx+(q.y-a.y)*dy)/len;
+            const d=Math.abs(dx*(q.y-a.y)-dy*(q.x-a.x))/Math.sqrt(len);
+            if(t>.18&&t<.82&&d<distance){best=i;distance=d;}
+        });
+        if(best<0)return false;
+        pvRailDrag={edge:best,start:p,corners:photoVision.corners.map(v=>({...v})),pointerId:ev.pointerId,moved:false};
+        canvas.setPointerCapture?.(ev.pointerId);return true;
+    }
+    function pvMoveRailDrag(ev){
+        if(!pvRailDrag||pvRailDrag.pointerId!==ev.pointerId)return;
+        const p=pvCanvasPoint(ev),t=pvRailDrag,delta={x:(p.x-t.start.x)*.5,y:(p.y-t.start.y)*.5};
+        const corners=window.BilliardsCornerSensing?.moveEdge(t.corners,t.edge,delta);
+        if(!corners||corners.some(v=>v.x<0||v.y<0||v.x>photoVision.analysisCanvas.width||v.y>photoVision.analysisCanvas.height))return;
+        if(Math.hypot(delta.x,delta.y)<1)return;
+        t.moved=true;photoVision.corners=corners;
+        photoVision.manualCorners=true;photoVision.manualCornerSeed=null;photoVision.autoRailRawCorners=null;photoVision.cornerSensingEvidence=null;
+        photoVision.refinements=[];photoVision.refining=false;photoVision.pendingDiamond=null;
+        pvCalibrationChanged();
     }
     function pvPhotoMarkerRadius(d){
         if(d&&[d.x1,d.y1,d.x2,d.y2].every(Number.isFinite)){
@@ -12427,6 +12453,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         $('photoAnalyzerCanvas').addEventListener('wheel',pvPhotoWheelZoom,{passive:false});
         $('photoAnalyzerCanvas').addEventListener('pointermove', ev => {
             if(!photoVision.imageReady)return;
+            if(pvRailDrag?.pointerId===ev.pointerId){
+                if(ev.pointerType==='touch'){const t=pvTouchPointers.get(ev.pointerId);if(t){t.clientX=ev.clientX;t.clientY=ev.clientY;t.moved=true;}}
+                ev.preventDefault();pvMoveRailDrag(ev);return;
+            }
             if(ev.pointerType!=='touch'&&pvPhotoPanDrag){
                 const t=pvPhotoPanDrag;
                 t.moved=t.moved||Math.hypot(ev.clientX-t.startX,ev.clientY-t.startY)>5;
@@ -12514,7 +12544,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                     pvGesturePinched=false;
                     pvPinchStart=null;
                     pvTouchCornerCandidate=(photoVision.corners.length===4&&!photoVision.addMissedMode&&!photoVision.refining&&!pvPhotoDetectionHit(p))?pvCornerHitIndex(p):-1;
+                    if(pvTouchCornerCandidate<0)pvBeginRailDrag(p,ev);
                 }else if(pvTouchPointers.size===2){
+                    pvRailDrag=null;
                     pvGesturePinched=true;
                     pvTouchCornerCandidate=-1;
                     photoVision.cornerDragIndex=-1;
@@ -12534,6 +12566,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                     photoVision.manualCorners=true;photoVision.manualCornerSeed=null;photoVision.corners[best]=p; photoVision.detections=[]; renderPhotoDetectionList(); renderPhotoAnalyzer();pvUpdateCalibrationDiagram(); return;
                 }
             }
+            if(pvBeginRailDrag(p,ev))return;
             if((photoVision.viewZoom||1)>1&&!photoVision.addMissedMode&&!photoVision.refining&&photoVision.corners.length===4){
                 pvPhotoPanDrag={startX:ev.clientX,startY:ev.clientY,centerX:photoVision.viewCenterX,centerY:photoVision.viewCenterY,sourceStart:p,moved:false};
                 canvas.setPointerCapture?.(ev.pointerId);return;
@@ -12543,6 +12576,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         });
 
         $('photoAnalyzerCanvas').addEventListener('pointerup', ev => {
+            if(pvRailDrag?.pointerId===ev.pointerId){
+                const moved=pvRailDrag.moved;pvRailDrag=null;pvTouchPointers.delete(ev.pointerId);
+                try{$('photoAnalyzerCanvas').releasePointerCapture?.(ev.pointerId);}catch(e){}
+                if(moved)pvStatus('Rail adjusted. Opposite rail preserved. Analyze Balls again to update placements.');
+                return;
+            }
             if(ev.pointerType!=='touch'&&photoVision.pendingCornerTap){photoVision.pendingCornerTap=null;try{$('photoAnalyzerCanvas').releasePointerCapture?.(ev.pointerId);}catch(e){}pvHandlePhotoTap(pvCanvasPoint(ev));return;}
             if(ev.pointerType!=='touch'&&pvPhotoPanDrag){
                 const t=pvPhotoPanDrag;pvPhotoPanDrag=null;
@@ -12586,6 +12625,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         });
 
         $('photoAnalyzerCanvas').addEventListener('pointercancel', ev => {
+            if(pvRailDrag?.pointerId===ev.pointerId)pvRailDrag=null;
             photoVision.pendingCornerTap=null;
             pvPhotoPanDrag=null;
             if(ev.pointerType==='touch'){
