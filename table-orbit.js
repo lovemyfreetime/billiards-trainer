@@ -3,12 +3,13 @@
  'use strict';
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
  function viewTangent(aspect){return Math.tan(29*Math.PI/180)/Math.max(1,aspect);}
- function orbit(state,dx,dy){state.azimuth+=dx;state.elevation=clamp(state.elevation+dy,2*Math.PI/180,88*Math.PI/180);}
+ function orbit(state,dx,dy){state.azimuth+=dx;state.elevation=clamp(state.elevation+dy,2*Math.PI/180,(state.maxElevation||88*Math.PI/180));}
  function zoom(state,factor,L,R){state.radius=clamp(state.radius*factor,Math.max(R*5,L*.06),L*8);}
  function updateCamera(camera,state,aspect){
   camera.aspect=aspect;camera.fov=2*Math.atan(viewTangent(aspect))*180/Math.PI;camera.updateProjectionMatrix();
   const target=state.target||{x:0,y:0,z:0},horizontal=state.radius*Math.cos(state.elevation);
   camera.position.set(target.x+Math.sin(state.azimuth)*horizontal,target.y+state.radius*Math.sin(state.elevation),target.z+Math.cos(state.azimuth)*horizontal);
+  if(state.continuousTilt)camera.up.set(-Math.sin(state.azimuth)*Math.sin(state.elevation),Math.cos(state.elevation),-Math.cos(state.azimuth)*Math.sin(state.elevation));
   camera.lookAt(target.x,target.y,target.z);camera.updateMatrixWorld(true);
  }
  function pan(T,camera,state,dx,dy,height){

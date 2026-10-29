@@ -1,6 +1,17 @@
 (function(root){
  'use strict';
  function valid(q){return q.length===4&&q.every(p=>Number.isFinite(p.x)&&Number.isFinite(p.y))&&q.every((p,i)=>{const b=q[(i+1)%4],c=q[(i+2)%4];return (b.x-p.x)*(c.y-b.y)-(b.y-p.y)*(c.x-b.x)>1e-6;});}
+ function visibleArea(q){
+  let poly=q;
+  for(const [axis,edge,sign] of [['x',0,1],['x',1,-1],['y',0,1],['y',1,-1]]){
+   const out=[];
+   for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],insideA=sign*(a[axis]-edge)>=0,insideB=sign*(b[axis]-edge)>=0;
+    if(insideA)out.push(a);
+    if(insideA!==insideB){const t=(edge-a[axis])/(b[axis]-a[axis]);out.push({x:a.x+t*(b.x-a.x),y:a.y+t*(b.y-a.y)});}
+   }poly=out;
+  }
+  return Math.abs(poly.reduce((sum,p,i)=>{const b=poly[(i+1)%poly.length];return sum+p.x*b.y-b.x*p.y;},0))/2;
+ }
  function mediaBounds(w,h,width,height,cover=true){
   const scale=(cover?Math.max:Math.min)(width/w,height/h);
   return {x:(width-w*scale)/2,y:(height-h*scale)/2,width:w*scale,height:h*scale,scale};
@@ -9,7 +20,7 @@
  function capture(source,q,enabled){
   const w=source.videoWidth||source.naturalWidth,h=source.videoHeight||source.naturalHeight;
   if(!w||!h)throw Error('Image is not ready');
-  if(enabled&&(!valid(q)||q.some(p=>p.x<0||p.y<0||p.x>1||p.y>1)))throw Error('Move the whole frame inside the image');
+  if(enabled&&(!valid(q)||visibleArea(q)<1e-6))throw Error('Move the frame over the image');
   const points=enabled?q.map(p=>({x:p.x*w,y:p.y*h})):[{x:0,y:0},{x:w,y:0},{x:w,y:h},{x:0,y:h}];
   const pad=enabled?Math.ceil(Math.min(w,h)*.025):0,x=Math.max(0,Math.floor(Math.min(...points.map(p=>p.x)))-pad),y=Math.max(0,Math.floor(Math.min(...points.map(p=>p.y)))-pad);
   const width=Math.min(w,Math.ceil(Math.max(...points.map(p=>p.x)))+pad)-x,height=Math.min(h,Math.ceil(Math.max(...points.map(p=>p.y)))+pad)-y;
@@ -26,7 +37,7 @@
   document.body.append(modal);
   const media=modal.querySelector('video,img'),svg=modal.querySelector('svg'),stage=modal.querySelector('.tableCameraStage'),hint=modal.querySelector('[role=status]'),snap=modal.querySelector('[data-action=snap]'),orbit=root.BilliardsTableOrbit;
   let stream=null,imageURL=null,closed=false,enabled=true,panning=false,ready=false,busy=false,T=null,camera=null,q=[],sourceQuad=[],swapped=false;
-  const pointers=new Map(),state={azimuth:0,elevation:Math.PI/3,radius:3,target:{x:0,y:0,z:0}},L=2,W=1,R=.028575;
+  const pointers=new Map(),state={continuousTilt:true,maxElevation:110*Math.PI/180,azimuth:0,elevation:Math.PI/3,radius:3,target:{x:0,y:0,z:0}},L=2,W=1,R=.028575;
   const corners=[{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1}];
   function stop(){stream?.getTracks().forEach(t=>t.stop());stream=null;if(!file)media.srcObject=null;}
   function close(){if(closed)return;closed=true;stop();if(imageURL)URL.revokeObjectURL(imageURL);resize.disconnect();document.removeEventListener('keydown',key,true);document.removeEventListener('visibilitychange',visibility);window.removeEventListener('pagehide',close);modal.remove();active=null;previous?.focus();}
@@ -38,16 +49,16 @@
   function draw(){
    if(closed||!camera)return;update();q=corners.map(projected);const width=stage.clientWidth,height=stage.clientHeight,w=media.videoWidth||media.naturalWidth,h=media.videoHeight||media.naturalHeight;
    const bounds=w&&h?mediaBounds(w,h,width,height,!file):null;sourceQuad=bounds?sourceCorners(q,bounds,width,height):[];
-   const inImage=valid(sourceQuad)&&sourceQuad.every(p=>p.x>=0&&p.x<=1&&p.y>=0&&p.y<=1)&&q.every(p=>p.z>-1&&p.z<1);
+   const inImage=valid(sourceQuad)&&visibleArea(sourceQuad)>1e-6&&q.every(p=>p.z>-1&&p.z<1);
    svg.style.display=enabled&&ready?'block':'none';snap.disabled=!ready||busy||(enabled&&!inImage);
    svg.setAttribute('viewBox','0 0 '+width+' '+height);
    const pt=p=>`${p.x*width},${p.y*height}`,poly=q.map(pt).join(' '),head=projected({x:.25,y:.5}),foot=projected({x:.75,y:.5}),triangle=[{x:.75,y:.5},{x:.86,y:.32},{x:.86,y:.68}].map(projected).map(pt).join(' ');
    svg.innerHTML='<polygon points="'+poly+'" fill="transparent" stroke="'+(inImage?'#a3efd0':'#ffd283')+'" stroke-width="2"/>';
    svg.insertAdjacentHTML('beforeend','<g pointer-events="none" fill="#f3e7ba" stroke="#f3e7ba"><polygon points="'+triangle+'" fill="none" stroke-width="2"/><circle cx="'+head.x*width+'" cy="'+head.y*height+'" r="4"/><circle cx="'+foot.x*width+'" cy="'+foot.y*height+'" r="4"/></g>');
    svg.dataset.headX=String(head.x);svg.dataset.headY=String(head.y);
-   if(ready)hint.textContent=enabled&&!inImage?'Move or zoom out until the whole frame is inside the image.':'Drag: '+(panning?'slide without rotating':'rotate and tilt')+'. Wheel: zoom. Two fingers: move and pinch. Only inside the frame is analyzed.';
+   if(ready)hint.textContent=enabled&&!inImage?'Move the frame over the image to select a visible area.':'Drag: '+(panning?'slide without rotating':'rotate and tilt')+'. Wheel: zoom. Two fingers: move and pinch. Only inside the frame is analyzed.';
   }
-  function reset(top=false){if(!camera)return;state.azimuth=0;state.elevation=(top?88:60)*Math.PI/180;state.target={x:0,y:0,z:0};state.radius=1.5;swapped=false;
+  function reset(top=false){if(!camera)return;state.azimuth=0;state.elevation=(top?90:60)*Math.PI/180;state.target={x:0,y:0,z:0};state.radius=1.5;swapped=false;
    const width=stage.clientWidth,height=stage.clientHeight,w=media.videoWidth||media.naturalWidth||width,h=media.videoHeight||media.naturalHeight||height,b=mediaBounds(w,h,width,height,!file);
    for(let step=0;step<90;step++){update();const ps=corners.map(projected);if(ps.every(p=>p.x>.08&&p.x<.92&&p.y>.13&&p.y<.87&&p.x*width>b.x+10&&p.x*width<b.x+b.width-10&&p.y*height>b.y+10&&p.y*height<b.y+b.height-10))break;state.radius*=1.035;}draw();
   }
@@ -93,6 +104,6 @@
    else await startCamera();
   }catch(error){if(closed)return;if(file){if(onError){close();onError(error);}else hint.textContent='Could not open this image.';}else failure(error);}
  }
- const api={open,close:()=>active?.close(),snapshot:()=>active?.snapshot(),valid,mediaBounds,sourceCorners,capture};
+ const api={open,close:()=>active?.close(),snapshot:()=>active?.snapshot(),valid,visibleArea,mediaBounds,sourceCorners,capture};
  if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsTableCamera=api;
 })(typeof window==='object'?window:globalThis);
