@@ -11055,16 +11055,17 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const img=ctx.getImageData(0,0,w,h),d=img.data;
         const sensing=window.BilliardsCornerSensing;
         const guidedFrame=photoVision.cameraFramed&&photoVision.corners.length===4;
-        const sensed=guidedFrame?sensing?.guided?.(img,photoVision.corners):(sensing?.suggest?sensing.suggest(img):sensing?.detect(img));
+        const sensed=guidedFrame?sensing?.woodGuided?.(img,photoVision.corners,{tableLength:(Number(S.tableL)||88)*.0254,tableWidth:(Number(S.tableW)||44)*.0254}):(sensing?.suggest?sensing.suggest(img):sensing?.detect(img));
         if(guidedFrame&&!sensed){pvStatus('No strong nearby rail edges found. Your table frame is preserved; adjust any corner or Analyze Balls.');return false;}
         if(sensed){
             let corners=sensed.corners;
             if(!sensed.guided)corners=photoVision.orientation&&photoVision.orientation!=='auto'?photoCal.cornersForHead(corners,photoVision.orientation):photoCal.orderDetectedCorners(corners);
             photoVision.refinements=[];photoVision.refining=false;photoVision.pendingDiamond=null;photoVision.calibrationCache=null;
-            photoVision.cornerSensingEvidence={approximate:!!sensed.approximate,confidence:sensed.confidence,railSupport:sensed.railSupport,pocketSupport:sensed.pocketSupport};
-            photoVision.autoRailRawCorners=corners.map(p=>({x:p.x,y:p.y}));photoVision.corners=pvInsetQuad(corners,photoVision.railInset||0);photoVision.detections=[];
+            photoVision.cornerSensingEvidence={approximate:!!sensed.approximate,confidence:sensed.confidence,railSupport:sensed.railSupport,pocketSupport:sensed.pocketSupport,method:sensed.method||'',cushionInset:sensed.cushionInset||0};
+            photoVision.autoRailRawCorners=(sensed.boundaryCorners||corners).map(p=>({x:p.x,y:p.y}));
+            photoVision.corners=sensed.method==='wood-cloth-inset'?corners.map(p=>({x:p.x,y:p.y})):pvInsetQuad(corners,photoVision.railInset||0);photoVision.detections=[];
             renderPhotoDetectionList();renderPhotoAnalyzer();$('photoAnalyzeNow').disabled=false;$('photoAddMissed').disabled=false;
-            pvStatus(sensed.guided?'Refined '+sensed.edges.filter(e=>e.refined).length+' of 4 frame edges. Unresolved edges kept in place. Check corners before analyzing.':sensed.approximate?'Suggested four corners. Drag any misplaced marker to the inside cushion edge before analyzing.':'Four corners estimated. Check the inside cushion edges and drag any misplaced marker before analyzing.');return true;
+            pvStatus(sensed.method==='wood-cloth-inset'?'Amber outline marks the wood–cloth edge; green corners use a '+(sensed.cushionInset*39.3701).toFixed(2)+' in cushion inset for the playing surface. Check the green line before analyzing.':sensed.guided?'Refined '+sensed.edges.filter(e=>e.refined).length+' of 4 frame edges. Unresolved edges kept in place. Check corners before analyzing.':sensed.approximate?'Suggested four corners. Drag any misplaced marker to the inside cushion edge before analyzing.':'Four corners estimated. Check the inside cushion edges and drag any misplaced marker before analyzing.');return true;
         }
         if(sensing){pvStatus('No usable table outline found. Use Find / Add Corners, or keep adjusting your existing markers.');return false;}
         const rs=[],gs=[],bs=[];
@@ -11632,6 +11633,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         x.drawImage(photoVision.sourceCanvas,viewX,viewY,viewW,viewH,0,0,c.width,c.height);
 
         pvDrawPhotoReferences(x);
+        if(photoVision.cornerSensingEvidence?.method==='wood-cloth-inset'&&photoVision.autoRailRawCorners?.length===4){
+            x.save();x.lineWidth=2;x.strokeStyle='#ffd66b';x.setLineDash([9,6]);x.beginPath();
+            photoVision.autoRailRawCorners.forEach((p,i)=>{const q=pvSourceToCanvas(p);if(i===0)x.moveTo(q.x,q.y);else x.lineTo(q.x,q.y);});
+            x.closePath();x.stroke();x.restore();
+        }
         if(photoVision.corners.length) {
             x.save(); x.lineWidth=2; x.strokeStyle='#6fff58'; x.fillStyle='#6fff58'; x.beginPath();
             photoVision.corners.forEach((p,i)=>{
@@ -12169,9 +12175,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 photoVision.regionEnd='full';$('photoRegion').value='full';
                 photoVision.corners=cameraCorners.map(p=>({x:p.x*photoVision.analysisCanvas.width,y:p.y*photoVision.analysisCanvas.height}));
                 photoVision.orientation=photoCal.headDirection(photoVision.corners,photoVision.analysisCanvas.width,photoVision.analysisCanvas.height);
+                photoVision.autoRailRawCorners=frameEvidence?.boundaryCorners?.length===4?frameEvidence.boundaryCorners.map(p=>({x:p.x*photoVision.analysisCanvas.width,y:p.y*photoVision.analysisCanvas.height})):null;
+                photoVision.cornerSensingEvidence=frameEvidence;
                 photoVision.calibrationCache=null;pvUpdateCalibrationDiagram();renderPhotoAnalyzer();
                 $('photoAnalyzeNow').disabled=false;$('photoAddMissed').disabled=false;
-                photoVision.cornerSensingEvidence=frameEvidence;
                 pvStatus(frameEvidence?'Wood–cloth rail boundaries found. Playing surface estimated with a 1.94-inch cushion inset using your table size. Check the cushion noses before Analyze Balls. Outside the frame is excluded.':'Table frame applied. Rail boundaries were not clear enough to refine automatically. Check the four inside cushion corners, then Analyze Balls. Outside the frame is excluded.');
             }
             if($('photoArchiveExport')) $('photoArchiveExport').disabled=false;
@@ -12254,22 +12261,22 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         $('photoAnalyzerClose').addEventListener('click', closePhotoAnalyzer);
         $('photoFileInput').addEventListener('change', ev => {
             const file = ev.target.files && ev.target.files[0];
-            if (file) window.BilliardsTableCamera.open({tableLength:S.tableL,tableWidth:S.tableW,file,onError:()=>loadPhotoFile(file),onCapture:(blob,corners,evidence)=>loadPhotoFile(blob,file.name,false,null,corners,evidence)});
+            if (file) window.BilliardsTableCamera.open({tableLength:(Number(S.tableL)||88)*.0254,tableWidth:(Number(S.tableW)||44)*.0254,file,onError:()=>loadPhotoFile(file),onCapture:(blob,corners,evidence)=>loadPhotoFile(blob,file.name,false,null,corners,evidence)});
             ev.target.value = '';
         });
         $('cameraFileInput').addEventListener('change', ev => {
             const file = ev.target.files && ev.target.files[0];
             if (file) {
                 openPhotoAnalyzer();
-                window.BilliardsTableCamera.open({tableLength:S.tableL,tableWidth:S.tableW,file,onError:()=>loadPhotoFile(file),onCapture:(blob,corners,evidence)=>loadPhotoFile(blob,file.name,false,null,corners,evidence)});
+                window.BilliardsTableCamera.open({tableLength:(Number(S.tableL)||88)*.0254,tableWidth:(Number(S.tableW)||44)*.0254,file,onError:()=>loadPhotoFile(file),onCapture:(blob,corners,evidence)=>loadPhotoFile(blob,file.name,false,null,corners,evidence)});
             }
             ev.target.value = '';
         });
         $('photoCaptureFrame').addEventListener('click', captureVideoFrame);
         $('photoChooseImage').addEventListener('click',()=>$('photoFileInput').click());
-        const openTableCamera=()=>window.BilliardsTableCamera.open({tableLength:S.tableL,tableWidth:S.tableW,onCapture:(blob,corners,evidence)=>{openPhotoAnalyzer();loadPhotoFile(blob,'Camera table',false,null,corners,evidence);},onFallback:()=>$('cameraFileInput').click()});
+        const openTableCamera=()=>window.BilliardsTableCamera.open({tableLength:(Number(S.tableL)||88)*.0254,tableWidth:(Number(S.tableW)||44)*.0254,onCapture:(blob,corners,evidence)=>{openPhotoAnalyzer();loadPhotoFile(blob,'Camera table',false,null,corners,evidence);},onFallback:()=>$('cameraFileInput').click()});
         $('photoTakeImage').addEventListener('click',openTableCamera);
-        $('photoFrameImage').addEventListener('click',()=>{if(!photoVision.imageReady)return;const version=photoVision.imageVersion,name=photoVision.sourceName;photoVision.rawCanvas.toBlob(file=>{if(file&&version===photoVision.imageVersion)window.BilliardsTableCamera.open({tableLength:S.tableL,tableWidth:S.tableW,file,onCapture:(blob,corners,evidence)=>loadPhotoFile(blob,name,false,null,corners,evidence)});},'image/png');});
+        $('photoFrameImage').addEventListener('click',()=>{if(!photoVision.imageReady)return;const version=photoVision.imageVersion,name=photoVision.sourceName;photoVision.rawCanvas.toBlob(file=>{if(file&&version===photoVision.imageVersion)window.BilliardsTableCamera.open({tableLength:(Number(S.tableL)||88)*.0254,tableWidth:(Number(S.tableW)||44)*.0254,file,onCapture:(blob,corners,evidence)=>loadPhotoFile(blob,name,false,null,corners,evidence)});},'image/png');});
         $('cameraCaptureBtn').addEventListener('click',ev=>{ev.preventDefault();openTableCamera();});
         $('photoArchiveSave').addEventListener('click',pvArchiveRawCanvas);
         $('photoArchiveSelect').addEventListener('change',()=>{const b=$('photoArchiveDelete');b.dataset.confirmId='';b.textContent='Remove';});

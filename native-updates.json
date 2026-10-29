@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "9bc46af2d6f539d4ecc5480e144ca89ee803be19d3f4506bf0ace256f4c1b51b",
-  "sequence": 1793265613,
+  "version": "fb4b256324d433954778f60c03366ec92545455896e01493a99d7a3f675d342b",
+  "sequence": 1793271095,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3701,8 +3701,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "e750ed048c0d2860c1b17c400a27b68d25976c2f9c2a7f7b80395d523a8f8c82",
-      "length": 876793
+      "sha256": "fa31501a9975e3a33c8583011d62fc92b023de8704982374f2fc954db57f993e",
+      "length": 878066
     },
     "install/android/index.html": {
       "sha256": "862dff4245e200376ff30ee6763f007bb510a3c0cdf0634f8ef3d0d2c25630ff",
@@ -3801,7 +3801,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "44463f631be69d1897018183857a249663ae933619a526241c68c784d038fa29",
+      "sha256": "430b7656c31d69598b6bd8ad93d4208284b98749f4cd42f18de7438b5f5e96bb",
       "length": 144664
     },
     "phone-play.css": {
@@ -3817,8 +3817,8 @@
       "length": 1835
     },
     "photo-ball-evidence.js": {
-      "sha256": "0ec117717f5a080479ca33a4c1c7406d09a5f82fbe910aa4eee763e4b214acae",
-      "length": 2327
+      "sha256": "bd1ea66a035dcfb30b5c9103d4fb7793b5aa36f0da3b0dd3630525aa5790daec",
+      "length": 2941
     },
     "photo-ball-identity-model.js": {
       "sha256": "8da789d19caac45072ca19520d6380a09b2eeb74e3ca20c15103b29fa0301bcb",
@@ -3841,8 +3841,8 @@
       "length": 1930
     },
     "photo-camera.js": {
-      "sha256": "b88b92e33540cd1a5d73e8e6b60f1cdc928c2eb36be2256477ec4e61c15b64bb",
-      "length": 14363
+      "sha256": "6605da246b8fc32c0c5b29f2ab698a71985e490ddee6fbb23a2f4f1d80936c03",
+      "length": 14566
     },
     "photo-cloth-filter.js": {
       "sha256": "937904e380622a4da076aee6d0d2994c32ad0cdc7e646d83cbfc75075d39053c",
@@ -4909,7 +4909,7 @@
       "length": 1895
     },
     "service-worker.js": {
-      "sha256": "1e53c768a0a884149f6de29d40904367a3d2d8050ad27d6793ba0628a16064e9",
+      "sha256": "893c58148543fd45185287ca4f156c916918d94d4cc2fbd4b1627465a3ebcbcd",
       "length": 7739
     },
     "table-orbit.js": {

@@ -24,7 +24,18 @@ function adjust(scores,appearance,ids){
   if(id===0&&(a.white||0)>.55&&(a.color||0)<.10)support+=.12;
   if(id===8&&(a.dark||0)>.35)support+=.10;
   if(strong)support*=.2;
-  return Math.max(0,Math.min(1,score*(1+Math.max(-.18,Math.min(.25,support)))));
+  let adjusted=score*(1+Math.max(-.18,Math.min(.25,support)));
+  // Confident color separates orange 5 from maroon 7 when lighting shifts hue red.
+  if(id!==0&&id!==8&&Number.isFinite(a.dominantHue)&&evidence>.32){
+   const d=distance(a.dominantHue,targets[base]),likelihood=Math.exp(-.5*(d/18)**2);
+   let factor=.08+.92*likelihood*likelihood;
+   const value=Number(a.colorMeanVal);
+   if(Number.isFinite(value)&&base===5&&value>.48)factor*=1.18;
+   if(Number.isFinite(value)&&base===7&&value>.48)factor*=.78;
+   const reliability=Math.max(0,Math.min(1,(evidence-.32)/.48));
+   adjusted*=Math.pow(Math.max(.04,Math.min(1.25,factor)),reliability);
+  }
+  return Math.max(0,Math.min(1,adjusted));
  });
 }
 function tableBounds(corners,width,height){

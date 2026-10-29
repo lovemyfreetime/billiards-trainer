@@ -21,9 +21,9 @@
   const w=source.videoWidth||source.naturalWidth,h=source.videoHeight||source.naturalHeight;
   if(!w||!h)throw Error('Image is not ready');
   if(enabled&&(!valid(q)||visibleArea(q)<1e-6))throw Error('Move the frame over the image');
-  let evidence=null;
+  let evidence=null,evidenceScale=1;
   if(enabled&&refineRails&&root.BilliardsCornerSensing?.woodGuided){
-   const scale=Math.min(1,960/Math.max(w,h)),probe=document.createElement('canvas');probe.width=Math.round(w*scale);probe.height=Math.round(h*scale);
+   const scale=Math.min(1,960/Math.max(w,h)),probe=document.createElement('canvas');evidenceScale=scale;probe.width=Math.round(w*scale);probe.height=Math.round(h*scale);
    const pc=probe.getContext('2d',{willReadFrequently:true});pc.drawImage(source,0,0,probe.width,probe.height);
    evidence=root.BilliardsCornerSensing.woodGuided(pc.getImageData(0,0,probe.width,probe.height),q.map(p=>({x:p.x*probe.width,y:p.y*probe.height})),{tableLength,tableWidth});
    if(evidence)q=evidence.corners.map(p=>({x:p.x/probe.width,y:p.y/probe.height}));
@@ -32,6 +32,7 @@
   const pad=enabled?Math.ceil(Math.min(w,h)*.025):0,x=Math.max(0,Math.floor(Math.min(...points.map(p=>p.x)))-pad),y=Math.max(0,Math.floor(Math.min(...points.map(p=>p.y)))-pad);
   const width=Math.min(w,Math.ceil(Math.max(...points.map(p=>p.x)))+pad)-x,height=Math.min(h,Math.ceil(Math.max(...points.map(p=>p.y)))+pad)-y;
   const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');ctx.fillStyle='#000';ctx.fillRect(0,0,width,height);ctx.save();ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x-x,p.y-y):ctx.moveTo(p.x-x,p.y-y));ctx.closePath();ctx.clip();ctx.drawImage(source,-x,-y);ctx.restore();
+  if(evidence?.boundaryCorners?.length===4)evidence.boundaryCorners=evidence.boundaryCorners.map(p=>({x:(p.x/evidenceScale-x)/width,y:(p.y/evidenceScale-y)/height}));
   return {canvas,evidence,corners:enabled?points.map(p=>({x:(p.x-x)/width,y:(p.y-y)/height})):null};
  }
  let active=null;
