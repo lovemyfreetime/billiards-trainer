@@ -1,101 +1,98 @@
 (function(root){
  'use strict';
- const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
- function valid(q){return q.length===4&&q.every(p=>Number.isFinite(p.x)&&Number.isFinite(p.y))&&q.every((p,i)=>{const b=q[(i+1)%4],c=q[(i+2)%4];return (b.x-p.x)*(c.y-b.y)-(b.y-p.y)*(c.x-b.x)>.002;});}
- function project(s){
-  return [[-1,-.5],[1,-.5],[1,.5],[-1,.5]].map(([x,y])=>{
-   const z=1+s.tiltX*x+s.tiltY*y*2,xx=x/z,yy=y/z,co=Math.cos(s.angle),si=Math.sin(s.angle);
-   return {x:s.x+s.size*(xx*co-yy*si),y:s.y+s.size*(xx*si+yy*co)};
-  });
+ function valid(q){return q.length===4&&q.every(p=>Number.isFinite(p.x)&&Number.isFinite(p.y))&&q.every((p,i)=>{const b=q[(i+1)%4],c=q[(i+2)%4];return (b.x-p.x)*(c.y-b.y)-(b.y-p.y)*(c.x-b.x)>1e-6;});}
+ function mediaBounds(w,h,width,height,cover=true){
+  const scale=(cover?Math.max:Math.min)(width/w,height/h);
+  return {x:(width-w*scale)/2,y:(height-h*scale)/2,width:w*scale,height:h*scale,scale};
  }
- function transform(q,a,b,aspect=1){
-  q=q.map(p=>({x:p.x*aspect,y:p.y}));a=a.map(p=>({x:p.x*aspect,y:p.y}));b=b.map(p=>({x:p.x*aspect,y:p.y}));
-  const ac={x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2},bc={x:(b[0].x+b[1].x)/2,y:(b[0].y+b[1].y)/2};
-  const d=p=>Math.hypot(p[1].x-p[0].x,p[1].y-p[0].y),angle=p=>Math.atan2(p[1].y-p[0].y,p[1].x-p[0].x);
-  const scale=clamp(d(b)/Math.max(.01,d(a)),.2,5),r=angle(b)-angle(a),co=Math.cos(r),si=Math.sin(r);
-  return q.map(p=>({x:(bc.x+scale*((p.x-ac.x)*co-(p.y-ac.y)*si))/aspect,y:bc.y+scale*((p.x-ac.x)*si+(p.y-ac.y)*co)}));
- }
- function capture(video,q,enabled){
-  const w=video.videoWidth||video.naturalWidth,h=video.videoHeight||video.naturalHeight;
-  const points=enabled?q.map(p=>({x:p.x*w,y:p.y*h})): [{x:0,y:0},{x:w,y:0},{x:w,y:h},{x:0,y:h}];
-  const pad=enabled?Math.ceil(Math.min(w,h)*.025):0;
-  const x=Math.max(0,Math.floor(Math.min(...points.map(p=>p.x)))-pad),y=Math.max(0,Math.floor(Math.min(...points.map(p=>p.y)))-pad);
+ function sourceCorners(q,bounds,width,height){return q.map(p=>({x:(p.x*width-bounds.x)/bounds.width,y:(p.y*height-bounds.y)/bounds.height}));}
+ function capture(source,q,enabled){
+  const w=source.videoWidth||source.naturalWidth,h=source.videoHeight||source.naturalHeight;
+  if(!w||!h)throw Error('Image is not ready');
+  if(enabled&&(!valid(q)||q.some(p=>p.x<0||p.y<0||p.x>1||p.y>1)))throw Error('Move the whole frame inside the image');
+  const points=enabled?q.map(p=>({x:p.x*w,y:p.y*h})):[{x:0,y:0},{x:w,y:0},{x:w,y:h},{x:0,y:h}];
+  const pad=enabled?Math.ceil(Math.min(w,h)*.025):0,x=Math.max(0,Math.floor(Math.min(...points.map(p=>p.x)))-pad),y=Math.max(0,Math.floor(Math.min(...points.map(p=>p.y)))-pad);
   const width=Math.min(w,Math.ceil(Math.max(...points.map(p=>p.x)))+pad)-x,height=Math.min(h,Math.ceil(Math.max(...points.map(p=>p.y)))+pad)-y;
-  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');
-  ctx.fillStyle='#000';ctx.fillRect(0,0,width,height);ctx.save();ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x-x,p.y-y):ctx.moveTo(p.x-x,p.y-y));ctx.closePath();ctx.clip();ctx.drawImage(video,-x,-y);ctx.restore();
+  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');ctx.fillStyle='#000';ctx.fillRect(0,0,width,height);ctx.save();ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x-x,p.y-y):ctx.moveTo(p.x-x,p.y-y));ctx.closePath();ctx.clip();ctx.drawImage(source,-x,-y);ctx.restore();
   return {canvas,corners:enabled?points.map(p=>({x:(p.x-x)/width,y:(p.y-y)/height})):null};
  }
  let active=null;
  async function open({onCapture,onFallback,onError,file=null}){
-  if(active)return;const previous=document.activeElement;
-  const modal=document.createElement('div');modal.id='tableCamera';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-label',file?'Photo table frame':'Table camera');
-  modal.innerHTML='<div class="tableCameraBar"><button data-action="close" aria-label="Close camera">Close</button><button data-action="overlay" aria-pressed="true">Frame On</button><button data-action="mode" aria-pressed="false">Tilt</button><button data-action="swap">Swap Ends</button><button data-action="reset">Reset</button><button data-action="fallback">Device Camera</button><button data-action="snap" disabled>Take Photo</button></div><div class="tableCameraStage"><video autoplay muted playsinline></video><svg aria-label="Adjust table frame"></svg></div><div class="tableCameraHint" role="status">Opening camera…</div>';
-  if(file){modal.querySelector('[role=status]').textContent='Opening image…';modal.querySelector('[data-action=close]').setAttribute('aria-label','Close photo frame');modal.querySelector('video').replaceWith(document.createElement('img'));modal.querySelector('img').alt='Selected pool table photo';modal.querySelector('[data-action=fallback]').hidden=true;modal.querySelector('[data-action=snap]').textContent='Use Frame';}
-  document.body.append(modal);const video=modal.querySelector('video,img'),svg=modal.querySelector('svg'),hint=modal.querySelector('[role=status]'),snap=modal.querySelector('[data-action=snap]');
-  let stream=null,imageURL=null,closed=false,enabled=true,mode='tilt',q=[],gesture=null;const fingers=new Map();
-  function close(){if(closed)return;closed=true;stream?.getTracks().forEach(t=>t.stop());video.srcObject=null;if(imageURL)URL.revokeObjectURL(imageURL);resize.disconnect();document.removeEventListener('keydown',key);document.removeEventListener('visibilitychange',visibility);window.removeEventListener('pagehide',close);modal.remove();active=null;previous?.focus();}
+  if(active)return;
+  // Use the same trusted-gesture fullscreen entry as Trainer 3D.
+  root.BilliardsDisplay?.enter(true);
+  const previous=document.activeElement,modal=document.createElement('div');modal.id='tableCamera';modal.className=file?'tableCameraPhoto':'';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-label',file?'Photo table frame':'Table camera');
+  modal.innerHTML='<div class="tableCameraStage">'+(file?'<img alt="Selected pool table photo">':'<video autoplay muted playsinline></video>')+'<svg aria-label="Rigid 3D table frame" role="img"></svg></div><div class="tableCameraBar"><button data-action="close">Close</button><button data-action="overlay" aria-pressed="true">Frame On</button><button data-action="move" aria-pressed="false" title="Slide the frame without rotating">Hand</button><button data-action="rotate" aria-pressed="true">Rotate</button><button data-action="minus" aria-label="Shrink frame">−</button><button data-action="plus" aria-label="Enlarge frame">+</button><button data-action="top">Top</button><button data-action="swap">Swap Ends</button><button data-action="reset">Reset</button><button data-action="retry" hidden>Retry Camera</button><button data-action="settings" hidden>Camera Settings</button><button data-action="fallback"'+(file?' hidden':'')+'>Device Camera</button><button data-action="snap" disabled>'+(file?'Use Frame':'Take Photo')+'</button></div><div class="tableCameraHint" role="status">'+(file?'Opening image…':'Opening camera…')+'</div>';
+  document.body.append(modal);
+  const media=modal.querySelector('video,img'),svg=modal.querySelector('svg'),stage=modal.querySelector('.tableCameraStage'),hint=modal.querySelector('[role=status]'),snap=modal.querySelector('[data-action=snap]'),orbit=root.BilliardsTableOrbit;
+  let stream=null,imageURL=null,closed=false,enabled=true,panning=false,ready=false,busy=false,T=null,camera=null,q=[],sourceQuad=[],swapped=false;
+  const pointers=new Map(),state={azimuth:0,elevation:Math.PI/3,radius:3,target:{x:0,y:0,z:0}},L=2,W=1,R=.028575;
+  const corners=[{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1}];
+  function stop(){stream?.getTracks().forEach(t=>t.stop());stream=null;if(!file)media.srcObject=null;}
+  function close(){if(closed)return;closed=true;stop();if(imageURL)URL.revokeObjectURL(imageURL);resize.disconnect();document.removeEventListener('keydown',key,true);document.removeEventListener('visibilitychange',visibility);window.removeEventListener('pagehide',close);modal.remove();active=null;previous?.focus();}
   function key(e){if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();close();}else if(e.key==='Tab'){const buttons=[...modal.querySelectorAll('button:not(:disabled):not([hidden])')],i=buttons.indexOf(document.activeElement);e.preventDefault();buttons[(i+(e.shiftKey?-1:1)+buttons.length)%buttons.length].focus();}}
-  function visibility(){if(document.hidden)close();}
-  active={close};document.addEventListener('keydown',key);document.addEventListener('visibilitychange',visibility);window.addEventListener('pagehide',close);
+  function visibility(){if(document.hidden&&stream&&!busy)close();}
+  document.addEventListener('keydown',key,true);document.addEventListener('visibilitychange',visibility);window.addEventListener('pagehide',close);
+  function projected(p){const v=new T.Vector3((swapped?1-p.x:p.x)*L-L/2,0,(swapped?1-p.y:p.y)*W-W/2).project(camera);return {x:(v.x+1)/2,y:(1-v.y)/2,z:v.z};}
+  function update(){if(!camera)return;orbit.updateCamera(camera,state,stage.clientWidth/Math.max(1,stage.clientHeight));}
   function draw(){
-   const r=video.getBoundingClientRect(),stage=video.parentElement.getBoundingClientRect();svg.style.left=(r.left-stage.left)+'px';svg.style.top=(r.top-stage.top)+'px';svg.style.width=r.width+'px';svg.style.height=r.height+'px';svg.setAttribute('viewBox','0 0 1000 1000');svg.setAttribute('preserveAspectRatio','none');
-   svg.style.display=enabled?'block':'none';const poly=q.map(p=>`${p.x*1000},${p.y*1000}`).join(' ');
-   const cal=root.BilliardsPhotoCalibration,fit=cal?.fit([{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1}],q);
-   const map=p=>{const v=fit?cal.apply(fit.H,p):{x:.5,y:.5};return {x:v.x*1000,y:v.y*1000};};
-   const head=map({x:.25,y:.5}),foot=map({x:.75,y:.5}),dotRX=4500/Math.max(1,r.width),dotRY=4500/Math.max(1,r.height);
-   const triangle=[{x:.75,y:.5},{x:.86,y:.32},{x:.86,y:.68}].map(map).map(p=>p.x+','+p.y).join(' ');
-   svg.innerHTML='<path fill="rgba(0,0,0,.78)" fill-rule="evenodd" d="M0 0H1000V1000H0Z M'+q.map(p=>`${p.x*1000} ${p.y*1000}`).join('L')+'Z"/><polygon points="'+poly+'" fill="transparent" stroke="#a3efd0" stroke-width="2" vector-effect="non-scaling-stroke"/>'+q.map((p,i)=>'<circle data-corner="'+i+'" cx="'+p.x*1000+'" cy="'+p.y*1000+'" r="18" fill="#dbfff0" stroke="#20614a" stroke-width="2"/>').join('');
-   svg.insertAdjacentHTML('beforeend','<g pointer-events="none" fill="#f3e7ba" stroke="#f3e7ba"><polygon points="'+triangle+'" fill="none" stroke-width="2" vector-effect="non-scaling-stroke"/><ellipse cx="'+head.x+'" cy="'+head.y+'" rx="'+dotRX+'" ry="'+dotRY+'"/><ellipse cx="'+foot.x+'" cy="'+foot.y+'" rx="'+dotRX+'" ry="'+dotRY+'"/></g>');
+   if(closed||!camera)return;update();q=corners.map(projected);const width=stage.clientWidth,height=stage.clientHeight,w=media.videoWidth||media.naturalWidth,h=media.videoHeight||media.naturalHeight;
+   const bounds=w&&h?mediaBounds(w,h,width,height,!file):null;sourceQuad=bounds?sourceCorners(q,bounds,width,height):[];
+   const inImage=valid(sourceQuad)&&sourceQuad.every(p=>p.x>=0&&p.x<=1&&p.y>=0&&p.y<=1)&&q.every(p=>p.z>-1&&p.z<1);
+   svg.style.display=enabled&&ready?'block':'none';snap.disabled=!ready||busy||(enabled&&!inImage);
+   svg.setAttribute('viewBox','0 0 '+width+' '+height);
+   const pt=p=>`${p.x*width},${p.y*height}`,poly=q.map(pt).join(' '),head=projected({x:.25,y:.5}),foot=projected({x:.75,y:.5}),triangle=[{x:.75,y:.5},{x:.86,y:.32},{x:.86,y:.68}].map(projected).map(pt).join(' ');
+   svg.innerHTML='<polygon points="'+poly+'" fill="transparent" stroke="'+(inImage?'#a3efd0':'#ffd283')+'" stroke-width="2"/>';
+   svg.insertAdjacentHTML('beforeend','<g pointer-events="none" fill="#f3e7ba" stroke="#f3e7ba"><polygon points="'+triangle+'" fill="none" stroke-width="2"/><circle cx="'+head.x*width+'" cy="'+head.y*height+'" r="4"/><circle cx="'+foot.x*width+'" cy="'+foot.y*height+'" r="4"/></g>');
    svg.dataset.headX=String(head.x);svg.dataset.headY=String(head.y);
+   if(ready)hint.textContent=enabled&&!inImage?'Move or zoom out until the whole frame is inside the image.':'Drag: '+(panning?'slide without rotating':'rotate and tilt')+'. Wheel: zoom. Two fingers: move and pinch. Only inside the frame is analyzed.';
   }
-  function reset(){const aspect=(video.videoWidth||video.naturalWidth)/(video.videoHeight||video.naturalHeight)||16/9;q=project({x:.5,y:.5,size:Math.min(.32,.60/aspect),angle:0,tiltX:0,tiltY:0}).map(p=>({x:p.x,y:.5+(p.y-.5)*aspect}));draw();}
-  function message(){hint.textContent='One finger: '+(mode==='tilt'?'tilt perspective':'move frame')+'. Two fingers: move, pinch to resize, twist to rotate. Drag corners to match the inner cushion edges. Put the triangle at the rack end; Swap Ends reverses it.';}
-  const resize=new ResizeObserver(()=>draw());resize.observe(video.parentElement);reset();
-  const point=e=>{const r=svg.getBoundingClientRect();return {x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height};};
-  function begin(corner=-1){gesture={points:[...fingers.values()].map(p=>({...p})),q:q.map(p=>({...p})),corner};}
-  svg.addEventListener('pointerdown',e=>{if(!enabled)return;e.preventDefault();svg.setPointerCapture(e.pointerId);fingers.set(e.pointerId,point(e));const p=point(e),r=svg.getBoundingClientRect();let corner=q.findIndex(v=>Math.hypot((v.x-p.x)*r.width,(v.y-p.y)*r.height)<28);begin(fingers.size===1?corner:-1);});
-  svg.addEventListener('pointermove',e=>{
-   if(!fingers.has(e.pointerId))return;e.preventDefault();fingers.set(e.pointerId,point(e));const p=[...fingers.values()];let next;
-   if(p.length>=2&&gesture.points.length>=2)next=transform(gesture.q,gesture.points,p,svg.clientWidth/svg.clientHeight);
-   else {const dx=p[0].x-gesture.points[0].x,dy=p[0].y-gesture.points[0].y;
-    if(gesture.corner>=0)next=gesture.q.map((v,i)=>i===gesture.corner?{x:v.x+dx,y:v.y+dy}:{...v});
-    else if(mode==='move')next=gesture.q.map(v=>({x:v.x+dx,y:v.y+dy}));
-    else {const cx=gesture.q.reduce((a,v)=>a+v.x/4,0),cy=gesture.q.reduce((a,v)=>a+v.y/4,0);next=gesture.q.map(v=>{const x=v.x-cx,y=v.y-cy,z=1+clamp(dx*3,-1,1)*x+clamp(dy*3,-1,1)*y;return {x:cx+x/z,y:cy+y/z};});}
-   }
-   if(valid(next)){
-    // Keep touch handles away from toolbar hit targets and viewport clipping.
-    const mx=Math.min(.12,24/svg.clientWidth),my=Math.min(.12,24/svg.clientHeight);
-    const minX=Math.min(...next.map(v=>v.x)),maxX=Math.max(...next.map(v=>v.x)),minY=Math.min(...next.map(v=>v.y)),maxY=Math.max(...next.map(v=>v.y));
-    const scale=Math.min(1,(1-2*mx)/(maxX-minX),(1-2*my)/(maxY-minY)),cx=(minX+maxX)/2,cy=(minY+maxY)/2;
-    next=next.map(v=>({x:cx+(v.x-cx)*scale,y:cy+(v.y-cy)*scale}));
-    const left=Math.min(...next.map(v=>v.x)),right=Math.max(...next.map(v=>v.x)),top=Math.min(...next.map(v=>v.y)),bottom=Math.max(...next.map(v=>v.y));
-    const sx=left<mx?mx-left:right>1-mx?1-mx-right:0,sy=top<my?my-top:bottom>1-my?1-my-bottom:0;
-    q=next.map(v=>({x:v.x+sx,y:v.y+sy}));draw();
-   }
-  });
-  function end(e){fingers.delete(e.pointerId);if(fingers.size)begin();else gesture=null;}
-  for(const type of ['pointerup','pointercancel','lostpointercapture'])svg.addEventListener(type,end);
+  function reset(top=false){if(!camera)return;state.azimuth=0;state.elevation=(top?88:60)*Math.PI/180;state.target={x:0,y:0,z:0};state.radius=1.5;swapped=false;
+   const width=stage.clientWidth,height=stage.clientHeight,w=media.videoWidth||media.naturalWidth||width,h=media.videoHeight||media.naturalHeight||height,b=mediaBounds(w,h,width,height,!file);
+   for(let step=0;step<90;step++){update();const ps=corners.map(projected);if(ps.every(p=>p.x>.08&&p.x<.92&&p.y>.13&&p.y<.87&&p.x*width>b.x+10&&p.x*width<b.x+b.width-10&&p.y*height>b.y+10&&p.y*height<b.y+b.height-10))break;state.radius*=1.035;}draw();
+  }
+  const resize=new ResizeObserver(draw);resize.observe(stage);
+  const actions={get panning(){return panning;},pan(dx,dy){update();orbit.pan(T,camera,state,dx,dy,stage.clientHeight);},zoom(factor){orbit.zoom(state,factor,L,R);},orbit(dx,dy){orbit.orbit(state,dx,dy);}};
+  svg.addEventListener('pointerdown',e=>{if(!ready||!enabled||e.button!==0)return;e.preventDefault();e.stopPropagation();svg.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,multi:pointers.size>0});if(pointers.size>1)for(const p of pointers.values())p.multi=true;});
+  svg.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;e.preventDefault();e.stopPropagation();orbit.move(pointers,e,actions);draw();});
+  for(const type of ['pointerup','pointercancel','lostpointercapture'])svg.addEventListener(type,e=>{pointers.delete(e.pointerId);});
+  svg.addEventListener('wheel',e=>{if(!ready)return;e.preventDefault();actions.zoom(Math.exp(Math.max(-120,Math.min(120,e.deltaY))*.002));draw();},{passive:false});
+  function failure(error){ready=false;snap.disabled=true;svg.style.display='none';stop();modal.querySelector('[data-action=retry]').hidden=false;
+   const name=error?.name||'Error',native=!!root.BilliardsAndroid;
+   if(native&&!root.BilliardsAndroid.cameraPermissionState)hint.textContent='This installed app needs the camera-permission update. For now, use Device Camera, then align the photo frame.';
+   else if(name==='NotAllowedError'||name==='SecurityError'){hint.textContent=native?'Camera access is blocked. Allow Camera in Android Settings → Apps → Billiards Trainer → Permissions, then Retry Camera.':'Camera access is blocked. Allow Camera for this site in your browser and enable Android Camera access, then Retry Camera.';modal.querySelector('[data-action=settings]').hidden=!root.BilliardsAndroid?.openCameraSettings;}
+   else if(name==='NotReadableError'||name==='AbortError')hint.textContent='The camera could not start. Close other camera apps, then Retry Camera.';
+   else if(name==='NotFoundError')hint.textContent='No camera was found. Check that Android Camera access is on, then Retry Camera.';
+   else hint.textContent='Live camera is unavailable ('+name+'). Retry Camera or use Device Camera.';
+   modal.dataset.cameraError=name;
+  }
+  async function startCamera(){if(busy||closed)return;busy=true;ready=false;snap.disabled=true;stop();hint.textContent='Requesting camera access…';
+   try{
+    if(!navigator.mediaDevices?.getUserMedia)throw Object.assign(Error('Camera API unavailable'),{name:'NotSupportedError'});
+    let acquired;try{acquired=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false});}catch(e){if(e.name!=='OverconstrainedError')throw e;acquired=await navigator.mediaDevices.getUserMedia({video:true,audio:false});}
+    if(closed){acquired.getTracks().forEach(t=>t.stop());return;}stream=acquired;media.srcObject=stream;await media.play();if(closed)return;ready=true;modal.querySelector('[data-action=retry]').hidden=true;modal.querySelector('[data-action=settings]').hidden=true;delete modal.dataset.cameraError;
+   }catch(error){if(!closed)failure(error);}finally{busy=false;if(ready){reset();draw();}}
+  }
   modal.querySelector('.tableCameraBar').addEventListener('click',async e=>{
-   const action=e.target.dataset.action;if(!action)return;
+   const action=e.target.closest('button')?.dataset.action;if(!action)return;
    if(action==='close')close();
-   if(action==='fallback'){close();onFallback();}
+   if(action==='fallback'){close();onFallback?.();}
+   if(action==='retry')startCamera();
+   if(action==='settings')root.BilliardsAndroid?.openCameraSettings?.();
    if(action==='overlay'){enabled=!enabled;e.target.textContent=enabled?'Frame On':'Frame Off';e.target.setAttribute('aria-pressed',String(enabled));draw();}
-   if(action==='mode'){mode=mode==='tilt'?'move':'tilt';e.target.textContent=mode==='tilt'?'Tilt':'Move';e.target.setAttribute('aria-pressed',String(mode==='move'));message();}
-   if(action==='reset')reset();
-   if(action==='swap'){q=[q[2],q[3],q[0],q[1]];draw();}
-   if(action==='snap'&&(video.videoWidth||video.naturalWidth)&&!snap.disabled){
-    snap.disabled=true;try{const result=capture(video,q,enabled);const blob=await new Promise(resolve=>result.canvas.toBlob(resolve,'image/png'));if(!blob)throw Error('Capture failed');if(closed)return;close();onCapture(blob,result.corners);}catch(err){hint.textContent='Could not capture. Please try again.';snap.disabled=false;}
-   }
+   if(action==='move'||action==='rotate'){pointers.clear();panning=action==='move';modal.querySelector('[data-action=move]').setAttribute('aria-pressed',String(panning));modal.querySelector('[data-action=rotate]').setAttribute('aria-pressed',String(!panning));draw();}
+   if(action==='plus'||action==='minus'){actions.zoom(action==='plus'?.88:1/.88);draw();}
+   if(action==='top'||action==='reset')reset(action==='top');
+   if(action==='swap'){swapped=!swapped;draw();}
+   if(action==='snap'&&!snap.disabled){busy=true;snap.disabled=true;try{const result=capture(media,sourceQuad,enabled),blob=await new Promise(resolve=>result.canvas.toBlob(resolve,'image/png'));if(!blob)throw Error('Capture failed');if(closed)return;close();onCapture(blob,result.corners);}catch(error){if(!closed){busy=false;draw();hint.textContent=error.message;}}}
   });
+  active={close,snapshot:()=>({state:JSON.parse(JSON.stringify(state)),quad:q.map(p=>({...p})),sourceQuad:sourceQuad.map(p=>({...p})),panning,ready,engine:'Three.js / shared Trainer 3D camera',table:{L,W}})};
   modal.querySelector('button').focus();
-  try{
-   if(file){imageURL=URL.createObjectURL(file);video.src=imageURL;await video.decode();if(closed)return;reset();message();snap.disabled=false;return;}
-   if(!navigator.mediaDevices?.getUserMedia)throw Error('Live camera unavailable');
-   stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false});
-   if(closed){stream.getTracks().forEach(t=>t.stop());return;}
-   video.srcObject=stream;await video.play();if(closed)return;reset();message();snap.disabled=false;
-  }catch(err){if(file&&onError&&!closed){close();onError(err);return;}if(!closed)hint.textContent=file?'This image could not be opened. Close and select a PNG, JPG or WEBP image.':'Live camera unavailable or permission denied. Allow camera access and reopen, or use Device Camera.';}
+  try{T=await import('./vendor/three/three-renderer.js?v=4');if(closed)return;camera=new T.PerspectiveCamera(44,1,.01,100);
+   if(file){imageURL=URL.createObjectURL(file);media.src=imageURL;await media.decode();if(closed)return;ready=true;reset();}
+   else await startCamera();
+  }catch(error){if(closed)return;if(file){if(onError){close();onError(error);}else hint.textContent='Could not open this image.';}else failure(error);}
  }
- const api={open,close:()=>active?.close(),project,transform,valid,capture};
+ const api={open,close:()=>active?.close(),snapshot:()=>active?.snapshot(),valid,mediaBounds,sourceCorners,capture};
  if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsTableCamera=api;
 })(typeof window==='object'?window:globalThis);

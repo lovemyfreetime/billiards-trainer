@@ -1,6 +1,9 @@
 package com.lovemyfreetime.billiardstrainer;
 
 import android.app.Activity;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.webkit.PermissionRequest;
 import android.app.DownloadManager;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -43,6 +46,11 @@ import java.util.Locale;
 public class MainActivity extends Activity {
     private static final String APP_URL = BuildConfig.APP_URL;
     private static final int FILE_CHOOSER_REQUEST = 4201;
+
+    private static final int CAMERA_PERMISSION_REQUEST = 4202;
+    private PermissionRequest pendingCameraRequest;
+    private WebChromeClient.FileChooserParams pendingCameraChooser;
+    private boolean requestingCameraPermission;
 
     WebView webView;
     BundledApp bundledApp;
@@ -146,6 +154,18 @@ public class MainActivity extends Activity {
         });
 
         webView.setWebChromeClient(new WebChromeClient() {
+            @Override public void onPermissionRequest(PermissionRequest request) {
+                runOnUiThread(() -> {
+                    String[] resources=request.getResources();
+                    if(!trustedCameraPage(request.getOrigin()) || resources.length!=1 || !PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(resources[0])){request.deny();return;}
+                    if(pendingCameraRequest!=null)pendingCameraRequest.deny();
+                    pendingCameraRequest=request;
+                    if(cameraAllowed())finishCameraRequest();else requestCameraPermission();
+                });
+            }
+            @Override public void onPermissionRequestCanceled(PermissionRequest request){
+                runOnUiThread(() -> {if(pendingCameraRequest==request)pendingCameraRequest=null;});
+            }
             @Override
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> callback, FileChooserParams params) {
                 if (fileCallback != null) fileCallback.onReceiveValue(null);
@@ -216,7 +236,36 @@ public class MainActivity extends Activity {
         setContentView(tv);
     }
 
+    private boolean cameraAllowed(){return checkSelfPermission(Manifest.permission.CAMERA)==PackageManager.PERMISSION_GRANTED;}
+    private boolean trustedCameraPage(Uri origin){
+        if(origin==null||webView==null)return false;
+        Uri page=Uri.parse(webView.getUrl()==null?"":webView.getUrl());
+        return BundledApp.ORIGIN.equals(origin.toString().replaceAll("/$",""))
+            && "https".equals(page.getScheme()) && "lovemyfreetime.github.io".equals(page.getHost())
+            && (page.getPort()==-1||page.getPort()==443) && page.getPath()!=null && page.getPath().startsWith(BundledApp.PREFIX);
+    }
+    private void requestCameraPermission(){
+        if(!requestingCameraPermission){requestingCameraPermission=true;requestPermissions(new String[]{Manifest.permission.CAMERA},CAMERA_PERMISSION_REQUEST);}
+    }
+    private void finishCameraRequest(){
+        PermissionRequest request=pendingCameraRequest;pendingCameraRequest=null;
+        if(request!=null){if(cameraAllowed()&&trustedCameraPage(request.getOrigin()))request.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});else request.deny();}
+    }
+    @Override public void onRequestPermissionsResult(int code,String[] permissions,int[] results){
+        super.onRequestPermissionsResult(code,permissions,results);
+        if(code==CAMERA_PERMISSION_REQUEST){
+            requestingCameraPermission=false;finishCameraRequest();
+            WebChromeClient.FileChooserParams chooser=pendingCameraChooser;pendingCameraChooser=null;
+            if(chooser!=null)launchFileChooserGranted(chooser);
+        }
+    }
     private void launchFileChooser(WebChromeClient.FileChooserParams params) {
+        if(params!=null&&params.isCaptureEnabled()&&!cameraAllowed()){
+            pendingCameraChooser=params;requestCameraPermission();return;
+        }
+        launchFileChooserGranted(params);
+    }
+    private void launchFileChooserGranted(WebChromeClient.FileChooserParams params) {
         Intent pick = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         pick.addCategory(Intent.CATEGORY_OPENABLE);
         pick.setType("*/*");
@@ -232,7 +281,7 @@ public class MainActivity extends Activity {
         pick.putExtra(Intent.EXTRA_MIME_TYPES,accepts.toArray(new String[0]));
 
         Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        cameraOutputUri = media ? createPendingCameraUri() : null;
+        cameraOutputUri = media && cameraAllowed() ? createPendingCameraUri() : null;
         if (cameraOutputUri != null) {
             camera.putExtra(MediaStore.EXTRA_OUTPUT, cameraOutputUri);
             camera.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -379,11 +428,18 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy(){
+        if(pendingCameraRequest!=null){pendingCameraRequest.deny();pendingCameraRequest=null;}
+        pendingCameraChooser=null;
         if(descriptionVoice!=null){descriptionVoice.stop();descriptionVoice.shutdown();}
         super.onDestroy();
     }
 
     public class AndroidBridge {
+        @JavascriptInterface public String cameraPermissionState(){return cameraAllowed()?"granted":"denied";}
+        @JavascriptInterface public void openCameraSettings(){runOnUiThread(() -> {
+            if(!trustedCameraPage(Uri.parse(BundledApp.ORIGIN)))return;
+            startActivity(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,Uri.parse("package:"+getPackageName())));
+        });}
         @JavascriptInterface
         public void closeApp(){runOnUiThread(()->finishAndRemoveTask());}
 

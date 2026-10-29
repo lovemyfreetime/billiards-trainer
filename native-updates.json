@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "c0f29807b96cfcdab420f55d0b209ecfb51867dda51992a1d577c83c79fdc601",
-  "sequence": 1793249388,
+  "version": "3e7c0226bafe3179cc2f6fbabd1b5c02ca18886f8813f77f233bd6371352d19e",
+  "sequence": 1793254449,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3701,8 +3701,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "b897a060d4aeabbc326957b23d5766a3dd5e57ea4d0829b4217be69034b76550",
-      "length": 875539
+      "sha256": "4d0f55c56cb4036d714b52155012daa61a46708528b450a31c2153aa0f7d1304",
+      "length": 875580
     },
     "install/android/index.html": {
       "sha256": "862dff4245e200376ff30ee6763f007bb510a3c0cdf0634f8ef3d0d2c25630ff",
@@ -3801,8 +3801,8 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "0236c7ff5b8e271b654219792b80a707f304c845467fe129c4e9d41480b0c648",
-      "length": 144574
+      "sha256": "41b886bc538b20fd5797af0d546dff330bdd28610cbe200a9ecdcf44206abb1b",
+      "length": 144664
     },
     "phone-play.css": {
       "sha256": "cec5017ee25f788690420d4e67241754a1fbb2c047779ad0e7e59d87f7eac720",
@@ -3837,12 +3837,12 @@
       "length": 8150
     },
     "photo-camera.css": {
-      "sha256": "edbfdae470efa2efe3171aa3662ef6af454bfcb07d411ed8e9612bf3aff86f39",
-      "length": 1023
+      "sha256": "3dd5318b3c986c7d418786bf2ebaf10bd0c781466334558bcf82283613076d6c",
+      "length": 1930
     },
     "photo-camera.js": {
-      "sha256": "986ee580eb01380fe7c11e05e0208d4cf799e276f4d397aa47a6453be17391f3",
-      "length": 11502
+      "sha256": "0bc9abfb05834d22d8fe223c4fdbaa9ebbbf2821cd58495083d64327b373b482",
+      "length": 12989
     },
     "photo-cloth-filter.js": {
       "sha256": "937904e380622a4da076aee6d0d2994c32ad0cdc7e646d83cbfc75075d39053c",
@@ -4909,8 +4909,12 @@
       "length": 1895
     },
     "service-worker.js": {
-      "sha256": "5c601e947db2ea8f37fcc5a2813d288c3cd8839b386a72a73b4cada9d5983f16",
+      "sha256": "45182712503cd0a84f2461d736b7992627c69c3fb46276d200885c63d23e866b",
       "length": 7739
+    },
+    "table-orbit.js": {
+      "sha256": "602b7e22cc0425b03d0aedb7162c521a4814cdc19bb45406f843b0f7f006d085",
+      "length": 2158
     },
     "tournament-engine.js": {
       "sha256": "2bcd8befb4ab63c983347b5d43bdc815e0f0b9c454fc5db49a66370517331288",
@@ -4933,8 +4937,8 @@
       "length": 26843
     },
     "trainer-3d.js": {
-      "sha256": "23a60fdbce55300ebf7f23b349784ecc6f919203d6a5c7ad4887d0e32a623d83",
-      "length": 41206
+      "sha256": "5223f0f859fca59409af684187689494ea35a238424be39a6b3765da9fb803d0",
+      "length": 40227
     },
     "trainer-action-history.js": {
       "sha256": "83f2afc6a65e2dc18b66313cc709a66407e72144c2278cc2d2acbfb600e4cfb4",

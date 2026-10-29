@@ -84,10 +84,10 @@
  }
  if(window.ResizeObserver)new ResizeObserver(fitViewLabels).observe(phoneBox);
  function requestRender(){if(lastFrame){const min=Math.max(lastFrame.R*5,lastFrame.L*.06),max=lastFrame.L*8;zoomSlider.value=String(100*(Math.log(max)-Math.log(cameraState.radius))/(Math.log(max)-Math.log(min)));}if(!active||!engine||scheduled)return;scheduled=requestAnimationFrame(()=>{scheduled=0;if(active)engine.render();});}
- function orbit(dx,dy){cameraState.azimuth+=dx;cameraState.elevation=clamp(cameraState.elevation+dy,2*Math.PI/180,88*Math.PI/180);requestRender();}
- function zoom(factor){if(!lastFrame)return;cameraState.radius=clamp(cameraState.radius*factor,Math.max(lastFrame.R*5,lastFrame.L*.06),lastFrame.L*8);requestRender();}
+ function orbit(dx,dy){window.BilliardsTableOrbit.orbit(cameraState,dx,dy);requestRender();}
+ function zoom(factor){if(!lastFrame)return;window.BilliardsTableOrbit.zoom(cameraState,factor,lastFrame.L,lastFrame.R);requestRender();}
  // Keep the longer screen dimension at a natural 58° field of view.
- function viewTangent(aspect){return Math.tan(29*Math.PI/180)/Math.max(1,aspect);}
+ function viewTangent(aspect){return window.BilliardsTableOrbit.viewTangent(aspect);}
  function standing(){
   if(!lastFrame)return;
   const rect=(active?document.getElementById('table3DCanvas'):stage).getBoundingClientRect(),aspect=rect.width/Math.max(1,rect.height),L=lastFrame.L,W=lastFrame.W;
@@ -264,9 +264,7 @@
   // Screen-space panning translates camera and target together, preserving the
   // current tilt and shot-line angle even when looking nearly across the cloth.
   function pan(dx,dy){
-   const r=canvas.getBoundingClientRect(),scale=2*cameraState.radius*Math.tan(camera.fov*Math.PI/360)/Math.max(1,r.height);
-   const right=new T.Vector3().setFromMatrixColumn(camera.matrixWorld,0),up=new T.Vector3().setFromMatrixColumn(camera.matrixWorld,1),shift=right.multiplyScalar(-dx*scale).addScaledVector(up,dy*scale);
-   const target=cameraState.target||(cameraState.target={x:0,y:0,z:0});target.x+=shift.x;target.y+=shift.y;target.z+=shift.z;requestRender();
+   window.BilliardsTableOrbit.pan(T,camera,cameraState,dx,dy,canvas.getBoundingClientRect().height);requestRender();
   }
   function overControls(e){return [...document.querySelectorAll('#phoneAimRail,#phoneSpeedRail,#phoneActions,.aimControlRow.activeAim,.tableSpeedControl.activeSpeed,.bottomSpinGroup.activeSpin,.phoneTipControl')].some(el=>{const r=el.getBoundingClientRect();return r.width&&r.height&&e.clientX>=r.left-5&&e.clientX<=r.right+5&&e.clientY>=r.top-5&&e.clientY<=r.bottom+5;});}
   const inputRay=new T.Raycaster();
@@ -294,7 +292,7 @@
   });
   canvas.addEventListener('pointermove',e=>{
    if(viewLocked){if(!edit){cast(e);const q=logical(planePoint());if(q)forward('pointermove',q,e);canvas.style.cursor=source.style.cursor||'crosshair';return;}if(edit.id!==e.pointerId)return;e.preventDefault();e.stopPropagation();cast(e);const p=planePoint(edit.height);if(!p)return;const q=logical(new T.Vector3(p.x-edit.offset.x,0,p.z-edit.offset.z));edit.last=q;forward('pointermove',q,e);return;}
-   const p=pointers.get(e.pointerId);if(!p)return;e.preventDefault();e.stopPropagation();if(pointers.size===2){const q=[...pointers].find(([id])=>id!==e.pointerId)[1],before=Math.hypot(p.x-q.x,p.y-q.y),after=Math.hypot(e.clientX-q.x,e.clientY-q.y);pan((e.clientX-p.x)/2,(e.clientY-p.y)/2);if(before>8&&after>8)zoom(before/after);}else if(!p.multi){if(panEnabled)pan(e.clientX-p.x,e.clientY-p.y);else orbit(-(e.clientX-p.x)*.008,(e.clientY-p.y)*.006);}pointers.set(e.pointerId,{...p,x:e.clientX,y:e.clientY});
+   const p=pointers.get(e.pointerId);if(!p)return;e.preventDefault();e.stopPropagation();window.BilliardsTableOrbit.move(pointers,e,{pan,zoom,orbit,panning:panEnabled});
   });
   for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,e=>{
    if(edit?.id===e.pointerId){const current=edit;edit=null;forward(type==='pointerup'?'pointerup':'pointercancel',current.last,e);}
@@ -311,7 +309,8 @@
    const size=rect.width+':'+rect.height;if(size!==lastSize){renderer.setSize(rect.width,rect.height);camera.aspect=rect.width/rect.height;camera.fov=2*Math.atan(viewTangent(camera.aspect))*180/Math.PI;camera.updateProjectionMatrix();lastSize=size;}
    if(dimensions!==tableKey(f))rebuild(f);
    if(dirty){const px=f.L*109/2312,pz=f.W*110/1160,a=f.map({x:-px,y:-pz}),b=f.map({x:f.L+px,y:f.W+pz}),ratio=source.width/source.clientWidth,w=Math.max(1,Math.round((b.x-a.x)*ratio)),h=Math.max(1,Math.round((b.y-a.y)*ratio));if(textureCanvas.width!==w||textureCanvas.height!==h){textureCanvas.width=w;textureCanvas.height=h;}textureCtx.clearRect(0,0,w,h);textureCtx.drawImage(source,a.x*ratio,a.y*ratio,w,h,0,0,w,h);texture.needsUpdate=true;dirty=false;}
-   const target=cameraState.target||{x:0,y:0,z:0},horizontal=cameraState.radius*Math.cos(cameraState.elevation);camera.position.set(target.x+Math.sin(cameraState.azimuth)*horizontal,target.y+cameraState.radius*Math.sin(cameraState.elevation),target.z+Math.cos(cameraState.azimuth)*horizontal);camera.lookAt(target.x,target.y,target.z);
+   const target=cameraState.target||{x:0,y:0,z:0};
+   window.BilliardsTableOrbit.updateCamera(camera,cameraState,camera.aspect);
    const visible=new Set();
    for(const b of f.balls){
     if(!b.active||b.marker)continue;visible.add(b.id);let group=ballMeshes.get(b.id);
