@@ -7,6 +7,7 @@ on:
       - main
     paths:
       - '.github/workflows/build-android-wrapper.yml'
+      - '.github/workflows/verify-guide-parity.yml'
       - 'android-wrapper/**'
       - 'photo-*.js'
       - 'photo-*.json'

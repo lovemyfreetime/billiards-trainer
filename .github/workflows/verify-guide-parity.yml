@@ -10,6 +10,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Regenerate offline app manifests for this source snapshot
+        run: python3 scripts/build-offline-assets.py
       - name: Verify identical browser, Windows and Android Guide bundles
         run: |
           python3 scripts/verify-guide-release.py
