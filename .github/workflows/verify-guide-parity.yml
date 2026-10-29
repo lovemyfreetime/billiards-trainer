@@ -43,6 +43,7 @@ jobs:
           node tests/photo-ball-identity.test.cjs
           node tests/photo-detection-dedupe.test.cjs
           node tests/photo-corner-sensing.test.cjs
+          node tests/photo-camera.browser.cjs
           node tests/trainer-sharing-controls.browser.cjs
           node tests/trainer-view-refinements.browser.cjs
           node tests/trainer-3d.browser.cjs
