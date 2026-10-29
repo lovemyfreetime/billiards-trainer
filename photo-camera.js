@@ -75,7 +75,7 @@
    for(let step=0;step<90;step++){update();const ps=corners.map(projected);if(ps.every(p=>p.x>.08&&p.x<.92&&p.y>.13&&p.y<.87&&p.x*width>b.x+10&&p.x*width<b.x+b.width-10&&p.y*height>b.y+10&&p.y*height<b.y+b.height-10))break;state.radius*=1.035;}draw();
   }
   const resize=new ResizeObserver(draw);resize.observe(stage);
-  const actions={get panning(){return panning;},pan(dx,dy){update();orbit.pan(T,camera,state,dx,dy,stage.clientHeight);},zoom(factor){orbit.zoom(state,factor,L,R);},orbit(dx,dy){orbit.orbit(state,dx,dy);}};
+  const actions={get panning(){return panning;},pan(dx,dy){update();orbit.pan(T,camera,state,dx,dy,stage.clientHeight);},zoom(factor){orbit.zoom(state,factor,L,R);},orbit(dx,dy){orbit.orbit(state,dx*.5,dy*.5);}};
   svg.addEventListener('pointerdown',e=>{if(!ready||!enabled||e.button!==0)return;e.preventDefault();e.stopPropagation();svg.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,multi:pointers.size>0});if(pointers.size>1)for(const p of pointers.values())p.multi=true;});
   svg.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;e.preventDefault();e.stopPropagation();orbit.move(pointers,e,actions);draw();});
   for(const type of ['pointerup','pointercancel','lostpointercapture'])svg.addEventListener(type,e=>{pointers.delete(e.pointerId);});

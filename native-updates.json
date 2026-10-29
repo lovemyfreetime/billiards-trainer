@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "42a31dc8b827ab2b4a667ce22c5913b14387015466aa4f3900af20c57ee37c9c",
-  "sequence": 1793280537,
+  "version": "d2a09c6e2772869d7d1774771692d960ffed0e2c1d3636710e91ac34eef92a2b",
+  "sequence": 1793281084,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3801,7 +3801,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "afb79c2366916d922cefa11bb76ef7210209d6cc6b5f8a65bc29df49fbe90a1e",
+      "sha256": "61acc54dd7bc3b6ec919e3eb17206112c1d4bd5884e86e994fdd06e3d70ab4db",
       "length": 144664
     },
     "phone-play.css": {
@@ -3841,8 +3841,8 @@
       "length": 2231
     },
     "photo-camera.js": {
-      "sha256": "1aac9f4c43429d8d546ca733a2ce913573d4084ecfdf35e8b604e15d8465b9aa",
-      "length": 15106
+      "sha256": "ef991ea31c844cf3b4cb79bb03ab685261d40e188fe000f101d480357540201a",
+      "length": 15112
     },
     "photo-cloth-filter.js": {
       "sha256": "937904e380622a4da076aee6d0d2994c32ad0cdc7e646d83cbfc75075d39053c",
@@ -4909,7 +4909,7 @@
       "length": 1895
     },
     "service-worker.js": {
-      "sha256": "4d3dc018b87b4cbe47082cfc68edfc341bc7f3b3a8ee6b5a9907f9e56accdf1b",
+      "sha256": "660aab38c8489ea46c6f234964f0ce68b3535067197554f07a2742fcfee34ef4",
       "length": 7739
     },
     "table-orbit.js": {

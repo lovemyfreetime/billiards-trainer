@@ -1,5 +1,5 @@
 {
-  "version": "a2b46a9f739f3cde",
+  "version": "14163b1c417386fa",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -959,7 +959,7 @@
     "photo-calibration.css": "b10e49d658ca3bafda44f3b16b8d185e5084be191917a04d070f303e78fb2bd9",
     "photo-calibration.js": "db792ba0d5f5f779ad4b8b479d032abc6563007fa661660b8c0d414943c1e287",
     "photo-camera.css": "dd866b6ca12c30cc859f6597a94fd1b6d1aebd1c6da94a1a86478eeff7fd6bef",
-    "photo-camera.js": "1aac9f4c43429d8d546ca733a2ce913573d4084ecfdf35e8b604e15d8465b9aa",
+    "photo-camera.js": "ef991ea31c844cf3b4cb79bb03ab685261d40e188fe000f101d480357540201a",
     "photo-cloth-filter.js": "937904e380622a4da076aee6d0d2994c32ad0cdc7e646d83cbfc75075d39053c",
     "photo-corner-sensing.js": "f84dd3973ba0a897aa1455d0c0a743db4255b29a81a0d1a2e5e5c731e601de9e",
     "photo-lighting.js": "7db8b43d427b0b4ae3e873d6ca1d2a72ffd594ec98b19e2e71620aecf5121fc2",
