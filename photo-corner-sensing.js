@@ -55,7 +55,7 @@ function detect(img,{allowApproximate=false}={}){
 }
 // Search only inside each user frame edge, near its direction. Mask boundaries
 // and black outside pixels are not rail evidence. Unresolved edges stay put.
-function guided(img,quad){
+function guided(img,quad,{woodBoundary=false}={}){
  const {width:w,height:h,data}=img||{};if(!data||!Array.isArray(quad)||quad.length!==4)return null;
  const lengths=quad.map((p,i)=>Math.hypot(p.x-quad[(i+1)%4].x,p.y-quad[(i+1)%4].y));
  if(Math.min(...lengths)<30||quad.some((p,i)=>cross(p,quad[(i+1)%4],quad[(i+2)%4])<=0))return null;
@@ -64,23 +64,25 @@ function guided(img,quad){
  const median=v=>v.sort((a,b)=>a-b)[Math.floor(v.length/2)],colors=[];
  for(let y=-2;y<=2;y++)for(let x=-2;x<=2;x++){const c=sample(center.x+x*Math.min(...lengths)*.035,center.y+y*Math.min(...lengths)*.035);if(c&&Math.max(...c)>30)colors.push(c);}
  if(colors.length<10)return null;const cloth=[0,1,2].map(i=>median(colors.map(c=>c[i]))),distance=(a,b)=>Math.hypot(...a.map((v,i)=>v-b[i]));
- const range=Math.max(6,Math.min(...lengths)*.075),probe=Math.max(2,Math.min(...lengths)*.008),lines=[],edges=[];
+ const range=Math.max(6,Math.min(...lengths)*(woodBoundary?.14:.075)),probe=Math.max(2,Math.min(...lengths)*.008),lines=[],edges=[];
  for(let edge=0;edge<4;edge++){
   const a=quad[edge],b=quad[(edge+1)%4],len=lengths[edge],dx=(b.x-a.x)/len,dy=(b.y-a.y)/len,nx=-dy,ny=dx;
   let best=null;
   // Small endpoint-offset differences allow a slight angular correction.
-  for(let shift=probe*1.5;shift<=range;shift+=Math.max(1,probe/2))for(const slope of [-.025,0,.025]){
+  for(let shift=woodBoundary?-range:probe*1.5;shift<=range;shift+=Math.max(1,probe/2))for(const slope of [-.025,0,.025]){
    const delta=slope*len;if(Math.abs(delta)>range)continue;
    let support=0,total=0,strength=0;
    for(let j=0;j<21;j++){
-    const t=.12+j*.76/20,offset=shift+delta*(t-.5);if(offset<probe*1.2||offset>range)continue;
+    const t=.12+j*.76/20,offset=shift+delta*(t-.5);if((!woodBoundary&&offset<probe*1.2)||Math.abs(offset)>range)continue;
     const x=a.x+(b.x-a.x)*t+nx*offset,y=a.y+(b.y-a.y)*t+ny*offset;
     const inside=sample(x+nx*probe,y+ny*probe),outside=sample(x-nx*probe,y-ny*probe);
     if(!inside||!outside||Math.max(...outside)<18||Math.max(...inside)<18)continue;
     total++;const contrast=distance(inside,outside);
-    if(contrast>24&&distance(inside,cloth)<60&&distance(outside,cloth)>distance(inside,cloth)+12){support++;strength+=Math.min(100,contrast);}
+    const chroma=c=>{const sum=Math.max(1,c[0]+c[1]+c[2]);return c.map(v=>v/sum);};
+    const colorBoundary=!woodBoundary||(distance(chroma(inside),chroma(cloth))<.15&&distance(chroma(outside),chroma(cloth))>.20);
+    if(colorBoundary&&contrast>24&&distance(inside,cloth)<60&&distance(outside,cloth)>distance(inside,cloth)+12){support++;strength+=Math.min(100,contrast);}
    }
-   const ratio=support/21,score=ratio+strength/21000-shift/range*.025;
+   const ratio=support/21,score=ratio+strength/21000-Math.abs(shift)/range*.025;
    if(total>=16&&support>=12&&(!best||score>best.score))best={shift,delta,ratio,score};
   }
   const offset=best?.shift||0,delta=best?.delta||0;
@@ -94,5 +96,20 @@ function guided(img,quad){
  return {corners,approximate:true,confidence:null,guided:true,edges,railSupport:null,pocketSupport:null};
 }
 
-const api={detect,guided,suggest:img=>detect(img,{allowApproximate:true})};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCornerSensing=api;
+// Detect the cap/cloth transition before masking. All four supported edges are
+// required before applying a physical inset; missing rails preserve user geometry.
+function woodGuided(img,quad,{tableLength=2.54,tableWidth=1.27,cushionInset=.0492}={}){
+ const boundary=guided(img,quad,{woodBoundary:true});
+ if(!boundary||boundary.edges.some(e=>!e.refined))return null;
+ const cal=root.BilliardsPhotoCalibration||(typeof require==='function'?require('./photo-calibration.js'):null);
+ if(!cal||!(tableLength>0&&tableWidth>0&&cushionInset>0&&cushionInset<tableWidth*.1))return null;
+ const L=tableLength+2*cushionInset,W=tableWidth+2*cushionInset;
+ const outer=[{x:0,y:0},{x:L,y:0},{x:L,y:W},{x:0,y:W}],transform=cal.fit(outer,boundary.corners);
+ if(!transform)return null;
+ const corners=[{x:cushionInset,y:cushionInset},{x:L-cushionInset,y:cushionInset},{x:L-cushionInset,y:W-cushionInset},{x:cushionInset,y:W-cushionInset}].map(p=>cal.apply(transform.H,p));
+ if(!cal.validQuad(corners))return null;
+ return {...boundary,corners,boundaryCorners:boundary.corners,method:'wood-cloth-inset',cushionInset,approximate:true};
+}
+
+const api={detect,guided,woodGuided,suggest:img=>detect(img,{allowApproximate:true})};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCornerSensing=api;
 })(typeof window==='object'?window:globalThis);

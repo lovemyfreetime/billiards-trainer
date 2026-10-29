@@ -17,18 +17,25 @@
   return {x:(width-w*scale)/2,y:(height-h*scale)/2,width:w*scale,height:h*scale,scale};
  }
  function sourceCorners(q,bounds,width,height){return q.map(p=>({x:(p.x*width-bounds.x)/bounds.width,y:(p.y*height-bounds.y)/bounds.height}));}
- function capture(source,q,enabled){
+ function capture(source,q,enabled,{refineRails=false,tableLength=2.54,tableWidth=1.27}={}){
   const w=source.videoWidth||source.naturalWidth,h=source.videoHeight||source.naturalHeight;
   if(!w||!h)throw Error('Image is not ready');
   if(enabled&&(!valid(q)||visibleArea(q)<1e-6))throw Error('Move the frame over the image');
+  let evidence=null;
+  if(enabled&&refineRails&&root.BilliardsCornerSensing?.woodGuided){
+   const scale=Math.min(1,960/Math.max(w,h)),probe=document.createElement('canvas');probe.width=Math.round(w*scale);probe.height=Math.round(h*scale);
+   const pc=probe.getContext('2d',{willReadFrequently:true});pc.drawImage(source,0,0,probe.width,probe.height);
+   evidence=root.BilliardsCornerSensing.woodGuided(pc.getImageData(0,0,probe.width,probe.height),q.map(p=>({x:p.x*probe.width,y:p.y*probe.height})),{tableLength,tableWidth});
+   if(evidence)q=evidence.corners.map(p=>({x:p.x/probe.width,y:p.y/probe.height}));
+  }
   const points=enabled?q.map(p=>({x:p.x*w,y:p.y*h})):[{x:0,y:0},{x:w,y:0},{x:w,y:h},{x:0,y:h}];
   const pad=enabled?Math.ceil(Math.min(w,h)*.025):0,x=Math.max(0,Math.floor(Math.min(...points.map(p=>p.x)))-pad),y=Math.max(0,Math.floor(Math.min(...points.map(p=>p.y)))-pad);
   const width=Math.min(w,Math.ceil(Math.max(...points.map(p=>p.x)))+pad)-x,height=Math.min(h,Math.ceil(Math.max(...points.map(p=>p.y)))+pad)-y;
   const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');ctx.fillStyle='#000';ctx.fillRect(0,0,width,height);ctx.save();ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x-x,p.y-y):ctx.moveTo(p.x-x,p.y-y));ctx.closePath();ctx.clip();ctx.drawImage(source,-x,-y);ctx.restore();
-  return {canvas,corners:enabled?points.map(p=>({x:(p.x-x)/width,y:(p.y-y)/height})):null};
+  return {canvas,evidence,corners:enabled?points.map(p=>({x:(p.x-x)/width,y:(p.y-y)/height})):null};
  }
  let active=null;
- async function open({onCapture,onFallback,onError,file=null}){
+ async function open({onCapture,onFallback,onError,file=null,tableLength=2.54,tableWidth=1.27}){
   if(active)return;
   // Use the same trusted-gesture fullscreen entry as Trainer 3D.
   root.BilliardsDisplay?.enter(true);
@@ -56,7 +63,7 @@
    svg.innerHTML='<polygon points="'+poly+'" fill="transparent" stroke="'+(inImage?'#a3efd0':'#ffd283')+'" stroke-width="2"/>';
    svg.insertAdjacentHTML('beforeend','<g pointer-events="none" fill="#f3e7ba" stroke="#f3e7ba"><polygon points="'+triangle+'" fill="none" stroke-width="2"/><circle cx="'+head.x*width+'" cy="'+head.y*height+'" r="4"/><circle cx="'+foot.x*width+'" cy="'+foot.y*height+'" r="4"/></g>');
    svg.dataset.headX=String(head.x);svg.dataset.headY=String(head.y);
-   if(ready)hint.textContent=enabled&&!inImage?'Move the frame over the image to select a visible area.':'Drag: '+(panning?'slide without rotating':'rotate and tilt')+'. Wheel: zoom. Two fingers: move and pinch. Only inside the frame is analyzed.';
+   if(ready)hint.textContent=enabled&&!inImage?'Move the frame over the image to select a visible area.':'Drag: '+(panning?'slide without rotating':'rotate and tilt')+'. Wheel: zoom. Two fingers: move and pinch. Place near the wood–cloth boundary. Rails are refined when you use the frame.';
   }
   function reset(top=false){if(!camera)return;state.azimuth=0;state.elevation=(top?90:60)*Math.PI/180;state.target={x:0,y:0,z:0};state.radius=1.5;swapped=false;
    const width=stage.clientWidth,height=stage.clientHeight,w=media.videoWidth||media.naturalWidth||width,h=media.videoHeight||media.naturalHeight||height,b=mediaBounds(w,h,width,height,!file);
@@ -95,7 +102,7 @@
    if(action==='plus'||action==='minus'){actions.zoom(action==='plus'?.88:1/.88);draw();}
    if(action==='top'||action==='reset')reset(action==='top');
    if(action==='swap'){swapped=!swapped;draw();}
-   if(action==='snap'&&!snap.disabled){busy=true;snap.disabled=true;try{const result=capture(media,sourceQuad,enabled),blob=await new Promise(resolve=>result.canvas.toBlob(resolve,'image/png'));if(!blob)throw Error('Capture failed');if(closed)return;close();onCapture(blob,result.corners);}catch(error){if(!closed){busy=false;draw();hint.textContent=error.message;}}}
+   if(action==='snap'&&!snap.disabled){busy=true;snap.disabled=true;try{const result=capture(media,sourceQuad,enabled,{refineRails:true,tableLength,tableWidth}),blob=await new Promise(resolve=>result.canvas.toBlob(resolve,'image/png'));if(!blob)throw Error('Capture failed');if(closed)return;close();onCapture(blob,result.corners,result.evidence);}catch(error){if(!closed){busy=false;draw();hint.textContent=error.message;}}}
   });
   active={close,snapshot:()=>({state:JSON.parse(JSON.stringify(state)),quad:q.map(p=>({...p})),sourceQuad:sourceQuad.map(p=>({...p})),panning,ready,engine:'Three.js / shared Trainer 3D camera',table:{L,W}})};
   modal.querySelector('button').focus();
