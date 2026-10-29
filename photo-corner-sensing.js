@@ -98,7 +98,7 @@ function guided(img,quad,{woodBoundary=false}={}){
 
 // Detect the cap/cloth transition before masking. All four supported edges are
 // required before applying a physical inset; missing rails preserve user geometry.
-function insetFromBoundary(boundaryCorners,{tableLength=2.54,tableWidth=1.27,cushionInset=.03175}={}){
+function insetFromBoundary(boundaryCorners,{tableLength=2.54,tableWidth=1.27,cushionInset=.0492125}={}){
  const cal=root.BilliardsPhotoCalibration||(typeof require==='function'?require('./photo-calibration.js'):null);
  if(!cal||!(tableLength>0&&tableWidth>0&&cushionInset>0&&cushionInset<tableWidth*.1))return null;
  const L=tableLength+2*cushionInset,W=tableWidth+2*cushionInset;
