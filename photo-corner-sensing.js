@@ -55,7 +55,7 @@ function detect(img,{allowApproximate=false}={}){
 }
 // Search only inside each user frame edge, near its direction. Mask boundaries
 // and black outside pixels are not rail evidence. Unresolved edges stay put.
-function guided(img,quad,{woodBoundary=false}={}){
+function guided(img,quad,{woodBoundary=false,manualSnap=false}={}){
  const {width:w,height:h,data}=img||{};if(!data||!Array.isArray(quad)||quad.length!==4)return null;
  const lengths=quad.map((p,i)=>Math.hypot(p.x-quad[(i+1)%4].x,p.y-quad[(i+1)%4].y));
  if(Math.min(...lengths)<30||quad.some((p,i)=>cross(p,quad[(i+1)%4],quad[(i+2)%4])<=0))return null;
@@ -64,14 +64,16 @@ function guided(img,quad,{woodBoundary=false}={}){
  const median=v=>v.sort((a,b)=>a-b)[Math.floor(v.length/2)],colors=[];
  for(let y=-2;y<=2;y++)for(let x=-2;x<=2;x++){const c=sample(center.x+x*Math.min(...lengths)*.035,center.y+y*Math.min(...lengths)*.035);if(c&&Math.max(...c)>30)colors.push(c);}
  if(colors.length<10)return null;const cloth=[0,1,2].map(i=>median(colors.map(c=>c[i]))),distance=(a,b)=>Math.hypot(...a.map((v,i)=>v-b[i]));
+ if(manualSnap&&(Math.max(...cloth)-Math.min(...cloth))/Math.max(1,Math.max(...cloth))<.15)return null;
  const range=Math.max(6,Math.min(...lengths)*(woodBoundary?.14:.075)),probe=Math.max(2,Math.min(...lengths)*.008),lines=[],edges=[];
  for(let edge=0;edge<4;edge++){
   const a=quad[edge],b=quad[(edge+1)%4],len=lengths[edge],dx=(b.x-a.x)/len,dy=(b.y-a.y)/len,nx=-dy,ny=dx;
   let best=null;
+  const slopes=manualSnap?Array.from({length:13},(_,i)=>(i-6)*.02):[-.025,0,.025];
   // Small endpoint-offset differences allow a slight angular correction.
-  for(let shift=woodBoundary?-range:probe*1.5;shift<=range;shift+=Math.max(1,probe/2))for(const slope of [-.025,0,.025]){
+  for(let shift=woodBoundary?-range:probe*1.5;shift<=range;shift+=Math.max(1,probe/2))for(const slope of slopes){
    const delta=slope*len;if(Math.abs(delta)>range)continue;
-   let support=0,total=0,strength=0;
+   let support=0,total=0,strength=0;const sections=[0,0,0];
    for(let j=0;j<21;j++){
     const t=.12+j*.76/20,offset=shift+delta*(t-.5);if((!woodBoundary&&offset<probe*1.2)||Math.abs(offset)>range)continue;
     const x=a.x+(b.x-a.x)*t+nx*offset,y=a.y+(b.y-a.y)*t+ny*offset;
@@ -80,10 +82,10 @@ function guided(img,quad,{woodBoundary=false}={}){
     total++;const contrast=distance(inside,outside);
     const chroma=c=>{const sum=Math.max(1,c[0]+c[1]+c[2]);return c.map(v=>v/sum);};
     const colorBoundary=!woodBoundary||(distance(chroma(inside),chroma(cloth))<.15&&distance(chroma(outside),chroma(cloth))>.20);
-    if(colorBoundary&&contrast>24&&distance(inside,cloth)<60&&distance(outside,cloth)>distance(inside,cloth)+12){support++;strength+=Math.min(100,contrast);}
+    if(colorBoundary&&contrast>24&&distance(inside,cloth)<60&&distance(outside,cloth)>distance(inside,cloth)+12){support++;sections[Math.min(2,Math.floor(j/7))]++;strength+=Math.min(100,contrast);}
    }
    const ratio=support/21,score=ratio+strength/21000-Math.abs(shift)/range*.025;
-   if(total>=16&&support>=12&&(!best||score>best.score))best={shift,delta,ratio,score};
+   if(total>=16&&support>=12&&(!manualSnap||sections.every(n=>n>=2))&&(!best||score>best.score))best={shift,delta,ratio,score};
   }
   const offset=best?.shift||0,delta=best?.delta||0;
   const p={x:a.x+nx*(offset-delta/2),y:a.y+ny*(offset-delta/2)},q={x:b.x+nx*(offset+delta/2),y:b.y+ny*(offset+delta/2)};
@@ -174,7 +176,29 @@ function calibrate(img,quad,options={}){
  const projected=insetFromBoundary(boundary.corners,options);
  return projected?{...boundary,...refineCushionNoses(img,projected),method:'wood-cloth-inset',approximate:true}:null;
 }
+// Rough manual marks constrain a local four-line search. Never fall back to a
+// whole-image cloth outline here: a loose cloth patch must not redefine the table.
+function snap(img,quad,options={}){
+ const cal=root.BilliardsPhotoCalibration||(typeof require==='function'?require('./photo-calibration.js'):null);
+ if(!cal||!Array.isArray(quad)||quad.length!==4||!cal.validQuad(quad))return null;
+ const boundary=guided(img,quad,{woodBoundary:true,manualSnap:true});
+ if(!boundary)return null;
+ const projected=insetFromBoundary(boundary.corners,options);
+ if(!projected)return null;
+ const supported=boundary.edges.map(e=>e.refined),count=supported.filter(Boolean).length;
+ if(count<2)return null;
+ const inset=count===4?refineCushionNoses(img,projected):projected;
+ const lines=quad.map((a,i)=>{
+  const points=supported[i]?inset.corners:quad,p=points[i],q=points[(i+1)%4],len=Math.hypot(q.x-p.x,q.y-p.y),line={nx:-(q.y-p.y)/len,ny:(q.x-p.x)/len};line.c=line.nx*p.x+line.ny*p.y;return line;
+ });
+ const corners=lines.map((l,i)=>intersect(lines[(i+3)%4],l));
+ if(corners.some(p=>!p||!Number.isFinite(p.x)||!Number.isFinite(p.y))||!cal.validQuad(corners))return null;
+ const limit=Math.min(...quad.map((p,i)=>Math.hypot(p.x-quad[(i+1)%4].x,p.y-quad[(i+1)%4].y)))*.24;
+ if(corners.some((p,i)=>Math.hypot(p.x-quad[i].x,p.y-quad[i].y)>limit)||area(corners)/area(quad)<.60||area(corners)/area(quad)>1.4)return null;
+ return {...boundary,...inset,corners,method:'manual-rail-snap',snappedEdges:count,approximate:true,confidence:null};
+}
+
 function unitRotations(q){return q.map((_,i)=>q.slice(i).concat(q.slice(0,i)));}
 function suggestOutline(img){return detect(img,{allowApproximate:true});}
-const api={calibrate,detect,guided,woodGuided,insetFromBoundary,refineCushionNoses,suggest:img=>detect(img,{allowApproximate:true})};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCornerSensing=api;
+const api={snap,calibrate,detect,guided,woodGuided,insetFromBoundary,refineCushionNoses,suggest:img=>detect(img,{allowApproximate:true})};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCornerSensing=api;
 })(typeof window==='object'?window:globalThis);

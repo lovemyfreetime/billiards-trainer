@@ -60,6 +60,6 @@ assert.deepEqual(JSON.parse(JSON.stringify(state.corners[0])),{x:450,y:100});ass
 sandbox.window.BilliardsCornerSensing={suggest:()=>null};
 state.refinements=[{image:{x:200,y:150},id:'top-1'}];state.refining=true;state.pendingDiamond='top-2';state.calibrationCache={manual:true};
 const manualWork=JSON.stringify({corners:state.corners,refinements:state.refinements,refining:state.refining,pendingDiamond:state.pendingDiamond,calibrationCache:state.calibrationCache});
-vm.runInContext(source('pvAutoFindRailCorners'),sandbox);assert.equal(sandbox.pvAutoFindRailCorners(),false);
+vm.runInContext(source('pvSnapManualCorners'),sandbox);vm.runInContext(source('pvAutoFindRailCorners'),sandbox);assert.equal(sandbox.pvAutoFindRailCorners(),false);
 assert.equal(JSON.stringify({corners:state.corners,refinements:state.refinements,refining:state.refining,pendingDiamond:state.pendingDiamond,calibrationCache:state.calibrationCache}),manualWork);
 console.log('A failed corner suggestion preserves manual markers, diamond refinements and calibration state.');

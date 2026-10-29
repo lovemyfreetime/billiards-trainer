@@ -10633,7 +10633,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     function pvCalibrationPrompt(){
         if(!photoVision.imageReady)return 'Choose an image, then use Find / Add Corners to match the numbered table-diagram points.';
-        if(photoVision.corners.length<4)return 'Tap '+pvAnchorLabel(photoVision.corners.length)+' in the image ('+(photoVision.corners.length+1)+' of 4). Match the highlighted diagram point, not the screen corner. The first two points follow one long rail.';
+        if(photoVision.corners.length<4)return 'Tap near '+pvAnchorLabel(photoVision.corners.length)+' in the image ('+(photoVision.corners.length+1)+' of 4). The first two points follow one long rail. Full-table corners snap to nearby rails after the fourth tap.';
         if(!pvCalibration())return 'The four points must form a table section without crossing. Drag a marker or reset the points.';
         if(photoVision.refining){
             const target=pvCalibrationReferences().find(d=>d.id===photoVision.pendingDiamond);
@@ -10868,6 +10868,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         pvUpdateAIButton();
     }
     function pvResetDetectionsAndCorners() {
+        photoVision.manualCorners=false;photoVision.manualCornerSeed=null;
         photoVision.corners=[];
         photoVision.refinements=[];photoVision.refining=false;photoVision.pendingDiamond=null;photoVision.calibrationCache=null;
         photoVision.detections=[];
@@ -11063,8 +11064,25 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         renderPhotoDetectionList();renderPhotoAnalyzer();
     }
 
+    function pvSnapManualCorners(){
+        if(!photoVision.imageReady||photoVision.regionEnd!=='full'||photoVision.corners.length!==4||!window.BilliardsCornerSensing?.snap)return false;
+        const canvas=photoVision.analysisCanvas;
+        const seed=photoVision.manualCornerSeed||photoVision.corners;
+        const sensed=window.BilliardsCornerSensing.snap(photoVision.analysisCtx.getImageData(0,0,canvas.width,canvas.height),seed,{tableLength:Number(S.tableL)||2.2352,tableWidth:Number(S.tableW)||1.1176});
+        if(!sensed){pvStatus('No reliable nearby rail lines found. Your rough corners are preserved; adjust them or retry Corner Sensing.');return false;}
+        photoVision.manualCornerSeed=seed.map(p=>({...p}));
+        photoVision.corners=sensed.corners.map(p=>({...p}));
+        photoVision.autoRailRawCorners=sensed.snappedEdges===4?sensed.boundaryCorners.map(p=>({...p})):null;
+        photoVision.cornerSensingEvidence={method:sensed.method,approximate:true,confidence:null,snappedEdges:sensed.snappedEdges,cushionInset:sensed.cushionInset};
+        photoVision.refinements=[];photoVision.refining=false;photoVision.pendingDiamond=null;
+        pvCalibrationChanged();
+        pvStatus(sensed.snappedEdges===4?'Four rails snapped to estimated cushion noses. Check the green outline; drag any corner for a fine correction.':sensed.snappedEdges+' of 4 rails snapped. Unresolved rail lines kept at your marks. Drag a corner or retry Corner Sensing.');
+        return true;
+    }
+
     function pvAutoFindRailCorners(){
         if(!photoVision.imageReady){pvStatus('Choose an image first.');return false;}
+        if(photoVision.manualCorners&&photoVision.corners.length===4)return pvSnapManualCorners();
         const canvas=photoVision.analysisCanvas,ctx=photoVision.analysisCtx,w=canvas.width,h=canvas.height;
         if(!w||!h)return false;
         const img=ctx.getImageData(0,0,w,h),d=img.data;
@@ -11601,6 +11619,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             photoVision.hoverPoint=null;
             renderPhotoAnalyzer();
             pvCalibrationChanged();pvStatus(pvCalibrationPrompt());
+            if(photoVision.corners.length===4&&photoVision.regionEnd==='full'){
+                photoVision.manualCorners=true;photoVision.manualCornerSeed=photoVision.corners.map(p=>({...p}));photoVision.cameraFrameCorners=null;
+                if(window.BilliardsCornerSensing?.snap)pvSnapManualCorners();
+            }
             return;
         }
         if(!photoVision.addMissedMode){
@@ -11649,7 +11671,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         x.drawImage(photoVision.sourceCanvas,viewX,viewY,viewW,viewH,0,0,c.width,c.height);
 
         pvDrawPhotoReferences(x);
-        if(photoVision.cornerSensingEvidence?.method==='wood-cloth-inset'&&photoVision.autoRailRawCorners?.length===4){
+        if(['wood-cloth-inset','manual-rail-snap'].includes(photoVision.cornerSensingEvidence?.method)&&photoVision.autoRailRawCorners?.length===4){
             x.save();x.lineWidth=2;x.strokeStyle='#ffd66b';x.setLineDash([9,6]);x.beginPath();
             photoVision.autoRailRawCorners.forEach((p,i)=>{const q=pvSourceToCanvas(p);if(i===0)x.moveTo(q.x,q.y);else x.lineTo(q.x,q.y);});
             x.closePath();x.stroke();x.restore();
@@ -12430,7 +12452,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                     photoVision.cornerDragIndex=pvTouchCornerCandidate;
                     const p=pvCanvasPoint(ev);
                     photoVision.autoRailRawCorners=null;
-                    photoVision.corners[photoVision.cornerDragIndex]=p;
+                    photoVision.manualCorners=true;photoVision.manualCornerSeed=null;photoVision.corners[photoVision.cornerDragIndex]=p;
                     photoVision.detections=[];
                     renderPhotoDetectionList();
                     renderPhotoAnalyzer();pvUpdateCalibrationDiagram();
@@ -12444,7 +12466,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const p=pvCanvasPoint(ev);
             if(photoVision.cornerDragIndex>=0 && photoVision.corners.length===4){
                 photoVision.autoRailRawCorners=null;
-                photoVision.corners[photoVision.cornerDragIndex]=p; photoVision.detections=[];
+                photoVision.manualCorners=true;photoVision.manualCornerSeed=null;photoVision.corners[photoVision.cornerDragIndex]=p; photoVision.detections=[];
                 renderPhotoDetectionList(); renderPhotoAnalyzer();pvUpdateCalibrationDiagram();
                 return;
             }
@@ -12486,7 +12508,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 const best=pvPhotoDetectionHit(p)?-1:pvCornerHitIndex(p);
                 if(best>=0){
                     photoVision.cornerDragIndex=best; canvas.setPointerCapture?.(ev.pointerId);
-                    photoVision.corners[best]=p; photoVision.detections=[]; renderPhotoDetectionList(); renderPhotoAnalyzer();pvUpdateCalibrationDiagram(); return;
+                    photoVision.manualCorners=true;photoVision.manualCornerSeed=null;photoVision.corners[best]=p; photoVision.detections=[]; renderPhotoDetectionList(); renderPhotoAnalyzer();pvUpdateCalibrationDiagram(); return;
                 }
             }
             if((photoVision.viewZoom||1)>1&&!photoVision.addMissedMode&&!photoVision.refining&&photoVision.corners.length===4){
@@ -13275,4 +13297,3 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 
 </body>
 </html>
-
