@@ -102,6 +102,43 @@
   for(const value of features)if(!Number.isFinite(Number(value)))throw new TypeError('Ball identity features must be finite');
   return {color:forestPredict(features,model.color),stripe:forestPredict(features,model.stripe)};
  }
+ // Confirm broad white body markings, excluding the crop border and number spot.
+ function stripeEvidence(image){
+  const {width:w,height:h,data}=image,mask=new Uint8Array(w*h),seen=new Uint8Array(w*h);
+  let body=0,white=0,outer=0,outerWhite=0,color=0;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+   const dx=(x+.5)/w-.5,dy=(y+.5)/h-.42,r=Math.hypot(dx,dy);
+   if(r>.335)continue;
+   body++;const i=(y*w+x)*4,v=Math.max(data[i],data[i+1],data[i+2])/255;
+   const sat=(Math.max(data[i],data[i+1],data[i+2])-Math.min(data[i],data[i+1],data[i+2]))/Math.max(1,v*255);
+   const isWhite=sat<.20&&v>.60;
+   if(isWhite){mask[y*w+x]=1;white++;}if(sat>.30&&v>.20)color++;
+   if(r>.19){outer++;if(isWhite)outerWhite++;}
+  }
+  let broad=0;
+  for(let start=0;start<mask.length;start++)if(mask[start]&&!seen[start]){
+   const queue=[start];seen[start]=1;let minX=w,maxX=0,minY=h,maxY=0;
+   for(let j=0;j<queue.length;j++){
+    const at=queue[j],x=at%w,y=Math.floor(at/w);minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);
+    for(const next of [x>0?at-1:-1,x<w-1?at+1:-1,y>0?at-w:-1,y<h-1?at+w:-1])if(next>=0&&mask[next]&&!seen[next]){seen[next]=1;queue.push(next);}
+   }
+   if(queue.length/body>.075&&Math.hypot((maxX-minX)/w,(maxY-minY)/h)>.40)broad+=queue.length;
+  }
+  const fraction=white/body,outerFraction=outerWhite/outer,broadFraction=broad/body;
+  const strong=fraction>.25&&fraction<.82&&outerFraction>.27&&broadFraction>.20&&color/body>.16;
+  return {strong,whiteFraction:fraction,outerWhiteFraction:outerFraction,broadFraction};
+ }
+ function verifyStripe(scores,image,ids){
+  const evidence=stripeEvidence(image),out=scores.slice();let best=0;
+  for(let i=1;i<out.length;i++)if(out[i]>out[best])best=i;
+  const id=Number(ids[best]);let changed=false;
+  if(evidence.strong&&id>=1&&id<=7){
+   const other=ids.findIndex(n=>Number(n)===id+8),mass=out[best]+out[other];
+   // Move only this color family's mass; cue, eight and other colors stay intact.
+   out[best]=mass*.28;out[other]=mass*.72;changed=true;
+  }
+  return {scores:out,...evidence,changed};
+ }
  function calibrate(scores,imageData,ids,model=defaultModel){
   validateModel(model);
   if(!Array.isArray(scores)||scores.length!==16||!Array.isArray(ids)||ids.length!==16)throw new TypeError('Expected 16 neural scores and 16 ball ids');
@@ -135,7 +172,8 @@
   const mixed=normalized.map((value,i)=>(1-model.mixture)*value+model.mixture*visualScores[i]);
   const scoresOut=protectCue?normalized.slice():mixed;
   if(!protectCue){const mixedSum=scoresOut.reduce((a,b)=>a+b,0);for(let i=0;i<scoresOut.length;i++)scoresOut[i]/=mixedSum;}
-  return {scores:scoresOut,visualScores,colorConfidence:Math.max(...inferred.color.probabilities),patternConfidence:Math.max(...inferred.stripe.probabilities),modelVersion};
+  const stripeCheck=protectCue?null:verifyStripe(scoresOut,imageData,idNumbers);
+  return {scores:stripeCheck?stripeCheck.scores:scoresOut,stripeCheck,visualScores,colorConfidence:Math.max(...inferred.color.probabilities),patternConfidence:Math.max(...inferred.stripe.probabilities),modelVersion};
  }
- return {extract,predict,calibrate};
+ return {extract,predict,calibrate,stripeEvidence,verifyStripe};
 });

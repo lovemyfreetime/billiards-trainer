@@ -53,5 +53,46 @@ function detect(img,{allowApproximate=false}={}){
  }
  return best||approximate;
 }
-const api={detect,suggest:img=>detect(img,{allowApproximate:true})};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCornerSensing=api;
+// Search only inside each user frame edge, near its direction. Mask boundaries
+// and black outside pixels are not rail evidence. Unresolved edges stay put.
+function guided(img,quad){
+ const {width:w,height:h,data}=img||{};if(!data||!Array.isArray(quad)||quad.length!==4)return null;
+ const lengths=quad.map((p,i)=>Math.hypot(p.x-quad[(i+1)%4].x,p.y-quad[(i+1)%4].y));
+ if(Math.min(...lengths)<30||quad.some((p,i)=>cross(p,quad[(i+1)%4],quad[(i+2)%4])<=0))return null;
+ const center=quad.reduce((a,p)=>({x:a.x+p.x/4,y:a.y+p.y/4}),{x:0,y:0});
+ const sample=(x,y)=>{x=Math.round(x);y=Math.round(y);if(x<0||y<0||x>=w||y>=h)return null;const i=(y*w+x)*4;return [data[i],data[i+1],data[i+2]];};
+ const median=v=>v.sort((a,b)=>a-b)[Math.floor(v.length/2)],colors=[];
+ for(let y=-2;y<=2;y++)for(let x=-2;x<=2;x++){const c=sample(center.x+x*Math.min(...lengths)*.035,center.y+y*Math.min(...lengths)*.035);if(c&&Math.max(...c)>30)colors.push(c);}
+ if(colors.length<10)return null;const cloth=[0,1,2].map(i=>median(colors.map(c=>c[i]))),distance=(a,b)=>Math.hypot(...a.map((v,i)=>v-b[i]));
+ const range=Math.max(6,Math.min(...lengths)*.075),probe=Math.max(2,Math.min(...lengths)*.008),lines=[],edges=[];
+ for(let edge=0;edge<4;edge++){
+  const a=quad[edge],b=quad[(edge+1)%4],len=lengths[edge],dx=(b.x-a.x)/len,dy=(b.y-a.y)/len,nx=-dy,ny=dx;
+  let best=null;
+  // Small endpoint-offset differences allow a slight angular correction.
+  for(let shift=probe*1.5;shift<=range;shift+=Math.max(1,probe/2))for(const slope of [-.025,0,.025]){
+   const delta=slope*len;if(Math.abs(delta)>range)continue;
+   let support=0,total=0,strength=0;
+   for(let j=0;j<21;j++){
+    const t=.12+j*.76/20,offset=shift+delta*(t-.5);if(offset<probe*1.2||offset>range)continue;
+    const x=a.x+(b.x-a.x)*t+nx*offset,y=a.y+(b.y-a.y)*t+ny*offset;
+    const inside=sample(x+nx*probe,y+ny*probe),outside=sample(x-nx*probe,y-ny*probe);
+    if(!inside||!outside||Math.max(...outside)<18||Math.max(...inside)<18)continue;
+    total++;const contrast=distance(inside,outside);
+    if(contrast>24&&distance(inside,cloth)<60&&distance(outside,cloth)>distance(inside,cloth)+12){support++;strength+=Math.min(100,contrast);}
+   }
+   const ratio=support/21,score=ratio+strength/21000-shift/range*.025;
+   if(total>=16&&support>=12&&(!best||score>best.score))best={shift,delta,ratio,score};
+  }
+  const offset=best?.shift||0,delta=best?.delta||0;
+  const p={x:a.x+nx*(offset-delta/2),y:a.y+ny*(offset-delta/2)},q={x:b.x+nx*(offset+delta/2),y:b.y+ny*(offset+delta/2)};
+  const vx=q.x-p.x,vy=q.y-p.y,l=Math.hypot(vx,vy),normal={nx:-vy/l,ny:vx/l};
+  lines.push({...normal,c:normal.nx*p.x+normal.ny*p.y});edges.push({edge,kind:edge%2===0?'long':'short',refined:!!best,support:best?.ratio||0});
+ }
+ if(!edges.some(e=>e.refined))return null;
+ const corners=lines.map((line,i)=>intersect(lines[(i+3)%4],line));
+ if(corners.some((p,i)=>!p||!Number.isFinite(p.x)||!Number.isFinite(p.y)||Math.hypot(p.x-quad[i].x,p.y-quad[i].y)>range*2)||corners.some((p,i)=>cross(p,corners[(i+1)%4],corners[(i+2)%4])<=0))return null;
+ return {corners,approximate:true,confidence:null,guided:true,edges,railSupport:null,pocketSupport:null};
+}
+
+const api={detect,guided,suggest:img=>detect(img,{allowApproximate:true})};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCornerSensing=api;
 })(typeof window==='object'?window:globalThis);

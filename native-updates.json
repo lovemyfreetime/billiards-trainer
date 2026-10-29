@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "3c6373f68c45a84dbaa2a5cf94faab27dc2438b89aa814863a2eecd4bafbb7df",
-  "sequence": 1793233178,
+  "version": "c0f29807b96cfcdab420f55d0b209ecfb51867dda51992a1d577c83c79fdc601",
+  "sequence": 1793249388,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3701,8 +3701,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "ad0b8c55b10f5bfd1f683e0a9a64ddc5a953836eb364ca47c80a623a0082ba93",
-      "length": 873031
+      "sha256": "b897a060d4aeabbc326957b23d5766a3dd5e57ea4d0829b4217be69034b76550",
+      "length": 875539
     },
     "install/android/index.html": {
       "sha256": "862dff4245e200376ff30ee6763f007bb510a3c0cdf0634f8ef3d0d2c25630ff",
@@ -3801,8 +3801,8 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "c4833a16a32a0f303b9c57b7856b4cc2ad20d8c0db77214e1f6ecd0df827c2c8",
-      "length": 144391
+      "sha256": "0236c7ff5b8e271b654219792b80a707f304c845467fe129c4e9d41480b0c648",
+      "length": 144574
     },
     "phone-play.css": {
       "sha256": "cec5017ee25f788690420d4e67241754a1fbb2c047779ad0e7e59d87f7eac720",
@@ -3825,8 +3825,8 @@
       "length": 306931
     },
     "photo-ball-identity.js": {
-      "sha256": "8e049c9804d4e2f0598702c5a4884d5acb067541a38a219a706779b94bd88a23",
-      "length": 9736
+      "sha256": "79fa9be91860257ccaf2760780983d455b55f357e90384c57d66cb8c2d5731aa",
+      "length": 11981
     },
     "photo-calibration.css": {
       "sha256": "b10e49d658ca3bafda44f3b16b8d185e5084be191917a04d070f303e78fb2bd9",
@@ -3836,13 +3836,21 @@
       "sha256": "db792ba0d5f5f779ad4b8b479d032abc6563007fa661660b8c0d414943c1e287",
       "length": 8150
     },
+    "photo-camera.css": {
+      "sha256": "edbfdae470efa2efe3171aa3662ef6af454bfcb07d411ed8e9612bf3aff86f39",
+      "length": 1023
+    },
+    "photo-camera.js": {
+      "sha256": "986ee580eb01380fe7c11e05e0208d4cf799e276f4d397aa47a6453be17391f3",
+      "length": 11502
+    },
     "photo-cloth-filter.js": {
       "sha256": "937904e380622a4da076aee6d0d2994c32ad0cdc7e646d83cbfc75075d39053c",
       "length": 2323
     },
     "photo-corner-sensing.js": {
-      "sha256": "89a383bcf9d1323a667ccf5f554f190badd80d0875db1271ec935c58432267c4",
-      "length": 7343
+      "sha256": "0ac65d04b01ae8eb0e58dd03eb2fc5b78018a78426838f4ffbf99081b538773f",
+      "length": 10517
     },
     "photo-lighting.js": {
       "sha256": "7db8b43d427b0b4ae3e873d6ca1d2a72ffd594ec98b19e2e71620aecf5121fc2",
@@ -4901,7 +4909,7 @@
       "length": 1895
     },
     "service-worker.js": {
-      "sha256": "1d3f5ce22a09df05280d8e114bd59f107e1a8ba97eb1c4d8f4d7219ba961ebf3",
+      "sha256": "5c601e947db2ea8f37fcc5a2813d288c3cd8839b386a72a73b4cada9d5983f16",
       "length": 7739
     },
     "tournament-engine.js": {

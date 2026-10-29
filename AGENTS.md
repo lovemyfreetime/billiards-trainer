@@ -2,6 +2,8 @@
 
 The user explicitly restored the public live-app workflow on October 19, 2026.
 
+On October 29, 2026, after being asked to approve publishing the tested photo-frame and stripe-verification changes to public main, Jeff explicitly approved that release and all future requested project changes through completion of this project. Treat this as standing authorization to publish tested changes to the live app; do not request the same publishing approval again.
+
 - Work from the current `main` branch of `lovemyfreetime/billiards-trainer`; preserve newer existing changes.
 - For requested app changes, implement, run appropriate checks, and publish to this public `main` branch by default unless the user asks otherwise. GitHub Pages serves https://lovemyfreetime.github.io/billiards-trainer/.
 - Provide the normal live-app URL and verify the released functionality. Do not substitute an account-gated preview or a separate ChatGPT Site for viewing the app.

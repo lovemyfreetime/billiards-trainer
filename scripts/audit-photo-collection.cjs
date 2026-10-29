@@ -25,7 +25,7 @@ const fs=require('node:fs'),path=require('node:path'),cp=require('node:child_pro
   try{
    const file=path.resolve(path.dirname(input),item.path);
    // Downloads can still be completing when a long batch begins.
-   await page.locator('#photoFileInput').setInputFiles(file);
+   await page.locator('#photoFileInput').setInputFiles(file);await page.locator('#tableCamera [data-action=overlay]').click();await page.locator('#tableCamera [data-action=snap]').click();
    await page.waitForFunction(()=>billiardsWalkthroughBridge.snapshot().imageReady,{},{timeout:30000});
    await page.locator('#photoAutoRailsBtn').click();
    const auto=await page.evaluate(()=>billiardsWalkthroughBridge.snapshot());

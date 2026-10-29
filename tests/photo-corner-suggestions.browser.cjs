@@ -27,6 +27,7 @@ const assert=require('node:assert/strict'),cp=require('node:child_process'),{chr
     return canvas.toDataURL('image/png').split(',')[1];
    });
    await page.locator('#photoFileInput').setInputFiles({name:'manual-corner-starter.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});
+   await page.locator('#tableCamera [data-action=overlay]').click();await page.locator('#tableCamera [data-action=snap]').click();
    await page.waitForFunction(()=>billiardsWalkthroughBridge.snapshot().imageReady);
    await page.locator('#photoAutoRailsBtn').click();
    const before=await page.evaluate(()=>billiardsWalkthroughBridge.snapshot());
