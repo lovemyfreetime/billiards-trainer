@@ -17,6 +17,11 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),cp=r
   const expected=insetFromBoundary([{x:100,y:80},{x:700,y:80},{x:700,y:380},{x:100,y:380}],{tableLength:2.2352,tableWidth:1.1176}).corners;
   state.corners.forEach((p,i)=>assert(Math.hypot(p.x-expected[i].x,p.y-expected[i].y)<7,JSON.stringify({p,expected:expected[i]})));
   await page.locator('#photoAutoRailsBtn').click();assert.deepEqual((await page.evaluate(()=>billiardsWalkthroughBridge.snapshot())).corners,state.corners,'retry uses original rough marks');assert.deepEqual(errors,[]);
-  console.log(viewport,'four rough touch taps snap automatically, ignore break cloth and retry identically');await page.close();
+  console.log(viewport,'four rough touch taps snap automatically, ignore break cloth and retry identically');
+  await page.locator('#photoFileInput').setInputFiles({name:'framed-break-cloth.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});await page.waitForFunction(()=>document.querySelector('#tableCamera [data-action=snap]')?.disabled===false);await page.locator('#tableCamera [data-action=top]').click();await page.locator('#tableCamera [data-action=snap]').tap();await page.waitForFunction(()=>billiardsWalkthroughBridge.snapshot().imageReady&&!document.querySelector('#tableCamera'));
+  const initial=await page.evaluate(()=>billiardsWalkthroughBridge.snapshot());assert(initial.cornersValid);
+  await page.locator('#photoAutoRailsBtn').click();const rescanned=await page.evaluate(()=>billiardsWalkthroughBridge.snapshot());assert.deepEqual(rescanned.corners,initial.corners,'first frame fit and sensing share original evidence');
+  await page.locator('#photoResetCorners').click();await page.locator('#photoAutoRailsBtn').click();assert.deepEqual((await page.evaluate(()=>billiardsWalkthroughBridge.snapshot())).corners,initial.corners,'Reset does not change framed rail evidence');
+  console.log(viewport,'first framed fit, rescan and Reset + sensing are identical');await page.close();
  }
 }finally{await browser.close();server.kill();}})().catch(e=>{console.error(e);process.exitCode=1});

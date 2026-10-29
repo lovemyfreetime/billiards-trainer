@@ -176,9 +176,10 @@ function woodGuided(img,quad,options={}){
 }
 
 function calibrate(img,quad,options={}){
- let boundary=quad?.length===4?guided(img,quad,{woodBoundary:true}):null;
+ let boundary=quad?.length===4?guided(img,quad,{woodBoundary:true,manualSnap:true}):null;
  if(!boundary||boundary.edges.some(e=>!e.refined)){
   boundary=suggestOutline(img);
+  if(boundary){const precise=guided(img,boundary.corners,{woodBoundary:true,manualSnap:true});if(precise&&precise.edges.every(e=>e.refined))boundary={...boundary,...precise,guided:false};}
   if(boundary&&quad?.length===4){
    const candidates=unitRotations(boundary.corners);
    boundary={...boundary,corners:candidates.sort((a,b)=>a.reduce((s,p,i)=>s+Math.hypot(p.x-quad[i].x,p.y-quad[i].y),0)-b.reduce((s,p,i)=>s+Math.hypot(p.x-quad[i].x,p.y-quad[i].y),0))[0],guided:true};

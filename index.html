@@ -11068,9 +11068,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const sensing=window.BilliardsCornerSensing;
         photoVision.lastCornerDropSnapped=false;
         if(photoVision.regionEnd!=='full'||!sensing?.cornerTargets||!sensing?.snapPoint)return p;
-        const canvas=photoVision.analysisCanvas,key=[photoVision.imageVersion,photoVision.rotation,photoVision.fineRotation,S.tableL,S.tableW].join('/');
+        const canvas=photoVision.railEvidenceCanvas||photoVision.analysisCanvas,key=[photoVision.imageVersion,photoVision.rotation,photoVision.fineRotation,S.tableL,S.tableW].join('/');
         if(photoVision.cornerDropCache?.key!==key){
-            const targets=sensing.cornerTargets(photoVision.analysisCtx.getImageData(0,0,canvas.width,canvas.height),{tableLength:Number(S.tableL)||2.2352,tableWidth:Number(S.tableW)||1.1176});
+            const targets=sensing.cornerTargets(canvas.getContext('2d',{willReadFrequently:true}).getImageData(0,0,canvas.width,canvas.height),{tableLength:Number(S.tableL)||2.2352,tableWidth:Number(S.tableW)||1.1176});
             photoVision.cornerDropCache={key,targets};
         }
         const snapped=sensing.snapPoint(p,photoVision.cornerDropCache.targets);
@@ -11080,9 +11080,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 
     function pvSnapManualCorners(){
         if(!photoVision.imageReady||photoVision.regionEnd!=='full'||photoVision.corners.length!==4||!window.BilliardsCornerSensing?.snap)return false;
-        const canvas=photoVision.analysisCanvas;
+        const canvas=photoVision.railEvidenceCanvas||photoVision.analysisCanvas;
         const seed=photoVision.manualCornerSeed||photoVision.corners;
-        const sensed=window.BilliardsCornerSensing.snap(photoVision.analysisCtx.getImageData(0,0,canvas.width,canvas.height),seed,{tableLength:Number(S.tableL)||2.2352,tableWidth:Number(S.tableW)||1.1176});
+        const sensed=window.BilliardsCornerSensing.snap(canvas.getContext('2d',{willReadFrequently:true}).getImageData(0,0,canvas.width,canvas.height),seed,{tableLength:Number(S.tableL)||2.2352,tableWidth:Number(S.tableW)||1.1176});
         if(!sensed){pvStatus('No reliable nearby rail lines found. Your rough corners are preserved; adjust them or retry Corner Sensing.');return false;}
         photoVision.manualCornerSeed=seed.map(p=>({...p}));
         photoVision.corners=sensed.corners.map(p=>({...p}));
@@ -11097,14 +11097,17 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     function pvAutoFindRailCorners(){
         if(!photoVision.imageReady){pvStatus('Choose an image first.');return false;}
         if(photoVision.manualCorners&&photoVision.corners.length===4)return pvSnapManualCorners();
-        const canvas=photoVision.analysisCanvas,ctx=photoVision.analysisCtx,w=canvas.width,h=canvas.height;
+        const canvas=photoVision.railEvidenceCanvas||photoVision.analysisCanvas,ctx=photoVision.railEvidenceCanvas?canvas.getContext('2d',{willReadFrequently:true}):photoVision.analysisCtx,w=canvas.width,h=canvas.height;
         if(!w||!h)return false;
         const img=ctx.getImageData(0,0,w,h),d=img.data;
         const sensing=window.BilliardsCornerSensing;
         const guidedFrame=photoVision.cameraFrameCorners?.length===4;
         const dimensions={tableLength:(Number(S.tableL)||2.2352),tableWidth:(Number(S.tableW)||1.1176)};
         const sensed=sensing?.calibrate?.(img,guidedFrame?photoVision.cameraFrameCorners:null,dimensions);
-        if(guidedFrame&&!sensed){pvStatus('No reliable nearby rail edges found. Your frame is preserved; adjust any corner or Analyze Balls.');return false;}
+        if(guidedFrame&&!sensed){
+            if(photoVision.cameraFrameFallbackCorners?.length===4){photoVision.corners=photoVision.cameraFrameFallbackCorners.map(p=>({...p}));pvCalibrationChanged();}
+            pvStatus('No reliable nearby rail edges found. Your table frame is preserved; adjust any corner or Analyze Balls. Outside the frame is excluded from ball analysis.');return false;
+        }
         if(sensed){
             let corners=sensed.corners;
             if(!sensed.guided)corners=photoVision.orientation&&photoVision.orientation!=='auto'?photoCal.cornersForHead(corners,photoVision.orientation):photoCal.orderDetectedCorners(corners);
@@ -12194,7 +12197,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     function loadPhotoFile(file, sourceNameOverride = '', archiveAfter = false, archiveId = null, cameraCorners = null, frameEvidence = null){
         photoVision.loadedTableFile=null;
         if(!file)return;
-        photoVision.cameraFramed=!!cameraCorners;photoVision.cameraFrameCorners=null;
+        photoVision.cameraFramed=!!cameraCorners;photoVision.cameraFrameCorners=null;photoVision.cameraFrameFallbackCorners=null;photoVision.railEvidenceCanvas=null;
         const imageVersion=++photoVision.imageVersion;
         photoVision.imageReady=false;photoVision.imageError='';photoVision.analysisError='';
         photoVision.archiveId=null;
@@ -12226,13 +12229,19 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 photoVision.railInset=0;photoVision.autoRailRawCorners=null;photoVision.cornerSensingEvidence=null;
                 photoVision.regionEnd='full';$('photoRegion').value='full';
                 photoVision.corners=cameraCorners.map(p=>({x:p.x*photoVision.analysisCanvas.width,y:p.y*photoVision.analysisCanvas.height}));
+                photoVision.cameraFrameFallbackCorners=photoVision.corners.map(p=>({...p}));
                 photoVision.orientation=photoCal.headDirection(photoVision.corners,photoVision.analysisCanvas.width,photoVision.analysisCanvas.height);
                 photoVision.autoRailRawCorners=frameEvidence?.boundaryCorners?.length===4?frameEvidence.boundaryCorners.map(p=>({x:p.x*photoVision.analysisCanvas.width,y:p.y*photoVision.analysisCanvas.height})):null;
-                photoVision.cornerSensingEvidence=frameEvidence;
+                photoVision.cornerSensingEvidence=frameEvidence?{...frameEvidence,sensingCanvas:undefined}:null;
+                if(frameEvidence?.sensingCanvas){
+                    const evidence=document.createElement('canvas');evidence.width=photoVision.analysisCanvas.width;evidence.height=photoVision.analysisCanvas.height;
+                    evidence.getContext('2d',{willReadFrequently:true}).drawImage(frameEvidence.sensingCanvas,0,0,evidence.width,evidence.height);photoVision.railEvidenceCanvas=evidence;
+                }
                 photoVision.cameraFrameCorners=(frameEvidence?.frameCorners||cameraCorners).map(p=>({x:p.x*photoVision.analysisCanvas.width,y:p.y*photoVision.analysisCanvas.height}));
                 photoVision.calibrationCache=null;pvUpdateCalibrationDiagram();renderPhotoAnalyzer();
                 $('photoAnalyzeNow').disabled=false;$('photoAddMissed').disabled=false;
                 pvStatus(frameEvidence?.method==='wood-cloth-inset'?'Photo loaded. Amber marks the outer cloth boundary; green marks the estimated cushion noses. Check corners before Analyze Balls. Outside the frame is excluded from ball analysis.':'Photo loaded. Frame applied; use Corner Sensing or adjust the inside cushion corners. Outside the frame is excluded from ball analysis.');
+                if(photoVision.railEvidenceCanvas){pvAutoFindRailCorners();pvUpdateCalibrationDiagram();}
             }
             if($('photoArchiveExport')) $('photoArchiveExport').disabled=false;
             photoVision.sourceName=pvSafePhotoName(sourceNameOverride || file.name || 'Pool table photo');
@@ -12355,7 +12364,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 ? photoVision.corners.map(p=>pvRotatePointCW(p,oldW,oldH))
                 : [];
 
-            photoVision.cameraFrameCorners=null;
+            photoVision.cameraFrameCorners=null;photoVision.cameraFrameFallbackCorners=null;photoVision.railEvidenceCanvas=null;
             photoVision.rotation = (photoVision.rotation + 90) % 360;
             pvRebuildSourceFromRaw();
             pvResetView();

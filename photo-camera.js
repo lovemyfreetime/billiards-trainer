@@ -35,7 +35,11 @@
   const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');ctx.fillStyle='#000';ctx.fillRect(0,0,width,height);ctx.save();ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x-x,p.y-y):ctx.moveTo(p.x-x,p.y-y));ctx.closePath();ctx.clip();ctx.drawImage(source,-x,-y);ctx.restore();
   if(evidence?.boundaryCorners?.length===4)evidence.boundaryCorners=evidence.boundaryCorners.map(p=>({x:(p.x/evidenceScale-x)/width,y:(p.y/evidenceScale-y)/height}));
   const normalized=ps=>ps.map(p=>({x:(p.x-x)/width,y:(p.y-y)/height}));
-  if(enabled){evidence={...evidence,frameCorners:normalized(points)};}
+  if(enabled){
+   let sensingCanvas=null;
+   if(refineRails){sensingCanvas=document.createElement('canvas');sensingCanvas.width=width;sensingCanvas.height=height;sensingCanvas.getContext('2d').drawImage(source,-x,-y);}
+   evidence={...evidence,frameCorners:normalized(points),sensingCanvas};
+  }
   return {canvas,evidence,corners:enabled?normalized(q.map(p=>({x:p.x*w,y:p.y*h}))):null};
  }
  let active=null;

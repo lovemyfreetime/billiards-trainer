@@ -24,9 +24,9 @@ console.log('Perspective nose shadows, reversed brightness and deterministic rep
  assert(r,'portrait outline found');
  const q=r.boundaryCorners,length=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
  assert(length(q[0],q[1])+length(q[2],q[3])>length(q[1],q[2])+length(q[3],q[0]),'table length is fitted to long rails before insetting');
- const expected=sensing.insetFromBoundary(cal.orderDetectedCorners(sensing.suggest(image).corners),{tableLength:2.54,tableWidth:1.27});
- assert.deepEqual(r.boundaryCorners,expected.boundaryCorners);
- r.corners.forEach((p,i)=>assert(Math.hypot(p.x-expected.corners[i].x,p.y-expected.corners[i].y)<2,'portrait physical inset uses the correct axis'));
+ const expected=sensing.insetFromBoundary([{x:460,y:40},{x:530,y:440},{x:190,y:430},{x:270,y:30}],{tableLength:2.54,tableWidth:1.27});
+ r.boundaryCorners.forEach((p,i)=>assert(Math.hypot(p.x-expected.boundaryCorners[i].x,p.y-expected.boundaryCorners[i].y)<3,'precise boundary stays near actual seam'));
+ r.corners.forEach((p,i)=>assert(Math.hypot(p.x-expected.corners[i].x,p.y-expected.corners[i].y)<3,'portrait physical inset uses the correct axis'));
  console.log('Lengthwise photo calibration applies length/width before the physical inset.');
 }
 // Faint, broad nose shadows need a wider probe; small angle differences must
