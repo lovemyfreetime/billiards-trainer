@@ -74,6 +74,8 @@ jobs:
 
       - name: Verify complete app and shared behavior
         run: |
+          python3 scripts/build-native-updates.py
+          python3 scripts/build-offline-assets.py
           python3 scripts/build-offline-assets.py --check
           npm install --prefix /tmp/billiards-backup-tests --no-audit --no-fund fake-indexeddb@6.2.5
           NODE_PATH=/tmp/billiards-backup-tests/node_modules node --test tests/app-backup.test.cjs
@@ -163,7 +165,7 @@ jobs:
         run: |
           python3 scripts/update-android-downloads.py
           python3 scripts/build-offline-assets.py
-          git add install/index.html install/android/index.html install/assets/installer.js offline-assets.json service-worker.js
+          git add install/index.html install/android/index.html install/assets/installer.js native-updates.json offline-assets.json service-worker.js
           if ! git diff --cached --quiet; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

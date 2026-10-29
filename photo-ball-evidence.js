@@ -27,13 +27,20 @@ function adjust(scores,appearance,ids){
   let adjusted=score*(1+Math.max(-.18,Math.min(.25,support)));
   // Confident color separates orange 5 from maroon 7 when lighting shifts hue red.
   if(id!==0&&id!==8&&Number.isFinite(a.dominantHue)&&evidence>.32){
-   const d=distance(a.dominantHue,targets[base]),likelihood=Math.exp(-.5*(d/18)**2);
+   // Orange and maroon can both shift toward red in warm or dim photos. Keep
+   // hue as the main signal, but give the 5/7 pair a wider hue tolerance so
+   // brightness can resolve a lighting-shifted hue instead of locking in the
+   // wrong ball from one misleading color cue.
+   const d=distance(a.dominantHue,targets[base]),pair57=base===5||base===7;
+   const likelihood=Math.exp(-.5*(d/(pair57?27:18))**2);
    let factor=.08+.92*likelihood*likelihood;
-   const value=Number(a.colorMeanVal);
-   if(Number.isFinite(value)&&base===5&&value>.48)factor*=1.18;
-   if(Number.isFinite(value)&&base===7&&value>.48)factor*=.78;
+   const value=Number(a.colorMedianVal??a.colorMeanVal);
+   if(Number.isFinite(value)&&pair57){
+    const orangeBrightness=Math.max(0,Math.min(1,(value-.42)/.38));
+    factor*=base===5?.35+2.65*orangeBrightness:3-2.65*orangeBrightness;
+   }
    const reliability=Math.max(0,Math.min(1,(evidence-.32)/.48));
-   adjusted*=Math.pow(Math.max(.04,Math.min(1.25,factor)),reliability);
+   adjusted*=Math.pow(Math.max(.04,Math.min(3.25,factor)),reliability);
   }
   return Math.max(0,Math.min(1,adjusted));
  });

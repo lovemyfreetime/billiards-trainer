@@ -6,6 +6,12 @@ assert(out[14]<.12,'Heuristics cannot manufacture a stripe prediction from weak 
 const pink=Array(16).fill(.001);pink[4]=.78;pink[3]=.08;
 out=E.adjust(pink,{dominantHue:345,colorPixels:.75,hueStrength:.98,color:.8,outerWhite:0},ids);
 assert.equal(out.indexOf(Math.max(...out)),4,'An alternate pink 4 must retain clear learned identity');
+const shiftedOrange=Array(16).fill(.001);shiftedOrange[5]=.42;shiftedOrange[7]=.42;
+out=E.adjust(shiftedOrange,{dominantHue:350,colorPixels:.75,hueStrength:.98,color:.8,outerWhite:0,colorMedianVal:.80},ids);
+assert(out[5]>out[7],'A bright orange 5 remains ahead of maroon 7 when warm lighting shifts its hue toward red');
+const shiftedMaroon=Array(16).fill(.001);shiftedMaroon[5]=.42;shiftedMaroon[7]=.42;
+out=E.adjust(shiftedMaroon,{dominantHue:30,colorPixels:.75,hueStrength:.98,color:.8,outerWhite:0,colorMedianVal:.40},ids);
+assert(out[7]>out[5],'A dark maroon 7 remains ahead of orange 5 when lighting shifts its hue toward orange');
 const absent=E.adjust(Array(16).fill(0),{dominantHue:215,colorPixels:.9,hueStrength:1},ids);
 assert(absent.every(v=>v===0),'Color alone cannot fabricate identity certainty');
 const bounds=E.tableBounds([{x:200,y:150},{x:800,y:150},{x:800,y:450},{x:200,y:450}],1000,600);

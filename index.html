@@ -9931,6 +9931,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         let n=0,white=0,color=0,dark=0,neutral=0,bright=0,satSum=0,valSum=0;
         let outerN=0,outerWhite=0,outerColor=0;
         let hueX=0,hueY=0,hueWeight=0,colorValSum=0,colorN=0;
+        const colorValueHistogram=new Uint16Array(16);
         for(let y=0;y<h;y++) for(let x=0;x<w;x++){
             const dx=x+.5-cx,dy=y+.5-cy;if(dx*dx+dy*dy>r2)continue;
             const i=(y*w+x)*4,R=px[i]/255,G=px[i+1]/255,B=px[i+2]/255;
@@ -9961,6 +9962,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 hueY+=Math.sin(rad)*wt;
                 hueWeight+=wt;
                 colorValSum+=hi;
+                colorValueHistogram[Math.min(15,Math.floor(hi*16))]++;
                 colorN++;
             }
         }
@@ -9971,11 +9973,20 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if(dominantHue<0)dominantHue+=360;
             hueStrength=Math.min(1,Math.hypot(hueX,hueY)/hueWeight);
         }
+        let colorMedianVal=0;
+        if(colorN){
+            const midpoint=Math.ceil(colorN/2);let cumulative=0;
+            for(let i=0;i<colorValueHistogram.length;i++){
+                cumulative+=colorValueHistogram[i];
+                if(cumulative>=midpoint){colorMedianVal=(i+.5)/colorValueHistogram.length;break;}
+            }
+        }
         return {
             white:white/n,bright:bright/n,color:color/n,dark:dark/n,neutral:neutral/n,
             meanSat:satSum/n,meanVal:valSum/n,
             dominantHue,hueStrength,
             colorMeanVal:colorN?colorValSum/colorN:0,
+            colorMedianVal,
             colorPixels:colorN/n,
             outerWhite:outerN?outerWhite/outerN:0,
             outerColor:outerN?outerColor/outerN:0
@@ -10168,7 +10179,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const dark=Number(a.dark)||0;
         const neutral=Number(a.neutral)||0;
         const sat=Number(a.meanSat)||0;
-        const val=Number(a.colorMeanVal)||Number(a.meanVal)||0;
+        const val=Number(a.colorMedianVal??a.colorMeanVal??a.meanVal)||0;
         const hue=Number(a.dominantHue);
         const hueStrength=Math.max(0,Math.min(1,Number(a.hueStrength)||0));
         const colorPixels=Math.max(0,Math.min(1,Number(a.colorPixels)||color));
@@ -10195,7 +10206,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const family=pvPoolColorFamily(num);
         if(family && Number.isFinite(hue)){
             const dist=pvHueDistanceDeg(hue,family.hue);
-            const hueMatch=Math.max(0,1-dist/95);
+            const base=num>8?num-8:num;
+            const hueMatch=Math.max(0,1-dist/((base===5||base===7)?130:95));
             score+=hueMatch*hueEvidence*.72;
 
             // In a known rack, solid/stripe structure is extremely informative.
@@ -10206,9 +10218,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 
             // 3 and 7 are neighboring red-family colors. Use brightness only as a
             // tie-breaker: bright red leans 3, darker maroon leans 7.
-            const base=num>8?num-8:num;
             if(base===3)score+=Math.max(0,Math.min(1,(val-.42)/.34))*.11;
             if(base===7)score+=Math.max(0,Math.min(1,(.62-val)/.34))*.11;
+            if(base===5||base===7){
+                const orangeBrightness=Math.max(0,Math.min(1,(val-.42)/.38));
+                score+=(base===5?orangeBrightness:1-orangeBrightness)*.28;
+            }
         }
         return score;
     }
