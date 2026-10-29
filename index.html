@@ -11054,18 +11054,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if(!w||!h)return false;
         const img=ctx.getImageData(0,0,w,h),d=img.data;
         const sensing=window.BilliardsCornerSensing;
-        const guidedFrame=photoVision.cameraFramed&&photoVision.corners.length===4;
-        const dimensions={tableLength:(Number(S.tableL)||88)*.0254,tableWidth:(Number(S.tableW)||44)*.0254};
-        let sensed=guidedFrame?sensing?.woodGuided?.(img,photoVision.corners,dimensions):(sensing?.suggest?sensing.suggest(img):sensing?.detect(img));
-        // A detected cloth outline often includes the cushion face. Keep that
-        // wood/cloth outline as the reference and calculate a separate playable
-        // rectangle even when the image was imported without a camera frame.
-        if(sensed&&!guidedFrame&&sensing?.insetFromBoundary){
-            const projected=sensing.insetFromBoundary(sensed.corners,dimensions);
-            const inset=sensing.refineCushionNoses?.(img,projected)||projected;
-            if(inset)sensed={...sensed,...inset,method:'wood-cloth-inset',approximate:true};
-        }
-        if(guidedFrame&&!sensed){pvStatus('No strong nearby rail edges found. Your table frame is preserved; adjust any corner or Analyze Balls.');return false;}
+        const guidedFrame=photoVision.cameraFrameCorners?.length===4;
+        const dimensions={tableLength:(Number(S.tableL)||2.2352),tableWidth:(Number(S.tableW)||1.1176)};
+        const sensed=sensing?.calibrate?.(img,guidedFrame?photoVision.cameraFrameCorners:null,dimensions);
+        if(guidedFrame&&!sensed){pvStatus('No reliable nearby rail edges found. Your frame is preserved; adjust any corner or Analyze Balls.');return false;}
         if(sensed){
             let corners=sensed.corners;
             if(!sensed.guided)corners=photoVision.orientation&&photoVision.orientation!=='auto'?photoCal.cornersForHead(corners,photoVision.orientation):photoCal.orderDetectedCorners(corners);
@@ -12151,7 +12143,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     function loadPhotoFile(file, sourceNameOverride = '', archiveAfter = false, archiveId = null, cameraCorners = null, frameEvidence = null){
         photoVision.loadedTableFile=null;
         if(!file)return;
-        photoVision.cameraFramed=!!cameraCorners;
+        photoVision.cameraFramed=!!cameraCorners;photoVision.cameraFrameCorners=null;
         const imageVersion=++photoVision.imageVersion;
         photoVision.imageReady=false;photoVision.imageError='';photoVision.analysisError='';
         photoVision.archiveId=null;
@@ -12186,9 +12178,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 photoVision.orientation=photoCal.headDirection(photoVision.corners,photoVision.analysisCanvas.width,photoVision.analysisCanvas.height);
                 photoVision.autoRailRawCorners=frameEvidence?.boundaryCorners?.length===4?frameEvidence.boundaryCorners.map(p=>({x:p.x*photoVision.analysisCanvas.width,y:p.y*photoVision.analysisCanvas.height})):null;
                 photoVision.cornerSensingEvidence=frameEvidence;
+                photoVision.cameraFrameCorners=(frameEvidence?.frameCorners||cameraCorners).map(p=>({x:p.x*photoVision.analysisCanvas.width,y:p.y*photoVision.analysisCanvas.height}));
                 photoVision.calibrationCache=null;pvUpdateCalibrationDiagram();renderPhotoAnalyzer();
                 $('photoAnalyzeNow').disabled=false;$('photoAddMissed').disabled=false;
-                pvStatus(frameEvidence?'Wood–cloth rail boundaries found. Playing surface estimated with a 1.94-inch cushion inset using your table size. Check the cushion noses before Analyze Balls. Outside the frame is excluded.':'Table frame applied. Rail boundaries were not clear enough to refine automatically. Check the four inside cushion corners, then Analyze Balls. Outside the frame is excluded.');
+                pvStatus(frameEvidence?.method==='wood-cloth-inset'?'Photo loaded. Amber marks the outer cloth boundary; green marks the estimated cushion noses. Check corners before Analyze Balls. Outside the frame is excluded from ball analysis.':'Photo loaded. Frame applied; use Corner Sensing or adjust the inside cushion corners. Outside the frame is excluded from ball analysis.');
             }
             if($('photoArchiveExport')) $('photoArchiveExport').disabled=false;
             photoVision.sourceName=pvSafePhotoName(sourceNameOverride || file.name || 'Pool table photo');
@@ -12270,22 +12263,22 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         $('photoAnalyzerClose').addEventListener('click', closePhotoAnalyzer);
         $('photoFileInput').addEventListener('change', ev => {
             const file = ev.target.files && ev.target.files[0];
-            if (file) window.BilliardsTableCamera.open({tableLength:(Number(S.tableL)||88)*.0254,tableWidth:(Number(S.tableW)||44)*.0254,file,onError:()=>loadPhotoFile(file),onCapture:(blob,corners,evidence)=>loadPhotoFile(blob,file.name,false,null,corners,evidence)});
+            if (file) window.BilliardsTableCamera.open({tableLength:(Number(S.tableL)||2.2352),tableWidth:(Number(S.tableW)||1.1176),file,onError:()=>loadPhotoFile(file),onCapture:(blob,corners,evidence)=>loadPhotoFile(blob,file.name,false,null,corners,evidence)});
             ev.target.value = '';
         });
         $('cameraFileInput').addEventListener('change', ev => {
             const file = ev.target.files && ev.target.files[0];
             if (file) {
                 openPhotoAnalyzer();
-                window.BilliardsTableCamera.open({tableLength:(Number(S.tableL)||88)*.0254,tableWidth:(Number(S.tableW)||44)*.0254,file,onError:()=>loadPhotoFile(file),onCapture:(blob,corners,evidence)=>loadPhotoFile(blob,file.name,false,null,corners,evidence)});
+                window.BilliardsTableCamera.open({tableLength:(Number(S.tableL)||2.2352),tableWidth:(Number(S.tableW)||1.1176),file,onError:()=>loadPhotoFile(file),onCapture:(blob,corners,evidence)=>loadPhotoFile(blob,file.name,false,null,corners,evidence)});
             }
             ev.target.value = '';
         });
         $('photoCaptureFrame').addEventListener('click', captureVideoFrame);
         $('photoChooseImage').addEventListener('click',()=>$('photoFileInput').click());
-        const openTableCamera=()=>window.BilliardsTableCamera.open({tableLength:(Number(S.tableL)||88)*.0254,tableWidth:(Number(S.tableW)||44)*.0254,onCapture:(blob,corners,evidence)=>{openPhotoAnalyzer();loadPhotoFile(blob,'Camera table',false,null,corners,evidence);},onFallback:()=>$('cameraFileInput').click()});
+        const openTableCamera=()=>window.BilliardsTableCamera.open({tableLength:(Number(S.tableL)||2.2352),tableWidth:(Number(S.tableW)||1.1176),onCapture:(blob,corners,evidence)=>{openPhotoAnalyzer();loadPhotoFile(blob,'Camera table',false,null,corners,evidence);},onFallback:()=>$('cameraFileInput').click()});
         $('photoTakeImage').addEventListener('click',openTableCamera);
-        $('photoFrameImage').addEventListener('click',()=>{if(!photoVision.imageReady)return;const version=photoVision.imageVersion,name=photoVision.sourceName;photoVision.rawCanvas.toBlob(file=>{if(file&&version===photoVision.imageVersion)window.BilliardsTableCamera.open({tableLength:(Number(S.tableL)||88)*.0254,tableWidth:(Number(S.tableW)||44)*.0254,file,onCapture:(blob,corners,evidence)=>loadPhotoFile(blob,name,false,null,corners,evidence)});},'image/png');});
+        $('photoFrameImage').addEventListener('click',()=>{if(!photoVision.imageReady)return;const version=photoVision.imageVersion,name=photoVision.sourceName;photoVision.rawCanvas.toBlob(file=>{if(file&&version===photoVision.imageVersion)window.BilliardsTableCamera.open({tableLength:(Number(S.tableL)||2.2352),tableWidth:(Number(S.tableW)||1.1176),file,onCapture:(blob,corners,evidence)=>loadPhotoFile(blob,name,false,null,corners,evidence)});},'image/png');});
         $('cameraCaptureBtn').addEventListener('click',ev=>{ev.preventDefault();openTableCamera();});
         $('photoArchiveSave').addEventListener('click',pvArchiveRawCanvas);
         $('photoArchiveSelect').addEventListener('change',()=>{const b=$('photoArchiveDelete');b.dataset.confirmId='';b.textContent='Remove';});
@@ -12311,6 +12304,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 ? photoVision.corners.map(p=>pvRotatePointCW(p,oldW,oldH))
                 : [];
 
+            photoVision.cameraFrameCorners=null;
             photoVision.rotation = (photoVision.rotation + 90) % 360;
             pvRebuildSourceFromRaw();
             pvResetView();

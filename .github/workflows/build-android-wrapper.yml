@@ -2,31 +2,6 @@ name: Build Android wrapper APKs
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'android-wrapper/**'
-      - 'index.html'
-      - 'photo-ball-evidence.js'
-      - 'photo-camera.js'
-      - 'photo-corner-sensing.js'
-      - 'offline-assets.json'
-      - 'native-updates.json'
-      - 'scripts/build-native-updates.py'
-      - 'tests/app-updates.browser.cjs'
-      - 'tests/offline-loading.test.cjs'
-      - 'tests/native-content-updates.browser.cjs'
-      - 'tests/display-startup.browser.cjs'
-      - 'tests/chromebook-sliders.browser.cjs'
-      - 'tests/webview-assets/**'
-      - 'tests/trainer-3d*.browser.cjs'
-      - 'scripts/package-android-app.py'
-      - 'scripts/package-windows-app.py'
-      - 'scripts/verify-android-app.py'
-      - '.github/workflows/build-android-wrapper.yml'
-      - '.github/workflows/verify-guide-parity.yml'
-      - 'scripts/verify-guide-release.py'
-      - 'tests/guide-platform-parity.browser.cjs'
 
 concurrency:
   group: android-wrapper-${{ github.ref }}

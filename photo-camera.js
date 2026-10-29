@@ -21,28 +21,32 @@
   const w=source.videoWidth||source.naturalWidth,h=source.videoHeight||source.naturalHeight;
   if(!w||!h)throw Error('Image is not ready');
   if(enabled&&(!valid(q)||visibleArea(q)<1e-6))throw Error('Move the frame over the image');
+  const frame=q.map(p=>({...p}));
   let evidence=null,evidenceScale=1;
-  if(enabled&&refineRails&&root.BilliardsCornerSensing?.woodGuided){
+  if(enabled&&refineRails&&root.BilliardsCornerSensing?.calibrate){
    const scale=Math.min(1,960/Math.max(w,h)),probe=document.createElement('canvas');evidenceScale=scale;probe.width=Math.round(w*scale);probe.height=Math.round(h*scale);
    const pc=probe.getContext('2d',{willReadFrequently:true});pc.drawImage(source,0,0,probe.width,probe.height);
-   evidence=root.BilliardsCornerSensing.woodGuided(pc.getImageData(0,0,probe.width,probe.height),q.map(p=>({x:p.x*probe.width,y:p.y*probe.height})),{tableLength,tableWidth});
+   evidence=root.BilliardsCornerSensing.calibrate(pc.getImageData(0,0,probe.width,probe.height),q.map(p=>({x:p.x*probe.width,y:p.y*probe.height})),{tableLength,tableWidth});
    if(evidence)q=evidence.corners.map(p=>({x:p.x/probe.width,y:p.y/probe.height}));
   }
-  const points=enabled?q.map(p=>({x:p.x*w,y:p.y*h})):[{x:0,y:0},{x:w,y:0},{x:w,y:h},{x:0,y:h}];
-  const pad=enabled?Math.ceil(Math.min(w,h)*.025):0,x=Math.max(0,Math.floor(Math.min(...points.map(p=>p.x)))-pad),y=Math.max(0,Math.floor(Math.min(...points.map(p=>p.y)))-pad);
+  const points=enabled?frame.map(p=>({x:p.x*w,y:p.y*h})):[{x:0,y:0},{x:w,y:0},{x:w,y:h},{x:0,y:h}];
+  const pad=enabled?Math.ceil(Math.min(w,h)*(refineRails?.10:.025)):0,x=Math.max(0,Math.floor(Math.min(...points.map(p=>p.x)))-pad),y=Math.max(0,Math.floor(Math.min(...points.map(p=>p.y)))-pad);
   const width=Math.min(w,Math.ceil(Math.max(...points.map(p=>p.x)))+pad)-x,height=Math.min(h,Math.ceil(Math.max(...points.map(p=>p.y)))+pad)-y;
-  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');ctx.fillStyle='#000';ctx.fillRect(0,0,width,height);ctx.save();ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x-x,p.y-y):ctx.moveTo(p.x-x,p.y-y));ctx.closePath();ctx.clip();ctx.drawImage(source,-x,-y);ctx.restore();
+  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');ctx.fillStyle='#000';ctx.fillRect(0,0,width,height);ctx.save();ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x-x,p.y-y):ctx.moveTo(p.x-x,p.y-y));ctx.closePath();if(!refineRails)ctx.clip();ctx.drawImage(source,-x,-y);ctx.restore();
   if(evidence?.boundaryCorners?.length===4)evidence.boundaryCorners=evidence.boundaryCorners.map(p=>({x:(p.x/evidenceScale-x)/width,y:(p.y/evidenceScale-y)/height}));
-  return {canvas,evidence,corners:enabled?points.map(p=>({x:(p.x-x)/width,y:(p.y-y)/height})):null};
+  const normalized=ps=>ps.map(p=>({x:(p.x-x)/width,y:(p.y-y)/height}));
+  if(enabled){evidence={...evidence,frameCorners:normalized(points)};}
+  return {canvas,evidence,corners:enabled?normalized(q.map(p=>({x:p.x*w,y:p.y*h}))):null};
  }
  let active=null;
  async function open({onCapture,onFallback,onError,file=null,tableLength=2.54,tableWidth=1.27}){
   if(active)return;
   // Use the same trusted-gesture fullscreen entry as Trainer 3D.
   root.BilliardsDisplay?.enter(true);
-  const previous=document.activeElement,modal=document.createElement('div');modal.id='tableCamera';modal.className=file?'tableCameraPhoto':'';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-label',file?'Photo table frame':'Table camera');
+  const previous=document.activeElement,modal=document.createElement('div');modal.id='tableCamera';modal.className=file?'tableCameraPhoto':'';modal.dataset.btgAllow='1';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-label',file?'Photo table frame':'Table camera');
   modal.innerHTML='<div class="tableCameraStage">'+(file?'<img alt="Selected pool table photo">':'<video autoplay muted playsinline></video>')+'<svg aria-label="Rigid 3D table frame" role="img"></svg></div><div class="tableCameraBar"><button data-action="close">Close</button><button data-action="overlay" aria-pressed="true">Frame On</button><button data-action="move" aria-pressed="false" title="Slide the frame without rotating">Hand</button><button data-action="rotate" aria-pressed="true">Rotate</button><button data-action="minus" aria-label="Shrink frame">−</button><button data-action="plus" aria-label="Enlarge frame">+</button><button data-action="top">Top</button><button data-action="swap">Swap Ends</button><button data-action="reset">Reset</button><button data-action="retry" hidden>Retry Camera</button><button data-action="settings" hidden>Camera Settings</button><button data-action="fallback"'+(file?' hidden':'')+'>Device Camera</button><button data-action="snap" disabled>'+(file?'Use Frame':'Take Photo')+'</button></div><div class="tableCameraHint" role="status">'+(file?'Opening image…':'Opening camera…')+'</div>';
   document.body.append(modal);
+  const captureButton=modal.querySelector('[data-action=snap]');captureButton.className='tableCameraCapture';modal.append(captureButton);
   const media=modal.querySelector('video,img'),svg=modal.querySelector('svg'),stage=modal.querySelector('.tableCameraStage'),hint=modal.querySelector('[role=status]'),snap=modal.querySelector('[data-action=snap]'),orbit=root.BilliardsTableOrbit;
   let stream=null,imageURL=null,closed=false,enabled=true,panning=false,ready=false,busy=false,T=null,camera=null,q=[],sourceQuad=[],swapped=false;
   const pointers=new Map(),state={continuousTilt:true,maxElevation:110*Math.PI/180,azimuth:0,elevation:Math.PI/3,radius:3,target:{x:0,y:0,z:0}},L=2,W=1,R=.028575;
@@ -64,7 +68,7 @@
    svg.innerHTML='<polygon points="'+poly+'" fill="transparent" stroke="'+(inImage?'#a3efd0':'#ffd283')+'" stroke-width="2"/>';
    svg.insertAdjacentHTML('beforeend','<g pointer-events="none" fill="#f3e7ba" stroke="#f3e7ba"><polygon points="'+triangle+'" fill="none" stroke-width="2"/><circle cx="'+head.x*width+'" cy="'+head.y*height+'" r="4"/><circle cx="'+foot.x*width+'" cy="'+foot.y*height+'" r="4"/></g>');
    svg.dataset.headX=String(head.x);svg.dataset.headY=String(head.y);
-   if(ready)hint.textContent=enabled&&!inImage?'Move the frame over the image to select a visible area.':'Drag: '+(panning?'slide without rotating':'rotate and tilt')+'. Wheel: zoom. Two fingers: move and pinch. Place near the wood–cloth boundary. Rails are refined when you use the frame.';
+   if(ready)hint.textContent=enabled&&!inImage?'Move the frame over the image to select a visible area.':'Drag: '+(panning?'slide without rotating':'rotate and tilt')+'. Wheel: zoom. Two fingers: move and pinch. Place near the wood–cloth boundary. The frame selects the photo area; cushion corners are sensed separately.';
   }
   function reset(top=false){if(!camera)return;state.azimuth=0;state.elevation=(top?90:60)*Math.PI/180;state.target={x:0,y:0,z:0};state.radius=1.5;swapped=false;
    const width=stage.clientWidth,height=stage.clientHeight,w=media.videoWidth||media.naturalWidth||width,h=media.videoHeight||media.naturalHeight||height,b=mediaBounds(w,h,width,height,!file);
@@ -92,7 +96,7 @@
     if(closed){acquired.getTracks().forEach(t=>t.stop());return;}stream=acquired;media.srcObject=stream;await media.play();if(closed)return;ready=true;modal.querySelector('[data-action=retry]').hidden=true;modal.querySelector('[data-action=settings]').hidden=true;delete modal.dataset.cameraError;
    }catch(error){if(!closed)failure(error);}finally{busy=false;if(ready){reset();draw();}}
   }
-  modal.querySelector('.tableCameraBar').addEventListener('click',async e=>{
+  modal.addEventListener('click',async e=>{
    const action=e.target.closest('button')?.dataset.action;if(!action)return;
    if(action==='close')close();
    if(action==='fallback'){close();onFallback?.();}
@@ -103,7 +107,7 @@
    if(action==='plus'||action==='minus'){actions.zoom(action==='plus'?.88:1/.88);draw();}
    if(action==='top'||action==='reset')reset(action==='top');
    if(action==='swap'){swapped=!swapped;draw();}
-   if(action==='snap'&&!snap.disabled){busy=true;snap.disabled=true;try{const result=capture(media,sourceQuad,enabled,{refineRails:true,tableLength,tableWidth}),blob=await new Promise(resolve=>result.canvas.toBlob(resolve,'image/png'));if(!blob)throw Error('Capture failed');if(closed)return;close();onCapture(blob,result.corners,result.evidence);}catch(error){if(!closed){busy=false;draw();hint.textContent=error.message;}}}
+   if(action==='snap'&&!snap.disabled&&!busy){busy=true;snap.disabled=true;hint.textContent='Preparing photo and finding cushion edges…';try{await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));if(closed)return;const result=capture(media,sourceQuad,enabled,{refineRails:true,tableLength,tableWidth}),blob=await new Promise(resolve=>result.canvas.toBlob(resolve,'image/png'));if(!blob)throw Error('Capture failed');if(closed)return;close();onCapture(blob,result.corners,result.evidence);}catch(error){if(!closed){busy=false;draw();hint.textContent=error.message;}}}
   });
   active={close,snapshot:()=>({state:JSON.parse(JSON.stringify(state)),quad:q.map(p=>({...p})),sourceQuad:sourceQuad.map(p=>({...p})),panning,ready,engine:'Three.js / shared Trainer 3D camera',table:{L,W}})};
   modal.querySelector('button').focus();

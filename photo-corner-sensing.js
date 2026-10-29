@@ -106,48 +106,47 @@ function insetFromBoundary(boundaryCorners,{tableLength=2.54,tableWidth=1.27,cus
  if(!transform)return null;
  const corners=[{x:cushionInset,y:cushionInset},{x:L-cushionInset,y:cushionInset},{x:L-cushionInset,y:W-cushionInset},{x:cushionInset,y:W-cushionInset}].map(p=>cal.apply(transform.H,p));
  if(!cal.validQuad(corners))return null;
- return {corners,boundaryCorners,cushionInset};
+ return {corners,boundaryCorners,cushionInset,tableLength,tableWidth};
 }
 // The K-55 dimension is a starting point, not an image measurement. Where a
 // darker cushion meets a brighter bed, snap each projected edge to that nose.
 // Leave edges at their physical inset when the image has insufficient evidence.
 function refineCushionNoses(img,inset){
- const {width:w,height:h,data}=img||{};
- if(!data||!inset?.corners||!inset?.boundaryCorners)return inset;
- const outer=inset.boundaryCorners,inner=inset.corners,lines=[],evidence=[];
- const light=(x,y)=>{const ix=Math.round(x),iy=Math.round(y);if(ix<0||iy<0||ix>=w||iy>=h)return null;const k=(iy*w+ix)*4;return .2126*data[k]+.7152*data[k+1]+.0722*data[k+2];};
- const center=inner.reduce((p,q)=>({x:p.x+q.x/4,y:p.y+q.y/4}),{x:0,y:0});
- for(let i=0;i<4;i++){
-  const a=outer[i],b=outer[(i+1)%4],p=inner[i],q=inner[(i+1)%4];
-  const middle={x:(a.x+b.x)/2,y:(a.y+b.y)/2},expected={x:(p.x+q.x)/2,y:(p.y+q.y)/2};
-  const d=Math.hypot(expected.x-middle.x,expected.y-middle.y);
-  const nx=(center.x-middle.x)/Math.hypot(center.x-middle.x,center.y-middle.y),ny=(center.y-middle.y)/Math.hypot(center.x-middle.x,center.y-middle.y);
-  let best=null;
-  if(d>=3){
-   const probe=Math.max(1.5,Math.min(3,d*.22));
-   for(let factor=.55;factor<=4.5;factor+=.10){
-    let support=0,total=0,strength=0;
-    for(let j=0;j<25;j++){
-     const t=.15+.7*j/24,x=a.x+(b.x-a.x)*t+nx*d*factor,y=a.y+(b.y-a.y)*t+ny*d*factor;
-     const outside=light(x-nx*probe,y-ny*probe),inside=light(x+nx*probe,y+ny*probe);
-     if(outside===null||inside===null)continue;
-     total++;const change=inside-outside;
-     if(change>12){support++;strength+=Math.min(85,change);}
-    }
-    const score=support/25+strength/2125-Math.abs(factor-1)*.035;
-    if(total>=22&&support>=18&&(!best||score>best.score))best={factor,score,support};
+ const {width:w,height:h,data}=img||{},cal=root.BilliardsPhotoCalibration||(typeof require==='function'?require('./photo-calibration.js'):null);
+ if(!data||!inset?.corners||!cal)return inset;
+ const unit=[{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1}],H=cal.fit(unit,inset.boundaryCorners);
+ if(!H)return inset;
+ const L=inset.tableLength||2.54,W=inset.tableWidth||1.27,d=inset.cushionInset;
+ const fx=d/(L+2*d),fy=d/(W+2*d),edges=[],lines=[];
+ const median=v=>v.sort((a,b)=>a-b)[Math.floor(v.length/2)];
+ const light=p=>{const x=Math.round(p.x),y=Math.round(p.y);if(x<0||y<0||x>=w||y>=h)return null;const k=(y*w+x)*4;return .2126*data[k]+.7152*data[k+1]+.0722*data[k+2];};
+ for(let edge=0;edge<4;edge++){
+  const f=edge%2===0?fy:fx,point=(t,k)=>cal.apply(H.H,edge===0?{x:t,y:k*f}:edge===1?{x:1-k*f,y:t}:edge===2?{x:1-t,y:1-k*f}:{x:k*f,y:1-t});
+  // Sample in table coordinates so the near and far ends get different pixel
+  // offsets. Ignore corners and side pockets; require agreement along the rail.
+  let best=null,bestStep=null;
+  for(let k=.8;k<=3.5;k+=.05){
+   const scores=[],steps=[];let supported=0,stepSupport=0;
+   for(let j=0;j<33;j++){
+    const t=.12+.76*j/32;if(Math.abs(t-.5)<.08)continue;
+    const c=light(point(t,k)),a=light(point(t,k-.30)),b=light(point(t,k+.30));
+    if(c===null||a===null||b===null||Math.min(a,b,c)<8)continue;
+    const ridge=Math.min(a,b)-c,step=Math.abs(b-a);
+    scores.push(ridge);steps.push(step);
+    if(ridge>4)supported++;if(step>16)stepSupport++;
    }
+   const support=supported/26,score=scores.length>=22?median(scores)-Math.abs(k-1)*.4:0;
+   if(support>=.54&&score>4&&(!best||score>best.score))best={k,score,support};
+   const stepScore=steps.length>=22?median(steps)-Math.abs(k-1)*.65:0;
+   if(stepSupport/26>=.65&&stepScore>18&&(!bestStep||stepScore>bestStep.score))bestStep={k,score:stepScore,support:stepSupport/26};
   }
-  const factor=best?.factor??1,delta=(factor-1)*d;
-  const shiftedA={x:p.x+nx*delta,y:p.y+ny*delta},shiftedB={x:q.x+nx*delta,y:q.y+ny*delta};
-  const vx=shiftedB.x-shiftedA.x,vy=shiftedB.y-shiftedA.y,len=Math.hypot(vx,vy);
-  const line={nx:-vy/len,ny:vx/len};line.c=line.nx*shiftedA.x+line.ny*shiftedA.y;
-  lines.push(line);evidence.push({edge:i,refined:!!best,support:best?.support/25||0});
+  best=best||bestStep;
+  const k=best?.k??1,a=point(0,k),b=point(1,k),len=Math.hypot(b.x-a.x,b.y-a.y),line={nx:-(b.y-a.y)/len,ny:(b.x-a.x)/len};line.c=line.nx*a.x+line.ny*a.y;lines.push(line);
+  edges.push({edge,refined:!!best,support:best?.support||0,factor:k});
  }
- if(!evidence.some(e=>e.refined))return {...inset,noseEvidence:evidence};
  const corners=lines.map((line,i)=>intersect(lines[(i+3)%4],line));
- if(corners.some(p=>!p||!Number.isFinite(p.x)||!Number.isFinite(p.y))||corners.some((p,i)=>cross(p,corners[(i+1)%4],corners[(i+2)%4])<=0))return {...inset,noseEvidence:evidence};
- return {...inset,corners,noseEvidence:evidence};
+ if(!cal.validQuad(corners))return {...inset,noseEvidence:edges};
+ return {...inset,corners,noseEvidence:edges};
 }
 function woodGuided(img,quad,options={}){
  const boundary=guided(img,quad,{woodBoundary:true});
@@ -156,5 +155,20 @@ function woodGuided(img,quad,options={}){
  return inset?{...boundary,...inset,method:'wood-cloth-inset',approximate:true}:null;
 }
 
-const api={detect,guided,woodGuided,insetFromBoundary,refineCushionNoses,suggest:img=>detect(img,{allowApproximate:true})};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCornerSensing=api;
+function calibrate(img,quad,options={}){
+ let boundary=quad?.length===4?guided(img,quad,{woodBoundary:true}):null;
+ if(!boundary||boundary.edges.some(e=>!e.refined)){
+  boundary=suggestOutline(img);
+  if(boundary&&quad?.length===4){
+   const candidates=unitRotations(boundary.corners);
+   boundary={...boundary,corners:candidates.sort((a,b)=>a.reduce((s,p,i)=>s+Math.hypot(p.x-quad[i].x,p.y-quad[i].y),0)-b.reduce((s,p,i)=>s+Math.hypot(p.x-quad[i].x,p.y-quad[i].y),0))[0],guided:true};
+  }
+ }
+ if(!boundary)return null;
+ const projected=insetFromBoundary(boundary.corners,options);
+ return projected?{...boundary,...refineCushionNoses(img,projected),method:'wood-cloth-inset',approximate:true}:null;
+}
+function unitRotations(q){return q.map((_,i)=>q.slice(i).concat(q.slice(0,i)));}
+function suggestOutline(img){return detect(img,{allowApproximate:true});}
+const api={calibrate,detect,guided,woodGuided,insetFromBoundary,refineCushionNoses,suggest:img=>detect(img,{allowApproximate:true})};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCornerSensing=api;
 })(typeof window==='object'?window:globalThis);

@@ -2,46 +2,6 @@ name: Build Windows wrapper installer
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'windows-wrapper/**'
-      - 'index.html'
-      - 'welcome.html'
-      - 'zen-mode.js'
-      - 'beta-*.js'
-      - 'photo-*'
-      - 'trainer-*'
-      - 'guide/**'
-      - 'vendor/**'
-      - 'ai_model/**'
-      - 'offline-assets.json'
-      - 'native-updates.json'
-      - 'scripts/build-native-updates.py'
-      - 'tests/app-updates.browser.cjs'
-      - 'tests/native-content-updates.browser.cjs'
-      - 'tests/display-startup.browser.cjs'
-      - 'tests/chromebook-sliders.browser.cjs'
-      - 'tests/webview-assets/**'
-      - 'scripts/package-windows-app.py'
-      - 'scripts/build-offline-assets.py'
-      - 'tests/offline-loading.test.cjs'
-      - 'tests/windows-assets/**'
-      - 'local-host/**'
-      - 'local-session.*'
-      - 'play-*.js'
-      - 'play-*.css'
-      - 'play-audio/**'
-      - 'play-narration-copy.json'
-      - 'play-announcements-copy.json'
-      - 'experience-menu.*'
-      - 'app-display.*'
-      - 'icons/*'
-      - 'play.html'
-      - 'tournament*'
-      - '.github/workflows/build-windows-wrapper.yml'
-      - '.github/workflows/verify-guide-parity.yml'
-      - 'scripts/verify-guide-release.py'
-      - 'tests/guide-platform-parity.browser.cjs'
 
 concurrency:
   group: windows-wrapper-${{ github.ref }}
