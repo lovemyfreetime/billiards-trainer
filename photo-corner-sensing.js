@@ -165,6 +165,12 @@ function calibrate(img,quad,options={}){
   }
  }
  if(!boundary)return null;
+ // Physical length must follow a long rail before fitting the homography.
+ // Camera frames already encode that axis; unguided image outlines start at TL.
+ if(!quad?.length){
+  const cal=root.BilliardsPhotoCalibration||(typeof require==='function'?require('./photo-calibration.js'):null);
+  if(cal)boundary={...boundary,corners:cal.orderDetectedCorners(boundary.corners)};
+ }
  const projected=insetFromBoundary(boundary.corners,options);
  return projected?{...boundary,...refineCushionNoses(img,projected),method:'wood-cloth-inset',approximate:true}:null;
 }

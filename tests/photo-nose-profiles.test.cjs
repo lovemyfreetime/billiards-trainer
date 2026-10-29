@@ -14,3 +14,18 @@ for(const outer of [[{x:65,y:55},{x:740,y:55},{x:740,y:405},{x:65,y:405}],[{x:19
  const again=sensing.refineCushionNoses({width,height,data},inset);assert.deepEqual(again,r,'same source and boundary produce identical corners');
 }
 console.log('Perspective nose shadows, reversed brightness and deterministic repeat sensing passed.');
+// A lengthwise image starts with a short top edge. Reorder the detected outer
+// seam before calculating any physical distances, rather than rotating the
+// already-inset result afterward.
+{
+ const {scene}=require('./photo-corner-sensing.test.cjs');
+ const image=scene([{x:270,y:30},{x:460,y:40},{x:530,y:440},{x:190,y:430}]);
+ const r=sensing.calibrate(image,null,{tableLength:2.54,tableWidth:1.27});
+ assert(r,'portrait outline found');
+ const q=r.boundaryCorners,length=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+ assert(length(q[0],q[1])+length(q[2],q[3])>length(q[1],q[2])+length(q[3],q[0]),'table length is fitted to long rails before insetting');
+ const expected=sensing.insetFromBoundary(cal.orderDetectedCorners(sensing.suggest(image).corners),{tableLength:2.54,tableWidth:1.27});
+ assert.deepEqual(r.boundaryCorners,expected.boundaryCorners);
+ r.corners.forEach((p,i)=>assert(Math.hypot(p.x-expected.corners[i].x,p.y-expected.corners[i].y)<2,'portrait physical inset uses the correct axis'));
+ console.log('Lengthwise photo calibration applies length/width before the physical inset.');
+}
