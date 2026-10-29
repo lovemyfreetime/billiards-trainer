@@ -8,7 +8,11 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),cp=r
   await page.locator('#photoResetCorners').click();
   const q=[{x:120,y:75},{x:680,y:100},{x:702,y:360},{x:112,y:378}];
   const image=page.locator('#photoAnalyzerCanvas'),bounds=await image.boundingBox();
-  for(const p of q)await image.tap({position:{x:p.x/800*bounds.width,y:p.y/460*bounds.height}});
+  for(const [i,p] of q.entries()){
+   if(viewport.width===1366){await page.mouse.move(bounds.x+p.x/800*bounds.width,bounds.y+p.y/460*bounds.height);await page.mouse.down();if(i===0)assert.equal((await page.evaluate(()=>billiardsWalkthroughBridge.snapshot())).corners.length,0,'mouse mark waits for release');await page.mouse.up();}
+   else await image.tap({position:{x:p.x/800*bounds.width,y:p.y/460*bounds.height}});
+   if(i===0){const first=await page.evaluate(()=>billiardsWalkthroughBridge.snapshot());assert.equal(first.corners.length,1);assert(first.lastCornerDropSnapped,'first corner snaps without three other marks');assert(Math.hypot(first.corners[0].x-p.x,first.corners[0].y-p.y)>3,'first rough point visibly shifts to rail intersection');}
+  }
   const state=await page.evaluate(()=>billiardsWalkthroughBridge.snapshot());assert(state.cornersValid,JSON.stringify(state));assert.equal(state.cornerSensingEvidence.method,'manual-rail-snap');assert.equal(state.cornerSensingEvidence.snappedEdges,4);assert.equal(state.analysisRevision,0,'marking corners never starts ball recognition');
   const expected=insetFromBoundary([{x:100,y:80},{x:700,y:80},{x:700,y:380},{x:100,y:380}],{tableLength:2.2352,tableWidth:1.1176}).corners;
   state.corners.forEach((p,i)=>assert(Math.hypot(p.x-expected[i].x,p.y-expected[i].y)<7,JSON.stringify({p,expected:expected[i]})));

@@ -29,3 +29,17 @@ console.log('Perspective nose shadows, reversed brightness and deterministic rep
  r.corners.forEach((p,i)=>assert(Math.hypot(p.x-expected.corners[i].x,p.y-expected.corners[i].y)<2,'portrait physical inset uses the correct axis'));
  console.log('Lengthwise photo calibration applies length/width before the physical inset.');
 }
+// Faint, broad nose shadows need a wider probe; small angle differences must
+// adjust endpoints instead of shifting the whole rail by one constant amount.
+{
+ const width=800,height=460,outer=[{x:100,y:60},{x:700,y:60},{x:700,y:390},{x:100,y:390}],options={tableLength:2.54,tableWidth:1.27},base=sensing.insetFromBoundary(outer,options),d=base.cushionInset,fx=d/(options.tableLength+2*d),fy=d/(options.tableWidth+2*d),data=new Uint8ClampedArray(width*height*4);
+ const slopes=[.4,-.4,.2,-.2],factor=1.7;
+ for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+  const u=(x-100)/600,v=(y-60)/330,inside=u>=0&&u<=1&&v>=0&&v<=1;
+  const offsets=[v/fy-factor-slopes[0]*(u-.5),(1-u)/fx-factor-slopes[1]*(v-.5),(1-v)/fy-factor-slopes[2]*(.5-u),u/fx-factor-slopes[3]*(.5-v)];
+  const shadow=Math.max(...offsets.map(z=>Math.exp(-((z/.55)**2)))),gain=1-.065*shadow,color=inside?[35*gain,145*gain,195*gain]:[125,90,60];data.set([...color,255],(y*width+x)*4);
+ }
+ const result=sensing.refineCushionNoses({width,height,data},base);assert(result.noseEvidence.every(e=>e.refined),'all four broad faint noses found');
+ result.noseEvidence.forEach((e,i)=>{assert(Math.abs(e.factor-factor)<=.11,'faint nose offset');assert(Math.abs(e.slope-slopes[i])<=.21,'small rail angle recovered')});
+ console.log('Broad low-contrast nose shadows and independent endpoint angle correction pass.');
+}

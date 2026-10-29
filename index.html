@@ -10868,7 +10868,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         pvUpdateAIButton();
     }
     function pvResetDetectionsAndCorners() {
-        photoVision.manualCorners=false;photoVision.manualCornerSeed=null;
+        photoVision.manualCorners=false;photoVision.manualCornerSeed=null;photoVision.cornerDropCache=null;photoVision.pendingCornerTap=null;
         photoVision.corners=[];
         photoVision.refinements=[];photoVision.refining=false;photoVision.pendingDiamond=null;photoVision.calibrationCache=null;
         photoVision.detections=[];
@@ -11062,6 +11062,20 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         photoVision.corners=pvInsetQuad(photoVision.autoRailRawCorners,photoVision.railInset||0);
         photoVision.detections=[];
         renderPhotoDetectionList();renderPhotoAnalyzer();
+    }
+
+    function pvSnapDroppedCorner(p){
+        const sensing=window.BilliardsCornerSensing;
+        photoVision.lastCornerDropSnapped=false;
+        if(photoVision.regionEnd!=='full'||!sensing?.cornerTargets||!sensing?.snapPoint)return p;
+        const canvas=photoVision.analysisCanvas,key=[photoVision.imageVersion,photoVision.rotation,photoVision.fineRotation,S.tableL,S.tableW].join('/');
+        if(photoVision.cornerDropCache?.key!==key){
+            const targets=sensing.cornerTargets(photoVision.analysisCtx.getImageData(0,0,canvas.width,canvas.height),{tableLength:Number(S.tableL)||2.2352,tableWidth:Number(S.tableW)||1.1176});
+            photoVision.cornerDropCache={key,targets};
+        }
+        const snapped=sensing.snapPoint(p,photoVision.cornerDropCache.targets);
+        photoVision.lastCornerDropSnapped=!!snapped;
+        return snapped?.point||p;
     }
 
     function pvSnapManualCorners(){
@@ -11614,7 +11628,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         }
         if(photoVision.corners.length<4){
             photoVision.autoRailRawCorners=null;
-            photoVision.corners.push(p);
+            photoVision.corners.push(window.BilliardsCornerSensing?.snapPoint?pvSnapDroppedCorner(p):p);
             if(photoVision.corners.length===4&&photoVision.regionEnd==='full'&&(!photoVision.orientation||photoVision.orientation==='auto')){const direction=photoCal.estimateOrientation(photoVision.corners,photoVision.sourceCanvas.width,photoVision.sourceCanvas.height);photoVision.corners=photoCal.cornersForHead(photoVision.corners,direction);}
             photoVision.hoverPoint=null;
             renderPhotoAnalyzer();
@@ -12172,7 +12186,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const ids=photoVision.detections.map(d=>String(d.id)),assigned=ids.filter(id=>id!=='ignore'),unique=new Set(assigned).size===assigned.length;
         const reviewReady=assigned.length>0&&assigned.length===ids.length&&unique;
         return {imageReady:photoVision.imageReady,imageVersion:photoVision.imageVersion,loadedTableFile:photoVision.loadedTableFile,
-            corners:photoVision.corners.map(p=>({...p})),cornerSensingEvidence:photoVision.cornerSensingEvidence||null,analysisEngine:photoVision.lastAnalysisEngine,detections:photoVision.detections.map(d=>({id:d.id,nx:d.nx,ny:d.ny,confidence:d.confidence,lightingDisagreement:!!d.lightingDisagreement})),cornersValid:!!pvCalibration(),busy:!!photoVision.aiBusy,analysisRevision:photoVision.analysisRevision||0,reviewReady,
+            corners:photoVision.corners.map(p=>({...p})),lastCornerDropSnapped:!!photoVision.lastCornerDropSnapped,cornerSensingEvidence:photoVision.cornerSensingEvidence||null,analysisEngine:photoVision.lastAnalysisEngine,detections:photoVision.detections.map(d=>({id:d.id,nx:d.nx,ny:d.ny,confidence:d.confidence,lightingDisagreement:!!d.lightingDisagreement})),cornersValid:!!pvCalibration(),busy:!!photoVision.aiBusy,analysisRevision:photoVision.analysisRevision||0,reviewReady,
             imageError:photoVision.imageError||'',analysisError:photoVision.analysisError||'',detectionCount:photoVision.detections.length,archiveBusy:!!photoVision.archiveBusy,imageSaved:!!photoVision.archiveId,
             cornerHint:pvCalibrationPrompt(),orientationHint:$('photoOrientationHint').textContent,footSpotHint:$('photoFootSpotHint').textContent,
             reviewHint:!ids.length?'No balls found yet. Add missed balls or return to Analyze.':!unique?'Correct duplicate identities before continuing.':assigned.length<ids.length?'Assign every remaining question mark or delete that false detection.':assigned.length+' unique balls assigned. Check their positions, then Next.'};
@@ -12515,10 +12529,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 pvPhotoPanDrag={startX:ev.clientX,startY:ev.clientY,centerX:photoVision.viewCenterX,centerY:photoVision.viewCenterY,sourceStart:p,moved:false};
                 canvas.setPointerCapture?.(ev.pointerId);return;
             }
+            if(photoVision.corners.length<4){photoVision.pendingCornerTap=p;canvas.setPointerCapture?.(ev.pointerId);return;}
             pvHandlePhotoTap(p);
         });
 
         $('photoAnalyzerCanvas').addEventListener('pointerup', ev => {
+            if(ev.pointerType!=='touch'&&photoVision.pendingCornerTap){photoVision.pendingCornerTap=null;try{$('photoAnalyzerCanvas').releasePointerCapture?.(ev.pointerId);}catch(e){}pvHandlePhotoTap(pvCanvasPoint(ev));return;}
             if(ev.pointerType!=='touch'&&pvPhotoPanDrag){
                 const t=pvPhotoPanDrag;pvPhotoPanDrag=null;
                 try{$('photoAnalyzerCanvas').releasePointerCapture?.(ev.pointerId);}catch(e){}
@@ -12561,6 +12577,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         });
 
         $('photoAnalyzerCanvas').addEventListener('pointercancel', ev => {
+            photoVision.pendingCornerTap=null;
             pvPhotoPanDrag=null;
             if(ev.pointerType==='touch'){
                 pvTouchPointers.delete(ev.pointerId);

@@ -27,3 +27,10 @@ console.log('Rough corners, perspective, break-cloth interruptions, bounded sear
  const a=rough[3],b=rough[0];for(const p of [r.corners[3],r.corners[0]])assert(Math.abs((b.x-a.x)*(p.y-a.y)-(b.y-a.y)*(p.x-a.x))<1e-5,'unresolved rail line stays exactly at user marks');
  console.log('Three-rail partial snap preserves the unresolved user rail line.');
 }
+{
+ const {snapPoint}=require('../photo-corner-sensing'),corners=[{x:100,y:80},{x:700,y:80},{x:700,y:380},{x:100,y:380}],targets={corners,edges:Array.from({length:4},()=>({refined:true}))};
+ assert.deepEqual(snapPoint({x:118,y:91},targets).point,corners[0],'a single rough drop snaps to intersection');
+ assert.equal(snapPoint({x:400,y:230},targets),null,'never pull a distant click across the image');targets.edges[3].refined=false;
+ assert.equal(snapPoint({x:118,y:91},targets),null,'both intersecting rail lines must be supported');
+ console.log('Single-corner attraction is bounded and requires both adjoining rails.');
+}

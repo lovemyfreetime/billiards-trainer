@@ -24,7 +24,7 @@
   const frame=q.map(p=>({...p}));
   let evidence=null,evidenceScale=1;
   if(enabled&&refineRails&&root.BilliardsCornerSensing?.calibrate){
-   const scale=Math.min(1,960/Math.max(w,h)),probe=document.createElement('canvas');evidenceScale=scale;probe.width=Math.round(w*scale);probe.height=Math.round(h*scale);
+   const scale=Math.min(1,1600/Math.max(w,h)),probe=document.createElement('canvas');evidenceScale=scale;probe.width=Math.round(w*scale);probe.height=Math.round(h*scale);
    const pc=probe.getContext('2d',{willReadFrequently:true});pc.drawImage(source,0,0,probe.width,probe.height);
    evidence=root.BilliardsCornerSensing.calibrate(pc.getImageData(0,0,probe.width,probe.height),q.map(p=>({x:p.x*probe.width,y:p.y*probe.height})),{tableLength,tableWidth});
    if(evidence)q=evidence.corners.map(p=>({x:p.x/probe.width,y:p.y/probe.height}));

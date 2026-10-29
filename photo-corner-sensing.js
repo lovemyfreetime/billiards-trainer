@@ -90,7 +90,25 @@ function guided(img,quad,{woodBoundary=false,manualSnap=false}={}){
   const offset=best?.shift||0,delta=best?.delta||0;
   const p={x:a.x+nx*(offset-delta/2),y:a.y+ny*(offset-delta/2)},q={x:b.x+nx*(offset+delta/2),y:b.y+ny*(offset+delta/2)};
   const vx=q.x-p.x,vy=q.y-p.y,l=Math.hypot(vx,vy),normal={nx:-vy/l,ny:vx/l};
-  lines.push({...normal,c:normal.nx*p.x+normal.ny*p.y});edges.push({edge,kind:edge%2===0?'long':'short',refined:!!best,support:best?.ratio||0});
+  let fitted={...normal,c:normal.nx*p.x+normal.ny*p.y};
+  if(manualSnap&&best){
+   const points=[];
+   for(let j=0;j<41;j++){
+    const t=.10+j*.80/40;if(Math.abs(t-.5)<.06)continue;
+    const bx=p.x+(q.x-p.x)*t,by=p.y+(q.y-p.y)*t;let peak=null;
+    for(let shift=-probe*2;shift<=probe*2;shift+=.5){
+     const x=bx+normal.nx*shift,y=by+normal.ny*shift,inside=sample(x+normal.nx*probe,y+normal.ny*probe),outside=sample(x-normal.nx*probe,y-normal.ny*probe);
+     if(!inside||!outside||Math.min(Math.max(...inside),Math.max(...outside))<18)continue;
+     const sum=c=>Math.max(1,c[0]+c[1]+c[2]),chroma=c=>c.map(v=>v/sum(c));
+     if(distance(chroma(inside),chroma(cloth))>.15||distance(chroma(outside),chroma(cloth))<.20)continue;
+     const score=distance(inside,outside)-Math.abs(shift)*.5;
+     if(score>24&&distance(inside,cloth)<60&&(!peak||score>peak.score))peak={x,y,score};
+    }
+    if(peak)points.push(peak);
+   }
+   if(points.length>=22){const precise=fit(points);if(precise)fitted=precise;}
+  }
+  lines.push(fitted);edges.push({edge,kind:edge%2===0?'long':'short',refined:!!best,support:best?.ratio||0});
  }
  if(!edges.some(e=>e.refined))return null;
  const corners=lines.map((line,i)=>intersect(lines[(i+3)%4],line));
@@ -123,28 +141,28 @@ function refineCushionNoses(img,inset){
  const median=v=>v.sort((a,b)=>a-b)[Math.floor(v.length/2)];
  const light=p=>{const x=Math.round(p.x),y=Math.round(p.y);if(x<0||y<0||x>=w||y>=h)return null;const k=(y*w+x)*4;return .2126*data[k]+.7152*data[k+1]+.0722*data[k+2];};
  for(let edge=0;edge<4;edge++){
-  const f=edge%2===0?fy:fx,point=(t,k)=>cal.apply(H.H,edge===0?{x:t,y:k*f}:edge===1?{x:1-k*f,y:t}:edge===2?{x:1-t,y:1-k*f}:{x:k*f,y:1-t});
+  const f=edge%2===0?fy:fx,point=(t,k,slope=0)=>{k+=slope*(t-.5);return cal.apply(H.H,edge===0?{x:t,y:k*f}:edge===1?{x:1-k*f,y:t}:edge===2?{x:1-t,y:1-k*f}:{x:k*f,y:1-t});};
   // Sample in table coordinates so the near and far ends get different pixel
   // offsets. Ignore corners and side pockets; require agreement along the rail.
   let best=null,bestStep=null;
-  for(let k=.8;k<=3.5;k+=.05){
-   const scores=[],steps=[];let supported=0,stepSupport=0;
+  for(let k=.8;k<=3.5;k+=.05)for(const slope of [-.4,-.2,0,.2,.4]){
+   const scores=[],steps=[];let supported=0,stepSupport=0,weakSupported=0;
    for(let j=0;j<33;j++){
     const t=.12+.76*j/32;if(Math.abs(t-.5)<.08)continue;
-    const c=light(point(t,k)),a=light(point(t,k-.30)),b=light(point(t,k+.30));
-    if(c===null||a===null||b===null||Math.min(a,b,c)<8)continue;
-    const ridge=Math.min(a,b)-c,step=Math.abs(b-a);
+    const c=light(point(t,k,slope)),a=light(point(t,k-.30,slope)),b=light(point(t,k+.30,slope)),wideA=light(point(t,k-.60,slope)),wideB=light(point(t,k+.60,slope));
+    if(c===null||a===null||b===null||wideA===null||wideB===null||Math.min(a,b,c,wideA,wideB)<8)continue;
+    const ridge=Math.max(Math.min(a,b)-c,(Math.min(wideA,wideB)-c)*.85),step=Math.max(Math.abs(b-a),Math.abs(wideB-wideA)*.7);
     scores.push(ridge);steps.push(step);
-    if(ridge>4)supported++;if(step>16)stepSupport++;
+    if(ridge>4)supported++;if(ridge>3)weakSupported++;if(step>16)stepSupport++;
    }
-   const support=supported/26,score=scores.length>=22?median(scores)-Math.abs(k-1)*.4:0;
-   if(support>=.54&&score>4&&(!best||score>best.score))best={k,score,support};
-   const stepScore=steps.length>=22?median(steps)-Math.abs(k-1)*.65:0;
-   if(stepSupport/26>=.65&&stepScore>18&&(!bestStep||stepScore>bestStep.score))bestStep={k,score:stepScore,support:stepSupport/26};
+   const support=supported/26,score=scores.length>=22?median(scores)-Math.abs(k-1)*.4-Math.abs(slope)*.3:0;
+   if(((support>=.54&&score>4)||(weakSupported/26>=.80&&score>3))&&(!best||score>best.score))best={k,slope,score,support:Math.max(support,weakSupported/26)};
+   const stepScore=steps.length>=22?median(steps)-Math.abs(k-1)*.65-Math.abs(slope)*.3:0;
+   if(stepSupport/26>=.65&&stepScore>18&&(!bestStep||stepScore>bestStep.score))bestStep={k,slope,score:stepScore,support:stepSupport/26};
   }
   best=best||bestStep;
-  const k=best?.k??1,a=point(0,k),b=point(1,k),len=Math.hypot(b.x-a.x,b.y-a.y),line={nx:-(b.y-a.y)/len,ny:(b.x-a.x)/len};line.c=line.nx*a.x+line.ny*a.y;lines.push(line);
-  edges.push({edge,refined:!!best,support:best?.support||0,factor:k});
+  const k=best?.k??1,slope=best?.slope||0,a=point(0,k,slope),b=point(1,k,slope),len=Math.hypot(b.x-a.x,b.y-a.y),line={nx:-(b.y-a.y)/len,ny:(b.x-a.x)/len};line.c=line.nx*a.x+line.ny*a.y;lines.push(line);
+  edges.push({edge,refined:!!best,support:best?.support||0,factor:k,slope});
  }
  const corners=lines.map((line,i)=>intersect(lines[(i+3)%4],line));
  if(!cal.validQuad(corners))return {...inset,noseEvidence:edges};
@@ -198,7 +216,19 @@ function snap(img,quad,options={}){
  return {...boundary,...inset,corners,method:'manual-rail-snap',snappedEdges:count,approximate:true,confidence:null};
 }
 
+function cornerTargets(img,options={}){
+ const initial=calibrate(img,null,options);
+ return initial?snap(img,initial.corners,options):null;
+}
+function snapPoint(point,targets){
+ if(!targets?.corners||!Number.isFinite(point?.x)||!Number.isFinite(point?.y))return null;
+ const q=targets.corners,limit=Math.min(...q.map((p,i)=>Math.hypot(p.x-q[(i+1)%4].x,p.y-q[(i+1)%4].y)))*.18;
+ let nearest=null;
+ q.forEach((p,i)=>{const distance=Math.hypot(point.x-p.x,point.y-p.y);if(targets.edges[i].refined&&targets.edges[(i+3)%4].refined&&distance<=limit&&(!nearest||distance<nearest.distance))nearest={point:{...p},corner:i,distance};});
+ return nearest;
+}
+
 function unitRotations(q){return q.map((_,i)=>q.slice(i).concat(q.slice(0,i)));}
 function suggestOutline(img){return detect(img,{allowApproximate:true});}
-const api={snap,calibrate,detect,guided,woodGuided,insetFromBoundary,refineCushionNoses,suggest:img=>detect(img,{allowApproximate:true})};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCornerSensing=api;
+const api={cornerTargets,snapPoint,snap,calibrate,detect,guided,woodGuided,insetFromBoundary,refineCushionNoses,suggest:img=>detect(img,{allowApproximate:true})};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCornerSensing=api;
 })(typeof window==='object'?window:globalThis);
