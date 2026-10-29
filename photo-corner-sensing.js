@@ -98,18 +98,22 @@ function guided(img,quad,{woodBoundary=false}={}){
 
 // Detect the cap/cloth transition before masking. All four supported edges are
 // required before applying a physical inset; missing rails preserve user geometry.
-function woodGuided(img,quad,{tableLength=2.54,tableWidth=1.27,cushionInset=.03175}={}){
- const boundary=guided(img,quad,{woodBoundary:true});
- if(!boundary||boundary.edges.some(e=>!e.refined))return null;
+function insetFromBoundary(boundaryCorners,{tableLength=2.54,tableWidth=1.27,cushionInset=.03175}={}){
  const cal=root.BilliardsPhotoCalibration||(typeof require==='function'?require('./photo-calibration.js'):null);
  if(!cal||!(tableLength>0&&tableWidth>0&&cushionInset>0&&cushionInset<tableWidth*.1))return null;
  const L=tableLength+2*cushionInset,W=tableWidth+2*cushionInset;
- const outer=[{x:0,y:0},{x:L,y:0},{x:L,y:W},{x:0,y:W}],transform=cal.fit(outer,boundary.corners);
+ const outer=[{x:0,y:0},{x:L,y:0},{x:L,y:W},{x:0,y:W}],transform=cal.fit(outer,boundaryCorners);
  if(!transform)return null;
  const corners=[{x:cushionInset,y:cushionInset},{x:L-cushionInset,y:cushionInset},{x:L-cushionInset,y:W-cushionInset},{x:cushionInset,y:W-cushionInset}].map(p=>cal.apply(transform.H,p));
  if(!cal.validQuad(corners))return null;
- return {...boundary,corners,boundaryCorners:boundary.corners,method:'wood-cloth-inset',cushionInset,approximate:true};
+ return {corners,boundaryCorners,cushionInset};
+}
+function woodGuided(img,quad,options={}){
+ const boundary=guided(img,quad,{woodBoundary:true});
+ if(!boundary||boundary.edges.some(e=>!e.refined))return null;
+ const inset=insetFromBoundary(boundary.corners,options);
+ return inset?{...boundary,...inset,method:'wood-cloth-inset',approximate:true}:null;
 }
 
-const api={detect,guided,woodGuided,suggest:img=>detect(img,{allowApproximate:true})};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCornerSensing=api;
+const api={detect,guided,woodGuided,insetFromBoundary,suggest:img=>detect(img,{allowApproximate:true})};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCornerSensing=api;
 })(typeof window==='object'?window:globalThis);

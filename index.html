@@ -11055,7 +11055,15 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const img=ctx.getImageData(0,0,w,h),d=img.data;
         const sensing=window.BilliardsCornerSensing;
         const guidedFrame=photoVision.cameraFramed&&photoVision.corners.length===4;
-        const sensed=guidedFrame?sensing?.woodGuided?.(img,photoVision.corners,{tableLength:(Number(S.tableL)||88)*.0254,tableWidth:(Number(S.tableW)||44)*.0254}):(sensing?.suggest?sensing.suggest(img):sensing?.detect(img));
+        const dimensions={tableLength:(Number(S.tableL)||88)*.0254,tableWidth:(Number(S.tableW)||44)*.0254};
+        let sensed=guidedFrame?sensing?.woodGuided?.(img,photoVision.corners,dimensions):(sensing?.suggest?sensing.suggest(img):sensing?.detect(img));
+        // A detected cloth outline often includes the cushion face. Keep that
+        // wood/cloth outline as the reference and calculate a separate playable
+        // rectangle even when the image was imported without a camera frame.
+        if(sensed&&!guidedFrame&&sensing?.insetFromBoundary){
+            const inset=sensing.insetFromBoundary(sensed.corners,dimensions);
+            if(inset)sensed={...sensed,...inset,method:'wood-cloth-inset',approximate:true};
+        }
         if(guidedFrame&&!sensed){pvStatus('No strong nearby rail edges found. Your table frame is preserved; adjust any corner or Analyze Balls.');return false;}
         if(sensed){
             let corners=sensed.corners;
