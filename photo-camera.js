@@ -32,7 +32,7 @@
   const points=enabled?frame.map(p=>({x:p.x*w,y:p.y*h})):[{x:0,y:0},{x:w,y:0},{x:w,y:h},{x:0,y:h}];
   const pad=enabled?Math.ceil(Math.min(w,h)*(refineRails?.10:.025)):0,x=Math.max(0,Math.floor(Math.min(...points.map(p=>p.x)))-pad),y=Math.max(0,Math.floor(Math.min(...points.map(p=>p.y)))-pad);
   const width=Math.min(w,Math.ceil(Math.max(...points.map(p=>p.x)))+pad)-x,height=Math.min(h,Math.ceil(Math.max(...points.map(p=>p.y)))+pad)-y;
-  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');ctx.fillStyle='#000';ctx.fillRect(0,0,width,height);ctx.save();ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x-x,p.y-y):ctx.moveTo(p.x-x,p.y-y));ctx.closePath();if(!refineRails)ctx.clip();ctx.drawImage(source,-x,-y);ctx.restore();
+  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');ctx.fillStyle='#000';ctx.fillRect(0,0,width,height);ctx.save();ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x-x,p.y-y):ctx.moveTo(p.x-x,p.y-y));ctx.closePath();ctx.clip();ctx.drawImage(source,-x,-y);ctx.restore();
   if(evidence?.boundaryCorners?.length===4)evidence.boundaryCorners=evidence.boundaryCorners.map(p=>({x:(p.x/evidenceScale-x)/width,y:(p.y/evidenceScale-y)/height}));
   const normalized=ps=>ps.map(p=>({x:(p.x-x)/width,y:(p.y-y)/height}));
   if(enabled){evidence={...evidence,frameCorners:normalized(points)};}
