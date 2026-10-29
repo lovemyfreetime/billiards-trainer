@@ -11061,7 +11061,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         // wood/cloth outline as the reference and calculate a separate playable
         // rectangle even when the image was imported without a camera frame.
         if(sensed&&!guidedFrame&&sensing?.insetFromBoundary){
-            const inset=sensing.insetFromBoundary(sensed.corners,dimensions);
+            const projected=sensing.insetFromBoundary(sensed.corners,dimensions);
+            const inset=sensing.refineCushionNoses?.(img,projected)||projected;
             if(inset)sensed={...sensed,...inset,method:'wood-cloth-inset',approximate:true};
         }
         if(guidedFrame&&!sensed){pvStatus('No strong nearby rail edges found. Your table frame is preserved; adjust any corner or Analyze Balls.');return false;}

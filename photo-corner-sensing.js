@@ -108,12 +108,53 @@ function insetFromBoundary(boundaryCorners,{tableLength=2.54,tableWidth=1.27,cus
  if(!cal.validQuad(corners))return null;
  return {corners,boundaryCorners,cushionInset};
 }
+// The K-55 dimension is a starting point, not an image measurement. Where a
+// darker cushion meets a brighter bed, snap each projected edge to that nose.
+// Leave edges at their physical inset when the image has insufficient evidence.
+function refineCushionNoses(img,inset){
+ const {width:w,height:h,data}=img||{};
+ if(!data||!inset?.corners||!inset?.boundaryCorners)return inset;
+ const outer=inset.boundaryCorners,inner=inset.corners,lines=[],evidence=[];
+ const light=(x,y)=>{const ix=Math.round(x),iy=Math.round(y);if(ix<0||iy<0||ix>=w||iy>=h)return null;const k=(iy*w+ix)*4;return .2126*data[k]+.7152*data[k+1]+.0722*data[k+2];};
+ const center=inner.reduce((p,q)=>({x:p.x+q.x/4,y:p.y+q.y/4}),{x:0,y:0});
+ for(let i=0;i<4;i++){
+  const a=outer[i],b=outer[(i+1)%4],p=inner[i],q=inner[(i+1)%4];
+  const middle={x:(a.x+b.x)/2,y:(a.y+b.y)/2},expected={x:(p.x+q.x)/2,y:(p.y+q.y)/2};
+  const d=Math.hypot(expected.x-middle.x,expected.y-middle.y);
+  const nx=(center.x-middle.x)/Math.hypot(center.x-middle.x,center.y-middle.y),ny=(center.y-middle.y)/Math.hypot(center.x-middle.x,center.y-middle.y);
+  let best=null;
+  if(d>=3){
+   const probe=Math.max(1.5,Math.min(3,d*.22));
+   for(let factor=.55;factor<=4.5;factor+=.10){
+    let support=0,total=0,strength=0;
+    for(let j=0;j<25;j++){
+     const t=.15+.7*j/24,x=a.x+(b.x-a.x)*t+nx*d*factor,y=a.y+(b.y-a.y)*t+ny*d*factor;
+     const outside=light(x-nx*probe,y-ny*probe),inside=light(x+nx*probe,y+ny*probe);
+     if(outside===null||inside===null)continue;
+     total++;const change=inside-outside;
+     if(change>12){support++;strength+=Math.min(85,change);}
+    }
+    const score=support/25+strength/2125-Math.abs(factor-1)*.035;
+    if(total>=22&&support>=18&&(!best||score>best.score))best={factor,score,support};
+   }
+  }
+  const factor=best?.factor??1,delta=(factor-1)*d;
+  const shiftedA={x:p.x+nx*delta,y:p.y+ny*delta},shiftedB={x:q.x+nx*delta,y:q.y+ny*delta};
+  const vx=shiftedB.x-shiftedA.x,vy=shiftedB.y-shiftedA.y,len=Math.hypot(vx,vy);
+  const line={nx:-vy/len,ny:vx/len};line.c=line.nx*shiftedA.x+line.ny*shiftedA.y;
+  lines.push(line);evidence.push({edge:i,refined:!!best,support:best?.support/25||0});
+ }
+ if(!evidence.some(e=>e.refined))return {...inset,noseEvidence:evidence};
+ const corners=lines.map((line,i)=>intersect(lines[(i+3)%4],line));
+ if(corners.some(p=>!p||!Number.isFinite(p.x)||!Number.isFinite(p.y))||corners.some((p,i)=>cross(p,corners[(i+1)%4],corners[(i+2)%4])<=0))return {...inset,noseEvidence:evidence};
+ return {...inset,corners,noseEvidence:evidence};
+}
 function woodGuided(img,quad,options={}){
  const boundary=guided(img,quad,{woodBoundary:true});
  if(!boundary||boundary.edges.some(e=>!e.refined))return null;
- const inset=insetFromBoundary(boundary.corners,options);
+ const projected=insetFromBoundary(boundary.corners,options),inset=refineCushionNoses(img,projected);
  return inset?{...boundary,...inset,method:'wood-cloth-inset',approximate:true}:null;
 }
 
-const api={detect,guided,woodGuided,insetFromBoundary,suggest:img=>detect(img,{allowApproximate:true})};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCornerSensing=api;
+const api={detect,guided,woodGuided,insetFromBoundary,refineCushionNoses,suggest:img=>detect(img,{allowApproximate:true})};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCornerSensing=api;
 })(typeof window==='object'?window:globalThis);
