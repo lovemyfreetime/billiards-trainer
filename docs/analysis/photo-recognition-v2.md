@@ -7,7 +7,7 @@ The photo importer now supplements the existing ONNX detector/classifier with a 
 - Two 80-tree classifiers learn color family and solid/stripe structure from 90 crop features. Their combined asset is about 300 KB. The existing ONNX weights are unchanged.
 - Related-image-group cross-validation selected 65% supplemental visual evidence and 35% normalized neural evidence. The learned mixture is not followed by a second palette adjustment. A strong neural cue-ball vote is preserved only when the measured body is largely white/neutral and contains little saturated color.
 - Rotation duplicates merge before the detector candidate quota. Final review ranking keeps assigned identities ahead of unresolved high-scoring shadows; the review list stays bounded to 16 candidates.
-- Enhanced recognition is the default. Original recognition remains selectable for unusual ball sets and captures where the supplemental model regresses. Changing the selector does not automatically run analysis.
+- Enhanced recognition runs automatically. The analysis toolbar has no recognition, rack, or lighting selectors; rack interpretation uses Auto and lighting uses the original image. Saved-image controls are accessible from Photos. The action toolbar stays on one row across screen sizes.
 
 ## Evidence and limits
 
@@ -25,7 +25,7 @@ The complete tested browser pipeline produced:
 
 The first group shares a venue/capture context with some development data and informed a neutral-cue safeguard; it is a diagnostic validation set, not an untouched independent-site test. The second group was excluded from model training and mixture selection. One indistinct identity was excluded from its broadcast reference; those 55 references are not a census of every visible object. The close-up cluster tests identity with a supplied image-region mapping, not true table-position calibration.
 
-A development photograph that originally had 10 correct of 16 balls now has all 16 correct. This is a development reproduction, not a generalization claim. One broadcast regressed from 9/16 to 7/16; the original-method option is provided for comparison. Across the 114 evaluation references, no wrong assignment simultaneously had confidence >= 0.60 and lacked a review flag; that does not prove error-free confidence calibration. Unassigned balls, missed detections, rack-spot false candidates, and shadows remain.
+A development photograph that originally had 10 correct of 16 balls now has all 16 correct. This is a development reproduction, not a generalization claim. One broadcast regressed from 9/16 to 7/16; the earlier original-method comparison reproduced the better result on that capture. Across the 114 evaluation references, no wrong assignment simultaneously had confidence >= 0.60 and lacked a review flag; that does not prove error-free confidence calibration. Unassigned balls, missed detections, rack-spot false candidates, and shadows remain.
 
 On this host, inference remained approximately 6.5–12 seconds per image, depending on content. These are desktop measurements, not physical-phone performance guarantees. Broad 90% recognition across arbitrary photographs has not been established.
 

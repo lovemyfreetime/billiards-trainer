@@ -1854,7 +1854,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
       <div class="btg-analyze-title"><h2>Analyze Real Pool Table</h2></div>
       <div id="bt-guide-root" class="btg-header-mode" aria-label="Interactive Trainer Guide"></div>
       <button id="photoWalkthroughBtn" type="button" aria-pressed="false" aria-controls="photoWalkthroughPanel" data-btg-allow="1">Walkthrough</button>
-      <button id="photoAiModeBtn" type="button" title="Toggle AI ball detection">AI: AUTO</button>
+      <button id="photoAiModeBtn" type="button" hidden style="display:none" aria-hidden="true" tabindex="-1" title="Automatic AI ball detection">AI: AUTO</button>
       <button id="btg-analyze-explore" class="btg-launcher" type="button" title="Explorer: click a control to hear its explanation" aria-label="Toggle Explorer" aria-pressed="false" data-btg-allow="1"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></button>
       <button id="photoAnalyzerClose" type="button" title="Close">×</button>
     </div>
@@ -1880,11 +1880,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         <button id="photoResetCorners" type="button">Reset Corners</button>
         <button id="photoFineTune" type="button" aria-expanded="false" aria-controls="photoCalibrationPanel" title="Open Custom Table Layouts">Custom Table Layouts</button>
         <button id="photoAutoRailsBtn" type="button" title="Estimate four corners, then drag any misplaced marker to correct it.">Corner Sensing</button>
-        <select id="photoRackType" aria-label="Rack type" title="Rack type">
-          <option value="auto">Rack: Auto</option><option value="9ball">9-Ball</option><option value="10ball">10-Ball</option><option value="8ball">8-Ball</option><option value="custom">Custom</option>
-        </select>
-        <select id="photoLightingMode" aria-label="Analysis lighting" title="Standard American pool-ball colors. Lighting assist compares exposure-adjusted crops with the originals; the photo is preserved."><option value="original">Original lighting</option><option value="assist">Lighting assist · experimental</option></select>
-        <select id="photoIdentityMode" aria-label="Ball recognition" title="Compare recognition methods for unusual ball sets or broadcast captures. Changing this does not run analysis."><option value="enhanced">Enhanced recognition</option><option value="neural">Original recognition</option></select>
         <button id="photoAnalyzeNow" class="visionPrimary" type="button" disabled>Analyze Balls</button>
         <button id="photoAddMissed" type="button" disabled>Add Missed Ball</button>
       </div></div>
@@ -9505,7 +9500,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         sharpen: false,
         aiEnabled: true,
         lightingMode: 'original',
-        identityMode: 'enhanced',
         aiBusy: false,
         rackType: 'auto',
         inferredRackType: 'custom',
@@ -10488,7 +10482,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         }
         const appearance=pvAnalyzeBallAppearance(crop);
         let colorPatternCheck=null;
-        if(window.BilliardsBallIdentity&&photoVision.identityMode!=='neural'){
+        if(window.BilliardsBallIdentity){
             try {
                 const pixels=crop.getContext('2d',{willReadFrequently:true}).getImageData(0,0,crop.width,crop.height);
                 colorPatternCheck=window.BilliardsBallIdentity.calibrate(avgCombined,pixels,PV_AI_CLASSES.map((_,i)=>pvAIClassToBallId(i)));
@@ -10839,9 +10833,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if(rot) rot.textContent = 'ROTATE 90° • ' + deg + '°';
         if($('photoStraighten')) $('photoStraighten').value=String(photoVision.fineRotation||0);
         if($('photoStraightenValue')) $('photoStraightenValue').textContent=(photoVision.fineRotation||0).toFixed(1)+'°';
-        if($('photoRackType')) $('photoRackType').value=photoVision.rackType||'auto';
-        if($('photoLightingMode'))$('photoLightingMode').value=photoVision.lightingMode||'original';
-        if($('photoIdentityMode'))$('photoIdentityMode').value=photoVision.identityMode||'enhanced';
         if(sharp){
             sharp.textContent = 'SHARPEN: ' + (photoVision.sharpen ? 'ON' : 'OFF');
             sharp.classList.toggle('activeToggle', !!photoVision.sharpen);
@@ -12086,7 +12077,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 const resolveNote=fullyResolved && ['9ball','10ball','8ball'].includes(photoVision.rackType)
                     ? (' All '+photoVision.detections.length+' detected balls assigned to a unique legal identity.')
                     : ' Smart one-of-each + color/stripe rules applied; yellow items need review.';
-                const recognitionNote=engine==='ai'?(photoVision.identityMode==='neural'||!window.BilliardsBallIdentity?' Original recognition.':' Enhanced recognition v2.') : '';
+                const recognitionNote=engine==='ai'&&window.BilliardsBallIdentity?' Enhanced recognition v2.':'';
                 pvStatus(prefix+' found '+photoVision.detections.length+' candidate balls.'+recognitionNote+dupNote+rackNote+resolveNote+aiReason);
             } else {
                 pvStatus('No balls were confidently detected. Select Add Missed Ball to place one ball at a time.');
@@ -12313,26 +12304,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             } else {
                 pvUpdateAIButton();
                 pvStatus('AI disabled. ANALYZE BALLS will use the original hybrid detector.');
-            }
-        });
-        $('photoLightingMode').onchange=()=>{photoVision.lightingMode=$('photoLightingMode').value;pvStatus('Lighting mode changed. Tap Analyze Balls to compare a new result.');};
-        $('photoIdentityMode').onchange=()=>{photoVision.identityMode=$('photoIdentityMode').value;pvStatus('Recognition method changed. Tap Analyze Balls to compare a new result.');};
-        $('photoRackType').addEventListener('change', () => {
-            photoVision.rackType=$('photoRackType').value||'auto';
-            const label=pvRackTypeLabel(photoVision.rackType);
-            if(photoVision.rackType==='auto'){
-                pvStatus('Rack type set to AUTO. The analyzer will make a conservative pool-game guess from the balls it sees.');
-            } else if(photoVision.rackType==='9ball'){
-                pvStatus('9-Ball selected. Only the cue ball and 1–9 are legal; 10–15 will be removed from AI choices.');
-            } else if(photoVision.rackType==='10ball'){
-                pvStatus('10-Ball selected. Only the cue ball and 1–10 are legal; 11–15 will be removed from AI choices.');
-            } else if(photoVision.rackType==='8ball'){
-                pvStatus('8-Ball / Full Set selected. Cue ball and 1–15 are all legal; solid/stripe and color-family rules stay active.');
-            } else {
-                pvStatus('Custom / Drill selected. No rack-number restriction; color-family and one-of-each rules stay active.');
-            }
-            if(photoVision.imageReady && photoVision.corners.length===4 && photoVision.detections.length){
-                setTimeout(()=>analyzeCurrentPhoto(),80);
             }
         });
         $('photoAnalyzeNow').addEventListener('click', analyzeCurrentPhoto);

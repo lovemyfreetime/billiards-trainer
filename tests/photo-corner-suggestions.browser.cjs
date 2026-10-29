@@ -6,13 +6,21 @@ const assert=require('node:assert/strict'),cp=require('node:child_process'),{chr
  let browser;
  try{
   browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox','--disable-dev-shm-usage']});
-  for(const viewport of [{width:1366,height:900},{width:844,height:390},{width:390,height:844}]){
+  for(const viewport of [{width:1366,height:900},{width:1024,height:768},{width:844,height:390},{width:390,height:844}]){
    const touch=viewport.width<1000,context=await browser.newContext({viewport,hasTouch:touch,serviceWorkers:'block'}),page=await context.newPage(),errors=[];
    page.on('pageerror',error=>errors.push(error.message));
    await page.goto((process.env.PHOTO_CORNER_TEST_URL||'http://127.0.0.1:8848/')+'?train=1');
    await page.waitForFunction(()=>window.billiardsWalkthroughBridge&&window.BilliardsCornerSensing?.suggest);
    if(!await page.locator('#analyzePhotoBtn').isVisible())await page.locator('#phoneControls').click();
    await page.locator('#analyzePhotoBtn').click();
+   assert.equal(await page.locator('#photoRackType,#photoLightingMode,#photoIdentityMode').count(),0,'Analysis has no settings dropdowns');
+   assert.equal(await page.locator('.photoAnalyzerToolbar select').count(),0,'Saved images do not occupy the action row');
+   assert.equal(await page.locator('#photoAiModeBtn').isVisible(),false,'Recognition runs automatically');
+   const bar=await page.locator('#phoneAnalyzeBar').boundingBox();assert(bar.height<=42,'Only one action row');
+   const rows=await page.locator('.photoAnalyzerToolbar button:visible').evaluateAll(buttons=>buttons.map(b=>{const r=b.getBoundingClientRect();return {id:b.id,center:r.y+r.height/2};}));
+   assert(Math.max(...rows.map(r=>r.center))-Math.min(...rows.map(r=>r.center))<3,'Toolbar actions share one line: '+JSON.stringify(rows));
+   assert.equal(await page.locator('.photoAnalyzerHeader').isVisible(),false);
+   await page.locator('#phonePhotosButton').click();assert(await page.locator('#photoArchiveSelect').isVisible());assert(await page.locator('#photoWelcomePlay').isVisible());await page.keyboard.press('Escape');
    const png=await page.evaluate(()=>{
     const canvas=document.createElement('canvas');canvas.width=720;canvas.height=480;const ctx=canvas.getContext('2d');
     ctx.fillStyle='rgb(16,60,41)';ctx.fillRect(0,0,720,480);ctx.fillStyle='rgb(25,155,105)';ctx.fillRect(70,70,581,341);
@@ -39,6 +47,13 @@ const assert=require('node:assert/strict'),cp=require('node:child_process'),{chr
    await page.locator('#photoAutoRailsBtn').click();
    assert.deepEqual((await page.evaluate(()=>billiardsWalkthroughBridge.snapshot())).corners,adjusted.corners,'No new outline preserves manual corrections');
    assert.match(await page.locator('#photoAnalyzerStatus').innerText(),/No usable table outline/);
+   await page.locator('#photoWalkthroughBtn').click();
+   await page.locator('#photoWalkthroughNext').click();
+   await page.locator('#photoWalkthroughNext').click();
+   assert.equal(await page.evaluate(()=>billiardsAnalyzeWalkthrough.getState().id),'orientation');
+   await page.locator('#photoWalkthroughNext').click();
+   assert.equal(await page.evaluate(()=>billiardsAnalyzeWalkthrough.getState().id),'analyze','Orientation leads directly to automatic recognition');
+   await page.locator('#photoWalkthroughStop').click();
    assert.deepEqual(errors,[]);await context.close();
    console.log(viewport.width+'x'+viewport.height+': visible Corner Sensing, four approximate markers, '+(touch?'touch':'mouse')+' correction, no auto-analysis and failure preservation passed.');
   }

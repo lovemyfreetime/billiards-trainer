@@ -48,3 +48,18 @@ for(let y=0;y<224;y++)for(let x=0;x<224;x++){const i=(y*224+x)*4,isWhite=y>=80&&
 const striped=identity.calibrate(neuralCue,{width:224,height:224,data:stripePixels},ids,contradictCue);
 assert.notDeepEqual(striped.scores,neuralCue.map(x=>x/neuralCue.reduce((a,b)=>a+b,0)),'white stripe face on a colored body does not invoke the cue safeguard');
 console.log('Ball identity feature extraction, posterior mapping, normalization, zero evidence, input validation, model mixture, and float32 tree boundaries passed.');
+
+// The actual app pipeline always applies Enhanced, even with an old mode value.
+(async()=>{
+ const fs=require('node:fs'),vm=require('node:vm'),html=fs.readFileSync('index.html','utf8');
+ const start=html.indexOf('    async function pvRunAIClassifierRotationEnsemble('),end=html.indexOf('    async function pvDetectWithAI()',start);
+ let checked=0;
+ const env={photoVision:{identityMode:'neural',lightingMode:'original'},PV_AI_CLASSES:['1_ball','2_ball'],console,
+  pvRotateCanvasQuarter:c=>c,pvAnalyzeBallAppearance:()=>({}),pvAIClassToBallId:i=>String(i+1),
+  pvRunAIClassifier:async()=>({top:{i:0},combined:[.8,.2],adjusted:[.8,.2],probs:[.8,.2]}),
+  window:{BilliardsBallIdentity:{calibrate(){checked++;return {scores:[.1,.9]};}}}};
+ vm.createContext(env);vm.runInContext(html.slice(start,end),env);
+ const result=await env.pvRunAIClassifierRotationEnsemble({width:224,height:224,getContext:()=>({getImageData:()=>image()})},[]);
+ assert.equal(checked,1);assert.equal(result.top.i,1);assert.deepEqual(Array.from(result.adjusted),[.1,.9]);
+ console.log('Enhanced recognition is unconditional in the app pipeline; an old mode value cannot bypass it.');
+})().catch(error=>{console.error(error);process.exitCode=1;});

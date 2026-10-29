@@ -228,7 +228,6 @@
   new MutationObserver(dockGuide).observe(document.body,{childList:true,subtree:true});
   const analyzeToolbar=document.querySelector('.photoAnalyzerToolbar'),analyzeHeader=document.querySelector('.photoAnalyzerHeader'),analyzeMoves=[];
   if(analyzeToolbar&&analyzeHeader){for(const element of [...analyzeHeader.children]){if(element.classList.contains('btg-analyze-title'))continue;const anchor=document.createComment('Analyze header position');element.before(anchor);analyzeMoves.push({element,anchor});}}
-  for(const id of ['photoWelcomePlay','photoWelcomeStop']){const element=document.getElementById(id);if(element&&analyzeToolbar){const anchor=document.createComment('Analyze welcome position');element.before(anchor);analyzeMoves.push({element,anchor});}}
   const photoMenu=document.createElement('div');photoMenu.id='phonePhotoMenu';photoMenu.setAttribute('popover','auto');photoMenu.setAttribute('aria-label','Saved photos');document.body.append(photoMenu);
   const photoButton=document.createElement('button');photoButton.id='phonePhotosButton';photoButton.type='button';photoButton.textContent='Photos';photoButton.setAttribute('aria-label','Saved photos');photoButton.setAttribute('aria-expanded','false');
   const nativePhotoPopover=typeof photoMenu.showPopover==='function';
@@ -242,12 +241,13 @@
   const archiveMoves=[];for(const id of ['photoArchiveSelect','photoArchiveLoad','photoArchiveDelete','photoArchiveSave','photoArchiveExport']){const element=document.getElementById(id);if(element){const anchor=document.createComment('Photo archive position');element.before(anchor);archiveMoves.push({element,anchor});}}
   const photoBar=document.createElement('div');photoBar.id='phoneAnalyzeBar';let toolbarAnchor;
   if(analyzeToolbar){toolbarAnchor=document.createComment('Analyze toolbar desktop position');analyzeToolbar.before(toolbarAnchor);analyzeToolbar.parentNode.append(photoBar);analyzeToolbar.append(photoButton);}
-  const autoRack=document.getElementById('photoRackType')?.querySelector('option[value="auto"]'),autoRackText=autoRack?.textContent;
   function layoutAnalyze(){
     if(!analyzeToolbar)return;
     const close=document.getElementById('photoAnalyzerClose');
-    if(focused()){photoBar.append(analyzeToolbar,close);for(const {element}of archiveMoves)photoMenu.append(element);for(const id of ['photoWelcomePlay','photoWelcomeStop']){const el=document.getElementById(id);if(el)photoMenu.append(el);}if(autoRack)autoRack.textContent='Rack';}
-    else{const ai=document.getElementById('photoAiModeBtn');if(ai&&ai.textContent==='AI')ai.textContent=ai.getAttribute('aria-label')||'AI: AUTO';toolbarAnchor.after(analyzeToolbar);for(const {element,anchor}of archiveMoves)anchor.after(element);if(autoRack)autoRack.textContent=autoRackText;closePhotoMenu();}
+    photoBar.append(analyzeToolbar,close);
+    for(const {element}of archiveMoves)photoMenu.append(element);
+    for(const id of ['photoWelcomePlay','photoWelcomeStop','photoWelcomeRead']){const control=document.getElementById(id);if(control)photoMenu.append(control);}
+    closePhotoMenu();
   }
   document.getElementById('photoAnalyzerClose')?.addEventListener('click',closePhotoMenu);
   const compactText={photoChooseImage:'Image',photoFindCorners:'Corners',photoResetCorners:'Reset',photoFineTune:'Layout',photoAutoRailsBtn:'Sense',photoAnalyzeNow:'Analyze',photoAddMissed:'+ Ball',photoWalkthroughBtn:'Walkthrough',photoWelcomePlay:'Welcome',photoWelcomeStop:'Stop voice',photoApplyTable:'Apply',photoApplySave:'Apply + Save',photoLoadTableFile:'Load',photoSaveTableFile:'Save'};
@@ -279,7 +279,7 @@
     document.body.classList.toggle('phone-focus',focused());
     if(title.parentNode !== panel)home.after(title);
     if(focused()){header.prepend(fullscreen);for(const {element,aim,speed,spin}of relocated){if(aim)leftRail.append(element);else if(speed)rightRail.append(element);else if(spin)actions.prepend(element);else toolShelf.append(element);}for(const {element}of analyzeMoves)analyzeToolbar.append(element);}
-    else{launchers.append(fullscreen);for(const {element,anchor}of relocated)anchor.after(element);for(const {element,anchor}of analyzeMoves)anchor.after(element);}
+    else{launchers.append(fullscreen);for(const {element,anchor}of relocated)anchor.after(element);for(const {element}of analyzeMoves)analyzeToolbar.append(element);}
     for(const [el,text]of originalText)el.textContent=focused()?compactText[el.id]:text;
     for(const which of [1,2]){const disk=document.getElementById('phoneTip'+which),spin=document.getElementById('bottomSpin'+which);if(disk){if(focused()&&spin)spin.append(disk);else document.body.append(disk);}}
     if(document.body.classList.contains('table-3d')){launchers.append(fullscreen);if(updateButton.parentNode!==title)title.append(updateButton);}else if(updateButton.parentNode!==updateRow)updateRow.append(updateButton);

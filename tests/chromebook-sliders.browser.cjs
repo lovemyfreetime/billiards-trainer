@@ -24,7 +24,7 @@ const assert=require('node:assert/strict'),cp=require('node:child_process'),{chr
    const menu=page.locator('.experience-menu--train'),toggle=page.locator('#btZenLauncher .experience-toggle');assert.equal(await menu.isVisible(),false,'No stray experience icons when the menu is closed');await toggle.click();assert(await menu.isVisible());assert.equal(await toggle.getAttribute('aria-expanded'),'true');await page.keyboard.press('Escape');assert.equal(await menu.isVisible(),false);
    await page.locator('#phoneControls').click();assert(await page.locator('#trainerUpdateCheck').isVisible(),'Tools provides a direct update check');await page.locator('#analyzePhotoBtn').click();await page.locator('#photoAnalyzerModal.open').waitFor();
    assert.equal(await page.evaluate(()=>Billiards3D.active),false,'3D opens the refined main analyzer');
-   assert(await page.locator('#photoArchiveSelect').isVisible(),'Desktop analyzer exposes its saved-photo controls directly');
+   await page.locator('#phonePhotosButton').click();assert(await page.locator('#photoArchiveSelect').isVisible(),'Saved-photo controls remain accessible from Photos');await page.keyboard.press('Escape');
    await page.setViewportSize({width:600,height:360});await page.locator('#phonePhotosButton').click();assert(await page.locator('#phonePhotoMenu').isVisible());await page.keyboard.press('Escape');assert.equal(await page.locator('#phonePhotoMenu').isVisible(),false);
    assert.deepEqual(errors,[]);await context.close();console.log(spec.name+' (engine '+version+'): long vertical rails, mouse/touch/keyboard speed and compatible menus passed');
   }

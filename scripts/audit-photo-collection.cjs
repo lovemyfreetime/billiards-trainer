@@ -10,6 +10,7 @@ const fs=require('node:fs'),path=require('node:path'),cp=require('node:child_pro
  const page=await browser.newPage({viewport:{width:1366,height:1000},serviceWorkers:'block'});
  await page.addInitScript(()=>{window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=true;window.chrome={webview:{postMessage(){}}};});
  await page.route('**/?train=1',route=>route.fulfill({contentType:'text/html',body:source.replace('    window.billiardsWalkthroughBridge={',`    window.__pvAudit={
+ setOptions(input){photoVision.lightingMode=input.lighting||'original';photoVision.rackType=input.rack||'auto';},
  detail(){return {size:{width:photoVision.analysisCanvas.width,height:photoVision.analysisCanvas.height},calibrationH:pvCalibration()?.H,ready:photoAI.ready,engine:photoVision.lastAnalysisEngine,corners:photoVision.corners,detections:photoVision.detections.map(d=>({...d,thumb:undefined,photoBodyKey:undefined,photoBody:undefined}))};},
  setCorners(input){photoVision.regionEnd=input.region?'custom':'full';if(input.region)photoVision.customBounds=input.region;photoVision.corners=input.corners;photoVision.refinements=[];pvCalibrationChanged();},
  raw:()=>photoVision.analysisCanvas.toDataURL('image/jpeg',.92)
@@ -33,8 +34,7 @@ const fs=require('node:fs'),path=require('node:path'),cp=require('node:child_pro
    const corners=await page.evaluate(()=>billiardsWalkthroughBridge.snapshot());
    if(!corners.cornersValid||(!item.corners&&!corners.cornerSensingEvidence)){row.rejectedCorners=true;}
    else if(!process.env.PHOTO_CORNERS_ONLY){
-    await page.locator('#photoLightingMode').selectOption(item.lighting||'original');
-    await page.locator('#photoRackType').selectOption(item.rack||'auto');
+    await page.evaluate(input=>__pvAudit.setOptions(input),{lighting:item.lighting||'original',rack:item.rack||'auto'});
     const before=corners.analysisRevision,start=performance.now();
     await page.locator('#photoAnalyzeNow').click();
     await page.waitForFunction(before=>{const s=billiardsWalkthroughBridge.snapshot();return !s.busy&&(s.analysisRevision>before||s.analysisError);},before,{timeout:180000});

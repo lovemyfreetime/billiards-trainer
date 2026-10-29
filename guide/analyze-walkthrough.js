@@ -7,8 +7,7 @@ const steps=[
  {id:'find',title:'Open corner setup',targets:['photoFindCorners'],text:'Your image is loaded. Tap Find / Add Corners to open the table diagram. For a partial table image, choose the matching coverage in Custom Table Layouts before marking the corners.'},
  {id:'corners',title:'Identify four corners',targets:['photoAnalyzerCanvas','photoCalibrationDiagram','photoOrientation','photoRegion','photoAutoRailsBtn'],text:'Match each highlighted numbered reference on the diagram to the inside cushion edge in your image. Notice the orientation: Top or Bottom is portrait; Left or Right is landscape. For a full table in Auto, pocket one becomes top right in portrait and top left in landscape. Corner Sensing can estimate a full-table outline. Check all four markers.'},
  {id:'orientation',title:'Confirm orientation',targets:['photoOrientation','photoFlipEnds','photoCalibrationDiagram'],text:'Check the head, break, and kitchen end against your image. Choose Top or Bottom for portrait, or Left or Right for landscape. Use Flip Ends if reversed. Check the foot spot message and the four numbered markers. Tap Next when the orientation and alignment are correct.'},
- {id:'rack',title:'Confirm rack type',targets:['photoRackType'],text:'Leave Rack on Auto, or select the game shown in your image. Use Custom for a drill or an unusual arrangement. Select a different rack type, or tap Next to keep the current choice.'},
- {id:'analyze',title:'Analyze the balls',targets:['photoAnalyzeNow'],text:'Tap Analyze Balls. The walkthrough waits for analysis to finish. AI Ready shows the detector status; if the trained detector is unavailable, the app can use its local fallback.'},
+ {id:'analyze',title:'Analyze the balls',targets:['photoAnalyzeNow'],text:'Tap Analyze Balls. The walkthrough waits for analysis to finish. Enhanced recognition runs automatically; if the trained detector is unavailable, the app can use its local fallback.'},
  {id:'review',title:'Review every ball',targets:['photoDetectionList','photoBallStrip','photoAddMissed'],text:'Check every ball number and position. Tap an image marker or ball icon to find its review entry. Correct identities and delete false detections. Add Missed Ball places one ball per activation. Zoom and pan to check closely. Tap Next when all remaining balls have unique identities and the layout looks right.'},
  {id:'save',title:'Keep an image or file?',targets:['photoArchiveSave','photoArchiveExport','photoSaveTableFile'],text:'Saving here is optional. Save Image keeps the image on this device. Download saves an image copy. Save Table File downloads a shareable layout. These are separate from saving a named Trainer layout. Choose any you want, then tap Next, or simply tap Next to skip.'},
  {id:'apply',title:'Send the layout to Trainer',targets:['photoLayoutName','photoApplyTable','photoApplySave'],text:'Choose Apply to Trainer Table to practice now. Or enter a layout name and choose Apply plus Save Layout to keep it for reuse on this device. The walkthrough finishes only after the layout is successfully applied.'},
@@ -39,29 +38,28 @@ function createMachine(){
  }
  function update(s,event){
   if(!active)return state();
-  if(event==='applied'){index=10;active=false;return state();}
-  if(s.loadedTableFile&&s.loadedTableFile!==loadBaseline){loadBaseline=s.loadedTableFile;lastImage=s.imageVersion;index=7;return state();}
+  if(event==='applied'){index=9;active=false;return state();}
+  if(s.loadedTableFile&&s.loadedTableFile!==loadBaseline){loadBaseline=s.loadedTableFile;lastImage=s.imageVersion;index=6;return state();}
   if(s.imageVersion!==lastImage){lastImage=s.imageVersion;index=1;}
   if(index===1&&!backViewing&&s.imageReady&&s.imageVersion!==baseline){baseline=s.imageVersion;index=2;}
   if(index===2&&event==='find')index=3;
   if(index===3&&s.cornersValid&&!backViewing)index=4;
-  if(index>=4&&index<=9&&!s.cornersValid&&!s.loadedTableFile)index=3;
-  if(index===5&&event==='rack'){backViewing=false;index=6;}
-  if(index===6&&s.analysisRevision>analysis&&!s.busy){analysis=s.analysisRevision;index=7;}
-  if(index>=8&&!s.reviewReady)index=7;
+  if(index>=4&&index<=8&&!s.cornersValid&&!s.loadedTableFile)index=3;
+  if(index===5&&s.analysisRevision>analysis&&!s.busy){analysis=s.analysisRevision;index=6;}
+  if(index>=7&&!s.reviewReady)index=6;
   return state();
  }
  function next(s){
   if(!active||!ready(s))return state();backViewing=false;
-  if(index===0||index===1){baseline=s.imageVersion;lastImage=s.imageVersion;loadBaseline=s.loadedTableFile;index=s.loadedTableFile?7:2;}
+  if(index===0||index===1){baseline=s.imageVersion;lastImage=s.imageVersion;loadBaseline=s.loadedTableFile;index=s.loadedTableFile?6:2;}
   else if(index===2)index=4;
-  else if(index===6)index=7;
-  else if(index<9)index++;
+  else if(index===5)index=6;
+  else if(index<8)index++;
   return state();
  }
  function request(s){if(active){baseline=s.imageVersion;lastImage=s.imageVersion;index=1;backViewing=false;}return state();}
- function back(s){if(active&&index>0){index--;backViewing=true;if(index===1)baseline=s.imageVersion;if(index===6)analysis=s.analysisRevision;}return state();}
- function recover(action,s){if(!active)return state();if(action==='image'){request(s);}else if(action==='corners'){index=3;backViewing=true;}else if(action==='retry'){index=6;analysis=s.analysisRevision;backViewing=false;}else if(action==='add'){index=7;backViewing=false;}return state();}
+ function back(s){if(active&&index>0){index--;backViewing=true;if(index===1)baseline=s.imageVersion;if(index===5)analysis=s.analysisRevision;}return state();}
+ function recover(action,s){if(!active)return state();if(action==='image'){request(s);}else if(action==='corners'){index=3;backViewing=true;}else if(action==='retry'){index=5;analysis=s.analysisRevision;backViewing=false;}else if(action==='add'){index=6;backViewing=false;}return state();}
  return {start,stop,state,ready,update,next,back,request,recover};
 }
 function mount(bridge){
@@ -82,7 +80,7 @@ function mount(bridge){
   if(!s.active||last!==view.key)document.querySelectorAll('.walkthroughTarget').forEach(el=>el.classList.remove('walkthroughTarget'));
   if(!s.active){clearInterval(interval);interval=null;return;}
   if(last!==view.key)for(const id of step.targets)$(id)?.classList.add('walkthroughTarget');
-  text('photoWalkthroughTitle',(s.index+1)+' / 10 · '+view.title);
+  text('photoWalkthroughTitle',(s.index+1)+' / '+(steps.length-1)+' · '+view.title);
   text('photoWalkthroughText',view.text);
   $('photoWalkthroughBack').disabled=s.index===0;
   $('photoWalkthroughNext').disabled=!machine.ready(snapshot)||s.id==='apply'||view.recovery;
@@ -112,7 +110,6 @@ function mount(bridge){
  for(const [id,action,target] of [['photoWalkthroughTryImage','image','photoChooseImage'],['photoWalkthroughAdjust','corners',null],['photoWalkthroughRetry','retry','photoAnalyzeNow'],['photoWalkthroughAdd','add','photoAddMissed']])$(id).addEventListener('click',()=>{
   bridge.clearErrors();machine.recover(action,snap());if(action==='corners')bridge.openCalibration();render();if(target)$(target).click();
  });
- $('photoRackType').addEventListener('change',()=>setTimeout(()=>update('rack'),0));
  $('photoFileInput').addEventListener('cancel',()=>{if(machine.state().id==='picker'){machine.back(snap());render();}});
  new MutationObserver(()=>{if(!$('photoAnalyzerModal').classList.contains('open')&&machine.state().active)stop();}).observe($('photoAnalyzerModal'),{attributes:true,attributeFilter:['class']});
  const applied=()=>{if(!machine.state().active)return;machine.update(snap(),'applied');last='complete';render();narrate();};

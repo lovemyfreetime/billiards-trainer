@@ -10,7 +10,7 @@ function init(){
  document.getElementById('photoWelcomeText').textContent=text;
  function sync(){button.textContent=output.starting||!audio.paused?'Pause welcome':audio.ended?'Replay welcome':'Play welcome';button.setAttribute('aria-label',button.textContent);}
  function stop(){active=false;output.release();audio.currentTime=0;panel.hidden=true;sync();}
- function play(){output.play().catch(()=>{}).finally(sync);sync();}
+ function play(){active=true;output.play().catch(()=>{}).finally(sync);sync();}
  function open(){active=true;global.billiardsPoolGuide?.setEnabled(false);global.billiardsAnalyzeGuide?.setExploring(false);panel.hidden=false;document.getElementById('photoWelcomeRead').open=false;audio.currentTime=0;play();}
  button.addEventListener('click',()=>{if(!audio.paused||output.starting)output.pause();else{if(audio.ended)audio.currentTime=0;play();}sync();});
  document.getElementById('photoWelcomeStop').addEventListener('click',stop);

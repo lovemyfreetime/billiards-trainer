@@ -170,7 +170,7 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
   await page.locator('#photoOrientation').selectOption(height>width?'top':'left');
   await page.click('#photoFlipEnds');assert.equal(await page.locator('#photoOrientation').inputValue(),height>width?'bottom':'right');
   await page.click('#photoFlipEnds');assert.equal(await page.locator('#photoOrientation').inputValue(),height>width?'top':'left');
-  if((await page.locator('#photoAiModeBtn').innerText())!=='AI: OFF')await page.click('#photoAiModeBtn'); // Hybrid blank-cloth analysis.
+  if((await page.locator('#photoAiModeBtn').innerText())!=='AI: OFF')await page.locator('#photoAiModeBtn').evaluate(e=>e.click()); // Hybrid blank-cloth analysis.
   await page.click('#photoAnalyzeNow');assert.equal(await page.locator('#photoCalibrationPanel').isVisible(),false);
   assert.equal(await page.locator('#photoFineTune').getAttribute('aria-expanded'),'false');
   await page.waitForFunction(()=>!document.querySelector('#photoAnalyzeNow').disabled);
@@ -184,8 +184,8 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  }
  // Walkthrough: real image loading, alignment, analysis, review and both Apply routes.
  const headerIds=await page.locator('.photoAnalyzerHeader button').evaluateAll(nodes=>nodes.map(n=>n.id));
- assert.ok(headerIds.indexOf('photoAiModeBtn')===headerIds.indexOf('photoWalkthroughBtn')+1);
- assert.equal(await page.locator('.photoAnalyzerToolbar #photoAiModeBtn').count(),0);
+ assert.equal(await page.locator('#photoAiModeBtn').isVisible(),false);
+ assert.equal(await page.locator('.photoAnalyzerToolbar #photoWalkthroughBtn').count(),1);
  await page.click('#photoWalkthroughBtn');assert.equal(await page.evaluate(()=>billiardsAnalyzeWalkthrough.getState().id),'choose');
  const chooserPromise=page.waitForEvent('filechooser');await page.click('#photoChooseImage');const chooser=await chooserPromise;
  assert.equal(await page.evaluate(()=>billiardsAnalyzeWalkthrough.getState().id),'picker');
@@ -195,8 +195,8 @@ const server=require('node:child_process').spawn('python',['-u','-m','http.serve
  await page.click('#photoFindCorners');await page.waitForFunction(()=>billiardsAnalyzeWalkthrough.getState().id==='corners');
  await page.click('#photoAutoRailsBtn');await page.waitForFunction(()=>billiardsAnalyzeWalkthrough.getState().id==='orientation');
  await page.click('#photoWalkthroughBack');await page.waitForTimeout(350);assert.equal(await page.evaluate(()=>billiardsAnalyzeWalkthrough.getState().id),'corners');
- await page.click('#photoWalkthroughNext');await page.click('#photoWalkthroughNext');assert.equal(await page.evaluate(()=>billiardsAnalyzeWalkthrough.getState().id),'rack');
- await page.locator('#photoRackType').selectOption('9ball');await page.waitForFunction(()=>billiardsAnalyzeWalkthrough.getState().id==='analyze');
+ await page.click('#photoWalkthroughNext');await page.click('#photoWalkthroughNext');assert.equal(await page.evaluate(()=>billiardsAnalyzeWalkthrough.getState().id),'analyze');
+ await page.waitForFunction(()=>billiardsAnalyzeWalkthrough.getState().id==='analyze');
  await page.click('#photoAnalyzeNow');await page.waitForFunction(()=>billiardsAnalyzeWalkthrough.getState().id==='review');
  assert.equal(await page.locator('#photoWalkthroughNext').isDisabled(),true);
  await page.click('#photoAddMissed');const walkBox=await page.locator('#photoAnalyzerCanvas').boundingBox();await page.locator('#photoAnalyzerCanvas').click({position:{x:walkBox.width/2,y:walkBox.height/2}});

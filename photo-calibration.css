@@ -195,3 +195,17 @@ body.phone-focus .photoAnalyzerFooter .bt-saved-files button{padding:3px 4px}
 body.phone-focus .photoAnalyzerFooter #photoLayoutName{flex:0 0 105px!important;width:105px;max-width:105px}
 body.phone-focus #photoWalkthroughBtn{order:8!important}
 @media(orientation:portrait){body.phone-focus .photoAnalyzerFooter #photoLayoutName{flex-basis:85px!important;width:85px;max-width:85px}}
+
+/* A single action row leaves the remaining panel height for the image. */
+.photoAnalyzerPanel{grid-template-rows:0 auto 40px minmax(160px,1fr) auto;overflow:hidden}
+.photoAnalyzerHeader{display:none}
+#phoneAnalyzeBar{display:grid;grid-row:3;grid-template-columns:minmax(0,1fr) 32px;grid-template-rows:40px;gap:2px;align-items:center;min-width:0;padding-right:3px;background:#171e26}
+#phoneAnalyzeBar .photoAnalyzerToolbar{grid-row:1!important;grid-column:1;min-width:0;height:40px;max-height:40px;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;padding:4px!important;gap:4px!important;scroll-padding:4px}
+#phoneAnalyzeBar #photoAnalyzerClose{grid-row:1;grid-column:2;position:static!important;inset:auto!important;width:30px;height:30px;min-height:30px;padding:0;border-radius:50%;font-size:20px;line-height:1}
+#phonePhotosButton{display:block;order:7!important}
+#photoWalkthroughBtn{order:8!important}
+#photoAiModeBtn{display:none!important}
+#btg-analyze-explore{order:10!important}
+.photoAnalyzerToolbar>.photoAnalyzerWelcome{display:none!important}
+#phonePhotoMenu #photoWelcomeRead{flex:0 0 100%;font:12px/1.4 system-ui}
+#phonePhotoMenu #photoWelcomeRead p{font-size:12px}
