@@ -11,6 +11,7 @@ on:
       - 'android-wrapper/**'
       - 'photo-*.js'
       - 'photo-*.json'
+      - 'tests/photo-camera.browser.cjs'
       - 'index.html'
       - 'offline-assets.json'
       - 'service-worker.js'
