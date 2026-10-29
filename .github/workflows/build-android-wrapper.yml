@@ -6,6 +6,10 @@ on:
     branches: [main]
     paths:
       - 'android-wrapper/**'
+      - 'index.html'
+      - 'photo-ball-evidence.js'
+      - 'photo-camera.js'
+      - 'photo-corner-sensing.js'
       - 'offline-assets.json'
       - 'native-updates.json'
       - 'scripts/build-native-updates.py'
