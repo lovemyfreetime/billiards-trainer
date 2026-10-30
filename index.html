@@ -2236,10 +2236,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         return e;
     }
     function returnPocketBall(id,q=null){
-        if(id<(document.body.classList.contains('zen-mode')?0:1)||id>15||S.balls.some(b=>b.id===id))return;
+        if(id<((document.body.classList.contains('zen-mode')||globalThis.Billiards3D?.active)?0:1)||id>15||S.balls.some(b=>b.id===id))return;
         if(!q){for(let y=1;y<10&&!q;y++)for(let x=1;x<18;x++){const p={x:S.tableL*x/18,y:S.tableW*y/10};if(S.balls.every(b=>b.marker||Math.hypot(b.x-p.x,b.y-p.y)>S.ballR*2.2)){q=p;break;}}}
         if(q&&onPlayingSurface(q))q=keepCueOnTable(q);
         if(!q||!onPlayingSurface(q)||S.balls.some(b=>!b.marker&&Math.hypot(b.x-q.x,b.y-q.y)<S.ballR*2)){toast('Drop on clear table cloth to return the ball');return;}
+        if(globalThis.Billiards3D?.active)beginActionUndo();
         S.balls.push({id,n:String(id),x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR),active:true});S.pocketedLog=(S.pocketedLog||[]).filter(n=>n!==id);
         normalizeBallSet();updateUI();refreshPreview();saveState();syncProjector();toast(id===0?'Cue ball returned to play':'Ball '+id+' returned to play');
     }
@@ -2677,7 +2678,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     })();
 
     function freshZenTable(){
-        if(animation||!document.body.classList.contains('zen-mode'))return false;
+        if(animation||(!document.body.classList.contains('zen-mode')&&!globalThis.Billiards3D?.active))return false;
         beginActionUndo();
         S.activeShot=1;S.shot2Enabled=false;S.balls=[];S.pocketedLog=[];S.allowMissingCueBall=true;
         S.speed=2.42;S.follow=0;S.sideSpin=0;S.cueElevationDeg=0;S.airbornePhysics=false;S.freeAim={x:S.tableL*.75,y:S.tableW*.5};
@@ -2713,6 +2714,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             }
             returnPocketBall(id,q);return S.balls.some(b=>b.id===id&&b.active);
         }
+    };
+
+    window.billiards3DBallControls={
+        status(){return {...window.billiardsZenControls.status(),pocketed:[...(S.pocketedLog||[])]};},
+        clear:freshZenTable,
+        place(id,q=null){if(animation||!window.Billiards3D?.active)return false;returnPocketBall(id,q);return S.balls.some(b=>b.id===id&&b.active);}
     };
 
     window.billiardsGuideApplyLayout=file=>{applyTableFile(file,false,null,true);if($('photoAnalyzerModal').classList.contains('open'))closePhotoAnalyzer();};
@@ -7699,7 +7706,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const live=(animation?.current||S.balls).map(b=>({...S.balls.find(x=>x.id===b.id),...b})).filter(b=>b.id!==0||cueVisualsVisible(1));
             if(S.shot2Enabled&&cueVisualsVisible(2))live.push({id:'CB2',x:S.shot2.x,y:S.shot2.y,active:true});
             const second=S.activeShot===2&&S.shot2Enabled,cb=second?S.shot2:cueBall();
-            window.Billiards3D.update({L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,cueTips:animation?.cueTips||cueTipsFor3D(),balls:live,map,aim:cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
+            window.Billiards3D.update({L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,railEditing:!!S.bankKick?.mode&&S.bankKick.phase==='rail',cueTips:animation?.cueTips||cueTipsFor3D(),balls:live,map,aim:cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
         }
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }

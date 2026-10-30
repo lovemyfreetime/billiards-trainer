@@ -13,3 +13,5 @@ c.Math=Math;c.clamp=(v,a,b)=>Math.max(a,Math.min(b,v));c.onPlayingSurface=q=>q.x
 vm.runInContext(extract('aimDirection'),c);vm.runInContext(extract('returnPocketBall'),c);c.refreshPreview=()=>{const direction=c.aimDirection();assert(Number.isFinite(direction.x)&&Number.isFinite(direction.y),'Post-clear aim must remain valid for prediction');};
 for(let repeat=0;repeat<3;repeat++){assert(c.freshZenTable());assert.doesNotThrow(()=>c.returnPocketBall(0,{x:.5,y:.5}));assert.doesNotThrow(()=>c.returnPocketBall(1,{x:1,y:.5}));assert.deepEqual(Array.from(c.S.balls,b=>b.id),[0,1],'Cue and object balls can be placed after every clear');}
 console.log('Fresh table regression: clear → place cue → place object → predict succeeds across repeated resets.');
+
+c.Billiards3D={active:true};assert(c.freshZenTable(),"3D tray can clear the table without Zen mode");c.returnPocketBall(0,{x:.5,y:.5});assert(c.S.balls.some(b=>b.id===0),"3D tray can restore the cue ball");

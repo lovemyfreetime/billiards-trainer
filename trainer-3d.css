@@ -233,3 +233,24 @@ body.table-3d.phone-focus{--control-right:calc(clamp(104px,8vw,128px) + 4px)}
 body.table-3d.phone-focus #bankKickRoutePanel:not([hidden]){left:auto;right:calc(150px + env(safe-area-inset-right));top:8px;width:min(340px,calc(100vw - 186px));max-width:340px}
 body.table-3d.phone-focus #stageWrap>#table3DToggle{width:92px;height:42px;min-height:42px;top:calc(clamp(112px,16vh,144px) - 50px);border:3px solid #8bff99;background:#163c30;font:700 13px system-ui;box-shadow:0 0 0 2px #55e86944,0 0 16px 3px #55e86977}
 @media(max-width:600px) and (orientation:portrait){body.table-3d.phone-focus #bankKickRoutePanel:not([hidden]){right:112px;top:60px}}
+
+/* Tray, rack picker, compact zoom, rotate and hand share the follow/draw bank. */
+body.table-3d.phone-focus #table3DPhoneControls #table3DTools{gap:3px}
+body.table-3d.phone-focus #table3DPhoneControls #table3DTools>button{width:clamp(25px,3.8vw,38px);min-width:clamp(25px,3.8vw,38px);padding:2px}
+body.table-3d #table3DZoomGroup{flex:1 1 70px;min-width:54px;max-width:116px;gap:1px}
+body.table-3d #table3DZoomSlider{min-width:12px;width:36px;max-width:64px}
+body.table-3d #table3DTools #table3DZoomGroup>button{width:21px;min-width:21px;padding:0}
+.table3DPopover{position:fixed;z-index:60;box-sizing:border-box;border:1px solid #7898a7;border-radius:14px;padding:10px;background:#14232df5;color:#edf7fb;box-shadow:0 8px 25px #0008;max-height:calc(100dvh - 12px);overflow:auto}
+.table3DPopover[hidden]{display:none!important}
+body:not(.table-3d) .table3DPopover{display:none!important}
+.table3DPopover button{border:1px solid #7898a7;border-radius:8px;background:#29404e;color:#edf7fb;font:600 14px system-ui;min-height:34px;cursor:pointer}
+.table3DPopover button:disabled{opacity:.35;cursor:default}
+#table3DTray{width:min(390px,calc(100vw - 12px));display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+#table3DTray output{font:13px system-ui}
+.table3DTrayBalls{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;width:100%}
+.table3DTrayBalls .table3DTrayBall{width:100%;aspect-ratio:1;min-height:28px;border-radius:50%;background:var(--ball-color);color:#111;border:2px solid #d2d9d8;text-shadow:0 0 3px #fff,0 0 3px #fff;touch-action:none}
+.table3DTrayBalls .stripe{background:linear-gradient(#f4f4ed 0 27%,var(--ball-color) 27% 73%,#f4f4ed 73%)}
+.table3DTrayBalls .pocketed{border-color:#ffe4a0;box-shadow:0 0 5px #ffe4a0}
+#table3DRackMenu{width:min(254px,calc(100vw - 12px),calc(100dvh - 12px));aspect-ratio:1;padding:0;border-radius:50%;overflow:hidden}
+#table3DRackMenu button{position:absolute;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;padding:0}
+#table3DRackMenu .table3DRandom{left:50%;top:50%;width:70px;height:70px;background:#2b6549}

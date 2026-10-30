@@ -15,9 +15,39 @@
  const viewLock=action('Lock view','Lock view for ball placement and aiming',()=>setViewLocked(!viewLocked));viewLock.id='table3DLock';viewLock.setAttribute('aria-pressed','false');views.append(standingButton,alongButton,viewLock);stage.append(tools);for(const b of [standingButton,alongButton,viewLock])b.hidden=true;
  const panButton=action('','Move table: drag to slide the view',()=>chooseCameraMode(true));panButton.id='table3DPan';panButton.setAttribute('aria-pressed','false');panButton.innerHTML='<svg width=18 height=18 viewBox="0 0 24 24" aria-hidden=true><path d="M7 12V6a1.5 1.5 0 0 1 3 0v5-7a1.5 1.5 0 0 1 3 0v7-6a1.5 1.5 0 0 1 3 0v7-4a1.5 1.5 0 0 1 3 0v7c0 4-2 6-6 6h-1c-2 0-3-1-4-2l-4-5c-1-2 1-3 2-2l3 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';panButton.title='Move table: drag with one finger or mouse. Two fingers always slide and pinch.';const rotateButton=action('','Rotate table: drag to orbit and tilt the view',()=>chooseCameraMode(false));rotateButton.id='table3DRotate';rotateButton.setAttribute('aria-pressed','false');rotateButton.innerHTML='<svg width=18 height=18 viewBox="0 0 24 24" aria-hidden=true><path d="M19 8a8 8 0 1 0 1 8M19 3v6h-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';zoomIn.id='table3DZoomIn';zoomOut.id='table3DZoomOut';
  const zoomSlider=document.createElement('input');zoomSlider.id='table3DZoomSlider';zoomSlider.type='range';zoomSlider.min='0';zoomSlider.max='100';zoomSlider.step='.1';zoomSlider.setAttribute('aria-label','3D zoom');
- const zoomGroup=document.createElement('div');zoomGroup.id='table3DZoomGroup';zoomGroup.append(zoomOut,zoomSlider,zoomIn);tools.replaceChildren(panButton,rotateButton,zoomGroup);
+ const zoomGroup=document.createElement('div');zoomGroup.id='table3DZoomGroup';zoomGroup.append(zoomOut,zoomSlider,zoomIn);
  zoomSlider.addEventListener('input',()=>{if(!lastFrame)return;const min=Math.max(lastFrame.R*5,lastFrame.L*.06),max=lastFrame.L*8;cameraState.radius=Math.exp(Math.log(max)+(Math.log(min)-Math.log(max))*Number(zoomSlider.value)/100);requestRender();});
  for(const type of ['pointerdown','touchstart','wheel'])zoomGroup.addEventListener(type,event=>event.stopPropagation());
+ const trayToggle=action('▤','Show or hide all 16 balls',()=>togglePopover(tray,trayToggle));trayToggle.id='table3DTrayToggle';trayToggle.setAttribute('aria-expanded','false');trayToggle.setAttribute('aria-controls','table3DTray');
+ const rackToggle=action('△','Choose a rack or randomize',()=>togglePopover(rackMenu,rackToggle));rackToggle.id='table3DRackToggle';rackToggle.setAttribute('aria-expanded','false');rackToggle.setAttribute('aria-controls','table3DRackMenu');
+ tools.replaceChildren(trayToggle,rackToggle,zoomGroup,rotateButton,panButton);
+ const tray=document.createElement('section');tray.id='table3DTray';tray.className='table3DPopover';tray.hidden=true;tray.setAttribute('aria-label','Ball tray');
+ const trayCount=document.createElement('output');trayCount.setAttribute('aria-live','polite');tray.append(trayCount);
+ const clear=document.createElement('button');clear.type='button';clear.textContent='Clear table';clear.onclick=()=>{window.billiards3DBallControls?.clear();syncBallTools();};tray.append(clear);
+ const trayBalls=document.createElement('div');trayBalls.className='table3DTrayBalls';tray.append(trayBalls);
+ const colors=['#f4f4ed','#f6d21f','#2678ff','#e84132','#744ac4','#f07a22','#2e9c4d','#7b2d20','#111'];
+ const ballButtons=Array.from({length:16},(_,id)=>{
+  const b=document.createElement('button');b.type='button';b.dataset.ballId=id;b.textContent=id||'C';b.className='table3DTrayBall';b.style.setProperty('--ball-color',colors[id>8?id-8:id]);if(id>8)b.classList.add('stripe');
+  let start=null,moved=false;
+  b.addEventListener('pointerdown',e=>{if(e.button!==0||b.disabled)return;start={x:e.clientX,y:e.clientY};moved=false;b.setPointerCapture(e.pointerId);});
+  b.addEventListener('pointermove',e=>{if(start&&Math.hypot(e.clientX-start.x,e.clientY-start.y)>6)moved=true;});
+  b.addEventListener('pointerup',e=>{if(!start)return;start=null;if(moved){const q=engine?.tablePoint(e);if(q)window.billiards3DBallControls?.place(id,q);syncBallTools();}});
+  b.addEventListener('pointercancel',()=>{start=null;moved=true;});
+  b.onclick=()=>{if(!moved)window.billiards3DBallControls?.place(id);moved=false;syncBallTools();};trayBalls.append(b);return b;
+ });
+ const rackMenu=document.createElement('section');rackMenu.id='table3DRackMenu';rackMenu.className='table3DPopover';rackMenu.hidden=true;rackMenu.setAttribute('role','dialog');rackMenu.setAttribute('aria-label','Choose rack or randomize');
+ const random=document.createElement('button');random.type='button';random.className='table3DRandom';random.textContent='Random';random.setAttribute('aria-label','Randomize current balls');random.onclick=()=>{if(window.billiards3DBallControls?.status().busy)return;document.getElementById('shuffleTableLayout')?.click();closePopovers();};rackMenu.append(random);
+ const labels={rack6:'6',rack7:'7',rack8:'8',rack9:'9',rack10:'10',straight14:'S',ultimate8:'U',rack3:'3'};
+ const rackButtons=Object.entries(labels).map(([value,label],i)=>{const b=document.createElement('button');b.type='button';b.dataset.rack=value;b.textContent=label;const option=[...document.getElementById('fullRackSelect').options].find(o=>o.value===value);b.setAttribute('aria-label','Set up '+option.textContent);const a=(-90+i*45)*Math.PI/180;b.style.left=(50+37*Math.cos(a))+'%';b.style.top=(50+37*Math.sin(a))+'%';b.onclick=()=>{if(window.billiards3DBallControls?.status().busy)return;const select=document.getElementById('fullRackSelect');select.value=value;select.dispatchEvent(new Event('change',{bubbles:true}));document.getElementById('startFullRack').click();closePopovers();syncBallTools();};rackMenu.append(b);return b;});
+ stage.append(tray,rackMenu);
+ function closePopovers(){tray.hidden=true;rackMenu.hidden=true;trayToggle.setAttribute('aria-expanded','false');rackToggle.setAttribute('aria-expanded','false');}
+ function positionPopover(pop,anchor){const r=anchor.getBoundingClientRect(),w=pop.offsetWidth,h=pop.offsetHeight;pop.style.left=Math.max(6,Math.min(innerWidth-w-6,r.left))+'px';pop.style.top=Math.max(6,Math.min(innerHeight-h-6,r.top-h-8))+'px';}
+ function togglePopover(pop,anchor){if(!active)return;const show=pop.hidden;closePopovers();if(show){pop.hidden=false;anchor.setAttribute('aria-expanded','true');syncBallTools();positionPopover(pop,anchor);}}
+ let ballToolsKey='';
+ function syncBallTools(){const data=window.billiards3DBallControls?.status();if(!data)return;const key=JSON.stringify([data.busy,data.balls,data.pocketed]);if(key===ballToolsKey)return;ballToolsKey=key;clear.disabled=data.busy||!data.balls.length;trayCount.textContent=data.pocketed.length+' pocketed';for(const b of ballButtons){const id=+b.dataset.ballId,present=data.balls.includes(id),pocketed=data.pocketed.includes(id);b.disabled=data.busy||present;b.classList.toggle('on-table',present);b.classList.toggle('pocketed',pocketed);b.setAttribute('aria-label',(id?'Ball '+id:'Cue ball')+(present?' on table':pocketed?' pocketed — tap or drag to return':' — tap or drag to add'));}rackToggle.disabled=data.busy;random.disabled=data.busy;rackButtons.forEach(b=>b.disabled=data.busy);}
+ document.addEventListener('pointerdown',e=>{if(!rackMenu.contains(e.target)&&!rackToggle.contains(e.target)){rackMenu.hidden=true;rackToggle.setAttribute('aria-expanded','false');}});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&(!tray.hidden||!rackMenu.hidden)){closePopovers();e.stopPropagation();}},true);
+ window.addEventListener('resize',()=>{if(!tray.hidden)positionPopover(tray,trayToggle);if(!rackMenu.hidden)positionPopover(rackMenu,rackToggle);});
  const phoneBox=document.createElement('div');phoneBox.id='table3DPhoneControls';phoneBox.setAttribute('role','group');phoneBox.setAttribute('aria-label','3D table controls');phoneBox.hidden=true;stage.append(phoneBox);
  const panel=document.getElementById('panel'),drawer=document.createElement('button'),dismiss=document.createElement('button');
  drawer.type='button';drawer.id='table3DDrawer';drawer.setAttribute('aria-controls','panel');
@@ -56,18 +86,18 @@
  function syncCameraMode(){
   const moving=active&&!viewLocked;
   document.body.classList.toggle('table-3d-pan',moving&&panEnabled);document.body.classList.toggle('table-3d-rotate',moving&&!panEnabled);
-  panButton.setAttribute('aria-pressed',String(moving&&panEnabled));rotateButton.setAttribute('aria-pressed',String(moving&&!panEnabled));
+  panButton.setAttribute('aria-pressed',String(active&&panEnabled));rotateButton.setAttribute('aria-pressed',String(active&&!panEnabled));
   document.getElementById('table3DCanvas')?.style.removeProperty('cursor');
  }
- function chooseCameraMode(pan){if(viewLocked)setViewLocked(false);setPanEnabled(pan);}
+ function chooseCameraMode(pan){setPanEnabled(pan);}
  function setPanEnabled(value){engine?.cancelInput();panEnabled=!!value;syncCameraMode();}
  function setViewLocked(value){
   engine?.cancelInput();viewLocked=!!value;document.body.classList.toggle('table-3d-locked',active&&viewLocked);syncCameraMode();
   if(!viewLock.querySelector('.table3DAdjustmentOptions'))viewLock.innerHTML='<span class="table3DAdjustmentOptions"><span data-adjust="edit"><span class="table3DAdjustmentLabel"><span>Balls and shot </span><span>adjust&shy;ment</span></span></span><span data-adjust="view"><span class="table3DAdjustmentLabel"><span>3D View </span><span>adjust&shy;ment</span></span></span></span>';
   for(const option of viewLock.querySelectorAll('[data-adjust]'))option.classList.toggle('selected',option.dataset.adjust===(viewLocked?'edit':'view'));
   fitViewLabels();
-  viewLock.setAttribute('aria-pressed',String(viewLocked));viewLock.setAttribute('aria-label',viewLocked?'Balls and shot adjustment. Move balls and aim; switch to 3D View adjustment to move the camera':'3D View adjustment. Move the camera; switch to Balls and shot adjustment to move balls and aim');viewLock.title=viewLock.getAttribute('aria-label');
-  document.getElementById('table3DCanvas')?.setAttribute('aria-label',viewLocked?'Table locked. Drag balls to move them or tap cloth to aim.':'Move the camera. Select Hand to slide or Rotate to orbit. Lock table to move balls.');
+  viewLock.setAttribute('aria-pressed',String(viewLocked));viewLock.setAttribute('aria-label',viewLocked?'Balls and shot adjustment. Drag balls or tap cloth to aim. Drag outside the playing surface to adjust the view':'3D View adjustment. Move the camera; switch to Balls and shot adjustment to move balls and aim');viewLock.title=viewLock.getAttribute('aria-label');
+  document.getElementById('table3DCanvas')?.setAttribute('aria-label',viewLocked?'Drag balls or tap cloth to aim. Drag outside the playing surface to move the view.':'Move the camera. Select Hand to slide or Rotate to orbit. Lock table to move balls.');
  }
  for(const id of ['teachingCompassToggle','bankToolToggle','kickToolToggle'])document.getElementById(id)?.addEventListener('click',()=>{if(!active)return;setViewLocked(true);setDrawer(false);if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();});
  viewLock.onclick=event=>{const target=event.target.closest('[data-adjust]');setViewLocked(target?target.dataset.adjust==='edit':!viewLocked);};
@@ -110,7 +140,7 @@
   const x=a.cue.x-dx*setback-lastFrame.L/2-cameraState.target.x,z=a.cue.y-dz*setback-lastFrame.W/2-cameraState.target.z,y=.25-cameraState.target.y;
   cameraState.azimuth=Math.atan2(x,z);cameraState.radius=Math.hypot(x,y,z);cameraState.elevation=Math.asin(y/cameraState.radius);requestRender();
  }
- function disable(){if(!active)return;setDrawer(false);active=false;document.body.classList.remove('table-3d','table-3d-locked','table-3d-pan','table-3d-rotate');button.setAttribute('aria-pressed','false');button.textContent='3D Mode';for(const b of [button,standingButton,alongButton])b.style.removeProperty('font-size');tools.hidden=true;for(const b of [standingButton,alongButton,viewLock])b.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
+ function disable(){if(!active)return;closePopovers();setDrawer(false);active=false;document.body.classList.remove('table-3d','table-3d-locked','table-3d-pan','table-3d-rotate');button.setAttribute('aria-pressed','false');button.textContent='3D Mode';for(const b of [button,standingButton,alongButton])b.style.removeProperty('font-size');tools.hidden=true;for(const b of [standingButton,alongButton,viewLock])b.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
  button.onclick=async()=>{
   if(active){disable();return;}if(loading)return;loading=true;button.disabled=true;status.textContent='';
   // Request within the entry gesture, before loading WebGL can consume activation.
@@ -122,7 +152,7 @@
   }catch(error){disable();status.textContent='3D view is unavailable on this device. The top-down table is ready.';console.warn('3D camera unavailable:',error.message);}
   finally{loading=false;button.disabled=false;}
  };
- window.Billiards3D={get active(){return active;},get locked(){return active&&viewLocked;},get panning(){return active&&panEnabled;},project(point,height=0){return engine?.project(point,height)||null;},update(frame){lastFrame=frame;if(active){engine?.update(frame);requestRender();}},disable,
+ window.Billiards3D={get active(){return active;},get locked(){return active&&viewLocked;},get panning(){return active&&panEnabled;},project(point,height=0){return engine?.project(point,height)||null;},update(frame){lastFrame=frame;if(active){syncBallTools();engine?.update(frame);requestRender();}},disable,
   camera(){return {azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},...engine?.projection()};},renderedBalls(){return engine?.ballViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];},railGeometry(){return engine?.railViews()||[];},contactMarkers(){return engine?.contactViews()||[];}};
  window.addEventListener('resize',()=>{dock();positionToggle();requestRender();});new MutationObserver(positionToggle).observe(document.getElementById('tableZoom'),{attributes:true,attributeFilter:['style']});document.addEventListener('visibilitychange',()=>{if(!document.hidden)requestRender();});
  function createEngine(T){
@@ -277,21 +307,24 @@
    const hit=inputRay.intersectObjects([...ballMeshes.values()].filter(g=>g.visible),true)[0];
    if(hit&&(!obstruction||hit.distance<obstruction.distance+.00001)){
     const group=hit.object.parent,point=planePoint(f.R);if(!point)return null;
-    return {point:logical(group.position),height:f.R,offset:{x:point.x-group.position.x,z:point.z-group.position.z}};
+    return {editable:true,point:logical(group.position),height:f.R,offset:{x:point.x-group.position.x,z:point.z-group.position.z}};
    }
    const point=obstruction?.point||planePoint();if(!point)return null;
    const q=logical(point);if(q.x<-.3||q.x>f.L+.3||q.y<-.3||q.y>f.W+.3)return null;
-   return {point:q,height:0,offset:{x:0,z:0}};
+   const surface=logical(planePoint()),onCloth=surface&&surface.x>=0&&surface.x<=f.L&&surface.y>=0&&surface.y<=f.W&&(!obstruction||Math.abs(obstruction.point.y)<.004);
+   return {editable:onCloth||!!f.railEditing,point:onCloth?surface:q,height:0,offset:{x:0,z:0}};
   }
   function forward(type,point,e){return window.billiards3DTableInput?.(type,point,{buttons:e.buttons??0,pointerId:e.pointerId||1,pointerType:e.pointerType||'mouse',shiftKey:!!e.shiftKey,altKey:!!e.altKey,ctrlKey:!!e.ctrlKey,metaKey:!!e.metaKey,deltaY:e.deltaY||0,deltaX:e.deltaX||0,deltaMode:e.deltaMode||0});}
   function cancelInput(){if(edit){forward('pointercancel',edit.last,{pointerId:edit.id,pointerType:edit.pointerType});edit=null;}pointers.clear();}
-  canvas.addEventListener('pointerdown',e=>{
-   if(e.button!==0||overControls(e))return;e.preventDefault();e.stopPropagation();canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});
-   if(viewLocked){if(edit)return;const hit=pick(e);if(!hit)return;edit={id:e.pointerId,pointerType:e.pointerType,height:hit.height,offset:hit.offset,last:hit.point};if(!forward('pointerdown',hit.point,e))edit=null;return;}
+  function pointerDown(e,outside=false){
+   if(!active||e.button!==0||overControls(e))return;e.preventDefault();e.stopPropagation();canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});
+   if(viewLocked){if(edit)return;const hit=outside?null:pick(e);if(pointers.size===0&&hit?.editable){edit={id:e.pointerId,pointerType:e.pointerType,height:hit.height,offset:hit.offset,last:hit.point};if(!forward('pointerdown',hit.point,e))edit=null;return;}}
    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,multi:pointers.size>0});if(pointers.size>1){for(const p of pointers.values())p.multi=true;lastTap=null;}
-  });
+  }
+  canvas.addEventListener('pointerdown',e=>pointerDown(e));
+  stage.addEventListener('pointerdown',e=>{if(e.target===stage)pointerDown(e,true);});
   canvas.addEventListener('pointermove',e=>{
-   if(viewLocked){if(!edit){cast(e);const q=logical(planePoint());if(q)forward('pointermove',q,e);canvas.style.cursor=source.style.cursor||'crosshair';return;}if(edit.id!==e.pointerId)return;e.preventDefault();e.stopPropagation();cast(e);const p=planePoint(edit.height);if(!p)return;const q=logical(new T.Vector3(p.x-edit.offset.x,0,p.z-edit.offset.z));edit.last=q;forward('pointermove',q,e);return;}
+   if(viewLocked&&!pointers.has(e.pointerId)){if(!edit){cast(e);const q=logical(planePoint());if(q)forward('pointermove',q,e);canvas.style.cursor=source.style.cursor||'crosshair';return;}if(edit.id!==e.pointerId)return;e.preventDefault();e.stopPropagation();cast(e);const p=planePoint(edit.height);if(!p)return;const q=logical(new T.Vector3(p.x-edit.offset.x,0,p.z-edit.offset.z));edit.last=q;forward('pointermove',q,e);return;}
    const p=pointers.get(e.pointerId);if(!p)return;e.preventDefault();e.stopPropagation();window.BilliardsTableOrbit.move(pointers,e,{pan,zoom,orbit,panning:panEnabled});
   });
   for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,e=>{
@@ -300,11 +333,11 @@
    if(!viewLocked&&type==='pointerup'&&pointers.size===1&&point&&!point.multi&&!panEnabled&&Math.hypot(e.clientX-point.sx,e.clientY-point.sy)<6){const now=performance.now();if(lastTap&&now-lastTap.time<350&&Math.hypot(e.clientX-lastTap.x,e.clientY-lastTap.y)<20){focusBall(e);lastTap=null;}else lastTap={time:now,x:e.clientX,y:e.clientY};}else if(type!=='lostpointercapture')lastTap=null;
    pointers.delete(e.pointerId);e.stopPropagation();
   });
-  canvas.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();if(viewLocked){cast(e);const p=logical(planePoint());if(p)forward('wheel',p,e);}else zoom(Math.exp(clamp(e.deltaY,-120,120)*.002));},{passive:false});
+  canvas.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();if(viewLocked&&pick(e)?.editable){cast(e);const p=logical(planePoint());if(p)forward('wheel',p,e);}else zoom(Math.exp(clamp(e.deltaY,-120,120)*.002));},{passive:false});
   function focusBall(e){cast(e);const hit=inputRay.intersectObjects([...ballMeshes.values()].filter(g=>g.visible),true)[0];if(!hit)return;const p=hit.object.parent.position;cameraState.target={x:p.x,y:p.y,z:p.z};cameraState.radius=.55;cameraState.elevation=8*Math.PI/180;requestRender();}
   canvas.addEventListener('keydown',e=>{if(viewLocked&&e.key.startsWith('Arrow')){e.preventDefault();return;}const actions={ArrowLeft:()=>orbit(-.08,0),ArrowRight:()=>orbit(.08,0),ArrowUp:()=>orbit(0,.06),ArrowDown:()=>orbit(0,-.06),'+':()=>zoom(.9),'-':()=>zoom(1.1),Escape:disable};if(actions[e.key]){e.preventDefault();e.stopPropagation();actions[e.key]();}});
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();disable();status.textContent='3D graphics paused. The top-down table is ready.';});
-  return {cancelInput,pan,contactViews(){return [...tipMarkers].filter(([,m])=>m.visible).map(([id,m])=>({id,...m.userData.tip,center:m.position.toArray()}));},railViews(){return table.children.filter(m=>m.userData.sight).map(m=>({x:m.position.x,y:m.position.y,z:m.position.z,width:.006,length:.010}));},project(point,height=0){const f=frame||lastFrame;if(!f)return null;camera.updateMatrixWorld(true);const v=new T.Vector3(point.x-f.L/2,height,point.y-f.W/2).project(camera),r=canvas.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2,visible:v.z>=-1&&v.z<=1};},ballViews(){return [...ballMeshes].filter(([,g])=>g.visible).map(([id,g])=>({id,x:g.position.x,y:g.position.y,z:g.position.z,rotation:g.children[0].quaternion.toArray()}));},pocketViews(){scene.updateMatrixWorld(true);const ray=new T.Raycaster();return pocketSpecs.map(p=>{const height=v=>{ray.set(new T.Vector3(v.x,1,v.z),new T.Vector3(0,-1,0));return ray.intersectObjects(table.children,true).find(hit=>!hit.object.material?.userData?.pocketOwned)?.point.y;};return {id:p.id,floorHeight:height(p.probe),backHeight:height(p.back),woodHeight:height(p.wood)};});},projection(){return {verticalFov:camera.fov,horizontalFov:2*Math.atan(Math.tan(camera.fov*Math.PI/360)*camera.aspect)*180/Math.PI};},stop(){cancelInput();},update(f){if(f.animating&&edit)cancelInput();frame=f;dirty=true;renderer.shadowMap.needsUpdate=true;},render(){
+  return {cancelInput,pan,tablePoint(e){cast(e);const q=logical(planePoint()),f=frame||lastFrame;return q&&f&&q.x>=0&&q.x<=f.L&&q.y>=0&&q.y<=f.W?q:null;},contactViews(){return [...tipMarkers].filter(([,m])=>m.visible).map(([id,m])=>({id,...m.userData.tip,center:m.position.toArray()}));},railViews(){return table.children.filter(m=>m.userData.sight).map(m=>({x:m.position.x,y:m.position.y,z:m.position.z,width:.006,length:.010}));},project(point,height=0){const f=frame||lastFrame;if(!f)return null;camera.updateMatrixWorld(true);const v=new T.Vector3(point.x-f.L/2,height,point.y-f.W/2).project(camera),r=canvas.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2,visible:v.z>=-1&&v.z<=1};},ballViews(){return [...ballMeshes].filter(([,g])=>g.visible).map(([id,g])=>({id,x:g.position.x,y:g.position.y,z:g.position.z,rotation:g.children[0].quaternion.toArray()}));},pocketViews(){scene.updateMatrixWorld(true);const ray=new T.Raycaster();return pocketSpecs.map(p=>{const height=v=>{ray.set(new T.Vector3(v.x,1,v.z),new T.Vector3(0,-1,0));return ray.intersectObjects(table.children,true).find(hit=>!hit.object.material?.userData?.pocketOwned)?.point.y;};return {id:p.id,floorHeight:height(p.probe),backHeight:height(p.back),woodHeight:height(p.wood)};});},projection(){return {verticalFov:camera.fov,horizontalFov:2*Math.atan(Math.tan(camera.fov*Math.PI/360)*camera.aspect)*180/Math.PI};},stop(){cancelInput();},update(f){if(f.animating&&edit)cancelInput();frame=f;dirty=true;renderer.shadowMap.needsUpdate=true;},render(){
    const f=frame||lastFrame;if(!f)return;const rect=canvas.getBoundingClientRect();if(rect.width<1||rect.height<1)return;
    const size=rect.width+':'+rect.height;if(size!==lastSize){renderer.setSize(rect.width,rect.height);camera.aspect=rect.width/rect.height;camera.fov=2*Math.atan(viewTangent(camera.aspect))*180/Math.PI;camera.updateProjectionMatrix();lastSize=size;}
    if(dimensions!==tableKey(f))rebuild(f);
