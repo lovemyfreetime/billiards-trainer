@@ -21,6 +21,14 @@ jobs:
         run: |
           npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
           node local-host/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Check 3D gestures, ball tray and racks
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          node --test tests/trainer-3d-gesture-routing.test.cjs tests/zen-fresh-table.test.cjs
+          node tests/trainer-3d-controls.browser.cjs
+          node tests/trainer-3d-ball-tools.browser.cjs
+          node tests/trainer-3d-edit.browser.cjs
       - name: Check desktop, tablet and phone Guide behavior
         env:
           NODE_PATH: ./local-host/node_modules
@@ -36,8 +44,6 @@ jobs:
           node tests/compact-guide-player.browser.cjs
           node tests/trainer-tools-menu.browser.cjs
           node tests/shared-session-history.browser.cjs
-          node tests/trainer-3d-controls.browser.cjs
-          node tests/trainer-3d-ball-tools.browser.cjs
           node tests/layout-sharing.test.cjs
           node tests/photo-lighting.test.cjs
           node tests/photo-ball-evidence.test.cjs
@@ -58,7 +64,6 @@ jobs:
           node tests/bank-kick-practical.browser.cjs
           node tests/bank-kick-performance.browser.cjs
           node tests/bank-kick-full-rack.browser.cjs
-          node tests/trainer-3d-edit.browser.cjs
           node tests/guide-platform-parity.browser.cjs
           node tests/guide-scenes.browser.cjs
           node tests/resources.browser.cjs
