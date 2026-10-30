@@ -12,6 +12,7 @@ on:
       - 'photo-*.js'
       - 'photo-*.json'
       - 'tests/photo-camera.browser.cjs'
+      - 'tests/trainer-3d-controls.browser.cjs'
       - 'tests/trainer-3d-ball-tools.browser.cjs'
       - 'tests/trainer-3d-gesture-routing.test.cjs'
       - 'index.html'
