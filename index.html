@@ -1536,6 +1536,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         <div class="speedTickScale feelTicks" id="feelTicks1" aria-hidden="true"></div>
         <input id="tableSpeed1" type="range" min="0.25" max="6" step="0.01" value="1.50" aria-label="Shot 1 speed on table edge">
         <span id="tableSpeed1Feel" class="phoneSpeedFeel" aria-label="Shot 1 speed feel in diamonds"></span>
+        <span id="tableSpeed1Lag" class="phoneSpeedLag" aria-label="Shot 1 speed in lags"></span>
         <span id="tableSpeed1Label" class="tableSpeedLabel">SPEED</span>
       </div>
       <div id="tableSpeed2Wrap" class="tableSpeedControl">
@@ -1543,6 +1544,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         <div class="speedTickScale feelTicks" id="feelTicks2" aria-hidden="true"></div>
         <input id="tableSpeed2" type="range" min="0.25" max="6" step="0.01" value="1.50" aria-label="Shot 2 speed on table edge">
         <span id="tableSpeed2Feel" class="phoneSpeedFeel" aria-label="Shot 2 speed feel in diamonds"></span>
+        <span id="tableSpeed2Lag" class="phoneSpeedLag" aria-label="Shot 2 speed in lags"></span>
         <span class="tableSpeedLabel">SPEED 2</span>
       </div>
     </div>
@@ -7706,7 +7708,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const live=(animation?.current||S.balls).map(b=>({...S.balls.find(x=>x.id===b.id),...b})).filter(b=>b.id!==0||cueVisualsVisible(1));
             if(S.shot2Enabled&&cueVisualsVisible(2))live.push({id:'CB2',x:S.shot2.x,y:S.shot2.y,active:true});
             const second=S.activeShot===2&&S.shot2Enabled,cb=second?S.shot2:cueBall();
-            window.Billiards3D.update({L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,railEditing:!!S.bankKick?.mode&&S.bankKick.phase==='rail',cueTips:animation?.cueTips||cueTipsFor3D(),balls:live,map,aim:cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
+            window.Billiards3D.update({L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:animation?.cueTips||cueTipsFor3D(),balls:live,map,aim:cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
         }
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }
@@ -7762,6 +7764,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if($('speed1Diamonds'))$('speed1Diamonds').textContent=pf.diamonds.toFixed(1)+' ♦';
         $('powerFeelText').textContent = pf.diamonds.toFixed(1) + ' diamonds · ' + formatLagFraction(pf.lagFraction);
         if($('tableSpeed1Feel')) $('tableSpeed1Feel').textContent = pf.diamonds.toFixed(1) + ' ♦';
+        if($('tableSpeed1Lag')) $('tableSpeed1Lag').textContent = formatLagFraction(pf.lagFraction);
         const pa = teachingPowerState(1);
         if (pa.mode === 'ball') {
             $('pocketNeedLabel').textContent = 'Pocket speed';
@@ -7815,6 +7818,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             }
             $('powerFeel2Text').textContent = pf2.diamonds.toFixed(1) + ' diamonds · ' + formatLagFraction(pf2.lagFraction);
             if($('tableSpeed2Feel')) $('tableSpeed2Feel').textContent = pf2.diamonds.toFixed(1) + ' ♦';
+        if($('tableSpeed2Lag')) $('tableSpeed2Lag').textContent = formatLagFraction(pf2.lagFraction);
             const pa2 = teachingPowerState(2);
             if (pa2.mode === 'ball') {
                 $('pocketNeed2Label').textContent = 'Pocket speed';
