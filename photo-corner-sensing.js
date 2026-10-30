@@ -131,7 +131,7 @@ function insetFromBoundary(boundaryCorners,{tableLength=2.54,tableWidth=1.27,cus
 // The K-55 dimension is a starting point, not an image measurement. Where a
 // darker cushion meets a brighter bed, snap each projected edge to that nose.
 // Leave edges at their physical inset when the image has insufficient evidence.
-function refineCushionNoses(img,inset){
+function refineCushionNoses(img,inset,{parallelRails=false}={}){
  const {width:w,height:h,data}=img||{},cal=root.BilliardsPhotoCalibration||(typeof require==='function'?require('./photo-calibration.js'):null);
  if(!data||!inset?.corners||!cal)return inset;
  const unit=[{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1}],H=cal.fit(unit,inset.boundaryCorners);
@@ -149,6 +149,8 @@ function refineCushionNoses(img,inset){
   const f=edge%2===0?fy:fx,point=(t,k,slope=0)=>{k+=slope*(t-.5);return cal.apply(H.H,edge===0?{x:t,y:k*f}:edge===1?{x:1-k*f,y:t}:edge===2?{x:1-t,y:1-k*f}:{x:k*f,y:1-t});};
   // Sample in table coordinates so the near and far ends get different pixel
   // offsets. Ignore corners and side pockets; require agreement along the rail.
+  // Keep nose lines parallel to their rail in rectified table coordinates.
+  // Projection through H preserves photographic convergence.
   let best=null,bestStep=null;
   // Stay within one approximate cushion width of the physical estimate. Deep
   // cloth shadows are not plausible replacements for the adjacent nose.
@@ -169,7 +171,7 @@ function refineCushionNoses(img,inset){
    if(stepSections.every(n=>n>=3)&&stepSupport/26>=.65&&stepScore>18&&(!bestStep||stepScore>bestStep.score))bestStep={k,slope,score:stepScore,support:stepSupport/26};
   }
   best=best||bestStep;
-  const k=best?.k??1,slope=best?.slope||0,a=point(0,k,slope),b=point(1,k,slope),len=Math.hypot(b.x-a.x,b.y-a.y),line={nx:-(b.y-a.y)/len,ny:(b.x-a.x)/len};line.c=line.nx*a.x+line.ny*a.y;lines.push(line);
+  const k=best?.k??1,slope=parallelRails?0:(best?.slope||0),a=point(0,k,slope),b=point(1,k,slope),len=Math.hypot(b.x-a.x,b.y-a.y),line={nx:-(b.y-a.y)/len,ny:(b.x-a.x)/len};line.c=line.nx*a.x+line.ny*a.y;lines.push(line);
   edges.push({edge,refined:!!best,support:best?.support||0,factor:k,slope});
  }
  const corners=lines.map((line,i)=>intersect(lines[(i+3)%4],line));
@@ -179,7 +181,7 @@ function refineCushionNoses(img,inset){
 function woodGuided(img,quad,options={}){
  const boundary=guided(img,quad,{woodBoundary:true});
  if(!boundary||boundary.edges.some(e=>!e.refined))return null;
- const projected=insetFromBoundary(boundary.corners,options),inset=refineCushionNoses(img,projected);
+ const projected=insetFromBoundary(boundary.corners,options),inset=refineCushionNoses(img,projected,options);
  return inset?{...boundary,...inset,method:'wood-cloth-inset',approximate:true}:null;
 }
 
@@ -201,7 +203,7 @@ function calibrate(img,quad,options={}){
   if(cal)boundary={...boundary,corners:cal.orderDetectedCorners(boundary.corners)};
  }
  const projected=insetFromBoundary(boundary.corners,options);
- return projected?{...boundary,...refineCushionNoses(img,projected),method:'wood-cloth-inset',approximate:true}:null;
+ return projected?{...boundary,...refineCushionNoses(img,projected,options),method:'wood-cloth-inset',approximate:true}:null;
 }
 // Rough manual marks constrain a local four-line search. Never fall back to a
 // whole-image cloth outline here: a loose cloth patch must not redefine the table.
@@ -214,7 +216,7 @@ function snap(img,quad,options={}){
  if(!projected)return null;
  const supported=boundary.edges.map(e=>e.refined),count=supported.filter(Boolean).length;
  if(count<2)return null;
- const inset=count===4?refineCushionNoses(img,projected):projected;
+ const inset=count===4?refineCushionNoses(img,projected,options):projected;
  const lines=quad.map((a,i)=>{
   const points=supported[i]?inset.corners:quad,p=points[i],q=points[(i+1)%4],len=Math.hypot(q.x-p.x,q.y-p.y),line={nx:-(q.y-p.y)/len,ny:(q.x-p.x)/len};line.c=line.nx*p.x+line.ny*p.y;return line;
  });

@@ -17,8 +17,8 @@
   return {x:(width-w*scale)/2,y:(height-h*scale)/2,width:w*scale,height:h*scale,scale};
  }
  function sourceCorners(q,bounds,width,height){return q.map(p=>({x:(p.x*width-bounds.x)/bounds.width,y:(p.y*height-bounds.y)/bounds.height}));}
- function capture(source,q,enabled,{refineRails=false,tableLength=2.54,tableWidth=1.27}={}){
-  const w=source.videoWidth||source.naturalWidth,h=source.videoHeight||source.naturalHeight;
+ function capture(source,q,enabled,{refineRails=false,tableLength=2.54,tableWidth=1.27,railEvidence=undefined}={}){
+  const w=source.videoWidth||source.naturalWidth||source.width,h=source.videoHeight||source.naturalHeight||source.height;
   if(!w||!h)throw Error('Image is not ready');
   if(enabled&&(!valid(q)||visibleArea(q)<1e-6))throw Error('Move the frame over the image');
   const frame=q.map(p=>({...p}));
@@ -26,7 +26,7 @@
   if(enabled&&refineRails&&root.BilliardsCornerSensing?.calibrate){
    const scale=Math.min(1,1600/Math.max(w,h)),probe=document.createElement('canvas');evidenceScale=scale;probe.width=Math.round(w*scale);probe.height=Math.round(h*scale);
    const pc=probe.getContext('2d',{willReadFrequently:true});pc.drawImage(source,0,0,probe.width,probe.height);
-   evidence=root.BilliardsCornerSensing.calibrate(pc.getImageData(0,0,probe.width,probe.height),q.map(p=>({x:p.x*probe.width,y:p.y*probe.height})),{tableLength,tableWidth});
+   evidence=railEvidence!==undefined?railEvidence:root.BilliardsCornerSensing.calibrate(pc.getImageData(0,0,probe.width,probe.height),q.map(p=>({x:p.x*probe.width,y:p.y*probe.height})),{tableLength,tableWidth});
    if(evidence)q=evidence.corners.map(p=>({x:p.x/probe.width,y:p.y/probe.height}));
   }
   const points=enabled?frame.map(p=>({x:p.x*w,y:p.y*h})):[{x:0,y:0},{x:w,y:0},{x:w,y:h},{x:0,y:h}];
@@ -42,6 +42,22 @@
   }
   return {canvas,evidence,corners:enabled?normalized(q.map(p=>({x:p.x*w,y:p.y*h}))):null};
  }
+ async function captureAsync(source,q,enabled,options){
+  const w=source.videoWidth||source.naturalWidth,h=source.videoHeight||source.naturalHeight;
+  const frozen=document.createElement('canvas');frozen.width=w;frozen.height=h;frozen.getContext('2d').drawImage(source,0,0,w,h);
+  if(!enabled||typeof Worker!=='function')return capture(frozen,q,enabled,options);
+  const scale=Math.min(1,1600/Math.max(w,h)),probe=document.createElement('canvas');probe.width=Math.round(w*scale);probe.height=Math.round(h*scale);
+  const ctx=probe.getContext('2d',{willReadFrequently:true});ctx.drawImage(frozen,0,0,probe.width,probe.height);
+  const img=ctx.getImageData(0,0,probe.width,probe.height);
+  const evidence=await new Promise((resolve,reject)=>{
+   const worker=new Worker(new URL('./photo-frame-worker.js',document.baseURI));
+   const timeout=setTimeout(()=>{worker.terminate();reject(Error('Rail fitting took too long. Try the frame again.'));},60000);
+   worker.onmessage=e=>{clearTimeout(timeout);worker.terminate();e.data.error?reject(Error(e.data.error)):resolve(e.data.evidence);};
+   worker.onerror=()=>{clearTimeout(timeout);worker.terminate();reject(Error('Rail fitting could not start. Please retry.'));};
+   worker.postMessage({img,quad:q.map(p=>({x:p.x*probe.width,y:p.y*probe.height})),options},[img.data.buffer]);
+  });
+  return capture(frozen,q,enabled,{...options,railEvidence:evidence});
+ }
  let active=null;
  async function open({onCapture,onFallback,onError,file=null,tableLength=2.54,tableWidth=1.27}){
   if(active)return;
@@ -52,11 +68,12 @@
   document.body.append(modal);
   const captureButton=modal.querySelector('[data-action=snap]');captureButton.className='tableCameraCapture';modal.append(captureButton);
   const media=modal.querySelector('video,img'),svg=modal.querySelector('svg'),stage=modal.querySelector('.tableCameraStage'),hint=modal.querySelector('[role=status]'),snap=modal.querySelector('[data-action=snap]'),orbit=root.BilliardsTableOrbit;
+  let progressTimer=null;
   let stream=null,imageURL=null,closed=false,enabled=true,panning=false,ready=false,busy=false,T=null,camera=null,q=[],sourceQuad=[],swapped=false;
   const pointers=new Map(),state={continuousTilt:true,maxElevation:110*Math.PI/180,azimuth:0,elevation:Math.PI/3,radius:3,target:{x:0,y:0,z:0}},L=2,W=1,R=.028575;
   const corners=[{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1}];
   function stop(){stream?.getTracks().forEach(t=>t.stop());stream=null;if(!file)media.srcObject=null;}
-  function close(){if(closed)return;closed=true;stop();if(imageURL)URL.revokeObjectURL(imageURL);resize.disconnect();document.removeEventListener('keydown',key,true);document.removeEventListener('visibilitychange',visibility);window.removeEventListener('pagehide',close);modal.remove();active=null;previous?.focus();}
+  function close(){if(closed)return;closed=true;clearInterval(progressTimer);stop();if(imageURL)URL.revokeObjectURL(imageURL);resize.disconnect();document.removeEventListener('keydown',key,true);document.removeEventListener('visibilitychange',visibility);window.removeEventListener('pagehide',close);modal.remove();active=null;previous?.focus();}
   function key(e){if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();close();}else if(e.key==='Tab'){const buttons=[...modal.querySelectorAll('button:not(:disabled):not([hidden])')],i=buttons.indexOf(document.activeElement);e.preventDefault();buttons[(i+(e.shiftKey?-1:1)+buttons.length)%buttons.length].focus();}}
   function visibility(){if(document.hidden&&stream&&!busy)close();}
   document.addEventListener('keydown',key,true);document.addEventListener('visibilitychange',visibility);window.addEventListener('pagehide',close);
@@ -72,7 +89,7 @@
    svg.innerHTML='<polygon points="'+poly+'" fill="transparent" stroke="'+(inImage?'#a3efd0':'#ffd283')+'" stroke-width="2"/>';
    svg.insertAdjacentHTML('beforeend','<g pointer-events="none" fill="#f3e7ba" stroke="#f3e7ba"><polygon points="'+triangle+'" fill="none" stroke-width="2"/><circle cx="'+head.x*width+'" cy="'+head.y*height+'" r="4"/><circle cx="'+foot.x*width+'" cy="'+foot.y*height+'" r="4"/></g>');
    svg.dataset.headX=String(head.x);svg.dataset.headY=String(head.y);
-   if(ready)hint.textContent=enabled&&!inImage?'Move the frame over the image to select a visible area.':'Drag: '+(panning?'slide without rotating':'rotate and tilt')+'. Wheel: zoom. Two fingers: move and pinch. Place near the wood–cloth boundary. The frame selects the photo area; cushion corners are sensed separately.';
+   if(ready&&!busy)hint.textContent=enabled&&!inImage?'Move the frame over the image to select a visible area.':'Drag to '+(panning?'move':'rotate / tilt')+'. Pinch or scroll to resize. Align the frame with the outer felt edges.';
   }
   function reset(top=false){if(!camera)return;state.azimuth=0;state.elevation=(top?90:60)*Math.PI/180;state.target={x:0,y:0,z:0};state.radius=1.5;swapped=false;
    const width=stage.clientWidth,height=stage.clientHeight,w=media.videoWidth||media.naturalWidth||width,h=media.videoHeight||media.naturalHeight||height,b=mediaBounds(w,h,width,height,!file);
@@ -85,15 +102,16 @@
   for(const type of ['pointerup','pointercancel','lostpointercapture'])svg.addEventListener(type,e=>{pointers.delete(e.pointerId);});
   svg.addEventListener('wheel',e=>{if(!ready)return;e.preventDefault();actions.zoom(Math.exp(Math.max(-120,Math.min(120,e.deltaY))*.002));draw();},{passive:false});
   function failure(error){ready=false;snap.disabled=true;svg.style.display='none';stop();modal.querySelector('[data-action=retry]').hidden=false;
+   media.style.visibility='hidden';
    const name=error?.name||'Error',native=!!root.BilliardsAndroid;
-   if(native&&!root.BilliardsAndroid.cameraPermissionState)hint.textContent='This installed app needs the camera-permission update. For now, use Device Camera, then align the photo frame.';
+   if(native&&!root.BilliardsAndroid.cameraPermissionState){hint.textContent='Live camera needs the updated Android app. Install the camera update, or choose Device Camera and align the captured photo.';const link=document.createElement('a');link.href='./install/android/';link.textContent='Install Camera Update';link.className='tableCameraUpdate';modal.querySelector('.tableCameraBar').append(link);}
    else if(name==='NotAllowedError'||name==='SecurityError'){hint.textContent=native?'Camera access is blocked. Allow Camera in Android Settings → Apps → Billiards Trainer → Permissions, then Retry Camera.':'Camera access is blocked. Allow Camera for this site in your browser and enable Android Camera access, then Retry Camera.';modal.querySelector('[data-action=settings]').hidden=!root.BilliardsAndroid?.openCameraSettings;}
    else if(name==='NotReadableError'||name==='AbortError')hint.textContent='The camera could not start. Close other camera apps, then Retry Camera.';
    else if(name==='NotFoundError')hint.textContent='No camera was found. Check that Android Camera access is on, then Retry Camera.';
    else hint.textContent='Live camera is unavailable ('+name+'). Retry Camera or use Device Camera.';
    modal.dataset.cameraError=name;
   }
-  async function startCamera(){if(busy||closed)return;busy=true;ready=false;snap.disabled=true;stop();hint.textContent='Requesting camera access…';
+  async function startCamera(){if(busy||closed)return;busy=true;ready=false;snap.disabled=true;stop();media.style.visibility='visible';hint.textContent='Requesting camera access…';
    try{
     if(!navigator.mediaDevices?.getUserMedia)throw Object.assign(Error('Camera API unavailable'),{name:'NotSupportedError'});
     let acquired;try{acquired=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false});}catch(e){if(e.name!=='OverconstrainedError')throw e;acquired=await navigator.mediaDevices.getUserMedia({video:true,audio:false});}
@@ -101,7 +119,7 @@
    }catch(error){if(!closed)failure(error);}finally{busy=false;if(ready){reset();draw();}}
   }
   modal.addEventListener('click',async e=>{
-   const action=e.target.closest('button')?.dataset.action;if(!action)return;
+   const action=e.target.closest('button')?.dataset.action;if(!action||(busy&&action!=='close'))return;
    if(action==='close')close();
    if(action==='fallback'){close();onFallback?.();}
    if(action==='retry')startCamera();
@@ -111,7 +129,7 @@
    if(action==='plus'||action==='minus'){actions.zoom(action==='plus'?.88:1/.88);draw();}
    if(action==='top'||action==='reset')reset(action==='top');
    if(action==='swap'){swapped=!swapped;draw();}
-   if(action==='snap'&&!snap.disabled&&!busy){busy=true;snap.disabled=true;hint.textContent='Preparing photo and finding cushion edges…';try{await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));if(closed)return;const result=capture(media,sourceQuad,enabled,{refineRails:true,tableLength,tableWidth}),blob=await new Promise(resolve=>result.canvas.toBlob(resolve,'image/png'));if(!blob)throw Error('Capture failed');if(closed)return;close();onCapture(blob,result.corners,result.evidence);}catch(error){if(!closed){busy=false;draw();hint.textContent=error.message;}}}
+   if(action==='snap'&&!snap.disabled&&!busy){busy=true;snap.disabled=true;modal.setAttribute('aria-busy','true');const started=Date.now(),progress=()=>{const seconds=Math.max(0,10-Math.floor((Date.now()-started)/1000));snap.textContent=seconds?'Sending to analyzer — about '+seconds+'s':'Sending to analyzer…';hint.textContent='Preparing frame and cushion edges. Please wait…';};progress();progressTimer=setInterval(progress,250);try{await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));if(closed)return;const result=await captureAsync(media,sourceQuad,enabled,{refineRails:true,parallelRails:true,tableLength,tableWidth}),blob=await new Promise(resolve=>result.canvas.toBlob(resolve,'image/png'));if(!blob)throw Error('Capture failed');if(closed)return;const imported=await onCapture(blob,result.corners,result.evidence);if(imported===false)throw Error('Could not load this frame. Please try again.');if(!closed)close();}catch(error){if(!closed){clearInterval(progressTimer);busy=false;modal.removeAttribute('aria-busy');snap.textContent=file?'Use Frame':'Take Photo';draw();hint.textContent=error.message;}}}
   });
   active={close,snapshot:()=>({state:JSON.parse(JSON.stringify(state)),quad:q.map(p=>({...p})),sourceQuad:sourceQuad.map(p=>({...p})),panning,ready,engine:'Three.js / shared Trainer 3D camera',table:{L,W}})};
   modal.querySelector('button').focus();

@@ -41,5 +41,9 @@ console.log('Perspective nose shadows, reversed brightness and deterministic rep
  }
  const result=sensing.refineCushionNoses({width,height,data},base);assert(result.noseEvidence.every(e=>e.refined),'all four broad faint noses found');
  result.noseEvidence.forEach((e,i)=>{assert(Math.abs(e.factor-factor)<=.11,'faint nose offset');assert(Math.abs(e.slope-slopes[i])<=.21,'small rail angle recovered')});
- console.log('Broad low-contrast nose shadows and independent endpoint angle correction pass.');
+ const locked=sensing.refineCushionNoses({width,height,data},base,{parallelRails:true});
+ assert(locked.noseEvidence.every(e=>e.refined&&e.slope===0),'frame fitting retains detected offsets with shared rail directions');
+ assert(Math.abs(locked.corners[0].y-locked.corners[1].y)<1e-6,'top nose follows the outer rail');
+ assert(Math.abs(locked.corners[1].x-locked.corners[2].x)<1e-6,'side nose follows the outer rail');
+ console.log('Broad low-contrast noses and perspective rail-direction constraint pass.');
 }

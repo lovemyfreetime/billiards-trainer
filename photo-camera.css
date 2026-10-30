@@ -13,3 +13,8 @@
 
 #tableCamera .tableCameraCapture{position:absolute;z-index:3;top:calc(6px + env(safe-area-inset-top));right:calc(6px + env(safe-area-inset-right));background:#23744d;min-width:98px;touch-action:manipulation}
 #tableCamera .tableCameraCapture:disabled{opacity:.45}
+
+#tableCamera[aria-busy=true] .tableCameraCapture{opacity:1;min-width:230px;background:#255d49}
+#tableCamera[aria-busy=true] .tableCameraBar{right:250px}
+#tableCamera .tableCameraHint{font-size:15px;font-weight:600}
+#tableCamera .tableCameraUpdate{color:#fff;background:#256746;padding:10px;border-radius:6px;white-space:nowrap}
