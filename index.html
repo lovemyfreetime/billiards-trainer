@@ -7006,7 +7006,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const px = cx + tip.sideR * r, py = cy - tip.followR * r;
         ctx.fillStyle = '#ff3b3b';
         ctx.beginPath();
-        ctx.arc(px, py, 4.5, 0, Math.PI * 2);
+        ctx.arc(px, py, window.Billiards3D?.active ? 3.4 : 4.5, 0, Math.PI * 2);
         ctx.fill();
         ctx.strokeStyle = '#fff';
         ctx.stroke();

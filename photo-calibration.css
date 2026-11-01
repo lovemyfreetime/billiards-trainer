@@ -209,3 +209,6 @@ body.phone-focus #photoWalkthroughBtn{order:8!important}
 .photoAnalyzerToolbar>.photoAnalyzerWelcome{display:none!important}
 #phonePhotoMenu #photoWelcomeRead{flex:0 0 100%;font:12px/1.4 system-ui}
 #phonePhotoMenu #photoWelcomeRead p{font-size:12px}
+
+/* Camera uses flex; center its label on the same line as the other actions. */
+.photoAnalyzerToolbar #photoTakeImage{align-items:center;justify-content:center}
