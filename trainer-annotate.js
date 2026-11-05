@@ -6,7 +6,12 @@
  const layer=document.createElement('canvas');layer.id='trainerAnnotationCanvas';layer.setAttribute('aria-label','Table annotations');stage.append(layer);
  const interaction=document.createElementNS('http://www.w3.org/2000/svg','svg');interaction.id='trainerAnnotationInput';interaction.setAttribute('aria-hidden','true');const hitArea=document.createElementNS('http://www.w3.org/2000/svg','polygon');hitArea.setAttribute('fill','transparent');interaction.append(hitArea);stage.append(interaction);
  const ctx=layer.getContext('2d'),tools=[...group.querySelectorAll('[data-annotate-tool]')],color=document.getElementById('trainerAnnotateColor');
- let activeTool='',items=[],gesture=null,dpr=1;
+ let activeTool='',items=[],gesture=null,dpr=1,selectedText=null;
+ const textEditor=group.querySelector('#trainerTextEditor');
+ const textInput=group.querySelector('#trainerAnnotationText');
+ const rotationInput=group.querySelector('#trainerTextRotation');
+ const angleOutput=group.querySelector('#trainerTextAngle');
+ let textEditRecorded=false;
  const folderButton=group.querySelector('#trainerSnapshotFolder');
  folderButton.addEventListener('click',()=>{
   if(window.BilliardsAndroid?.openSnapshotFolder){
@@ -45,6 +50,8 @@
   undo.disabled=locked||!history.length;
   clear.disabled=locked||!items.length;
   color.disabled=locked;
+  textEditor.hidden=locked||activeTool!=='text';
+  if(selectedText&&!items.includes(selectedText))selectedText=null;
   lock.textContent=locked?'Unlock annotations':'Lock annotations';
   lock.setAttribute('aria-pressed',String(locked));
  }
@@ -56,25 +63,63 @@
  function restoreAnnotations(){
   const saved=window.billiardsTourBridge?.annotations?.();
   if(saved===savedState)return;
-  savedState=saved;history.length=0;gesture=null;activeTool='';
+  savedState=saved;history.length=0;gesture=null;activeTool='';selectedText=null;
   items=validItems(saved?.items);
   locked=!!saved?.locked;
   updateTools();
  }
  function validItems(input){
   if(!Array.isArray(input))return [];
-  return input.slice(0,500).filter(item=>item&&['line','arrow','circle','draw'].includes(item.tool)
-   &&/^#[0-9a-f]{6}$/i.test(item.color)&&Array.isArray(item.points)&&item.points.length>=2
-   &&item.points.length<=1000&&item.points.every(p=>p&&Number.isFinite(p.x)&&Number.isFinite(p.y)
-    &&Math.abs(p.x)<=10&&Math.abs(p.y)<=10));
+  return input.slice(0,500).filter(item=>{
+   if(!item||!['line','arrow','circle','draw','text'].includes(item.tool)
+    ||!/^#[0-9a-f]{6}$/i.test(item.color)||!Array.isArray(item.points)
+    ||item.points.length<(item.tool==='text'?1:2)||item.points.length>1000
+    ||!item.points.every(p=>p&&Number.isFinite(p.x)&&Number.isFinite(p.y)&&Math.abs(p.x)<=10&&Math.abs(p.y)<=10))return false;
+   return item.tool!=='text'||(typeof item.text==='string'&&item.text.trim().length>0&&item.text.length<=160
+    &&item.points.length===1&&Number.isFinite(item.rotation)&&item.rotation>=0&&item.rotation<=360);
+  });
  }
  function remember(){
   history.push(items.slice());
   if(history.length>100)history.shift();
  }
  undo.onclick=()=>{if(!locked&&history.length){items=history.pop();persist();paint();}};
- lock.addEventListener('click',()=>{locked=!locked;gesture=null;activeTool='';persist();paint();});
+ lock.addEventListener('click',()=>{locked=!locked;gesture=null;activeTool='';selectedText=null;persist();paint();});
  const currentColor=()=>color?.value||'#ff4d4d',clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+ function selectText(item){
+  selectedText=item;
+  textInput.value=item.text;
+  rotationInput.value=String(item.rotation);
+  angleOutput.textContent=item.rotation+'°';
+  color.value=item.color;
+  textEditRecorded=false;
+ }
+ function updateSelectedText(changes){
+  if(locked||!selectedText)return;
+  if(!textEditRecorded){remember();textEditRecorded=true;}
+  const previous=selectedText;
+  selectedText={...previous,...changes};
+  items=items.map(item=>item===previous?selectedText:item);
+  persist();paint();
+ }
+ textInput.addEventListener('input',()=>{
+  if(textInput.value.trim())updateSelectedText({text:textInput.value.slice(0,160)});
+ });
+ rotationInput.addEventListener('input',()=>{
+  const rotation=Number(rotationInput.value);
+  angleOutput.textContent=rotation+'°';
+  updateSelectedText({rotation});
+ });
+ for(const control of [textInput,rotationInput,color]){
+  control.addEventListener('focus',()=>{textEditRecorded=false;});
+  control.addEventListener('blur',()=>{textEditRecorded=false;});
+ }
+ color.addEventListener('input',()=>{if(activeTool==='text')updateSelectedText({color:currentColor()});});
+ group.querySelector('#trainerNewText').addEventListener('click',()=>{
+  if(locked)return;
+  selectedText=null;textInput.value='';rotationInput.value='0';angleOutput.textContent='0°';
+  textInput.focus();paint();
+ });
  const is3d=()=>!!window.Billiards3D?.active;
  function frame(){
   if(is3d()){
@@ -88,10 +133,36 @@
  }
  function size(){dpr=Math.max(1,Math.min(2,devicePixelRatio||1));const r=stage.getBoundingClientRect();layer.width=Math.max(1,Math.round(r.width*dpr));layer.height=Math.max(1,Math.round(r.height*dpr));layer.style.width=r.width+'px';layer.style.height=r.height+'px';ctx.setTransform(dpr,0,0,dpr,0,0);paint();}
  function screen(p,f){return f.map(p);}
- function paint(hit){restoreAnnotations();const r=stage.getBoundingClientRect(),f=frame();ctx.clearRect(0,0,r.width,r.height);if(!f){hitArea.setAttribute('points','');return;}hitArea.setAttribute('points',(f.surface.every(Boolean)?f.surface:[]).map(p=>`${p.x},${p.y}`).join(' '));
+ function paintText(item,f,hit,showSelection){
+  const center=item.points[0],origin=f.map(center);
+  const angle=item.rotation*Math.PI/180,unit=f.W*.045;
+  const along=f.map({x:center.x+Math.cos(angle)*unit/f.L,y:center.y+Math.sin(angle)*unit/f.W});
+  const down=f.map({x:center.x-Math.sin(angle)*unit/f.L,y:center.y+Math.cos(angle)*unit/f.W});
+  if(!origin||!along||!down)return false;
+  ctx.save();
+  ctx.transform((along.x-origin.x)/32,(along.y-origin.y)/32,(down.x-origin.x)/32,(down.y-origin.y)/32,origin.x,origin.y);
+  ctx.font='600 32px system-ui, sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=item.color;
+  const lines=item.text.split('\n');
+  const width=Math.max(...lines.map(line=>ctx.measureText(line).width));
+  const height=lines.length*38;
+  ctx.beginPath();ctx.rect(-width/2-7,-height/2,width+14,height);
+  const found=hit?ctx.isPointInPath(hit.x*dpr,hit.y*dpr):false;
+  if(!hit){
+   lines.forEach((line,index)=>ctx.fillText(line,0,(index-(lines.length-1)/2)*38));
+   if(showSelection&&item===selectedText&&activeTool==='text'&&!locked){
+    ctx.strokeStyle='#e6f4ff';ctx.lineWidth=1.5;ctx.setLineDash([5,4]);ctx.stroke();
+   }
+  }
+  ctx.restore();
+  return found;
+ }
+ function paint(hit,showSelection=true){restoreAnnotations();const r=stage.getBoundingClientRect(),f=frame();ctx.clearRect(0,0,r.width,r.height);if(!f){hitArea.setAttribute('points','');return;}hitArea.setAttribute('points',(f.surface.every(Boolean)?f.surface:[]).map(p=>`${p.x},${p.y}`).join(' '));
   let erased;
   const stroke=item=>{if(hit){ctx.lineWidth=28;if(ctx.isPointInStroke(hit.x*dpr,hit.y*dpr))erased=item;}else ctx.stroke();};
-  for(const item of [...items,...(gesture?.item?[gesture.item]:[])]){const pts=item.points.map(p=>screen(p,f));if(pts.some(p=>!p))continue;ctx.save();ctx.strokeStyle=item.color;ctx.fillStyle=item.color;ctx.lineWidth=3;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();
+  for(const item of [...items,...(gesture?.item?[gesture.item]:[])]){
+   if(item.tool==='text'){if(paintText(item,f,hit,showSelection))erased=item;continue;}
+   const pts=item.points.map(p=>screen(p,f));if(pts.some(p=>!p))continue;ctx.save();ctx.strokeStyle=item.color;ctx.fillStyle=item.color;ctx.lineWidth=3;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();
    if(item.tool==='circle'){
     const center=item.points[0],edge=item.points[1];
     const radius=Math.hypot((edge.x-center.x)*f.L,(edge.y-center.y)*f.W);
@@ -114,7 +185,9 @@
  function choose(tool){
   if(locked)return;
   activeTool=activeTool===tool?'':tool;
+  selectedText=null;
   updateTools();
+  if(activeTool==='text')textInput.focus();
   layer.setAttribute('aria-label',activeTool?'Annotate table: '+activeTool:'Table annotations');
  }
  tools.forEach(b=>b.addEventListener('click',()=>choose(b.dataset.annotateTool)));
@@ -131,7 +204,7 @@
   }
   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
   if(was3d)window.Billiards3D.renderSnapshot();
-  paint();
+  paint(undefined,false);
   const source=document.getElementById(was3d?'table3DCanvas':'canvas');
   const f=captureCurrentView?null:frame();
   if(!source||(!captureCurrentView&&(!f||f.corners.some(p=>!p)))){
@@ -167,6 +240,7 @@
   }
   const sourceRect=source.getBoundingClientRect();c.drawImage(source,sourceRect.left-rect.left-left,sourceRect.top-rect.top-top,sourceRect.width,sourceRect.height);
   c.drawImage(layer,-left,-top,rect.width,rect.height);
+  paint();
   if(native){
    const path=native.saveTrainerExport(filename,out.toDataURL('image/png'));
    status.textContent=path?'Saved to '+path:'Could not save the PNG.';
@@ -184,11 +258,39 @@
   if(item){if(!gesture.changed)remember();gesture.changed=true;items=items.filter(entry=>entry!==item);persist();}
   paint();
  }
- interaction.addEventListener('pointerdown',ev=>{if(locked||!activeTool||gesture||ev.button!==0)return;const p=point(ev);if(!p)return;ev.preventDefault();ev.stopPropagation();interaction.setPointerCapture(ev.pointerId);if(activeTool==='erase'){gesture={id:ev.pointerId};erase(ev);return;}gesture={id:ev.pointerId,item:{tool:activeTool,color:currentColor(),points:[p,{...p}]}};paint();});
- interaction.addEventListener('pointermove',ev=>{if(!gesture||gesture.id!==ev.pointerId)return;const p=point(ev);if(!p)return;ev.preventDefault();ev.stopPropagation();if(!gesture.item){erase(ev);return;}const pts=gesture.item.points;if(gesture.item.tool==='draw'){if(pts.length>=999)pts.splice(1,1);pts.push(p);}else pts[1]=p;paint();});
+ function startText(ev,p){
+  const rect=stage.getBoundingClientRect(),f=frame();
+  const hit=f?[...items].reverse().find(item=>item.tool==='text'&&paintText(item,f,{x:ev.clientX-rect.left,y:ev.clientY-rect.top},false)):null;
+  if(hit){
+   selectText(hit);
+   gesture={id:ev.pointerId,text:hit,start:p,changed:false};
+  }else{
+   const text=textInput.value.trim().slice(0,160);
+   if(!text){textInput.focus();paint();return;}
+   const item={tool:'text',color:currentColor(),text,rotation:Number(rotationInput.value),points:[p]};
+   remember();items=items.concat(item);selectText(item);persist();
+   gesture={id:ev.pointerId,text:item,start:p,changed:true};
+   textInput.blur();
+  }
+  paint();
+ }
+ function moveText(p){
+  const original=gesture.text;
+  const anchor=original.points[0];
+  const position={x:clamp(anchor.x+p.x-gesture.start.x,0,1),y:clamp(anchor.y+p.y-gesture.start.y,0,1)};
+  if(Math.hypot(position.x-anchor.x,position.y-anchor.y)<.001&&!gesture.changed)return;
+  if(!gesture.changed){remember();gesture.changed=true;}
+  const previous=selectedText;
+  selectedText={...original,points:[position]};
+  items=items.map(item=>item===previous?selectedText:item);
+  persist();paint();
+ }
+ interaction.addEventListener('pointerdown',ev=>{if(locked||!activeTool||gesture||ev.button!==0)return;const p=point(ev);if(!p)return;ev.preventDefault();ev.stopPropagation();interaction.setPointerCapture(ev.pointerId);if(activeTool==='text'){startText(ev,p);return;}if(activeTool==='erase'){gesture={id:ev.pointerId};erase(ev);return;}gesture={id:ev.pointerId,item:{tool:activeTool,color:currentColor(),points:[p,{...p}]}};paint();});
+ interaction.addEventListener('pointermove',ev=>{if(!gesture||gesture.id!==ev.pointerId)return;const p=point(ev);if(!p)return;ev.preventDefault();ev.stopPropagation();if(gesture.text){moveText(p);return;}if(!gesture.item){erase(ev);return;}const pts=gesture.item.points;if(gesture.item.tool==='draw'){if(pts.length>=999)pts.splice(1,1);pts.push(p);}else pts[1]=p;paint();});
  function end(ev){
   if(!gesture||gesture.id!==ev.pointerId)return;
   ev.preventDefault();ev.stopPropagation();
+  if(gesture.text){const p=ev.type==='pointerup'?point(ev):null;if(p)moveText(p);gesture=null;paint();return;}
   const item=gesture.item,p=ev.type==='pointerup'?point(ev):null;
   if(item&&p){
    if(item.tool==='draw')item.points.push(p);else item.points[1]=p;

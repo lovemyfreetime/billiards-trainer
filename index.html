@@ -1742,6 +1742,15 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
           </div>
           <button id="trainerSnapshotFolder" type="button">Open folder</button>
           <button id="trainerAnnotateLock" type="button" aria-pressed="false" style="grid-column:span 2">Lock annotations</button>
+          <button type="button" data-annotate-tool="text" aria-pressed="false" style="grid-column:span 2">Text</button>
+        </div>
+        <div id="trainerTextEditor" hidden>
+          <label for="trainerAnnotationText">Label text</label>
+          <textarea id="trainerAnnotationText" rows="2" maxlength="160" placeholder="Type a label, then tap the cloth" style="width:100%;box-sizing:border-box"></textarea>
+          <label for="trainerTextRotation">Rotation <output id="trainerTextAngle">0°</output></label>
+          <input id="trainerTextRotation" type="range" min="0" max="360" step="1" value="0" style="width:100%">
+          <button id="trainerNewText" type="button">New label</button>
+          <div class="hint">Tap a label to select it. Drag it to move. Use Rotation to turn it.</div>
         </div>
         <div class="hint">Lock annotations to aim and shoot. Save the layout to recall the same lesson.</div>
         <label for="trainerSnapshotName">Snapshot name</label>
@@ -13419,7 +13428,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <script src="./phone-play.js?v=share-analysis-1"></script>
   <link rel="stylesheet" href="./trainer-3d.css?v=share-analysis-1">
   <script src="./trainer-3d.js?v=18"></script>
-  <script src="./trainer-annotate.js?v=6"></script>
+  <script src="./trainer-annotate.js?v=7"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">
