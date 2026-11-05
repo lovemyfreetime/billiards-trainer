@@ -1972,7 +1972,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 <script src="./trainer-practice-tools.js?v=3"></script>
 <script src="./trainer-action-history.js?v=3"></script>
 <script src="./trainer-layout-files.js?v=2"></script>
-<script src="./layout-sharing.js?v=1"></script>
+<script src="./layout-sharing.js?v=2"></script>
 <script src="./trainer-table-exchange.js?v=1"></script>
 <script src="./trainer-saved-files.js?v=2"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
@@ -2812,7 +2812,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     function setupTableFiles(){
         $('layoutQuickShare').onclick=()=>shareLayout(true,true);$('layoutQuickShareCurrent').onclick=()=>shareLayout();$('layoutShareSelected').onclick=()=>shareLayout(true);$('layoutShareCurrent').onclick=()=>shareLayout();
-        function openSharedLink(){try{const shared=window.BilliardsLayoutSharing.fromHash(location.hash);if(shared){applyTableFile(shared);window.history.replaceState(null,'',location.pathname+location.search);toast('Shared layout opened');}}catch(e){toast('Could not open shared layout: '+e.message);}}
+        async function openSharedLink(){try{const shared=await window.BilliardsLayoutSharing.readHash(location.hash);if(shared){applyTableFile(shared);window.history.replaceState(null,'',location.pathname+location.search);toast('Shared layout opened');}}catch(e){toast('Could not open shared layout: '+e.message);}}
         window.addEventListener('hashchange',openSharedLink);openSharedLink();
         $('trainerLoadFile').onclick=()=>$('trainerLayoutFileInput').click();$('trainerSaveFile').onclick=()=>downloadTableFile();$('trainerSaveSession').onclick=()=>downloadTableFile(true);
         $('photoLoadTableFile').onclick=()=>$('photoLayoutFileInput').click();$('photoSaveTableFile').onclick=()=>downloadTableFile(false,true);
