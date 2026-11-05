@@ -52,6 +52,7 @@ public class MainActivity extends Activity {
     private WebChromeClient.FileChooserParams pendingCameraChooser;
     private boolean requestingCameraPermission;
 
+    private final ApkUpdates apkUpdates = new ApkUpdates(this);
     WebView webView;
     BundledApp bundledApp;
     private volatile boolean bootstrapPending;
@@ -478,6 +479,48 @@ public class MainActivity extends Activity {
         });}
 
         @JavascriptInterface
+        public String saveTrainerExport(String filename, String content) {
+            if (filename == null || content == null || content.length() > 24000000) return "";
+            boolean png = filename.endsWith(".png");
+            String prefix = "data:image/png;base64,";
+            if (png ? !content.startsWith(prefix) : !filename.endsWith(".billiards.json")) return "";
+            String safeName = filename.replaceAll("[^\\p{L}\\p{N} ._()-]", "-");
+            String folder = png ? Environment.DIRECTORY_PICTURES + "/Billiards Trainer/Snapshots"
+                                : Environment.DIRECTORY_DOWNLOADS + "/Billiards Trainer";
+            Uri uri = null;
+            try {
+                byte[] bytes = png ? Base64.decode(content.substring(prefix.length()), Base64.DEFAULT)
+                                   : content.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.MediaColumns.DISPLAY_NAME, safeName);
+                values.put(MediaStore.MediaColumns.MIME_TYPE, png ? "image/png" : "application/json");
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, folder);
+                values.put(MediaStore.MediaColumns.IS_PENDING, 1);
+                uri = getContentResolver().insert(png ? MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                                                     : MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+                if (uri == null) return "";
+                try (OutputStream stream = getContentResolver().openOutputStream(uri)) {
+                    if (stream == null) throw new java.io.IOException("Cannot open export");
+                    stream.write(bytes);
+                }
+                values.clear();
+                values.put(MediaStore.MediaColumns.IS_PENDING, 0);
+                if (getContentResolver().update(uri, values, null, null) != 1)
+                    throw new java.io.IOException("Cannot finalize export");
+                String[] columns = {MediaStore.MediaColumns.DISPLAY_NAME};
+                try (android.database.Cursor cursor = getContentResolver().query(uri, columns, null, null, null)) {
+                    if (cursor != null && cursor.moveToFirst()) safeName = cursor.getString(0);
+                } catch (Exception ignored) {
+                    // The export is already saved.
+                }
+                return folder + "/" + safeName;
+            } catch (Exception e) {
+                if (uri != null) getContentResolver().delete(uri, null, null);
+                return "";
+            }
+        }
+
+        @JavascriptInterface
         public void saveBackup(String json){
             try {
                 org.json.JSONObject data=new org.json.JSONObject(json);
@@ -517,6 +560,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void checkContentUpdates(boolean force){
             runOnUiThread(()->{if(!contentPage()||bundledApp.updates==null)return;
+                if(force)apkUpdates.check();
                 bundledApp.updates.check(force,state->runOnUiThread(()->{if(contentPage())webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('billiards:content-update',{detail:"+state.toString()+"}))",null);}));
             });
         }

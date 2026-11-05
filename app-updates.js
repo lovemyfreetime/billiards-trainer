@@ -28,7 +28,7 @@
   if(!manual)return;
   if(detail.state==='checking')render('Checking for updates…');
   else if(detail.state==='downloading')render('Downloading update… '+detail.done+' / '+detail.total+' files. You can keep using the app.');
-  else if(detail.state==='current')render('You’re up to date. Your offline app is ready.');
+  else if(detail.state==='current')render('Your offline content is up to date.');
   else if(detail.state==='failed'){reloading=false;render('Update did not finish. Your working offline version is unchanged. Try again when connected.');}
  }
 

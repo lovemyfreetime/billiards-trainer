@@ -157,6 +157,17 @@ jobs:
           cp android-wrapper/app/build/outputs/apk/installer/release/app-installer-release.apk android-wrapper/output/Billiards-Trainer-Installer-Android.apk
           gh release view android-app --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create android-app --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title 'Billiards Trainer for Android' --notes-file android-wrapper/RELEASE_NOTES.md
           gh release upload android-app --repo "$GITHUB_REPOSITORY" android-wrapper/output/*.apk --clobber
+          python3 - <<'PYMETA'
+          import hashlib, json, os
+          from pathlib import Path
+          apk = Path("android-wrapper/output/Billiards-Trainer-Android.apk")
+          with apk.open("rb") as stream:
+              digest = hashlib.file_digest(stream, "sha256").hexdigest()
+          data = {"versionCode": int(os.environ["ANDROID_VERSION_CODE"]),
+                  "size": apk.stat().st_size, "sha256": digest}
+          apk.with_name("trainer-update.json").write_text(json.dumps(data) + "\n")
+          PYMETA
+          gh release upload android-app --repo "$GITHUB_REPOSITORY" android-wrapper/output/trainer-update.json --clobber
           gh release edit android-app --repo "$GITHUB_REPOSITORY" --title 'Billiards Trainer for Android' --notes-file android-wrapper/RELEASE_NOTES.md
 
       - name: Connect validated release to normal platform installer page
