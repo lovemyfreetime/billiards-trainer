@@ -40,10 +40,14 @@ const { chromium } = require('playwright');
    const bounds = await page.locator('#trainerSnapshotGroup button').evaluateAll(buttons =>
     buttons.map(button => { const r = button.getBoundingClientRect(); return { x: r.x, y: r.y }; }));
    const folder = await page.locator('#trainerSnapshotFolder').boundingBox();
-   assert(bounds.every(r => Math.abs(r.y - folder.y) < 8), 'Snapshot group and folder share row three');
+   assert.equal(bounds.length,4,'Snapshot capture group contains three modes');
+   assert(bounds.every(r => Math.abs(r.y - bounds[0].y) < 1),'All snapshot buttons share a row');
+   const textButton=await page.locator('[data-annotate-tool=text]').boundingBox();
+   assert(Math.abs(textButton.y-folder.y)<1,'Folder and text controls share row four');
    const clear = await page.locator('#trainerAnnotateClear').boundingBox();
    const eraser = await page.locator('[data-annotate-tool=erase]').boundingBox();
    assert(Math.abs(clear.y - eraser.y) < 1, 'Clear is in row two');
+   assert(Math.abs(eraser.x+eraser.width-folder.x-folder.width)<2,'Folder remains below Eraser');
    const points = await page.evaluate(() => {
     const f = billiardsTourBridge.annotationFrame(), rect = document.querySelector('#stageWrap').getBoundingClientRect();
     return [.3, .55].map(x => { const p = f.map({ x, y: .3 }); return { x: rect.left + p.x, y: rect.top + p.y }; });
@@ -77,6 +81,35 @@ const { chromium } = require('playwright');
    const textStart=await tablePoint(.4,.65),textEnd=await tablePoint(.52,.75);
    await tap(textStart);
    assert.equal((await label()).text,'Cue ball → next shot\nSoft follow');
+   await tap(textStart);
+   await page.locator('#trainerInlineText').fill('Cue ball → next shot\nGentle follow');
+   assert.equal((await label()).text,'Cue ball → next shot\nGentle follow','Tapping label allows inline edits');
+   await page.locator('#trainerInlineText').blur();
+   await tap(await tablePoint(.8,.8));
+   assert.equal(await annotationCount(),5,'Blank cloth deselects instead of duplicating a label');
+   assert(!await page.locator('#trainerTextHandlerotate').isVisible());
+   await tap(textStart);await page.locator('#trainerInlineText').blur();
+   const handleDrag=async(kind,factor,angle)=>{
+    const handle=await page.locator('#trainerTextHandle'+kind).boundingBox();
+    assert(handle,'Selected text exposes '+kind+' handle');
+    const center=await tablePoint((await label()).points[0].x,(await label()).points[0].y);
+    const start={x:handle.x+handle.width/2,y:handle.y+handle.height/2};
+    const dx=start.x-center.x,dy=start.y-center.y;
+    await drag(start,{x:center.x+factor*(dx*Math.cos(angle)-dy*Math.sin(angle)),y:center.y+factor*(dx*Math.sin(angle)+dy*Math.cos(angle))});
+   };
+   await handleDrag('resize',1.5,0);
+   assert((await label()).scale>1.4,'Corner handle enlarges text');
+   await handleDrag('resize',.6,0);
+   assert((await label()).scale<1,'Corner handle shrinks text');
+   await page.locator('#trainerAnnotateUndo').click();await tap(textStart);await page.locator('#trainerInlineText').blur();
+   await page.locator('#trainerAnnotateUndo').click();
+   assert.equal((await label()).scale,1,'Undo restores text size');
+   await tap(textStart);await page.locator('#trainerInlineText').blur();
+   await handleDrag('rotate',1,Math.PI/2);
+   assert(Math.abs((await label()).rotation-90)<2,'Corner handle rotates text');
+   await page.locator('#trainerAnnotateUndo').click();
+   assert.equal((await label()).rotation,0,'Undo restores corner rotation');
+
    await drag(textStart,textEnd);
    assert(Math.abs((await label()).points[0].x-.52)<.01,'Text drags on cloth');
    await page.locator('#trainerAnnotateUndo').click();
@@ -110,11 +143,22 @@ const { chromium } = require('playwright');
    await drag(threeStart,threeEnd);
    assert(Math.abs((await label()).points[0].x-.5)<.015,'Text drags in 3D');
    assert.equal((await label()).rotation,270);
+   await handleDrag('resize',1.3,0);
+   assert((await label()).scale>1.1,'Resize handle works in 3D');
+   await handleDrag('rotate',1,Math.PI/6);
+   assert(Math.abs((await label()).rotation-270)>5,'Rotation handle works in 3D');
+   await page.locator('#phoneControls').click();await page.locator('#trainerAnnotateUndo').click();await page.locator('#phoneControls').click();
    await page.locator('#phoneControls').click();
    await page.locator('#trainerAnnotateLock').click();
    await page.locator('#phoneControls').click();
 
    await page.screenshot({ path: '/tmp/trainer-annotations-3d-' + (touch ? 'touch' : 'mouse') + '.png' });
+   await page.locator('#phoneControls').click();
+   await page.locator('#trainerSnapshotStroke').click();
+   const threeDownload=page.waitForEvent('download');await page.locator('#trainerAnnotateSnapshot').click();
+   await (await threeDownload).saveAs('/tmp/trainer-stroke-3d-'+(touch?'touch':'mouse')+'.png');
+   await page.locator('#phoneControls').click();
+
    await page.locator('#table3DLock [data-adjust=edit]').click();
    const aimBefore = (await state()).freeAim;
    const aim = await page.evaluate(() => {
@@ -139,6 +183,7 @@ const { chromium } = require('playwright');
    assert.equal(portable.layout.annotations.items.length,5,'Portable lesson includes all annotations');
    assert.equal(portable.layout.annotations.locked,true);
    assert.equal(portable.layout.annotations.items.find(item=>item.tool==='text').rotation,270,'Export preserves typed text rotation');
+   assert(portable.layout.annotations.items.find(item=>item.tool==='text').scale>1.1,'Export preserves text size');
    await page.locator('#layoutNameInput').fill('Locked lesson');
    await page.locator('#saveLayoutBtn').click();
    await page.locator('#trainerAnnotateLock').click();
@@ -156,6 +201,8 @@ const { chromium } = require('playwright');
    await page.reload();
    await page.waitForFunction(() => window.billiardsTourBridge?.capture().state.annotations?.items.length === 5);
    assert.equal((await state()).annotations.locked, true, 'Reload restores the lock');
+   assert((await label()).scale>1.1,'Reload retains label size');
+   assert.equal((await label()).text,'Cue ball → next shot\nGentle follow');
    await page.getByRole('button', { name: /TABLE \/ BALLS/ }).click();
    await page.locator('#trainerSnapshotCurrent').click();
    const colors = await page.locator('#trainerSnapshotGroup button').evaluateAll(buttons => buttons.map(b => getComputedStyle(b).backgroundColor));
@@ -166,9 +213,34 @@ const { chromium } = require('playwright');
    const download = page.waitForEvent('download');
    await page.locator('#trainerAnnotateSnapshot').click();
    assert((await download).suggestedFilename().endsWith('.png'));
+   await page.locator('#trainerSnapshotStroke').click();
+   const strokeColors=await page.locator('#trainerSnapshotGroup button').evaluateAll(buttons=>buttons.map(b=>getComputedStyle(b).backgroundColor));
+   assert.equal(strokeColors[0],strokeColors[3]);assert.notEqual(strokeColors[0],full[0]);assert.notEqual(strokeColors[0],colors[0]);
+   const shot=await page.evaluate(()=>{
+    const saved=billiardsTourBridge.capture();saved.state.speed=2.25;saved.state.follow=-.35;saved.state.sideSpin=.4;
+    billiardsTourBridge.restore(saved);
+    const shot=billiardsTourBridge.strokeSnapshot();return {...shot,tip:undefined};
+   });
+   assert.equal(shot.speed,2.25);assert.equal(shot.followPercent,-35);assert.equal(shot.sidePercent,40);
+   await page.evaluate(()=>{
+    window.snapshotText=[];const original=CanvasRenderingContext2D.prototype.fillText;
+    CanvasRenderingContext2D.prototype.fillText=function(text,...args){window.snapshotText.push(text);return original.call(this,text,...args);};
+   });
+   const strokeDownload=page.waitForEvent('download');
+   await page.locator('#trainerAnnotateSnapshot').click();
+   const imagePath='/tmp/trainer-stroke-'+(touch?'touch':'mouse')+'.png';
+   await (await strokeDownload).saveAs(imagePath);
+   const buffer=require('node:fs').readFileSync(imagePath),imageW=buffer.readUInt32BE(16),imageH=buffer.readUInt32BE(20);
+   assert(imageW>imageH,'Table and stroke export has side panel');
+   const painted=await page.evaluate(()=>window.snapshotText);
+   assert(painted.includes('Speed  2.25 m/s'));assert(painted.includes('Follow / draw  Draw 35%'));assert(painted.includes('Left / right spin  Right 40%'));
+   assert(painted.some(text=>text.startsWith('Cue elevation')));
+   const second=await page.evaluate(()=>{const saved=billiardsTourBridge.capture();saved.state.shot2Enabled=true;saved.state.activeShot=2;saved.state.shot2.speed=1.75;saved.state.shot2.follow=.2;saved.state.shot2.sideSpin=-.3;billiardsTourBridge.restore(saved);const shot=billiardsTourBridge.strokeSnapshot();return {which:shot.which,speed:shot.speed,follow:shot.followPercent,side:shot.sidePercent,tipWidth:shot.tip.width};});
+   assert.deepEqual({...second,tipWidth:undefined},{which:2,speed:1.75,follow:20,side:-30,tipWidth:undefined});assert(second.tipWidth>=300);
+
    await page.screenshot({ path: '/tmp/trainer-annotations-' + (touch ? 'touch' : 'mouse') + '.png' });
    assert.deepEqual(errors, []);
-   console.log((touch ? 'Touch' : 'Mouse') + ': grouped controls, live 3D ink, lock/aim, orbit, save/recall, shot/undo, reload, colors and snapshot passed.');
+   console.log((touch ? 'Touch' : 'Mouse') + ': corner resize/rotate, inline edit, undo, 2D/3D drag, lock/play, persistence, three snapshot modes, exported stroke values and active Shot 2 passed.');
    await context.close();
   }
  } finally {

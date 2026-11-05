@@ -22,18 +22,52 @@
     :'Open your browser’s Downloads list to find snapshots. Browsers cannot open a download folder from a webpage.';
   }
  });
- let currentView=false,locked=false,savedState;
+ let snapshotMode='full',locked=false,savedState;
  const fullButton=group.querySelector('#trainerSnapshotFull');
  const currentButton=group.querySelector('#trainerSnapshotCurrent');
+ const strokeButton=group.querySelector('#trainerSnapshotStroke');
  const snapshotGroup=group.querySelector('#trainerSnapshotGroup');
- function selectView(current){
-  currentView=current;
-  fullButton.setAttribute('aria-pressed',String(!current));
-  currentButton.setAttribute('aria-pressed',String(current));
-  snapshotGroup.classList.toggle('current-view',current);
+ function selectView(mode){
+  snapshotMode=mode;
+  fullButton.setAttribute('aria-pressed',String(mode==='full'));
+  currentButton.setAttribute('aria-pressed',String(mode==='current'));
+  strokeButton.setAttribute('aria-pressed',String(mode==='stroke'));
+  snapshotGroup.classList.toggle('current-view',mode==='current');
+  snapshotGroup.classList.toggle('table-stroke',mode==='stroke');
  }
- fullButton.addEventListener('click',()=>selectView(false));
- currentButton.addEventListener('click',()=>selectView(true));
+ fullButton.addEventListener('click',()=>selectView('full'));
+ currentButton.addEventListener('click',()=>selectView('current'));
+ strokeButton.addEventListener('click',()=>selectView('stroke'));
+ const inlineText=document.createElement('textarea');
+ inlineText.id='trainerInlineText';inlineText.hidden=true;inlineText.maxLength=160;
+ inlineText.setAttribute('aria-label','Edit table label');stage.append(inlineText);
+ const handles={};
+ for(const [kind,symbol] of [['rotate','↻'],['resize','↔']]){
+  const handle=document.createElementNS(interaction.namespaceURI,'g');
+  handle.id='trainerTextHandle'+kind;handle.dataset.textHandle=kind;handle.classList.add('textHandle');
+  const circle=document.createElementNS(interaction.namespaceURI,'circle');
+  circle.setAttribute('r','14');circle.setAttribute('fill','#244d72');circle.setAttribute('stroke','#e6f4ff');
+  const label=document.createElementNS(interaction.namespaceURI,'text');
+  label.textContent=symbol;label.setAttribute('text-anchor','middle');label.setAttribute('dy','.35em');
+  label.setAttribute('fill','#fff');label.setAttribute('font-size','20');
+  const title=document.createElementNS(interaction.namespaceURI,'title');title.textContent=kind==='rotate'?'Rotate text':'Resize text';
+  handle.append(title,circle,label);interaction.append(handle);handles[kind]=handle;handle.style.display='none';
+ }
+ function editOnTable(){
+  if(!selectedText||locked)return;
+  const f=frame(),p=f?.map(selectedText.points[0]);if(!p)return;
+  inlineText.value=selectedText.text;inlineText.hidden=false;
+  inlineText.style.left=clamp(p.x-130,4,Math.max(4,stage.clientWidth-264))+'px';
+  inlineText.style.top=clamp(p.y-40,4,Math.max(4,stage.clientHeight-90))+'px';
+  inlineText.focus();
+ }
+ inlineText.addEventListener('input',()=>{
+  textInput.value=inlineText.value;
+  if(inlineText.value.trim())updateSelectedText({text:inlineText.value});
+ });
+ inlineText.addEventListener('focus',()=>{textEditRecorded=false;});
+ inlineText.addEventListener('blur',()=>{inlineText.hidden=true;textEditRecorded=false;});
+ inlineText.addEventListener('keydown',ev=>{ev.stopPropagation();if(ev.key==='Escape'||(ev.key==='Enter'&&(ev.ctrlKey||ev.metaKey))){ev.preventDefault();inlineText.blur();}});
  const history=[];
  const undo=group.querySelector('#trainerAnnotateUndo');
  const clear=group.querySelector('#trainerAnnotateClear');
@@ -43,6 +77,7 @@
  if(native)status.textContent='Snapshots save to Pictures / Billiards Trainer / Snapshots.';
  function updateTools(){
   interaction.classList.toggle('active',!!activeTool&&!locked);
+  if(locked||activeTool!=='text')inlineText.hidden=true;
   for(const button of tools){
    button.disabled=locked;
    button.setAttribute('aria-pressed',String(!locked&&button.dataset.annotateTool===activeTool));
@@ -76,7 +111,8 @@
     ||item.points.length<(item.tool==='text'?1:2)||item.points.length>1000
     ||!item.points.every(p=>p&&Number.isFinite(p.x)&&Number.isFinite(p.y)&&Math.abs(p.x)<=10&&Math.abs(p.y)<=10))return false;
    return item.tool!=='text'||(typeof item.text==='string'&&item.text.trim().length>0&&item.text.length<=160
-    &&item.points.length===1&&Number.isFinite(item.rotation)&&item.rotation>=0&&item.rotation<=360);
+    &&item.points.length===1&&Number.isFinite(item.rotation)&&item.rotation>=0&&item.rotation<=360
+    &&(item.scale===undefined||(Number.isFinite(item.scale)&&item.scale>=.15&&item.scale<=6)));
   });
  }
  function remember(){
@@ -135,7 +171,7 @@
  function screen(p,f){return f.map(p);}
  function paintText(item,f,hit,showSelection){
   const center=item.points[0],origin=f.map(center);
-  const angle=item.rotation*Math.PI/180,unit=f.W*.045;
+  const angle=item.rotation*Math.PI/180,unit=f.W*.045*(item.scale||1);
   const along=f.map({x:center.x+Math.cos(angle)*unit/f.L,y:center.y+Math.sin(angle)*unit/f.W});
   const down=f.map({x:center.x-Math.sin(angle)*unit/f.L,y:center.y+Math.cos(angle)*unit/f.W});
   if(!origin||!along||!down)return false;
@@ -154,10 +190,19 @@
     ctx.strokeStyle='#e6f4ff';ctx.lineWidth=1.5;ctx.setLineDash([5,4]);ctx.stroke();
    }
   }
+  if(!hit&&showSelection&&item===selectedText&&activeTool==='text'&&!locked){
+   const transform=ctx.getTransform();
+   for(const [kind,y] of [['rotate',-height/2],['resize',height/2]]){
+    const x=width/2+7;
+    const px=(transform.a*x+transform.c*y+transform.e)/dpr;
+    const py=(transform.b*x+transform.d*y+transform.f)/dpr;
+    handles[kind].setAttribute('transform',`translate(${px} ${py})`);handles[kind].style.display='';
+   }
+  }
   ctx.restore();
   return found;
  }
- function paint(hit,showSelection=true){restoreAnnotations();const r=stage.getBoundingClientRect(),f=frame();ctx.clearRect(0,0,r.width,r.height);if(!f){hitArea.setAttribute('points','');return;}hitArea.setAttribute('points',(f.surface.every(Boolean)?f.surface:[]).map(p=>`${p.x},${p.y}`).join(' '));
+ function paint(hit,showSelection=true){for(const handle of Object.values(handles))handle.style.display='none';restoreAnnotations();const r=stage.getBoundingClientRect(),f=frame();ctx.clearRect(0,0,r.width,r.height);if(!f){hitArea.setAttribute('points','');return;}hitArea.setAttribute('points',(f.surface.every(Boolean)?f.surface:[]).map(p=>`${p.x},${p.y}`).join(' '));
   let erased;
   const stroke=item=>{if(hit){ctx.lineWidth=28;if(ctx.isPointInStroke(hit.x*dpr,hit.y*dpr))erased=item;}else ctx.stroke();};
   for(const item of [...items,...(gesture?.item?[gesture.item]:[])]){
@@ -181,7 +226,18 @@
   }
   return erased;
  }
- function point(ev){if(is3d()){const q=window.Billiards3D.tablePoint?.(ev);if(!q)return null;const s=window.billiardsTourBridge?.snapshot?.();return s?.tableL&&s?.tableW?{x:q.x/s.tableL,y:q.y/s.tableW}:null;}return window.billiardsTourBridge?.annotationFrame?.().inverse({x:ev.clientX,y:ev.clientY})||null;}
+ function point(ev){
+  if(!is3d())return window.billiardsTourBridge?.annotationFrame?.().inverse({x:ev.clientX,y:ev.clientY})||null;
+  const q=window.Billiards3D.tablePoint?.(ev),s=window.billiardsTourBridge?.snapshot?.();
+  if(q&&s?.tableL&&s?.tableW)return {x:q.x/s.tableL,y:q.y/s.tableW};
+  if(!selectedText||(!gesture?.text&&!ev.target.closest?.('[data-text-handle]')))return null;
+  // Continue a label gesture when its handle extends past the cloth edge.
+  const f=frame(),a=selectedText.points[0],o=f.map(a),x=f.map({x:a.x+.001,y:a.y}),y=f.map({x:a.x,y:a.y+.001});
+  if(!o||!x||!y)return null;
+  const r=stage.getBoundingClientRect(),dx=ev.clientX-r.left-o.x,dy=ev.clientY-r.top-o.y;
+  const ax=x.x-o.x,ay=x.y-o.y,bx=y.x-o.x,by=y.y-o.y,det=ax*by-ay*bx;
+  return Math.abs(det)>1e-9?{x:a.x+.001*(dx*by-dy*bx)/det,y:a.y+.001*(ax*dy-ay*dx)/det}:null;
+ }
  function choose(tool){
   if(locked)return;
   activeTool=activeTool===tool?'':tool;
@@ -196,7 +252,8 @@
   if(native&&!native.saveTrainerExport){status.textContent='Install the updated Android app to save PNG snapshots.';return;}
   const name=group.querySelector('#trainerSnapshotName').value.trim().replace(/\.png$/i,'').replace(/[\x00-\x1f<>:"/\\|?*]/g,'-').replace(/^[. ]+|[. ]+$/g,'')||'Billiards table snapshot';
   const filename=name+'.png';
-  const captureCurrentView=currentView;
+  const captureCurrentView=snapshotMode==='current';
+  const stroke=snapshotMode==='stroke'?window.billiardsTourBridge?.strokeSnapshot?.():null;
   const was3d=is3d();
   if(!captureCurrentView){
    if(was3d)window.Billiards3D.prepareSnapshot();
@@ -228,7 +285,7 @@
   }
   const w=right-left,h=bottom-top;
   if(w<2||h<2){status.textContent='The table is outside the visible area.';return;}
-  const out=document.createElement('canvas');
+  let out=document.createElement('canvas');
   const scale=Math.max(1,Math.min(2,devicePixelRatio||1));
   out.width=Math.round(w*scale);out.height=Math.round(h*scale);
   const c=out.getContext('2d');
@@ -241,6 +298,7 @@
   const sourceRect=source.getBoundingClientRect();c.drawImage(source,sourceRect.left-rect.left-left,sourceRect.top-rect.top-top,sourceRect.width,sourceRect.height);
   c.drawImage(layer,-left,-top,rect.width,rect.height);
   paint();
+  if(stroke)out=withStroke(out,stroke,scale);
   if(native){
    const path=native.saveTrainerExport(filename,out.toDataURL('image/png'));
    status.textContent=path?'Saved to '+path:'Could not save the PNG.';
@@ -253,21 +311,44 @@
    status.textContent='Download requested: '+filename+' — check browser Downloads.';
   },'image/png');
  });
+ function withStroke(table,shot,scale){
+  const result=document.createElement('canvas'),panelW=320,w=table.width/scale,h=table.height/scale;
+  result.width=Math.round((w+panelW)*scale);result.height=Math.round(Math.max(h,500)*scale);
+  const c=result.getContext('2d');c.scale(scale,scale);
+  const height=result.height/scale;
+  c.fillStyle='#101820';c.fillRect(0,0,w+panelW,height);
+  c.drawImage(table,0,(height-h)/2,w,h);
+  c.fillStyle='#1c2a35';c.fillRect(w,0,panelW,height);
+  c.fillStyle='#ffc78a';c.font='700 23px system-ui';c.fillText('SHOT '+shot.which,w+18,38);
+  c.fillStyle='#f1f5f9';c.font='600 17px system-ui';
+  c.fillText('Speed  '+shot.speed.toFixed(2)+' m/s',w+18,75);
+  c.fillText('Power  '+shot.diamonds.toFixed(1)+' ♦',w+18,106);
+  c.fillText('Follow / draw  '+(shot.followPercent<0?'Draw ':shot.followPercent>0?'Follow ':'')+Math.abs(shot.followPercent)+'%',w+18,137);
+  c.fillText('Left / right spin  '+(shot.sidePercent<0?'Left ':shot.sidePercent>0?'Right ':'')+Math.abs(shot.sidePercent)+'%',w+18,168);
+  c.fillText('Aim  '+shot.aimDegrees.toFixed(1)+'°',w+18,199);
+  c.fillText('Cue elevation  '+shot.elevation.toFixed(1)+'°',w+18,230);
+  c.drawImage(shot.tip,w+10,254,300,210);
+  c.fillStyle='#b9c9d6';c.font='12px system-ui';c.fillText('Aim: 0° right · 90° down',w+14,486);
+  return result;
+ }
  function erase(ev){
   const rect=stage.getBoundingClientRect(),item=paint({x:ev.clientX-rect.left,y:ev.clientY-rect.top});
   if(item){if(!gesture.changed)remember();gesture.changed=true;items=items.filter(entry=>entry!==item);persist();}
   paint();
  }
  function startText(ev,p){
+  const kind=ev.target.closest?.('[data-text-handle]')?.dataset.textHandle;
+  if(kind&&selectedText){gesture={id:ev.pointerId,text:selectedText,start:p,changed:false,handle:kind};inlineText.blur();return;}
   const rect=stage.getBoundingClientRect(),f=frame();
   const hit=f?[...items].reverse().find(item=>item.tool==='text'&&paintText(item,f,{x:ev.clientX-rect.left,y:ev.clientY-rect.top},false)):null;
   if(hit){
    selectText(hit);
    gesture={id:ev.pointerId,text:hit,start:p,changed:false};
   }else{
+   if(selectedText){selectedText=null;inlineText.blur();paint();return;}
    const text=textInput.value.trim().slice(0,160);
    if(!text){textInput.focus();paint();return;}
-   const item={tool:'text',color:currentColor(),text,rotation:Number(rotationInput.value),points:[p]};
+   const item={tool:'text',color:currentColor(),text,rotation:Number(rotationInput.value),scale:1,points:[p]};
    remember();items=items.concat(item);selectText(item);persist();
    gesture={id:ev.pointerId,text:item,start:p,changed:true};
    textInput.blur();
@@ -275,13 +356,28 @@
   paint();
  }
  function moveText(p){
-  const original=gesture.text;
-  const anchor=original.points[0];
-  const position={x:clamp(anchor.x+p.x-gesture.start.x,0,1),y:clamp(anchor.y+p.y-gesture.start.y,0,1)};
-  if(Math.hypot(position.x-anchor.x,position.y-anchor.y)<.001&&!gesture.changed)return;
+  const original=gesture.text,anchor=original.points[0];
+  let changes;
+  if(gesture.handle){
+   const f=frame(),dx=(p.x-anchor.x)*f.L,dy=(p.y-anchor.y)*f.W;
+   const sx=(gesture.start.x-anchor.x)*f.L,sy=(gesture.start.y-anchor.y)*f.W;
+   if(gesture.handle==='rotate'){
+    const rotation=((original.rotation+(Math.atan2(dy,dx)-Math.atan2(sy,sx))*180/Math.PI)%360+360)%360;
+    if(Math.abs(rotation-original.rotation)<.1&&!gesture.changed)return;
+    changes={rotation};rotationInput.value=String(Math.round(rotation));angleOutput.textContent=Math.round(rotation)+'°';
+   }else{
+    const scale=clamp((original.scale||1)*Math.hypot(dx,dy)/Math.max(.001,Math.hypot(sx,sy)),.15,6);
+    if(Math.abs(scale-(original.scale||1))<.005&&!gesture.changed)return;
+    changes={scale};
+   }
+  }else{
+   const position={x:clamp(anchor.x+p.x-gesture.start.x,0,1),y:clamp(anchor.y+p.y-gesture.start.y,0,1)};
+   if(Math.hypot(position.x-anchor.x,position.y-anchor.y)<.003&&!gesture.changed)return;
+   changes={points:[position]};
+  }
   if(!gesture.changed){remember();gesture.changed=true;}
   const previous=selectedText;
-  selectedText={...original,points:[position]};
+  selectedText={...original,...changes};
   items=items.map(item=>item===previous?selectedText:item);
   persist();paint();
  }
@@ -290,7 +386,7 @@
  function end(ev){
   if(!gesture||gesture.id!==ev.pointerId)return;
   ev.preventDefault();ev.stopPropagation();
-  if(gesture.text){const p=ev.type==='pointerup'?point(ev):null;if(p)moveText(p);gesture=null;paint();return;}
+  if(gesture.text){const p=ev.type==='pointerup'?point(ev):null;if(p)moveText(p);const edit=ev.type==='pointerup'&&!gesture.changed&&!gesture.handle;gesture=null;paint();if(edit)editOnTable();return;}
   const item=gesture.item,p=ev.type==='pointerup'?point(ev):null;
   if(item&&p){
    if(item.tool==='draw')item.points.push(p);else item.points[1]=p;
