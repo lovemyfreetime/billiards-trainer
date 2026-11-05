@@ -252,6 +252,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   #trainerAnnotateGroup .trainerAnnotateTools { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;align-items:stretch; }
   #trainerAnnotateGroup .trainerAnnotateTools button,#trainerAnnotateGroup .trainerAnnotateColor { display:flex;align-items:center;justify-content:center;min-width:0;min-height:29px;margin:0;padding:4px 5px;border:1px solid #465563;border-radius:6px;background:#26323d;color:#edf2f5;font:600 11px/1.1 Segoe UI,Arial,sans-serif; }
   #trainerAnnotateGroup .trainerAnnotateTools button[aria-pressed=true] { border-color:#82d8a7;background:#214536;color:#f3fff7; }
+  #trainerAnnotateGroup .trainerSnapshotGroup { grid-column:span 3;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:4px;border:1px solid #6db8ed;border-radius:7px;--snapshot-accent:#6db8ed;--snapshot-fill:#244d72; }
+  #trainerAnnotateGroup .trainerSnapshotGroup.current-view { --snapshot-accent:#c5a1f1;--snapshot-fill:#594071;border-color:var(--snapshot-accent); }
+  #trainerAnnotateGroup .trainerSnapshotGroup #trainerAnnotateSnapshot,
+  #trainerAnnotateGroup .trainerSnapshotGroup button[aria-pressed=true] { border-color:var(--snapshot-accent);background:var(--snapshot-fill);color:#fff; }
+  #trainerAnnotateGroup button:disabled { opacity:.45; }
   #trainerAnnotateGroup .trainerAnnotateColor { flex-direction:row;gap:5px;cursor:pointer;white-space:nowrap; }
   #trainerAnnotateColor { width:24px;height:19px;min-width:24px;padding:0;border:0;background:transparent; }
   #trainerAnnotationCanvas { position:absolute;inset:0;z-index:11;width:100%;height:100%;pointer-events:none;touch-action:none; }
@@ -1727,13 +1732,18 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
           <button type="button" data-annotate-tool="circle" aria-pressed="false">Circle</button>
           <button type="button" data-annotate-tool="draw" aria-pressed="false">Draw</button>
           <label class="trainerAnnotateColor" title="Annotation color">Color <input id="trainerAnnotateColor" type="color" value="#ff4d4d" aria-label="Annotation color"></label>
-          <button id="trainerAnnotateSnapshot" type="button">Snapshot</button>
+          <button id="trainerAnnotateClear" type="button">Clear</button>
           <button id="trainerAnnotateUndo" type="button" disabled>Undo</button>
           <button type="button" data-annotate-tool="erase" aria-pressed="false">Eraser</button>
-          <button id="trainerAnnotateClear" type="button">Clear</button>
+          <div id="trainerSnapshotGroup" class="trainerSnapshotGroup" role="group" aria-label="Snapshot capture">
+            <button id="trainerAnnotateSnapshot" type="button">Snapshot</button>
+            <button id="trainerSnapshotFull" type="button" aria-pressed="true">Full table</button>
+            <button id="trainerSnapshotCurrent" type="button" aria-pressed="false">Current view</button>
+          </div>
           <button id="trainerSnapshotFolder" type="button">Open folder</button>
-          <button id="trainerSnapshotMode" type="button" aria-pressed="false" title="Switch between the full table and the visible camera view">Full table</button>
+          <button id="trainerAnnotateLock" type="button" aria-pressed="false" style="grid-column:span 2">Lock annotations</button>
         </div>
+        <div class="hint">Lock annotations to aim and shoot. Save the layout to recall the same lesson.</div>
         <label for="trainerSnapshotName">Snapshot name</label>
         <input id="trainerSnapshotName" type="text" maxlength="80" placeholder="Billiards table snapshot">
         <div id="trainerSnapshotStatus" class="hint" role="status">On the web, check your browser’s Downloads for snapshots.</div>
@@ -2074,7 +2084,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const initialAim={x:88*inch*.75,y:44*inch*.5};
         return {
             tableL: 88 * inch, tableW: 44 * inch, ballR: 2.25 * inch / 2,
-            balls: [],
+            balls: [], annotations: null,
             nextId: 1, markerSeq: 1000, freeAim: initialAim, angleLock: false, speed: 1.50, follow: 0, sideSpin: 0, cueElevationDeg: PHYSICS_MODEL.defaultCueElevationDeg,
             shot2Enabled: false, activeShot: 1, shot2Initialized: false,
             showShot1: true,
@@ -2228,9 +2238,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     function restoreSnapshot(snap) {
         if (!snap)
             return;
-        const counterEnabled=S.showPracticeCounter;
+        const counterEnabled=S.showPracticeCounter,annotations=S.annotations;
         S = Object.assign(Object.assign(Object.assign({}, defaultState()), JSON.parse(JSON.stringify(snap))), { preview: null });
-        S.showPracticeCounter=counterEnabled;
+        S.showPracticeCounter=counterEnabled;S.annotations=annotations;
         normalizeBallSet();
         updateUI();
         refreshPreview();
@@ -2432,6 +2442,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             setupMode: S.setupMode,
             allowMissingCueBall: !!S.allowMissingCueBall,
             balls: JSON.parse(JSON.stringify(S.balls)),
+            annotations: JSON.parse(JSON.stringify(S.annotations||null)),
             freeAim: JSON.parse(JSON.stringify(S.freeAim))
         };
     }
@@ -2482,6 +2493,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if (Number.isFinite(+d.ballR)) S.ballR = +d.ballR;
         if (d.setupMode) S.setupMode = d.setupMode;
         S.balls = JSON.parse(JSON.stringify(d.balls || []));
+        S.annotations = JSON.parse(JSON.stringify(d.annotations||null));
         // Preserve intentionally cue-less photo layouts when they are recalled.
         // The ball-list fallback also supports any older saved layout that happened
         // to contain no cue ball before this flag existed.
@@ -2609,6 +2621,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if(file.kind==='session'&&file.state)Object.assign(state,window.BilliardsLayoutFiles.settings(file.state,defaults));
         state.lastLayoutName=d.name;state.tableL=d.tableL;state.tableW=d.tableW;state.ballR=d.ballR;state.setupMode=d.setupMode||'custom';
         state.balls=detections?detections.filter(b=>String(b.id)!=='ignore').map(b=>({id:Number(b.id),n:Number(b.id)===0?'CB':String(b.id),x:b.nx*d.tableL,y:b.ny*d.tableW,active:true})).concat(d.balls.filter(b=>b.marker)):JSON.parse(JSON.stringify(d.balls));
+        state.annotations=d.annotations||state.annotations||null;
         state.allowMissingCueBall=!state.balls.some(b=>b.id===0);
         state.freeAim=d.freeAim||state.freeAim;state.preview=null;
         state.pocketedLog=(Array.isArray(state.pocketedLog)?state.pocketedLog:[]).filter(id=>id>=1&&id<=15&&!state.balls.some(b=>b.id===id));
@@ -2715,7 +2728,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if(kind==='table'||kind==='grid'){const a=M.map({x:0,y:0}),b=M.map({x:S.tableL,y:S.tableW});return [{x:c.left+a.x*sx,y:c.top+a.y*sy,width:b.x*sx-a.x*sx,height:b.y*sy-a.y*sy}];}
             return [];
         }
-        return {capture,restore,apply,loadLesson,narrationRegions,snapshot,feltBounds(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR);return {left:c.left-s.left+m.corners[0].x*sx,top:c.top-s.top+m.corners[0].y*sy,right:c.left-s.left+m.corners[1].x*sx,width:(m.corners[1].x-m.corners[0].x)*sx,height:(m.corners[2].y-m.corners[0].y)*sy};},annotationFrame(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR),A=ORIGINAL_ASSET_GEOM,L=S.tableL,W=S.tableW,dx=L/(A.x1-A.x0),dy=W/(A.y1-A.y0),logical=[{x:-A.x0*dx,y:-A.y0*dy},{x:L+(A.width-A.x1)*dx,y:-A.y0*dy},{x:L+(A.width-A.x1)*dx,y:W+(A.height-A.y1)*dy},{x:-A.x0*dx,y:W+(A.height-A.y1)*dy}],screen=p=>{const q=window.BilliardsTableZoom?.mapPoint?.(m.map(p))||m.map(p);return {x:c.left-s.left+q.x*sx,y:c.top-s.top+q.y*sy};};return {length:L,width:W,corners:logical.map(screen),surface:[{x:0,y:0},{x:L,y:0},{x:L,y:W},{x:0,y:W}].map(screen),map:p=>screen({x:p.x*L,y:p.y*W}),inverse(p){const v={x:(p.x-s.left)/sx,y:(p.y-s.top)/sy},q=m.inv(window.BilliardsTableZoom?.unmapPoint?.(v)||v);return {x:q.x/L,y:q.y/W};}};},exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},flightProfileBounds(){const which=S.activeShot===2&&S.shot2Enabled?2:1,preview=which===2?S.shot2?.preview:S.preview;if(document.body.classList.contains('phone-layout')||!shouldShowFlightOverlay(preview,which))return null;const r=canvas.getBoundingClientRect(),w=canvas.width/DPR;return {left:r.left+6,right:r.left+6+flightSideProfileWidth(w,false),bottom:r.top+140};},rollingReference(which=1){return rollingReferenceForShot(which);},predict(options={}){const p=simulate(false);return {...(options.paths?{paths:p.paths}:{}),pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact,railEvents:p.railEvents,pocketEvents:p.pocketEvents};}};
+        return {capture,restore,apply,loadLesson,narrationRegions,snapshot,annotations(){return S.annotations||null;},saveAnnotations(data){S.annotations=data;saveState();},feltBounds(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR);return {left:c.left-s.left+m.corners[0].x*sx,top:c.top-s.top+m.corners[0].y*sy,right:c.left-s.left+m.corners[1].x*sx,width:(m.corners[1].x-m.corners[0].x)*sx,height:(m.corners[2].y-m.corners[0].y)*sy};},annotationFrame(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR),A=ORIGINAL_ASSET_GEOM,L=S.tableL,W=S.tableW,dx=L/(A.x1-A.x0),dy=W/(A.y1-A.y0),logical=[{x:-A.x0*dx,y:-A.y0*dy},{x:L+(A.width-A.x1)*dx,y:-A.y0*dy},{x:L+(A.width-A.x1)*dx,y:W+(A.height-A.y1)*dy},{x:-A.x0*dx,y:W+(A.height-A.y1)*dy}],screen=p=>{const q=window.BilliardsTableZoom?.mapPoint?.(m.map(p))||m.map(p);return {x:c.left-s.left+q.x*sx,y:c.top-s.top+q.y*sy};};return {length:L,width:W,corners:logical.map(screen),surface:[{x:0,y:0},{x:L,y:0},{x:L,y:W},{x:0,y:W}].map(screen),map:p=>screen({x:p.x*L,y:p.y*W}),inverse(p){const v={x:(p.x-s.left)/sx,y:(p.y-s.top)/sy},q=m.inv(window.BilliardsTableZoom?.unmapPoint?.(v)||v);return {x:q.x/L,y:q.y/W};}};},exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},flightProfileBounds(){const which=S.activeShot===2&&S.shot2Enabled?2:1,preview=which===2?S.shot2?.preview:S.preview;if(document.body.classList.contains('phone-layout')||!shouldShowFlightOverlay(preview,which))return null;const r=canvas.getBoundingClientRect(),w=canvas.width/DPR;return {left:r.left+6,right:r.left+6+flightSideProfileWidth(w,false),bottom:r.top+140};},rollingReference(which=1){return rollingReferenceForShot(which);},predict(options={}){const p=simulate(false);return {...(options.paths?{paths:p.paths}:{}),pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact,railEvents:p.railEvents,pocketEvents:p.pocketEvents};}};
     })();
 
     function freshZenTable(){
@@ -13406,7 +13419,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <script src="./phone-play.js?v=share-analysis-1"></script>
   <link rel="stylesheet" href="./trainer-3d.css?v=share-analysis-1">
   <script src="./trainer-3d.js?v=18"></script>
-  <script src="./trainer-annotate.js?v=5"></script>
+  <script src="./trainer-annotate.js?v=6"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">
