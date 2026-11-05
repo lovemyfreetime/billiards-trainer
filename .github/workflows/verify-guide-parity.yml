@@ -29,6 +29,7 @@ jobs:
           node tests/trainer-3d-controls.browser.cjs
           node tests/trainer-3d-ball-tools.browser.cjs
           node tests/trainer-3d-edit.browser.cjs
+          node tests/shot-geometry.test.cjs
           node tests/trainer-annotations.browser.cjs
       - name: Check desktop, tablet and phone Guide behavior
         env:

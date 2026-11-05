@@ -313,7 +313,7 @@
  });
  function withStroke(table,shot,scale){
   const percent=value=>Number.isFinite(value)?value.toFixed(1)+'%':'—';
-  const speed=value=>Number.isFinite(value)?value.toFixed(2)+' m/s':'—';
+  const diamonds=value=>Number.isFinite(value)?value.toFixed(1)+' ♦':'—';
   const rows=[
    ['Speed',shot.speed.toFixed(2)+' m/s'],
    ['Power',shot.diamonds.toFixed(1)+' ♦'],
@@ -321,11 +321,12 @@
    ['Draw',Math.max(0,-shot.followPercent)+'%'],
    ['Left',Math.max(0,-shot.sidePercent)+'%'],
    ['Right',Math.max(0,shot.sidePercent)+'%'],
-   ['Cut angle',Number.isFinite(shot.cutDegrees)?shot.cutDegrees.toFixed(1)+'°':'—'],
    ['Overlap',percent(shot.overlapPercent)],
+   ['Cut angle',Number.isFinite(shot.cutDegrees)?shot.cutDegrees.toFixed(1)+'°':'—'],
+   ['Exit angle',Number.isFinite(shot.exitDegrees)?shot.exitDegrees.toFixed(1)+'°':'—'],
    ['Cue elevation',shot.elevation.toFixed(1)+'°'],
-   ['Cue at object (C)',speed(shot.cueImpactSpeed)],
-   ['Object at pocket (P)',speed(shot.pocketArrivalSpeed)]
+   ['Cue at object (C)',diamonds(shot.cueImpactDiamonds)],
+   ['Object at pocket (P)',diamonds(shot.pocketArrivalDiamonds)]
   ];
   const result=document.createElement('canvas'),panelW=340,w=table.width/scale,h=table.height/scale;
   const rowTop=58,rowHeight=31,tipY=rowTop+rows.length*rowHeight+10,panelH=tipY+210+14;

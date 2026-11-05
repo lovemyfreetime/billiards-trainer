@@ -2007,7 +2007,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 <script src="./photo-corner-sensing.js?v=1"></script>
 <script src="./photo-lighting.js?v=1"></script>
 <script src="./trainer-table-zoom.js?v=1"></script>
-<script src="./trainer-shot-budget.js?v=2"></script>
+<script src="./trainer-shot-budget.js?v=exit-2"></script>
 <script>
 // AI Camera Edition wrapper: v4.12 trainer, app-mode launch package. v4 adds scoreboard placement/default-off + local analysis-photo recall.
 // v4.12: virtual diamond extensions beyond physical corners; fixes source references that previously clipped at the first visible table boundary.
@@ -2717,18 +2717,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const tip=document.createElement('canvas');
             tip.getBoundingClientRect=()=>({width:300,height:210});
             drawTipDisk(tip,shot.sideSpin,shot.follow,which);
-            const contact=shot.preview?.firstBallContact,power=teachingPowerState(which);
-            let cutDegrees=null;
-            if(contact&&power.mode==='ball'){
-                // Difference between the incoming cue-ball line and inferred object-to-pocket line.
-                const pocketLine=norm({x:power.pocket.x-contact.objPos.x,y:power.pocket.y-contact.objPos.y});
-                const radians=Math.acos(clamp(dot(contact.incoming,pocketLine),-1,1));
-                cutDegrees=radians*180/Math.PI;
-            }
+            const info=shotContactInfo(which),power=teachingPowerState(which);
             return {tip,which,speed:shot.speed,diamonds:powerFeelForSpeed(shot.speed).diamonds,
-                cutDegrees,overlapPercent:Number.isFinite(contact?.overlap)?contact.overlap:null,
-                cueImpactSpeed:power.mode==='ball'?power.currentCueImpact:null,
-                pocketArrivalSpeed:power.mode==='ball'?power.currentPocketArrival:null,
+                ...info,
+                cueImpactDiamonds:power.mode==='ball'?powerFeelForSpeed(power.currentCueImpact).diamonds:null,
+                pocketArrivalDiamonds:power.mode==='ball'?powerFeelForSpeed(power.currentPocketArrival).diamonds:null,
                 followPercent:Math.round(shot.follow*100),sidePercent:Math.round(shot.sideSpin*100),
                 elevation:shot.cueElevationDeg};
         }
@@ -4520,6 +4513,42 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             pocketResidualTarget,
             feel, currentFeel, ratio, status
         };
+    }
+    // Measure the first visible outgoing path from the ghost/rebound point, before another contact.
+    function cueExitAngle(preview,event,anchor,incoming){
+        if(!preview||!event||!anchor||!incoming)return null;
+        const nextRail=(preview.railEvents||[]).find(e=>e.id===0&&e.t>event.t+.00001);
+        const nextBall=preview.firstBallContact?.t>event.t+.00001?preview.firstBallContact:null;
+        const stop=Math.min(nextRail?.t??Infinity,nextBall?.t??Infinity);
+        let outgoing=null;
+        for(const p of preview.paths?.[0]||[]){
+            if(p.t<=event.t+.00001)continue;
+            if(p.t>=stop)break;
+            const dx=p.x-anchor.x,dy=p.y-anchor.y,distance=Math.hypot(dx,dy);
+            if(distance<.00254)continue;
+            outgoing={x:dx/distance,y:dy/distance};
+            if(distance>=S.ballR)break;
+        }
+        if(!outgoing)return null;
+        return Math.acos(clamp(dot(norm(incoming),outgoing),-1,1))*180/Math.PI;
+    }
+    function railExitInfo(preview){
+        const rail=(preview?.railEvents||[]).find(e=>e.id===0);
+        if(!rail)return null;
+        const before=[...(preview.paths?.[0]||[])].reverse().find(p=>p.t<rail.t&&Math.hypot(rail.x-p.x,rail.y-p.y)>.00254);
+        if(!before)return null;
+        const incoming=norm({x:rail.x-before.x,y:rail.y-before.y});
+        return {anchor:rail,degrees:cueExitAngle(preview,rail,rail,incoming)};
+    }
+    function shotContactInfo(which=1){
+        const preview=which===2?ensureShot2().preview:S.preview,c=preview?.firstBallContact;
+        let cutDegrees=null;
+        if(c){
+            const pocket=inferredPocketForContact(c),line=pocket?norm({x:pocket.x-c.objPos.x,y:pocket.y-c.objPos.y}):c.normal;
+            cutDegrees=Math.acos(clamp(dot(c.incoming,line),-1,1))*180/Math.PI;
+        }
+        return {overlapPercent:Number.isFinite(c?.overlap)?c.overlap:null,cutDegrees,
+            exitDegrees:c?cueExitAngle(preview,c,c.cuePos,c.incoming):(railExitInfo(preview)?.degrees??null)};
     }
     function teachingPowerState(which = 1) {
         const ball = shotPowerState(which);
@@ -7163,10 +7192,22 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const badges=[];
         const clothA=map({x:0,y:0}),clothB=map({x:S.tableL,y:S.tableW});
         const overlapBounds={left:Math.max(bounds.left,Math.min(clothA.x,clothB.x)+6),right:Math.min(bounds.right,Math.max(clothA.x,clothB.x)-6),top:Math.max(bounds.top,Math.min(clothA.y,clothB.y)+6),bottom:Math.min(bounds.bottom,Math.max(clothA.y,clothB.y)-6)};
+        const placement={...options,bounds:overlapBounds,fontSize:11,pad:0,rowGap:2,distances:[4,8,12,20,28,40,60,90,124,164,216]};
+        const angle=value=>Number.isFinite(value)?value.toFixed(1)+'°':'—';
         for(const item of shotBudgetOverlaps){
-            const text=item.contact.overlap.toFixed(1)+'% overlap';
-            const badge=api.placeBadge([{text,color:'#ffffff'}],map(item.contact.cuePos),{...options,bounds:overlapBounds,fontSize:11,pad:0,rowGap:2,distances:[4,8,12,20,28,40,60,90,124,164,216]});
-            if(badge)badges.push({...badge,type:'overlap'});
+            const info=shotContactInfo(item.which);
+            const rows=[{text:'Overlap '+info.overlapPercent.toFixed(1)+'%',color:'#fff'},
+                {text:'Cut angle '+angle(info.cutDegrees),color:'#fff'},
+                {text:'Exit angle '+angle(info.exitDegrees),color:'#fff'}];
+            const anchor=map(item.contact.cuePos);
+            const badge=api.placeBadge(rows,anchor,placement)||api.placeBadge(rows,anchor,{...placement,segments:[]});
+            if(badge)badges.push({...badge,type:'overlap',opacity:.84});
+        }
+        if(S.showImpact&&S.showPaths)for(const {preview} of previews){
+            const rail=railExitInfo(preview);if(!rail||!Number.isFinite(rail.degrees))continue;
+            const rows=[{text:'Rail exit '+angle(rail.degrees),color:'#fff'}],anchor=map(rail.anchor);
+            const badge=api.placeBadge(rows,anchor,placement);
+            if(badge)badges.push({...badge,type:'overlap',opacity:.84});
         }
         if(S.showShotBudget&&S.showPaths){
             for(const {which,preview} of previews){
@@ -13452,7 +13493,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <script src="./phone-play.js?v=share-analysis-1"></script>
   <link rel="stylesheet" href="./trainer-3d.css?v=share-analysis-1">
   <script src="./trainer-3d.js?v=18"></script>
-  <script src="./trainer-annotate.js?v=10"></script>
+  <script src="./trainer-annotate.js?v=11"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">

@@ -127,6 +127,7 @@ function railLabels(preview,map,options={}){
 function drawContacts(ctx,cards){
  ctx.save();ctx.textAlign='left';ctx.textBaseline='middle';
  for(const card of cards){
+  ctx.globalAlpha=card.opacity??1;
   const {box,anchor,rows,fontSize,row,pad}=card;
   const x=Math.max(box.left,Math.min(box.right,anchor.x)),y=Math.max(box.top,Math.min(box.bottom,anchor.y));
   if(card.type!=='overlap'){
