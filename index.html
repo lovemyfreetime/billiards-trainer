@@ -6792,7 +6792,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             ctx.save();ctx.strokeStyle=color;ctx.lineWidth=1.5;
             ctx.beginPath();ctx.moveTo(q.x-7,q.y);ctx.lineTo(q.x+7,q.y);
             ctx.moveTo(q.x,q.y-7);ctx.lineTo(q.x,q.y+7);ctx.stroke();
-            if(!isProjector){ctx.beginPath();ctx.arc(q.x+radius*M.scale,q.y,6,0,Math.PI*2);ctx.fillStyle='#e8f6ff';ctx.fill();ctx.strokeStyle='#17232d';ctx.lineWidth=1.5;ctx.stroke();}
+            if(!isProjector){const edge=map({...b,x:b.x+radius});ctx.beginPath();ctx.arc(edge.x,edge.y,6,0,Math.PI*2);ctx.fillStyle='#e8f6ff';ctx.fill();ctx.strokeStyle='#17232d';ctx.lineWidth=1.5;ctx.stroke();}
             ctx.font='700 10px Segoe UI';ctx.fillStyle=color;ctx.textAlign='center';
             ctx.fillText('M'+markerNumber(b)+' · '+(Number(b.markerDiameterIn)||6).toFixed(2)+'″',q.x,q.y-11);
             ctx.restore();
