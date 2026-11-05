@@ -312,23 +312,38 @@
   },'image/png');
  });
  function withStroke(table,shot,scale){
-  const result=document.createElement('canvas'),panelW=320,w=table.width/scale,h=table.height/scale;
-  result.width=Math.round((w+panelW)*scale);result.height=Math.round(Math.max(h,500)*scale);
+  const percent=value=>Number.isFinite(value)?value.toFixed(1)+'%':'—';
+  const rows=[
+   ['Speed',shot.speed.toFixed(2)+' m/s'],
+   ['Power',shot.diamonds.toFixed(1)+' ♦'],
+   ['Follow',Math.max(0,shot.followPercent)+'%'],
+   ['Draw',Math.max(0,-shot.followPercent)+'%'],
+   ['Left',Math.max(0,-shot.sidePercent)+'%'],
+   ['Right',Math.max(0,shot.sidePercent)+'%'],
+   ['Cut',percent(shot.cutPercent)],
+   ['Overlap',percent(shot.overlapPercent)],
+   ['Cue elevation',shot.elevation.toFixed(1)+'°'],
+   ['Cue → object (C)',percent(shot.cuePowerPercent)],
+   ['Object → pocket (P)',percent(shot.pocketPowerPercent)]
+  ];
+  const result=document.createElement('canvas'),panelW=340,w=table.width/scale,h=table.height/scale;
+  const rowTop=58,rowHeight=31,tipY=rowTop+rows.length*rowHeight+10,panelH=tipY+210+14;
+  result.width=Math.round((w+panelW)*scale);result.height=Math.round(Math.max(h,panelH)*scale);
   const c=result.getContext('2d');c.scale(scale,scale);
   const height=result.height/scale;
   c.fillStyle='#101820';c.fillRect(0,0,w+panelW,height);
   c.drawImage(table,0,(height-h)/2,w,h);
   c.fillStyle='#1c2a35';c.fillRect(w,0,panelW,height);
-  c.fillStyle='#ffc78a';c.font='700 23px system-ui';c.fillText('SHOT '+shot.which,w+18,38);
-  c.fillStyle='#f1f5f9';c.font='600 17px system-ui';
-  c.fillText('Speed  '+shot.speed.toFixed(2)+' m/s',w+18,75);
-  c.fillText('Power  '+shot.diamonds.toFixed(1)+' ♦',w+18,106);
-  c.fillText('Follow / draw  '+(shot.followPercent<0?'Draw ':shot.followPercent>0?'Follow ':'')+Math.abs(shot.followPercent)+'%',w+18,137);
-  c.fillText('Left / right spin  '+(shot.sidePercent<0?'Left ':shot.sidePercent>0?'Right ':'')+Math.abs(shot.sidePercent)+'%',w+18,168);
-  c.fillText('Aim  '+shot.aimDegrees.toFixed(1)+'°',w+18,199);
-  c.fillText('Cue elevation  '+shot.elevation.toFixed(1)+'°',w+18,230);
-  c.drawImage(shot.tip,w+10,254,300,210);
-  c.fillStyle='#b9c9d6';c.font='12px system-ui';c.fillText('Aim: 0° right · 90° down',w+14,486);
+  c.fillStyle='#ffc78a';c.font='700 23px system-ui';c.fillText('Shot Info',w+18,38);
+  c.font='600 16px system-ui';c.textBaseline='middle';
+  rows.forEach(([label,value],index)=>{
+   const y=rowTop+index*rowHeight,boxX=w+218,boxW=104;
+   c.fillStyle='#f1f5f9';c.textAlign='left';c.fillText(label,w+18,y+13);
+   c.beginPath();c.roundRect(boxX,y,boxW,26,5);
+   c.fillStyle='#101b24';c.fill();c.strokeStyle='#8297a8';c.lineWidth=1;c.stroke();
+   c.fillStyle='#fff';c.textAlign='center';c.fillText(value,boxX+boxW/2,y+13,boxW-8);
+  });
+  c.drawImage(shot.tip,w+20,tipY,300,210);
   return result;
  }
  function erase(ev){

@@ -223,8 +223,10 @@ const { chromium } = require('playwright');
    });
    assert.equal(shot.speed,2.25);assert.equal(shot.followPercent,-35);assert.equal(shot.sidePercent,40);
    await page.evaluate(()=>{
-    window.snapshotText=[];const original=CanvasRenderingContext2D.prototype.fillText;
-    CanvasRenderingContext2D.prototype.fillText=function(text,...args){window.snapshotText.push(text);return original.call(this,text,...args);};
+    window.snapshotText=[];window.snapshotCalls=[];window.snapshotBoxes=[];const rectOriginal=CanvasRenderingContext2D.prototype.roundRect;
+    CanvasRenderingContext2D.prototype.roundRect=function(...args){window.snapshotBoxes.push(args);return rectOriginal.apply(this,args);};
+    const original=CanvasRenderingContext2D.prototype.fillText;
+    CanvasRenderingContext2D.prototype.fillText=function(text,...args){window.snapshotText.push(text);window.snapshotCalls.push([text,...args]);return original.call(this,text,...args);};
    });
    const strokeDownload=page.waitForEvent('download');
    await page.locator('#trainerAnnotateSnapshot').click();
@@ -233,14 +235,51 @@ const { chromium } = require('playwright');
    const buffer=require('node:fs').readFileSync(imagePath),imageW=buffer.readUInt32BE(16),imageH=buffer.readUInt32BE(20);
    assert(imageW>imageH,'Table and stroke export has side panel');
    const painted=await page.evaluate(()=>window.snapshotText);
-   assert(painted.includes('Speed  2.25 m/s'));assert(painted.includes('Follow / draw  Draw 35%'));assert(painted.includes('Left / right spin  Right 40%'));
-   assert(painted.some(text=>text.startsWith('Cue elevation')));
+   const heading=painted.lastIndexOf('Shot Info');assert(heading>=0,'Snapshot uses Shot Info heading');
+   const rows=painted.slice(heading+1,heading+23);
+   assert.deepEqual(rows.filter((_,i)=>i%2===0),['Speed','Power','Follow','Draw','Left','Right','Cut','Overlap','Cue elevation','Cue → object (C)','Object → pocket (P)']);
+   assert.equal(rows[1],'2.25 m/s');assert.equal(rows[5],'0%');assert.equal(rows[7],'35%');assert.equal(rows[9],'0%');assert.equal(rows[11],'40%');
+   assert(!painted.some(text=>/^Aim/.test(text)),'Old aim row and footer are removed');
+   const boxes=await page.evaluate(()=>window.snapshotBoxes.filter(args=>args[2]===104&&args[3]===26));
+   assert.equal(boxes.length,11);assert(boxes.every(box=>box[0]===boxes[0][0]),'Value boxes align in one column');
+   assert(boxes.every((box,i)=>i===0||Math.abs(box[1]-boxes[i-1][1]-31)<.01),'Rows are evenly spaced');
+   const calls=await page.evaluate(()=>window.snapshotCalls);
+   const lastHeading=calls.map(call=>call[0]).lastIndexOf('Shot Info');
+   const values=calls.slice(lastHeading+1,lastHeading+23).filter((_,i)=>i%2===1);
+   assert(values.every(call=>call[1]===values[0][1]),'Numeric values align in their boxes');
    const second=await page.evaluate(()=>{const saved=billiardsTourBridge.capture();saved.state.shot2Enabled=true;saved.state.activeShot=2;saved.state.shot2.speed=1.75;saved.state.shot2.follow=.2;saved.state.shot2.sideSpin=-.3;billiardsTourBridge.restore(saved);const shot=billiardsTourBridge.strokeSnapshot();return {which:shot.which,speed:shot.speed,follow:shot.followPercent,side:shot.sidePercent,tipWidth:shot.tip.width};});
    assert.deepEqual({...second,tipWidth:undefined},{which:2,speed:1.75,follow:20,side:-30,tipWidth:undefined});assert(second.tipWidth>=300);
+   const fixtures=await page.evaluate(()=>{
+    const profile={tableL:2.54,tableW:1.27};
+    const run=(id,balls,target,pocket)=>{
+     billiardsTourBridge.apply({id,title:id,balls,target,pocket,speed:1.5,followPercent:0,sidePercent:0},profile);
+     const result=billiardsTourBridge.strokeSnapshot(),saved=billiardsTourBridge.capture().state,contact=saved.preview?.firstBallContact;
+     const read=id=>document.getElementById(id).textContent;
+     return {cut:result.cutPercent,overlap:result.overlapPercent,cue:result.cuePowerPercent,pocket:result.pocketPowerPercent,overlapUI:read('overlap'),cueUI:read('impactPowerText'),pocketUI:read('pocketArrivalText'),};
+    };
+    const straight=run('straight',[[0,.25,.25],[1,.65,.65]],1,[1,1]);
+    const cut=run('cut',[[0,.25,.5],[1,.65,.5]],1,[1,1]);
+    const empty=billiardsTourBridge.capture();empty.state.balls=empty.state.balls.filter(ball=>ball.id===0);billiardsTourBridge.restore(empty);
+    const absent=billiardsTourBridge.strokeSnapshot();
+    run('cut',[[0,.25,.5],[1,.65,.5]],1,[1,1]);
+    return {straight,cut,absent:{cut:absent.cutPercent,overlap:absent.overlapPercent,cue:absent.cuePowerPercent,pocket:absent.pocketPowerPercent}};
+   });
+   assert(fixtures.straight.cut<1,'Straight pocket shot is approximately zero percent cut');
+   assert(fixtures.straight.overlap>99,'Straight contact has full overlap');
+   assert(Number.isFinite(fixtures.straight.cue)&&Number.isFinite(fixtures.straight.pocket),'C/P report actual finite meter ratios');
+   const cueSpeeds=fixtures.straight.cueUI.match(/[0-9.]+/g).map(Number);
+   assert(Math.abs(fixtures.straight.cue-100*cueSpeeds[0]/cueSpeeds[1])<10,'C matches existing actual/required cue-impact values');
+   assert(Math.abs(fixtures.straight.pocket-100*parseFloat(fixtures.straight.pocketUI)/.2)<3,'P matches existing pocket-arrival value');
+   assert(fixtures.cut.cut>15&&fixtures.cut.cut<60,'Angled shot returns normalized angle difference');
+   assert(Math.abs(fixtures.cut.overlap-parseFloat(fixtures.cut.overlapUI))<.02,'Overlap matches existing contact readout');
+   assert.deepEqual(fixtures.absent,{cut:null,overlap:null,cue:null,pocket:null},'Missing contact values remain unavailable');
+   const infoDownload=page.waitForEvent('download');await page.locator('#trainerAnnotateSnapshot').click();
+   await (await infoDownload).saveAs('/tmp/trainer-shot-info-contact-'+(touch?'touch':'mouse')+'.png');
+
 
    await page.screenshot({ path: '/tmp/trainer-annotations-' + (touch ? 'touch' : 'mouse') + '.png' });
    assert.deepEqual(errors, []);
-   console.log((touch ? 'Touch' : 'Mouse') + ': corner resize/rotate, inline edit, undo, 2D/3D drag, lock/play, persistence, three snapshot modes, exported stroke values and active Shot 2 passed.');
+   console.log((touch ? 'Touch' : 'Mouse') + ': corner resize/rotate, inline edit, undo, 2D/3D drag, lock/play, persistence, three snapshot modes, exported stroke values and active Shot 2, Shot Info rows, aligned boxes and contact metrics passed.');
    await context.close();
   }
  } finally {
