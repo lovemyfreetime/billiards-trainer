@@ -1,0 +1,31 @@
+name: Publish validated Trainer APK
+on:
+  push:
+    branches: [trainer-annotation-apk-check]
+    paths: [.github/workflows/publish-validated-trainer.yml]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: Android-validated-APKs
+          run-id: 41954365817
+          github-token: ${{ github.token }}
+          path: validated
+      - name: Verify and publish the device-tested APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          source=validated/trainer/release/app-trainer-release.apk
+          target=Billiards-Trainer-Android.apk
+          expected=3e39dca559c33f0709d9c308b482ad4d9129bbf5b6270226522a044dcff9276c
+          printf '%s  %s\n' "$expected" "$source" | sha256sum --check
+          cp "$source" "$target"
+          gh release upload android-app "$target" --repo "$GITHUB_REPOSITORY" --clobber
+          gh release download android-app --repo "$GITHUB_REPOSITORY" --pattern "$target" --output published.apk
+          printf '%s  %s\n' "$expected" published.apk | sha256sum --check
