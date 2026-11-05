@@ -313,6 +313,7 @@
  });
  function withStroke(table,shot,scale){
   const percent=value=>Number.isFinite(value)?value.toFixed(1)+'%':'—';
+  const speed=value=>Number.isFinite(value)?value.toFixed(2)+' m/s':'—';
   const rows=[
    ['Speed',shot.speed.toFixed(2)+' m/s'],
    ['Power',shot.diamonds.toFixed(1)+' ♦'],
@@ -320,11 +321,11 @@
    ['Draw',Math.max(0,-shot.followPercent)+'%'],
    ['Left',Math.max(0,-shot.sidePercent)+'%'],
    ['Right',Math.max(0,shot.sidePercent)+'%'],
-   ['Cut',percent(shot.cutPercent)],
+   ['Cut angle',Number.isFinite(shot.cutDegrees)?shot.cutDegrees.toFixed(1)+'°':'—'],
    ['Overlap',percent(shot.overlapPercent)],
    ['Cue elevation',shot.elevation.toFixed(1)+'°'],
-   ['Cue → object (C)',percent(shot.cuePowerPercent)],
-   ['Object → pocket (P)',percent(shot.pocketPowerPercent)]
+   ['Cue at object (C)',speed(shot.cueImpactSpeed)],
+   ['Object at pocket (P)',speed(shot.pocketArrivalSpeed)]
   ];
   const result=document.createElement('canvas'),panelW=340,w=table.width/scale,h=table.height/scale;
   const rowTop=58,rowHeight=31,tipY=rowTop+rows.length*rowHeight+10,panelH=tipY+210+14;
@@ -338,7 +339,9 @@
   c.font='600 16px system-ui';c.textBaseline='middle';
   rows.forEach(([label,value],index)=>{
    const y=rowTop+index*rowHeight,boxX=w+218,boxW=104;
-   c.fillStyle='#f1f5f9';c.textAlign='left';c.fillText(label,w+18,y+13);
+   c.fillStyle=index%2===0?'#294252':'#20333f';c.fillRect(w+8,y-2,panelW-16,30);
+   c.fillStyle='#415766';c.fillRect(w+8,y+28,panelW-16,1);
+   c.fillStyle='#f1f5f9';c.textAlign='center';c.fillText(label,(w+boxX)/2,y+13);
    c.beginPath();c.roundRect(boxX,y,boxW,26,5);
    c.fillStyle='#101b24';c.fill();c.strokeStyle='#8297a8';c.lineWidth=1;c.stroke();
    c.fillStyle='#fff';c.textAlign='center';c.fillText(value,boxX+boxW/2,y+13,boxW-8);
