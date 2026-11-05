@@ -256,7 +256,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   #trainerAnnotateColor { width:24px;height:19px;min-width:24px;padding:0;border:0;background:transparent; }
   #trainerAnnotationCanvas { position:absolute;inset:0;z-index:11;width:100%;height:100%;pointer-events:none;touch-action:none; }
   #trainerAnnotationInput { position:absolute;inset:0;z-index:11;width:100%;height:100%;pointer-events:none;touch-action:none; }
-  #trainerAnnotationInput.active { pointer-events:auto;cursor:crosshair; }
+  #trainerAnnotationInput polygon { pointer-events:none; }
+  #trainerAnnotationInput.active polygon { pointer-events:all;cursor:crosshair; }
   .layoutSetupGroup { padding:6px; }
   .layoutSetupReset { display:grid; grid-template-columns:1fr; margin-bottom:5px; }
   .layoutSetupReset button { width:100%; min-height:34px; box-sizing:border-box; }
@@ -7725,6 +7726,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if (!document.body.classList.contains('zen-mode')) drawCalibration(M);
         if (!document.body.classList.contains('zen-mode')) drawShotBudget(map);
         window.BilliardsTableZoom?.end(ctx);
+        window.dispatchEvent(new Event("billiards:2d-render"));
         if(window.Billiards3D){
             const live=(animation?.current||S.balls).map(b=>({...S.balls.find(x=>x.id===b.id),...b})).filter(b=>b.id!==0||cueVisualsVisible(1));
             if(S.shot2Enabled&&cueVisualsVisible(2))live.push({id:'CB2',x:S.shot2.x,y:S.shot2.y,active:true});
@@ -13385,8 +13387,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <link rel="stylesheet" href="./guide/pool-guide.css?v=resources-toggle-v8">
   <script src="./phone-play.js?v=share-analysis-1"></script>
   <link rel="stylesheet" href="./trainer-3d.css?v=share-analysis-1">
-  <script src="./trainer-3d.js?v=17"></script>
-  <script src="./trainer-annotate.js?v=1"></script>
+  <script src="./trainer-3d.js?v=18"></script>
+  <script src="./trainer-annotate.js?v=2"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">
