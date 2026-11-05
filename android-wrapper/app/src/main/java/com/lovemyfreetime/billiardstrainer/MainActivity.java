@@ -479,6 +479,38 @@ public class MainActivity extends Activity {
         });}
 
         @JavascriptInterface
+        public void openSnapshotFolder() {
+            runOnUiThread(() -> {
+                if (!contentPage()) return;
+                Uri folder = android.provider.DocumentsContract.buildDocumentUri(
+                    "com.android.externalstorage.documents",
+                    "primary:Pictures/Billiards Trainer/Snapshots");
+                Intent browse = new Intent(Intent.ACTION_VIEW);
+                browse.setDataAndType(folder, android.provider.DocumentsContract.Document.MIME_TYPE_DIR);
+                browse.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                try {
+                    startActivity(browse);
+                } catch (android.content.ActivityNotFoundException e) {
+                    Intent picker = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    picker.setType("image/png");
+                    picker.addCategory(Intent.CATEGORY_OPENABLE);
+                    picker.putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI, folder);
+                    try {
+                        startActivityForResult(picker, 4204);
+                    } catch (Exception unavailable) {
+                        Toast.makeText(MainActivity.this,
+                            "Open My Files > Pictures > Billiards Trainer > Snapshots",
+                            Toast.LENGTH_LONG).show();
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this,
+                        "Open My Files > Pictures > Billiards Trainer > Snapshots",
+                        Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+
+        @JavascriptInterface
         public String saveTrainerExport(String filename, String content) {
             if (filename == null || content == null || content.length() > 24000000) return "";
             boolean png = filename.endsWith(".png");

@@ -7,6 +7,16 @@
  const interaction=document.createElementNS('http://www.w3.org/2000/svg','svg');interaction.id='trainerAnnotationInput';interaction.setAttribute('aria-hidden','true');const hitArea=document.createElementNS('http://www.w3.org/2000/svg','polygon');hitArea.setAttribute('fill','transparent');interaction.append(hitArea);stage.append(interaction);
  const ctx=layer.getContext('2d'),tools=[...group.querySelectorAll('[data-annotate-tool]')],color=document.getElementById('trainerAnnotateColor');
  let activeTool='',items=[],gesture=null,dpr=1;
+ const folderButton=group.querySelector('#trainerSnapshotFolder');
+ folderButton.addEventListener('click',()=>{
+  if(window.BilliardsAndroid?.openSnapshotFolder){
+   window.BilliardsAndroid.openSnapshotFolder();
+  }else{
+   status.textContent=window.BilliardsAndroid
+    ?'Open folder requires the updated Android app. Snapshots are in Pictures / Billiards Trainer / Snapshots.'
+    :'Open your browser’s Downloads list to find snapshots. Browsers cannot open a download folder from a webpage.';
+  }
+ });
  const history=[];
  const undo=group.querySelector('#trainerAnnotateUndo');
  const status=group.querySelector('#trainerSnapshotStatus');
