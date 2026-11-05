@@ -19,6 +19,8 @@
     begin(ctx){ctx.save();if(enabled){ctx.translate(x,y);ctx.scale(scale,scale);}},
     end(ctx){ctx.restore();},
     reset,
+    mapPoint(p){return enabled?{x:x+p.x*scale,y:y+p.y*scale}:p;},
+    unmapPoint(p){return enabled?{x:(p.x-x)/scale,y:(p.y-y)/scale}:p;},
     attach(options){
       ({canvas,button,redraw}=options);
       button.addEventListener('click',()=>{if(enabled)reset();else{enabled=true;paint();}});

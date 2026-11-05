@@ -114,7 +114,7 @@
   }
  }
  if(window.ResizeObserver)new ResizeObserver(fitViewLabels).observe(phoneBox);
- function requestRender(){if(lastFrame){const min=Math.max(lastFrame.R*5,lastFrame.L*.06),max=lastFrame.L*8;zoomSlider.value=String(100*(Math.log(max)-Math.log(cameraState.radius))/(Math.log(max)-Math.log(min)));}if(!active||!engine||scheduled)return;scheduled=requestAnimationFrame(()=>{scheduled=0;if(active)engine.render();});}
+ function requestRender(){if(lastFrame){const min=Math.max(lastFrame.R*5,lastFrame.L*.06),max=lastFrame.L*8;zoomSlider.value=String(100*(Math.log(max)-Math.log(cameraState.radius))/(Math.log(max)-Math.log(min)));}if(!active||!engine||scheduled)return;scheduled=requestAnimationFrame(()=>{scheduled=0;if(active){engine.render();window.dispatchEvent(new Event('billiards:3d-render'));}});}
  function orbit(dx,dy){window.BilliardsTableOrbit.orbit(cameraState,dx,dy);requestRender();}
  function zoom(factor){if(!lastFrame)return;window.BilliardsTableOrbit.zoom(cameraState,factor,lastFrame.L,lastFrame.R);requestRender();}
  // Keep the longer screen dimension at a natural 58° field of view.
@@ -156,7 +156,7 @@
   finally{loading=false;button.disabled=false;}
  };
  window.Billiards3D={get active(){return active;},get locked(){return active&&viewLocked;},get panning(){return active&&panEnabled;},project(point,height=0){return engine?.project(point,height)||null;},update(frame){lastFrame=frame;if(active){syncBallTools();engine?.update(frame);requestRender();}},disable,
-  camera(){return {azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},...engine?.projection()};},renderedBalls(){return engine?.ballViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];},railGeometry(){return engine?.railViews()||[];},contactMarkers(){return engine?.contactViews()||[];}};
+  camera(){return {azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},...engine?.projection()};},tablePoint(event){return engine?.tablePoint(event)||null;},renderedBalls(){return engine?.ballViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];},railGeometry(){return engine?.railViews()||[];},contactMarkers(){return engine?.contactViews()||[];}};
  window.addEventListener('resize',()=>{dock();positionToggle();requestRender();});new MutationObserver(positionToggle).observe(document.getElementById('tableZoom'),{attributes:true,attributeFilter:['style']});document.addEventListener('visibilitychange',()=>{if(!document.hidden)requestRender();});
  function createEngine(T){
   const renderer=new T.WebGLRenderer({antialias:true,alpha:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.setClearColor(0x080d13);renderer.outputColorSpace=T.SRGBColorSpace;

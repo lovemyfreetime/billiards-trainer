@@ -249,6 +249,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   .shotHistoryRow button { width:100%; min-width:0; min-height:38px; padding:6px 4px; font-size:11px; line-height:1.2; }
   .shotToggleRow #toggleShot2 { position:static; width:100%; border-radius:7px; min-height:38px; padding:6px; font-size:11px; }
   .tableControlGroup { padding:8px; margin-bottom:8px; background:#19232e; border:1px solid #354250; border-radius:7px; }
+  #trainerAnnotateGroup .trainerAnnotateTools { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;align-items:stretch; }
+  #trainerAnnotateGroup .trainerAnnotateTools button,#trainerAnnotateGroup .trainerAnnotateColor { display:flex;align-items:center;justify-content:center;min-width:0;min-height:29px;margin:0;padding:4px 5px;border:1px solid #465563;border-radius:6px;background:#26323d;color:#edf2f5;font:600 11px/1.1 Segoe UI,Arial,sans-serif; }
+  #trainerAnnotateGroup .trainerAnnotateTools button[aria-pressed=true] { border-color:#82d8a7;background:#214536;color:#f3fff7; }
+  #trainerAnnotateGroup .trainerAnnotateColor { flex-direction:row;gap:5px;cursor:pointer;white-space:nowrap; }
+  #trainerAnnotateColor { width:24px;height:19px;min-width:24px;padding:0;border:0;background:transparent; }
+  #trainerAnnotationCanvas { position:absolute;inset:0;z-index:11;width:100%;height:100%;pointer-events:none;touch-action:none; }
+  #trainerAnnotationInput { position:absolute;inset:0;z-index:11;width:100%;height:100%;pointer-events:none;touch-action:none; }
+  #trainerAnnotationInput.active { pointer-events:auto;cursor:crosshair; }
   .layoutSetupGroup { padding:6px; }
   .layoutSetupReset { display:grid; grid-template-columns:1fr; margin-bottom:5px; }
   .layoutSetupReset button { width:100%; min-height:34px; box-sizing:border-box; }
@@ -1710,6 +1718,18 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
           </optgroup>
         </select></div>
       </div>
+      <div class="tableControlGroup layoutSetupGroup" id="trainerAnnotateGroup">
+        <div class="tableControlTitle">ANNOTATE TABLE</div>
+        <div class="trainerAnnotateTools" role="group" aria-label="Table annotation tools">
+          <button type="button" data-annotate-tool="line" aria-pressed="false">Line</button>
+          <button type="button" data-annotate-tool="arrow" aria-pressed="false">Arrow</button>
+          <button type="button" data-annotate-tool="circle" aria-pressed="false">Circle</button>
+          <button type="button" data-annotate-tool="draw" aria-pressed="false">Draw</button>
+          <label class="trainerAnnotateColor" title="Annotation color">Color <input id="trainerAnnotateColor" type="color" value="#ff4d4d" aria-label="Annotation color"></label>
+          <button id="trainerAnnotateSnapshot" type="button">Snapshot</button>
+          <button id="trainerAnnotateClear" type="button">Clear</button>
+        </div>
+      </div>
       <div id="markerZoneControls" style="display:none;border:1px solid #41464f;border-radius:7px;padding:8px;margin-top:8px">
         <label for="markerZoneSelect">Practice target zone</label>
         <select id="markerZoneSelect" aria-label="Choose individual practice target"></select>
@@ -2676,7 +2696,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if(kind==='table'||kind==='grid'){const a=M.map({x:0,y:0}),b=M.map({x:S.tableL,y:S.tableW});return [{x:c.left+a.x*sx,y:c.top+a.y*sy,width:b.x*sx-a.x*sx,height:b.y*sy-a.y*sy}];}
             return [];
         }
-        return {capture,restore,apply,loadLesson,narrationRegions,snapshot,feltBounds(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR);return {left:c.left-s.left+m.corners[0].x*sx,top:c.top-s.top+m.corners[0].y*sy,right:c.left-s.left+m.corners[1].x*sx,width:(m.corners[1].x-m.corners[0].x)*sx,height:(m.corners[2].y-m.corners[0].y)*sy};},exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},flightProfileBounds(){const which=S.activeShot===2&&S.shot2Enabled?2:1,preview=which===2?S.shot2?.preview:S.preview;if(document.body.classList.contains('phone-layout')||!shouldShowFlightOverlay(preview,which))return null;const r=canvas.getBoundingClientRect(),w=canvas.width/DPR;return {left:r.left+6,right:r.left+6+flightSideProfileWidth(w,false),bottom:r.top+140};},rollingReference(which=1){return rollingReferenceForShot(which);},predict(options={}){const p=simulate(false);return {...(options.paths?{paths:p.paths}:{}),pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact,railEvents:p.railEvents,pocketEvents:p.pocketEvents};}};
+        return {capture,restore,apply,loadLesson,narrationRegions,snapshot,feltBounds(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR);return {left:c.left-s.left+m.corners[0].x*sx,top:c.top-s.top+m.corners[0].y*sy,right:c.left-s.left+m.corners[1].x*sx,width:(m.corners[1].x-m.corners[0].x)*sx,height:(m.corners[2].y-m.corners[0].y)*sy};},annotationFrame(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR),A=ORIGINAL_ASSET_GEOM,L=S.tableL,W=S.tableW,dx=L/(A.x1-A.x0),dy=W/(A.y1-A.y0),logical=[{x:-A.x0*dx,y:-A.y0*dy},{x:L+(A.width-A.x1)*dx,y:-A.y0*dy},{x:L+(A.width-A.x1)*dx,y:W+(A.height-A.y1)*dy},{x:-A.x0*dx,y:W+(A.height-A.y1)*dy}],screen=p=>{const q=window.BilliardsTableZoom?.mapPoint?.(m.map(p))||m.map(p);return {x:c.left-s.left+q.x*sx,y:c.top-s.top+q.y*sy};};return {length:L,width:W,corners:logical.map(screen),surface:[{x:0,y:0},{x:L,y:0},{x:L,y:W},{x:0,y:W}].map(screen),map:p=>screen({x:p.x*L,y:p.y*W}),inverse(p){const v={x:(p.x-s.left)/sx,y:(p.y-s.top)/sy},q=m.inv(window.BilliardsTableZoom?.unmapPoint?.(v)||v);return {x:q.x/L,y:q.y/W};}};},exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},flightProfileBounds(){const which=S.activeShot===2&&S.shot2Enabled?2:1,preview=which===2?S.shot2?.preview:S.preview;if(document.body.classList.contains('phone-layout')||!shouldShowFlightOverlay(preview,which))return null;const r=canvas.getBoundingClientRect(),w=canvas.width/DPR;return {left:r.left+6,right:r.left+6+flightSideProfileWidth(w,false),bottom:r.top+140};},rollingReference(which=1){return rollingReferenceForShot(which);},predict(options={}){const p=simulate(false);return {...(options.paths?{paths:p.paths}:{}),pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact,railEvents:p.railEvents,pocketEvents:p.pocketEvents};}};
     })();
 
     function freshZenTable(){
@@ -6755,6 +6775,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             ctx.save();ctx.strokeStyle=color;ctx.lineWidth=1.5;
             ctx.beginPath();ctx.moveTo(q.x-7,q.y);ctx.lineTo(q.x+7,q.y);
             ctx.moveTo(q.x,q.y-7);ctx.lineTo(q.x,q.y+7);ctx.stroke();
+            if(!isProjector){ctx.beginPath();ctx.arc(q.x+radius*M.scale,q.y,6,0,Math.PI*2);ctx.fillStyle='#e8f6ff';ctx.fill();ctx.strokeStyle='#17232d';ctx.lineWidth=1.5;ctx.stroke();}
             ctx.font='700 10px Segoe UI';ctx.fillStyle=color;ctx.textAlign='center';
             ctx.fillText('M'+markerNumber(b)+' · '+(Number(b.markerDiameterIn)||6).toFixed(2)+'″',q.x,q.y-11);
             ctx.restore();
@@ -8545,7 +8566,15 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     // Touch-only marker manipulation. Capture before normal table aiming/dragging.
     const zoneTouches = new Map();
     let zoneGesture = null;
+    let circleEdgeResize = null;
     function stopZoneEvent(ev) { ev.preventDefault(); ev.stopImmediatePropagation(); }
+    canvas.addEventListener('pointerdown',ev=>{
+        if(isProjector||ev.pointerType==='touch'||ev.button!==0)return;
+        const p=pointerPos(ev),M=controlMap(),zone=S.balls.filter(b=>b.marker&&!b.markerHidden&&b.active!==false&&b.markerShape!=='square'&&b.markerShape!=='triangle').map(b=>{const q=M.map(b),r=(Number(b.markerDiameterIn)||6)*.0254/2*M.scale;return {b,q,r,d:Math.hypot(p.x-q.x,p.y-q.y)};}).filter(v=>Math.abs(v.d-v.r)<=12).sort((a,b)=>Math.abs(a.d-a.r)-Math.abs(b.d-b.r))[0];
+        if(!zone)return;stopZoneEvent(ev);canvas.setPointerCapture(ev.pointerId);circleEdgeResize={id:zone.b.id,pointerId:ev.pointerId,startDistance:Math.max(1,zone.d),diameter:Number(zone.b.markerDiameterIn)||6};drag=null;
+    },{capture:true,passive:false});
+    canvas.addEventListener('pointermove',ev=>{if(!circleEdgeResize||circleEdgeResize.pointerId!==ev.pointerId)return;stopZoneEvent(ev);const g=circleEdgeResize,zone=S.balls.find(b=>b.id===g.id);if(!zone)return;const M=controlMap(),p=pointerPos(ev),q=M.map(zone),distance=Math.hypot(p.x-q.x,p.y-q.y);zone.markerDiameterIn=clamp(Math.round(g.diameter*distance/g.startDistance*100)/100,2.25,36);draw();syncProjector();},{capture:true,passive:false});
+    for(const type of ['pointerup','pointercancel'])canvas.addEventListener(type,ev=>{if(!circleEdgeResize||circleEdgeResize.pointerId!==ev.pointerId)return;stopZoneEvent(ev);circleEdgeResize=null;draw();saveState();syncProjector();},{capture:true,passive:false});
     canvas.addEventListener('pointerdown',ev=>{
         if (isProjector || ev.pointerType!=='touch') return;
         const p=pointerPos(ev), M=controlMap();
@@ -8555,7 +8584,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 .filter(q=>q.d<=Math.max(18,(Number(q.b.markerDiameterIn)||6)*.0254/2*M.scale))
                 .sort((a,b)=>a.d-b.d)[0];
             if (!zone) return;
-            zoneGesture={id:zone.b.id,offsetX:p.x-zone.q.x,offsetY:p.y-zone.q.y,pinched:false};
+            const radius=(Number(zone.b.markerDiameterIn)||6)*.0254/2*M.scale,mode=Math.abs(zone.d-radius)<=Math.max(16,radius*.24)?'resize':'move';
+            zoneGesture={id:zone.b.id,offsetX:p.x-zone.q.x,offsetY:p.y-zone.q.y,pinched:false,mode,startDistance:Math.max(1,zone.d),startDiameter:Number(zone.b.markerDiameterIn)||6};
         }
         stopZoneEvent(ev);canvas.setPointerCapture(ev.pointerId);
         zoneTouches.set(ev.pointerId,p);drag=null;
@@ -8576,6 +8606,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if(points.length===2) {
             const distance=Math.hypot(points[0].x-points[1].x,points[0].y-points[1].y);
             zone.markerDiameterIn=clamp(Math.round(zoneGesture.diameter*distance/zoneGesture.distance*100)/100,2.25,36);
+        } else if(points.length===1&&!zoneGesture.pinched&&zoneGesture.mode==='resize') {
+            const current=Math.hypot(points[0].x-controlMap().map(zone).x,points[0].y-controlMap().map(zone).y);
+            zone.markerDiameterIn=clamp(Math.round(zoneGesture.startDiameter*current/zoneGesture.startDistance*100)/100,2.25,36);
         } else if(points.length===1&&!zoneGesture.pinched) {
             const q=controlMap().inv({x:points[0].x-zoneGesture.offsetX,y:points[0].y-zoneGesture.offsetY});
             zone.x=clamp(q.x,S.ballR,S.tableL-S.ballR);
@@ -13352,7 +13385,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <link rel="stylesheet" href="./guide/pool-guide.css?v=resources-toggle-v8">
   <script src="./phone-play.js?v=share-analysis-1"></script>
   <link rel="stylesheet" href="./trainer-3d.css?v=share-analysis-1">
-  <script src="./trainer-3d.js?v=16"></script>
+  <script src="./trainer-3d.js?v=17"></script>
+  <script src="./trainer-annotate.js?v=1"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">
