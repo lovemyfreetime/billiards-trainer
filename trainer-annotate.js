@@ -17,6 +17,13 @@
     :'Open your browser’s Downloads list to find snapshots. Browsers cannot open a download folder from a webpage.';
   }
  });
+ let currentView=false;
+ const modeButton=group.querySelector('#trainerSnapshotMode');
+ modeButton.addEventListener('click',()=>{
+  currentView=!currentView;
+  modeButton.textContent=currentView?'Current view':'Full table';
+  modeButton.setAttribute('aria-pressed',String(currentView));
+ });
  const history=[];
  const undo=group.querySelector('#trainerAnnotateUndo');
  const status=group.querySelector('#trainerSnapshotStatus');
@@ -60,12 +67,48 @@
   if(native&&!native.saveTrainerExport){status.textContent='Install the updated Android app to save PNG snapshots.';return;}
   const name=group.querySelector('#trainerSnapshotName').value.trim().replace(/\.png$/i,'').replace(/[\x00-\x1f<>:"/\\|?*]/g,'-').replace(/^[. ]+|[. ]+$/g,'')||'Billiards table snapshot';
   const filename=name+'.png';
-  const was3d=is3d();if(was3d)window.Billiards3D.prepareSnapshot();else if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
+  const captureCurrentView=currentView;
+  const was3d=is3d();
+  if(!captureCurrentView){
+   if(was3d)window.Billiards3D.prepareSnapshot();
+   else if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
+  }
   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
   if(was3d)window.Billiards3D.renderSnapshot();
-  const f=frame(),source=was3d?document.getElementById('table3DCanvas'):document.getElementById('canvas');if(!f||!source){window.alert('The full table is not ready for a snapshot.');return;}
-  const polygon=f.corners,rect=stage.getBoundingClientRect(),xs=polygon.map(p=>p.x),ys=polygon.map(p=>p.y),left=Math.max(0,Math.floor(Math.min(...xs))),top=Math.max(0,Math.floor(Math.min(...ys))),right=Math.min(rect.width,Math.ceil(Math.max(...xs))),bottom=Math.min(rect.height,Math.ceil(Math.max(...ys))),w=right-left,h=bottom-top;if(w<2||h<2)return;
-  const out=document.createElement('canvas'),scale=was3d?Math.min(2,devicePixelRatio||1):Math.max(1,Math.min(2,devicePixelRatio||1));out.width=Math.round(w*scale);out.height=Math.round(h*scale);const c=out.getContext('2d');c.scale(scale,scale);c.beginPath();polygon.forEach((p,i)=>i?c.lineTo(p.x-left,p.y-top):c.moveTo(p.x-left,p.y-top));c.closePath();c.clip();
+  paint();
+  const source=document.getElementById(was3d?'table3DCanvas':'canvas');
+  const f=captureCurrentView?null:frame();
+  if(!source||(!captureCurrentView&&!f)){
+   status.textContent='The table is not ready for a snapshot.';
+   return;
+  }
+  const rect=stage.getBoundingClientRect();
+  const polygon=captureCurrentView?null:f.corners;
+  let left=0,top=0,right=rect.width,bottom=rect.height;
+  if(captureCurrentView){
+   const visible=source.getBoundingClientRect();
+   left=Math.max(0,visible.left-rect.left,-rect.left);
+   top=Math.max(0,visible.top-rect.top,-rect.top);
+   right=Math.min(rect.width,visible.right-rect.left,window.innerWidth-rect.left);
+   bottom=Math.min(rect.height,visible.bottom-rect.top,window.innerHeight-rect.top);
+  }else{
+   left=Math.max(0,Math.floor(Math.min(...polygon.map(p=>p.x))));
+   top=Math.max(0,Math.floor(Math.min(...polygon.map(p=>p.y))));
+   right=Math.min(rect.width,Math.ceil(Math.max(...polygon.map(p=>p.x))));
+   bottom=Math.min(rect.height,Math.ceil(Math.max(...polygon.map(p=>p.y))));
+  }
+  const w=right-left,h=bottom-top;
+  if(w<2||h<2){status.textContent='The table is outside the visible area.';return;}
+  const out=document.createElement('canvas');
+  const scale=Math.max(1,Math.min(2,devicePixelRatio||1));
+  out.width=Math.round(w*scale);out.height=Math.round(h*scale);
+  const c=out.getContext('2d');
+  c.scale(scale,scale);
+  if(polygon){
+   c.beginPath();
+   polygon.forEach((p,i)=>i?c.lineTo(p.x-left,p.y-top):c.moveTo(p.x-left,p.y-top));
+   c.closePath();c.clip();
+  }
   const sourceRect=source.getBoundingClientRect();c.drawImage(source,sourceRect.left-rect.left-left,sourceRect.top-rect.top-top,sourceRect.width,sourceRect.height);
   c.drawImage(layer,-left,-top,rect.width,rect.height);
   if(native){
