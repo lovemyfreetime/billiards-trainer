@@ -1728,8 +1728,13 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
           <button type="button" data-annotate-tool="draw" aria-pressed="false">Draw</button>
           <label class="trainerAnnotateColor" title="Annotation color">Color <input id="trainerAnnotateColor" type="color" value="#ff4d4d" aria-label="Annotation color"></label>
           <button id="trainerAnnotateSnapshot" type="button">Snapshot</button>
+          <button id="trainerAnnotateUndo" type="button" disabled>Undo</button>
+          <button type="button" data-annotate-tool="erase" aria-pressed="false">Eraser</button>
           <button id="trainerAnnotateClear" type="button">Clear</button>
         </div>
+        <label for="trainerSnapshotName">Snapshot name</label>
+        <input id="trainerSnapshotName" type="text" maxlength="80" placeholder="Billiards table snapshot">
+        <div id="trainerSnapshotStatus" class="hint" role="status">On the web, check your browser’s Downloads for snapshots.</div>
       </div>
       <div id="markerZoneControls" style="display:none;border:1px solid #41464f;border-radius:7px;padding:8px;margin-top:8px">
         <label for="markerZoneSelect">Practice target zone</label>
@@ -1741,7 +1746,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
       <div class="layoutManage">
         <div class="layoutManageTitle"><span>SAVED BALL LAYOUTS</span><span id="layoutCount">0 / 20</span></div>
         <input id="layoutNameInput" type="text" maxlength="60" placeholder="Layout name — e.g. Wednesday league 7-ball" aria-label="Saved layout name">
-        <div class="buttons"><button id="trainerLoadFile" type="button">Load Table File</button><button id="trainerSaveFile" type="button">Save Table File</button></div><div class="buttons"><button id="trainerSaveSession" type="button">Save Session File</button><button id="sessionFolder" type="button" title="Choose a folder for automatic saving; browse its JSON files in Saved Files below">Auto-save Folder</button></div><div id="sessionFolderStatus" class="hint">Your latest table is remembered automatically. Auto-save Folder selects a folder, not a file. Saved Files below lists your JSON tables and sessions.</div><input id="trainerLayoutFileInput" type="file" accept=".json,.billiards" hidden>
+        <div class="buttons"><button id="trainerLoadFile" type="button">Load Table File</button><button id="trainerSaveFile" type="button">Save Table File</button></div><div class="buttons"><button id="trainerSaveSession" type="button">Save Session File</button><button id="sessionFolder" type="button" title="Choose a folder for automatic saving; browse its JSON files in Saved Files below">Auto-save Folder</button></div><div id="sessionFolderStatus" class="hint">Saved layouts and Saved Files stay in this app on this device. Exported table and session files go to browser Downloads or Android Downloads / Billiards Trainer. Auto-save uses the folder you select.</div><input id="trainerLayoutFileInput" type="file" accept=".json,.billiards" hidden>
         <button id="saveLayoutBtn" class="layoutManageSave" type="button">SAVE CURRENT LAYOUT</button>
         <div class="layoutManageRow">
           <select id="layoutSelect" aria-label="Saved ball layouts">
@@ -2577,9 +2582,20 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     function downloadTableFile(session=false,analysis=false){
         try{
-            const file=portableTableFile(session,analysis),blob=new Blob([JSON.stringify(file,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
-            a.href=url;a.download=(file.name.replace(/[^a-z0-9 _-]/gi,'').trim()||'Table')+(session?'.session':'')+'.billiards.json';a.click();window.BilliardsSavedFiles?.remember(file,a.download).catch(()=>toast('File downloaded; could not keep a browser copy.'));setTimeout(()=>URL.revokeObjectURL(url),10000);
-            toast(session?'Session file downloaded':'Table file downloaded');
+            const file=portableTableFile(session,analysis),json=JSON.stringify(file,null,2);
+            const filename=(file.name.replace(/[^a-z0-9 _-]/gi,'').trim()||'Table')+(session?'.session':'')+'.billiards.json';
+            if(window.BilliardsAndroid?.saveTrainerExport){
+                const path=window.BilliardsAndroid.saveTrainerExport(filename,json);
+                if(!path)throw Error('Could not save the file to Android Downloads.');
+                toast('Saved to '+path);
+            }else if(window.BilliardsAndroid){
+                toast('Device export requires the updated Android app. A copy is available under Saved Files.');
+            }else{
+                const url=URL.createObjectURL(new Blob([json],{type:'application/json'})),a=document.createElement('a');
+                a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);
+                toast('Download requested: '+filename+' — check browser Downloads.');
+            }
+            window.BilliardsSavedFiles?.remember(file,filename).catch(()=>toast('Could not keep a copy under Saved Files.'));
         }catch(e){toast(e.message);}
     }
     function shareLayout(selected=false,quick=false){
@@ -13388,7 +13404,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <script src="./phone-play.js?v=share-analysis-1"></script>
   <link rel="stylesheet" href="./trainer-3d.css?v=share-analysis-1">
   <script src="./trainer-3d.js?v=18"></script>
-  <script src="./trainer-annotate.js?v=2"></script>
+  <script src="./trainer-annotate.js?v=3"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">
