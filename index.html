@@ -4515,22 +4515,25 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         };
     }
     // Measure the first visible outgoing path from the ghost/rebound point, before another contact.
-    function cueExitAngle(preview,event,anchor,incoming){
+    function cueExitSample(preview,event,anchor,incoming){
         if(!preview||!event||!anchor||!incoming)return null;
         const nextRail=(preview.railEvents||[]).find(e=>e.id===0&&e.t>event.t+.00001);
         const nextBall=preview.firstBallContact?.t>event.t+.00001?preview.firstBallContact:null;
         const stop=Math.min(nextRail?.t??Infinity,nextBall?.t??Infinity);
-        let outgoing=null;
+        let outgoing=null,point=null;
         for(const p of preview.paths?.[0]||[]){
             if(p.t<=event.t+.00001)continue;
             if(p.t>=stop)break;
             const dx=p.x-anchor.x,dy=p.y-anchor.y,distance=Math.hypot(dx,dy);
             if(distance<.00254)continue;
-            outgoing={x:dx/distance,y:dy/distance};
+            outgoing={x:dx/distance,y:dy/distance};point=p;
             if(distance>=S.ballR)break;
         }
         if(!outgoing)return null;
-        return Math.acos(clamp(dot(norm(incoming),outgoing),-1,1))*180/Math.PI;
+        return {degrees:Math.acos(clamp(dot(norm(incoming),outgoing),-1,1))*180/Math.PI,point,direction:outgoing};
+    }
+    function cueExitAngle(preview,event,anchor,incoming){
+        return cueExitSample(preview,event,anchor,incoming)?.degrees??null;
     }
     function railExitInfo(preview){
         const rail=(preview?.railEvents||[]).find(e=>e.id===0);
@@ -7540,11 +7543,23 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     function drawRollingReferences(map){
         for(const which of [1,2]){
-            const ref=rollingReferenceForShot(which);if(!ref)continue;
-            const p=map(ref.end);pathPoly([ref.start,ref.end],map,which===1?'#ffe28a':'#a2f3ff',1.7,.64,[2,5]);
-            const start=map(ref.start);if(Math.hypot(p.x-start.x,p.y-start.y)<35)continue;
-            const label=map({x:ref.start.x+ref.direction.x*Math.min(ref.length*.5,S.tableL*.2),y:ref.start.y+ref.direction.y*Math.min(ref.length*.5,S.tableL*.2)});
-            ctx.save();ctx.globalAlpha=.75;ctx.fillStyle=which===1?'#ffe28a':'#a2f3ff';ctx.strokeStyle='#14232b';ctx.lineWidth=3;ctx.font='bold 11px Segoe UI';ctx.textAlign='center';ctx.strokeText('≈30°',label.x,label.y-7);ctx.fillText('≈30°',label.x,label.y-7);ctx.restore();
+            const ref=rollingReferenceForShot(which);
+            if(ref)pathPoly([ref.start,ref.end],map,which===1?'#ffe28a':'#a2f3ff',1.7,.48,[2,5]);
+            if(animation||!S.showTable||!S.showImpact||!S.showPaths||!cueVisualsVisible(which)||which===2&&!S.shot2Enabled)continue;
+            const preview=which===2?ensureShot2().preview:S.preview,c=preview?.firstBallContact;
+            if(!c)continue;
+            const sample=cueExitSample(preview,c,c.cuePos,c.incoming);if(!sample)continue;
+            const nextRail=(preview.railEvents||[]).find(e=>e.id===0&&e.t>c.t+.00001);
+            let point=sample.point;
+            // Put the value farther along the actual predicted path, clear of the ghost-ball readings.
+            for(const q of preview.paths?.[0]||[]){
+                if(q.t<=sample.point.t)continue;
+                if(q.t>=(nextRail?.t??Infinity))break;
+                point=q;
+                if(Math.hypot(q.x-c.cuePos.x,q.y-c.cuePos.y)>=S.ballR*5)break;
+            }
+            const label=map(point),text=sample.degrees.toFixed(1)+'°';
+            ctx.save();ctx.globalAlpha=.60;ctx.fillStyle=which===1?'#ffe9ad':'#b8f5ff';ctx.strokeStyle='#14232b';ctx.lineWidth=3;ctx.font='bold 11px Segoe UI';ctx.textAlign='center';ctx.strokeText(text,label.x+8,label.y-7);ctx.fillText(text,label.x+8,label.y-7);ctx.restore();
         }
     }
     function drawTeachingCompass(map) {
