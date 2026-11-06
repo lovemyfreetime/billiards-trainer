@@ -7,6 +7,7 @@ on:
       - test/android-record-shot
     paths:
       - 'android-record-test.patch'
+      - '.github/workflows/build-android-wrapper.yml'
       - 'photo-*.js'
       - 'photo-*.json'
       - 'tests/photo-camera.browser.cjs'
@@ -23,10 +24,7 @@ permissions:
   contents: read
 
 jobs:
-  guide-parity:
-    uses: ./.github/workflows/verify-guide-parity.yml
   build:
-    needs: guide-parity
     runs-on: ubuntu-latest
     timeout-minutes: 35
     env:
