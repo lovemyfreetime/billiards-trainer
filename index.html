@@ -1762,11 +1762,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         <div id="trainerSnapshotStatus" class="hint" role="status">On the web, check your browser’s Downloads for snapshots.</div>
         <div id="trainerClipTools" hidden>
           <div class="row">
-            <button id="trainerClipArm" type="button" aria-pressed="false">Record shot</button>
+            <button id="trainerClipArm" type="button">Record shot</button>
             <button id="trainerClipFolder" type="button" hidden>Clip folder</button>
             <button id="trainerClipSetup" type="button" hidden>Save setup</button>
           </div>
-          <div id="trainerClipStatus" class="hint" role="status">Pick a view above, then arm the next shot. 1080p MP4 at 30 fps.</div>
+          <div id="trainerClipStatus" class="hint" role="status">Choose a view above, then Record shot to execute and save the clip and setup.</div>
         </div>
       </div>
       <div id="markerZoneControls" style="display:none;border:1px solid #41464f;border-radius:7px;padding:8px;margin-top:8px">
@@ -7172,8 +7172,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             } else drawTipBadgeDisk(ctx, badge, values, which === 2 ? 'TIP 2' : 'TIP');
         }
     }
-    function drawShotBudget(map) {
-        if(animation)return;
+    function drawShotBudget(map, recordingGuides = false) {
+        if(animation&&!recordingGuides)return;
         const api=window.BilliardsShotBudget,occupied=[],segments=[];
         const reserve=(ball,radius=S.ballR)=>{
             const p=map(ball),edge=map({x:ball.x+radius,y:ball.y}),r=Math.hypot(edge.x-p.x,edge.y-p.y)+8;
@@ -7793,7 +7793,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             },true);
         });
     }
-    function draw(videoFrame = false) {
+    function draw(videoFrame = false, recordingGuides = false) {
         const clean = videoFrame === true;
         shotBudgetOverlaps = [];
         window.billiardsPhoneReadouts?.();
@@ -7821,7 +7821,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 
         // Global teaching toggle:
         // Shot visibility controls paths and guides independently of cue-ball visibility.
-        if (!clean) {
+        if (!clean || recordingGuides) {
             if (cueVisualsVisible(1)) {
                 if (!document.body.classList.contains('zen-mode')) drawPreview(map);
                 drawAim(map);
@@ -7849,14 +7849,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 drawBall(Object.assign(Object.assign({}, b), { x: ab.x, y: ab.y, active: true }), map, clean);
             }
         }
-        if (!clean) {
+        if (!clean || recordingGuides) {
             if (cueVisualsVisible(1) && !document.body.classList.contains('zen-mode')) drawImpactOverlay(map);
             if (!document.body.classList.contains('zen-mode')) drawTipBadge(map);
             if (!document.body.classList.contains('zen-mode')) drawBankKickGuide(map);
             if (!document.body.classList.contains('zen-mode')) drawTeachingCompass(map);
             if (!document.body.classList.contains('zen-mode')) drawRollingReferences(map);
             if (!document.body.classList.contains('zen-mode')) drawCalibration(M);
-            if (!document.body.classList.contains('zen-mode')) drawShotBudget(map);
+            if (!document.body.classList.contains('zen-mode')) drawShotBudget(map, recordingGuides);
         }
         window.BilliardsTableZoom?.end(ctx);
         window.dispatchEvent(new Event("billiards:2d-render"));
@@ -9498,8 +9498,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             return;
         const recording = window.BilliardsShotRecorder?.begin();
         if (recording) {
-            draw(true);
-            recording.frame();
+            draw(true, true);
+            recording.frame(60);
         }
         const start = performance.now(), fps = 60, last = sim.frames.length - 1;
         let videoSample = 2;
@@ -9517,7 +9517,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             }
             const idx = Math.min(last, recording ? videoSample : Math.floor((now - start) / (1000 / fps)));
             animation.current = sim.frames[idx];
-            draw(!!recording);
+            draw(!!recording, !!recording);
             if (idx < last) {
                 if (recording) {
                     recording.frame();
@@ -9526,13 +9526,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 requestAnimationFrame(tick);
             }
             else {
+                recording?.frame(60);
                 commitAnimatedShot(sim, preShot);
-                if (recording) {
-                    draw(true);
-                    recording.frame();
-                    recording.finish();
-                    draw();
-                }
+                recording?.finish();
             }
         }
         requestAnimationFrame(tick);
@@ -13543,7 +13539,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <link rel="stylesheet" href="./trainer-3d.css?v=compact-landscape-1">
   <script src="./trainer-3d.js?v=18"></script>
   <script src="./trainer-annotate.js?v=13"></script>
-  <script src="./trainer-shot-recorder.js?v=3"></script>
+  <script src="./trainer-shot-recorder.js?v=record-shot-modes-1"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">

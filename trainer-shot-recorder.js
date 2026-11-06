@@ -2,22 +2,29 @@
 (() => {
  'use strict';
  const tools=document.getElementById('trainerClipTools');
- if(!tools||window.BilliardsAndroid||!window.VideoEncoder||!window.VideoFrame)return;
+ const android=window.BilliardsAndroid;
+ if(!tools||(android&&!android.saveTrainerClip))return;
+ if(!android&&(!window.VideoEncoder||!window.VideoFrame))return;
  const arm=document.getElementById('trainerClipArm'),folderButton=document.getElementById('trainerClipFolder');
  const setupButton=document.getElementById('trainerClipSetup'),status=document.getElementById('trainerClipStatus');
  const width=1920,height=1080,fps=30;
  const config={codec:'avc1.42002a',width,height,framerate:fps,bitrate:8000000,latencyMode:'realtime',avc:{format:'avc'}};
  let muxerLibrary,folder,mode,number=1,latestSetup,working=false;
  tools.hidden=false;
- folderButton.hidden=!window.showDirectoryPicker;
+ folderButton.hidden=!!android||!window.showDirectoryPicker;
+ const batch=Date.now().toString(36);
+ function dataUrl(blob){
+  return new Promise((resolve,reject)=>{
+   const reader=new FileReader();
+   reader.onload=()=>resolve(reader.result);
+   reader.onerror=()=>reject(reader.error);
+   reader.readAsDataURL(blob);
+  });
+ }
  function setWorking(value){
   working=value;
   arm.disabled=value;
   folderButton.disabled=value||!!mode;
- }
- function setArmed(value){
-  arm.setAttribute('aria-pressed',String(value));
-  arm.textContent=value?'Cancel recording':'Record shot';
  }
  function download(name,blob){
   const url=URL.createObjectURL(blob),link=document.createElement('a');
@@ -49,43 +56,34 @@
  };
  setupButton.onclick=()=>{if(latestSetup)download(latestSetup.name,latestSetup.blob);};
  arm.onclick=async()=>{
-  if(mode){
-   mode=null;
-   setArmed(false);
-   setWorking(false);
-   status.textContent='Recording canceled.';
-   return;
-  }
   if(window.billiardsTourBridge.snapshot().busy){
-   status.textContent='Wait for the shot to finish before arming a clip.';
+   status.textContent='Wait for the shot to finish before recording a clip.';
    return;
   }
   setWorking(true);
   try{
-   if(!(await VideoEncoder.isConfigSupported(config)).supported){
+   if(!window.VideoEncoder||!window.VideoFrame||!(await VideoEncoder.isConfigSupported(config)).supported){
     status.textContent='1080p H.264 recording is unavailable on this device.';
     return;
    }
    muxerLibrary??=await import('./vendor/mp4-muxer-5.2.2/mp4-muxer.mjs');
    if(window.billiardsTourBridge.snapshot().busy){
-    status.textContent='Wait for the shot to finish before arming a clip.';
+    status.textContent='Wait for the shot to finish before recording a clip.';
     return;
    }
    mode=window.BilliardsClipView.mode;
    window.BilliardsClipView.prepare(mode);
-   setArmed(true);
-   status.textContent='Ready. Execute Shot to record the next clip.';
   }catch(error){
    mode=null;
    status.textContent='Could not prepare video recording.';
    console.error(error);
   }finally{setWorking(false);}
+  if(mode)document.getElementById('animate').click();
  };
  function begin(){
   if(!mode||working)return null;
   const framing=mode;
   mode=null;
-  setArmed(false);
   setWorking(true);
   let encoder,failed=false,frameCount=0;
   function fail(message,error){
@@ -107,30 +105,55 @@
    });
    encoder.configure(config);
    status.textContent='Recording shot…';
+   let hold;
+   function encode(source){
+    const timestamp=Math.round(frameCount*1000000/fps);
+    const image=new VideoFrame(source,{timestamp,duration:Math.round((frameCount+1)*1000000/fps)-timestamp});
+    try{
+     encoder.encode(image,{keyFrame:frameCount%fps===0});
+     frameCount++;
+    }finally{image.close();}
+   }
+   async function encodeHold(image,count){
+    try{
+     for(let i=0;i<count&&!failed;i++){
+      if(encoder.encodeQueueSize>=6)await encoder.flush();
+      if(!failed)encode(image);
+     }
+    }catch(error){fail('Could not encode the still frame.',error);}
+    finally{image.close();hold=null;}
+   }
    return {
-    ready:()=>failed||encoder.encodeQueueSize<6,
-    frame(){
+    ready:()=>failed||(!hold&&encoder.encodeQueueSize<6),
+    frame(count=1){
      if(failed)return;
-     let image;
      try{
       view.paint();
-      const timestamp=Math.round(frameCount*1000000/fps);
-      image=new VideoFrame(view.canvas,{timestamp,duration:Math.round((frameCount+1)*1000000/fps)-timestamp});
-      encoder.encode(image,{keyFrame:frameCount%fps===0});
-      frameCount++;
+      if(count===1)encode(view.canvas);
+      else hold=encodeHold(new VideoFrame(view.canvas,{timestamp:0}),count);
      }catch(error){fail(error.message+' The shot can still finish.',error);}
-     finally{image?.close();}
     },
     cancel:()=>fail('Recording canceled before the shot finished.'),
     async finish(){
      if(failed)return;
      try{
+      await hold;
+      if(failed)return;
       await encoder.flush();
       if(failed)return;
       encoder.close();
       muxer.finalize();
-      const stem=String(number++).padStart(2,'0');
+      const sequence=String(number).padStart(2,'0');
+      const stem=android?'Shot '+batch+'-'+sequence:sequence;
       const filename=stem+'.mp4',clip=new Blob([target.buffer],{type:'video/mp4'});
+      if(android){
+       const path=android.saveTrainerClip(stem,await dataUrl(clip),await setup.text());
+       if(!path)throw Error('Android could not save the clip and setup.');
+       number++;
+       status.textContent='Saved '+filename+' and its setup. Find them in Downloads.';
+       return;
+      }
+      number++;
       latestSetup={name:stem+'.session.billiards.json',blob:setup};
       setupButton.hidden=false;
       if(folder){
@@ -149,7 +172,8 @@
        status.textContent='Saved '+filename+' and its setup to '+folder.name+'.';
       }else{
        download(filename,clip);
-       status.textContent='Check Downloads for '+filename+'. Use Save setup for its starting layout.';
+       download(latestSetup.name,setup);
+       status.textContent='Check Downloads for '+filename+' and its setup. If the setup was blocked, use Save setup.';
       }
      }catch(error){fail('Could not finish saving the clip.',error);}
      finally{setWorking(false);}

@@ -511,6 +511,59 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
+        public String saveTrainerClip(String stem, String video, String session) {
+            String prefix = "data:video/mp4;base64,";
+            if (stem == null || !stem.matches("Shot [a-z0-9]{1,16}-[0-9]{2,6}") ||
+                video == null || video.length() > 44000000 || !video.startsWith(prefix) ||
+                session == null || session.length() > 24000000) return "";
+            String folder = Environment.DIRECTORY_DOWNLOADS + "/Billiards Trainer/Clips";
+            Uri clip = null, setup = null;
+            try {
+                byte[] bytes = Base64.decode(video.substring(prefix.length()), Base64.DEFAULT);
+                clip = newClipDownload(folder, stem + ".mp4", "video/mp4");
+                setup = newClipDownload(folder, stem + ".session.billiards.json", "application/json");
+                writeClipDownload(clip, bytes);
+                writeClipDownload(setup, session.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                ContentValues ready = new ContentValues();
+                ready.put(MediaStore.MediaColumns.IS_PENDING, 0);
+                if (getContentResolver().update(setup, ready, null, null) != 1 ||
+                    getContentResolver().update(clip, ready, null, null) != 1)
+                    throw new java.io.IOException("Could not finalize clip files");
+                return folder;
+            } catch (Exception e) {
+                discardClipDownload(clip);
+                discardClipDownload(setup);
+                return "";
+            }
+        }
+
+        private Uri newClipDownload(String folder, String name, String mime) {
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
+            values.put(MediaStore.MediaColumns.MIME_TYPE, mime);
+            values.put(MediaStore.MediaColumns.RELATIVE_PATH, folder);
+            values.put(MediaStore.MediaColumns.IS_PENDING, 1);
+            return getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+        }
+
+        private void writeClipDownload(Uri uri, byte[] bytes) throws java.io.IOException {
+            if (uri == null) throw new java.io.IOException("Cannot create download");
+            try (OutputStream stream = getContentResolver().openOutputStream(uri)) {
+                if (stream == null) throw new java.io.IOException("Cannot open download");
+                stream.write(bytes);
+            }
+        }
+
+        private void discardClipDownload(Uri uri) {
+            if (uri == null) return;
+            try {
+                getContentResolver().delete(uri, null, null);
+            } catch (RuntimeException ignored) {
+                // Keep the original export failure.
+            }
+        }
+
+        @JavascriptInterface
         public String saveTrainerExport(String filename, String content) {
             if (filename == null || content == null || content.length() > 24000000) return "";
             boolean png = filename.endsWith(".png");
