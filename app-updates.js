@@ -82,15 +82,26 @@
   const report=document.getElementById('trainerVersionReport');
   const message=document.getElementById('trainerVersionStatus');
   button.hidden=false;
-  button.onclick=()=>{
+  button.onclick=async()=>{
    let installedVersion='',contentVersion='';
    try { installedVersion=window.BilliardsAndroid?.installedAppVersion?.()||''; } catch {}
    try { contentVersion=JSON.parse(window.BilliardsAndroid?.contentUpdateStatus?.()||'{}').version||''; } catch {}
-   report.value=['Billiards Trainer for Android',
-    'App version: '+(installedVersion||'See Android Settings → Apps → Billiards Trainer'),
-    'Content version: '+(contentVersion||'Unavailable')].join('\n');
+   const lines=['Billiards Trainer for Android',
+    'Installed app version: '+(installedVersion||'See Android Settings → Apps → Billiards Trainer'),
+    'Content ID: '+(contentVersion||'Unavailable')];
+   report.value=lines.join('\n');
    message.textContent='';
    dialog.showModal();
+   if(installedVersion)return;
+   try {
+    const response=await fetch(new URL('android-release.json',base));
+    if(!response.ok)return;
+    const {versionName}=await response.json();
+    if(typeof versionName==='string'&&/^\d+\.\d+\.\d+$/.test(versionName)&&dialog.open&&report.value===lines.join('\n')){
+     lines.splice(2,0,'Latest published Android version: '+versionName);
+     report.value=lines.join('\n');
+    }
+   } catch {}
   };
   document.getElementById('trainerVersionCopy').onclick=async()=>{
    try {

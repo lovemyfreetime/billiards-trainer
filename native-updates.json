@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "c397d660059c278a07382ffc083a22cb00fd00e9efd72ee7f9d481e4aac4fdcb",
-  "sequence": 1793928360,
+  "version": "09f2be5e56658e359a6ef29e086cd34c82b32f9792c37d552593995ed7394a21",
+  "sequence": 1793931343,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -15,6 +15,10 @@
     "ai_model/pool_ball_detector.part2.bin": {
       "sha256": "c4d0c531ef9454200b16dab8ec30a3d53c39b9c2b22a71585760b3e04f7b0cb2",
       "length": 18503652
+    },
+    "android-release.json": {
+      "sha256": "aa8443dc15f3c658ff33bfe107d75227b5666779ea6b2ad96d3efea52a62ff21",
+      "length": 28
     },
     "app-backup.js": {
       "sha256": "6b15e9a572970a374a264fa19db35abc89623800003eb7d56489bcd266905bc4",
@@ -33,8 +37,8 @@
       "length": 8767
     },
     "app-updates.js": {
-      "sha256": "a7baab2e0efade0dbee0343561ee69d8a65b28f656619f09b10ed4369828677f",
-      "length": 9634
+      "sha256": "cabab54c4c3ae79747218afec21dc517ced4923055755b736ce031f7f821f53b",
+      "length": 10102
     },
     "apple-touch-icon.png": {
       "sha256": "bdbf38e5f2307bd066e0b499c908ed37f4015c3b14993a3487e2dc0c116673b7",
@@ -3701,7 +3705,7 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "4cc06681eb18f206b88504a0e3c774481e4c38f9fd061e37fef02844c2907b34",
+      "sha256": "8a3121e067d550fc86dc6ababeafc8d68a2880a5a4c52bcf4ef2902e0a1a80b8",
       "length": 902454
     },
     "install/android/index.html": {
@@ -3801,8 +3805,8 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "b7d847cf07826667aa51c035568b20e099edc5bf024b76141e292f79d5ea0e4c",
-      "length": 144856
+      "sha256": "a7e231c7447c928a6eb495fb24adc05c06bfc4443a390cd0e6c3b7d56d4322ef",
+      "length": 144952
     },
     "phone-play.css": {
       "sha256": "cec5017ee25f788690420d4e67241754a1fbb2c047779ad0e7e59d87f7eac720",
@@ -4913,7 +4917,7 @@
       "length": 1895
     },
     "service-worker.js": {
-      "sha256": "e0b022f29f0697e70ff61c3e01ab132faa8e0ab8ad756600c7794709d1aa8e3d",
+      "sha256": "ebbdad281ed216f3a4beffb426fc69e2907649d086bd60fe882f197d9531dd8b",
       "length": 7739
     },
     "table-orbit.js": {

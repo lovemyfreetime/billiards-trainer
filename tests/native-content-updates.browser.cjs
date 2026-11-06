@@ -3,7 +3,11 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),http=require('n
  const manager=fs.readFileSync('app-updates.js','utf8');
  const trainer=fs.readFileSync('index.html','utf8');
  const info=trainer.match(/<button id="trainerAppInfo"[^>]*>.*?<\/button>/)[0]+trainer.match(/<dialog id="trainerAppInfoDialog"[\s\S]*?<\/dialog>/)[0];
- const server=http.createServer((req,res)=>{res.setHeader('Content-Type',req.url==='/app-updates.js'?'text/javascript':'text/html');res.end(req.url==='/app-updates.js'?manager:'<!doctype html><button data-app-update hidden>Check for updates</button>'+info+'<script src="/app-updates.js"></script>');});await new Promise(r=>server.listen(0,'127.0.0.1',r));
+ const server=http.createServer((req,res)=>{
+  if(req.url==='/android-release.json'){
+   res.setHeader('Content-Type','application/json');res.end(fs.readFileSync('android-release.json'));return;
+  }
+  res.setHeader('Content-Type',req.url==='/app-updates.js'?'text/javascript':'text/html');res.end(req.url==='/app-updates.js'?manager:'<!doctype html><button data-app-update hidden>Check for updates</button>'+info+'<script src="/app-updates.js"></script>');});await new Promise(r=>server.listen(0,'127.0.0.1',r));
  const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox']});
  try{for(const platform of ['Android','Windows']){
   const c=await browser.newContext();await c.addInitScript(platform=>{
@@ -26,11 +30,14 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),http=require('n
    await infoButton.click();
    const report=p.locator('#trainerVersionReport');
    assert.match(await report.inputValue(),/See Android Settings/);
-   assert.match(await report.inputValue(),/Content version: 1234567890abcdef/);
+   assert.match(await report.inputValue(),/Content ID: 1234567890abcdef/);
+   await p.waitForFunction(()=>document.getElementById('trainerVersionReport').value.includes('Latest published Android version: '));
+   assert((await report.inputValue()).includes('Latest published Android version: '+JSON.parse(fs.readFileSync('android-release.json')).versionName));
    await p.getByRole('button',{name:'Close',exact:true}).click();
    await p.evaluate(()=>{BilliardsAndroid.installedAppVersion=()=>'4.12.1170';});
    await infoButton.click();
-   assert.match(await report.inputValue(),/App version: 4\.12\.1170/);
+   assert.match(await report.inputValue(),/Installed app version: 4\.12\.1170/);
+   assert.doesNotMatch(await report.inputValue(),/Latest published Android version/);
    await p.getByRole('button',{name:'Copy version info',exact:true}).click();
    assert.equal(await p.evaluate(()=>window.__copiedVersion),await report.inputValue());
    await p.getByRole('button',{name:'Close',exact:true}).click();
