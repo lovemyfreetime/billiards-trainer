@@ -1,7 +1,9 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),http=require('node:http'),{chromium}=require('playwright');
 (async()=>{
  const manager=fs.readFileSync('app-updates.js','utf8');
- const server=http.createServer((req,res)=>{res.setHeader('Content-Type',req.url==='/app-updates.js'?'text/javascript':'text/html');res.end(req.url==='/app-updates.js'?manager:'<!doctype html><button data-app-update hidden>Check for updates</button><script src="/app-updates.js"></script>');});await new Promise(r=>server.listen(0,'127.0.0.1',r));
+ const trainer=fs.readFileSync('index.html','utf8');
+ const info=trainer.match(/<button id="trainerAppInfo"[^>]*>.*?<\/button>/)[0]+trainer.match(/<dialog id="trainerAppInfoDialog"[\s\S]*?<\/dialog>/)[0];
+ const server=http.createServer((req,res)=>{res.setHeader('Content-Type',req.url==='/app-updates.js'?'text/javascript':'text/html');res.end(req.url==='/app-updates.js'?manager:'<!doctype html><button data-app-update hidden>Check for updates</button>'+info+'<script src="/app-updates.js"></script>');});await new Promise(r=>server.listen(0,'127.0.0.1',r));
  const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox']});
  try{for(const platform of ['Android','Windows']){
   const c=await browser.newContext();await c.addInitScript(platform=>{
@@ -15,6 +17,24 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),http=require('n
    navigator.serviceWorker.register=()=>{throw Error('Native wrapper must never register a browser service worker');};
   },platform);
   const p=await c.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto('http://127.0.0.1:'+server.address().port);assert(await p.evaluate(()=>BilliardsAppUpdates.supported&&BilliardsAppUpdates.native));assert.equal(await p.evaluate(()=>__checks),1);assert.equal(await p.locator('#appUpdateNotice').count(),0,'Background current-version checks stay quiet');
+  const infoButton=p.getByRole('button',{name:'App info',exact:true});
+  if(platform==='Android'){
+   await p.evaluate(()=>{
+    BilliardsAndroid.contentUpdateStatus=()=>JSON.stringify({state:'current',version:'1234567890abcdef'});
+    Object.defineProperty(navigator,'clipboard',{value:{writeText:async text=>{window.__copiedVersion=text;}}});
+   });
+   await infoButton.click();
+   const report=p.locator('#trainerVersionReport');
+   assert.match(await report.inputValue(),/See Android Settings/);
+   assert.match(await report.inputValue(),/Content version: 1234567890abcdef/);
+   await p.getByRole('button',{name:'Close',exact:true}).click();
+   await p.evaluate(()=>{BilliardsAndroid.installedAppVersion=()=>'4.12.1170';});
+   await infoButton.click();
+   assert.match(await report.inputValue(),/App version: 4\.12\.1170/);
+   await p.getByRole('button',{name:'Copy version info',exact:true}).click();
+   assert.equal(await p.evaluate(()=>window.__copiedVersion),await report.inputValue());
+   await p.getByRole('button',{name:'Close',exact:true}).click();
+  }else assert(!(await infoButton.isVisible()));
   const check=p.getByRole('button',{name:'Check for updates',exact:true});assert(await check.isVisible());await p.evaluate(()=>__nativeState='failed');await check.click();assert((await p.locator('#appUpdateNotice').textContent()).includes('working offline version is unchanged'));assert.equal(await p.evaluate(()=>__applies),0);
   await p.evaluate(()=>__nativeState='native-required');await check.click();assert((await p.locator('#appUpdateNotice').textContent()).includes('newer installed app'));
   await p.evaluate(()=>{__nativeState='ready';window.dispatchEvent(new CustomEvent('billiards:content-update',{detail:{state:'ready'}}));});const restart=p.getByRole('button',{name:'Restart app',exact:true});await restart.waitFor();assert.equal(await p.evaluate(()=>__applies),0,'Update readiness never interrupts the current session');

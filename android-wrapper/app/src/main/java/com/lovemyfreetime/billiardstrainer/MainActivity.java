@@ -587,6 +587,9 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
+        public String installedAppVersion(){return BuildConfig.VERSION_NAME;}
+
+        @JavascriptInterface
         public String contentUpdateStatus(){return bundledApp!=null&&bundledApp.updates!=null?bundledApp.updates.status().toString():"{}";}
 
         @JavascriptInterface

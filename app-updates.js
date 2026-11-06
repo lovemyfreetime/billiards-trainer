@@ -74,7 +74,36 @@
   if(event.data?.type==='BILLIARDS_UPDATE_FAILED'&&manual&&!ready)render('Update did not finish. Keep using the app and try again later.');
  });
  if(native)window.addEventListener('billiards:content-update',event=>receiveNative(event.detail));
- function bind(){if(native)nativeMessage('status');document.querySelectorAll('[data-app-update]').forEach(button=>{button.hidden=false;button.onclick=()=>check(true);});check(false);}
+ function bindAppInfo(){
+  if(!window.BilliardsBundledAndroid)return;
+  const button=document.getElementById('trainerAppInfo');
+  if(!button)return;
+  const dialog=document.getElementById('trainerAppInfoDialog');
+  const report=document.getElementById('trainerVersionReport');
+  const message=document.getElementById('trainerVersionStatus');
+  button.hidden=false;
+  button.onclick=()=>{
+   let installedVersion='',contentVersion='';
+   try { installedVersion=window.BilliardsAndroid?.installedAppVersion?.()||''; } catch {}
+   try { contentVersion=JSON.parse(window.BilliardsAndroid?.contentUpdateStatus?.()||'{}').version||''; } catch {}
+   report.value=['Billiards Trainer for Android',
+    'App version: '+(installedVersion||'See Android Settings → Apps → Billiards Trainer'),
+    'Content version: '+(contentVersion||'Unavailable')].join('\n');
+   message.textContent='';
+   dialog.showModal();
+  };
+  document.getElementById('trainerVersionCopy').onclick=async()=>{
+   try {
+    await navigator.clipboard.writeText(report.value);
+    message.textContent='Version info copied.';
+   } catch {
+    report.focus();
+    report.select();
+    message.textContent='Version info selected. Use Copy to share it.';
+   }
+  };
+ }
+ function bind(){bindAppInfo();if(native)nativeMessage('status');document.querySelectorAll('[data-app-update]').forEach(button=>{button.hidden=false;button.onclick=()=>check(true);});check(false);}
  if(document.readyState==='complete')bind();else window.addEventListener('load',bind,{once:true});
  window.addEventListener('online',()=>check(false));
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)check(false);});

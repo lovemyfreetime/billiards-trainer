@@ -52,6 +52,12 @@ public class BundledAppTest {
             js("localStorage.setItem('android-offline-smoke','kept');(()=>{const r=indexedDB.open('billiards-offline-save-test',1);r.onupgradeneeded=()=>r.result.createObjectStore('layouts');r.onsuccess=()=>{const db=r.result,t=db.transaction('layouts','readwrite');t.objectStore('layouts').put('kept','layout');t.oncomplete=()=>{db.close();document.body.dataset.saved='yes';};};})()");
             waitFor("document.body.dataset.saved==='yes'",10);
             navigate(scenario,"?train=1","#canvas");
+            waitFor("!document.getElementById('trainerAppInfo').hidden",10);
+            js("document.getElementById('trainerAppInfo').click()");
+            assertEquals("true",js("document.getElementById('trainerVersionReport').value.includes("+org.json.JSONObject.quote(BuildConfig.VERSION_NAME)+")"));
+            assertEquals("true",js("document.getElementById('trainerVersionReport').value.includes(JSON.parse(BilliardsAndroid.contentUpdateStatus()).version)"));
+            js("document.getElementById('trainerAppInfoDialog').close()");
+
             // Install the probe at document start so it observes the real player's native media.
             String lessonProbe;
             try(java.io.InputStream stream=InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("lesson-sequence.js")){

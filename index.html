@@ -1893,6 +1893,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         <div class="check"><input id="showPracticeCounter" type="checkbox"><label for="showPracticeCounter">Drill and exercise counter</label></div>
         <div class="check"><input id="showScoreBoard" type="checkbox"><label for="showScoreBoard">Show Player 1 / Player 2 controls</label></div>
         <div class="check"><input id="showBankKickNumbers" type="checkbox"><label for="showBankKickNumbers">Show bank / kick rail numbers</label></div>
+        <button id="trainerAppInfo" type="button" hidden>App info</button>
       </div>
     </div>
 
@@ -1901,6 +1902,13 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     </div>
   </aside>
 </div>
+<dialog id="trainerAppInfoDialog" aria-labelledby="trainerAppInfoTitle" style="box-sizing:border-box;width:min(420px,calc(100% - 24px));background:#172b36;color:#edf6fa;border:1px solid #6595ad;border-radius:9px;padding:16px">
+  <h2 id="trainerAppInfoTitle">App info</h2>
+  <textarea id="trainerVersionReport" aria-label="Version information" readonly rows="5" style="box-sizing:border-box;width:100%;font:14px system-ui"></textarea>
+  <p id="trainerVersionStatus" role="status"></p>
+  <button id="trainerVersionCopy" type="button">Copy version info</button>
+  <form method="dialog" style="display:inline"><button type="submit">Close</button></form>
+</dialog>
 <div id="photoAnalyzerModal" aria-hidden="true">
   <div class="photoAnalyzerPanel">
     <div class="photoAnalyzerHeader">
@@ -13528,7 +13536,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <script>window.billiardsAnalyzeWalkthrough=BilliardsAnalyzeWalkthrough.mount(window.billiardsWalkthroughBridge);</script>
   <script src="./beta-config.js?v=1"></script>
   <link rel="stylesheet" href="./experience-menu.css?v=home-badge-v9">
-  <script src="./app-updates.js?v=2"></script>
+  <script src="./app-updates.js?v=3"></script>
 <script src="./experience-menu.js?v=home-badge-v14"></script>
   <script src="./beta-ui.js?v=offline-startup-v158"></script>
 

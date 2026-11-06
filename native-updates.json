@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "1ee556bc5822608d0b52d280f77f9f8eb766e087565be66b0f6aebe24187f43d",
-  "sequence": 1793914956,
+  "version": "7b73476073ab33320d79142a4b7400bf24c4e482272cbd0047a2497d4d256ba9",
+  "sequence": 1793923560,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -33,8 +33,8 @@
       "length": 8767
     },
     "app-updates.js": {
-      "sha256": "04408c3b51a85f701a70604105cfe47114360244f9ab308fd7b5a222f8f0408f",
-      "length": 8393
+      "sha256": "a7baab2e0efade0dbee0343561ee69d8a65b28f656619f09b10ed4369828677f",
+      "length": 9634
     },
     "apple-touch-icon.png": {
       "sha256": "bdbf38e5f2307bd066e0b499c908ed37f4015c3b14993a3487e2dc0c116673b7",
@@ -3701,8 +3701,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "d76521002de88ee39ca0a3c8f0b8783f2f381519c9f73e900d3fdc0237967903",
-      "length": 902132
+      "sha256": "ede92e59af7bb594112da22231a55039e9f88d8baba952e6d85158c9d4618a16",
+      "length": 902867
     },
     "install/android/index.html": {
       "sha256": "862dff4245e200376ff30ee6763f007bb510a3c0cdf0634f8ef3d0d2c25630ff",
@@ -3801,7 +3801,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "e7e5febd976631f689deec2566c6d321e9142e56ddac869eceedff34ff9cd919",
+      "sha256": "7cbc08b51f7592e92002f89d660a0e7dad0d9f5164c83ec0c16e47bab676c1a5",
       "length": 144856
     },
     "phone-play.css": {
@@ -4913,7 +4913,7 @@
       "length": 1895
     },
     "service-worker.js": {
-      "sha256": "2290351f5e9029aa4e1147025ae37d257e153a53581c6c35d4a47e1a54e70f5f",
+      "sha256": "ae4c6728ed3802e3c2cbd8f69b4119b6a02b7cfd4dd8f27a9dde66db037a6172",
       "length": 7739
     },
     "table-orbit.js": {
