@@ -1,0 +1,237 @@
+diff --git a/android-wrapper/app/src/main/java/com/lovemyfreetime/billiardstrainer/MainActivity.java b/android-wrapper/app/src/main/java/com/lovemyfreetime/billiardstrainer/MainActivity.java
+index f003edb..15b1021 100644
+--- a/android-wrapper/app/src/main/java/com/lovemyfreetime/billiardstrainer/MainActivity.java
++++ b/android-wrapper/app/src/main/java/com/lovemyfreetime/billiardstrainer/MainActivity.java
+@@ -510,6 +510,59 @@ public class MainActivity extends Activity {
+             });
+         }
+ 
++        @JavascriptInterface
++        public String saveTrainerClip(String stem, String video, String session) {
++            String prefix = "data:video/mp4;base64,";
++            if (stem == null || !stem.matches("Shot [a-z0-9]{1,16}-[0-9]{2,6}") ||
++                video == null || video.length() > 44000000 || !video.startsWith(prefix) ||
++                session == null || session.length() > 24000000) return "";
++            String folder = Environment.DIRECTORY_DOWNLOADS + "/Billiards Trainer/Clips";
++            Uri clip = null, setup = null;
++            try {
++                byte[] bytes = Base64.decode(video.substring(prefix.length()), Base64.DEFAULT);
++                clip = newClipDownload(folder, stem + ".mp4", "video/mp4");
++                setup = newClipDownload(folder, stem + ".session.billiards.json", "application/json");
++                writeClipDownload(clip, bytes);
++                writeClipDownload(setup, session.getBytes(java.nio.charset.StandardCharsets.UTF_8));
++                ContentValues ready = new ContentValues();
++                ready.put(MediaStore.MediaColumns.IS_PENDING, 0);
++                if (getContentResolver().update(setup, ready, null, null) != 1 ||
++                    getContentResolver().update(clip, ready, null, null) != 1)
++                    throw new java.io.IOException("Could not finalize clip files");
++                return folder;
++            } catch (Exception e) {
++                discardClipDownload(clip);
++                discardClipDownload(setup);
++                return "";
++            }
++        }
++
++        private Uri newClipDownload(String folder, String name, String mime) {
++            ContentValues values = new ContentValues();
++            values.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
++            values.put(MediaStore.MediaColumns.MIME_TYPE, mime);
++            values.put(MediaStore.MediaColumns.RELATIVE_PATH, folder);
++            values.put(MediaStore.MediaColumns.IS_PENDING, 1);
++            return getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
++        }
++
++        private void writeClipDownload(Uri uri, byte[] bytes) throws java.io.IOException {
++            if (uri == null) throw new java.io.IOException("Cannot create download");
++            try (OutputStream stream = getContentResolver().openOutputStream(uri)) {
++                if (stream == null) throw new java.io.IOException("Cannot open download");
++                stream.write(bytes);
++            }
++        }
++
++        private void discardClipDownload(Uri uri) {
++            if (uri == null) return;
++            try {
++                getContentResolver().delete(uri, null, null);
++            } catch (RuntimeException ignored) {
++                // Keep the original export failure.
++            }
++        }
++
+         @JavascriptInterface
+         public String saveTrainerExport(String filename, String content) {
+             if (filename == null || content == null || content.length() > 24000000) return "";
+diff --git a/index.html b/index.html
+index aa5a822..8b203ce 100644
+--- a/index.html
++++ b/index.html
+@@ -7172,8 +7172,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
+             } else drawTipBadgeDisk(ctx, badge, values, which === 2 ? 'TIP 2' : 'TIP');
+         }
+     }
+-    function drawShotBudget(map) {
+-        if(animation)return;
++    function drawShotBudget(map, recordingGuides = false) {
++        if(animation&&!recordingGuides)return;
+         const api=window.BilliardsShotBudget,occupied=[],segments=[];
+         const reserve=(ball,radius=S.ballR)=>{
+             const p=map(ball),edge=map({x:ball.x+radius,y:ball.y}),r=Math.hypot(edge.x-p.x,edge.y-p.y)+8;
+@@ -7793,7 +7793,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
+             },true);
+         });
+     }
+-    function draw(videoFrame = false) {
++    function draw(videoFrame = false, recordingGuides = false) {
+         const clean = videoFrame === true;
+         shotBudgetOverlaps = [];
+         window.billiardsPhoneReadouts?.();
+@@ -7821,7 +7821,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
+ 
+         // Global teaching toggle:
+         // Shot visibility controls paths and guides independently of cue-ball visibility.
+-        if (!clean) {
++        if (!clean || recordingGuides) {
+             if (cueVisualsVisible(1)) {
+                 if (!document.body.classList.contains('zen-mode')) drawPreview(map);
+                 drawAim(map);
+@@ -7849,14 +7849,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
+                 drawBall(Object.assign(Object.assign({}, b), { x: ab.x, y: ab.y, active: true }), map, clean);
+             }
+         }
+-        if (!clean) {
++        if (!clean || recordingGuides) {
+             if (cueVisualsVisible(1) && !document.body.classList.contains('zen-mode')) drawImpactOverlay(map);
+             if (!document.body.classList.contains('zen-mode')) drawTipBadge(map);
+             if (!document.body.classList.contains('zen-mode')) drawBankKickGuide(map);
+             if (!document.body.classList.contains('zen-mode')) drawTeachingCompass(map);
+             if (!document.body.classList.contains('zen-mode')) drawRollingReferences(map);
+             if (!document.body.classList.contains('zen-mode')) drawCalibration(M);
+-            if (!document.body.classList.contains('zen-mode')) drawShotBudget(map);
++            if (!document.body.classList.contains('zen-mode')) drawShotBudget(map, recordingGuides);
+         }
+         window.BilliardsTableZoom?.end(ctx);
+         window.dispatchEvent(new Event("billiards:2d-render"));
+@@ -9498,7 +9498,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
+             return;
+         const recording = window.BilliardsShotRecorder?.begin();
+         if (recording) {
+-            draw(true);
++            draw(true, recording.teaching);
+             recording.frame();
+         }
+         const start = performance.now(), fps = 60, last = sim.frames.length - 1;
+@@ -9517,7 +9517,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
+             }
+             const idx = Math.min(last, recording ? videoSample : Math.floor((now - start) / (1000 / fps)));
+             animation.current = sim.frames[idx];
+-            draw(!!recording);
++            draw(!!recording, recording?.teaching);
+             if (idx < last) {
+                 if (recording) {
+                     recording.frame();
+@@ -9526,8 +9526,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
+                 requestAnimationFrame(tick);
+             }
+             else {
++                if (recording?.teaching) recording.frame();
+                 commitAnimatedShot(sim, preShot);
+-                if (recording) {
++                if (recording?.teaching) {
++                    recording.finish();
++                } else if (recording) {
+                     draw(true);
+                     recording.frame();
+                     recording.finish();
+@@ -13543,7 +13546,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
+   <link rel="stylesheet" href="./trainer-3d.css?v=compact-landscape-1">
+   <script src="./trainer-3d.js?v=18"></script>
+   <script src="./trainer-annotate.js?v=13"></script>
+-  <script src="./trainer-shot-recorder.js?v=3"></script>
++  <script src="./trainer-shot-recorder.js?v=android-preview-1"></script>
+   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
+   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
+   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">
+diff --git a/trainer-shot-recorder.js b/trainer-shot-recorder.js
+index d4930b9..9b00b20 100644
+--- a/trainer-shot-recorder.js
++++ b/trainer-shot-recorder.js
+@@ -2,14 +2,26 @@
+ (() => {
+  'use strict';
+  const tools=document.getElementById('trainerClipTools');
+- if(!tools||window.BilliardsAndroid||!window.VideoEncoder||!window.VideoFrame)return;
++ const android=window.BilliardsAndroid;
++ if(!tools||(android&&!android.saveTrainerClip))return;
++ if(!android&&(!window.VideoEncoder||!window.VideoFrame))return;
+  const arm=document.getElementById('trainerClipArm'),folderButton=document.getElementById('trainerClipFolder');
+  const setupButton=document.getElementById('trainerClipSetup'),status=document.getElementById('trainerClipStatus');
+  const width=1920,height=1080,fps=30;
+  const config={codec:'avc1.42002a',width,height,framerate:fps,bitrate:8000000,latencyMode:'realtime',avc:{format:'avc'}};
+  let muxerLibrary,folder,mode,number=1,latestSetup,working=false;
+  tools.hidden=false;
+- folderButton.hidden=!window.showDirectoryPicker;
++ folderButton.hidden=!!android||!window.showDirectoryPicker;
++ const batch=Date.now().toString(36);
++ if(android)status.textContent='In 3D, select Table + Stroke, then Record shot.';
++ function dataUrl(blob){
++  return new Promise((resolve,reject)=>{
++   const reader=new FileReader();
++   reader.onload=()=>resolve(reader.result);
++   reader.onerror=()=>reject(reader.error);
++   reader.readAsDataURL(blob);
++  });
++ }
+  function setWorking(value){
+   working=value;
+   arm.disabled=value;
+@@ -60,9 +72,13 @@
+    status.textContent='Wait for the shot to finish before arming a clip.';
+    return;
+   }
++  if(android&&(!window.Billiards3D?.active||window.BilliardsClipView.mode!=='stroke')){
++   status.textContent='Select Table + Stroke in 3D before recording.';
++   return;
++  }
+   setWorking(true);
+   try{
+-   if(!(await VideoEncoder.isConfigSupported(config)).supported){
++   if(!window.VideoEncoder||!window.VideoFrame||!(await VideoEncoder.isConfigSupported(config)).supported){
+     status.textContent='1080p H.264 recording is unavailable on this device.';
+     return;
+    }
+@@ -80,6 +96,7 @@
+    status.textContent='Could not prepare video recording.';
+    console.error(error);
+   }finally{setWorking(false);}
++  if(android&&mode)document.getElementById('animate').click();
+  };
+  function begin(){
+   if(!mode||working)return null;
+@@ -108,6 +125,7 @@
+    encoder.configure(config);
+    status.textContent='Recording shot…';
+    return {
++    teaching:!!android,
+     ready:()=>failed||encoder.encodeQueueSize<6,
+     frame(){
+      if(failed)return;
+@@ -129,8 +147,17 @@
+       if(failed)return;
+       encoder.close();
+       muxer.finalize();
+-      const stem=String(number++).padStart(2,'0');
++      const sequence=String(number).padStart(2,'0');
++      const stem=android?'Shot '+batch+'-'+sequence:sequence;
+       const filename=stem+'.mp4',clip=new Blob([target.buffer],{type:'video/mp4'});
++      if(android){
++       const path=android.saveTrainerClip(stem,await dataUrl(clip),await setup.text());
++       if(!path)throw Error('Android could not save the clip and setup.');
++       number++;
++       status.textContent='Saved '+filename+' and its setup to '+path+'.';
++       return;
++      }
++      number++;
+       latestSetup={name:stem+'.session.billiards.json',blob:setup};
+       setupButton.hidden=false;
+       if(folder){
