@@ -7,7 +7,6 @@ on:
       - test/android-record-shot
     paths:
       - 'android-record-test.patch'
-      - '.github/workflows/build-android-wrapper.yml'
       - 'photo-*.js'
       - 'photo-*.json'
       - 'tests/photo-camera.browser.cjs'
@@ -109,6 +108,17 @@ jobs:
           echo "ANDROID_UPDATE_COMPATIBLE=$compatible" >> "$GITHUB_ENV"
           if test "$compatible" != true; then echo '::notice::Only the pinned permanent certificate may publish. Disposable validation builds cannot replace installer downloads.'; fi
 
+      - name: Require compatible release identity before publishing
+        run: |
+          test "$ANDROID_RELEASE_CONFIGURED" = true && test "$ANDROID_UPDATE_COMPATIBLE" = true || { echo 'APK build and runtime checks completed, but publication requires the pinned permanent signing key. Existing installer links and APKs are unchanged.'; exit 1; }
+
+
+      - name: Preserve validated APKs for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: Android-validated-APKs
+          path: android-wrapper/app/build/outputs/apk/*/release/*.apk
+
       - name: Enable KVM for the Android runtime test
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -141,14 +151,4 @@ jobs:
           path: |
             android-wrapper/app/build/reports/androidTests/
             android-wrapper/app/build/outputs/androidTest-results/
-
-      - name: Preserve validated APKs for review
-        uses: actions/upload-artifact@v4
-        with:
-          name: Android-validated-APKs
-          path: android-wrapper/app/build/outputs/apk/*/release/*.apk
-
-      - name: Require compatible release identity before publishing
-        run: |
-          test "$ANDROID_RELEASE_CONFIGURED" = true && test "$ANDROID_UPDATE_COMPATIBLE" = true || { echo 'APK build and runtime checks completed, but publication requires the pinned permanent signing key. Existing installer links and APKs are unchanged.'; exit 1; }
 
