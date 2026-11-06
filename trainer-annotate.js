@@ -27,6 +27,8 @@
  const currentButton=group.querySelector('#trainerSnapshotCurrent');
  const strokeButton=group.querySelector('#trainerSnapshotStroke');
  const snapshotGroup=group.querySelector('#trainerSnapshotGroup');
+ const snapshotName=group.querySelector('#trainerSnapshotName');
+ const defaultSnapshotName=mode=>mode==='stroke'?'Billiards table and stroke':'Billiards table snapshot';
  function selectView(mode){
   snapshotMode=mode;
   fullButton.setAttribute('aria-pressed',String(mode==='full'));
@@ -34,6 +36,9 @@
   strokeButton.setAttribute('aria-pressed',String(mode==='stroke'));
   snapshotGroup.classList.toggle('current-view',mode==='current');
   snapshotGroup.classList.toggle('table-stroke',mode==='stroke');
+  snapshotName.placeholder=defaultSnapshotName(mode);
+  status.textContent=mode==='stroke'?'Tap Snapshot to save the table with Shot Info on the right.'
+   :mode==='current'?'Tap Snapshot to save the current view.':'Tap Snapshot to save the full table.';
  }
  fullButton.addEventListener('click',()=>selectView('full'));
  currentButton.addEventListener('click',()=>selectView('current'));
@@ -250,10 +255,17 @@
  group.querySelector('#trainerAnnotateClear').addEventListener('click',()=>{if(!locked&&items.length){remember();items=[];persist();paint();}});
  group.querySelector('#trainerAnnotateSnapshot').addEventListener('click',async()=>{
   if(native&&!native.saveTrainerExport){status.textContent='Install the updated Android app to save PNG snapshots.';return;}
-  const name=group.querySelector('#trainerSnapshotName').value.trim().replace(/\.png$/i,'').replace(/[\x00-\x1f<>:"/\\|?*]/g,'-').replace(/^[. ]+|[. ]+$/g,'')||'Billiards table snapshot';
+  const mode=snapshotMode;
+  const name=snapshotName.value.trim().replace(/\.png$/i,'').replace(/[\x00-\x1f<>:"/\\|?*]/g,'-').replace(/^[. ]+|[. ]+$/g,'')||defaultSnapshotName(mode);
   const filename=name+'.png';
-  const captureCurrentView=snapshotMode==='current';
-  const stroke=snapshotMode==='stroke'?window.billiardsTourBridge?.strokeSnapshot?.():null;
+  const captureCurrentView=mode==='current';
+  const includesShotInfo=mode==='stroke';
+  let stroke;
+  if(includesShotInfo){
+   try{stroke=window.billiardsTourBridge?.strokeSnapshot?.();}
+   catch(error){console.error(error);status.textContent='Could not read Shot Info for the PNG.';return;}
+   if(!stroke){status.textContent='Shot Info is not ready. Try the snapshot again.';return;}
+  }
   const was3d=is3d();
   if(!captureCurrentView){
    if(was3d)window.Billiards3D.prepareSnapshot();
@@ -298,17 +310,20 @@
   const sourceRect=source.getBoundingClientRect();c.drawImage(source,sourceRect.left-rect.left-left,sourceRect.top-rect.top-top,sourceRect.width,sourceRect.height);
   c.drawImage(layer,-left,-top,rect.width,rect.height);
   paint();
-  if(stroke)out=withStroke(out,stroke,scale);
+  if(includesShotInfo){
+   try{out=withStroke(out,stroke,scale);}
+   catch(error){console.error(error);status.textContent='Could not add Shot Info to the PNG.';return;}
+  }
   if(native){
    const path=native.saveTrainerExport(filename,out.toDataURL('image/png'));
-   status.textContent=path?'Saved to '+path:'Could not save the PNG.';
+   status.textContent=path?(includesShotInfo?'Saved with Shot Info to ':'Saved to ')+path:'Could not save the PNG.';
    return;
   }
   out.toBlob(blob=>{
    if(!blob){status.textContent='Could not create the PNG.';return;}
    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click();
    setTimeout(()=>URL.revokeObjectURL(a.href),10000);
-   status.textContent='Download requested: '+filename+' — check browser Downloads.';
+   status.textContent=(includesShotInfo?'Download with Shot Info requested: ':'Download requested: ')+filename+' — check browser Downloads.';
   },'image/png');
  });
  function withStroke(table,shot,scale){

@@ -325,6 +325,63 @@ const { chromium } = require('playwright');
    console.log((touch ? 'Touch' : 'Mouse') + ': corner resize/rotate, inline edit, undo, 2D/3D drag, lock/play, persistence, three snapshot modes, exported stroke values and active Shot 2, Shot Info rows, centered labels, alternating rows, live overlap/cut/exit labels, follow/draw response, rail rebound and diamond arrivals passed.');
    await context.close();
   }
+  const phone=await browser.newContext({
+   viewport:{width:740,height:360},isMobile:true,hasTouch:true,deviceScaleFactor:2,serviceWorkers:'block'
+  });
+  await phone.addInitScript(()=>{
+   window.phoneExports=[];
+   window.BilliardsAndroid={
+    setFullscreen(){},
+    saveTrainerExport(name,data){
+     window.phoneExports.push({name,data});
+     return 'Pictures/Billiards Trainer/Snapshots/'+name;
+    }
+   };
+  });
+  const page=await phone.newPage();
+  await page.goto('http://127.0.0.1:8797/?train=1');
+  await page.waitForFunction(()=>window.billiardsTourBridge&&window.Billiards3D);
+  await page.evaluate(()=>billiardsTourBridge.apply({
+   id:'phone-stroke',balls:[[0,.25,.5],[1,.65,.5]],target:1,pocket:[1,1],speed:2.25
+  },{tableL:2.54,tableW:1.27}));
+  const tap=id=>page.locator('#'+id).tap();
+  const status=page.locator('#trainerSnapshotStatus');
+  await tap('phoneControls');
+  await page.getByRole('button',{name:/TABLE \/ BALLS/}).tap();
+  for(const index of [0,1]){
+   if(index){
+    await tap('table3DToggle');
+    await page.waitForFunction(()=>Billiards3D.active);
+    await tap('phoneControls');
+   }
+   await tap('trainerSnapshotStroke');
+   assert.match(await status.textContent(),/Shot Info on the right/);
+   await tap('trainerAnnotateSnapshot');
+   await page.waitForFunction(count=>phoneExports.length===count,index+1);
+   assert.match(await status.textContent(),/Saved with Shot Info/);
+   const saved=await page.evaluate(async index=>{
+    const {name,data}=phoneExports[index],img=new Image();
+    img.src=data;
+    await img.decode();
+    const canvas=document.createElement('canvas');
+    canvas.width=img.width;canvas.height=img.height;
+    const ctx=canvas.getContext('2d');
+    ctx.drawImage(img,0,0);
+    const pixel=(x,y)=>Array.from(ctx.getImageData(img.width-x,y,1,1).data);
+    return {name,background:pixel(6,30),firstRow:pixel(646,122),secondRow:pixel(646,184)};
+   },index);
+   assert.deepEqual(saved,{
+    name:'Billiards table and stroke.png',
+    background:[28,42,53,255],firstRow:[41,66,82,255],secondRow:[32,51,63,255]
+   },'Android receives an encoded PNG with the Shot Info panel and both row colors');
+  }
+  await page.evaluate(()=>{window.billiardsTourBridge.strokeSnapshot=()=>null;});
+  await tap('trainerAnnotateSnapshot');
+  assert.match(await status.textContent(),/Shot Info is not ready/);
+  assert.equal(await page.evaluate(()=>phoneExports.length),2,'Missing Shot Info cannot save a table-only PNG');
+  await phone.close();
+  console.log('Android phone bridge: 2D and 3D PNGs include Shot Info, and missing settings do not fall back to a table-only image.');
+
  } finally {
   await browser?.close();
   server.kill();
