@@ -258,7 +258,6 @@
   const mode=snapshotMode;
   const name=snapshotName.value.trim().replace(/\.png$/i,'').replace(/[\x00-\x1f<>:"/\\|?*]/g,'-').replace(/^[. ]+|[. ]+$/g,'')||defaultSnapshotName(mode);
   const filename=name+'.png';
-  const captureCurrentView=mode==='current';
   const includesShotInfo=mode==='stroke';
   let stroke;
   if(includesShotInfo){
@@ -266,52 +265,20 @@
    catch(error){console.error(error);status.textContent='Could not read Shot Info for the PNG.';return;}
    if(!stroke){status.textContent='Shot Info is not ready. Try the snapshot again.';return;}
   }
-  const was3d=is3d();
-  if(!captureCurrentView){
-   if(was3d)window.Billiards3D.prepareSnapshot();
-   else if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
-  }
+  prepareCapture(mode);
   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-  if(was3d)window.Billiards3D.renderSnapshot();
-  paint(undefined,false);
-  const source=document.getElementById(was3d?'table3DCanvas':'canvas');
-  const f=captureCurrentView?null:frame();
-  if(!source||(!captureCurrentView&&(!f||f.corners.some(p=>!p)))){
-   status.textContent='The table is not ready for a snapshot.';
-   return;
-  }
-  const rect=stage.getBoundingClientRect();
-  const polygon=captureCurrentView?null:f.corners;
-  let left=0,top=0,right=rect.width,bottom=rect.height;
-  if(captureCurrentView){
-   const visible=source.getBoundingClientRect();
-   left=Math.max(0,visible.left-rect.left,-rect.left);
-   top=Math.max(0,visible.top-rect.top,-rect.top);
-   right=Math.min(rect.width,visible.right-rect.left,window.innerWidth-rect.left);
-   bottom=Math.min(rect.height,visible.bottom-rect.top,window.innerHeight-rect.top);
-  }else{
-   left=Math.max(0,Math.floor(Math.min(...polygon.map(p=>p.x))));
-   top=Math.max(0,Math.floor(Math.min(...polygon.map(p=>p.y))));
-   right=Math.min(rect.width,Math.ceil(Math.max(...polygon.map(p=>p.x))));
-   bottom=Math.min(rect.height,Math.ceil(Math.max(...polygon.map(p=>p.y))));
-  }
-  const w=right-left,h=bottom-top;
-  if(w<2||h<2){status.textContent='The table is outside the visible area.';return;}
-  let out=document.createElement('canvas');
+  if(is3d())window.Billiards3D.renderSnapshot();
+  const area=captureArea(mode);
+  if(!area){status.textContent='The table is not ready for a snapshot.';return;}
   const scale=Math.max(1,Math.min(2,devicePixelRatio||1));
-  out.width=Math.round(w*scale);out.height=Math.round(h*scale);
+  let out=document.createElement('canvas');
+  out.width=Math.round(area.w*scale);out.height=Math.round(area.h*scale);
   const c=out.getContext('2d');
   c.scale(scale,scale);
-  if(polygon){
-   c.beginPath();
-   polygon.forEach((p,i)=>i?c.lineTo(p.x-left,p.y-top):c.moveTo(p.x-left,p.y-top));
-   c.closePath();c.clip();
-  }
-  const sourceRect=source.getBoundingClientRect();c.drawImage(source,sourceRect.left-rect.left-left,sourceRect.top-rect.top-top,sourceRect.width,sourceRect.height);
-  c.drawImage(layer,-left,-top,rect.width,rect.height);
+  drawCapture(c,area);
   paint();
   if(includesShotInfo){
-   try{out=withStroke(out,stroke,scale);}
+   try{out=withStroke(out.width/scale,out.height/scale,stroke,scale,out);}
    catch(error){console.error(error);status.textContent='Could not add Shot Info to the PNG.';return;}
   }
   if(native){
@@ -326,7 +293,76 @@
    status.textContent=(includesShotInfo?'Download with Shot Info requested: ':'Download requested: ')+filename+' — check browser Downloads.';
   },'image/png');
  });
- function withStroke(table,shot,scale){
+ function prepareCapture(mode){
+  if(mode==='current')return;
+  if(is3d())window.Billiards3D.prepareSnapshot();
+  else if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
+ }
+ function captureArea(mode){
+  const source=document.getElementById(is3d()?'table3DCanvas':'canvas');
+  const polygon=mode==='current'?null:frame()?.corners;
+  if(!source||(mode!=='current'&&(!polygon||polygon.some(p=>!p))))return null;
+  const rect=stage.getBoundingClientRect(),visible=source.getBoundingClientRect();
+  const left=Math.max(0,polygon?Math.floor(Math.min(...polygon.map(p=>p.x))):visible.left-rect.left,-rect.left);
+  const top=Math.max(0,polygon?Math.floor(Math.min(...polygon.map(p=>p.y))):visible.top-rect.top,-rect.top);
+  const right=Math.min(rect.width,polygon?Math.ceil(Math.max(...polygon.map(p=>p.x))):Math.min(visible.right,innerWidth)-rect.left);
+  const bottom=Math.min(rect.height,polygon?Math.ceil(Math.max(...polygon.map(p=>p.y))):Math.min(visible.bottom,innerHeight)-rect.top);
+  const w=right-left,h=bottom-top;
+  return w>=2&&h>=2?{source,polygon,rect,visible,left,top,w,h}:null;
+ }
+ function drawCapture(c,{source,polygon,rect,visible,left,top,w,h}){
+  paint(undefined,false);
+  c.save();
+  c.beginPath();
+  if(polygon){
+   polygon.forEach((p,i)=>i?c.lineTo(p.x-left,p.y-top):c.moveTo(p.x-left,p.y-top));
+   c.closePath();
+  }else c.rect(0,0,w,h);
+  c.clip();
+  c.drawImage(source,visible.left-rect.left-left,visible.top-rect.top-top,visible.width,visible.height);
+  c.drawImage(layer,-left,-top,rect.width,rect.height);
+  c.restore();
+ }
+ function clipFraming(){
+  if(is3d()){
+   const {azimuth,elevation,radius,target}=window.Billiards3D.camera();
+   return [azimuth,elevation,radius,target.x,target.y,target.z].join(':');
+  }
+  const zoom=window.BilliardsTableZoom;
+  if(!zoom)return '';
+  const a=zoom.mapPoint({x:0,y:0}),b=zoom.mapPoint({x:1,y:1});
+  return [a.x,a.y,b.x,b.y].join(':');
+ }
+ window.BilliardsClipView={
+  get mode(){return snapshotMode;},
+  prepare:prepareCapture,
+  create(mode,width,height){
+   if(is3d())window.Billiards3D.renderSnapshot();
+   const area=captureArea(mode);
+   if(!area)throw Error('The table is outside the recording view.');
+   const camera=clipFraming(),stageWidth=stage.clientWidth,stageHeight=stage.clientHeight;
+   const canvas=document.createElement('canvas');
+   canvas.width=width;canvas.height=height;
+   const c=canvas.getContext('2d',{alpha:false});
+   c.fillStyle='#101820';c.fillRect(0,0,width,height);
+   let compositionW=area.w,compositionH=area.h;
+   const panel=mode==='stroke'?withStroke(area.w,area.h,window.billiardsTourBridge.strokeSnapshot(1),1):null;
+   if(panel){compositionW=panel.width;compositionH=panel.height;}
+   const fit=Math.min(width/compositionW,height/compositionH);
+   c.translate((width-compositionW*fit)/2,(height-compositionH*fit)/2);
+   c.scale(fit,fit);
+   if(panel)c.drawImage(panel,0,0);
+   c.translate(0,(compositionH-area.h)/2);
+   return {canvas,paint(){
+    if(stage.clientWidth!==stageWidth||stage.clientHeight!==stageHeight||clipFraming()!==camera)
+     throw Error('The recording view changed.');
+    if(is3d())window.Billiards3D.renderSnapshot();
+    c.fillStyle='#101820';c.fillRect(0,0,area.w,area.h);
+    drawCapture(c,area);
+   }};
+  }
+ };
+ function withStroke(w,h,shot,scale,table){
   const percent=value=>Number.isFinite(value)?value.toFixed(1)+'%':'—';
   const diamonds=value=>Number.isFinite(value)?value.toFixed(1)+' ♦':'—';
   const rows=[
@@ -343,13 +379,13 @@
    ['Cue at object (C)',diamonds(shot.cueImpactDiamonds)],
    ['Object at pocket (P)',diamonds(shot.pocketArrivalDiamonds)]
   ];
-  const result=document.createElement('canvas'),panelW=340,w=table.width/scale,h=table.height/scale;
+  const result=document.createElement('canvas'),panelW=340;
   const rowTop=58,rowHeight=31,tipY=rowTop+rows.length*rowHeight+10,panelH=tipY+210+14;
   result.width=Math.round((w+panelW)*scale);result.height=Math.round(Math.max(h,panelH)*scale);
   const c=result.getContext('2d');c.scale(scale,scale);
   const height=result.height/scale;
   c.fillStyle='#101820';c.fillRect(0,0,w+panelW,height);
-  c.drawImage(table,0,(height-h)/2,w,h);
+  if(table)c.drawImage(table,0,(height-h)/2,w,h);
   c.fillStyle='#1c2a35';c.fillRect(w,0,panelW,height);
   c.fillStyle='#ffc78a';c.font='700 23px system-ui';c.fillText('Shot Info',w+18,38);
   c.font='600 16px system-ui';c.textBaseline='middle';

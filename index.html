@@ -1760,6 +1760,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         <label for="trainerSnapshotName">Snapshot name</label>
         <input id="trainerSnapshotName" type="text" maxlength="80" placeholder="Billiards table snapshot">
         <div id="trainerSnapshotStatus" class="hint" role="status">On the web, check your browser’s Downloads for snapshots.</div>
+        <div id="trainerClipTools" hidden>
+          <div class="row">
+            <button id="trainerClipArm" type="button" aria-pressed="false">Record shot</button>
+            <button id="trainerClipFolder" type="button" hidden>Clip folder</button>
+            <button id="trainerClipSetup" type="button" hidden>Save setup</button>
+          </div>
+          <div id="trainerClipStatus" class="hint" role="status">Pick a view above, then arm the next shot. 1080p MP4 at 30 fps.</div>
+        </div>
       </div>
       <div id="markerZoneControls" style="display:none;border:1px solid #41464f;border-radius:7px;padding:8px;margin-top:8px">
         <label for="markerZoneSelect">Practice target zone</label>
@@ -2720,8 +2728,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             }
             resetRunHistory();refresh();return true;
         }
-        function strokeSnapshot(){
-            const which=S.activeShot===2&&S.shot2Enabled?2:1,shot=which===2?ensureShot2():S;
+        function strokeSnapshot(which=S.activeShot===2&&S.shot2Enabled?2:1){
+            const shot=which===2?ensureShot2():S;
             const tip=document.createElement('canvas');
             tip.getBoundingClientRect=()=>({width:300,height:210});
             drawTipDisk(tip,shot.sideSpin,shot.follow,which);
@@ -7785,7 +7793,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             },true);
         });
     }
-    function draw() {
+    function draw(videoFrame = false) {
+        const clean = videoFrame === true;
         shotBudgetOverlaps = [];
         window.billiardsPhoneReadouts?.();
         if ($('phoneFlightCanvas')) $('phoneFlightCanvas').style.display = 'none';
@@ -7812,7 +7821,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 
         // Global teaching toggle:
         // Shot visibility controls paths and guides independently of cue-ball visibility.
-        {
+        if (!clean) {
             if (cueVisualsVisible(1)) {
                 if (!document.body.classList.contains('zen-mode')) drawPreview(map);
                 drawAim(map);
@@ -7837,23 +7846,25 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                     continue;
                 if (b.id === 0 && !cueVisualsVisible(1))
                     continue;
-                drawBall(Object.assign(Object.assign({}, b), { x: ab.x, y: ab.y, active: true }), map, false);
+                drawBall(Object.assign(Object.assign({}, b), { x: ab.x, y: ab.y, active: true }), map, clean);
             }
         }
-        if (cueVisualsVisible(1) && !document.body.classList.contains('zen-mode')) drawImpactOverlay(map);
-        if (!document.body.classList.contains('zen-mode')) drawTipBadge(map);
-        if (!document.body.classList.contains('zen-mode')) drawBankKickGuide(map);
-        if (!document.body.classList.contains('zen-mode')) drawTeachingCompass(map);
-        if (!document.body.classList.contains('zen-mode')) drawRollingReferences(map);
-        if (!document.body.classList.contains('zen-mode')) drawCalibration(M);
-        if (!document.body.classList.contains('zen-mode')) drawShotBudget(map);
+        if (!clean) {
+            if (cueVisualsVisible(1) && !document.body.classList.contains('zen-mode')) drawImpactOverlay(map);
+            if (!document.body.classList.contains('zen-mode')) drawTipBadge(map);
+            if (!document.body.classList.contains('zen-mode')) drawBankKickGuide(map);
+            if (!document.body.classList.contains('zen-mode')) drawTeachingCompass(map);
+            if (!document.body.classList.contains('zen-mode')) drawRollingReferences(map);
+            if (!document.body.classList.contains('zen-mode')) drawCalibration(M);
+            if (!document.body.classList.contains('zen-mode')) drawShotBudget(map);
+        }
         window.BilliardsTableZoom?.end(ctx);
         window.dispatchEvent(new Event("billiards:2d-render"));
         if(window.Billiards3D){
             const live=(animation?.current||S.balls).map(b=>({...S.balls.find(x=>x.id===b.id),...b})).filter(b=>b.id!==0||cueVisualsVisible(1));
-            if(S.shot2Enabled&&cueVisualsVisible(2))live.push({id:'CB2',x:S.shot2.x,y:S.shot2.y,active:true});
+            if(!clean&&S.shot2Enabled&&cueVisualsVisible(2))live.push({id:'CB2',x:S.shot2.x,y:S.shot2.y,active:true});
             const second=S.activeShot===2&&S.shot2Enabled,cb=second?S.shot2:cueBall();
-            window.Billiards3D.update({L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:animation?.cueTips||cueTipsFor3D(),balls:live,map,aim:cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
+            window.Billiards3D.update({L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:clean?[]:animation?.cueTips||cueTipsFor3D(),balls:live,map,aim:!clean&&cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
         }
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }
@@ -9485,22 +9496,43 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const sim = simulate(true);
         if (!sim.frames.length)
             return;
-        let idx = 0;
-        const start = performance.now();
-        const fps = 60;
+        const recording = window.BilliardsShotRecorder?.begin();
+        if (recording) {
+            draw(true);
+            recording.frame();
+        }
+        const start = performance.now(), fps = 60, last = sim.frames.length - 1;
+        let videoSample = 2;
         animation = { current: sim.frames[0], cueTips:cueTipsFor3D() };
         syncHistoryButtons();
         const runningAnimation = animation;
         function tick(now) {
-            if (animation !== runningAnimation) return;
-            idx = Math.min(sim.frames.length - 1, Math.floor((now - start) / (1000 / fps)));
+            if (animation !== runningAnimation) {
+                recording?.cancel();
+                return;
+            }
+            if (recording && (now - start < videoSample * 1000 / fps || !recording.ready())) {
+                requestAnimationFrame(tick);
+                return;
+            }
+            const idx = Math.min(last, recording ? videoSample : Math.floor((now - start) / (1000 / fps)));
             animation.current = sim.frames[idx];
-            draw();
-            if (idx < sim.frames.length - 1) {
+            draw(!!recording);
+            if (idx < last) {
+                if (recording) {
+                    recording.frame();
+                    videoSample += 2;
+                }
                 requestAnimationFrame(tick);
             }
             else {
                 commitAnimatedShot(sim, preShot);
+                if (recording) {
+                    draw(true);
+                    recording.frame();
+                    recording.finish();
+                    draw();
+                }
             }
         }
         requestAnimationFrame(tick);
@@ -13510,7 +13542,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <script src="./phone-play.js?v=share-analysis-1"></script>
   <link rel="stylesheet" href="./trainer-3d.css?v=compact-landscape-1">
   <script src="./trainer-3d.js?v=18"></script>
-  <script src="./trainer-annotate.js?v=12"></script>
+  <script src="./trainer-annotate.js?v=13"></script>
+  <script src="./trainer-shot-recorder.js?v=1"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">
