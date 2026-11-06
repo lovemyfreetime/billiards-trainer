@@ -7212,13 +7212,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 {text:'Exit angle '+angle(info.exitDegrees),color:'#fff'}];
             const anchor=map(item.contact.cuePos);
             const badge=api.placeBadge(rows,anchor,placement)||api.placeBadge(rows,anchor,{...placement,segments:[]});
-            if(badge)badges.push({...badge,type:'overlap',opacity:.84});
-        }
-        if(S.showImpact&&S.showPaths)for(const {preview} of previews){
-            const rail=railExitInfo(preview);if(!rail||!Number.isFinite(rail.degrees))continue;
-            const rows=[{text:'Rail exit '+angle(rail.degrees),color:'#fff'}],anchor=map(rail.anchor);
-            const badge=api.placeBadge(rows,anchor,placement);
-            if(badge)badges.push({...badge,type:'overlap',opacity:.84});
+            if(badge)badges.push({...badge,type:'overlap',opacity:.64});
         }
         if(S.showShotBudget&&S.showPaths){
             for(const {which,preview} of previews){
@@ -7567,7 +7561,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 if(Math.hypot(q.x-c.cuePos.x,q.y-c.cuePos.y)>=S.ballR*5)break;
             }
             const label=map(point),text=sample.degrees.toFixed(1)+'°';
-            ctx.save();ctx.globalAlpha=.60;ctx.fillStyle=which===1?'#ffe9ad':'#b8f5ff';ctx.strokeStyle='#14232b';ctx.lineWidth=3;ctx.font='bold 11px Segoe UI';ctx.textAlign='center';ctx.strokeText(text,label.x+8,label.y-7);ctx.fillText(text,label.x+8,label.y-7);ctx.restore();
+            ctx.save();ctx.globalAlpha=.48;ctx.fillStyle=which===1?'#ffe9ad':'#b8f5ff';ctx.strokeStyle='#14232b';ctx.lineWidth=3;ctx.font='bold 11px Segoe UI';ctx.textAlign='center';ctx.strokeText(text,label.x+8,label.y-7);ctx.fillText(text,label.x+8,label.y-7);ctx.restore();
         }
     }
     function drawTeachingCompass(map) {
@@ -13514,7 +13508,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=resources-toggle-v8">
   <script src="./phone-play.js?v=share-analysis-1"></script>
-  <link rel="stylesheet" href="./trainer-3d.css?v=share-analysis-1">
+  <link rel="stylesheet" href="./trainer-3d.css?v=compact-landscape-1">
   <script src="./trainer-3d.js?v=18"></script>
   <script src="./trainer-annotate.js?v=11"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>

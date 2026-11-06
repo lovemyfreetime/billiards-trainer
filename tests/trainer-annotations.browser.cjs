@@ -229,7 +229,7 @@ const { chromium } = require('playwright');
     const rectOriginal=CanvasRenderingContext2D.prototype.roundRect;
     CanvasRenderingContext2D.prototype.roundRect=function(...args){window.snapshotBoxes.push(args);return rectOriginal.apply(this,args);};
     const original=CanvasRenderingContext2D.prototype.fillText;
-    CanvasRenderingContext2D.prototype.fillText=function(text,...args){window.snapshotText.push(text);if(this.globalAlpha===.6&&/^\d+\.\d°$/.test(text))window.snapshotPathAngles.push(text);window.snapshotCalls.push([text,...args]);return original.call(this,text,...args);};
+    CanvasRenderingContext2D.prototype.fillText=function(text,...args){window.snapshotText.push(text);if(this.globalAlpha===.48&&/^\d+\.\d°$/.test(text))window.snapshotPathAngles.push(text);window.snapshotCalls.push([text,...args]);return original.call(this,text,...args);};
    });
    const strokeDownload=page.waitForEvent('download');
    await page.locator('#trainerAnnotateSnapshot').click();
@@ -297,7 +297,7 @@ const { chromium } = require('playwright');
    const group=live.find(card=>card.rows.length===3&&card.type==='overlap');
    assert(group,'Grouped geometry label appears on the table');
    assert.deepEqual(group.rows.map(row=>row.text),['Overlap '+fixtures.cut.overlap.toFixed(1)+'%','Cut angle '+fixtures.cut.cut.toFixed(1)+'°','Exit angle '+fixtures.cut.exit.toFixed(1)+'°']);
-   assert(group.opacity<1&&group.opacity>.7,'Geometry text is gently dimmed');
+   assert(group.opacity>=.55&&group.opacity<=.68,'Geometry text is gently dimmed');
    await page.locator('#table3DToggle').click();await settle();
    const threeInfo=await page.evaluate(()=>{const data=billiardsTourBridge.strokeSnapshot();return {exit:data.exitDegrees,cut:data.cutDegrees,labels:window.liveContactLabels};});
    assert.equal(threeInfo.exit,fixtures.cut.exit);assert.equal(threeInfo.cut,fixtures.cut.cut);
@@ -316,7 +316,7 @@ const { chromium } = require('playwright');
    assert(Number.isFinite(variants.draw)&&Number.isFinite(variants.follow));
    assert(Math.abs(variants.draw-variants.follow)>1,'Exit angle changes live with follow/draw');
    assert(Number.isFinite(variants.rail),'Rail-only shot reports rebound exit angle');
-   assert(variants.labels.some(card=>card.rows.some(row=>row.text.startsWith('Rail exit '))),'Rebound has visible live rail exit label');
+   assert(!variants.labels.some(card=>card.rows.some(row=>row.text.startsWith('Rail exit '))),'Rebound omits the rail exit label on the cloth');
 
 
 

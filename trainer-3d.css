@@ -268,3 +268,86 @@ body.table-3d.phone-focus #phoneSpeedRail .speedTickScale{bottom:60px}
 
 /* The edit selection echoes the teal-green playing cloth. */
 body.table-3d #table3DLock [data-adjust="edit"].selected{background:#206d76;color:#efffff}
+
+/* Keep the tablet control arrangement on short landscape screens. */
+@media (orientation:landscape) and (max-height:500px){
+ body.table-3d.phone-focus{
+  --control-height:clamp(23px,6vh,30px);
+  --control-gap:calc(var(--control-height)*2 + 12px);
+  --control-bottom:calc(4px + env(safe-area-inset-bottom));
+  --compact-rail:clamp(30px,10vh,50px);
+  --compact-rail-top:clamp(52px,16vh,80px);
+  --compact-shoot:clamp(50px,8vw,90px);
+  --compact-row-gap:4px;
+  --control-left:calc(var(--compact-rail) + 12px + env(safe-area-inset-left));
+  --control-right:calc(var(--compact-shoot) + 12px + env(safe-area-inset-right));
+ }
+ body.table-3d.phone-focus:not(.zen-mode):not(.projector) #stageWrap{
+  inset:calc(7vh + env(safe-area-inset-top)) 0 calc(var(--control-bottom) + var(--control-height)*2 + 10px)!important;
+ }
+ body.table-3d.phone-focus #stageWrap #table3DCanvas{
+  inset:0 calc(var(--compact-rail) + 12px + env(safe-area-inset-right)) 0 var(--control-left)!important;
+  width:calc(100% - var(--control-left) - var(--compact-rail) - 12px - env(safe-area-inset-right))!important;
+ }
+ body.table-3d.phone-focus:not(.zen-mode) #phoneControls{
+  width:var(--control-height);height:var(--control-height);min-height:var(--control-height);font-size:16px;
+ }
+ body.table-3d.phone-focus #phoneActions>#phoneAimChoice{
+  right:calc(var(--control-height) + 10px + env(safe-area-inset-right));
+  width:56px;min-width:56px;height:var(--control-height);min-height:var(--control-height);font-size:9px;
+ }
+ body.table-3d.phone-focus #stageWrap>#table3DToggle{
+  top:calc(var(--compact-rail-top) - var(--control-height) - 4px);
+  width:clamp(49px,7vw,72px);height:var(--control-height);min-height:var(--control-height);
+  font-size:9px!important;border-width:2px;
+ }
+ body.table-3d.phone-focus #phoneActions>[data-trainer-action=undoShot],
+ body.table-3d.phone-focus #phoneActions>[data-trainer-action=redoShot]{
+  width:var(--compact-rail);min-width:0;height:calc(var(--control-height) - 3px);min-height:0;
+  padding:0;font-size:8px;border-radius:6px;
+ }
+ body.table-3d.phone-focus #phoneActions>[data-trainer-action=undoShot]{top:calc(var(--compact-rail-top) - var(--control-height)*2)}
+ body.table-3d.phone-focus #phoneActions>[data-trainer-action=redoShot]{top:calc(var(--compact-rail-top) - var(--control-height))}
+ body.table-3d.phone-focus #phoneActions>[data-trainer-action=animate]{
+  width:var(--compact-shoot)!important;max-width:none!important;
+  height:calc(var(--control-height)*2 + var(--compact-row-gap))!important;
+  min-height:0!important;font-size:12px!important;
+ }
+ body.table-3d.phone-focus #table3DPhoneControls{
+  bottom:calc(var(--control-bottom) + var(--control-height) + var(--compact-row-gap));
+ }
+ body.table-3d.phone-focus #table3DPhoneControls #table3DViews>button{font-size:9px}
+ body.table-3d.phone-focus .table3DAdjustmentOptions{font-size:7px}
+ body.table-3d.phone-focus #table3DPhoneControls #table3DTools #table3DZoomSlider{height:var(--control-height)}
+ body.table-3d.phone-focus #phoneActions .miniSpinControl{padding:10px 23px 1px}
+ body.table-3d.phone-focus #phoneActions .miniSpinControl input{height:100%}
+ body.table-3d.phone-focus #phoneActions .miniSpinLabel,
+ body.table-3d.phone-focus #phoneActions .phoneSliderValue{width:21px!important;font-size:14px}
+ body.table-3d.phone-focus #phoneActions .phoneSpinCaption{top:1px;font-size:7px;line-height:9px}
+ body.table-3d.phone-focus #phoneActions .bottomSpinGroup .phoneTipControl:not([hidden]){
+  width:calc(var(--control-height)*2 + var(--compact-row-gap));
+  height:calc(var(--control-height)*2 + var(--compact-row-gap));
+ }
+ body.table-3d.phone-focus #phoneAimRail,
+ body.table-3d.phone-focus #phoneSpeedRail{
+  top:var(--compact-rail-top);
+  bottom:calc(var(--control-bottom) + var(--control-height)*2 + var(--compact-row-gap) + 5px);
+  width:var(--compact-rail);
+ }
+ body.table-3d.phone-focus #phoneAimRail>.aimControlRow,
+ body.table-3d.phone-focus #phoneSpeedRail>.tableSpeedControl{width:100%!important}
+ body.table-3d.phone-focus #phoneAimRail .aimRollerControl{width:100%;padding:14px 3px 3px;gap:2px}
+ body.table-3d.phone-focus #phoneAimRail .rollerTrack{width:calc(var(--compact-rail)*.64)}
+ body.table-3d.phone-focus #phoneAimRail .rollerDir{width:100%;height:20px;font-size:13px}
+ body.table-3d.phone-focus .phoneAimLabel{font-size:8px;line-height:10px}
+ body.table-3d.phone-focus #phoneSpeedRail>.tableSpeedControl{padding:39px 2px 30px}
+ body.table-3d.phone-focus #phoneSpeedRail input{width:calc(var(--compact-rail) - 6px)}
+ body.table-3d.phone-focus #phoneSpeedRail .tableSpeedLabel{height:36px!important;min-height:36px;padding-top:2px}
+ body.table-3d.phone-focus #phoneSpeedRail .phoneSpeedValue,
+ body.table-3d.phone-focus #phoneSpeedRail .phoneSpeedFeel{font-size:9px;line-height:12px}
+ body.table-3d.phone-focus #phoneSpeedRail .phoneSpeedValue{top:12px}
+ body.table-3d.phone-focus #phoneSpeedRail .phoneSpeedFeel{top:23px}
+ body.table-3d.phone-focus #phoneSpeedRail .phoneSpeedLag{bottom:15px;font-size:8px;line-height:12px;white-space:nowrap}
+ body.table-3d.phone-focus #phoneSpeedRail .phoneSliderValue{height:15px;min-height:15px}
+ body.table-3d.phone-focus #phoneSpeedRail .speedTickScale{top:41px;bottom:33px}
+}
