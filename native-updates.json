@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "57f549bfb20c201e477e99fe56466cbd468ae19e1b7066c570ee74b756a29b68",
-  "sequence": 1794130187,
+  "version": "c41083a28859d2ff5104e072d75180f18f594a52581e8e793b9041ad48c76db5",
+  "sequence": 1794131414,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3805,7 +3805,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "a40607fefafd780d1480fd717854918d34594e47096b375a6451ee9d8464ec58",
+      "sha256": "2bd3bbfc7c6fe775def8554d722f1308242f36c3242a08c25738a9c352b2f867",
       "length": 145372
     },
     "phone-play.css": {
@@ -4917,7 +4917,7 @@
       "length": 1895
     },
     "service-worker.js": {
-      "sha256": "046e91ee1b00eef161b080c33d64cef61e01a2104b2b9ef05b19c02418847b2b",
+      "sha256": "bb613bc86fcb1abc78fe1d71af4091b20ef01dbe11b664c4438b9c9a65442f8c",
       "length": 7739
     },
     "table-orbit.js": {
@@ -4989,8 +4989,8 @@
       "length": 4381
     },
     "trainer-video-narration.js": {
-      "sha256": "c97c529a8a044f8acac95ece13cd364a70b632390cd96d066ca484bd805107c4",
-      "length": 30293
+      "sha256": "abcf949de2fef251ec5e44b3f011afaf2580396b30b6793e82b79f667b6f2fd7",
+      "length": 30305
     },
     "vendor/mp4-muxer-5.2.2/LICENSE": {
       "sha256": "75c54aae7ef6ad652f684f9dd3b71e4dcef86ccebd88cf441ceed7f5eec037c5",

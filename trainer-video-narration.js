@@ -41,7 +41,7 @@
  let microphone=null,previewing=false,playbackTimer=0,holdTimer=0,audioFolder=null,recordingUrl=null;
  const cleanUrl=url=>{if(url)URL.revokeObjectURL(url);};
  function list(){
-  const list=get('narrationHolds');list.replaceChildren();
+  const holdList=get('narrationHolds');holdList.replaceChildren();
   holds.sort((a,b)=>a.at-b.at);
   holds.forEach((hold,index)=>{
    const li=document.createElement('li'),remove=document.createElement('button');
@@ -49,7 +49,7 @@
    remove.textContent='Remove';remove.type='button';remove.disabled=working;
    remove.disabled=working||!!microphone;
    remove.onclick=()=>{shiftTakesAfter(hold.at,-hold.seconds);holds.splice(index,1);list();showTakes();};
-   li.append(remove);list.append(li);
+   li.append(remove);holdList.append(li);
   });
  }
  function showTakes(){
