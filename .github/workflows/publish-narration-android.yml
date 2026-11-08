@@ -1,0 +1,109 @@
+name: Publish validated narration Android release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/publish-narration-android.yml'
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: validated-narration-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ANDROID_VERSION_CODE: '1179'
+      TESTED_SOURCE_SHA: 232d1a57fcd4f07fc5bcc5a9df7d659dfbfbaff5
+      BROWSER_TESTED_SOURCE_SHA: 3b75660320bc8831529080fdaba3eceda6efe300
+      BROWSER_TEST_RUN: '42468941270'
+      ANDROID_TEST_RUN: '42470544893'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - name: Require exact tested source and successful independent tests
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$(git rev-parse HEAD^)" = "$TESTED_SOURCE_SHA"
+          browser=$(gh run view "$BROWSER_TEST_RUN" --repo "$GITHUB_REPOSITORY" --json conclusion,headSha --jq '.headSha + " " + .conclusion')
+          android=$(gh run view "$ANDROID_TEST_RUN" --repo "$GITHUB_REPOSITORY" --json conclusion,headSha --jq '.headSha + " " + .conclusion')
+          test "$browser" = "$BROWSER_TESTED_SOURCE_SHA success"
+          changed=$(git diff --name-only "$BROWSER_TESTED_SOURCE_SHA" "$TESTED_SOURCE_SHA")
+          test "$changed" = 'android-wrapper/app/src/androidTest/java/com/lovemyfreetime/billiardstrainer/CameraPermissionTest.java'
+          test "$android" = "$TESTED_SOURCE_SHA success"
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
+      - name: Download the signed APKs that passed offline Android tests
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download "$ANDROID_TEST_RUN" --repo "$GITHUB_REPOSITORY" --name narration-validated-APKs --dir release-candidates
+      - name: Independently verify the tested signed APK artifacts
+        run: |
+          mkdir -p android-wrapper/output
+          trainer=$(find release-candidates -type f -name 'app-trainer-release.apk')
+          installer=$(find release-candidates -type f -name 'app-installer-release.apk')
+          test "$(printf '%s\n' "$trainer" | sed '/^$/d' | wc -l)" -eq 1
+          test "$(printf '%s\n' "$installer" | sed '/^$/d' | wc -l)" -eq 1
+          python3 scripts/verify-android-app.py "$trainer" "$installer"
+          expected=a7e01270b7c40cb939d745d391fd8ae34e89c7051c363c11e125ca1616b4d9c7
+          for flavor in trainer installer; do
+            if test "$flavor" = trainer; then apk="$trainer"; package=com.lovemyfreetime.billiardstrainer; else apk="$installer"; package=com.lovemyfreetime.billiardstrainer.installer; fi
+            "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$apk" > /tmp/narration-release-cert.txt
+            actual=$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' /tmp/narration-release-cert.txt)
+            test "$actual" = "$expected"
+            badging=$("$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" | head -1)
+            echo "$badging" | grep -F "name='$package'"
+            echo "$badging" | grep -F "versionCode='$ANDROID_VERSION_CODE'"
+            if test "$flavor" = trainer; then
+              name=$(printf '%s\n' "$badging" | sed -n "s/.*versionName='\([^']*\)'.*/\1/p")
+              test -n "$name"
+              echo "ANDROID_VERSION_NAME=$name" >> "$GITHUB_ENV"
+            fi
+          done
+          cp "$trainer" android-wrapper/output/Billiards-Trainer-Android.apk
+          cp "$installer" android-wrapper/output/Billiards-Trainer-Installer-Android.apk
+          (
+            cd android-wrapper/output
+            zip -0 Billiards-Trainer-Android.zip Billiards-Trainer-Android.apk
+            unzip -p Billiards-Trainer-Android.zip Billiards-Trainer-Android.apk | cmp - Billiards-Trainer-Android.apk
+          )
+      - name: Publish the exact Android-emulator-tested APKs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view android-app --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create android-app --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title 'Billiards Trainer for Android' --notes-file android-wrapper/RELEASE_NOTES.md
+          gh release upload android-app --repo "$GITHUB_REPOSITORY" android-wrapper/output/*.apk android-wrapper/output/Billiards-Trainer-Android.zip --clobber
+          python3 - <<'PYMETA'
+          import hashlib, json, os
+          from pathlib import Path
+          apk = Path('android-wrapper/output/Billiards-Trainer-Android.apk')
+          with apk.open('rb') as stream:
+              digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+          data = {'versionCode': int(os.environ['ANDROID_VERSION_CODE']),
+                  'size': apk.stat().st_size, 'sha256': digest}
+          apk.with_name('trainer-update.json').write_text(json.dumps(data)+'\n')
+          PYMETA
+          gh release upload android-app --repo "$GITHUB_REPOSITORY" android-wrapper/output/trainer-update.json --clobber
+          gh release edit android-app --repo "$GITHUB_REPOSITORY" --title 'Billiards Trainer for Android' --notes-file android-wrapper/RELEASE_NOTES.md
+      - name: Update normal installer links and release metadata
+        run: |
+          python3 scripts/update-android-downloads.py
+          python3 -c 'import json, os; print(json.dumps({"versionName": os.environ["ANDROID_VERSION_NAME"]}))' > android-release.json
+          python3 scripts/build-offline-assets.py
+          git add android-release.json install/index.html install/android/index.html install/assets/installer.js native-updates.json offline-assets.json service-worker.js
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'Point Android installers to validated narrated release'
+            git push origin HEAD:main
+          fi
