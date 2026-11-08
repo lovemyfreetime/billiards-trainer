@@ -1,0 +1,74 @@
+name: Publish saved views and narration APK
+on:
+  push:
+    branches: [release/recorder-views-narration-1178]
+permissions:
+  actions: read
+  contents: write
+concurrency:
+  group: android-public-release
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require successful Android validation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: test "$(gh api repos/$GITHUB_REPOSITORY/actions/runs/42461048778 --jq .conclusion)" = success
+      - name: Download the exact tested artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/13609676393/zip" > accepted-apks.zip
+          echo 'b0463ec79c82f8eaf1931dc58523820ca9a22338b26e9fbfbde89ff874fa71c9  accepted-apks.zip' | sha256sum -c
+          unzip -q accepted-apks.zip
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'build-tools;35.0.0'
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: source
+      - name: Prepare exact tested source for publication
+        working-directory: source
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = 741cdb374887163d7c7564768b46d8d8b31aff0f
+          git fetch --depth=1 origin test/recorder-views-narration
+          git show FETCH_HEAD:recorder-views-narration.patch > /tmp/accepted.patch
+          test "$(git hash-object /tmp/accepted.patch)" = 77574528a3773b6bf7abaf0a7d9087b4f91fc2ce
+          git apply --check /tmp/accepted.patch
+          git apply /tmp/accepted.patch
+          printf '{"versionCode":1178}\n' > android-release.json
+          python3 scripts/build-offline-assets.py
+          python3 scripts/build-offline-assets.py --check
+          git diff --check
+          git add index.html trainer-3d.js trainer-table-zoom.js trainer-annotate.js trainer-shot-recorder.js trainer-video-narration.js android-wrapper/app/src/main/java/com/lovemyfreetime/billiardstrainer/MainActivity.java android-wrapper/app/src/androidTest/java/com/lovemyfreetime/billiardstrainer/BundledAppTest.java tests/trainer-recording-session.browser.cjs tests/trainer-video-narration.browser.cjs android-release.json native-updates.json offline-assets.json service-worker.js
+          git config user.name 'Billiards Trainer'
+          git config user.email 'noreply@github.com'
+          git commit -m 'Preserve session camera views and add video narration with frame holds'
+          git push origin HEAD:refs/heads/feature/recorder-views-narration
+          echo "Prepared source commit $(git rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify and publish tested APKs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          export GH_REPO="$GITHUB_REPOSITORY"
+          echo '3554eb9d94f0dd7042403138698d21f72a7ed6e6e36e2c049299177da6bc9b70  trainer/release/app-trainer-release.apk' | sha256sum -c
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          for flavor in trainer installer; do
+            apk="$flavor/release/app-$flavor-release.apk"
+            "$tools/apksigner" verify --print-certs "$apk" | grep -Fx 'Signer #1 certificate SHA-256 digest: a7e01270b7c40cb939d745d391fd8ae34e89c7051c363c11e125ca1616b4d9c7'
+            "$tools/aapt" dump badging "$apk" > "$flavor.badging"
+            grep -F "versionCode='1178' versionName='4.12.1178'" "$flavor.badging"
+          done
+          current="$(gh release download android-app -p trainer-update.json -O - | jq -er .versionCode)"
+          test "$current" -lt 1178
+          cp trainer/release/app-trainer-release.apk Billiards-Trainer-Android.apk
+          cp installer/release/app-installer-release.apk Billiards-Trainer-Installer-Android.apk
+          zip -0 Billiards-Trainer-Android.zip Billiards-Trainer-Android.apk
+          unzip -p Billiards-Trainer-Android.zip Billiards-Trainer-Android.apk | cmp - Billiards-Trainer-Android.apk
+          jq -n --arg sha "$(sha256sum Billiards-Trainer-Android.apk | cut -d' ' -f1)" --argjson size "$(stat -c %s Billiards-Trainer-Android.apk)" '{versionCode:1178,size:$size,sha256:$sha}' > trainer-update.json
+          gh release upload android-app Billiards-Trainer-Android.apk Billiards-Trainer-Installer-Android.apk Billiards-Trainer-Android.zip trainer-update.json --clobber
+
