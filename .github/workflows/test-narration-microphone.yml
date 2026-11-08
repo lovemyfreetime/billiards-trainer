@@ -25,6 +25,10 @@ jobs:
           node --check trainer-video-narration.js
           python3 scripts/build-offline-assets.py --check
           node --test tests/offline-loading.test.cjs tests/background-update-session.test.cjs
+      - name: Install test video tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
       - name: Install real browser for microphone and imported audio tests
         run: |
           npm ci --prefix local-host --ignore-scripts --no-audit --no-fund

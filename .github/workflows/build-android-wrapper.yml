@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - main
-      - test/narration-microphone
     paths:
       - 'android-wrapper/**'
       - 'trainer-video-narration.js'
@@ -86,6 +85,8 @@ jobs:
 
       - name: Verify imported and microphone narration in a real browser
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
           npm install --prefix /tmp/trainer-browser-tests --no-audit --no-fund playwright@1.65.0
           /tmp/trainer-browser-tests/node_modules/.bin/playwright install --with-deps chromium
           export NODE_PATH=/tmp/trainer-browser-tests/node_modules
