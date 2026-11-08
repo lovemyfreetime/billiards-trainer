@@ -57,6 +57,15 @@ const fs=require('node:fs');
   await page.locator('#narrationStop').click();
   await page.waitForFunction(()=>document.querySelectorAll('#narrationTakes li button').length===3);
   assert.equal(await page.locator('#narrationSourceMode').inputValue(),'record');
+  const firstAt=Number(/At ([0-9.]+)s/.exec(await page.locator('#narrationTakes li').first().textContent())[1]);
+  await page.locator('#narrationPreview').evaluate(v=>{v.currentTime=.1;});
+  await page.locator('#narrationHold').fill('1');
+  await page.locator('#narrationAddHold').click();
+  const afterHold=Number(/At ([0-9.]+)s/.exec(await page.locator('#narrationTakes li').first().textContent())[1]);
+  assert(Math.abs(afterHold-firstAt-1)<.11,'Later audio shifts with a non-destructive frame hold');
+  await page.locator('#narrationHolds button').click();
+  const afterRemove=Number(/At ([0-9.]+)s/.exec(await page.locator('#narrationTakes li').first().textContent())[1]);
+  assert(Math.abs(afterRemove-firstAt)<.11,'Removing a hold restores narration timing');
   await page.locator('#narrationTakes button').first().click();
   assert((await page.locator('#narrationAudioPreview').getAttribute('src')).startsWith('blob:'));
   // A retake replaces an earlier segment, not the original source or imported track.

@@ -47,7 +47,9 @@
    const li=document.createElement('li'),remove=document.createElement('button');
    li.append(hold.at.toFixed(2)+'s · hold '+hold.seconds+'s ');
    remove.textContent='Remove';remove.type='button';remove.disabled=working;
-   remove.onclick=()=>{holds.splice(index,1);list();};li.append(remove);list.append(li);
+   remove.disabled=working||!!microphone;
+   remove.onclick=()=>{shiftTakesAfter(hold.at,-hold.seconds);holds.splice(index,1);list();showTakes();};
+   li.append(remove);list.append(li);
   });
  }
  function showTakes(){
@@ -87,6 +89,12 @@
   updateAudioPreview();
  }
  function outputTime(source){return source+holds.reduce((sum,h)=>sum+(h.at<source-.001?h.seconds:0),0);}
+ function shiftTakesAfter(at,delta){
+  for(const segment of segments){
+   if(sourceTime(segment.start,video.duration,holds)>at+.001)
+    segment.start=Math.max(0,segment.start+delta);
+  }
+ }
  function replaceTake(take,replacedId){
   const end=take.start+take.length,kept=[];
   for(const old of segments){
@@ -141,7 +149,7 @@
  video.addEventListener('play',()=>{
   if(microphone?.pausedAt&&!autoHold){
    const seconds=(performance.now()-microphone.pausedAt)/1000;
-   if(seconds>.08){holds.push({at:microphone.pausedSource,seconds});list();}
+   if(seconds>.08){shiftTakesAfter(microphone.pausedSource,seconds);holds.push({at:microphone.pausedSource,seconds});list();}
    microphone.pausedAt=0;
   }
  });
@@ -189,7 +197,7 @@
   const capture=microphone;capture.stopping=true;
   if(capture.pausedAt){
    const seconds=(performance.now()-capture.pausedAt)/1000;
-   if(seconds>.08){holds.push({at:capture.pausedSource,seconds});list();}
+   if(seconds>.08){shiftTakesAfter(capture.pausedSource,seconds);holds.push({at:capture.pausedSource,seconds});list();}
    capture.pausedAt=0;
   }
   video.pause();stopHoldPlayback();
@@ -408,7 +416,7 @@
  get('narrationAddHold').onclick=()=>{
   const seconds=Number(get('narrationHold').value);
   if(!Number.isFinite(video.duration)||!Number.isFinite(seconds)||seconds<=0||seconds>300){message.textContent='Choose a video and a hold of 0.1 to 300 seconds.';return;}
-  video.pause();holds.push({at:video.currentTime,seconds});list();
+  video.pause();shiftTakesAfter(video.currentTime,seconds);holds.push({at:video.currentTime,seconds});list();showTakes();
  };
  showTakes();
  function sourceTime(time,duration,pauses){

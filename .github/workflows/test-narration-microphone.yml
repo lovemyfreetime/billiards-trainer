@@ -1,0 +1,38 @@
+name: Verify microphone and imported narration
+
+on:
+  push:
+    branches:
+      - test/narration-microphone
+    paths:
+      - 'trainer-video-narration.js'
+      - 'tests/trainer-*-narration.browser.cjs'
+      - 'tests/trainer-narration-microphone.browser.cjs'
+      - '.github/workflows/test-narration-microphone.yml'
+  workflow_dispatch:
+
+jobs:
+  narration-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify source and offline manifests
+        run: |
+          node --check trainer-video-narration.js
+          python3 scripts/build-offline-assets.py --check
+          node --test tests/offline-loading.test.cjs tests/background-update-session.test.cjs
+      - name: Install real browser for microphone and imported audio tests
+        run: |
+          npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
+          node local-host/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Run both narration workflows
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")
+          node tests/trainer-video-narration.browser.cjs
+          node tests/trainer-narration-microphone.browser.cjs
