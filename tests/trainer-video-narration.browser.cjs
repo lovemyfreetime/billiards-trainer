@@ -9,13 +9,16 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),cp=r
   await new Promise((r,j)=>{server.stdout.once('data',r);server.once('error',j)});
   browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox','--enable-unsafe-swiftshader','--use-angle=swiftshader']});
   const p=await browser.newPage({viewport:{width:1100,height:750},serviceWorkers:'block'}),errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')console.log(m.text())});
-  await p.addInitScript(()=>{window.saved=[];let pending;window.BilliardsAndroid={saveTrainerClip(){},supportsNarratedVideo(){return true},beginTrainerRecording(stem,session){pending={stem,session,chunks:[]};return 'token'},appendTrainerRecording(token,data){pending.chunks.push(data);return true},finishTrainerRecording(){saved.push(pending);return pending.stem+'.mp4'},abortTrainerRecording(){pending=null}}});
+  await p.addInitScript(()=>{window.saved=[];window.openedClips=0;let pending;window.BilliardsAndroid={saveTrainerClip(){},supportsNarratedVideo(){return true},openTrainerClipsFolder(){window.openedClips++;},beginTrainerRecording(stem,session){pending={stem,session,chunks:[]};return 'token'},appendTrainerRecording(token,data){pending.chunks.push(data);return true},finishTrainerRecording(){saved.push(pending);return pending.stem+'.mp4'},abortTrainerRecording(){pending=null}}});
   await p.goto('http://127.0.0.1:8812/?train=1');await p.waitForFunction(()=>window.BilliardsShotRecorder);
   await p.evaluate(()=>document.querySelector('#trainerNarrateVideo').click());
   assert.equal(await p.locator('#narrationPreview').evaluate(v=>{const e=new KeyboardEvent('keydown',{key:' ',bubbles:true,cancelable:true});v.dispatchEvent(e);return e.defaultPrevented}),false,'Editor Space must not trigger the Trainer shortcut');
   await p.locator('#narrationVideoFile').setInputFiles(source);
   await p.waitForFunction(()=>document.querySelector('#narrationPreview').readyState>=2);
   const inputDuration=await p.locator('#narrationPreview').evaluate(v=>v.duration);
+  assert(!/Import Chase narration/i.test(await p.locator('#trainerNarrationDialog').textContent()),
+   'Narration instructions should be generic for all users');
+  assert.equal(await p.locator('#narrationOpenExportFolder').isVisible(),false);
   await p.locator('#narrationAudioFile').setInputFiles(narration);
   await p.locator('#narrationPreview').evaluate(v=>new Promise(r=>{v.addEventListener('seeked',r,{once:true});v.currentTime=1}));
   await p.locator('#narrationHold').fill('3');await p.locator('#narrationAddHold').click();
@@ -23,12 +26,24 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),cp=r
   await p.locator('#narrationExport').click();
   await p.waitForFunction(()=>saved.length===1||(!document.querySelector('#narrationExport').disabled&&document.querySelector('#narrationStatus').textContent),null,{timeout:180000});
   assert.equal(await p.evaluate(()=>saved.length),1,await p.locator('#narrationStatus').textContent());
+  assert.equal(await p.locator('#narrationOpenExportFolder').isVisible(),true,
+   'Video folder button should appear after export');
+  await p.locator('#narrationOpenExportFolder').click();
+  assert.equal(await p.evaluate(()=>openedClips),1,'Video folder button opens native Clips folder');
   const data=await p.evaluate(()=>saved[0]);assert.equal(data.stem,'Narration test 01');assert.equal(data.session,null);
   const output='/tmp/narration-export.mp4';fs.writeFileSync(output,Buffer.concat(data.chunks.map(c=>Buffer.from(c,'base64'))));
   const meta=JSON.parse(cp.execFileSync('ffprobe',['-v','error','-show_streams','-show_format','-of','json',output]));
   assert.equal(meta.streams[0].width,1920);assert.equal(meta.streams[0].height,1080);assert.equal(meta.streams[0].avg_frame_rate,'30/1');assert(meta.streams.some(s=>s.codec_type==='audio'));
   assert(Math.abs(Number(meta.format.duration)-inputDuration-3)<.1);
   const sample=time=>cp.execFileSync('ffmpeg',['-v','error','-ss',String(time),'-i',output,'-frames:v','1','-f','rawvideo','-pix_fmt','rgb24','-vf','scale=160:90','pipe:1']);
+  // Verify fresh moving pictures, not just nominal 30-fps timestamps.
+  const motion=cp.execFileSync('ffmpeg',['-v','error','-ss','0','-t','0.9','-i',output,
+   '-vf','scale=128:72,format=gray','-f','rawvideo','pipe:1']);
+  const pixels=128*72,sourceFrames=Math.floor(motion.length/pixels),unique=new Set();
+  for(let i=0;i<sourceFrames;i++)
+   unique.add(motion.subarray(i*pixels,(i+1)*pixels).toString('base64'));
+  assert(unique.size>=sourceFrames*.8,
+   'Export must contain fresh source-motion frames: '+unique.size+'/'+sourceFrames);
   const heldA=sample(1.5),heldB=sample(3.5);
   const heldMeanDifference=heldA.reduce((sum,byte,index)=>sum+Math.abs(byte-heldB[index]),0)/heldA.length;
   assert(heldMeanDifference<4,'Held video frames should match visually after lossy H.264 compression; difference='+heldMeanDifference);
