@@ -11,12 +11,13 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
-        with:
-          artifact-ids: 13607442833
-          merge-multiple: true
-          run-id: 42455618671
-          github-token: ${{ github.token }}
+      - name: Download the exact tested artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/13607442833/zip" > accepted-apks.zip
+          echo '3b9f3839d5ccc616c98268cf894001916a96bbcc0d3206213352cc0b7d59c99f  accepted-apks.zip' | sha256sum -c
+          unzip -q accepted-apks.zip
       - uses: android-actions/setup-android@v3
         with:
           packages: 'build-tools;35.0.0'
