@@ -28,5 +28,5 @@ jobs:
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git commit -m 'Regenerate offline and native inventories for microphone repair'
-            git push origin HEAD:test/narration-microphone-repair-20261108
+            git push origin HEAD:test/narration-export-cadence-20261108
           fi
