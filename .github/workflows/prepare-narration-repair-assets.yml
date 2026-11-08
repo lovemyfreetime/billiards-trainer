@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - test/narration-microphone-repair-20261108
+      - test/narration-export-cadence-20261108
     paths:
       - '.github/workflows/prepare-narration-repair-assets.yml'
 permissions:
