@@ -132,6 +132,48 @@ public class BundledAppTest {
             System.out.println("ANDROID LOCAL passed: all experiences, Chase/guide media, trained WASM classifier, installer, worker migration, LocalStorage and IndexedDB; zero internet requests.");
         }
     }
+    @Test public void namedRecordingChunksAndFailureCleanup() throws Exception {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            scenario.onActivity(a -> activity = a);
+            MainActivity.AndroidBridge bridge = activity.new AndroidBridge();
+            String stem = "Lesson " + System.currentTimeMillis();
+            String token = bridge.beginTrainerRecording(stem, "{\"kind\":\"session\"}");
+            assertFalse(token.isEmpty());
+            assertEquals("", bridge.beginTrainerRecording("Other", "{}"));
+            assertFalse(bridge.appendTrainerRecording("wrong-token", "AQID"));
+            assertTrue(bridge.appendTrainerRecording(token, "AQID"));
+            assertTrue(bridge.appendTrainerRecording(token, "BAUG"));
+            assertTrue(bridge.finishTrainerRecording(token).contains(stem + ".mp4"));
+            String second = bridge.beginTrainerRecording(stem, "{}");
+            assertFalse(second.isEmpty());
+            assertTrue(bridge.appendTrainerRecording(second, "AQID"));
+            assertTrue(bridge.finishTrainerRecording(second).contains(stem + " (2).mp4"));
+            String aborted = bridge.beginTrainerRecording(stem + " aborted", "{}");
+            assertFalse(bridge.appendTrainerRecording(aborted, "%bad base64%"));
+            assertEquals("", bridge.finishTrainerRecording(aborted));
+            android.content.ContentResolver resolver = activity.getContentResolver();
+            Uri collection = android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+            try (android.database.Cursor cursor = resolver.query(collection,
+                    new String[]{"_id", "_display_name"}, "_display_name LIKE ?",
+                    new String[]{stem + "%"}, null)) {
+                int count = 0;
+                while (cursor != null && cursor.moveToNext()) {
+                    String name = cursor.getString(1);
+                    assertFalse(name.contains("aborted"));
+                    Uri uri = android.content.ContentUris.withAppendedId(collection, cursor.getLong(0));
+                    if (name.equals(stem + ".mp4")) {
+                        try (java.io.InputStream stream = resolver.openInputStream(uri)) {
+                            assertNotNull(stream);
+                            assertArrayEquals(new byte[]{1,2,3,4,5,6}, stream.readAllBytes());
+                        }
+                    }
+                    resolver.delete(uri, null, null);
+                    count++;
+                }
+                assertEquals(4, count);
+            }
+        }
+    }
     private static WebResourceResponse worker(String source){return new WebResourceResponse("text/javascript","UTF-8",200,"OK",Collections.singletonMap("Cache-Control","no-store"),new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8)));}
     @Test public void assetRangesAndMissingFiles()throws Exception {
         BundledApp app=new BundledApp(InstrumentationRegistry.getInstrumentation().getTargetContext().getAssets());

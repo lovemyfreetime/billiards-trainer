@@ -1761,11 +1761,19 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         <input id="trainerSnapshotName" type="text" maxlength="80" placeholder="Billiards table snapshot">
         <div id="trainerSnapshotStatus" class="hint" role="status">On the web, check your browser’s Downloads for snapshots.</div>
         <div id="trainerClipTools" hidden>
+          <label for="trainerClipName">Recording name</label>
+          <input id="trainerClipName" type="text" maxlength="80" placeholder="Shot 01" autocomplete="off">
           <div class="row">
             <button id="trainerClipArm" type="button">Record shot</button>
-            <button id="trainerClipFolder" type="button" hidden>Clip folder</button>
+            <button id="trainerClipFolder" type="button">Clips folder</button>
             <button id="trainerClipSetup" type="button" hidden>Save setup</button>
           </div>
+          <div class="row">
+            <button id="trainerClipPair" type="button">Current + stroke</button>
+            <button id="trainerClipSession" type="button" aria-pressed="false">Start session</button>
+            <button id="trainerClipReplay" type="button" disabled>Record session</button>
+          </div>
+          <div id="trainerClipSessionStatus" class="hint">Start a session before playing your rack.</div>
           <div id="trainerClipStatus" class="hint" role="status">Choose a view above, then Record shot to execute and save the clip and setup.</div>
         </div>
       </div>
@@ -9496,6 +9504,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const sim = simulate(true);
         if (!sim.frames.length)
             return;
+        window.dispatchEvent(new CustomEvent('billiards:shot-start'));
         const recording = window.BilliardsShotRecorder?.begin();
         if (recording) {
             draw(true, true);
@@ -13539,7 +13548,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <link rel="stylesheet" href="./trainer-3d.css?v=compact-landscape-1">
   <script src="./trainer-3d.js?v=18"></script>
   <script src="./trainer-annotate.js?v=13"></script>
-  <script src="./trainer-shot-recorder.js?v=record-shot-modes-1"></script>
+  <script src="./trainer-shot-recorder.js?v=record-shot-sessions-1"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">

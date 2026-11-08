@@ -346,7 +346,7 @@
    const c=canvas.getContext('2d',{alpha:false});
    c.fillStyle='#101820';c.fillRect(0,0,width,height);
    let compositionW=area.w,compositionH=area.h;
-   const panel=mode==='stroke'?withStroke(area.w,area.h,window.billiardsTourBridge.strokeSnapshot(1),1):null;
+   const panel=mode==='stroke'?withStroke(area.w,area.h,window.billiardsTourBridge.strokeSnapshot(),1):null;
    if(panel){compositionW=panel.width;compositionH=panel.height;}
    const fit=Math.min(width/compositionW,height/compositionH);
    c.translate((width-compositionW*fit)/2,(height-compositionH*fit)/2);

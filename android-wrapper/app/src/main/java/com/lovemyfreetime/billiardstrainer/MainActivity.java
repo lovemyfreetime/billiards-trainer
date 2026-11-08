@@ -432,7 +432,25 @@ public class MainActivity extends Activity {
         if(pendingCameraRequest!=null){pendingCameraRequest.deny();pendingCameraRequest=null;}
         pendingCameraChooser=null;
         if(descriptionVoice!=null){descriptionVoice.stop();descriptionVoice.shutdown();}
+        synchronized (this) {
+            if (recordingExport != null) recordingExport.discard();
+            recordingExport = null;
+        }
         super.onDestroy();
+    }
+
+    private RecordingExport recordingExport;
+    private final class RecordingExport {
+        String token, stem;
+        Uri video, setup;
+        OutputStream stream;
+        long size;
+        void discard() {
+            try { if (stream != null) stream.close(); } catch (Exception ignored) {}
+            for (Uri uri : new Uri[]{video, setup}) {
+                if (uri != null) try { getContentResolver().delete(uri, null, null); } catch (Exception ignored) {}
+            }
+        }
     }
 
     public class AndroidBridge {
@@ -508,6 +526,119 @@ public class MainActivity extends Activity {
                         Toast.LENGTH_LONG).show();
                 }
             });
+        }
+
+        @JavascriptInterface
+        public void openTrainerClipsFolder() {
+            runOnUiThread(() -> {
+                if (!contentPage()) return;
+                Uri folder = android.provider.DocumentsContract.buildDocumentUri(
+                    "com.android.externalstorage.documents", "primary:Download/Billiards Trainer/Clips");
+                Intent browse = new Intent(Intent.ACTION_VIEW);
+                browse.setDataAndType(folder, android.provider.DocumentsContract.Document.MIME_TYPE_DIR);
+                browse.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                try { startActivity(browse); }
+                catch (Exception unavailable) {
+                    Intent picker = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    picker.setType("*/*");
+                    picker.addCategory(Intent.CATEGORY_OPENABLE);
+                    picker.putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI, folder);
+                    try { startActivityForResult(picker, 4205); }
+                    catch (Exception ignored) {
+                        Toast.makeText(MainActivity.this, "Open My Files > Internal storage > Download > Billiards Trainer > Clips",
+                            Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        }
+
+        private boolean recordingNameExists(String name) {
+            try (android.database.Cursor cursor = getContentResolver().query(
+                    MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                    new String[]{MediaStore.MediaColumns._ID},
+                    MediaStore.MediaColumns.DISPLAY_NAME + " IN (?, ?)",
+                    new String[]{name + ".mp4", name + ".session.billiards.json"}, null)) {
+                return cursor != null && cursor.moveToFirst();
+            }
+        }
+
+        @JavascriptInterface
+        public String beginTrainerRecording(String name, String session) {
+            synchronized (MainActivity.this) {
+                if (recordingExport != null || name == null || name.length() > 120 ||
+                    session == null || session.length() > 24000000) return "";
+                String stem = name.replaceAll("[^\\p{L}\\p{N} ._()-]", "-").trim();
+                if (stem.isEmpty() || stem.equals(".") || stem.equals("..")) return "";
+                RecordingExport export = new RecordingExport();
+                try {
+                    String selected = stem;
+                    int suffix = 2;
+                    while (recordingNameExists(selected)) selected = stem + " (" + suffix++ + ")";
+                    export.stem = selected;
+                    String folder = Environment.DIRECTORY_DOWNLOADS + "/Billiards Trainer/Clips";
+                    export.video = newClipDownload(folder, selected + ".mp4", "video/mp4");
+                    export.setup = newClipDownload(folder, selected + ".session.billiards.json", "application/json");
+                    writeClipDownload(export.setup, session.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                    export.stream = getContentResolver().openOutputStream(export.video);
+                    if (export.stream == null) throw new java.io.IOException("Cannot open video");
+                    export.token = java.util.UUID.randomUUID().toString();
+                    recordingExport = export;
+                    return export.token;
+                } catch (Exception failure) {
+                    export.discard();
+                    return "";
+                }
+            }
+        }
+
+        @JavascriptInterface
+        public boolean appendTrainerRecording(String token, String base64) {
+            synchronized (MainActivity.this) {
+                RecordingExport export = recordingExport;
+                if (export == null || !export.token.equals(token)) return false;
+                try {
+                    if (base64 == null || base64.length() > 1100000) throw new java.io.IOException("Chunk too large");
+                    byte[] bytes = Base64.decode(base64, Base64.DEFAULT);
+                    export.size += bytes.length;
+                    if (export.size > 512L * 1024 * 1024) throw new java.io.IOException("Recording too large");
+                    export.stream.write(bytes);
+                    return true;
+                } catch (Exception failure) {
+                    export.discard();recordingExport = null;
+                    return false;
+                }
+            }
+        }
+
+        @JavascriptInterface
+        public String finishTrainerRecording(String token) {
+            synchronized (MainActivity.this) {
+                RecordingExport export = recordingExport;
+                if (export == null || !export.token.equals(token)) return "";
+                try {
+                    if (export.size == 0) throw new java.io.IOException("Empty video");
+                    export.stream.close();export.stream = null;
+                    ContentValues ready = new ContentValues();
+                    ready.put(MediaStore.MediaColumns.IS_PENDING, 0);
+                    if (getContentResolver().update(export.setup, ready, null, null) != 1 ||
+                        getContentResolver().update(export.video, ready, null, null) != 1)
+                        throw new java.io.IOException("Could not finish recording");
+                    recordingExport = null;
+                    return "Download/Billiards Trainer/Clips/" + export.stem + ".mp4 and its setup";
+                } catch (Exception failure) {
+                    export.discard();recordingExport = null;
+                    return "";
+                }
+            }
+        }
+
+        @JavascriptInterface
+        public void abortTrainerRecording(String token) {
+            synchronized (MainActivity.this) {
+                if (recordingExport != null && recordingExport.token.equals(token)) {
+                    recordingExport.discard();recordingExport = null;
+                }
+            }
         }
 
         @JavascriptInterface
