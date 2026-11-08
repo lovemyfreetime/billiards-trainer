@@ -20,15 +20,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      ANDROID_VERSION_CODE: '1180'
-      TESTED_SOURCE_SHA: 904fe8d90a6ec49da8ef316afc64db6fc659c60c
-      BROWSER_TESTED_SOURCE_SHA: 196600415d3480a86aea27d8a5eaf0da8ced1192
-      BROWSER_TEST_RUN: '42512054921'
-      ANDROID_TEST_RUN: '42513239217'
+      ANDROID_VERSION_CODE: '1181'
+      TESTED_SOURCE_SHA: 3b314c9fe9728cbabe9cf01aa16b2fb3db0ad868
+      BROWSER_TESTED_SOURCE_SHA: 8f037cca809d2d63f7f2a4d56b8772d7e9c9c2d7
+      BROWSER_TEST_RUN: '42518897952'
+      ANDROID_TEST_RUN: '42518901855'
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 12
+          fetch-depth: 30
       - name: Require exact tested source and successful independent tests
         env:
           GH_TOKEN: ${{ github.token }}
@@ -38,11 +38,12 @@ jobs:
           test "$browser" = "$BROWSER_TESTED_SOURCE_SHA success"
           test "$android" = "$TESTED_SOURCE_SHA success"
           # Only native Activity code changed after the successful browser recording test.
-          git diff --exit-code "$BROWSER_TESTED_SOURCE_SHA" "$TESTED_SOURCE_SHA" -- trainer-video-narration.js tests/trainer-narration-microphone.browser.cjs
+          git diff --exit-code "$BROWSER_TESTED_SOURCE_SHA" "$TESTED_SOURCE_SHA" -- trainer-video-narration.js trainer-shot-recorder.js tests/trainer-video-narration.browser.cjs tests/trainer-narration-microphone.browser.cjs
           # The APKs were built from this immutable tested source; later commits may
           # contain only release workflow and regenerated manifest files.
           git diff --exit-code "$TESTED_SOURCE_SHA" "$GITHUB_SHA" -- \
             trainer-video-narration.js \
+            trainer-shot-recorder.js \
             android-wrapper/app/src/main/AndroidManifest.xml \
             android-wrapper/app/src/main/java/com/lovemyfreetime/billiardstrainer/MainActivity.java \
             android-wrapper/app/src/main/java/com/lovemyfreetime/billiardstrainer/NarrationMicRecorder.java \
