@@ -249,6 +249,7 @@
   }catch(error){fail('Could not start recording. '+error.message,error);return null;}
  }
  window.BilliardsShotRecorder={begin,
+  openClipsFolder:()=>folderButton.click(),
   async saveNarrated(stem,blob){if(job||preparing)throw Error('Wait for recording to finish.');await save(await unusedName(safeName(stem),'single'),blob,null);}
  };
  update();
