@@ -479,7 +479,7 @@ public class MainActivity extends Activity {
         long size;
         void discard(){
             try{if(stream!=null)stream.close();}catch(Exception ignored){}
-            discardClipDownload(file);
+            if(file!=null)try{getContentResolver().delete(file,null,null);}catch(Exception ignored){}
         }
     }
     private final class RecordingExport {

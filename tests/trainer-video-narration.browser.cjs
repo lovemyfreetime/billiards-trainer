@@ -29,7 +29,10 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),cp=r
   assert.equal(meta.streams[0].width,1920);assert.equal(meta.streams[0].height,1080);assert.equal(meta.streams[0].avg_frame_rate,'30/1');assert(meta.streams.some(s=>s.codec_type==='audio'));
   assert(Math.abs(Number(meta.format.duration)-inputDuration-3)<.1);
   const sample=time=>cp.execFileSync('ffmpeg',['-v','error','-ss',String(time),'-i',output,'-frames:v','1','-f','rawvideo','-pix_fmt','rgb24','-vf','scale=160:90','pipe:1']);
-  assert.deepEqual(sample(1.5),sample(3.5));assert.notDeepEqual(sample(.1),sample(6));
+  const heldA=sample(1.5),heldB=sample(3.5);
+  const heldMeanDifference=heldA.reduce((sum,byte,index)=>sum+Math.abs(byte-heldB[index]),0)/heldA.length;
+  assert(heldMeanDifference<4,'Held video frames should match visually after lossy H.264 compression; difference='+heldMeanDifference);
+  assert.notDeepEqual(sample(.1),sample(6));
   const audio=cp.execFileSync('ffmpeg',['-v','error','-i',output,'-vn','-f','f32le','-ac','1','-ar','48000','pipe:1']);
   const rms=(from,to)=>{let n=0,sum=0;for(let i=Math.round(from*48000);i<Math.min(to*48000,audio.length/4);i++){sum+=audio.readFloatLE(i*4)**2;n++}return Math.sqrt(sum/n)};
   assert(rms(0,.15)<.001);assert(rms(.5,1.5)>.01);
