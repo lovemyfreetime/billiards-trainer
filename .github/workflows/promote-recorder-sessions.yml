@@ -1,0 +1,44 @@
+name: Publish accepted recorder sessions APK
+on:
+  push:
+    branches: [release/recorder-sessions-1175]
+permissions:
+  actions: read
+  contents: write
+concurrency:
+  group: android-public-release
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: 13607442833
+          merge-multiple: true
+          run-id: 42455618671
+          github-token: ${{ github.token }}
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'build-tools;35.0.0'
+      - name: Verify and publish tested APKs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          export GH_REPO="$GITHUB_REPOSITORY"
+          echo '39c56f5b93db7662ff3f1d2d78c7200158baa26e3d8d761d9826cfb01e81dfce  trainer/release/app-trainer-release.apk' | sha256sum -c
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          for flavor in trainer installer; do
+            apk="$flavor/release/app-$flavor-release.apk"
+            "$tools/apksigner" verify --print-certs "$apk" | grep -Fx 'Signer #1 certificate SHA-256 digest: a7e01270b7c40cb939d745d391fd8ae34e89c7051c363c11e125ca1616b4d9c7'
+            "$tools/aapt" dump badging "$apk" > "$flavor.badging"
+            grep -F "versionCode='1175' versionName='4.12.1175'" "$flavor.badging"
+          done
+          current="$(gh release download android-app -p trainer-update.json -O - | jq -er .versionCode)"
+          test "$current" -lt 1175
+          cp trainer/release/app-trainer-release.apk Billiards-Trainer-Android.apk
+          cp installer/release/app-installer-release.apk Billiards-Trainer-Installer-Android.apk
+          zip -0 Billiards-Trainer-Android.zip Billiards-Trainer-Android.apk
+          unzip -p Billiards-Trainer-Android.zip Billiards-Trainer-Android.apk | cmp - Billiards-Trainer-Android.apk
+          jq -n --arg sha "$(sha256sum Billiards-Trainer-Android.apk | cut -d' ' -f1)" --argjson size "$(stat -c %s Billiards-Trainer-Android.apk)" '{versionCode:1175,size:$size,sha256:$sha}' > trainer-update.json
+          gh release upload android-app Billiards-Trainer-Android.apk Billiards-Trainer-Installer-Android.apk Billiards-Trainer-Android.zip trainer-update.json --clobber
