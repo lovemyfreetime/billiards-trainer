@@ -14,6 +14,12 @@
   function gesture(){const ps=[...pointers.values()];if(!ps.length)return null;if(ps.length===1)return {...ps[0],distance:0};return {x:(ps[0].x+ps[1].x)/2,y:(ps[0].y+ps[1].y)/2,distance:Math.hypot(ps[0].x-ps[1].x,ps[0].y-ps[1].y)};}
   function consume(e){e.preventDefault();e.stopImmediatePropagation();}
   window.BilliardsTableZoom={
+    snapshot(){const {w,h}=size();return {enabled,scale,x:x/w,y:y/h};},
+    restore(saved){
+      if(!saved||![saved.scale,saved.x,saved.y].every(Number.isFinite))return;
+      const {w,h}=size();enabled=!!saved.enabled;scale=clamp(saved.scale,1,6);x=saved.x*w;y=saved.y*h;
+      previous=mouse=null;pointers.clear();paint();
+    },
     // The engine continues drawing in its original coordinate system. Only the
     // canvas context changes; hit-testing, controls and physics keep their units.
     begin(ctx){ctx.save();if(enabled){ctx.translate(x,y);ctx.scale(scale,scale);}},

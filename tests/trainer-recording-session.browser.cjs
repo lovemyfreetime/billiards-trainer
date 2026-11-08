@@ -31,15 +31,28 @@ try{
  assert.deepEqual(pair[0].balls,pair[1].balls);assert.equal(pair[0].sideSpin,pair[1].sideSpin);
  console.log('PASS paired modes, same setup, folder button and 009 -> 010');
  await p.evaluate(()=>document.querySelector('#trainerClipSession').click());
- await setup(.1);await p.evaluate(()=>document.querySelector('#animate').click());await p.waitForFunction(()=>!billiardsTourBridge.snapshot().busy);
- await setup(-.1);await p.evaluate(()=>document.querySelector('#animate').click());await p.waitForFunction(()=>!billiardsTourBridge.snapshot().busy);
- await p.evaluate(()=>{document.querySelector('#trainerClipSession').click();document.querySelector('#trainerSnapshotStroke').click()});
+ await setup(.1);await p.evaluate(()=>[...document.querySelectorAll('#table3DViews button')].find(b=>b.textContent==='Cue View').click());
+ const cueView=await p.evaluate(()=>BilliardsClipView.captureView());
+ await p.evaluate(()=>document.querySelector('#animate').click());await p.waitForFunction(()=>!billiardsTourBridge.snapshot().busy);
+ await setup(-.1);await p.evaluate(()=>Billiards3D.prepareSnapshot());
+ const fullView=await p.evaluate(()=>BilliardsClipView.captureView());
+ await p.evaluate(()=>document.querySelector('#animate').click());await p.waitForFunction(()=>!billiardsTourBridge.snapshot().busy);
+ await p.evaluate(()=>{document.querySelector('#trainerClipSession').click();document.querySelector('#trainerSnapshotFull').click()});
  const original=await p.evaluate(()=>billiardsTourBridge.capture());
+ const originalView=await p.evaluate(()=>BilliardsClipView.captureView());
+ assert.equal(await p.locator('#trainerSessionView').inputValue(),'stroke-current');
+ await p.evaluate(()=>{window.renderedViews=[];const create=BilliardsClipView.create;BilliardsClipView.create=function(mode,...args){renderedViews.push({mode,camera:Billiards3D.camera()});return create.call(this,mode,...args)}});
  assert.match(await p.locator('#trainerClipSessionStatus').textContent(),/2 shots/);
  await p.evaluate(()=>document.querySelector('#trainerClipReplay').click());
  await p.waitForFunction(()=>saved.length===3&&!document.querySelector('#trainerClipReplay').disabled,null,{timeout:100000});
  const file=await p.evaluate(()=>JSON.parse(saved[2].session));
- assert.equal(file.recordingShots.length,2);assert.equal(file.recordingShots[0].state.sideSpin,.1);assert.equal(file.recordingShots[1].state.sideSpin,-.1);
+ assert.equal(file.recordingShots.length,2);
+ assert.deepEqual(file.recordingShots.map(s=>s.recordingView),[cueView,fullView]);
+ assert.deepEqual(await p.evaluate(()=>BilliardsClipView.captureView()),originalView);
+ const views=await p.evaluate(()=>renderedViews);assert(views.every(v=>v.mode==='stroke-current'));
+ assert(views.some(v=>v.camera.azimuth===cueView.camera.azimuth&&v.camera.radius===cueView.camera.radius));
+ assert(views.some(v=>v.camera.azimuth===fullView.camera.azimuth&&v.camera.radius===fullView.camera.radius));
+assert.equal(file.recordingShots[0].state.sideSpin,.1);assert.equal(file.recordingShots[1].state.sideSpin,-.1);
  assert.deepEqual(await p.evaluate(()=>billiardsTourBridge.capture()),original);
  assert.equal(await p.locator('#trainerClipName').inputValue(),'Lesson 011');
  for(let i=0;i<3;i++){
@@ -50,6 +63,6 @@ try{
   console.log(data.stem,meta.format.duration);
  }
  await p.reload();await p.waitForFunction(()=>window.billiardsTourBridge);assert.match(await p.locator('#trainerClipSessionStatus').textContent(),/2 shots/);assert.equal(await p.locator('#trainerClipName').inputValue(),'');
- assert.deepEqual(errors,[]);console.log('PASS session capture, continuous video, exact settings, original state restored, recovery and name reset');
+ assert.deepEqual(errors,[]);console.log('PASS saved cue/full cameras and stroke panel independently of snapshot selection; session capture, continuous video, exact settings, original state restored, recovery and name reset');
 }finally{await browser?.close();server.kill()}
 })().catch(e=>{console.error(e);process.exitCode=1});

@@ -148,6 +148,10 @@ public class BundledAppTest {
             assertFalse(second.isEmpty());
             assertTrue(bridge.appendTrainerRecording(second, "AQID"));
             assertTrue(bridge.finishTrainerRecording(second).contains(stem + " (2).mp4"));
+            String narration = bridge.beginTrainerRecording(stem + " narrated", null);
+            assertFalse(narration.isEmpty());
+            assertTrue(bridge.appendTrainerRecording(narration, "AQID"));
+            assertEquals("Download/Billiards Trainer/Clips/" + stem + " narrated.mp4", bridge.finishTrainerRecording(narration));
             String aborted = bridge.beginTrainerRecording(stem + " aborted", "{}");
             assertFalse(bridge.appendTrainerRecording(aborted, "%bad base64%"));
             assertEquals("", bridge.finishTrainerRecording(aborted));
@@ -160,6 +164,7 @@ public class BundledAppTest {
                 while (cursor != null && cursor.moveToNext()) {
                     String name = cursor.getString(1);
                     assertFalse(name.contains("aborted"));
+                    assertFalse(name.contains("narrated") && name.endsWith(".json"));
                     Uri uri = android.content.ContentUris.withAppendedId(collection, cursor.getLong(0));
                     if (name.equals(stem + ".mp4")) {
                         try (java.io.InputStream stream = resolver.openInputStream(uri)) {
@@ -170,7 +175,7 @@ public class BundledAppTest {
                     resolver.delete(uri, null, null);
                     count++;
                 }
-                assertEquals(4, count);
+                assertEquals(5, count);
             }
         }
     }

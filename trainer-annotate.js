@@ -294,14 +294,15 @@
   },'image/png');
  });
  function prepareCapture(mode){
-  if(mode==='current')return;
+  if(mode==='current'||mode==='stroke-current')return;
   if(is3d())window.Billiards3D.prepareSnapshot();
   else if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
  }
  function captureArea(mode){
   const source=document.getElementById(is3d()?'table3DCanvas':'canvas');
-  const polygon=mode==='current'?null:frame()?.corners;
-  if(!source||(mode!=='current'&&(!polygon||polygon.some(p=>!p))))return null;
+  const current=mode==='current'||mode==='stroke-current';
+  const polygon=current?null:frame()?.corners;
+  if(!source||(!current&&(!polygon||polygon.some(p=>!p))))return null;
   const rect=stage.getBoundingClientRect(),visible=source.getBoundingClientRect();
   const left=Math.max(0,polygon?Math.floor(Math.min(...polygon.map(p=>p.x))):visible.left-rect.left,-rect.left);
   const top=Math.max(0,polygon?Math.floor(Math.min(...polygon.map(p=>p.y))):visible.top-rect.top,-rect.top);
@@ -335,6 +336,18 @@
  }
  window.BilliardsClipView={
   get mode(){return snapshotMode;},
+  captureView(){return {three:is3d(),camera:is3d()?window.Billiards3D.camera():null,zoom:window.BilliardsTableZoom?.snapshot()};},
+  async restoreView(saved){
+   if(!saved)return;
+   if(saved.three&&!is3d()){
+    document.getElementById('table3DToggle').click();
+    const until=performance.now()+10000;
+    while(!is3d()&&performance.now()<until)await new Promise(r=>setTimeout(r,30));
+    if(!is3d())throw Error('The saved 3D view is unavailable.');
+   }else if(!saved.three&&is3d())window.Billiards3D.disable();
+   if(saved.three)window.Billiards3D.restoreCamera(saved.camera);
+   else window.BilliardsTableZoom?.restore(saved.zoom);
+  },
   prepare:prepareCapture,
   create(mode,width,height){
    if(is3d())window.Billiards3D.renderSnapshot();
@@ -346,7 +359,7 @@
    const c=canvas.getContext('2d',{alpha:false});
    c.fillStyle='#101820';c.fillRect(0,0,width,height);
    let compositionW=area.w,compositionH=area.h;
-   const panel=mode==='stroke'?withStroke(area.w,area.h,window.billiardsTourBridge.strokeSnapshot(),1):null;
+   const panel=(mode==='stroke'||mode==='stroke-current')?withStroke(area.w,area.h,window.billiardsTourBridge.strokeSnapshot(),1):null;
    if(panel){compositionW=panel.width;compositionH=panel.height;}
    const fit=Math.min(width/compositionW,height/compositionH);
    c.translate((width-compositionW*fit)/2,(height-compositionH*fit)/2);

@@ -7,6 +7,7 @@
  const byId=id=>document.getElementById(id),bridge=()=>window.billiardsTourBridge;
  const arm=byId('trainerClipArm'),folderButton=byId('trainerClipFolder'),pairButton=byId('trainerClipPair');
  const sessionButton=byId('trainerClipSession'),replayButton=byId('trainerClipReplay');
+ const sessionView=byId('trainerSessionView');
  const nameInput=byId('trainerClipName'),setupButton=byId('trainerClipSetup');
  const status=byId('trainerClipStatus'),sessionStatus=byId('trainerClipSessionStatus');
  const width=1920,height=1080,fps=30;
@@ -18,7 +19,7 @@
  function update(){
   const busy=!!job||preparing;
   for(const button of [arm,pairButton,folderButton,sessionButton])button.disabled=busy;
-  nameInput.disabled=busy;
+  nameInput.disabled=busy;sessionView.disabled=busy;byId("trainerNarrateVideo").disabled=busy;
   replayButton.disabled=busy||collecting||!shots.length;
   sessionButton.textContent=collecting?'End session':'Start session';
   sessionButton.setAttribute('aria-pressed',String(collecting));
@@ -35,7 +36,7 @@
    shots=saved.shots;collecting=!!saved.collecting;
   }
  }catch(error){console.warn('Could not restore recording session',error);}
- const snapshot=()=>({capture:{state:bridge().capture().state},file:bridge().exportFile()});
+ const snapshot=()=>({capture:{state:bridge().capture().state},file:bridge().exportFile(),view:window.BilliardsClipView.captureView()});
  window.addEventListener('billiards:shot-start',()=>{
   if(collecting&&(!job||job.kind==='single'||job.kind==='pair'&&job.index===0)){
    shots.push(snapshot());persist();
@@ -101,13 +102,14 @@
   catch(error){await stream.abort().catch(()=>{});throw error;}
  }
  async function save(stem,clip,file){
-  const setup=new Blob([JSON.stringify(file,null,2)],{type:'application/json'});
-  latestSetup={name:stem+'.session.billiards.json',blob:setup};
-  setupButton.hidden=false;
+  const setup=file?new Blob([JSON.stringify(file,null,2)],{type:'application/json'}):null;
+  latestSetup=setup?{name:stem+'.session.billiards.json',blob:setup}:null;
+  setupButton.hidden=!setup;
   if(android){
+   if(!setup&&!android.supportsNarratedVideo)throw Error('Install the updated Android app to save narrated videos.');
    if(!android.beginTrainerRecording)throw Error('Install the updated Android app for named and session recordings.');
-   const token=android.beginTrainerRecording(stem,await setup.text());
-   if(!token)throw Error('Could not create the recording files.');
+   const token=android.beginTrainerRecording(stem,setup?await setup.text():null);
+   if(!token)throw Error(setup?'Could not create the recording files.':'Install the updated Android app to save narrated videos.');
    try{
     for(let offset=0;offset<clip.size;offset+=768*1024){
      const encoded=await dataUrl(clip.slice(offset,offset+768*1024));
@@ -119,11 +121,11 @@
    }catch(error){android.abortTrainerRecording(token);throw error;}
   }else if(folder){
    await write(stem+'.mp4',clip);
-   await write(latestSetup.name,setup);
-   setupButton.hidden=true;status.textContent='Saved '+stem+'.mp4 and its setup to '+folder.name+'.';
+   if(setup)await write(latestSetup.name,setup);
+   setupButton.hidden=true;status.textContent='Saved '+stem+'.mp4'+(setup?' and its setup':'')+' to '+folder.name+'.';
   }else{
-   download(stem+'.mp4',clip);download(latestSetup.name,setup);
-   status.textContent='Saved '+stem+'.mp4. Check Downloads for the video and setup. Use Save setup if needed.';
+   download(stem+'.mp4',clip);if(setup)download(latestSetup.name,setup);
+   status.textContent='Saved '+stem+'.mp4. Check Downloads'+(setup?' for the video and setup. Use Save setup if needed.':'.');
   }
  }
  async function settleView(){await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));}
@@ -131,7 +133,7 @@
   if(job||preparing||bridge().snapshot().busy){status.textContent='Wait for the current shot or recording to finish.';return;}
   if(android&&!android.beginTrainerRecording){status.textContent='Install the latest Android app for these recording controls.';return;}
   preparing=true;update();
-  const original=bridge().capture();
+  const original=bridge().capture(),originalView=window.BilliardsClipView.captureView();
   try{
    if(!window.VideoEncoder||!window.VideoFrame||!(await VideoEncoder.isConfigSupported(config)).supported)
     throw Error('1080p H.264 recording is unavailable on this device.');
@@ -140,8 +142,11 @@
    const stem=await unusedName(safeName(nameInput.value.trim()||nameInput.placeholder),kind);
    const entries=kind==='session'?shots.slice():[snapshot()];
    if(!entries.length)throw Error('Start and end a session before recording it.');
-   job={kind,index:0,entries,original,stem,framing:kind==='pair'?'current':window.BilliardsClipView.mode};
-   if(kind==='session')bridge().restore(entries[0].capture);
+   job={kind,index:0,entries,original,originalView,stem,framing:kind==='pair'?'current':kind==='session'?sessionView.value:window.BilliardsClipView.mode};
+   if(kind==='session'){
+    bridge().restore(entries[0].capture);
+    await window.BilliardsClipView.restoreView(entries[0].view||originalView);
+   }
    window.BilliardsClipView.prepare(job.framing);
    await settleView();
    preparing=false;armed=true;update();
@@ -212,13 +217,15 @@
       if(current.kind==='session'&&current.index+1<current.entries.length){
        current.index++;
        bridge().restore(current.entries[current.index].capture);
+       await window.BilliardsClipView.restoreView(current.entries[current.index].view||current.originalView);
+       window.BilliardsClipView.prepare(current.framing);
        await settleView();armed=true;byId('animate').click();
        if(armed)throw Error('No executable shot at session position '+(current.index+1));
        return;
       }
       encoder.close();current.muxer.finalize();
       const file=JSON.parse(JSON.stringify(current.entries[0].file));
-      if(current.kind==='session')file.recordingShots=current.entries.map(s=>s.file);
+      if(current.kind==='session')file.recordingShots=current.entries.map(s=>({...s.file,recordingView:s.view||current.originalView}));
       const suffix=current.kind==='pair'?(current.index===0?' - Current':' - Stroke'):'';
       file.name=current.stem+suffix;if(file.layout)file.layout.name=current.stem+suffix;
       await save(current.stem+suffix,new Blob([current.target.buffer],{type:'video/mp4'}),file);
@@ -231,16 +238,18 @@
        return;
       }
       nameInput.value=nextName(current.stem);
-      if(current.kind==='session')bridge().restore(current.original);
+      if(current.kind==='session'){bridge().restore(current.original);await window.BilliardsClipView.restoreView(current.originalView);}
       job=null;update();
      }catch(error){
-      if(current.kind==='session')bridge().restore(current.original);
+      if(current.kind==='session'){bridge().restore(current.original);await window.BilliardsClipView.restoreView(current.originalView);}
       fail(error.message,error);
      }
     }
    };
   }catch(error){fail('Could not start recording. '+error.message,error);return null;}
  }
- window.BilliardsShotRecorder={begin};
+ window.BilliardsShotRecorder={begin,
+  async saveNarrated(stem,blob){if(job||preparing)throw Error('Wait for recording to finish.');await save(await unusedName(safeName(stem),'single'),blob,null);}
+ };
  update();
 })();

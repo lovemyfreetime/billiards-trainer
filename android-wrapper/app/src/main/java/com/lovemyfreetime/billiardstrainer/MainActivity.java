@@ -288,7 +288,7 @@ public class MainActivity extends Activity {
             camera.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
 
-        Intent chooser = Intent.createChooser(pick, media ? "Choose pool-table photo or video" : "Choose backup or saved session file");
+        Intent chooser = Intent.createChooser(pick, media ? "Choose pool-table photo or video" : "Choose audio or saved file");
         if (camera.resolveActivity(getPackageManager()) != null && cameraOutputUri != null) {
             chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{camera});
         }
@@ -563,10 +563,13 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
+        public boolean supportsNarratedVideo() { return true; }
+
+        @JavascriptInterface
         public String beginTrainerRecording(String name, String session) {
             synchronized (MainActivity.this) {
                 if (recordingExport != null || name == null || name.length() > 120 ||
-                    session == null || session.length() > 24000000) return "";
+                    (session != null && session.length() > 24000000)) return "";
                 String stem = name.replaceAll("[^\\p{L}\\p{N} ._()-]", "-").trim();
                 if (stem.isEmpty() || stem.equals(".") || stem.equals("..")) return "";
                 RecordingExport export = new RecordingExport();
@@ -577,8 +580,10 @@ public class MainActivity extends Activity {
                     export.stem = selected;
                     String folder = Environment.DIRECTORY_DOWNLOADS + "/Billiards Trainer/Clips";
                     export.video = newClipDownload(folder, selected + ".mp4", "video/mp4");
-                    export.setup = newClipDownload(folder, selected + ".session.billiards.json", "application/json");
-                    writeClipDownload(export.setup, session.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                    if (session != null) {
+                        export.setup = newClipDownload(folder, selected + ".session.billiards.json", "application/json");
+                        writeClipDownload(export.setup, session.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                    }
                     export.stream = getContentResolver().openOutputStream(export.video);
                     if (export.stream == null) throw new java.io.IOException("Cannot open video");
                     export.token = java.util.UUID.randomUUID().toString();
@@ -620,11 +625,11 @@ public class MainActivity extends Activity {
                     export.stream.close();export.stream = null;
                     ContentValues ready = new ContentValues();
                     ready.put(MediaStore.MediaColumns.IS_PENDING, 0);
-                    if (getContentResolver().update(export.setup, ready, null, null) != 1 ||
+                    if ((export.setup != null && getContentResolver().update(export.setup, ready, null, null) != 1) ||
                         getContentResolver().update(export.video, ready, null, null) != 1)
                         throw new java.io.IOException("Could not finish recording");
                     recordingExport = null;
-                    return "Download/Billiards Trainer/Clips/" + export.stem + ".mp4 and its setup";
+                    return "Download/Billiards Trainer/Clips/" + export.stem + ".mp4" + (export.setup != null ? " and its setup" : "");
                 } catch (Exception failure) {
                     export.discard();recordingExport = null;
                     return "";

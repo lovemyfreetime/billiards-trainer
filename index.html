@@ -1773,6 +1773,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             <button id="trainerClipSession" type="button" aria-pressed="false">Start session</button>
             <button id="trainerClipReplay" type="button" disabled>Record session</button>
           </div>
+          <label for="trainerSessionView">Session video view</label>
+          <select id="trainerSessionView">
+            <option value="stroke-current">Saved view + stroke</option>
+            <option value="stroke">Full table + stroke</option>
+            <option value="current">Saved view</option>
+            <option value="full">Full table</option>
+          </select>
+          <button id="trainerNarrateVideo" type="button">Narrate a video</button>
           <div id="trainerClipSessionStatus" class="hint">Start a session before playing your rack.</div>
           <div id="trainerClipStatus" class="hint" role="status">Choose a view above, then Record shot to execute and save the clip and setup.</div>
         </div>
@@ -2030,7 +2038,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 <script src="./photo-cloth-filter.js?v=2"></script>
 <script src="./photo-corner-sensing.js?v=1"></script>
 <script src="./photo-lighting.js?v=1"></script>
-<script src="./trainer-table-zoom.js?v=1"></script>
+<script src="./trainer-table-zoom.js?v=2"></script>
 <script src="./trainer-shot-budget.js?v=exit-2"></script>
 <script>
 // AI Camera Edition wrapper: v4.12 trainer, app-mode launch package. v4 adds scoreboard placement/default-off + local analysis-photo recall.
@@ -13546,9 +13554,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <link rel="stylesheet" href="./guide/pool-guide.css?v=resources-toggle-v8">
   <script src="./phone-play.js?v=share-analysis-1"></script>
   <link rel="stylesheet" href="./trainer-3d.css?v=compact-landscape-1">
-  <script src="./trainer-3d.js?v=18"></script>
-  <script src="./trainer-annotate.js?v=13"></script>
-  <script src="./trainer-shot-recorder.js?v=record-shot-sessions-1"></script>
+  <script src="./trainer-3d.js?v=19"></script>
+  <script src="./trainer-annotate.js?v=14"></script>
+  <script src="./trainer-shot-recorder.js?v=record-shot-view-2"></script>
+  <script src="./trainer-video-narration.js?v=1"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">
