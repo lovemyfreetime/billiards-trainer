@@ -129,7 +129,7 @@ index 3a2d287..f25c560 100644
    <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
    <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">
 diff --git a/native-updates.json b/native-updates.json
-index 2b9815d..f9a0779 100644
+index 2b9815d..679a88b 100644
 --- a/native-updates.json
 +++ b/native-updates.json
 @@ -1,8 +1,8 @@
@@ -138,8 +138,8 @@ index 2b9815d..f9a0779 100644
    "minimumProtocol": 1,
 -  "version": "269be54098a3fbeefb8894a9cc66405b4fbffba325158b4e916d8fb9626ef7a3",
 -  "sequence": 1794121651,
-+  "version": "686ccca6a411335853e7c358e9d2c6b09c03ef42ff3cf654ec43d4d38a927976",
-+  "sequence": 1794124170,
++  "version": "a8d59a61dab7590d54c72a8f0e899220c5db067694074fc5ae8f5935e1f3f7dc",
++  "sequence": 1794124796,
    "files": {
      "ai_model/pool_ball_classifier.onnx": {
        "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -160,7 +160,7 @@ index 2b9815d..f9a0779 100644
      "offline-assets.json": {
 -      "sha256": "0f549c45c97643727713c295a4248368068ae1f0984544f15ff32c5ac5dbc092",
 -      "length": 145270
-+      "sha256": "e57f3b2d2964cf10a55da7d15a8f55233a3068c4313d663e61a1dba68c3271b9",
++      "sha256": "8ff91f10bb1e6cc0b738ee9d36bfbb907fa50db0a438431fc08cccd37a045aa3",
 +      "length": 145372
      },
      "phone-play.css": {
@@ -170,7 +170,7 @@ index 2b9815d..f9a0779 100644
      },
      "service-worker.js": {
 -      "sha256": "1fd4ed2df588f9e9711015843c7e8526923c6fd476fec49fbee513100a8b41bd",
-+      "sha256": "54f17afb6e4f326cc748ce9f35886c1080fd4bac523bde956b7a710634250086",
++      "sha256": "4e6e74af094ad44cddea39eef50eeec393fb600278a51ab2ffa55b0f42a3cc80",
        "length": 7739
      },
      "table-orbit.js": {
@@ -216,19 +216,19 @@ index 2b9815d..f9a0779 100644
 +      "length": 4381
 +    },
 +    "trainer-video-narration.js": {
-+      "sha256": "2d6a6718fcc7d2d0ab867a8a5322b2a0a9f8f4ada94506987dc1145174bf60a4",
-+      "length": 10920
++      "sha256": "c8d316c5e6a0eb24b00afb8304556a387153fe8190dc53161315dea88f77a648",
++      "length": 11070
      },
      "vendor/mp4-muxer-5.2.2/LICENSE": {
        "sha256": "75c54aae7ef6ad652f684f9dd3b71e4dcef86ccebd88cf441ceed7f5eec037c5",
 diff --git a/offline-assets.json b/offline-assets.json
-index bb12024..581e2a4 100644
+index bb12024..412eb5c 100644
 --- a/offline-assets.json
 +++ b/offline-assets.json
 @@ -1,5 +1,5 @@
  {
 -  "version": "3a56de092505a769",
-+  "version": "51591ba6d9c5a141",
++  "version": "43b7935dd8af78fb",
    "files": {
      "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
      "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -260,17 +260,17 @@ index bb12024..581e2a4 100644
      "trainer-table-zoom.css": "2f3abf6fefade1bb9d9a795cf89689f28d442a11c81da93995f0b44303cb1b2a",
 -    "trainer-table-zoom.js": "913bd0f5e2182cc073d11a28857365b3c62982ece7d10b5d369d4745f17db5a0",
 +    "trainer-table-zoom.js": "b7ca40c5b1040aa8da885472b994ef252997a63fba74c172c5f7c377ea1877e9",
-+    "trainer-video-narration.js": "2d6a6718fcc7d2d0ab867a8a5322b2a0a9f8f4ada94506987dc1145174bf60a4",
++    "trainer-video-narration.js": "c8d316c5e6a0eb24b00afb8304556a387153fe8190dc53161315dea88f77a648",
      "vendor/mp4-muxer-5.2.2/LICENSE": "75c54aae7ef6ad652f684f9dd3b71e4dcef86ccebd88cf441ceed7f5eec037c5",
      "vendor/mp4-muxer-5.2.2/mp4-muxer.mjs": "d2c4c782f180c86ed30b1f5d9487a34a0d370bf9b4535285734ea187d38f9bb5",
      "vendor/onnxruntime-1.22.0/LICENSE": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c",
 diff --git a/service-worker.js b/service-worker.js
-index 4ae3217..e736a30 100644
+index 4ae3217..8627adf 100644
 --- a/service-worker.js
 +++ b/service-worker.js
 @@ -1,4 +1,4 @@
 -const CACHE_NAME = 'billiards-trainer-4-12-offline-3a56de092505a769';
-+const CACHE_NAME = 'billiards-trainer-4-12-offline-51591ba6d9c5a141';
++const CACHE_NAME = 'billiards-trainer-4-12-offline-43b7935dd8af78fb';
  const CACHE_PREFIX = 'billiards-trainer-4-12-';
  const APP_SHELL = [
    './play-narration-data.js?v=3',
@@ -321,10 +321,10 @@ index 6fef872..2fbdf82 100644
  })().catch(e=>{console.error(e);process.exitCode=1});
 diff --git a/tests/trainer-video-narration.browser.cjs b/tests/trainer-video-narration.browser.cjs
 new file mode 100644
-index 0000000..3b3caf2
+index 0000000..205c97e
 --- /dev/null
 +++ b/tests/trainer-video-narration.browser.cjs
-@@ -0,0 +1,33 @@
+@@ -0,0 +1,34 @@
 +const {chromium}=require('playwright'),assert=require('node:assert/strict'),cp=require('node:child_process'),fs=require('node:fs');
 +(async()=>{
 + const server=cp.spawn(process.execPath,['tests/range-server.cjs','8812']);let browser;
@@ -335,6 +335,7 @@ index 0000000..3b3caf2
 +  await p.addInitScript(()=>{window.saved=[];let pending;window.BilliardsAndroid={saveTrainerClip(){},supportsNarratedVideo(){return true},beginTrainerRecording(stem,session){pending={stem,session,chunks:[]};return 'token'},appendTrainerRecording(token,data){pending.chunks.push(data);return true},finishTrainerRecording(){saved.push(pending);return pending.stem+'.mp4'},abortTrainerRecording(){pending=null}}});
 +  await p.goto('http://127.0.0.1:8812/?train=1');await p.waitForFunction(()=>window.BilliardsShotRecorder);
 +  await p.evaluate(()=>document.querySelector('#trainerNarrateVideo').click());
++  assert.equal(await p.locator('#narrationPreview').evaluate(v=>{const e=new KeyboardEvent('keydown',{key:' ',bubbles:true,cancelable:true});v.dispatchEvent(e);return e.defaultPrevented}),false,'Editor Space must not trigger the Trainer shortcut');
 +  await p.locator('#narrationVideoFile').setInputFiles(process.env.NARRATION_TEST_VIDEO||'/tmp/session-export-1.mp4');
 +  await p.waitForFunction(()=>document.querySelector('#narrationPreview').readyState>=2);
 +  const inputDuration=await p.locator('#narrationPreview').evaluate(v=>v.duration);
@@ -573,10 +574,10 @@ index e50cfe7..68421f9 100644
      begin(ctx){ctx.save();if(enabled){ctx.translate(x,y);ctx.scale(scale,scale);}},
 diff --git a/trainer-video-narration.js b/trainer-video-narration.js
 new file mode 100644
-index 0000000..52ce445
+index 0000000..07542d8
 --- /dev/null
 +++ b/trainer-video-narration.js
-@@ -0,0 +1,170 @@
+@@ -0,0 +1,172 @@
 +/* Add an imported narration track and held frames to an existing Trainer video. */
 +(() => {
 + 'use strict';
@@ -600,6 +601,8 @@ index 0000000..52ce445
 + <div class="row" style="margin-top:12px"><button id="narrationExport" type="button">Export narrated video</button><button id="narrationCancel" type="button" hidden>Cancel export</button><button id="narrationClose" type="button">Close</button></div>
 + <p id="narrationStatus" role="status"></p>`;
 + document.body.append(dialog);
++ // Preview playback keys belong to the editor, not the Trainer's shot shortcuts.
++ dialog.addEventListener('keydown',event=>event.stopPropagation());
 + const get=id=>dialog.querySelector('#'+id);
 + const video=get('narrationPreview'),audio=get('narrationAudioPreview'),message=get('narrationStatus');
 + let videoUrl,audioUrl,audioFile,holds=[],working=false,canceled=false;
