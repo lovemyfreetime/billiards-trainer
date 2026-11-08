@@ -21,10 +21,10 @@ jobs:
     timeout-minutes: 15
     env:
       ANDROID_VERSION_CODE: '1180'
-      TESTED_SOURCE_SHA: 196600415d3480a86aea27d8a5eaf0da8ced1192
+      TESTED_SOURCE_SHA: 904fe8d90a6ec49da8ef316afc64db6fc659c60c
       BROWSER_TESTED_SOURCE_SHA: 196600415d3480a86aea27d8a5eaf0da8ced1192
       BROWSER_TEST_RUN: '42512054921'
-      ANDROID_TEST_RUN: '42512054914'
+      ANDROID_TEST_RUN: '42513239217'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,6 +37,8 @@ jobs:
           android=$(gh run view "$ANDROID_TEST_RUN" --repo "$GITHUB_REPOSITORY" --json conclusion,headSha --jq '.headSha + " " + .conclusion')
           test "$browser" = "$BROWSER_TESTED_SOURCE_SHA success"
           test "$android" = "$TESTED_SOURCE_SHA success"
+          # Only native Activity code changed after the successful browser recording test.
+          git diff --exit-code "$BROWSER_TESTED_SOURCE_SHA" "$TESTED_SOURCE_SHA" -- trainer-video-narration.js tests/trainer-narration-microphone.browser.cjs
           # The APKs were built from this immutable tested source; later commits may
           # contain only release workflow and regenerated manifest files.
           git diff --exit-code "$TESTED_SOURCE_SHA" "$GITHUB_SHA" -- \
