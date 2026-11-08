@@ -16,6 +16,15 @@
   <button id="narrationRecord" type="button">🎙 Record from this frame</button>
   <button id="narrationStop" type="button" disabled>Stop recording</button>
  </div>
+ <div id="narrationRecordingIndicator" role="status" aria-live="polite" hidden style="padding:10px;margin:8px 0;background:#3b171c;border:2px solid #ef5959;border-radius:8px;color:#fff">
+   <strong style="color:#ff8b8b">● RECORDING MICROPHONE</strong>
+   <span id="narrationRecordClock" style="margin-left:12px;font-variant-numeric:tabular-nums">00:00</span>
+   <div style="margin-top:5px"><label for="narrationRecordLevel">Mic signal</label>
+     <progress id="narrationRecordLevel" max="100" value="0" style="width:60%;height:12px;margin-left:8px"></progress>
+     <span id="narrationRecordLevelText">Speak to check the level</span>
+   </div>
+   <small>Audio is being captured as a take; it is added to the video only when you export.</small>
+ </div>
  <p class="hint">Play the video during recording; pause the video to explain a frozen frame. Re-record from any frame to replace that part of your narration.</p>
  <ul id="narrationTakes" aria-label="Recorded narration segments"></ul>
  <audio id="narrationAudioPreview" controls style="display:block;width:100%;margin:10px 0"></audio>
@@ -38,7 +47,7 @@
  const video=get('narrationPreview'),audio=get('narrationAudioPreview'),message=get('narrationStatus');
  const android=window.BilliardsAndroid;
  let videoUrl,audioUrl,videoFile,audioFile,holds=[],segments=[],working=false,canceled=false;
- let microphone=null,previewing=false,playbackTimer=0,holdTimer=0,audioFolder=null,recordingUrl=null;
+ let microphone=null,previewing=false,playbackTimer=0,holdTimer=0,audioFolder=null,recordingUrl=null,recordMeterTimer=0;
  const cleanUrl=url=>{if(url)URL.revokeObjectURL(url);};
  function list(){
   const holdList=get('narrationHolds');holdList.replaceChildren();
@@ -113,13 +122,48 @@
   return '';
  }
  let autoHold=false,playbackFrame=0;
+ function updateRecordingIndicator(){
+  const target=get('narrationRecordingIndicator'),capture=microphone;
+  if(recordMeterTimer){clearInterval(recordMeterTimer);recordMeterTimer=0;}
+  target.hidden=!capture||!!capture.stopping;
+  if(target.hidden)return;
+  const tick=()=>{
+   if(microphone!==capture||capture.stopping)return;
+   const elapsed=Math.floor((performance.now()-capture.startedAt)/1000);
+   get('narrationRecordClock').textContent=String(Math.floor(elapsed/60)).padStart(2,'0')+':'+String(elapsed%60).padStart(2,'0');
+   let level=0;
+   if(capture.nativeToken&&android?.narrationMicrophoneLevel){
+    try{level=Number(android.narrationMicrophoneLevel(capture.nativeToken))||0;}catch(error){}
+   }else if(capture.analyser){
+    const data=capture.meterData;capture.analyser.getByteTimeDomainData(data);
+    let power=0;for(const value of data){const centered=(value-128)/128;power+=centered*centered;}
+    level=Math.min(100,Math.round(Math.sqrt(power/data.length)*300));
+   }
+   level=Math.max(0,Math.min(100,level));
+   get('narrationRecordLevel').value=level;
+   get('narrationRecordLevelText').textContent=level>2?'Microphone signal detected':'Speak to check the level';
+  };
+  tick();recordMeterTimer=setInterval(tick,180);
+ }
+ function monitorBrowserMicrophone(capture){
+  try{
+   const Context=window.AudioContext||window.webkitAudioContext;
+   if(!Context)return;
+   capture.levelContext=new Context();
+   const source=capture.levelContext.createMediaStreamSource(capture.stream);
+   capture.analyser=capture.levelContext.createAnalyser();
+   capture.analyser.fftSize=256;
+   capture.meterData=new Uint8Array(capture.analyser.fftSize);
+   source.connect(capture.analyser); // Never route the microphone to the speakers.
+  }catch(error){}
+ }
  function recordingControls(active){
   for(const id of ['narrationVideoFile','narrationAudioFile','narrationSourceMode','narrationSaveAudio',
    'narrationAudioFolder','narrationSaveDraft','narrationLoadDraft','narrationExport',
    'narrationAddHold','narrationPreviewTogether','narrationDrafts','narrationName'])
    get(id).disabled=active;
   get('narrationRecord').disabled=active;get('narrationStop').disabled=!active;
-  showTakes();
+  updateRecordingIndicator();showTakes();
  }
  function stopHoldPlayback(){
   if(playbackFrame)cancelAnimationFrame(playbackFrame);
@@ -153,55 +197,116 @@
    microphone.pausedAt=0;
   }
  });
+ async function finishTake(capture,blob){
+  capture.stream?.getTracks().forEach(t=>t.stop());
+  stopHoldPlayback();microphone=null;updateRecordingIndicator();
+  try{
+   if(!blob?.size)throw Error('No microphone audio was captured.');
+   const context=new AudioContext();
+   let buffer;
+   try{buffer=await context.decodeAudioData(await blob.arrayBuffer());}
+   finally{await context.close();}
+   if(!Number.isFinite(buffer.duration)||buffer.duration<=0)throw Error('The recorded audio has no duration.');
+   const take={id:'take-'+Date.now()+'-'+Math.random().toString(36).slice(2),
+    blob,start:capture.start,trim:0,length:buffer.duration};
+   replaceTake(take,capture.replacedId);
+   message.textContent='Microphone take captured ('+buffer.duration.toFixed(1)+'s). Listen or retake, then save the editable project or export the new MP4.';
+  }catch(error){message.textContent='Microphone take was not saved: '+error.message;}
+  finally{if(capture.levelContext)capture.levelContext.close().catch(()=>{});recordingControls(false);}
+ }
+ function beginRecording(capture){
+  capture.startedAt=performance.now();microphone=capture;
+  recordingControls(true);
+  message.textContent='Microphone capture is active. Watch the red timer and mic signal; Stop recording to save the take.';
+  if(!video.ended&&video.currentTime<video.duration-.03)video.play().catch(()=>{});
+  playWithHolds(video.currentTime);
+ }
  async function startMicrophone(replacedId=null){
   if(working||microphone)return;
   if(!videoFile||!Number.isFinite(video.duration)){message.textContent='Choose a Trainer video first.';return;}
-  stopPreview();
-  if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){
-   message.textContent='Microphone recording is unavailable on this browser or device.';return;
+  stopPreview();audio.pause();
+  const start=outputTime(video.currentTime);
+  // The native Android recorder avoids WebView's "Could not start audio source" failure.
+  if(android?.startNarrationMicrophone){
+   try{
+    const token=android.startNarrationMicrophone();
+    if(token==='permission'){
+     message.textContent='Android microphone permission was requested. Allow it, then tap Record from this frame again.';
+     return;
+    }
+    if(token&&token!=='busy'&&token!=='error'&&token!=='unavailable'){
+     beginRecording({nativeToken:token,start,replacedId,stopping:false});
+     return;
+    }
+   }catch(error){/* Try the browser recorder if the native source is unavailable. */}
   }
-  audio.pause();
+  if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){
+   message.textContent='Microphone capture is unavailable. On Android, install the latest signed Trainer APK and allow microphone access.';
+   return;
+  }
   let stream;
   try{
+   message.textContent='Starting microphone…';
    stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true},video:false});
    if(!dialog.open){stream.getTracks().forEach(t=>t.stop());return;}
    const mimeType=recorderMime(),recorder=new MediaRecorder(stream,mimeType?{mimeType}:undefined);
-   const capture={recorder,stream,chunks:[],start:outputTime(video.currentTime),replacedId,stopping:false,pausedAt:0};
-   microphone=capture;
+   const capture={recorder,stream,chunks:[],start,replacedId,stopping:false,pausedAt:0};
    recorder.ondataavailable=e=>{if(e.data?.size)capture.chunks.push(e.data);};
-   recorder.onerror=e=>{message.textContent='Microphone capture failed: '+(e.error?.message||'unknown error');};
-   recorder.onstop=async()=>{
-    stream.getTracks().forEach(t=>t.stop());stopHoldPlayback();microphone=null;
-    try{
-     const blob=new Blob(capture.chunks,{type:recorder.mimeType||'audio/webm'});
-     if(!blob.size)throw Error('No microphone audio was captured.');
-     const context=new AudioContext(),buffer=await context.decodeAudioData(await blob.arrayBuffer());
-     await context.close();
-     const take={id:'take-'+Date.now()+'-'+Math.random().toString(36).slice(2),blob,start:capture.start,trim:0,length:buffer.duration};
-     replaceTake(take,capture.replacedId);
-     message.textContent='Take saved in the editable project. Listen, retake, or export when ready.';
-    }catch(error){message.textContent='Could not read the microphone take: '+error.message;}
-    finally{recordingControls(false);}
+   recorder.onerror=e=>{
+    message.textContent='Microphone capture interrupted: '+(e.error?.message||'device error');
    };
-   recorder.start(250);recordingControls(true);
-   message.textContent='Recording microphone · Pause the video for a longer explanation, then resume.';
-   video.play().catch(()=>{});playWithHolds(video.currentTime);
+   recorder.onstop=()=>{
+    const blob=new Blob(capture.chunks,{type:recorder.mimeType||'audio/webm'});
+    finishTake(capture,blob);
+   };
+   recorder.start(250);monitorBrowserMicrophone(capture);
+   stream.getAudioTracks().forEach(track=>{
+    track.addEventListener('ended',()=>{if(microphone===capture&&!capture.stopping)stopMicrophone();},{once:true});
+   });
+   beginRecording(capture);
   }catch(error){
    stream?.getTracks().forEach(t=>t.stop());
    microphone=null;recordingControls(false);
-   message.textContent=error.name==='NotAllowedError'?'Allow microphone access to record narration.':'Could not start microphone: '+error.message;
+   if(error.name==='NotAllowedError'){
+    message.textContent='Microphone permission was denied. Enable microphone access in Android App Info or your browser settings, then retry.';
+   }else{
+    message.textContent='Microphone could not start ('+(error.name||'device error')+'). Close other apps using the microphone, check Android microphone access, and retry. '+error.message;
+   }
   }
  }
  function stopMicrophone(){
-  if(!microphone)return;
+  if(!microphone||microphone.stopping)return;
   const capture=microphone;capture.stopping=true;
   if(capture.pausedAt){
    const seconds=(performance.now()-capture.pausedAt)/1000;
    if(seconds>.08){shiftTakesAfter(capture.pausedSource,seconds);holds.push({at:capture.pausedSource,seconds});list();}
    capture.pausedAt=0;
   }
-  video.pause();stopHoldPlayback();
-  if(capture.recorder.state!=='inactive')capture.recorder.stop();
+  video.pause();stopHoldPlayback();updateRecordingIndicator();
+  get('narrationStop').disabled=true;
+  message.textContent='Finishing microphone take…';
+  if(capture.nativeToken){
+   (async()=>{
+    const token=capture.nativeToken;
+    try{
+     const size=Number(android.stopNarrationMicrophone(token));
+     if(!Number.isFinite(size)||size<=1024)throw Error('Android did not capture enough audio. Speak for at least one second.');
+     const parts=[];
+     for(let offset=0;offset<size;){
+      const encoded=android.readNarrationMicrophoneChunk(token,offset,262144);
+      if(!encoded)throw Error('Could not retrieve the recorded audio from Android.');
+      const binary=atob(encoded),bytes=new Uint8Array(binary.length);
+      for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+      parts.push(bytes);offset+=bytes.length;
+      await new Promise(resolve=>setTimeout(resolve,0));
+     }
+     await finishTake(capture,new Blob(parts,{type:'audio/mp4'}));
+    }catch(error){
+     microphone=null;recordingControls(false);
+     message.textContent='Microphone take failed: '+error.message;
+    }finally{try{android.clearNarrationMicrophone(token);}catch(error){}}
+   })();
+  }else if(capture.recorder?.state!=='inactive')capture.recorder.stop();
  }
  get('narrationRecord').onclick=()=>startMicrophone();
  get('narrationStop').onclick=stopMicrophone;

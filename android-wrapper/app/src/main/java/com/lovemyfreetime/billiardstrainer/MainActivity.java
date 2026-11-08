@@ -459,6 +459,7 @@ public class MainActivity extends Activity {
     protected void onDestroy(){
         if(pendingCameraRequest!=null){pendingCameraRequest.deny();pendingCameraRequest=null;}
         if(pendingAudioRequest!=null){pendingAudioRequest.deny();pendingAudioRequest=null;}
+        narrationMicRecorder.discard();
         pendingCameraChooser=null;
         if(descriptionVoice!=null){descriptionVoice.stop();descriptionVoice.shutdown();}
         synchronized (this) {
@@ -472,6 +473,7 @@ public class MainActivity extends Activity {
 
     private RecordingExport recordingExport;
     private AudioExport audioExport;
+    private final NarrationMicRecorder narrationMicRecorder = new NarrationMicRecorder(this);
     private final class AudioExport {
         String token, name;
         Uri file;
@@ -496,6 +498,21 @@ public class MainActivity extends Activity {
     }
 
     public class AndroidBridge {
+        @JavascriptInterface
+        public String startNarrationMicrophone(){
+            if(!contentPage())return "unavailable";
+            if(!audioAllowed()){
+                runOnUiThread(()->requestAudioPermission());
+                return "permission";
+            }
+            return narrationMicRecorder.begin();
+        }
+        @JavascriptInterface public int narrationMicrophoneLevel(String token){return narrationMicRecorder.level(token);}
+        @JavascriptInterface public long stopNarrationMicrophone(String token){return narrationMicRecorder.stop(token);}
+        @JavascriptInterface public String readNarrationMicrophoneChunk(String token,long offset,int size){
+            return narrationMicRecorder.chunk(token,offset,size);
+        }
+        @JavascriptInterface public void clearNarrationMicrophone(String token){narrationMicRecorder.clear(token);}
         @JavascriptInterface public String cameraPermissionState(){return cameraAllowed()?"granted":"denied";}
         @JavascriptInterface public void openCameraSettings(){runOnUiThread(() -> {
             if(!trustedCameraPage(Uri.parse(BundledApp.ORIGIN)))return;

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - test/narration-microphone
+      - test/narration-microphone-repair-20261108
     paths:
       - 'trainer-video-narration.js'
       - 'tests/trainer-*-narration.browser.cjs'
@@ -23,6 +24,7 @@ jobs:
       - name: Verify source and offline manifests
         run: |
           node --check trainer-video-narration.js
+          python3 scripts/build-offline-assets.py
           python3 scripts/build-offline-assets.py --check
           node --test tests/offline-loading.test.cjs tests/background-update-session.test.cjs
       - name: Install test video tools
