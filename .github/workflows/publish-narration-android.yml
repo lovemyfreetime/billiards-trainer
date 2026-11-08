@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 3
+          fetch-depth: 12
       - name: Require exact tested source and successful independent tests
         env:
           GH_TOKEN: ${{ github.token }}
