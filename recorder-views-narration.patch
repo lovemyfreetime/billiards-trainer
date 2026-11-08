@@ -1,0 +1,749 @@
+diff --git a/android-wrapper/app/src/androidTest/java/com/lovemyfreetime/billiardstrainer/BundledAppTest.java b/android-wrapper/app/src/androidTest/java/com/lovemyfreetime/billiardstrainer/BundledAppTest.java
+index cc79990..957046f 100644
+--- a/android-wrapper/app/src/androidTest/java/com/lovemyfreetime/billiardstrainer/BundledAppTest.java
++++ b/android-wrapper/app/src/androidTest/java/com/lovemyfreetime/billiardstrainer/BundledAppTest.java
+@@ -148,6 +148,10 @@ public class BundledAppTest {
+             assertFalse(second.isEmpty());
+             assertTrue(bridge.appendTrainerRecording(second, "AQID"));
+             assertTrue(bridge.finishTrainerRecording(second).contains(stem + " (2).mp4"));
++            String narration = bridge.beginTrainerRecording(stem + " narrated", null);
++            assertFalse(narration.isEmpty());
++            assertTrue(bridge.appendTrainerRecording(narration, "AQID"));
++            assertEquals("Download/Billiards Trainer/Clips/" + stem + " narrated.mp4", bridge.finishTrainerRecording(narration));
+             String aborted = bridge.beginTrainerRecording(stem + " aborted", "{}");
+             assertFalse(bridge.appendTrainerRecording(aborted, "%bad base64%"));
+             assertEquals("", bridge.finishTrainerRecording(aborted));
+@@ -160,6 +164,7 @@ public class BundledAppTest {
+                 while (cursor != null && cursor.moveToNext()) {
+                     String name = cursor.getString(1);
+                     assertFalse(name.contains("aborted"));
++                    assertFalse(name.contains("narrated") && name.endsWith(".json"));
+                     Uri uri = android.content.ContentUris.withAppendedId(collection, cursor.getLong(0));
+                     if (name.equals(stem + ".mp4")) {
+                         try (java.io.InputStream stream = resolver.openInputStream(uri)) {
+@@ -170,7 +175,7 @@ public class BundledAppTest {
+                     resolver.delete(uri, null, null);
+                     count++;
+                 }
+-                assertEquals(4, count);
++                assertEquals(5, count);
+             }
+         }
+     }
+diff --git a/android-wrapper/app/src/main/java/com/lovemyfreetime/billiardstrainer/MainActivity.java b/android-wrapper/app/src/main/java/com/lovemyfreetime/billiardstrainer/MainActivity.java
+index c016d20..1a37e6f 100644
+--- a/android-wrapper/app/src/main/java/com/lovemyfreetime/billiardstrainer/MainActivity.java
++++ b/android-wrapper/app/src/main/java/com/lovemyfreetime/billiardstrainer/MainActivity.java
+@@ -288,7 +288,7 @@ public class MainActivity extends Activity {
+             camera.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+         }
+ 
+-        Intent chooser = Intent.createChooser(pick, media ? "Choose pool-table photo or video" : "Choose backup or saved session file");
++        Intent chooser = Intent.createChooser(pick, media ? "Choose pool-table photo or video" : "Choose audio or saved file");
+         if (camera.resolveActivity(getPackageManager()) != null && cameraOutputUri != null) {
+             chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{camera});
+         }
+@@ -562,11 +562,14 @@ public class MainActivity extends Activity {
+             }
+         }
+ 
++        @JavascriptInterface
++        public boolean supportsNarratedVideo() { return true; }
++
+         @JavascriptInterface
+         public String beginTrainerRecording(String name, String session) {
+             synchronized (MainActivity.this) {
+                 if (recordingExport != null || name == null || name.length() > 120 ||
+-                    session == null || session.length() > 24000000) return "";
++                    (session != null && session.length() > 24000000)) return "";
+                 String stem = name.replaceAll("[^\\p{L}\\p{N} ._()-]", "-").trim();
+                 if (stem.isEmpty() || stem.equals(".") || stem.equals("..")) return "";
+                 RecordingExport export = new RecordingExport();
+@@ -577,8 +580,10 @@ public class MainActivity extends Activity {
+                     export.stem = selected;
+                     String folder = Environment.DIRECTORY_DOWNLOADS + "/Billiards Trainer/Clips";
+                     export.video = newClipDownload(folder, selected + ".mp4", "video/mp4");
+-                    export.setup = newClipDownload(folder, selected + ".session.billiards.json", "application/json");
+-                    writeClipDownload(export.setup, session.getBytes(java.nio.charset.StandardCharsets.UTF_8));
++                    if (session != null) {
++                        export.setup = newClipDownload(folder, selected + ".session.billiards.json", "application/json");
++                        writeClipDownload(export.setup, session.getBytes(java.nio.charset.StandardCharsets.UTF_8));
++                    }
+                     export.stream = getContentResolver().openOutputStream(export.video);
+                     if (export.stream == null) throw new java.io.IOException("Cannot open video");
+                     export.token = java.util.UUID.randomUUID().toString();
+@@ -620,11 +625,11 @@ public class MainActivity extends Activity {
+                     export.stream.close();export.stream = null;
+                     ContentValues ready = new ContentValues();
+                     ready.put(MediaStore.MediaColumns.IS_PENDING, 0);
+-                    if (getContentResolver().update(export.setup, ready, null, null) != 1 ||
++                    if ((export.setup != null && getContentResolver().update(export.setup, ready, null, null) != 1) ||
+                         getContentResolver().update(export.video, ready, null, null) != 1)
+                         throw new java.io.IOException("Could not finish recording");
+                     recordingExport = null;
+-                    return "Download/Billiards Trainer/Clips/" + export.stem + ".mp4 and its setup";
++                    return "Download/Billiards Trainer/Clips/" + export.stem + ".mp4" + (export.setup != null ? " and its setup" : "");
+                 } catch (Exception failure) {
+                     export.discard();recordingExport = null;
+                     return "";
+diff --git a/index.html b/index.html
+index 3a2d287..f25c560 100644
+--- a/index.html
++++ b/index.html
+@@ -1773,6 +1773,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
+             <button id="trainerClipSession" type="button" aria-pressed="false">Start session</button>
+             <button id="trainerClipReplay" type="button" disabled>Record session</button>
+           </div>
++          <label for="trainerSessionView">Session video view</label>
++          <select id="trainerSessionView">
++            <option value="stroke-current">Saved view + stroke</option>
++            <option value="stroke">Full table + stroke</option>
++            <option value="current">Saved view</option>
++            <option value="full">Full table</option>
++          </select>
++          <button id="trainerNarrateVideo" type="button">Narrate a video</button>
+           <div id="trainerClipSessionStatus" class="hint">Start a session before playing your rack.</div>
+           <div id="trainerClipStatus" class="hint" role="status">Choose a view above, then Record shot to execute and save the clip and setup.</div>
+         </div>
+@@ -2030,7 +2038,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
+ <script src="./photo-cloth-filter.js?v=2"></script>
+ <script src="./photo-corner-sensing.js?v=1"></script>
+ <script src="./photo-lighting.js?v=1"></script>
+-<script src="./trainer-table-zoom.js?v=1"></script>
++<script src="./trainer-table-zoom.js?v=2"></script>
+ <script src="./trainer-shot-budget.js?v=exit-2"></script>
+ <script>
+ // AI Camera Edition wrapper: v4.12 trainer, app-mode launch package. v4 adds scoreboard placement/default-off + local analysis-photo recall.
+@@ -13546,9 +13554,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
+   <link rel="stylesheet" href="./guide/pool-guide.css?v=resources-toggle-v8">
+   <script src="./phone-play.js?v=share-analysis-1"></script>
+   <link rel="stylesheet" href="./trainer-3d.css?v=compact-landscape-1">
+-  <script src="./trainer-3d.js?v=18"></script>
+-  <script src="./trainer-annotate.js?v=13"></script>
+-  <script src="./trainer-shot-recorder.js?v=record-shot-sessions-1"></script>
++  <script src="./trainer-3d.js?v=19"></script>
++  <script src="./trainer-annotate.js?v=14"></script>
++  <script src="./trainer-shot-recorder.js?v=record-shot-view-2"></script>
++  <script src="./trainer-video-narration.js?v=1"></script>
+   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
+   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
+   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">
+diff --git a/native-updates.json b/native-updates.json
+index 2b9815d..f9a0779 100644
+--- a/native-updates.json
++++ b/native-updates.json
+@@ -1,8 +1,8 @@
+ {
+   "format": 1,
+   "minimumProtocol": 1,
+-  "version": "269be54098a3fbeefb8894a9cc66405b4fbffba325158b4e916d8fb9626ef7a3",
+-  "sequence": 1794121651,
++  "version": "686ccca6a411335853e7c358e9d2c6b09c03ef42ff3cf654ec43d4d38a927976",
++  "sequence": 1794124170,
+   "files": {
+     "ai_model/pool_ball_classifier.onnx": {
+       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
+@@ -3705,8 +3705,8 @@
+       "length": 78650
+     },
+     "index.html": {
+-      "sha256": "2084f6f25845e1c944a446d39c00dd411c0b7aaeb61184e2ff9f00bd2e336f72",
+-      "length": 904624
++      "sha256": "19577c19f3105f0c94da324db7ce98ef4d1f83d45f572e497ab69d2887e7d758",
++      "length": 905138
+     },
+     "install/android/index.html": {
+       "sha256": "862dff4245e200376ff30ee6763f007bb510a3c0cdf0634f8ef3d0d2c25630ff",
+@@ -3805,8 +3805,8 @@
+       "length": 790
+     },
+     "offline-assets.json": {
+-      "sha256": "0f549c45c97643727713c295a4248368068ae1f0984544f15ff32c5ac5dbc092",
+-      "length": 145270
++      "sha256": "e57f3b2d2964cf10a55da7d15a8f55233a3068c4313d663e61a1dba68c3271b9",
++      "length": 145372
+     },
+     "phone-play.css": {
+       "sha256": "cec5017ee25f788690420d4e67241754a1fbb2c047779ad0e7e59d87f7eac720",
+@@ -4917,7 +4917,7 @@
+       "length": 1895
+     },
+     "service-worker.js": {
+-      "sha256": "1fd4ed2df588f9e9711015843c7e8526923c6fd476fec49fbee513100a8b41bd",
++      "sha256": "54f17afb6e4f326cc748ce9f35886c1080fd4bac523bde956b7a710634250086",
+       "length": 7739
+     },
+     "table-orbit.js": {
+@@ -4945,16 +4945,16 @@
+       "length": 35575
+     },
+     "trainer-3d.js": {
+-      "sha256": "971ed054345327e6eb17da3ac90c20a247d6dbfc34290984c52bcbb25118d671",
+-      "length": 46904
++      "sha256": "b1fe1f396079bfe288d6ad8079c80e87c2562acf0b6610e55c9f7d8125856ee5",
++      "length": 47233
+     },
+     "trainer-action-history.js": {
+       "sha256": "83f2afc6a65e2dc18b66313cc709a66407e72144c2278cc2d2acbfb600e4cfb4",
+       "length": 1464
+     },
+     "trainer-annotate.js": {
+-      "sha256": "488c56b30101c3c2a6425b3026ab3005c4d7a9c93ce5354fc58d32a2d94e1885",
+-      "length": 27009
++      "sha256": "b19b80bf0f6978cbb1c8a081ea063e071e16b453912b6e8ff469bbe96c2856e0",
++      "length": 27745
+     },
+     "trainer-layout-files.js": {
+       "sha256": "584904ca55d1ff7dd5e07be34915550b4cba3318fdab500f4cf9c3439c8527fa",
+@@ -4973,8 +4973,8 @@
+       "length": 13172
+     },
+     "trainer-shot-recorder.js": {
+-      "sha256": "dd1d605ca64ad33ea0672552e15ec33459e40e544d8ff3a3ec51ae9aea1c432c",
+-      "length": 12246
++      "sha256": "3254b8dac40d6c831533af12d231f891ba79dea7ac753909307e92f4c4939d92",
++      "length": 13377
+     },
+     "trainer-table-exchange.js": {
+       "sha256": "481759a0cf233361d10cb1e3c7335510da6f317dcf7e777bcdbf3485a1e20df4",
+@@ -4985,8 +4985,12 @@
+       "length": 2115
+     },
+     "trainer-table-zoom.js": {
+-      "sha256": "913bd0f5e2182cc073d11a28857365b3c62982ece7d10b5d369d4745f17db5a0",
+-      "length": 4048
++      "sha256": "b7ca40c5b1040aa8da885472b994ef252997a63fba74c172c5f7c377ea1877e9",
++      "length": 4381
++    },
++    "trainer-video-narration.js": {
++      "sha256": "2d6a6718fcc7d2d0ab867a8a5322b2a0a9f8f4ada94506987dc1145174bf60a4",
++      "length": 10920
+     },
+     "vendor/mp4-muxer-5.2.2/LICENSE": {
+       "sha256": "75c54aae7ef6ad652f684f9dd3b71e4dcef86ccebd88cf441ceed7f5eec037c5",
+diff --git a/offline-assets.json b/offline-assets.json
+index bb12024..581e2a4 100644
+--- a/offline-assets.json
++++ b/offline-assets.json
+@@ -1,5 +1,5 @@
+ {
+-  "version": "3a56de092505a769",
++  "version": "51591ba6d9c5a141",
+   "files": {
+     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
+     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
+@@ -926,7 +926,7 @@
+     "icons/play-experience-v1.webp": "8fb008260a29dc4d1c26208e1e92872b242902fbc3b256d49e3c2209c7dd53b1",
+     "icons/trainer-original-execute-v2.svg": "eaf1f45d99634cdbe87582d857cc2dd6017439dadf9ce251136485422c127da4",
+     "icons/zen-reference-table-v1.webp": "0d9352c54cccca69fbb78fd8bc7a173957424fad151950a3888f895069030da0",
+-    "index.html": "2084f6f25845e1c944a446d39c00dd411c0b7aaeb61184e2ff9f00bd2e336f72",
++    "index.html": "19577c19f3105f0c94da324db7ce98ef4d1f83d45f572e497ab69d2887e7d758",
+     "install/android/index.html": "862dff4245e200376ff30ee6763f007bb510a3c0cdf0634f8ef3d0d2c25630ff",
+     "install/apple/index.html": "baad9dae78322db69bebb071456f37d83e9ba1a7ac849dbe70ef9a88480cf253",
+     "install/assets/android-guide/Billiards_Trainer_Android_Installer_Screenshots/android-app-installed.jpg": "545867686776eb4a4ecae0b6d12e6c5df3c58623919fd7935c6c09530e9f7500",
+@@ -1234,17 +1234,18 @@
+     "tournament.css": "88d1214bbc88f482e96642898ef74885eaa46d11150e1e3fa58eeae3151b6115",
+     "tournament.html": "d3497126a61c1429131ba5fda878090e3a0db57046c0b6116561ebb3075017ca",
+     "trainer-3d.css": "57c92e4ba0b00196f9a7def87f122a1ba634df534dee361239eed00a9a3eeb36",
+-    "trainer-3d.js": "971ed054345327e6eb17da3ac90c20a247d6dbfc34290984c52bcbb25118d671",
++    "trainer-3d.js": "b1fe1f396079bfe288d6ad8079c80e87c2562acf0b6610e55c9f7d8125856ee5",
+     "trainer-action-history.js": "83f2afc6a65e2dc18b66313cc709a66407e72144c2278cc2d2acbfb600e4cfb4",
+-    "trainer-annotate.js": "488c56b30101c3c2a6425b3026ab3005c4d7a9c93ce5354fc58d32a2d94e1885",
++    "trainer-annotate.js": "b19b80bf0f6978cbb1c8a081ea063e071e16b453912b6e8ff469bbe96c2856e0",
+     "trainer-layout-files.js": "584904ca55d1ff7dd5e07be34915550b4cba3318fdab500f4cf9c3439c8527fa",
+     "trainer-practice-tools.js": "4f3be4afca8e51274aa1b9eb8c9dcd696e466c26a8974650bafe4dccd950650d",
+     "trainer-saved-files.js": "fe24a7ffe1011cd8874688303f87183d8a8b9b97cefd16bb580cb8f7eb2e6522",
+     "trainer-shot-budget.js": "70a98b8228b91a1b4f1e3b4ce736910aa71a5da502903474096ec8523145d975",
+-    "trainer-shot-recorder.js": "dd1d605ca64ad33ea0672552e15ec33459e40e544d8ff3a3ec51ae9aea1c432c",
++    "trainer-shot-recorder.js": "3254b8dac40d6c831533af12d231f891ba79dea7ac753909307e92f4c4939d92",
+     "trainer-table-exchange.js": "481759a0cf233361d10cb1e3c7335510da6f317dcf7e777bcdbf3485a1e20df4",
+     "trainer-table-zoom.css": "2f3abf6fefade1bb9d9a795cf89689f28d442a11c81da93995f0b44303cb1b2a",
+-    "trainer-table-zoom.js": "913bd0f5e2182cc073d11a28857365b3c62982ece7d10b5d369d4745f17db5a0",
++    "trainer-table-zoom.js": "b7ca40c5b1040aa8da885472b994ef252997a63fba74c172c5f7c377ea1877e9",
++    "trainer-video-narration.js": "2d6a6718fcc7d2d0ab867a8a5322b2a0a9f8f4ada94506987dc1145174bf60a4",
+     "vendor/mp4-muxer-5.2.2/LICENSE": "75c54aae7ef6ad652f684f9dd3b71e4dcef86ccebd88cf441ceed7f5eec037c5",
+     "vendor/mp4-muxer-5.2.2/mp4-muxer.mjs": "d2c4c782f180c86ed30b1f5d9487a34a0d370bf9b4535285734ea187d38f9bb5",
+     "vendor/onnxruntime-1.22.0/LICENSE": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c",
+diff --git a/service-worker.js b/service-worker.js
+index 4ae3217..e736a30 100644
+--- a/service-worker.js
++++ b/service-worker.js
+@@ -1,4 +1,4 @@
+-const CACHE_NAME = 'billiards-trainer-4-12-offline-3a56de092505a769';
++const CACHE_NAME = 'billiards-trainer-4-12-offline-51591ba6d9c5a141';
+ const CACHE_PREFIX = 'billiards-trainer-4-12-';
+ const APP_SHELL = [
+   './play-narration-data.js?v=3',
+diff --git a/tests/trainer-recording-session.browser.cjs b/tests/trainer-recording-session.browser.cjs
+index 6fef872..2fbdf82 100644
+--- a/tests/trainer-recording-session.browser.cjs
++++ b/tests/trainer-recording-session.browser.cjs
+@@ -31,15 +31,28 @@ try{
+  assert.deepEqual(pair[0].balls,pair[1].balls);assert.equal(pair[0].sideSpin,pair[1].sideSpin);
+  console.log('PASS paired modes, same setup, folder button and 009 -> 010');
+  await p.evaluate(()=>document.querySelector('#trainerClipSession').click());
+- await setup(.1);await p.evaluate(()=>document.querySelector('#animate').click());await p.waitForFunction(()=>!billiardsTourBridge.snapshot().busy);
+- await setup(-.1);await p.evaluate(()=>document.querySelector('#animate').click());await p.waitForFunction(()=>!billiardsTourBridge.snapshot().busy);
+- await p.evaluate(()=>{document.querySelector('#trainerClipSession').click();document.querySelector('#trainerSnapshotStroke').click()});
++ await setup(.1);await p.evaluate(()=>[...document.querySelectorAll('#table3DViews button')].find(b=>b.textContent==='Cue View').click());
++ const cueView=await p.evaluate(()=>BilliardsClipView.captureView());
++ await p.evaluate(()=>document.querySelector('#animate').click());await p.waitForFunction(()=>!billiardsTourBridge.snapshot().busy);
++ await setup(-.1);await p.evaluate(()=>Billiards3D.prepareSnapshot());
++ const fullView=await p.evaluate(()=>BilliardsClipView.captureView());
++ await p.evaluate(()=>document.querySelector('#animate').click());await p.waitForFunction(()=>!billiardsTourBridge.snapshot().busy);
++ await p.evaluate(()=>{document.querySelector('#trainerClipSession').click();document.querySelector('#trainerSnapshotFull').click()});
+  const original=await p.evaluate(()=>billiardsTourBridge.capture());
++ const originalView=await p.evaluate(()=>BilliardsClipView.captureView());
++ assert.equal(await p.locator('#trainerSessionView').inputValue(),'stroke-current');
++ await p.evaluate(()=>{window.renderedViews=[];const create=BilliardsClipView.create;BilliardsClipView.create=function(mode,...args){renderedViews.push({mode,camera:Billiards3D.camera()});return create.call(this,mode,...args)}});
+  assert.match(await p.locator('#trainerClipSessionStatus').textContent(),/2 shots/);
+  await p.evaluate(()=>document.querySelector('#trainerClipReplay').click());
+  await p.waitForFunction(()=>saved.length===3&&!document.querySelector('#trainerClipReplay').disabled,null,{timeout:100000});
+  const file=await p.evaluate(()=>JSON.parse(saved[2].session));
+- assert.equal(file.recordingShots.length,2);assert.equal(file.recordingShots[0].state.sideSpin,.1);assert.equal(file.recordingShots[1].state.sideSpin,-.1);
++ assert.equal(file.recordingShots.length,2);
++ assert.deepEqual(file.recordingShots.map(s=>s.recordingView),[cueView,fullView]);
++ assert.deepEqual(await p.evaluate(()=>BilliardsClipView.captureView()),originalView);
++ const views=await p.evaluate(()=>renderedViews);assert(views.every(v=>v.mode==='stroke-current'));
++ assert(views.some(v=>v.camera.azimuth===cueView.camera.azimuth&&v.camera.radius===cueView.camera.radius));
++ assert(views.some(v=>v.camera.azimuth===fullView.camera.azimuth&&v.camera.radius===fullView.camera.radius));
++assert.equal(file.recordingShots[0].state.sideSpin,.1);assert.equal(file.recordingShots[1].state.sideSpin,-.1);
+  assert.deepEqual(await p.evaluate(()=>billiardsTourBridge.capture()),original);
+  assert.equal(await p.locator('#trainerClipName').inputValue(),'Lesson 011');
+  for(let i=0;i<3;i++){
+@@ -50,6 +63,6 @@ try{
+   console.log(data.stem,meta.format.duration);
+  }
+  await p.reload();await p.waitForFunction(()=>window.billiardsTourBridge);assert.match(await p.locator('#trainerClipSessionStatus').textContent(),/2 shots/);assert.equal(await p.locator('#trainerClipName').inputValue(),'');
+- assert.deepEqual(errors,[]);console.log('PASS session capture, continuous video, exact settings, original state restored, recovery and name reset');
++ assert.deepEqual(errors,[]);console.log('PASS saved cue/full cameras and stroke panel independently of snapshot selection; session capture, continuous video, exact settings, original state restored, recovery and name reset');
+ }finally{await browser?.close();server.kill()}
+ })().catch(e=>{console.error(e);process.exitCode=1});
+diff --git a/tests/trainer-video-narration.browser.cjs b/tests/trainer-video-narration.browser.cjs
+new file mode 100644
+index 0000000..3b3caf2
+--- /dev/null
++++ b/tests/trainer-video-narration.browser.cjs
+@@ -0,0 +1,33 @@
++const {chromium}=require('playwright'),assert=require('node:assert/strict'),cp=require('node:child_process'),fs=require('node:fs');
++(async()=>{
++ const server=cp.spawn(process.execPath,['tests/range-server.cjs','8812']);let browser;
++ try{
++  await new Promise((r,j)=>{server.stdout.once('data',r);server.once('error',j)});
++  browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox','--enable-unsafe-swiftshader','--use-angle=swiftshader']});
++  const p=await browser.newPage({viewport:{width:1100,height:750},serviceWorkers:'block'}),errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')console.log(m.text())});
++  await p.addInitScript(()=>{window.saved=[];let pending;window.BilliardsAndroid={saveTrainerClip(){},supportsNarratedVideo(){return true},beginTrainerRecording(stem,session){pending={stem,session,chunks:[]};return 'token'},appendTrainerRecording(token,data){pending.chunks.push(data);return true},finishTrainerRecording(){saved.push(pending);return pending.stem+'.mp4'},abortTrainerRecording(){pending=null}}});
++  await p.goto('http://127.0.0.1:8812/?train=1');await p.waitForFunction(()=>window.BilliardsShotRecorder);
++  await p.evaluate(()=>document.querySelector('#trainerNarrateVideo').click());
++  await p.locator('#narrationVideoFile').setInputFiles(process.env.NARRATION_TEST_VIDEO||'/tmp/session-export-1.mp4');
++  await p.waitForFunction(()=>document.querySelector('#narrationPreview').readyState>=2);
++  const inputDuration=await p.locator('#narrationPreview').evaluate(v=>v.duration);
++  await p.locator('#narrationAudioFile').setInputFiles(process.env.NARRATION_TEST_AUDIO||'/tmp/narration-test.wav');
++  await p.locator('#narrationPreview').evaluate(v=>new Promise(r=>{v.addEventListener('seeked',r,{once:true});v.currentTime=1}));
++  await p.locator('#narrationHold').fill('3');await p.locator('#narrationAddHold').click();
++  await p.locator('#narrationOffset').fill('0.25');await p.locator('#narrationName').fill('Narration test 01');
++  await p.locator('#narrationExport').click();
++  await p.waitForFunction(()=>saved.length===1||(!document.querySelector('#narrationExport').disabled&&document.querySelector('#narrationStatus').textContent),null,{timeout:180000});
++  assert.equal(await p.evaluate(()=>saved.length),1,await p.locator('#narrationStatus').textContent());
++  const data=await p.evaluate(()=>saved[0]);assert.equal(data.stem,'Narration test 01');assert.equal(data.session,null);
++  const output='/tmp/narration-export.mp4';fs.writeFileSync(output,Buffer.concat(data.chunks.map(c=>Buffer.from(c,'base64'))));
++  const meta=JSON.parse(cp.execFileSync('ffprobe',['-v','error','-show_streams','-show_format','-of','json',output]));
++  assert.equal(meta.streams[0].width,1920);assert.equal(meta.streams[0].height,1080);assert.equal(meta.streams[0].avg_frame_rate,'30/1');assert(meta.streams.some(s=>s.codec_type==='audio'));
++  assert(Math.abs(Number(meta.format.duration)-inputDuration-3)<.1);
++  const sample=time=>cp.execFileSync('ffmpeg',['-v','error','-ss',String(time),'-i',output,'-frames:v','1','-f','rawvideo','-pix_fmt','rgb24','-vf','scale=160:90','pipe:1']);
++  assert.deepEqual(sample(1.5),sample(3.5));assert.notDeepEqual(sample(.1),sample(6));
++  const audio=cp.execFileSync('ffmpeg',['-v','error','-i',output,'-vn','-f','f32le','-ac','1','-ar','48000','pipe:1']);
++  const rms=(from,to)=>{let n=0,sum=0;for(let i=Math.round(from*48000);i<Math.min(to*48000,audio.length/4);i++){sum+=audio.readFloatLE(i*4)**2;n++}return Math.sqrt(sum/n)};
++  assert(rms(0,.15)<.001);assert(rms(.5,1.5)>.01);
++  assert.deepEqual(errors,[]);console.log('PASS narration MP4-only save, 1080p/30, audio offset and audible track, exact 3-second held frame, continued motion; duration',meta.format.duration,'audio',meta.streams.find(s=>s.codec_type==='audio').codec_name);
++ }finally{await browser?.close();server.kill()}
++})().catch(e=>{console.error(e);process.exitCode=1});
+diff --git a/trainer-3d.js b/trainer-3d.js
+index ead29f8..fe5f0a9 100644
+--- a/trainer-3d.js
++++ b/trainer-3d.js
+@@ -156,7 +156,11 @@
+   finally{loading=false;button.disabled=false;}
+  };
+  window.Billiards3D={get active(){return active;},get locked(){return active&&viewLocked;},get panning(){return active&&panEnabled;},project(point,height=0){return engine?.project(point,height)||null;},update(frame){lastFrame=frame;if(active){syncBallTools();engine?.update(frame);requestRender();}},disable,
+-  camera(){return {azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},...engine?.projection()};},prepareSnapshot(){standing();},renderSnapshot(){engine?.render();},tablePoint(event){return engine?.tablePoint(event)||null;},renderedBalls(){return engine?.ballViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];},railGeometry(){return engine?.railViews()||[];},contactMarkers(){return engine?.contactViews()||[];}};
++  camera(){return {azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},...engine?.projection()};},restoreCamera(saved){
++   if(!saved||![saved.azimuth,saved.elevation,saved.radius,saved.target?.x,saved.target?.y,saved.target?.z].every(Number.isFinite))return false;
++   Object.assign(cameraState,{azimuth:saved.azimuth,elevation:saved.elevation,radius:saved.radius,target:{...saved.target}});
++   requestRender();return true;
++  },prepareSnapshot(){standing();},renderSnapshot(){engine?.render();},tablePoint(event){return engine?.tablePoint(event)||null;},renderedBalls(){return engine?.ballViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];},railGeometry(){return engine?.railViews()||[];},contactMarkers(){return engine?.contactViews()||[];}};
+  window.addEventListener('resize',()=>{dock();positionToggle();requestRender();});new MutationObserver(positionToggle).observe(document.getElementById('tableZoom'),{attributes:true,attributeFilter:['style']});document.addEventListener('visibilitychange',()=>{if(!document.hidden)requestRender();});
+  function createEngine(T){
+   const renderer=new T.WebGLRenderer({antialias:true,alpha:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.setClearColor(0x080d13);renderer.outputColorSpace=T.SRGBColorSpace;
+diff --git a/trainer-annotate.js b/trainer-annotate.js
+index da2dc4e..710407c 100644
+--- a/trainer-annotate.js
++++ b/trainer-annotate.js
+@@ -294,14 +294,15 @@
+   },'image/png');
+  });
+  function prepareCapture(mode){
+-  if(mode==='current')return;
++  if(mode==='current'||mode==='stroke-current')return;
+   if(is3d())window.Billiards3D.prepareSnapshot();
+   else if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
+  }
+  function captureArea(mode){
+   const source=document.getElementById(is3d()?'table3DCanvas':'canvas');
+-  const polygon=mode==='current'?null:frame()?.corners;
+-  if(!source||(mode!=='current'&&(!polygon||polygon.some(p=>!p))))return null;
++  const current=mode==='current'||mode==='stroke-current';
++  const polygon=current?null:frame()?.corners;
++  if(!source||(!current&&(!polygon||polygon.some(p=>!p))))return null;
+   const rect=stage.getBoundingClientRect(),visible=source.getBoundingClientRect();
+   const left=Math.max(0,polygon?Math.floor(Math.min(...polygon.map(p=>p.x))):visible.left-rect.left,-rect.left);
+   const top=Math.max(0,polygon?Math.floor(Math.min(...polygon.map(p=>p.y))):visible.top-rect.top,-rect.top);
+@@ -335,6 +336,18 @@
+  }
+  window.BilliardsClipView={
+   get mode(){return snapshotMode;},
++  captureView(){return {three:is3d(),camera:is3d()?window.Billiards3D.camera():null,zoom:window.BilliardsTableZoom?.snapshot()};},
++  async restoreView(saved){
++   if(!saved)return;
++   if(saved.three&&!is3d()){
++    document.getElementById('table3DToggle').click();
++    const until=performance.now()+10000;
++    while(!is3d()&&performance.now()<until)await new Promise(r=>setTimeout(r,30));
++    if(!is3d())throw Error('The saved 3D view is unavailable.');
++   }else if(!saved.three&&is3d())window.Billiards3D.disable();
++   if(saved.three)window.Billiards3D.restoreCamera(saved.camera);
++   else window.BilliardsTableZoom?.restore(saved.zoom);
++  },
+   prepare:prepareCapture,
+   create(mode,width,height){
+    if(is3d())window.Billiards3D.renderSnapshot();
+@@ -346,7 +359,7 @@
+    const c=canvas.getContext('2d',{alpha:false});
+    c.fillStyle='#101820';c.fillRect(0,0,width,height);
+    let compositionW=area.w,compositionH=area.h;
+-   const panel=mode==='stroke'?withStroke(area.w,area.h,window.billiardsTourBridge.strokeSnapshot(),1):null;
++   const panel=(mode==='stroke'||mode==='stroke-current')?withStroke(area.w,area.h,window.billiardsTourBridge.strokeSnapshot(),1):null;
+    if(panel){compositionW=panel.width;compositionH=panel.height;}
+    const fit=Math.min(width/compositionW,height/compositionH);
+    c.translate((width-compositionW*fit)/2,(height-compositionH*fit)/2);
+diff --git a/trainer-shot-recorder.js b/trainer-shot-recorder.js
+index 6a783d8..b8d5d8f 100644
+--- a/trainer-shot-recorder.js
++++ b/trainer-shot-recorder.js
+@@ -7,6 +7,7 @@
+  const byId=id=>document.getElementById(id),bridge=()=>window.billiardsTourBridge;
+  const arm=byId('trainerClipArm'),folderButton=byId('trainerClipFolder'),pairButton=byId('trainerClipPair');
+  const sessionButton=byId('trainerClipSession'),replayButton=byId('trainerClipReplay');
++ const sessionView=byId('trainerSessionView');
+  const nameInput=byId('trainerClipName'),setupButton=byId('trainerClipSetup');
+  const status=byId('trainerClipStatus'),sessionStatus=byId('trainerClipSessionStatus');
+  const width=1920,height=1080,fps=30;
+@@ -18,7 +19,7 @@
+  function update(){
+   const busy=!!job||preparing;
+   for(const button of [arm,pairButton,folderButton,sessionButton])button.disabled=busy;
+-  nameInput.disabled=busy;
++  nameInput.disabled=busy;sessionView.disabled=busy;byId("trainerNarrateVideo").disabled=busy;
+   replayButton.disabled=busy||collecting||!shots.length;
+   sessionButton.textContent=collecting?'End session':'Start session';
+   sessionButton.setAttribute('aria-pressed',String(collecting));
+@@ -35,7 +36,7 @@
+    shots=saved.shots;collecting=!!saved.collecting;
+   }
+  }catch(error){console.warn('Could not restore recording session',error);}
+- const snapshot=()=>({capture:{state:bridge().capture().state},file:bridge().exportFile()});
++ const snapshot=()=>({capture:{state:bridge().capture().state},file:bridge().exportFile(),view:window.BilliardsClipView.captureView()});
+  window.addEventListener('billiards:shot-start',()=>{
+   if(collecting&&(!job||job.kind==='single'||job.kind==='pair'&&job.index===0)){
+    shots.push(snapshot());persist();
+@@ -101,13 +102,14 @@
+   catch(error){await stream.abort().catch(()=>{});throw error;}
+  }
+  async function save(stem,clip,file){
+-  const setup=new Blob([JSON.stringify(file,null,2)],{type:'application/json'});
+-  latestSetup={name:stem+'.session.billiards.json',blob:setup};
+-  setupButton.hidden=false;
++  const setup=file?new Blob([JSON.stringify(file,null,2)],{type:'application/json'}):null;
++  latestSetup=setup?{name:stem+'.session.billiards.json',blob:setup}:null;
++  setupButton.hidden=!setup;
+   if(android){
++   if(!setup&&!android.supportsNarratedVideo)throw Error('Install the updated Android app to save narrated videos.');
+    if(!android.beginTrainerRecording)throw Error('Install the updated Android app for named and session recordings.');
+-   const token=android.beginTrainerRecording(stem,await setup.text());
+-   if(!token)throw Error('Could not create the recording files.');
++   const token=android.beginTrainerRecording(stem,setup?await setup.text():null);
++   if(!token)throw Error(setup?'Could not create the recording files.':'Install the updated Android app to save narrated videos.');
+    try{
+     for(let offset=0;offset<clip.size;offset+=768*1024){
+      const encoded=await dataUrl(clip.slice(offset,offset+768*1024));
+@@ -119,11 +121,11 @@
+    }catch(error){android.abortTrainerRecording(token);throw error;}
+   }else if(folder){
+    await write(stem+'.mp4',clip);
+-   await write(latestSetup.name,setup);
+-   setupButton.hidden=true;status.textContent='Saved '+stem+'.mp4 and its setup to '+folder.name+'.';
++   if(setup)await write(latestSetup.name,setup);
++   setupButton.hidden=true;status.textContent='Saved '+stem+'.mp4'+(setup?' and its setup':'')+' to '+folder.name+'.';
+   }else{
+-   download(stem+'.mp4',clip);download(latestSetup.name,setup);
+-   status.textContent='Saved '+stem+'.mp4. Check Downloads for the video and setup. Use Save setup if needed.';
++   download(stem+'.mp4',clip);if(setup)download(latestSetup.name,setup);
++   status.textContent='Saved '+stem+'.mp4. Check Downloads'+(setup?' for the video and setup. Use Save setup if needed.':'.');
+   }
+  }
+  async function settleView(){await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));}
+@@ -131,7 +133,7 @@
+   if(job||preparing||bridge().snapshot().busy){status.textContent='Wait for the current shot or recording to finish.';return;}
+   if(android&&!android.beginTrainerRecording){status.textContent='Install the latest Android app for these recording controls.';return;}
+   preparing=true;update();
+-  const original=bridge().capture();
++  const original=bridge().capture(),originalView=window.BilliardsClipView.captureView();
+   try{
+    if(!window.VideoEncoder||!window.VideoFrame||!(await VideoEncoder.isConfigSupported(config)).supported)
+     throw Error('1080p H.264 recording is unavailable on this device.');
+@@ -140,8 +142,11 @@
+    const stem=await unusedName(safeName(nameInput.value.trim()||nameInput.placeholder),kind);
+    const entries=kind==='session'?shots.slice():[snapshot()];
+    if(!entries.length)throw Error('Start and end a session before recording it.');
+-   job={kind,index:0,entries,original,stem,framing:kind==='pair'?'current':window.BilliardsClipView.mode};
+-   if(kind==='session')bridge().restore(entries[0].capture);
++   job={kind,index:0,entries,original,originalView,stem,framing:kind==='pair'?'current':kind==='session'?sessionView.value:window.BilliardsClipView.mode};
++   if(kind==='session'){
++    bridge().restore(entries[0].capture);
++    await window.BilliardsClipView.restoreView(entries[0].view||originalView);
++   }
+    window.BilliardsClipView.prepare(job.framing);
+    await settleView();
+    preparing=false;armed=true;update();
+@@ -212,13 +217,15 @@
+       if(current.kind==='session'&&current.index+1<current.entries.length){
+        current.index++;
+        bridge().restore(current.entries[current.index].capture);
++       await window.BilliardsClipView.restoreView(current.entries[current.index].view||current.originalView);
++       window.BilliardsClipView.prepare(current.framing);
+        await settleView();armed=true;byId('animate').click();
+        if(armed)throw Error('No executable shot at session position '+(current.index+1));
+        return;
+       }
+       encoder.close();current.muxer.finalize();
+       const file=JSON.parse(JSON.stringify(current.entries[0].file));
+-      if(current.kind==='session')file.recordingShots=current.entries.map(s=>s.file);
++      if(current.kind==='session')file.recordingShots=current.entries.map(s=>({...s.file,recordingView:s.view||current.originalView}));
+       const suffix=current.kind==='pair'?(current.index===0?' - Current':' - Stroke'):'';
+       file.name=current.stem+suffix;if(file.layout)file.layout.name=current.stem+suffix;
+       await save(current.stem+suffix,new Blob([current.target.buffer],{type:'video/mp4'}),file);
+@@ -231,16 +238,18 @@
+        return;
+       }
+       nameInput.value=nextName(current.stem);
+-      if(current.kind==='session')bridge().restore(current.original);
++      if(current.kind==='session'){bridge().restore(current.original);await window.BilliardsClipView.restoreView(current.originalView);}
+       job=null;update();
+      }catch(error){
+-      if(current.kind==='session')bridge().restore(current.original);
++      if(current.kind==='session'){bridge().restore(current.original);await window.BilliardsClipView.restoreView(current.originalView);}
+       fail(error.message,error);
+      }
+     }
+    };
+   }catch(error){fail('Could not start recording. '+error.message,error);return null;}
+  }
+- window.BilliardsShotRecorder={begin};
++ window.BilliardsShotRecorder={begin,
++  async saveNarrated(stem,blob){if(job||preparing)throw Error('Wait for recording to finish.');await save(await unusedName(safeName(stem),'single'),blob,null);}
++ };
+  update();
+ })();
+diff --git a/trainer-table-zoom.js b/trainer-table-zoom.js
+index e50cfe7..68421f9 100644
+--- a/trainer-table-zoom.js
++++ b/trainer-table-zoom.js
+@@ -14,6 +14,12 @@
+   function gesture(){const ps=[...pointers.values()];if(!ps.length)return null;if(ps.length===1)return {...ps[0],distance:0};return {x:(ps[0].x+ps[1].x)/2,y:(ps[0].y+ps[1].y)/2,distance:Math.hypot(ps[0].x-ps[1].x,ps[0].y-ps[1].y)};}
+   function consume(e){e.preventDefault();e.stopImmediatePropagation();}
+   window.BilliardsTableZoom={
++    snapshot(){const {w,h}=size();return {enabled,scale,x:x/w,y:y/h};},
++    restore(saved){
++      if(!saved||![saved.scale,saved.x,saved.y].every(Number.isFinite))return;
++      const {w,h}=size();enabled=!!saved.enabled;scale=clamp(saved.scale,1,6);x=saved.x*w;y=saved.y*h;
++      previous=mouse=null;pointers.clear();paint();
++    },
+     // The engine continues drawing in its original coordinate system. Only the
+     // canvas context changes; hit-testing, controls and physics keep their units.
+     begin(ctx){ctx.save();if(enabled){ctx.translate(x,y);ctx.scale(scale,scale);}},
+diff --git a/trainer-video-narration.js b/trainer-video-narration.js
+new file mode 100644
+index 0000000..52ce445
+--- /dev/null
++++ b/trainer-video-narration.js
+@@ -0,0 +1,170 @@
++/* Add an imported narration track and held frames to an existing Trainer video. */
++(() => {
++ 'use strict';
++ const open=document.getElementById('trainerNarrateVideo');
++ if(!open)return;
++ const dialog=document.createElement('dialog');
++ dialog.id='trainerNarrationDialog';
++ dialog.style.cssText='max-width:900px;width:92vw;max-height:90vh;overflow:auto;background:#1b2933;color:#eee;border:1px solid #668694;border-radius:12px;padding:18px';
++ dialog.innerHTML=`<h2>Narrate a video</h2>
++ <p>Choose a saved Trainer video and an audio file, including an exported Chase narration. Add pauses at points that need more explanation.</p>
++ <label>Trainer video <input id="narrationVideoFile" type="file" accept="video/*"></label>
++ <video id="narrationPreview" controls playsinline muted style="display:block;width:100%;max-height:40vh;background:#080d13;margin:12px 0"></video>
++ <label>Narration audio <input id="narrationAudioFile" type="file" accept="audio/*"></label>
++ <audio id="narrationAudioPreview" controls style="display:block;width:100%;margin:10px 0"></audio>
++ <div class="row"><label>Audio starts at <input id="narrationOffset" type="number" min="0" max="3600" step="0.1" value="0" style="width:75px"> seconds</label></div>
++ <div class="row"><label>Hold this frame for <input id="narrationHold" type="number" min="0.1" max="300" step="0.5" value="2" style="width:75px"> seconds</label>
++ <button id="narrationAddHold" type="button">Add pause here</button></div>
++ <ul id="narrationHolds"></ul>
++ <p class="hint">Pause the preview at the frame you want to hold, then add the pause. Narration continues during holds. If the audio runs longer, the final frame stays visible until it finishes.</p>
++ <label>Output name <input id="narrationName" type="text" maxlength="80" value="Narrated lesson 01"></label>
++ <div class="row" style="margin-top:12px"><button id="narrationExport" type="button">Export narrated video</button><button id="narrationCancel" type="button" hidden>Cancel export</button><button id="narrationClose" type="button">Close</button></div>
++ <p id="narrationStatus" role="status"></p>`;
++ document.body.append(dialog);
++ const get=id=>dialog.querySelector('#'+id);
++ const video=get('narrationPreview'),audio=get('narrationAudioPreview'),message=get('narrationStatus');
++ let videoUrl,audioUrl,audioFile,holds=[],working=false,canceled=false;
++ const cleanUrl=url=>{if(url)URL.revokeObjectURL(url);};
++ function list(){
++  const list=get('narrationHolds');list.replaceChildren();
++  holds.sort((a,b)=>a.at-b.at);
++  holds.forEach((hold,index)=>{
++   const li=document.createElement('li'),remove=document.createElement('button');
++   li.append(hold.at.toFixed(2)+'s · hold '+hold.seconds+'s ');
++   remove.textContent='Remove';remove.type='button';remove.disabled=working;
++   remove.onclick=()=>{holds.splice(index,1);list();};li.append(remove);list.append(li);
++  });
++ }
++ function busy(value){
++  working=value;
++  for(const el of dialog.querySelectorAll('input,button'))el.disabled=value;
++  get('narrationCancel').hidden=!value;get('narrationCancel').disabled=false;
++  video.controls=!value;list();
++ }
++ function event(target,name){
++  return new Promise((resolve,reject)=>{
++   const timer=setTimeout(()=>finish(Error('The video did not become ready.')),15000);
++   const done=()=>finish(),error=()=>finish(Error('Could not read the video.'));
++   function finish(err){clearTimeout(timer);target.removeEventListener(name,done);target.removeEventListener('error',error);err?reject(err):resolve();}
++   target.addEventListener(name,done,{once:true});target.addEventListener('error',error,{once:true});
++  });
++ }
++ open.onclick=()=>{dialog.showModal();};
++ get('narrationClose').onclick=()=>{video.pause();audio.pause();dialog.close();};
++ dialog.addEventListener('cancel',e=>{if(working)e.preventDefault();});
++ get('narrationCancel').onclick=()=>{canceled=true;message.textContent='Canceling export…';};
++ get('narrationVideoFile').onchange=()=>{
++  const file=get('narrationVideoFile').files[0];if(!file)return;
++  cleanUrl(videoUrl);videoUrl=URL.createObjectURL(file);video.src=videoUrl;
++  holds=[];list();get('narrationName').value=file.name.replace(/\.[^.]+$/,'')+' - Narrated';
++  message.textContent='Use the preview controls to choose a frame for a pause.';
++ };
++ get('narrationAudioFile').onchange=()=>{
++  audioFile=get('narrationAudioFile').files[0]||null;
++  cleanUrl(audioUrl);audioUrl=audioFile?URL.createObjectURL(audioFile):null;
++  if(audioUrl)audio.src=audioUrl;else audio.removeAttribute('src');
++ };
++ get('narrationAddHold').onclick=()=>{
++  const seconds=Number(get('narrationHold').value);
++  if(!Number.isFinite(video.duration)||!Number.isFinite(seconds)||seconds<=0||seconds>300){message.textContent='Choose a video and a hold of 0.1 to 300 seconds.';return;}
++  video.pause();holds.push({at:video.currentTime,seconds});list();
++ };
++ function sourceTime(time,duration,pauses){
++  let added=0;
++  for(const pause of pauses){
++   const start=pause.at+added;
++   if(time<start)return Math.min(duration,time-added);
++   if(time<start+pause.seconds)return Math.min(duration,pause.at);
++   added+=pause.seconds;
++  }
++  return Math.min(duration,Math.max(0,time-added));
++ }
++ async function exportVideo(){
++  if(working)return;
++  if(!videoUrl){message.textContent='Choose a Trainer video first.';return;}
++  const offset=Number(get('narrationOffset').value);
++  if(!Number.isFinite(offset)||offset<0||offset>3600){message.textContent='Choose an audio start time from 0 to 3600 seconds.';return;}
++  busy(true);canceled=false;video.pause();audio.pause();
++  let encoder,audioEncoder,context,failed;
++  const check=()=>{if(canceled)throw Error('Export canceled.');if(failed)throw failed;};
++  try{
++   if(!window.VideoEncoder||!window.VideoFrame)throw Error('Video export is unavailable in this browser.');
++   const videoConfig={codec:'avc1.42002a',width:1920,height:1080,framerate:30,bitrate:8000000,latencyMode:'realtime',avc:{format:'avc'}};
++   if(!(await VideoEncoder.isConfigSupported(videoConfig)).supported)throw Error('1080p H.264 export is unavailable on this device.');
++   if(video.readyState<2)await event(video,'loadeddata');
++   const duration=video.duration;
++   if(!Number.isFinite(duration)||duration<=0)throw Error('Could not read the video duration.');
++   const pauses=holds.map(p=>({at:Math.min(duration,p.at),seconds:p.seconds})).sort((a,b)=>a.at-b.at);
++   let buffer,audioConfig;
++   if(audioFile){
++    if(!window.AudioEncoder||!window.AudioData)throw Error('Audio export is unavailable on this device.');
++    context=new AudioContext({sampleRate:48000});
++    buffer=await context.decodeAudioData(await audioFile.arrayBuffer());
++    for(const codec of ['mp4a.40.2','opus']){
++     const config={codec,sampleRate:buffer.sampleRate,numberOfChannels:Math.min(2,buffer.numberOfChannels),bitrate:128000};
++     if((await AudioEncoder.isConfigSupported(config)).supported){audioConfig=config;break;}
++    }
++    if(!audioConfig)throw Error('This device cannot encode the narration audio.');
++   }
++   const {Muxer,ArrayBufferTarget}=await import('./vendor/mp4-muxer-5.2.2/mp4-muxer.mjs');
++   const target=new ArrayBufferTarget();
++   const muxer=new Muxer({target,video:{codec:'avc',width:1920,height:1080,frameRate:30},
++    ...(buffer?{audio:{codec:audioConfig.codec==='opus'?'opus':'aac',sampleRate:buffer.sampleRate,numberOfChannels:audioConfig.numberOfChannels}}:{}),
++    fastStart:'in-memory',firstTimestampBehavior:'offset'});
++   encoder=new VideoEncoder({output:(chunk,meta)=>{try{muxer.addVideoChunk(chunk,meta);}catch(e){failed=e;}},error:e=>{failed=e;}});
++   encoder.configure(videoConfig);
++   const canvas=document.createElement('canvas');canvas.width=1920;canvas.height=1080;
++   const c=canvas.getContext('2d',{alpha:false}),fit=Math.min(1920/video.videoWidth,1080/video.videoHeight);
++   const total=Math.max(duration+pauses.reduce((n,p)=>n+p.seconds,0),buffer?offset+buffer.duration:0);
++   const frames=Math.ceil(total*30);
++   let previous=-1;
++   for(let index=0;index<frames;index++){
++    check();
++    const source=Math.min(Math.max(0,duration-1/30),sourceTime(index/30,duration,pauses));
++    if(previous<0||Math.abs(source-previous)>0.00001){
++     if(Math.abs(video.currentTime-source)>0.00001){const ready=event(video,'seeked');video.currentTime=source;await ready;}
++     c.fillStyle='#101820';c.fillRect(0,0,1920,1080);
++     c.drawImage(video,(1920-video.videoWidth*fit)/2,(1080-video.videoHeight*fit)/2,video.videoWidth*fit,video.videoHeight*fit);
++     previous=source;
++    }
++    if(encoder.encodeQueueSize>=6)await encoder.flush();
++    check();
++    const timestamp=Math.round(index*1000000/30),frame=new VideoFrame(canvas,{timestamp,duration:Math.round((index+1)*1000000/30)-timestamp});
++    try{encoder.encode(frame,{keyFrame:index%30===0});}finally{frame.close();}
++    if(index%10===0){message.textContent='Exporting video · '+Math.floor(index/frames*90)+'%';await new Promise(r=>setTimeout(r,0));}
++   }
++   await encoder.flush();check();encoder.close();
++   if(buffer){
++    message.textContent='Adding narration…';
++    audioEncoder=new AudioEncoder({output:(chunk,meta)=>{try{muxer.addAudioChunk(chunk,meta);}catch(e){failed=e;}},error:e=>{failed=e;}});
++    audioEncoder.configure(audioConfig);
++    const channels=audioConfig.numberOfChannels,rate=buffer.sampleRate;
++    // Include silence before an offset so both tracks begin at timestamp zero.
++    const sampleCount=Math.ceil((offset+buffer.duration)*rate),start=Math.round(offset*rate);
++    for(let position=0;position<sampleCount;position+=1024){
++     check();
++     const count=Math.min(1024,sampleCount-position),samples=new Float32Array(count*channels);
++     for(let channel=0;channel<channels;channel++){
++      const input=buffer.getChannelData(channel);
++      for(let i=0;i<count;i++){const sample=position+i-start;if(sample>=0&&sample<input.length)samples[channel*count+i]=input[sample];}
++     }
++     while(audioEncoder.encodeQueueSize>=6){check();await new Promise(r=>setTimeout(r,0));}
++     const data=new AudioData({format:'f32-planar',sampleRate:rate,numberOfFrames:count,numberOfChannels:channels,timestamp:Math.round(position*1000000/rate),data:samples});
++     try{audioEncoder.encode(data);}finally{data.close();}
++     if(position%10240===0)await new Promise(r=>setTimeout(r,0));
++    }
++    await audioEncoder.flush();check();audioEncoder.close();
++   }
++   muxer.finalize();check();
++   message.textContent='Saving narrated video…';
++   await window.BilliardsShotRecorder.saveNarrated(get('narrationName').value,new Blob([target.buffer],{type:'video/mp4'}));
++   message.textContent='Narrated video saved. Check your Clips folder or Downloads.';
++  }catch(error){message.textContent=error.message;console.error(error);}
++  finally{
++   if(encoder&&encoder.state!=='closed')encoder.close();
++   if(audioEncoder&&audioEncoder.state!=='closed')audioEncoder.close();
++   await context?.close();busy(false);
++  }
++ }
++ get('narrationExport').onclick=exportVideo;
++})();
