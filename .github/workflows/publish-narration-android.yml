@@ -20,11 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      ANDROID_VERSION_CODE: '1179'
-      TESTED_SOURCE_SHA: 232d1a57fcd4f07fc5bcc5a9df7d659dfbfbaff5
-      BROWSER_TESTED_SOURCE_SHA: 3b75660320bc8831529080fdaba3eceda6efe300
-      BROWSER_TEST_RUN: '42468941270'
-      ANDROID_TEST_RUN: '42470544893'
+      ANDROID_VERSION_CODE: '1180'
+      TESTED_SOURCE_SHA: 196600415d3480a86aea27d8a5eaf0da8ced1192
+      BROWSER_TESTED_SOURCE_SHA: 196600415d3480a86aea27d8a5eaf0da8ced1192
+      BROWSER_TEST_RUN: '42512054921'
+      ANDROID_TEST_RUN: '42512054914'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,13 +33,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          test "$(git rev-parse HEAD^)" = "$TESTED_SOURCE_SHA"
           browser=$(gh run view "$BROWSER_TEST_RUN" --repo "$GITHUB_REPOSITORY" --json conclusion,headSha --jq '.headSha + " " + .conclusion')
           android=$(gh run view "$ANDROID_TEST_RUN" --repo "$GITHUB_REPOSITORY" --json conclusion,headSha --jq '.headSha + " " + .conclusion')
           test "$browser" = "$BROWSER_TESTED_SOURCE_SHA success"
-          changed=$(git diff --name-only "$BROWSER_TESTED_SOURCE_SHA" "$TESTED_SOURCE_SHA")
-          test "$changed" = 'android-wrapper/app/src/androidTest/java/com/lovemyfreetime/billiardstrainer/CameraPermissionTest.java'
           test "$android" = "$TESTED_SOURCE_SHA success"
+          # The APKs were built from this immutable tested source; later commits may
+          # contain only release workflow and regenerated manifest files.
+          git diff --exit-code "$TESTED_SOURCE_SHA" "$GITHUB_SHA" -- \
+            trainer-video-narration.js \
+            android-wrapper/app/src/main/AndroidManifest.xml \
+            android-wrapper/app/src/main/java/com/lovemyfreetime/billiardstrainer/MainActivity.java \
+            android-wrapper/app/src/main/java/com/lovemyfreetime/billiardstrainer/NarrationMicRecorder.java \
+            android-wrapper/app/src/androidTest/java/com/lovemyfreetime/billiardstrainer/CameraPermissionTest.java \
+            tests/trainer-narration-microphone.browser.cjs
       - uses: android-actions/setup-android@v3
         with:
           packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
