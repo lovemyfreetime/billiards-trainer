@@ -30,6 +30,7 @@ public class CameraPermissionTest {
     @Test public void onlyTrainerVideoIsGrantedAndLiveCameraStarts()throws Exception {
         android.app.Instrumentation instrumentation=InstrumentationRegistry.getInstrumentation();
         instrumentation.getUiAutomation().grantRuntimePermission(instrumentation.getTargetContext().getPackageName(),Manifest.permission.CAMERA);
+        instrumentation.getUiAutomation().grantRuntimePermission(instrumentation.getTargetContext().getPackageName(),Manifest.permission.RECORD_AUDIO);
         AtomicReference<MainActivity> current=new AtomicReference<>();
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
             scenario.onActivity(current::set);MainActivity a=current.get();
@@ -38,8 +39,13 @@ public class CameraPermissionTest {
             scenario.onActivity(activity->{
                 Request foreign=new Request("https://example.com",PermissionRequest.RESOURCE_VIDEO_CAPTURE);
                 activity.webView.getWebChromeClient().onPermissionRequest(foreign);assertTrue(foreign.denied);
+                Request foreignAudio=new Request("https://example.com",PermissionRequest.RESOURCE_AUDIO_CAPTURE);
+                activity.webView.getWebChromeClient().onPermissionRequest(foreignAudio);assertTrue(foreignAudio.denied);
+                Request combined=new Request(BundledApp.ORIGIN,PermissionRequest.RESOURCE_VIDEO_CAPTURE,PermissionRequest.RESOURCE_AUDIO_CAPTURE);
+                activity.webView.getWebChromeClient().onPermissionRequest(combined);assertTrue(combined.denied);
                 Request audio=new Request(BundledApp.ORIGIN,PermissionRequest.RESOURCE_AUDIO_CAPTURE);
-                activity.webView.getWebChromeClient().onPermissionRequest(audio);assertTrue(audio.denied);
+                activity.webView.getWebChromeClient().onPermissionRequest(audio);
+                assertArrayEquals(new String[]{PermissionRequest.RESOURCE_AUDIO_CAPTURE},audio.granted);
                 Request camera=new Request(BundledApp.ORIGIN,PermissionRequest.RESOURCE_VIDEO_CAPTURE);
                 activity.webView.getWebChromeClient().onPermissionRequest(camera);assertArrayEquals(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE},camera.granted);
             });

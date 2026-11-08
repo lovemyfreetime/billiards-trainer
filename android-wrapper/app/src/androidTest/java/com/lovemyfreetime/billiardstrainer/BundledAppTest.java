@@ -179,6 +179,48 @@ public class BundledAppTest {
             }
         }
     }
+    @Test public void narrationAudioSaveCollisionAndAbort() throws Exception {
+        try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
+            scenario.onActivity(a->activity=a);
+            MainActivity.AndroidBridge bridge=activity.new AndroidBridge();
+            assertTrue(bridge.supportsNarrationAudio());
+            String stem="Narration "+System.currentTimeMillis();
+            String first=bridge.beginNarrationAudio(stem,"wav","audio/wav");
+            assertFalse(first.isEmpty());
+            assertEquals("",bridge.beginNarrationAudio("Other","wav","audio/wav"));
+            assertFalse(bridge.appendNarrationAudio("wrong-token","AQID"));
+            assertTrue(bridge.appendNarrationAudio(first,"AQID"));
+            assertTrue(bridge.appendNarrationAudio(first,"BAUG"));
+            assertTrue(bridge.finishNarrationAudio(first).endsWith(stem+".wav"));
+            String second=bridge.beginNarrationAudio(stem,"wav","audio/wav");
+            assertFalse(second.isEmpty());
+            assertTrue(bridge.appendNarrationAudio(second,"AQID"));
+            assertTrue(bridge.finishNarrationAudio(second).endsWith(stem+" (2).wav"));
+            String aborted=bridge.beginNarrationAudio(stem+" failed","webm","audio/webm");
+            assertFalse(aborted.isEmpty());
+            assertFalse(bridge.appendNarrationAudio(aborted,"%bad base64%"));
+            assertEquals("",bridge.finishNarrationAudio(aborted));
+            android.content.ContentResolver resolver=activity.getContentResolver();
+            Uri collection=android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+            try(android.database.Cursor cursor=resolver.query(collection,
+                    new String[]{"_id","_display_name"},"_display_name LIKE ?",
+                    new String[]{stem+"%"},null)){
+                int count=0;
+                while(cursor!=null&&cursor.moveToNext()){
+                    String name=cursor.getString(1);
+                    assertFalse(name.contains("failed"));
+                    Uri file=android.content.ContentUris.withAppendedId(collection,cursor.getLong(0));
+                    if(name.equals(stem+".wav")){
+                        try(java.io.InputStream stream=resolver.openInputStream(file)){
+                            assertNotNull(stream);assertArrayEquals(new byte[]{1,2,3,4,5,6},stream.readAllBytes());
+                        }
+                    }
+                    resolver.delete(file,null,null);count++;
+                }
+                assertEquals(2,count);
+            }
+        }
+    }
     private static WebResourceResponse worker(String source){return new WebResourceResponse("text/javascript","UTF-8",200,"OK",Collections.singletonMap("Cache-Control","no-store"),new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8)));}
     @Test public void assetRangesAndMissingFiles()throws Exception {
         BundledApp app=new BundledApp(InstrumentationRegistry.getInstrumentation().getTargetContext().getAssets());

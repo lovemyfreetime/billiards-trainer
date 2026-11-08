@@ -1,5 +1,9 @@
 const {chromium}=require('playwright'),assert=require('node:assert/strict'),cp=require('node:child_process'),fs=require('node:fs');
 (async()=>{
+ const source=process.env.NARRATION_TEST_VIDEO||'/tmp/trainer-narration-import-source.mp4';
+ const narration=process.env.NARRATION_TEST_AUDIO||'/tmp/trainer-narration-import.wav';
+ if(!process.env.NARRATION_TEST_VIDEO)cp.execFileSync('ffmpeg',['-y','-loglevel','error','-f','lavfi','-i','testsrc2=size=640x360:rate=30','-t','4.8','-c:v','libx264','-pix_fmt','yuv420p',source]);
+ if(!process.env.NARRATION_TEST_AUDIO)cp.execFileSync('ffmpeg',['-y','-loglevel','error','-f','lavfi','-i','sine=frequency=440:sample_rate=48000','-t','4','-c:a','pcm_s16le',narration]);
  const server=cp.spawn(process.execPath,['tests/range-server.cjs','8812']);let browser;
  try{
   await new Promise((r,j)=>{server.stdout.once('data',r);server.once('error',j)});
@@ -9,10 +13,10 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),cp=r
   await p.goto('http://127.0.0.1:8812/?train=1');await p.waitForFunction(()=>window.BilliardsShotRecorder);
   await p.evaluate(()=>document.querySelector('#trainerNarrateVideo').click());
   assert.equal(await p.locator('#narrationPreview').evaluate(v=>{const e=new KeyboardEvent('keydown',{key:' ',bubbles:true,cancelable:true});v.dispatchEvent(e);return e.defaultPrevented}),false,'Editor Space must not trigger the Trainer shortcut');
-  await p.locator('#narrationVideoFile').setInputFiles(process.env.NARRATION_TEST_VIDEO||'/tmp/session-export-1.mp4');
+  await p.locator('#narrationVideoFile').setInputFiles(source);
   await p.waitForFunction(()=>document.querySelector('#narrationPreview').readyState>=2);
   const inputDuration=await p.locator('#narrationPreview').evaluate(v=>v.duration);
-  await p.locator('#narrationAudioFile').setInputFiles(process.env.NARRATION_TEST_AUDIO||'/tmp/narration-test.wav');
+  await p.locator('#narrationAudioFile').setInputFiles(narration);
   await p.locator('#narrationPreview').evaluate(v=>new Promise(r=>{v.addEventListener('seeked',r,{once:true});v.currentTime=1}));
   await p.locator('#narrationHold').fill('3');await p.locator('#narrationAddHold').click();
   await p.locator('#narrationOffset').fill('0.25');await p.locator('#narrationName').fill('Narration test 01');

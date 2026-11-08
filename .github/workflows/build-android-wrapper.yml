@@ -5,8 +5,12 @@ on:
   push:
     branches:
       - main
+      - test/narration-microphone
     paths:
       - 'android-wrapper/**'
+      - 'trainer-video-narration.js'
+      - 'tests/trainer-video-narration.browser.cjs'
+      - 'tests/trainer-narration-microphone.browser.cjs'
       - 'photo-*.js'
       - 'photo-*.json'
       - 'tests/photo-camera.browser.cjs'
@@ -28,7 +32,7 @@ jobs:
   build:
     needs: guide-parity
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 50
     env:
       ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/android-wrapper/app/billiards-trainer-release.jks
       ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -79,6 +83,15 @@ jobs:
           npm install --prefix /tmp/billiards-backup-tests --no-audit --no-fund fake-indexeddb@6.2.5
           NODE_PATH=/tmp/billiards-backup-tests/node_modules node --test tests/app-backup.test.cjs
           node --test tests/offline-loading.test.cjs tests/background-update-session.test.cjs tests/experience-entry.test.cjs tests/play-narration.test.cjs tests/play-announcements.test.cjs
+
+      - name: Verify imported and microphone narration in a real browser
+        run: |
+          npm install --prefix /tmp/trainer-browser-tests --no-audit --no-fund playwright@1.65.0
+          /tmp/trainer-browser-tests/node_modules/.bin/playwright install --with-deps chromium
+          export NODE_PATH=/tmp/trainer-browser-tests/node_modules
+          export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")
+          node tests/trainer-video-narration.browser.cjs
+          node tests/trainer-narration-microphone.browser.cjs
 
       - name: Build signed app and installer APKs
         working-directory: android-wrapper

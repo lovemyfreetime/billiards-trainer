@@ -1,4 +1,4 @@
-/* Add an imported narration track and held frames to an existing Trainer video. */
+/* Record or import an editable narration track without altering the source video. */
 (() => {
  'use strict';
  const open=document.getElementById('trainerNarrateVideo');
@@ -7,17 +7,28 @@
  dialog.id='trainerNarrationDialog';
  dialog.style.cssText='max-width:900px;width:92vw;max-height:90vh;overflow:auto;background:#1b2933;color:#eee;border:1px solid #668694;border-radius:12px;padding:18px';
  dialog.innerHTML=`<h2>Narrate a video</h2>
- <p>Choose a saved Trainer video and an audio file, including an exported Chase narration. Add pauses at points that need more explanation.</p>
+ <p>Choose a saved Trainer video. Import Chase narration or record your own voice while watching; the original video never changes.</p>
  <label>Trainer video <input id="narrationVideoFile" type="file" accept="video/*"></label>
  <video id="narrationPreview" controls playsinline muted style="display:block;width:100%;max-height:40vh;background:#080d13;margin:12px 0"></video>
  <label>Narration audio <input id="narrationAudioFile" type="file" accept="audio/*"></label>
+ <div class="row" style="margin:8px 0">
+  <label>Use narration <select id="narrationSourceMode"><option value="import">Uploaded audio</option><option value="record">Microphone takes</option></select></label>
+  <button id="narrationRecord" type="button">🎙 Record from this frame</button>
+  <button id="narrationStop" type="button" disabled>Stop recording</button>
+ </div>
+ <p class="hint">Play the video during recording; pause the video to explain a frozen frame. Re-record from any frame to replace that part of your narration.</p>
+ <ul id="narrationTakes" aria-label="Recorded narration segments"></ul>
  <audio id="narrationAudioPreview" controls style="display:block;width:100%;margin:10px 0"></audio>
+ <div class="row"><button id="narrationPreviewTogether" type="button">Preview with video</button><button id="narrationSaveAudio" type="button">Save audio file</button><button id="narrationAudioFolder" type="button">Audio folder</button></div>
  <div class="row"><label>Audio starts at <input id="narrationOffset" type="number" min="0" max="3600" step="0.1" value="0" style="width:75px"> seconds</label></div>
  <div class="row"><label>Hold this frame for <input id="narrationHold" type="number" min="0.1" max="300" step="0.5" value="2" style="width:75px"> seconds</label>
  <button id="narrationAddHold" type="button">Add pause here</button></div>
  <ul id="narrationHolds"></ul>
  <p class="hint">Pause the preview at the frame you want to hold, then add the pause. Narration continues during holds. If the audio runs longer, the final frame stays visible until it finishes.</p>
  <label>Output name <input id="narrationName" type="text" maxlength="80" value="Narrated lesson 01"></label>
+ <div class="row" style="margin-top:10px"><button id="narrationSaveDraft" type="button">Save editable project</button>
+ <select id="narrationDrafts" aria-label="Saved narration projects"><option value="">Saved projects</option></select>
+ <button id="narrationLoadDraft" type="button">Open project</button></div>
  <div class="row" style="margin-top:12px"><button id="narrationExport" type="button">Export narrated video</button><button id="narrationCancel" type="button" hidden>Cancel export</button><button id="narrationClose" type="button">Close</button></div>
  <p id="narrationStatus" role="status"></p>`;
  document.body.append(dialog);
@@ -25,7 +36,9 @@
  dialog.addEventListener('keydown',event=>event.stopPropagation());
  const get=id=>dialog.querySelector('#'+id);
  const video=get('narrationPreview'),audio=get('narrationAudioPreview'),message=get('narrationStatus');
- let videoUrl,audioUrl,audioFile,holds=[],working=false,canceled=false;
+ const android=window.BilliardsAndroid;
+ let videoUrl,audioUrl,videoFile,audioFile,holds=[],segments=[],working=false,canceled=false;
+ let microphone=null,previewing=false,playbackTimer=0,holdTimer=0,audioFolder=null,recordingUrl=null;
  const cleanUrl=url=>{if(url)URL.revokeObjectURL(url);};
  function list(){
   const list=get('narrationHolds');list.replaceChildren();
@@ -37,11 +50,198 @@
    remove.onclick=()=>{holds.splice(index,1);list();};li.append(remove);list.append(li);
   });
  }
+ function showTakes(){
+  const list=get('narrationTakes');list.replaceChildren();
+  for(const segment of segments.slice().sort((a,b)=>a.start-b.start)){
+   const li=document.createElement('li');
+   li.append('At '+segment.start.toFixed(1)+'s · '+segment.length.toFixed(1)+'s ');
+   for(const [label,action] of [
+    ['Listen',()=>{setAudioPreview(segment.blob);audio.play().catch(()=>{});}],
+    ['Retake',async()=>{video.currentTime=sourceTime(segment.start,video.duration,holds);await startMicrophone(segment.id);}],
+    ['Remove',()=>{segments=segments.filter(s=>s.id!==segment.id);showTakes();updateAudioPreview();}]
+   ]){
+    const button=document.createElement('button');button.type='button';button.textContent=label;
+    button.disabled=working||!!microphone;button.onclick=action;li.append(button);
+   }
+   list.append(li);
+  }
+  if(!segments.length){const li=document.createElement('li');li.textContent='No microphone takes recorded yet.';list.append(li);}
+ }
+ function setAudioPreview(blob){
+  cleanUrl(recordingUrl);recordingUrl=blob?URL.createObjectURL(blob):null;
+  if(recordingUrl)audio.src=recordingUrl;else audio.removeAttribute('src');
+ }
+ function updateAudioPreview(){
+  if(get('narrationSourceMode').value==='import'){
+   cleanUrl(recordingUrl);recordingUrl=null;
+   if(audioUrl)audio.src=audioUrl;else audio.removeAttribute('src');
+  }else setAudioPreview(segments.length?segments[segments.length-1].blob:null);
+ }
+ function setVideo(file,reset=false){
+  videoFile=file;cleanUrl(videoUrl);videoUrl=file?URL.createObjectURL(file):null;
+  if(videoUrl)video.src=videoUrl;else video.removeAttribute('src');
+  if(reset){holds=[];segments=[];list();showTakes();}
+ }
+ function setImported(file){
+  audioFile=file;cleanUrl(audioUrl);audioUrl=file?URL.createObjectURL(file):null;
+  updateAudioPreview();
+ }
+ function outputTime(source){return source+holds.reduce((sum,h)=>sum+(h.at<source-.001?h.seconds:0),0);}
+ function replaceTake(take,replacedId){
+  const end=take.start+take.length,kept=[];
+  for(const old of segments){
+   if(old.id===replacedId)continue;
+   const oldEnd=old.start+old.length;
+   if(oldEnd<=take.start||old.start>=end){kept.push(old);continue;}
+   if(old.start<take.start)kept.push({...old,length:take.start-old.start});
+   if(oldEnd>end)kept.push({...old,id:old.id+'-tail',start:end,trim:old.trim+end-old.start,length:oldEnd-end});
+  }
+  segments=[...kept,take].sort((a,b)=>a.start-b.start);
+  get('narrationSourceMode').value='record';showTakes();updateAudioPreview();
+ }
+ function recorderMime(){
+  for(const mime of ['audio/webm;codecs=opus','audio/mp4','audio/webm','audio/ogg;codecs=opus'])
+   if(MediaRecorder.isTypeSupported(mime))return mime;
+  return '';
+ }
+ let autoHold=false,playbackFrame=0;
+ function recordingControls(active){
+  for(const id of ['narrationVideoFile','narrationAudioFile','narrationSourceMode','narrationSaveAudio',
+   'narrationAudioFolder','narrationSaveDraft','narrationLoadDraft','narrationExport',
+   'narrationAddHold','narrationPreviewTogether','narrationDrafts','narrationName'])
+   get(id).disabled=active;
+  get('narrationRecord').disabled=active;get('narrationStop').disabled=!active;
+  showTakes();
+ }
+ function stopHoldPlayback(){
+  if(playbackFrame)cancelAnimationFrame(playbackFrame);
+  if(holdTimer)clearTimeout(holdTimer);
+  playbackFrame=0;holdTimer=0;autoHold=false;
+ }
+ function playWithHolds(from){
+  stopHoldPlayback();
+  const queue=holds.filter(h=>h.at>=from-.04).sort((a,b)=>a.at-b.at);
+  let index=0,active=true;
+  const tick=()=>{
+   if(!active||(!microphone&&!previewing))return;
+   if(!video.paused&&!autoHold&&index<queue.length&&video.currentTime>=queue[index].at-.025){
+    const hold=queue[index++];autoHold=true;video.currentTime=hold.at;video.pause();
+    holdTimer=setTimeout(()=>{autoHold=false;holdTimer=0;if(microphone||previewing)video.play().catch(()=>{});},hold.seconds*1000);
+   }
+   playbackFrame=requestAnimationFrame(tick);
+  };
+  playbackFrame=requestAnimationFrame(tick);
+  return ()=>{active=false;stopHoldPlayback();};
+ }
+ video.addEventListener('pause',()=>{
+  if(microphone&&!microphone.stopping&&!autoHold&&!video.ended&&!microphone.pausedAt){
+   microphone.pausedAt=performance.now();microphone.pausedSource=video.currentTime;
+  }
+ });
+ video.addEventListener('play',()=>{
+  if(microphone?.pausedAt&&!autoHold){
+   const seconds=(performance.now()-microphone.pausedAt)/1000;
+   if(seconds>.08){holds.push({at:microphone.pausedSource,seconds});list();}
+   microphone.pausedAt=0;
+  }
+ });
+ async function startMicrophone(replacedId=null){
+  if(working||microphone)return;
+  if(!videoFile||!Number.isFinite(video.duration)){message.textContent='Choose a Trainer video first.';return;}
+  stopPreview();
+  if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){
+   message.textContent='Microphone recording is unavailable on this browser or device.';return;
+  }
+  audio.pause();
+  let stream;
+  try{
+   stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true},video:false});
+   if(!dialog.open){stream.getTracks().forEach(t=>t.stop());return;}
+   const mimeType=recorderMime(),recorder=new MediaRecorder(stream,mimeType?{mimeType}:undefined);
+   const capture={recorder,stream,chunks:[],start:outputTime(video.currentTime),replacedId,stopping:false,pausedAt:0};
+   microphone=capture;
+   recorder.ondataavailable=e=>{if(e.data?.size)capture.chunks.push(e.data);};
+   recorder.onerror=e=>{message.textContent='Microphone capture failed: '+(e.error?.message||'unknown error');};
+   recorder.onstop=async()=>{
+    stream.getTracks().forEach(t=>t.stop());stopHoldPlayback();microphone=null;
+    try{
+     const blob=new Blob(capture.chunks,{type:recorder.mimeType||'audio/webm'});
+     if(!blob.size)throw Error('No microphone audio was captured.');
+     const context=new AudioContext(),buffer=await context.decodeAudioData(await blob.arrayBuffer());
+     await context.close();
+     const take={id:'take-'+Date.now()+'-'+Math.random().toString(36).slice(2),blob,start:capture.start,trim:0,length:buffer.duration};
+     replaceTake(take,capture.replacedId);
+     message.textContent='Take saved in the editable project. Listen, retake, or export when ready.';
+    }catch(error){message.textContent='Could not read the microphone take: '+error.message;}
+    finally{recordingControls(false);}
+   };
+   recorder.start(250);recordingControls(true);
+   message.textContent='Recording microphone · Pause the video for a longer explanation, then resume.';
+   video.play().catch(()=>{});playWithHolds(video.currentTime);
+  }catch(error){
+   stream?.getTracks().forEach(t=>t.stop());
+   microphone=null;recordingControls(false);
+   message.textContent=error.name==='NotAllowedError'?'Allow microphone access to record narration.':'Could not start microphone: '+error.message;
+  }
+ }
+ function stopMicrophone(){
+  if(!microphone)return;
+  const capture=microphone;capture.stopping=true;
+  if(capture.pausedAt){
+   const seconds=(performance.now()-capture.pausedAt)/1000;
+   if(seconds>.08){holds.push({at:capture.pausedSource,seconds});list();}
+   capture.pausedAt=0;
+  }
+  video.pause();stopHoldPlayback();
+  if(capture.recorder.state!=='inactive')capture.recorder.stop();
+ }
+ get('narrationRecord').onclick=()=>startMicrophone();
+ get('narrationStop').onclick=stopMicrophone;
+ get('narrationSourceMode').onchange=updateAudioPreview;
+ async function selectedAudio(){
+  const mode=get('narrationSourceMode').value;
+  if(mode==='import'&&!audioFile||mode==='record'&&!segments.length)return null;
+  const context=new AudioContext({sampleRate:48000});
+  try{
+   if(mode==='import')return {context,buffer:await context.decodeAudioData(await audioFile.arrayBuffer())};
+   const decoded=new Map(),rate=48000;
+   let channels=1,length=0;
+   for(const segment of segments){
+    if(!decoded.has(segment.blob))decoded.set(segment.blob,await context.decodeAudioData(await segment.blob.arrayBuffer()));
+    channels=Math.max(channels,Math.min(2,decoded.get(segment.blob).numberOfChannels));
+    length=Math.max(length,segment.start+segment.length);
+   }
+   if(length>7200)throw Error('Narration exceeds the two-hour limit.');
+   const offline=new OfflineAudioContext(channels,Math.max(1,Math.ceil(length*rate)),rate);
+   for(const segment of segments){
+    const source=offline.createBufferSource();source.buffer=decoded.get(segment.blob);source.connect(offline.destination);
+    source.start(segment.start,segment.trim,segment.length);
+   }
+   return {context,buffer:await offline.startRendering()};
+  }catch(error){await context.close();throw error;}
+ }
+ function waveFile(buffer,offset=0){
+  const rate=buffer.sampleRate,channels=Math.min(2,buffer.numberOfChannels);
+  const lead=Math.round(offset*rate),samples=lead+buffer.length,bytes=new ArrayBuffer(44+samples*channels*2);
+  const view=new DataView(bytes),str=(at,s)=>{for(let i=0;i<s.length;i++)view.setUint8(at+i,s.charCodeAt(i));};
+  str(0,'RIFF');view.setUint32(4,bytes.byteLength-8,true);str(8,'WAVE');str(12,'fmt ');
+  view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,channels,true);
+  view.setUint32(24,rate,true);view.setUint32(28,rate*channels*2,true);
+  view.setUint16(32,channels*2,true);view.setUint16(34,16,true);str(36,'data');view.setUint32(40,samples*channels*2,true);
+  let position=44;
+  for(let i=0;i<samples;i++)for(let channel=0;channel<channels;channel++){
+   const sample=i<lead?0:Math.max(-1,Math.min(1,buffer.getChannelData(channel)[i-lead]));
+   view.setInt16(position,sample<0?sample*32768:sample*32767,true);position+=2;
+  }
+  return new Blob([bytes],{type:'audio/wav'});
+ }
  function busy(value){
   working=value;
-  for(const el of dialog.querySelectorAll('input,button'))el.disabled=value;
+  for(const el of dialog.querySelectorAll('input,button,select'))el.disabled=value;
   get('narrationCancel').hidden=!value;get('narrationCancel').disabled=false;
-  video.controls=!value;list();
+  get('narrationStop').disabled=value||!microphone;
+  get('narrationRecord').disabled=value||!!microphone;
+  video.controls=!value;list();showTakes();
  }
  function event(target,name){
   return new Promise((resolve,reject)=>{
@@ -51,26 +251,166 @@
    target.addEventListener(name,done,{once:true});target.addEventListener('error',error,{once:true});
   });
  }
- open.onclick=()=>{dialog.showModal();};
- get('narrationClose').onclick=()=>{video.pause();audio.pause();dialog.close();};
+ const safeName=value=>String(value||'Narration 01').replace(/[\\/:*?"<>|\x00-\x1f]/g,'-').replace(/^[. ]+|[. ]+$/g,'').slice(0,75)||'Narration 01';
+ function download(name,blob){
+  const url=URL.createObjectURL(blob),link=document.createElement('a');
+  link.href=url;link.download=name;link.click();setTimeout(()=>URL.revokeObjectURL(url),15000);
+ }
+ function dataUrl(blob){
+  return new Promise((resolve,reject)=>{
+   const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(blob);
+  });
+ }
+ async function saveAudioBlob(stem,blob,extension,mime){
+  const name=safeName(stem),fileName=name+'.'+extension;
+  if(android){
+   if(!android.beginNarrationAudio)throw Error('Install the updated Android APK to save audio recordings.');
+   const token=android.beginNarrationAudio(name,extension,mime);
+   if(!token)throw Error('Could not create the audio file.');
+   try{
+    for(let offset=0;offset<blob.size;offset+=768*1024){
+     const encoded=await dataUrl(blob.slice(offset,offset+768*1024));
+     if(!android.appendNarrationAudio(token,encoded.slice(encoded.indexOf(',')+1)))throw Error('Could not write audio.');
+    }
+    const saved=android.finishNarrationAudio(token);
+    if(!saved)throw Error('Could not finish the audio file.');
+    return saved;
+   }catch(error){android.abortNarrationAudio(token);throw error;}
+  }
+  if(audioFolder){
+   let candidate=name,count=2,handle;
+   while(true){
+    try{await audioFolder.getFileHandle(candidate+'.'+extension);candidate=name+' ('+(count++)+')';}
+    catch(error){if(error.name!=='NotFoundError')throw error;break;}
+   }
+   handle=await audioFolder.getFileHandle(candidate+'.'+extension,{create:true});
+   const stream=await handle.createWritable();
+   try{await stream.write(blob);await stream.close();}catch(error){await stream.abort().catch(()=>{});throw error;}
+   return audioFolder.name+'/'+candidate+'.'+extension;
+  }
+  download(fileName,blob);return 'Downloads/'+fileName;
+ }
+ get('narrationAudioFolder').onclick=async()=>{
+  if(android){
+   if(android.openNarrationAudioFolder)android.openNarrationAudioFolder();
+   else message.textContent='Install the updated Android APK. Audio files are in Download/Billiards Trainer/Audio.';
+  }else if(window.showDirectoryPicker){
+   try{audioFolder=await window.showDirectoryPicker({id:'billiards-narration-audio',startIn:'downloads',mode:'readwrite'});message.textContent='Audio saves to '+audioFolder.name+'.';}
+   catch(error){if(error.name!=='AbortError')message.textContent='Could not open the audio folder.';}
+  }else message.textContent='Audio files save to your browser Downloads. Open Downloads in your browser or file manager.';
+ };
+ get('narrationSaveAudio').onclick=async()=>{
+  if(working||microphone)return;
+  try{
+   let blob,extension,mime;
+   if(get('narrationSourceMode').value==='import'&&audioFile){
+    blob=audioFile;extension=/\.([a-z0-9]{2,5})$/i.exec(audioFile.name)?.[1].toLowerCase()||'m4a';
+    mime=audioFile.type||({'wav':'audio/wav','mp3':'audio/mpeg','m4a':'audio/mp4','webm':'audio/webm','flac':'audio/flac'}[extension]||'audio/mp4');
+   }else{
+    const chosen=await selectedAudio();
+    if(!chosen)throw Error('Import an audio file or record a microphone take first.');
+    try{blob=waveFile(chosen.buffer,Number(get('narrationOffset').value)||0);}finally{await chosen.context.close();}
+    extension='wav';mime='audio/wav';
+   }
+   message.textContent='Audio saved to '+await saveAudioBlob(get('narrationName').value+' - Audio',blob,extension,mime)+'.';
+  }catch(error){message.textContent=error.message;}
+ };
+ function stopPreview(){
+  if(!previewing)return;
+  previewing=false;stopHoldPlayback();video.pause();audio.pause();
+  get('narrationPreviewTogether').textContent='Preview with video';updateAudioPreview();
+ }
+ get('narrationPreviewTogether').onclick=async()=>{
+  if(previewing){stopPreview();return;}
+  if(working||microphone)return;
+  if(!videoFile){message.textContent='Choose a Trainer video first.';return;}
+  let chosen;
+  try{
+   chosen=await selectedAudio();
+   if(!chosen)throw Error('Upload audio or record a microphone take first.');
+   const offset=Number(get('narrationOffset').value);
+   if(!Number.isFinite(offset)||offset<0||offset>3600)throw Error('Choose a valid audio start time.');
+   const wav=waveFile(chosen.buffer,offset);
+   setAudioPreview(wav);
+   video.pause();video.currentTime=0;audio.currentTime=0;
+   previewing=true;get('narrationPreviewTogether').textContent='Stop preview';
+   await Promise.all([video.play(),audio.play()]);playWithHolds(0);
+  }catch(error){stopPreview();message.textContent='Could not preview narration: '+error.message;}
+  finally{await chosen?.context.close();}
+ };
+ audio.addEventListener('ended',()=>{if(video.ended)stopPreview();});
+ video.addEventListener('ended',()=>{if(!audio.src||audio.ended)stopPreview();});
+ function draftsDb(){
+  return new Promise((resolve,reject)=>{
+   const request=indexedDB.open('BilliardsTrainerNarrationDrafts',1);
+   request.onupgradeneeded=()=>request.result.createObjectStore('projects',{keyPath:'name'});
+   request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);
+  });
+ }
+ async function draftOperation(mode,value){
+  const db=await draftsDb();
+  try{
+   return await new Promise((resolve,reject)=>{
+    const tx=db.transaction('projects',mode==='write'?'readwrite':'readonly'),store=tx.objectStore('projects');
+    const request=mode==='keys'?store.getAllKeys():mode==='read'?store.get(value):store.put(value);
+    tx.oncomplete=()=>resolve(request.result);
+    request.onerror=()=>reject(request.error);tx.onerror=()=>reject(tx.error);
+   });
+  }finally{db.close();}
+ }
+ async function updateDraftList(){
+  try{
+   const keys=await draftOperation('keys'),menu=get('narrationDrafts'),selected=menu.value;
+   menu.replaceChildren(new Option('Saved projects',''));
+   for(const key of keys)menu.append(new Option(key,key));
+   if(keys.includes(selected))menu.value=selected;
+  }catch(error){message.textContent='Project storage is unavailable on this device.';}
+ }
+ get('narrationSaveDraft').onclick=async()=>{
+  if(working||microphone)return;
+  if(!videoFile){message.textContent='Choose a Trainer video before saving a project.';return;}
+  try{
+   const name=safeName(get('narrationName').value);
+   await draftOperation('write',{name,videoFile,audioFile,segments,holds,offset:get('narrationOffset').value,hold:get('narrationHold').value,source:get('narrationSourceMode').value});
+   await updateDraftList();get('narrationDrafts').value=name;
+   message.textContent='Editable project saved on this device: '+name+'. The source video was not modified.';
+  }catch(error){message.textContent='Could not save project. Check available device storage: '+error.message;}
+ };
+ get('narrationLoadDraft').onclick=async()=>{
+  if(working||microphone)return;
+  const name=get('narrationDrafts').value;
+  if(!name){message.textContent='Select a saved project first.';return;}
+  try{
+   const item=await draftOperation('read',name);
+   if(!item?.videoFile)throw Error('Saved project is missing its video.');
+   stopPreview();setVideo(item.videoFile);setImported(item.audioFile||null);
+   segments=item.segments||[];holds=item.holds||[];
+   get('narrationOffset').value=item.offset||'0';get('narrationHold').value=item.hold||'2';
+   get('narrationName').value=name;get('narrationSourceMode').value=item.source||'import';
+   list();showTakes();updateAudioPreview();
+   message.textContent='Editable project loaded. Original video and audio files were not changed.';
+  }catch(error){message.textContent='Could not open project: '+error.message;}
+ };
+ open.onclick=()=>{dialog.showModal();updateDraftList();};
+ get('narrationClose').onclick=()=>{stopMicrophone();stopPreview();video.pause();audio.pause();dialog.close();};
  dialog.addEventListener('cancel',e=>{if(working)e.preventDefault();});
  get('narrationCancel').onclick=()=>{canceled=true;message.textContent='Canceling export…';};
  get('narrationVideoFile').onchange=()=>{
   const file=get('narrationVideoFile').files[0];if(!file)return;
-  cleanUrl(videoUrl);videoUrl=URL.createObjectURL(file);video.src=videoUrl;
-  holds=[];list();get('narrationName').value=file.name.replace(/\.[^.]+$/,'')+' - Narrated';
+  stopPreview();setVideo(file,true);get('narrationName').value=file.name.replace(/\.[^.]+$/,'')+' - Narrated';
   message.textContent='Use the preview controls to choose a frame for a pause.';
  };
  get('narrationAudioFile').onchange=()=>{
-  audioFile=get('narrationAudioFile').files[0]||null;
-  cleanUrl(audioUrl);audioUrl=audioFile?URL.createObjectURL(audioFile):null;
-  if(audioUrl)audio.src=audioUrl;else audio.removeAttribute('src');
+  setImported(get('narrationAudioFile').files[0]||null);
+  if(audioFile)get('narrationSourceMode').value='import';
+  updateAudioPreview();
  };
  get('narrationAddHold').onclick=()=>{
   const seconds=Number(get('narrationHold').value);
   if(!Number.isFinite(video.duration)||!Number.isFinite(seconds)||seconds<=0||seconds>300){message.textContent='Choose a video and a hold of 0.1 to 300 seconds.';return;}
   video.pause();holds.push({at:video.currentTime,seconds});list();
  };
+ showTakes();
  function sourceTime(time,duration,pauses){
   let added=0;
   for(const pause of pauses){
@@ -83,10 +423,11 @@
  }
  async function exportVideo(){
   if(working)return;
+  if(microphone){message.textContent='Stop microphone recording before exporting.';return;}
   if(!videoUrl){message.textContent='Choose a Trainer video first.';return;}
   const offset=Number(get('narrationOffset').value);
   if(!Number.isFinite(offset)||offset<0||offset>3600){message.textContent='Choose an audio start time from 0 to 3600 seconds.';return;}
-  busy(true);canceled=false;video.pause();audio.pause();
+  stopPreview();busy(true);canceled=false;video.pause();audio.pause();
   let encoder,audioEncoder,context,failed;
   const check=()=>{if(canceled)throw Error('Export canceled.');if(failed)throw failed;};
   try{
@@ -98,10 +439,10 @@
    if(!Number.isFinite(duration)||duration<=0)throw Error('Could not read the video duration.');
    const pauses=holds.map(p=>({at:Math.min(duration,p.at),seconds:p.seconds})).sort((a,b)=>a.at-b.at);
    let buffer,audioConfig;
-   if(audioFile){
+   const selected=await selectedAudio();
+   if(selected){
+    context=selected.context;buffer=selected.buffer;
     if(!window.AudioEncoder||!window.AudioData)throw Error('Audio export is unavailable on this device.');
-    context=new AudioContext({sampleRate:48000});
-    buffer=await context.decodeAudioData(await audioFile.arrayBuffer());
     for(const codec of ['mp4a.40.2','opus']){
      const config={codec,sampleRate:buffer.sampleRate,numberOfChannels:Math.min(2,buffer.numberOfChannels),bitrate:128000};
      if((await AudioEncoder.isConfigSupported(config)).supported){audioConfig=config;break;}

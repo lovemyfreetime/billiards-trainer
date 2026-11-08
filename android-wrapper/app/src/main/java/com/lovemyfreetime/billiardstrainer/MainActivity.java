@@ -48,9 +48,11 @@ public class MainActivity extends Activity {
     private static final int FILE_CHOOSER_REQUEST = 4201;
 
     private static final int CAMERA_PERMISSION_REQUEST = 4202;
+    private static final int AUDIO_PERMISSION_REQUEST = 4206;
     private PermissionRequest pendingCameraRequest;
+    private PermissionRequest pendingAudioRequest;
     private WebChromeClient.FileChooserParams pendingCameraChooser;
-    private boolean requestingCameraPermission;
+    private boolean requestingCameraPermission, requestingAudioPermission;
 
     private final ApkUpdates apkUpdates = new ApkUpdates(this);
     WebView webView;
@@ -158,14 +160,23 @@ public class MainActivity extends Activity {
             @Override public void onPermissionRequest(PermissionRequest request) {
                 runOnUiThread(() -> {
                     String[] resources=request.getResources();
-                    if(!trustedCameraPage(request.getOrigin()) || resources.length!=1 || !PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(resources[0])){request.deny();return;}
-                    if(pendingCameraRequest!=null)pendingCameraRequest.deny();
-                    pendingCameraRequest=request;
-                    if(cameraAllowed())finishCameraRequest();else requestCameraPermission();
+                    if(!trustedCameraPage(request.getOrigin()) || resources.length!=1){request.deny();return;}
+                    if(PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(resources[0])){
+                        if(pendingCameraRequest!=null)pendingCameraRequest.deny();
+                        pendingCameraRequest=request;
+                        if(cameraAllowed())finishCameraRequest();else requestCameraPermission();
+                    }else if(PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(resources[0])){
+                        if(pendingAudioRequest!=null)pendingAudioRequest.deny();
+                        pendingAudioRequest=request;
+                        if(audioAllowed())finishAudioRequest();else requestAudioPermission();
+                    }else request.deny();
                 });
             }
             @Override public void onPermissionRequestCanceled(PermissionRequest request){
-                runOnUiThread(() -> {if(pendingCameraRequest==request)pendingCameraRequest=null;});
+                runOnUiThread(() -> {
+                    if(pendingCameraRequest==request)pendingCameraRequest=null;
+                    if(pendingAudioRequest==request)pendingAudioRequest=null;
+                });
             }
             @Override
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> callback, FileChooserParams params) {
@@ -238,6 +249,7 @@ public class MainActivity extends Activity {
     }
 
     private boolean cameraAllowed(){return checkSelfPermission(Manifest.permission.CAMERA)==PackageManager.PERMISSION_GRANTED;}
+    private boolean audioAllowed(){return checkSelfPermission(Manifest.permission.RECORD_AUDIO)==PackageManager.PERMISSION_GRANTED;}
     private boolean trustedCameraPage(Uri origin){
         if(origin==null||webView==null)return false;
         Uri page=Uri.parse(webView.getUrl()==null?"":webView.getUrl());
@@ -252,12 +264,28 @@ public class MainActivity extends Activity {
         PermissionRequest request=pendingCameraRequest;pendingCameraRequest=null;
         if(request!=null){if(cameraAllowed()&&trustedCameraPage(request.getOrigin()))request.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});else request.deny();}
     }
+    private void requestAudioPermission(){
+        if(!requestingAudioPermission){
+            requestingAudioPermission=true;
+            requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},AUDIO_PERMISSION_REQUEST);
+        }
+    }
+    private void finishAudioRequest(){
+        PermissionRequest request=pendingAudioRequest;pendingAudioRequest=null;
+        if(request!=null){
+            if(audioAllowed()&&trustedCameraPage(request.getOrigin()))request.grant(new String[]{PermissionRequest.RESOURCE_AUDIO_CAPTURE});
+            else request.deny();
+        }
+    }
     @Override public void onRequestPermissionsResult(int code,String[] permissions,int[] results){
         super.onRequestPermissionsResult(code,permissions,results);
         if(code==CAMERA_PERMISSION_REQUEST){
             requestingCameraPermission=false;finishCameraRequest();
             WebChromeClient.FileChooserParams chooser=pendingCameraChooser;pendingCameraChooser=null;
             if(chooser!=null)launchFileChooserGranted(chooser);
+        }
+        if(code==AUDIO_PERMISSION_REQUEST){
+            requestingAudioPermission=false;finishAudioRequest();
         }
     }
     private void launchFileChooser(WebChromeClient.FileChooserParams params) {
@@ -430,16 +458,30 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy(){
         if(pendingCameraRequest!=null){pendingCameraRequest.deny();pendingCameraRequest=null;}
+        if(pendingAudioRequest!=null){pendingAudioRequest.deny();pendingAudioRequest=null;}
         pendingCameraChooser=null;
         if(descriptionVoice!=null){descriptionVoice.stop();descriptionVoice.shutdown();}
         synchronized (this) {
             if (recordingExport != null) recordingExport.discard();
             recordingExport = null;
+            if (audioExport != null) audioExport.discard();
+            audioExport = null;
         }
         super.onDestroy();
     }
 
     private RecordingExport recordingExport;
+    private AudioExport audioExport;
+    private final class AudioExport {
+        String token, name;
+        Uri file;
+        OutputStream stream;
+        long size;
+        void discard(){
+            try{if(stream!=null)stream.close();}catch(Exception ignored){}
+            discardClipDownload(file);
+        }
+    }
     private final class RecordingExport {
         String token, stem;
         Uri video, setup;
@@ -550,6 +592,101 @@ public class MainActivity extends Activity {
                     }
                 }
             });
+        }
+
+        @JavascriptInterface
+        public void openNarrationAudioFolder(){
+            runOnUiThread(()->{
+                if(!contentPage())return;
+                Uri folder=android.provider.DocumentsContract.buildDocumentUri(
+                    "com.android.externalstorage.documents","primary:Download/Billiards Trainer/Audio");
+                Intent browse=new Intent(Intent.ACTION_VIEW);
+                browse.setDataAndType(folder,android.provider.DocumentsContract.Document.MIME_TYPE_DIR);
+                browse.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                try{startActivity(browse);}
+                catch(Exception unavailable){
+                    Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    picker.setType("audio/*");picker.addCategory(Intent.CATEGORY_OPENABLE);
+                    picker.putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI,folder);
+                    try{startActivityForResult(picker,4207);}
+                    catch(Exception ignored){Toast.makeText(MainActivity.this,
+                        "Open My Files > Download > Billiards Trainer > Audio",Toast.LENGTH_LONG).show();}
+                }
+            });
+        }
+
+        @JavascriptInterface public boolean supportsNarrationAudio(){return true;}
+
+        private boolean narrationAudioExists(String name){
+            try(android.database.Cursor cursor=getContentResolver().query(
+                MediaStore.Downloads.EXTERNAL_CONTENT_URI,new String[]{MediaStore.MediaColumns._ID},
+                MediaStore.MediaColumns.DISPLAY_NAME+"=?",new String[]{name},null)){
+                return cursor!=null&&cursor.moveToFirst();
+            }
+        }
+
+        @JavascriptInterface
+        public String beginNarrationAudio(String name,String extension,String mime){
+            synchronized(MainActivity.this){
+                if(audioExport!=null||name==null||name.length()>120||extension==null||
+                    !extension.matches("(?i)wav|webm|m4a|mp3|ogg|opus|aac|flac")||
+                    mime==null||!mime.startsWith("audio/")||mime.length()>100)return "";
+                String stem=name.replaceAll("[^\\p{L}\\p{N} ._()-]","-").trim();
+                if(stem.isEmpty()||stem.equals(".")||stem.equals(".."))return "";
+                AudioExport export=new AudioExport();
+                try{
+                    String selected=stem+"."+extension.toLowerCase(java.util.Locale.ROOT);
+                    int suffix=2;
+                    while(narrationAudioExists(selected))
+                        selected=stem+" ("+(suffix++)+")."+extension.toLowerCase(java.util.Locale.ROOT);
+                    export.name=selected;
+                    export.file=newClipDownload(Environment.DIRECTORY_DOWNLOADS+"/Billiards Trainer/Audio",selected,mime);
+                    if(export.file==null)throw new java.io.IOException("Cannot create audio");
+                    export.stream=getContentResolver().openOutputStream(export.file);
+                    if(export.stream==null)throw new java.io.IOException("Cannot open audio");
+                    export.token=java.util.UUID.randomUUID().toString();
+                    audioExport=export;return export.token;
+                }catch(Exception failure){export.discard();return "";}
+            }
+        }
+
+        @JavascriptInterface
+        public boolean appendNarrationAudio(String token,String base64){
+            synchronized(MainActivity.this){
+                AudioExport export=audioExport;
+                if(export==null||!export.token.equals(token)||base64==null||base64.length()>1500000)return false;
+                try{
+                    byte[] bytes=Base64.decode(base64,Base64.DEFAULT);
+                    if(export.size+bytes.length>300000000L)throw new java.io.IOException("Audio too large");
+                    export.stream.write(bytes);export.size+=bytes.length;return true;
+                }catch(Exception failure){export.discard();audioExport=null;return false;}
+            }
+        }
+
+        @JavascriptInterface
+        public String finishNarrationAudio(String token){
+            synchronized(MainActivity.this){
+                AudioExport export=audioExport;
+                if(export==null||!export.token.equals(token))return "";
+                try{
+                    if(export.size==0)throw new java.io.IOException("Empty audio");
+                    export.stream.close();export.stream=null;
+                    ContentValues ready=new ContentValues();ready.put(MediaStore.MediaColumns.IS_PENDING,0);
+                    if(getContentResolver().update(export.file,ready,null,null)!=1)
+                        throw new java.io.IOException("Audio not finalized");
+                    audioExport=null;
+                    return "Download/Billiards Trainer/Audio/"+export.name;
+                }catch(Exception failure){export.discard();audioExport=null;return "";}
+            }
+        }
+
+        @JavascriptInterface
+        public void abortNarrationAudio(String token){
+            synchronized(MainActivity.this){
+                if(audioExport!=null&&audioExport.token.equals(token)){
+                    audioExport.discard();audioExport=null;
+                }
+            }
         }
 
         private boolean recordingNameExists(String name) {
