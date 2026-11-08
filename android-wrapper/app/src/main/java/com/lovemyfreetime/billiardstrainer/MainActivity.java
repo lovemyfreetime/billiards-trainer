@@ -251,12 +251,17 @@ public class MainActivity extends Activity {
     private boolean cameraAllowed(){return checkSelfPermission(Manifest.permission.CAMERA)==PackageManager.PERMISSION_GRANTED;}
     private boolean audioAllowed(){return checkSelfPermission(Manifest.permission.RECORD_AUDIO)==PackageManager.PERMISSION_GRANTED;}
     // @JavascriptInterface runs off the UI thread. Only inspect WebView state on its owning thread.
+    private boolean narrationPageOnUiThread(){
+        if(webView==null||bundledApp==null)return false;
+        Uri page=Uri.parse(webView.getUrl()==null?"":webView.getUrl());
+        return BundledApp.isAppOrigin(page)&&page.getPath()!=null&&page.getPath().startsWith(BundledApp.PREFIX);
+    }
     private boolean narrationContentAllowed(){
-        if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper())return contentPage();
+        if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper())return narrationPageOnUiThread();
         java.util.concurrent.CountDownLatch done=new java.util.concurrent.CountDownLatch(1);
         java.util.concurrent.atomic.AtomicBoolean allowed=new java.util.concurrent.atomic.AtomicBoolean(false);
         runOnUiThread(()->{
-            try{allowed.set(contentPage());}
+            try{allowed.set(narrationPageOnUiThread());}
             finally{done.countDown();}
         });
         try{return done.await(3,java.util.concurrent.TimeUnit.SECONDS)&&allowed.get();}
