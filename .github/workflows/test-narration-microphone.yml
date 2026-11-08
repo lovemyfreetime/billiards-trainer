@@ -5,8 +5,10 @@ on:
     branches:
       - test/narration-microphone
       - test/narration-microphone-repair-20261108
+      - test/narration-export-cadence-20261108
     paths:
       - 'trainer-video-narration.js'
+      - 'trainer-shot-recorder.js'
       - 'tests/trainer-*-narration.browser.cjs'
       - 'tests/trainer-narration-microphone.browser.cjs'
       - '.github/workflows/test-narration-microphone.yml'
