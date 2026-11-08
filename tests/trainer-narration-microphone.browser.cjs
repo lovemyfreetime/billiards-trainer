@@ -65,6 +65,7 @@ const fs=require('node:fs');
   assert(Math.abs(afterHold-firstAt-1)<.11,'Later audio shifts with a non-destructive frame hold');
   await page.locator('#narrationHolds button').click();
   const afterRemove=Number(/At ([0-9.]+)s/.exec(await page.locator('#narrationTakes li').first().textContent())[1]);
+  console.log('Hold timing check:',{firstAt,afterHold,afterRemove,remainingHolds:await page.locator('#narrationHolds li').allTextContents()});
   assert(Math.abs(afterRemove-firstAt)<.11,'Removing a hold restores narration timing');
   await page.locator('#narrationTakes button').first().click();
   assert((await page.locator('#narrationAudioPreview').getAttribute('src')).startsWith('blob:'));
