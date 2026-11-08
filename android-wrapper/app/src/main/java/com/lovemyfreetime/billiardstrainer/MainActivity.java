@@ -250,6 +250,18 @@ public class MainActivity extends Activity {
 
     private boolean cameraAllowed(){return checkSelfPermission(Manifest.permission.CAMERA)==PackageManager.PERMISSION_GRANTED;}
     private boolean audioAllowed(){return checkSelfPermission(Manifest.permission.RECORD_AUDIO)==PackageManager.PERMISSION_GRANTED;}
+    // @JavascriptInterface runs off the UI thread. Only inspect WebView state on its owning thread.
+    private boolean narrationContentAllowed(){
+        if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper())return contentPage();
+        java.util.concurrent.CountDownLatch done=new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.atomic.AtomicBoolean allowed=new java.util.concurrent.atomic.AtomicBoolean(false);
+        runOnUiThread(()->{
+            try{allowed.set(contentPage());}
+            finally{done.countDown();}
+        });
+        try{return done.await(3,java.util.concurrent.TimeUnit.SECONDS)&&allowed.get();}
+        catch(InterruptedException interrupted){Thread.currentThread().interrupt();return false;}
+    }
     private boolean trustedCameraPage(Uri origin){
         if(origin==null||webView==null)return false;
         Uri page=Uri.parse(webView.getUrl()==null?"":webView.getUrl());
@@ -500,7 +512,7 @@ public class MainActivity extends Activity {
     public class AndroidBridge {
         @JavascriptInterface
         public String startNarrationMicrophone(){
-            if(!contentPage())return "unavailable";
+            if(!narrationContentAllowed())return "unavailable";
             if(!audioAllowed()){
                 runOnUiThread(()->requestAudioPermission());
                 return "permission";
