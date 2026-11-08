@@ -49,10 +49,30 @@ public class CameraPermissionTest {
                 Request camera=new Request(BundledApp.ORIGIN,PermissionRequest.RESOURCE_VIDEO_CAPTURE);
                 activity.webView.getWebChromeClient().onPermissionRequest(camera);assertArrayEquals(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE},camera.granted);
             });
-            js(a,"window.cameraTest='pending';navigator.mediaDevices.getUserMedia({video:true,audio:false}).then(s=>{window.cameraTest=s.getVideoTracks().length===1?'ready':'no video';s.getTracks().forEach(t=>t.stop());}).catch(e=>window.cameraTest=e.name)");
-            until=System.currentTimeMillis()+20000;
-            while(System.currentTimeMillis()<until&&"\"pending\"".equals(js(a,"window.cameraTest")))Thread.sleep(100);
-            assertEquals("\"ready\"",js(a,"window.cameraTest"));
+            // The cold offline WebView may navigate again while starting. Retry only
+            // when that reload destroys the temporary JS value, not on media denial.
+            String observed=null;
+            for(int attempt=0;attempt<3;attempt++){
+                long readyUntil=System.currentTimeMillis()+45000;
+                boolean pageReady=false;
+                while(System.currentTimeMillis()<readyUntil){
+                    if("true".equals(js(a,"document.readyState==='complete'&&location.hostname==='lovemyfreetime.github.io'&&!location.pathname.endsWith('/__android_start__.html')"))){
+                        pageReady=true;break;
+                    }
+                    Thread.sleep(200);
+                }
+                assertTrue("Bundled Trainer page did not become ready",pageReady);
+                js(a,"window.cameraTest='pending';navigator.mediaDevices.getUserMedia({video:true,audio:false}).then(s=>{window.cameraTest=s.getVideoTracks().length===1?'ready':'no video';s.getTracks().forEach(t=>t.stop());}).catch(e=>window.cameraTest=e.name)");
+                long captureUntil=System.currentTimeMillis()+20000;
+                while(System.currentTimeMillis()<captureUntil){
+                    observed=js(a,"window.cameraTest");
+                    if("\"ready\"".equals(observed))return;
+                    if(observed==null||"null".equals(observed))break;
+                    if(!"\"pending\"".equals(observed))assertEquals("\"ready\"",observed);
+                    Thread.sleep(100);
+                }
+            }
+            assertEquals("Camera capture never completed after WebView startup","\"ready\"",observed);
         }
     }
 }
