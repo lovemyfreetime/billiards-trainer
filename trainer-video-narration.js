@@ -7,7 +7,7 @@
  dialog.id='trainerNarrationDialog';
  dialog.style.cssText='max-width:900px;width:92vw;max-height:90vh;overflow:auto;background:#1b2933;color:#eee;border:1px solid #668694;border-radius:12px;padding:18px';
  dialog.innerHTML=`<h2>Narrate a video</h2>
- <p>Choose a saved Trainer video. Import Chase narration or record your own voice while watching; the original video never changes.</p>
+ <p>Choose a saved Trainer video. Import a narration audio file or record your voice while watching; the original video never changes.</p>
  <label>Trainer video <input id="narrationVideoFile" type="file" accept="video/*"></label>
  <video id="narrationPreview" controls playsinline muted style="display:block;width:100%;max-height:40vh;background:#080d13;margin:12px 0"></video>
  <label>Narration audio <input id="narrationAudioFile" type="file" accept="audio/*"></label>
@@ -39,7 +39,8 @@
  <select id="narrationDrafts" aria-label="Saved narration projects"><option value="">Saved projects</option></select>
  <button id="narrationLoadDraft" type="button">Open project</button></div>
  <div class="row" style="margin-top:12px"><button id="narrationExport" type="button">Export narrated video</button><button id="narrationCancel" type="button" hidden>Cancel export</button><button id="narrationClose" type="button">Close</button></div>
- <p id="narrationStatus" role="status"></p>`;
+ <p id="narrationStatus" role="status"></p>
+ <button id="narrationOpenExportFolder" type="button" hidden>Open exported video folder</button>`;
  document.body.append(dialog);
  // Preview playback keys belong to the editor, not the Trainer's shot shortcuts.
  dialog.addEventListener('keydown',event=>event.stopPropagation());
@@ -412,6 +413,12 @@
    catch(error){if(error.name!=='AbortError')message.textContent='Could not open the audio folder.';}
   }else message.textContent='Audio files save to your browser Downloads. Open Downloads in your browser or file manager.';
  };
+ get('narrationOpenExportFolder').onclick=()=>{
+  if(android?.openTrainerClipsFolder){android.openTrainerClipsFolder();return;}
+  if(window.showDirectoryPicker&&window.BilliardsShotRecorder?.openClipsFolder)
+   window.BilliardsShotRecorder.openClipsFolder();
+  else message.textContent='Your exported MP4 is in browser Downloads. Open the Downloads list in your browser or file manager.';
+ };
  get('narrationSaveAudio').onclick=async()=>{
   if(working||microphone)return;
   try{
@@ -509,6 +516,7 @@
  dialog.addEventListener('cancel',e=>{if(working)e.preventDefault();});
  get('narrationCancel').onclick=()=>{canceled=true;message.textContent='Canceling export…';};
  get('narrationVideoFile').onchange=()=>{
+  get('narrationOpenExportFolder').hidden=true;
   const file=get('narrationVideoFile').files[0];if(!file)return;
   stopPreview();setVideo(file,true);get('narrationName').value=file.name.replace(/\.[^.]+$/,'')+' - Narrated';
   message.textContent='Use the preview controls to choose a frame for a pause.';
@@ -541,6 +549,7 @@
   const offset=Number(get('narrationOffset').value);
   if(!Number.isFinite(offset)||offset<0||offset>3600){message.textContent='Choose an audio start time from 0 to 3600 seconds.';return;}
   stopPreview();busy(true);canceled=false;video.pause();audio.pause();
+  get('narrationOpenExportFolder').hidden=true;
   let encoder,audioEncoder,context,failed;
   const check=()=>{if(canceled)throw Error('Export canceled.');if(failed)throw failed;};
   try{
@@ -569,16 +578,47 @@
     fastStart:'in-memory',firstTimestampBehavior:'offset'});
    encoder=new VideoEncoder({output:(chunk,meta)=>{try{muxer.addVideoChunk(chunk,meta);}catch(e){failed=e;}},error:e=>{failed=e;}});
    encoder.configure(videoConfig);
+   if(!video.requestVideoFrameCallback)
+    throw Error('This browser cannot verify decoded video frames. Update Chrome or Android System WebView to export smooth video.');
    const canvas=document.createElement('canvas');canvas.width=1920;canvas.height=1080;
    const c=canvas.getContext('2d',{alpha:false}),fit=Math.min(1920/video.videoWidth,1080/video.videoHeight);
    const total=Math.max(duration+pauses.reduce((n,p)=>n+p.seconds,0),buffer?offset+buffer.duration:0);
    const frames=Math.ceil(total*30);
+   // seeked moves the media timeline; it does not guarantee a new compositor picture.
+   async function seekPresentedFrame(source){
+    const target=Math.min(Math.max(0,duration-.002),source+.002);
+    if(Math.abs(video.currentTime-target)<.00001)return;
+    let callbackId=0,timer=0,settled=false;
+    const displayed=new Promise((resolve,reject)=>{
+     const finish=error=>{
+      if(settled)return;
+      settled=true;clearTimeout(timer);
+      if(callbackId)video.cancelVideoFrameCallback(callbackId);
+      error?reject(error):resolve();
+     };
+     const onFrame=(_now,meta)=>{
+      if(meta.mediaTime+0.018>=source){finish();return;}
+      callbackId=video.requestVideoFrameCallback(onFrame);
+     };
+     callbackId=video.requestVideoFrameCallback(onFrame);
+     timer=setTimeout(()=>finish(Error('A video frame did not decode at '+source.toFixed(2)+'s. The source was not exported with repeated frames.')),3000);
+    });
+    try{
+     const ready=event(video,'seeked');
+     video.currentTime=target;
+     await ready;await displayed;
+    }catch(error){
+     // Prevent an unhandled callback rejection when seeking fails.
+     await displayed.catch(()=>{});
+     throw error;
+    }
+   }
    let previous=-1;
    for(let index=0;index<frames;index++){
     check();
     const source=Math.min(Math.max(0,duration-1/30),sourceTime(index/30,duration,pauses));
     if(previous<0||Math.abs(source-previous)>0.00001){
-     if(Math.abs(video.currentTime-source)>0.00001){const ready=event(video,'seeked');video.currentTime=source;await ready;}
+     await seekPresentedFrame(source);
      c.fillStyle='#101820';c.fillRect(0,0,1920,1080);
      c.drawImage(video,(1920-video.videoWidth*fit)/2,(1080-video.videoHeight*fit)/2,video.videoWidth*fit,video.videoHeight*fit);
      previous=source;
@@ -614,7 +654,8 @@
    muxer.finalize();check();
    message.textContent='Saving narrated video…';
    await window.BilliardsShotRecorder.saveNarrated(get('narrationName').value,new Blob([target.buffer],{type:'video/mp4'}));
-   message.textContent='Narrated video saved. Check your Clips folder or Downloads.';
+   message.textContent='Narrated video saved. Use Open exported video folder to locate the MP4.';
+   get('narrationOpenExportFolder').hidden=false;
   }catch(error){message.textContent=error.message;console.error(error);}
   finally{
    if(encoder&&encoder.state!=='closed')encoder.close();
