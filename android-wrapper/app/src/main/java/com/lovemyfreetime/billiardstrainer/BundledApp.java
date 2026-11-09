@@ -9,6 +9,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /** All app-origin resources are resolved from the APK, including instant local misses. */
 final class BundledApp {
@@ -18,6 +19,7 @@ final class BundledApp {
     private final JSONObject files;
     ContentUpdates updates;
     final AtomicInteger missingRequests=new AtomicInteger();
+    final AtomicReference<String> lastMissingPath=new AtomicReference<>();
     BundledApp(AssetManager assets) throws Exception {
         this.assets=assets;
         try(InputStream in=assets.open("app/app-manifest.json")){
@@ -30,12 +32,12 @@ final class BundledApp {
     WebResourceResponse respond(WebResourceRequest request) {
         Uri uri=request.getUrl();String path=uri.getPath();String method=request.getMethod();
         if(!"GET".equals(method)&&!"HEAD".equals(method))return empty(405,"Method Not Allowed",null);
-        if(path==null||!path.startsWith(PREFIX))return missing();
+        if(path==null||!path.startsWith(PREFIX))return missing(path);
         String name=path.substring(PREFIX.length());
         if(name.isEmpty())name="index.html";else if(name.endsWith("/"))name+="index.html";
-        for(String part:name.split("/",-1))if(part.equals("..")||part.equals(".")||part.indexOf('\\')>=0||part.indexOf('\0')>=0)return missing();
-        JSONObject info=(updates==null||name.equals("__android_start__.html")?files:updates.files()).optJSONObject(name);if(info==null)return missing();
-        long length=info.optLong("length",-1);if(length<0)return missing();
+        for(String part:name.split("/",-1))if(part.equals("..")||part.equals(".")||part.indexOf('\\')>=0||part.indexOf('\0')>=0)return missing(path);
+        JSONObject info=(updates==null||name.equals("__android_start__.html")?files:updates.files()).optJSONObject(name);if(info==null)return missing(path);
+        long length=info.optLong("length",-1);if(length<0)return missing(path);
         Map<String,String> headers=new HashMap<>();headers.put("Accept-Ranges","bytes");headers.put("Cache-Control","no-store");headers.put("X-Content-Type-Options","nosniff");
         String range=null;for(Map.Entry<String,String> h:request.getRequestHeaders().entrySet())if(h.getKey().equalsIgnoreCase("Range"))range=h.getValue();
         long start=0,count=length;
@@ -49,9 +51,9 @@ final class BundledApp {
                 catch(IOException e){input.close();throw e;}
             }
             return new WebResourceResponse(mime,encoding,range==null?200:206,range==null?"OK":"Partial Content",headers,body);
-        }catch(Exception e){return missing();}
+        }catch(Exception e){return missing(path);}
     }
-    private WebResourceResponse missing(){missingRequests.incrementAndGet();return empty(404,"Not Found",null);}
+    private WebResourceResponse missing(String path){lastMissingPath.set(path);missingRequests.incrementAndGet();return empty(404,"Not Found",null);}
     static WebResourceResponse empty(int status,String reason,Map<String,String> source){Map<String,String> h=source==null?new HashMap<>():source;h.put("Content-Length","0");h.put("Cache-Control","no-store");return new WebResourceResponse("text/plain","UTF-8",status,reason,h,new ByteArrayInputStream(new byte[0]));}
     private static byte[] readAll(InputStream in)throws IOException{ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] b=new byte[8192];int n;while((n=in.read(b))!=-1)out.write(b,0,n);return out.toByteArray();}
     private static String mime(String name){String ext=name.substring(name.lastIndexOf('.')+1).toLowerCase(Locale.US);switch(ext){case "html":return "text/html";case "js":case "mjs":return "text/javascript";case "css":return "text/css";case "json":case "webmanifest":return "application/json";case "wasm":return "application/wasm";case "mp3":return "audio/mpeg";case "wav":return "audio/wav";case "svg":return "image/svg+xml";case "png":return "image/png";case "webp":return "image/webp";case "jpg":case "jpeg":return "image/jpeg";case "ico":return "image/x-icon";default:return "application/octet-stream";}}

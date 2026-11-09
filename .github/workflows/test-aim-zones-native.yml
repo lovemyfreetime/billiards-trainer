@@ -9,6 +9,7 @@ permissions:
 
 jobs:
   windows-webview2:
+    if: ${{ !startsWith(github.event.head_commit.message, 'Android only:') }}
     runs-on: windows-latest
     timeout-minutes: 20
     steps:

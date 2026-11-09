@@ -51,9 +51,9 @@ public class BundledAppTest {
             waitFor("['passed','failed'].includes(window.__aimZonesNativeSmoke?.status)", 120);
             String result = js("JSON.stringify(window.__aimZonesNativeSmoke)");
             assertEquals(result, "\"passed\"", js("window.__aimZonesNativeSmoke.status"));
-            assertEquals("No public network requests needed", 0, activity.externalRequests.get());
-            assertEquals("All requested app assets were installed", 0, activity.bundledApp.missingRequests.get());
             System.out.println("Android Aim-to-Position smoke: " + result);
+            assertEquals("No public network requests needed", 0, activity.externalRequests.get());
+            assertEquals("Missing bundled request: " + activity.bundledApp.lastMissingPath.get(), 0, activity.bundledApp.missingRequests.get());
         }
     }
 
