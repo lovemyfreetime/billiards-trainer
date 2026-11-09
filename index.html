@@ -1914,6 +1914,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         <div class="check"><input id="showImpact" type="checkbox" checked><label for="showImpact">Impact cue ball + physical overlap band</label></div>
         <div class="check"><input id="showTipBadge" type="checkbox"><label for="showTipBadge">Cue-tip contact badge near cue ball</label></div>
         <div class="check"><input id="showPaths" type="checkbox" checked><label for="showPaths">Trajectory preview</label></div>
+        <div class="check"><input id="shot2CueBallOnly" type="checkbox"><label for="shot2CueBallOnly">Shot 2 cue ball only</label></div>
         <div class="check"><input id="showGrid" type="checkbox" checked><label for="showGrid">Diamond-connected table grid</label></div>
         <div class="check"><input id="showDiamonds" type="checkbox" checked><label for="showDiamonds">Rail diamonds</label></div>
         <div class="check"><input id="showTable" type="checkbox" checked><label for="showTable">Show table / balls</label></div>
@@ -2142,6 +2143,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             showShotStats2: true,
             showCueVisuals1: true,
             showCueVisuals2: true,
+            shot2CueBallOnly: false,
             showAngleLockControl: false,
             shot2: { x: 1.05, y: .72, freeAim: { x: 1.70, y: .72 }, angleLock: false, autoGhostLock: false, speed: 1.50, follow: 0, sideSpin: 0, cueElevationDeg: PHYSICS_MODEL.defaultCueElevationDeg, preview: null },
             teachingCompass: {
@@ -2286,9 +2288,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     function restoreSnapshot(snap) {
         if (!snap)
             return;
-        const counterEnabled=S.showPracticeCounter,annotations=S.annotations;
+        const counterEnabled=S.showPracticeCounter,annotations=S.annotations,shot2CueBallOnly=S.shot2CueBallOnly;
         S = Object.assign(Object.assign(Object.assign({}, defaultState()), JSON.parse(JSON.stringify(snap))), { preview: null });
-        S.showPracticeCounter=counterEnabled;S.annotations=annotations;
+        S.showPracticeCounter=counterEnabled;S.annotations=annotations;S.shot2CueBallOnly=shot2CueBallOnly;
         normalizeBallSet();
         updateUI();
         refreshPreview();
@@ -4330,7 +4332,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     function cueTipsFor3D(){
         const tips=[];
         for(const which of [1,2]){
-            if(!cueVisualsVisible(which)||(which===2&&!S.shot2Enabled))continue;
+            if(!shotGuidesVisible(which)||(which===2&&!S.shot2Enabled))continue;
             const values=which===2?ensureShot2():S,ball=which===2?values:cueBall();if(!ball)continue;
             const contact=cueSideContact(values.sideSpin,values.follow,values.cueElevationDeg),d=shotAimDirection(which);
             tips.push({id:which===2?'CB2':0,dx:d.x,dy:d.y,rear:contact.x,height:contact.z,sideR:contact.tip.sideR,followR:contact.tip.followR});
@@ -4622,6 +4624,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         return null; return withShot2Context(() => simulate(false)); }
     function cueVisualsVisible(which) {
         return S[which === 2 ? 'showCueVisuals2' : 'showCueVisuals1'] !== false;
+    }
+    function shotGuidesVisible(which) {
+        return cueVisualsVisible(which) && (which !== 2 || !S.shot2CueBallOnly);
     }
     function setActiveShot(n) {
         S.activeShot = (n === 2 && S.shot2Enabled) ? 2 : 1;
@@ -6127,7 +6132,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     function shouldShowFlightOverlay(preview, which) {
         const a = preview && preview.airborne;
-        if (!S.airbornePhysics || !a || !cueVisualsVisible(which)) return false;
+        if (!S.airbornePhysics || !a || !shotGuidesVisible(which)) return false;
         if (which === 2 && !S.shot2Enabled) return false;
         const bend = a.guidance && a.guidance.bend;
         return a.maxCueHeight > .001 || (bend && bend.magnitude > .001);
@@ -7127,7 +7132,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         drawContactOverlay(S.preview, map, { tangentColor: '#6fff58', ghostFill: '#ffffff22', ghostStroke: '#ffffff', contactColor: '#ff5b5b', bandColor: '#ff5b5b', labelColor: '#fff' });
     }
     function tipBadgeGeometry(map, which = 1) {
-        if (!S.showTipBadge || !cueVisualsVisible(which) || (which === 2 && !S.shot2Enabled)) return null;
+        if (!S.showTipBadge || !shotGuidesVisible(which) || (which === 2 && !S.shot2Enabled)) return null;
         const cb = which === 2 ? ensureShot2() : cueBall();
         if (!cb) return null;
         const q = map(cb), r = isProjector ? 24 : 22;
@@ -7175,7 +7180,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const fixed = !isProjector && document.body.classList.contains('phone-layout');
         for (const which of [1, 2]) {
             const badge = fixed
-                ? ((which === 1 || S.shot2Enabled) ? {which} : null)
+                ? ((which === 1 || (S.shot2Enabled && !S.shot2CueBallOnly)) ? {which} : null)
                 : tipBadgeGeometry(map, which);
             const disk = $('phoneTip' + which);
             // On phones, keep the controls below their respective slider sets.
@@ -7203,7 +7208,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const addLine=points=>{if(points?.length>1)for(let i=1;i<points.length;i++)segments.push([map(points[i-1]),map(points[i])]);};
         const previews=[];
         for(const which of [1,2]){
-            if(!cueVisualsVisible(which)||(which===2&&!S.shot2Enabled))continue;
+            if(!shotGuidesVisible(which)||(which===2&&!S.shot2Enabled))continue;
             const preview=which===1?S.preview:ensureShot2().preview;
             previews.push({which,preview});
             if(S.showPaths)for(const path of Object.values(preview?.paths||{}))addLine(path);
@@ -7282,7 +7287,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     function drawShot2(map) {
         if (!S.shot2Enabled) return;
-        if (!cueVisualsVisible(2)) return;
+        if (!shotGuidesVisible(2)) return;
         const s = ensureShot2(), cb = { x: s.x, y: s.y };
         if (S.showPaths && s.preview) {
             const hit = s.preview.firstBallContact ? s.preview.firstBallContact.objId : -1;
@@ -7351,14 +7356,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         else {
             drawContactOverlay(s.preview, map, { which:2, tangentColor: '#6fff58', ghostFill: '#00e5ff22', ghostStroke: '#9df7ff', contactColor: '#00e5ff', bandColor: '#ffd86b', labelColor: '#9df7ff' });
         }
-        if (!cueVisualsVisible(2))
-            return;
         const tip = { x: cb.x - d.x * S.ballR * 1.08, y: cb.y - d.y * S.ballR * 1.08 };
         const butt = { x: cb.x - d.x * Math.min(.48, S.tableL * .24), y: cb.y - d.y * Math.min(.48, S.tableL * .24) };
         pathPoly([butt, tip], map, '#267d91', 5, .9);
         pathPoly([{ x: butt.x + d.x * .08, y: butt.y + d.y * .08 }, tip], map, '#dffbff', 2.2, .95);
         logicalCircle(s.freeAim, S.ballR * .26, map, '#8df6ffd9', '#052d33', 1);
-        drawShot2CueBall(map);
     }
     function drawBankKickGuide(map) {
         var _a;
@@ -7566,7 +7568,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         ctx.restore();
     }
     function rollingReferenceForShot(which=1){
-        if(animation||!S.showTable||!S.showImpact||!cueVisualsVisible(which)||which===2&&!S.shot2Enabled)return null;
+        if(animation||!S.showTable||!S.showImpact||!shotGuidesVisible(which)||which===2&&!S.shot2Enabled)return null;
         const preview=which===2?ensureShot2().preview:S.preview;
         return window.BilliardsPracticeTools.rollingReference(preview?.firstBallContact,S);
     }
@@ -7574,7 +7576,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         for(const which of [1,2]){
             const ref=rollingReferenceForShot(which);
             if(ref)pathPoly([ref.start,ref.end],map,which===1?'#ffe28a':'#a2f3ff',1.7,.48,[2,5]);
-            if(animation||!S.showTable||!S.showImpact||!S.showPaths||!cueVisualsVisible(which)||which===2&&!S.shot2Enabled)continue;
+            if(animation||!S.showTable||!S.showImpact||!S.showPaths||!shotGuidesVisible(which)||which===2&&!S.shot2Enabled)continue;
             const preview=which===2?ensureShot2().preview:S.preview,c=preview?.firstBallContact;
             if(!c)continue;
             const sample=cueExitSample(preview,c,c.cuePos,c.incoming);if(!sample)continue;
@@ -7845,7 +7847,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 if (!document.body.classList.contains('zen-mode')) drawPreview(map);
                 drawAim(map);
             }
-            if (!document.body.classList.contains('zen-mode')) drawShot2(map);
+            if (!document.body.classList.contains('zen-mode')) {
+                drawShot2(map);
+                drawShot2CueBall(map);
+            }
         }
 
         if (!animation && (S.showTable || !isProjector || !projectorProjectionOnly)) {
@@ -7871,7 +7876,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if (!clean || recordingGuides) {
             if (cueVisualsVisible(1) && !document.body.classList.contains('zen-mode')) drawImpactOverlay(map);
             if (!document.body.classList.contains('zen-mode')) drawTipBadge(map);
-            if (!document.body.classList.contains('zen-mode')) drawBankKickGuide(map);
+            if (!document.body.classList.contains('zen-mode') && !(S.shot2Enabled && S.activeShot === 2 && S.shot2CueBallOnly)) drawBankKickGuide(map);
             if (!document.body.classList.contains('zen-mode')) drawTeachingCompass(map);
             if (!document.body.classList.contains('zen-mode')) drawRollingReferences(map);
             if (!document.body.classList.contains('zen-mode')) drawCalibration(M);
@@ -7881,9 +7886,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         window.dispatchEvent(new Event("billiards:2d-render"));
         if(window.Billiards3D){
             const live=(animation?.current||S.balls).map(b=>({...S.balls.find(x=>x.id===b.id),...b})).filter(b=>b.id!==0||cueVisualsVisible(1));
-            if(!clean&&S.shot2Enabled&&cueVisualsVisible(2))live.push({id:'CB2',x:S.shot2.x,y:S.shot2.y,active:true});
+            if((!clean||(recordingGuides&&S.shot2CueBallOnly))&&S.shot2Enabled&&cueVisualsVisible(2))live.push({id:'CB2',x:S.shot2.x,y:S.shot2.y,active:true});
             const second=S.activeShot===2&&S.shot2Enabled,cb=second?S.shot2:cueBall();
-            window.Billiards3D.update({L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:clean?[]:animation?.cueTips||cueTipsFor3D(),balls:live,map,aim:!clean&&cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
+            window.Billiards3D.update({L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:clean?[]:(animation?.cueTips||cueTipsFor3D()).filter(tip=>tip.id!=='CB2'||!S.shot2CueBallOnly),balls:live,map,aim:!clean&&cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
         }
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }
@@ -8316,14 +8321,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         // Keep the teaching surface clean: hidden shots also hide their
         // corresponding table-edge controls.
         const showBottom1 = cueVisualsVisible(1);
-        const showBottom2 = on && cueVisualsVisible(2);
+        const showBottom2 = on && shotGuidesVisible(2);
         if ($('aimControls')) $('aimControls').style.display = showBottom1 ? 'flex' : 'none';
         if ($('tableSpeed1Wrap')) $('tableSpeed1Wrap').style.display = showBottom1 ? 'flex' : 'none';
         if ($('bottomSpin1')) $('bottomSpin1').style.display = showBottom1 ? 'flex' : 'none';
 
-        if ($('aimControls2')) $('aimControls2').style.display = showBottom2 ? 'flex' : 'none';
-        if ($('tableSpeed2Wrap')) $('tableSpeed2Wrap').style.display = showBottom2 ? 'flex' : 'none';
-        if ($('bottomSpin2')) $('bottomSpin2').style.display = showBottom2 ? 'flex' : 'none';
+        for (const id of ['aimControls2', 'tableSpeed2Wrap', 'bottomSpin2']) {
+            $(id)?.style.setProperty('display', showBottom2 ? 'flex' : 'none', S.shot2CueBallOnly ? 'important' : '');
+        }
 
         updateCuePopupUI();
         positionRailControls();
@@ -8436,6 +8441,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         $('showImpact').checked = S.showImpact;
         $('showTipBadge').checked = S.showTipBadge;
         $('showPaths').checked = S.showPaths;
+        $('shot2CueBallOnly').checked = S.shot2CueBallOnly;
         $('showGrid').checked = S.showGrid;
         $('showDiamonds').checked = S.showDiamonds;
         $('showTable').checked = S.showTable;
@@ -8600,7 +8606,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         b.classList.toggle('locked', locked);
         b.setAttribute('aria-pressed', locked ? 'true' : 'false');
     }
-    function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, cuePreset:S.cuePreset, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showPracticeCounter:S.showPracticeCounter, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; Object.assign(S,{balls:[],allowMissingCueBall:true,freeAim:{x:S.tableL*.75,y:S.tableW*.5},pocketedLog:[],nextId:1}); resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
+    function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, cuePreset:S.cuePreset, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showPracticeCounter:S.showPracticeCounter, shot2CueBallOnly:S.shot2CueBallOnly, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; Object.assign(S,{balls:[],allowMissingCueBall:true,freeAim:{x:S.tableL*.75,y:S.tableW*.5},pocketedLog:[],nextId:1}); resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
     function keepCueOnTable(q){
         const gap=Math.max(S.ballR*2.2,.065),p={x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR)};
         for(const pocket of logicalPockets())if(Math.hypot(p.x-pocket.x,p.y-pocket.y)<gap){
@@ -8658,7 +8664,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             }
         }
         const previews=cueVisualsVisible(1)?[S.preview]:[];
-        if (S.shot2Enabled&&cueVisualsVisible(2)&&S.shot2?.preview) previews.push(S.shot2.preview);
+        if (S.shot2Enabled&&shotGuidesVisible(2)&&S.shot2?.preview) previews.push(S.shot2.preview);
         if (S.showImpact) for (const preview of previews) {
             const contact=preview?.firstBallContact;if (!contact) continue;
             if (near(contact.cuePos,S.ballR*M.scale)) return 'ghost-ball-quick';
@@ -8872,7 +8878,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             drag = { kind: 'ball', id: best.id };
         }
         else {
-        if (S.shot2Enabled) {
+        if (S.shot2Enabled && !S.shot2CueBallOnly) {
             const s = ensureShot2();
             if (Math.hypot(q.x - s.freeAim.x, q.y - s.freeAim.y) < S.ballR * 1.8) {
                 setActiveShot(2);
@@ -8886,6 +8892,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             return;
         }
             if (S.activeShot === 2 && S.shot2Enabled) {
+                if (S.shot2CueBallOnly) return;
                 const s = ensureShot2();
                 s.freeAim = q;
                 if (S.showAngleLockControl === true && s.autoGhostLock === true) {
@@ -13090,6 +13097,13 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         $('cueShaftPreset').addEventListener('change',()=>{S.cuePreset=$('cueShaftPreset').value;if(CUE_SHAFT_PRESETS[S.cuePreset])S.cueEndmassRatio=CUE_SHAFT_PRESETS[S.cuePreset];updateUI();refreshPreview();saveState();});
         $('cueEndmassRatio').addEventListener('change',()=>{S.cuePreset='custom';});
         changeIds.forEach(id => $(id).addEventListener('change', applyUI));
+        $('shot2CueBallOnly').addEventListener('change', () => {
+            S.shot2CueBallOnly = $('shot2CueBallOnly').checked;
+            updateUI();
+            draw();
+            saveState();
+            syncProjector();
+        });
         ['speed', 'follow', 'sideSpin', 'cueElevation'].forEach(id => $(id).addEventListener('input', applyUI));
         function applyDirectShotInput() {
             S.speed = clamp(parseFloat($('speedNumber').value) || 0.25, 0.25, 6);
