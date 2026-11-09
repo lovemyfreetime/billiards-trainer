@@ -30,6 +30,8 @@ final class BundledApp {
     WebResourceResponse respond(WebResourceRequest request) {
         Uri uri=request.getUrl();String path=uri.getPath();String method=request.getMethod();
         if(!"GET".equals(method)&&!"HEAD".equals(method))return empty(405,"Method Not Allowed",null);
+        // Android WebView can request the origin favicon even with an explicit page icon.
+        if("/favicon.ico".equals(path))path=PREFIX+"icons/icon-192.png";
         if(path==null||!path.startsWith(PREFIX))return missing();
         String name=path.substring(PREFIX.length());
         if(name.isEmpty())name="index.html";else if(name.endsWith("/"))name+="index.html";

@@ -31,6 +31,7 @@ jobs:
           node tests/trainer-3d-edit.browser.cjs
           node tests/shot-geometry.test.cjs
           node tests/trainer-annotations.browser.cjs
+          node tests/aim-zones.browser.cjs
       - name: Check desktop, tablet and phone Guide behavior
         env:
           NODE_PATH: ./local-host/node_modules
