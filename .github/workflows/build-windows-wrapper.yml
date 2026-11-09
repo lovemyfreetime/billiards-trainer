@@ -14,6 +14,7 @@ on:
       - 'trainer-annotate.js'
       - 'tests/trainer-camera-recorder.browser.cjs'
       - 'tests/trainer-camera-session-state.test.cjs'
+      - 'tests/trainer-sharing-controls.browser.cjs'
 
 concurrency:
   group: windows-wrapper-${{ github.ref }}

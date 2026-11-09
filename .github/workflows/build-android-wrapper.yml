@@ -16,6 +16,7 @@ on:
       - 'trainer-annotate.js'
       - 'tests/trainer-camera-recorder.browser.cjs'
       - 'tests/trainer-camera-session-state.test.cjs'
+      - 'tests/trainer-sharing-controls.browser.cjs'
       - 'tests/trainer-video-narration.browser.cjs'
       - 'tests/trainer-narration-microphone.browser.cjs'
       - 'photo-*.js'
