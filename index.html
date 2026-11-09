@@ -1915,6 +1915,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         <div class="check"><input id="showTipBadge" type="checkbox"><label for="showTipBadge">Cue-tip contact badge near cue ball</label></div>
         <div class="check"><input id="showPaths" type="checkbox" checked><label for="showPaths">Trajectory preview</label></div>
         <div class="check"><input id="shot2CueBallOnly" type="checkbox"><label for="shot2CueBallOnly">Shot 2 cue ball only</label></div>
+        <div class="check"><input id="showPocketEntry" type="checkbox"><label for="showPocketEntry">Pocket Entry Alignment (L / 0 / R)</label></div>
         <div class="check"><input id="showGrid" type="checkbox" checked><label for="showGrid">Diamond-connected table grid</label></div>
         <div class="check"><input id="showDiamonds" type="checkbox" checked><label for="showDiamonds">Rail diamonds</label></div>
         <div class="check"><input id="showTable" type="checkbox" checked><label for="showTable">Show table / balls</label></div>
@@ -2044,6 +2045,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 <script src="./photo-lighting.js?v=1"></script>
 <script src="./trainer-table-zoom.js?v=2"></script>
 <script src="./trainer-shot-budget.js?v=exit-2"></script>
+<script src="./trainer-pocket-entry.js?v=1"></script>
 <script>
 // AI Camera Edition wrapper: v4.12 trainer, app-mode launch package. v4 adds scoreboard placement/default-off + local analysis-photo recall.
 // v4.12: virtual diamond extensions beyond physical corners; fixes source references that previously clipped at the first visible table boundary.
@@ -2066,6 +2068,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     const canvas = $('canvas');
     const ctx = canvas.getContext('2d');
     const stage = $('stageWrap');
+    const pocket3DCanvas = document.createElement('canvas');
+    pocket3DCanvas.id = 'pocketEntry3DOverlay';
+    pocket3DCanvas.style.cssText = 'display:none;position:absolute;z-index:11;pointer-events:none;';
+    stage.append(pocket3DCanvas);
     let DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
     let projectorWin = null;
     let drag = null;
@@ -2144,6 +2150,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             showCueVisuals1: true,
             showCueVisuals2: true,
             shot2CueBallOnly: false,
+            showPocketEntry: false,
             showAngleLockControl: false,
             shot2: { x: 1.05, y: .72, freeAim: { x: 1.70, y: .72 }, angleLock: false, autoGhostLock: false, speed: 1.50, follow: 0, sideSpin: 0, cueElevationDeg: PHYSICS_MODEL.defaultCueElevationDeg, preview: null },
             teachingCompass: {
@@ -2288,9 +2295,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     function restoreSnapshot(snap) {
         if (!snap)
             return;
-        const counterEnabled=S.showPracticeCounter,annotations=S.annotations,shot2CueBallOnly=S.shot2CueBallOnly;
+        const counterEnabled=S.showPracticeCounter,annotations=S.annotations,shot2CueBallOnly=S.shot2CueBallOnly,showPocketEntry=S.showPocketEntry;
         S = Object.assign(Object.assign(Object.assign({}, defaultState()), JSON.parse(JSON.stringify(snap))), { preview: null });
-        S.showPracticeCounter=counterEnabled;S.annotations=annotations;S.shot2CueBallOnly=shot2CueBallOnly;
+        S.showPracticeCounter=counterEnabled;S.annotations=annotations;S.shot2CueBallOnly=shot2CueBallOnly;S.showPocketEntry=showPocketEntry;
         normalizeBallSet();
         updateUI();
         refreshPreview();
@@ -7271,6 +7278,68 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         }
         if (S.airbornePhysics) drawAirborneTableOverlay(S.preview, map, 1, '#ffffff');
     }
+    function pocketEntryReading() {
+        if (!S.showPocketEntry || document.body.classList.contains('zen-mode')) return null;
+        const contact = S.shot2Enabled && S.activeShot === 2
+            ? S.shot2?.preview?.firstBallContact : S.preview?.firstBallContact;
+        return window.BilliardsPocketEntryGeometry?.analyze(pocketModel(), contact) || null;
+    }
+    function paintPocketEntryOverlay(paint, map, reading) {
+        if (!reading) return;
+        const center = map(reading.center), first = map(reading.a), last = map(reading.b);
+        if (![center, first, last].every(p=>p&&Number.isFinite(p.x)&&Number.isFinite(p.y)&&p.visible!==false)) return;
+        paint.save();
+        paint.lineCap = 'round';
+        paint.lineWidth = 3;
+        paint.strokeStyle = 'rgba(4,19,22,.9)';
+        paint.beginPath();paint.moveTo(first.x,first.y);paint.lineTo(last.x,last.y);paint.stroke();
+        paint.lineWidth = 1.6;
+        paint.strokeStyle = '#75f5dd';
+        paint.beginPath();paint.moveTo(first.x,first.y);paint.lineTo(last.x,last.y);paint.stroke();
+        const axis = {x:last.x-first.x,y:last.y-first.y},axisLen=Math.hypot(axis.x,axis.y)||1;
+        const normal = {x:-axis.y/axisLen,y:axis.x/axisLen};
+        for (const tick of reading.ticks) {
+            const q = map(tick.point);if(!q||q.visible===false)continue;
+            const size = tick.step===0?7:4;
+            paint.beginPath();paint.moveTo(q.x-normal.x*size,q.y-normal.y*size);paint.lineTo(q.x+normal.x*size,q.y+normal.y*size);
+            paint.strokeStyle = tick.step===0?'#ffffff':'#5be9d1';paint.lineWidth=tick.step===0?2.4:1.4;paint.stroke();
+        }
+        const marker = map(reading.ticks[Math.max(0,Math.min(6,Math.round(Math.max(-3,Math.min(3,reading.position)))+3))].point);
+        if(marker&&marker.visible!==false){
+            paint.beginPath();paint.arc(marker.x,marker.y,5,0,Math.PI*2);
+            paint.fillStyle=reading.out?'#ff6969':'#ffe07d';paint.fill();paint.strokeStyle='#071118';paint.lineWidth=1.5;paint.stroke();
+        }
+        const inward = {x:-reading.outside.x,y:-reading.outside.y};
+        const dist=Math.hypot(inward.x,inward.y);
+        const labelAnchor = map({x:reading.center.x+inward.x/dist*.095,y:reading.center.y+inward.y/dist*.095});
+        if(labelAnchor&&labelAnchor.visible!==false){
+            paint.font='700 12px Segoe UI,Arial,sans-serif';
+            const label=reading.label,w=Math.max(58,paint.measureText(label).width+20),h=24;
+            const x=labelAnchor.x-w/2,y=labelAnchor.y-h/2;
+            paint.fillStyle='rgba(8,19,25,.88)';paint.strokeStyle=reading.out?'#ff6969':'#75f5dd';paint.lineWidth=1;
+            paint.beginPath();paint.roundRect(x,y,w,h,6);paint.fill();paint.stroke();
+            paint.fillStyle=reading.out?'#ffbbbb':'#f3fff9';paint.font='700 12px Segoe UI,Arial,sans-serif';
+            paint.textAlign='center';paint.textBaseline='middle';paint.fillText(label,labelAnchor.x,labelAnchor.y+.5);
+        }
+        paint.restore();
+    }
+    function drawPocketEntry3D() {
+        const three=window.Billiards3D,source=$('table3DCanvas'),reading=pocketEntryReading();
+        if(!three?.active||!source||!reading){pocket3DCanvas.style.display='none';return;}
+        const rect=source.getBoundingClientRect(),parent=stage.getBoundingClientRect();
+        if(rect.width<2||rect.height<2){pocket3DCanvas.style.display='none';return;}
+        pocket3DCanvas.style.display='block';
+        pocket3DCanvas.style.left=(rect.left-parent.left)+'px';pocket3DCanvas.style.top=(rect.top-parent.top)+'px';
+        pocket3DCanvas.style.width=rect.width+'px';pocket3DCanvas.style.height=rect.height+'px';
+        const density=Math.min(devicePixelRatio||1,2),width=Math.round(rect.width*density),height=Math.round(rect.height*density);
+        if(pocket3DCanvas.width!==width)pocket3DCanvas.width=width;
+        if(pocket3DCanvas.height!==height)pocket3DCanvas.height=height;
+        const paint=pocket3DCanvas.getContext('2d');paint.setTransform(density,0,0,density,0,0);paint.clearRect(0,0,rect.width,rect.height);
+        const map=p=>{const q=three.project(p,.016);return q?{x:q.x-rect.left,y:q.y-rect.top,visible:q.visible}:null;};
+        paintPocketEntryOverlay(paint,map,reading);
+    }
+    window.addEventListener('billiards:3d-render',drawPocketEntry3D);
+    window.BilliardsPocketEntryOverlay = { reading:pocketEntryReading, redraw3D:drawPocketEntry3D };
     function drawShot2CueBall(map) {
         if(window.Billiards3D?.active)return;
         if (!S.shot2Enabled || !cueVisualsVisible(2)) return;
@@ -7881,6 +7950,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if (!document.body.classList.contains('zen-mode')) drawRollingReferences(map);
             if (!document.body.classList.contains('zen-mode')) drawCalibration(M);
             if (!document.body.classList.contains('zen-mode')) drawShotBudget(map, recordingGuides);
+            if (!document.body.classList.contains('zen-mode') && !window.Billiards3D?.active) paintPocketEntryOverlay(ctx,map,pocketEntryReading());
         }
         window.BilliardsTableZoom?.end(ctx);
         window.dispatchEvent(new Event("billiards:2d-render"));
@@ -8442,6 +8512,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         $('showTipBadge').checked = S.showTipBadge;
         $('showPaths').checked = S.showPaths;
         $('shot2CueBallOnly').checked = S.shot2CueBallOnly;
+        $('showPocketEntry').checked = S.showPocketEntry === true;
         $('showGrid').checked = S.showGrid;
         $('showDiamonds').checked = S.showDiamonds;
         $('showTable').checked = S.showTable;
@@ -8606,7 +8677,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         b.classList.toggle('locked', locked);
         b.setAttribute('aria-pressed', locked ? 'true' : 'false');
     }
-    function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, cuePreset:S.cuePreset, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showPracticeCounter:S.showPracticeCounter, shot2CueBallOnly:S.shot2CueBallOnly, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; Object.assign(S,{balls:[],allowMissingCueBall:true,freeAim:{x:S.tableL*.75,y:S.tableW*.5},pocketedLog:[],nextId:1}); resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
+    function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, cuePreset:S.cuePreset, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showPracticeCounter:S.showPracticeCounter, shot2CueBallOnly:S.shot2CueBallOnly, showPocketEntry:S.showPocketEntry, showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; Object.assign(S,{balls:[],allowMissingCueBall:true,freeAim:{x:S.tableL*.75,y:S.tableW*.5},pocketedLog:[],nextId:1}); resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
     function keepCueOnTable(q){
         const gap=Math.max(S.ballR*2.2,.065),p={x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR)};
         for(const pocket of logicalPockets())if(Math.hypot(p.x-pocket.x,p.y-pocket.y)<gap){
@@ -13103,6 +13174,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             draw();
             saveState();
             syncProjector();
+        });
+        $('showPocketEntry').addEventListener('change', () => {
+            S.showPocketEntry = $('showPocketEntry').checked;
+            updateUI();draw();saveState();
         });
         ['speed', 'follow', 'sideSpin', 'cueElevation'].forEach(id => $(id).addEventListener('input', applyUI));
         function applyDirectShotInput() {
