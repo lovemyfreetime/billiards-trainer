@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "822040ae65836581dbcea88e5693124aea8c1f66dd2cc62492f007f37e9875a4",
-  "sequence": 1794214633,
+  "version": "43cd6e0d1ebb61365d95aeb985ac63840ba4fa42f3beefc6ae1f9558c1939e30",
+  "sequence": 1794216627,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3705,8 +3705,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "3a6723fb6aba4ffeb0a407c5ffb8afa862f27ed017a3927863c132f25a77edc8",
-      "length": 911720
+      "sha256": "aac54ed56e7850f9647c732ac510129428a168fec2f6373f51acbc19735041d1",
+      "length": 912789
     },
     "install/android/index.html": {
       "sha256": "5af2961b4386233b6f9206577ee2acdd6b08068620c3f60c57b176c471ca3681",
@@ -3805,7 +3805,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "0b39b444eea5bb243c07a45bed76f24c2e2368ed0fda78b61498b1233d0f531b",
+      "sha256": "9a7a0821aad30a5c3e975fe2f43b1125a17c785c3f34b41c6b41e53393812bcc",
       "length": 145676
     },
     "phone-play.css": {
@@ -4917,7 +4917,7 @@
       "length": 1895
     },
     "service-worker.js": {
-      "sha256": "4cc271c47eccc9720b4448acc696c7f111a7e114dcf07328f0b6c2025148ec48",
+      "sha256": "6b11b760271bf4090ffe90a340fd7b52ca1621bbce8f0b398f30c832f96365dd",
       "length": 7739
     },
     "table-orbit.js": {
@@ -4969,8 +4969,8 @@
       "length": 3157
     },
     "trainer-pocket-entry.js": {
-      "sha256": "fcdfa97ec2c5056adf92a1dff4662041cb6c0eefd98eb123656858c9ea1626ac",
-      "length": 3878
+      "sha256": "25861bb806b495cfa8f92b4867c00cd4cf22cf8d04b11a460cb524282f5b3ec6",
+      "length": 3658
     },
     "trainer-practice-tools.js": {
       "sha256": "4f3be4afca8e51274aa1b9eb8c9dcd696e466c26a8974650bafe4dccd950650d",
@@ -4981,8 +4981,8 @@
       "length": 5472
     },
     "trainer-shot-budget.js": {
-      "sha256": "70a98b8228b91a1b4f1e3b4ce736910aa71a5da502903474096ec8523145d975",
-      "length": 13172
+      "sha256": "a9babe12322e21d92d90bbd465463722618e9e2bf7ee20f495979f5858f4baf8",
+      "length": 13218
     },
     "trainer-shot-recorder.js": {
       "sha256": "a924276753cabc766658df8ba315b0d7dc370c4d8af9c7ca2fc8e4635c3be5a8",
