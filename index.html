@@ -7254,7 +7254,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const badge=api.placeBadge(rows,anchor,placement)||api.placeBadge(rows,anchor,{...placement,segments:[]});
             if(badge)badges.push({...badge,type:'overlap',opacity:.64});
         }
-        const entry=placePocketEntryText(ctx,map,pocketEntryReading(),placement);
+        const entry=window.Billiards3D?.active?null:placePocketEntryText(ctx,map,pocketEntryReading(),placement);
         pocketEntryPlacements.twoD=entry?.box||null;
         if(entry)badges.push(entry);
         if(S.showShotBudget&&S.showPaths){

@@ -37,6 +37,8 @@ const {chromium}=require('playwright');
   await page.locator('#table3DToggle').click();
   await page.waitForFunction(()=>Billiards3D.active,{timeout:20000});
   await page.waitForFunction(()=>BilliardsPocketEntryOverlay.placement().threeD!==null,{timeout:20000});
+  assert.equal(await page.evaluate(()=>BilliardsPocketEntryOverlay.placement().twoD),null,
+   'The hidden 2D canvas must not paint a second pocket label in 3D');
   const threeD=await page.evaluate(()=>{
    const box=BilliardsPocketEntryOverlay.placement().threeD,source=document.getElementById('table3DCanvas'),rect=source.getBoundingClientRect();
    const ball=billiardsTourBridge.capture().state.balls.find(b=>b.id===2),q=Billiards3D.project(ball,.028575);
