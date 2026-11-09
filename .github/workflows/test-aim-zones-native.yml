@@ -1,0 +1,105 @@
+name: Test Aim-to-Position Zones native v2
+
+on:
+  push:
+    branches: [test/aim-zones-v2-native]
+
+permissions:
+  contents: read
+
+jobs:
+  windows-webview2:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Preserve bundled file bytes on Windows
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Apply verified v2 patch
+        run: git apply tests/ci/aim-zones-v2.patch
+      - name: Check inventory and build test EXE
+        run: |
+          python scripts/build-offline-assets.py --check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet publish windows-wrapper/BilliardsTrainer.Windows.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o windows-wrapper/publish
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/package-windows-app.py
+      - name: Smoke test Windows WebView2 offline
+        run: |
+          Invoke-WebRequest -Uri 'https://go.microsoft.com/fwlink/p/?LinkId=2124703' -OutFile 'windows-wrapper/WebView2Setup.exe'
+          Start-Process -FilePath 'windows-wrapper/WebView2Setup.exe' -ArgumentList '/silent /install' -Wait
+          $smoke = Start-Process -FilePath 'windows-wrapper/publish/BilliardsTrainer.Windows.exe' -ArgumentList '--aim-zones-smoke' -Wait -PassThru -RedirectStandardOutput 'windows-wrapper/aim-zones-smoke.log' -RedirectStandardError 'windows-wrapper/aim-zones-smoke-errors.log'
+          Get-Content 'windows-wrapper/aim-zones-smoke.log'
+          Get-Content 'windows-wrapper/aim-zones-smoke-errors.log'
+          exit $smoke.ExitCode
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aim-zones-windows-test-results
+          path: windows-wrapper/aim-zones-smoke*.log
+
+  android-webview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.10.2
+      - name: Apply verified v2 patch and check inventory
+        run: |
+          git apply tests/ci/aim-zones-v2.patch
+          python3 scripts/build-offline-assets.py --check
+      - name: Build test APK and instrumentation
+        working-directory: android-wrapper
+        run: |
+          keystore="$RUNNER_TEMP/aim-zones-test.jks"
+          keytool -genkeypair -keystore "$keystore" -storepass android-test-only -keypass android-test-only -alias instrumentation -dname 'CN=Disposable Android Test' -keyalg RSA -keysize 2048 -validity 2
+          export ANDROID_KEYSTORE_PATH="$keystore" ANDROID_KEYSTORE_PASSWORD=android-test-only ANDROID_KEY_ALIAS=instrumentation ANDROID_KEY_PASSWORD=android-test-only
+          {
+            printf 'ANDROID_KEYSTORE_PATH=%s\n' "$ANDROID_KEYSTORE_PATH"
+            printf 'ANDROID_KEYSTORE_PASSWORD=%s\n' "$ANDROID_KEYSTORE_PASSWORD"
+            printf 'ANDROID_KEY_ALIAS=%s\n' "$ANDROID_KEY_ALIAS"
+            printf 'ANDROID_KEY_PASSWORD=%s\n' "$ANDROID_KEY_PASSWORD"
+          } >> "$GITHUB_ENV"
+          gradle :app:assembleTrainerRelease :app:assembleTrainerReleaseAndroidTest
+      - name: Verify APK content and enable the emulator
+        run: |
+          python3 scripts/verify-android-app.py android-wrapper/app/build/outputs/apk/trainer/release/app-trainer-release.apk
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Smoke test Android WebView offline
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          working-directory: android-wrapper
+          script: |
+            adb root
+            adb wait-for-device
+            for firewall in iptables ip6tables; do adb shell "$firewall -w 5 -I OUTPUT -p tcp --dport 80 -j REJECT"; adb shell "$firewall -w 5 -I OUTPUT -p tcp --dport 443 -j REJECT"; adb shell "$firewall -w 5 -I OUTPUT -p udp --dport 443 -j REJECT"; done
+            adb shell cmd connectivity airplane-mode enable
+            adb shell svc wifi disable
+            adb shell svc data disable
+            gradle :app:connectedTrainerReleaseAndroidTest '-Pandroid.testInstrumentationRunnerArguments.class=com.lovemyfreetime.billiardstrainer.BundledAppTest#aimZonesNativeSmoke'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aim-zones-android-test-results
+          path: |
+            android-wrapper/app/build/reports/androidTests/
+            android-wrapper/app/build/outputs/androidTest-results/

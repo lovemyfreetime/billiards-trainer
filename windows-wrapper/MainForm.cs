@@ -16,15 +16,17 @@ public sealed class MainForm : Form
     private bool isFullscreen;
     private readonly bool startLocal;
     private readonly bool offlineSmoke;
+    private readonly bool aimZonesSmoke;
     private int externalSmokeRequests;
     private Process? localHost;
     private Uri? localHostUri;
     private bool startingLocal;
 
-    public MainForm(bool hostLocal = false, bool smoke = false)
+    public MainForm(bool hostLocal = false, bool smoke = false, bool aimZones = false)
     {
         startLocal = hostLocal;
-        offlineSmoke = smoke;
+        offlineSmoke = smoke || aimZones;
+        aimZonesSmoke = aimZones;
         Text = "Billiards Trainer AI Edition 4.12";
         BackColor = Color.FromArgb(9, 11, 14);
         StartPosition = FormStartPosition.CenterScreen;
@@ -52,7 +54,9 @@ public sealed class MainForm : Form
 
             if (offlineSmoke) userDataFolder = Path.Combine(Path.GetTempPath(), "Billiards-offline-smoke-" + Guid.NewGuid());
             Directory.CreateDirectory(userDataFolder);
-            var env = await CoreWebView2Environment.CreateAsync(null, userDataFolder, offlineSmoke ? new CoreWebView2EnvironmentOptions("--autoplay-policy=no-user-gesture-required --disable-background-networking") : null);
+            var smokeArguments = "--autoplay-policy=no-user-gesture-required --disable-background-networking";
+            if (aimZonesSmoke) smokeArguments += " --use-angle=swiftshader --enable-unsafe-swiftshader";
+            var env = await CoreWebView2Environment.CreateAsync(null, userDataFolder, offlineSmoke ? new CoreWebView2EnvironmentOptions(smokeArguments) : null);
             await webView.EnsureCoreWebView2Async(env);
 
             var core = webView.CoreWebView2;
@@ -64,8 +68,11 @@ public sealed class MainForm : Form
             await core.Profile.ClearBrowsingDataAsync(CoreWebView2BrowsingDataKinds.ServiceWorkers |
                 CoreWebView2BrowsingDataKinds.CacheStorage | CoreWebView2BrowsingDataKinds.DiskCache);
             ContentUpdates? updates = null;
-            try { updates = new ContentUpdates(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Billiards Trainer AI", "ContentUpdates"), bundlePath); }
-            catch { /* A read-only/full update cache never prevents packaged startup. */ }
+            if (!aimZonesSmoke)
+            {
+                try { updates = new ContentUpdates(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Billiards Trainer AI", "ContentUpdates"), bundlePath); }
+                catch { /* A read-only/full update cache never prevents packaged startup. */ }
+            }
             var bundle = new BundledAssets(bundlePath, updates);
             void NotifyUpdate(ContentUpdates.UpdateState state)
             {
@@ -173,7 +180,7 @@ public sealed class MainForm : Form
 
             if (offlineSmoke)
             {
-                try { await OfflineSmoke.Run(core); if (externalSmokeRequests != 0) throw new Exception($"App attempted {externalSmokeRequests} internet requests"); Console.WriteLine("OFFLINE WebView2 smoke passed: zero public network requests"); Environment.ExitCode = 0; }
+                try { await OfflineSmoke.Run(core, aimZonesSmoke); if (externalSmokeRequests != 0) throw new Exception($"App attempted {externalSmokeRequests} internet requests"); Console.WriteLine("OFFLINE WebView2 smoke passed: zero public network requests"); Environment.ExitCode = 0; }
                 catch (Exception ex) { Console.Error.WriteLine(ex); Environment.ExitCode = 1; }
                 Close(); return;
             }

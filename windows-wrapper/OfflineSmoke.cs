@@ -5,7 +5,7 @@ namespace BilliardsTrainer.Windows;
 
 internal static class OfflineSmoke
 {
-    internal static async Task Run(CoreWebView2 core)
+    internal static async Task Run(CoreWebView2 core, bool aimZonesOnly = false)
     {
         async Task Wait(string expression, int seconds = 12)
         {
@@ -16,6 +16,20 @@ internal static class OfflineSmoke
                 await Task.Delay(50);
             }
             throw new InvalidOperationException("Offline smoke timeout: " + expression);
+        }
+        if (aimZonesOnly)
+        {
+            core.Navigate("https://lovemyfreetime.github.io/billiards-trainer/?train=1&aimZonesSmoke=1");
+            await Wait("location.search.includes('aimZonesSmoke=1') && window.BilliardsBundledWindows && window.billiardsTourBridge && window.BilliardsAimZones?.view && document.getElementById('table3DToggle')", 30);
+            using var stream = typeof(OfflineSmoke).Assembly.GetManifestResourceStream("AimZonesSmoke.js")!;
+            using var reader = new StreamReader(stream);
+            await core.ExecuteScriptAsync(await reader.ReadToEndAsync());
+            await Wait("['passed','failed'].includes(window.__aimZonesNativeSmoke?.status)", 120);
+            var result = await core.ExecuteScriptAsync("window.__aimZonesNativeSmoke");
+            Console.WriteLine("Windows Aim-to-Position smoke: " + result);
+            if (await core.ExecuteScriptAsync("window.__aimZonesNativeSmoke.status") != "\"passed\"")
+                throw new InvalidOperationException(result);
+            return;
         }
         foreach (var page in new[] { ("welcome.html", "main nav"), ("?train=1", "#canvas"), ("?zen=1", "#zenBar"), ("play.html", "#playDialog") })
         {

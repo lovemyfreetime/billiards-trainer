@@ -38,6 +38,25 @@ public class BundledAppTest {
         waitFor("location.href==="+org.json.JSONObject.quote(url)+"&&document.readyState==='complete'&&window.BilliardsBundledAndroid&&document.querySelector("+org.json.JSONObject.quote(selector)+")",25);
         System.out.println("ANDROID LOCAL "+path+": "+(SystemClock.elapsedRealtime()-start)+" ms");
     }
+    @Test public void aimZonesNativeSmoke() throws Exception {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            scenario.onActivity(a -> activity = a);
+            waitFor("document.readyState==='complete'&&window.BilliardsBundledAndroid", 40);
+            navigate(scenario, "?train=1", "#canvas");
+            waitFor("window.billiardsTourBridge&&window.BilliardsAimZones?.view&&document.getElementById('table3DToggle')", 30);
+            try (java.io.InputStream stream = InstrumentationRegistry.getInstrumentation()
+                    .getContext().getAssets().open("aim-zones-smoke.js")) {
+                js(new String(stream.readAllBytes(), StandardCharsets.UTF_8));
+            }
+            waitFor("['passed','failed'].includes(window.__aimZonesNativeSmoke?.status)", 120);
+            String result = js("JSON.stringify(window.__aimZonesNativeSmoke)");
+            assertEquals(result, "\"passed\"", js("window.__aimZonesNativeSmoke.status"));
+            assertEquals("No public network requests needed", 0, activity.externalRequests.get());
+            assertEquals("All requested app assets were installed", 0, activity.bundledApp.missingRequests.get());
+            System.out.println("Android Aim-to-Position smoke: " + result);
+        }
+    }
+
     @Test public void completeAppWithoutInternetAndLegacyCacheMigration()throws Exception {
         // A local network may remain connected; public web access must fail.
         HttpURLConnection probe=(HttpURLConnection)new URL("https://example.com/").openConnection();
