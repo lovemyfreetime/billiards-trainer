@@ -1,0 +1,63 @@
+name: Verify Revised Pocket Entry Cloth Label
+
+on:
+  push:
+    branches:
+      - test/pocket-entry-revision-20261109
+    paths:
+      - tests/pocket-entry-revision.patch
+      - .github/workflows/test-pocket-entry-revision.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  pocket-entry-revision:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply scoped revision
+        run: git apply --index tests/pocket-entry-revision.patch
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify geometry and placement
+        run: |
+          node --check trainer-pocket-entry.js
+          node --check trainer-shot-budget.js
+          node --check tests/pocket-entry-revision.browser.cjs
+          node tests/pocket-entry.test.cjs
+          node tests/shot-geometry.test.cjs
+          git diff --cached --check
+      - name: Install Chromium
+        run: |
+          npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
+          node local-host/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Verify 2D and 3D cloth labels and recording
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('./local-host/node_modules/playwright').chromium.executablePath()")
+          node tests/pocket-entry-revision.browser.cjs
+      - name: Rebuild and verify native and offline inventories
+        run: |
+          python3 scripts/build-offline-assets.py
+          python3 scripts/build-offline-assets.py --check
+      - name: Preserve verified revision on test branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html trainer-pocket-entry.js trainer-shot-budget.js tests/pocket-entry.test.cjs tests/pocket-entry-revision.browser.cjs offline-assets.json service-worker.js native-updates.json
+          git commit -m "Verify revised Pocket Entry cloth labels and update inventories"
+          git push origin HEAD:test/pocket-entry-revision-20261109
+      - name: Keep visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pocket-entry-revision-visuals
+          path: |
+            /tmp/pocket-entry-revised-2d.png
+            /tmp/pocket-entry-revised-3d.png
+          if-no-files-found: warn
