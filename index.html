@@ -7112,6 +7112,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         ctx.restore();
     }
     let shotBudgetOverlaps = [];
+    const pocketEntryPlacements = { twoD: null, threeD: null };
     function drawContactOverlay(preview, map, opts = {}) {
         if (!S.showImpact || !preview || !preview.firstBallContact)
             return;
@@ -7253,6 +7254,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const badge=api.placeBadge(rows,anchor,placement)||api.placeBadge(rows,anchor,{...placement,segments:[]});
             if(badge)badges.push({...badge,type:'overlap',opacity:.64});
         }
+        const entry=window.Billiards3D?.active?null:placePocketEntryText(ctx,map,pocketEntryReading(),placement);
+        pocketEntryPlacements.twoD=entry?.box||null;
+        if(entry)badges.push(entry);
         if(S.showShotBudget&&S.showPaths){
             for(const {which,preview} of previews){
                 const contacts=api.contactLabels(preview,map,{...options,shot:S.shot2Enabled?which:null});
@@ -7284,51 +7288,35 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             ? S.shot2?.preview?.firstBallContact : S.preview?.firstBallContact;
         return window.BilliardsPocketEntryGeometry?.analyze(pocketModel(), contact) || null;
     }
-    function paintPocketEntryOverlay(paint, map, reading) {
-        if (!reading) return;
-        const center = map(reading.center), first = map(reading.a), last = map(reading.b);
-        if (![center, first, last].every(p=>p&&Number.isFinite(p.x)&&Number.isFinite(p.y)&&p.visible!==false)) return;
-        paint.save();
-        paint.lineCap = 'round';
-        paint.lineWidth = 3;
-        paint.strokeStyle = 'rgba(4,19,22,.9)';
-        paint.beginPath();paint.moveTo(first.x,first.y);paint.lineTo(last.x,last.y);paint.stroke();
-        paint.lineWidth = 1.6;
-        paint.strokeStyle = '#75f5dd';
-        paint.beginPath();paint.moveTo(first.x,first.y);paint.lineTo(last.x,last.y);paint.stroke();
-        const axis = {x:last.x-first.x,y:last.y-first.y},axisLen=Math.hypot(axis.x,axis.y)||1;
-        const normal = {x:-axis.y/axisLen,y:axis.x/axisLen};
-        for (const tick of reading.ticks) {
-            const q = map(tick.point);if(!q||q.visible===false)continue;
-            const size = tick.step===0?7:4;
-            paint.beginPath();paint.moveTo(q.x-normal.x*size,q.y-normal.y*size);paint.lineTo(q.x+normal.x*size,q.y+normal.y*size);
-            paint.strokeStyle = tick.step===0?'#ffffff':'#5be9d1';paint.lineWidth=tick.step===0?2.4:1.4;paint.stroke();
-        }
-        const marker = map(reading.ticks[Math.max(0,Math.min(6,Math.round(Math.max(-3,Math.min(3,reading.position)))+3))].point);
-        if(marker&&marker.visible!==false){
-            paint.beginPath();paint.arc(marker.x,marker.y,5,0,Math.PI*2);
-            paint.fillStyle=reading.out?'#ff6969':'#ffe07d';paint.fill();paint.strokeStyle='#071118';paint.lineWidth=1.5;paint.stroke();
-        }
+    function placePocketEntryText(paint, map, reading, options) {
+        if (!reading) return null;
         const inward = {x:-reading.outside.x,y:-reading.outside.y};
-        const dist=Math.hypot(inward.x,inward.y);
-        const labelAnchor = map({x:reading.center.x+inward.x/dist*.095,y:reading.center.y+inward.y/dist*.095});
-        if(labelAnchor&&labelAnchor.visible!==false){
-            paint.font='700 12px Segoe UI,Arial,sans-serif';
-            const label=reading.label,w=Math.max(58,paint.measureText(label).width+20),h=24;
-            const x=labelAnchor.x-w/2,y=labelAnchor.y-h/2;
-            paint.fillStyle='rgba(8,19,25,.88)';paint.strokeStyle=reading.out?'#ff6969':'#75f5dd';paint.lineWidth=1;
-            paint.beginPath();paint.roundRect(x,y,w,h,6);paint.fill();paint.stroke();
-            paint.fillStyle=reading.out?'#ffbbbb':'#f3fff9';paint.font='700 12px Segoe UI,Arial,sans-serif';
-            paint.textAlign='center';paint.textBaseline='middle';paint.fillText(label,labelAnchor.x,labelAnchor.y+.5);
+        const length = Math.hypot(inward.x,inward.y) || 1;
+        const anchor=map({x:reading.center.x+inward.x/length*.15,y:reading.center.y+inward.y/length*.15});
+        if (!anchor||anchor.visible===false||!Number.isFinite(anchor.x)||!Number.isFinite(anchor.y)) return null;
+        const size=options.fontSize||11;
+        const measureText=(text,fontSize)=>{paint.save();paint.font='600 '+fontSize+'px Segoe UI, sans-serif';const width=paint.measureText(text).width;paint.restore();return width;};
+        const rows=[{text:'Pocket entry '+reading.label,color:'#fff'}];
+        const placement={...options,fontSize:size,pad:0,rowGap:2,measureText,
+            distances:[4,8,12,20,28,40,60,90,124,164,216,280,360]};
+        const badge=window.BilliardsShotBudget.placeBadge(rows,anchor,placement)
+            ||window.BilliardsShotBudget.placeBadge(rows,anchor,{...placement,segments:[]});
+        return badge?{...badge,type:'overlap',opacity:.76}:null;
+    }
+    function insideClothPolygon(point, corners) {
+        let inside=false;
+        for(let i=0,j=corners.length-1;i<corners.length;j=i++){
+            const a=corners[i],b=corners[j];
+            if((a.y>point.y)!==(b.y>point.y)&&point.x<(b.x-a.x)*(point.y-a.y)/(b.y-a.y)+a.x)inside=!inside;
         }
-        paint.restore();
+        return inside;
     }
     function drawPocketEntry3D() {
         const three=window.Billiards3D,source=$('table3DCanvas'),reading=pocketEntryReading();
+        pocketEntryPlacements.threeD=null;
         if(!three?.active||!source||!reading){pocket3DCanvas.style.display='none';return;}
         const rect=source.getBoundingClientRect(),parent=stage.getBoundingClientRect();
         if(rect.width<2||rect.height<2){pocket3DCanvas.style.display='none';return;}
-        pocket3DCanvas.style.display='block';
         pocket3DCanvas.style.left=(rect.left-parent.left)+'px';pocket3DCanvas.style.top=(rect.top-parent.top)+'px';
         pocket3DCanvas.style.width=rect.width+'px';pocket3DCanvas.style.height=rect.height+'px';
         const density=Math.min(devicePixelRatio||1,2),width=Math.round(rect.width*density),height=Math.round(rect.height*density);
@@ -7336,10 +7324,38 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if(pocket3DCanvas.height!==height)pocket3DCanvas.height=height;
         const paint=pocket3DCanvas.getContext('2d');paint.setTransform(density,0,0,density,0,0);paint.clearRect(0,0,rect.width,rect.height);
         const map=p=>{const q=three.project(p,.016);return q?{x:q.x-rect.left,y:q.y-rect.top,visible:q.visible}:null;};
-        paintPocketEntryOverlay(paint,map,reading);
+        const corners=[{x:0,y:0},{x:S.tableL,y:0},{x:S.tableL,y:S.tableW},{x:0,y:S.tableW}].map(map);
+        if(corners.some(p=>!p||!Number.isFinite(p.x)||!Number.isFinite(p.y))){pocket3DCanvas.style.display='none';return;}
+        const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);
+        const bounds={left:Math.max(4,Math.min(...xs)+8),top:Math.max(4,Math.min(...ys)+8),
+            right:Math.min(rect.width-4,Math.max(...xs)-8),bottom:Math.min(rect.height-4,Math.max(...ys)-8)};
+        const occupied=[];
+        const reserve=ball=>{
+            if(!ball?.active||ball.marker)return;
+            const q=three.project(ball,S.ballR);if(!q)return;
+            const p={x:q.x-rect.left,y:q.y-rect.top};
+            const px=map({x:ball.x+S.ballR,y:ball.y}),py=map({x:ball.x,y:ball.y+S.ballR});
+            const radius=Math.max(12,px?Math.hypot(px.x-p.x,px.y-p.y):0,py?Math.hypot(py.x-p.x,py.y-p.y):0)+9;
+            occupied.push({left:p.x-radius,right:p.x+radius,top:p.y-radius,bottom:p.y+radius});
+        };
+        S.balls.forEach(reserve);
+        if(S.shot2Enabled&&!S.shot2CueBallOnly)reserve({...ensureShot2(),active:true});
+        for(const el of stage.querySelectorAll('button,input,#phoneTip1,#phoneTip2,#aimControls,#aimControls2,.tableSpeedControl,.miniSpinControl')){
+            if(!el.getClientRects().length)continue;
+            const q=el.getBoundingClientRect();if(q.right<rect.left||q.left>rect.right||q.bottom<rect.top||q.top>rect.bottom)continue;
+            occupied.push({left:q.left-rect.left,right:q.right-rect.left,top:q.top-rect.top,bottom:q.bottom-rect.top});
+        }
+        const acceptBox=box=>[{x:box.left-2,y:box.top-2},{x:box.right+2,y:box.top-2},
+            {x:box.right+2,y:box.bottom+2},{x:box.left-2,y:box.bottom+2}].every(p=>insideClothPolygon(p,corners));
+        const badge=placePocketEntryText(paint,map,reading,{width:rect.width,height:rect.height,
+            occupied,bounds,acceptBox,fontSize:11,segments:[]});
+        pocketEntryPlacements.threeD=badge?.box||null;
+        pocket3DCanvas.style.display=badge?'block':'none';
+        if(badge)window.BilliardsShotBudget.drawContacts(paint,[badge]);
     }
     window.addEventListener('billiards:3d-render',drawPocketEntry3D);
-    window.BilliardsPocketEntryOverlay = { reading:pocketEntryReading, redraw3D:drawPocketEntry3D };
+    window.BilliardsPocketEntryOverlay = { reading:pocketEntryReading, redraw3D:drawPocketEntry3D,
+        placement:()=>({...pocketEntryPlacements}) };
     function drawShot2CueBall(map) {
         if(window.Billiards3D?.active)return;
         if (!S.shot2Enabled || !cueVisualsVisible(2)) return;
@@ -7950,7 +7966,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if (!document.body.classList.contains('zen-mode')) drawRollingReferences(map);
             if (!document.body.classList.contains('zen-mode')) drawCalibration(M);
             if (!document.body.classList.contains('zen-mode')) drawShotBudget(map, recordingGuides);
-            if (!document.body.classList.contains('zen-mode') && !window.Billiards3D?.active) paintPocketEntryOverlay(ctx,map,pocketEntryReading());
         }
         window.BilliardsTableZoom?.end(ctx);
         window.dispatchEvent(new Event("billiards:2d-render"));

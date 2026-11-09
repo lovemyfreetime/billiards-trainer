@@ -61,7 +61,7 @@ function placeBadge(rows,anchor,options={}){
  const occupied=options.occupied||[],fontSize=options.fontSize||(options.width<600?9:10),row=fontSize+(options.rowGap??2),pad=options.pad??2;
  const w=Math.max(...rows.map(r=>options.measureText?options.measureText(r.text,fontSize):r.text.length*fontSize*.62))+pad*2,h=rows.length*row+pad*2;
  const bounds=options.bounds||{left:3,top:3,right:(options.width||Infinity)-3,bottom:(options.height||Infinity)-3};
- const clear=box=>box.left>=bounds.left&&box.right<=bounds.right&&box.top>=bounds.top&&box.bottom<=bounds.bottom&&!occupied.some(b=>box.left<b.right+6&&box.right>b.left-6&&box.top<b.bottom+6&&box.bottom>b.top-6)&&!(options.segments||[]).some(([a,b])=>segmentIntersects({left:box.left-4,right:box.right+4,top:box.top-4,bottom:box.bottom+4},a,b));
+ const clear=box=>box.left>=bounds.left&&box.right<=bounds.right&&box.top>=bounds.top&&box.bottom<=bounds.bottom&&(!options.acceptBox||options.acceptBox(box))&&!occupied.some(b=>box.left<b.right+6&&box.right>b.left-6&&box.top<b.bottom+6&&box.bottom>b.top-6)&&!(options.segments||[]).some(([a,b])=>segmentIntersects({left:box.left-4,right:box.right+4,top:box.top-4,bottom:box.bottom+4},a,b));
  // Search nearest clear space first, including diagonal positions around a hit.
  for(const distance of options.distances||[12,20,28,44,64,90,124,164,216,280,360,460,600]){
   for(let i=0;i<16;i++){

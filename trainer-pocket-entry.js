@@ -50,20 +50,16 @@
     const right = { x: -direction.y, y: direction.x };
     const positive = dot(tangent, right) >= 0 ? tangent : { x: -tangent.x, y: -tangent.y };
     const mouthWidth = length(from(best.a, best.b));
-    const halfClearance = Math.max(0, (mouthWidth - 2 * g.R) / 2);
-    if (halfClearance < 1e-6) return null;
+    const halfMouth = mouthWidth / 2;
+    if (halfMouth < 1e-6) return null;
     const offset = dot(from(best.center, best.hit), positive);
-    const position = offset / halfClearance * 3;
-    const out = Math.abs(offset) > halfClearance + 1e-8;
-    const value = Math.round(Math.max(-3, Math.min(3, position))) || 0;
+    // This is a mouth-position index, not a prediction of whether a ball
+    // pockets. Tapered jaws can accept shots after a facing rebound.
+    const position = offset / halfMouth * 3;
+    const value = Math.round(position) || 0;
     const label = value < 0 ? `L ${value}` : value > 0 ? `R +${value}` : '0 · CENTER';
     return {
-      ...best, mouthWidth, halfClearance, offset, position, value, out,
-      label: out ? `${offset < 0 ? 'L' : 'R'} OUT` : label,
-      ticks: Array.from({ length: 7 }, (_, i) => {
-        const step = i - 3;
-        return { step, point: addScaled(best.center, positive, step / 3 * halfClearance) };
-      })
+      ...best, mouthWidth, halfMouth, offset, position, value, label
     };
   }
 
