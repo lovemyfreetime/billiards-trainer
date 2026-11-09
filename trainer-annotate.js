@@ -313,6 +313,7 @@
  }
  function drawCapture(c,{source,polygon,rect,visible,left,top,w,h}){
   paint(undefined,false);
+  if(is3d())window.BilliardsPocketEntryOverlay?.redraw3D();
   c.save();
   c.beginPath();
   if(polygon){
@@ -321,6 +322,11 @@
   }else c.rect(0,0,w,h);
   c.clip();
   c.drawImage(source,visible.left-rect.left-left,visible.top-rect.top-top,visible.width,visible.height);
+  // The teaching readout lives above WebGL; composite it into snapshots and recordings.
+  if(is3d()){
+   const pocket=document.getElementById('pocketEntry3DOverlay');
+   if(pocket&&getComputedStyle(pocket).display!=='none')c.drawImage(pocket,visible.left-rect.left-left,visible.top-rect.top-top,visible.width,visible.height);
+  }
   c.drawImage(layer,-left,-top,rect.width,rect.height);
   c.restore();
  }

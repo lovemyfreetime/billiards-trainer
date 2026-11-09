@@ -1,0 +1,38 @@
+name: Verify Pocket Entry Alignment
+
+on:
+  push:
+    branches:
+      - test/pocket-entry-20261109
+    paths:
+      - 'index.html'
+      - 'trainer-pocket-entry.js'
+      - 'trainer-annotate.js'
+      - 'tests/pocket-entry.*.cjs'
+      - '.github/workflows/test-pocket-entry.yml'
+  workflow_dispatch:
+
+jobs:
+  pocket-entry-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Test geometry and JavaScript syntax
+        run: |
+          node --check trainer-pocket-entry.js
+          node tests/pocket-entry.test.cjs
+          node tests/shot-geometry.test.cjs
+      - name: Install browser
+        run: |
+          npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
+          node local-host/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Verify toggle, 2D and 3D overlay, recording composition
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('./local-host/node_modules/playwright').chromium.executablePath()")
+          node tests/pocket-entry.browser.cjs
