@@ -36,3 +36,13 @@ jobs:
         run: |
           export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('./local-host/node_modules/playwright').chromium.executablePath()")
           node tests/pocket-entry.browser.cjs
+
+      - name: Save visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pocket-entry-visuals
+          path: |
+            /tmp/pocket-entry-2d.png
+            /tmp/pocket-entry-3d.png
+          if-no-files-found: warn

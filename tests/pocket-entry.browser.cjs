@@ -15,6 +15,8 @@ const {chromium}=require('playwright');
   assert.equal(await page.locator('#shot2CueBallOnly + label').textContent(),'Shot 2 cue ball only');
   assert(await page.locator('#showPocketEntry').count());
   assert.equal(await page.locator('#showPocketEntry').isChecked(),false);
+  await page.locator('.section').filter({hasText:'FEATURES & OPTIONS'}).locator('.sectionToggle').click();
+  await page.locator('#showPocketEntry').check();
   await page.evaluate(()=>{
    const snap=billiardsTourBridge.capture(),L=snap.state.tableL,W=snap.state.tableW;
    snap.state.balls=[{id:0,n:'CB',x:L/2,y:W*.82,active:true},{id:1,n:'1',x:L/2,y:W*.43,active:true}];
@@ -29,6 +31,7 @@ const {chromium}=require('playwright');
   await page.locator('#table3DToggle').click();
   await page.waitForFunction(()=>Billiards3D.active&&document.querySelector('#pocketEntry3DOverlay').style.display==='block',{timeout:20000});
   assert.equal(await page.evaluate(()=>document.querySelector('#pocketEntry3DOverlay').getBoundingClientRect().width>200),true);
+  await page.screenshot({path:'/tmp/pocket-entry-3d.png'});
   const recording=await page.evaluate(()=>{
    const v=BilliardsClipView.create('current',640,360);v.paint();
    const image=v.canvas.getContext('2d').getImageData(0,0,640,360).data;
@@ -36,7 +39,7 @@ const {chromium}=require('playwright');
   });
   assert.equal(recording.pixels,640*360*4);
   assert.equal(recording.reading,'0 · CENTER');
-  const check=page.locator('#showPocketEntry');await check.check();await check.uncheck();
+  await page.evaluate(()=>{const input=document.querySelector('#showPocketEntry');input.checked=false;input.dispatchEvent(new Event('change',{bubbles:true}));});
   await page.waitForFunction(()=>document.querySelector('#pocketEntry3DOverlay').style.display==='none');
   assert.deepEqual(errors,[]);
   console.log('Pocket overlay checkbox, live center reading, 2D/3D display and 3D recording composition passed.');
