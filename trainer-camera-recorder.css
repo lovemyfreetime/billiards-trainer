@@ -1,0 +1,22 @@
+/* Quick camera capture stays outside #app, so Element Capture can omit it. */
+#trainerCameraBar{position:fixed;z-index:58;top:54px;right:342px;display:flex;align-items:center;gap:4px;max-width:calc(100vw - 16px);box-sizing:border-box;padding:5px;border:1px solid #708997;border-radius:11px;background:#14232df0;color:#eff8fb;box-shadow:0 3px 15px #0008;touch-action:manipulation;font:600 11px system-ui}
+#trainerCameraBar[hidden]{display:none!important}
+#trainerCameraBar button{display:inline-grid;place-items:center;min-width:29px;height:30px;min-height:30px;padding:3px 5px;border:1px solid #698492;border-radius:7px;background:#273b49;color:#eef7fb;font:700 11px system-ui;cursor:pointer}
+#trainerCameraBar button:disabled{opacity:.36;cursor:default}
+#trainerCameraBar button[aria-pressed=true]{background:#3a705b;color:white;border-color:#90e3b8}
+#trainerCameraRecord{background:#653039!important;border-color:#ff9297!important;color:white!important}
+#trainerCameraRecord:disabled{opacity:.36}
+#trainerCameraBar[data-recording=true] #trainerCameraRecord{background:#af3035!important}
+#trainerCameraStop{color:#ffe0d2!important}
+#trainerCameraTimer{min-width:38px;white-space:nowrap;text-align:center;font:700 11px system-ui;font-variant-numeric:tabular-nums}
+#trainerCameraBar .cameraDivider{height:23px;border-left:1px solid #5e7887;margin:0 2px}
+#trainerCameraStatus{position:fixed;z-index:58;top:95px;right:342px;max-width:320px;padding:4px 7px;border-radius:6px;background:#152531e8;color:#e7f2f7;font:11px/1.35 system-ui;pointer-events:none}
+#trainerCameraStatus:empty{display:none}
+body.table-3d #trainerCameraBar{top:53px;right:12px}
+body.table-3d #trainerCameraStatus{top:93px;right:12px}
+body.phone-layout #trainerCameraBar,body.phone-focus #trainerCameraBar{top:52px;right:8px}
+body.phone-layout #trainerCameraStatus,body.phone-focus #trainerCameraStatus{top:92px;right:8px}
+body.table-3d.phone-focus #trainerCameraBar{top:55px;right:6px;transform:scale(.9);transform-origin:top right}
+body.table-3d.phone-focus #trainerCameraStatus{top:92px;right:6px}
+body.zen-mode #trainerCameraBar,body.zen-mode #trainerCameraStatus{display:none!important}
+@media(max-width:620px){#trainerCameraBar{width:min(360px,calc(100vw - 16px));flex-wrap:wrap;justify-content:flex-end;gap:2px;padding:3px}#trainerCameraBar button{min-width:26px;height:29px;padding:2px 3px;font-size:10px}#trainerCameraTimer{min-width:32px;font-size:10px}#trainerCameraStatus{top:125px!important}}

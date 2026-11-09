@@ -1773,6 +1773,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             <button id="trainerClipSession" type="button" aria-pressed="false">Start session</button>
             <button id="trainerClipReplay" type="button" disabled>Record session</button>
           </div>
+          <div class="row">
+            <button id="trainerCameraToggle" type="button" aria-pressed="false" aria-controls="trainerCameraBar">Camera recorder</button>
+          </div>
           <label for="trainerSessionView">Session video view</label>
           <select id="trainerSessionView">
             <option value="stroke-current">Saved view + stroke</option>
@@ -13557,6 +13560,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <script src="./trainer-3d.js?v=19"></script>
   <script src="./trainer-annotate.js?v=14"></script>
   <script src="./trainer-shot-recorder.js?v=record-shot-view-2"></script>
+  <link rel="stylesheet" href="./trainer-camera-recorder.css?v=1">
+  <script src="./trainer-camera-recorder.js?v=1"></script>
   <script src="./trainer-video-narration.js?v=1"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>

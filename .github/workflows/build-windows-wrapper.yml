@@ -2,6 +2,18 @@ name: Build Windows wrapper installer
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/build-windows-wrapper.yml'
+      - 'index.html'
+      - 'trainer-camera-recorder.js'
+      - 'trainer-camera-recorder.css'
+      - 'trainer-shot-recorder.js'
+      - 'trainer-annotate.js'
+      - 'tests/trainer-camera-recorder.browser.cjs'
+      - 'tests/trainer-camera-session-state.test.cjs'
 
 concurrency:
   group: windows-wrapper-${{ github.ref }}

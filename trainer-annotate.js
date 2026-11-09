@@ -373,6 +373,25 @@
     c.fillStyle='#101820';c.fillRect(0,0,area.w,area.h);
     drawCapture(c,area);
    }};
+  },
+  // Unlike shot playback, a camera clip intentionally allows the framing to
+  // change from one frame to the next. Build each frame from the live stage.
+  createLive(mode,width,height){
+   const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+   const c=canvas.getContext('2d',{alpha:false});
+   const table=document.createElement('canvas');
+   return {canvas,paint(){
+    if(is3d())window.Billiards3D.renderSnapshot();
+    const area=captureArea(mode==='stroke'?'current':mode);
+    if(!area)throw Error('The table is outside the recording view.');
+    table.width=Math.max(1,Math.ceil(area.w));table.height=Math.max(1,Math.ceil(area.h));
+    drawCapture(table.getContext('2d'),area);
+    const framed=(mode==='stroke'||mode==='stroke-current')
+     ?withStroke(area.w,area.h,window.billiardsTourBridge.strokeSnapshot(),1,table):table;
+    c.setTransform(1,0,0,1,0,0);c.fillStyle='#101820';c.fillRect(0,0,width,height);
+    const fit=Math.min(width/framed.width,height/framed.height);
+    c.drawImage(framed,(width-framed.width*fit)/2,(height-framed.height*fit)/2,framed.width*fit,framed.height*fit);
+   }};
   }
  };
  function withStroke(w,h,shot,scale,table){

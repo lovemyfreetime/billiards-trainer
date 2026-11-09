@@ -7,7 +7,15 @@ on:
       - main
     paths:
       - 'android-wrapper/**'
+      - 'index.html'
+      - '.github/workflows/build-android-wrapper.yml'
       - 'trainer-video-narration.js'
+      - 'trainer-camera-recorder.js'
+      - 'trainer-camera-recorder.css'
+      - 'trainer-shot-recorder.js'
+      - 'trainer-annotate.js'
+      - 'tests/trainer-camera-recorder.browser.cjs'
+      - 'tests/trainer-camera-session-state.test.cjs'
       - 'tests/trainer-video-narration.browser.cjs'
       - 'tests/trainer-narration-microphone.browser.cjs'
       - 'photo-*.js'
@@ -93,6 +101,7 @@ jobs:
           export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")
           node tests/trainer-video-narration.browser.cjs
           node tests/trainer-narration-microphone.browser.cjs
+          node tests/trainer-camera-recorder.browser.cjs
 
       - name: Build signed app and installer APKs
         working-directory: android-wrapper
