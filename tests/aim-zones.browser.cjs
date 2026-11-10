@@ -9,7 +9,8 @@ const fixtures = {
     corner: [{x:1.2,y:.8}, {x:.6,y:.4}, 0, 2.2, -.5],
     nearSide: [{x:1.12,y:.7}, {x:1.12,y:.16}, 0, 2.68, .76, .65],
     draw: [{x:1.1,y:.25}, {x:.48,y:.42}, -.07781200271668354, 3.8, -.55],
-    safety: [{x:.55,y:.4}, {x:1.15,y:.4}, .015, 1.2]
+    safety: [{x:.55,y:.4}, {x:1.15,y:.4}, .015, 1.2],
+    cushionSafety: [{x:.55,y:.55}, {x:1.05,y:.55}, .065, 3.6, -.2]
 };
 fixtures.collision = [...fixtures.draw, 0, [{id:2,n:'2',x:.3236041582080856,y:.7303992344746408,active:true}]];
 
@@ -31,10 +32,14 @@ async function load(page, fixture, safety = false) {
         const v=BilliardsAimZones.view(), r=v.references;
         const summarize=p=>p&&{contact:p.firstBallContact?.objId,signed:p.firstBallContact?.signedOffset,pots:p.pocketEvents,rails:p.railEvents,
             rests:p.restIds,collisions:p.collisionEvents,jaws:p.jawEvents,paths:Object.keys(p.paths)};
+        const length=points=>points.reduce((sum,p,i)=>i?sum+Math.hypot(p.x-points[i-1].x,p.y-points[i-1].y):sum,0);
         return {current:summarize(v.current),left:summarize(r?.left?.shot),right:summarize(r?.right?.shot),
             ids:v.ids,entries:[r?.left?.offset,r?.right?.offset],branches:r?.bands[0]?.length,
             referenceAngles:[r?.left?.angle,r?.right?.angle],
             landingEdges:r?.restEdges?.map(({angle,shot})=>({angle,shot:summarize(shot)})),
+            tailLengths:r?.tails.map(lines=>lines.reduce((sum,line)=>sum+length(line),0)),
+            solidLength:r?.rests[0].reduce((sum,rest)=>sum+(rest.gap?0:length(rest.points)),0),
+            mouth:v.mouth?.name,pocketStops:r?.pocketStops?.stops,cushions:r?.cushionLines,
             diagnostics:BilliardsAimZones.diagnostics()};
     });
     console.log('reference work',data.diagnostics);
@@ -76,6 +81,12 @@ async function screenshot(page, name) {
 
         let shot=await load(page,fixtures.side);
         assertPocketSides(shot,p=>p.x-1.12);
+        assert.equal(shot.mouth,'TM');
+        assert(shot.pocketStops?.length>2,'A targeted pocket receives simulated color stops');
+        assert(shot.solidLength>.15);
+        assert.equal(shot.tailLengths.length,2);
+        assert(shot.tailLengths.every(length=>Math.abs(length-shot.solidLength)<.0001),
+            'Each reachable dotted wing adds one solid landing-range length');
         for(const p of [shot.current,shot.left,shot.right])
             assert(p.pots.some(e=>e.id===1&&e.pocket==='TM'));
         await screenshot(page,'01-side-pocket-2d');
@@ -188,10 +199,10 @@ async function screenshot(page, name) {
             api.paint(ctx,map,{current,references,ids:[0]},{rest:true},[{x:0,y:0},{x:2.24,y:0},{x:2.24,y:1.12},{x:0,y:1.12}]);
             const [a,b]=gap.points.map(map);
             const alpha=ctx.getImageData(Math.floor((a.x+b.x)/2),Math.floor((a.y+b.y)/2),1,1).data[3];
-            return {alpha,safetyBridge:references.bands[0].some(band=>band.bridges.length)};
+            return {alpha,safetyBands:references.bands[0].length};
         });
         assert(bridge.alpha>0&&bridge.alpha<190,'A discontinuous resting range draws a dim bridge');
-        assert(bridge.safetyBridge,'A change in collision route preserves a faint safety ribbon');
+        assert.equal(bridge.safetyBands,0,'A change in collision route cannot generate a safety ribbon');
         await screenshot(page,'06-secondary-collision-2d');
 
         shot=await load(page,fixtures.safety,true);
@@ -238,6 +249,33 @@ async function screenshot(page, name) {
         });
         assert.equal(await page.evaluate(()=>BilliardsAimZones.view()),null);
         assert.equal(await page.locator('#shot2CueBallOnly').isChecked(),true);
+
+        shot=await load(page,fixtures.cushionSafety,true);
+        assert.deepEqual([...new Set(shot.cushions.map(guide=>guide.id))].sort(),[0,1]);
+        for(const {stops} of shot.cushions) {
+            const first=stops[0].point,last=stops.at(-1).point;
+            assert(stops.every(({point})=>point.guideHeight>.035));
+            assert(stops.every(({point})=>first.x===last.x?point.x===first.x:point.y===first.y));
+            assert(first.x<0||first.x>2.24||first.y<0||first.y>1.12,'Guides sit on the bumper');
+        }
+        assert(shot.entries[0]<-.27&&shot.entries[1]>.27,'Safety uses a tripled signed aim window');
+        for(const id of ['#aimZoneRail','#aimZoneRest','#aimZonePath'])await page.locator(id).uncheck();
+        await page.locator('#table3DToggle').click();
+        await page.waitForFunction(()=>{
+            const c=document.getElementById('aimZone3DOverlay');
+            if(!Billiards3D.active||c.style.display!=='block')return false;
+            const rect=c.getBoundingClientRect(), density=c.width/rect.width, ctx=c.getContext('2d');
+            const seen=BilliardsAimZones.view().references.cushionLines.filter(({stops})=>{
+                const {point}=stops[Math.floor(stops.length/2)];
+                const p=Billiards3D.project(point,point.guideHeight);
+                const x=Math.round((p.x-rect.left)*density),y=Math.round((p.y-rect.top)*density);
+                return p.visible&&ctx.getImageData(x-1,y-1,3,3).data.some((v,i)=>i%4===3&&v>90);
+            });
+            return seen.some(line=>line.id===0)&&seen.some(line=>line.id===1);
+        });
+        await screenshot(page,'13-3d-safety-cushion-guides');
+        await page.locator('#table3DToggle').click();
+        await page.waitForFunction(()=>!Billiards3D.active);
 
         for(const [name,angle,position] of [
             ['top rail',-Math.PI/2,p=>p.x],['bottom rail',Math.PI/2,p=>-p.x],

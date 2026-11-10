@@ -30,7 +30,7 @@
 
     function pocketPosition(shot, request) {
         const capture = pot(shot, request.id);
-        if (!capture || !request.mouth) return null;
+        if (!capture || !request.mouth || (request.mouth.name && capture.pocket !== request.mouth.name)) return null;
         const {center, outside} = request.mouth;
         const scale = Math.hypot(outside.x, outside.y);
         const depth = p => outside.x * (p.x - center.x) + outside.y * (p.y - center.y);
@@ -111,7 +111,7 @@
         async function edge(direction) {
             const accepted = [];
             let inside = seed;
-            const span = pocketSearch ? 38 : 14;
+            const span = pocketSearch ? 38 : request.safety ? 28 : 14;
             const angleAt = i => seed.angle + direction * stride * (i + Math.max(0, i - 14));
             for (let i = 1; i <= span; i++) {
                 const outside = await trial(angleAt(i));
@@ -186,12 +186,118 @@
             }
         }
         const comparisons = layers.map(id => makeBands(ordered, id, radius, request.safety, bandRange));
+        const coreLength = comparisons[0].rests.reduce((length, segment) =>
+            length + (segment.gap ? 0 : distance(...segment.points)), 0);
+        const tails = [];
+        if (request.extend && restEdges && coreLength > 0) {
+            const step = Math.max(stride, (hi - lo) / 18);
+            const blueDirection = restEdges[0].angle < restEdges[1].angle ? -1 : 1;
+            for (const [index, edge] of restEdges.entries()) {
+                const direction = index ? -blueDirection : blueDirection;
+                tails.push(await missTail(edge, direction < 0 ? lo : hi, direction, step, coreLength, request, trial));
+            }
+        }
+        const cushionLines = request.safety && request.table
+            ? layers.flatMap((id, index) => cushionRanges(ordered, id, index, request))
+            : [];
         return {
             lo, hi, tested:samples.size, bounded:[left.bounded,right.bounded],
-            left:leftSample, right:rightSample, restEdges,
+            left:leftSample, right:rightSample, restEdges, tails, cushionLines,
+            pocketStops:makePocketStops(ordered, request, leftSample, rightSample),
             bands:comparisons.map(comparison => comparison.bands),
             rests:comparisons.map(comparison => comparison.rests)
         };
+    }
+
+    async function missTail(edge, boundary, direction, step, target, request, trial) {
+        let previous = resting(edge.shot, 0), remaining = target;
+        let route = cueRoute(edge.shot);
+        const lines = [];
+        let line = null;
+        for (let i = 1; i <= 24 && remaining > .0001; i++) {
+            const aim = boundary + direction * step * (i + Math.max(0, i - 12));
+            const sample = await trial(aim);
+            if (!sample || sample.shot.firstBallContact?.objId !== request.id || pot(sample.shot, request.id)) break;
+            const rest = resting(sample.shot, 0);
+            const nextRoute = cueRoute(sample.shot);
+            if (!rest || nextRoute !== route || !previous || distance(previous, rest) > 3 * request.radius) line = null;
+            if (rest && previous && nextRoute === route) {
+                const length = distance(previous, rest);
+                if (length > 1e-7 && length <= 3 * request.radius) {
+                    if (!line) { line = [previous]; lines.push(line); }
+                    const part = Math.min(1, remaining / length);
+                    line.push(part === 1 ? rest : {
+                        x:previous.x + (rest.x - previous.x) * part,
+                        y:previous.y + (rest.y - previous.y) * part,
+                        z:previous.z == null ? rest.z : previous.z + ((rest.z ?? previous.z) - previous.z) * part
+                    });
+                    remaining -= length * part;
+                }
+            }
+            previous = rest;
+            route = nextRoute;
+        }
+        return lines;
+    }
+
+    function cueRoute(shot) {
+        return events(shot).filter(event => event.ids.includes(0)).map(event => event.key).join('|');
+    }
+
+    function cushionRanges(samples, id, index, request) {
+        const {L, W, cornerLeg, sideMouth} = request.table;
+        const groups = new Map();
+        for (const sample of samples) {
+            if (sample.offset == null) continue;
+            const hitTime = sample.shot.firstBallContact?.t ?? 0;
+            const contact = sample.shot.railEvents.find(e => e.id === id && (request.rail || e.t >= hitTime));
+            if (!contact) continue;
+            const horizontal = contact.rail === 'top rail' || contact.rail === 'bottom rail';
+            const along = horizontal ? contact.x : contact.y;
+            const secondHalf = horizontal && along > L / 2;
+            const start = secondHalf ? L / 2 + sideMouth / 2 : cornerLeg;
+            const end = horizontal && !secondHalf ? L / 2 - sideMouth / 2 : (horizontal ? L : W) - cornerLeg;
+            const key = contact.rail + ':' + secondHalf;
+            const group = groups.get(key) || [];
+            groups.set(key, group);
+            const position = Math.max(start, Math.min(end, along));
+            const inset = index ? .023 : .010;
+            const p = horizontal
+                ? {x:position, y:contact.rail === 'top rail' ? -inset : W + inset}
+                : {x:contact.rail === 'left rail' ? -inset : L + inset, y:position};
+            group.push({position, point:{...p, guideHeight:.0355}, offset:sample.offset});
+        }
+        const lines = [];
+        for (const group of groups.values()) {
+            group.sort((a, b) => a.position - b.position);
+            const stops = group.filter((stop, i) => !i || stop.position - group[i - 1].position > .00025);
+            if (stops.length > 1) lines.push({id, stops});
+        }
+        return lines;
+    }
+
+    function makePocketStops(samples, request, left, right) {
+        const {mouth} = request;
+        if (!mouth?.a) return null;
+        const width = distance(mouth.a, mouth.b);
+        const stops = [];
+        for (const sample of samples) {
+            if (!sample.shot) continue;
+            const position = pocketPosition(sample.shot, request);
+            if (position == null || Math.abs(position) >= width / 2) continue;
+            const fraction = sample.restTone ?? offsetTone(sample.offset, left, right);
+            stops.push({at:.5 + position / width, fraction});
+        }
+        stops.sort((a, b) => a.at - b.at);
+        // Jaw routes can fold entry positions back on themselves. Keep the
+        // physical left-to-right legend monotonic where those routes overlap.
+        const ordered = [{at:0, fraction:0}];
+        for (const stop of stops) {
+            if (stop.at - ordered.at(-1).at > .01 && stop.fraction >= ordered.at(-1).fraction && stop.fraction <= 1)
+                ordered.push(stop);
+        }
+        ordered.push({at:1, fraction:1});
+        return {name:mouth.name, stops:ordered.length > 2 ? ordered : null};
     }
 
     function path(shot, id) {
@@ -233,11 +339,13 @@
         let previousRest = null;
         const tracks = samples.map(sample => {
             if (!sample.shot) return null;
-            const timeline = events(sample.shot), points = path(sample.shot, id);
+            const timeline = events(sample.shot), rest = resting(sample.shot, id);
             const signature = timeline.map(event => event.key).join('|');
+            if (safety) return {signature, rest};
+            const points = path(sample.shot, id);
             const end = points.at(-1)?.t || 0;
             const times = [0, ...timeline.filter(e => e.ids.includes(id)).map(e => Math.min(end, e.t)), end];
-            return {signature, times, points, rest:resting(sample.shot, id)};
+            return {signature, times, points, rest};
         });
         for (let i = 0; i < tracks.length; i++) {
             const b = tracks[i], right = samples[i];
@@ -250,17 +358,14 @@
                 }
                 previousRest = {track:b, sample:right, index:i};
             }
-            if (i <= bandStart || i > bandEnd) continue;
+            if (safety || i <= bandStart || i > bandEnd) continue;
             const a = tracks[i - 1], left = samples[i - 1];
             if (!a || !b) continue;
             const sameRoute = a.signature === b.signature;
             if (left.offset == null || right.offset == null ||
-                (!sameRoute && !safety) || !a.points.length || !b.points.length) continue;
-            const quads = [], bridges = [];
-            // For different safety routes, the faint bridge joins sampled paths
-            // by progress without suggesting that an intermediate path was simulated.
-            const aTimes = sameRoute ? a.times : [0, a.times.at(-1)];
-            const bTimes = sameRoute ? b.times : [0, b.times.at(-1)];
+                !sameRoute || !a.points.length || !b.points.length) continue;
+            const quads = [];
+            const aTimes = a.times, bTimes = b.times;
             for (let leg = 1; leg < aTimes.length; leg++) {
                 const a0 = aTimes[leg - 1], b0 = bTimes[leg - 1];
                 const ad = aTimes[leg] - a0, bd = bTimes[leg] - b0;
@@ -271,16 +376,13 @@
                     const nextB = pointAt(b.points, b0 + bd * j / segments);
                     const width = Math.max(distance(lastA, lastB), distance(nextA, nextB));
                     const step = Math.max(distance(lastA, nextA), distance(lastB, nextB));
-                    if (width * step > 1e-7) {
-                        const quad = [lastA, nextA, nextB, lastB];
-                        if (sameRoute && width <= radius * 2.5 && step <= radius * 8) quads.push(quad);
-                        else if (safety && width <= radius * 5 && step <= radius * 8) bridges.push(quad);
-                    }
+                    if (width * step > 1e-7 && width <= radius * 2.5 && step <= radius * 8)
+                        quads.push([lastA, nextA, nextB, lastB]);
                     lastA = nextA;
                     lastB = nextB;
                 }
             }
-            bands.push({offset:(left.offset + right.offset) / 2, quads, bridges});
+            bands.push({offset:(left.offset + right.offset) / 2, quads});
         }
         return {bands, rests};
     }
@@ -292,9 +394,14 @@
         return 'rgb(' + values[i].map((n, j) => Math.round(n + (values[i + 1][j] - n) * t)).join(',') + ')';
     }
 
+    function offsetTone(offset, left, right) {
+        const edge = offset < 0 ? left : right;
+        return .5 + (edge ? .5 * offset / Math.abs(edge.offset) : 0);
+    }
+
     function paint(ctx, project, state, flags, cloth) {
         if (!state?.current) return;
-        const {current, references, ids} = state;
+        const {current, references, ids, mouth} = state;
         const showPaths = flags.path || flags.safety, showRest = flags.rest || flags.safety;
         const visible = p => p && p.visible !== false && Number.isFinite(p.x) && Number.isFinite(p.y);
         const trace = (points, closed = false) => {
@@ -308,18 +415,40 @@
             }
             if (closed) ctx.closePath();
         };
+        const colorAt = offset => tone(offsetTone(offset, references?.left, references?.right));
+        const edgeLine = (points, stops, width, alpha) => {
+            const [a, b] = points.map(project);
+            if (!visible(a) || !visible(b) || (a.x === b.x && a.y === b.y)) return;
+            const gradient = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
+            for (const [position, color] of stops) gradient.addColorStop(position, color);
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = width;
+            ctx.globalAlpha = alpha;
+            trace(points);
+            ctx.stroke();
+        };
         ctx.save();
         ctx.lineCap = ctx.lineJoin = 'round';
+        if (showRest && mouth) {
+            const {a, b, outside} = mouth;
+            const increasing = outside.x * (b.y - a.y) - outside.y * (b.x - a.x) > 0;
+            const stops = references?.pocketStops?.name === mouth.name ? references.pocketStops.stops : null;
+            edgeLine(increasing ? [a, b] : [b, a],
+                stops?.map(stop => [stop.at, tone(stop.fraction)]) || COLORS.map((color, i) => [i / 2, color]), 1.5, .28);
+        }
+        if (flags.safety && references?.cushionLines) {
+            for (const {id, stops} of references.cushionLines) {
+                const a = stops[0], b = stops.at(-1), span = b.position - a.position;
+                edgeLine([a.point, b.point], stops.map(stop => [(stop.position - a.position) / span, colorAt(stop.offset)]),
+                    id === 0 ? 2.6 : 2.1, id === 0 ? .76 : .65);
+            }
+        }
         if (references && (showPaths || showRest)) {
             ctx.save();
             if (cloth.every(p => visible(project(p)))) {
                 trace(cloth, true);
                 ctx.clip();
             }
-            const colorAt = offset => {
-                const edge = offset < 0 ? references.left : references.right;
-                return tone(.5 + (edge ? .5 * offset / Math.abs(edge.offset) : 0));
-            };
             const fillQuads = (quads, alpha) => {
                 ctx.globalAlpha = alpha;
                 for (const quad of quads) {
@@ -328,16 +457,29 @@
                     ctx.fill();
                 }
             };
-            if (showPaths) {
+            if (flags.path && !flags.safety) {
                 references.bands.forEach((bands, index) => {
                     for (const band of bands) {
                         ctx.fillStyle = colorAt(band.offset);
-                        fillQuads(band.bridges, index ? .035 : .05);
-                        fillQuads(band.quads, flags.safety ? (index ? .08 : .12) : (index ? .026 : .052));
+                        fillQuads(band.quads, index ? .026 : .052);
                     }
                 });
             }
             if (showRest) {
+                if (!flags.safety && references.tails?.length) {
+                    ctx.save();
+                    ctx.lineWidth = 2.25;
+                    ctx.globalAlpha = .57;
+                    ctx.setLineDash([.5, 5]);
+                    for (const [index, lines] of references.tails.entries()) {
+                        ctx.strokeStyle = COLORS[index ? 2 : 0];
+                        for (const points of lines) {
+                            trace(points);
+                            ctx.stroke();
+                        }
+                    }
+                    ctx.restore();
+                }
                 references.rests.forEach((rests, index) => {
                     for (const rest of rests) {
                         const [a, b] = rest.points.map(project);
@@ -348,14 +490,15 @@
                         gradient.addColorStop(1, colors[1]);
                         ctx.strokeStyle = gradient;
                         trace(rest.points);
+                        const fade = rest.gap && flags.safety ? .40 : 1;
                         ctx.lineWidth = index ? 9 : 14;
-                        ctx.globalAlpha = rest.gap ? .035 : .11;
+                        ctx.globalAlpha = fade * (rest.gap ? .035 : .11);
                         ctx.stroke();
                         ctx.lineWidth = index ? 5.5 : 8;
-                        ctx.globalAlpha = rest.gap ? .085 : .23;
+                        ctx.globalAlpha = fade * (rest.gap ? .085 : .23);
                         ctx.stroke();
                         ctx.lineWidth = index ? 2.6 : 4.2;
-                        ctx.globalAlpha = rest.gap ? (index ? .26 : .40) : (index ? .64 : .96);
+                        ctx.globalAlpha = fade * (rest.gap ? (index ? .26 : .40) : (index ? .64 : .96));
                         ctx.stroke();
                     }
                 });
@@ -371,7 +514,7 @@
             for (const id of ids) {
                 const primary = id === 0;
                 ctx.globalAlpha = primary ? (i === 1 ? .88 : .58) : (i === 1 ? .55 : .37);
-                if (showPaths) {
+                if (showPaths && (!flags.safety || i === 1)) {
                     if (showRest) ctx.globalAlpha *= .34;
                     ctx.shadowBlur = showRest ? 0 : primary ? 4 : 2;
                     ctx.lineWidth = primary ? (i === 1 ? 2.1 : 1.5) : 1.05;
@@ -405,7 +548,7 @@
         if (showRest) {
             const edges = references?.restEdges;
             const landings = edges ? [edges[0].shot, current, edges[1].shot] : outcomes;
-            for (const i of [0, 2, 1]) {
+            for (const i of flags.safety ? [1] : [0, 2, 1]) {
                 const shot = landings[i];
                 if (!shot) continue;
                 ctx.strokeStyle = ctx.fillStyle = ctx.shadowColor = COLORS[i];
