@@ -7,6 +7,7 @@ const fixtures = {
     side: [{x:1.12,y:.91}, {x:1.12,y:.48}, 0, 2.2],
     jaw: [{x:1.12,y:.91}, {x:1.12,y:.48}, .0135, 2.2],
     corner: [{x:1.2,y:.8}, {x:.6,y:.4}, 0, 2.2, -.5],
+    nearSide: [{x:1.12,y:.7}, {x:1.12,y:.16}, 0, 2.68, .76, .65],
     draw: [{x:1.1,y:.25}, {x:.48,y:.42}, -.07781200271668354, 3.8, -.55],
     safety: [{x:.55,y:.4}, {x:1.15,y:.4}, .015, 1.2]
 };
@@ -32,6 +33,8 @@ async function load(page, fixture, safety = false) {
             rests:p.restIds,collisions:p.collisionEvents,jaws:p.jawEvents,paths:Object.keys(p.paths)};
         return {current:summarize(v.current),left:summarize(r?.left?.shot),right:summarize(r?.right?.shot),
             ids:v.ids,entries:[r?.left?.offset,r?.right?.offset],branches:r?.bands[0]?.length,
+            referenceAngles:[r?.left?.angle,r?.right?.angle],
+            landingEdges:r?.restEdges?.map(({angle,shot})=>({angle,shot:summarize(shot)})),
             diagnostics:BilliardsAimZones.diagnostics()};
     });
     console.log('reference work',data.diagnostics);
@@ -92,6 +95,24 @@ async function screenshot(page, name) {
         assert.equal(await page.evaluate(()=>BilliardsAimZones.view().references),null);
         await page.waitForFunction(()=>BilliardsAimZones.view().references!==null);
         assert.equal(await page.evaluate(()=>BilliardsAimZones.view().references===firstZoneRefs),false);
+
+        const nearSide=await load(page,fixtures.nearSide);
+        const [blueLanding,orangeLanding]=nearSide.landingEdges;
+        assert(blueLanding.angle>nearSide.referenceAngles[0]+.004);
+        assert(orangeLanding.angle<nearSide.referenceAngles[1]-.004);
+        for(const {shot:edge} of nearSide.landingEdges){
+            assert(edge.pots.some(e=>e.id===1&&e.pocket==='TM'));
+            assert(edge.rests.includes(0));
+        }
+        assert.equal(await page.evaluate(()=>{
+            const r=BilliardsAimZones.view().references;
+            const rests=r.rests[0], landing=r.restEdges.map(({shot})=>shot.finalBalls.find(b=>b.id===0));
+            return rests.at(-1).points[1]===landing[0]&&rests[0].points[0]===landing[1];
+        }),true);
+        await screenshot(page,'11-wide-pocket-landing-range');
+        const nearSideSafety=await load(page,fixtures.nearSide,true);
+        assert.equal(Math.sign(nearSideSafety.referenceAngles[1]-nearSideSafety.referenceAngles[0]),
+            Math.sign(orangeLanding.angle-blueLanding.angle),'Defensive safety keeps pocket left and right orientation');
 
         shot=await load(page,fixtures.jaw);
         assert(shot.current.jaws.some(e=>e.id===1));
@@ -175,13 +196,30 @@ async function screenshot(page, name) {
 
         shot=await load(page,fixtures.safety,true);
         assert.deepEqual(shot.ids,[0,1]);
-        assert(shot.left.signed>shot.current.signed&&shot.current.signed>shot.right.signed,
-            'blue aims to the left of green and orange aims to the right of green');
+        assert(shot.left.signed<shot.current.signed&&shot.current.signed<shot.right.signed,
+            'blue sends the object ball left of green and orange sends it right');
         for(const p of [shot.left,shot.right,shot.current]){
             assert.equal(p.contact,1);
             assert.equal(p.pots.length,0);
             assert(p.rests.includes(0)&&p.rests.includes(1));
         }
+        await page.locator('#aimZoneRail').uncheck();
+        await page.locator('#aimZoneRest').uncheck();
+        await page.locator('#aimZonePath').uncheck();
+        await page.locator('#aimZoneSafety').uncheck();
+        assert.equal(await page.evaluate(()=>BilliardsAimZones.view()),null);
+        await page.locator('#aimZoneSafety').check();
+        await page.waitForFunction(()=>BilliardsAimZones.diagnostics()?.pending===false);
+        assert.deepEqual(await page.evaluate(()=>BilliardsAimZones.view().ids),[0,1]);
+        await page.locator('#table3DToggle').click();
+        await page.waitForFunction(()=>{
+            const c=document.getElementById('aimZone3DOverlay');
+            return Billiards3D.active&&c.style.display==='block'&&
+                c.getContext('2d').getImageData(0,0,c.width,c.height).data.some((v,i)=>i%4===3&&v>0);
+        });
+        await screenshot(page,'12-safety-only-3d');
+        await page.locator('#table3DToggle').click();
+        await page.waitForFunction(()=>!Billiards3D.active);
         await screenshot(page,'07-defensive-safety-2d');
         const before=await page.evaluate(()=>billiardsTourBridge.predict());
         await page.locator('#animate').click();

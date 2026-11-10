@@ -2052,7 +2052,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 <script src="./trainer-table-zoom.js?v=2"></script>
 <script src="./trainer-shot-budget.js?v=exit-2"></script>
 <script src="./trainer-pocket-entry.js?v=1"></script>
-<script src="./trainer-aim-zones.js?v=2"></script>
+<script src="./trainer-aim-zones.js?v=3"></script>
 <script>
 // AI Camera Edition wrapper: v4.12 trainer, app-mode launch package. v4 adds scoreboard placement/default-off + local analysis-photo recall.
 // v4.12: virtual diamond extensions beyond physical corners; fixes source references that previously clipped at the first visible table boundary.
@@ -7288,17 +7288,19 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     function drawPreview(map) {
         if (!S.showPaths || !S.preview)
             return;
+        const flags=aimZoneFlags(), zone=aimZoneView?.which===1?aimZoneView:null;
         for (const b of S.balls) {
-            if(aimZoneFlags().path&&aimZoneView?.which===1&&aimZoneView.ids.includes(b.id))continue;
+            if((flags.path||flags.safety)&&zone?.ids.includes(b.id))continue;
             const p = S.preview.paths[b.id];
             if (!p)
                 continue;
             const hit = S.preview && S.preview.firstBallContact ? S.preview.firstBallContact.objId : -1;
             const col = b.id === 0 ? '#ffffff' : (b.id === hit ? '#ffd86b' : '#68b8ff');
+            const dim=b.id===0&&flags.rest&&zone;
             if (b.id === 0 && S.airbornePhysics && S.preview.airborne)
-                drawPhysicsPathWithAir(p, map, col, isProjector ? 2.8 : 2.2, .96);
+                drawPhysicsPathWithAir(p, map, col, isProjector ? 2.8 : 2.2, dim ? .28 : .96);
             else
-                pathPoly(p, map, col, isProjector ? 2.8 : 2.2, .92);
+                pathPoly(p, map, col, isProjector ? 2.8 : 2.2, dim ? .28 : .92);
         }
         if (S.airbornePhysics) drawAirborneTableOverlay(S.preview, map, 1, '#ffffff');
     }
@@ -7306,8 +7308,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         return S.aimZones || (S.showPocketEntry === true ? legacyAimZones : defaultAimZones);
     }
     function aimZoneEnabled() {
-        const {rail,rest,path}=aimZoneFlags();
-        return !!(rail||rest||path);
+        const {rail,rest,path,safety}=aimZoneFlags();
+        return !!(rail||rest||path||safety);
     }
     async function simulateAimZoneTrial(physics, angle, cancelled, job) {
         const cue=physics.balls.find(ball=>ball.id===0);
@@ -7490,7 +7492,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const s = ensureShot2(), cb = { x: s.x, y: s.y };
         if (S.showPaths && s.preview) {
             const hit = s.preview.firstBallContact ? s.preview.firstBallContact.objId : -1;
-            const zoneIds=aimZoneFlags().path&&aimZoneView?.which===2?aimZoneView.ids:[];
+            const flags=aimZoneFlags(), zone=aimZoneView?.which===2?aimZoneView:null;
+            const zoneIds=flags.path||flags.safety?zone?.ids||[]:[];
             for (const b of S.balls.filter(b => b.id !== 0)) {
                 if(zoneIds.includes(b.id))continue;
                 const p = s.preview.paths[b.id];
@@ -7501,10 +7504,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             }
             const cp = s.preview.paths[0];
             if (cp&&!zoneIds.includes(0)) {
+                const dim=flags.rest&&zone;
                 if (S.airbornePhysics && s.preview.airborne)
-                    drawPhysicsPathWithAir(cp, map, '#00e5ff', isProjector ? 3 : 2.4, .98);
+                    drawPhysicsPathWithAir(cp, map, '#00e5ff', isProjector ? 3 : 2.4, dim ? .28 : .98);
                 else
-                    pathPoly(cp, map, '#00e5ff', isProjector ? 3 : 2.4, .95);
+                    pathPoly(cp, map, '#00e5ff', isProjector ? 3 : 2.4, dim ? .28 : .95);
             }
             if (S.airbornePhysics) drawAirborneTableOverlay(s.preview, map, 2, '#00e5ff');
         }

@@ -52,7 +52,7 @@
             const rail = firstTargetRail(shot);
             return rail?.rail === request.rail.rail ? railPosition(rail) - railPosition(request.rail) : null;
         }
-        if (request.safety) return request.contact - signed(shot, request.radius);
+        if (request.safety) return signed(shot, request.radius) - request.contact;
         return pocketPosition(shot, request);
     }
 
@@ -78,6 +78,7 @@
 
     async function search(request, simulate, cancelled = () => false) {
         const { angle, cue, object, radius } = request;
+        const pocketSearch = !request.rail && !request.safety;
         const apparent = Math.asin(Math.min(.95, 2 * radius / distance(cue, request.rail || object)));
         const stride = Math.max(.00018, apparent * (request.rail ? .1 : request.safety ? .035 : .025));
         const samples = new Map();
@@ -93,7 +94,7 @@
             return sample;
         }
         let seed = accepts(first.shot, request) ? first : null;
-        if (!seed && !request.safety && !request.rail) {
+        if (!seed && pocketSearch) {
             const guessed = pocketSeed(request);
             const guesses = [guessed];
             for (const center of [angle, guessed]) {
@@ -110,8 +111,10 @@
         async function edge(direction) {
             const accepted = [];
             let inside = seed;
-            for (let i = 1; i <= 14; i++) {
-                const outside = await trial(seed.angle + direction * stride * i);
+            const span = pocketSearch ? 38 : 14;
+            const angleAt = i => seed.angle + direction * stride * (i + Math.max(0, i - 14));
+            for (let i = 1; i <= span; i++) {
+                const outside = await trial(angleAt(i));
                 if (!outside) return null;
                 if (accepts(outside.shot, request)) {
                     inside = outside;
@@ -126,6 +129,22 @@
                     else limit = next.angle;
                 }
                 if (inside !== seed && inside !== accepted.at(-1)) accepted.push(inside);
+                if (pocketSearch) {
+                    // A jaw rebound can interrupt the pot window before another
+                    // nearby aim drops. Preserve the miss as a gap in the zone.
+                    let resumed = false;
+                    for (let j = i + 1; j <= Math.min(i + 2, span); j++) {
+                        const next = await trial(angleAt(j));
+                        if (!next) return null;
+                        if (!accepts(next.shot, request)) continue;
+                        accepted.push({angle:outside.angle}, next);
+                        inside = next;
+                        i = j;
+                        resumed = true;
+                        break;
+                    }
+                    if (resumed) continue;
+                }
                 return {accepted, bounded:true};
             }
             return {accepted, bounded:false};
@@ -140,6 +159,7 @@
         if (hi - lo < .000025) return null;
         let leftSample = null, rightSample = null;
         for (const sample of ordered) {
+            if (!sample.shot) continue;
             sample.offset = targetOffset(sample.shot, request);
             if (sample.offset == null) continue;
             if (sample.offset < (leftSample?.offset ?? 0)) leftSample = sample;
@@ -147,11 +167,28 @@
         }
         const layers = request.safety && request.id != null ? [0, request.id] : [0];
         const start = ordered.indexOf(leftSample || seed), end = ordered.indexOf(rightSample || seed);
-        const range = ordered.slice(Math.min(start, end), Math.max(start, end) + 1);
-        const comparisons = layers.map(id => makeBands(range, id, radius, request.safety));
+        const bandRange = [Math.min(start, end), Math.max(start, end)];
+        let restEdges = null;
+        if (pocketSearch) {
+            // Pocket entry references describe where the object ball crossed the
+            // mouth. The landing range needs every successful aim, including
+            // confirmed pots whose jaw route makes mouth-side identity ambiguous.
+            const first = ordered[0], last = ordered.at(-1);
+            const increasing = leftSample && rightSample
+                ? leftSample.angle < rightSample.angle
+                : signed(first.shot, radius) < signed(last.shot, radius);
+            const firstRest = ordered.find(sample => resting(sample.shot, 0));
+            const lastRest = ordered.findLast(sample => resting(sample.shot, 0));
+            if (firstRest) restEdges = increasing ? [firstRest, lastRest] : [lastRest, firstRest];
+            const [blue, orange] = restEdges || (increasing ? [first, last] : [last, first]);
+            for (const sample of ordered) {
+                sample.restTone = blue === orange ? .5 : (sample.angle - blue.angle) / (orange.angle - blue.angle);
+            }
+        }
+        const comparisons = layers.map(id => makeBands(ordered, id, radius, request.safety, bandRange));
         return {
             lo, hi, tested:samples.size, bounded:[left.bounded,right.bounded],
-            left:leftSample, right:rightSample,
+            left:leftSample, right:rightSample, restEdges,
             bands:comparisons.map(comparison => comparison.bands),
             rests:comparisons.map(comparison => comparison.rests)
         };
@@ -191,10 +228,11 @@
         return {x:a.x + (b.x - a.x) * t, y:a.y + (b.y - a.y) * t, z:(a.z || 0) + ((b.z || 0) - (a.z || 0)) * t};
     }
 
-    function makeBands(samples, id, radius, safety) {
+    function makeBands(samples, id, radius, safety, [bandStart, bandEnd]) {
         const bands = [], rests = [];
         let previousRest = null;
         const tracks = samples.map(sample => {
+            if (!sample.shot) return null;
             const timeline = events(sample.shot), points = path(sample.shot, id);
             const signature = timeline.map(event => event.key).join('|');
             const end = points.at(-1)?.t || 0;
@@ -203,16 +241,18 @@
         });
         for (let i = 0; i < tracks.length; i++) {
             const b = tracks[i], right = samples[i];
-            if (right.offset != null && b.rest) {
+            if (b?.rest && (right.restTone != null || (i >= bandStart && i <= bandEnd && right.offset != null))) {
                 if (previousRest) {
-                    const {track, offset, index} = previousRest;
+                    const {track, sample, index} = previousRest;
                     const gap = index !== i - 1 || track.signature !== b.signature || distance(track.rest, b.rest) > radius * 3;
-                    rests.push({points:[track.rest, b.rest], offsets:[offset, right.offset], gap});
+                    rests.push({points:[track.rest, b.rest], offsets:[sample.offset, right.offset],
+                        tones:right.restTone == null ? null : [sample.restTone, right.restTone], gap});
                 }
-                previousRest = {track:b, offset:right.offset, index:i};
+                previousRest = {track:b, sample:right, index:i};
             }
-            if (!i) continue;
+            if (i <= bandStart || i > bandEnd) continue;
             const a = tracks[i - 1], left = samples[i - 1];
+            if (!a || !b) continue;
             const sameRoute = a.signature === b.signature;
             if (left.offset == null || right.offset == null ||
                 (!sameRoute && !safety) || !a.points.length || !b.points.length) continue;
@@ -234,7 +274,7 @@
                     if (width * step > 1e-7) {
                         const quad = [lastA, nextA, nextB, lastB];
                         if (sameRoute && width <= radius * 2.5 && step <= radius * 8) quads.push(quad);
-                        else if (safety) bridges.push(quad);
+                        else if (safety && width <= radius * 5 && step <= radius * 8) bridges.push(quad);
                     }
                     lastA = nextA;
                     lastB = nextB;
@@ -255,6 +295,7 @@
     function paint(ctx, project, state, flags, cloth) {
         if (!state?.current) return;
         const {current, references, ids} = state;
+        const showPaths = flags.path || flags.safety, showRest = flags.rest || flags.safety;
         const visible = p => p && p.visible !== false && Number.isFinite(p.x) && Number.isFinite(p.y);
         const trace = (points, closed = false) => {
             ctx.beginPath();
@@ -269,7 +310,7 @@
         };
         ctx.save();
         ctx.lineCap = ctx.lineJoin = 'round';
-        if (references && (flags.path || flags.rest)) {
+        if (references && (showPaths || showRest)) {
             ctx.save();
             if (cloth.every(p => visible(project(p)))) {
                 trace(cloth, true);
@@ -287,27 +328,34 @@
                     ctx.fill();
                 }
             };
-            if (flags.path) {
+            if (showPaths) {
                 references.bands.forEach((bands, index) => {
                     for (const band of bands) {
                         ctx.fillStyle = colorAt(band.offset);
-                        fillQuads(band.bridges, index ? .04 : .07);
-                        fillQuads(band.quads, flags.safety ? (index ? .10 : .17) : (index ? .026 : .052));
+                        fillQuads(band.bridges, index ? .035 : .05);
+                        fillQuads(band.quads, flags.safety ? (index ? .08 : .12) : (index ? .026 : .052));
                     }
                 });
             }
-            if (flags.rest) {
+            if (showRest) {
                 references.rests.forEach((rests, index) => {
-                    ctx.lineWidth = index ? 2.2 : 3.8;
                     for (const rest of rests) {
                         const [a, b] = rest.points.map(project);
                         if (!visible(a) || !visible(b) || (a.x === b.x && a.y === b.y)) continue;
                         const gradient = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
-                        gradient.addColorStop(0, colorAt(rest.offsets[0]));
-                        gradient.addColorStop(1, colorAt(rest.offsets[1]));
+                        const colors = rest.tones ? rest.tones.map(tone) : rest.offsets.map(colorAt);
+                        gradient.addColorStop(0, colors[0]);
+                        gradient.addColorStop(1, colors[1]);
                         ctx.strokeStyle = gradient;
-                        ctx.globalAlpha = rest.gap ? (index ? .23 : .53) : (index ? .43 : .83);
                         trace(rest.points);
+                        ctx.lineWidth = index ? 9 : 14;
+                        ctx.globalAlpha = rest.gap ? .035 : .11;
+                        ctx.stroke();
+                        ctx.lineWidth = index ? 5.5 : 8;
+                        ctx.globalAlpha = rest.gap ? .085 : .23;
+                        ctx.stroke();
+                        ctx.lineWidth = index ? 2.6 : 4.2;
+                        ctx.globalAlpha = rest.gap ? (index ? .26 : .40) : (index ? .64 : .96);
                         ctx.stroke();
                     }
                 });
@@ -323,8 +371,9 @@
             for (const id of ids) {
                 const primary = id === 0;
                 ctx.globalAlpha = primary ? (i === 1 ? .88 : .58) : (i === 1 ? .55 : .37);
-                if (flags.path) {
-                    ctx.shadowBlur = primary ? 4 : 2;
+                if (showPaths) {
+                    if (showRest) ctx.globalAlpha *= .34;
+                    ctx.shadowBlur = showRest ? 0 : primary ? 4 : 2;
                     ctx.lineWidth = primary ? (i === 1 ? 2.1 : 1.5) : 1.05;
                     trace(path(shot, id));
                     ctx.stroke();
@@ -351,10 +400,22 @@
                         ctx.fill();
                     }
                 }
-                const end = flags.rest && resting(shot, id);
-                if (end) {
+            }
+        }
+        if (showRest) {
+            const edges = references?.restEdges;
+            const landings = edges ? [edges[0].shot, current, edges[1].shot] : outcomes;
+            for (const i of [0, 2, 1]) {
+                const shot = landings[i];
+                if (!shot) continue;
+                ctx.strokeStyle = ctx.fillStyle = ctx.shadowColor = COLORS[i];
+                for (const id of ids) {
+                    const primary = id === 0;
+                    const end = resting(shot, id);
+                    if (!end) continue;
                     const p = project(end);
                     if (!visible(p)) continue;
+                    ctx.shadowBlur = primary ? 10 : 6;
                     ctx.globalAlpha = primary ? .92 : .65;
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, primary ? 4.3 : 3.4, 0, 2 * Math.PI);
