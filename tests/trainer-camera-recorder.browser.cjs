@@ -9,6 +9,16 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),cp=r
   page.on('pageerror',error=>errors.push(error.message));
   await page.addInitScript(()=>{
    window.savedCameraClips=[];let pending;
+   const timing=window.cameraTestTiming={frames:0,now:null};
+   const encode=VideoEncoder.prototype.encode;
+   VideoEncoder.prototype.encode=function(...args){
+    encode.apply(this,args);
+    timing.frames++;
+   };
+   // Control the capture timeline while keeping rendering and WebCodecs real.
+   const now=performance.now.bind(performance), raf=window.requestAnimationFrame.bind(window);
+   performance.now=()=>timing.now??now();
+   window.requestAnimationFrame=callback=>raf(timestamp=>callback(timing.now??timestamp));
    window.BilliardsAndroid={saveTrainerClip(){},openTrainerClipsFolder(){},
     beginTrainerRecording(stem,setup){pending={stem,setup,chunks:[]};return 'recording-token'},
     appendTrainerRecording(token,base64){pending.chunks.push(base64);return true},
@@ -23,17 +33,23 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),cp=r
   assert.equal(await page.locator('#trainerCameraBar').isVisible(),true);
   assert.equal(await page.locator('#app #trainerCameraBar').count(),0,'Recorder stays outside captured screen');
   await page.locator('[data-camera-mode="current"]').click();
+  await page.evaluate(()=>cameraTestTiming.now=10000);
   await page.locator('#trainerCameraRecord').click();
   await page.waitForFunction(()=>window.BilliardsCameraRecorder.recording);
-  await page.waitForTimeout(600);
+  await page.evaluate(()=>cameraTestTiming.now+=400);
+  await page.waitForFunction(()=>cameraTestTiming.frames===13);
   await page.locator('#trainerCameraPause').click();
   assert.equal(await page.evaluate(()=>BilliardsCameraRecorder.paused),true);
-  const pausedFrames=await page.locator('#trainerCameraTimer').textContent();
-  await page.waitForTimeout(600);
-  assert.equal(await page.locator('#trainerCameraTimer').textContent(),pausedFrames);
+  await page.evaluate(()=>cameraTestTiming.now+=2000);
+  await page.waitForTimeout(300);
+  assert.equal(await page.evaluate(()=>cameraTestTiming.frames),13,'Pause freezes the encoded frame count');
   await page.locator('#trainerCameraPause').click();
-  await page.waitForTimeout(650);
+  await page.waitForTimeout(600);
+  assert.equal(await page.evaluate(()=>cameraTestTiming.frames),13,'Resume does not encode the paused interval');
+  await page.evaluate(()=>cameraTestTiming.now+=400);
+  await page.waitForFunction(()=>cameraTestTiming.frames===25);
   await page.locator('#trainerCameraStop').click();
+  await page.evaluate(()=>cameraTestTiming.now=null);
   await page.waitForFunction(()=>savedCameraClips.length===1&&!window.BilliardsCameraRecorder.recording,null,{timeout:35000});
   assert.match(await page.locator('#trainerCameraStatus').textContent(),/Saved .*\.mp4 separately/);
   assert.equal(await page.locator('#trainerClipName').inputValue(),'Camera 02');
@@ -42,10 +58,12 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),cp=r
   const setup=JSON.parse(data.setup);
   assert.deepEqual(setup.recordingCamera.views,['current']);
   const output=path.join(dir,'camera.mp4');fs.writeFileSync(output,Buffer.concat(data.chunks.map(chunk=>Buffer.from(chunk,'base64'))));
-  const meta=JSON.parse(cp.execFileSync('ffprobe',['-v','error','-show_entries','stream=width,height,avg_frame_rate:format=duration','-of','json',output]));
+  const meta=JSON.parse(cp.execFileSync('ffprobe',['-v','error','-show_entries','stream=width,height,avg_frame_rate,nb_frames:format=duration','-of','json',output]));
   assert.equal(meta.streams[0].width,1920);assert.equal(meta.streams[0].height,1080);
   assert.equal(meta.streams[0].avg_frame_rate,'30/1');
-  assert(Number(meta.format.duration)>1&&Number(meta.format.duration)<2.2,'Paused time excluded from video duration');
+  assert.equal(Number(meta.streams[0].nb_frames),25);
+  assert.equal(setup.recordingCamera.frames,25);
+  assert(Math.abs(Number(meta.format.duration)-25/30)<.002,'MP4 duration matches the 25 frames captured outside pause');
   // Exercise the two additional canvas-based camera framings as independent MP4s.
   for(const [i,mode] of ['full','stroke'].entries()){
    await page.locator(`[data-camera-mode="${mode}"]`).click();
