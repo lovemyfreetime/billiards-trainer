@@ -146,11 +146,14 @@
             if (sample.offset > (rightSample?.offset ?? 0)) rightSample = sample;
         }
         const layers = request.safety && request.id != null ? [0, request.id] : [0];
+        const start = ordered.indexOf(leftSample || seed), end = ordered.indexOf(rightSample || seed);
+        const range = ordered.slice(Math.min(start, end), Math.max(start, end) + 1);
+        const comparisons = layers.map(id => makeBands(range, id, radius, request.safety));
         return {
             lo, hi, tested:samples.size, bounded:[left.bounded,right.bounded],
             left:leftSample, right:rightSample,
-            bands:layers.map(id => makeBands(ordered, id, radius)),
-            layers
+            bands:comparisons.map(comparison => comparison.bands),
+            rests:comparisons.map(comparison => comparison.rests)
         };
     }
 
@@ -188,8 +191,9 @@
         return {x:a.x + (b.x - a.x) * t, y:a.y + (b.y - a.y) * t, z:(a.z || 0) + ((b.z || 0) - (a.z || 0)) * t};
     }
 
-    function makeBands(samples, id, radius) {
-        const bands = [];
+    function makeBands(samples, id, radius, safety) {
+        const bands = [], rests = [];
+        let previousRest = null;
         const tracks = samples.map(sample => {
             const timeline = events(sample.shot), points = path(sample.shot, id);
             const signature = timeline.map(event => event.key).join('|');
@@ -197,16 +201,29 @@
             const times = [0, ...timeline.filter(e => e.ids.includes(id)).map(e => Math.min(end, e.t)), end];
             return {signature, times, points, rest:resting(sample.shot, id)};
         });
-        for (let i = 1; i < tracks.length; i++) {
-            const a = tracks[i - 1], b = tracks[i];
-            const left = samples[i - 1], right = samples[i];
+        for (let i = 0; i < tracks.length; i++) {
+            const b = tracks[i], right = samples[i];
+            if (right.offset != null && b.rest) {
+                if (previousRest) {
+                    const {track, offset, index} = previousRest;
+                    const gap = index !== i - 1 || track.signature !== b.signature || distance(track.rest, b.rest) > radius * 3;
+                    rests.push({points:[track.rest, b.rest], offsets:[offset, right.offset], gap});
+                }
+                previousRest = {track:b, offset:right.offset, index:i};
+            }
+            if (!i) continue;
+            const a = tracks[i - 1], left = samples[i - 1];
+            const sameRoute = a.signature === b.signature;
             if (left.offset == null || right.offset == null ||
-                a.signature !== b.signature || !a.points.length || !b.points.length) continue;
-            const rest = a.rest && b.rest && distance(a.rest, b.rest) <= radius * 3 ? [a.rest, b.rest] : null;
-            const quads = [];
-            for (let leg = 1; leg < a.times.length; leg++) {
-                const a0 = a.times[leg - 1], b0 = b.times[leg - 1];
-                const ad = a.times[leg] - a0, bd = b.times[leg] - b0;
+                (!sameRoute && !safety) || !a.points.length || !b.points.length) continue;
+            const quads = [], bridges = [];
+            // For different safety routes, the faint bridge joins sampled paths
+            // by progress without suggesting that an intermediate path was simulated.
+            const aTimes = sameRoute ? a.times : [0, a.times.at(-1)];
+            const bTimes = sameRoute ? b.times : [0, b.times.at(-1)];
+            for (let leg = 1; leg < aTimes.length; leg++) {
+                const a0 = aTimes[leg - 1], b0 = bTimes[leg - 1];
+                const ad = aTimes[leg] - a0, bd = bTimes[leg] - b0;
                 const segments = Math.max(1, Math.min(18, Math.ceil(Math.max(ad, bd) / .08)));
                 let lastA = pointAt(a.points, a0), lastB = pointAt(b.points, b0);
                 for (let j = 1; j <= segments; j++) {
@@ -214,15 +231,18 @@
                     const nextB = pointAt(b.points, b0 + bd * j / segments);
                     const width = Math.max(distance(lastA, lastB), distance(nextA, nextB));
                     const step = Math.max(distance(lastA, nextA), distance(lastB, nextB));
-                    if (width <= radius * 2.5 && step <= radius * 8 && width * step > 1e-7)
-                        quads.push([lastA, nextA, nextB, lastB]);
+                    if (width * step > 1e-7) {
+                        const quad = [lastA, nextA, nextB, lastB];
+                        if (sameRoute && width <= radius * 2.5 && step <= radius * 8) quads.push(quad);
+                        else if (safety) bridges.push(quad);
+                    }
                     lastA = nextA;
                     lastB = nextB;
                 }
             }
-            bands.push({offset:(left.offset + right.offset) / 2, rest, quads});
+            bands.push({offset:(left.offset + right.offset) / 2, quads, bridges});
         }
-        return bands;
+        return {bands, rests};
     }
 
     function tone(fraction) {
@@ -255,28 +275,43 @@
                 trace(cloth, true);
                 ctx.clip();
             }
-            references.bands.forEach((bands, index) => {
-                for (const band of bands) {
-                    const edge = band.offset < 0 ? references.left : references.right;
-                    const color = tone(.5 + (edge ? .5 * band.offset / Math.abs(edge.offset) : 0));
-                    if (flags.path) {
-                        ctx.fillStyle = color;
-                        ctx.globalAlpha = index ? .026 : .052;
-                        for (const quad of band.quads) {
-                            if (!quad.every(p => visible(project(p)))) continue;
-                            trace(quad, true);
-                            ctx.fill();
-                        }
+            const colorAt = offset => {
+                const edge = offset < 0 ? references.left : references.right;
+                return tone(.5 + (edge ? .5 * offset / Math.abs(edge.offset) : 0));
+            };
+            const fillQuads = (quads, alpha) => {
+                ctx.globalAlpha = alpha;
+                for (const quad of quads) {
+                    if (!quad.every(point => visible(project(point)))) continue;
+                    trace(quad, true);
+                    ctx.fill();
+                }
+            };
+            if (flags.path) {
+                references.bands.forEach((bands, index) => {
+                    for (const band of bands) {
+                        ctx.fillStyle = colorAt(band.offset);
+                        fillQuads(band.bridges, index ? .04 : .07);
+                        fillQuads(band.quads, flags.safety ? (index ? .10 : .17) : (index ? .026 : .052));
                     }
-                    if (flags.rest && band.rest) {
-                        ctx.strokeStyle = color;
-                        ctx.globalAlpha = index ? .22 : .35;
-                        ctx.lineWidth = index ? 1.8 : 3.2;
-                        trace(band.rest);
+                });
+            }
+            if (flags.rest) {
+                references.rests.forEach((rests, index) => {
+                    ctx.lineWidth = index ? 2.2 : 3.8;
+                    for (const rest of rests) {
+                        const [a, b] = rest.points.map(project);
+                        if (!visible(a) || !visible(b) || (a.x === b.x && a.y === b.y)) continue;
+                        const gradient = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
+                        gradient.addColorStop(0, colorAt(rest.offsets[0]));
+                        gradient.addColorStop(1, colorAt(rest.offsets[1]));
+                        ctx.strokeStyle = gradient;
+                        ctx.globalAlpha = rest.gap ? (index ? .23 : .53) : (index ? .43 : .83);
+                        trace(rest.points);
                         ctx.stroke();
                     }
-                }
-            });
+                });
+            }
             ctx.restore();
         }
 
@@ -300,17 +335,27 @@
                         if (contact.id !== id) continue;
                         const p = project(contact);
                         if (!visible(p)) continue;
+                        const haloRadius = primary ? 9 : 7;
+                        const halo = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, haloRadius);
+                        halo.addColorStop(0, COLORS[i]);
+                        halo.addColorStop(1, 'transparent');
+                        ctx.globalAlpha = primary ? .52 : .38;
+                        ctx.fillStyle = halo;
                         ctx.beginPath();
-                        ctx.arc(p.x, p.y, primary ? 2.7 : 2.2, 0, 2 * Math.PI);
-                        ctx.lineWidth = 1.1;
-                        if (primary) ctx.fill();
-                        else ctx.stroke();
+                        ctx.arc(p.x, p.y, haloRadius, 0, 2 * Math.PI);
+                        ctx.fill();
+                        ctx.globalAlpha = primary ? .95 : .79;
+                        ctx.fillStyle = COLORS[i];
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, primary ? 3.4 : 2.6, 0, 2 * Math.PI);
+                        ctx.fill();
                     }
                 }
                 const end = flags.rest && resting(shot, id);
                 if (end) {
                     const p = project(end);
                     if (!visible(p)) continue;
+                    ctx.globalAlpha = primary ? .92 : .65;
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, primary ? 4.3 : 3.4, 0, 2 * Math.PI);
                     ctx.lineWidth = 1.15;

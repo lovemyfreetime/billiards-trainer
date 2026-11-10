@@ -143,7 +143,34 @@ async function screenshot(page, name) {
         assert(shot.current.pots.some(e=>e.id===1&&e.pocket==='TL'));
         const signature=p=>p.collisions.map(e=>e.ids.join(':')).join('|');
         assert([shot.left,shot.right].filter(Boolean).some(p=>signature(p)!==signature(shot.current)));
-        assert.equal(shot.branches,0,'Discontinuous event routes are left transparent');
+        assert.equal(shot.branches,0,'Discontinuous non-safety paths are left transparent');
+        const bridge=await page.evaluate(async()=>{
+            const api=BilliardsAimZones, radius=.028575;
+            const simulate=angle=>{
+                const end={id:0,x:1.7,y:.3+angle+(angle>.04?.33:0),active:true};
+                const events=[{t:.3,ids:[0,1]}];
+                if(angle>.04)events.push({t:.7,ids:[0,2]});
+                return {
+                    firstBallContact:{objId:1,signedOffset:-2*radius*angle},
+                    paths:{0:[{x:.3,y:.5,t:0},{...end,t:1}]},
+                    collisionEvents:events,railEvents:[],pocketEvents:[],
+                    finalBalls:[end],restIds:angle>.02&&angle<.04?[]:[0]
+                };
+            };
+            const current=simulate(0);
+            const references=await api.search({angle:0,cue:{x:.3,y:.5},object:{x:1,y:.5},
+                radius,safety:true,id:1,contact:0,window:.1,current},simulate);
+            const gap=references.rests[0].find(rest=>rest.gap);
+            const canvas=document.createElement('canvas');
+            canvas.width=500;canvas.height=300;
+            const ctx=canvas.getContext('2d'), map=p=>({x:15+200*p.x,y:15+200*p.y});
+            api.paint(ctx,map,{current,references,ids:[0]},{rest:true},[{x:0,y:0},{x:2.24,y:0},{x:2.24,y:1.12},{x:0,y:1.12}]);
+            const [a,b]=gap.points.map(map);
+            const alpha=ctx.getImageData(Math.floor((a.x+b.x)/2),Math.floor((a.y+b.y)/2),1,1).data[3];
+            return {alpha,safetyBridge:references.bands[0].some(band=>band.bridges.length)};
+        });
+        assert(bridge.alpha>0&&bridge.alpha<190,'A discontinuous resting range draws a dim bridge');
+        assert(bridge.safetyBridge,'A change in collision route preserves a faint safety ribbon');
         await screenshot(page,'06-secondary-collision-2d');
 
         shot=await load(page,fixtures.safety,true);
