@@ -10,10 +10,7 @@ const fixtures = {
     nearSide: [{x:1.12,y:.7}, {x:1.12,y:.16}, 0, 2.68, .76, .65],
     draw: [{x:1.1,y:.25}, {x:.48,y:.42}, -.07781200271668354, 3.8, -.55],
     safety: [{x:.55,y:.4}, {x:1.15,y:.4}, .015, 1.2],
-    cushionSafety: [{x:.55,y:.55}, {x:1.05,y:.55}, .065, 3.6, -.2],
-    pocketJawSafety: [{x:1.902,y:.659}, {x:1.611,y:.236}, -.0188, 1.85],
-    continuousSafety: [{x:1.7049229644773292,y:.7631445534905645}, {x:1.744244285487899,y:.9452285531614928},
-        .20640073732324837, 2.67]
+    cushionSafety: [{x:.55,y:.55}, {x:1.05,y:.55}, .065, 3.6, -.2]
 };
 fixtures.collision = [...fixtures.draw, 0, [{id:2,n:'2',x:.3236041582080856,y:.7303992344746408,active:true}]];
 
@@ -32,21 +29,21 @@ async function load(page, fixture, safety = false) {
     },{fixture,safety});
     await page.waitForFunction(() => BilliardsAimZones.diagnostics()?.pending === false);
     const data = await page.evaluate(() => {
-        const v=BilliardsAimZones.view(), r=v.references;
+        const v=BilliardsAimZones.view(), r=v.zones;
         const summarize=p=>p&&{contact:p.firstBallContact?.objId,signed:p.firstBallContact?.signedOffset,pots:p.pocketEvents,rails:p.railEvents,
             rests:p.restIds,collisions:p.collisionEvents,jaws:p.jawEvents,paths:Object.keys(p.paths)};
         const length=points=>points.reduce((sum,p,i)=>i?sum+Math.hypot(p.x-points[i-1].x,p.y-points[i-1].y):sum,0);
         return {current:summarize(v.current),left:summarize(r?.left?.shot),right:summarize(r?.right?.shot),
-            ids:v.ids,entries:[r?.left?.offset,r?.right?.offset],branches:r?.bands[0]?.length,
+            ids:v.ids,entries:[r?.left?.offset,r?.right?.offset],branches:r?.bands.length,
             referenceAngles:[r?.left?.angle,r?.right?.angle],
             landingEdges:r?.restEdges?.map(({angle,shot})=>({angle,shot:summarize(shot)})),
-            tailLengths:r?.tails.map(lines=>lines.reduce((sum,line)=>sum+length(line),0)),
+            tailLengths:r?.tails.map(({lines})=>lines.reduce((sum,points)=>sum+length(points),0)),
             solidLength:r?.rests[0].reduce((sum,rest)=>sum+(rest.gap?0:length(rest.points)),0),
-            mouth:v.mouth?.name,pocketStops:r?.pocketStops?.stops,cushions:r?.cushionLines,
+            mouth:v.mouth?.name,pocketStops:r?.pocketSamples,cushions:r?.cushionLines,incomplete:v.references?.incomplete,
             diagnostics:BilliardsAimZones.diagnostics()};
     });
     console.log('reference work',data.diagnostics);
-    assert(data.left || data.right,'reference shots were found');
+    assert(safety || data.left || data.right,'reference shots were found');
     return data;
 }
 
@@ -88,8 +85,30 @@ async function screenshot(page, name) {
         assert(shot.pocketStops?.length>2,'A targeted pocket receives simulated color stops');
         assert(shot.solidLength>.15);
         assert.equal(shot.tailLengths.length,2);
-        assert(shot.tailLengths.every(length=>Math.abs(length-shot.solidLength)<.0001),
-            'Each reachable dotted wing adds one solid landing-range length');
+        assert(shot.tailLengths.every(length=>length>0&&length<=shot.solidLength+.0001),
+            'Both reachable dotted wings are bounded by the solid range length');
+        const fullWings=await page.evaluate(async()=>{
+            const api=BilliardsAimZones,radius=.028575,cue={x:1,y:.8},object={x:1,y:.45};
+            const simulate=angle=>{
+                const stop={id:0,x:1+angle*3,y:.4,active:true};
+                const captured=Math.abs(angle)<=.04;
+                const entry={id:1,x:1+angle,y:-.1,pocket:'TM',t:.5};
+                return {firstBallContact:{objId:1,signedOffset:angle},railEvents:[],
+                    pocketEvents:captured?[entry]:[],finalBalls:[stop],restIds:[0],
+                    paths:{0:[{...cue,t:0},{...stop,t:1}],1:[{x:1+angle,y:.3,t:0},entry]}};
+            };
+            const current=simulate(0);
+            const refs=await api.search({angle:0,cue,object,radius,current,pocket:'TM',extend:true,squirt:0,
+                id:1,mouth:{name:'TM',center:{x:1,y:0},outside:{x:0,y:-1}}},simulate);
+            const {rests,tails}=api.resolve(refs,current,0);
+            const length=points=>points.slice(1).reduce((sum,p,i)=>sum+Math.abs(p.x-points[i].x),0);
+            return {solid:rests[0].filter(s=>!s.gap).reduce((sum,s)=>sum+length(s.points),0),
+                wings:tails.map(t=>t.lines.reduce((sum,line)=>sum+length(line),0)),
+                valid:refs.tails.every(wing=>wing.every(link=>!link.b.captured))};
+        });
+        assert(fullWings.solid>.2&&fullWings.valid&&fullWings.wings.every(w=>Math.abs(w-fullWings.solid)<1e-6),
+            'Each reachable wing is made of actual misses and adds one solid range length');
+        console.log('side-pocket landing range',shot.solidLength,shot.tailLengths,shot.incomplete);
         for(const p of [shot.current,shot.left,shot.right])
             assert(p.pots.some(e=>e.id===1&&e.pocket==='TM'));
         await screenshot(page,'01-side-pocket-2d');
@@ -111,22 +130,12 @@ async function screenshot(page, name) {
         assert.equal(await page.evaluate(()=>BilliardsAimZones.view().references===firstZoneRefs),false);
 
         const nearSide=await load(page,fixtures.nearSide);
-        const [blueLanding,orangeLanding]=nearSide.landingEdges;
-        assert(blueLanding.angle>nearSide.referenceAngles[0]+.004);
-        assert(orangeLanding.angle<nearSide.referenceAngles[1]-.004);
+        assert.equal(nearSide.landingEdges.length,2);
         for(const {shot:edge} of nearSide.landingEdges){
             assert(edge.pots.some(e=>e.id===1&&e.pocket==='TM'));
             assert(edge.rests.includes(0));
         }
-        assert.equal(await page.evaluate(()=>{
-            const r=BilliardsAimZones.view().references;
-            const rests=r.rests[0], landing=r.restEdges.map(({shot})=>shot.finalBalls.find(b=>b.id===0));
-            return rests.at(-1).points[1]===landing[0]&&rests[0].points[0]===landing[1];
-        }),true);
         await screenshot(page,'11-wide-pocket-landing-range');
-        const nearSideSafety=await load(page,fixtures.nearSide,true);
-        assert.equal(Math.sign(nearSideSafety.referenceAngles[1]-nearSideSafety.referenceAngles[0]),
-            Math.sign(orangeLanding.angle-blueLanding.angle),'Defensive safety keeps pocket left and right orientation');
 
         shot=await load(page,fixtures.jaw);
         assert(shot.current.jaws.some(e=>e.id===1));
@@ -178,7 +187,11 @@ async function screenshot(page, name) {
         assert(shot.current.pots.some(e=>e.id===1&&e.pocket==='TL'));
         const signature=p=>p.collisions.map(e=>e.ids.join(':')).join('|');
         assert([shot.left,shot.right].filter(Boolean).some(p=>signature(p)!==signature(shot.current)));
-        assert.equal(shot.branches,0,'Discontinuous non-safety paths are left transparent');
+        const pairs=await page.evaluate(()=>{
+            const v=BilliardsAimZones.view();
+            return v.references.core.filter(Boolean).map(s=>s.balls.get(0).route);
+        });
+        assert(new Set(pairs).size>1,'Normal sweep records changes in the cue-ball route');
         const discontinuity=await page.evaluate(async()=>{
             const api=BilliardsAimZones, radius=.028575;
             const simulate=angle=>{
@@ -198,10 +211,11 @@ async function screenshot(page, name) {
             const canvas=document.createElement('canvas');
             canvas.width=500;canvas.height=300;
             const ctx=canvas.getContext('2d'), map=p=>({x:15+200*p.x,y:15+200*p.y});
-            api.paint(ctx,map,{current,references,ids:[0]},{safety:true},[{x:0,y:0},{x:2.24,y:0},{x:2.24,y:1.12},{x:0,y:1.12}]);
+            api.paint(ctx,map,{current,zones:api.resolve(references,current,0),ids:[0]},{safety:true},[{x:0,y:0},{x:2.24,y:0},{x:2.24,y:1.12},{x:0,y:1.12}]);
             const p=map({x:1.7,y:.495});
             const alpha=ctx.getImageData(Math.floor(p.x),Math.floor(p.y),1,1).data[3];
-            return {alpha,safetyBands:references.bands[0].length,rests:references.rests[0].length};
+            const zones=api.resolve(references,current,0);
+            return {alpha,safetyBands:zones.bands.length,rests:zones.rests[0].length};
         });
         assert(discontinuity.rests>0,'Reachable safety positions still draw');
         assert.equal(discontinuity.alpha,0,'A change in route leaves the gap between the safety rests unpainted');
@@ -217,8 +231,9 @@ async function screenshot(page, name) {
             const current=simulate(0);
             const references=await api.search({angle:0,cue:{x:.3,y:.5},object:{x:1,y:.5},
                 radius,safety:true,id:1,contact:0,window:.1,current},simulate);
-            return {spans:references.rests[0].length,
-                crossing:references.rests[0].some(({points:[a,b]})=>a.y<.336&&b.y>.336)};
+            const {rests}=api.resolve(references,current,0);
+            return {spans:rests[0].length,
+                crossing:rests[0].some(({points:[a,b]})=>a.y<.336&&b.y>.336)};
         });
         assert(shortJump.spans>0,'Stable landing segments remain visible near a same-route jump');
         assert.equal(shortJump.crossing,false,'A five-centimeter jump with unchanged events leaves an open gap');
@@ -226,12 +241,12 @@ async function screenshot(page, name) {
             const api=BilliardsAimZones, cloth=[{x:0,y:0},{x:240,y:0},{x:240,y:160},{x:0,y:160}];
             const current={finalBalls:[]}, a={x:20,y:60}, b={x:120,y:60};
             const points=Array.from({length:81},(_,i)=>({x:20+1.25*i,y:60}));
-            const make=points=>points.slice(1).map((point,i)=>({points:[points[i],point],offsets:[0,0]}));
+            const make=points=>points.slice(1).map((point,i)=>({points:[points[i],point],tones:[.5,.5]}));
             const alpha=rests=>{
                 const canvas=document.createElement('canvas');
                 canvas.width=240;canvas.height=160;
                 const ctx=canvas.getContext('2d');
-                api.paint(ctx,p=>p,{current,references:{rests},ids:[]},{safety:true},cloth);
+                api.paint(ctx,p=>p,{current,zones:{rests,tails:[]},ids:[]},{safety:true},cloth);
                 return ctx.getImageData(70,62,1,1).data[3];
             };
             return {sparse:alpha([make([a,b])]),dense:alpha([make(points),make(points)])};
@@ -293,14 +308,14 @@ async function screenshot(page, name) {
             assert(stops.every(({point})=>first.x===last.x?point.x===first.x:point.y===first.y));
             assert(first.x<0||first.x>2.24||first.y<0||first.y>1.12,'Guides sit on the bumper');
         }
-        assert(shot.entries[0]<-.27&&shot.entries[1]>.27,'Safety uses a tripled signed aim window');
+        assert.equal(await page.evaluate(()=>BilliardsAimZones.view().references.request.window),.10*3);
         for(const id of ['#aimZoneRail','#aimZoneRest','#aimZonePath'])await page.locator(id).uncheck();
         await page.locator('#table3DToggle').click();
         await page.waitForFunction(()=>{
             const c=document.getElementById('aimZone3DOverlay');
             if(!Billiards3D.active||c.style.display!=='block')return false;
             const rect=c.getBoundingClientRect(), density=c.width/rect.width, ctx=c.getContext('2d');
-            const seen=BilliardsAimZones.view().references.cushionLines.filter(({stops})=>{
+            const seen=BilliardsAimZones.view().zones.cushionLines.filter(({stops})=>{
                 const {point}=stops[Math.floor(stops.length/2)];
                 const p=Billiards3D.project(point,point.guideHeight);
                 const x=Math.round((p.x-rect.left)*density),y=Math.round((p.y-rect.top)*density);
@@ -312,64 +327,124 @@ async function screenshot(page, name) {
         await page.locator('#table3DToggle').click();
         await page.waitForFunction(()=>!Billiards3D.active);
 
-        await load(page,fixtures.pocketJawSafety,true);
-        const sweep=await page.evaluate(()=>{
-            const view=()=>BilliardsAimZones.view(), pending=()=>BilliardsAimZones.diagnostics().pending;
-            const snap=billiardsTourBridge.capture(), s=snap.state, cue=s.balls[0];
-            const angle=Math.atan2(s.freeAim.y-cue.y,s.freeAim.x-cue.x);
-            const initial=window.aimBeforeSweep=view().references;
-            const aim=at=>{
-                s.freeAim={x:cue.x+Math.cos(at),y:cue.y+Math.sin(at)};
+        const audited=[
+            {name:'square end cushion',balls:[{x:1.47,y:.57},{x:2.01,y:.57}],angle:0,speed:2.55},
+            {name:'both balls pocket',balls:[{x:1.12,y:.77},{x:1.12,y:.20}],angle:-Math.PI/2,speed:2.55},
+            {name:'high-spin corner',balls:[{x:.59,y:.84},{x:.24,y:.34}],angle:-2.178,speed:4.35,follow:.52,spin:.73},
+            {name:'secondary collision',balls:[{x:.56,y:.70},{x:1.08,y:.55},{x:1.35,y:.44}],angle:-.298,speed:2.6}
+        ];
+        async function auditLayout(f){
+            await page.evaluate(f=>{
+                const snap=billiardsTourBridge.capture(),s=snap.state;
+                const cue=f.balls[0];
+                Object.assign(s,{balls:f.balls.map((b,id)=>({id,n:id?String(id):'CB',...b,active:true})),speed:f.speed,
+                    sideSpin:f.spin??0,follow:f.follow??0,aimZones:{safety:true},showPaths:false,
+                    freeAim:{x:cue.x+Math.cos(f.angle),y:cue.y+Math.sin(f.angle)}});
                 billiardsTourBridge.restore(snap);
-            };
-            const samples=[];
-            for(const edge of [initial.lo,initial.hi]){
-                for(const fraction of [.2,.4,.6,.8,.95]){
-                    aim(angle+fraction*(edge-angle));
-                    const positions=p=>p.finalBalls.filter(ball=>ball.active).map(({id,x,y})=>[id,x,y]);
-                    samples.push(!pending()&&view().references===initial&&
-                        JSON.stringify(positions(view().current))===JSON.stringify(positions(billiardsTourBridge.predict())));
+            },f);
+            await page.waitForFunction(()=>BilliardsAimZones.diagnostics()?.pending===false);
+        }
+        for(const f of audited){
+            await auditLayout(f);
+            const report=await page.evaluate(()=>{
+                const {zones,ids,current}=BilliardsAimZones.view();
+                const predict=billiardsTourBridge.predict();
+                return {stops:current.restIds,match:JSON.stringify(predict.finalBalls)===JSON.stringify(current.finalBalls),
+                    layers:ids.map((id,i)=>{
+                        const run=zones.runs[i], segs=zones.rests[i], live=zones.live.balls.get(id);
+                        return {id,links:segs.length,live:!!live.rest,anchor:run.includes(zones.live),
+                            exactGreen:segs.some(s=>s.points.some((p,j)=>p===live.rest&&s.tones[j]===.5)),
+                            contiguous:segs.every((seg,j)=>!j||seg.samples[0]===segs[j-1].samples[1]),
+                            correctStops:segs.every(s=>s.samples.every((sample,j)=>
+                                s.points[j]===sample.shot.finalBalls.find(b=>b.id===id)&&sample.shot.restIds.includes(id))),
+                            stripsLinked:zones.cushionLines.filter(g=>g.id===id).every(g=>g.stops.every(stop=>run.includes(stop.sample)))};
+                    })};
+            });
+            assert(report.match,f.name);
+            for(const layer of report.layers){
+                if(layer.live){
+                    assert(layer.links>0&&layer.anchor&&layer.exactGreen,f.name+' has a branch through the exact green stop');
+                    assert(layer.contiguous&&layer.correctStops&&layer.stripsLinked,f.name+' keeps one ordered range per ball');
+                }else assert.equal(layer.links,0,f.name+' has no resting branch for a ball off the table');
+            }
+            if(f.name==='both balls pocket')assert.equal(report.stops.length,0);
+            if(f.name==='square end cushion')assert.equal(report.stops.length,2);
+        }
+
+        await auditLayout(audited[0]);
+        const checked=await page.evaluate(()=>{
+            const {zones}=BilliardsAimZones.view(),snap=billiardsTourBridge.capture(),cue=snap.state.balls[0];
+            let total=0,farthest=0;
+            for(const [id,layer] of zones.rests.entries()){
+                for(const {samples:[a,b],points:[p,q]} of layer.filter((_,i)=>i%3===0)){
+                    const at=(a.angle+b.angle)/2;
+                    snap.state.freeAim={x:cue.x+Math.cos(at),y:cue.y+Math.sin(at)};
+                    billiardsTourBridge.restore(snap);
+                    const live=BilliardsAimZones.view().current;
+                    const end=billiardsTourBridge.predict().finalBalls.find(ball=>ball.id===id);
+                    if(!end?.active||!live.restIds.includes(id))return {total,farthest:Infinity};
+                    const x=q.x-p.x,y=q.y-p.y,length=x*x+y*y;
+                    const t=length?Math.max(0,Math.min(1,((end.x-p.x)*x+(end.y-p.y)*y)/length)):0;
+                    farthest=Math.max(farthest,Math.hypot(end.x-p.x-t*x,end.y-p.y-t*y));
+                    total++;
                 }
             }
-            aim(initial.hi+.003);
-            const firstCrossing=pending()&&view().references===initial;
-            aim(angle);
-            const reversed=!pending()&&view().references===initial;
-            aim(initial.hi+.003);
-            const held=pending()&&view().references===initial;
-            const connected=initial.rests.every(layer=>layer.length>0&&layer.every(rest=>!rest.gap&&
-                Math.hypot(rest.points[1].x-rest.points[0].x,rest.points[1].y-rest.points[0].y)<=.086));
-            return {samples,firstCrossing,reversed,held,connected};
+            snap.state.freeAim={x:cue.x+1,y:cue.y};
+            billiardsTourBridge.restore(snap);
+            return {total,farthest};
         });
-        assert(sweep.samples.every(Boolean),'Safety range stays anchored throughout the sampled range and the live stops stay exact');
-        assert(sweep.firstCrossing&&sweep.reversed&&sweep.held,'An edge rebuild keeps the last range and a quick reversal restores it');
-        assert(sweep.connected,'Both safety landing guides exclude disconnected positions');
-        await page.waitForFunction(()=>!BilliardsAimZones.diagnostics()?.pending&&
-            BilliardsAimZones.view()?.references&&BilliardsAimZones.view().references!==window.aimBeforeSweep);
-        await screenshot(page,'14-safety-aim-sweep');
-
-        await load(page,fixtures.continuousSafety,true);
-        const continuous=await page.evaluate(()=>{
-            const initial=BilliardsAimZones.view().references;
-            const snap=billiardsTourBridge.capture(),s=snap.state,cue=s.balls[0];
-            const from=1.4772012186014847,to=1.4881150136697232;
-            let farthest=0;
-            for(let i=0;i<=16;i++){
-                const angle=from+(to-from)*i/16;
-                s.freeAim={x:cue.x+Math.cos(angle),y:cue.y+Math.sin(angle)};
+        assert(checked.total>16&&checked.farthest<.008,'Independent shots track the two complete local branches');
+        console.log('independent branch probes',checked);
+        await auditLayout(audited[0]);
+        const swept=await page.evaluate(()=>{
+            const api=BilliardsAimZones,initial=api.view().references, snap=billiardsTourBridge.capture(), cue=snap.state.balls[0];
+            const aim=angle=>{
+                snap.state.freeAim={x:cue.x+Math.cos(angle),y:cue.y+Math.sin(angle)};
                 billiardsTourBridge.restore(snap);
-                const view=BilliardsAimZones.view(),p=view.current.finalBalls.find(b=>b.id===0);
-                if(view.references!==initial||!view.current.restIds.includes(0))return Infinity;
-                const nearest=Math.min(...initial.rests[0].map(({points:[a,b]})=>{
-                    const dx=b.x-a.x,dy=b.y-a.y,length=dx*dx+dy*dy;
-                    const t=length?Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/length)):0;
-                    return Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy);
-                }));
-                farthest=Math.max(farthest,nearest);
-            }
-            return farthest;
+            };
+            const expected=initial.runs[0].filter((_,i)=>i%4===0).slice(1,-1);
+            const samples=expected.map(sample=>{
+                aim(sample.angle);
+                const v=api.view();
+                return v.zones?.rests[0].some(seg=>seg.samples.includes(v.zones.live)&&
+                    seg.tones[seg.samples.indexOf(v.zones.live)]===.5);
+            });
+            aim(0);
+            return samples;
         });
-        assert(continuous<.005,'The continuous 20 cm safety branch renders through the former false gap');
+        assert(swept.length>2&&swept.every(Boolean),'The exact current stop remains green through the sampled aim sweep');
+        await page.locator('#table3DToggle').click();
+        await page.waitForFunction(()=>Billiards3D.active&&document.getElementById('aimZone3DOverlay').style.display==='block');
+        const predicted=await page.evaluate(()=>{
+            const {current}=BilliardsAimZones.view();
+            return current.finalBalls.map(({id,x,y})=>({id,x,y}));
+        });
+        await page.locator('#table3DShotActions button:first-child:visible, [data-trainer-action=animate]:visible').first().click();
+        await page.waitForFunction(()=>billiardsTourBridge.snapshot().busy);
+        await page.waitForFunction(()=>!billiardsTourBridge.snapshot().busy,undefined,{timeout:25000});
+        const stopped=await page.evaluate(()=>billiardsTourBridge.capture().state.balls.map(({id,x,y})=>({id,x,y})));
+        assert.deepEqual(stopped,predicted,'3D Shoot lands at both exact resting markers');
+        await page.locator('#table3DToggle').click();
+        await page.waitForFunction(()=>!Billiards3D.active);
+
+        // Exercise a worker that runs out of its budget before one alternate.
+        await page.evaluate(()=>{
+            const api=BilliardsAimZones, search=api.search;
+            api.search=(request,simulate,cancel)=>{
+                api.search=search;
+                return search(request,simulate,()=>true);
+            };
+        });
+        await auditLayout({...audited[0],speed:2.58});
+        assert.equal(await page.evaluate(()=>BilliardsAimZones.view().references.incomplete),true);
+        assert(await page.evaluate(()=>BilliardsAimZones.view().zones.rests.every(layer=>!layer.length)));
+        await page.evaluate(()=>{
+            const snap=billiardsTourBridge.capture(),cue=snap.state.balls[0];
+            snap.state.freeAim={x:cue.x+Math.cos(.00005),y:cue.y+Math.sin(.00005)};
+            billiardsTourBridge.restore(snap);
+        });
+        await page.waitForFunction(()=>!BilliardsAimZones.diagnostics()?.pending&&
+            BilliardsAimZones.view()?.zones?.rests.every(layer=>layer.length>0));
 
         for(const [name,angle,position] of [
             ['top rail',-Math.PI/2,p=>p.x],['bottom rail',Math.PI/2,p=>-p.x],

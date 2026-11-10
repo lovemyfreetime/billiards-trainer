@@ -2052,7 +2052,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 <script src="./trainer-table-zoom.js?v=2"></script>
 <script src="./trainer-shot-budget.js?v=exit-2"></script>
 <script src="./trainer-pocket-entry.js?v=1"></script>
-<script src="./trainer-aim-zones.js?v=7"></script>
+<script src="./trainer-aim-zones.js?v=8"></script>
 <script>
 // AI Camera Edition wrapper: v4.12 trainer, app-mode launch package. v4 adds scoreboard placement/default-off + local analysis-photo recall.
 // v4.12: virtual diamond extensions beyond physical corners; fixes source references that previously clipped at the first visible table boundary.
@@ -7348,7 +7348,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const rail=api.firstTargetRail(current);
         const aim=shotAimDirection(which), angle=Math.atan2(aim.y,aim.x);
         const ids=safety&&hit?[0,hit.objId]:[0];
-        aimZoneView={current,ids,which,references:null};
+        const lastView=aimZoneView;
+        aimZoneView={current,angle,ids,which,references:null,zones:null};
+        const display=references=>{
+            if(!references)return;
+            aimZoneView.references=references;
+            aimZoneView.zones=lastView?.current===current&&lastView.angle===angle&&lastView.references===references
+                ? lastView.zones : api.resolve(references,current,angle);
+        };
         if(!hit&&!rail){
             if(aimZoneJob?.pending)aimZoneJob=null;
             return;
@@ -7356,9 +7363,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const id=rail&&!safety?null:hit?.objId;
         const object=S.balls.find(ball=>ball.id===id);
         if(!rail&&!object)return;
-        const balls=S.balls.filter(ball=>ball.active&&!ball.marker&&ball.id!==0)
+        const balls=S.balls.filter(ball=>ball.active&&!ball.marker&&(which===1||ball.id!==0))
             .map(ball=>({id:ball.id,n:ball.n,x:ball.x,y:ball.y,active:true}));
-        balls.unshift({id:0,n:which===2?'CB2':'CB',x:cue.x,y:cue.y,active:true});
+        if(which===2)balls.unshift({id:0,n:'CB2',x:cue.x,y:cue.y,active:true});
         const extend=!!flags.rest&&!safety&&!rail;
         const base=JSON.stringify([which,safety,extend,rail?.rail,id,controls.speed,controls.follow,controls.sideSpin,
             controls.cueElevationDeg,S.tableL,S.tableW,S.ballR,S.muSlide,S.muRoll,S.muBall,S.ballRest,
@@ -7369,10 +7376,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             return !range||aim<range.lo-.00012||aim>range.hi+.00012;
         };
         let same=aimZoneJob?.base===base?aimZoneJob:null;
-        // If the player reverses before a new safety sweep finishes, return
-        // to the already-computed sweep instead of swapping the range under them.
+        // A reversal can reuse the previous sweep only if it still attaches to
+        // the live stops. An overlapping aim interval may contain another route.
         if(safety&&same?.pending&&same.previous&&!outsideSweep(same.previous)){
-            same=aimZoneJob=same.previous;
+            display(same.previous.references);
+            if(aimZoneView.zones.runs.every((run,i)=>run.length>1||
+                !aimZoneView.zones.live.balls.get(ids[i]).rest)){
+                same=aimZoneJob=same.previous;
+            }
         }
         const actual=api.pot(current,id)?.pocket;
         const geometry=window.BilliardsPocketEntryGeometry, table=pocketModel();
@@ -7391,35 +7402,41 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const anchorWindow=rail?2*S.ballR:api.SAFETY_WINDOW;
         const windowSize=anchorWindow*(safety?3:1);
         const near=matched&&same.references;
-        const reanchorContact=(rail||safety)&&matched&&(safety&&near
-            ? outsideSweep(same)
-            : Math.abs(contact-same.contact)>(safety&&same.pending?windowSize:anchorWindow)*1.18);
-        const reanchorPot=pocket&&matched&&actual===pocket&&!same.pending
-            &&Math.abs(api.angleDelta(angle,same.angle))>.00012&&outsideSweep(same);
-        if(matched&&!reanchorContact&&!reanchorPot){
-            aimZoneView.references=same.references??same.previous?.references??null;
-            return;
-        }
+        const changed=matched&&Math.abs(api.angleDelta(angle,same.angle))>1e-6;
+        const movedTarget=matched&&(safety
+            ? near ? outsideSweep(same)&&changed : Math.abs(contact-same.contact)>windowSize
+            : rail ? Math.abs(contact-same.contact)>anchorWindow*1.18
+            : !same.pending&&actual===pocket&&changed&&outsideSweep(same));
+        if(matched)display(same.references??same.previous?.references);
+        const detached=safety&&near&&changed&&!same.pending&&aimZoneView.zones?.runs.some((run,i)=>
+            run.length<2&&aimZoneView.zones.live.balls.get(ids[i]).rest&&
+            (near.runs[i].length>1||!near.anchor.balls.get(ids[i]).rest));
+        const retry=matched&&!same.pending&&current!==same.current&&(!near||
+            near.incomplete&&(safety?near.runs.every(run=>run.length<2):!near.core.length));
+        if(matched&&!movedTarget&&!detached&&!retry)return;
 
         const previous=safety&&matched?(near?same:same.previous):null;
-        aimZoneView.references=previous?.references??null;
+        if(!previous){aimZoneView.references=null;aimZoneView.zones=null;}
         const request={id,pocket,rail,safety,extend,current,angle,cue,object,radius:S.ballR,contact,mouth,table,
             window:windowSize,squirt:cueSquirtAngleFor(controls.sideSpin,controls.follow,S.cueEndmassRatio)};
         const physics={...S,balls,speed:controls.speed,follow:controls.follow,sideSpin:controls.sideSpin,
             cueElevationDeg:controls.cueElevationDeg,showShotBudget:false};
-        const job={base,pocket,rail:rail?.rail,angle,contact,pending:true,previous,references:null,tested:0,cpuMs:0,maxSliceMs:0,started:performance.now()};
+        const job={base,pocket,rail:rail?.rail,angle,contact,current,pending:true,previous,references:null,tested:0,cpuMs:0,maxSliceMs:0,started:performance.now()};
         aimZoneJob=job;
         const cancelled=()=>aimZoneJob!==job;
-        const expired=()=>cancelled()||job.cpuMs>900||performance.now()-job.started>8000;
+        const expired=()=>cancelled()||job.cpuMs>1250||performance.now()-job.started>8000;
         // Coalesce rapid speed or tip changes before starting the next sweep.
         setTimeout(async()=>{
             if(cancelled())return;
             try{
+                let sliceStarted=performance.now();
                 job.references=await api.search(request,async aim=>{
+                    if(performance.now()-sliceStarted>=8){
+                        await new Promise(resolve=>setTimeout(resolve,0));
+                        sliceStarted=performance.now();
+                    }
                     job.tested++;
-                    const shot=await simulateAimZoneTrial(physics,aim,expired,job);
-                    await new Promise(resolve=>setTimeout(resolve,0));
-                    return shot;
+                    return simulateAimZoneTrial(physics,aim,expired,job);
                 },expired);
             }catch(error){console.error('Aim-to-position preview:',error);}
             if(cancelled())return;

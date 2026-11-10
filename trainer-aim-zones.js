@@ -1,4 +1,4 @@
-/* Aim-to-position reference shots. The caller supplies the live physics solver. */
+/* Ordered aim samples and their verified projections. Shoot supplies the solver. */
 (function (root, make) {
     const api = make();
     if (typeof module === 'object' && module.exports) module.exports = api;
@@ -35,12 +35,12 @@
         const scale = Math.hypot(outside.x, outside.y);
         const depth = p => outside.x * (p.x - center.x) + outside.y * (p.y - center.y);
         const side = p => (outside.x * (p.y - center.y) - outside.y * (p.x - center.x)) / scale;
-        const points = shot.paths[request.id];
+        const points = shot.paths[request.id] || [];
         // Use the last inward crossing of the mouth. A jaw can send the
         // ball out and back in, or move it across the center after entry.
         for (let i = points.length - 1; i > 0; i--) {
             const a = points[i - 1], b = points[i], da = depth(a), db = depth(b);
-            if (da >= 0 || db < 0) continue;
+            if (da > 0 || db < 0 || db === da) continue;
             const offset = (db * side(a) - da * side(b)) / (db - da);
             return Math.sign(offset) === Math.sign(side(capture)) ? offset : null;
         }
@@ -52,625 +52,567 @@
             const rail = firstTargetRail(shot);
             return rail?.rail === request.rail.rail ? railPosition(rail) - railPosition(request.rail) : null;
         }
+        if (shot.firstBallContact?.objId !== request.id) return null;
         if (request.safety) return signed(shot, request.radius) - request.contact;
         return pocketPosition(shot, request);
     }
 
-    function accepts(shot, request) {
-        if (!shot) return false;
-        if (request.rail) {
-            if (request.safety && request.id != null && shot.firstBallContact?.objId !== request.id) return false;
-            const offset = targetOffset(shot, request);
-            return offset !== null && Math.abs(offset) <= request.window;
-        }
-        if (shot?.firstBallContact?.objId !== request.id) return false;
-        if (request.safety) return Math.abs(signed(shot, request.radius) - request.contact) <= request.window;
-        return pot(shot, request.id)?.pocket === request.pocket;
+    function sampleShot(angle, shot, request, ids) {
+        const offset = targetOffset(shot, request);
+        const matches = request.id == null || shot.firstBallContact?.objId === request.id;
+        const captured = pot(shot, request.id)?.pocket;
+        const accepted = request.safety || request.rail
+            ? (matches || !request.safety) && offset != null && Math.abs(offset) <= request.window
+            : matches && captured === request.pocket;
+        const timeline = [
+            ...(shot.collisionEvents || []).map(e => ({time:e.t, ids:e.ids, key:'ball:' + [...e.ids].sort().join(',')})),
+            ...shot.railEvents.map(e => ({time:e.t, ids:[e.id], key:'rail:' + e.rail})),
+            ...(shot.jawEvents || []).map(e => ({time:e.t, ids:[e.id], key:'jaw:' + e.jaw})),
+            ...(shot.airborne?.landings || []).map(e => ({time:e.t, ids:[e.id ?? 0], key:'bed'})),
+            ...shot.pocketEvents.map(e => ({time:e.t, ids:[e.id], key:'pot:' + e.pocket}))
+        ].sort((a,b) => a.time - b.time);
+        const balls = new Map(ids.map(id => {
+            const end = shot.finalBalls.find(ball => ball.id === id);
+            const events = timeline.filter(event => event.ids.includes(id));
+            const pocket = pot(shot, id)?.pocket;
+            const rest = end?.active && shot.restIds?.includes(id) ? end : null;
+            const outcome = pocket ? 'pocket' : rest ? 'rest' : end?.active ? 'unsettled' : 'off';
+            return [id, {
+                rest, pocket, outcome, events, route:events.map(event => event.key).join('|'),
+                cushion:shot.railEvents.find(e => e.id === id && (request.rail || e.t >= (shot.firstBallContact?.t ?? 0)))
+            }];
+        }));
+        return {angle, shot, offset, accepted, matches, captured, balls};
     }
 
-    function pocketSeed(request) {
-        const { cue, object, mouth, radius, squirt } = request;
-        if (!mouth) return request.angle;
+    function pocketSeed({cue, object, mouth, radius, squirt, angle}) {
+        if (!mouth || !object) return angle;
         const direction = bearing(object, mouth.center);
         const ghost = {x:object.x - 2 * radius * Math.cos(direction), y:object.y - 2 * radius * Math.sin(direction)};
-        return request.angle + angleDelta(bearing(cue, ghost) - squirt, request.angle);
+        return angle + angleDelta(bearing(cue, ghost) - squirt, angle);
+    }
+
+    function closeToChord(a, middle, b, tolerance) {
+        const dx = b.x - a.x, dy = b.y - a.y, dz = (b.z || 0) - (a.z || 0);
+        const squared = dx*dx + dy*dy + dz*dz;
+        const fraction = squared ? ((middle.x-a.x)*dx + (middle.y-a.y)*dy + ((middle.z||0)-(a.z||0))*dz) / squared : .5;
+        const t = Math.max(.15, Math.min(.85, fraction));
+        return distance(middle, {x:a.x+t*dx, y:a.y+t*dy, z:(a.z||0)+t*dz}) <= tolerance;
     }
 
     async function search(request, simulate, cancelled = () => false) {
-        const { angle, cue, object, radius } = request;
-        const pocketSearch = !request.rail && !request.safety;
-        const apparent = Math.asin(Math.min(.95, 2 * radius / distance(cue, request.rail || object)));
-        const stride = Math.max(.00018, apparent * (request.rail ? .1 : request.safety ? .035 : .025));
-        const samples = new Map();
-        const first = {angle, shot:request.current};
-        samples.set(angle, first);
+        const {angle, radius, safety, current} = request;
+        const ids = safety && request.id != null ? [0,request.id] : [0];
+        const anchor = sampleShot(angle, current, request, ids);
+        const samples = new Map([[angle,anchor]]);
+        const limit = safety ? 152 : 190;
+        let incomplete = false;
         async function trial(at) {
-            if (cancelled()) return null;
             if (samples.has(at)) return samples.get(at);
+            if (cancelled() || samples.size >= limit) { incomplete = true; return null; }
             const shot = await simulate(at);
-            if (!shot || cancelled()) return null;
-            const sample = {angle:at, shot};
-            samples.set(at, sample);
+            if (!shot || cancelled()) { incomplete = true; return null; }
+            const sample = sampleShot(at, shot, request, ids);
+            samples.set(at,sample);
             return sample;
         }
-        let seed = accepts(first.shot, request) ? first : null;
-        if (!seed && pocketSearch) {
-            const guessed = pocketSeed(request);
-            const guesses = [guessed];
-            for (const center of [angle, guessed]) {
-                for (const offset of [1, -1, 2, -2, 4, -4, 8, -8]) guesses.push(center + stride * offset);
-            }
-            for (const aim of guesses) {
-                const sample = await trial(aim);
-                if (!sample) return null;
-                if (accepts(sample.shot, request)) { seed = sample; break; }
-            }
-        }
-        if (!seed || cancelled()) return null;
+        const apparent = Math.asin(Math.min(.95, 2 * radius / distance(request.cue, request.rail || request.object)));
+        const zones = safety ? await traceSafety(anchor, ids, apparent, radius, trial)
+            : await traceNormal(anchor, request, apparent, trial);
+        const ordered = [...samples.values()].sort((a,b) => a.angle - b.angle);
+        return {...zones, request, ids, anchor, samples:ordered, tested:samples.size, incomplete};
+    }
 
-        async function edge(direction) {
-            const accepted = [];
-            let inside = seed;
-            const span = pocketSearch ? 38 : request.safety ? 28 : 14;
-            const angleAt = i => seed.angle + direction * stride * (i + Math.max(0, i - 14));
-            for (let i = 1; i <= span; i++) {
-                const outside = await trial(angleAt(i));
-                if (!outside) return null;
-                if (accepts(outside.shot, request)) {
-                    inside = outside;
-                    accepted.push(outside);
+    async function traceSafety(anchor, ids, apparent, radius, trial) {
+        const minimum = Math.max(1e-7, apparent / 16384);
+        const tolerance = radius / 6;
+        const maxLink = radius * .9;
+        const sides = [-1,1].map(sign => ({
+            sign, previous:anchor, step:minimum*8,
+            ids:ids.filter(id => anchor.balls.get(id).rest),
+            runs:new Map(ids.map(id => [id,[anchor]]))
+        }));
+        // Spend work next to the live stops first, alternating aim sides.
+        // An interrupted search still has a valid prefix through the anchor.
+        for (let i=0; i<78 && sides.some(side => side.ids.length); i++) {
+            for (const side of sides) {
+                if (!side.ids.length) continue;
+                const {previous, step, sign} = side;
+                const next = await trial(previous.angle + step*sign);
+                if (!next) return safetyRuns(sides, ids);
+                const checks = side.ids.map(id => {
+                    const a = previous.balls.get(id), b = next.balls.get(id);
+                    const length = next.accepted && b.rest && a.route === b.route ? distance(a.rest,b.rest) : Infinity;
+                    return {id,a,b,length,valid:length<=maxLink};
+                });
+                let middle = null;
+                if ((step<=minimum || checks.every(check=>check.valid)) &&
+                    checks.some(check=>check.valid&&check.length>tolerance)) {
+                    middle = await trial((previous.angle+next.angle)/2);
+                    if (!middle) return safetyRuns(sides, ids);
+                    for (const check of checks) {
+                        if (!check.valid) continue;
+                        const m = middle.balls.get(check.id);
+                        check.valid = !!(middle.accepted && m.rest && m.route===check.a.route &&
+                            closeToChord(check.a.rest,m.rest,check.b.rest,tolerance) &&
+                            distance(check.a.rest,m.rest)<=maxLink && distance(m.rest,check.b.rest)<=maxLink);
+                    }
+                }
+                if (checks.some(check => !check.valid) && step>minimum) {
+                    side.step = Math.max(minimum,step/2);
                     continue;
                 }
-                let limit = outside.angle;
-                for (let refinement = 0; refinement < 5; refinement++) {
-                    const next = await trial((inside.angle + limit) / 2);
-                    if (!next) return null;
-                    if (accepts(next.shot, request)) inside = next;
-                    else limit = next.angle;
+                side.ids = checks.filter(check => check.valid).map(check => check.id);
+                for (const id of side.ids) {
+                    if (middle) side.runs.get(id).push(middle);
+                    side.runs.get(id).push(next);
                 }
-                if (inside !== seed && inside !== accepted.at(-1)) accepted.push(inside);
-                if (pocketSearch) {
-                    // A jaw rebound can interrupt the pot window before another
-                    // nearby aim drops. Preserve the miss as a gap in the zone.
-                    let resumed = false;
-                    for (let j = i + 1; j <= Math.min(i + 2, span); j++) {
-                        const next = await trial(angleAt(j));
-                        if (!next) return null;
-                        if (!accepts(next.shot, request)) continue;
-                        accepted.push({angle:outside.angle}, next);
-                        inside = next;
-                        i = j;
-                        resumed = true;
-                        break;
+                side.previous = next;
+                side.step = Math.min(apparent*.055,step*1.5);
+            }
+        }
+        return safetyRuns(sides, ids);
+    }
+
+    function safetyRuns([negative,positive], ids) {
+        const runs = ids.map(id => [...negative.runs.get(id)].reverse().concat(positive.runs.get(id).slice(1)));
+        return {runs, lo:Math.min(...runs.map(run=>run[0].angle)), hi:Math.max(...runs.map(run=>run.at(-1).angle))};
+    }
+
+    async function traceNormal(anchor, request, apparent, trial) {
+        const {rail, radius, extend} = request;
+        const stride = Math.max(.00006, apparent * (rail ? .13 : .027));
+        let seed = anchor.accepted ? anchor : null;
+        if (!seed && !rail) {
+            const guessed = pocketSeed(request);
+            for (const offset of [0,-1,1,-2,2,-4,4,-8,8,-16,16]) {
+                const sample = await trial(guessed + stride*offset);
+                if (!sample || sample.accepted) { seed = sample; break; }
+            }
+        }
+        if (!seed) return {core:[], tails:[], lo:anchor.angle, hi:anchor.angle};
+
+        const sides = [-1,1].map(sign => ({sign, nodes:[seed], misses:0, done:false}));
+        for (let i=1; i<=48 && sides.some(side=>!side.done); i++) {
+            for (const side of sides) {
+                if (side.done) continue;
+                const sample = await trial(seed.angle + side.sign*stride*(i + Math.max(0,i-22)));
+                if (!sample) { side.done = true; continue; }
+                side.nodes.push(sample);
+                side.misses = sample.accepted ? 0 : side.misses+1;
+                side.done = side.misses >= (rail ? 1 : 3);
+            }
+        }
+        for (const side of sides) {
+            const refined = [seed];
+            for (let i=1; i<side.nodes.length; i++) {
+                let a = side.nodes[i-1], b = side.nodes[i];
+                if (a.accepted!==b.accepted) {
+                    const boundary = [];
+                    for (let j=0; j<6; j++) {
+                        const middle = await trial((a.angle+b.angle)/2);
+                        if (!middle) break;
+                        boundary.push(middle);
+                        if (a.accepted===middle.accepted) a=middle;
+                        else b=middle;
                     }
-                    if (resumed) continue;
+                    refined.push(...boundary.sort((x,y)=>side.sign*(x.angle-y.angle)));
                 }
-                return {accepted, bounded:true};
+                refined.push(side.nodes[i]);
             }
-            return {accepted, bounded:false};
+            side.nodes = refined;
         }
-
-        const left = await edge(-1);
-        if (!left) return null;
-        const right = await edge(1);
-        if (!right) return null;
-        const ordered = [...left.accepted.reverse(), seed, ...right.accepted];
-        const lo = ordered[0].angle, hi = ordered.at(-1).angle;
-        if (hi - lo < .000025) return null;
-        let leftSample = null, rightSample = null;
-        for (const sample of ordered) {
-            if (!sample.shot) continue;
-            sample.offset = targetOffset(sample.shot, request);
-            if (sample.offset == null) continue;
-            if (sample.offset < (leftSample?.offset ?? 0)) leftSample = sample;
-            if (sample.offset > (rightSample?.offset ?? 0)) rightSample = sample;
-        }
-        const layers = request.safety && request.id != null ? [0, request.id] : [0];
-        const start = ordered.indexOf(leftSample || seed), end = ordered.indexOf(rightSample || seed);
-        const bandRange = [Math.min(start, end), Math.max(start, end)];
-        let restEdges = null;
-        if (pocketSearch) {
-            // Pocket entry references describe where the object ball crossed the
-            // mouth. The landing range needs every successful aim, including
-            // confirmed pots whose jaw route makes mouth-side identity ambiguous.
-            const first = ordered[0], last = ordered.at(-1);
-            const increasing = leftSample && rightSample
-                ? leftSample.angle < rightSample.angle
-                : signed(first.shot, radius) < signed(last.shot, radius);
-            const firstRest = ordered.find(sample => resting(sample.shot, 0));
-            const lastRest = ordered.findLast(sample => resting(sample.shot, 0));
-            if (firstRest) restEdges = increasing ? [firstRest, lastRest] : [lastRest, firstRest];
-            const [blue, orange] = restEdges || (increasing ? [first, last] : [last, first]);
-            for (const sample of ordered) {
-                sample.restTone = blue === orange ? .5 : (sample.angle - blue.angle) / (orange.angle - blue.angle);
-            }
-        }
-        const comparisons = request.safety
-            ? (await safetyRests(ordered.slice(bandRange[0], bandRange[1] + 1), layers, request, trial))
-                .map(rests => ({bands:[], rests}))
-            : layers.map(id => makeBands(ordered, id, radius, bandRange));
-        const coreLength = comparisons[0].rests.reduce((length, segment) =>
-            length + (segment.gap ? 0 : distance(...segment.points)), 0);
-        const tails = [];
-        if (request.extend && restEdges && coreLength > 0) {
-            const step = Math.max(stride, (hi - lo) / 18);
-            const blueDirection = restEdges[0].angle < restEdges[1].angle ? -1 : 1;
-            for (const [index, edge] of restEdges.entries()) {
-                const direction = index ? -blueDirection : blueDirection;
-                tails.push(await missTail(edge, direction < 0 ? lo : hi, direction, step, coreLength, request, trial));
-            }
-        }
-        const cushionLines = request.safety && request.table
-            ? layers.flatMap((id, index) => cushionRanges(ordered, id, index, request))
-            : [];
-        return {
-            lo, hi, tested:samples.size, bounded:[left.bounded,right.bounded],
-            left:leftSample, right:rightSample, restEdges, tails, cushionLines,
-            pocketStops:makePocketStops(ordered, request, leftSample, rightSample),
-            bands:comparisons.map(comparison => comparison.bands),
-            rests:comparisons.map(comparison => comparison.rests)
-        };
-    }
-
-    async function missTail(edge, boundary, direction, step, target, request, trial) {
-        let previous = resting(edge.shot, 0), remaining = target;
-        let route = cueRoute(edge.shot);
-        const lines = [];
-        let line = null;
-        for (let i = 1; i <= 24 && remaining > .0001; i++) {
-            const aim = boundary + direction * step * (i + Math.max(0, i - 12));
-            const sample = await trial(aim);
-            if (!sample || sample.shot.firstBallContact?.objId !== request.id || pot(sample.shot, request.id)) break;
-            const rest = resting(sample.shot, 0);
-            const nextRoute = cueRoute(sample.shot);
-            if (!rest || nextRoute !== route || !previous || distance(previous, rest) > 3 * request.radius) line = null;
-            if (rest && previous && nextRoute === route) {
-                const length = distance(previous, rest);
-                if (length > 1e-7 && length <= 3 * request.radius) {
-                    if (!line) { line = [previous]; lines.push(line); }
-                    const part = Math.min(1, remaining / length);
-                    line.push(part === 1 ? rest : {
-                        x:previous.x + (rest.x - previous.x) * part,
-                        y:previous.y + (rest.y - previous.y) * part,
-                        z:previous.z == null ? rest.z : previous.z + ((rest.z ?? previous.z) - previous.z) * part
-                    });
-                    remaining -= length * part;
+        const sweep = [...sides[0].nodes].reverse().concat(sides[1].nodes.slice(1));
+        const lo = sweep.findIndex(s=>s.accepted), hi = sweep.findLastIndex(s=>s.accepted);
+        const core = await refineNormal(sweep.slice(lo,hi+1), seed, radius, trial);
+        const tails = [[],[]];
+        if (extend && !rail) {
+            const length = segments(core,0).reduce((sum,{a,b,gap})=>sum+(gap?0:distance(a.balls.get(0).rest,b.balls.get(0).rest)),0);
+            if (length>0) {
+                const edges = [core[0],core.at(-1)];
+                const wings = edges.map((edge,i)=>traceTail(edge,sides[i].sign,stride,length,request,trial));
+                let done = [false,false];
+                while (done.some(finished=>!finished)) {
+                    for (let i=0; i<2; i++) {
+                        if (done[i]) continue;
+                        const next = await wings[i].next();
+                        done[i] = next.done;
+                        if (next.value) tails[i].push(next.value);
+                    }
                 }
             }
-            previous = rest;
-            route = nextRoute;
+        }
+        return {core,tails,lo:core[0].angle,hi:core.at(-1).angle};
+    }
+
+    async function refineNormal(nodes, seed, radius, trial) {
+        // Record actual intermediate stops for both changes of route and
+        // sparsely spaced neighbors. Ignore events involving only other balls.
+        const tolerance = radius/6;
+        const breaks = new Set();
+        async function refine(a,b,depth) {
+            const left = a.balls.get(0), right = b.balls.get(0);
+            if (!a.matches || !b.matches || !left.rest || !right.rest) return [b];
+            if (distance(left.rest,right.rest)<=tolerance) return [b];
+            const middle = depth<5 && await trial((a.angle+b.angle)/2);
+            if (!middle) { breaks.add(b); return [b]; }
+            const center = middle.balls.get(0);
+            if (a.accepted===middle.accepted && b.accepted===middle.accepted && center.rest && middle.matches &&
+                distance(left.rest,center.rest)<=radius*1.5 && distance(center.rest,right.rest)<=radius*1.5 &&
+                closeToChord(left.rest,center.rest,right.rest,tolerance)) return [middle,b];
+            if (!center.rest && !a.accepted && !b.accepted) return [middle,b];
+            return (await refine(a,middle,depth+1)).concat(await refine(middle,b,depth+1));
+        }
+        const center = nodes.indexOf(seed);
+        const pieces = [];
+        for (let offset=0; offset<nodes.length; offset++) {
+            const left=center-offset, right=center+offset+1;
+            if (left>0) pieces[left-1]=await refine(nodes[left-1],nodes[left],0);
+            if (right<nodes.length) pieces[right-1]=await refine(nodes[right-1],nodes[right],0);
+            if (left<=0 && right>=nodes.length) break;
+        }
+        // Keep rejected joins in the aim order as explicit breaks.
+        return [nodes[0],...pieces.flat()].flatMap(sample=>breaks.has(sample)?[null,sample]:[sample]);
+    }
+
+    async function* traceTail(edge, sign, stride, length, request, trial) {
+        const tolerance = request.radius/6;
+        let a=edge, step=stride;
+        const isMiss=sample=>sample?.matches && sample.captured!==request.pocket;
+        for (let i=0; i<56 && length>.0001; i++) {
+            const b=await trial(a.angle+sign*step);
+            if (!isMiss(b)) break;
+            const left=a.balls.get(0).rest, right=b.balls.get(0).rest;
+            const span=left&&right?distance(left,right):Infinity;
+            let verified=span<=tolerance;
+            if (!verified && span<=request.radius*2) {
+                const middle=await trial((a.angle+b.angle)/2);
+                const center=middle?.balls.get(0).rest;
+                verified=isMiss(middle)&&center&&closeToChord(left,center,right,tolerance);
+            }
+            if (!verified) {
+                step/=2;
+                if (step>=stride/32 && left && right) { yield; continue; }
+                // Resume on the far side without drawing a dotted chord across a
+                // scratch or a large change in where the ball actually stops.
+                const resumed=await trial(a.angle+sign*stride);
+                if (!isMiss(resumed)) break;
+                a=resumed;step=stride;
+                yield;
+                continue;
+            }
+            const part=span>length?length/span:1;
+            yield {a,b,part};
+            length-=span*part;
+            a=b;step=Math.min(stride*3,step*1.45);
+        }
+    }
+
+    function segments(run,id) {
+        const result = [];
+        for (let i=1; i<run.length; i++) {
+            const a=run[i-1], b=run[i];
+            if (a?.balls.get(id).rest && b?.balls.get(id).rest)
+                result.push({a,b,gap:!a.accepted||!b.accepted});
+        }
+        return result;
+    }
+
+    function reanchor(run, current, id, radius) {
+        const exact = current.balls.get(id).rest;
+        if (!exact) return [];
+        const index = run.findIndex(s=>s.angle>=current.angle-1e-12);
+        if (index<0) return [current];
+        const b = run[index];
+        if (Math.abs(b.angle-current.angle)<1e-12) return run.map((s,i)=>i===index?current:s);
+        const a = run[index-1];
+        if (!a) return [current];
+        const route = current.balls.get(id).route;
+        if (a.balls.get(id).route!==route || b.balls.get(id).route!==route ||
+            !closeToChord(a.balls.get(id).rest,exact,b.balls.get(id).rest,radius/6)) return [current];
+        return [...run.slice(0,index),current,...run.slice(index)];
+    }
+
+    function colorTone(offset, left, right) {
+        const span = offset<0 ? -left : right;
+        return span>0 ? .5 + .5*Math.max(-1,Math.min(1,offset/span)) : .5;
+    }
+
+    function pocketTone(sample, known, left, right) {
+        if (sample.offset!=null) return colorTone(sample.offset,left,right);
+        const index=known.findIndex(s=>s.angle>sample.angle);
+        const b=known[index], a=known[index<0?known.length-1:Math.max(0,index-1)];
+        if (!a) return .5;
+        const value=b && b!==a ? a.offset+(b.offset-a.offset)*(sample.angle-a.angle)/(b.angle-a.angle) : a.offset;
+        return colorTone(value,left,right);
+    }
+
+    function bumper(sample,id,index,{L,W,cornerLeg,sideMouth}) {
+        const contact=sample.balls.get(id).cushion;
+        if (!contact) return null;
+        const horizontal=contact.rail==='top rail'||contact.rail==='bottom rail';
+        const position=horizontal?contact.x:contact.y;
+        const secondHalf=horizontal&&position>L/2;
+        const start=secondHalf?L/2+sideMouth/2:cornerLeg;
+        const end=horizontal&&!secondHalf?L/2-sideMouth/2:(horizontal?L:W)-cornerLeg;
+        if (position<start || position>end) return null;
+        const inset=index?.023:.010;
+        const point=horizontal ? {x:position,y:contact.rail==='top rail'?-inset:W+inset}
+            : {x:contact.rail==='left rail'?-inset:L+inset,y:position};
+        return {sample, position, point:{...point,guideHeight:.0355}, key:contact.rail+':'+secondHalf};
+    }
+
+    function cushionRanges(run,id,index,request,tone) {
+        if (!request.table) return [];
+        const result=[];
+        let previous=null, active=null, direction=0;
+        for (const sample of run) {
+            const stop=bumper(sample,id,index,request.table);
+            const sign=stop&&previous?Math.sign(stop.position-previous.position):0;
+            if (!stop || !previous || stop.key!==previous.key) { active=null; direction=0; }
+            else if (sign) {
+                if (!active || sign!==direction) {
+                    active={id,stops:[previous]};
+                    result.push(active);
+                    direction=sign;
+                }
+                active.stops.push(stop);
+            }
+            if (stop) stop.tone=tone(sample);
+            previous=stop;
+        }
+        return result;
+    }
+
+    function resolve(data, currentShot, angle) {
+        if (!data) return null;
+        const {request,ids,anchor}=data;
+        const {radius,safety,rail}=request;
+        const live=sampleShot(anchor.angle+angleDelta(angle,anchor.angle),currentShot,request,ids);
+        const core=(data.core||[]).filter(Boolean);
+        const known=core.filter(s=>s.accepted&&s.offset!=null);
+        const samples=safety?[...new Set(data.runs.flat())]:known;
+        const low=samples.reduce((best,s)=>s.offset<(best?.offset??0)?s:best,null);
+        const high=samples.reduce((best,s)=>s.offset>(best?.offset??0)?s:best,null);
+        const center=(safety||rail) ? live.offset??0 : 0;
+        const tone=s=>s===live&&(safety||rail) ? .5
+            : safety||rail ? colorTone(s.offset-center,(low?.offset??0)-center,(high?.offset??0)-center)
+            : pocketTone(s,known,low?.offset??0,high?.offset??0);
+        const runs=safety?data.runs.map((run,i)=>reanchor(run,live,ids[i],radius)):[data.core];
+        const rests=runs.map((run,i)=>segments(run,ids[i]).map(({a,b,gap})=>({
+            points:[a.balls.get(ids[i]).rest,b.balls.get(ids[i]).rest], tones:[tone(a),tone(b)], samples:[a,b],gap
+        })));
+        const cushionLines=safety?runs.flatMap((run,i)=>cushionRanges(run,ids[i],i,request,tone)):[];
+        const potLandings=core.filter(s=>s.accepted&&s.balls.get(0).rest).sort((a,b)=>tone(a)-tone(b));
+        const restEdges=potLandings.length>1?[potLandings[0],potLandings.at(-1)]:null;
+        const tails=(data.tails||[]).map((links,i)=>({tone:tone(i?core.at(-1):core[0])<.5?0:1,lines:tailLines(links)}));
+        const pocketSamples=safety?[...new Set(runs.flat())].map(sample=>({
+            at:pocketPosition(sample.shot,request),fraction:tone(sample)
+        })):known.map(sample=>({at:sample.offset,fraction:tone(sample)}));
+        return {live, rests, runs, tails, restEdges, cushionLines, pocketSamples,
+            left:low && low.offset<center?low:null, right:high && high.offset>center?high:null,
+            bands:safety?[]:pathBands(data.core,tone,radius)};
+    }
+
+    function tailLines(links) {
+        const lines=[];
+        let previous=null, line=null;
+        for (const {a,b,part} of links) {
+            const left=a.balls.get(0).rest,right=b.balls.get(0).rest;
+            if (a!==previous) {
+                line=[left];
+                lines.push(line);
+            }
+            line.push(part===1?right:{x:left.x+(right.x-left.x)*part,y:left.y+(right.y-left.y)*part,z:left.z});
+            previous=b;
         }
         return lines;
-    }
-
-    function cueRoute(shot) {
-        return events(shot).filter(event => event.ids.includes(0)).map(event => event.key).join('|');
-    }
-
-    function cushionRanges(samples, id, index, request) {
-        const {L, W, cornerLeg, sideMouth} = request.table;
-        const groups = new Map();
-        for (const sample of samples) {
-            if (sample.offset == null) continue;
-            const hitTime = sample.shot.firstBallContact?.t ?? 0;
-            const contact = sample.shot.railEvents.find(e => e.id === id && (request.rail || e.t >= hitTime));
-            if (!contact) continue;
-            const horizontal = contact.rail === 'top rail' || contact.rail === 'bottom rail';
-            const along = horizontal ? contact.x : contact.y;
-            const secondHalf = horizontal && along > L / 2;
-            const start = secondHalf ? L / 2 + sideMouth / 2 : cornerLeg;
-            const end = horizontal && !secondHalf ? L / 2 - sideMouth / 2 : (horizontal ? L : W) - cornerLeg;
-            const key = contact.rail + ':' + secondHalf;
-            const group = groups.get(key) || [];
-            groups.set(key, group);
-            const position = Math.max(start, Math.min(end, along));
-            const inset = index ? .023 : .010;
-            const p = horizontal
-                ? {x:position, y:contact.rail === 'top rail' ? -inset : W + inset}
-                : {x:contact.rail === 'left rail' ? -inset : L + inset, y:position};
-            group.push({position, point:{...p, guideHeight:.0355}, offset:sample.offset});
-        }
-        const lines = [];
-        for (const group of groups.values()) {
-            group.sort((a, b) => a.position - b.position);
-            const stops = group.filter((stop, i) => !i || stop.position - group[i - 1].position > .00025);
-            if (stops.length > 1) lines.push({id, stops});
-        }
-        return lines;
-    }
-
-    function makePocketStops(samples, request, left, right) {
-        const {mouth} = request;
-        if (!mouth?.a) return null;
-        const width = distance(mouth.a, mouth.b);
-        const stops = [];
-        for (const sample of samples) {
-            if (!sample.shot) continue;
-            const position = pocketPosition(sample.shot, request);
-            if (position == null || Math.abs(position) >= width / 2) continue;
-            const fraction = sample.restTone ?? offsetTone(sample.offset, left, right);
-            stops.push({at:.5 + position / width, fraction});
-        }
-        stops.sort((a, b) => a.at - b.at);
-        // Jaw routes can fold entry positions back on themselves. Keep the
-        // physical left-to-right legend monotonic where those routes overlap.
-        const ordered = [{at:0, fraction:0}];
-        for (const stop of stops) {
-            if (stop.at - ordered.at(-1).at > .01 && stop.fraction >= ordered.at(-1).fraction && stop.fraction <= 1)
-                ordered.push(stop);
-        }
-        ordered.push({at:1, fraction:1});
-        return {name:mouth.name, stops:ordered.length > 2 ? ordered : null};
     }
 
     function path(shot, id) {
-        const points = shot?.paths?.[id] || [];
-        const rest = resting(shot, id);
-        if (!rest || !points.length || distance(points.at(-1), rest) < 1e-7) return points;
-        return [...points, {...rest, t:shot.endTime ?? points.at(-1).t}];
+        const points=shot.paths[id]||[];
+        const rest=shot.restIds?.includes(id)&&shot.finalBalls.find(ball=>ball.id===id&&ball.active);
+        if (!rest || !points.length || distance(points.at(-1),rest)<1e-7) return points;
+        return [...points,{...rest,t:shot.endTime??points.at(-1).t}];
     }
 
-    function resting(shot, id) {
-        return shot?.finalBalls?.find(ball => ball.id === id && ball.active && (!shot.restIds || shot.restIds.includes(id)));
-    }
-
-    function events(shot) {
-        return [
-            ...(shot.collisionEvents || []).map(e => ({t:e.t, key:'ball:' + e.ids.join(','), ids:e.ids})),
-            ...shot.railEvents.map(e => ({t:e.t, key:'rail:' + e.id + ':' + e.rail, ids:[e.id]})),
-            ...(shot.jawEvents || []).map(e => ({t:e.t, key:'jaw:' + e.id + ':' + e.jaw, ids:[e.id]})),
-            ...(shot.airborne?.landings || []).map(e => ({t:e.t, key:'bed:' + (e.id ?? 0), ids:[e.id ?? 0]})),
-            ...shot.pocketEvents.map(e => ({t:e.t, key:'pot:' + e.id + ':' + e.pocket, ids:[e.id]})),
-            ...shot.finalBalls.filter(b => !b.active && !pot(shot, b.id)).map(b => ({t:Infinity, key:'off:' + b.id, ids:[b.id]}))
-        ].sort((a, b) => a.t - b.t);
-    }
-
-    async function safetyRests(samples, layers, request, trial) {
-        const track = sample => {
-            const shot = sample.shot;
-            const timeline = shot ? events(shot) : [];
-            return {
-                angle:sample.angle,
-                offset:sample.offset,
-                balls:layers.map(id => ({
-                    rest:resting(shot, id),
-                    route:timeline.filter(event => event.ids.includes(id)).map(event => event.key).join('|')
-                }))
-            };
-        };
-        const canJoin = (a, b, depth) => a.rest && b.rest && distance(a.rest, b.rest) <=
-            (a.route === b.route ? request.radius * 3 : depth >= 3 ? request.radius / 3 : 0);
-        const tolerance = request.radius / 6;
-        const followsChord = (a, middle, b) => {
-            if (!a.rest || !middle.rest || !b.rest) return false;
-            const from = a.rest, to = b.rest, stop = middle.rest;
-            const x = to.x - from.x, y = to.y - from.y, z = (to.z || 0) - (from.z || 0);
-            const squared = x*x + y*y + z*z;
-            // Even aim steps needn't produce evenly spaced landings. But a
-            // midpoint clustered at an endpoint can indicate a sudden jump.
-            const fraction = squared
-                ? ((stop.x - from.x)*x + (stop.y - from.y)*y + ((stop.z || 0) - (from.z || 0))*z) / squared
-                : .5;
-            const t = Math.max(.25, Math.min(.75, fraction));
-            return distance(stop, {x:from.x + t*x, y:from.y + t*y, z:(from.z || 0) + t*z}) <= tolerance;
-        };
-        // An unverified interval may only span less than the landing tolerance.
-        // Matching event sequences alone don't establish a continuous stop curve.
-        const drawable = (a, b, depth, checked) => canJoin(a, b, depth) &&
-            (checked || (a.route === b.route && distance(a.rest, b.rest) <= tolerance));
-        const nodes = samples.map(track);
-        let intervals = nodes.slice(1).map((b, i) => {
-            const a = nodes[i];
-            const suspect = a.balls.some((ball, j) => ball.rest && b.balls[j].rest &&
-                !canJoin(ball, b.balls[j], 0));
-            return {a,b,depth:0,minimumDepth:suspect ? 3 : 1,checked:[]};
-        });
-        // Give every interval a midpoint probe, then spend the remaining
-        // previews near unresolved joins. Keep verified spans on timeout.
-        let budget = 224;
-        for (let level = 0; level < 10 && budget; level++) {
-            let inserted = false;
-            const next = [];
-            for (const interval of intervals) {
-                const {a, b, depth, minimumDepth, checked} = interval;
-                const needsProbe = depth < minimumDepth || a.balls.some((ball, i) => {
-                    const other = b.balls[i];
-                    if (ball.rest && other.rest) return !drawable(ball, other, depth, checked[i]);
-                    return depth < 4 && (ball.rest || other.rest);
-                });
-                if (!budget || !needsProbe) { next.push(interval); continue; }
-                const aim = (a.angle + b.angle) / 2;
-                const sample = await trial(aim);
-                if (!sample) { budget = 0; next.push(interval); continue; }
-                budget--;
-                const middle = track(accepts(sample.shot, request)
-                    ? {...sample, offset:targetOffset(sample.shot, request)} : {angle:aim});
-                const verified = a.balls.map((ball, i) => followsChord(ball, middle.balls[i], b.balls[i]));
-                next.push({a,b:middle,depth:depth+1,minimumDepth,checked:verified},
-                    {a:middle,b,depth:depth+1,minimumDepth,checked:verified});
-                inserted = true;
-            }
-            intervals = next;
-            if (!inserted) break;
+    function pointAt(points,time) {
+        let lo=0, hi=points.length-1;
+        while (hi-lo>1) {
+            const mid=(hi+lo)>>1;
+            if (points[mid].t<=time) lo=mid;
+            else hi=mid;
         }
-        return layers.map((_, i) => intervals.flatMap(({a, b, depth, checked}) =>
-            drawable(a.balls[i], b.balls[i], depth, checked[i])
-                ? [{points:[a.balls[i].rest,b.balls[i].rest], offsets:[a.offset,b.offset], gap:false}]
-                : []));
+        const a=points[lo],b=points[hi];
+        const t=b.t>a.t?Math.max(0,Math.min(1,(time-a.t)/(b.t-a.t))):0;
+        return {x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t,z:(a.z||0)+((b.z||0)-(a.z||0))*t};
     }
 
-    function pointAt(points, time) {
-        let lo = 0, hi = points.length - 1;
-        while (hi - lo > 1) {
-            const mid = (hi + lo) >> 1;
-            if (points[mid].t <= time) lo = mid;
-            else hi = mid;
-        }
-        const a = points[lo], b = points[hi];
-        const t = b.t > a.t ? Math.max(0, Math.min(1, (time - a.t) / (b.t - a.t))) : 0;
-        return {x:a.x + (b.x - a.x) * t, y:a.y + (b.y - a.y) * t, z:(a.z || 0) + ((b.z || 0) - (a.z || 0)) * t};
-    }
-
-    function makeBands(samples, id, radius, [bandStart, bandEnd]) {
-        const bands = [], rests = [];
-        let previousRest = null;
-        const tracks = samples.map(sample => {
-            if (!sample.shot) return null;
-            const timeline = events(sample.shot), rest = resting(sample.shot, id);
-            const signature = timeline.map(event => event.key).join('|');
-            const points = path(sample.shot, id);
-            const end = points.at(-1)?.t || 0;
-            const times = [0, ...timeline.filter(e => e.ids.includes(id)).map(e => Math.min(end, e.t)), end];
-            return {signature, times, points, rest};
-        });
-        for (let i = 0; i < tracks.length; i++) {
-            const b = tracks[i], right = samples[i];
-            if (b?.rest && (right.restTone != null || (i >= bandStart && i <= bandEnd && right.offset != null))) {
-                if (previousRest) {
-                    const {track, sample, index} = previousRest;
-                    const gap = index !== i - 1 || track.signature !== b.signature || distance(track.rest, b.rest) > radius * 3;
-                    rests.push({points:[track.rest, b.rest], offsets:[sample.offset, right.offset],
-                        tones:right.restTone == null ? null : [sample.restTone, right.restTone], gap});
-                }
-                previousRest = {track:b, sample:right, index:i};
-            }
-            if (i <= bandStart || i > bandEnd) continue;
-            const a = tracks[i - 1], left = samples[i - 1];
-            if (!a || !b) continue;
-            const sameRoute = a.signature === b.signature;
-            if (left.offset == null || right.offset == null ||
-                !sameRoute || !a.points.length || !b.points.length) continue;
-            const quads = [];
-            const aTimes = a.times, bTimes = b.times;
-            for (let leg = 1; leg < aTimes.length; leg++) {
-                const a0 = aTimes[leg - 1], b0 = bTimes[leg - 1];
-                const ad = aTimes[leg] - a0, bd = bTimes[leg] - b0;
-                const segments = Math.max(1, Math.min(18, Math.ceil(Math.max(ad, bd) / .08)));
-                let lastA = pointAt(a.points, a0), lastB = pointAt(b.points, b0);
-                for (let j = 1; j <= segments; j++) {
-                    const nextA = pointAt(a.points, a0 + ad * j / segments);
-                    const nextB = pointAt(b.points, b0 + bd * j / segments);
-                    const width = Math.max(distance(lastA, lastB), distance(nextA, nextB));
-                    const step = Math.max(distance(lastA, nextA), distance(lastB, nextB));
-                    if (width * step > 1e-7 && width <= radius * 2.5 && step <= radius * 8)
-                        quads.push([lastA, nextA, nextB, lastB]);
-                    lastA = nextA;
-                    lastB = nextB;
+    function pathBands(core,tone,radius) {
+        const bands=[];
+        for (let i=1; i<core.length; i++) {
+            const a=core[i-1], b=core[i];
+            if (!a?.accepted || !b?.accepted || a.balls.get(0).route!==b.balls.get(0).route) continue;
+            const traces=[a,b].map(sample=>{
+                const points=path(sample.shot,0), end=points.at(-1)?.t||0;
+                return {points,times:[0,...sample.balls.get(0).events.map(e=>Math.min(end,e.time)),end]};
+            });
+            if (traces.some(t=>!t.points.length)) continue;
+            const quads=[];
+            for (let leg=1; leg<traces[0].times.length; leg++) {
+                const spans=traces.map(({times})=>times[leg]-times[leg-1]);
+                const count=Math.max(1,Math.min(18,Math.ceil(Math.max(...spans)/.08)));
+                const pair=t=>traces.map(({points,times},j)=>pointAt(points,times[leg-1]+spans[j]*t));
+                let [a0,b0]=pair(0);
+                for (let k=1; k<=count; k++) {
+                    const [a1,b1]=pair(k/count);
+                    const width=Math.max(distance(a0,b0),distance(a1,b1));
+                    if (width>1e-6 && width<=radius*2.5) quads.push([a0,a1,b1,b0]);
+                    a0=a1; b0=b1;
                 }
             }
-            bands.push({offset:(left.offset + right.offset) / 2, quads});
+            if (quads.length) bands.push({tone:(tone(a)+tone(b))/2,quads});
         }
-        return {bands, rests};
+        return bands;
     }
 
     function tone(fraction) {
-        const values = [[118,186,255],[117,237,153],[255,175,102]];
-        const pos = Math.max(0, Math.min(2, fraction * 2));
-        const i = Math.min(1, Math.floor(pos)), t = pos - i;
-        return 'rgb(' + values[i].map((n, j) => Math.round(n + (values[i + 1][j] - n) * t)).join(',') + ')';
-    }
-
-    function offsetTone(offset, left, right) {
-        const edge = offset < 0 ? left : right;
-        return .5 + (edge ? .5 * offset / Math.abs(edge.offset) : 0);
+        const values=[[118,186,255],[117,237,153],[255,175,102]];
+        const pos=Math.max(0,Math.min(2,fraction*2)), i=Math.min(1,Math.floor(pos)), t=pos-i;
+        return 'rgb('+values[i].map((n,j)=>Math.round(n+(values[i+1][j]-n)*t)).join(',')+')';
     }
 
     function paint(ctx, project, state, flags, cloth) {
         if (!state?.current) return;
-        const {current, references, ids, mouth} = state;
-        const showPaths = flags.path || flags.safety, showRest = flags.rest || flags.safety;
-        const visible = p => p && p.visible !== false && Number.isFinite(p.x) && Number.isFinite(p.y);
-        const trace = (points, closed = false) => {
+        const {current, zones, ids, mouth} = state;
+        const showPaths=flags.path||flags.safety, showRest=flags.rest||flags.safety;
+        const visible=p=>p&&p.visible!==false&&Number.isFinite(p.x)&&Number.isFinite(p.y);
+        const trace=(points,closed=false)=>{
             ctx.beginPath();
-            let open = false;
+            let open=false;
             for (const point of points) {
-                const p = project(point);
-                if (!visible(p)) { open = false; continue; }
-                if (open) ctx.lineTo(p.x, p.y);
-                else { ctx.moveTo(p.x, p.y); open = true; }
+                const p=project(point);
+                if (!visible(p)) { open=false; continue; }
+                if (open) ctx.lineTo(p.x,p.y);
+                else { ctx.moveTo(p.x,p.y); open=true; }
             }
             if (closed) ctx.closePath();
         };
-        const colorAt = offset => tone(offsetTone(offset, references?.left, references?.right));
-        const edgeLine = (points, stops, width, alpha) => {
-            const [a, b] = points.map(project);
-            if (!visible(a) || !visible(b) || (a.x === b.x && a.y === b.y)) return;
-            const gradient = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
-            for (const [position, color] of stops) gradient.addColorStop(position, color);
-            ctx.strokeStyle = gradient;
-            ctx.lineWidth = width;
-            ctx.globalAlpha = alpha;
-            trace(points);
-            ctx.stroke();
+        const edgeLine=(points,stops,width,alpha)=>{
+            const [a,b]=points.map(project);
+            if (!visible(a)||!visible(b)||(a.x===b.x&&a.y===b.y)) return;
+            const gradient=ctx.createLinearGradient(a.x,a.y,b.x,b.y);
+            for (const [offset,color] of stops) gradient.addColorStop(offset,color);
+            ctx.strokeStyle=gradient;ctx.lineWidth=width;ctx.globalAlpha=alpha;
+            trace(points);ctx.stroke();
         };
         ctx.save();
-        ctx.lineCap = ctx.lineJoin = 'round';
-        if (showRest && mouth) {
-            const {a, b, outside} = mouth;
-            const increasing = outside.x * (b.y - a.y) - outside.y * (b.x - a.x) > 0;
-            const stops = references?.pocketStops?.name === mouth.name ? references.pocketStops.stops : null;
-            edgeLine(increasing ? [a, b] : [b, a],
-                stops?.map(stop => [stop.at, tone(stop.fraction)]) || COLORS.map((color, i) => [i / 2, color]), 1.5, .28);
-        }
-        if (flags.safety && references?.cushionLines) {
-            for (const {id, stops} of references.cushionLines) {
-                const a = stops[0], b = stops.at(-1), span = b.position - a.position;
-                edgeLine([a.point, b.point], stops.map(stop => [(stop.position - a.position) / span, colorAt(stop.offset)]),
-                    id === 0 ? 2.6 : 2.1, id === 0 ? .76 : .65);
+        ctx.lineCap=ctx.lineJoin='round';
+        if (showRest&&mouth) {
+            const {a,b,outside}=mouth;
+            const increasing=outside.x*(b.y-a.y)-outside.y*(b.x-a.x)>0;
+            const width=distance(a,b), stops=[[0,COLORS[0]]];
+            const samples=(zones?.pocketSamples||[]).filter(s=>s.at!=null&&Math.abs(s.at)<width/2).sort((x,y)=>x.at-y.at);
+            let last=.0;
+            for (const sample of samples) {
+                const at=.5+sample.at/width;
+                if (at-last<.005) continue;
+                stops.push([at,tone(sample.fraction)]);last=at;
             }
+            if (stops.length===1) stops.push([.5,COLORS[1]]);
+            stops.push([1,COLORS[2]]);
+            edgeLine(increasing?[a,b]:[b,a],stops,1.5,.26);
         }
-        if (references && (showPaths || showRest)) {
+        for (const {id,stops} of zones?.cushionLines||[]) {
+            const first=stops[0],last=stops.at(-1), span=last.position-first.position;
+            edgeLine([first.point,last.point],stops.map(s=>[(s.position-first.position)/span,tone(s.tone)]),
+                id===0?2.6:2.1,id===0?.76:.65);
+        }
+        if (zones) {
             ctx.save();
-            if (cloth.every(p => visible(project(p)))) {
-                trace(cloth, true);
-                ctx.clip();
-            }
-            const fillQuads = (quads, alpha) => {
-                ctx.globalAlpha = alpha;
-                for (const quad of quads) {
-                    if (!quad.every(point => visible(project(point)))) continue;
-                    trace(quad, true);
-                    ctx.fill();
-                }
-            };
-            if (flags.path && !flags.safety) {
-                references.bands.forEach((bands, index) => {
-                    for (const band of bands) {
-                        ctx.fillStyle = colorAt(band.offset);
-                        fillQuads(band.quads, index ? .026 : .052);
+            if (cloth.every(p=>visible(project(p)))) {trace(cloth,true);ctx.clip();}
+            if (flags.path&&!flags.safety) {
+                ctx.globalAlpha=.045;
+                for (const band of zones.bands) {
+                    ctx.fillStyle=tone(band.tone);
+                    for (const quad of band.quads) {
+                        if (!quad.every(point=>visible(project(point)))) continue;
+                        trace(quad,true);ctx.fill();
                     }
-                });
+                }
             }
             if (showRest) {
-                if (!flags.safety && references.tails?.length) {
-                    ctx.save();
-                    ctx.lineWidth = 2.25;
-                    ctx.globalAlpha = .57;
-                    ctx.setLineDash([.5, 5]);
-                    for (const [index, lines] of references.tails.entries()) {
-                        ctx.strokeStyle = COLORS[index ? 2 : 0];
-                        for (const points of lines) {
-                            trace(points);
-                            ctx.stroke();
-                        }
-                    }
-                    ctx.restore();
+                ctx.save();
+                ctx.lineWidth=2.25;ctx.globalAlpha=.55;ctx.setLineDash([.5,5]);
+                for (const tail of zones.tails) {
+                    ctx.strokeStyle=tone(tail.tone);
+                    for (const points of tail.lines) { trace(points);ctx.stroke(); }
                 }
-                if (flags.safety) {
-                    // Stroke a shared halo once. Round caps from individual
-                    // samples would otherwise stack at joins and crossings.
-                    ctx.strokeStyle = COLORS[1];
-                    ctx.lineWidth = 7;
-                    ctx.globalAlpha = .16;
-                    ctx.beginPath();
-                    for (const rests of references.rests) {
-                        let last = null;
-                        for (const {points:[from, to]} of rests) {
-                            const a = project(from), b = project(to);
-                            if (!visible(a) || !visible(b)) { last = null; continue; }
-                            if (from !== last) ctx.moveTo(a.x, a.y);
-                            ctx.lineTo(b.x, b.y);
-                            last = to;
-                        }
+                ctx.restore();
+                ctx.strokeStyle=COLORS[1];ctx.lineWidth=flags.safety?7:10;ctx.globalAlpha=.15;
+                ctx.beginPath();
+                for (const layer of zones.rests) {
+                    let last=null;
+                    for (const {points:[from,to],gap} of layer) {
+                        const a=project(from),b=project(to);
+                        if (gap||!visible(a)||!visible(b)) {last=null;continue;}
+                        if (from!==last) ctx.moveTo(a.x,a.y);
+                        ctx.lineTo(b.x,b.y);last=to;
                     }
-                    ctx.stroke();
                 }
-                references.rests.forEach((rests, index) => {
-                    for (const rest of rests) {
-                        const [a, b] = rest.points.map(project);
-                        if (!visible(a) || !visible(b) || (a.x === b.x && a.y === b.y)) continue;
-                        const gradient = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
-                        const colors = rest.tones ? rest.tones.map(tone) : rest.offsets.map(colorAt);
-                        gradient.addColorStop(0, colors[0]);
-                        gradient.addColorStop(1, colors[1]);
-                        ctx.strokeStyle = gradient;
-                        trace(rest.points);
-                        if (!flags.safety) {
-                            ctx.lineWidth = index ? 9 : 14;
-                            ctx.globalAlpha = rest.gap ? .035 : .11;
-                            ctx.stroke();
-                            ctx.lineWidth = index ? 5.5 : 8;
-                            ctx.globalAlpha = rest.gap ? .085 : .23;
-                            ctx.stroke();
-                        }
-                        ctx.lineWidth = flags.safety ? (index ? 2 : 2.8) : (index ? 2.6 : 4.2);
-                        ctx.globalAlpha = flags.safety ? (index ? .76 : .9)
-                            : rest.gap ? (index ? .26 : .40) : (index ? .64 : .96);
-                        ctx.stroke();
-                    }
-                });
+                ctx.stroke();
+                for (const [i,layer] of zones.rests.entries()) {
+                    for (const {points,tones,gap} of layer)
+                        edgeLine(points,[[0,tone(tones[0])],[1,tone(tones[1])]],i?2.1:3.4,gap?.23:i?.73:.92);
+                }
             }
             ctx.restore();
         }
-
-        const outcomes = [references?.left?.shot, current, references?.right?.shot];
-        for (const i of [0, 2, 1]) {
-            const shot = outcomes[i];
+        const outcomes=[zones?.left?.shot,current,zones?.right?.shot];
+        for (const i of flags.safety?[1]:[0,2,1]) {
+            const shot=outcomes[i];
             if (!shot) continue;
-            ctx.strokeStyle = ctx.fillStyle = ctx.shadowColor = COLORS[i];
             for (const id of ids) {
-                const primary = id === 0;
-                ctx.globalAlpha = primary ? (i === 1 ? .88 : .58) : (i === 1 ? .55 : .37);
-                if (showPaths && (!flags.safety || i === 1)) {
-                    if (showRest) ctx.globalAlpha *= .34;
-                    ctx.shadowBlur = showRest ? 0 : primary ? 4 : 2;
-                    ctx.lineWidth = primary ? (i === 1 ? 2.1 : 1.5) : 1.05;
-                    trace(path(shot, id));
-                    ctx.stroke();
-                    ctx.shadowBlur = 0;
+                const primary=id===0;
+                if (showPaths) {
+                    ctx.strokeStyle=COLORS[i];ctx.lineWidth=primary?1.65:1.05;
+                    ctx.globalAlpha=primary?(showRest?.27:.72):(showRest?.2:.55);
+                    trace(path(shot,id));ctx.stroke();
                 }
                 if (flags.rail) {
-                    for (const contact of shot.railEvents) {
-                        if (contact.id !== id) continue;
-                        const p = project(contact);
+                    for (const contact of shot.railEvents.filter(e=>e.id===id)) {
+                        const p=project(contact);
                         if (!visible(p)) continue;
-                        const haloRadius = primary ? 9 : 7;
-                        const halo = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, haloRadius);
-                        halo.addColorStop(0, COLORS[i]);
-                        halo.addColorStop(1, 'transparent');
-                        ctx.globalAlpha = primary ? .52 : .38;
-                        ctx.fillStyle = halo;
-                        ctx.beginPath();
-                        ctx.arc(p.x, p.y, haloRadius, 0, 2 * Math.PI);
-                        ctx.fill();
-                        ctx.globalAlpha = primary ? .95 : .79;
-                        ctx.fillStyle = COLORS[i];
-                        ctx.beginPath();
-                        ctx.arc(p.x, p.y, primary ? 3.4 : 2.6, 0, 2 * Math.PI);
-                        ctx.fill();
+                        const haloRadius=primary?9:7;
+                        const halo=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,haloRadius);
+                        halo.addColorStop(0,COLORS[i]);halo.addColorStop(1,'transparent');
+                        ctx.globalAlpha=primary?.52:.38;ctx.fillStyle=halo;
+                        ctx.beginPath();ctx.arc(p.x,p.y,haloRadius,0,2*Math.PI);ctx.fill();
+                        ctx.globalAlpha=primary?.95:.79;ctx.fillStyle=COLORS[i];
+                        ctx.beginPath();ctx.arc(p.x,p.y,primary?3.4:2.6,0,2*Math.PI);ctx.fill();
                     }
                 }
             }
         }
         if (showRest) {
-            const edges = references?.restEdges;
-            const landings = edges ? [edges[0].shot, current, edges[1].shot] : outcomes;
-            for (const i of flags.safety ? [1] : [0, 2, 1]) {
-                const shot = landings[i];
-                if (!shot) continue;
-                ctx.strokeStyle = ctx.fillStyle = ctx.shadowColor = COLORS[i];
+            const edges=zones?.restEdges, shots=edges?[edges[0].shot,current,edges[1].shot]:outcomes;
+            for (const i of flags.safety?[1]:[0,2,1]) {
+                const shot=shots[i];
                 for (const id of ids) {
-                    const primary = id === 0;
-                    const end = resting(shot, id);
+                    const primary=id===0;
+                    const end=shot?.restIds?.includes(id)&&shot.finalBalls.find(ball=>ball.id===id&&ball.active);
                     if (!end) continue;
-                    const p = project(end);
+                    const p=project(end);
                     if (!visible(p)) continue;
-                    ctx.shadowBlur = primary ? 10 : 6;
-                    ctx.globalAlpha = primary ? .92 : .65;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, primary ? 4.3 : 3.4, 0, 2 * Math.PI);
-                    ctx.lineWidth = 1.15;
-                    ctx.stroke();
-                    if (primary) {
-                        ctx.beginPath();
-                        ctx.arc(p.x, p.y, 1.6, 0, 2 * Math.PI);
-                        ctx.fill();
-                    }
+                    ctx.strokeStyle=ctx.fillStyle=ctx.shadowColor=COLORS[i];
+                    ctx.shadowBlur=primary?9:6;ctx.globalAlpha=primary?.92:.74;
+                    ctx.lineWidth=1.15;ctx.beginPath();ctx.arc(p.x,p.y,primary?4.3:3.4,0,2*Math.PI);ctx.stroke();
+                    if (primary) {ctx.beginPath();ctx.arc(p.x,p.y,1.6,0,2*Math.PI);ctx.fill();}
                 }
             }
         }
         ctx.restore();
     }
 
-    return {SAFETY_WINDOW, angleDelta, accepts, firstTargetRail, railPosition, pot, signed, search, paint};
+    return {SAFETY_WINDOW, angleDelta, firstTargetRail, railPosition, pot, signed, search, resolve, paint};
 });
