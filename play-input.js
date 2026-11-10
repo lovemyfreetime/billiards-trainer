@@ -1,11 +1,11 @@
 /* One command boundary for touch, keyboard, native voice and approved remote seats. */
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsInput=api;})(globalThis,function(){
 'use strict';
-const commands=new Set(['engine','ready','made','miss','foul','scratch','undo','pause','resume','private','clock-start','clock-pause','clock-extend','drill-made','drill-miss']);
+const commands=new Set(['engine','ready','made','miss','foul','scratch','undo','pause','resume','private','clock-start','clock-pause','clock-extend','clock-switch','clock-next','clock-break','clock-run-toggle','drill-made','drill-miss']);
 function parseVoice(value){
  const s=String(value||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
  if(!s.startsWith('table '))return null;
- const words=s.slice(6),simple={'ready':'ready','made':'made','miss':'miss','foul':'foul','scratch':'scratch','undo':'undo','pause':'pause','resume':'resume','start clock':'clock-start','pause clock':'clock-pause','extension':'clock-extend','drill made':'drill-made','drill miss':'drill-miss'};
+ const words=s.slice(6),simple={'ready':'ready','made':'made','miss':'miss','foul':'foul','scratch':'scratch','undo':'undo','pause':'pause','resume':'resume','start clock':'clock-start','pause clock':'clock-pause','extension':'clock-extend','switch player':'clock-switch','next shot':'clock-next','arm break':'clock-break','timed run':'clock-run-toggle','drill made':'drill-made','drill miss':'drill-miss'};
  if(simple[words])return {type:simple[words]};
  const ball=words.match(/^ball (\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen) made$/);
  if(!ball)return null;const n=Number(ball[1])||['','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen'].indexOf(ball[1]);

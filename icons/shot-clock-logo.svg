@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 150" role="img" aria-label="Shot Clock">
+  <defs>
+    <linearGradient id="word" x1="0" y1="0" x2="1" y2=".25">
+      <stop stop-color="#00ecff"/><stop offset=".52" stop-color="#aaf9ff"/><stop offset=".8" stop-color="#f7f9ff"/><stop offset="1" stop-color="#fff0c8"/>
+    </linearGradient>
+    <linearGradient id="stripe" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="620" y2="0">
+      <stop stop-color="#00f2fe"/><stop offset=".45" stop-color="#63eafb"/><stop offset=".79" stop-color="#f2e9b7"/><stop offset="1" stop-color="#ffe6b1"/>
+    </linearGradient>
+    <radialGradient id="ball" cx=".31" cy=".22" r=".85">
+      <stop stop-color="#edfff9"/><stop offset=".28" stop-color="#8cfaff"/><stop offset=".58" stop-color="#26dceb"/><stop offset=".8" stop-color="#f0e7b1"/><stop offset="1" stop-color="#e5a1f5"/>
+    </radialGradient>
+    <filter id="glow" x="-.5" y="-.5" width="2" height="2"><feGaussianBlur stdDeviation="5"/></filter>
+  </defs>
+  <path d="M8 127h590" stroke="#16dbf0" stroke-width="9" opacity=".5" filter="url(#glow)"/>
+  <text x="8" y="104" fill="url(#word)" font-family="Arial,Helvetica,sans-serif" font-size="103" font-weight="800" font-style="italic" transform="scale(.88 1)">Shot Clock</text>
+  <circle cx="552" cy="70" r="43" fill="#31e8f0" opacity=".45" filter="url(#glow)"/>
+  <circle cx="552" cy="70" r="37" fill="url(#ball)"/>
+  <ellipse cx="554" cy="59" rx="17" ry="20" fill="#183039" transform="rotate(-20 554 59)"/>
+  <text x="553" y="70" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="29" fill="#f8f6bd" transform="rotate(-20 554 59)">8</text>
+  <g aria-label="Pool cue">
+    <path d="M10 123 225 125 225 138 10 140Z" fill="#063943" stroke="#22e2ef" stroke-width="1"/>
+    <path d="M17 123v17m12-17v17m12-17v17m12-17v16m12-16v16m12-16v16m12-16v16" stroke="#29cedc" stroke-width="2" opacity=".8"/>
+    <path d="m95 124 130 1v13l-130 1Z" fill="url(#stripe)"/>
+    <path d="m225 125 365 5v4l-365 4Z" fill="#e2cc97" stroke="#fff0c4" stroke-width=".5"/>
+    <path d="M230 127 585 131" stroke="#ffffdf" stroke-width="1" opacity=".8"/>
+    <path d="M590 130h12v4h-12Z" fill="#f5f6e0"/>
+    <path d="M602 130h7v4h-7Z" fill="#22e5f1"/>
+  </g>
+</svg>

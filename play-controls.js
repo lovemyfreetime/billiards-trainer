@@ -1,7 +1,7 @@
 /* Paired HID remotes and native offline speech feed the same command boundary. */
 (function(){'use strict';
 let adapter=null,enabled=false,learning=null,voice=false,lastSpeech=0,listening=false,nextListen=0;
-const allowed=['made','miss','foul','scratch','ready','undo','pause','resume','clock-start','clock-pause','clock-extend','drill-made','drill-miss'];
+const allowed=['made','miss','foul','scratch','ready','undo','pause','resume','clock-start','clock-pause','clock-extend','clock-switch','clock-next','clock-break','clock-run-toggle','drill-made','drill-miss'];
 let mapping={};try{const saved=JSON.parse(localStorage.getItem('billiardsClicker-v1')||'{}');for(const [key,value] of Object.entries(saved))if(allowed.includes(value))mapping[key]=value;}catch{}
 function status(message){document.querySelectorAll('[data-input-status]').forEach(n=>n.textContent=message);}
 function capture(){window.BilliardsAndroid?.setClickerCapture?.(enabled||!!learning);}
@@ -34,7 +34,7 @@ document.addEventListener('billiards-native-pause',()=>{stopVoice();window.Billi
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopVoice();});
 window.addEventListener('pagehide',()=>stopVoice());
 window.BilliardsPlayControls={mount(parent,value){adapter=value;parent.replaceChildren();const add=(tag,text)=>{const n=document.createElement(tag);n.textContent=text;parent.append(n);return n;};add('h3','Clicker & voice');window.BilliardsNarration?.attach(parent,'clicker-help');add('p','Pair a keyboard-style Bluetooth remote in your device settings. Assign each button here, then enable it. The Android Play app can also capture external media or volume buttons while clicker mode is active. Browser support depends on the remote.');const select=add('select','');select.setAttribute('aria-label','Clicker action');allowed.forEach(action=>{const n=document.createElement('option');n.value=action;n.textContent=action.replaceAll('-',' ');select.append(n);});add('button','Assign next remote button').onclick=()=>{learning=select.value;capture();status('Press the remote button now.');};const toggle=add('button',enabled?'Disable clicker':'Enable clicker');toggle.onclick=()=>{enabled=!enabled;learning=null;capture();toggle.textContent=enabled?'Disable clicker':'Enable clicker';status(enabled?'Assigned buttons are active.':'Clicker off.');};add('button','Clear button assignments').onclick=()=>{mapping={};save();status('Assignments cleared.');};
-add('p','Voice commands start with “Table”: ready, ball one made, miss, foul, scratch, undo, pause, resume, start clock, pause clock, extension, drill made, drill miss. Audio on enables referee announcements.');
+add('p','Voice commands start with “Table”: ready, ball one made, miss, foul, scratch, undo, pause, resume, start clock, pause clock, extension, switch player, next shot, arm break, timed run, drill made, drill miss. Audio on enables referee announcements.');
 const supported=!!window.BilliardsAndroid?.offlineVoiceAvailable?.();const microphone=add('button',voice?'Turn microphone off':supported?'Enable offline voice':'Offline voice needs a supported Android app');microphone.dataset.voiceToggle='';microphone.disabled=!supported;microphone.onclick=()=>{if(voice)stopVoice();else{voice=true;nextListen=0;status('Say Table followed by a command.');}microphone.textContent=voice?'Turn microphone off':'Enable offline voice';};const note=add('p','');note.dataset.inputStatus='';note.setAttribute('role','status');
 }};
 })();
