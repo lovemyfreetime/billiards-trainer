@@ -185,7 +185,10 @@
                 sample.restTone = blue === orange ? .5 : (sample.angle - blue.angle) / (orange.angle - blue.angle);
             }
         }
-        const comparisons = layers.map(id => makeBands(ordered, id, radius, request.safety, bandRange));
+        const comparisons = request.safety
+            ? (await safetyRests(ordered.slice(bandRange[0], bandRange[1] + 1), layers, request, trial))
+                .map(rests => ({bands:[], rests}))
+            : layers.map(id => makeBands(ordered, id, radius, bandRange));
         const coreLength = comparisons[0].rests.reduce((length, segment) =>
             length + (segment.gap ? 0 : distance(...segment.points)), 0);
         const tails = [];
@@ -322,6 +325,60 @@
         ].sort((a, b) => a.t - b.t);
     }
 
+    async function safetyRests(samples, layers, request, trial) {
+        const track = sample => {
+            const shot = sample.shot;
+            const timeline = shot ? events(shot) : [];
+            return {
+                angle:sample.angle,
+                offset:sample.offset,
+                balls:layers.map(id => ({
+                    rest:resting(shot, id),
+                    route:timeline.filter(event => event.ids.includes(id)).map(event => event.key).join('|')
+                }))
+            };
+        };
+        const canJoin = (a, b, depth) => a.rest && b.rest && distance(a.rest, b.rest) <=
+            (a.route === b.route ? request.radius * 3 : depth >= 3 ? request.radius / 3 : 0);
+        const nodes = samples.map(track);
+        let intervals = nodes.slice(1).map((b, i) => {
+            const a = nodes[i];
+            const suspect = a.balls.some((ball, j) => ball.rest && b.balls[j].rest &&
+                !canJoin(ball, b.balls[j], 0));
+            return {a,b,depth:0,minimumDepth:suspect ? 3 : 1};
+        });
+        // Give every interval a midpoint probe, then spend the remaining
+        // previews near unresolved joins. Preserve the coarse result on timeout.
+        let budget = 224;
+        for (let level = 0; level < 10 && budget; level++) {
+            let inserted = false;
+            const next = [];
+            for (const interval of intervals) {
+                const {a, b, depth, minimumDepth} = interval;
+                const needsProbe = depth < minimumDepth || a.balls.some((ball, i) => {
+                    const other = b.balls[i];
+                    if (ball.rest && other.rest) return !canJoin(ball, other, depth);
+                    return depth < 4 && (ball.rest || other.rest);
+                });
+                if (!budget || !needsProbe) { next.push(interval); continue; }
+                const aim = (a.angle + b.angle) / 2;
+                const sample = await trial(aim);
+                if (!sample) { budget = 0; next.push(interval); continue; }
+                budget--;
+                const middle = track(accepts(sample.shot, request)
+                    ? {...sample, offset:targetOffset(sample.shot, request)} : {angle:aim});
+                next.push({a,b:middle,depth:depth+1,minimumDepth}, {a:middle,b,depth:depth+1,minimumDepth});
+                inserted = true;
+            }
+            intervals = next;
+            if (!inserted) break;
+        }
+        return layers.map((_, i) => intervals.flatMap(({a, b, depth}) =>
+            canJoin(a.balls[i], b.balls[i], depth)
+                ? [{points:[a.balls[i].rest,b.balls[i].rest], offsets:[a.offset,b.offset], gap:false}]
+                : []));
+    }
+
     function pointAt(points, time) {
         let lo = 0, hi = points.length - 1;
         while (hi - lo > 1) {
@@ -334,14 +391,13 @@
         return {x:a.x + (b.x - a.x) * t, y:a.y + (b.y - a.y) * t, z:(a.z || 0) + ((b.z || 0) - (a.z || 0)) * t};
     }
 
-    function makeBands(samples, id, radius, safety, [bandStart, bandEnd]) {
+    function makeBands(samples, id, radius, [bandStart, bandEnd]) {
         const bands = [], rests = [];
         let previousRest = null;
         const tracks = samples.map(sample => {
             if (!sample.shot) return null;
             const timeline = events(sample.shot), rest = resting(sample.shot, id);
-            const signature = timeline.filter(event => !safety || event.ids.includes(id)).map(event => event.key).join('|');
-            if (safety) return {signature, rest};
+            const signature = timeline.map(event => event.key).join('|');
             const points = path(sample.shot, id);
             const end = points.at(-1)?.t || 0;
             const times = [0, ...timeline.filter(e => e.ids.includes(id)).map(e => Math.min(end, e.t)), end];
@@ -353,14 +409,12 @@
                 if (previousRest) {
                     const {track, sample, index} = previousRest;
                     const gap = index !== i - 1 || track.signature !== b.signature || distance(track.rest, b.rest) > radius * 3;
-                    // Safety routes can land far apart after a tiny aim change.
-                    // Do not imply that the positions between them are playable.
-                    if (!safety || !gap) rests.push({points:[track.rest, b.rest], offsets:[sample.offset, right.offset],
+                    rests.push({points:[track.rest, b.rest], offsets:[sample.offset, right.offset],
                         tones:right.restTone == null ? null : [sample.restTone, right.restTone], gap});
                 }
                 previousRest = {track:b, sample:right, index:i};
             }
-            if (safety || i <= bandStart || i > bandEnd) continue;
+            if (i <= bandStart || i > bandEnd) continue;
             const a = tracks[i - 1], left = samples[i - 1];
             if (!a || !b) continue;
             const sameRoute = a.signature === b.signature;

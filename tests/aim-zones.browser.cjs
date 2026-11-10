@@ -11,7 +11,9 @@ const fixtures = {
     draw: [{x:1.1,y:.25}, {x:.48,y:.42}, -.07781200271668354, 3.8, -.55],
     safety: [{x:.55,y:.4}, {x:1.15,y:.4}, .015, 1.2],
     cushionSafety: [{x:.55,y:.55}, {x:1.05,y:.55}, .065, 3.6, -.2],
-    pocketJawSafety: [{x:1.902,y:.659}, {x:1.611,y:.236}, -.0188, 1.85]
+    pocketJawSafety: [{x:1.902,y:.659}, {x:1.611,y:.236}, -.0188, 1.85],
+    continuousSafety: [{x:1.7049229644773292,y:.7631445534905645}, {x:1.744244285487899,y:.9452285531614928},
+        .20640073732324837, 2.67]
 };
 fixtures.collision = [...fixtures.draw, 0, [{id:2,n:'2',x:.3236041582080856,y:.7303992344746408,active:true}]];
 
@@ -313,6 +315,29 @@ async function screenshot(page, name) {
         await page.waitForFunction(()=>!BilliardsAimZones.diagnostics()?.pending&&
             BilliardsAimZones.view()?.references&&BilliardsAimZones.view().references!==window.aimBeforeSweep);
         await screenshot(page,'14-safety-aim-sweep');
+
+        await load(page,fixtures.continuousSafety,true);
+        const continuous=await page.evaluate(()=>{
+            const initial=BilliardsAimZones.view().references;
+            const snap=billiardsTourBridge.capture(),s=snap.state,cue=s.balls[0];
+            const from=1.4772012186014847,to=1.4881150136697232;
+            let farthest=0;
+            for(let i=0;i<=16;i++){
+                const angle=from+(to-from)*i/16;
+                s.freeAim={x:cue.x+Math.cos(angle),y:cue.y+Math.sin(angle)};
+                billiardsTourBridge.restore(snap);
+                const view=BilliardsAimZones.view(),p=view.current.finalBalls.find(b=>b.id===0);
+                if(view.references!==initial||!view.current.restIds.includes(0))return Infinity;
+                const nearest=Math.min(...initial.rests[0].map(({points:[a,b]})=>{
+                    const dx=b.x-a.x,dy=b.y-a.y,length=dx*dx+dy*dy;
+                    const t=length?Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/length)):0;
+                    return Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy);
+                }));
+                farthest=Math.max(farthest,nearest);
+            }
+            return farthest;
+        });
+        assert(continuous<.005,'The continuous 20 cm safety branch renders through the former false gap');
 
         for(const [name,angle,position] of [
             ['top rail',-Math.PI/2,p=>p.x],['bottom rail',Math.PI/2,p=>-p.x],
