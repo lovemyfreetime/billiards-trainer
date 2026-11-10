@@ -2052,7 +2052,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 <script src="./trainer-table-zoom.js?v=2"></script>
 <script src="./trainer-shot-budget.js?v=exit-2"></script>
 <script src="./trainer-pocket-entry.js?v=1"></script>
-<script src="./trainer-aim-zones.js?v=4"></script>
+<script src="./trainer-aim-zones.js?v=5"></script>
 <script>
 // AI Camera Edition wrapper: v4.12 trainer, app-mode launch package. v4 adds scoreboard placement/default-off + local analysis-photo recall.
 // v4.12: virtual diamond extensions beyond physical corners; fixes source references that previously clipped at the first visible table boundary.
@@ -7363,7 +7363,17 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const base=JSON.stringify([which,safety,extend,rail?.rail,id,controls.speed,controls.follow,controls.sideSpin,
             controls.cueElevationDeg,S.tableL,S.tableW,S.ballR,S.muSlide,S.muRoll,S.muBall,S.ballRest,
             S.railRest,S.railTang,S.cueEndmassRatio,S.airbornePhysics,S.tableRest,S.bedImpactMu,balls]);
-        const same=aimZoneJob?.base===base?aimZoneJob:null;
+        const outsideSweep=job=>{
+            const range=job.references;
+            const aim=job.angle+api.angleDelta(angle,job.angle);
+            return !range||aim<range.lo-.00012||aim>range.hi+.00012;
+        };
+        let same=aimZoneJob?.base===base?aimZoneJob:null;
+        // If the player reverses before a new safety sweep finishes, return
+        // to the already-computed sweep instead of swapping the range under them.
+        if(safety&&same?.pending&&same.previous&&!outsideSweep(same.previous)){
+            same=aimZoneJob=same.previous;
+        }
         const actual=api.pot(current,id)?.pocket;
         const geometry=window.BilliardsPocketEntryGeometry, table=pocketModel();
         const inferred=geometry.analyze(table,hit);
@@ -7379,22 +7389,25 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const matched=same&&same.pocket===pocket;
         const contact=rail?api.railPosition(rail):api.signed(current,S.ballR);
         const anchorWindow=rail?2*S.ballR:api.SAFETY_WINDOW;
+        const windowSize=anchorWindow*(safety?3:1);
         const near=matched&&same.references;
-        const unwrapped=matched?same.angle+api.angleDelta(angle,same.angle):angle;
-        const reanchorContact=(rail||safety)&&matched&&Math.abs(contact-same.contact)>anchorWindow*1.18;
+        const reanchorContact=(rail||safety)&&matched&&(safety&&near
+            ? outsideSweep(same)
+            : Math.abs(contact-same.contact)>(safety&&same.pending?windowSize:anchorWindow)*1.18);
         const reanchorPot=pocket&&matched&&actual===pocket&&!same.pending
-            &&Math.abs(unwrapped-same.angle)>.00012
-            &&(!near||unwrapped<near.lo-.00012||unwrapped>near.hi+.00012);
+            &&Math.abs(api.angleDelta(angle,same.angle))>.00012&&outsideSweep(same);
         if(matched&&!reanchorContact&&!reanchorPot){
-            aimZoneView.references=same.references;
+            aimZoneView.references=same.references??same.previous?.references??null;
             return;
         }
 
+        const previous=safety&&matched?(near?same:same.previous):null;
+        aimZoneView.references=previous?.references??null;
         const request={id,pocket,rail,safety,extend,current,angle,cue,object,radius:S.ballR,contact,mouth,table,
-            window:anchorWindow*(safety?3:1),squirt:cueSquirtAngleFor(controls.sideSpin,controls.follow,S.cueEndmassRatio)};
+            window:windowSize,squirt:cueSquirtAngleFor(controls.sideSpin,controls.follow,S.cueEndmassRatio)};
         const physics={...S,balls,speed:controls.speed,follow:controls.follow,sideSpin:controls.sideSpin,
             cueElevationDeg:controls.cueElevationDeg,showShotBudget:false};
-        const job={base,pocket,rail:rail?.rail,angle,contact,pending:true,references:null,tested:0,cpuMs:0,maxSliceMs:0,started:performance.now()};
+        const job={base,pocket,rail:rail?.rail,angle,contact,pending:true,previous,references:null,tested:0,cpuMs:0,maxSliceMs:0,started:performance.now()};
         aimZoneJob=job;
         const cancelled=()=>aimZoneJob!==job;
         const expired=()=>cancelled()||job.cpuMs>900||performance.now()-job.started>8000;
@@ -7411,6 +7424,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             }catch(error){console.error('Aim-to-position preview:',error);}
             if(cancelled())return;
             job.pending=false;
+            job.previous=null;
             job.elapsedMs=performance.now()-job.started;
             draw();
         },45);

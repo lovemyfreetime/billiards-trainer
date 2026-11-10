@@ -10,7 +10,8 @@ const fixtures = {
     nearSide: [{x:1.12,y:.7}, {x:1.12,y:.16}, 0, 2.68, .76, .65],
     draw: [{x:1.1,y:.25}, {x:.48,y:.42}, -.07781200271668354, 3.8, -.55],
     safety: [{x:.55,y:.4}, {x:1.15,y:.4}, .015, 1.2],
-    cushionSafety: [{x:.55,y:.55}, {x:1.05,y:.55}, .065, 3.6, -.2]
+    cushionSafety: [{x:.55,y:.55}, {x:1.05,y:.55}, .065, 3.6, -.2],
+    pocketJawSafety: [{x:1.902,y:.659}, {x:1.611,y:.236}, -.0188, 1.85]
 };
 fixtures.collision = [...fixtures.draw, 0, [{id:2,n:'2',x:.3236041582080856,y:.7303992344746408,active:true}]];
 
@@ -176,7 +177,7 @@ async function screenshot(page, name) {
         const signature=p=>p.collisions.map(e=>e.ids.join(':')).join('|');
         assert([shot.left,shot.right].filter(Boolean).some(p=>signature(p)!==signature(shot.current)));
         assert.equal(shot.branches,0,'Discontinuous non-safety paths are left transparent');
-        const bridge=await page.evaluate(async()=>{
+        const discontinuity=await page.evaluate(async()=>{
             const api=BilliardsAimZones, radius=.028575;
             const simulate=angle=>{
                 const end={id:0,x:1.7,y:.3+angle+(angle>.04?.33:0),active:true};
@@ -192,17 +193,17 @@ async function screenshot(page, name) {
             const current=simulate(0);
             const references=await api.search({angle:0,cue:{x:.3,y:.5},object:{x:1,y:.5},
                 radius,safety:true,id:1,contact:0,window:.1,current},simulate);
-            const gap=references.rests[0].find(rest=>rest.gap);
             const canvas=document.createElement('canvas');
             canvas.width=500;canvas.height=300;
             const ctx=canvas.getContext('2d'), map=p=>({x:15+200*p.x,y:15+200*p.y});
-            api.paint(ctx,map,{current,references,ids:[0]},{rest:true},[{x:0,y:0},{x:2.24,y:0},{x:2.24,y:1.12},{x:0,y:1.12}]);
-            const [a,b]=gap.points.map(map);
-            const alpha=ctx.getImageData(Math.floor((a.x+b.x)/2),Math.floor((a.y+b.y)/2),1,1).data[3];
-            return {alpha,safetyBands:references.bands[0].length};
+            api.paint(ctx,map,{current,references,ids:[0]},{safety:true},[{x:0,y:0},{x:2.24,y:0},{x:2.24,y:1.12},{x:0,y:1.12}]);
+            const p=map({x:1.7,y:.495});
+            const alpha=ctx.getImageData(Math.floor(p.x),Math.floor(p.y),1,1).data[3];
+            return {alpha,safetyBands:references.bands[0].length,rests:references.rests[0].length};
         });
-        assert(bridge.alpha>0&&bridge.alpha<190,'A discontinuous resting range draws a dim bridge');
-        assert.equal(bridge.safetyBands,0,'A change in collision route cannot generate a safety ribbon');
+        assert(discontinuity.rests>0,'Reachable safety positions still draw');
+        assert.equal(discontinuity.alpha,0,'A change in route leaves the gap between the safety rests unpainted');
+        assert.equal(discontinuity.safetyBands,0,'A change in collision route cannot generate a safety ribbon');
         await screenshot(page,'06-secondary-collision-2d');
 
         shot=await load(page,fixtures.safety,true);
@@ -276,6 +277,42 @@ async function screenshot(page, name) {
         await screenshot(page,'13-3d-safety-cushion-guides');
         await page.locator('#table3DToggle').click();
         await page.waitForFunction(()=>!Billiards3D.active);
+
+        await load(page,fixtures.pocketJawSafety,true);
+        const sweep=await page.evaluate(()=>{
+            const view=()=>BilliardsAimZones.view(), pending=()=>BilliardsAimZones.diagnostics().pending;
+            const snap=billiardsTourBridge.capture(), s=snap.state, cue=s.balls[0];
+            const angle=Math.atan2(s.freeAim.y-cue.y,s.freeAim.x-cue.x);
+            const initial=window.aimBeforeSweep=view().references;
+            const aim=at=>{
+                s.freeAim={x:cue.x+Math.cos(at),y:cue.y+Math.sin(at)};
+                billiardsTourBridge.restore(snap);
+            };
+            const samples=[];
+            for(const edge of [initial.lo,initial.hi]){
+                for(const fraction of [.2,.4,.6,.8,.95]){
+                    aim(angle+fraction*(edge-angle));
+                    const positions=p=>p.finalBalls.filter(ball=>ball.active).map(({id,x,y})=>[id,x,y]);
+                    samples.push(!pending()&&view().references===initial&&
+                        JSON.stringify(positions(view().current))===JSON.stringify(positions(billiardsTourBridge.predict())));
+                }
+            }
+            aim(initial.hi+.003);
+            const firstCrossing=pending()&&view().references===initial;
+            aim(angle);
+            const reversed=!pending()&&view().references===initial;
+            aim(initial.hi+.003);
+            const held=pending()&&view().references===initial;
+            const connected=initial.rests.every(layer=>layer.length>0&&layer.every(rest=>!rest.gap&&
+                Math.hypot(rest.points[1].x-rest.points[0].x,rest.points[1].y-rest.points[0].y)<=.086));
+            return {samples,firstCrossing,reversed,held,connected};
+        });
+        assert(sweep.samples.every(Boolean),'Safety range stays anchored throughout the sampled range and the live stops stay exact');
+        assert(sweep.firstCrossing&&sweep.reversed&&sweep.held,'An edge rebuild keeps the last range and a quick reversal restores it');
+        assert(sweep.connected,'Both safety landing guides exclude disconnected positions');
+        await page.waitForFunction(()=>!BilliardsAimZones.diagnostics()?.pending&&
+            BilliardsAimZones.view()?.references&&BilliardsAimZones.view().references!==window.aimBeforeSweep);
+        await screenshot(page,'14-safety-aim-sweep');
 
         for(const [name,angle,position] of [
             ['top rail',-Math.PI/2,p=>p.x],['bottom rail',Math.PI/2,p=>-p.x],

@@ -340,7 +340,7 @@
         const tracks = samples.map(sample => {
             if (!sample.shot) return null;
             const timeline = events(sample.shot), rest = resting(sample.shot, id);
-            const signature = timeline.map(event => event.key).join('|');
+            const signature = timeline.filter(event => !safety || event.ids.includes(id)).map(event => event.key).join('|');
             if (safety) return {signature, rest};
             const points = path(sample.shot, id);
             const end = points.at(-1)?.t || 0;
@@ -353,7 +353,9 @@
                 if (previousRest) {
                     const {track, sample, index} = previousRest;
                     const gap = index !== i - 1 || track.signature !== b.signature || distance(track.rest, b.rest) > radius * 3;
-                    rests.push({points:[track.rest, b.rest], offsets:[sample.offset, right.offset],
+                    // Safety routes can land far apart after a tiny aim change.
+                    // Do not imply that the positions between them are playable.
+                    if (!safety || !gap) rests.push({points:[track.rest, b.rest], offsets:[sample.offset, right.offset],
                         tones:right.restTone == null ? null : [sample.restTone, right.restTone], gap});
                 }
                 previousRest = {track:b, sample:right, index:i};
@@ -490,15 +492,14 @@
                         gradient.addColorStop(1, colors[1]);
                         ctx.strokeStyle = gradient;
                         trace(rest.points);
-                        const fade = rest.gap && flags.safety ? .40 : 1;
                         ctx.lineWidth = index ? 9 : 14;
-                        ctx.globalAlpha = fade * (rest.gap ? .035 : .11);
+                        ctx.globalAlpha = rest.gap ? .035 : .11;
                         ctx.stroke();
                         ctx.lineWidth = index ? 5.5 : 8;
-                        ctx.globalAlpha = fade * (rest.gap ? .085 : .23);
+                        ctx.globalAlpha = rest.gap ? .085 : .23;
                         ctx.stroke();
                         ctx.lineWidth = index ? 2.6 : 4.2;
-                        ctx.globalAlpha = fade * (rest.gap ? (index ? .26 : .40) : (index ? .64 : .96));
+                        ctx.globalAlpha = rest.gap ? (index ? .26 : .40) : (index ? .64 : .96);
                         ctx.stroke();
                     }
                 });
