@@ -340,24 +340,42 @@
         };
         const canJoin = (a, b, depth) => a.rest && b.rest && distance(a.rest, b.rest) <=
             (a.route === b.route ? request.radius * 3 : depth >= 3 ? request.radius / 3 : 0);
+        const tolerance = request.radius / 6;
+        const followsChord = (a, middle, b) => {
+            if (!a.rest || !middle.rest || !b.rest) return false;
+            const from = a.rest, to = b.rest, stop = middle.rest;
+            const x = to.x - from.x, y = to.y - from.y, z = (to.z || 0) - (from.z || 0);
+            const squared = x*x + y*y + z*z;
+            // Even aim steps needn't produce evenly spaced landings. But a
+            // midpoint clustered at an endpoint can indicate a sudden jump.
+            const fraction = squared
+                ? ((stop.x - from.x)*x + (stop.y - from.y)*y + ((stop.z || 0) - (from.z || 0))*z) / squared
+                : .5;
+            const t = Math.max(.25, Math.min(.75, fraction));
+            return distance(stop, {x:from.x + t*x, y:from.y + t*y, z:(from.z || 0) + t*z}) <= tolerance;
+        };
+        // An unverified interval may only span less than the landing tolerance.
+        // Matching event sequences alone don't establish a continuous stop curve.
+        const drawable = (a, b, depth, checked) => canJoin(a, b, depth) &&
+            (checked || (a.route === b.route && distance(a.rest, b.rest) <= tolerance));
         const nodes = samples.map(track);
         let intervals = nodes.slice(1).map((b, i) => {
             const a = nodes[i];
             const suspect = a.balls.some((ball, j) => ball.rest && b.balls[j].rest &&
                 !canJoin(ball, b.balls[j], 0));
-            return {a,b,depth:0,minimumDepth:suspect ? 3 : 1};
+            return {a,b,depth:0,minimumDepth:suspect ? 3 : 1,checked:[]};
         });
         // Give every interval a midpoint probe, then spend the remaining
-        // previews near unresolved joins. Preserve the coarse result on timeout.
+        // previews near unresolved joins. Keep verified spans on timeout.
         let budget = 224;
         for (let level = 0; level < 10 && budget; level++) {
             let inserted = false;
             const next = [];
             for (const interval of intervals) {
-                const {a, b, depth, minimumDepth} = interval;
+                const {a, b, depth, minimumDepth, checked} = interval;
                 const needsProbe = depth < minimumDepth || a.balls.some((ball, i) => {
                     const other = b.balls[i];
-                    if (ball.rest && other.rest) return !canJoin(ball, other, depth);
+                    if (ball.rest && other.rest) return !drawable(ball, other, depth, checked[i]);
                     return depth < 4 && (ball.rest || other.rest);
                 });
                 if (!budget || !needsProbe) { next.push(interval); continue; }
@@ -367,14 +385,16 @@
                 budget--;
                 const middle = track(accepts(sample.shot, request)
                     ? {...sample, offset:targetOffset(sample.shot, request)} : {angle:aim});
-                next.push({a,b:middle,depth:depth+1,minimumDepth}, {a:middle,b,depth:depth+1,minimumDepth});
+                const verified = a.balls.map((ball, i) => followsChord(ball, middle.balls[i], b.balls[i]));
+                next.push({a,b:middle,depth:depth+1,minimumDepth,checked:verified},
+                    {a:middle,b,depth:depth+1,minimumDepth,checked:verified});
                 inserted = true;
             }
             intervals = next;
             if (!inserted) break;
         }
-        return layers.map((_, i) => intervals.flatMap(({a, b, depth}) =>
-            canJoin(a.balls[i], b.balls[i], depth)
+        return layers.map((_, i) => intervals.flatMap(({a, b, depth, checked}) =>
+            drawable(a.balls[i], b.balls[i], depth, checked[i])
                 ? [{points:[a.balls[i].rest,b.balls[i].rest], offsets:[a.offset,b.offset], gap:false}]
                 : []));
     }
@@ -536,6 +556,25 @@
                     }
                     ctx.restore();
                 }
+                if (flags.safety) {
+                    // Stroke a shared halo once. Round caps from individual
+                    // samples would otherwise stack at joins and crossings.
+                    ctx.strokeStyle = COLORS[1];
+                    ctx.lineWidth = 7;
+                    ctx.globalAlpha = .16;
+                    ctx.beginPath();
+                    for (const rests of references.rests) {
+                        let last = null;
+                        for (const {points:[from, to]} of rests) {
+                            const a = project(from), b = project(to);
+                            if (!visible(a) || !visible(b)) { last = null; continue; }
+                            if (from !== last) ctx.moveTo(a.x, a.y);
+                            ctx.lineTo(b.x, b.y);
+                            last = to;
+                        }
+                    }
+                    ctx.stroke();
+                }
                 references.rests.forEach((rests, index) => {
                     for (const rest of rests) {
                         const [a, b] = rest.points.map(project);
@@ -546,14 +585,17 @@
                         gradient.addColorStop(1, colors[1]);
                         ctx.strokeStyle = gradient;
                         trace(rest.points);
-                        ctx.lineWidth = index ? 9 : 14;
-                        ctx.globalAlpha = rest.gap ? .035 : .11;
-                        ctx.stroke();
-                        ctx.lineWidth = index ? 5.5 : 8;
-                        ctx.globalAlpha = rest.gap ? .085 : .23;
-                        ctx.stroke();
-                        ctx.lineWidth = index ? 2.6 : 4.2;
-                        ctx.globalAlpha = rest.gap ? (index ? .26 : .40) : (index ? .64 : .96);
+                        if (!flags.safety) {
+                            ctx.lineWidth = index ? 9 : 14;
+                            ctx.globalAlpha = rest.gap ? .035 : .11;
+                            ctx.stroke();
+                            ctx.lineWidth = index ? 5.5 : 8;
+                            ctx.globalAlpha = rest.gap ? .085 : .23;
+                            ctx.stroke();
+                        }
+                        ctx.lineWidth = flags.safety ? (index ? 2 : 2.8) : (index ? 2.6 : 4.2);
+                        ctx.globalAlpha = flags.safety ? (index ? .76 : .9)
+                            : rest.gap ? (index ? .26 : .40) : (index ? .64 : .96);
                         ctx.stroke();
                     }
                 });

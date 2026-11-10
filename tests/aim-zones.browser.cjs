@@ -206,6 +206,38 @@ async function screenshot(page, name) {
         assert(discontinuity.rests>0,'Reachable safety positions still draw');
         assert.equal(discontinuity.alpha,0,'A change in route leaves the gap between the safety rests unpainted');
         assert.equal(discontinuity.safetyBands,0,'A change in collision route cannot generate a safety ribbon');
+        const shortJump=await page.evaluate(async()=>{
+            const api=BilliardsAimZones, radius=.028575;
+            const simulate=angle=>{
+                const rest={id:0,x:1.7,y:.3+angle+(angle>.011?.05:0),active:true};
+                return {firstBallContact:{objId:1,signedOffset:2*radius*angle},
+                    paths:{0:[rest]},collisionEvents:[{t:.3,ids:[0,1]}],railEvents:[],pocketEvents:[],
+                    finalBalls:[rest],restIds:[0]};
+            };
+            const current=simulate(0);
+            const references=await api.search({angle:0,cue:{x:.3,y:.5},object:{x:1,y:.5},
+                radius,safety:true,id:1,contact:0,window:.1,current},simulate);
+            return {spans:references.rests[0].length,
+                crossing:references.rests[0].some(({points:[a,b]})=>a.y<.336&&b.y>.336)};
+        });
+        assert(shortJump.spans>0,'Stable landing segments remain visible near a same-route jump');
+        assert.equal(shortJump.crossing,false,'A five-centimeter jump with unchanged events leaves an open gap');
+        const halo=await page.evaluate(()=>{
+            const api=BilliardsAimZones, cloth=[{x:0,y:0},{x:240,y:0},{x:240,y:160},{x:0,y:160}];
+            const current={finalBalls:[]}, a={x:20,y:60}, b={x:120,y:60};
+            const points=Array.from({length:81},(_,i)=>({x:20+1.25*i,y:60}));
+            const make=points=>points.slice(1).map((point,i)=>({points:[points[i],point],offsets:[0,0]}));
+            const alpha=rests=>{
+                const canvas=document.createElement('canvas');
+                canvas.width=240;canvas.height=160;
+                const ctx=canvas.getContext('2d');
+                api.paint(ctx,p=>p,{current,references:{rests},ids:[]},{safety:true},cloth);
+                return ctx.getImageData(70,62,1,1).data[3];
+            };
+            return {sparse:alpha([make([a,b])]),dense:alpha([make(points),make(points)])};
+        });
+        assert(halo.sparse>0,'The landing guide has a visible halo');
+        assert.equal(halo.dense,halo.sparse,'Halo brightness stays constant across dense and overlapping samples');
         await screenshot(page,'06-secondary-collision-2d');
 
         shot=await load(page,fixtures.safety,true);
