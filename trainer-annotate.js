@@ -341,7 +341,6 @@
   return [a.x,a.y,b.x,b.y].join(':');
  }
  window.BilliardsClipView={
-  get mode(){return snapshotMode;},
   captureView(){return {three:is3d(),camera:is3d()?window.Billiards3D.camera():null,zoom:window.BilliardsTableZoom?.snapshot()};},
   async restoreView(saved){
    if(!saved)return;

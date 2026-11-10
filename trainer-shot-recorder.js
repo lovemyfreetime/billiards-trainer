@@ -7,7 +7,7 @@
  const byId=id=>document.getElementById(id),bridge=()=>window.billiardsTourBridge;
  const arm=byId('trainerClipArm'),folderButton=byId('trainerClipFolder'),pairButton=byId('trainerClipPair');
  const sessionButton=byId('trainerClipSession'),replayButton=byId('trainerClipReplay');
- const sessionView=byId('trainerSessionView');
+ const shotView=byId('trainerClipView'),sessionView=byId('trainerSessionView');
  const nameInput=byId('trainerClipName'),setupButton=byId('trainerClipSetup');
  const status=byId('trainerClipStatus'),sessionStatus=byId('trainerClipSessionStatus');
  const width=1920,height=1080,fps=30;
@@ -39,7 +39,7 @@
  function update(){
   const busy=!!job||preparing||!!window.BilliardsCameraRecorder?.recording;
   for(const button of [arm,pairButton,folderButton,sessionButton])button.disabled=busy;
-  nameInput.disabled=busy;sessionView.disabled=busy;byId("trainerNarrateVideo").disabled=busy;
+  nameInput.disabled=busy;shotView.disabled=busy;sessionView.disabled=busy;byId("trainerNarrateVideo").disabled=busy;
   replayButton.disabled=busy||collecting||!shots.length;
   sessionButton.textContent=collecting?'End session':'Start session';
   sessionButton.setAttribute('aria-pressed',String(collecting));
@@ -180,7 +180,7 @@
    const stem=await unusedName(safeName(nameInput.value.trim()||nameInput.placeholder),kind);
    const entries=kind==='session'?shots.slice():[snapshot()];
    if(!entries.length)throw Error('Start and end a session before recording it.');
-   job={kind,index:0,entries,original,originalView,stem,framing:kind==='pair'?'current':kind==='session'?sessionView.value:window.BilliardsClipView.mode};
+   job={kind,index:0,entries,original,originalView,stem,framing:kind==='pair'?'current':kind==='session'?sessionView.value:shotView.value};
    if(kind==='session'){
     preparing=false;update();
     await playSessionEntry(job);

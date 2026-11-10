@@ -260,6 +260,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   #trainerAnnotateGroup button:disabled { opacity:.45; }
   #trainerAnnotateGroup .trainerAnnotateColor { flex-direction:row;gap:5px;cursor:pointer;white-space:nowrap; }
   #trainerAnnotateColor { width:24px;height:19px;min-width:24px;padding:0;border:0;background:transparent; }
+  #trainerClipTools > label { display:block; margin:6px 0 4px; }
+  #trainerClipTools > input, #trainerClipTools > select { width:100%; box-sizing:border-box; }
+  #trainerClipTools .row { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  #trainerClipTools .row button { min-width:0; min-height:34px; padding:4px; }
+  #trainerClipTools button:disabled { opacity:.45; }
   #trainerAnnotationCanvas { position:absolute;inset:0;z-index:11;width:100%;height:100%;pointer-events:none;touch-action:none; }
   #trainerAnnotationInput { position:absolute;inset:0;z-index:11;width:100%;height:100%;pointer-events:none;touch-action:none; }
   #trainerAnnotationInput polygon { pointer-events:none; }
@@ -1760,33 +1765,42 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         <label for="trainerSnapshotName">Snapshot name</label>
         <input id="trainerSnapshotName" type="text" maxlength="80" placeholder="Billiards table snapshot">
         <div id="trainerSnapshotStatus" class="hint" role="status">On the web, check your browser’s Downloads for snapshots.</div>
-        <div id="trainerClipTools" hidden>
-          <label for="trainerClipName">Recording name</label>
-          <input id="trainerClipName" type="text" maxlength="80" placeholder="Shot 01" autocomplete="off">
-          <div class="row">
-            <button id="trainerClipArm" type="button">Record shot</button>
-            <button id="trainerClipFolder" type="button">Clips folder</button>
-            <button id="trainerClipSetup" type="button" hidden>Save setup</button>
-          </div>
-          <div class="row">
-            <button id="trainerClipPair" type="button">Current + stroke</button>
-            <button id="trainerClipSession" type="button" aria-pressed="false">Start session</button>
-            <button id="trainerClipReplay" type="button" disabled>Record session</button>
-          </div>
-          <div class="row">
-            <button id="trainerCameraToggle" type="button" aria-pressed="false" aria-controls="trainerCameraBar">Camera recorder</button>
-          </div>
-          <label for="trainerSessionView">Session video view</label>
-          <select id="trainerSessionView">
-            <option value="stroke-current">Saved view + stroke</option>
-            <option value="stroke">Full table + stroke</option>
-            <option value="current">Saved view</option>
-            <option value="full">Full table</option>
-          </select>
-          <button id="trainerNarrateVideo" type="button">Narrate a video</button>
-          <div id="trainerClipSessionStatus" class="hint">Start a session before playing your rack.</div>
-          <div id="trainerClipStatus" class="hint" role="status">Choose a view above, then Record shot to execute and save the clip and setup.</div>
+      </div>
+      <div id="trainerClipTools" class="tableControlGroup layoutSetupGroup" role="group" aria-labelledby="trainerClipTitle" hidden>
+        <div id="trainerClipTitle" class="tableControlTitle">VIDEO &amp; AUDIO NARRATION</div>
+        <label for="trainerClipName">Recording name</label>
+        <input id="trainerClipName" type="text" maxlength="80" placeholder="Shot 01" autocomplete="off">
+        <label for="trainerClipView">Shot video view</label>
+        <select id="trainerClipView">
+          <option value="full">Full table</option>
+          <option value="current">Current view</option>
+          <option value="stroke">Table + stroke</option>
+        </select>
+        <div class="row">
+          <button id="trainerClipArm" type="button">Record shot</button>
+          <button id="trainerClipPair" type="button">Current + stroke</button>
         </div>
+        <label for="trainerSessionView">Session video view</label>
+        <select id="trainerSessionView">
+          <option value="stroke-current">Saved view + stroke</option>
+          <option value="stroke">Full table + stroke</option>
+          <option value="current">Saved view</option>
+          <option value="full">Full table</option>
+        </select>
+        <div class="row">
+          <button id="trainerClipSession" type="button" aria-pressed="false">Start session</button>
+          <button id="trainerClipReplay" type="button" disabled>Record session</button>
+        </div>
+        <div id="trainerClipSessionStatus" class="hint">Start a session before playing your rack.</div>
+        <div class="row">
+          <button id="trainerCameraToggle" type="button" aria-pressed="false" aria-controls="trainerCameraBar">Camera recorder</button>
+          <button id="trainerNarrateVideo" type="button">Narrate a video</button>
+        </div>
+        <div class="row">
+          <button id="trainerClipFolder" type="button">Clips folder</button>
+          <button id="trainerClipSetup" type="button" hidden>Save setup</button>
+        </div>
+        <div id="trainerClipStatus" class="hint" role="status">Choose a shot video view, then Record shot to execute and save the clip and setup.</div>
       </div>
       <div id="markerZoneControls" style="display:none;border:1px solid #41464f;border-radius:7px;padding:8px;margin-top:8px">
         <label for="markerZoneSelect">Practice target zone</label>
@@ -13824,8 +13838,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <script src="./phone-play.js?v=share-analysis-1"></script>
   <link rel="stylesheet" href="./trainer-3d.css?v=compact-landscape-1">
   <script src="./trainer-3d.js?v=19"></script>
-  <script src="./trainer-annotate.js?v=15"></script>
-  <script src="./trainer-shot-recorder.js?v=record-shot-view-2"></script>
+  <script src="./trainer-annotate.js?v=16"></script>
+  <script src="./trainer-shot-recorder.js?v=video-menu-1"></script>
   <link rel="stylesheet" href="./trainer-camera-recorder.css?v=1">
   <script src="./trainer-camera-recorder.js?v=1"></script>
   <script src="./trainer-video-narration.js?v=1"></script>

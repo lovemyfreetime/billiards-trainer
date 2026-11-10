@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "be9b90540134e17645b78173ed2f86209e9828f6f96c4aead5845f4e52147d75",
-  "sequence": 1794300020,
+  "version": "96cdc765992625d59c484a450718ca50abdda3038bda407915e227796dfd832e",
+  "sequence": 1794340375,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3705,8 +3705,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "d04e0f6887df2658c30565d37ed9c02d2a9dbd583380435a3d30ee22ef1f658b",
-      "length": 921153
+      "sha256": "08f3b5c79497f25a63c35837f7efb99204dadbff4154a5b312c37d3136681f3b",
+      "length": 921976
     },
     "install/android/index.html": {
       "sha256": "5af2961b4386233b6f9206577ee2acdd6b08068620c3f60c57b176c471ca3681",
@@ -3805,7 +3805,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "b3d645ebece80f88a20df7fed5561795e4c9be638f6e9679e0f57d4e47279741",
+      "sha256": "a24b59d2faaca2ace0e2fe5421264b86dd7999738032c7897ffa194ef76bb550",
       "length": 145772
     },
     "phone-play.css": {
@@ -4917,7 +4917,7 @@
       "length": 1895
     },
     "service-worker.js": {
-      "sha256": "8189b696909cb3237378f47b77835dc11a5265dd28e2d913f80094617b4fcbe9",
+      "sha256": "73d4ae7a09a90ac13c61cdfdc517497930eee2a739bf42508c3282e992ab8310",
       "length": 7739
     },
     "table-orbit.js": {
@@ -4957,8 +4957,8 @@
       "length": 31284
     },
     "trainer-annotate.js": {
-      "sha256": "ba9b792009fa44f7624407cc4d7726796add3a59e9b06e11dcabeb6b9d99e62e",
-      "length": 29276
+      "sha256": "9ba884edf3494cd875bb981abd1d66e1436a869edaa0381b304380bfedc9d658",
+      "length": 29240
     },
     "trainer-camera-recorder.css": {
       "sha256": "751e79f11ca856637650dbd570c3ddfdc6d6fe2b1018326634fc33a94160993f",
@@ -4989,8 +4989,8 @@
       "length": 13218
     },
     "trainer-shot-recorder.js": {
-      "sha256": "a924276753cabc766658df8ba315b0d7dc370c4d8af9c7ca2fc8e4635c3be5a8",
-      "length": 19364
+      "sha256": "fa8013cf860a08738aea14edce1df52366323b55a33b2c3214da6780e261486e",
+      "length": 19405
     },
     "trainer-table-exchange.js": {
       "sha256": "481759a0cf233361d10cb1e3c7335510da6f317dcf7e777bcdbf3485a1e20df4",
