@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "bd64223144412fe9bda1ab1ac711138cd01307312fc1f376c67b2f171d77238e",
-  "sequence": 1794363838,
+  "version": "277562c34ce206472f10e102ba8fee7d23b0ec4279eb6bce5f06a5bb0e7ccac6",
+  "sequence": 1794365353,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3809,7 +3809,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "37ba2a8e44776c85d9e31def8574fbc842bd6180bfbe36b6cf30695886bcb6f3",
+      "sha256": "be56a72c485b15d3beb2a9d0d34eb8e5db62c7473bee0ef8f4a814f03444ac91",
       "length": 146159
     },
     "phone-play.css": {
@@ -4933,7 +4933,7 @@
       "length": 2089
     },
     "service-worker.js": {
-      "sha256": "7e32adc61cf3a287d7ba1cc673a4264ae005928f29040c8ac9d7b85c1d9d2204",
+      "sha256": "0b7f621981f28c4c21019bb32a8e9b8b1f33f7a9ac18c8ef0067727c379958e2",
       "length": 7739
     },
     "table-orbit.js": {
@@ -5073,8 +5073,8 @@
       "length": 11389
     },
     "zen-mode.js": {
-      "sha256": "9a057187036d8a78ec3be93351a908fcb3d009c41447a452da775772988e50e8",
-      "length": 66341
+      "sha256": "bfdbae520c415eef782e43f48b944cbf19e4fad8b5a26c3895157f49022318f2",
+      "length": 66335
     }
   }
 }

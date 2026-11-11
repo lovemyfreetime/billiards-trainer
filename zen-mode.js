@@ -190,7 +190,7 @@ function showZenControlIntroduction(edgeZones,executeEdge,shot){
   // Only a diffuse pool of light is drawn; its motion path stays invisible.
   const flow=add('g',{class:'zen-intro-flow',style:`--intro-delay:${delay}ms`});
   add('ellipse',{cx:0,cy:0,rx:28,ry:10,class:'zen-intro-flow-light'},flow);
-  add('animateMotion',{path:route,dur:'14s',begin:`${delay}ms`,rotate:'auto',fill:'freeze',calcMode:'spline',keyTimes:'0;1',keySplines:'.45 0 .55 1'},flow);
+  add('animateMotion',{path:route,dur:'20s',begin:`${delay}ms`,rotate:'auto',fill:'freeze',calcMode:'spline',keyTimes:'0;1',keySplines:'.45 0 .55 1'},flow);
  };
  const center=el=>{const r=el.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2,r}};
  const hints=edgeZones.map(({zone,input,axis,kind},i)=>{
@@ -198,7 +198,7 @@ function showZenControlIntroduction(edgeZones,executeEdge,shot){
   // Side gestures occupy the table-height portion of their full-height hit area.
   const sideTop=executeEdge.getBoundingClientRect().bottom,sideBottom=document.getElementById('zenBar').getBoundingClientRect().top;
   if(vertical)p.y=(sideTop+sideBottom)/2;
-  const g=add('g',{class:'zen-intro-area',style:`--intro-delay:${vertical?1500:3000}ms`});
+  const g=add('g',{class:'zen-intro-area',style:'--intro-delay:0ms'});
   const span=vertical?Math.max(12,(sideBottom-sideTop)/2-18):p.r.width*.45,half=vertical?p.r.width*.35:p.r.height*.40;
   const width=vertical?half*2:span*2,height=vertical?span*2:half*2;
   add('rect',{x:p.x-width/2,y:p.y-height/2,width,height,rx:Math.min(half,36),class:'zen-intro-halo'},g);
@@ -228,25 +228,25 @@ function showZenControlIntroduction(edgeZones,executeEdge,shot){
  const finish=()=>{if(done)return;done=true;clearTimeout(finishTimer);layer.classList.add('zen-intro-leaving');for(const type of ['pointerdown','wheel','keydown'])document.removeEventListener(type,finish,true);window.removeEventListener('resize',finish);window.removeEventListener('pagehide',finish);setTimeout(()=>layer.remove(),3100)};
  for(const type of ['pointerdown','wheel','keydown'])document.addEventListener(type,finish,{capture:true,passive:true});
  window.addEventListener('resize',finish,{once:true});window.addEventListener('pagehide',finish,{once:true});
- finishTimer=setTimeout(finish,23000);
+ finishTimer=setTimeout(finish,26000);
 }
 const style=document.createElement('style');style.textContent=`
-#zenControlIntroduction{position:fixed;inset:0;width:100%;height:100%;z-index:110;pointer-events:none!important;color:#C5B38E;opacity:1;transition:opacity 3s ease-in-out}
+#zenControlIntroduction{position:fixed;inset:0;width:100%;height:100%;z-index:110;pointer-events:none!important;color:#D0BE9C;opacity:1;transition:opacity 3s ease-in-out}
 #zenControlIntroduction.zen-intro-leaving{opacity:0}
 #zenControlIntroduction path{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.zen-intro-area{opacity:0;animation:zenIntroBreathe 20s ease-in-out var(--intro-delay) 1}
-.zen-intro-halo{fill:#88B7AF;fill-opacity:.06;stroke:#A9C3B5;stroke-width:1.3;stroke-opacity:.16;filter:drop-shadow(0 0 14px #83B9AF33)}
+.zen-intro-area{opacity:0;animation:zenIntroBreathe 26s ease-in-out var(--intro-delay) 1}
+.zen-intro-halo{fill:#91BFB6;fill-opacity:.07;stroke:#B2CCBE;stroke-width:1.3;stroke-opacity:.18;filter:drop-shadow(0 0 14px #83B9AF33)}
 .zen-intro-center{fill:#D0B891;fill-opacity:.35}
-.zen-intro-arrows{opacity:.65;animation:zenIntroDrift 20s ease-in-out var(--intro-delay) 1;filter:drop-shadow(0 0 4px #D0B89133)}
+.zen-intro-arrows{opacity:.68;animation:zenIntroDrift 26s ease-in-out var(--intro-delay) 1;filter:drop-shadow(0 0 4px #D0B89133)}
 .zen-intro-arrow-shape path{stroke-width:1.3!important}
-.zen-intro-flow{opacity:0;animation:zenIntroFlow 16s ease-in-out var(--intro-delay) 1}
-.zen-intro-flow-light{fill:#A1BDB0;filter:blur(9px)}
-.zen-intro-tap{fill:none;stroke:#D0B891;stroke-width:1;transform-box:fill-box;transform-origin:center;animation:zenIntroRipple 20s ease-in-out 1}
-@keyframes zenIntroBreathe{0%,100%{opacity:0}30%,50%{opacity:.28}}
+.zen-intro-flow{opacity:0;animation:zenIntroFlow 22s ease-in-out var(--intro-delay) 1}
+.zen-intro-flow-light{fill:#ACC8BA;filter:blur(9px)}
+.zen-intro-tap{fill:none;stroke:#D0B891;stroke-width:1;transform-box:fill-box;transform-origin:center;animation:zenIntroRipple 26s ease-in-out 1}
+@keyframes zenIntroBreathe{0%,100%{opacity:0}23.076923%,46.153846%{opacity:.34}}
 @keyframes zenIntroDrift{0%{translate:0 0}70%,100%{translate:var(--dx) var(--dy)}}
-@keyframes zenIntroFlow{0%,100%{opacity:0}25%,65%{opacity:.20}}
+@keyframes zenIntroFlow{0%,100%{opacity:0}25%,65%{opacity:.23}}
 @keyframes zenIntroRipple{0%{scale:.8;opacity:0}40%{opacity:.35}100%{scale:2;opacity:0}}
-@media(prefers-reduced-motion:reduce){.zen-intro-arrows,.zen-intro-tap{animation:none}.zen-intro-area{animation:none;opacity:.20}.zen-intro-flow{display:none}}
+@media(prefers-reduced-motion:reduce){.zen-intro-arrows,.zen-intro-tap{animation:none}.zen-intro-area{animation:none;opacity:.24}.zen-intro-flow{display:none}}
 body.zen-mode #toast{display:none!important}
 body.zen-mode{--zen-fade-duration:${ZEN_FADE_DURATION}ms;--zen-fade-ease:cubic-bezier(.45,0,.55,1);--zen-footer:148px;--zen-cloth:#2A382E;--zen-rail:#181B20;background:radial-gradient(ellipse at 50% 42%,#252C34 0%,#191D23 65%,#14171C 100%)!important;overflow:hidden;isolation:isolate}
 
