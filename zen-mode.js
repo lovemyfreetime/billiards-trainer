@@ -202,7 +202,9 @@ function showZenControlIntroduction(edgeZones,executeEdge,shot){
    const travel=Math.min(18,span*.08),arrows=add('g',{class:'zen-intro-arrows',style:`--dx:${vertical?0:direction*travel}px;--dy:${vertical?direction*travel:0}px`},g);
    for(let n=1;n<=5;n++){
     const offset=direction*span*(.10+n*.14),x=p.x+(vertical?0:offset),y=p.y+(vertical?offset:0),s=Math.max(5,Math.min(14,half*.30,span*.07));
-    add('path',{d:vertical?`M${x-s} ${y-direction*s}L${x} ${y}L${x+s} ${y-direction*s}`:`M${x-direction*s} ${y-s}L${x} ${y}L${x-direction*s} ${y+s}`},arrows);
+    const rotation=(vertical?direction>0:direction<0)?180:0;
+    const shape=add('g',{class:'zen-intro-arrow-shape',transform:`translate(${x} ${y}) scale(${s/12}) rotate(${rotation}) translate(-16 -24)`},arrows);
+    shape.innerHTML=vertical?upChevron:rightChevron;
    }
   }
   // Match each bottom slider to its invisible edge counterpart.
@@ -232,6 +234,7 @@ const style=document.createElement('style');style.textContent=`
 .zen-intro-halo{fill:#88B7AF;fill-opacity:.10;stroke:#A9C3B5;stroke-width:1.6;stroke-opacity:.32;filter:drop-shadow(0 0 14px #83B9AF66)}
 .zen-intro-track{stroke-opacity:.38}.zen-intro-center{fill:#D0B891;fill-opacity:.7}
 .zen-intro-arrows{animation:zenIntroDrift 3s ease-in-out var(--intro-delay) 2;filter:drop-shadow(0 0 4px #D0B89166)}
+.zen-intro-arrow-shape path{stroke-width:1.3!important}
 .zen-intro-link{stroke:#A1BDB0!important;stroke-opacity:0;stroke-dasharray:1;stroke-dashoffset:1;animation:zenIntroTrace 5.4s ease-in-out var(--intro-delay) forwards}
 .zen-intro-tap{fill:none;stroke:#D0B891;stroke-width:1;transform-box:fill-box;transform-origin:center;animation:zenIntroRipple 3s ease-in-out 2}
 @keyframes zenIntroBreathe{0%,100%{opacity:0}35%,60%{opacity:.85}}
