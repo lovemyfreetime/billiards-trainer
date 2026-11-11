@@ -190,16 +190,18 @@ function showZenControlIntroduction(edgeZones,executeEdge,shot){
  const hints=edgeZones.map(({zone,input,axis,kind},i)=>{
   const p=center(zone),start=center(input),vertical=axis==='y';
   // Side gestures occupy the table-height portion of their full-height hit area.
-  if(vertical){const top=executeEdge.getBoundingClientRect().bottom,bottom=document.getElementById('zenBar').getBoundingClientRect().top;p.y=(top+bottom)/2;}
+  const sideTop=executeEdge.getBoundingClientRect().bottom,sideBottom=document.getElementById('zenBar').getBoundingClientRect().top;
+  if(vertical)p.y=(sideTop+sideBottom)/2;
   const g=add('g',{class:'zen-intro-area',style:`--intro-delay:${vertical?700:1600}ms`});
-  const span=vertical?Math.min(120,innerHeight*.16):Math.min(70,p.r.width*.32),half=vertical?Math.min(26,p.r.width*.24):Math.min(20,p.r.height*.28);
-  add('ellipse',{cx:p.x,cy:p.y,rx:vertical?half:span,ry:vertical?span:half,class:'zen-intro-halo'},g);
+  const span=vertical?Math.max(12,(sideBottom-sideTop)/2-18):p.r.width*.45,half=vertical?p.r.width*.35:p.r.height*.40;
+  const width=vertical?half*2:span*2,height=vertical?span*2:half*2;
+  add('rect',{x:p.x-width/2,y:p.y-height/2,width,height,rx:Math.min(half,36),class:'zen-intro-halo'},g);
   add('path',{d:vertical?`M${p.x} ${p.y-span}V${p.y+span}`:`M${p.x-span} ${p.y}H${p.x+span}`,class:'zen-intro-track'},g);
-  add('circle',{cx:p.x,cy:p.y,r:3,class:'zen-intro-center'},g);
+  add('circle',{cx:p.x,cy:p.y,r:5,class:'zen-intro-center'},g);
   for(const direction of [-1,1]){
-   const arrows=add('g',{class:'zen-intro-arrows',style:`--dx:${vertical?0:direction*10}px;--dy:${vertical?direction*10:0}px`},g);
-   for(let n=1;n<=3;n++){
-    const offset=direction*span*(.22+n*.18),x=p.x+(vertical?0:offset),y=p.y+(vertical?offset:0),s=4;
+   const travel=Math.min(18,span*.08),arrows=add('g',{class:'zen-intro-arrows',style:`--dx:${vertical?0:direction*travel}px;--dy:${vertical?direction*travel:0}px`},g);
+   for(let n=1;n<=5;n++){
+    const offset=direction*span*(.10+n*.14),x=p.x+(vertical?0:offset),y=p.y+(vertical?offset:0),s=Math.max(5,Math.min(14,half*.30,span*.07));
     add('path',{d:vertical?`M${x-s} ${y-direction*s}L${x} ${y}L${x+s} ${y-direction*s}`:`M${x-direction*s} ${y-s}L${x} ${y}L${x-direction*s} ${y+s}`},arrows);
    }
   }
@@ -210,9 +212,10 @@ function showZenControlIntroduction(edgeZones,executeEdge,shot){
  });
  const top=center(executeEdge),button=center(shot),right=hints.find((p,i)=>edgeZones[i].kind==='speed').x;
  const topGroup=add('g',{class:'zen-intro-area',style:'--intro-delay:0ms'});
- add('ellipse',{cx:top.x,cy:top.y,rx:Math.min(innerWidth*.28,330),ry:Math.max(5,Math.min(18,top.r.height*.3)),class:'zen-intro-halo'},topGroup);
- add('path',{d:`M${innerWidth*.22} ${top.y}H${innerWidth*.78}`,class:'zen-intro-track'},topGroup);
- add('circle',{cx:top.x,cy:top.y,r:7,class:'zen-intro-tap'},topGroup);
+ const left=hints.find((p,i)=>edgeZones[i].kind==='aim').r.right+12,rightEdge=hints.find((p,i)=>edgeZones[i].kind==='speed').r.left-12,topWidth=Math.max(24,rightEdge-left),topHeight=Math.max(10,top.r.height*.66);
+ add('rect',{x:left,y:top.y-topHeight/2,width:topWidth,height:topHeight,rx:Math.min(32,topHeight/2),class:'zen-intro-halo'},topGroup);
+ add('path',{d:`M${left+16} ${top.y}H${left+topWidth-16}`,class:'zen-intro-track'},topGroup);
+ add('circle',{cx:top.x,cy:top.y,r:12,class:'zen-intro-tap'},topGroup);
  add('path',{d:`M${button.x} ${button.y}Q${right} ${button.y} ${right} ${button.y-55}V${top.y+24}Q${right} ${top.y} ${right-24} ${top.y}H${top.x}`,class:'zen-intro-link',pathLength:1,style:'--intro-delay:400ms'});
  document.body.append(layer);
  let done=false,finishTimer;
@@ -224,10 +227,10 @@ function showZenControlIntroduction(edgeZones,executeEdge,shot){
 const style=document.createElement('style');style.textContent=`
 #zenControlIntroduction{position:fixed;inset:0;width:100%;height:100%;z-index:110;pointer-events:none!important;color:#C5B38E;opacity:1;transition:opacity .8s ease}
 #zenControlIntroduction.zen-intro-leaving{opacity:0}
-#zenControlIntroduction path{fill:none;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
+#zenControlIntroduction path{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .zen-intro-area{opacity:0;animation:zenIntroBreathe 3s ease-in-out var(--intro-delay) 2}
-.zen-intro-halo{fill:#88B7AF;fill-opacity:.07;stroke:#A9C3B5;stroke-opacity:.16;filter:drop-shadow(0 0 9px #83B9AF55)}
-.zen-intro-track{stroke-opacity:.24}.zen-intro-center{fill:#D0B891;fill-opacity:.6}
+.zen-intro-halo{fill:#88B7AF;fill-opacity:.10;stroke:#A9C3B5;stroke-width:1.6;stroke-opacity:.32;filter:drop-shadow(0 0 14px #83B9AF66)}
+.zen-intro-track{stroke-opacity:.38}.zen-intro-center{fill:#D0B891;fill-opacity:.7}
 .zen-intro-arrows{animation:zenIntroDrift 3s ease-in-out var(--intro-delay) 2;filter:drop-shadow(0 0 4px #D0B89166)}
 .zen-intro-link{stroke:#A1BDB0!important;stroke-opacity:0;stroke-dasharray:1;stroke-dashoffset:1;animation:zenIntroTrace 5.4s ease-in-out var(--intro-delay) forwards}
 .zen-intro-tap{fill:none;stroke:#D0B891;stroke-width:1;transform-box:fill-box;transform-origin:center;animation:zenIntroRipple 3s ease-in-out 2}
