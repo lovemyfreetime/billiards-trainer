@@ -28,7 +28,8 @@
       [0,1,2,3].flatMap(row=>Array.from({length:row+1},(_,col)=>'<circle cx="'+(14-row*2.8+col*5.6)+'" cy="'+(8+row*4.8)+'" r="1.8" fill="currentColor" stroke="none"/>')).join(''),
     clock: '<circle cx="14" cy="16" r="10"/><path d="M14 9v7l4 3M10 2h8m-4 0v4"/>',
     extension: '<path d="M14 5v18M5 14h18"/><path d="M5 4h-3v22h3m18-22h3v22h-3"/>',
-    switch: '<path d="M3 9h22l-6-6M25 19H3l6 6" stroke-width="3" stroke-linejoin="round"/>'
+    switch: '<path d="M3 9h22l-6-6M25 19H3l6 6" stroke-width="3" stroke-linejoin="round"/>',
+    reset: '<path d="M5 9a10 10 0 1 1-1 10M5 2v7h7" stroke-width="3" stroke-linejoin="round"/>'
   };
   function symbol(name) {
     const node = element('span', null, 'sc-symbol');
@@ -299,6 +300,7 @@
       ui.resumeMatch = button('Resume Match Clock', () => command('resume-match'));
       ui.push = button('Post-Push-Out', () => command('post-push'));
       ui.runButton = button('Timed Run', () => show('run'));
+      ui.reset = decorate(button('', () => reset(), 'sc-reset'), 'reset', 'Reset');
       ui.shootoutButton = button('Start Shootout', () => {
         if (dispatch('run-reset', { seat: seats()[0], duel: true })) show('run');
       }, 'sc-start');
@@ -326,7 +328,7 @@
         }
         body.append(scores);
       }
-      footer.append(ui.break, ui.start, ui.next, ui.pause, ui.stop, ui.end, ui.undo, ui.official, ui.stance, ui.matchBreak, ui.resumeMatch, ui.push, ui.runButton, ui.shootoutButton, audioButton);
+      footer.append(ui.break, ui.start, ui.next, ui.pause, ui.stop, ui.end, ui.undo, ui.official, ui.stance, ui.matchBreak, ui.resumeMatch, ui.push, ui.runButton, ui.shootoutButton, audioButton, ui.reset);
     }
     function bothOnHill() { return options.table()?.bothOnHill === true; }
     function setText(node, value) {
@@ -617,6 +619,8 @@
       session = M.initial(seat);
       undo = null;
       matchExpiry = false;
+      lastSecond = null;
+      lastPhase = null;
       notify();
       if (!overlay.hidden) show(page);
     }

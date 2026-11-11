@@ -384,6 +384,7 @@ body.play-shot-clock-open { overflow: hidden; }
 .sc-footer .sc-pause { --sc-action: #5484ff; background: linear-gradient(145deg, #253d66, #15344c); }
 .sc-footer .sc-stop { --sc-action: #ff496b; background: linear-gradient(145deg, #493249, #233346); }
 .sc-footer .sc-audio { --sc-action: #00f2ff; background: linear-gradient(145deg, #215568, #14384f); }
+.sc-footer .sc-reset { --sc-action: #ff7297; background: linear-gradient(145deg, #493249, #233346); }
 .sc-footer button:disabled { opacity: .74; }
 .sc-total, .sc-inning {
   border: 2px solid #25d9f3;
