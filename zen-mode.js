@@ -181,7 +181,61 @@ const paths={
  shot:'<path d="m19 12 20 12-20 12Z" fill="currentColor" stroke="none"/>'
 };
 const icon=key=>`<svg viewBox="${['aim','speed','follow','spin'].includes(key)?'0 0 144 48':'-4 0 58 48'}" aria-hidden="true" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">${paths[key]}</svg>`;
+// Decorative opening hints never dispatch input or change the table.
+function showZenControlIntroduction(edgeZones,executeEdge,shot){
+ const ns='http://www.w3.org/2000/svg',layer=document.createElementNS(ns,'svg');
+ layer.id='zenControlIntroduction';layer.setAttribute('aria-hidden','true');layer.setAttribute('viewBox',`0 0 ${innerWidth} ${innerHeight}`);
+ const add=(tag,attrs,parent=layer)=>{const el=document.createElementNS(ns,tag);for(const [key,value]of Object.entries(attrs))el.setAttribute(key,value);parent.append(el);return el};
+ const center=el=>{const r=el.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2,r}};
+ const hints=edgeZones.map(({zone,input,axis,kind},i)=>{
+  const p=center(zone),start=center(input),vertical=axis==='y';
+  // Side gestures occupy the table-height portion of their full-height hit area.
+  if(vertical){const top=executeEdge.getBoundingClientRect().bottom,bottom=document.getElementById('zenBar').getBoundingClientRect().top;p.y=(top+bottom)/2;}
+  const g=add('g',{class:'zen-intro-area',style:`--intro-delay:${vertical?700:1600}ms`});
+  const span=vertical?Math.min(120,innerHeight*.16):Math.min(70,p.r.width*.32),half=vertical?Math.min(26,p.r.width*.24):Math.min(20,p.r.height*.28);
+  add('ellipse',{cx:p.x,cy:p.y,rx:vertical?half:span,ry:vertical?span:half,class:'zen-intro-halo'},g);
+  add('path',{d:vertical?`M${p.x} ${p.y-span}V${p.y+span}`:`M${p.x-span} ${p.y}H${p.x+span}`,class:'zen-intro-track'},g);
+  add('circle',{cx:p.x,cy:p.y,r:3,class:'zen-intro-center'},g);
+  for(const direction of [-1,1]){
+   const arrows=add('g',{class:'zen-intro-arrows',style:`--dx:${vertical?0:direction*10}px;--dy:${vertical?direction*10:0}px`},g);
+   for(let n=1;n<=3;n++){
+    const offset=direction*span*(.22+n*.18),x=p.x+(vertical?0:offset),y=p.y+(vertical?offset:0),s=4;
+    add('path',{d:vertical?`M${x-s} ${y-direction*s}L${x} ${y}L${x+s} ${y-direction*s}`:`M${x-direction*s} ${y-s}L${x} ${y}L${x-direction*s} ${y+s}`},arrows);
+   }
+  }
+  // Match each bottom slider to its invisible edge counterpart.
+  const route=vertical?`M${start.x} ${start.y}C${start.x} ${start.y-50},${p.x} ${start.y},${p.x} ${p.y}`:`M${start.x} ${start.y}Q${start.x} ${p.y} ${p.x} ${p.y}`;
+  add('path',{d:route,class:'zen-intro-link',pathLength:1,style:`--intro-delay:${1100+i*180}ms`});
+  return p;
+ });
+ const top=center(executeEdge),button=center(shot),right=hints.find((p,i)=>edgeZones[i].kind==='speed').x;
+ const topGroup=add('g',{class:'zen-intro-area',style:'--intro-delay:0ms'});
+ add('ellipse',{cx:top.x,cy:top.y,rx:Math.min(innerWidth*.28,330),ry:Math.max(5,Math.min(18,top.r.height*.3)),class:'zen-intro-halo'},topGroup);
+ add('path',{d:`M${innerWidth*.22} ${top.y}H${innerWidth*.78}`,class:'zen-intro-track'},topGroup);
+ add('circle',{cx:top.x,cy:top.y,r:7,class:'zen-intro-tap'},topGroup);
+ add('path',{d:`M${button.x} ${button.y}Q${right} ${button.y} ${right} ${button.y-55}V${top.y+24}Q${right} ${top.y} ${right-24} ${top.y}H${top.x}`,class:'zen-intro-link',pathLength:1,style:'--intro-delay:400ms'});
+ document.body.append(layer);
+ let done=false,finishTimer;
+ const finish=()=>{if(done)return;done=true;clearTimeout(finishTimer);layer.classList.add('zen-intro-leaving');for(const type of ['pointerdown','wheel','keydown'])document.removeEventListener(type,finish,true);window.removeEventListener('resize',finish);window.removeEventListener('pagehide',finish);setTimeout(()=>layer.remove(),850)};
+ for(const type of ['pointerdown','wheel','keydown'])document.addEventListener(type,finish,{capture:true,passive:true});
+ window.addEventListener('resize',finish,{once:true});window.addEventListener('pagehide',finish,{once:true});
+ finishTimer=setTimeout(finish,7600);
+}
 const style=document.createElement('style');style.textContent=`
+#zenControlIntroduction{position:fixed;inset:0;width:100%;height:100%;z-index:110;pointer-events:none!important;color:#C5B38E;opacity:1;transition:opacity .8s ease}
+#zenControlIntroduction.zen-intro-leaving{opacity:0}
+#zenControlIntroduction path{fill:none;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
+.zen-intro-area{opacity:0;animation:zenIntroBreathe 3s ease-in-out var(--intro-delay) 2}
+.zen-intro-halo{fill:#88B7AF;fill-opacity:.07;stroke:#A9C3B5;stroke-opacity:.16;filter:drop-shadow(0 0 9px #83B9AF55)}
+.zen-intro-track{stroke-opacity:.24}.zen-intro-center{fill:#D0B891;fill-opacity:.6}
+.zen-intro-arrows{animation:zenIntroDrift 3s ease-in-out var(--intro-delay) 2;filter:drop-shadow(0 0 4px #D0B89166)}
+.zen-intro-link{stroke:#A1BDB0!important;stroke-opacity:0;stroke-dasharray:1;stroke-dashoffset:1;animation:zenIntroTrace 5.4s ease-in-out var(--intro-delay) forwards}
+.zen-intro-tap{fill:none;stroke:#D0B891;stroke-width:1;transform-box:fill-box;transform-origin:center;animation:zenIntroRipple 3s ease-in-out 2}
+@keyframes zenIntroBreathe{0%,100%{opacity:0}35%,60%{opacity:.85}}
+@keyframes zenIntroDrift{0%{translate:0 0}70%,100%{translate:var(--dx) var(--dy)}}
+@keyframes zenIntroTrace{0%{stroke-opacity:0;stroke-dashoffset:1}25%{stroke-opacity:.24}65%{stroke-opacity:.24;stroke-dashoffset:0}100%{stroke-opacity:0;stroke-dashoffset:0}}
+@keyframes zenIntroRipple{0%{scale:.8;opacity:0}40%{opacity:.7}100%{scale:2;opacity:0}}
+@media(prefers-reduced-motion:reduce){.zen-intro-arrows,.zen-intro-tap{animation:none}.zen-intro-area{animation:none;opacity:.5}.zen-intro-link{animation:none;stroke-dashoffset:0;stroke-opacity:.15}}
 body.zen-mode #toast{display:none!important}
 body.zen-mode{--zen-fade-duration:${ZEN_FADE_DURATION}ms;--zen-fade-ease:cubic-bezier(.45,0,.55,1);--zen-footer:148px;--zen-cloth:#2A382E;--zen-rail:#181B20;background:radial-gradient(ellipse at 50% 42%,#252C34 0%,#191D23 65%,#14171C 100%)!important;overflow:hidden;isolation:isolate}
 
@@ -521,7 +575,7 @@ function init(){
  function clearZenTitles(){document.querySelectorAll('#zenBar [title],#zenModeMenu [title],#zenRack [title],.zen-hover-panel [title],#zenRackMenu [title],.zen-edge-zone[title],#zenFreshTable[title]').forEach(el=>el.removeAttribute('title'));}
  function sync(){positionFresh();positionEdges();const status=engine.status();edgeZones.forEach(({zone,input,kind})=>{zone.setAttribute('aria-disabled',String(status.busy));zone.setAttribute('aria-valuemin',input.min);zone.setAttribute('aria-valuemax',input.max);zone.setAttribute('aria-valuenow',input.value);zone.setAttribute('aria-valuetext',kind==='aim'?'Fine aim adjustment':input.getAttribute('aria-valuetext')||input.value)});fresh.disabled=status.busy||status.balls.length===0;bindings.forEach(f=>f());bar.querySelectorAll('input').forEach(el=>el.disabled=status.busy);const selected=historyModes.find(mode=>mode.key===historyMode);if(undo.getAttribute('aria-label')!==selected.label){undo.innerHTML=icon(selected.glyph);undo.setAttribute('aria-label',selected.label);undo.title=selected.label}if(historyCurrent.dataset.mode!==historyMode){historyCurrent.innerHTML=icon(selected.glyph);historyCurrent.dataset.mode=historyMode}undo.disabled=status.busy||!status[selected.available];historyChoices.forEach((button,i)=>{button.disabled=status.busy||!status[historyModes[i].available];button.setAttribute('aria-pressed',String(historyModes[i].key===historyMode))});syncContact();if(status.busy){hoverTools.forEach(tool=>tool.close());closeMenu();}shot.disabled=status.busy||!status.balls.includes(0);executeEdge.setAttribute('aria-disabled',String(shot.disabled));rackToggle.disabled=status.busy;center.disabled=status.busy;rackChoices.forEach(b=>b.disabled=status.busy);if(status.busy&&!rackMenu.hidden)closeRackMenu();balls.forEach(b=>{const id=+b.dataset.ballId,onTable=status.balls.includes(id);b.disabled=status.busy||onTable;b.classList.toggle('zen-on-table',onTable);b.classList.toggle('zen-place-first',id===0&&!onTable&&!status.busy);b.title=id===0?(onTable?'Cue ball is on the table':'Place the cue ball first'):onTable?`Ball ${id} is on the table`:`Drag or tap to add ball ${id}`});clearZenTitles()}
  sync();setInterval(sync,180);window.dispatchEvent(new Event('resize'));
- requestAnimationFrame(()=>requestAnimationFrame(()=>document.documentElement.classList.remove('zen-starting')));
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{document.documentElement.classList.remove('zen-starting');showZenControlIntroduction(edgeZones,executeEdge,shot)}));
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
