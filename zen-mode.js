@@ -186,17 +186,22 @@ function showZenControlIntroduction(edgeZones,executeEdge,shot){
  const ns='http://www.w3.org/2000/svg',layer=document.createElementNS(ns,'svg');
  layer.id='zenControlIntroduction';layer.setAttribute('aria-hidden','true');layer.setAttribute('viewBox',`0 0 ${innerWidth} ${innerHeight}`);
  const add=(tag,attrs,parent=layer)=>{const el=document.createElementNS(ns,tag);for(const [key,value]of Object.entries(attrs))el.setAttribute(key,value);parent.append(el);return el};
+ const glowFlow=(route,delay)=>{
+  // Only a diffuse pool of light is drawn; its motion path stays invisible.
+  const flow=add('g',{class:'zen-intro-flow',style:`--intro-delay:${delay}ms`});
+  add('ellipse',{cx:0,cy:0,rx:28,ry:10,class:'zen-intro-flow-light'},flow);
+  add('animateMotion',{path:route,dur:'14s',begin:`${delay}ms`,rotate:'auto',fill:'freeze',calcMode:'spline',keyTimes:'0;1',keySplines:'.45 0 .55 1'},flow);
+ };
  const center=el=>{const r=el.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2,r}};
  const hints=edgeZones.map(({zone,input,axis,kind},i)=>{
   const p=center(zone),start=center(input),vertical=axis==='y';
   // Side gestures occupy the table-height portion of their full-height hit area.
   const sideTop=executeEdge.getBoundingClientRect().bottom,sideBottom=document.getElementById('zenBar').getBoundingClientRect().top;
   if(vertical)p.y=(sideTop+sideBottom)/2;
-  const g=add('g',{class:'zen-intro-area',style:`--intro-delay:${vertical?700:1600}ms`});
+  const g=add('g',{class:'zen-intro-area',style:`--intro-delay:${vertical?1500:3000}ms`});
   const span=vertical?Math.max(12,(sideBottom-sideTop)/2-18):p.r.width*.45,half=vertical?p.r.width*.35:p.r.height*.40;
   const width=vertical?half*2:span*2,height=vertical?span*2:half*2;
   add('rect',{x:p.x-width/2,y:p.y-height/2,width,height,rx:Math.min(half,36),class:'zen-intro-halo'},g);
-  add('path',{d:vertical?`M${p.x} ${p.y-span}V${p.y+span}`:`M${p.x-span} ${p.y}H${p.x+span}`,class:'zen-intro-track'},g);
   add('circle',{cx:p.x,cy:p.y,r:5,class:'zen-intro-center'},g);
   for(const direction of [-1,1]){
    const travel=Math.min(18,span*.08),arrows=add('g',{class:'zen-intro-arrows',style:`--dx:${vertical?0:direction*travel}px;--dy:${vertical?direction*travel:0}px`},g);
@@ -209,39 +214,39 @@ function showZenControlIntroduction(edgeZones,executeEdge,shot){
   }
   // Match each bottom slider to its invisible edge counterpart.
   const route=vertical?`M${start.x} ${start.y}C${start.x} ${start.y-50},${p.x} ${start.y},${p.x} ${p.y}`:`M${start.x} ${start.y}Q${start.x} ${p.y} ${p.x} ${p.y}`;
-  add('path',{d:route,class:'zen-intro-link',pathLength:1,style:`--intro-delay:${1100+i*180}ms`});
+  glowFlow(route,2200+i*700);
   return p;
  });
  const top=center(executeEdge),button=center(shot),right=hints.find((p,i)=>edgeZones[i].kind==='speed').x;
  const topGroup=add('g',{class:'zen-intro-area',style:'--intro-delay:0ms'});
  const left=hints.find((p,i)=>edgeZones[i].kind==='aim').r.right+12,rightEdge=hints.find((p,i)=>edgeZones[i].kind==='speed').r.left-12,topWidth=Math.max(24,rightEdge-left),topHeight=Math.max(10,top.r.height*.66);
  add('rect',{x:left,y:top.y-topHeight/2,width:topWidth,height:topHeight,rx:Math.min(32,topHeight/2),class:'zen-intro-halo'},topGroup);
- add('path',{d:`M${left+16} ${top.y}H${left+topWidth-16}`,class:'zen-intro-track'},topGroup);
  add('circle',{cx:top.x,cy:top.y,r:12,class:'zen-intro-tap'},topGroup);
- add('path',{d:`M${button.x} ${button.y}Q${right} ${button.y} ${right} ${button.y-55}V${top.y+24}Q${right} ${top.y} ${right-24} ${top.y}H${top.x}`,class:'zen-intro-link',pathLength:1,style:'--intro-delay:400ms'});
+ glowFlow(`M${button.x} ${button.y}Q${right} ${button.y} ${right} ${button.y-55}V${top.y+24}Q${right} ${top.y} ${right-24} ${top.y}H${top.x}`,1200);
  document.body.append(layer);
  let done=false,finishTimer;
- const finish=()=>{if(done)return;done=true;clearTimeout(finishTimer);layer.classList.add('zen-intro-leaving');for(const type of ['pointerdown','wheel','keydown'])document.removeEventListener(type,finish,true);window.removeEventListener('resize',finish);window.removeEventListener('pagehide',finish);setTimeout(()=>layer.remove(),850)};
+ const finish=()=>{if(done)return;done=true;clearTimeout(finishTimer);layer.classList.add('zen-intro-leaving');for(const type of ['pointerdown','wheel','keydown'])document.removeEventListener(type,finish,true);window.removeEventListener('resize',finish);window.removeEventListener('pagehide',finish);setTimeout(()=>layer.remove(),3100)};
  for(const type of ['pointerdown','wheel','keydown'])document.addEventListener(type,finish,{capture:true,passive:true});
  window.addEventListener('resize',finish,{once:true});window.addEventListener('pagehide',finish,{once:true});
- finishTimer=setTimeout(finish,7600);
+ finishTimer=setTimeout(finish,23000);
 }
 const style=document.createElement('style');style.textContent=`
-#zenControlIntroduction{position:fixed;inset:0;width:100%;height:100%;z-index:110;pointer-events:none!important;color:#C5B38E;opacity:1;transition:opacity .8s ease}
+#zenControlIntroduction{position:fixed;inset:0;width:100%;height:100%;z-index:110;pointer-events:none!important;color:#C5B38E;opacity:1;transition:opacity 3s ease-in-out}
 #zenControlIntroduction.zen-intro-leaving{opacity:0}
 #zenControlIntroduction path{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.zen-intro-area{opacity:0;animation:zenIntroBreathe 3s ease-in-out var(--intro-delay) 2}
-.zen-intro-halo{fill:#88B7AF;fill-opacity:.10;stroke:#A9C3B5;stroke-width:1.6;stroke-opacity:.32;filter:drop-shadow(0 0 14px #83B9AF66)}
-.zen-intro-track{stroke-opacity:.38}.zen-intro-center{fill:#D0B891;fill-opacity:.7}
-.zen-intro-arrows{animation:zenIntroDrift 3s ease-in-out var(--intro-delay) 2;filter:drop-shadow(0 0 4px #D0B89166)}
+.zen-intro-area{opacity:0;animation:zenIntroBreathe 20s ease-in-out var(--intro-delay) 1}
+.zen-intro-halo{fill:#88B7AF;fill-opacity:.06;stroke:#A9C3B5;stroke-width:1.3;stroke-opacity:.16;filter:drop-shadow(0 0 14px #83B9AF33)}
+.zen-intro-center{fill:#D0B891;fill-opacity:.35}
+.zen-intro-arrows{opacity:.65;animation:zenIntroDrift 20s ease-in-out var(--intro-delay) 1;filter:drop-shadow(0 0 4px #D0B89133)}
 .zen-intro-arrow-shape path{stroke-width:1.3!important}
-.zen-intro-link{stroke:#A1BDB0!important;stroke-opacity:0;stroke-dasharray:1;stroke-dashoffset:1;animation:zenIntroTrace 5.4s ease-in-out var(--intro-delay) forwards}
-.zen-intro-tap{fill:none;stroke:#D0B891;stroke-width:1;transform-box:fill-box;transform-origin:center;animation:zenIntroRipple 3s ease-in-out 2}
-@keyframes zenIntroBreathe{0%,100%{opacity:0}35%,60%{opacity:.85}}
+.zen-intro-flow{opacity:0;animation:zenIntroFlow 16s ease-in-out var(--intro-delay) 1}
+.zen-intro-flow-light{fill:#A1BDB0;filter:blur(9px)}
+.zen-intro-tap{fill:none;stroke:#D0B891;stroke-width:1;transform-box:fill-box;transform-origin:center;animation:zenIntroRipple 20s ease-in-out 1}
+@keyframes zenIntroBreathe{0%,100%{opacity:0}30%,50%{opacity:.28}}
 @keyframes zenIntroDrift{0%{translate:0 0}70%,100%{translate:var(--dx) var(--dy)}}
-@keyframes zenIntroTrace{0%{stroke-opacity:0;stroke-dashoffset:1}25%{stroke-opacity:.24}65%{stroke-opacity:.24;stroke-dashoffset:0}100%{stroke-opacity:0;stroke-dashoffset:0}}
-@keyframes zenIntroRipple{0%{scale:.8;opacity:0}40%{opacity:.7}100%{scale:2;opacity:0}}
-@media(prefers-reduced-motion:reduce){.zen-intro-arrows,.zen-intro-tap{animation:none}.zen-intro-area{animation:none;opacity:.5}.zen-intro-link{animation:none;stroke-dashoffset:0;stroke-opacity:.15}}
+@keyframes zenIntroFlow{0%,100%{opacity:0}25%,65%{opacity:.20}}
+@keyframes zenIntroRipple{0%{scale:.8;opacity:0}40%{opacity:.35}100%{scale:2;opacity:0}}
+@media(prefers-reduced-motion:reduce){.zen-intro-arrows,.zen-intro-tap{animation:none}.zen-intro-area{animation:none;opacity:.20}.zen-intro-flow{display:none}}
 body.zen-mode #toast{display:none!important}
 body.zen-mode{--zen-fade-duration:${ZEN_FADE_DURATION}ms;--zen-fade-ease:cubic-bezier(.45,0,.55,1);--zen-footer:148px;--zen-cloth:#2A382E;--zen-rail:#181B20;background:radial-gradient(ellipse at 50% 42%,#252C34 0%,#191D23 65%,#14171C 100%)!important;overflow:hidden;isolation:isolate}
 
