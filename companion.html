@@ -10,11 +10,12 @@
 <link rel="stylesheet" href="./companion.css?v=2">
 <script src="./app-updates.js?v=2"></script>
 <script src="./companion-core.js?v=2" defer></script>
-<script src="./companion.js?v=3" defer></script>
+<script src="./companion-backups.js?v=1" defer></script>
+<script src="./companion.js?v=4" defer></script>
 </head>
 <body>
 <header class="topbar"><a class="back-link" href="./play.html">← Back to Play</a><div class="brand"><span>Billiards <strong>Trainer</strong></span><span class="brand-play">Play</span></div><span class="header-balance" aria-hidden="true"></span></header>
-<div class="app-layout"><aside class="sidebar"><div class="section-name"><h1 class="brand sidebar-brand"><span>Billiards <strong>Trainer</strong></span><span class="brand-play">Play</span></h1><p>Find your next good session.</p></div><nav aria-label="Companion sections"><button data-view="home">Together</button><button data-view="sessions">Our sessions</button><button data-view="discoveries">Discoveries</button><button data-view="devices">Devices</button><button data-view="features">Features & ideas</button><button data-view="settings">App & updates</button></nav><div class="sidebar-foot"><span class="status-dot"></span> Separate practice workspace<br><small>Saved here. Share when you choose.</small></div></aside><main id="main" tabindex="-1"></main></div>
+<div class="app-layout"><aside class="sidebar"><div class="section-name"><h1 class="brand sidebar-brand"><span>Billiards <strong>Trainer</strong></span><span class="brand-play">Play</span></h1><p>Find your next good session.</p></div><nav aria-label="Companion sections"><button data-view="home">Together</button><button data-view="sessions">Our sessions</button><button data-view="discoveries">Discoveries</button><button data-view="devices">Devices</button><button data-view="features">Features & ideas</button><button data-view="settings">App & updates</button></nav></aside><main id="main" tabindex="-1"></main></div>
 <div id="toast" role="status" aria-live="polite" hidden></div>
 <dialog id="noteDialog" aria-labelledby="noteTitle"><div class="dialog-heading"><h2 id="noteTitle">Keep a voice note</h2><button id="closeNote" aria-label="Close voice note">×</button></div><p>Say what happened, what helped, or what to try next. Saved with this session on this device.</p><label>Whose note?<select id="notePerson"></select></label><p id="recordStatus" role="status">Ready when you are.</p><div class="actions"><button id="record" class="primary">Start recording</button><button id="stopRecord" disabled>Stop & save</button></div><p class="hint">Up to two minutes. Audio is saved as spoken; automatic transcription and AI interpretation are planned.</p></dialog>
 <noscript>Play Together needs JavaScript enabled to save and resume a session.</noscript>

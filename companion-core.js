@@ -49,7 +49,7 @@
   ['Continuity & app foundation',[
    ['Save & resume','ready','Names, agreements, observations, attempts and takeaways persist locally.'],
    ['Shared discovery history','ready','Review each takeaway and the next-session choice.'],
-   ['Companion backup & restore','ready','Export and restore sessions with their audio notes; existing games are untouched.'],
+   ['Companion backup & restore','ready','Automatic local recovery copies, plus manual export and restore of sessions with their audio notes.'],
    ['Existing app updates','ready','Use the Trainer update system; activate a completed update by restarting.'],
    ['Separate companion workspace','ready','Own page, files and data; a single entry from Play.'],
    ['Windows, Android and browser layout','ready','Responsive touch-first interface; physical-device acceptance still required.'],
