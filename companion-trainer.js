@@ -1,0 +1,20 @@
+/* Explicit, reversible handoff from a Companion session to the existing Trainer. */
+(function(){
+'use strict';
+const token=new URLSearchParams(location.search).get('companion'),key='billiards.companion.exchange.'+token,restoreKey=key+'.previous';
+let request,previous,loaded=false;
+try{request=JSON.parse(localStorage.getItem(key));if(!request||request.version!==1||request.token!==token||!request.sessionId||(!localStorage.getItem(restoreKey)&&Date.now()-Date.parse(request.createdAt)>86400000))throw Error('This practice handoff has expired. Return to Companion and open it again.');window.BilliardsLayoutFiles.parse(JSON.stringify(request.file));const saved=localStorage.getItem(restoreKey);if(saved){previous=JSON.parse(saved);loaded=true;}}
+catch(err){alert(err.message);return;}
+const panel=document.createElement('section');panel.setAttribute('aria-label','Companion practice handoff');panel.style.cssText='position:fixed;bottom:max(12px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:100200;background:#14252d;color:#f2f4ec;border:1px solid #83c7ad;border-radius:14px;padding:12px;max-width:calc(100vw - 32px);width:620px;box-shadow:0 6px 30px #0008;font:14px system-ui';
+panel.innerHTML='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><strong>Companion practice</strong><button id="companionFold" type="button" style="margin-left:auto">Minimize</button></div><div id="companionControls"><p id="companionHandoffStatus"></p><div style="display:flex;gap:8px;flex-wrap:wrap"><button id="companionLoad" type="button">Load practice setup</button><button id="companionReturn" type="button">Keep setup & return</button><button id="companionCancel" type="button">Return without changes</button></div></div>';
+document.body.append(panel);
+const $=id=>panel.querySelector('#'+id),status=t=>$('companionHandoffStatus').textContent=t;
+function bridge(){if(!window.billiardsTourBridge)throw Error('Trainer is still loading. Try again in a moment.');return window.billiardsTourBridge;}
+function buttonStyle(){panel.querySelectorAll('button').forEach(b=>b.style.cssText='min-height:40px;padding:8px 12px;border-radius:8px;background:#24473f;color:#fff;border:1px solid #648f7c;cursor:pointer');}
+function restore(){if(previous&&!bridge().restore(previous))throw Error('The previous Trainer table could not be restored. Stay here and try Return again.');}
+function returnToCompanion(keep){try{let file=request.file;if(keep){if(!loaded)throw Error('Load the practice setup before keeping changes.');file=bridge().exportFile();window.BilliardsLayoutFiles.parse(JSON.stringify(file));}restore();localStorage.setItem(key,JSON.stringify({...request,file,status:'returned'}));localStorage.removeItem(restoreKey);location.href='./companion.html?companionReturn='+encodeURIComponent(token)+'#workshop';}catch(err){status(err.message);}}
+$('companionLoad').onclick=()=>{try{const b=bridge();if(!previous){previous=b.capture();localStorage.setItem(restoreKey,JSON.stringify(previous));}const file=window.BilliardsLayoutFiles.parse(JSON.stringify(request.file)),state=file.state||{};if(!b.loadLesson({file:request.file,controls:{speed:state.speed??1.5,follow:state.follow??0,sideSpin:state.sideSpin??0,showPaths:true,showImpact:true,showDiamonds:true,shot2Enabled:state.shot2Enabled??false,activeShot:1}}))throw Error('Finish the moving shot, then load the setup.');loaded=true;$('companionLoad').disabled=true;status('Practice setup loaded. Compare your idea; Keep setup & return saves this table and restores the table you had before.');}catch(err){status(err.message);}};
+$('companionReturn').onclick=()=>returnToCompanion(true);$('companionCancel').onclick=()=>returnToCompanion(false);
+$('companionFold').onclick=()=>{const controls=$('companionControls');controls.hidden=!controls.hidden;$('companionFold').textContent=controls.hidden?'Expand':'Minimize';};
+$('companionLoad').disabled=loaded;status(loaded?'Recovered your practice handoff. Your previous table is preserved for return.':'Your current table stays in place until you choose Load practice setup.');buttonStyle();
+})();

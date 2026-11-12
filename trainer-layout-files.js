@@ -33,3 +33,6 @@ function settings(raw,defaults){
 function create(layout,state=null,history=[]){return JSON.parse(JSON.stringify({format:'billiards-trainer',version:1,kind:state?'session':'layout',name:layout.name||'Shared table',savedAt:new Date().toISOString(),layout,...(state?{state,history:history.slice(-30)}: {})},(key,value)=>key==='preview'?null:value));}
 const api={parse,create,settings};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.BilliardsLayoutFiles=api;
 })(typeof window!=='undefined'?window:globalThis);
+
+/* Load the Companion return controls only for an explicit practice handoff. */
+if(typeof window!=='undefined'&&new URLSearchParams(location.search).has('companion')){document.addEventListener('DOMContentLoaded',()=>{const script=document.createElement('script');script.src='./companion-trainer.js?v=1';document.body.append(script);},{once:true});}

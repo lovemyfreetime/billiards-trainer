@@ -13,3 +13,21 @@
 
 .participants{margin:0 0 24px;padding:18px}.participants summary{cursor:pointer;min-height:44px;padding:10px 0;color:var(--mint)}.participant-fields{display:flex;flex-wrap:wrap;gap:12px}.participant-fields label{flex:1 1 150px}.role-pick{width:110px}.roster-row{grid-template-columns:minmax(0,1fr) auto auto auto}.participants input{width:100%;box-sizing:border-box}
 @media(max-width:600px){.roster-row{grid-template-columns:minmax(0,1fr) 100px 48px}.roster-row>label:first-child{grid-column:1/-1}.roster-row .role-pick{width:auto}.roster-row .group-pick{width:100px}.session-head{flex-direction:column}.session-tools{flex-direction:row;justify-content:flex-start}.history-head{flex-wrap:wrap}}
+
+/* Practice tools share the existing touch-first visual language. */
+#main>details.card,#main>section.card,#main>article.card{margin:20px 0}
+#main details.card>summary{cursor:pointer;font-weight:700;font-size:1.08rem;padding:8px 0}
+#main details.card[open]>summary{margin-bottom:18px}
+#main .card form>label,#main .card form>.grid,#main .card form>button{margin-top:14px}
+#main input[type=file]{width:100%;max-width:100%;min-width:0;font-size:.9rem;padding:10px}
+#main .recall,#main .turn,#main .media-item{padding:16px 0;border-top:1px solid var(--line,#38504c);overflow-wrap:anywhere}
+#main .media-item img,#main .media-item video{display:block;max-width:100%;max-height:440px;border-radius:12px}
+#main audio{width:100%;margin:10px 0}
+#main .pressure-banner,#main .pressure-live{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px;background:#534026;border:1px solid #bda56e;border-radius:12px;margin:14px 0}
+#main .pressure-live{display:block}
+#main .target-caption{font-size:.85rem;line-height:1.4;margin:8px 0;display:block;overflow-wrap:anywhere}
+#main .grid>*,#main form,#main label{min-width:0}
+#main input[type=datetime-local]{max-width:100%;min-width:0}
+#main .actions{flex-wrap:wrap}
+#main .card p{overflow-wrap:anywhere}
+@media(max-width:640px){#main .grid.two{grid-template-columns:1fr}.session-tools{flex-wrap:wrap}.pressure-banner button{flex:1 1 140px}.sidebar nav{gap:4px}}

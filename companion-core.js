@@ -1,7 +1,8 @@
 /* Isolated companion state. No writes to scoring, physics or Trainer settings. */
 (function(root){
  'use strict';
- const KEY='billiards.playTogether.v1',VERSION='0.3.0';
+ const KEY='billiards.playTogether.v1',VERSION='0.4.0';
+ const F=typeof module!=='undefined'&&module.exports?require('./companion-features.js'):root.CompanionFeatures;
  const activities=[
   {id:'position',title:'Give yourself more room',tag:'POSITION & CHOICE',question:'Which route leaves more usable next shots?',description:'Compare a precise route with one that leaves a bigger landing area.',tools:'Shot 2 · Aiming Zones · 2D / 3D',criterion:'Pocket the ball and leave a usable next shot.',steps:[['Predict first','Set up a familiar position shot. Each point to an acceptable landing area before discussing routes.'],['Compare two routes','Open Trainer if helpful. Use Shot 2 and the position ranges to compare the routes. Change one thing at a time.'],['Try it on your table','Take five attempts each. Use a target that suits each player. Count the whole result: made ball and usable next shot.'],['Use it in a rack','Play a short rack without advice during turns. Look for a chance to choose the bigger usable area.']]},
   {id:'advice',title:'Test an idea together',tag:'EXPLANATION & TRUST',question:'Which explanation survives a real test?',description:'Turn different opinions into a small experiment everyone can learn from.',tools:'Annotation · Undo · Speed & spin',criterion:'The ball does what you predicted before the attempt.',steps:[['Say what you expect','Choose one shot you see differently. Each describes the expected result before hearing the other explanations.'],['Make the difference visible','Demonstrate or use Trainer to mark the two predictions. Choose one change in speed, aim or spin.'],['Test both explanations','Alternate attempts. Say the expected result before each one. Mark whether it happened; revise the explanation when it does not.'],['Explain it back','Each explains or demonstrates the useful principle in their own way. Try one slightly different setup.']]},
@@ -13,49 +14,51 @@
    ['A short practice agreement','ready','Ask before coaching, describe what happened, and test suggestions together.'],
    ['Observe before choosing a goal','ready','Each person contributes a concrete starting observation.'],
    ['Individual gains in a shared session','ready','Each player can take something different from the activity.'],
-   ['Partner preferences over time','later','Feedback timing, contribution preferences, playing context and changing goals.'],
-   ['Invitation circles & discovery','later','Friends, teammates, clubs and eventually opt-in partner discovery with mutual invitations.'],
-   ['Practical matching','later','Availability, chosen venues, interests and feedback preferences; explain why a match is suggested.'],
-   ['Multiple-device session copies','ready','Send a session file, contribute on another device, then import notes and results with conflict checks. Live synchronization and private feedback are planned.'],
-   ['Community controls','later','Decline, disconnect, block and report when discovery is introduced.']]],
+   ['Partner preferences over time','ready','Remember feedback timing, preferred approach, goals and playing context for each person.'],
+   ['Invitation circles & discovery','ready','Exchange private invitation cards for friends, teams and clubs. Review, accept and return an acceptance file. Public discovery requires a connected service.'],
+   ['Practical matching','ready','Explain shared times, venues, interests and feedback preferences among accepted private invitations.'],
+   ['Multiple-device session copies','ready','Send a session file, contribute on another device, then import notes and results with conflict checks. Copies carry core written notes and results. Private tools and media travel only in a full backup; live synchronization needs a connected service.'],
+   ['Community controls','ready','Decline, disconnect and block invitations locally; save and export private reports for an organizer. Central moderation requires a connected service.']]],
   ['Practice & learning',[
    ['Three complete starter activities','ready','Position margin, testing advice, and recovery after an unfavorable outcome.'],
    ['Alternating attempts & undo','ready','Shared success criterion, five attempts per player in each practice group and a correctable attempt record.'],
    ['Relaxed, focused or match preparation','ready','Choose the session intent without a long questionnaire.'],
-   ['Individual difficulty & targets','next','Different targets in the same activity; progress from demonstrations to independent execution.'],
-   ['Trainer setup and return','next','Transfer layouts and relevant overlays, then return directly to the same activity. The current button opens Trainer only.'],
+   ['Individual difficulty & targets','ready','Choose each person’s criterion, support level and learning approach. Results retain the target used for that attempt.'],
+   ['Trainer setup and return','ready','Open the selected drill or attached layout, explicitly load it in Trainer, then keep the changed layout and return to the same session. Restore the prior Trainer table afterward.'],
    ['Learning through teaching','ready','Predictions, demonstrations, explaining back and testing a variation.'],
-   ['Recall & transfer checks','later','Revisit discoveries in a different setup before showing the guides.'],
-   ['Structured routines & drill library','later','Multi-session plans, cue control, aiming, speed, spin, banks, kicks, position, safeties and runouts.'],
-   ['Different ways to understand','later','Adapt through seeing, hearing, trying and explaining.']]],
+   ['Recall & transfer checks','ready','Save your recall and a different setup before revealing a previous discovery.'],
+   ['Structured routines & drill library','ready','Twelve authored drills across cue control, aim, speed, spin, banks, kicks, position, safety, patterns and runouts; three saved routines across sessions.'],
+   ['Different ways to understand','ready','Choose seeing, hearing, trying or explaining for each person and for guide excerpts.']]],
   ['Psychology & enjoyment',[
    ['Observation before explanation','ready','Record what happened before deciding why; any companion can revise an idea.'],
    ['Pleasure & willingness to return','ready','Each reports whether the session was worth doing; keep this separate from results.'],
    ['Competition and coaching boundaries','ready','Agree when advice is welcome; return to independent play at the end of an activity.'],
-   ['Pressure practice','next','Agree a score deficit, shot clock or confident-opponent scenario, with an immediate pressure-off control.'],
-   ['Recognize influence & recover','later','Practice composure around intimidating demeanor, distraction and rushing; debrief both perspectives.'],
+   ['Pressure practice','ready','Everyone agrees to a clock, score deficit or confident-opponent scenario. Pressure off is always available; backgrounding turns pressure off.'],
+   ['Recognize influence & recover','ready','Authored reset prompts, agreed pressure scenarios and saved reflections about distraction, rushing and opponent demeanor.'],
    ['Luck & decision quality','ready','Explore broader acceptable outcomes and a useful response to bad rolls; do not grade a decision from one outcome.'],
-   ['Bias-aware suggestions','later','Address overconfidence, deference, unsolicited correction and uneven motivation with small prompts.'],
-   ['Social play & sustainable motivation','later','Let people just play, adjust guidance and choose a different companion without guilt or public rankings.']]],
+   ['Bias-aware suggestions','ready','Concrete prompts for prediction, overconfidence, deference, advice boundaries and uneven motivation.'],
+   ['Social play & sustainable motivation','ready','Just-play mode removes structured results and pressure while preserving session discoveries.']]],
   ['Voice & assistance',[
-   ['Local voice notes','ready','Record and replay short audio notes where microphone access is supported. No transcription yet.'],
+   ['Local voice notes','ready','Record and replay short audio notes where microphone access is supported. Reviewed local transcription is available in Guide & voice on compatible devices.'],
    ['Spoken prompts','ready','Optional device text-to-speech; availability depends on the installed browser or shell.'],
    ['Keyboard microphone input','ready','Use the device keyboard microphone in any note field when the keyboard provides it.'],
-   ['External TTS capture connection','next','Bring spoken answers into the companion workflow, then review the interpreted result.'],
-   ['Local transcription & interpretation','next','Turn speech into checked observations, a suggested activity or a saved takeaway.'],
-   ['Local billiards knowledge & companion guide','next','Versioned authored knowledge, small relevant excerpts and constrained app actions.'],
-   ['Conversation turn-taking','later','Distinguish each companion and assistant output, preserve corrections and avoid duplicate saves.'],
-   ['Hands-free session controls','later','Start, pause, record results and keep a discovery with spoken commands.']]],
+   ['External TTS capture connection','device','Import spoken audio or capture a chosen tab’s shared audio where supported. Play or locally transcribe it for review.'],
+   ['Local transcription & interpretation','device','Capability-checked on-device English speech and optional local language-pack installation; review notes and interpret a bounded set of session commands. Requires compatible browser or Android support.'],
+   ['Local billiards knowledge & companion guide','ready','Versioned authored excerpts, read-aloud, learning modes and bounded session actions; works without a remote model.'],
+   ['Conversation turn-taking','ready','Select the speaker, review and correct each contribution, keep discoveries and edit a turn without duplicate saves.'],
+   ['Hands-free session controls','device','Opt in to local voice commands for starting the selected session, continuing, results, undo, pause and pressure off. Availability depends on local speech support.']]],
   ['Continuity & app foundation',[
    ['Save & resume','ready','Keep multiple sessions, switch between companions or solo practice, and continue completed sessions. Names, notes, results and audio stay with each session.'],
    ['Shared discovery history','ready','Review each takeaway and the next-session choice.'],
-   ['Companion backup & restore','ready','Automatic local recovery copies, plus manual export and restore of sessions with their audio notes.'],
+   ['Companion backup & restore','ready','Automatic local recovery copies, plus full export and restore of sessions, audio, attachments, preferences and plans.'],
    ['Existing app updates','ready','Use the Trainer update system; activate a completed update by restarting.'],
    ['Separate companion workspace','ready','Own page, files and data; a single entry from Play.'],
    ['Windows, Android and browser layout','ready','Responsive touch-first interface; physical-device acceptance still required.'],
-   ['Layouts, snapshots and teaching clips','later','Attach Trainer setups, annotated images and recorded explanations to discoveries.'],
-   ['Optional reminders & meeting plans','later','Agreed next practice, with opt-in reminders and no missed-session penalties.'],
-   ['Field-trial feedback','later','Check ease of use, partner experience and later learning across repeated sessions.']]]
+   ['Layouts, snapshots and teaching clips','ready','Attach validated Trainer layouts, images, audio and short video to a session’s discoveries; full backups include attachment bytes.'],
+   ['Optional reminders & meeting plans','ready','Save an agreed time and venue; export a calendar invitation with an optional 30-minute reminder.'],
+   ['Public discovery & live synchronization','service','Needs a connected directory and synchronization service; private invitation files are available now.'],
+   ['Centralized moderation','service','Needs a connected reporting service and organizer workflow; local blocking and report export are available now.'],
+   ['Field-trial feedback','ready','Per-person ease, enjoyment, retained learning and willingness to return; local history summary and export.']]]
  ];
  const uid=()=>globalThis.crypto?.randomUUID?.()||Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
  const fresh=()=>({schema:1,revision:0,people:[],pairs:[],sessions:[],activeId:null});
@@ -76,7 +79,7 @@
    if(!Array.isArray(s.voice)||s.voice.length>500||s.voice.some(v=>!v||!text(v.id,100)||!validSeat(v.seat)||!text(v.createdAt,50)||!Number.isFinite(v.seconds)||v.seconds<0||v.seconds>125))throw Error('Invalid audio record.');
   }
   if(x.activeId!==null&&!x.sessions.some(s=>s.id===x.activeId&&s.status==='active'))throw Error('Invalid active session.');
-  return x;
+  F.validate(x);return x;
  }
  function load(storage){const raw=storage.getItem(KEY);return raw?validate(JSON.parse(raw)):fresh();}
  function save(storage,state){validate(state);const raw=storage.getItem(KEY),old=raw?JSON.parse(raw):null;if(old&&old.revision!==state.revision)throw Error('This session changed in another window. Reload before continuing.');const next={...state,revision:state.revision+1};if(raw)storage.setItem(KEY+'.previous',raw);storage.setItem(KEY,JSON.stringify(next));state.revision=next.revision;return state;}
@@ -91,7 +94,7 @@
   if(units.some(u=>u.every(i=>roles[i]==='coach')))throw Error('Each practice group needs a player.');
   const people=names.map(name=>{let p=state.people.find(p=>p.name.toLocaleLowerCase()===name.toLocaleLowerCase());if(!p){p={id:uid(),name};state.people.push(p);}return p;});
   let pair=state.pairs.find(p=>p.people.length===people.length&&people.every((person,i)=>p.people[i]===person.id));if(!pair){pair={id:uid(),people:people.map(p=>p.id)};state.pairs.push(pair);}
-  const now=new Date().toISOString(),s={id:uid(),pairId:pair.id,status:'active',stage:0,practiceStep:0,mood,minutes,agreed:false,units,roles:roles.slice(),baseline:names.map(()=>''),gains:names.map(()=>''),takeaways:names.map(()=>''),enjoyment:names.map(()=>''),activity:'position',attempts:[],voice:[],next:'',createdAt:now,updatedAt:now};state.sessions.unshift(s);state.activeId=s.id;return s;
+  const now=new Date().toISOString(),s={id:uid(),pairId:pair.id,status:'active',stage:0,practiceStep:0,mood,minutes,agreed:false,units,roles:roles.slice(),baseline:names.map(()=>''),gains:names.map(()=>''),takeaways:names.map(()=>''),enjoyment:names.map(()=>''),activity:'position',attempts:[],voice:[],next:'',createdAt:now,updatedAt:now};if(state.preferences?.length){const w=F.ensure(s);people.forEach((p,i)=>{const pref=state.preferences.find(v=>v.personId===p.id);if(pref){w.targets[i].mode=pref.mode;s.gains[i]=pref.goal;}});}state.sessions.unshift(s);state.activeId=s.id;return s;
  }
  function resume(state,id){const s=state.sessions.find(s=>s.id===id);if(!s)throw Error('Session not found.');s.status='active';state.activeId=id;return s;}
  function addParticipant(state,id,name,{role='player',unit=0}={}){
@@ -105,25 +108,25 @@
   const previous=state.pairs.find(p=>p.id===s.pairId),pair={id:uid(),people:[...previous.people,p.id]};state.pairs.push(pair);s.pairId=pair.id;
   s.roles=[...roles(s),role];groups[unit].push(current.length);s.units=groups;
   for(const key of ['baseline','gains','takeaways','enjoyment'])s[key].push('');
-  delete s.shareBase;s.updatedAt=new Date().toISOString();return s;
+  F.extend(s);delete s.shareBase;s.updatedAt=new Date().toISOString();return s;
  }
  const names=(state,s)=>state.pairs.find(p=>p.id===s.pairId).people.map(id=>state.people.find(p=>p.id===id).name);
  const roles=s=>s.roles||s.baseline.map(()=>'player');
  const units=s=>(s.units||[s.baseline.map((_,i)=>i)]).map(u=>u.filter(i=>roles(s)[i]!=='coach'));
- const counts=s=>s.baseline.map((_,i)=>i).map(seat=>({total:s.attempts.filter(a=>a.seat===seat).length,worked:s.attempts.filter(a=>a.seat===seat&&a.worked).length}));
- const seat=(s,unit=0)=>{const group=units(s)[unit];if(!group)throw Error('Choose a practice group.');return group[Math.floor(s.attempts.filter(a=>group.includes(a.seat)).length/5)%group.length];};
- function attempt(s,worked,unit=0){if(s.status!=='active'||s.stage!==3||s.practiceStep!==2)throw Error('Attempts belong to the practice step.');if(typeof worked!=='boolean')throw Error('Choose a result.');s.attempts.push({id:uid(),seat:seat(s,unit),worked,at:new Date().toISOString()});}
- function finish(state,s){if(!s.agreed)throw Error('Agree how to practice together first.');s.status='completed';s.updatedAt=new Date().toISOString();s.stage=4;if(state.activeId===s.id)state.activeId=null;}
+ const counts=s=>s.baseline.map((_,i)=>i).map(seat=>({total:F.practiceAttempts(s).filter(a=>a.seat===seat).length,worked:F.practiceAttempts(s).filter(a=>a.seat===seat&&a.worked).length}));
+ const seat=(s,unit=0)=>{const group=units(s)[unit];if(!group)throw Error('Choose a practice group.');return group[Math.floor(F.practiceAttempts(s).filter(a=>group.includes(a.seat)).length/5)%group.length];};
+ function attempt(s,worked,unit=0){if(s.work?.social)throw Error('Return to structured practice to record results.');if(s.status!=='active'||s.stage!==3||s.practiceStep!==2)throw Error('Attempts belong to the practice step.');if(typeof worked!=='boolean')throw Error('Choose a result.');const person=seat(s,unit);s.attempts.push({id:uid(),seat:person,worked,at:new Date().toISOString(),...(s.work?{round:s.work.round,drill:s.work.drill,target:{...s.work.targets[person]}}:{})});}
+ function finish(state,s){if(s.work)s.work.pressure.enabled=false;if(!s.agreed)throw Error('Agree how to practice together first.');s.status='completed';s.updatedAt=new Date().toISOString();s.stage=4;if(state.activeId===s.id)state.activeId=null;}
 
  const copy=x=>JSON.parse(JSON.stringify(x));
- function portableSession(s){const result=copy(s);delete result.shareBase;delete result.voice;return {...result,voice:[]};}
+ function portableSession(s){const result=copy(s);delete result.shareBase;delete result.voice;delete result.media;delete result.work;delete result.trainerLayout;if(s.work){result.work=F.work(result);Object.assign(result.work,{drill:s.work.drill,round:s.work.round,targets:copy(s.work.targets)});}return {...result,voice:[]};}
  function packet(state,id){validate(state);const session=state.sessions.find(s=>s.id===id);if(!session)throw Error('Choose a session.');const group=state.pairs.find(p=>p.id===session.pairId),current=portableSession(session);if(!session.shareBase)session.shareBase=copy(current);return {format:'billiards-companion-session',version:1,group:copy(group),people:copy(state.people.filter(p=>group.people.includes(p.id))),base:copy(session.shareBase||current),session:current};}
  function receive(state,input){
   if(!input||input.format!=='billiards-companion-session'||input.version!==1)throw Error('Choose a companion session copy.');
   const incoming=copy(input),remote=incoming.session,base=incoming.base;
   for(const value of [remote,base]){validate({schema:1,revision:0,people:incoming.people,pairs:[incoming.group],sessions:[value],activeId:null});if(value.voice.length)throw Error('Session copies carry written notes and results only.');}
   if(remote.id!==base.id||remote.pairId!==base.pairId)throw Error('Session copies do not match.');
-  if(JSON.stringify(units(remote))!==JSON.stringify(units(base))||JSON.stringify(roles(remote))!==JSON.stringify(roles(base))||remote.activity!==base.activity)throw Error('Keep the same activity and groups in a shared session copy.');
+  if(JSON.stringify(units(remote))!==JSON.stringify(units(base))||JSON.stringify(roles(remote))!==JSON.stringify(roles(base))||remote.activity!==base.activity||remote.work?.round!==base.work?.round)throw Error('Keep the same activity and groups in a shared session copy.');
   const draft=copy(state),local=draft.sessions.find(s=>s.id===remote.id);
   if(!local){
    for(const p of incoming.people){const existing=draft.people.find(x=>x.id===p.id);if(existing&&existing.name!==p.name)throw Error('A player record conflicts with this copy.');if(!existing)draft.people.push(p);}
@@ -131,7 +134,7 @@
    remote.shareBase=portableSession(remote);draft.sessions.unshift(remote);if(remote.status==='active'&&!draft.activeId)draft.activeId=remote.id;
   }else{
    const group=draft.pairs.find(g=>g.id===local.pairId);
-   if(JSON.stringify(group.people)!==JSON.stringify(incoming.group.people)||local.activity!==remote.activity||JSON.stringify(units(local))!==JSON.stringify(units(remote))||JSON.stringify(roles(local))!==JSON.stringify(roles(remote)))throw Error('The activity or groups changed. Keep both copies and use a full backup to transfer a changed roster.');
+   if(JSON.stringify(group.people)!==JSON.stringify(incoming.group.people)||local.activity!==remote.activity||local.work?.round!==remote.work?.round||JSON.stringify(units(local))!==JSON.stringify(units(remote))||JSON.stringify(roles(local))!==JSON.stringify(roles(remote)))throw Error('The activity or groups changed. Keep both copies and use a full backup to transfer a changed roster.');
    const merge=(old,ours,theirs,label)=>{if(theirs===old||theirs===ours)return ours;if(ours===old)return theirs;throw Error('Both devices changed '+label+'. Keep both copies and agree the wording before importing again.');};
    for(const key of ['baseline','gains','takeaways','enjoyment'])local[key]=local[key].map((v,i)=>merge(base[key][i],v,remote[key][i],incoming.people.find(p=>p.id===group.people[i]).name+'’s '+key));
    local.next=merge(base.next,local.next,remote.next,'the next-session note');
