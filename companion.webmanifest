@@ -1,0 +1,16 @@
+{
+  "id": "./companion.html",
+  "name": "Billiards Trainer — Play Together",
+  "short_name": "Play Together",
+  "description": "Companion practice, shared discoveries and a useful next session.",
+  "start_url": "./companion.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#101b22",
+  "theme_color": "#101b22",
+  "icons": [
+    {"src":"./icons/icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"./icons/icon-512.png","sizes":"512x512","type":"image/png"},
+    {"src":"./icons/icon-maskable-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}
+  ]
+}

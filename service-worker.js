@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-offline-d4b9f805c5e309e8';
+const CACHE_NAME = 'billiards-trainer-4-12-offline-44e589cb9e0f8825';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './play-narration-data.js?v=3',
@@ -18,6 +18,11 @@ const APP_SHELL = [
   './local-session.css?v=local-table-v1',
   './welcome.html',
   './play.html',
+  './companion.html',
+  './companion-core.js?v=1',
+  './companion.js?v=1',
+  './companion.css?v=1',
+  './companion.webmanifest',
   './tournament.html',
   './tournament-engine.js?v=1',
   './tournament-ui.js?v=1',
@@ -122,6 +127,7 @@ function navigationShell(url){
   if(path.endsWith('/tournament.html'))return './tournament.html';
   if(path.endsWith('/play-calibration.html'))return './play-calibration.html';
   if(path.endsWith('/play.html'))return './play.html';
+  if(path.endsWith('/companion.html'))return './companion.html';
   return './index.html';
 }
 async function cachedResponse(request){
