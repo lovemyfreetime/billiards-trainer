@@ -1,0 +1,18 @@
+{
+  "status": "not generated; Google sign-in authorization required",
+  "batch": "held until explicit listening approval of this single sample",
+  "voice": "chase",
+  "proposed_model": "simba-3.2",
+  "native_generation_rate": "normal (0% adjustment)",
+  "playback_rate": 1,
+  "pitch_adjustment": "none",
+  "post_processing": "none; preserve original exported bytes",
+  "text": "Welcome to Companion Play. Start with one shot and one useful question. Before you shoot, picture where the object ball will go and where you want the cue ball to finish. Try the shot, notice what actually happened, and compare it with your prediction. You can practice alone, with a companion, or with a coach. Choose thirty minutes, one hour, or lots of free time. Test one idea at a time, and keep the discoveries that help your game.",
+  "acceptance": [
+    "Confirm voice identity and natural conversational pace.",
+    "Listen for cue ball, object ball, and the time choices.",
+    "Check pauses, clipped words, distortion, and volume.",
+    "Test same original file in player at 1x, including pause/resume.",
+    "Record final voice/model/rate, original SHA-256 and user approval before any batch."
+  ]
+}

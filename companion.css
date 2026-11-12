@@ -31,3 +31,11 @@
 #main .actions{flex-wrap:wrap}
 #main .card p{overflow-wrap:anywhere}
 @media(max-width:640px){#main .grid.two{grid-template-columns:1fr}.session-tools{flex-wrap:wrap}.pressure-banner button{flex:1 1 140px}.sidebar nav{gap:4px}}
+
+/* Paths are sampled from the same physics engine as Trainer. */
+.zen-table-art .shot-paths{position:absolute;inset:0;width:100%;height:100%;border-radius:0;pointer-events:none}
+.cue-legend{color:var(--mint)}.object-legend{color:#e9c56f}
+.narration-player{position:fixed;right:20px;bottom:max(20px,env(safe-area-inset-bottom));width:min(440px,calc(100vw - 40px));max-height:70vh;overflow:auto;padding:18px;border:1px solid var(--mint);border-radius:18px;background:#192d32;box-shadow:0 12px 40px #0009;z-index:29000}
+.narration-heading{display:flex;align-items:center;justify-content:space-between;gap:14px}.narration-heading strong{min-width:0;overflow-wrap:anywhere}.narration-heading button{flex:none;padding:5px 13px}
+.narration-player p{font-size:14px;margin:12px 0}.narration-player details{margin-top:14px}.narration-player summary{cursor:pointer;padding:8px 0}.narration-player label{margin:12px 0}.narration-open main{padding-bottom:380px}
+@media(max-width:600px){.narration-player{right:12px;width:calc(100vw - 24px);bottom:12px;max-height:55vh}.narration-open main{padding-bottom:55vh}}

@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "32936a1af4b56181a81d1c5f453e1f2ed5904f222af2394d4a918d559f204936",
-  "sequence": 1794489229,
+  "version": "b45bead180343d64fedcbb5707052343419f032a4d83319860fdb1f69f9a64fd",
+  "sequence": 1794510665,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -73,32 +73,44 @@
       "length": 6658
     },
     "companion-core.js": {
-      "sha256": "0a5f738b0e92250b0de78aac491530a411b5299e5fd89a0bb78cd733033c66fd",
-      "length": 23325
+      "sha256": "f3c78248c6b68f3416d188dc56f4caf79928208f000a45ce6095713a21abe428",
+      "length": 23601
     },
     "companion-features.js": {
       "sha256": "aee5ba9f8f558029abd849aaf1b8bc3b087c98c304f23f94e03d2fa74144e7ad",
       "length": 13143
+    },
+    "companion-narration-copy.js": {
+      "sha256": "2e76001571e392b63b293ba94fa21e4b82059280643925997a0d6d61d419b1d0",
+      "length": 6194
+    },
+    "companion-narration-files.js": {
+      "sha256": "014f4ec304bc9d5d480367ffde1de60d39410abfa84ed6b8851afb63b7f02db0",
+      "length": 138
+    },
+    "companion-narration.js": {
+      "sha256": "330d4370ad11ad4e73e257ecffa626c782a56886495829d3f0a0a14a2dccae57",
+      "length": 8884
     },
     "companion-trainer.js": {
       "sha256": "9d36bad4718ea80d16129e5ce90ad6a947a1a440499ee95d8fd5700ae0e0c3bc",
       "length": 4118
     },
     "companion-workspace.js": {
-      "sha256": "f3ae8fb92017f1532dca73ba77d1e150d6ee82cc0fafd0ca0f1c802ef2301d80",
-      "length": 43961
+      "sha256": "ab3f85fcc841fef14a0129ca6297f9e2af801b80ba846e746efa0cd46efcdb0d",
+      "length": 46225
     },
     "companion.css": {
-      "sha256": "b7a2ed95533e593369729953c1ae3ddd83f11e322c2db414999769b5f499c1e4",
-      "length": 17936
+      "sha256": "b3ee0ace9143dc8ab0a01edf21f1f0501342dc30e8548a9b9540356bba3d9bf9",
+      "length": 19035
     },
     "companion.html": {
-      "sha256": "78a1a875ad8e5cf8e6b4224a6c21e75b465f0b3e6ea0f3e2f77ac6dd408bfb11",
-      "length": 2783
+      "sha256": "9a444c49e6451ef2728cb3817f40292e75239d7daa4b062a6920a4cdab69d100",
+      "length": 2971
     },
     "companion.js": {
-      "sha256": "13d692a32372db5465543b813823ba6c3102f5bf699f2fa596b405eeb4d160af",
-      "length": 51608
+      "sha256": "9e19cd79cbaa59e925d49d4561fc6cecdac536951801325efe37d68038d381e2",
+      "length": 51103
     },
     "companion.webmanifest": {
       "sha256": "26c8ad0a8a12c9fffa2ab9ce19fcdf8f418ff0f5672995e8a99cfbe06f9c1d39",
@@ -3720,6 +3732,10 @@
       "sha256": "b28b3745272ad5b3022d12922f182b5327bf20e5c001553f664f7cd8ef1e90bf",
       "length": 25247
     },
+    "icons/companion-shot-paths.svg": {
+      "sha256": "f7ca77564adfede1cb6dbfbf8d7daf91d8762f4c96f81b58ffcdc395007b1a44",
+      "length": 10580
+    },
     "icons/icon-192.png": {
       "sha256": "0a9fb294722857b4a9f991d1e15788a684f4281f59a01d3ff791a5912af9c8ae",
       "length": 58126
@@ -3845,8 +3861,8 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "bb7e2e961ff670b861f9788925afb22683449108c0ad16158c741f14bfb55902",
-      "length": 147003
+      "sha256": "10e40adc463f52b54e77fe1bae28357e66cd24a0aaa81f603656e12c9e9fe01b",
+      "length": 147414
     },
     "phone-play.css": {
       "sha256": "cec5017ee25f788690420d4e67241754a1fbb2c047779ad0e7e59d87f7eac720",
@@ -4969,7 +4985,7 @@
       "length": 2103
     },
     "service-worker.js": {
-      "sha256": "0b5ae7cf7a19cc19c61d2a558c7d99a3ce41c4ba0bca2196bf9eedb7e05eccd8",
+      "sha256": "b0ac46fb2c277c619917453903c21543fd7268238f2a02681bc55be040e89ffa",
       "length": 7933
     },
     "table-orbit.js": {

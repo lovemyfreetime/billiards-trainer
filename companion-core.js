@@ -1,7 +1,7 @@
 /* Isolated companion state. No writes to scoring, physics or Trainer settings. */
 (function(root){
  'use strict';
- const KEY='billiards.playTogether.v1',VERSION='0.4.0';
+ const KEY='billiards.playTogether.v1',VERSION='0.4.1';
  const F=typeof module!=='undefined'&&module.exports?require('./companion-features.js'):root.CompanionFeatures;
  const activities=[
   {id:'position',title:'Give yourself more room',tag:'POSITION & CHOICE',question:'Which route leaves more usable next shots?',description:'Compare a precise route with one that leaves a bigger landing area.',tools:'Shot 2 · Aiming Zones · 2D / 3D',criterion:'Pocket the ball and leave a usable next shot.',steps:[['Predict first','Set up a familiar position shot. Each point to an acceptable landing area before discussing routes.'],['Compare two routes','Open Trainer if helpful. Use Shot 2 and the position ranges to compare the routes. Change one thing at a time.'],['Try it on your table','Take five attempts each. Use a target that suits each player. Count the whole result: made ball and usable next shot.'],['Use it in a rack','Play a short rack without advice during turns. Look for a chance to choose the bigger usable area.']]},
@@ -68,7 +68,7 @@
   const ids=new Set();for(const p of x.people){if(!p||!text(p.id,100)||!text(p.name,60)||!p.name.trim()||ids.has(p.id))throw Error('Invalid companion record.');ids.add(p.id);}
   const pairIds=new Set();for(const p of x.pairs){if(!p||!text(p.id,100)||pairIds.has(p.id)||!Array.isArray(p.people)||p.people.length<1||p.people.length>24||new Set(p.people).size!==p.people.length||p.people.some(id=>!ids.has(id)))throw Error('Invalid pair record.');pairIds.add(p.id);}
   const sessionIds=new Set();for(const s of x.sessions){
-   if(!s||!text(s.id,100)||sessionIds.has(s.id)||!pairIds.has(s.pairId)||!['active','completed'].includes(s.status)||!Number.isInteger(s.stage)||s.stage<0||s.stage>4||!Number.isInteger(s.practiceStep)||s.practiceStep<0||s.practiceStep>3||!['relaxed','focused','match'].includes(s.mood)||![15,25,45].includes(s.minutes)||!text(s.createdAt,50)||!text(s.updatedAt,50)||!text(s.next,2000)||typeof s.agreed!=='boolean'||!activities.some(a=>a.id===s.activity))throw Error('Invalid session record.');
+   if(!s||!text(s.id,100)||sessionIds.has(s.id)||!pairIds.has(s.pairId)||!['active','completed'].includes(s.status)||!Number.isInteger(s.stage)||s.stage<0||s.stage>4||!Number.isInteger(s.practiceStep)||s.practiceStep<0||s.practiceStep>3||!['relaxed','focused','match'].includes(s.mood)||![0,15,25,30,45,60].includes(s.minutes)||!text(s.createdAt,50)||!text(s.updatedAt,50)||!text(s.next,2000)||typeof s.agreed!=='boolean'||!activities.some(a=>a.id===s.activity))throw Error('Invalid session record.');
    sessionIds.add(s.id);const size=x.pairs.find(p=>p.id===s.pairId).people.length;const validSeat=i=>Number.isInteger(i)&&i>=0&&i<size;
    if(s.roles!==undefined&&(!Array.isArray(s.roles)||s.roles.length!==size||s.roles.some(r=>!['player','coach'].includes(r))))throw Error('Invalid session roles.');
    if(s.units!==undefined&&(!Array.isArray(s.units)||!s.units.length||s.units.some(u=>!Array.isArray(u)||!u.length||u.some(i=>!validSeat(i)))||s.units.flat().length!==size||new Set(s.units.flat()).size!==size))throw Error('Invalid practice groups.');
@@ -83,10 +83,10 @@
  }
  function load(storage){const raw=storage.getItem(KEY);return raw?validate(JSON.parse(raw)):fresh();}
  function save(storage,state){validate(state);const raw=storage.getItem(KEY),old=raw?JSON.parse(raw):null;if(old&&old.revision!==state.revision)throw Error('This session changed in another window. Reload before continuing.');const next={...state,revision:state.revision+1};if(raw)storage.setItem(KEY+'.previous',raw);storage.setItem(KEY,JSON.stringify(next));state.revision=next.revision;return state;}
- function start(state,names,{mood='focused',minutes=25,format='together',assignments=[],roles=names.map(()=>'player')}={}){
+ function start(state,names,{mood='focused',minutes=60,format='together',assignments=[],roles=names.map(()=>'player')}={}){
   names=names.map(n=>String(n).trim());if(names.length<1||names.length>24||names.some(n=>!n||n.length>60)||new Set(names.map(n=>n.toLocaleLowerCase())).size!==names.length)throw Error('Use 1–24 different names or nicknames.');
   if(!Array.isArray(roles)||roles.length!==names.length||roles.some(r=>!['player','coach'].includes(r)))throw Error('Choose a role for each person.');
-  if(!['relaxed','focused','match'].includes(mood)||![15,25,45].includes(minutes))throw Error('Choose a valid session setting.');
+  if(!['relaxed','focused','match'].includes(mood)||![0,15,25,30,45,60].includes(minutes))throw Error('Choose a valid session setting.');
   if(!['together','partners','groups'].includes(format))throw Error('Choose a practice format.');
   let units=[names.map((_,i)=>i)];
   if(format==='partners'){if(names.length%2)throw Error('Partner sets need an even number of players.');units=names.reduce((a,_,i)=>{if(i%2===0)a.push([i,i+1]);return a;},[]);}
@@ -146,6 +146,8 @@
   }
   validate(draft);return draft;
  }
- const api={KEY,VERSION,activities,features,fresh,validate,load,save,start,resume,addParticipant,names,roles,counts,units,seat,attempt,finish,uid,packet,receive};
+ function duration(minutes){return minutes===0?'Lots of free time':minutes===60?'about 1 hour':'about '+minutes+' min';}
+ function duration(minutes){return minutes===0?'Lots of free time':minutes===60?'about 1 hour':'about '+minutes+' min';}
+ const api={KEY,VERSION,duration,duration,activities,features,fresh,validate,load,save,start,resume,addParticipant,names,roles,counts,units,seat,attempt,finish,uid,packet,receive};
  if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CompanionCore=api;
 })(typeof window!=='undefined'?window:globalThis);
