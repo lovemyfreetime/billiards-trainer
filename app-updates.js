@@ -17,6 +17,9 @@
    };
    close=document.createElement('button');close.type='button';close.className='appUpdateClose';close.textContent='×';close.setAttribute('aria-label','Dismiss update notice');close.onclick=()=>{dismissed=true;bar.hidden=true;};bar.append(status,reload,close);document.body.append(bar);
   }
+  // Keep update feedback in the active dialog's top layer (Play opens Games as a modal).
+  const host=document.querySelector('dialog[open]')||document.body;
+  if(bar.parentElement!==host){host.append(bar);if(host!==document.body)host.addEventListener('close',()=>{if(bar.parentElement===host||!bar.isConnected)document.body.append(bar);},{once:true});}
   status.textContent=message;reload.hidden=!canReload;bar.hidden=false;
  }
  function available(){ready=true;render(native?'Update ready. Restart when you’re ready.':'Update ready. Reload when you’re ready.',true);}

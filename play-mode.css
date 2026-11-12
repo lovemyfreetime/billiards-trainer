@@ -108,3 +108,7 @@ body:not(.play-mode) .play-return{display:inline-block;background:#67dbe8;color:
 
 /* Companion practice belongs to Play, beside its other activities. */
 .play-catalog-nav .play-companion-link,.play-footer .play-companion-link{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:12px 18px;border:1px solid #78cdb6;border-radius:16px;background:#25443e;color:#b6eedb;text-decoration:none;font-weight:650}.play-companion-link>span:first-child{letter-spacing:-5px;padding-right:5px;color:#96dfc4}.play-companion-link:focus-visible{outline:3px solid #e7c58d;outline-offset:3px}
+
+/* Keep updates at the right edge of Play, outside the experience chooser. */
+#playRoot .play-updates,#playDialog .play-updates{margin-inline-start:auto;flex:0 0 auto;min-height:44px;white-space:nowrap}
+@media(max-width:600px){#playRoot .play-footer .play-updates{margin-inline-start:auto}}

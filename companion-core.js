@@ -27,7 +27,7 @@
    ['Learning through teaching','ready','Predictions, demonstrations, explaining back and testing a variation.'],
    ['Recall & transfer checks','later','Revisit discoveries in a different setup before showing the guides.'],
    ['Structured routines & drill library','later','Multi-session plans, cue control, aiming, speed, spin, banks, kicks, position, safeties and runouts.'],
-   ['Different ways to understand','later','Adapt through seeing, hearing, trying and explaining, without fixed learner labels or IQ scoring.']]],
+   ['Different ways to understand','later','Adapt through seeing, hearing, trying and explaining.']]],
   ['Psychology & enjoyment',[
    ['Observation before explanation','ready','Record what happened before deciding why; any companion can revise an idea.'],
    ['Pleasure & willingness to return','ready','Each reports whether the session was worth doing; keep this separate from results.'],

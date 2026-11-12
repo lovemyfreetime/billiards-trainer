@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "226eb21ac4964a3feee110821fa39a65d3e185beb38654595af83647fe537e42",
-  "sequence": 1794478452,
+  "version": "1070ffe203cfbe5aea067775b5aad24fed8dc028612921e8d37375f90a90f826",
+  "sequence": 1794480333,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -37,8 +37,8 @@
       "length": 8767
     },
     "app-updates.js": {
-      "sha256": "cabab54c4c3ae79747218afec21dc517ced4923055755b736ce031f7f821f53b",
-      "length": 10102
+      "sha256": "881ebe0c8ab3045007876e105463c4171e41ec4bfd938318f8dd0927765b7b0e",
+      "length": 10456
     },
     "apple-touch-icon.png": {
       "sha256": "bdbf38e5f2307bd066e0b499c908ed37f4015c3b14993a3487e2dc0c116673b7",
@@ -69,8 +69,8 @@
       "length": 1830552
     },
     "companion-core.js": {
-      "sha256": "ccd55e79e3765f73ae1156ae8fbbca8fd3ee07c79f33a30506b98912dba657d3",
-      "length": 18908
+      "sha256": "fbe0c418dcda4c4787499f0bf2fffd74f452db89db7a9d880f5aedc585501bd2",
+      "length": 18864
     },
     "companion.css": {
       "sha256": "5f185ac5210e9e8b09fd57e4dff6f8709971a579f4aa1a6ccb58e53d34a28937",
@@ -93,8 +93,8 @@
       "length": 6368
     },
     "experience-menu.js": {
-      "sha256": "973a9ee170485be6149a6de1c76519d53f4bed51d6318ee735461c831d91be08",
-      "length": 6015
+      "sha256": "78b81b0d818ec8c7450d3b0f26967d7c4f991fa43067962d0d79e8e4063fa4d9",
+      "length": 6013
     },
     "guide/AUDIO_PACING.json": {
       "sha256": "a64863380d46205d3f08a08404b683deb57c761c92d966b63134499f25e2b950",
@@ -3829,7 +3829,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "a6f67f46f088a01188d1b9083d563da6b9e5f5f2edb31e6b864f50975bd8666a",
+      "sha256": "18d17cb5fed667246769b970375f4a53887451b5ac63a85c54be814369bedac4",
       "length": 146616
     },
     "phone-play.css": {
@@ -4905,12 +4905,12 @@
       "length": 3530
     },
     "play-mode.css": {
-      "sha256": "9d871476b56d62a3773fd3f458b60266aacb344a75f2aba8c97ab661f07cc509",
-      "length": 29597
+      "sha256": "a91b2804d28c3cfb4bf064f36f017909a9371dc99dffb387b3b770e0f2169d87",
+      "length": 29889
     },
     "play-mode.js": {
-      "sha256": "f8fccdd89d4a94b2cd773f2d405097dbe5f421c47b88a02d243a34e9e94a82bc",
-      "length": 42853
+      "sha256": "c70027ef716d5041ced09463dac16d5e2d914e57ade12f16a7da9e2f0596eaa1",
+      "length": 43168
     },
     "play-narration-data.js": {
       "sha256": "bc39f8b3d8a1043a9bb0301ed4e7625feec95e6d07a16ef9778a8505634e8e2c",
@@ -4953,7 +4953,7 @@
       "length": 2103
     },
     "service-worker.js": {
-      "sha256": "f0213c9c735bcde4af9c885df66cd9f10931d0d15c7bef51badbb1abeb0f47fe",
+      "sha256": "59db80e2f5e8e10c6f84e20dfabdda7e799321243a7eac840573ef4b3b48e8e9",
       "length": 7933
     },
     "table-orbit.js": {
