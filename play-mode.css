@@ -105,3 +105,6 @@ body:not(.play-mode) .play-return{display:inline-block;background:#67dbe8;color:
 .play-game-card>.play-narration-status{margin:6px 0;padding:8px;max-width:none;border:1px solid var(--family);border-radius:8px;background:#15202a}
 #playRoot .play-catalog-compact .play-game-card .play-game-tile strong{font-size:14px}
 @media(max-width:359px){#playRoot .play-catalog-compact .play-game-card .play-game-tile strong{font-size:12px;letter-spacing:-.35px;max-width:calc(100% - 42px)}#playRoot .play-game-card .play-game-tile{padding-left:8px;padding-right:8px}#playRoot .play-game-card .play-tile-icon{right:10px}#playRoot .play-game-card .play-game-preview{right:8px}#playRoot .play-game-card .play-game-tile small{font-size:11px;padding-right:50px}}
+
+/* Companion practice belongs to Play, beside its other activities. */
+.play-catalog-nav .play-companion-link,.play-footer .play-companion-link{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:12px 18px;border:1px solid #78cdb6;border-radius:16px;background:#25443e;color:#b6eedb;text-decoration:none;font-weight:650}.play-companion-link>span:first-child{letter-spacing:-5px;padding-right:5px;color:#96dfc4}.play-companion-link:focus-visible{outline:3px solid #e7c58d;outline-offset:3px}

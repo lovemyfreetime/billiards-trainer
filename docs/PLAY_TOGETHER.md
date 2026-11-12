@@ -128,3 +128,32 @@ Public partner discovery, individual accounts, cross-device private feedback and
 ## Demonstration opportunity
 
 A short real-table video can show two teammates starting with different observations, choosing one small experiment, comparing it in Trainer, and keeping different useful takeaways. The strongest demonstration for this preview is the complete low-input session and its saved continuation. Do not imply measured improvement before a real trial.
+
+
+## November 12: Companion Play 0.2.0
+
+### Requested direction
+
+The companion entry belongs on the Play catalog and Play footer beside the other Play actions. It must not be an experience-switcher category. The shared switcher remains Trainer, Play, Zen and Home.
+
+Use the main Trainer blue (#77c8ff) for Trainer and teal for Play beneath it, in the centered header and left navigation. Remove the top-right preview label and “Learning comes before logging.” Use plural companions and friends. The illustration uses the unchanged icons/zen-reference-table-v1.webp asset from Zen, with separate SVG shot overlays.
+
+### Implemented
+
+- 2–24 named participants. One shared group, adjacent partner sets, or two explicitly assigned groups.
+- Individual observations, goals, takeaways, enjoyment responses and voice-note attribution for every participant.
+- Each partner set / group has independent five-attempt turns and undo. Everyone returns to shared discoveries.
+- Existing two-player sessions and full backups remain readable. Groups stored under the original internal pairs collection retain ordered membership; a reordered new roster gets its own group record.
+- Devices page exports one session and imports it without replacing unrelated sessions. File sharing includes all participants’ written notes and counts. Audio remains local; full backups still include audio.
+- Three-way text merge stops on conflicting edits; attempt IDs prevent duplicate imports. The receiving device keeps its own stage, completion state and voice recordings. Each device should record a different practice set.
+- Share merged copies again between rounds. Copies are asynchronous; this is not live synchronization, independent private feedback, discovery or automatic networking.
+- The full Trainer’s Play catalog and footer have a direct Companion Play button. Standalone Offline Play and active Local Table hosts do not show an entry to assets their packages do not yet contain.
+- Content updater inventory rebuilt. No new native API or protocol is required.
+
+### Next device milestone
+
+Replace manual session-copy exchange with live invitations, per-participant contribution controls, automatic reconnect and a shared session timeline. Existing Local Table servers validate scored games and cannot carry companion state without an intentional server/protocol update. Avoid claiming the present file flow is effortless live collaboration. No external paid service was added.
+
+### Verification
+
+18 focused core tests cover legacy records, independent sets, 24 players, invalid groups, safe merge, conflicts, repeated imports and subsequent round trips. Browser QA covers four-person creation, separate set counts, per-set undo, reload persistence, four individual takeaway cards, completion, export and import preview. Responsive home checked at 1024 and 390 CSS-pixel frames with no document overflow. Physical Android file sharing and microphone remain device acceptance checks.
