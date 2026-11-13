@@ -72,13 +72,3 @@ p.startShotPlayback({frames},{},{paused:true});queued.shift()(100);near(p.animat
 p.animation.sample(.5);queued.shift()(200);near(p.animation.time,.5);
 assert.deepEqual(p.animation.current[0].orientation,identity);p.animation=null;
 console.log('Training patterns, quaternion direction, slide/stun/draw/roll, stop/cut-stun impacts, 600 Hz sampling, unchanged physics, pause and all four recording speeds passed.');
-// A full asynchronous encoder queue must drain without losing frame order.
-(async()=>{
- const source=fs.readFileSync('trainer-shot-recorder.js','utf8'),start=source.indexOf('   function ready(){'),end=source.indexOf('\n   return {',start);
- let flushes=0,resolve;const gate={failed:false,hold:null,draining:null,encoder:{encodeQueueSize:6,flush(){flushes++;return new Promise(r=>{resolve=r})}},fail(){throw Error('Unexpected encoder error')}};
- vm.createContext(gate);vm.runInContext(source.slice(start,end),gate);
- assert.equal(gate.ready(),false);assert.equal(gate.ready(),false);assert.equal(flushes,1,'Only one drain runs while encoding is backpressured');
- gate.encoder.encodeQueueSize=0;resolve();await new Promise(setImmediate);assert.equal(gate.ready(),true);
- gate.hold=Promise.resolve();assert.equal(gate.ready(),false,'Do not advance while the opening/closing hold is encoding');
- console.log('Encoder backpressure drains and resumes without skipping timeline samples.');
-})().catch(e=>{console.error(e);process.exitCode=1});

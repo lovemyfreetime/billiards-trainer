@@ -52,13 +52,14 @@ const out=path.resolve('test-results/spin-lab');fs.mkdirSync(out,{recursive:true
   console.log('Persistence, 3D pause/step/replay and cue following passed');
   await p.setViewportSize({width:960,height:600});
   const clips=[];
-  for(const [speed,mode] of (process.env.SPIN_LAB_UI_ONLY?[]:[[1,'current'],[.25,'full'],[.125,'stroke']])){
+  for(const [speed,mode] of (process.env.SPIN_LAB_UI_ONLY?[]:process.env.SPIN_LAB_RECORDING_SMOKE?[[1,'current']]:[[1,'current'],[.25,'full'],[.125,'stroke']])){
    await setup(speed);await p.evaluate(()=>Billiards3D.followCue(true));
    console.log('Export start',speed,mode);const before=await state();const downloads=[];const onDownload=d=>downloads.push(d);p.on('download',onDownload);
    await p.evaluate(mode=>{document.getElementById('trainerClipView').value=mode;document.getElementById('trainerClipArm').click();},mode);
    await p.waitForFunction(()=>{const p=billiardsPlayback.state();return p.recording&&p.running;},null,{timeout:20000});
    const duration=await p.evaluate(()=>billiardsPlayback.state().duration);
    await p.waitForFunction(()=>!BilliardsShotRecorder.busy,null,{timeout:360000});
+   assert(await p.locator('#trainerPlaybackQuickSpeed').isEnabled(),'Playback speed unlocks as soon as saving finishes');assert(await p.locator('#trainerPlaybackCloseup').isEnabled(),'Camera controls unlock after saving');
    p.off('download',onDownload);assert.equal(downloads.length,2,await p.locator('#trainerClipStatus').textContent());
    const video=downloads.find(d=>d.suggestedFilename().endsWith('.mp4')),setupFile=downloads.find(d=>d.suggestedFilename().endsWith('.json'));
    const filename=path.join(out,'slow-'+speed+'-'+mode+'.mp4');await video.saveAs(filename);
@@ -77,6 +78,6 @@ const out=path.resolve('test-results/spin-lab');fs.mkdirSync(out,{recursive:true
    for(const selector of ['#table3DToggle','[data-trainer-action=undoShot]','[data-trainer-action=redoShot]']){const controls=await p.locator(selector).all();for(const control of controls){if(!await control.isVisible())continue;const r=await control.boundingBox();assert(r.x+r.width<=b.x||b.x+b.width<=r.x||r.y+r.height<=b.y||b.y+b.height<=r.y,'Playback must not cover '+selector+' on '+name);}}
    await p.screenshot({path:path.join(out,'playback-'+name+'.png')});
   }
-  assert.deepEqual(errors,[]);console.log(process.env.SPIN_LAB_UI_ONLY?'Focused UI: ball setup, history, playback and four viewports passed.':'Ball setup, drag undo/redo, persistence, 3D pause/step/replay, following camera, 1080p/30 slow MP4s and four viewports passed.');
+  assert.deepEqual(errors,[]);console.log(process.env.SPIN_LAB_RECORDING_SMOKE?'Recording completion controls and UI smoke test passed.':process.env.SPIN_LAB_UI_ONLY?'Focused UI: ball setup, history, playback and four viewports passed.':'Ball setup, drag undo/redo, persistence, 3D pause/step/replay, following camera, 1080p/30 slow MP4s and four viewports passed.');
  }catch(error){if(p){await p.screenshot({path:path.join(out,'failure.png')}).catch(()=>{});fs.writeFileSync(path.join(out,'failure.txt'),String(error)+'\n'+JSON.stringify(await p.evaluate(()=>({playback:window.billiardsPlayback?.state(),status:document.getElementById('trainerClipStatus')?.textContent})).catch(()=>null)));}throw error;}finally{await browser?.close();server.kill();}
 })().catch(e=>{console.error(e);process.exitCode=1});

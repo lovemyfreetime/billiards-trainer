@@ -29,6 +29,7 @@ jobs:
       - name: Verify controls and slow-motion exports
         env:
           NODE_PATH: ./local-host/node_modules
+          SPIN_LAB_RECORDING_SMOKE: ${{ contains(github.event.head_commit.message, '[recording-smoke]') && '1' || '' }}
           SPIN_LAB_UI_ONLY: ${{ contains(github.event.head_commit.message, '[ui-only]') && '1' || '' }}
         run: |
           export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")

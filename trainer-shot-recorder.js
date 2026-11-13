@@ -46,6 +46,7 @@
   const clips=shots.filter(item=>item.kind==='camera').length,shotCount=shots.length-clips;
   sessionStatus.textContent=shotCount+' shot'+(shotCount===1?'':'s')+
    (clips?' + '+clips+' camera clip'+(clips===1?'':'s'):'')+' saved'+(collecting?' · session running':'.');
+  window.BilliardsSpinLabUI?.sync();
  }
  function persist(){
   try{localStorage.setItem(sessionKey,JSON.stringify({shots,collecting}));}
@@ -288,7 +289,7 @@
   if(!armed||!job)return null;
   armed=false;
   const current=job;
-  let encoder,failed=false,frameCount=0,hold,draining;
+  let encoder,failed=false,frameCount=0,hold;
   function fail(message,error){
    if(failed)return;failed=true;
    if(encoder&&encoder.state!=='closed')encoder.close();
@@ -315,15 +316,8 @@
     finally{image.close();hold=null;}
    }
    status.textContent=current.kind==='session'?'Recording session · shot '+(current.index+1)+' of '+current.entries.length:'Recording '+current.framing+'…';
-   function ready(){
-    if(failed)return true;
-    if(hold||draining)return false;
-    if(encoder.encodeQueueSize<6)return true;
-    draining=encoder.flush().catch(error=>fail('Could not encode the video frames.',error)).finally(()=>{draining=null;});
-    return false;
-   }
    return {
-    ready,
+    ready:()=>failed||(!hold&&encoder.encodeQueueSize<6),
     frame(count=1){
      if(failed)return;
      try{
@@ -335,7 +329,7 @@
     cancel:()=>fail('Recording canceled before the shot finished.'),
     async finish(){
      try{
-      await hold;await draining;if(failed||current.failed)return;
+      await hold;if(failed||current.failed)return;
       await encoder.flush();if(failed||current.failed)return;
       current.frameCount=frameCount;
       await completeEntry(current);
