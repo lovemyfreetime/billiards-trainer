@@ -13,7 +13,7 @@
  const byId=id=>document.getElementById(id),preview=byId('trainingBallPreview'),style=byId('trainingBallStyle'),speed=byId('trainerPlaybackSpeed'),quick=byId('trainerPlaybackQuickSpeed'),body=byId('trainerPlaybackBody'),toggle=byId('trainerPlaybackToggle');
  let previewKey='',lastViewKey='',drag=null,opened=false;
  const basis=d=>({right:[-d.y,0,d.x],up:[0,1,0],front:[-d.x,0,-d.y]});
- function position(){const camera=byId('trainerCameraBar');bar.style.top=(camera&&!camera.hidden?Math.max(54,camera.getBoundingClientRect().bottom+8):54)+'px';}
+ function position(){const camera=byId('trainerCameraBar');const top=camera&&!camera.hidden?Math.max(54,camera.getBoundingClientRect().bottom+8):54;bar.style.top=Math.max(8,Math.min(top,innerHeight-bar.getBoundingClientRect().height-8))+'px';}
  function show(value){opened=value;body.hidden=!value;toggle.hidden=value;toggle.setAttribute('aria-expanded',String(value));bar.classList.toggle('expanded',value);byId('trainerShowPlayback').textContent=value?'Hide playback controls':'Show playback controls';position();}
  toggle.onclick=()=>show(true);byId('trainerPlaybackHide').onclick=()=>show(false);byId('trainerShowPlayback').onclick=()=>show(!opened);
  for(const select of [speed,quick])select.onchange=()=>{play().speed(Number(select.value));if(Number(select.value)<1)show(true);sync();};
@@ -38,9 +38,9 @@
   for(const el of group.querySelectorAll('button'))el.disabled=state.busy||!state.hasCue;style.disabled=state.busy;preview.classList.toggle('busy',state.busy||!state.hasCue);
   for(const el of [speed,quick,byId('trainerPlaybackPause'),byId('trainerPlaybackBack'),byId('trainerPlaybackStep')])el.disabled=p.recording;
   byId('trainerPlaybackReplay').disabled=p.recording||(!p.hasReplay&&!p.running);
-  byId('trainerPlaybackPause').textContent=p.running&&!p.paused?'Pause shot':'Play';
+  byId('trainerPlaybackPause').textContent=p.running&&!p.paused?'Pause':'Play';
   byId('trainerPlaybackPause').setAttribute('aria-label',p.running&&!p.paused?'Pause shot':'Play shot');
-  byId('trainerPlaybackStatus').textContent=p.running?(p.recording?'Recording · ':p.paused?'Paused · ':'')+p.time.toFixed(2)+' s · '+p.motion:'Choose a speed, then Play or Record shot';
+  byId('trainerPlaybackStatus').textContent=p.running?(p.recording?'Recording · ':p.paused?'Paused · ':'')+p.time.toFixed(3)+' s · '+p.motion:'Choose a speed, then Play or Record shot';
   const in3D=!!window.Billiards3D?.active;byId('trainerPlaybackCloseup').disabled=byId('trainerPlaybackFollow').disabled=!in3D;
   byId('trainerPlaybackFollow').checked=!!window.Billiards3D?.camera().followCue;
   byId('trainingBallStatus').textContent=!state.hasCue?'Place a cue ball on the table to set its orientation.':state.busy?'Orientation is locked during playback.':'Shot '+state.shot+' · Rotation changes the markings only.';

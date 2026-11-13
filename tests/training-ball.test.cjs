@@ -35,6 +35,24 @@ for(const follow of [-.7,0,.7])for(const sideSpin of [0,.5]){
  if(!follow)assert(M.motion(initial,R).startsWith('Stun'));
  const quarter=M.sample(frames,1/240)[0];near(quarter.t,1/240);near(Math.hypot(...quarter.orientation),1);
 }
+// Tune real arrival spin for stop/cut-stun shots instead of equating center tip to stun.
+function contactSetup(offset=0,distance=.6,follow=0){
+ c.S=c.defaultState();Object.assign(c.S,{speed:2,follow,sideSpin:0,cueElevationDeg:0,freeAim:{x:2,y:.635},balls:[{id:0,n:'CB',x:.5,y:.635,active:true},{id:1,n:'1',x:.5+distance,y:.635+offset,active:true}]});
+}
+for(const offset of [0,R]){
+ let low=-1,high=0;
+ for(let i=0;i<32;i++){const follow=(low+high)/2;contactSetup(offset,.6,follow);const hit=solve(false).firstBallContact;assert(hit);if(hit.motion.slipRatio>1)low=follow;else high=follow;}
+ contactSetup(offset,.6,(low+high)/2);const shot=solve(true),hit=shot.firstBallContact;
+ near(hit.motion.slipRatio,1,1e-7);
+ if(!offset){const end=shot.finalBalls.find(b=>b.id===0);assert(Math.hypot(end.x-hit.cuePos.x,end.y-hit.cuePos.y)<.03,'Straight stun produces the modeled stop shot');}
+ else{const after=shot.frames.find(f=>f[0].t>hit.t+1/600)[0];assert(Math.abs(after.vx*hit.normal.x+after.vy*hit.normal.y)/Math.hypot(after.vx,after.vy)<.15,'Cut stun initially follows the tangent, allowing modeled throw/restitution');}
+}
+contactSetup(0,.15);const short=solve(false).firstBallContact.motion.slipRatio;
+contactSetup(0,.9);const long=solve(false).firstBallContact.motion.slipRatio;
+assert(short>long+.15,'Center-ball arrival spin changes with travel distance');
+const Layout=require('../trainer-layout-files.js'),defaults=c.defaultState();
+const saved={...defaults,shot2:{...defaults.shot2,orientation:M.axisAngle([1,2,3],.7)}};
+assert.deepEqual(Layout.settings(saved,defaults).shot2.orientation,saved.shot2.orientation,'Shot 2 orientation survives a session load');
 // Rendering and recording clocks must sample the same simulated timeline.
 let queued=[],recorded=[],commits=0;
 const frames=Array.from({length:601},(_,i)=>[{id:0,t:i/600,x:i/600,y:0,z:R,vx:1,vy:0,vz:0,wx:0,wy:0,wz:0,active:true,orientation:identity}]);
@@ -53,4 +71,4 @@ delete p.window.BilliardsShotRecorder;queued=[];p.S.shotPlaybackSpeed=.25;
 p.startShotPlayback({frames},{},{paused:true});queued.shift()(100);near(p.animation.time,0);
 p.animation.sample(.5);queued.shift()(200);near(p.animation.time,.5);
 assert.deepEqual(p.animation.current[0].orientation,identity);p.animation=null;
-console.log('Training patterns, quaternion direction, slide/stun/draw/roll, 600 Hz sampling, unchanged physics, pause and all four recording speeds passed.');
+console.log('Training patterns, quaternion direction, slide/stun/draw/roll, stop/cut-stun impacts, 600 Hz sampling, unchanged physics, pause and all four recording speeds passed.');

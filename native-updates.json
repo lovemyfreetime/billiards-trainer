@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "e7970929e918648baf5d33bef8797bac3f11f8b41a18e8dd0f1a3f06b875b478",
-  "sequence": 1794541429,
+  "version": "6a1facacbca598ed31a73269e617196e0ac932e16bded57f43a3c99a6b697d31",
+  "sequence": 1794542002,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3761,8 +3761,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "339b33c327c871c0256d0c8280ecf832f6efe3a49930558c300c9b55dab3e2d3",
-      "length": 930203
+      "sha256": "3be815383266adb53ce023b758ebaaf324162822a9c5bf77c73149e42754a9e6",
+      "length": 930227
     },
     "install/android/index.html": {
       "sha256": "5af2961b4386233b6f9206577ee2acdd6b08068620c3f60c57b176c471ca3681",
@@ -3861,7 +3861,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "f38f8200954c8d6cb04b6029ac6ac9bd0460be5ad928412884ae6dc262471db1",
+      "sha256": "4b337dd90e9a98bada2a53398249de1e75af2b75c0beb39f84f3a62addce9fe6",
       "length": 158006
     },
     "phone-play.css": {
@@ -5349,7 +5349,7 @@
       "length": 2103
     },
     "service-worker.js": {
-      "sha256": "cde546c862bcc6d62d4861be986d0387e67982a5bced731a139ef68dabbfcfdd",
+      "sha256": "fd3581e94e0ea92cf33082662d4d2a62942395da6f78f98678c2e469e40fa905",
       "length": 7933
     },
     "table-orbit.js": {
@@ -5425,12 +5425,12 @@
       "length": 19521
     },
     "trainer-spin-lab.css": {
-      "sha256": "a5e0d832fae567567876ee84fde7f27e0e17af334beb89a324923baa63cf9369",
-      "length": 2532
+      "sha256": "1cdd16118bc1bd17266867ffe9cb68a7323ff3db87271e4046f9321fd2b54dea",
+      "length": 2559
     },
     "trainer-spin-lab.js": {
-      "sha256": "3f78578356da9eb71701fb3e9b3b82a68622afb29c435312b71692d07c392f19",
-      "length": 9799
+      "sha256": "2aec15c888dea75629302af0504a3c27d00b262d1b0db5bb37e6cb876a52c55f",
+      "length": 9877
     },
     "trainer-table-exchange.js": {
       "sha256": "481759a0cf233361d10cb1e3c7335510da6f317dcf7e777bcdbf3485a1e20df4",
