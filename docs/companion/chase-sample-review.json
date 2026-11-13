@@ -1,18 +1,25 @@
 {
-  "status": "not generated; Google sign-in authorization required",
-  "batch": "held until explicit listening approval of this single sample",
+  "status": "sample approved by user; all 91 production exports complete",
+  "batch": "authorized and generated",
   "voice": "chase",
-  "proposed_model": "simba-3.2",
-  "native_generation_rate": "normal (0% adjustment)",
-  "playback_rate": 1,
+  "playback_rate": 1.2,
   "pitch_adjustment": "none",
   "post_processing": "none; preserve original exported bytes",
   "text": "Welcome to Companion Play. Start with one shot and one useful question. Before you shoot, picture where the object ball will go and where you want the cue ball to finish. Try the shot, notice what actually happened, and compare it with your prediction. You can practice alone, with a companion, or with a coach. Choose thirty minutes, one hour, or lots of free time. Test one idea at a time, and keep the discoveries that help your game.",
   "acceptance": [
-    "Confirm voice identity and natural conversational pace.",
-    "Listen for cue ball, object ball, and the time choices.",
-    "Check pauses, clipped words, distortion, and volume.",
-    "Test same original file in player at 1x, including pause/resume.",
-    "Record final voice/model/rate, original SHA-256 and user approval before any batch."
-  ]
+    "User approved original Chase sample with 1.2x playback.",
+    "Keep original MP3 bytes unchanged.",
+    "Apply 1.2x once in the player with pitch preserved.",
+    "No automatic speed increase.",
+    "Verify playback controls and every script/file mapping."
+  ],
+  "source_product": "Speechify Reader",
+  "source_model": null,
+  "source_model_note": "Reader did not expose a model identifier.",
+  "preserves_pitch": true,
+  "automatic_speed_increase": false,
+  "original_sample_sha256": "1ec5f74e082b677f94d07bfe90570882f0f88545294d2cf0ca94b041eb77a227",
+  "sample_listening_review": "User and listeners selected 1.2x as the default",
+  "individual_clip_listening_review": "not performed",
+  "technical_verification": "91/91 exact script mappings, hashes, and MP3 decode checks passed"
 }

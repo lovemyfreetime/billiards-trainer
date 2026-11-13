@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "b45bead180343d64fedcbb5707052343419f032a4d83319860fdb1f69f9a64fd",
-  "sequence": 1794510665,
+  "version": "60e3b8eede84ff4146a816ee72206b493c02c709a28dcbddd791a14c39c9f887",
+  "sequence": 1794523519,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -73,8 +73,8 @@
       "length": 6658
     },
     "companion-core.js": {
-      "sha256": "f3c78248c6b68f3416d188dc56f4caf79928208f000a45ce6095713a21abe428",
-      "length": 23601
+      "sha256": "ac529909d96b44110ce056b0583e9e70eb100bd326e68daf66377d412946042b",
+      "length": 23634
     },
     "companion-features.js": {
       "sha256": "aee5ba9f8f558029abd849aaf1b8bc3b087c98c304f23f94e03d2fa74144e7ad",
@@ -85,12 +85,12 @@
       "length": 6194
     },
     "companion-narration-files.js": {
-      "sha256": "014f4ec304bc9d5d480367ffde1de60d39410abfa84ed6b8851afb63b7f02db0",
-      "length": 138
+      "sha256": "17eb59fa92e12c5d2fccf69b4d003b9e36617b3bd5b40eea0046339a2b68d847",
+      "length": 34236
     },
     "companion-narration.js": {
-      "sha256": "330d4370ad11ad4e73e257ecffa626c782a56886495829d3f0a0a14a2dccae57",
-      "length": 8884
+      "sha256": "b49b756ef7172ca88ce78d5a56bab76e4983b4564aa54b39071a7f7e26c27f7a",
+      "length": 8962
     },
     "companion-trainer.js": {
       "sha256": "9d36bad4718ea80d16129e5ce90ad6a947a1a440499ee95d8fd5700ae0e0c3bc",
@@ -105,12 +105,12 @@
       "length": 19035
     },
     "companion.html": {
-      "sha256": "9a444c49e6451ef2728cb3817f40292e75239d7daa4b062a6920a4cdab69d100",
+      "sha256": "fcd51ccab972ee32914514cfa14bf0c53a1d4ab9d9f8c3eb44a776f94ab6fc96",
       "length": 2971
     },
     "companion.js": {
-      "sha256": "9e19cd79cbaa59e925d49d4561fc6cecdac536951801325efe37d68038d381e2",
-      "length": 51103
+      "sha256": "39259fe7fb0e71666604ad5068ab777aeca23f80b2b9c3fef5d94ac201b90248",
+      "length": 51101
     },
     "companion.webmanifest": {
       "sha256": "26c8ad0a8a12c9fffa2ab9ce19fcdf8f418ff0f5672995e8a99cfbe06f9c1d39",
@@ -3861,8 +3861,8 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "10e40adc463f52b54e77fe1bae28357e66cd24a0aaa81f603656e12c9e9fe01b",
-      "length": 147414
+      "sha256": "3631ce7d24ba71247248adab36e89e1f2a81bc943e527bd0ab32257ed8640d5f",
+      "length": 157715
     },
     "phone-play.css": {
       "sha256": "cec5017ee25f788690420d4e67241754a1fbb2c047779ad0e7e59d87f7eac720",
@@ -4716,6 +4716,370 @@
       "sha256": "735725c990bda7300f6967eed9271bdf9a8a3f3212e14a5635928288692fb2f6",
       "length": 161853
     },
+    "play-audio/companion/activity-advice-0.mp3": {
+      "sha256": "13d30b23782b7ab92fa4e788aac4393453708fec1db3915eaeeff071e266d40a",
+      "length": 80640
+    },
+    "play-audio/companion/activity-advice-1.mp3": {
+      "sha256": "96da8091bfc3a8140d7ff97728ecb3314d5389f587de329930f28b51094073ff",
+      "length": 90240
+    },
+    "play-audio/companion/activity-advice-2.mp3": {
+      "sha256": "58f4ff72feeb6004e82411d53d7337c00b6aa60628ab351b178ed2ee4a61fd70",
+      "length": 103872
+    },
+    "play-audio/companion/activity-advice-3.mp3": {
+      "sha256": "1706be38b8941fd6cc958a63a2250b592056492baeb844ae31eb06236ec8dcae",
+      "length": 75264
+    },
+    "play-audio/companion/activity-position-0.mp3": {
+      "sha256": "5dfa9155e6624c706f92f59261afb36b5683787999f3645ffad8f4ac1ac5b053",
+      "length": 81984
+    },
+    "play-audio/companion/activity-position-1.mp3": {
+      "sha256": "7e76951511f79415c9058d9b9f588634316c6de9f0a658b9ca4d108326c13d36",
+      "length": 83520
+    },
+    "play-audio/companion/activity-position-2.mp3": {
+      "sha256": "b4465eb7e81f86eff8bc8c5b226862fc5169d067898d1d4b2df1e0473b16be05",
+      "length": 94272
+    },
+    "play-audio/companion/activity-position-3.mp3": {
+      "sha256": "d6eb35143c0996042a84c26bcf259d91a07df5c11f33148ed080391967cdeae4",
+      "length": 79296
+    },
+    "play-audio/companion/activity-reset-0.mp3": {
+      "sha256": "3bfa6f1796d2166a7237acfb51662ddfb708f6d13395f07af51145c3ec81d5a3",
+      "length": 90048
+    },
+    "play-audio/companion/activity-reset-1.mp3": {
+      "sha256": "37edb46532d104b4e9fdec64d1b8413e302709b7073a1f451c5593f84fb8ef71",
+      "length": 98112
+    },
+    "play-audio/companion/activity-reset-2.mp3": {
+      "sha256": "857a59a0383588eea073b8de759ee223aa39c3d0a8f6614fd732ebcba572ab6b",
+      "length": 92544
+    },
+    "play-audio/companion/activity-reset-3.mp3": {
+      "sha256": "c35dc572af24955bf54b0b847775401aa4bf51bf3a002a478f871b9ff6677468",
+      "length": 99648
+    },
+    "play-audio/companion/choose.mp3": {
+      "sha256": "80ccb9afe2ec5f91827c60d2df8fb08e4c9ec506490f4ec29dcee5f5c651bfd4",
+      "length": 101184
+    },
+    "play-audio/companion/companions.mp3": {
+      "sha256": "0308ca530385f216382f6397d45680bd10a639bfc5dcff4e0fe9b3b7ca61bb65",
+      "length": 151680
+    },
+    "play-audio/companion/detail.mp3": {
+      "sha256": "b91d8dbce114e08cb4b22a7ccff4c40e7804758ff076396f8c0f9ef442a2ff29",
+      "length": 83520
+    },
+    "play-audio/companion/devices.mp3": {
+      "sha256": "6969bf05d7a8226f73d5dbd110384e22cfa48537ddd518e0af6f32203789af2e",
+      "length": 187008
+    },
+    "play-audio/companion/discoveries.mp3": {
+      "sha256": "c9ca3103f0571e509f84eda2c91f0972ad4c864b4aa69345e9d87f1cc4db0e91",
+      "length": 97152
+    },
+    "play-audio/companion/drill-aim-0.mp3": {
+      "sha256": "605e6be8c4ef3e42cce2bea3cadf5709dd37eb5c3bc0835612de970d67872ea1",
+      "length": 42816
+    },
+    "play-audio/companion/drill-aim-1.mp3": {
+      "sha256": "e8bca869162c0bbd733e1bc49c2f289445bd771330802294a61523ff51d06f6d",
+      "length": 72768
+    },
+    "play-audio/companion/drill-aim-2.mp3": {
+      "sha256": "dbe8f0261f70797cc957a1c6351d5f7eb302126953caea8b287aa910264f3a6e",
+      "length": 71424
+    },
+    "play-audio/companion/drill-aim-3.mp3": {
+      "sha256": "902d4f8725bc19f8814355d2bf5f146f78cc6e0c5aedd91d1162b77af8e8e217",
+      "length": 35904
+    },
+    "play-audio/companion/drill-bank-0.mp3": {
+      "sha256": "82639528066b2d5c5ca2c36f667ee3cb9126d4009bc5f6908bb290ab83a94cce",
+      "length": 41088
+    },
+    "play-audio/companion/drill-bank-1.mp3": {
+      "sha256": "d378622ca267673a913c44e973fcc81d5e465752f500a9496fc81703a57164b2",
+      "length": 73920
+    },
+    "play-audio/companion/drill-bank-2.mp3": {
+      "sha256": "e0b60c21cf83b6a7c05f868976796bbef0c0bdb82dc3f4cb8962560998beab5e",
+      "length": 68352
+    },
+    "play-audio/companion/drill-bank-3.mp3": {
+      "sha256": "2002d5ad833ce928986ef7c72f7350563fe6b1f23035198b051b9bf640228d6f",
+      "length": 41088
+    },
+    "play-audio/companion/drill-kick-0.mp3": {
+      "sha256": "3764d0663a712fe77558194b5f940781371f1423487427ad01fc641a52432570",
+      "length": 46272
+    },
+    "play-audio/companion/drill-kick-1.mp3": {
+      "sha256": "bc6eb09e6cf9701d44950719ecfc677a9fa2371ad5eedd8cd4f0da339effed77",
+      "length": 75264
+    },
+    "play-audio/companion/drill-kick-2.mp3": {
+      "sha256": "14dfd5d0f951575cb3e99b222adfd06d6b4a065f5f2140cad516625b6e618574",
+      "length": 66816
+    },
+    "play-audio/companion/drill-kick-3.mp3": {
+      "sha256": "944bf70f74b00fa0baa810437718ff416a5ec5a4d615a53865c2d9394e94cc9e",
+      "length": 43584
+    },
+    "play-audio/companion/drill-pattern-0.mp3": {
+      "sha256": "e7642bd62de1cc162f06a36c32867df402add9c354bf8bc34b832a1f0a5cef99",
+      "length": 56064
+    },
+    "play-audio/companion/drill-pattern-1.mp3": {
+      "sha256": "62f74e1bd0c505db95f53e6a6d4487e63568d1cbcc1981b8710b33736775b9b9",
+      "length": 62976
+    },
+    "play-audio/companion/drill-pattern-2.mp3": {
+      "sha256": "15bee3b4e08ca70260e0a15b616276eb9236664b2cb2d1c695ee4a216834fd07",
+      "length": 65664
+    },
+    "play-audio/companion/drill-pattern-3.mp3": {
+      "sha256": "cb6011d4655d1c69d041c39c89c38c0f4adb553386bdd7ca67f25e4740b364f3",
+      "length": 43776
+    },
+    "play-audio/companion/drill-position-0.mp3": {
+      "sha256": "fe5038fd38ffa2a60ff7e4a2934414d20c2f9f800829101b725842a006f997b5",
+      "length": 46656
+    },
+    "play-audio/companion/drill-position-1.mp3": {
+      "sha256": "c5253042f696b8c6ce0e7a67e94b28ab492cdaf4c927d2f1029eb677cf5a3709",
+      "length": 67008
+    },
+    "play-audio/companion/drill-position-2.mp3": {
+      "sha256": "584ccfe711151070c3196c74ce682a1785693d19a598b019c8c4e9d30d972116",
+      "length": 67008
+    },
+    "play-audio/companion/drill-position-3.mp3": {
+      "sha256": "703160f67db956af4d3e9aff4b812689ce6b03199511437db1926f3b0edf3c18",
+      "length": 46656
+    },
+    "play-audio/companion/drill-recovery-0.mp3": {
+      "sha256": "8e20969ab6b9a92373e46568b3f7ab8e27ce7842781f8b030ecedff344f8debb",
+      "length": 46656
+    },
+    "play-audio/companion/drill-recovery-1.mp3": {
+      "sha256": "525b0d7f62ef565af9d2a2eb905bda13f33910e066ca364acc476561cebb8002",
+      "length": 79296
+    },
+    "play-audio/companion/drill-recovery-2.mp3": {
+      "sha256": "7425c7b10aa146d53e87a0c815b7548a541eb15ca0817d75dc11101fe9197501",
+      "length": 87552
+    },
+    "play-audio/companion/drill-recovery-3.mp3": {
+      "sha256": "cf70ab5e5a8e521cd97bbb1c48846ebe3e4cb82b8f0462df138dcff0d63f8994",
+      "length": 50688
+    },
+    "play-audio/companion/drill-runout-0.mp3": {
+      "sha256": "98c64419724fbf548759a03a35155f3042f5b1b42be2ff6eaae31cc5d9443f95",
+      "length": 47808
+    },
+    "play-audio/companion/drill-runout-1.mp3": {
+      "sha256": "0f602dfe4f27931397e3c75dc294c8d0c86ef740e7961b7be00be31c1f87210c",
+      "length": 67008
+    },
+    "play-audio/companion/drill-runout-2.mp3": {
+      "sha256": "90f1b098d604586f1b9485ecb557456407059a66182c4b5f24c1f3071c226a28",
+      "length": 60096
+    },
+    "play-audio/companion/drill-runout-3.mp3": {
+      "sha256": "70ed634389ae1ed7e0b7eacb18c747a0c56db45727be7ad7560a9a1d55cc7f67",
+      "length": 35520
+    },
+    "play-audio/companion/drill-safety-0.mp3": {
+      "sha256": "e57acb9ee2ce9d427abeb14762362f807345faa96479205b656957481ad9bec7",
+      "length": 49344
+    },
+    "play-audio/companion/drill-safety-1.mp3": {
+      "sha256": "a938cee3c7e89a4be895f793b4bd88c7ce436bbabd815138acb9cb8880f8a2ed",
+      "length": 73920
+    },
+    "play-audio/companion/drill-safety-2.mp3": {
+      "sha256": "60fb4367408020f6251d739ca3ba289dcb12368e2ce1dbeaec8ae0c9507b8947",
+      "length": 71232
+    },
+    "play-audio/companion/drill-safety-3.mp3": {
+      "sha256": "dac993957ce67b25bc6b77d62b6b414a867e489abfcc6eb1b8b8137b462ae2ab",
+      "length": 46656
+    },
+    "play-audio/companion/drill-speed-0.mp3": {
+      "sha256": "c396305db7d799cf4993d2c8ec3d3da9f910b8f4a84e7ededffc9b96dbb76513",
+      "length": 40896
+    },
+    "play-audio/companion/drill-speed-1.mp3": {
+      "sha256": "ac23d04b78a068ab06d57d373f167ff6d70a7d1bd0f41d5599c20d6781f5a3e0",
+      "length": 57408
+    },
+    "play-audio/companion/drill-speed-2.mp3": {
+      "sha256": "9834e7aa900e37de991e6207b08dded7f3aee42bf30b3231c8d2e90d23ce9874",
+      "length": 72384
+    },
+    "play-audio/companion/drill-speed-3.mp3": {
+      "sha256": "5d28bfdd1c31f9565da566a49ca75670e38e63f92835b4d6715b9307ff0c2a5c",
+      "length": 43776
+    },
+    "play-audio/companion/drill-spin-0.mp3": {
+      "sha256": "b08956aaddb9b6f946bdebd413a85709392e236fdddfd0e632823e44bc69c7ec",
+      "length": 53376
+    },
+    "play-audio/companion/drill-spin-1.mp3": {
+      "sha256": "7828b1f29aec90df8b043f7338ca518f0ce979abb5f79975c62352f87fa1c8e7",
+      "length": 72576
+    },
+    "play-audio/companion/drill-spin-2.mp3": {
+      "sha256": "0af8f49095002648802f6c54777f23dd5d10111b389715bc5979cdad9545d14b",
+      "length": 79296
+    },
+    "play-audio/companion/drill-spin-3.mp3": {
+      "sha256": "cf5a0e7a3a34687799cd79cefaa10b4067103a70c300b3cfcd3ca55af6a94e58",
+      "length": 43776
+    },
+    "play-audio/companion/drill-stop-0.mp3": {
+      "sha256": "98126912bb80fc8ee4f4a68b68ee01b6ce884d296fca8c38d399c207f7f39ad1",
+      "length": 41280
+    },
+    "play-audio/companion/drill-stop-1.mp3": {
+      "sha256": "77c20a3f5b015b1bafe64d1a173e04b843dbae3ad14dd68566ab691d6bf6616f",
+      "length": 75456
+    },
+    "play-audio/companion/drill-stop-2.mp3": {
+      "sha256": "494156771b6be1452ab0e3be4cc9e4ef47feb6dbebe9348bd774b6786890d287",
+      "length": 82368
+    },
+    "play-audio/companion/drill-stop-3.mp3": {
+      "sha256": "3cf33dc746a99c966a7f1452058f3a50628bd705eefab80d3f7ac8e76c351244",
+      "length": 41280
+    },
+    "play-audio/companion/drill-stun-0.mp3": {
+      "sha256": "4abe05a3c05ab22f6908bdb3ffd3b7414d68eaf2b5cfd48467e19dec22b2b9b1",
+      "length": 39744
+    },
+    "play-audio/companion/drill-stun-1.mp3": {
+      "sha256": "4eb2334ddd0247024b0582d139d1c89dc8b435e05c8f3f16e878ce6d3f8ea9c5",
+      "length": 68352
+    },
+    "play-audio/companion/drill-stun-2.mp3": {
+      "sha256": "00e1c967737ba0895d0b3ae50b9afbba7ba28e9d7f0796ebb6586cf577baaa3a",
+      "length": 68352
+    },
+    "play-audio/companion/drill-stun-3.mp3": {
+      "sha256": "27708af906e38ee7410b2afd17959833fce91ecd0fcd1a425977adbbcb0b915e",
+      "length": 39744
+    },
+    "play-audio/companion/guide.mp3": {
+      "sha256": "7ff49de06290d97d73d92eb4639b17e1660ee80ba0074d1714854bb4a8c30065",
+      "length": 158400
+    },
+    "play-audio/companion/home.mp3": {
+      "sha256": "a84277caf3cced5b563e934057af70ea4eaf9bba40b1e29ce9938d33fd252778",
+      "length": 161280
+    },
+    "play-audio/companion/keep.mp3": {
+      "sha256": "ed6c37e59d03e64c4c99d6c6bd95fcc6b538e10c4437bc619e921bdabc1b0ee4",
+      "length": 99840
+    },
+    "play-audio/companion/library.mp3": {
+      "sha256": "baf4a7121a3b85df3a573a8d29ebd1d5c317d775025a98ca53095d90f2de108b",
+      "length": 117504
+    },
+    "play-audio/companion/meet.mp3": {
+      "sha256": "9b9776b887dae379b40d47a6d63f4d4b31f3949e5d44fced1741daa857bd3998",
+      "length": 158592
+    },
+    "play-audio/companion/mode-explain.mp3": {
+      "sha256": "6121a63a62d55b68f564a19c3db664fbb593060632f17773d20625346e9cb30d",
+      "length": 32832
+    },
+    "play-audio/companion/mode-hear.mp3": {
+      "sha256": "7919916f5691108f462c564c38cdc54f94d3cc0cda1a9a707e7d7f953befea8b",
+      "length": 32832
+    },
+    "play-audio/companion/mode-see.mp3": {
+      "sha256": "15685fbff121893745b5a355ce2a8538af504372428e95e549b21c983a2c218a",
+      "length": 43776
+    },
+    "play-audio/companion/mode-try.mp3": {
+      "sha256": "4d724bef358b35e771fc38a5d632ce6e6dcd85747ddcb0dc134c0c55e2cf9d07",
+      "length": 30144
+    },
+    "play-audio/companion/new.mp3": {
+      "sha256": "4e1930cd42b38e87da0a002139e4eb0c77db87ebb3ad9467bed0df22ad5d5d88",
+      "length": 169344
+    },
+    "play-audio/companion/notice.mp3": {
+      "sha256": "213882ecd59e755fdd49af02e8245432381b9d1461d6278d60b5d1e61a5baa1d",
+      "length": 125760
+    },
+    "play-audio/companion/plans.mp3": {
+      "sha256": "ecb58d63ddc4e685f05c2d5b002619bb336378f0a1d762062d8611909d9783fa",
+      "length": 140736
+    },
+    "play-audio/companion/sessions.mp3": {
+      "sha256": "944d0bb74a2bdf08d70182b95d44ce38cf585ee044ee0e60807d94ce9643cf56",
+      "length": 150336
+    },
+    "play-audio/companion/topic-aim.mp3": {
+      "sha256": "aed8d0c8057918da3b470391303a841e1ef914730037b6f6b2c988659a97f70c",
+      "length": 94272
+    },
+    "play-audio/companion/topic-bank.mp3": {
+      "sha256": "f86cf1582f043d12cf8274e13efe7c35735983b728fa9c424323ac2fcd66ed07",
+      "length": 103872
+    },
+    "play-audio/companion/topic-kick.mp3": {
+      "sha256": "e81c263463c36c5a9e65497bfafab91f85f28c69cbd72de5d532d9e3b14c66f6",
+      "length": 98304
+    },
+    "play-audio/companion/topic-pattern.mp3": {
+      "sha256": "3e0aa5e7e3a5e168c85163f19baa75669080943f0477e935db623d6ae5c93cbb",
+      "length": 83328
+    },
+    "play-audio/companion/topic-position.mp3": {
+      "sha256": "09efe3b4fc145496797632b2a9f2eb5d3d140e8863a0cb497d77f7711352d1cf",
+      "length": 92928
+    },
+    "play-audio/companion/topic-recovery.mp3": {
+      "sha256": "14e0fecd6d1eb5d94cef70636d67cc2e7c6cb8ed2ae0c0d442068664c721f024",
+      "length": 107904
+    },
+    "play-audio/companion/topic-runout.mp3": {
+      "sha256": "5f04797ef52fb9377b0dd97b02a1f7b7fdc3f04214773f1637697ae144e45058",
+      "length": 90240
+    },
+    "play-audio/companion/topic-safety.mp3": {
+      "sha256": "984f2d903c66dc220821d15a161364948e14447806bde3eba63bb085a71c1349",
+      "length": 101376
+    },
+    "play-audio/companion/topic-speed.mp3": {
+      "sha256": "092e5d02113c8d153a994d8c8ac9fc23e28d59aeca13d40abd6af90dd7a9b138",
+      "length": 99840
+    },
+    "play-audio/companion/topic-spin.mp3": {
+      "sha256": "102f0f4f649b778611342cbcc2fbd4e8469e5efeedde42761781f5347e9f9b88",
+      "length": 96000
+    },
+    "play-audio/companion/topic-stop.mp3": {
+      "sha256": "c7c28f0e57a4718823c9fef7420ce479dbf0d822116a8777a2ad637a67974a8c",
+      "length": 98304
+    },
+    "play-audio/companion/topic-stun.mp3": {
+      "sha256": "656b43f5e6fc04d4de5e43abd6064644ec1a120e4ea302c14f0b35332bbf623e",
+      "length": 87552
+    },
+    "play-audio/companion/workshop.mp3": {
+      "sha256": "a735900c15ef84bcc0937218cd303fa6ddb5b18c38381ec61707d78316516427",
+      "length": 139200
+    },
     "play-audio/drill-help.mp3": {
       "sha256": "16ef99ebb5ab0e899768f8d17c074caee227173c9547004ca3036df195f90a46",
       "length": 124701
@@ -4985,7 +5349,7 @@
       "length": 2103
     },
     "service-worker.js": {
-      "sha256": "b0ac46fb2c277c619917453903c21543fd7268238f2a02681bc55be040e89ffa",
+      "sha256": "73984a111bca4b4f00020dda38c22683694e1a6933e9b439b71ebbc5cec7504a",
       "length": 7933
     },
     "table-orbit.js": {

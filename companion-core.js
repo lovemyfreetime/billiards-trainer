@@ -1,7 +1,7 @@
 /* Isolated companion state. No writes to scoring, physics or Trainer settings. */
 (function(root){
  'use strict';
- const KEY='billiards.playTogether.v1',VERSION='0.4.1';
+ const KEY='billiards.playTogether.v1',VERSION='0.4.2';
  const F=typeof module!=='undefined'&&module.exports?require('./companion-features.js'):root.CompanionFeatures;
  const activities=[
   {id:'position',title:'Give yourself more room',tag:'POSITION & CHOICE',question:'Which route leaves more usable next shots?',description:'Compare a precise route with one that leaves a bigger landing area.',tools:'Shot 2 · Aiming Zones · 2D / 3D',criterion:'Pocket the ball and leave a usable next shot.',steps:[['Predict first','Set up a familiar position shot. Each point to an acceptable landing area before discussing routes.'],['Compare two routes','Open Trainer if helpful. Use Shot 2 and the position ranges to compare the routes. Change one thing at a time.'],['Try it on your table','Take five attempts each. Use a target that suits each player. Count the whole result: made ball and usable next shot.'],['Use it in a rack','Play a short rack without advice during turns. Look for a chance to choose the bigger usable area.']]},
@@ -40,7 +40,7 @@
    ['Social play & sustainable motivation','ready','Just-play mode removes structured results and pressure while preserving session discoveries.']]],
   ['Voice & assistance',[
    ['Local voice notes','ready','Record and replay short audio notes where microphone access is supported. Reviewed local transcription is available in Guide & voice on compatible devices.'],
-   ['Spoken prompts','ready','Optional device text-to-speech; availability depends on the installed browser or shell.'],
+   ['Spoken prompts','ready','Chase recordings for fixed guidance at 1.2×, with pause, resume and stop; personal text uses the selected device voice.'],
    ['Keyboard microphone input','ready','Use the device keyboard microphone in any note field when the keyboard provides it.'],
    ['External TTS capture connection','device','Import spoken audio or capture a chosen tab’s shared audio where supported. Play or locally transcribe it for review.'],
    ['Local transcription & interpretation','device','Capability-checked on-device English speech and optional local language-pack installation; review notes and interpret a bounded set of session commands. Requires compatible browser or Android support.'],
