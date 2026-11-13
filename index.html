@@ -7358,7 +7358,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const fixed = !isProjector && document.body.classList.contains('phone-layout');
         for (const which of [1, 2]) {
             const badge = fixed
-                ? ((which === 1 || (S.shot2Enabled && !S.shot2CueBallOnly)) ? {which} : null)
+                ? ((which === 1 || (S.shot2Enabled && (document.body.classList.contains('trainer-workspace') || !S.shot2CueBallOnly))) ? {which} : null)
                 : tipBadgeGeometry(map, which);
             const disk = $('phoneTip' + which);
             // On phones, keep the controls below their respective slider sets.
@@ -8715,14 +8715,15 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 
         // Keep the teaching surface clean: hidden shots also hide their
         // corresponding table-edge controls.
-        const showBottom1 = cueVisualsVisible(1);
-        const showBottom2 = on && shotGuidesVisible(2);
+        const sharedWorkspace = document.body.classList.contains('trainer-workspace');
+        const showBottom1 = sharedWorkspace || cueVisualsVisible(1);
+        const showBottom2 = on && (sharedWorkspace || shotGuidesVisible(2));
         if ($('aimControls')) $('aimControls').style.display = showBottom1 ? 'flex' : 'none';
         if ($('tableSpeed1Wrap')) $('tableSpeed1Wrap').style.display = showBottom1 ? 'flex' : 'none';
         if ($('bottomSpin1')) $('bottomSpin1').style.display = showBottom1 ? 'flex' : 'none';
 
         for (const id of ['aimControls2', 'tableSpeed2Wrap', 'bottomSpin2']) {
-            $(id)?.style.setProperty('display', showBottom2 ? 'flex' : 'none', S.shot2CueBallOnly ? 'important' : '');
+            $(id)?.style.setProperty('display', showBottom2 ? 'flex' : 'none', !sharedWorkspace && S.shot2CueBallOnly ? 'important' : '');
         }
 
         updateCuePopupUI();

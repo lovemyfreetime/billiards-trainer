@@ -7,7 +7,7 @@ const installed=()=>navigator.standalone||matchMedia('(display-mode:standalone),
 const android=()=>!!window.BilliardsAndroid?.setFullscreen;
 const native=()=>android()||!!window.BilliardsWindowsHostAvailable&&!!window.chrome?.webview;
 function nativeFullscreen(value){if(android())window.BilliardsAndroid.setFullscreen(value);else window.chrome.webview.postMessage({type:'set-fullscreen',active:value});}
-let menu,hint,control,viewHint,nativeHelp=false,hintDismissed=false;
+let menu,hint,control,closeControl,viewHint,nativeHelp=false,hintDismissed=false;
 const installer=()=>/\/install\/(?:index\.html)?$/.test(location.pathname);
 const phone=()=>{const ua=navigator.userAgent;if(/Android/i.test(ua))return /Mobile/i.test(ua);if(/iPad/i.test(ua))return false;return /iPhone|iPod/i.test(ua)||navigator.userAgentData?.mobile===true||matchMedia('(pointer:coarse)').matches&&Math.min(screen.width,screen.height)<600;};
 let orientationPage=location.href,viewFrame=null;
@@ -76,7 +76,16 @@ async function exit(){
  sync();
 }
 async function toggle(){if(active())await exit();else await enter();}
-window.BilliardsDisplay={active,enter,exit,toggle,navigate,orient,refresh:sync};
+function closeApp(){
+ if(!window.dispatchEvent(new Event('billiards:before-close',{cancelable:true})))return;
+ window.dispatchEvent(new Event('billiards:before-reload'));
+ if(window.BilliardsWindowsHostAvailable&&window.chrome?.webview){window.chrome.webview.postMessage({type:'close-app'});return;}
+ if(window.BilliardsAndroid?.closeApp){window.BilliardsAndroid.closeApp();return;}
+ window.close();
+ hint.textContent='Use your browser tab’s close button to close this app.';
+ if(nativeHelp)menu.showPopover();else menu.classList.add('display-help-open');
+}
+window.BilliardsDisplay={active,enter,exit,toggle,navigate,orient,closeApp,refresh:sync};
 function init(){
  control=document.createElement('button');control.id='appDisplayControl';control.type='button';control.innerHTML='<span class="display-dot" aria-hidden="true"></span>';
  control.onclick=()=>toggle();
@@ -87,13 +96,16 @@ function init(){
  viewHint.querySelector('[data-display-enter]').onclick=()=>enter();viewHint.querySelector('[data-display-dismiss]').onclick=()=>{hintDismissed=true;updateViewHint()};document.body.append(viewHint);
  window.addEventListener('resize',updateViewHint);
  hint=document.createElement('p');hint.setAttribute('role','status');menu.append(hint);document.body.append(control,menu);
- // Keep the control reachable above the Games modal, without a permanent toolbar.
- const moveControl=()=>{const dialog=document.querySelector('#playDialog[open]');const parent=dialog||document.body;if(control.parentNode!==parent)parent.append(control);if(menu.parentNode!==parent)parent.append(menu);if(viewHint&&viewHint.parentNode!==parent)parent.append(viewHint);};
+ if(!installer()&&!document.getElementById('welcomeClose')){
+  closeControl=document.createElement('button');closeControl.id='appCloseControl';closeControl.type='button';closeControl.setAttribute('aria-label','Close app');closeControl.title='Close app';closeControl.innerHTML='<span class="display-dot" aria-hidden="true"></span>';closeControl.onclick=closeApp;document.body.append(closeControl);
+ }
+ // Keep window controls reachable above the Games modal.
+ const moveControl=()=>{const dialog=document.querySelector('dialog[open]');const parent=dialog||document.body;if(control.parentNode!==parent)parent.append(control);if(closeControl&&closeControl.parentNode!==parent)parent.append(closeControl);if(menu.parentNode!==parent)parent.append(menu);if(viewHint&&viewHint.parentNode!==parent)parent.append(viewHint);};
  new MutationObserver(moveControl).observe(document.body,{subtree:true,attributes:true,attributeFilter:['open'],childList:true});moveControl();
  // A click occurs after a drag ends; do not resize the table during an aiming gesture.
  document.addEventListener('click',event=>{
   if(!automatic||!event.isTrusted||active()||installed()||native())return;
-  if(event.target.closest('a,input,select,textarea,#appDisplayControl,#appDisplayMenu,#btg-fullscreen,#fullscreenPresenterBtn,#installPresenterBtn,#appViewHint'))return;
+  if(event.target.closest('a,input,select,textarea,#appDisplayControl,#appCloseControl,#appDisplayMenu,#btg-fullscreen,#fullscreenPresenterBtn,#installPresenterBtn,#appViewHint'))return;
   enter(true);
  },true);
  document.addEventListener('keydown',event=>{

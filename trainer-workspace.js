@@ -27,7 +27,7 @@
   const groupIds = {
     setup: ['analyzePhotoBtn', 'cameraCaptureBtn', 'quickLayoutRecall'],
     plan: ['kickToolToggle', 'bankToolToggle', 'teachingCompassToggle', 'angleLock', 'compassSizeWrap', 'compassRotateWrap'],
-    view: ['tableZoom', 'btg-fullscreen', 'btZenLauncher']
+    view: ['tableZoom', 'btg-fullscreen']
   };
   const rename = (id, text) => { const el = byId(id); if (el) { el.textContent = text; el.setAttribute('aria-label', text); } };
   rename('analyzePhotoBtn', 'Open image'); rename('cameraCaptureBtn', 'Take photo');
@@ -105,7 +105,9 @@
     count.textContent = data.pocketed.length ? data.pocketed.length + ' pocketed' : '';
     trayToggle.setAttribute('aria-label', document.body.classList.contains('phone-tray-hidden') ? 'Show ball tray' : 'Hide ball tray');
   }
-  trayToggle.addEventListener('click', sync);
+  const trayState = {twoD: true, threeD: false};
+  let dockMode = null;
+  trayToggle.addEventListener('click', () => { trayState[dockMode ? 'threeD' : 'twoD'] = !document.body.classList.contains('phone-tray-hidden'); sync(); window.dispatchEvent(new Event('resize')); });
   window.billiardsWorkspaceSync = sync;
   // Busy changes during a shot also disable tray placement before the next UI update.
   const shoot = byId('animate');
@@ -115,15 +117,31 @@
     for (const [key, ids] of Object.entries(groupIds)) for (const id of ids) move(groups[key], byId(id));
     const active = document.body.classList.contains('table-3d');
     const views = byId('table3DViews'), tools = byId('table3DTools');
-    move(groups.view, views); move(views || groups.view, byId('table3DToggle')); move(groups.view, tools);
+    const cameraRow = byId('table3DPhoneControls');
+    if (dockMode !== active) {
+      dockMode = active;
+      document.body.classList.toggle('phone-tray-hidden', !trayState[active ? 'threeD' : 'twoD']);
+      trayToggle.setAttribute('aria-expanded', String(trayState[active ? 'threeD' : 'twoD']));
+    }
+    if (active) {
+      cameraRow.hidden = false; move(document.body, cameraRow);
+      move(cameraRow, tools); move(cameraRow, views); move(views, byId('table3DToggle'));
+      move(tools, trayToggle); tools.prepend(trayToggle);
+    } else {
+      cameraRow.hidden = true; move(groups.view, views); move(views || groups.view, byId('table3DToggle')); move(groups.view, tools);
+      shelf.prepend(trayToggle);
+    }
     fit.hidden = active;
-    move(groups.setup, byId('table3DRackToggle'));
+    move(active ? tools : groups.setup, byId('table3DRackToggle'));
+    if (active) trayToggle.after(byId('table3DRackToggle'));
+    const experience = byId('btZenLauncher');
+    if (experience && experience.parentNode !== bar) bar.prepend(experience);
     move(bar, byId('phoneAimChoice'));
     sync();
   };
   byId('phoneControls')?.addEventListener('click', closeGroups);
   const experienceObserver = new MutationObserver(() => {
-    if (byId('btZenLauncher')) { move(groups.view, byId('btZenLauncher')); experienceObserver.disconnect(); }
+    if (byId('btZenLauncher')) { bar.prepend(byId('btZenLauncher')); experienceObserver.disconnect(); }
   });
   experienceObserver.observe(document.body, {childList:true});
   window.billiardsWorkspaceDock();
