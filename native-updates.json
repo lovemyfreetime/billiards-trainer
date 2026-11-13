@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "9ec7264ddf1f1e72c7d507cf2435cb6da01c8c32e74f5a2da451537dc9ec55fd",
-  "sequence": 1794610504,
+  "version": "3661c82f1cfdc1a64b2b0474ad5c7d6329f54648c350fa9a588d82c31ae81fa0",
+  "sequence": 1794610719,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3861,7 +3861,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "968bf8e759d6ce4f26bbb9621250ac04d724dd7fc62cabb986417e94f5546b8d",
+      "sha256": "5d80bac35bfca337d838cd626b918398b98b3a19f936db851ed6da4ce8517baf",
       "length": 158199
     },
     "phone-play.css": {
@@ -5349,7 +5349,7 @@
       "length": 2103
     },
     "service-worker.js": {
-      "sha256": "a08362e7ed930c0abbc2b6ec943f075f19c1a57131f2eed9d803594ffdbb5db9",
+      "sha256": "b0367723aa9858986c665fb928901ad0aa978b81e3025a5083e4f98165009216",
       "length": 7933
     },
     "table-orbit.js": {
@@ -5453,8 +5453,8 @@
       "length": 37710
     },
     "trainer-workspace.css": {
-      "sha256": "ded603ed4e8f30e9eac2533eac19b236aa00f3b9994268f4f499abb23e3b134e",
-      "length": 21775
+      "sha256": "cae1b7704ce04854ffd557bbd3f7d679391ccfea357eaa908312f46931fde287",
+      "length": 22063
     },
     "trainer-workspace.js": {
       "sha256": "af8c13734c6f5c0b272aaf130532f455a79e53737409e9ebda370fcfed13843b",

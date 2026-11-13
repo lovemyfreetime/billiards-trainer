@@ -2,9 +2,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const source=fs.readFileSync('experience-menu.js','utf8');
 function build(current,path){
  const node=()=>({addEventListener(){},children:[],style:{},dataset:{},classList:{add(){}},setAttribute(k,v){this[k]=v},append(...items){this.children.push(...items)},appendChild(item){this.children.push(item)}});
- const ctx={URL,location:{href:'https://example.org/billiards-trainer/'+path},window:{},document:{createElement:node,addEventListener(){}}};vm.createContext(ctx);vm.runInContext(source,ctx);return ctx.window.BilliardsExperienceMenu({current}).children[1].children;
+ const ctx={URL,location:{href:'https://example.org/billiards-trainer/'+path},window:{},document:{readyState:'loading',createElement:node,addEventListener(){}}};vm.createContext(ctx);vm.runInContext(source,ctx);return ctx.window.BilliardsExperienceMenu({current}).children[1].children;
 }
-for(const [mode,path,expected] of [['train','?train=1',['zen','play','home']],['play','play.html',['zen','train','home']],['zen','?zen=1',['train','play','home']]]){
+for(const [mode,path,expected] of [['train','?train=1',['zen','play','home']],['play','play.html',['zen','train','home']],['zen','?zen=1',['train','play','home']],['companion','companion.html',['zen','train','play','home']]]){
  const links=build(mode,path);assert.deepEqual(links.map(a=>a.dataset.experience),expected);
  for(const a of links){const u=new URL(a.href);assert(u.pathname.startsWith('/billiards-trainer/'));if(a.dataset.experience==='train'){assert.equal(u.search,'?train=1');assert.equal(u.pathname,'/billiards-trainer/');}if(a.dataset.experience==='zen'){assert.equal(u.search,'?zen=1');assert.equal(u.pathname,'/billiards-trainer/');}if(a.dataset.experience==='home'){assert.equal(u.search,'');assert.equal(u.hash,'');assert.equal(u.pathname,'/billiards-trainer/welcome.html');}if(a.dataset.experience==='play'){assert.equal(u.search,'');assert.equal(u.pathname,'/billiards-trainer/play.html');}}
 }
@@ -16,5 +16,5 @@ for(const asset of [...sw.split("self.addEventListener")[0].matchAll(/'\.\/([^']
 console.log('Entry order, all mode-switch orders, GitHub Pages subpath links, direct-mode routing, and separate offline page shells pass.');
 
 for(const label of ['Zen','Trainer','Play']){assert(welcome.includes('aria-label="About '+label+'"'));const key=label.toLowerCase(),installer=fs.readFileSync('install/index.html','utf8');const paragraph=installer.match(new RegExp('<article class="card experience-card experience-'+key+'">[\\s\\S]*?<p>([\\s\\S]*?)</p>'))[1];assert(welcome.includes('<p>'+paragraph+'</p>'),'About '+label+' matches installer wording');}
-const early=index.indexOf("classList.add('zen-starting')");assert(early>0&&early<index.indexOf('<body>'));assert(index.includes('html.zen-starting body{visibility:hidden!important}'));assert(fs.readFileSync('zen-mode.js','utf8').includes("requestAnimationFrame(()=>requestAnimationFrame(()=>document.documentElement.classList.remove('zen-starting')))"));
+const early=index.indexOf("classList.add('zen-starting')");assert(early>0&&early<index.indexOf('<body>'));assert(index.includes('html.zen-starting body{visibility:hidden!important}'));assert(fs.readFileSync('zen-mode.js','utf8').includes("requestAnimationFrame(()=>requestAnimationFrame(()=>{document.documentElement.classList.remove('zen-starting');"));
 console.log('About controls match installer copy; Zen is hidden before body parsing and revealed after layout frames.');
