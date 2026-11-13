@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "6bea2ed75c978468bce41c8d5007f14c7de9cd1ea17086ad47bea6a63aa46e37",
-  "sequence": 1794598099,
+  "version": "de60812acf2492ef20f5eae14e9d6cd2eba61843b65dc8322fb5b09ef4120413",
+  "sequence": 1794606760,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3761,8 +3761,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "daa24d5000168ab3e071dc925bec51fb05f14d941e38f0371316eec528bb76d4",
-      "length": 936037
+      "sha256": "9eaa4deefeb346555ef07eb06bc49ee4880e395061f61debcc3f1dc980f9b466",
+      "length": 936391
     },
     "install/android/index.html": {
       "sha256": "5af2961b4386233b6f9206577ee2acdd6b08068620c3f60c57b176c471ca3681",
@@ -3861,16 +3861,16 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "313fe8325619ca98c0ea80bdb329d8884f361695e7f27d77d4c1e821d42ccc91",
-      "length": 158006
+      "sha256": "f5dcb74124962f503cb54dc5fdb028916e5879a5025bc8e8dc98c0d9ef19d20a",
+      "length": 158199
     },
     "phone-play.css": {
       "sha256": "cec5017ee25f788690420d4e67241754a1fbb2c047779ad0e7e59d87f7eac720",
       "length": 27984
     },
     "phone-play.js": {
-      "sha256": "3a8b2171b7df2520e2cbbe7835f5a73ce90dab9f8d5ea0459079e8c05ac44a4b",
-      "length": 29825
+      "sha256": "a5399b6c0a6042029a06470e11e93e6e4fb58318ecb821da66eafb6913fe4d43",
+      "length": 30031
     },
     "photo-ball-crops.js": {
       "sha256": "6c66778498c4ccd48a54901f9aa7a7f6c7f1a55ddb8959e41850a195268598da",
@@ -5349,7 +5349,7 @@
       "length": 2103
     },
     "service-worker.js": {
-      "sha256": "e9cc518979573a6c6363c91293b7bf89970307ada10a40ec2a89868141ca301f",
+      "sha256": "c6bbb550b3c602ca7259b55c589db0a45a6c26bcb900a71b7ed595785853e7ac",
       "length": 7933
     },
     "table-orbit.js": {
@@ -5377,8 +5377,8 @@
       "length": 35575
     },
     "trainer-3d.js": {
-      "sha256": "d4b307d3c7b29e1c46f7c71f80b3b4698a1c0712460db70fbfe7f3264358af92",
-      "length": 50215
+      "sha256": "dedb7c6bbfce06f4bc830e03b0ccba16d12d4be402eb3a21d55a2a8defaef520",
+      "length": 50252
     },
     "trainer-action-history.js": {
       "sha256": "83f2afc6a65e2dc18b66313cc709a66407e72144c2278cc2d2acbfb600e4cfb4",
@@ -5451,6 +5451,14 @@
     "trainer-video-narration.js": {
       "sha256": "7f5a56139f3451233a8a2dfb13584c17fc51593c9a31f3c80b540f8977b18581",
       "length": 37710
+    },
+    "trainer-workspace.css": {
+      "sha256": "bd6f30a9d897f54c2e4e1d72d73ad3fcc3838e4a1a9557b2bc19691eb42d19ca",
+      "length": 12109
+    },
+    "trainer-workspace.js": {
+      "sha256": "c92f9ce9cee2465eb8089a743e119ab51678d6777d24157d2c7ab435c62fb90e",
+      "length": 7750
     },
     "vendor/mp4-muxer-5.2.2/LICENSE": {
       "sha256": "75c54aae7ef6ad652f684f9dd3b71e4dcef86ccebd88cf441ceed7f5eec037c5",

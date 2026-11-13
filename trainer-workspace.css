@@ -1,0 +1,107 @@
+/* Reserved workspace bands: tools, table with side rails, balls, then spin. */
+body.trainer-workspace:not(.zen-mode) { --workspace-top:54px; --workspace-bottom:122px; --workspace-edge:62px; }
+body.trainer-workspace.phone-focus:not(.zen-mode):not(.projector) #stageWrap {
+  inset:calc(var(--workspace-top) + env(safe-area-inset-top)) calc(var(--workspace-edge) + env(safe-area-inset-right)) calc(var(--workspace-bottom) + env(safe-area-inset-bottom)) calc(var(--workspace-edge) + env(safe-area-inset-left))!important;
+}
+body.trainer-workspace.table-3d.phone-focus #stageWrap #table3DCanvas { inset:0!important; width:100%!important; height:100%!important; }
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneAimRail,
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail {
+  top:calc(var(--workspace-top) + env(safe-area-inset-top)); bottom:calc(var(--workspace-bottom) + env(safe-area-inset-bottom)); height:auto; width:42px;
+}
+body.trainer-workspace.phone-focus #phoneAimRail { left:calc(10px + env(safe-area-inset-left)); }
+body.trainer-workspace.phone-focus #phoneSpeedRail { right:calc(10px + env(safe-area-inset-right)); }
+body.trainer-workspace.phone-focus #phoneAimRail>.aimControlRow,
+body.trainer-workspace.phone-focus #phoneSpeedRail>.tableSpeedControl { width:42px!important; }
+body.trainer-workspace.phone-focus #phoneAimRail .aimRollerControl { width:42px; padding-top:22px; box-shadow:none; }
+body.trainer-workspace.phone-focus .phoneAimLabel { display:block; position:absolute; top:5px; left:0; right:0; text-align:center; font:700 9px/14px system-ui; z-index:1; pointer-events:none; }
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions { left:calc(10px + env(safe-area-inset-left)); right:calc(100px + env(safe-area-inset-right)); bottom:calc(6px + env(safe-area-inset-bottom)); height:52px; min-height:52px; padding:0; }
+body.trainer-workspace.phone-focus #phoneActions>.bottomSpinGroup { grid-template-columns:minmax(0,1fr) 60px minmax(0,1fr); grid-template-rows:52px; height:52px!important; gap:10px; }
+body.trainer-workspace.phone-focus #phoneActions .bottomSpinGroup .phoneTipControl:not([hidden]) { width:56px!important; height:56px!important; }
+body.trainer-workspace.phone-focus #phoneActions .miniSpinControl { height:48px; padding:17px 36px 3px; }
+body.trainer-workspace.phone-focus #phoneActions .miniSpinControl input { height:26px; }
+body.trainer-workspace.phone-focus #phoneActions .phoneSpinCaption { top:2px; left:36px; right:36px; font:600 10px/12px system-ui; }
+body.trainer-workspace.phone-focus #phoneActions .phoneSpinCaption::before,
+body.trainer-workspace.phone-focus #phoneActions .phoneSpinCaption::after { content:none; }
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=animate] {
+  position:fixed; inset:auto calc(10px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) auto; width:80px; height:48px; min-height:48px; padding:6px; font-size:14px; border-radius:12px;
+}
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=undoShot],
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=redoShot] {
+  display:block; position:fixed; top:calc(8px + env(safe-area-inset-top)); bottom:auto; left:auto; right:calc(140px + env(safe-area-inset-right)); width:48px; min-width:48px; height:36px; min-height:36px; padding:4px; font-size:11px; border-radius:10px;
+}
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=redoShot] { right:calc(86px + env(safe-area-inset-right)); }
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneControls { inset:calc(8px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) auto auto; width:66px; height:36px; min-height:36px; border-radius:10px; font:600 12px system-ui; }
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneControls::after { content:' Tools'; }
+body.trainer-workspace.phone-focus #panel { padding-top:58px; }
+body.trainer-workspace.phone-controls-open #phonePanelScroll { top:56px; bottom:12px; }
+body.trainer-workspace #phoneToolShelf:empty { display:none!important; }
+body.trainer-workspace #pocketTray,body.trainer-workspace #table3DTrayToggle,
+body.trainer-workspace #table3DTray,body.trainer-workspace #table3DPhoneControls { display:none!important; }
+
+#workspaceTools { position:fixed; z-index:49; top:calc(8px + env(safe-area-inset-top)); left:calc(10px + env(safe-area-inset-left)); display:flex; align-items:center; gap:6px; }
+#workspaceTools details { position:relative; }
+#workspaceTools summary { list-style:none; cursor:pointer; min-height:36px; box-sizing:border-box; padding:8px 13px; font:600 12px/18px system-ui; color:#edf6f9; background:#1b2832; border:1px solid #617e8e; border-radius:10px; }
+#workspaceTools summary::-webkit-details-marker { display:none; }
+#workspaceTools summary::after { content:'⌄'; margin-left:7px; }
+#workspaceTools details[open]>summary { background:#245772; border-color:#9cd5f3; }
+#workspaceTools summary:focus-visible,#workspaceTools button:focus-visible,.workspaceBall:focus-visible { outline:2px solid #b0e3ff; outline-offset:3px; }
+#workspaceTools .workspaceToolGroup { position:absolute; top:43px; left:0; display:flex; flex-wrap:wrap; gap:8px; width:min(310px,calc(100vw - 32px)); padding:12px; box-sizing:border-box; border:1px solid #67818e; border-radius:12px; background:#14232dfb; box-shadow:0 8px 28px #0009; max-height:calc(100dvh - 66px); overflow:auto; }
+#workspace-view .workspaceToolGroup { left:-100px; }
+#workspace-plan .workspaceToolGroup { left:-65px; }
+body.trainer-workspace #workspaceTools .workspaceToolGroup>button,
+body.trainer-workspace #workspaceTools .workspaceToolGroup>label,
+body.trainer-workspace #workspaceTools #table3DViews>button,
+body.trainer-workspace #workspaceTools #table3DTools>button {
+  position:static!important; inset:auto!important; transform:none!important; width:auto!important; min-width:72px; height:auto!important; min-height:40px; padding:8px 12px; border-radius:9px; font:600 12px/18px system-ui; box-shadow:none; flex:1 1 auto;
+}
+body.trainer-workspace #workspaceTools #table3DViews,
+body.trainer-workspace #workspaceTools #table3DTools { position:static!important; inset:auto!important; transform:none!important; display:flex; flex-wrap:wrap; width:100%!important; gap:6px; pointer-events:auto; }
+body.trainer-workspace #workspaceTools #table3DTools[hidden],
+body.trainer-workspace #workspaceTools [hidden] { display:none!important; }
+body.trainer-workspace #workspaceTools #tableZoom { display:block!important; }
+body.trainer-workspace.table-3d #workspaceTools #tableZoom { display:none!important; }
+body.trainer-workspace #workspaceTools #table3DZoomGroup { flex:1 1 100%; max-width:none; width:100%; }
+body.trainer-workspace #workspaceTools #table3DZoomSlider { max-width:none; flex:1; }
+body.trainer-workspace #workspaceTools #table3DLock { width:100%!important; min-height:66px; }
+body.trainer-workspace #workspaceTools #table3DPan svg,body.trainer-workspace #workspaceTools #table3DRotate svg { width:22px; height:22px; }
+body.trainer-workspace #workspaceTools .compassSideControl,
+body.trainer-workspace #workspaceTools .compassTopControl { position:static!important; inset:auto!important; transform:none!important; width:100%!important; height:40px!important; }
+body.trainer-workspace #workspaceTools .compassSideControl input,body.trainer-workspace #workspaceTools .compassTopControl input { writing-mode:horizontal-tb; direction:ltr; width:100%; height:28px; }
+#workspaceTools #phoneAimChoice { min-height:36px; padding:5px 10px; border-radius:10px; border:2px solid #9acff0; font:600 12px system-ui; }
+#workspaceTools #phoneAimChoice[aria-pressed=true] { border-style:dashed; background:#245772; }
+#workspaceTools #phoneAimChoice[hidden] { display:none; }
+
+#workspaceBallShelf { position:fixed; z-index:46; bottom:calc(66px + env(safe-area-inset-bottom)); left:calc(10px + env(safe-area-inset-left)); right:calc(10px + env(safe-area-inset-right)); height:46px; display:flex; align-items:center; gap:10px; padding:0 6px; border-top:1px solid #647b8933; border-bottom:1px solid #647b8933; background:#10181ee6; border-radius:12px; }
+body.trainer-workspace.phone-focus:not(.zen-mode) #workspaceBallShelf #phoneTrayToggle { display:block; position:static; inset:auto; width:50px; height:36px; min-width:50px; padding:4px; font:600 11px system-ui; }
+#workspaceBalls { display:flex; align-items:center; gap:8px; min-width:0; margin:auto; overflow-x:auto; overscroll-behavior-x:contain; scrollbar-width:thin; padding:5px 4px; }
+.workspaceBall { position:relative; flex:0 0 34px; width:34px; min-width:34px; height:34px; min-height:34px; border:1px solid #b6c6cf; border-radius:50%; padding:0; cursor:grab; touch-action:none; background:radial-gradient(circle at 30% 20%,#fff8,transparent 58%),var(--ball-color); }
+.workspaceBall.stripe { background:linear-gradient(#eee 20%,var(--ball-color) 21% 79%,#eee 80%); }
+.workspaceBall>span { display:grid; place-items:center; width:18px; height:18px; margin:auto; border-radius:50%; background:#f8f7ee; color:#14191d; font:700 11px system-ui; }
+.workspaceBall.on-table { opacity:.32; cursor:default; }
+.workspaceBall.pocketed { outline:2px dashed #b5e0ff; outline-offset:1px; }
+.workspaceBall:disabled:not(.on-table) { opacity:.5; }
+.workspaceBallGhost { position:fixed; z-index:9999; pointer-events:none; opacity:.9; }
+#workspaceBallCount { flex:none; font:500 11px system-ui; color:#b9ced9; }
+#workspaceBallCount:empty { display:none; }
+body.phone-tray-hidden #workspaceBalls,body.phone-tray-hidden #workspaceBallCount { display:none; }
+body.trainer-workspace #bankKickRoutePanel:not([hidden]) { top:calc(58px + env(safe-area-inset-top)); left:auto; right:calc(64px + env(safe-area-inset-right)); width:min(380px,calc(100vw - 140px)); }
+body.trainer-workspace:not(.zen-mode) #btZenLauncher { display:none!important; }
+body.trainer-workspace:not(.zen-mode) #workspaceTools #btZenLauncher { display:inline-flex!important; position:static!important; inset:auto!important; width:auto!important; height:auto!important; align-items:center; gap:10px; }
+body.trainer-workspace #workspaceTools #btZenLauncher::after { content:'Play · Zen · Home'; font:600 12px system-ui; }
+@media(max-width:600px) {
+  body.trainer-workspace:not(.zen-mode) { --workspace-top:92px; --workspace-edge:52px; }
+  #workspaceTools summary { padding:8px 10px; }
+  body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=undoShot],
+  body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=redoShot] { top:calc(50px + env(safe-area-inset-top)); }
+  body.trainer-workspace.phone-focus #phoneAimRail,body.trainer-workspace.phone-focus #phoneSpeedRail { width:36px; }
+  body.trainer-workspace.phone-focus #phoneAimRail>.aimControlRow,body.trainer-workspace.phone-focus #phoneSpeedRail>.tableSpeedControl,body.trainer-workspace.phone-focus #phoneAimRail .aimRollerControl { width:36px!important; }
+  body.trainer-workspace.phone-focus #phoneActions { right:calc(74px + env(safe-area-inset-right))!important; }
+  body.trainer-workspace.phone-focus #phoneActions>.bottomSpinGroup { grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr); gap:4px; }
+  body.trainer-workspace.phone-focus #phoneActions .bottomSpinGroup .phoneTipControl:not([hidden]) { width:44px!important; height:48px!important; }
+  body.trainer-workspace.phone-focus #phoneActions .miniSpinControl { padding-left:23px; padding-right:23px; }
+  body.trainer-workspace.phone-focus #phoneActions .miniSpinLabel,body.trainer-workspace.phone-focus #phoneActions .phoneSliderValue { width:22px!important; }
+  body.trainer-workspace.phone-focus #phoneActions .phoneSpinCaption { left:20px; right:20px; font-size:8px; }
+  body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=animate] { width:58px; }
+  #workspaceBallCount { display:none; }
+  #workspaceTools #phoneAimChoice { position:fixed; top:calc(50px + env(safe-area-inset-top)); left:10px; }
+}

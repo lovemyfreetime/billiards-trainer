@@ -80,6 +80,7 @@
   if(phone&&active){phoneBox.hidden=false;phoneBox.append(views,tools);stage.append(phoneBox,status,button);}
   else if(!active){phoneBox.hidden=true;stage.append(tools,status);views.prepend(button);const row=document.getElementById('trainerUpdateRow');if(row)row.prepend(views);else stage.append(views);}
   else{phoneBox.hidden=true;views.prepend(button);stage.append(tools,views,status);positionToggle();}
+  window.billiardsWorkspaceDock?.();
   if(document.body.classList.contains('zen-mode'))disable();
   if(document.body.classList.contains('phone-focus')&&document.body.classList.contains('table-3d-tools-open'))setDrawer(false);
  }

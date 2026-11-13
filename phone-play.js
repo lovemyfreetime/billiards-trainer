@@ -1,6 +1,8 @@
 (function () {
   'use strict';
   if (document.body.classList.contains('projector')) return;
+  const workspace = new URLSearchParams(location.search).get('zen') !== '1';
+  document.body.classList.toggle('trainer-workspace', workspace);
   // Older Chrome needs its native vertical-range appearance, not writing-mode alone.
   const chromiumVersion=Number(/(?:Chrome|Chromium)\/(\d+)/.exec(navigator.userAgent)?.[1]);
   document.body.classList.toggle('legacy-vertical-ranges',chromiumVersion>0&&chromiumVersion<124);
@@ -254,11 +256,11 @@
   const originalText=new Map();for(const id of Object.keys(compactText)){const el=document.getElementById(id);if(el){originalText.set(el,el.textContent);if(!el.getAttribute('aria-label'))el.setAttribute('aria-label',el.textContent);}}
   if(analyzeToolbar)new MutationObserver(()=>{if(!focused())return;const ai=document.getElementById('photoAiModeBtn');if(ai&&ai.textContent!=='AI'){ai.setAttribute('aria-label',ai.textContent);ai.textContent='AI';}for(const [el,text]of originalText)if(el.textContent===text&&text!==compactText[el.id])el.textContent=compactText[el.id];}).observe(analyzeToolbar,{childList:true,subtree:true});
   const aimChoice=document.createElement('button');aimChoice.id='phoneAimChoice';aimChoice.type='button';aimChoice.textContent='1';aimChoice.setAttribute('aria-label','Switch active shot');aimChoice.onclick=()=>{const second=document.getElementById('aimControls2')?.classList.contains('activeAim');if(!document.body.classList.contains('phone-two-shots'))return;window.billiardsSelectShot?.(second?1:2);};actions.prepend(aimChoice);
-  const syncAim=()=>{const second=document.getElementById('aimControls2')?.classList.contains('activeAim');document.body.classList.toggle('phone-active-shot-2',!!second);aimChoice.textContent=document.body.classList.contains('table-3d')?(second?'Shot 2':'Shot 1'):(second?'2':'1');aimChoice.setAttribute('aria-pressed',String(!!second));const available=document.body.classList.contains('phone-two-shots');aimChoice.disabled=!available;aimChoice.hidden=!available;aimChoice.title=available?'Switch adjustments between the two loaded shots':'Load or enable Shot 2 in Tools to switch shots';aimChoice.setAttribute('aria-label','Adjusting shot '+(second?'2':'1')+(available?'. Switch shot':'. Load Shot 2 in Tools to switch'));};
+  const syncAim=()=>{const second=document.getElementById('aimControls2')?.classList.contains('activeAim');document.body.classList.toggle('phone-active-shot-2',!!second);aimChoice.textContent=(workspace||document.body.classList.contains('table-3d'))?(second?'Shot 2':'Shot 1'):(second?'2':'1');aimChoice.setAttribute('aria-pressed',String(!!second));const available=document.body.classList.contains('phone-two-shots');aimChoice.disabled=!available;aimChoice.hidden=!available;aimChoice.title=available?'Switch adjustments between the two loaded shots':'Load or enable Shot 2 in Tools to switch shots';aimChoice.setAttribute('aria-label','Adjusting shot '+(second?'2':'1')+(available?'. Switch shot':'. Load Shot 2 in Tools to switch'));};
   if(shot2Source)new MutationObserver(syncAim).observe(shot2Source,{childList:true,characterData:true,subtree:true});
   for(const id of ['aimControls','aimControls2']){const el=document.getElementById(id);if(el)new MutationObserver(syncAim).observe(el,{attributes:true,attributeFilter:['class']});}
   const phone = matchMedia('(max-width:600px), (max-width:1000px) and (max-height:500px) and (pointer:coarse)');
-  const focused=()=>phone.matches||document.body.classList.contains('table-3d');
+  const focused=()=>workspace||phone.matches||document.body.classList.contains('table-3d');
   let fallback = false;
   const fullscreenElement = () => document.fullscreenElement || document.webkitFullscreenElement;
   function refreshSize() {
@@ -289,6 +291,7 @@
     refreshSize();
     syncGuideSpace();
     flightCanvas.style.display='none';
+    window.billiardsWorkspaceDock?.();
     window.dispatchEvent(new Event('resize'));
   }
   function syncFullscreen() {

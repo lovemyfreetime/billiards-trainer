@@ -2379,11 +2379,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         return e;
     }
     function returnPocketBall(id,q=null){
-        if(id<((document.body.classList.contains('zen-mode')||globalThis.Billiards3D?.active)?0:1)||id>15||S.balls.some(b=>b.id===id))return;
+        if(id<((document.body.classList.contains('zen-mode')||document.body.classList.contains('trainer-workspace')||globalThis.Billiards3D?.active)?0:1)||id>15||S.balls.some(b=>b.id===id))return;
         if(!q){for(let y=1;y<10&&!q;y++)for(let x=1;x<18;x++){const p={x:S.tableL*x/18,y:S.tableW*y/10};if(S.balls.every(b=>b.marker||Math.hypot(b.x-p.x,b.y-p.y)>S.ballR*2.2)){q=p;break;}}}
         if(q&&onPlayingSurface(q))q=keepCueOnTable(q);
         if(!q||!onPlayingSurface(q)||S.balls.some(b=>!b.marker&&Math.hypot(b.x-q.x,b.y-q.y)<S.ballR*2)){toast('Drop on clear table cloth to return the ball');return;}
-        if(globalThis.Billiards3D?.active)beginActionUndo();
+        if(globalThis.Billiards3D?.active||document.body.classList.contains('trainer-workspace'))beginActionUndo();
         S.balls.push({id,n:String(id),x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR),active:true});S.pocketedLog=(S.pocketedLog||[]).filter(n=>n!==id);
         normalizeBallSet();updateUI();refreshPreview();saveState();syncProjector();toast(id===0?'Cue ball returned to play':'Ball '+id+' returned to play');
     }
@@ -2882,7 +2882,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             let q=null;
             if(Number.isFinite(clientX)&&Number.isFinite(clientY)){
                 const rect=canvas.getBoundingClientRect();
-                q=controlMap().inv({x:(clientX-rect.left)*(canvas.width/DPR)/rect.width,y:(clientY-rect.top)*(canvas.height/DPR)/rect.height});
+                const point={x:(clientX-rect.left)*(canvas.width/DPR)/rect.width,y:(clientY-rect.top)*(canvas.height/DPR)/rect.height};
+                q=controlMap().inv(window.BilliardsTableZoom?.unmapPoint?.(point)||point);
                 if(!onPlayingSurface(q))return false;
             }
             returnPocketBall(id,q);return S.balls.some(b=>b.id===id&&b.active);
@@ -8853,6 +8854,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         updateRunCount();
         updateAngleLockButton();
         updatePocketTray();
+        window.billiardsWorkspaceSync?.();
         updateScoreBoard();
         syncCompassControls();
         syncBankKickControls();
@@ -13991,9 +13993,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     </div>
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=resources-toggle-v8">
-  <script src="./phone-play.js?v=share-analysis-1"></script>
+  <script src="./phone-play.js?v=workspace-1"></script>
   <link rel="stylesheet" href="./trainer-3d.css?v=compact-landscape-1">
-  <script src="./trainer-3d.js?v=20"></script>
+  <script src="./trainer-3d.js?v=workspace-1"></script>
+  <link rel="stylesheet" href="./trainer-workspace.css?v=1">
+  <script src="./trainer-workspace.js?v=1"></script>
   <script src="./trainer-spin-lab.js?v=1"></script>
   <script src="./trainer-annotate.js?v=17"></script>
   <script src="./trainer-shot-recorder.js?v=slow-motion-1"></script>
