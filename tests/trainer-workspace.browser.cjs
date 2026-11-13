@@ -22,6 +22,10 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
     for(const [group,ids]of Object.entries({setup:['analyzePhotoBtn','cameraCaptureBtn','quickLayoutRecall'],plan:['kickToolToggle','bankToolToggle','teachingCompassToggle'],view:['tableZoom','btg-fullscreen','table3DToggle']})){
      await page.locator('#workspace-'+group+' summary').click();for(const id of ids)assert(await page.locator('#'+id).isVisible(),id+' is discoverable in '+group);await screenshot(group);await page.keyboard.press('Escape');
     }
+    await page.locator('#workspace-plan summary').click();await page.locator('#teachingCompassToggle').click();await page.locator('#workspace-plan summary').click();
+    assert.equal(await page.locator('#teachingCompassToggle').getAttribute('aria-pressed'),'true');
+    for(const [label,id]of [['.compassSideLabel','compassSize'],['.compassTopLabel','compassRotate']])assert(!overlaps(await page.locator(label).boundingBox(),await page.locator('#'+id).boundingBox()),'Compass label clears its slider');
+    await screenshot('compass');await page.locator('#teachingCompassToggle').click();
     await page.locator('#phoneControls').click();await page.locator('#toggleShot2').click();await page.locator('#phoneControls').click();
     if((await shot()).activeShot!==2)await page.locator('#phoneAimChoice').click();
     await page.locator('#tableSpeed2').evaluate(e=>{e.value='3.1';e.dispatchEvent(new Event('input',{bubbles:true}));});
