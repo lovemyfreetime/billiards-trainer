@@ -1,7 +1,7 @@
 name: Verify training balls and slow motion
 on:
   push:
-    branches: [test/training-balls-20261113, test/playback-performance-20261113]
+    branches: [test/training-balls-20261113, test/playback-performance-20261113, test/features-options-20261113]
   workflow_dispatch:
 permissions:
   contents: read
@@ -33,6 +33,7 @@ jobs:
           SPIN_LAB_UI_ONLY: ${{ contains(github.event.head_commit.message, '[ui-only]') && '1' || '' }}
         run: |
           export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")
+          node tests/features-options.browser.cjs
           node tests/trainer-spin-lab.browser.cjs
           if [ -z "$SPIN_LAB_UI_ONLY" ]; then
             node tests/trainer-shot-recorder.browser.cjs

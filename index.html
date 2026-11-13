@@ -1925,11 +1925,25 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     <div class="section">
       <button class="sectionToggle" type="button"><span>FEATURES &amp; OPTIONS</span></button>
       <div class="sectionBody">
-        <div class="check"><input id="showAngleLockControl" type="checkbox"><label for="showAngleLockControl">Cue-ball target lock control (Free / Sticky)</label></div>
-        <div class="check"><input id="showImpact" type="checkbox" checked><label for="showImpact">Impact cue ball + physical overlap band</label></div>
-        <div class="check"><input id="showTipBadge" type="checkbox"><label for="showTipBadge">Cue-tip contact badge near cue ball</label></div>
-        <div class="check"><input id="showPaths" type="checkbox" checked><label for="showPaths">Trajectory preview</label></div>
-        <div class="check"><input id="shot2CueBallOnly" type="checkbox"><label for="shot2CueBallOnly">Shot 2 cue ball only</label></div>
+        <fieldset id="featureTableOptions" class="featureOptionsGroup">
+          <legend>Table</legend>
+          <div class="check"><input id="showGrid" type="checkbox" checked><label for="showGrid">Diamond-connected table grid</label></div>
+          <div class="check"><input id="showDiamonds" type="checkbox" checked><label for="showDiamonds">Rail diamonds</label></div>
+          <div class="check"><input id="showTable" type="checkbox" checked><label for="showTable">Show table / balls</label></div>
+          <div class="check"><input id="showBankKickNumbers" type="checkbox"><label for="showBankKickNumbers">Show bank / kick rail numbers</label></div>
+        </fieldset>
+        <fieldset id="featureCueOptions" class="featureOptionsGroup">
+          <legend>Cue</legend>
+          <div class="check"><input id="showAngleLockControl" type="checkbox"><label for="showAngleLockControl">Cue-ball target lock control (Free / Sticky)</label></div>
+          <div class="check"><input id="showImpact" type="checkbox" checked><label for="showImpact">Impact cue ball + physical overlap band</label></div>
+          <div class="check"><input id="showTipBadge" type="checkbox"><label for="showTipBadge">Cue-tip contact badge near cue ball</label></div>
+          <div class="check"><input id="showCueStick" type="checkbox" checked><label for="showCueStick">Cue stick and aim marker</label></div>
+          <div class="check"><input id="showShotLine" type="checkbox" checked><label for="showShotLine">Cue-ball shot line</label></div>
+          <div class="check"><input id="shot2CueBallOnly" type="checkbox"><label for="shot2CueBallOnly">Shot 2 cue ball only</label></div>
+        </fieldset>
+        <fieldset id="featureAimingOptions" class="featureOptionsGroup">
+          <legend>Aiming</legend>
+          <div class="check"><input id="showPaths" type="checkbox" checked><label for="showPaths">Trajectory preview</label></div>
         <fieldset style="margin:8px 0;padding:4px 8px;border:1px solid #64748b66;border-radius:6px">
           <legend>Aim-to-Position Zones</legend>
           <div class="check"><input id="aimZoneRail" type="checkbox"><label for="aimZoneRail">Rail Contact Range</label></div>
@@ -1937,12 +1951,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
           <div class="check"><input id="aimZonePath" type="checkbox"><label for="aimZonePath">Cue-Ball Path Comparison</label></div>
           <div class="check"><input id="aimZoneSafety" type="checkbox"><label for="aimZoneSafety">Defensive Safety Mode</label></div>
         </fieldset>
-        <div class="check"><input id="showGrid" type="checkbox" checked><label for="showGrid">Diamond-connected table grid</label></div>
-        <div class="check"><input id="showDiamonds" type="checkbox" checked><label for="showDiamonds">Rail diamonds</label></div>
-        <div class="check"><input id="showTable" type="checkbox" checked><label for="showTable">Show table / balls</label></div>
-        <div class="check"><input id="showPracticeCounter" type="checkbox"><label for="showPracticeCounter">Drill and exercise counter</label></div>
-        <div class="check"><input id="showScoreBoard" type="checkbox"><label for="showScoreBoard">Show Player 1 / Player 2 controls</label></div>
-        <div class="check"><input id="showBankKickNumbers" type="checkbox"><label for="showBankKickNumbers">Show bank / kick rail numbers</label></div>
+        </fieldset>
+        <fieldset id="featureOtherOptions" class="featureOptionsGroup">
+          <legend>Other</legend>
+          <div class="check"><input id="showPracticeCounter" type="checkbox"><label for="showPracticeCounter">Drill and exercise counter</label></div>
+          <div class="check"><input id="showScoreBoard" type="checkbox"><label for="showScoreBoard">Show Player 1 / Player 2 controls</label></div>
+        </fieldset>
         <button id="trainerAppInfo" type="button" hidden>App info</button>
       </div>
     </div>
@@ -2211,7 +2225,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             },
             muSlide: APK.muSliding, muRoll: APK.muRolling, muBall: APK.muBallBall, ballRest: .96,
             railRest: .90, railTang: .90, cueEndmassRatio: PHYSICS_MODEL.defaultCueEndmassRatio, cuePreset: 'low',
-            jumpUnits: 'in', airbornePhysics: false, tableRest: PHYSICS_MODEL.defaultTableVerticalRestitution, bedImpactMu: PHYSICS_MODEL.defaultBedImpactFriction, showImpact: true, showTipBadge: false, showPaths: true, showGrid: true, showDiamonds: true, showTable: true,
+            jumpUnits: 'in', airbornePhysics: false, tableRest: PHYSICS_MODEL.defaultTableVerticalRestitution, bedImpactMu: PHYSICS_MODEL.defaultBedImpactFriction, showImpact: true, showTipBadge: false, showShotLine: true, showCueStick: true, showPaths: true, showGrid: true, showDiamonds: true, showTable: true,
             showShotBudget: false, preview: null, firstEvent: '—'
         };
     }
@@ -7196,12 +7210,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if (!cb)
             return;
         const d = aimDirection(), end = extendedAimEnd(cb, d);
-        pathPoly([cb, end], map, '#6fff58', 1.55, window.Billiards3D?.active ? .782 : .92, []);
+        if (S.showShotLine !== false) pathPoly([cb, end], map, '#6fff58', 1.55, window.Billiards3D?.active ? .782 : .92, []);
         const sd = strikeDirection();
         const actualEnd = { x: cb.x + sd.x * S.ballR * 5.2, y: cb.y + sd.y * S.ballR * 5.2 };
-        if (Math.abs(S.sideSpin) > .01)
+        if (S.showShotLine !== false && Math.abs(S.sideSpin) > .01)
             pathPoly([cb, actualEnd], map, '#ffffff', 1.35, window.Billiards3D?.active ? .612 : .72, [4, 4]);
-        if (!cueVisualsVisible(1))
+        if (!cueVisualsVisible(1) || S.showCueStick === false)
             return;
         const tip = { x: cb.x - d.x * S.ballR * 1.08, y: cb.y - d.y * S.ballR * 1.08 };
         const butt = { x: cb.x - d.x * Math.min(.48, S.tableL * .24), y: cb.y - d.y * Math.min(.48, S.tableL * .24) };
@@ -7636,16 +7650,16 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         // still needs it below to draw the cue itself.
         const d = shotAimDirection(2);
         const lockedGuide = s.angleLock ? shot2LockedGhostPoint() : null;
-        if (lockedGuide) {
+        if (S.showShotLine !== false && lockedGuide) {
             // Fixed geometric CB2 -> ghost-center guide.
             pathPoly([cb, { x: lockedGuide.x, y: lockedGuide.y }], map, '#00e5ff', 1.8, window.Billiards3D?.active ? .816 : .96);
         }
-        else {
+        else if (S.showShotLine !== false) {
             const end = extendedAimEnd(cb, d);
             pathPoly([cb, end], map, '#00e5ff', 1.45, window.Billiards3D?.active ? .7225 : .85, [6, 4]);
         }
         const sd = shot2StrikeDirection(), actualEnd = { x: cb.x + sd.x * S.ballR * 5.2, y: cb.y + sd.y * S.ballR * 5.2 };
-        if (Math.abs(s.sideSpin) > .01)
+        if (S.showShotLine !== false && Math.abs(s.sideSpin) > .01)
             pathPoly([cb, actualEnd], map, '#b6f7ff', 1.25, window.Billiards3D?.active ? .612 : .72, [3, 4]);
         // When Shot 2 is locked, draw the teaching ghost/tangent from the
         // exact fixed ghost-ball pivot.  Physics paths can still show squirt,
@@ -7681,6 +7695,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         else {
             drawContactOverlay(s.preview, map, { which:2, tangentColor: '#6fff58', ghostFill: '#00e5ff22', ghostStroke: '#9df7ff', contactColor: '#00e5ff', bandColor: '#ffd86b', labelColor: '#9df7ff' });
         }
+        if (S.showCueStick === false) return;
         const tip = { x: cb.x - d.x * S.ballR * 1.08, y: cb.y - d.y * S.ballR * 1.08 };
         const butt = { x: cb.x - d.x * Math.min(.48, S.tableL * .24), y: cb.y - d.y * Math.min(.48, S.tableL * .24) };
         pathPoly([butt, tip], map, '#267d91', 5, .9);
@@ -8219,7 +8234,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const live=(animation?.current||S.balls).map(b=>({...S.balls.find(x=>x.id===b.id),...b})).filter(b=>b.id!==0||cueVisualsVisible(1));
             if((!clean||(recordingGuides&&S.shot2CueBallOnly))&&S.shot2Enabled&&cueVisualsVisible(2))live.push({id:'CB2',x:S.shot2.x,y:S.shot2.y,orientation:S.shot2.orientation,active:true});
             const second=S.activeShot===2&&S.shot2Enabled,cb=second?S.shot2:cueBall();
-            window.Billiards3D.update({trainingBallStyle:S.trainingBallStyle,L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:clean?[]:(animation?.cueTips||cueTipsFor3D()).filter(tip=>tip.id!=='CB2'||!S.shot2CueBallOnly),balls:live,map,aim:!clean&&cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
+            window.Billiards3D.update({trainingBallStyle:S.trainingBallStyle,L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:(clean||S.showCueStick===false)?[]:(animation?.cueTips||cueTipsFor3D()).filter(tip=>tip.id!=='CB2'||!S.shot2CueBallOnly),balls:live,map,aim:!clean&&cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
         }
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }
@@ -8769,6 +8784,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         $('tableRest').value = (+S.tableRest).toFixed(2);
         $('bedImpactMu').value = (+S.bedImpactMu).toFixed(2);
         syncCueElevationLimits();
+        $('showShotLine').checked = S.showShotLine !== false;
+        $('showCueStick').checked = S.showCueStick !== false;
         $('showImpact').checked = S.showImpact;
         $('showTipBadge').checked = S.showTipBadge;
         $('showPaths').checked = S.showPaths;
@@ -8895,6 +8912,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const s2 = ensureShot2();
             s2.cueElevationDeg = Math.min(s2.cueElevationDeg, cueElevationMax());
         }
+        S.showShotLine = $('showShotLine').checked;
+        S.showCueStick = $('showCueStick').checked;
         S.showImpact = $('showImpact').checked;
         S.showTipBadge = $('showTipBadge').checked;
         S.showPaths = $('showPaths').checked;
@@ -9005,7 +9024,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if (tangent&&onSegment(tangent[0],tangent[1])) return 'tangent-line-quick';
         }
         const cb=cueBall();
-        if (cb&&cueVisualsVisible(1)&&onSegment(cb,extendedAimEnd(cb,aimDirection()))) return 'aiming-line-quick';
+        if (S.showShotLine!==false&&cb&&cueVisualsVisible(1)&&onSegment(cb,extendedAimEnd(cb,aimDirection()))) return 'aiming-line-quick';
         if (S.showPaths) for (const preview of previews) for (const [id,points] of Object.entries(preview?.paths||{})) {
             if (Number(id)===0&&!cueVisualsVisible(1)&&preview===S.preview) continue;
             for (let i=1;i<points.length;i++) if (onSegment(points[i-1],points[i])) return 'trajectory-lines-quick';
@@ -13443,7 +13462,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             refreshPreview();
         });
         setupPhysicsPresets();
-        const changeIds = ['tableL', 'tableW', 'ballD', 'muSlide', 'muRoll', 'muBall', 'ballRest', 'railRest', 'railTang', 'cueEndmassRatio', 'airbornePhysics', 'jumpUnits', 'tableRest', 'bedImpactMu', 'showImpact', 'showTipBadge', 'showPaths', 'showGrid', 'showDiamonds', 'showTable', 'showAngleLockControl'];
+        const changeIds = ['tableL', 'tableW', 'ballD', 'muSlide', 'muRoll', 'muBall', 'ballRest', 'railRest', 'railTang', 'cueEndmassRatio', 'airbornePhysics', 'jumpUnits', 'tableRest', 'bedImpactMu', 'showImpact', 'showTipBadge', 'showShotLine', 'showCueStick', 'showPaths', 'showGrid', 'showDiamonds', 'showTable', 'showAngleLockControl'];
         $('cueShaftPreset').addEventListener('change',()=>{S.cuePreset=$('cueShaftPreset').value;if(CUE_SHAFT_PRESETS[S.cuePreset])S.cueEndmassRatio=CUE_SHAFT_PRESETS[S.cuePreset];updateUI();refreshPreview();saveState();});
         $('cueEndmassRatio').addEventListener('change',()=>{S.cuePreset='custom';});
         changeIds.forEach(id => $(id).addEventListener('change', applyUI));

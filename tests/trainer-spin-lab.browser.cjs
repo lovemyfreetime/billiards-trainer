@@ -9,13 +9,12 @@ const out=path.resolve('test-results/spin-lab');fs.mkdirSync(out,{recursive:true
   p.setDefaultTimeout(30000);p.on('pageerror',e=>errors.push(e.message));
   await p.goto('http://127.0.0.1:8838/?train=1');await p.waitForFunction(()=>window.billiardsTrainingBall&&window.BilliardsSpinLabUI);
   await p.evaluate(()=>billiardsTourBridge.apply({id:'training-ball-test',balls:[[0,.25,.5],[1,.6,.5]],target:1,pocket:[1,1],speed:.5},{tableL:2.54,tableW:1.27}));
-  await p.getByRole('button',{name:/TABLE \/ BALLS/}).click();
+  await p.getByRole('button',{name:/FEATURES & OPTIONS/}).click();
   const state=()=>p.evaluate(()=>billiardsTourBridge.capture().state);
   const baseline=await p.evaluate(()=>billiardsTourBridge.predict());
   for(const style of ['spots','split','stripe']){
    await p.locator('#trainingBallStyle').selectOption(style);
    assert.equal((await state()).trainingBallStyle,style);
-   await p.locator('[data-ball-preset="diagonal"]').click();
    assert.deepEqual(await p.evaluate(()=>billiardsTourBridge.predict()),baseline);
   }
   const q0=(await state()).balls.find(b=>b.id===0).orientation;
@@ -25,6 +24,7 @@ const out=path.resolve('test-results/spin-lab');fs.mkdirSync(out,{recursive:true
   const dragged=(await state()).balls.find(b=>b.id===0).orientation;assert.notDeepEqual(dragged,q0);
   await p.locator('#undoAction').click();assert.deepEqual((await state()).balls.find(b=>b.id===0).orientation,q0,'One undo reverses the entire drag');
   await p.locator('#redoAction').click();assert.deepEqual((await state()).balls.find(b=>b.id===0).orientation,dragged);
+  await p.getByRole('button',{name:/TABLE \/ BALLS/}).click();
   await p.locator('#trainerPlaybackSpeed').selectOption('0.125');
   await p.locator('#trainingBallPreview').scrollIntoViewIfNeeded();await p.screenshot({path:path.join(out,'training-ball-options.png')});console.log('Training options and drag undo/redo passed');
   await p.reload();await p.waitForFunction(()=>window.billiardsTrainingBall);
