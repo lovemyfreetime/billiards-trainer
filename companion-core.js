@@ -1,7 +1,7 @@
 /* Isolated companion state. No writes to scoring, physics or Trainer settings. */
 (function(root){
  'use strict';
- const KEY='billiards.playTogether.v1',VERSION='0.4.3';
+ const KEY='billiards.playTogether.v1',VERSION='0.4.4';
  const F=typeof module!=='undefined'&&module.exports?require('./companion-features.js'):root.CompanionFeatures;
  const activities=[
   {id:'position',title:'Give yourself more room',tag:'POSITION & CHOICE',question:'Which route leaves more usable next shots?',description:'Compare a precise route with one that leaves a bigger landing area.',tools:'Shot 2 · Aiming Zones · 2D / 3D',criterion:'Pocket the ball and leave a usable next shot.',steps:[['Predict first','Set up a familiar position shot. Each point to an acceptable landing area before discussing routes.'],['Compare two routes','Open Trainer if helpful. Use Shot 2 and the position ranges to compare the routes. Change one thing at a time.'],['Try it on your table','Take five attempts each. Use a target that suits each player. Count the whole result: made ball and usable next shot.'],['Use it in a rack','Play a short rack without advice during turns. Look for a chance to choose the bigger usable area.']]},
@@ -9,57 +9,314 @@
   {id:'reset',title:'Find your game again',tag:'COMPOSURE & CHANCE',question:'What helps you make the next useful choice?',description:'Practice recovering from an awkward leave or an unfavorable roll.',tools:'Saved layouts · Safety zones · Shot clock (optional)',criterion:'Use the chosen reset, then make a deliberate shot choice.',steps:[['Notice what changes','Recall an awkward leave or bad roll. Describe the next action: rushing, forcing a shot, or abandoning the routine.'],['Choose one reset','Each picks a short reset: step back, breathe, survey the table, then choose. Set up an awkward continuation together.'],['Try the next decision','Alternate attempts at that continuation. Count using the reset and choosing deliberately; pocketing is a separate observation.'],['Return to ordinary play','Play a short rack. After a difficult outcome, use the reset without a reminder. Review the choice using what was knowable before the shot.']]}
  ];
  const features=[
-  ['Start & relationship',[
-   ['Solo, companions, coaches & groups','ready','1–24 people, solo practice, coaching, one group, two groups or partner sets. Add people to an existing session while keeping earlier contributions.'],
-   ['A short practice agreement','ready','Ask before coaching, describe what happened, and test suggestions together.'],
-   ['Observe before choosing a goal','ready','Each person contributes a concrete starting observation.'],
-   ['Individual gains in a shared session','ready','Each player can take something different from the activity.'],
-   ['Partner preferences over time','ready','Remember feedback timing, preferred approach, goals and playing context for each person.'],
-   ['Invitation circles & discovery','ready','Exchange private invitation cards for friends, teams and clubs. Review, accept and return an acceptance file. Public discovery requires a connected service.'],
-   ['Practical matching','ready','Explain shared times, venues, interests and feedback preferences among accepted private invitations.'],
-   ['Multiple-device session copies','ready','Send a session file, contribute on another device, then import notes and results with conflict checks. Copies carry core written notes and results. Private tools and media travel only in a full backup; live synchronization needs a connected service.'],
-   ['Community controls','ready','Decline, disconnect and block invitations locally; save and export private reports for an organizer. Central moderation requires a connected service.']]],
-  ['Practice & learning',[
-   ['Three complete starter activities','ready','Position margin, testing advice, and recovery after an unfavorable outcome.'],
-   ['Alternating attempts & undo','ready','Shared success criterion, five attempts per player in each practice group and a correctable attempt record.'],
-   ['Relaxed, focused or match preparation','ready','Choose the session intent without a long questionnaire.'],
-   ['Individual difficulty & targets','ready','Choose each person’s criterion, support level and learning approach. Results retain the target used for that attempt.'],
-   ['Trainer setup and return','ready','Open the selected drill or attached layout, explicitly load it in Trainer, then keep the changed layout and return to the same session. Restore the prior Trainer table afterward.'],
-   ['Learning through teaching','ready','Predictions, demonstrations, explaining back and testing a variation.'],
-   ['Recall & transfer checks','ready','Save your recall and a different setup before revealing a previous discovery.'],
-   ['Structured routines & drill library','ready','Twelve authored drills across cue control, aim, speed, spin, banks, kicks, position, safety, patterns and runouts; three saved routines across sessions.'],
-   ['Different ways to understand','ready','Choose seeing, hearing, trying or explaining for each person and for guide excerpts.']]],
-  ['Psychology & enjoyment',[
-   ['Observation before explanation','ready','Record what happened before deciding why; any companion can revise an idea.'],
-   ['Pleasure & willingness to return','ready','Each reports whether the session was worth doing; keep this separate from results.'],
-   ['Competition and coaching boundaries','ready','Agree when advice is welcome; return to independent play at the end of an activity.'],
-   ['Pressure practice','ready','Everyone agrees to a clock, score deficit or confident-opponent scenario. Pressure off is always available; backgrounding turns pressure off.'],
-   ['Recognize influence & recover','ready','Authored reset prompts, agreed pressure scenarios and saved reflections about distraction, rushing and opponent demeanor.'],
-   ['Luck & decision quality','ready','Explore broader acceptable outcomes and a useful response to bad rolls; do not grade a decision from one outcome.'],
-   ['Bias-aware suggestions','ready','Concrete prompts for prediction, overconfidence, deference, advice boundaries and uneven motivation.'],
-   ['Social play & sustainable motivation','ready','Just-play mode removes structured results and pressure while preserving session discoveries.']]],
-  ['Voice & assistance',[
-   ['Local voice notes','ready','Record and replay short audio notes where microphone access is supported. Reviewed local transcription is available in Guide & voice on compatible devices.'],
-   ['Spoken prompts','ready','Chase recordings for fixed guidance at 1.2×, with pause, resume and stop; personal text uses the selected device voice.'],
-   ['Keyboard microphone input','ready','Use the device keyboard microphone in any note field when the keyboard provides it.'],
-   ['External TTS capture connection','device','Import spoken audio or capture a chosen tab’s shared audio where supported. Play or locally transcribe it for review.'],
-   ['Local transcription & interpretation','device','Capability-checked on-device English speech and optional local language-pack installation; review notes and interpret a bounded set of session commands. Requires compatible browser or Android support.'],
-   ['Local billiards knowledge & companion guide','ready','Versioned authored excerpts, read-aloud, learning modes and bounded session actions; works without a remote model.'],
-   ['Conversation turn-taking','ready','Select the speaker, review and correct each contribution, keep discoveries and edit a turn without duplicate saves.'],
-   ['Hands-free session controls','device','Opt in to local voice commands for starting the selected session, continuing, results, undo, pause and pressure off. Availability depends on local speech support.']]],
-  ['Continuity & app foundation',[
-   ['Save & resume','ready','Keep multiple sessions, switch between companions or solo practice, and continue completed sessions. Names, notes, results and audio stay with each session.'],
-   ['Shared discovery history','ready','Review each takeaway and the next-session choice.'],
-   ['Companion backup & restore','ready','Automatic local recovery copies, plus full export and restore of sessions, audio, attachments, preferences and plans.'],
-   ['Existing app updates','ready','Use the Trainer update system; activate a completed update by restarting.'],
-   ['Separate companion workspace','ready','Own page, files and data; a single entry from Play.'],
-   ['Windows, Android and browser layout','ready','Responsive touch-first interface; physical-device acceptance still required.'],
-   ['Layouts, snapshots and teaching clips','ready','Attach validated Trainer layouts, images, audio and short video to a session’s discoveries; full backups include attachment bytes.'],
-   ['Optional reminders & meeting plans','ready','Save an agreed time and venue; export a calendar invitation with an optional 30-minute reminder.'],
-   ['Public discovery & live synchronization','service','Needs a connected directory and synchronization service; private invitation files are available now.'],
-   ['Centralized moderation','service','Needs a connected reporting service and organizer workflow; local blocking and report export are available now.'],
-   ['Field-trial feedback','ready','Per-person ease, enjoyment, retained learning and willingness to return; local history summary and export.']]]
- ];
+  [
+    "Make it your time",
+    [
+      [
+        "Your kind of session",
+        "ready",
+        "Bring a friend, a coach or the whole team—or enjoy some practice on your own. Make room for up to 24 people.",
+        "new"
+      ],
+      [
+        "Start on the same page",
+        "ready",
+        "Agree how to help each other, when advice is welcome and what makes practice feel good.",
+        "session/meet"
+      ],
+      [
+        "Find your starting point",
+        "ready",
+        "Notice what already feels good and what you want to explore. One honest observation is a great start.",
+        "session/notice"
+      ],
+      [
+        "Something useful for everyone",
+        "ready",
+        "Choose a shared activity while keeping your own reason to practice. Different goals are welcome.",
+        "session/choose"
+      ],
+      [
+        "Remember what works for you",
+        "ready",
+        "Keep your goals and preferred way to receive advice, ready for the next time you play.",
+        "companions/preferences"
+      ],
+      [
+        "Invite your people",
+        "ready",
+        "Share a private invitation with friends, teammates or your club, then exchange a reply.",
+        "companions/invitations"
+      ],
+      [
+        "Find a good practice fit",
+        "ready",
+        "See the times, places and interests you share with people whose invitations you have accepted.",
+        "companions/matches"
+      ],
+      [
+        "Bring your own device",
+        "ready",
+        "Share a session file, add your notes and results, then bring everyone’s contributions together.",
+        "devices"
+      ],
+      [
+        "Choose your company",
+        "ready",
+        "Manage invitations, disconnect or block a contact, and keep a private note for your organizer if needed.",
+        "companions/matches"
+      ]
+    ],
+    "A good session starts with people who feel comfortable learning together."
+  ],
+  [
+    "Build your game",
+    [
+      [
+        "Try a fresh idea",
+        "ready",
+        "Explore better position, test a piece of advice or find your game again after an awkward roll.",
+        "session/choose"
+      ],
+      [
+        "Take turns and see what changes",
+        "ready",
+        "Try five attempts each, notice the result and undo a score whenever you need to correct it.",
+        "session/attempts"
+      ],
+      [
+        "Set the mood",
+        "ready",
+        "Keep it relaxed, focus on one skill or get ready for a match. Choose the pace that suits today.",
+        "new"
+      ],
+      [
+        "Make the challenge yours",
+        "ready",
+        "Give each player a useful target and just enough help to make progress together.",
+        "workshop/targets"
+      ],
+      [
+        "See it in Trainer",
+        "ready",
+        "Explore your setup in Trainer, compare paths and bring the layout back to your session.",
+        "workshop/trainer"
+      ],
+      [
+        "Learn by sharing what you know",
+        "ready",
+        "Show an idea, explain it in your own words and try a variation. Teaching can sharpen your game too.",
+        "session/teaching"
+      ],
+      [
+        "See what stayed with you",
+        "ready",
+        "Recall a discovery before looking it up, then try it in a different setup.",
+        "workshop/recall"
+      ],
+      [
+        "Find a drill or build a routine",
+        "ready",
+        "Explore cue control, aim, speed, spin, banks, kicks, position and more. Pick up your routine next time.",
+        "library"
+      ],
+      [
+        "Explore it your way",
+        "ready",
+        "Watch, listen, try it or talk it through. Find the approach that helps the idea click.",
+        "guide/knowledge"
+      ]
+    ],
+    "Small experiments can lead to a better feel for the whole table."
+  ],
+  [
+    "Find your rhythm",
+    [
+      [
+        "Stay curious together",
+        "ready",
+        "Share what you noticed before deciding why it happened. Leave room for a new explanation.",
+        "session/notice"
+      ],
+      [
+        "Keep the good feeling",
+        "ready",
+        "Notice what made the session worth doing, as well as what improved. Let that shape your next visit.",
+        "session/keep"
+      ],
+      [
+        "Make advice feel welcome",
+        "ready",
+        "Agree when to help and when to let each other play. A little space can build confidence.",
+        "session/meet"
+      ],
+      [
+        "Get comfortable with pressure",
+        "ready",
+        "Try an agreed shot clock, a score deficit or a confident opponent. You can switch pressure off at any time.",
+        "workshop/pressure"
+      ],
+      [
+        "Find your calm again",
+        "ready",
+        "Explore what helps when distraction, rushing or an opponent’s confidence pulls you away from your game.",
+        "workshop/pressure"
+      ],
+      [
+        "Make room for the unexpected",
+        "ready",
+        "Look beyond one lucky or unlucky roll. Compare your choices and find more ways a shot can work out.",
+        "session/choose"
+      ],
+      [
+        "Keep an open mind",
+        "ready",
+        "Make a prediction, compare ideas and give everyone a voice. You may both discover something new.",
+        "workshop/social"
+      ],
+      [
+        "Just enjoy a game",
+        "ready",
+        "Set the structure aside for a while. Keep your discoveries and enjoy being at the table together.",
+        "workshop/social"
+      ]
+    ],
+    "Enjoy the process, handle the pressure and give yourself room to grow."
+  ],
+  [
+    "Talk it through",
+    [
+      [
+        "Keep a voice note",
+        "ready",
+        "Capture what happened or what helped, in your own words. Replay it whenever you revisit the session.",
+        "session/voice"
+      ],
+      [
+        "Listen along",
+        "ready",
+        "Use Listen throughout Companion Play for spoken guidance, with pause, resume and stop beside it.",
+        "home"
+      ],
+      [
+        "Speak instead of typing",
+        "ready",
+        "Use your keyboard’s microphone in a note field, if your device offers it.",
+        "guide/conversation"
+      ],
+      [
+        "Bring in a spoken explanation",
+        "device",
+        "Load an audio file or share a browser tab’s audio, where supported, then review the words you want to keep.",
+        "guide/audio"
+      ],
+      [
+        "Turn words into useful notes",
+        "device",
+        "On supported devices, transcribe speech locally and check it before saving an observation or discovery.",
+        "guide/conversation"
+      ],
+      [
+        "Find an idea to try",
+        "ready",
+        "Explore short billiards explanations, listen to an idea and test it together at the table.",
+        "guide/knowledge"
+      ],
+      [
+        "Give every voice a place",
+        "ready",
+        "Choose whose contribution you are keeping. Correct the words and revisit each person’s ideas later.",
+        "guide/conversation"
+      ],
+      [
+        "Use your voice at the table",
+        "device",
+        "On supported devices, call a result, undo it or pause practice with a spoken Companion command.",
+        "guide/commands"
+      ]
+    ],
+    "Keep your attention on the table, with a little help from your voice."
+  ],
+  [
+    "Keep growing together",
+    [
+      [
+        "Pick up where you left off",
+        "ready",
+        "Return to your own practice or a session with friends. Your notes, results and recordings stay together.",
+        "sessions"
+      ],
+      [
+        "Revisit your discoveries",
+        "ready",
+        "Find the little ideas that made a difference, along with the people and moments that helped.",
+        "discoveries"
+      ],
+      [
+        "Keep a backup",
+        "ready",
+        "Restore a recent automatic copy, or export your sessions and recordings for safekeeping elsewhere.",
+        "settings/backup"
+      ],
+      [
+        "Keep your app up to date",
+        "ready",
+        "Check for an update and restart when it is ready. Your saved sessions stay with you.",
+        "settings/updates"
+      ],
+      [
+        "Your place to practice together",
+        "ready",
+        "Return to Together for a fresh start or continue the session already in progress.",
+        "home"
+      ],
+      [
+        "Practice on the device you have",
+        "ready",
+        "Use touch or a mouse to make Companion Play part of your time at the table.",
+        "devices"
+      ],
+      [
+        "Keep the shot, not just the memory",
+        "ready",
+        "Attach a Trainer setup, snapshot or short teaching clip so a useful discovery is easy to revisit.",
+        "workshop/media"
+      ],
+      [
+        "Make time to meet again",
+        "ready",
+        "Choose your next time and place, then add an invitation and optional reminder to your calendar.",
+        "plans"
+      ],
+      [
+        "Notice what is helping",
+        "ready",
+        "Look back on what felt easy, what you enjoyed and what stayed useful. Shape the next session around it.",
+        "workshop/reflection"
+      ],
+      [
+        "Public discovery & live synchronization",
+        "service",
+        "Requires a connected service.",
+        ""
+      ],
+      [
+        "Centralized moderation",
+        "service",
+        "Requires a connected service.",
+        ""
+      ]
+    ],
+    "Bring your discoveries, plans and favorite moments into the next session."
+  ]
+];
+ function toolRoute(path){
+  if(!features.some(g=>g[1].some(row=>['ready','device'].includes(row[1])&&row[3]===path)))return null;
+  const [view,section='']=path.split('/');
+  const stages={meet:[0],notice:[1],choose:[2],attempts:[3,2],teaching:[3,3],keep:[4]};
+  return {view,section,requiresSession:['session','workshop','guide','plans'].includes(view),stage:view==='session'?stages[section]?.[0]:undefined,practiceStep:view==='session'?stages[section]?.[1]:undefined};
+ }
+
  const uid=()=>globalThis.crypto?.randomUUID?.()||Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
  const fresh=()=>({schema:1,revision:0,people:[],pairs:[],sessions:[],activeId:null});
  const text=(x,n=2000)=>typeof x==='string'&&x.length<=n;
@@ -148,6 +405,6 @@
  }
  function duration(minutes){return minutes===0?'Lots of free time':minutes===60?'about 1 hour':'about '+minutes+' min';}
  function duration(minutes){return minutes===0?'Lots of free time':minutes===60?'about 1 hour':'about '+minutes+' min';}
- const api={KEY,VERSION,duration,duration,activities,features,fresh,validate,load,save,start,resume,addParticipant,names,roles,counts,units,seat,attempt,finish,uid,packet,receive};
+ const api={KEY,VERSION,duration,duration,activities,features,toolRoute,fresh,validate,load,save,start,resume,addParticipant,names,roles,counts,units,seat,attempt,finish,uid,packet,receive};
  if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CompanionCore=api;
 })(typeof window!=='undefined'?window:globalThis);
