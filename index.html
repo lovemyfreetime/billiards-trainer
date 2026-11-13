@@ -9852,7 +9852,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     function startShotPlayback(sim,preShot,options={}) {
         const recording=options.replay?null:window.BilliardsShotRecorder?.begin();
-        const duration=sim.frames.at(-1)[0].t;
+        const duration=sim.frames.at(-1)[0].t,recordSpeed=S.shotPlaybackSpeed;
         const running={current:sim.frames[0],cueTips:cueTipsFor3D(),time:0,duration,paused:!!options.paused,recording:!!recording,replay:!!options.replay,last:performance.now()};
         let recordFrame=1;
         animation=running;syncHistoryButtons();draw(!!recording,!!recording);
@@ -9867,7 +9867,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const elapsed=Math.max(0,(now-running.last)/1000);running.last=now;
             if(recording){
                 if(!recording.ready()){requestAnimationFrame(tick);return;}
-                running.time=Math.min(duration,recordFrame*S.shotPlaybackSpeed/30);
+                running.time=Math.min(duration,recordFrame*recordSpeed/30);
             }else if(!running.paused)running.time=Math.min(duration,running.time+elapsed*S.shotPlaybackSpeed);
             running.current=window.BilliardsTrainingBall.sample(sim.frames,running.time);
             draw(!!recording,!!recording);
@@ -9886,10 +9886,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         startShotPlayback(sim,preShot,{paused:options.paused===true});
     }
     window.billiardsPlayback={
-        state(){return {speed:S.shotPlaybackSpeed,running:!!animation,paused:!!animation?.paused,recording:!!animation?.recording,hasReplay:!!lastShotPlayback,time:animation?.time||0,duration:animation?.duration||0,motion:animation?window.BilliardsTrainingBall.motion(animation.current.find(b=>b.id===0),S.ballR):''};},
-        speed(value){if(animation?.recording||![1,.5,.25,.125].includes(Number(value)))return false;S.shotPlaybackSpeed=Number(value);saveState();window.BilliardsSpinLabUI?.sync();return true;},
-        pause(){if(animation?.recording)return false;if(!animation){if(lastShotPlayback)this.replay();else animateShot();return true;}animation.paused=!animation.paused;animation.last=performance.now();window.BilliardsSpinLabUI?.sync();return true;},
-        step(direction=1){if(animation?.recording)return false;if(!animation){if(lastShotPlayback)this.replay(true);else animateShot({paused:true});}if(!animation)return false;animation.paused=true;animation.sample(animation.time+direction*S.shotPlaybackSpeed/30);return true;},
+        state(){return {speed:S.shotPlaybackSpeed,running:!!animation,paused:!!animation?.paused,recording:!!animation?.recording||!!window.BilliardsShotRecorder?.busy,hasReplay:!!lastShotPlayback,time:animation?.time||0,duration:animation?.duration||0,motion:animation?window.BilliardsTrainingBall.motion(animation.current.find(b=>b.id===0),S.ballR):''};},
+        speed(value){if(window.BilliardsShotRecorder?.busy||animation?.recording||![1,.5,.25,.125].includes(Number(value)))return false;S.shotPlaybackSpeed=Number(value);saveState();window.BilliardsSpinLabUI?.sync();return true;},
+        pause(){if(window.BilliardsShotRecorder?.busy||animation?.recording)return false;if(!animation){if(lastShotPlayback)this.replay();else animateShot();return true;}animation.paused=!animation.paused;animation.last=performance.now();window.BilliardsSpinLabUI?.sync();return true;},
+        step(direction=1){if(window.BilliardsShotRecorder?.busy||animation?.recording)return false;if(!animation){if(lastShotPlayback)this.replay(true);else animateShot({paused:true});}if(!animation)return false;animation.paused=true;animation.sample(animation.time+direction*S.shotPlaybackSpeed/30);return true;},
         replay(paused=false){if(window.BilliardsShotRecorder?.busy)return false;if(animation){animation.paused=paused;animation.sample(0);animation.last=performance.now();return true;}if(!lastShotPlayback)return false;const restore=cleanSnapshot(),speed=S.shotPlaybackSpeed,style=S.trainingBallStyle;S={...JSON.parse(JSON.stringify(lastShotPlayback.preShot)),shotPlaybackSpeed:speed,trainingBallStyle:style};updateUI();startShotPlayback(lastShotPlayback.sim,lastShotPlayback.preShot,{replay:true,restore,paused});return true;}
     };
     window.billiardsTrainingBall={
