@@ -1,7 +1,7 @@
 /* Isolated companion state. No writes to scoring, physics or Trainer settings. */
 (function(root){
  'use strict';
- const KEY='billiards.playTogether.v1',VERSION='0.4.2';
+ const KEY='billiards.playTogether.v1',VERSION='0.4.3';
  const F=typeof module!=='undefined'&&module.exports?require('./companion-features.js'):root.CompanionFeatures;
  const activities=[
   {id:'position',title:'Give yourself more room',tag:'POSITION & CHOICE',question:'Which route leaves more usable next shots?',description:'Compare a precise route with one that leaves a bigger landing area.',tools:'Shot 2 · Aiming Zones · 2D / 3D',criterion:'Pocket the ball and leave a usable next shot.',steps:[['Predict first','Set up a familiar position shot. Each point to an acceptable landing area before discussing routes.'],['Compare two routes','Open Trainer if helpful. Use Shot 2 and the position ranges to compare the routes. Change one thing at a time.'],['Try it on your table','Take five attempts each. Use a target that suits each player. Count the whole result: made ball and usable next shot.'],['Use it in a rack','Play a short rack without advice during turns. Look for a chance to choose the bigger usable area.']]},

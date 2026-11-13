@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "60e3b8eede84ff4146a816ee72206b493c02c709a28dcbddd791a14c39c9f887",
-  "sequence": 1794523519,
+  "version": "c3e3415a58fb098b47aee4b58a132dfd6b02b3fb123e5f39cbd6d1d621174c00",
+  "sequence": 1794535607,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -73,7 +73,7 @@
       "length": 6658
     },
     "companion-core.js": {
-      "sha256": "ac529909d96b44110ce056b0583e9e70eb100bd326e68daf66377d412946042b",
+      "sha256": "dee9ab25bd56139985b4426cfea02739495adf30ad7fd37e288d12f94be8499c",
       "length": 23634
     },
     "companion-features.js": {
@@ -89,28 +89,28 @@
       "length": 34236
     },
     "companion-narration.js": {
-      "sha256": "b49b756ef7172ca88ce78d5a56bab76e4983b4564aa54b39071a7f7e26c27f7a",
-      "length": 8962
+      "sha256": "ce11ecee5805874fa577fae75dd341039949e23ecde76e074bbee74b92f61d06",
+      "length": 7850
     },
     "companion-trainer.js": {
       "sha256": "9d36bad4718ea80d16129e5ce90ad6a947a1a440499ee95d8fd5700ae0e0c3bc",
       "length": 4118
     },
     "companion-workspace.js": {
-      "sha256": "ab3f85fcc841fef14a0129ca6297f9e2af801b80ba846e746efa0cd46efcdb0d",
-      "length": 46225
+      "sha256": "fbf3b84a511469d66d5aaaee5d6ca7b136d6514de18e4ee41b9534fce63ca1ea",
+      "length": 44822
     },
     "companion.css": {
-      "sha256": "b3ee0ace9143dc8ab0a01edf21f1f0501342dc30e8548a9b9540356bba3d9bf9",
-      "length": 19035
+      "sha256": "94cced13746e16fd6fbabff501441d36fe08f4774392951066879b428ad889fc",
+      "length": 19296
     },
     "companion.html": {
-      "sha256": "fcd51ccab972ee32914514cfa14bf0c53a1d4ab9d9f8c3eb44a776f94ab6fc96",
+      "sha256": "c03b9cfff73efbfb3cc661582084c75d208febeae264f5f8899a5e951f3c3f86",
       "length": 2971
     },
     "companion.js": {
-      "sha256": "39259fe7fb0e71666604ad5068ab777aeca23f80b2b9c3fef5d94ac201b90248",
-      "length": 51101
+      "sha256": "ac7be50bd236b28a5c76f22440f1512496cec9c1444bb42a089e2b68400f9ae0",
+      "length": 50319
     },
     "companion.webmanifest": {
       "sha256": "26c8ad0a8a12c9fffa2ab9ce19fcdf8f418ff0f5672995e8a99cfbe06f9c1d39",
@@ -3861,7 +3861,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "3631ce7d24ba71247248adab36e89e1f2a81bc943e527bd0ab32257ed8640d5f",
+      "sha256": "ca99cdf34d9d5a9671f1562212bec2d739401dd68e52affa57993798aa240e5d",
       "length": 157715
     },
     "phone-play.css": {
@@ -5349,7 +5349,7 @@
       "length": 2103
     },
     "service-worker.js": {
-      "sha256": "73984a111bca4b4f00020dda38c22683694e1a6933e9b439b71ebbc5cec7504a",
+      "sha256": "7ab2f3fc74662a7006c843147eaa369fb97eddab9c1297853f6eb1d66fcf2c4a",
       "length": 7933
     },
     "table-orbit.js": {
