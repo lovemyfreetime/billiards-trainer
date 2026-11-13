@@ -187,7 +187,7 @@ body.trainer-workspace.table-3d.phone-focus #bankKickRoutePanel:not([hidden]) { 
  body.trainer-workspace.phone-focus #phoneSpeedRail input { width:40px; }
  body.trainer-workspace.phone-focus:not(.zen-mode) #phoneControls,
  body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=undoShot],
- body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=redoShot] { top:60px; }
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=redoShot] { top:calc(60px + env(safe-area-inset-top))!important; }
  #workspaceTools #phoneAimChoice { position:fixed; top:60px; left:10px; }
  #workspaceTools summary { padding:12px 8px; }
  body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions { right:calc(86px + env(safe-area-inset-right))!important; }

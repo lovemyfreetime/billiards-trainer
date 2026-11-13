@@ -42,6 +42,7 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
     await page.locator('#workspaceBalls [data-ball-id="3"]').click();assert((await shot()).balls.some(b=>b.id===3));assert(!(await shot()).pocketedLog.includes(3));assert(await page.locator('#workspaceBalls [data-ball-id="3"]').isDisabled());
     await page.locator('#phoneTrayToggle').click();assert(!(await page.locator('#workspaceBalls').isVisible()));await page.locator('#phoneTrayToggle').click();
     const geometry=async()=>{
+     const tools=await reachable('#phoneControls');for(const id of ['workspace-setup','workspace-plan','workspace-view'])assert(!overlaps(tools,await page.locator('#'+id+' summary').boundingBox()),'Tools clears '+id);
      const ids=['stageWrap','phoneAimRail','phoneSpeedRail',...(await page.locator('#workspaceBallShelf').isVisible()?['workspaceBallShelf']:[]),'bottomSpin1'];const boxes={};for(const id of ids)boxes[id]=await page.locator('#'+id).boundingBox();
      for(const id of ids.slice(1))assert(!overlaps(boxes.stageWrap,boxes[id]),'Table clears '+id+': '+JSON.stringify(boxes));
      if(boxes.workspaceBallShelf)assert(!overlaps(boxes.workspaceBallShelf,boxes.bottomSpin1),'Balls clear spin');
