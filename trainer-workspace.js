@@ -31,7 +31,7 @@
   };
   const rename = (id, text) => { const el = byId(id); if (el) { el.textContent = text; el.setAttribute('aria-label', text); } };
   rename('analyzePhotoBtn', 'Open image'); rename('cameraCaptureBtn', 'Take photo');
-  rename('quickLayoutRecall', 'Layouts'); rename('teachingCompassToggle', 'Compass');
+  rename('quickLayoutRecall', 'Layouts'); rename('table3DRackToggle', 'Rack'); rename('teachingCompassToggle', 'Compass');
   const camera = byId('cameraCaptureBtn');
   if (camera) { camera.tabIndex = 0; camera.setAttribute('role', 'button'); camera.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); camera.click(); } }); }
   const fit = document.createElement('button'); fit.type = 'button'; fit.textContent = 'Fit table'; fit.id = 'workspaceFit';

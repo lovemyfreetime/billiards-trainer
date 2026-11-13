@@ -14,6 +14,7 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
    const screenshot=tag=>page.screenshot({path:`${dir}/${viewport.width}-${tag}.png`});
    try{
     await page.goto('http://127.0.0.1:8820/?train=1');await page.waitForFunction(()=>window.billiardsTourBridge&&window.billiardsWorkspaceSync);
+    await page.locator('#workspace-setup summary').click();await page.locator('#table3DRackToggle').click();await page.locator('#table3DRackMenu [data-rack=rack9]').click();assert.equal((await shot()).balls.filter(b=>b.active&&!b.marker).length,10,'Setup racks the 2D table');
     await page.evaluate(()=>billiardsTourBridge.apply({id:'workspace',title:'Workspace',balls:[[0,.25,.5],[1,.65,.5],[2,.75,.25]],target:1,pocket:[1,1],speed:2.4,followPercent:0,sidePercent:0},{tableL:2.54,tableW:1.27}));
     await screenshot('2d');
     assert.equal(await page.locator('#panel').isVisible(),false);
