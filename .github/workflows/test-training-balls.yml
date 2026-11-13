@@ -16,6 +16,7 @@ jobs:
           node-version: '24'
       - name: Check physics and offline inventory
         run: |
+          node tests/short-cue-guide.test.cjs
           node tests/training-ball.test.cjs
           node tests/contact-overlap.test.cjs
           node tests/ball-placement.test.cjs

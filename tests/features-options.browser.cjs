@@ -8,10 +8,11 @@ const out=path.resolve('test-results/spin-lab');fs.mkdirSync(out,{recursive:true
   const context=await browser.newContext({viewport:{width:1440,height:900},serviceWorkers:'block',hasTouch:true});p=await context.newPage();const errors=[];p.on('pageerror',e=>errors.push(e.message));
   // Observe the real table draw calls; no production logic is replaced.
   await p.addInitScript(()=>{
-   window.__tableStrokes=[];
-   const proto=CanvasRenderingContext2D.prototype,clear=proto.clearRect,stroke=proto.stroke;
-   proto.clearRect=function(...a){if(this.canvas.id==='canvas')window.__tableStrokes=[];return clear.apply(this,a);};
-   proto.stroke=function(...a){if(this.canvas.id==='canvas')window.__tableStrokes.push({color:this.strokeStyle,width:this.lineWidth});return stroke.apply(this,a);};
+   window.__tableStrokes=[];window.__tableFills=[];
+   const proto=CanvasRenderingContext2D.prototype,clear=proto.clearRect,stroke=proto.stroke,fill=proto.fill;
+   proto.clearRect=function(...a){if(this.canvas.id==='canvas'){window.__tableStrokes=[];window.__tableFills=[];}return clear.apply(this,a);};
+   proto.fill=function(...a){if(this.canvas.id==='canvas')window.__tableFills.push(this.fillStyle);return fill.apply(this,a);};
+   proto.stroke=function(...a){if(this.canvas.id==='canvas')window.__tableStrokes.push({color:typeof this.strokeStyle==='string'?this.strokeStyle:'gradient',width:this.lineWidth});return stroke.apply(this,a);};
   });
   await p.goto('http://127.0.0.1:8839/?train=1');await p.waitForFunction(()=>window.billiardsTrainingBall&&window.BilliardsSpinLabUI);
   await p.evaluate(()=>billiardsTourBridge.apply({id:'options-test',title:'Options test',balls:[[0,.25,.5],[1,.6,.5]],target:1,pocket:[1,1],speed:.5,followPercent:0,sidePercent:0},{tableL:2.54,tableW:1.27}));
@@ -32,8 +33,10 @@ const out=path.resolve('test-results/spin-lab');fs.mkdirSync(out,{recursive:true
   assert.deepEqual(await p.evaluate(()=>billiardsTourBridge.predict()),baseline,'Appearance does not change shot physics');
   for(const id of ['showImpact','showTipBadge','showPaths'])await p.locator('#'+id).uncheck();
   const hasStroke=(color,width)=>p.evaluate(({color,width})=>__tableStrokes.some(s=>s.color===color&&Math.abs(s.width-width)<.01),{color,width});
+  const hasAimMarker=()=>p.evaluate(()=>__tableFills.some(c=>c==='rgba(255, 255, 255, 0.85)'||c==='#ffffffd9'||c==='rgba(141, 246, 255, 0.85)'||c==='#8df6ffd9'));
+  assert(await hasAimMarker(),'Full guide shows its aim marker');
   assert(await hasStroke('#6fff58',1.55),'Shot 1 line starts visible');
-  await p.locator('#showShotLine').uncheck();assert(!await hasStroke('#6fff58',1.55));assert(await hasStroke('#d34c3d',5),'Cue stick stays independently visible');
+  await p.locator('#showShotLine').uncheck();assert(!await hasStroke('#6fff58',1.55));assert(await hasStroke('#d34c3d',5),'Cue stick stays independently visible');assert(await hasStroke('gradient',1.2),'Short guide with stick only');assert(!await hasAimMarker(),'Hidden full line hides its marker');
   await p.locator('#showCueStick').uncheck();assert(!await hasStroke('#d34c3d',5));
   assert((await state()).balls.some(b=>b.id===0&&b.active),'Cue ball remains on table');
   assert.deepEqual(await p.evaluate(()=>billiardsTourBridge.predict()),baseline,'Visibility does not change shot physics');
@@ -48,7 +51,12 @@ const out=path.resolve('test-results/spin-lab');fs.mkdirSync(out,{recursive:true
    assert(!await hasStroke('#d34c3d',5));assert(!await hasStroke('#267d91',5));
    await p.locator('#showShotLine').uncheck();assert(!await hasStroke('#6fff58',1.55));assert(!await hasStroke('#00e5ff',1.45));
    await p.locator('#showCueStick').check();assert(await hasStroke('#d34c3d',5));assert(await hasStroke('#267d91',5));
+   assert(await hasStroke('gradient',1.2),mode+' short guide');assert(!await hasAimMarker(),mode+' no distant marker');
+   await p.screenshot({path:path.join(out,'short-guide-'+mode+'.png')});
+   await p.locator('#showShotLine').check();assert(await hasAimMarker(),mode+' full guide restores marker');assert(!await hasStroke('gradient',1.2),mode+' full guide replaces short glow');
+   await p.locator('#showShotLine').uncheck();
    await p.locator('#showCueStick').uncheck();assert(!await hasStroke('#d34c3d',5));assert(!await hasStroke('#267d91',5));
+   assert(!await hasStroke('gradient',1.2),mode+' both off hides short glow');
    if(mode==='3d'){const ids=await p.evaluate(()=>Billiards3D.renderedBalls().map(b=>b.id));assert(ids.includes(0)&&ids.includes('CB2'));}
    await p.locator('#trainerTrainingBall').scrollIntoViewIfNeeded();await p.screenshot({path:path.join(out,'features-options-'+mode+'.png')});
   }

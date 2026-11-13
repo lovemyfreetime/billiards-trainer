@@ -1937,7 +1937,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
           <div class="check"><input id="showAngleLockControl" type="checkbox"><label for="showAngleLockControl">Cue-ball target lock control (Free / Sticky)</label></div>
           <div class="check"><input id="showImpact" type="checkbox" checked><label for="showImpact">Impact cue ball + physical overlap band</label></div>
           <div class="check"><input id="showTipBadge" type="checkbox"><label for="showTipBadge">Cue-tip contact badge near cue ball</label></div>
-          <div class="check"><input id="showCueStick" type="checkbox" checked><label for="showCueStick">Cue stick and aim marker</label></div>
+          <div class="check"><input id="showCueStick" type="checkbox" checked><label for="showCueStick">Cue stick</label></div>
           <div class="check"><input id="showShotLine" type="checkbox" checked><label for="showShotLine">Cue-ball shot line</label></div>
           <div class="check"><input id="shot2CueBallOnly" type="checkbox"><label for="shot2CueBallOnly">Shot 2 cue ball only</label></div>
         </fieldset>
@@ -7204,6 +7204,29 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         }
         ctx.drawImage(zenGuideFrame.layer,0,0,canvas.width/DPR,canvas.height/DPR);
     }
+    function shortCueGuideSegment(cb, d) {
+        const rail = rayEnd(cb, d, 0);
+        const length = Math.min(S.tableL / 8, S.tableW / 4, Math.hypot(rail.x - cb.x, rail.y - cb.y));
+        const start = S.ballR * 1.06;
+        if (length <= start) return null;
+        return [{ x: cb.x + d.x * start, y: cb.y + d.y * start },
+                { x: cb.x + d.x * length, y: cb.y + d.y * length }];
+    }
+    function drawShortCueGuide(cb, d, map) {
+        if (S.showShotLine !== false || S.showCueStick === false) return;
+        const points = shortCueGuideSegment(cb, d);
+        if (!points) return;
+        const a = map(points[0]), b = map(points[1]);
+        const glow = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
+        glow.addColorStop(0, 'rgba(225,248,239,.7)');
+        glow.addColorStop(.55, 'rgba(225,248,239,.4)');
+        glow.addColorStop(1, 'rgba(225,248,239,0)');
+        ctx.save();ctx.lineCap = 'round';
+        pathPoly(points, map, glow, 7, .12);
+        pathPoly(points, map, glow, 3.5, .24);
+        pathPoly(points, map, glow, 1.2, .7);
+        ctx.restore();
+    }
     function drawAim(map) {
         if(document.body.classList.contains('zen-mode')){drawZenGuides(map);return;}
         const cb = cueBall();
@@ -7211,6 +7234,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             return;
         const d = aimDirection(), end = extendedAimEnd(cb, d);
         if (S.showShotLine !== false) pathPoly([cb, end], map, '#6fff58', 1.55, window.Billiards3D?.active ? .782 : .92, []);
+        else drawShortCueGuide(cb, d, map);
         const sd = strikeDirection();
         const actualEnd = { x: cb.x + sd.x * S.ballR * 5.2, y: cb.y + sd.y * S.ballR * 5.2 };
         if (S.showShotLine !== false && Math.abs(S.sideSpin) > .01)
@@ -7221,6 +7245,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const butt = { x: cb.x - d.x * Math.min(.48, S.tableL * .24), y: cb.y - d.y * Math.min(.48, S.tableL * .24) };
         pathPoly([butt, tip], map, '#d34c3d', 5, .9);
         pathPoly([{ x: butt.x + d.x * .08, y: butt.y + d.y * .08 }, tip], map, '#e8dfc7', 2.2, .95);
+        if (S.showShotLine === false) return;
         logicalCircle(S.freeAim, S.ballR * .26, map, '#ffffffd9', '#111', 1);
         const q = map(S.freeAim);
         ctx.save();
@@ -7649,6 +7674,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         // Always define the cue-stick direction.  The locked-guide branch
         // still needs it below to draw the cue itself.
         const d = shotAimDirection(2);
+        drawShortCueGuide(cb, d, map);
         const lockedGuide = s.angleLock ? shot2LockedGhostPoint() : null;
         if (S.showShotLine !== false && lockedGuide) {
             // Fixed geometric CB2 -> ghost-center guide.
@@ -7700,7 +7726,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const butt = { x: cb.x - d.x * Math.min(.48, S.tableL * .24), y: cb.y - d.y * Math.min(.48, S.tableL * .24) };
         pathPoly([butt, tip], map, '#267d91', 5, .9);
         pathPoly([{ x: butt.x + d.x * .08, y: butt.y + d.y * .08 }, tip], map, '#dffbff', 2.2, .95);
-        logicalCircle(s.freeAim, S.ballR * .26, map, '#8df6ffd9', '#052d33', 1);
+        if (S.showShotLine !== false) logicalCircle(s.freeAim, S.ballR * .26, map, '#8df6ffd9', '#052d33', 1);
     }
     function drawBankKickGuide(map) {
         var _a;
