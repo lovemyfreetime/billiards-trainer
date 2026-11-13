@@ -1,5 +1,5 @@
 {
-  "version": "170901a252990084",
+  "version": "fe000ba962236d35",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -1354,8 +1354,8 @@
     "trainer-saved-files.js": "fe24a7ffe1011cd8874688303f87183d8a8b9b97cefd16bb580cb8f7eb2e6522",
     "trainer-shot-budget.js": "a9babe12322e21d92d90bbd465463722618e9e2bf7ee20f495979f5858f4baf8",
     "trainer-shot-recorder.js": "51d8cf1d5898991050f09cd8efe6a874a542e7062669d1288feac58e41b9fd67",
-    "trainer-spin-lab.css": "1cdd16118bc1bd17266867ffe9cb68a7323ff3db87271e4046f9321fd2b54dea",
-    "trainer-spin-lab.js": "8dcfa16d0a749fa0b776ab106b28d7da50a00c50f507abeb4abd49d80b63e75c",
+    "trainer-spin-lab.css": "9f2cf12d25989207bc510ef206297208e9366a47338c8365fcafb5c893a705be",
+    "trainer-spin-lab.js": "0b81477386fe381223395ce213bb3bcfc7f958a7f2cefe00900d5c0b6b735046",
     "trainer-table-exchange.js": "481759a0cf233361d10cb1e3c7335510da6f317dcf7e777bcdbf3485a1e20df4",
     "trainer-table-zoom.css": "2f3abf6fefade1bb9d9a795cf89689f28d442a11c81da93995f0b44303cb1b2a",
     "trainer-table-zoom.js": "b7ca40c5b1040aa8da885472b994ef252997a63fba74c172c5f7c377ea1877e9",

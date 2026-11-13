@@ -29,11 +29,14 @@ jobs:
       - name: Verify controls and slow-motion exports
         env:
           NODE_PATH: ./local-host/node_modules
+          SPIN_LAB_UI_ONLY: ${{ contains(github.event.head_commit.message, '[ui-only]') && '1' || '' }}
         run: |
           export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")
           node tests/trainer-spin-lab.browser.cjs
-          node tests/trainer-shot-recorder.browser.cjs
-          node tests/trainer-camera-recorder.browser.cjs
+          if [ -z "$SPIN_LAB_UI_ONLY" ]; then
+            node tests/trainer-shot-recorder.browser.cjs
+            node tests/trainer-camera-recorder.browser.cjs
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -13,7 +13,14 @@
  const byId=id=>document.getElementById(id),preview=byId('trainingBallPreview'),style=byId('trainingBallStyle'),speed=byId('trainerPlaybackSpeed'),quick=byId('trainerPlaybackQuickSpeed'),body=byId('trainerPlaybackBody'),toggle=byId('trainerPlaybackToggle');
  let previewKey='',lastViewKey='',drag=null,opened=false;
  const basis=d=>({right:[-d.y,0,d.x],up:[0,1,0],front:[-d.x,0,-d.y]});
- function position(){const camera=byId('trainerCameraBar');const top=camera&&!camera.hidden?Math.max(54,camera.getBoundingClientRect().bottom+8):54;bar.style.top=Math.max(8,Math.min(top,innerHeight-bar.getBoundingClientRect().height-8))+'px';}
+ function position(){
+  const camera=byId('trainerCameraBar');let top=8;
+  if(innerWidth<=620&&innerHeight>innerWidth){
+   for(const el of document.querySelectorAll('#table3DToggle,#phoneControls,[data-trainer-action=undoShot],[data-trainer-action=redoShot]')){const r=el.getBoundingClientRect();if(r.width&&r.height&&r.top<innerHeight/2)top=Math.max(top,r.bottom+8);}
+  }
+  if(camera&&!camera.hidden)top=Math.max(top,camera.getBoundingClientRect().bottom+8);
+  bar.style.top=Math.max(8,Math.min(top,innerHeight-bar.getBoundingClientRect().height-8))+'px';
+ }
  function show(value){opened=value;body.hidden=!value;toggle.hidden=value;toggle.setAttribute('aria-expanded',String(value));bar.classList.toggle('expanded',value);byId('trainerShowPlayback').textContent=value?'Hide playback controls':'Show playback controls';position();}
  toggle.onclick=()=>show(true);byId('trainerPlaybackHide').onclick=()=>show(false);byId('trainerShowPlayback').onclick=()=>show(!opened);
  for(const select of [speed,quick])select.onchange=()=>{play().speed(Number(select.value));if(Number(select.value)<1)show(true);sync();};
