@@ -1,13 +1,14 @@
 const {chromium}=require('playwright'),assert=require('node:assert/strict'),cp=require('node:child_process'),fs=require('node:fs'),path=require('node:path');
 const out=path.resolve('test-results/spin-lab');fs.mkdirSync(out,{recursive:true});
 (async()=>{
- const server=cp.spawn(process.execPath,['tests/range-server.cjs','8838']);let browser;
+ const server=cp.spawn(process.execPath,['tests/range-server.cjs','8838']);let browser,p;
  try{
   await new Promise((r,j)=>{server.stdout.once('data',r);server.once('error',j)});
   browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox','--enable-unsafe-swiftshader','--use-angle=swiftshader']});
-  const p=await browser.newPage({viewport:{width:1440,height:900},serviceWorkers:'block',acceptDownloads:true}),errors=[];
+  p=await browser.newPage({viewport:{width:1440,height:900},serviceWorkers:'block',acceptDownloads:true});const errors=[];
   p.on('pageerror',e=>errors.push(e.message));
   await p.goto('http://127.0.0.1:8838/?train=1');await p.waitForFunction(()=>window.billiardsTrainingBall&&window.BilliardsSpinLabUI);
+  await p.evaluate(()=>billiardsTourBridge.apply({id:'training-ball-test',balls:[[0,.25,.5],[1,.6,.5]],target:1,pocket:[1,1],speed:.5},{tableL:2.54,tableW:1.27}));
   await p.getByRole('button',{name:/TABLE \/ BALLS/}).click();
   const state=()=>p.evaluate(()=>billiardsTourBridge.capture().state);
   const baseline=await p.evaluate(()=>billiardsTourBridge.predict());
@@ -36,6 +37,7 @@ const out=path.resolve('test-results/spin-lab');fs.mkdirSync(out,{recursive:true
   await setup(.125);
   await p.locator('#trainerPlaybackStep').click();
   let playback=await p.evaluate(()=>billiardsPlayback.state());assert.equal(playback.paused,true);assert(Math.abs(playback.time-.125/30)<1e-9);
+  await p.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
   const still=await p.evaluate(()=>Billiards3D.renderedBalls().find(b=>b.id===0));await p.waitForTimeout(150);
   assert.deepEqual(await p.evaluate(()=>Billiards3D.renderedBalls().find(b=>b.id===0)),still,'Pause freezes translation and texture');
   await p.locator('#trainerPlaybackStep').click();assert((await p.evaluate(()=>billiardsPlayback.state())).time>playback.time);
@@ -72,5 +74,5 @@ const out=path.resolve('test-results/spin-lab');fs.mkdirSync(out,{recursive:true
    await p.screenshot({path:path.join(out,'playback-'+name+'.png')});
   }
   assert.deepEqual(errors,[]);console.log('Ball setup, drag undo/redo, persistence, 3D pause/step/replay, following camera, 1080p/30 slow MP4s and four viewports passed.');
- }finally{await browser?.close();server.kill();}
+ }catch(error){if(p){await p.screenshot({path:path.join(out,'failure.png')}).catch(()=>{});fs.writeFileSync(path.join(out,'failure.txt'),String(error));}throw error;}finally{await browser?.close();server.kill();}
 })().catch(e=>{console.error(e);process.exitCode=1});

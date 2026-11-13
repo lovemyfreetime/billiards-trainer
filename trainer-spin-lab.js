@@ -30,12 +30,12 @@
  });
  group.querySelectorAll('[data-ball-axis]').forEach(button=>button.onclick=()=>{const state=bridge().state(),view=basis(state.aim),axis={tilt:view.right,turn:view.up,twist:view.front}[button.dataset.ballAxis];bridge().set(state.style,math.multiply(math.axisAngle(axis,Number(button.dataset.turn)*5*Math.PI/180),state.orientation));sync();});
  function trackball(event){const r=preview.getBoundingClientRect(),x=(event.clientX-r.left-r.width/2)/(r.width*.46),y=(r.top+r.height/2-event.clientY)/(r.height*.46),n=Math.hypot(x,y);return n>1?[x/n,y/n,0]:[x,y,Math.sqrt(1-x*x-y*y)];}
- preview.onpointerdown=e=>{if(e.button!==0||bridge().state().busy)return;e.preventDefault();const state=bridge().state();drag={point:trackball(e),q:state.orientation,view:basis(state.aim)};preview.setPointerCapture(e.pointerId);};
+ preview.onpointerdown=e=>{if(e.button!==0||bridge().state().busy||!bridge().state().hasCue)return;e.preventDefault();const state=bridge().state();drag={point:trackball(e),q:state.orientation,view:basis(state.aim)};preview.setPointerCapture(e.pointerId);};
  preview.onpointermove=e=>{if(!drag)return;e.preventDefault();const local=math.between(drag.point,trackball(e)),axis=drag.view.right.map((v,i)=>v*local[0]+drag.view.up[i]*local[1]+drag.view.front[i]*local[2]),q=[...axis,local[3]];bridge().set(style.value,math.multiply(q,drag.q));};
  preview.onpointerup=preview.onpointercancel=()=>{drag=null;};
  function sync(){
   const state=bridge().state(),p=play().state();style.value=state.style;speed.value=quick.value=String(p.speed);
-  for(const el of group.querySelectorAll('button,select'))el.disabled=state.busy;preview.classList.toggle('busy',state.busy);
+  for(const el of group.querySelectorAll('button'))el.disabled=state.busy||!state.hasCue;style.disabled=state.busy;preview.classList.toggle('busy',state.busy||!state.hasCue);
   for(const el of [speed,quick,byId('trainerPlaybackPause'),byId('trainerPlaybackBack'),byId('trainerPlaybackStep')])el.disabled=p.recording;
   byId('trainerPlaybackReplay').disabled=p.recording||(!p.hasReplay&&!p.running);
   byId('trainerPlaybackPause').textContent=p.running&&!p.paused?'Pause shot':'Play';
@@ -43,7 +43,7 @@
   byId('trainerPlaybackStatus').textContent=p.running?(p.recording?'Recording · ':p.paused?'Paused · ':'')+p.time.toFixed(2)+' s · '+p.motion:'Choose a speed, then Play or Record shot';
   const in3D=!!window.Billiards3D?.active;byId('trainerPlaybackCloseup').disabled=byId('trainerPlaybackFollow').disabled=!in3D;
   byId('trainerPlaybackFollow').checked=!!window.Billiards3D?.camera().followCue;
-  byId('trainingBallStatus').textContent=state.busy?'Orientation is locked during playback.':'Shot '+state.shot+' · Rotation changes the markings only.';
+  byId('trainingBallStatus').textContent=!state.hasCue?'Place a cue ball on the table to set its orientation.':state.busy?'Orientation is locked during playback.':'Shot '+state.shot+' · Rotation changes the markings only.';
   const key=JSON.stringify([state.style,state.orientation,state.aim,state.tip]);
   if(key!==previewKey&&preview.offsetParent){previewKey=key;math.sphere(preview,state.style,state.orientation,basis(state.aim));const c=preview.getContext('2d'),x=100+state.tip.x*92,y=100-state.tip.y*92;c.beginPath();c.arc(x,y,5,0,Math.PI*2);c.strokeStyle='#071b25';c.lineWidth=4;c.stroke();c.strokeStyle='#64e8ff';c.lineWidth=2;c.stroke();}
   const viewKey=String(in3D)+String(byId('trainerCameraBar')?.hidden);if(viewKey!==lastViewKey){lastViewKey=viewKey;position();}
