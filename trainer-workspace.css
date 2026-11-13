@@ -37,6 +37,7 @@ body.trainer-workspace.phone-controls-open #phonePanelScroll { top:56px; bottom:
 body.trainer-workspace #phoneToolShelf:empty { display:none!important; }
 body.trainer-workspace #pocketTray,body.trainer-workspace #table3DTrayToggle,
 body.trainer-workspace #table3DTray,body.trainer-workspace #table3DPhoneControls { display:none!important; }
+body.trainer-workspace #table3DRackMenu:not([hidden]) { display:block!important; }
 
 #workspaceTools { position:fixed; z-index:49; top:calc(8px + env(safe-area-inset-top)); left:calc(10px + env(safe-area-inset-left)); display:flex; align-items:center; gap:6px; }
 #workspaceTools details { position:relative; }

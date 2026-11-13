@@ -9,7 +9,7 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
   for(const viewport of [{width:1366,height:768},{width:1024,height:768},{width:740,height:360},{width:390,height:844}]){
    const context=await browser.newContext({viewport,serviceWorkers:'block'});
    await context.addInitScript(()=>{window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=true;window.chrome={webview:{postMessage(){}}}});
-   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+   const page=await context.newPage(),errors=[];page.setDefaultTimeout(8000);page.on('pageerror',e=>errors.push(e.message));
    const shot=()=>page.evaluate(()=>billiardsTourBridge.capture().state);
    const screenshot=tag=>page.screenshot({path:`${dir}/${viewport.width}-${tag}.png`});
    try{
