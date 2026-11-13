@@ -3,7 +3,7 @@ const dir='test-results/workspace';fs.mkdirSync(dir,{recursive:true});
 const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&a.y+a.height>b.y+1;
 (async()=>{
  const server=cp.spawn(process.execPath,['tests/range-server.cjs','8820']);await new Promise(r=>server.stdout.once('data',r));
- let browser;
+ let browser; const failures=[];
  try{
   browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,headless:true,args:['--no-sandbox','--enable-unsafe-swiftshader','--use-angle=swiftshader']});
   for(const viewport of [{width:1366,height:768},{width:1024,height:768},{width:740,height:360},{width:390,height:844}]){
@@ -54,7 +54,8 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
     await geometry();await screenshot('3d');assert.deepEqual(await shot(),before3d,'View switch preserves shot settings and balls');
     await page.locator('#workspace-view summary').click();assert(await page.locator('#table3DZoomSlider').isVisible());await page.locator('#table3DToggle').click();await page.waitForFunction(()=>!Billiards3D.active);await page.keyboard.press('Escape');
     assert.deepEqual(await shot(),before3d,'Return to 2D preserves both shots');assert.deepEqual(errors,[]);console.log(viewport.width+': geometry, drawer, grouped tools, two-shot controls, tray and 3D transition passed');
-   }catch(error){await screenshot('failure');throw error;}finally{await context.close();}
+   }catch(error){await screenshot('failure');failures.push(viewport.width+': '+error.stack);console.error(failures.at(-1));}finally{await context.close();}
   }
+  assert.deepEqual(failures,[],'All workspace sizes pass');
  }finally{await browser?.close();server.kill();}
 })().catch(error=>{console.error(error);process.exitCode=1;});

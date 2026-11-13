@@ -111,8 +111,8 @@ body.trainer-workspace.phone-focus #phoneAimRail .rollerTrack { width:22px; }
 body.trainer-workspace.phone-focus #phoneSpeedRail input { width:30px; }
 body.trainer-workspace.phone-focus #phoneSpeedRail .phoneSliderValue { height:32px!important; min-height:32px!important; }
 @media(max-height:450px) and (orientation:landscape) {
-  body.trainer-workspace:not(.zen-mode) { --workspace-top:48px; --workspace-bottom:102px; }
-  #workspaceBallShelf { bottom:56px; height:40px; }
+  body.trainer-workspace:not(.zen-mode) { --workspace-top:48px; --workspace-bottom:106px; }
+  #workspaceBallShelf { bottom:62px; height:38px; }
   .workspaceBall { width:30px; min-width:30px; height:30px; min-height:30px; flex-basis:30px; }
   #workspaceBalls { padding:3px; gap:6px; }
 }
