@@ -199,6 +199,7 @@ body.trainer-workspace.table-3d.phone-focus #bankKickRoutePanel:not([hidden]) { 
  body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DViews { grid-area:2/1; }
 }
 body.trainer-workspace.phone-focus #phoneActions .phoneTipControl { pointer-events:auto; }
+#workspaceTools:has(details[open]) { z-index:54; }
 @media(max-width:700px) {
  #workspaceTools .workspaceToolGroup { position:fixed; top:calc(114px + env(safe-area-inset-top)); left:10px; right:10px; width:auto; max-height:calc(100dvh - 124px); }
 }

@@ -62,3 +62,9 @@ body:has(#companionExperience) .topbar { padding-left:70px; padding-right:108px;
 @media(max-width:600px) { body:has(#companionExperience) .topbar { grid-template-columns:auto minmax(0,1fr); height:auto; min-height:88px; padding-top:54px; padding-right:18px; } }
 .experience-corner .experience-menu--play:popover-open,
 .experience-corner .experience-menu--companion:popover-open { display:flex; flex-wrap:wrap; max-width:280px; }
+body.play-mode #playRoot .play-header { padding-left:70px; padding-right:108px; flex-wrap:wrap; }
+body.play-mode #playRoot .play-header nav { flex-wrap:wrap; }
+@media(max-width:760px) {
+ body:has(#companionExperience) .topbar { position:relative; display:block; padding:64px 18px 12px; }
+ body:has(#companionExperience) .topbar .back-link { position:absolute; top:8px; left:70px; display:flex; align-items:center; min-height:46px; }
+}
