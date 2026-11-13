@@ -30,7 +30,12 @@ const out=path.resolve('test-results/spin-lab');fs.mkdirSync(out,{recursive:true
   await p.reload();await p.waitForFunction(()=>window.billiardsTrainingBall);
   assert.equal((await state()).trainingBallStyle,'stripe');assert.equal((await state()).shotPlaybackSpeed,.125);assert.deepEqual((await state()).balls.find(b=>b.id===0).orientation,dragged);
   await p.locator('#table3DToggle').click();await p.waitForFunction(()=>window.Billiards3D?.active);
-  await p.locator('#trainerPlaybackToggle').click();
+  assert.equal(await p.locator('#trainerPlaybackToggle').count(),0,'No permanent Playback button over the table');
+  assert.equal(await p.locator('#trainerPlaybackBar').isVisible(),false);
+  await p.locator('#table3DDrawer').click();
+  if(!await p.locator('#trainerShowPlayback').isVisible())await p.getByRole('button',{name:/TABLE \/ BALLS/}).click();
+  await p.locator('#trainerShowPlayback').click();
+  await p.locator('#table3DDrawer').click();
   await p.locator('#trainerPlaybackCloseup').click();await p.locator('#trainerPlaybackFollow').check();
   const camera=await p.evaluate(()=>Billiards3D.camera());assert.equal(camera.followCue,true);
   // A short real shot keeps all export checks fast, including eighth speed.
@@ -41,6 +46,9 @@ const out=path.resolve('test-results/spin-lab');fs.mkdirSync(out,{recursive:true
   await p.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
   const still=await p.evaluate(()=>Billiards3D.renderedBalls().find(b=>b.id===0));await p.waitForTimeout(150);
   assert.deepEqual(await p.evaluate(()=>Billiards3D.renderedBalls().find(b=>b.id===0)),still,'Pause freezes translation and texture');
+  const pausedRenders=await p.evaluate(async()=>{let n=0;const onRender=()=>n++;window.addEventListener('billiards:2d-render',onRender);await new Promise(r=>setTimeout(r,300));window.removeEventListener('billiards:2d-render',onRender);return n;});
+  assert.equal(pausedRenders,0,'Paused playback must stop table redraws');
+  console.log('Paused playback: zero table redraws in 300 ms');
   await p.locator('#trainerPlaybackStep').click();assert((await p.evaluate(()=>billiardsPlayback.state())).time>playback.time);
   await p.locator('#trainerPlaybackBack').click();assert(Math.abs((await p.evaluate(()=>billiardsPlayback.state())).time-playback.time)<1e-9);
   await p.screenshot({path:path.join(out,'paused-closeup.png')});
@@ -48,6 +56,23 @@ const out=path.resolve('test-results/spin-lab');fs.mkdirSync(out,{recursive:true
   const end=await state(),history=await p.evaluate(()=>billiardsTourBridge.snapshot().undoCount);
   await p.locator('#trainerPlaybackReplay').click();await p.waitForFunction(()=>!billiardsPlayback.state().running);
   assert.deepEqual(await state(),end,'Replay restores the ending setup');assert.equal(await p.evaluate(()=>billiardsTourBridge.snapshot().undoCount),history);
+  // Repeatedly leave a paused replay, then shoot and undo normally.
+  for(let i=0;i<3;i++){
+   const saved=await state(),count=await p.evaluate(()=>billiardsTourBridge.snapshot().undoCount);
+   await p.locator('#trainerPlaybackQuickSpeed').selectOption('0.125');
+   await p.locator('#trainerPlaybackReplay').click();await p.locator('#trainerPlaybackPause').click();
+   await p.locator('#trainerPlaybackHide').click();
+   const closed=await p.evaluate(()=>billiardsPlayback.state());assert.equal(closed.running,false);assert.equal(closed.speed,1);
+   assert.equal(await p.locator('#trainerPlaybackBar').isVisible(),false);
+   assert.equal(await p.evaluate(()=>Billiards3D.camera().followCue),false);
+   assert.deepEqual((await state()).balls,saved.balls,'Close restores layout');
+   assert.equal(await p.evaluate(()=>billiardsTourBridge.snapshot().undoCount),count,'Close does not commit a shot');
+   await p.locator('#table3DDrawer').click();await p.locator('#trainerShowPlayback').click();await p.locator('#table3DDrawer').click();
+  }
+  await setup(1);const beforeNormal=(await state()).balls;
+  await p.evaluate(()=>document.getElementById('animate').click());await p.waitForFunction(()=>!billiardsPlayback.state().running);
+  await p.evaluate(()=>document.getElementById('undoShot').click());assert.deepEqual((await state()).balls,beforeNormal,'Shoot and Undo recover after closing playback');
+  console.log('Three pause/close/reopen cycles, normal Shoot and Undo passed');
   // The existing recorder exports the selected speed in every supported view.
   console.log('Persistence, 3D pause/step/replay and cue following passed');
   await p.setViewportSize({width:960,height:600});

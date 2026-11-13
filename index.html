@@ -8214,7 +8214,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         }
         window.BilliardsTableZoom?.end(ctx);
         window.dispatchEvent(new Event("billiards:2d-render"));
-        window.BilliardsSpinLabUI?.sync();
+        window.BilliardsSpinLabUI?.sync(true);
         if(window.Billiards3D){
             const live=(animation?.current||S.balls).map(b=>({...S.balls.find(x=>x.id===b.id),...b})).filter(b=>b.id!==0||cueVisualsVisible(1));
             if((!clean||(recordingGuides&&S.shot2CueBallOnly))&&S.shot2Enabled&&cueVisualsVisible(2))live.push({id:'CB2',x:S.shot2.x,y:S.shot2.y,orientation:S.shot2.orientation,active:true});
@@ -9854,7 +9854,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const recording=options.replay?null:window.BilliardsShotRecorder?.begin();
         const duration=sim.frames.at(-1)[0].t,recordSpeed=S.shotPlaybackSpeed;
         const running={current:sim.frames[0],cueTips:cueTipsFor3D(),time:0,duration,paused:!!options.paused,recording:!!recording,replay:!!options.replay,last:performance.now()};
-        let recordFrame=1;
+        let recordFrame=1,frameRequest=0;
+        const schedule=()=>{if(animation===running&&!frameRequest&&(!running.paused||recording))frameRequest=requestAnimationFrame(tick);};
+        const cancelFrame=()=>{if(frameRequest)cancelAnimationFrame(frameRequest);frameRequest=0;};
         animation=running;syncHistoryButtons();draw(!!recording,!!recording);
         if(recording)recording.frame(60);
         function finish(){
@@ -9863,20 +9865,31 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             window.BilliardsSpinLabUI?.sync();
         }
         function tick(now){
+            frameRequest=0;
             if(animation!==running){recording?.cancel();return;}
+            if(running.paused&&!recording)return;
             const elapsed=Math.max(0,(now-running.last)/1000);running.last=now;
             if(recording){
-                if(!recording.ready()){requestAnimationFrame(tick);return;}
+                if(!recording.ready()){schedule();return;}
                 running.time=Math.min(duration,recordFrame*recordSpeed/30);
             }else if(!running.paused)running.time=Math.min(duration,running.time+elapsed*S.shotPlaybackSpeed);
             running.current=window.BilliardsTrainingBall.sample(sim.frames,running.time);
             draw(!!recording,!!recording);
             if(running.time>=duration&&!running.paused){finish();return;}
             if(recording){recording.frame();recordFrame++;}
-            requestAnimationFrame(tick);
+            schedule();
         }
+        running.setPaused=value=>{running.paused=value;running.last=performance.now();cancelFrame();schedule();};
         running.sample=time=>{running.time=Math.max(0,Math.min(duration,time));running.current=window.BilliardsTrainingBall.sample(sim.frames,running.time);draw();};
-        requestAnimationFrame(tick);
+        running.stop=()=>{
+            cancelFrame();
+            if(!options.replay)lastShotPlayback={sim,preShot};
+            const speed=S.shotPlaybackSpeed;
+            animation=null;S=JSON.parse(JSON.stringify(options.restore||preShot));S.shotPlaybackSpeed=speed;
+            updateUI();refreshPreview();saveState();syncHistoryButtons();
+        };
+        schedule();
+        window.BilliardsSpinLabUI?.sync();
     }
     function animateShot(options={}) {
         if(animation)return;
@@ -9888,9 +9901,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     window.billiardsPlayback={
         state(){return {speed:S.shotPlaybackSpeed,running:!!animation,paused:!!animation?.paused,recording:!!animation?.recording||!!window.BilliardsShotRecorder?.busy,hasReplay:!!lastShotPlayback,time:animation?.time||0,duration:animation?.duration||0,motion:animation?window.BilliardsTrainingBall.motion(animation.current.find(b=>b.id===0),S.ballR):''};},
         speed(value){if(window.BilliardsShotRecorder?.busy||animation?.recording||![1,.5,.25,.125].includes(Number(value)))return false;S.shotPlaybackSpeed=Number(value);saveState();window.BilliardsSpinLabUI?.sync();return true;},
-        pause(){if(window.BilliardsShotRecorder?.busy||animation?.recording)return false;if(!animation){if(lastShotPlayback)this.replay();else animateShot();return true;}animation.paused=!animation.paused;animation.last=performance.now();window.BilliardsSpinLabUI?.sync();return true;},
-        step(direction=1){if(window.BilliardsShotRecorder?.busy||animation?.recording)return false;if(!animation){if(lastShotPlayback)this.replay(true);else animateShot({paused:true});}if(!animation)return false;animation.paused=true;animation.sample(animation.time+direction*S.shotPlaybackSpeed/30);return true;},
-        replay(paused=false){if(window.BilliardsShotRecorder?.busy)return false;if(animation){animation.paused=paused;animation.sample(0);animation.last=performance.now();return true;}if(!lastShotPlayback)return false;const restore=cleanSnapshot(),speed=S.shotPlaybackSpeed,style=S.trainingBallStyle;S={...JSON.parse(JSON.stringify(lastShotPlayback.preShot)),shotPlaybackSpeed:speed,trainingBallStyle:style};updateUI();startShotPlayback(lastShotPlayback.sim,lastShotPlayback.preShot,{replay:true,restore,paused});return true;}
+        pause(){if(window.BilliardsShotRecorder?.busy||animation?.recording)return false;if(!animation){if(lastShotPlayback)this.replay();else animateShot();return true;}animation.setPaused(!animation.paused);window.BilliardsSpinLabUI?.sync();return true;},
+        step(direction=1){if(window.BilliardsShotRecorder?.busy||animation?.recording)return false;if(!animation){if(lastShotPlayback)this.replay(true);else animateShot({paused:true});}if(!animation)return false;animation.setPaused(true);animation.sample(animation.time+direction*S.shotPlaybackSpeed/30);return true;},
+        stop(){if(window.BilliardsShotRecorder?.busy||animation?.recording)return false;animation?.stop();S.shotPlaybackSpeed=1;window.Billiards3D?.followCue(false);saveState();window.BilliardsSpinLabUI?.sync();return true;},
+        replay(paused=false){if(window.BilliardsShotRecorder?.busy)return false;if(animation){animation.setPaused(paused);animation.sample(0);return true;}if(!lastShotPlayback)return false;const restore=cleanSnapshot(),speed=S.shotPlaybackSpeed,style=S.trainingBallStyle;S={...JSON.parse(JSON.stringify(lastShotPlayback.preShot)),shotPlaybackSpeed:speed,trainingBallStyle:style};updateUI();startShotPlayback(lastShotPlayback.sim,lastShotPlayback.preShot,{replay:true,restore,paused});return true;}
     };
     window.billiardsTrainingBall={
         state(){const second=S.shot2Enabled&&S.activeShot===2,ball=second?ensureShot2():cueBall(),d=shotAimDirection(second?2:1),values=second?S.shot2:S,contact=cueSideContact(values.sideSpin,values.follow,values.cueElevationDeg);return {hasCue:!!ball,style:S.trainingBallStyle,orientation:window.BilliardsTrainingBall.normalize(ball?.orientation),aim:d,tip:{x:contact.tip.sideR,y:contact.z},busy:!!animation||!!window.BilliardsShotRecorder?.busy,shot:second?2:1};},

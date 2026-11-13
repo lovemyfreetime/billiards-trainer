@@ -1,7 +1,7 @@
 name: Verify training balls and slow motion
 on:
   push:
-    branches: [test/training-balls-20261113]
+    branches: [test/training-balls-20261113, test/playback-performance-20261113]
   workflow_dispatch:
 permissions:
   contents: read

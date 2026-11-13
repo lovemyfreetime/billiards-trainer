@@ -56,7 +56,7 @@ assert.deepEqual(Layout.settings(saved,defaults).shot2.orientation,saved.shot2.o
 // Rendering and recording clocks must sample the same simulated timeline.
 let queued=[],recorded=[],commits=0;
 const frames=Array.from({length:601},(_,i)=>[{id:0,t:i/600,x:i/600,y:0,z:R,vx:1,vy:0,vz:0,wx:0,wy:0,wz:0,active:true,orientation:identity}]);
-const p={window:{BilliardsTrainingBall:M},S:{shotPlaybackSpeed:1},performance:{now:()=>0},requestAnimationFrame:f=>queued.push(f),animation:null,syncHistoryButtons(){},draw(){},cueTipsFor3D:()=>[],commitAnimatedShot(){commits++;p.animation=null;},updateUI(){},saveState(){}};
+const p={window:{BilliardsTrainingBall:M},S:{shotPlaybackSpeed:1},performance:{now:()=>0},requestAnimationFrame:f=>queued.push(f),cancelAnimationFrame:()=>{queued=[];},animation:null,syncHistoryButtons(){},draw(){},cueTipsFor3D:()=>[],commitAnimatedShot(){commits++;p.animation=null;},updateUI(){},saveState(){},refreshPreview(){},cleanSnapshot(){return JSON.parse(JSON.stringify(p.S));}};
 vm.createContext(p);vm.runInContext(extract('startShotPlayback'),p);
 for(const speed of M.speeds){
  queued=[];recorded=[];p.S.shotPlaybackSpeed=speed;
@@ -68,7 +68,21 @@ for(const speed of M.speeds){
 }
 assert.equal(commits,4);
 delete p.window.BilliardsShotRecorder;queued=[];p.S.shotPlaybackSpeed=.25;
-p.startShotPlayback({frames},{},{paused:true});queued.shift()(100);near(p.animation.time,0);
-p.animation.sample(.5);queued.shift()(200);near(p.animation.time,.5);
-assert.deepEqual(p.animation.current[0].orientation,identity);p.animation=null;
+p.startShotPlayback({frames},{},{paused:true});assert.equal(queued.length,0,'Paused playback schedules no redraws');near(p.animation.time,0);
+p.animation.sample(.5);assert.equal(queued.length,0);near(p.animation.time,.5);
+assert.deepEqual(p.animation.current[0].orientation,identity);
+vm.runInContext(html.slice(html.indexOf('    window.billiardsPlayback='),html.indexOf('    window.billiardsTrainingBall=')),p);
+p.animation.setPaused(false);assert.equal(queued.length,1);p.animation.setPaused(false);assert.equal(queued.length,1,'Resume cannot duplicate animation loops');
+p.animation.setPaused(true);assert.equal(queued.length,0,'Pause cancels the pending frame');
+for(let i=0;i<5;i++){
+ p.S={shotPlaybackSpeed:.125,balls:[{id:0,x:.5,y:.6}]};const saved=JSON.parse(JSON.stringify(p.S));
+ p.startShotPlayback({frames},saved,{paused:true});p.animation.sample(.5);
+ assert(p.window.billiardsPlayback.stop());assert.equal(p.animation,null);assert.equal(queued.length,0);
+ assert.equal(p.S.shotPlaybackSpeed,1);assert.equal(JSON.stringify(p.S.balls),JSON.stringify(saved.balls));
+}
+const finalState={shotPlaybackSpeed:.5,balls:[{id:0,x:2,y:.7}]};p.S={shotPlaybackSpeed:.5};
+p.startShotPlayback({frames},{balls:[{id:0,x:.5,y:.6}]},{replay:true,restore:finalState,paused:true});
+p.window.billiardsPlayback.stop();assert.equal(JSON.stringify(p.S.balls),JSON.stringify(finalState.balls),'Closing replay restores the ending layout');
+assert.equal(commits,4,'Closing playback never commits a shot');
+console.log('No paused frame loop; five stop cycles restore layout and normal speed; replay restores final layout.');
 console.log('Training patterns, quaternion direction, slide/stun/draw/roll, stop/cut-stun impacts, 600 Hz sampling, unchanged physics, pause and all four recording speeds passed.');
