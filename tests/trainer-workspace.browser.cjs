@@ -13,6 +13,8 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
    const shot=()=>page.evaluate(()=>billiardsTourBridge.capture().state);
    const reachable=async selector=>{const el=page.locator(selector);assert(await el.isVisible(),selector+' visible');const box=await el.boundingBox();assert(box&&box.width>0&&box.height>0,selector+' sized');assert(await el.evaluate(e=>{const r=e.getBoundingClientRect();return e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}),selector+' not covered');return box;};
    const screenshot=tag=>page.screenshot({path:`${dir}/${viewport.width}-${tag}.png`});
+   const openAiming=async()=>{if(!(await page.locator('body').evaluate(e=>e.classList.contains('phone-controls-open'))))await page.locator('#phoneControls').click();const section=page.locator('.section').filter({has:page.locator('#featureAimingOptions')});if(!(await section.evaluate(e=>e.classList.contains('open'))))await section.locator('.sectionToggle').click();await page.locator('#workspaceAimTools').scrollIntoViewIfNeeded();};
+   const clearAndUndo=async()=>{const before=await shot();await reachable('#workspaceClearBalls');await page.locator('#workspaceClearBalls').click();const cleared=await shot();assert.equal(cleared.balls.length,0);assert.equal(cleared.shot2Enabled,false);assert.deepEqual(cleared.pocketedLog,[]);for(const key of ['speed','follow','sideSpin','tableL','tableW','muRoll','railRest'])assert.equal(cleared[key],before[key],'Clear preserves '+key);await page.keyboard.press('Control+z');assert.deepEqual((await shot()).balls,before.balls,'Clear is action-undoable');assert.equal((await shot()).shot2Enabled,before.shot2Enabled);};
    try{
     await page.goto('http://127.0.0.1:8820/?train=1');await page.waitForFunction(()=>window.billiardsTourBridge&&window.billiardsWorkspaceSync);
     await page.locator('#workspace-setup summary').click();await page.locator('#table3DRackToggle').click();await page.locator('#table3DRackMenu [data-rack=rack9]').click();assert.equal((await shot()).balls.filter(b=>b.active&&!b.marker).length,10,'Setup racks the 2D table');
@@ -20,13 +22,14 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
     await reachable('#btZenLauncher .experience-toggle');await reachable('#appCloseControl');await screenshot('2d');
     assert.equal(await page.locator('#panel').isVisible(),false);
     const initial=await shot();await page.locator('#phoneControls').click();assert(await page.locator('#panel').isVisible());await screenshot('drawer');await page.locator('#phoneControls').click();assert.deepEqual(await shot(),initial,'Drawer preserves the shot');
-    for(const [group,ids]of Object.entries({setup:['analyzePhotoBtn','cameraCaptureBtn','quickLayoutRecall'],plan:['kickToolToggle','bankToolToggle','teachingCompassToggle'],view:['tableZoom','btg-fullscreen','table3DToggle']})){
+    for(const [group,ids]of Object.entries({setup:['analyzePhotoBtn','cameraCaptureBtn','quickLayoutRecall'],view:['tableZoom','btg-fullscreen']})){
      await page.locator('#workspace-'+group+' summary').click();for(const id of ids)assert(await page.locator('#'+id).isVisible(),id+' is discoverable in '+group);await screenshot(group);await page.keyboard.press('Escape');
     }
-    await page.locator('#workspace-plan summary').click();await page.locator('#teachingCompassToggle').click();await page.locator('#workspace-plan summary').click();
+    assert.equal(await page.locator('#workspace-plan').count(),0);for(const id of ['kickToolToggle','bankToolToggle','teachingCompassToggle']){assert(!(await page.locator('#'+id).isVisible()),id+' stays in drawer');assert(await page.locator('#'+id).evaluate(e=>!!e.closest('#featureAimingOptions')));}
+    await openAiming();await page.locator('#teachingCompassToggle').click();
     assert.equal(await page.locator('#teachingCompassToggle').getAttribute('aria-pressed'),'true');
     for(const [label,id]of [['.compassSideLabel','compassSize'],['.compassTopLabel','compassRotate']])assert(!overlaps(await page.locator(label).boundingBox(),await page.locator('#'+id).boundingBox()),'Compass label clears its slider');
-    await screenshot('compass');await page.locator('#teachingCompassToggle').click();
+    await screenshot('compass');await page.locator('#teachingCompassToggle').click();await page.locator('#phoneControls').click();
     await page.locator('#phoneControls').click();await page.locator('#toggleShot2').click();await page.locator('#phoneControls').click();
     if((await shot()).activeShot!==2)await page.locator('#phoneAimChoice').click();
     for(const id of ['aimRoller2','tableSpeed2','bottomFollow2','bottomSide2','phoneTip2'])await reachable('#'+id);
@@ -42,11 +45,14 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
     await page.locator('#workspaceBalls [data-ball-id="3"]').click();assert((await shot()).balls.some(b=>b.id===3));assert(!(await shot()).pocketedLog.includes(3));assert(await page.locator('#workspaceBalls [data-ball-id="3"]').isDisabled());
     await page.locator('#phoneTrayToggle').click();assert(!(await page.locator('#workspaceBalls').isVisible()));await page.locator('#phoneTrayToggle').click();
     const geometry=async()=>{
-     const tools=await reachable('#phoneControls');for(const id of ['workspace-setup','workspace-plan','workspace-view'])assert(!overlaps(tools,await page.locator('#'+id+' summary').boundingBox()),'Tools clears '+id);
+     const tools=await reachable('#phoneControls');for(const id of ['workspace-setup','workspace-view'])assert(!overlaps(tools,await page.locator('#'+id+' summary').boundingBox()),'Tools clears '+id);
      const ids=['stageWrap','phoneAimRail','phoneSpeedRail',...(await page.locator('#workspaceBallShelf').isVisible()?['workspaceBallShelf']:[]),'bottomSpin1'];const boxes={};for(const id of ids)boxes[id]=await page.locator('#'+id).boundingBox();
      for(const id of ids.slice(1))assert(!overlaps(boxes.stageWrap,boxes[id]),'Table clears '+id+': '+JSON.stringify(boxes));
      if(boxes.workspaceBallShelf)assert(!overlaps(boxes.workspaceBallShelf,boxes.bottomSpin1),'Balls clear spin');
-     const spin=await page.locator('#bottomSpin1').boundingBox(),shoot=await page.locator('[data-trainer-action=animate]').boundingBox();assert(!overlaps(spin,shoot),'Shoot clears spin');
+     const spin=await page.locator('#bottomSpin1').boundingBox(),shoot=await reachable('[data-trainer-action=animate]');assert(!overlaps(spin,shoot),'Shoot clears spin');assert(shoot.height>=128,'Shoot spans two rows');
+     if(boxes.workspaceBallShelf)assert(!overlaps(boxes.workspaceBallShelf,shoot),'Tray clears tall Shoot');
+     const tip=await reachable('#phoneTip1');assert(tip.width>=(viewport.width<=600?56:72),'Larger cue-tip badge');assert(!overlaps(tip,await page.locator('#bottomFollow1').boundingBox()));assert(!overlaps(tip,await page.locator('#bottomSide1').boundingBox()));
+     const mode=await reachable('#table3DToggle'),experience=await reachable('#btZenLauncher .experience-toggle');assert(mode.x>=experience.x+experience.width&&mode.x-experience.x-experience.width<=8,'Mode directly follows experience');assert.equal(mode.y,experience.y);
      for(const [id,box]of Object.entries(boxes))assert(box.x>=0&&box.y>=0&&box.x+box.width<=viewport.width+1&&box.y+box.height<=viewport.height+1,id+' within viewport');
     };
     await geometry();assert((await reachable('#phoneSpeedRail')).width>=50);assert((await reachable('#phoneAimRail')).width>=50);assert((await reachable('[data-trainer-action=animate]')).height>=64);assert((await reachable('#bottomFollow1')).height>=40);await screenshot('shot-controls');
@@ -60,15 +66,16 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
      await page.locator('[data-trainer-action=redoShot]').click();await page.waitForFunction(()=>!billiardsZenControls.status().busy);
      await page.locator('[data-trainer-action=undoShot]').click();assert.deepEqual((await shot()).balls,preShot.balls,'Redo remains reversible');
     }
-    const before3d=await shot();await page.locator('#workspace-view summary').click();await page.locator('#table3DToggle').click();await page.waitForFunction(()=>Billiards3D.active);await page.keyboard.press('Escape');
-    await geometry();await screenshot('3d');assert.deepEqual(await shot(),before3d,'View switch preserves shot settings and balls');
-    for(const selector of ['#table3DLock','#table3DPan','#table3DRotate','#table3DZoomSlider','#table3DZoomIn','#table3DZoomOut','#table3DRackToggle','#phoneTrayToggle','#table3DViews button:nth-child(2)','#btZenLauncher .experience-toggle','#appCloseControl'])await reachable(selector);
+    await clearAndUndo();const modePosition=await page.locator('#table3DToggle').boundingBox();
+    const before3d=await shot();await page.locator('#table3DToggle').click();await page.waitForFunction(()=>Billiards3D.active);await page.keyboard.press('Escape');
+    await geometry();await screenshot('3d');assert.deepEqual(await page.locator('#table3DToggle').boundingBox(),modePosition,'Mode switch stays at exactly the same position');assert.deepEqual(await shot(),before3d,'View switch preserves shot settings and balls');
+    for(const selector of ['#table3DLock','#table3DPan','#table3DRotate','#table3DZoomSlider','#table3DZoomIn','#table3DZoomOut','#table3DRackToggle','#phoneTrayToggle','#table3DViews button:nth-child(2)','#btZenLauncher .experience-toggle','#appCloseControl']){const box=await reachable(selector);assert(!overlaps(box,await page.locator('[data-trainer-action=animate]').boundingBox()),selector+' clears tall Shoot');}
     await page.locator('#table3DLock [data-adjust=edit]').click();assert(await page.locator('body').evaluate(e=>e.classList.contains('table-3d-locked')));await page.locator('#table3DLock [data-adjust=view]').click();assert(!(await page.locator('body').evaluate(e=>e.classList.contains('table-3d-locked'))));
     await page.locator('#table3DPan').click();assert.equal(await page.locator('#table3DPan').getAttribute('aria-pressed'),'true');await page.locator('#table3DRotate').click();
     await page.locator('#table3DZoomIn').click();await page.locator('#table3DViews button').filter({hasText:'Full View'}).click();
-    await page.locator('#phoneTrayToggle').click();await geometry();await reachable('#workspaceBalls [data-ball-id="4"]');await screenshot('3d-tray');await page.locator('#phoneTrayToggle').click();
+    await page.locator('#phoneTrayToggle').click();await geometry();await reachable('#workspaceBalls [data-ball-id="4"]');await screenshot('3d-tray');await clearAndUndo();await page.locator('#phoneTrayToggle').click();
     await page.locator('#phoneAimChoice').click();for(const id of ['aimRoller2','tableSpeed2','bottomFollow2','bottomSide2','phoneTip2'])await reachable('#'+id);await screenshot('3d-shot-two');await page.locator('#phoneAimChoice').click();
-    for(const id of ['kickToolToggle','bankToolToggle']){await page.locator('#workspace-plan summary').click();await page.locator('#'+id).click();const panel=await reachable('#bankKickRoutePanel');assert(!overlaps(panel,await page.locator('#phoneControls').boundingBox()),id+' clears Tools');assert(!overlaps(panel,await page.locator('#appCloseControl').boundingBox()),id+' clears Close');await screenshot(id);await page.locator('#workspace-plan summary').click();await page.locator('#'+id).click();}
+    for(const id of ['kickToolToggle','bankToolToggle']){await openAiming();await page.locator('#'+id).click();const panel=await reachable('#bankKickRoutePanel');assert(!overlaps(panel,await page.locator('#phoneControls').boundingBox()),id+' clears Tools');assert(!overlaps(panel,await page.locator('#appCloseControl').boundingBox()),id+' clears Close');await screenshot(id);await openAiming();await page.locator('#'+id).click();}
     const beforeReturn=await shot();await page.locator('#table3DToggle').click();await page.waitForFunction(()=>!Billiards3D.active);await page.keyboard.press('Escape');
     assert.deepEqual(await shot(),beforeReturn,'Return to 2D preserves both shots');assert.deepEqual(errors,[]);console.log(viewport.width+': geometry, drawer, grouped tools, two-shot controls, tray and 3D transition passed');
    }catch(error){await screenshot('failure');failures.push(viewport.width+': '+error.stack);console.error(failures.at(-1));}finally{await context.close();}

@@ -6,7 +6,7 @@
   const bar = document.createElement('nav');
   bar.id = 'workspaceTools'; bar.setAttribute('aria-label', 'Table tools');
   const groups = {};
-  for (const [key, label] of [['setup', 'Setup'], ['plan', 'Plan'], ['view', 'View']]) {
+  for (const [key, label] of [['setup', 'Setup'], ['view', 'View']]) {
     const details = document.createElement('details'); details.id = 'workspace-' + key;
     const summary = document.createElement('summary'); summary.textContent = label;
     const content = document.createElement('div'); content.className = 'workspaceToolGroup';
@@ -17,6 +17,9 @@
     });
   }
   document.body.append(bar);
+  const aiming = document.createElement('div'); aiming.id = 'workspaceAimTools';
+  byId('featureAimingOptions').querySelector('legend').after(aiming);
+  groups.aiming = aiming;
   const closeGroups = () => bar.querySelectorAll('details').forEach(d => d.open = false);
   document.addEventListener('pointerdown', e => { if (!bar.contains(e.target)) closeGroups(); });
   document.addEventListener('keydown', e => {
@@ -26,7 +29,7 @@
   });
   const groupIds = {
     setup: ['analyzePhotoBtn', 'cameraCaptureBtn', 'quickLayoutRecall'],
-    plan: ['kickToolToggle', 'bankToolToggle', 'teachingCompassToggle', 'angleLock', 'compassSizeWrap', 'compassRotateWrap'],
+    aiming: ['kickToolToggle', 'bankToolToggle', 'teachingCompassToggle', 'compassSizeWrap', 'compassRotateWrap'],
     view: ['tableZoom', 'btg-fullscreen']
   };
   const rename = (id, text) => { const el = byId(id); if (el) { el.textContent = text; el.setAttribute('aria-label', text); } };
@@ -41,12 +44,18 @@
     const el = byId(id); if (!el) continue;
     if (!['compassSizeWrap', 'compassRotateWrap', 'angleLock', 'btg-fullscreen'].includes(id)) el.addEventListener('click', closeGroups);
   }
+  for (const id of ['kickToolToggle', 'bankToolToggle']) byId(id).addEventListener('click', () => {
+    if (document.body.classList.contains('phone-controls-open')) byId('phoneControls').click();
+  });
 
   const shelf = document.createElement('section'); shelf.id = 'workspaceBallShelf'; shelf.setAttribute('aria-label', 'Ball tray');
   const trayToggle = byId('phoneTrayToggle');
   trayToggle.textContent = 'Balls'; trayToggle.setAttribute('aria-controls', 'workspaceBalls');
   const balls = document.createElement('div'); balls.id = 'workspaceBalls'; balls.setAttribute('role', 'group'); balls.setAttribute('aria-label', 'Add or return balls');
   const count = document.createElement('output'); count.id = 'workspaceBallCount'; count.setAttribute('aria-label', 'Balls pocketed');
+  const clear = document.createElement('button'); clear.type = 'button'; clear.id = 'workspaceClearBalls'; clear.textContent = 'Clear';
+  clear.setAttribute('aria-label', 'Clear table of all balls'); clear.title = 'Clear table';
+  clear.onclick = () => { if (window.billiards3DBallControls?.clearTable()) sync(); };
   const earlier = document.createElement('button'), later = document.createElement('button');
   for (const [button, direction, label] of [[earlier, -1, 'Earlier balls'], [later, 1, 'More balls']]) {
     button.type = 'button'; button.className = 'workspaceTrayScroll'; button.textContent = direction < 0 ? '‹' : '›';
@@ -59,7 +68,7 @@
   };
   balls.addEventListener('scroll', syncScroll, {passive:true});
   new ResizeObserver(syncScroll).observe(balls);
-  shelf.append(trayToggle, earlier, balls, later, count); document.body.append(shelf);
+  shelf.append(trayToggle, clear, earlier, balls, later, count); document.body.append(shelf);
   const colors = ['#f4f4ed', '#f6d21f', '#2678ff', '#e84132', '#744ac4', '#f07a22', '#2e9c4d', '#7b2d20', '#111'];
   function place(id, event) {
     if (window.billiardsZenControls?.status().busy) return;
@@ -103,6 +112,7 @@
       button.setAttribute('aria-label', label); button.title = label;
     }
     count.textContent = data.pocketed.length ? data.pocketed.length + ' pocketed' : '';
+    clear.disabled = data.busy;
     trayToggle.setAttribute('aria-label', document.body.classList.contains('phone-tray-hidden') ? 'Show ball tray' : 'Hide ball tray');
   }
   const trayState = {twoD: true, threeD: false};
@@ -115,6 +125,7 @@
   const move = (parent, element) => { if (element && element.parentNode !== parent) parent.append(element); };
   window.billiardsWorkspaceDock = () => {
     for (const [key, ids] of Object.entries(groupIds)) for (const id of ids) move(groups[key], byId(id));
+    move(byId('featureCueOptions'), byId('angleLock'));
     const active = document.body.classList.contains('table-3d');
     const views = byId('table3DViews'), tools = byId('table3DTools');
     const cameraRow = byId('table3DPhoneControls');
@@ -125,10 +136,10 @@
     }
     if (active) {
       cameraRow.hidden = false; move(document.body, cameraRow);
-      move(cameraRow, tools); move(cameraRow, views); move(views, byId('table3DToggle'));
+      move(cameraRow, tools); move(cameraRow, views);
       move(tools, trayToggle); tools.prepend(trayToggle);
     } else {
-      cameraRow.hidden = true; move(groups.view, views); move(views || groups.view, byId('table3DToggle')); move(groups.view, tools);
+      cameraRow.hidden = true; move(groups.view, views); move(groups.view, tools);
       shelf.prepend(trayToggle);
     }
     fit.hidden = active;
@@ -136,12 +147,14 @@
     if (active) trayToggle.after(byId('table3DRackToggle'));
     const experience = byId('btZenLauncher');
     if (experience && experience.parentNode !== bar) bar.prepend(experience);
+    const mode = byId('table3DToggle');
+    if (mode) { if (experience) experience.after(mode); else bar.prepend(mode); }
     move(bar, byId('phoneAimChoice'));
     sync();
   };
   byId('phoneControls')?.addEventListener('click', closeGroups);
   const experienceObserver = new MutationObserver(() => {
-    if (byId('btZenLauncher')) { bar.prepend(byId('btZenLauncher')); experienceObserver.disconnect(); }
+    if (byId('btZenLauncher')) { bar.prepend(byId('btZenLauncher')); window.billiardsWorkspaceDock(); experienceObserver.disconnect(); }
   });
   experienceObserver.observe(document.body, {childList:true});
   window.billiardsWorkspaceDock();
