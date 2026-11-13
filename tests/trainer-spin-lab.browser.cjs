@@ -56,7 +56,7 @@ const out=path.resolve('test-results/spin-lab');fs.mkdirSync(out,{recursive:true
    await setup(speed);await p.evaluate(()=>Billiards3D.followCue(true));
    console.log('Export start',speed,mode);const before=await state();const downloads=[];const onDownload=d=>downloads.push(d);p.on('download',onDownload);
    await p.evaluate(mode=>{document.getElementById('trainerClipView').value=mode;document.getElementById('trainerClipArm').click();},mode);
-   await p.waitForFunction(()=>billiardsPlayback.state().recording,null,{timeout:20000});
+   await p.waitForFunction(()=>{const p=billiardsPlayback.state();return p.recording&&p.running;},null,{timeout:20000});
    const duration=await p.evaluate(()=>billiardsPlayback.state().duration);
    await p.waitForFunction(()=>!BilliardsShotRecorder.busy,null,{timeout:360000});
    p.off('download',onDownload);assert.equal(downloads.length,2,await p.locator('#trainerClipStatus').textContent());
