@@ -16,3 +16,15 @@ const contactPlan={...t,ballId:1},contactPreview={...p,firstBallContact:{objId:1
 console.log('Kick endpoint on an object ball requires contact after the rails; a separate destination and Bank retain their existing goals.');
 
 ctx.nearestLogicalPocket=()=>({x:0,y:0});assert.equal(ctx.bankKickTargetsContact(contactPlan),false,'An explicit pocket destination retains pocketing semantics even near a ball');
+
+// Explicit cue-to-pocket practice is intentional; a wrong pocket still fails.
+ctx.nearestLogicalPocket=q=>Math.hypot(q.x,q.y)<.02?{x:0,y:0}:null;
+const pocketPlan={mode:'kick',ballId:0,rails:['right'],zero:{x:0,y:0}};
+const pocketPreview={firstBallContact:null,railEvents:[{id:0,rail:'right rail',t:1}],pocketEvents:[{id:0,x:.02,y:.02,t:3}],paths:{0:[{x:.3,y:.4,t:0},{x:1.9,y:.5,t:1},{x:.04,y:.04,t:2.9}]}};
+const intended=ctx.assessBankKickShot(pocketPlan,pocketPreview,0);
+assert(intended.reached&&intended.intentionalCuePocket&&!intended.scratch);
+const wrong=ctx.assessBankKickShot(pocketPlan,{...pocketPreview,pocketEvents:[{id:0,x:1.98,y:.02,t:3}]},0);
+assert(!wrong.reached&&wrong.scratch&&!wrong.intentionalCuePocket);
+assert.equal(ctx.assessBankKickShot({...pocketPlan,rails:['left']},pocketPreview,0),null);
+assert.equal(ctx.assessBankKickShot(pocketPlan,{...pocketPreview,firstBallContact:{objId:9,t:.5,cuePos:{x:.5,y:.4}}},0),null);
+console.log('Explicit cue-to-pocket target succeeds only after its ordered cushions; wrong pockets and early collisions remain rejected.');

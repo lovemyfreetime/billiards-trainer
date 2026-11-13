@@ -3922,7 +3922,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const distance=(1-(contact.overlap||0)/100)*S.ballR,scratch=preview.pocketEvents.some(e=>e.id===0),reached=allHits.length===t.rails.length;
             return {angle,distance,reached,scratch,end:contact.t,closestPoint:contact.cuePos,score:reached?-1+distance+(scratch ? .25 : 0):distance,hits:allHits.slice(0,t.rails.length),preview};
         }
-        const targetPocket=locationKick?null:nearestLogicalPocket(t.zero,.02);
+        const targetPocket=nearestLogicalPocket(t.zero,.02);
         const pocket=preview.pocketEvents.find(e=>e.id===t.ballId&&Math.hypot(e.x-t.zero.x,e.y-t.zero.y)<.16);
         const fromTime=t.mode==='bank'||locationKick?allHits[t.rails.length-1].t:contact.t;
         const until=Math.min(t.mode==='bank'||locationKick?(allHits[t.rails.length]?.t??Infinity):Infinity,locationKick?(contact?.t??Infinity):Infinity);
@@ -3943,8 +3943,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const end=t.mode==='kick'&&!locationKick?contact.t:(targetPocket?(pocket?.t??closestTime):closestTime);
         const hits=allHits.filter(e=>e.t<=end);
         const reached=hits.length===t.rails.length&&(targetPocket?!!pocket:distance<S.ballR*.35);
-        const scratch=preview.pocketEvents.some(e=>e.id===0);
-        return {angle,distance,reached,scratch,closestPoint,end:targetPocket?(pocket?.t??Infinity):closestTime,score:reached?-1+distance+(scratch ? .25 : 0):distance,hits:hits.slice(0,t.rails.length),preview};
+        // A cue-only drill may deliberately name a pocket as its destination.
+        // Only that selected pocket is intentional; all other cue scratches fail.
+        const intentionalCuePocket=locationKick&&!!targetPocket&&!!pocket&&reached;
+        const scratch=preview.pocketEvents.some(e=>e.id===0)&&!intentionalCuePocket;
+        return {angle,distance,reached,scratch,intentionalCuePocket,signedDistance:preview.searchClosest?.signedDistance,closestPoint,end:targetPocket?(pocket?.t??Infinity):closestTime,score:reached?-1+distance+(scratch ? .25 : 0):distance,hits:hits.slice(0,t.rails.length),preview};
     }
     function* calculateBankKickRouteAtCurrentSpeed(t) {
         const ball=S.balls.find(b=>b.id===t.ballId&&b.active!==false&&!b.marker),second=S.activeShot===2&&S.shot2Enabled,shot=second?ensureShot2():S,cb=second?shot:cueBall();
@@ -3967,7 +3970,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 if(evaluated.has(angle))return evaluated.get(angle);
                 const assessed=assessBankKickShot(t,yield* runBankKickShot(t,angle,true),angle);
                 if(!assessed||!Number.isFinite(assessed.distance)){evaluated.set(angle,null);return null;}
-                const candidate={angle,score:assessed.score,reached:assessed.reached,distance:assessed.distance};
+                const candidate={angle,score:assessed.score,reached:assessed.reached,distance:assessed.distance,signedDistance:assessed.signedDistance};
                 evaluated.set(angle,candidate);samples.push(candidate);
                 // Stop angle exploration as soon as a candidate passes the full
                 // scene, including blockers and scratches. Speed refinement follows.
@@ -3977,15 +3980,30 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 }
                 return candidate;
             };
-            const width=t.mode==='bank'?half*1.12+.004:.12;
+            const width=t.mode==='bank'?half*1.12+.004:(t.rails.length===1?.28:.12);
             const scanCenter=t.mode==='bank'?center:seed;
             // Try the direct geometric seed first for a single rail, but never
             // accept it without the same complete physics and scratch checks.
             if(t.rails.length===1){
-                const direct=yield* evaluate(Number.isFinite(t.searchHint)?t.searchHint:seed);
-                if(direct?.reached){
-                    const actual=assessBankKickShot(t,yield* runBankKickShot(t,direct.angle),direct.angle);
-                    if(actual?.reached&&!actual.scratch)best=actual;
+                yield* evaluate(Number.isFinite(t.searchHint)?t.searchHint:seed);
+            }
+            if(!best&&t.rails.length===1){
+                // The mirror angle ignores cushion friction and ball-ball throw.
+                // Use the actual simulated signed miss to correct it, then verify
+                // the full table. Retain the broad search when the local route is blocked.
+                let angle=Number.isFinite(t.searchHint)?t.searchHint:seed;
+                const limit=t.mode==='bank'?half*.45:.12;
+                for(let iteration=0;iteration<7&&!best;iteration++){
+                    const a=yield* evaluate(angle);if(best)break;
+                    if(!a||!Number.isFinite(a.signedDistance))break;
+                    const h=t.mode==='bank'?Math.min(.001,half*.04):.002;
+                    const b=yield* evaluate(angle+h);if(best)break;
+                    if(!b||!Number.isFinite(b.signedDistance))break;
+                    const derivative=(b.signedDistance-a.signedDistance)/h;
+                    if(Math.abs(derivative)<1e-5)break;
+                    const correction=clamp(-a.signedDistance/derivative,-limit,limit);
+                    if(Math.abs(correction)<1e-7)break;
+                    angle+=correction;yield;
                 }
             }
             if(!best){
@@ -4022,13 +4040,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         return {solution:{mode:t.mode,locationKick,contactKick,multiRail:true,fullShot:true,source:t.mode==='bank'?{x:ball.x,y:ball.y}:{x:cb.x,y:cb.y},target:t.zero,destination:t.zero,ballId:ball.id,
             points:t.mode==='bank'?objectPath:cuePath,cuePath:t.mode==='bank'?cuePath:null,objectPath:t.mode==='kick'&&!locationKick&&!contactKick?objectPath:null,
             bounces:best.hits.map(e=>({x:e.x,y:e.y,rail:railByName(e.rail.replace(' rail',''))})),reached:true,angle:best.angle,aim,shotSpeed:shot.speed,shotFollow:shot.follow,shotSide:shot.sideSpin,setupNeeded,
-            scratch:best.scratch,verifiedPocket:contactKick?null:preview.pocketEvents.find(e=>e.id===t.ballId&&Math.hypot(e.x-t.zero.x,e.y-t.zero.y)<.16)||null},
+            scratch:best.scratch,intentionalCuePocket:!!best.intentionalCuePocket,verifiedPocket:contactKick?null:preview.pocketEvents.find(e=>e.id===t.ballId&&Math.hypot(e.x-t.zero.x,e.y-t.zero.y)<.16)||null},
             message:(best.scratch?'Object ball pockets, but the cue ball scratches. ':'')+(setupNeeded?(locationKick?'Cue-ball route to the selected location verified. Tap Use setup to apply.':'Complete cue-ball shot verified, including the object-ball collision. Tap Use shot setup to apply the aim and speed.'):'Current cue-ball shot verified through the selected rails to the destination.')};
     }
     function bankKickShotCandidates(railCount) {
         const maxSpeed=railCount>=3?6:5;
-        // Establish a reachable route before refining its speed downward.
-        const speeds=railCount===1?[5,4.5,4,3.25,2.5,1.5]:[1.5,2.5,3.25,4,4.5,5,...(railCount>=3?[5.5,6]:[])];
+        // Ordinary one-rail shots usually need a moderate stroke. High-speed
+        // routes can occupy a different aim/scratch interval from pocket pace.
+        const speeds=railCount===1?[2.25,3.25,4,5,1.5,2.5,4.5]:[1.5,2.5,3.25,4,4.5,5,...(railCount>=3?[5.5,6]:[])];
         const candidates=speeds.map(speed=>({speed,follow:0,sideSpin:0}));
         // Prefer center ball, then modest English, before stronger tip offsets.
         for(const sideSpin of [.15,-.15,.3,-.3])for(const speed of [3.25,maxSpeed])candidates.push({speed,follow:0,sideSpin});
@@ -4063,19 +4082,16 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             }
         }
         let fallback=null;
-        const verifiedSpins=new Set();
         const reserveFor=sol=>sol.verifiedPocket?sol.verifiedPocket.speed**2/(2*Math.max(1e-6,snapshot.muRoll)*9.81)/(snapshot.tableL/8):null;
         const finish=result=>{Object.assign(result.solution,{setupNeeded:true,shotElevation:3,shotAirborne:false,pocketReserveDiamonds:reserveFor(result.solution),searchDiagnostics:diagnostics});result.message='Shot verified. Tap Use setup to apply the calculated aim, speed and spin.';return result;};
         // First screen candidates with the same physics on the cue/object pair.
         // Every acceptance still runs the complete scene, including all blockers
         // and cue-ball scratches. Retain a full-scene search fallback as well.
-        const stages=[...candidates.map(controls=>({controls,screenOnly:true})),...candidates.map(controls=>({controls,screenOnly:false}))];
+        const blockers=snapshot.balls.some(b=>b.active!==false&&!b.marker&&b.id!==0&&b.id!==t.ballId);
+        const stages=[...candidates.map(controls=>({controls,screenOnly:true})),...(blockers?candidates.map(controls=>({controls,screenOnly:false})):[])];
         for(const {controls,screenOnly} of stages){
-            const spinKey=controls.follow+':'+controls.sideSpin;
-            if(verifiedSpins.has(spinKey))continue;
             let candidate;try{candidate=await solve(controls,undefined,screenOnly);}catch(error){if(cancelled())throw error;if(fallback)return finish(fallback);throw error;}
             if(!candidate.solution?.reached||candidate.solution.scratch)continue;
-            verifiedSpins.add(spinKey);
             let best=candidate;
             // Refine the verified stroke toward a gentle pocket arrival. This is
             // the OBJECT ball's remaining rolling distance, not cue launch speed.
@@ -4284,16 +4300,18 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const calculate=$('bankKickCalculate');calculate.disabled=!t.zero||!t.rails.length;
             calculate.classList.toggle('ready',!!t.zero&&!!t.rails.length&&!bankKickRouteCache.pending&&!t.solution);calculate.classList.toggle('selected',!!t.solution);calculate.setAttribute('aria-busy',String(bankKickRouteCache.pending));calculate.title=t.mode==='kick'?'Select rails, then tap an object ball for contact or the cue ball to reach the target location.':'Select rails and the object ball to bank.';calculate.textContent=bankKickRouteCache.pending?'Cancel':t.phase==='calculateBall'?'Tap ball':'Calculate';
             const setup=t.requested&&!t.phase?bankKickRouteCache.solution:null;
-            $('bankKickRouteStatus').textContent=bankKickRouteCache.pending?'Calculating…':!setup?bankKickRouteCache.message:setup?.scratch?'Cue ball scratches':setup?.locationKick?'Cue ball → target location':setup?.contactKick?'Kick contact verified':setup?.pocketReserveDiamonds!=null?(setup.pocketReserveDiamonds<=1.1?'Pocket pace · ':'Firmer route · ')+setup.pocketReserveDiamonds.toFixed(1)+' ♦ reserve':'';
+            if(setup)setup.setupNeeded=bankKickSetupNeeded(setup);
+            $('bankKickRouteStatus').textContent=bankKickRouteCache.pending?'Calculating…':!setup?bankKickRouteCache.message:!setup.setupNeeded?'Setup applied — ready to shoot'+(setup.intentionalCuePocket?' (cue ball to selected pocket)':''):setup?.scratch?'Cue ball scratches':setup?.intentionalCuePocket?'Cue ball → selected pocket (intentional)':setup?.locationKick?'Cue ball → target location':setup?.contactKick?'Kick contact verified':setup?.pocketReserveDiamonds!=null?(setup.pocketReserveDiamonds<=1.1?'Pocket pace · ':'Firmer route · ')+setup.pocketReserveDiamonds.toFixed(1)+' ♦ reserve':'';
             if(setup&&!Number.isFinite(setup.shotDiamonds))setup.shotDiamonds=powerFeelForSpeed(setup.shotSpeed).diamonds;
             $('bankKickSpeedValue').textContent=setup?setup.shotSpeed.toFixed(2)+' m/s':'—';
             $('bankKickSpeedDiamonds').textContent=Number.isFinite(setup?.shotDiamonds)?setup.shotDiamonds.toFixed(1)+' ♦':'';
             $('bankKickFollowOutput').textContent=setup?(Math.abs(setup.shotFollow)<.005?'Center':Math.round(Math.abs(setup.shotFollow)*100)+'% '+(setup.shotFollow>0?'Follow':'Draw')):'—';
             $('bankKickSpinOutput').textContent=setup?(Math.abs(setup.shotSide)<.005?'Center':Math.round(Math.abs(setup.shotSide)*100)+'% '+(setup.shotSide>0?'Right':'Left')):'—';
             $('bankKickUndoRail').disabled=!(t.rails?.length);
-            if(setup)setup.setupNeeded=bankKickSetupNeeded(setup);
-            $('bankKickUseSpeed').hidden=!setup?.setupNeeded;$('bankKickUseSpeed').classList.toggle('ready',!!setup?.setupNeeded);calculate.hidden=!!setup?.setupNeeded;
-            if(setup?.setupNeeded)$('bankKickUseSpeed').textContent='Use setup';
+            $('bankKickUseSpeed').hidden=!setup;
+            $('bankKickUseSpeed').disabled=!!setup&&!setup.setupNeeded;
+            $('bankKickUseSpeed').classList.toggle('ready',!!setup?.setupNeeded);calculate.hidden=!!setup;
+            $('bankKickUseSpeed').textContent=setup&&!setup.setupNeeded?'Ready':'Use setup';
         }
         for (const [id, mode] of [['bankToolToggle', 'bank'], ['kickToolToggle', 'kick']]) {
             const b = $(id);
@@ -5621,7 +5639,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 if((firstBallContact||(search.mode==='kick'&&search.ballId===0))&&hits.length===search.rails.length){
                     const object=B.find(b=>b.id===search.ballId);
                     const distance=Math.hypot(object.x-search.target.x,object.y-search.target.y);
-                    if(!searchClosest||distance<searchClosest.distance)searchClosest={distance,t,x:object.x,y:object.y};
+                    if(!searchClosest||distance<searchClosest.distance){
+                        const speed=Math.hypot(object.vx,object.vy);
+                        searchClosest={distance,t,x:object.x,y:object.y,signedDistance:speed>1e-6?(object.vx*(search.target.y-object.y)-object.vy*(search.target.x-object.x))/speed:null};
+                    }
                     else if(distance>searchClosest.distance+.0005)break;
                     if(!object.active)break;
                 }
@@ -12965,7 +12986,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         $('bankKickTarget').onclick=()=>{invalidateBankKickRoute();const t=bankKickState();t.phase='zero';syncBankKickControls();draw();};
         document.querySelectorAll('[data-bank-rail]').forEach(button=>{button.onclick=()=>{const t=bankKickState();if(!t.zero)return;invalidateBankKickRoute();t.editRailIndex=Number(button.dataset.bankRail);t.phase='editRail';syncBankKickControls();draw();};});
         $('bankKickCalculate').onclick=requestBankKickCalculation;
-        $('bankKickUseSpeed').onclick=()=>{const sol=bankKickRouteCache.solution;if(!sol?.fullShot||!sol.aim||animation)return;beginActionUndo();const shot=S.activeShot===2&&S.shot2Enabled?ensureShot2():S;shot.speed=sol.shotSpeed;shot.follow=sol.shotFollow;shot.sideSpin=sol.shotSide;shot.cueElevationDeg=sol.shotElevation;S.airbornePhysics=sol.shotAirborne;shot.freeAim={...sol.aim};shot.angleLock=false;shot.autoGhostLock=false;shot.ghostLock=null;shot.ghostLockDirty=false;updateUI();refreshPreview();saveState();};
+        $('bankKickUseSpeed').onclick=()=>{const sol=bankKickRouteCache.solution;if(!sol?.fullShot||!sol.aim||animation)return;beginActionUndo();const shot=S.activeShot===2&&S.shot2Enabled?ensureShot2():S;shot.speed=sol.shotSpeed;shot.follow=sol.shotFollow;shot.sideSpin=sol.shotSide;shot.cueElevationDeg=sol.shotElevation;S.airbornePhysics=sol.shotAirborne;shot.freeAim={...sol.aim};shot.angleLock=false;shot.autoGhostLock=false;shot.ghostLock=null;shot.ghostLockDirty=false;S.showShotLine=true;S.showPaths=true;S['showShot'+(S.activeShot===2&&S.shot2Enabled?2:1)]=true;updateUI();refreshPreview();syncBankKickControls();saveState();};
         $('bankKickUndoRail').onclick=()=>{const t=bankKickState();t.rails.pop();t.railName=t.rails[0]||null;t.ballId=null;t.solution=null;t.phase=t.rails.length?'ball':(t.zero?'rail':'kickStart');bankKickRouteCache={key:null,solution:null,pending:false,message:''};syncBankKickControls();draw();saveState();};
         $('kickToolToggle').addEventListener('click', () => beginBankKick('kick'));
         $('analyzePhotoBtn').addEventListener('click', openPhotoAnalyzer);
