@@ -37,7 +37,22 @@ const out=path.resolve('test-results/spin-lab');fs.mkdirSync(out,{recursive:true
   await p.locator('#trainerShowPlayback').click();
   await p.locator('#phoneControls:visible, #table3DDrawer:visible').first().click();
   await p.locator('#trainerPlaybackCloseup').click();await p.locator('#trainerPlaybackFollow').check();
-  const camera=await p.evaluate(()=>Billiards3D.camera());assert.equal(camera.followCue,true);
+  const camera=await p.evaluate(()=>Billiards3D.camera());assert.equal(camera.followCue,true);assert.equal(camera.followSide,'behind');
+  for(const side of ['front','left','right','behind']){
+   await p.locator('[data-follow-side="'+side+'"]').check();
+   const current=await p.evaluate(()=>Billiards3D.camera());assert.equal(current.followSide,side);assert(current.followCue);
+   assert.equal(await p.locator('[data-follow-side]:checked').count(),1,'Only one follow side is selected');
+   const saved=await p.evaluate(()=>BilliardsClipView.captureView());await p.evaluate(()=>Billiards3D.followCue(false));await p.evaluate(saved=>BilliardsClipView.restoreView(saved),saved);
+   assert.equal((await p.evaluate(()=>Billiards3D.camera())).followSide,side,'Saved recording view restores side');
+   await p.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+   await p.screenshot({path:path.join(out,'follow-'+side+'.png')});
+  }
+  await p.locator('#trainerPlaybackFollow').uncheck();assert.equal(await p.evaluate(()=>Billiards3D.camera().followCue),false);
+  await p.locator('#trainerPlaybackFollow').check();
+  await p.locator('#trainerPlaybackHide').click();assert.equal(await p.locator('#trainerPlaybackBar').isVisible(),false);assert.equal(await p.evaluate(()=>Billiards3D.camera().followCue),true,'Hide retains the selected camera before a shot');
+  async function playbackPanel(){await p.locator('#phoneControls:visible, #table3DDrawer:visible').first().click();if(!await p.locator('#trainerShowPlayback').isVisible())await p.getByRole('button',{name:/TABLE \/ BALLS/}).click();}
+  async function reopenPlayback(){await playbackPanel();await p.locator('#trainerShowPlayback').click();await p.locator('#phoneControls:visible, #table3DDrawer:visible').first().click();}
+  await reopenPlayback();
   // A short real shot keeps all export checks fast, including eighth speed.
   async function setup(speed){await p.evaluate(speed=>{const s=billiardsTourBridge.capture();Object.assign(s.state,{shot2Enabled:false,activeShot:1,speed:.18,follow:0,sideSpin:0,cueElevationDeg:0,airbornePhysics:false,freeAim:{x:1.6,y:.635},trainingBallStyle:'split',shotPlaybackSpeed:speed});s.state.balls=[{id:0,n:'CB',x:.635,y:.635,active:true,orientation:[0,0,0,1]}];billiardsTourBridge.restore(s);},speed);}
   await setup(.125);
@@ -56,33 +71,42 @@ const out=path.resolve('test-results/spin-lab');fs.mkdirSync(out,{recursive:true
   const end=await state(),history=await p.evaluate(()=>billiardsTourBridge.snapshot().undoCount);
   await p.locator('#trainerPlaybackReplay').click();await p.waitForFunction(()=>!billiardsPlayback.state().running);
   assert.deepEqual(await state(),end,'Replay restores the ending setup');assert.equal(await p.evaluate(()=>billiardsTourBridge.snapshot().undoCount),history);
-  // Repeatedly leave a paused replay, then shoot and undo normally.
+  // Hide preserves a paused replay; the separate sidebar Stop restores the layout.
   for(let i=0;i<3;i++){
    const saved=await state(),count=await p.evaluate(()=>billiardsTourBridge.snapshot().undoCount);
    await p.locator('#trainerPlaybackQuickSpeed').selectOption('0.125');
    await p.locator('#trainerPlaybackReplay').click();await p.locator('#trainerPlaybackPause').click();
    await p.locator('#trainerPlaybackHide').click();
+   assert((await p.evaluate(()=>billiardsPlayback.state())).paused,'Hiding preserves pause');
+   await playbackPanel();await p.locator('#trainerStopPlayback').click();
    const closed=await p.evaluate(()=>billiardsPlayback.state());assert.equal(closed.running,false);assert.equal(closed.speed,1);
    assert.equal(await p.locator('#trainerPlaybackBar').isVisible(),false);
    assert.equal(await p.evaluate(()=>Billiards3D.camera().followCue),false);
    assert.deepEqual((await state()).balls,saved.balls,'Close restores layout');
    assert.equal(await p.evaluate(()=>billiardsTourBridge.snapshot().undoCount),count,'Close does not commit a shot');
-   await p.locator('#phoneControls:visible, #table3DDrawer:visible').first().click();await p.locator('#trainerShowPlayback').click();await p.locator('#phoneControls:visible, #table3DDrawer:visible').first().click();
+   await p.locator('#trainerShowPlayback').click();await p.locator('#phoneControls:visible, #table3DDrawer:visible').first().click();
   }
   await setup(1);const beforeNormal=(await state()).balls;
   await p.evaluate(()=>document.getElementById('animate').click());await p.waitForFunction(()=>!billiardsPlayback.state().running);
   await p.evaluate(()=>document.getElementById('undoShot').click());assert.deepEqual((await state()).balls,beforeNormal,'Shoot and Undo recover after closing playback');
-  console.log('Three pause/close/reopen cycles, normal Shoot and Undo passed');
+  console.log('Three pause/hide/sidebar-stop/reopen cycles, normal Shoot and Undo passed');
   // The existing recorder exports the selected speed in every supported view.
   console.log('Persistence, 3D pause/step/replay and cue following passed');
   await p.setViewportSize({width:960,height:600});
   const clips=[];
   for(const [speed,mode] of (process.env.SPIN_LAB_UI_ONLY?[]:process.env.SPIN_LAB_RECORDING_SMOKE?[[1,'current']]:[[1,'current'],[.25,'full'],[.125,'stroke']])){
-   await setup(speed);await p.evaluate(()=>Billiards3D.followCue(true));
+   await setup(speed);
+   if(process.env.FOLLOW_CAMERA_TEST)await p.evaluate(()=>{const s=billiardsTourBridge.capture();s.state.balls[0].x=2.46;s.state.speed=.6;s.state.freeAim={x:2.54,y:.635};billiardsTourBridge.restore(s);});
+   await p.evaluate(()=>Billiards3D.followCue(true,'behind'));
+   if(process.env.FOLLOW_CAMERA_TEST){
+    await p.locator('#trainerPlaybackHide').click();
+    await p.evaluate(()=>{window.__followRecording=[];window.addEventListener('billiards:3d-render',()=>{const p=billiardsPlayback.state(),b=Billiards3D.renderedBalls().find(b=>b.id===0);if(p.recording&&p.running&&b)window.__followRecording.push({time:p.time,ball:b,camera:Billiards3D.camera()});});});
+   }
    console.log('Export start',speed,mode);const before=await state();const downloads=[];const onDownload=d=>downloads.push(d);p.on('download',onDownload);
    await p.evaluate(mode=>{document.getElementById('trainerClipView').value=mode;document.getElementById('trainerClipArm').click();},mode);
    await p.waitForFunction(()=>{const p=billiardsPlayback.state();return p.recording&&p.running;},null,{timeout:20000});
    const duration=await p.evaluate(()=>billiardsPlayback.state().duration);
+   if(process.env.FOLLOW_CAMERA_TEST)assert.equal(await p.locator('#trainerPlaybackBar').isVisible(),false,'Current View records with controls hidden');
    await p.waitForFunction(()=>!BilliardsShotRecorder.busy,null,{timeout:360000});
    assert(await p.locator('#trainerPlaybackQuickSpeed').isEnabled(),'Playback speed unlocks as soon as saving finishes');assert(await p.locator('#trainerPlaybackCloseup').isEnabled(),'Camera controls unlock after saving');
    p.off('download',onDownload);assert.equal(downloads.length,2,await p.locator('#trainerClipStatus').textContent());
@@ -93,6 +117,16 @@ const out=path.resolve('test-results/spin-lab');fs.mkdirSync(out,{recursive:true
    assert.equal(stream.width,1920);assert.equal(stream.height,1080);assert.equal(stream.avg_frame_rate,'30/1');
    assert(Math.abs(Number(stream.duration)-(4+duration/speed))<.07,JSON.stringify({speed,duration,output:stream.duration}));
    assert.equal(await p.evaluate(()=>Billiards3D.camera().followCue),true,'Full-table capture restores camera following');
+   if(process.env.FOLLOW_CAMERA_TEST){
+    const frames=await p.evaluate(()=>window.__followRecording);assert(frames.length>10,'Follow camera rendered throughout recording');
+    for(const f of frames){assert.equal(f.camera.followSide,'behind');assert(Math.hypot(f.camera.target.x-f.ball.x,f.camera.target.z-f.ball.z)<1e-8,'Camera target tracks the rendered cue ball');}
+    assert(frames.some(f=>Math.sin(f.camera.azimuth)<-.9)&&frames.some(f=>Math.sin(f.camera.azimuth)>.9),'Recorded camera turns after the rail rebound');
+    assert(Math.max(...frames.map(f=>f.ball.x))-Math.min(...frames.map(f=>f.ball.x))>.05,'Recorded cue ball travels along its path');
+    fs.writeFileSync(path.join(out,'follow-recording-camera.json'),JSON.stringify(frames,null,2));
+    for(const [label,seconds] of [['before-rail',2.03],['after-rail',2+Math.min(duration*.6,.8)],['ending',2+duration]])cp.execFileSync('ffmpeg',['-v','error','-ss',String(seconds),'-i',filename,'-frames:v','1','-y',path.join(out,'follow-video-'+label+'.png')]);
+    assert.equal((await p.evaluate(()=>Billiards3D.camera())).followSide,'behind');
+    await reopenPlayback();
+   }
    const result={speed,mode,simulationSeconds:duration,videoSeconds:stream.duration,frames:stream.nb_read_frames};clips.push(result);console.log('Export passed',result);fs.writeFileSync(path.join(out,'recording-results.json'),JSON.stringify(clips,null,2));
   }
   fs.writeFileSync(path.join(out,'recording-results.json'),JSON.stringify(clips,null,2));console.log(clips);

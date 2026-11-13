@@ -145,6 +145,26 @@
   const x=a.cue.x-dx*setback-lastFrame.L/2-cameraState.target.x,z=a.cue.y-dz*setback-lastFrame.W/2-cameraState.target.z,y=.25-cameraState.target.y;
   cameraState.azimuth=Math.atan2(x,z);cameraState.radius=Math.hypot(x,y,z);cameraState.elevation=Math.asin(y/cameraState.radius);if(cueWide)window.BilliardsTableOrbit.zoom(cameraState,1.15**5,lastFrame.L,lastFrame.R);requestRender();
  }
+ // Follow the direction of travel without moving the ball or its simulation clock.
+ function updateCueFollow(state,f,snap=false){
+  const b=f.balls.find(b=>b.id===0&&b.active);if(!b)return false;
+  const moving=f.animating&&Math.hypot(b.vx||0,b.vy||0)>.004;
+  let heading=state.followHeading;
+  if(moving){
+   const desired=Math.atan2(b.vy,b.vx),time=Number.isFinite(b.t)?b.t:0;
+   if(snap||!Number.isFinite(heading)||!state.followAnimating||time<state.followTime)heading=desired;
+   else{const dt=Math.max(0,time-state.followTime),turn=Math.atan2(Math.sin(desired-heading),Math.cos(desired-heading));heading+=turn*(1-Math.exp(-dt/.06));}
+   state.followTime=time;
+  }else if(!Number.isFinite(heading)||(!f.animating&&!state.followHasMotion)){
+   const a=f.aim;heading=a?Math.atan2(a.target.y-a.cue.y,a.target.x-a.cue.x):0;
+  }
+  state.followHeading=heading;state.followAnimating=!!f.animating;
+  if(moving)state.followHasMotion=true;
+  const offset={behind:0,front:Math.PI,left:-Math.PI/2,right:Math.PI/2}[state.followSide]||0;
+  state.azimuth=Math.atan2(-Math.cos(heading),-Math.sin(heading))+offset;
+  state.target={x:b.x-f.L/2,y:Number.isFinite(b.z)?Math.max(f.R,b.z):f.R,z:b.y-f.W/2};
+  return true;
+ }
  function disable(){if(!active)return;closePopovers();setDrawer(false);active=false;document.body.classList.remove('table-3d','table-3d-locked','table-3d-pan','table-3d-rotate');button.setAttribute('aria-pressed','false');button.textContent='3D Mode';for(const b of [button,standingButton,alongButton])b.style.removeProperty('font-size');tools.hidden=true;for(const b of [standingButton,alongButton,viewLock])b.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
  button.onclick=async()=>{
   if(active){disable();return;}if(loading)return;loading=true;button.disabled=true;status.textContent='';
@@ -158,12 +178,12 @@
   finally{loading=false;button.disabled=false;}
  };
  window.Billiards3D={get active(){return active;},get locked(){return active&&viewLocked;},get panning(){return active&&panEnabled;},project(point,height=0){return engine?.project(point,height)||null;},update(frame){lastFrame=frame;if(active){syncBallTools();engine?.update(frame);requestRender();}},disable,
-  focusCue(){if(!active||!lastFrame)return false;const b=lastFrame.balls.find(b=>b.id===0&&b.active);if(!b)return false;cameraState.target={x:b.x-lastFrame.L/2,y:lastFrame.R,z:b.y-lastFrame.W/2};cameraState.radius=Math.max(.35,lastFrame.R*12);cameraState.elevation=.35;requestRender();return true;},
-  followCue(value){cameraState.followCue=!!value;if(value)this.focusCue();},
-  camera(){return {azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},followCue:!!cameraState.followCue,...engine?.projection()};},restoreCamera(saved){
+  focusCue(){if(!active||!lastFrame)return false;const b=lastFrame.balls.find(b=>b.id===0&&b.active);if(!b)return false;cameraState.target={x:b.x-lastFrame.L/2,y:lastFrame.R,z:b.y-lastFrame.W/2};cameraState.radius=Math.max(.35,lastFrame.R*12);cameraState.elevation=.35;if(cameraState.followCue)updateCueFollow(cameraState,lastFrame,true);requestRender();return true;},
+  followCue(value,side=cameraState.followSide||'behind'){cameraState.followSide=['front','behind','left','right'].includes(side)?side:'behind';if(value&&!cameraState.followCue){cameraState.followHeading=undefined;cameraState.followHasMotion=false;}cameraState.followCue=!!value;if(value)this.focusCue();window.BilliardsSpinLabUI?.sync();},
+  camera(){return {azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},followCue:!!cameraState.followCue,followSide:cameraState.followSide||'behind',followHeading:cameraState.followHeading,followHasMotion:!!cameraState.followHasMotion,...engine?.projection()};},restoreCamera(saved){
    if(!saved||![saved.azimuth,saved.elevation,saved.radius,saved.target?.x,saved.target?.y,saved.target?.z].every(Number.isFinite))return false;
-   Object.assign(cameraState,{azimuth:saved.azimuth,elevation:saved.elevation,radius:saved.radius,target:{...saved.target},followCue:!!saved.followCue});
-   requestRender();return true;
+   Object.assign(cameraState,{azimuth:saved.azimuth,elevation:saved.elevation,radius:saved.radius,target:{...saved.target},followCue:!!saved.followCue,followSide:['front','behind','left','right'].includes(saved.followSide)?saved.followSide:'behind',followHeading:saved.followHeading,followHasMotion:!!saved.followHasMotion,followAnimating:false});
+   requestRender();window.BilliardsSpinLabUI?.sync();return true;
   },prepareSnapshot(){standing();},renderSnapshot(){engine?.render();},tablePoint(event){return engine?.tablePoint(event)||null;},renderedBalls(){return engine?.ballViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];},railGeometry(){return engine?.railViews()||[];},contactMarkers(){return engine?.contactViews()||[];}};
  window.addEventListener('resize',()=>{dock();positionToggle();requestRender();});new MutationObserver(positionToggle).observe(document.getElementById('tableZoom'),{attributes:true,attributeFilter:['style']});document.addEventListener('visibilitychange',()=>{if(!document.hidden)requestRender();});
  function createEngine(T){
@@ -355,7 +375,7 @@
    const size=rect.width+':'+rect.height;if(size!==lastSize){renderer.setSize(rect.width,rect.height);camera.aspect=rect.width/rect.height;camera.fov=2*Math.atan(viewTangent(camera.aspect))*180/Math.PI;camera.updateProjectionMatrix();lastSize=size;}
    if(dimensions!==tableKey(f))rebuild(f);
    if(dirty){const px=f.L*109/2312,pz=f.W*110/1160,a=f.map({x:-px,y:-pz}),b=f.map({x:f.L+px,y:f.W+pz}),ratio=source.width/source.clientWidth,w=Math.max(1,Math.round((b.x-a.x)*ratio)),h=Math.max(1,Math.round((b.y-a.y)*ratio));if(textureCanvas.width!==w||textureCanvas.height!==h){textureCanvas.width=w;textureCanvas.height=h;}textureCtx.clearRect(0,0,w,h);textureCtx.drawImage(source,a.x*ratio,a.y*ratio,w,h,0,0,w,h);texture.needsUpdate=true;dirty=false;}
-   if(cameraState.followCue){const b=f.balls.find(b=>b.id===0&&b.active);if(b)cameraState.target={x:b.x-f.L/2,y:Number.isFinite(b.z)?b.z:f.R,z:b.y-f.W/2};}
+   if(cameraState.followCue)updateCueFollow(cameraState,f);
    const target=cameraState.target||{x:0,y:0,z:0};
    window.BilliardsTableOrbit.updateCamera(camera,cameraState,camera.aspect);
    const visible=new Set();

@@ -16,6 +16,8 @@ jobs:
           node-version: '24'
       - name: Check physics and offline inventory
         run: |
+          node tests/trainer-cue-follow.test.cjs
+          node tests/trainer-3d-viewpoints.test.cjs
           node tests/short-cue-guide.test.cjs
           node tests/training-ball.test.cjs
           node tests/contact-overlap.test.cjs
@@ -30,13 +32,14 @@ jobs:
       - name: Verify controls and slow-motion exports
         env:
           NODE_PATH: ./local-host/node_modules
+          FOLLOW_CAMERA_TEST: ${{ contains(github.event.head_commit.message, '[follow-camera]') && '1' || '' }}
           SPIN_LAB_RECORDING_SMOKE: ${{ contains(github.event.head_commit.message, '[recording-smoke]') && '1' || '' }}
           SPIN_LAB_UI_ONLY: ${{ contains(github.event.head_commit.message, '[ui-only]') && '1' || '' }}
         run: |
           export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")
           node tests/features-options.browser.cjs
           node tests/trainer-spin-lab.browser.cjs
-          if [ -z "$SPIN_LAB_UI_ONLY" ]; then
+          if [ -z "$SPIN_LAB_UI_ONLY" ] && [ -z "$FOLLOW_CAMERA_TEST" ]; then
             node tests/trainer-shot-recorder.browser.cjs
             node tests/trainer-camera-recorder.browser.cjs
           fi
