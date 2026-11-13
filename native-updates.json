@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "44ceaee8cc21285771a7f3679be07163f8afbe6fde93681ab91ba11e54f55ec2",
-  "sequence": 1794607657,
+  "version": "733b080ed18e8093e9c4ba019141e149b51ad5ca333f675345f5a85b999151f3",
+  "sequence": 1794611356,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -25,12 +25,12 @@
       "length": 3831
     },
     "app-display.css": {
-      "sha256": "e52d848727234143bf2acc65fb13f30a06d115dc1fcbee1d4cb1423ba8af5829",
-      "length": 4251
+      "sha256": "4e7168834c9a9cfe946da3822b00b04cb18b8f8a2a7ce2605562a08dbb05d4c2",
+      "length": 5368
     },
     "app-display.js": {
-      "sha256": "1518fe3fe31edb9a405d2c17dd48a88cb42929d9574901c5291c4604196756c7",
-      "length": 10151
+      "sha256": "c3035a593ce0b2eab6ad2be26c2319a2a7b4e55a36b75119c582dd5f7ed1c539",
+      "length": 11198
     },
     "app-hotfix-20261003.js": {
       "sha256": "c7fb00dd82a9b2cf37adafad9cdaa82a99c79d19830f2fca139b55183d1934c0",
@@ -105,24 +105,24 @@
       "length": 20812
     },
     "companion.html": {
-      "sha256": "4886645c14e7fdfb92258fd69dfbdf814baa927b43cba1246f57dde29537dfab",
-      "length": 3019
+      "sha256": "9c09246443e08bea559b3888a8c58838793b4da58edcf9f8559181dadb415bff",
+      "length": 3319
     },
     "companion.js": {
-      "sha256": "cd21437a06ad5f21cb675410104653d7f72a749e8f39566aef7eb5aad58609c6",
-      "length": 52244
+      "sha256": "08c62e3e0728a5bc53419ff829ffca6d722a97ff4e84b4f6a56c8c9a658127d0",
+      "length": 52404
     },
     "companion.webmanifest": {
       "sha256": "26c8ad0a8a12c9fffa2ab9ce19fcdf8f418ff0f5672995e8a99cfbe06f9c1d39",
       "length": 605
     },
     "experience-menu.css": {
-      "sha256": "1bdd0bbe9aa8608f04e819486af4bade13c254d06848ec8c49feebb3f9364ba6",
-      "length": 6368
+      "sha256": "36093f7967c7a16cfbbcac64070b7a2de7e5345f0d6efdc3fe39664766e9475b",
+      "length": 7587
     },
     "experience-menu.js": {
-      "sha256": "78b81b0d818ec8c7450d3b0f26967d7c4f991fa43067962d0d79e8e4063fa4d9",
-      "length": 6013
+      "sha256": "07a382992a148e78df4b2c732891843a8028f527a65353faee33723b77cb0d64",
+      "length": 6452
     },
     "guide/AUDIO_PACING.json": {
       "sha256": "a64863380d46205d3f08a08404b683deb57c761c92d966b63134499f25e2b950",
@@ -3761,8 +3761,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "442d694cc95a763abc326a5573ab8736c1f88431bae35a8ea268bb8b20954127",
-      "length": 936552
+      "sha256": "9274000dfefc2c24330d31347026cb744cb168a2d220fc306a3daec16caaf040",
+      "length": 936758
     },
     "install/android/index.html": {
       "sha256": "5af2961b4386233b6f9206577ee2acdd6b08068620c3f60c57b176c471ca3681",
@@ -3861,7 +3861,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "f4d0aaf7a8d4b44cba97b13c6c1f64d20c3a2bfef00eacd4c67b9088e4d43d45",
+      "sha256": "c686f161bea25757429e78106cd82754f90893081b85354f3526e13bc8c28e7d",
       "length": 158199
     },
     "phone-play.css": {
@@ -5305,8 +5305,8 @@
       "length": 29889
     },
     "play-mode.js": {
-      "sha256": "c70027ef716d5041ced09463dac16d5e2d914e57ade12f16a7da9e2f0596eaa1",
-      "length": 43168
+      "sha256": "7931f5abcea4cad7bfa97963d0c188cefc20c0064d015b425c3eacc1d0cdb4c2",
+      "length": 43432
     },
     "play-narration-data.js": {
       "sha256": "bc39f8b3d8a1043a9bb0301ed4e7625feec95e6d07a16ef9778a8505634e8e2c",
@@ -5349,7 +5349,7 @@
       "length": 2103
     },
     "service-worker.js": {
-      "sha256": "7e059383e6cdc8e0213a1819bd6be9365fd3c84ca1428bfcc552fac5139009ba",
+      "sha256": "51839d902801efcc6a6b9f271b477095f8fc3203acc121f27c51f538ef3735d4",
       "length": 7933
     },
     "table-orbit.js": {
@@ -5453,12 +5453,12 @@
       "length": 37710
     },
     "trainer-workspace.css": {
-      "sha256": "4746411e54a33b5cb4c474e482328aa39bc2a3c77062d41decdb57137638120c",
-      "length": 13798
+      "sha256": "035cd8f23ed736f83cd895ff2b6343c6a3a22fdbcef8cc2bad90896bc396a74e",
+      "length": 22157
     },
     "trainer-workspace.js": {
-      "sha256": "ec9b69f0459663d8d8d7dd8be57e85e706a13e6f26fdcb4a41795293329d1724",
-      "length": 8673
+      "sha256": "af8c13734c6f5c0b272aaf130532f455a79e53737409e9ebda370fcfed13843b",
+      "length": 9695
     },
     "vendor/mp4-muxer-5.2.2/LICENSE": {
       "sha256": "75c54aae7ef6ad652f684f9dd3b71e4dcef86ccebd88cf441ceed7f5eec037c5",
@@ -5501,8 +5501,8 @@
       "length": 570778
     },
     "welcome-controls.js": {
-      "sha256": "401c9e801725fa6869762a7fb76200a56fd984ee89c54bb85fcf3fd7d1312ee6",
-      "length": 2833
+      "sha256": "cab3f3699e27b82afc4f79c89b087cd5240d04d950e6875862c26991fcdf5702",
+      "length": 2549
     },
     "welcome.html": {
       "sha256": "f65643d3248e0cc564db7c17f2e8da5961bdbcd1c30fe145fe86cab7b5be9d72",

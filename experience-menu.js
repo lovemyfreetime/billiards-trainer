@@ -26,16 +26,21 @@ window.BilliardsExperienceMenu=function({current,beforeNavigate=()=>true}={}){
  function openMenu(){if(nativePopover)menu.showPopover();else menu.classList.add('legacy-popover-open');toggle.setAttribute('aria-expanded','true');}
  for(const [mode,label] of [['zen','Zen'],['train','Trainer'],['play','Play'],['home','Home']]){
   if(mode===current)continue;
-  const url=new URL(location.href);if(url.pathname.endsWith('/play.html'))url.pathname=url.pathname.slice(0,-9);url.searchParams.delete('play');url.searchParams.delete('zen');url.searchParams.delete('train');
+  const url=new URL(location.href);url.pathname=url.pathname.replace(/(?:play|companion|welcome)\.html$/, '');url.searchParams.delete('play');url.searchParams.delete('zen');url.searchParams.delete('train');
   if(mode==='home'){url.pathname=url.pathname.replace(/(?:index\.html)?$/,'welcome.html');url.search='';url.hash='';}
   if(mode==='play')url.pathname=url.pathname.replace(/(?:index\.html)?$/,'play.html');if(mode==='zen')url.searchParams.set('zen','1');if(mode==='train')url.searchParams.set('train','1');
   const a=document.createElement('a');a.href=url.href;a.dataset.experience=mode;a.setAttribute('aria-label','Open '+label);a.title=label;const art=document.createElement('span');art.className='experience-art';art.setAttribute('aria-hidden','true');if(mode==='home')art.append(homeArt());else if(mode==='zen')art.innerHTML=lotusIcon();else{const img=document.createElement('img');img.src=mode==='train'?'./icons/trainer-original-execute-v2.svg':'./icons/play-experience-v1.webp';img.alt='';art.append(img);}const name=document.createElement('span');name.textContent=label;a.append(art,name);
   a.onclick=e=>{if(beforeNavigate(mode)===false)e.preventDefault();};menu.append(a);
  }
  if(current==='zen'&&window.BilliardsAppUpdates?.supported){const update=document.createElement('button');update.type='button';update.className='experience-update';update.textContent='Check for updates';update.onclick=()=>{closeMenu();window.BilliardsAppUpdates.check();};menu.append(update);}
- toggle.onclick=()=>{if(isOpen()){closeMenu();return;}openMenu();const r=toggle.getBoundingClientRect(),v=visualViewport,h=v?.height||innerHeight,w=v?.width||innerWidth;menu.style.left=Math.max(8,Math.min(r.left,w-menu.offsetWidth-8))+'px';menu.style.top=Math.max(8,Math.min((current==='train'?r.bottom:r.top-8)-menu.offsetHeight,h-menu.offsetHeight-8))+'px';};
+ toggle.onclick=()=>{if(isOpen()){closeMenu();return;}openMenu();const r=toggle.getBoundingClientRect(),v=visualViewport,h=v?.height||innerHeight,w=v?.width||innerWidth;menu.style.left=Math.max(8,Math.min(r.left,w-menu.offsetWidth-8))+'px';const below=r.top<h/2;menu.style.top=Math.max(8,Math.min(below?r.bottom+8:r.top-menu.offsetHeight-8,h-menu.offsetHeight-8))+'px';};
  document.addEventListener('pointerdown',e=>{if(isOpen()&&!wrap.contains(e.target))closeMenu();});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&isOpen())closeMenu();});
  menu.addEventListener('toggle',()=>toggle.setAttribute('aria-expanded',String(isOpen())));wrap.append(toggle,menu);return wrap;
 };
+function mountCompanion(){
+ if(!location.pathname.endsWith('/companion.html'))return;
+ const corner=document.createElement('div');corner.id='companionExperience';corner.className='experience-corner';corner.append(window.BilliardsExperienceMenu({current:'companion'}));document.body.append(corner);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mountCompanion,{once:true});else mountCompanion();
 })();

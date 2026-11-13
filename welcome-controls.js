@@ -34,13 +34,8 @@
   function sync(){const active=window.BilliardsDisplay?.active();fullscreen.setAttribute('aria-label',active?'Exit fullscreen':'Enter fullscreen');fullscreen.title=active?'Exit fullscreen':'Enter fullscreen';fullscreen.setAttribute('aria-pressed',String(!!active));}
   document.addEventListener('billiards:display-change',sync);
   fullscreen.onclick=()=>window.BilliardsDisplay?.toggle();
-  close.hidden=!(window.BilliardsWindowsHostAvailable&&window.chrome?.webview||window.BilliardsAndroid?.closeApp);
-  close.onclick=()=>{
-    stop();
-    if(window.BilliardsWindowsHostAvailable&&window.chrome?.webview){window.chrome.webview.postMessage({type:'close-app'});return;}
-    if(window.BilliardsAndroid?.closeApp){window.BilliardsAndroid.closeApp();return;}
-
-  };
+  close.hidden=false;
+  close.onclick=()=>{stop();window.BilliardsDisplay?.closeApp();};
   sync();
   // Installed wrappers start fullscreen; browsers require an initial user gesture.
   // Try now, then retry on the first tap, including a mode-navigation tap.

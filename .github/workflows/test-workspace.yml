@@ -16,6 +16,9 @@ jobs:
           node-version: '24'
       - name: Check shot behavior and update inventory
         run: |
+          node tests/experience-entry.test.cjs
+          node tests/experience-narration.test.cjs
+          node tests/companion-sessions.test.cjs
           node tests/shot-redo.test.cjs
           node tests/phone-play.test.cjs
           node tests/trainer-3d-gesture-routing.test.cjs

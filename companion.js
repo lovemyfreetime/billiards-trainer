@@ -176,6 +176,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 window.addEventListener('billiards:description-speech',e=>{if(e.detail==='error')toast('Device speech could not play. Check the voice installed on this device.');});
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;});
 window.addEventListener('beforeunload',e=>{if(recording||recordPending){e.preventDefault();e.returnValue='';}});
+window.addEventListener('billiards:before-close',e=>{if(recording||recordPending){e.preventDefault();toast('Stop and save the voice note before leaving.');}});
 document.addEventListener('click',e=>{if((recording||recordPending)&&e.target.closest('a')){e.preventDefault();toast('Stop and save the voice note before leaving.');}},true);
 window.addEventListener('hashchange',route);
 function route(){

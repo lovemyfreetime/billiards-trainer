@@ -53,3 +53,18 @@ body .experience-menu .experience-update,body.zen-mode #zenModeMenu .zen-update{
 .experience-menu.legacy-popover{display:none!important}
 .experience-menu.legacy-popover-open{display:flex!important;gap:10px;z-index:2000}
 .experience-menu--train.legacy-popover-open{display:grid!important;grid-template-columns:repeat(2,60px);grid-template-rows:repeat(2,60px);gap:10px;pointer-events:none}
+
+/* A stable corner home for the experience switcher; Zen keeps its bottom control. */
+.experience-corner { position:fixed; top:calc(8px + env(safe-area-inset-top)); left:calc(10px + env(safe-area-inset-left)); z-index:125; }
+body.play-mode .play-header { padding-left:70px; padding-right:108px; }
+#playDialog:has(#playModeSwitch) { padding-top:68px; }
+body:has(#companionExperience) .topbar { padding-left:70px; padding-right:108px; }
+@media(max-width:600px) { body:has(#companionExperience) .topbar { grid-template-columns:auto minmax(0,1fr); height:auto; min-height:88px; padding-top:54px; padding-right:18px; } }
+.experience-corner .experience-menu--play:popover-open,
+.experience-corner .experience-menu--companion:popover-open { display:flex; flex-wrap:wrap; max-width:280px; }
+body.play-mode #playRoot .play-header { padding-left:70px; padding-right:108px; flex-wrap:wrap; }
+body.play-mode #playRoot .play-header nav { flex-wrap:wrap; }
+@media(max-width:760px) {
+ body:has(#companionExperience) .topbar { position:relative; display:block; padding:64px 18px 12px; }
+ body:has(#companionExperience) .topbar .back-link { position:absolute; top:8px; left:70px; display:flex; align-items:center; min-height:46px; }
+}
