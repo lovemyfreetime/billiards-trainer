@@ -29,7 +29,7 @@ function fixture(mobile=true){
  const window={innerHeight:430,visualViewport:{height:430,addEventListener(){}},addEventListener(){},dispatchEvent(){}};
  function find(el,id){if(el.id===id)return el;for(const c of el.children){const r=find(c,id);if(r)return r}}
  const observers=[];
- const ctx={document:doc,window,matchMedia:()=>media,navigator:{userAgent:'iPhone'},screen:{orientation:{lock:async()=>{}}},Event:class{},MutationObserver:class{constructor(fn){this.fn=fn}observe(el){observers.push({el,fn:this.fn})}}};
+ const ctx={URLSearchParams,location:{search:'?train=1'},document:doc,window,matchMedia:()=>media,navigator:{userAgent:'iPhone'},screen:{orientation:{lock:async()=>{}}},Event:class{},MutationObserver:class{constructor(fn){this.fn=fn}observe(el){observers.push({el,fn:this.fn})}}};
  vm.runInNewContext(fs.readFileSync('phone-play.js','utf8'),ctx);
  return {ids,body,root,doc,media,get:id=>doc.getElementById(id),observers};
 }
@@ -61,7 +61,7 @@ function fixture(mobile=true){
  await f.get('btg-fullscreen').click();assert.equal(f.doc.fullscreenElement,null);
  f.root.requestFullscreen=async()=>{throw Error('unsupported')};await f.get('btg-fullscreen').click();assert(f.get('phoneNotice').classList.contains('visible'));
  await f.body.emit('keydown',{key:'Escape'});assert.equal(f.get('btg-fullscreen').getAttribute('aria-pressed'),'false');
- f.media.matches=false;f.media.change();assert.equal(f.ids.title.parentNode,f.ids.panel);assert.equal(f.ids.panel.inert,false);
+ f.media.matches=false;f.media.change();assert.equal(f.ids.title.parentNode,f.ids.panel);assert.equal(f.ids.panel.inert,true);
  f.media.matches=true;f.media.change();assert.equal(f.ids.title.parentNode.id,'panel');
  const auto=fixture();let entries=0;
  auto.root.requestFullscreen=async()=>{entries++;auto.doc.fullscreenElement=auto.root};
@@ -72,8 +72,8 @@ function fixture(mobile=true){
  await edited.body.emit('pointerup',{target:{closest:()=>null}});assert.equal(edited.doc.fullscreenElement,undefined);
  let blocked=false;await edited.body.emit('contextmenu',{target:{closest:()=>true},preventDefault(){blocked=true}});assert(blocked);
  blocked=false;await edited.body.emit('contextmenu',{target:{closest:()=>null},preventDefault(){blocked=true}});assert(!blocked);
- const d=fixture(false);assert(!d.body.classList.contains('phone-layout'));assert.equal(d.ids.title.parentNode,d.ids.panel);
- console.log('Phone controls, accessible hidden panel, action routing, native fullscreen, rejection fallback, Escape, and desktop restoration passed.');
+ const d=fixture(false);assert(d.body.classList.contains('phone-layout'));assert.equal(d.ids.title.parentNode,d.ids.panel);
+ console.log('Phone controls, accessible hidden panel, action routing, native fullscreen, rejection fallback, Escape, and desktop workspace passed.');
 })().catch(e=>{console.error(e);process.exit(1)});
 
 // Moving the aim roller vertically on a phone must retain the desktop sensitivity.

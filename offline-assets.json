@@ -1,5 +1,5 @@
 {
-  "version": "3e8b45d846ffd8c0",
+  "version": "ada0ad8f3b54d40a",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -966,7 +966,7 @@
     "local-session.js": "823b642bf1fc6034caa3376a47acbebdc9cf53e5bb4827fbcffcd22e45e58ed0",
     "manifest.webmanifest": "9a7ced8b7dc790412f8d327d2c4e0571479e8f32e5a4aed60c379c0a4fc1bd77",
     "phone-play.css": "cec5017ee25f788690420d4e67241754a1fbb2c047779ad0e7e59d87f7eac720",
-    "phone-play.js": "a5399b6c0a6042029a06470e11e93e6e4fb58318ecb821da66eafb6913fe4d43",
+    "phone-play.js": "368075a120459a7ddaa4ebb5346c42995e19e1c8828936a9979f75b1ff293357",
     "photo-ball-crops.js": "6c66778498c4ccd48a54901f9aa7a7f6c7f1a55ddb8959e41850a195268598da",
     "photo-ball-evidence.js": "21b183725640b12e613e106213e1625552130d490445bb9369e1bdf5b298de22",
     "photo-ball-identity-model.js": "8da789d19caac45072ca19520d6380a09b2eeb74e3ca20c15103b29fa0301bcb",
@@ -1361,8 +1361,8 @@
     "trainer-table-zoom.js": "b7ca40c5b1040aa8da885472b994ef252997a63fba74c172c5f7c377ea1877e9",
     "trainer-training-ball.js": "3a6387eaded80b4eca65d3a7f261cb7f6107483ab99b6c8231c4e8fbe470c1ab",
     "trainer-video-narration.js": "7f5a56139f3451233a8a2dfb13584c17fc51593c9a31f3c80b540f8977b18581",
-    "trainer-workspace.css": "bd6f30a9d897f54c2e4e1d72d73ad3fcc3838e4a1a9557b2bc19691eb42d19ca",
-    "trainer-workspace.js": "c92f9ce9cee2465eb8089a743e119ab51678d6777d24157d2c7ab435c62fb90e",
+    "trainer-workspace.css": "f491f7e63437695a1d9929c32641c1ef33692f9ec5e2727c1ec9f6408c9fa522",
+    "trainer-workspace.js": "271856449887218d6c95ce57c72aea6e0537567697304d46a67d094b2718ced5",
     "vendor/mp4-muxer-5.2.2/LICENSE": "75c54aae7ef6ad652f684f9dd3b71e4dcef86ccebd88cf441ceed7f5eec037c5",
     "vendor/mp4-muxer-5.2.2/mp4-muxer.mjs": "d2c4c782f180c86ed30b1f5d9487a34a0d370bf9b4535285734ea187d38f9bb5",
     "vendor/onnxruntime-1.22.0/LICENSE": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c",

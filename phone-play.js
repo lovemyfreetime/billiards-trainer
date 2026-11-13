@@ -203,7 +203,7 @@
       const valueText=phoneFocus?(kind==='speed'?'':'−'):text;
       if(output.textContent!==valueText)output.textContent=valueText;
       if(plusLabel){const label=compact?'+':plusLabel.dataset.stepLabel;if(plusLabel.textContent!==label)plusLabel.textContent=label;}
-      const captionText=kind==='speed'?text:(document.body.classList.contains('table-3d')?'':(input.id.includes('Follow')?'F/D ':'L/R '))+text;
+      const captionText=kind==='speed'?text:(input.id.includes('Follow')?'F/D ':'L/R ')+text;
       if(caption.textContent!==captionText)caption.textContent=captionText;
     }
   };

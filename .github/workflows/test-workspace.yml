@@ -17,6 +17,7 @@ jobs:
       - name: Check shot behavior and update inventory
         run: |
           node tests/shot-redo.test.cjs
+          node tests/phone-play.test.cjs
           node tests/trainer-3d-gesture-routing.test.cjs
           node tests/zen-tray-and-pockets.test.cjs
           python3 scripts/build-offline-assets.py --check

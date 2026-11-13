@@ -40,6 +40,16 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
      for(const [id,box]of Object.entries(boxes))assert(box.x>=0&&box.y>=0&&box.x+box.width<=viewport.width+1&&box.y+box.height<=viewport.height+1,id+' within viewport');
     };
     await geometry();await screenshot('shot-controls');
+    if(viewport.width===1366){
+     const beforeAim=await shot(),cue=beforeAim.balls.find(b=>b.id===0),angle=s=>Math.atan2(s.freeAim.y-cue.y,s.freeAim.x-cue.x);
+     const roller=await page.locator('#aimRoller').boundingBox();await page.mouse.move(roller.x+roller.width/2,roller.y+roller.height/2);await page.mouse.down();await page.mouse.move(roller.x+roller.width/2,roller.y+roller.height/2+12);await page.mouse.up();
+     assert(Math.abs(angle(await shot())-angle(beforeAim)-.15*Math.PI/180)<1e-8,'Edge aim keeps its precision');
+     const preShot=await shot();await page.locator('[data-trainer-action=animate]').click();
+     await page.waitForFunction(()=>!billiardsZenControls.status().busy&&billiardsZenControls.status().undo,{timeout:30000});
+     await page.locator('[data-trainer-action=undoShot]').click();assert.deepEqual((await shot()).balls,preShot.balls,'Undo restores balls');
+     await page.locator('[data-trainer-action=redoShot]').click();await page.waitForFunction(()=>!billiardsZenControls.status().busy);
+     await page.locator('[data-trainer-action=undoShot]').click();assert.deepEqual((await shot()).balls,preShot.balls,'Redo remains reversible');
+    }
     const before3d=await shot();await page.locator('#workspace-view summary').click();await page.locator('#table3DToggle').click();await page.waitForFunction(()=>Billiards3D.active);await page.keyboard.press('Escape');
     await geometry();await screenshot('3d');assert.deepEqual(await shot(),before3d,'View switch preserves shot settings and balls');
     await page.locator('#workspace-view summary').click();assert(await page.locator('#table3DZoomSlider').isVisible());await page.locator('#table3DToggle').click();await page.waitForFunction(()=>!Billiards3D.active);await page.keyboard.press('Escape');

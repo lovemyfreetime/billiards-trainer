@@ -47,7 +47,19 @@
   trayToggle.textContent = 'Balls'; trayToggle.setAttribute('aria-controls', 'workspaceBalls');
   const balls = document.createElement('div'); balls.id = 'workspaceBalls'; balls.setAttribute('role', 'group'); balls.setAttribute('aria-label', 'Add or return balls');
   const count = document.createElement('output'); count.id = 'workspaceBallCount'; count.setAttribute('aria-label', 'Balls pocketed');
-  shelf.append(trayToggle, balls, count); document.body.append(shelf);
+  const earlier = document.createElement('button'), later = document.createElement('button');
+  for (const [button, direction, label] of [[earlier, -1, 'Earlier balls'], [later, 1, 'More balls']]) {
+    button.type = 'button'; button.className = 'workspaceTrayScroll'; button.textContent = direction < 0 ? '‹' : '›';
+    button.setAttribute('aria-label', label); button.onclick = () => balls.scrollBy({left:direction * Math.max(80, balls.clientWidth * .7), behavior:'smooth'});
+  }
+  const syncScroll = () => {
+    const overflow = balls.scrollWidth > balls.clientWidth + 2;
+    earlier.hidden = later.hidden = !overflow;
+    earlier.disabled = balls.scrollLeft <= 1; later.disabled = balls.scrollLeft + balls.clientWidth >= balls.scrollWidth - 1;
+  };
+  balls.addEventListener('scroll', syncScroll, {passive:true});
+  new ResizeObserver(syncScroll).observe(balls);
+  shelf.append(trayToggle, earlier, balls, later, count); document.body.append(shelf);
   const colors = ['#f4f4ed', '#f6d21f', '#2678ff', '#e84132', '#744ac4', '#f07a22', '#2e9c4d', '#7b2d20', '#111'];
   function place(id, event) {
     if (window.billiardsZenControls?.status().busy) return;
