@@ -28,3 +28,5 @@ assert(!wrong.reached&&wrong.scratch&&!wrong.intentionalCuePocket);
 assert.equal(ctx.assessBankKickShot({...pocketPlan,rails:['left']},pocketPreview,0),null);
 assert.equal(ctx.assessBankKickShot(pocketPlan,{...pocketPreview,firstBallContact:{objId:9,t:.5,cuePos:{x:.5,y:.4}}},0),null);
 console.log('Explicit cue-to-pocket target succeeds only after its ordered cushions; wrong pockets and early collisions remain rejected.');
+
+assert.equal(ctx.assessBankKickShot(pocketPlan,{...pocketPreview,firstBallContact:{objId:9,t:2,cuePos:{x:.5,y:.2}}},0)?.reached,false,'Contact after the rail but before the pocket blocks a cue-only drill');

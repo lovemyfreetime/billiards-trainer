@@ -27,6 +27,7 @@ const layouts=[
    for(const c of selected){
     await page.evaluate(({base,c,L,W})=>{const snap=structuredClone(base);Object.assign(snap.state,{tableL:L,tableW:W,ballR:.028575,muRoll:.01,muSlide:.25,activeShot:1,shot2Enabled:false,speed:1.5,follow:.5,sideSpin:-.5,cueElevationDeg:50,airbornePhysics:true,freeAim:{x:L,y:W/2},angleLock:false,autoGhostLock:false,ghostLock:null,showShotLine:false,showPaths:false,showShot1:true,balls:[{id:0,n:'CB',...c.cue,active:true},...(c.ball?[{id:9,n:'9',...c.ball,active:true}]:[])],bankKick:{mode:c.mode,phase:null,zero:c.target,rails:c.rails,railName:c.rails[0],ballId:c.id,requested:false,routeVersion:2}});billiardsTourBridge.restore(snap);},{base,c,L,W});
     if(mobile&&!await page.evaluate(()=>Billiards3D.active)){if(await page.locator('#phoneControls').getAttribute('aria-expanded')!=='true')await page.locator('#phoneControls').click();await page.locator('#table3DToggle').click();await page.waitForFunction(()=>Billiards3D.active);}
+    if(mobile&&await page.locator('#phoneControls').getAttribute('aria-expanded')==='true')await page.locator('#phoneControls').click();
     const before=await read(),started=Date.now();await page.locator('#bankKickCalculate').click();
     await page.waitForFunction(()=>document.querySelector('#bankKickCalculate').getAttribute('aria-busy')==='false',{},{timeout:35000});
     const sol=(await read()).bankKick.solution,elapsed=Date.now()-started;

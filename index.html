@@ -3942,7 +3942,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         }
         const end=t.mode==='kick'&&!locationKick?contact.t:(targetPocket?(pocket?.t??closestTime):closestTime);
         const hits=allHits.filter(e=>e.t<=end);
-        const reached=hits.length===t.rails.length&&(targetPocket?!!pocket:distance<S.ballR*.35);
+        const reached=hits.length===t.rails.length&&(targetPocket?!!pocket&&(!locationKick||pocket.t<=until):distance<S.ballR*.35);
         // A cue-only drill may deliberately name a pocket as its destination.
         // Only that selected pocket is intentional; all other cue scratches fail.
         const intentionalCuePocket=locationKick&&!!targetPocket&&!!pocket&&reached;
@@ -4117,7 +4117,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if(!fallback||Math.abs(remaining-.75)<Math.abs(reserve(fallback.solution)-.75))fallback=best;
         }
         if(fallback)return finish(fallback);
-        return {message:'No practical shot verified for this layout and rail order (maximum '+(t.rails.length>=3?'6':'5')+' m/s, 50% follow/draw or English, no cue-ball scratch). Try a different rail order or destination.'};
+        return {message:'No practical shot verified for this layout and rail order (maximum '+(t.rails.length>=3?'6':'5')+' m/s, 50% follow/draw or English, no unintended cue-ball scratch). Try a different rail order or destination.'};
     }
     function computeBankKickSolution() {
         // Drawing is read-only: only an explicit Calculate press starts work.
