@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+<link rel="stylesheet" href="./trainer-spin-lab.css?v=1">
 <meta charset="utf-8" />
 <script>if(new URLSearchParams(location.search).get('zen')==='1')document.documentElement.classList.add('zen-starting');</script>
 <style>html.zen-starting{background:#0A0C0E!important}html.zen-starting body{visibility:hidden!important}
@@ -2065,6 +2066,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 <script src="./photo-lighting.js?v=1"></script>
 <script src="./trainer-table-zoom.js?v=2"></script>
 <script src="./trainer-shot-budget.js?v=exit-2"></script>
+<script src="./trainer-training-ball.js?v=1"></script>
 <script src="./trainer-pocket-entry.js?v=1"></script>
 <script src="./trainer-aim-zones.js?v=8"></script>
 <script>
@@ -2088,6 +2090,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     const $ = id => document.getElementById(id);
     const canvas = $('canvas');
     const ctx = canvas.getContext('2d');
+    const trainingBallCanvas = document.createElement('canvas');
+    trainingBallCanvas.width = trainingBallCanvas.height = 64;
     const stage = $('stageWrap');
     const aimZoneCanvas = document.createElement('canvas');
     aimZoneCanvas.id = 'aimZone3DOverlay';
@@ -2102,6 +2106,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     let projectorWin = null;
     let drag = null;
     let animation = null;
+    let lastShotPlayback = null;
     let calibrationMode = false;
     let projectorProjectionOnly = false;
     const APK = Object.freeze({
@@ -2165,7 +2170,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const initialAim={x:88*inch*.75,y:44*inch*.5};
         return {
             tableL: 88 * inch, tableW: 44 * inch, ballR: 2.25 * inch / 2,
-            balls: [], annotations: null,
+            balls: [], annotations: null, trainingBallStyle: 'current', shotPlaybackSpeed: 1,
             nextId: 1, markerSeq: 1000, freeAim: initialAim, angleLock: false, speed: 1.50, follow: 0, sideSpin: 0, cueElevationDeg: PHYSICS_MODEL.defaultCueElevationDeg,
             shot2Enabled: false, activeShot: 1, shot2Initialized: false,
             showShot1: true,
@@ -2524,6 +2529,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             tableW: S.tableW,
             ballR: S.ballR,
             setupMode: S.setupMode,
+            trainingBallStyle: S.trainingBallStyle,
             allowMissingCueBall: !!S.allowMissingCueBall,
             balls: JSON.parse(JSON.stringify(S.balls)),
             annotations: JSON.parse(JSON.stringify(S.annotations||null)),
@@ -2578,6 +2584,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if (d.setupMode) S.setupMode = d.setupMode;
         S.balls = JSON.parse(JSON.stringify(d.balls || []));
         S.annotations = JSON.parse(JSON.stringify(d.annotations||null));
+        S.trainingBallStyle=d.trainingBallStyle||'current';
         // Preserve intentionally cue-less photo layouts when they are recalled.
         // The ball-list fallback also supports any older saved layout that happened
         // to contain no cue ball before this flag existed.
@@ -2706,6 +2713,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         state.lastLayoutName=d.name;state.tableL=d.tableL;state.tableW=d.tableW;state.ballR=d.ballR;state.setupMode=d.setupMode||'custom';
         state.balls=detections?detections.filter(b=>String(b.id)!=='ignore').map(b=>({id:Number(b.id),n:Number(b.id)===0?'CB':String(b.id),x:b.nx*d.tableL,y:b.ny*d.tableW,active:true})).concat(d.balls.filter(b=>b.marker)):JSON.parse(JSON.stringify(d.balls));
         state.annotations=d.annotations||state.annotations||null;
+        state.trainingBallStyle=d.trainingBallStyle||state.trainingBallStyle;
         state.allowMissingCueBall=!state.balls.some(b=>b.id===0);
         state.freeAim=d.freeAim||state.freeAim;state.preview=null;
         state.pocketedLog=(Array.isArray(state.pocketedLog)?state.pocketedLog:[]).filter(id=>id>=1&&id<=15&&!state.balls.some(b=>b.id===id));
@@ -3032,6 +3040,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         catch (e) { }
     }
     function normalizeBallSet() {
+        if(!['current','spots','split','stripe'].includes(S.trainingBallStyle))S.trainingBallStyle='current';
+        if(![1,.5,.25,.125].includes(S.shotPlaybackSpeed))S.shotPlaybackSpeed=1;
         const seen = new Set();
         let maxMarkerId = 999;
         S.balls = S.balls.filter(b => {
@@ -4681,7 +4691,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const s = ensureShot2();
         const backup = { balls: S.balls, freeAim: S.freeAim, speed: S.speed, follow: S.follow, sideSpin: S.sideSpin, cueElevationDeg: S.cueElevationDeg, angleLock: S.angleLock };
         const objects = S.balls.filter(b => b.id !== 0 && !b.marker).map(b => (Object.assign({}, b)));
-        S.balls = [{ id: 0, n: 'CB2', x: s.x, y: s.y, active: true }, ...objects];
+        S.balls = [{ id: 0, n: 'CB2', x: s.x, y: s.y, orientation:s.orientation, active: true }, ...objects];
         S.freeAim = Object.assign({}, s.freeAim);
         S.speed = s.speed;
         S.follow = s.follow;
@@ -5163,6 +5173,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const cb = B.find(b => b.id === 0);
         if (!cb)
             return { paths: {}, frames: [], firstEvent: '—', firstBallContact: null, pocketEvents:[],railEvents:[],finalBalls:[] };
+        const training=typeof window!=='undefined'&&window.BilliardsTrainingBall;
+        let cueOrientation=training?training.normalize(cueBall()?.orientation):null;
         const aimD = aimDirection(), d = strikeDirection();
         const airborneMode = S.airbornePhysics === true;
         if (airborneMode) {
@@ -5187,7 +5199,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         for (const b of B)
             paths[b.id] = [{ x: b.x, y: b.y, z: b.z, t: 0 }];
         const frames = [];
-        let firstEvent = '—', firstBallContact = null, sampleEvery = 6, frameEvery = 10;
+        let firstEvent = '—', firstBallContact = null, sampleEvery = 6, frameEvery = training&&makeFrames?1:10;
+        const captureFrame=t=>B.map(b=>({id:b.id,x:b.x,y:b.y,z:b.z,vx:b.vx,vy:b.vy,vz:b.vz,wx:b.wx,wy:b.wy,wz:b.wz,t,active:b.active,...(b.id===0&&cueOrientation?{orientation:cueOrientation.slice()}: {})}));
+        if(makeFrames)frames.push(captureFrame(0));
         let simTime = 0;
         const pocketEvents = [];
         const railEvents = [];
@@ -5360,6 +5374,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 if (!b.active) continue;
                 if (airborneMode && b.z <= R + 1e-8 && b.vz < -1e-8) bedHit(b);
                 const inAir = airborneMode && (b.z > R + 1e-7 || b.vz > 1e-7);
+                const oldOmega=b.id===0&&training&&makeFrames?[b.wx,b.wy,b.wz]:null;
                 const horizontalSpeed = Math.hypot(b.vx, b.vy);
                 const rotationalSlip = R * Math.hypot(b.wx, b.wy);
                 if (horizontalSpeed > .002 || Math.abs(b.wz) > .05 || rotationalSlip > .002 || inAir || Math.abs(b.vz) > .002) moving = true;
@@ -5379,6 +5394,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                     b.travel += Math.hypot(dx, dy);
                     b.x += dx; b.y += dy;
                 }
+                if(oldOmega)cueOrientation=training.integrate(cueOrientation,(oldOmega[0]+b.wx)/2,(oldOmega[1]+b.wy)/2,(oldOmega[2]+b.wz)/2,dt);
             }
             if (airborneMode) {
                 trackCueClearances();
@@ -5610,10 +5626,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                         paths[b.id].push({ x: b.x, y: b.y, z: b.z, t });
             }
             if (makeFrames && step % frameEvery === 0)
-                frames.push(B.map(b => ({ id: b.id, x: b.x, y: b.y, z: b.z, wx:b.wx, wy:b.wy, wz:b.wz, t, active: b.active })));
+                frames.push(captureFrame(t+dt));
             if (!moving && step > 30)
                 break;
         }
+        if(makeFrames&&frames.at(-1)[0].t<simTime+dt)frames.push(captureFrame(simTime+dt));
         const clearances = Array.from(clearanceMap.values());
         let primaryClearance = null;
         if (airborneMode) {
@@ -5628,6 +5645,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         }
         if (budget) for (const b of B) if (b.active) budget.record(b, 'end', simTime);
         return { searchClosest, paths, frames, firstEvent, firstBallContact, pocketEvents, railEvents,
+            ...(makeFrames&&training?{cueOrientation}:{}),
             ...(trace ? {collisionEvents,jawEvents,endTime:simTime,
                 restIds:B.filter(b=>b.active&&b.z<=R+1e-7&&Math.hypot(b.vx,b.vy)<=.002&&Math.abs(b.vz)<=.002
                     &&Math.abs(b.wz)<=.05&&R*Math.hypot(b.wx,b.wy)<=.002).map(b=>b.id)} : {}),
@@ -7014,6 +7032,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 
         if(document.body.classList.contains('zen-mode')){drawZenBall(b,map,label);return;}
         if (b.id === 0) {
+            if(S.trainingBallStyle!=='current'){
+                const image=window.BilliardsTrainingBall.sphere(trainingBallCanvas,S.trainingBallStyle,b.orientation,{right:[1,0,0],up:[0,0,-1],front:[0,1,0]});
+                const q=map(b),e=map({x:b.x+R,y:b.y}),v=map({x:b.x,y:b.y+R});
+                ctx.save();ctx.transform((e.x-q.x)/(64*.46),(e.y-q.y)/(64*.46),(v.x-q.x)/(64*.46),(v.y-q.y)/(64*.46),q.x,q.y);ctx.drawImage(image,-32,-32);ctx.restore();return;
+            }
             logicalCircle(b, R, map, '#f7f7f3', '#999', 1.2);
         }
         else if (b.id >= 9 && b.id <= 15) {
@@ -8177,7 +8200,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                     continue;
                 if (b.id === 0 && !cueVisualsVisible(1))
                     continue;
-                drawBall(Object.assign(Object.assign({}, b), { x: ab.x, y: ab.y, active: true }), map, clean);
+                drawBall(Object.assign(Object.assign({}, b), { x: ab.x, y: ab.y, orientation:ab.orientation, active: true }), map, clean);
             }
         }
         if (!clean || recordingGuides) {
@@ -8191,11 +8214,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         }
         window.BilliardsTableZoom?.end(ctx);
         window.dispatchEvent(new Event("billiards:2d-render"));
+        window.BilliardsSpinLabUI?.sync();
         if(window.Billiards3D){
             const live=(animation?.current||S.balls).map(b=>({...S.balls.find(x=>x.id===b.id),...b})).filter(b=>b.id!==0||cueVisualsVisible(1));
-            if((!clean||(recordingGuides&&S.shot2CueBallOnly))&&S.shot2Enabled&&cueVisualsVisible(2))live.push({id:'CB2',x:S.shot2.x,y:S.shot2.y,active:true});
+            if((!clean||(recordingGuides&&S.shot2CueBallOnly))&&S.shot2Enabled&&cueVisualsVisible(2))live.push({id:'CB2',x:S.shot2.x,y:S.shot2.y,orientation:S.shot2.orientation,active:true});
             const second=S.activeShot===2&&S.shot2Enabled,cb=second?S.shot2:cueBall();
-            window.Billiards3D.update({L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:clean?[]:(animation?.cueTips||cueTipsFor3D()).filter(tip=>tip.id!=='CB2'||!S.shot2CueBallOnly),balls:live,map,aim:!clean&&cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
+            window.Billiards3D.update({trainingBallStyle:S.trainingBallStyle,L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:clean?[]:(animation?.cueTips||cueTipsFor3D()).filter(tip=>tip.id!=='CB2'||!S.shot2CueBallOnly),balls:live,map,aim:!clean&&cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
         }
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }
@@ -9718,6 +9742,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                     }
                     b.x = f.x;
                     b.y = f.y;
+                    if(sim.cueOrientation)b.orientation=sim.cueOrientation.slice();
                     b.active = true;
                 }
                 else if (preCue) {
@@ -9765,6 +9790,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 S.freeAim = Object.assign({}, shot2Handoff.freeAim);
             }
             // Promote Shot 2's planned stroke settings to the single visible Shot 1.
+            if(cb&&shot2Handoff.orientation)cb.orientation=shot2Handoff.orientation.slice();
             S.speed = shot2Handoff.speed;
             S.follow = shot2Handoff.follow;
             S.sideSpin = shot2Handoff.sideSpin;
@@ -9824,51 +9850,52 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             toast('Shot saved');
         }
     }
-    function animateShot() {
-        if (animation)
-            return;
-        const preShot = cleanSnapshot();
-        const sim = simulate(true);
-        if (!sim.frames.length)
-            return;
-        window.dispatchEvent(new CustomEvent('billiards:shot-start'));
-        const recording = window.BilliardsShotRecorder?.begin();
-        if (recording) {
-            draw(true, true);
-            recording.frame(60);
+    function startShotPlayback(sim,preShot,options={}) {
+        const recording=options.replay?null:window.BilliardsShotRecorder?.begin();
+        const duration=sim.frames.at(-1)[0].t;
+        const running={current:sim.frames[0],cueTips:cueTipsFor3D(),time:0,duration,paused:!!options.paused,recording:!!recording,replay:!!options.replay,last:performance.now()};
+        let recordFrame=1;
+        animation=running;syncHistoryButtons();draw(!!recording,!!recording);
+        if(recording)recording.frame(60);
+        function finish(){
+            if(options.replay){const speed=S.shotPlaybackSpeed;animation=null;S=options.restore;S.shotPlaybackSpeed=speed;updateUI();draw();saveState();}
+            else{lastShotPlayback={sim,preShot};recording?.frame(60);commitAnimatedShot(sim,preShot);recording?.finish();}
+            window.BilliardsSpinLabUI?.sync();
         }
-        const start = performance.now(), fps = 60, last = sim.frames.length - 1;
-        let videoSample = 2;
-        animation = { current: sim.frames[0], cueTips:cueTipsFor3D() };
-        syncHistoryButtons();
-        const runningAnimation = animation;
-        function tick(now) {
-            if (animation !== runningAnimation) {
-                recording?.cancel();
-                return;
-            }
-            if (recording && (now - start < videoSample * 1000 / fps || !recording.ready())) {
-                requestAnimationFrame(tick);
-                return;
-            }
-            const idx = Math.min(last, recording ? videoSample : Math.floor((now - start) / (1000 / fps)));
-            animation.current = sim.frames[idx];
-            draw(!!recording, !!recording);
-            if (idx < last) {
-                if (recording) {
-                    recording.frame();
-                    videoSample += 2;
-                }
-                requestAnimationFrame(tick);
-            }
-            else {
-                recording?.frame(60);
-                commitAnimatedShot(sim, preShot);
-                recording?.finish();
-            }
+        function tick(now){
+            if(animation!==running){recording?.cancel();return;}
+            const elapsed=Math.max(0,(now-running.last)/1000);running.last=now;
+            if(recording){
+                if(!recording.ready()){requestAnimationFrame(tick);return;}
+                running.time=Math.min(duration,recordFrame*S.shotPlaybackSpeed/30);
+            }else if(!running.paused)running.time=Math.min(duration,running.time+elapsed*S.shotPlaybackSpeed);
+            running.current=window.BilliardsTrainingBall.sample(sim.frames,running.time);
+            draw(!!recording,!!recording);
+            if(running.time>=duration&&!running.paused){finish();return;}
+            if(recording){recording.frame();recordFrame++;}
+            requestAnimationFrame(tick);
         }
+        running.sample=time=>{running.time=Math.max(0,Math.min(duration,time));running.current=window.BilliardsTrainingBall.sample(sim.frames,running.time);draw();};
         requestAnimationFrame(tick);
     }
+    function animateShot(options={}) {
+        if(animation)return;
+        const preShot=cleanSnapshot(),sim=simulate(true);
+        if(!sim.frames.length)return;
+        window.dispatchEvent(new CustomEvent('billiards:shot-start'));
+        startShotPlayback(sim,preShot,{paused:options.paused===true});
+    }
+    window.billiardsPlayback={
+        state(){return {speed:S.shotPlaybackSpeed,running:!!animation,paused:!!animation?.paused,recording:!!animation?.recording,hasReplay:!!lastShotPlayback,time:animation?.time||0,duration:animation?.duration||0,motion:animation?window.BilliardsTrainingBall.motion(animation.current.find(b=>b.id===0),S.ballR):''};},
+        speed(value){if(animation?.recording||![1,.5,.25,.125].includes(Number(value)))return false;S.shotPlaybackSpeed=Number(value);saveState();window.BilliardsSpinLabUI?.sync();return true;},
+        pause(){if(animation?.recording)return false;if(!animation){if(lastShotPlayback)this.replay();else animateShot();return true;}animation.paused=!animation.paused;animation.last=performance.now();window.BilliardsSpinLabUI?.sync();return true;},
+        step(direction=1){if(animation?.recording)return false;if(!animation){if(lastShotPlayback)this.replay(true);else animateShot({paused:true});}if(!animation)return false;animation.paused=true;animation.sample(animation.time+direction*S.shotPlaybackSpeed/30);return true;},
+        replay(paused=false){if(window.BilliardsShotRecorder?.busy)return false;if(animation){animation.paused=paused;animation.sample(0);animation.last=performance.now();return true;}if(!lastShotPlayback)return false;const restore=cleanSnapshot(),speed=S.shotPlaybackSpeed,style=S.trainingBallStyle;S={...JSON.parse(JSON.stringify(lastShotPlayback.preShot)),shotPlaybackSpeed:speed,trainingBallStyle:style};updateUI();startShotPlayback(lastShotPlayback.sim,lastShotPlayback.preShot,{replay:true,restore,paused});return true;}
+    };
+    window.billiardsTrainingBall={
+        state(){const second=S.shot2Enabled&&S.activeShot===2,ball=second?ensureShot2():cueBall(),d=shotAimDirection(second?2:1),values=second?S.shot2:S,contact=cueSideContact(values.sideSpin,values.follow,values.cueElevationDeg);return {style:S.trainingBallStyle,orientation:window.BilliardsTrainingBall.normalize(ball?.orientation),aim:d,tip:{x:contact.tip.sideR,y:contact.z},busy:!!animation||!!window.BilliardsShotRecorder?.busy,shot:second?2:1};},
+        set(style,orientation){if(animation||window.BilliardsShotRecorder?.busy)return false;beginActionUndo();if(window.BilliardsTrainingBall.styles.includes(style))S.trainingBallStyle=style;const ball=S.shot2Enabled&&S.activeShot===2?ensureShot2():cueBall();if(ball&&orientation)ball.orientation=window.BilliardsTrainingBall.normalize(orientation);draw();saveState();finishActionUndo();return true;}
+    };
     function captureShotHistoryState(){
         return {state:cleanSnapshot(),undo:undoStack.slice(),history:runHistory.slice()};
     }
@@ -13886,9 +13913,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <link rel="stylesheet" href="./guide/pool-guide.css?v=resources-toggle-v8">
   <script src="./phone-play.js?v=share-analysis-1"></script>
   <link rel="stylesheet" href="./trainer-3d.css?v=compact-landscape-1">
-  <script src="./trainer-3d.js?v=19"></script>
-  <script src="./trainer-annotate.js?v=16"></script>
-  <script src="./trainer-shot-recorder.js?v=video-menu-1"></script>
+  <script src="./trainer-3d.js?v=20"></script>
+  <script src="./trainer-spin-lab.js?v=1"></script>
+  <script src="./trainer-annotate.js?v=17"></script>
+  <script src="./trainer-shot-recorder.js?v=slow-motion-1"></script>
   <link rel="stylesheet" href="./trainer-camera-recorder.css?v=1">
   <script src="./trainer-camera-recorder.js?v=1"></script>
   <script src="./trainer-video-narration.js?v=1"></script>

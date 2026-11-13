@@ -1,0 +1,19 @@
+#trainerTrainingBall label{display:block;margin:6px 0 4px}
+#trainerTrainingBall select,.trainingPlaybackSettings select{width:100%;box-sizing:border-box;min-height:34px}
+#trainingBallPreview{display:block;width:190px;height:190px;max-width:100%;margin:8px auto;touch-action:none;cursor:grab;background:radial-gradient(ellipse,#203a45 0,transparent 70%);border-radius:50%}
+#trainingBallPreview:active{cursor:grabbing}#trainingBallPreview.busy{cursor:default;opacity:.7}
+.trainingPresets,.trainingAxes{display:grid;gap:5px;margin:8px 0}.trainingPresets{grid-template-columns:repeat(4,minmax(0,1fr))}.trainingAxes{grid-template-columns:repeat(2,minmax(0,1fr))}
+.trainingPresets button,.trainingAxes button{min-width:0;min-height:34px;padding:4px;font-size:11px}
+.trainingPlaybackSettings{margin:8px 0 10px;padding:8px;border:1px solid #45626d;border-radius:8px}.trainingPlaybackSettings label{display:block;margin-bottom:5px}
+#trainerShowPlayback{width:100%;margin-top:6px;min-height:34px}
+#trainerPlaybackBar{display:none;position:fixed;z-index:57;left:50%;transform:translateX(-50%);top:54px;max-width:calc(100vw - 24px);box-sizing:border-box;border:1px solid #7898a7;border-radius:11px;background:#14232df5;box-shadow:0 3px 14px #0008;color:#edf7fb;font:600 12px system-ui;touch-action:manipulation}
+body.table-3d #trainerPlaybackBar,#trainerPlaybackBar.expanded{display:block}
+body.zen-mode #trainerPlaybackBar,body.projector #trainerPlaybackBar{display:none!important}
+#trainerPlaybackBar button,#trainerPlaybackBar select{min-width:32px;min-height:34px;padding:5px 7px;border:1px solid #688793;border-radius:7px;background:#243b47;color:#edf7fb;font:600 11px system-ui}
+#trainerPlaybackBar button:disabled,#trainerPlaybackBar select:disabled{opacity:.42}
+#trainerPlaybackBody{display:flex;align-items:center;justify-content:center;gap:4px;padding:5px;flex-wrap:wrap;max-width:520px}
+#trainerPlaybackBody[hidden],#trainerPlaybackToggle[hidden]{display:none!important}
+.playbackSpeedLabel,.playbackFollow{display:flex;align-items:center;gap:3px;white-space:nowrap}
+.playbackFollow input{width:16px;height:16px;margin:0}
+#trainerPlaybackPause{background:#285e4b!important}#trainerPlaybackStatus{flex-basis:100%;text-align:center;font-size:10px;line-height:15px;color:#c9e3e9}
+@media(max-width:620px){#trainerPlaybackBar{width:max-content;max-width:calc(100vw - 16px)}#trainerPlaybackBody{max-width:360px;gap:3px}#trainerPlaybackBar button,#trainerPlaybackBar select{min-height:32px;padding:4px 6px}.playbackSpeedLabel{font-size:0}}

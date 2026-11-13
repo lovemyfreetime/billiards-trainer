@@ -281,6 +281,7 @@
   }
   nameInput.value=nextName(current.stem);
   if(current.kind==='session'){bridge().restore(current.original);await window.BilliardsClipView.restoreView(current.originalView);}
+  else if(current.originalView?.camera?.followCue)await window.BilliardsClipView.restoreView(current.originalView);
   job=null;update();
  }
  function begin(){

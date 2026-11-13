@@ -355,6 +355,7 @@
   },
   prepare:prepareCapture,
   create(mode,width,height){
+   if(is3d()&&window.Billiards3D.camera().followCue&&(mode==='current'||mode==='stroke-current'))return this.createLive(mode,width,height);
    if(is3d())window.Billiards3D.renderSnapshot();
    const area=captureArea(mode);
    if(!area)throw Error('The table is outside the recording view.');

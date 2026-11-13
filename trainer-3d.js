@@ -121,6 +121,7 @@
  function viewTangent(aspect){return window.BilliardsTableOrbit.viewTangent(aspect);}
  function standing(repeat=false){
   if(!lastFrame)return;
+  cameraState.followCue=false;
   fullSide=repeat&&viewPreset==='full'?1-fullSide:0;viewPreset='full';cueWide=false;
   const rect=(active?document.getElementById('table3DCanvas'):stage).getBoundingClientRect(),aspect=rect.width/Math.max(1,rect.height),L=lastFrame.L,W=lastFrame.W;
   cameraState.target={x:0,y:0,z:0};cameraState.azimuth=fullSide*Math.PI;
@@ -137,6 +138,7 @@
   cameraState.radius=radius;cameraState.elevation=elevation;requestRender();
  }
  function alongShot(repeat=false){const a=lastFrame?.aim;if(!a)return;const length=Math.hypot(a.target.x-a.cue.x,a.target.y-a.cue.y);if(length<1e-5)return;const dx=(a.target.x-a.cue.x)/length,dz=(a.target.y-a.cue.y)/length;
+  cameraState.followCue=false;
   cueWide=repeat&&viewPreset==='cue'?!cueWide:false;viewPreset='cue';
   const focus=clamp(length*.18,.05,.22),setback=.48;
   cameraState.target={x:a.cue.x+dx*focus-lastFrame.L/2,y:lastFrame.R,z:a.cue.y+dz*focus-lastFrame.W/2};
@@ -156,9 +158,11 @@
   finally{loading=false;button.disabled=false;}
  };
  window.Billiards3D={get active(){return active;},get locked(){return active&&viewLocked;},get panning(){return active&&panEnabled;},project(point,height=0){return engine?.project(point,height)||null;},update(frame){lastFrame=frame;if(active){syncBallTools();engine?.update(frame);requestRender();}},disable,
-  camera(){return {azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},...engine?.projection()};},restoreCamera(saved){
+  focusCue(){if(!active||!lastFrame)return false;const b=lastFrame.balls.find(b=>b.id===0&&b.active);if(!b)return false;cameraState.target={x:b.x-lastFrame.L/2,y:lastFrame.R,z:b.y-lastFrame.W/2};cameraState.radius=Math.max(.35,lastFrame.R*12);cameraState.elevation=.35;requestRender();return true;},
+  followCue(value){cameraState.followCue=!!value;if(value)this.focusCue();},
+  camera(){return {azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},followCue:!!cameraState.followCue,...engine?.projection()};},restoreCamera(saved){
    if(!saved||![saved.azimuth,saved.elevation,saved.radius,saved.target?.x,saved.target?.y,saved.target?.z].every(Number.isFinite))return false;
-   Object.assign(cameraState,{azimuth:saved.azimuth,elevation:saved.elevation,radius:saved.radius,target:{...saved.target}});
+   Object.assign(cameraState,{azimuth:saved.azimuth,elevation:saved.elevation,radius:saved.radius,target:{...saved.target},followCue:!!saved.followCue});
    requestRender();return true;
   },prepareSnapshot(){standing();},renderSnapshot(){engine?.render();},tablePoint(event){return engine?.tablePoint(event)||null;},renderedBalls(){return engine?.ballViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];},railGeometry(){return engine?.railViews()||[];},contactMarkers(){return engine?.contactViews()||[];}};
  window.addEventListener('resize',()=>{dock();positionToggle();requestRender();});new MutationObserver(positionToggle).observe(document.getElementById('tableZoom'),{attributes:true,attributeFilter:['style']});document.addEventListener('visibilitychange',()=>{if(!document.hidden)requestRender();});
@@ -182,10 +186,12 @@
   const surfaceMaterial=new T.MeshStandardMaterial({map:texture,color:0xcbd4cf,roughness:.98,envMapIntensity:.15}),bodyMaterial=new T.MeshStandardMaterial({color:0x252b30,roughness:.64}),legMaterial=new T.MeshStandardMaterial({color:0x20272c,roughness:.6});
   const sphere=new T.SphereGeometry(1,40,28),ballMeshes=new Map(),materials=new Map(),contacts=new Map(),contactGroup=new T.Group();scene.add(contactGroup);let dimensions='',dirty=true,lastSize='',frame=null,pocketSpecs=[];const rollStep=new T.Quaternion(),rollAxis=new T.Vector3();
   const palette=['#fbfbf4','#f4cd22','#1763bd','#d12e2f','#7135ad','#f07a22','#198952','#a52132','#171b20'];
-  function ballMaterial(id){
-   if(materials.has(id))return materials.get(id);
+  function ballMaterial(id,style='current'){
+   const key=id===0?'cue-'+style:id;
+   if(materials.has(key))return materials.get(key);
    const options={roughness:.3,metalness:0,envMapIntensity:.7};
-   if(id===0){
+   if(id===0&&style!=='current'){const map=new T.CanvasTexture(window.BilliardsTrainingBall.texture(style));map.colorSpace=T.SRGBColorSpace;map.anisotropy=4;options.map=map;}
+   else if(id===0){
     // A standard practice-ball pattern makes cue-ball rotation visible as well.
     const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');x.fillStyle='#f5f3e9';x.fillRect(0,0,512,256);x.fillStyle='#969b96';
     for(const u of [0,.25,.5,.75,1]){x.beginPath();x.arc(u*512,128,7,0,Math.PI*2);x.fill();}x.fillRect(0,0,512,6);x.fillRect(0,250,512,6);
@@ -200,7 +206,7 @@
     for(const u of [.25,.75]){x.fillStyle='#faf8ee';x.beginPath();x.arc(c.width*u,128,37,0,Math.PI*2);x.fill();x.fillStyle='#161c20';x.font='700 43px Arial';x.textAlign='center';x.textBaseline='middle';x.fillText(String(id),c.width*u,130);}
     const map=new T.CanvasTexture(c);map.colorSpace=T.SRGBColorSpace;map.anisotropy=4;options.map=map;
    }
-   const material=new T.MeshStandardMaterial(options);materials.set(id,material);return material;
+   const material=new T.MeshStandardMaterial(options);materials.set(key,material);return material;
   }
   const contactCanvas=document.createElement('canvas');contactCanvas.width=contactCanvas.height=64;const contactCtx=contactCanvas.getContext('2d'),contactGradient=contactCtx.createRadialGradient(32,32,2,32,32,30);
   contactGradient.addColorStop(0,'rgba(0,0,0,.24)');contactGradient.addColorStop(.45,'rgba(0,0,0,.13)');contactGradient.addColorStop(1,'rgba(0,0,0,0)');contactCtx.fillStyle=contactGradient;contactCtx.fillRect(0,0,64,64);
@@ -349,6 +355,7 @@
    const size=rect.width+':'+rect.height;if(size!==lastSize){renderer.setSize(rect.width,rect.height);camera.aspect=rect.width/rect.height;camera.fov=2*Math.atan(viewTangent(camera.aspect))*180/Math.PI;camera.updateProjectionMatrix();lastSize=size;}
    if(dimensions!==tableKey(f))rebuild(f);
    if(dirty){const px=f.L*109/2312,pz=f.W*110/1160,a=f.map({x:-px,y:-pz}),b=f.map({x:f.L+px,y:f.W+pz}),ratio=source.width/source.clientWidth,w=Math.max(1,Math.round((b.x-a.x)*ratio)),h=Math.max(1,Math.round((b.y-a.y)*ratio));if(textureCanvas.width!==w||textureCanvas.height!==h){textureCanvas.width=w;textureCanvas.height=h;}textureCtx.clearRect(0,0,w,h);textureCtx.drawImage(source,a.x*ratio,a.y*ratio,w,h,0,0,w,h);texture.needsUpdate=true;dirty=false;}
+   if(cameraState.followCue){const b=f.balls.find(b=>b.id===0&&b.active);if(b)cameraState.target={x:b.x-f.L/2,y:Number.isFinite(b.z)?b.z:f.R,z:b.y-f.W/2};}
    const target=cameraState.target||{x:0,y:0,z:0};
    window.BilliardsTableOrbit.updateCamera(camera,cameraState,camera.aspect);
    const visible=new Set();
@@ -357,13 +364,17 @@
     if(!group){group=new T.Group();const mesh=new T.Mesh(sphere,ballMaterial(b.id==='CB2'?0:b.id));mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);balls.add(group);ballMeshes.set(b.id,group);
      const contact=new T.Mesh(contactGeometry,new T.MeshBasicMaterial({map:contactTexture,transparent:true,depthWrite:false,toneMapped:false}));contactGroup.add(contact);contacts.set(b.id,contact);
     }
+    const cue=b.id===0||b.id==='CB2';
+    if(cue)group.children[0].material=ballMaterial(0,f.trainingBallStyle||'current');
+    const orientation=cue?window.BilliardsTrainingBall.normalize(b.orientation):null;
+    if(cue)group.children[0].quaternion.fromArray(orientation);
     const centerHeight=Number.isFinite(b.z)?Math.max(f.R,b.z):f.R,oldPosition=group.position.clone();
     group.visible=true;group.position.set(b.x-f.L/2,centerHeight,b.y-f.W/2);group.scale.setScalar(f.R);
     const viewKey=[cameraState.azimuth,cameraState.elevation,cameraState.radius,target.x,target.y,target.z].join(':');
-    if(!f.animating&&(group.userData.viewKey!==viewKey||(!group.userData.animating&&oldPosition.distanceTo(group.position)>.00001))){
+    if(!cue&&!f.animating&&(group.userData.viewKey!==viewKey||(!group.userData.animating&&oldPosition.distanceTo(group.position)>.00001))){
      const dir=camera.position.clone().sub(group.position).normalize();group.children[0].quaternion.setFromUnitVectors(new T.Vector3(0,0,1),dir);group.children[0].rotateZ(((Number(b.id)||0)%5-2)*.06);
     }
-    if(f.animating&&Number.isFinite(b.t)){
+    if(!cue&&f.animating&&Number.isFinite(b.t)){
      const reset=!group.userData.animating||b.t<(group.userData.lastTime||0),elapsed=Math.max(0,b.t-(reset?0:group.userData.lastTime));
      // Table coordinates use Z-up; the display uses Y-up, so angular velocity
      // transforms as a pseudovector. These are the simulator's actual spin rates.
