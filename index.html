@@ -3086,6 +3086,53 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 missing.push(i);
         S.nextId = missing.length ? missing[0] : 16;
         S.markerSeq = S.balls.some(b=>b.marker) ? Math.max(Number(S.markerSeq) || 1000, maxMarkerId + 1, 1000) : 1000;
+        repairBallOverlaps(S.balls);
+    }
+    function legalBallPosition(q, ball, balls = S.balls) {
+        const R=S.ballR,D=2*R,epsilon=1e-10,target=keepCueOnTable(q);
+        const others=balls.filter(b=>b!==ball&&b.id!==ball.id&&!b.marker&&b.active!==false);
+        const clear=p=>Number.isFinite(p.x)&&Number.isFinite(p.y)&&
+            p.x>=R-epsilon&&p.x<=S.tableL-R+epsilon&&p.y>=R-epsilon&&p.y<=S.tableW-R+epsilon&&
+            others.every(b=>Math.hypot(p.x-b.x,p.y-b.y)>=D-epsilon);
+        if(clear(target))return target;
+        // The nearest free position lies on a ball boundary, a cushion, or an
+        // intersection of those boundaries. Move only the ball being placed.
+        let best=null,score=Infinity;
+        const consider=p=>{p=keepCueOnTable(p);if(!clear(p))return;const d=(p.x-target.x)**2+(p.y-target.y)**2;if(d<score){best=p;score=d;}};
+        for(let i=0;i<others.length;i++){
+            const b=others[i];let dx=target.x-b.x,dy=target.y-b.y,length=Math.hypot(dx,dy);
+            if(length<epsilon){dx=ball.x-b.x;dy=ball.y-b.y;length=Math.hypot(dx,dy);}
+            if(length<epsilon){dx=1;dy=0;length=1;}
+            consider({x:b.x+dx/length*D,y:b.y+dy/length*D});
+            for(const x of [R,S.tableL-R]){
+                const h2=D*D-(x-b.x)**2;
+                if(h2>=0)for(const sign of [-1,1])consider({x,y:b.y+sign*Math.sqrt(h2)});
+            }
+            for(const y of [R,S.tableW-R]){
+                const h2=D*D-(y-b.y)**2;
+                if(h2>=0)for(const sign of [-1,1])consider({x:b.x+sign*Math.sqrt(h2),y});
+            }
+            for(let j=0;j<i;j++){
+                const a=others[j],vx=a.x-b.x,vy=a.y-b.y,d=Math.hypot(vx,vy);
+                if(d<epsilon||d>2*D)continue;
+                const h=Math.sqrt(Math.max(0,D*D-d*d/4));
+                for(const sign of [-1,1])consider({x:(a.x+b.x)/2-sign*vy/d*h,y:(a.y+b.y)/2+sign*vx/d*h});
+            }
+        }
+        if(clear(ball))consider(ball);
+        // Pocket avoidance can remove boundary candidates. A bounded cloth scan
+        // also recovers legacy layouts with every ball at the same coordinates.
+        if(!best)for(let y=R;y<=S.tableW-R;y+=R)for(let x=R;x<=S.tableL-R;x+=R)consider({x,y});
+        return best || {x:ball.x,y:ball.y};
+    }
+    function repairBallOverlaps(balls) {
+        const physical=balls.filter(b=>!b.marker&&b.active!==false),D=2*S.ballR;
+        for(const b of physical){
+            if(!physical.some(a=>a!==b&&Math.hypot(a.x-b.x,a.y-b.y)<D-1e-10))continue;
+            const p=legalBallPosition(b,b,physical);
+            if(balls===S.balls&&b.id===0&&S.angleLock&&S.freeAim){S.freeAim.x+=p.x-b.x;S.freeAim.y+=p.y-b.y;}
+            b.x=p.x;b.y=p.y;
+        }
     }
     function randomLooseSetup(count) {
         const cue = cueBall();
@@ -5068,7 +5115,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         return { x: origin.x + d.x * m, y: origin.y + d.y * m };
     }
     function cloneBallsForPhysics() {
-        return S.balls.filter(b => b.active && !b.marker).map(b => ({ id: b.id, n: b.n, x: b.x, y: b.y, z: S.ballR, vx: 0, vy: 0, vz: 0, wx: 0, wy: 0, wz: 0, travel: 0, active: true }));
+        const balls=S.balls.filter(b => b.active && !b.marker).map(b => ({ id: b.id, n: b.n, x: b.x, y: b.y, z: S.ballR, vx: 0, vy: 0, vz: 0, wx: 0, wy: 0, wz: 0, travel: 0, active: true }));
+        repairBallOverlaps(balls);
+        return balls;
     }
     function pocketCapture(b) {
         const G = pocketModel(), L = G.L, W = G.W, R = G.R;
@@ -5405,7 +5454,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                     const minD = 2 * R;
                     if (!airborneMode) {
                         let dist = Math.hypot(dx, dy);
-                        if (dist < minD && dist > 1e-9) {
+                        if (dist < minD) {
                             const key = a.id < b.id ? `${a.id}:${b.id}` : `${b.id}:${a.id}`;
                             const rewind = planarContactRewind(a, b, minD, dt);
                             if (rewind > 0) {
@@ -5416,7 +5465,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                             }
                             const contactDx = b.x - a.x, contactDy = b.y - a.y;
                             dist = Math.hypot(contactDx, contactDy);
-                            const nx = contactDx / dist, ny = contactDy / dist, tx = -ny, ty = nx;
+                            const nx = dist>1e-9?contactDx/dist:1, ny = dist>1e-9?contactDy/dist:0, tx = -ny, ty = nx;
                             const rvx = b.vx - a.vx, rvy = b.vy - a.vy;
                             const relN = rvx * nx + rvy * ny;
                             const overlap = Math.max(0, minD - dist);
@@ -5474,9 +5523,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                     else {
                         const dz = (b.z || R) - (a.z || R);
                         let dist = Math.hypot(dx, dy, dz);
-                        if (dist < minD && dist > 1e-9) {
+                        if (dist < minD) {
                             const key = a.id < b.id ? `${a.id}:${b.id}` : `${b.id}:${a.id}`;
-                            const nx = dx / dist, ny = dy / dist, nz = dz / dist;
+                            const nx = dist>1e-9?dx/dist:1, ny = dist>1e-9?dy/dist:0, nz = dist>1e-9?dz/dist:0;
                             const rvx = b.vx - a.vx, rvy = b.vy - a.vy, rvz = b.vz - a.vz;
                             const relN = rvx * nx + rvy * ny + rvz * nz;
                             const overlap = minD - dist;
@@ -9175,7 +9224,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const ball=S.balls.find(b=>b.id===id&&!b.marker);
         if(!ball)return;
         if(document.body.classList.contains('zen-mode')&&q.y>S.tableW){returnZenBallToTray(id);return;}
-        const point=keepCueOnTable(q);
+        const point=legalBallPosition(q,ball);
         if(id===0&&S.angleLock)S.freeAim={x:S.freeAim.x+point.x-ball.x,y:S.freeAim.y+point.y-ball.y};
         Object.assign(ball,point);
     }
@@ -9251,7 +9300,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         else if (drag.kind === 'ball') {
             const b = S.balls.find(x => x.id === drag.id);
             if (b) {
-                if(!b.marker)Object.assign(q,keepCueOnTable(q));
+                if(!b.marker)Object.assign(q,legalBallPosition(q,b));
                 if(document.body.classList.contains('zen-mode')&&!b.marker&&drag.dropPoint.y>S.tableW)q.y=drag.dropPoint.y;
                 if (b.id === 0 && S.angleLock) {
                     const dx = q.x - b.x, dy = q.y - b.y;
@@ -9264,8 +9313,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         else if (drag.kind === 'aim')
             S.freeAim = q;
         else if (drag.kind === 'ball2') {
-            Object.assign(q,keepCueOnTable(q));
             const s = ensureShot2();
+            Object.assign(q,legalBallPosition(q,{id:0,x:s.x,y:s.y}));
             s.autoFollow = false;
             s.x = q.x;
             s.y = q.y;
