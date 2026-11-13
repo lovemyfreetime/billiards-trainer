@@ -32,10 +32,10 @@ const out=path.resolve('test-results/spin-lab');fs.mkdirSync(out,{recursive:true
   await p.locator('#table3DToggle').click();await p.waitForFunction(()=>window.Billiards3D?.active);
   assert.equal(await p.locator('#trainerPlaybackToggle').count(),0,'No permanent Playback button over the table');
   assert.equal(await p.locator('#trainerPlaybackBar').isVisible(),false);
-  await p.locator('#table3DDrawer').click();
+  await p.locator('#phoneControls:visible, #table3DDrawer:visible').first().click();
   if(!await p.locator('#trainerShowPlayback').isVisible())await p.getByRole('button',{name:/TABLE \/ BALLS/}).click();
   await p.locator('#trainerShowPlayback').click();
-  await p.locator('#table3DDrawer').click();
+  await p.locator('#phoneControls:visible, #table3DDrawer:visible').first().click();
   await p.locator('#trainerPlaybackCloseup').click();await p.locator('#trainerPlaybackFollow').check();
   const camera=await p.evaluate(()=>Billiards3D.camera());assert.equal(camera.followCue,true);
   // A short real shot keeps all export checks fast, including eighth speed.
@@ -67,7 +67,7 @@ const out=path.resolve('test-results/spin-lab');fs.mkdirSync(out,{recursive:true
    assert.equal(await p.evaluate(()=>Billiards3D.camera().followCue),false);
    assert.deepEqual((await state()).balls,saved.balls,'Close restores layout');
    assert.equal(await p.evaluate(()=>billiardsTourBridge.snapshot().undoCount),count,'Close does not commit a shot');
-   await p.locator('#table3DDrawer').click();await p.locator('#trainerShowPlayback').click();await p.locator('#table3DDrawer').click();
+   await p.locator('#phoneControls:visible, #table3DDrawer:visible').first().click();await p.locator('#trainerShowPlayback').click();await p.locator('#phoneControls:visible, #table3DDrawer:visible').first().click();
   }
   await setup(1);const beforeNormal=(await state()).balls;
   await p.evaluate(()=>document.getElementById('animate').click());await p.waitForFunction(()=>!billiardsPlayback.state().running);
