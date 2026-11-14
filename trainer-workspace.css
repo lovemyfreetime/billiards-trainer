@@ -233,6 +233,12 @@ body.phone-tray-hidden #workspaceClearBalls { display:none; }
 .compassHandle.dragging::after { box-shadow:0 0 0 3px #fff,0 0 14px #ffffff80; }
 #workspaceBallShelf.ball-drop-ready, #phoneTrayToggle.ball-drop-ready { outline:2px solid #91efb4; outline-offset:-2px; background:#203d32; box-shadow:inset 0 0 18px #51e89540; }
 .workspaceBallGhost { opacity:.95!important; }
+body.trainer-workspace #workspaceBallShelf { left:calc(var(--workspace-edge) + env(safe-area-inset-left)); }
+body.trainer-workspace.phone-focus:not(.zen-mode) #workspaceBallShelf #phoneTrayToggle { position:absolute; left:calc(10px - var(--workspace-edge)); top:4px; height:40px; }
+body.trainer-workspace.phone-focus #phoneActions .miniSpinControl::before,
+body.trainer-workspace.phone-focus #phoneActions .miniSpinControl::after { content:''; position:absolute; left:50%; width:1px; background:#cce4df; opacity:.4; pointer-events:none; }
+body.trainer-workspace.phone-focus #phoneActions .miniSpinControl::before { top:calc(50% + 7px); bottom:3px; }
+body.trainer-workspace.phone-focus #phoneActions .miniSpinControl::after { top:calc(50% + 1px); height:4px; }
 
 /* Compact 3D bands preserve direct camera tools and give the height to the table. */
 body.trainer-workspace.table-3d { --workspace-bottom:180px; }

@@ -13,7 +13,7 @@ const near=(a,b,message,tolerance=1e-5)=>assert(Math.abs(a-b)<tolerance,message+
    const cdp=touch?await context.newCDPSession(page):null;
    const start=async p=>{if(touch)await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:p.x,y:p.y}]});else{await page.mouse.move(p.x,p.y);await page.mouse.down();}};
    const move=async p=>{if(touch)await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:p.x,y:p.y}]});else await page.mouse.move(p.x,p.y);};
-   const end=async(cancel=false)=>{if(touch)await cdp.send('Input.dispatchTouchEvent',{type:cancel?'touchCancel':'touchEnd',touchPoints:[]});else if(cancel)await page.keyboard.press('Escape');else await page.mouse.up();};
+   const end=async(cancel=false)=>{if(touch)await cdp.send('Input.dispatchTouchEvent',{type:cancel?'touchCancel':'touchEnd',touchPoints:[]});else if(cancel)await page.keyboard.press('Escape');else await page.mouse.up();await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));};
    const drag=async(a,b,cancel=false)=>{await start(a);for(let i=1;i<=6;i++)await move({x:a.x+(b.x-a.x)*i/6,y:a.y+(b.y-a.y)*i/6});await end(cancel);};
    const state=()=>page.evaluate(()=>billiardsTourBridge.capture().state);
    const project=(q,height=0)=>page.evaluate(({q,height})=>Billiards3D.active?Billiards3D.project(q,height):billiardsCompassControls.project(q),{q,height});
@@ -28,6 +28,10 @@ const near=(a,b,message,tolerance=1e-5)=>assert(Math.abs(a-b)<tolerance,message+
     for(const mode of ['2d','3d']){
      if(mode==='3d'){await page.locator('#table3DToggle').click();await page.waitForFunction(()=>Billiards3D.active);await page.locator('#table3DLock [data-adjust=edit]').click();await page.locator('#phoneTrayToggle').click();}
      await fixture();
+     if(mode==='3d'){
+      near((await page.locator('#table3DPan').boundingBox()).height,44,'Compact camera row');
+      near((await page.locator('#bottomSpin1').boundingBox()).height,56,'Compact spin row');
+     }
      for(let id=0;id<=15;id++){
       const chip=page.locator(`#workspaceBalls [data-ball-id="${id}"]`);await chip.scrollIntoViewIfNeeded();
       const q={x:1.2,y:.55},target=await project(q);
@@ -37,7 +41,7 @@ const near=(a,b,message,tolerance=1e-5)=>assert(Math.abs(a-b)<tolerance,message+
       const camera=mode==='3d'?await page.evaluate(()=>Billiards3D.camera()):null;
       const source=await project(ball,mode==='3d'?s.ballR:0),tray=await middle('#workspaceBallShelf');
       await start(source);await move({x:source.x,y:source.y+20});await move(tray);
-      assert(await page.locator('#workspaceBallShelf').evaluate(e=>e.classList.contains('ball-drop-ready')),`${mode} ${id} tray highlights`);
+      await page.waitForFunction(()=>document.getElementById('workspaceBallShelf').classList.contains('ball-drop-ready'));
       await end();s=await state();assert(!s.balls.some(b=>b.id===id),`${mode} ${id} returned to tray`);
       assert(!s.pocketedLog.includes(id),'Stored ball is not counted as pocketed');assert(await chip.isEnabled());
       if(camera)assert.deepEqual(await page.evaluate(()=>Billiards3D.camera()),camera,'Ball transfer preserves camera');
@@ -46,6 +50,10 @@ const near=(a,b,message,tolerance=1e-5)=>assert(Math.abs(a-b)<tolerance,message+
      // A release outside the playing surface does not add a ball.
      await drag(await middle('#workspaceBalls [data-ball-id="15"]'),await middle('#workspaceClearBalls'));
      assert.equal((await state()).balls.length,0,'Invalid tray drop is harmless');
+     await drag(await middle('#workspaceBalls [data-ball-id="15"]'),await project({x:1.2,y:.55}));
+     await page.locator('#workspaceBalls [data-ball-id="0"]').scrollIntoViewIfNeeded();
+     await drag(await middle('#workspaceBalls [data-ball-id="0"]'),await project({x:1.2,y:.55}));
+     assert.deepEqual((await state()).balls.map(b=>b.id),[15],'Occupied drop cannot overlap another ball');await fixture();
      if(touch){
       const q={x:1.2,y:.55};await drag(await middle('#workspaceBalls [data-ball-id="0"]'),await project(q));
       const before=await state();await drag(await project(before.balls[0],mode==='3d'?before.ballR:0),await middle('#workspaceBallShelf'),true);
@@ -53,6 +61,10 @@ const near=(a,b,message,tolerance=1e-5)=>assert(Math.abs(a-b)<tolerance,message+
      }
      console.log(`${touch?'touch':'mouse'} ${mode}: all 16 balls transferred both ways, undo/redo and invalid drops passed`);
      await fixture(true);await page.waitForFunction(()=>document.querySelectorAll('.compassHandle:not([hidden])').length===8);
+     if(mode==='3d'){
+      const data=await page.evaluate(()=>{const c=document.getElementById('canvas'),s=billiardsTourBridge.capture().state,f=billiardsTourBridge.annotationFrame();return {image:c.toDataURL(),state:s.teachingCompass,L:s.tableL,W:s.tableW,dpr:devicePixelRatio,canvas:{width:c.width,height:c.height,clientWidth:c.clientWidth,clientHeight:c.clientHeight,rect:c.getBoundingClientRect().toJSON()},sourceCenter:f.map({x:s.teachingCompass.x/s.tableL,y:s.teachingCompass.y/s.tableW}),projected:Billiards3D.project(s.teachingCompass),zoom:BilliardsTableZoom.snapshot()};});
+      fs.writeFileSync(`${dir}/${touch?'touch':'mouse'}-source.png`,Buffer.from(data.image.split(',')[1],'base64'));delete data.image;fs.writeFileSync(`${dir}/${touch?'touch':'mouse'}-compass-geometry.json`,JSON.stringify(data,null,2));
+     }
      for(const kind of ['rotate','resize'])for(let i=0;i<4;i++){
       await fixture(true);const before=(await state()).teachingCompass;
       const a=await middle(`[data-handle="${kind}${i}"]`);
@@ -73,7 +85,17 @@ const near=(a,b,message,tolerance=1e-5)=>assert(Math.abs(a-b)<tolerance,message+
      assert.deepEqual(linkedAfter.balls,linked.balls,'Linked rotation leaves object ball fixed');
      near(Math.hypot(linkedAfter.teachingCompass.x-ball.x,linkedAfter.teachingCompass.y-ball.y),2*linkedAfter.ballR,'Linked ghost center remains one diameter from object');
      assert.notEqual(linkedAfter.teachingCompass.angle,linked.teachingCompass.angle);
+     await fixture(true);
+     const c=(await state()).teachingCompass,center=await project(c),destination=await project({x:c.x+.10,y:c.y+.05});
+     await drag(center,destination);const moved=(await state()).teachingCompass;
+     near(moved.x,c.x+.10,'Center still moves compass',.015);near(moved.y,c.y+.05,'Center still moves compass vertically',.015);
+     const resize=await middle('[data-handle="resize0"]'),shrink=await project(moved);
+     await drag(resize,shrink);near((await state()).teachingCompass.sizePct,10,'Resize inward reaches minimum');
+     await page.evaluate(()=>{const s=billiardsTourBridge.capture();s.state.teachingCompass.sizePct=100;billiardsTourBridge.restore(s);});
+     await page.waitForFunction(()=>document.querySelectorAll('.compassHandle.resize:not([hidden])').length===4);
+     await page.locator('[data-handle="resize0"]').press('ArrowDown');assert((await state()).teachingCompass.sizePct<100,'Oversized compass can shrink without a menu');
      await fixture(true);await page.screenshot({path:`${dir}/${touch?'touch':'mouse'}-${mode}-direct-controls.png`});
+
      await fixture();assert(await page.locator('#compassHandles').isHidden());
      console.log(`${touch?'touch':'mouse'} ${mode}: eight compass handles, stable pivots, linked ball, camera preservation and undo passed`);
     }

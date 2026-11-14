@@ -2887,7 +2887,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 if(!onPlayingSurface(q))return false;
             }
             if(document.body.classList.contains('trainer-workspace'))finishActionUndo();
-            returnPocketBall(id,q);finishActionUndo();return S.balls.some(b=>b.id===id&&b.active);
+            returnPocketBall(id,q);if(document.body.classList.contains('trainer-workspace'))finishActionUndo();return S.balls.some(b=>b.id===id&&b.active);
         }
     };
 

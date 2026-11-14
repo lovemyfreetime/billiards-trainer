@@ -60,6 +60,15 @@
         radius *= Math.min(2.1, Math.max(1, 36 / (distance || 1)));
         p = api.project({x:c.x+Math.cos(angle)*radius,y:c.y+Math.sin(angle)*radius});
       }
+      // Keep resize targets reachable when a large circle extends off-screen.
+      // The drag uses its initial radius offset, so an inset handle cannot snap it.
+      if (h.kind === 'resize' && p?.visible && center?.visible && center.x > stage.left+22 && center.x < stage.right-22 && center.y > stage.top+22 && center.y < stage.bottom-22) {
+        const dx = p.x-center.x, dy = p.y-center.y;
+        const tx = dx > 0 ? (stage.right-22-center.x)/dx : dx < 0 ? (stage.left+22-center.x)/dx : Infinity;
+        const ty = dy > 0 ? (stage.bottom-22-center.y)/dy : dy < 0 ? (stage.top+22-center.y)/dy : Infinity;
+        const t = Math.min(1, tx, ty);
+        p = {...p,x:center.x+dx*t,y:center.y+dy*t};
+      }
       const visible = p && p.visible && p.x >= stage.left+10 && p.x <= stage.right-10 && p.y >= stage.top+10 && p.y <= stage.bottom-10;
       h.button.hidden = !visible && active?.button !== h.button;
       if (!p) continue;

@@ -170,14 +170,18 @@
     if (active) {
       cameraRow.hidden = false; move(document.body, cameraRow);
       move(cameraRow, tools); move(cameraRow, views);
-      move(tools, trayToggle); tools.prepend(trayToggle);
+      if(document.body.classList.contains('phone-tray-hidden')) { move(tools, trayToggle); tools.prepend(trayToggle); }
+      else shelf.prepend(trayToggle);
     } else {
       cameraRow.hidden = true; move(groups.view, views); move(groups.view, tools);
       shelf.prepend(trayToggle);
     }
     fit.hidden = active;
     move(active ? tools : groups.setup, byId('table3DRackToggle'));
-    if (active) trayToggle.after(byId('table3DRackToggle'));
+    if (active) {
+      if(trayToggle.parentNode === tools) trayToggle.after(byId('table3DRackToggle'));
+      else tools.prepend(byId('table3DRackToggle'));
+    }
     const experience = byId('btZenLauncher');
     if (experience && experience.parentNode !== bar) bar.prepend(experience);
     const mode = byId('table3DToggle');
