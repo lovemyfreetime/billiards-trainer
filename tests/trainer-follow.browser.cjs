@@ -23,7 +23,10 @@ const fs = require('node:fs');
       if(!await details.evaluate(el=>el.open)) await details.locator('summary').click();
       await details.locator(selector).click();
     }
-    const follow = side => choose('follow','[data-view="'+side+'"]');
+    async function follow(side) {
+      await choose('follow','[data-view="'+side+'"]');
+      await page.waitForFunction(side=>Billiards3D.active && document.querySelector('#workspace-follow [aria-pressed=true]')?.dataset.view===side,side);
+    }
     const motion = speed => choose('motion','[data-speed="'+speed+'"]');
     const shoot = page.locator('#phoneActions [data-trainer-action=animate]');
     fs.mkdirSync('test-results/workspace',{recursive:true});

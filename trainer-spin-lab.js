@@ -19,8 +19,8 @@
  const preferenceKey='trainer.playbackLocks.v1';
  let stored={};
  try { stored=JSON.parse(localStorage.getItem(preferenceKey)) || {}; } catch {}
- const speedLock=makeLock(menu,'Keep motion','motionLock',motions.some(([v])=>v===stored.speed));
- const followLock=makeLock(followMenu,'Keep follow view','followLock',views.some(([v])=>v===stored.view));
+ const speedLock=makeLock(menu,'Lock motion','motionLock',motions.some(([v])=>v===stored.speed));
+ const followLock=makeLock(followMenu,'Lock follow view','followLock',views.some(([v])=>v===stored.view));
  let selectedView=followLock.checked ? stored.view : 'behind';
  let returnCamera=null, activating=false;
 
@@ -44,10 +44,10 @@
   return items.map(([value,label])=>{
    const button=document.createElement('button');
    button.type='button';button.textContent=label;button.dataset[attribute]=value;
-   button.onclick=async()=>{
-    if(await choose(value)){
-     details.open=false;details.querySelector('summary').focus();
-    }
+   button.onclick=()=>{
+    details.open=false;
+    details.querySelector('summary').focus();
+    choose(value);
    };
    details.querySelector('.workspaceToolGroup').insertBefore(button,details.querySelector('.playbackLock'));
    return button;
