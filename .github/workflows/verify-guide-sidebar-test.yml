@@ -1,0 +1,40 @@
+name: Verify Guide sidebar controls
+on:
+  workflow_dispatch:
+  push:
+    branches: [test/dualshock4-controller-2026-11-14]
+    paths: [.github/workflows/verify-guide-sidebar-test.yml, tests/guide-sidebar-controls.browser.cjs]
+permissions:
+  contents: read
+jobs:
+  guide:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify current update inventory
+        run: python3 scripts/build-offline-assets.py --check
+      - name: Install browser
+        run: |
+          npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
+          node local-host/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Check sidebar controls on four screen sizes
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: node tests/guide-sidebar-controls.browser.cjs
+      - name: Recheck original Guide interaction failure
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: node tests/guide-platform-parity.browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: guide-sidebar-verification
+          path: test-results/guide-sidebar
+          retention-days: 14
