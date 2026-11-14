@@ -240,6 +240,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   #liveStatsSection #shot1Metrics[hidden], #liveStatsSection #shot2Metrics[hidden] { display:none; }
   .cueElevationSlider[hidden] { display:none; }
   .shotFeatureButtons { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; margin:6px 0; }
+  .shotFeatureButtons .jumpModeLock { grid-column:2; display:flex; gap:6px; align-items:center; justify-content:center; cursor:pointer; min-height:34px; font-size:12px; }
+  .shotFeatureButtons .jumpModeLock input { margin:0; width:18px; height:18px; }
   .shotFeatureButtons button { width:100%; min-width:0; margin:0; min-height:38px; padding:6px 4px; font-size:11px; font-weight:800; }
   .shotExecuteRow { display:grid; grid-template-columns:1fr; gap:8px; margin-top:6px; }
   .shotExecuteRow.dual { grid-template-columns:1fr 1fr; }
@@ -1651,7 +1653,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         <div class="fineRow"><label>Left right spin</label><button id="spin2Minus" type="button">−</button><input id="sideSpin2" type="range" min="-1" max="1" step="0.01" value="0"><button id="spin2Plus" type="button">+</button><input id="spin2Number" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 2 left right spin percent"></div>
         <div id="cueElevationAdvanced2" class="cueElevationSlider"><div class="fineRow"><label>Cue elevation</label><button id="elev2Minus" type="button">−</button><input id="cueElevation2" type="range" min="0" max="15" step="0.1" value="3"><button id="elev2Plus" type="button">+</button><input id="elev2Number" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 2 cue elevation degrees"></div></div>
       </div>
-      <div class="shotFeatureButtons"><button id="shotBudget" type="button" aria-pressed="false" title="Remaining % and cyan D along each path; compact ball and rail loss badges show deductions at each contact. Percentages use the starting shot. D is a share of its calibrated energy budget, not literal travel remaining; 16D is one lag.">SHOT BUDGET</button><button id="jumpMasseFeatures" class="jumpMasseFeatures" type="button" aria-pressed="false">JUMP / MASSÉ</button></div>
+      <div class="shotFeatureButtons"><button id="shotBudget" type="button" aria-pressed="false" title="Remaining % and cyan D along each path; compact ball and rail loss badges show deductions at each contact. Percentages use the starting shot. D is a share of its calibrated energy budget, not literal travel remaining; 16D is one lag.">SHOT BUDGET</button><button id="jumpMasseFeatures" class="jumpMasseFeatures" type="button" aria-pressed="false">JUMP / MASSÉ</button><label class="jumpModeLock"><input id="jumpModeLock" type="checkbox">Lock Jump / Massé</label></div>
       <div id="tipArea">
         <div class="tipPane" id="tipPane1">
           <div class="shotPaneTitle">SHOT 1</div>
@@ -2225,7 +2227,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             },
             muSlide: APK.muSliding, muRoll: APK.muRolling, muBall: APK.muBallBall, ballRest: .96,
             railRest: .90, railTang: .90, cueEndmassRatio: PHYSICS_MODEL.defaultCueEndmassRatio, cuePreset: 'low',
-            jumpUnits: 'in', airbornePhysics: false, tableRest: PHYSICS_MODEL.defaultTableVerticalRestitution, bedImpactMu: PHYSICS_MODEL.defaultBedImpactFriction, showImpact: true, showTipBadge: false, showShotLine: true, showCueStick: true, showPaths: true, showGrid: true, showDiamonds: true, showTable: true,
+            jumpUnits: 'in', airbornePhysics: false, jumpModeLocked: false, tableRest: PHYSICS_MODEL.defaultTableVerticalRestitution, bedImpactMu: PHYSICS_MODEL.defaultBedImpactFriction, showImpact: true, showTipBadge: false, showShotLine: true, showCueStick: true, showPaths: true, showGrid: true, showDiamonds: true, showTable: true,
             showShotBudget: false, preview: null, firstEvent: '—'
         };
     }
@@ -8755,6 +8757,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         budgetBtn.setAttribute('aria-pressed', String(!!S.showShotBudget));
         budgetBtn.classList.toggle('visibilityOn', !!S.showShotBudget);
         budgetBtn.classList.toggle('visibilityOff', !S.showShotBudget);
+        $('jumpModeLock').checked = S.jumpModeLocked === true;
         const jumpBtn = $('jumpMasseFeatures');
         jumpBtn.setAttribute('aria-pressed', String(!!S.airbornePhysics));
         jumpBtn.classList.toggle('visibilityOn', !!S.airbornePhysics);
@@ -9077,7 +9080,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         b.classList.toggle('locked', locked);
         b.setAttribute('aria-pressed', locked ? 'true' : 'false');
     }
-    function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, cuePreset:S.cuePreset, airbornePhysics: S.airbornePhysics, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showPracticeCounter:S.showPracticeCounter, shot2CueBallOnly:S.shot2CueBallOnly, aimZones:aimZoneFlags(), showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; Object.assign(S,{balls:[],allowMissingCueBall:true,freeAim:{x:S.tableL*.75,y:S.tableW*.5},pocketedLog:[],nextId:1}); resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
+    function resetLayout() { animation = null; const keep = { tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, cuePreset:S.cuePreset, airbornePhysics: S.airbornePhysics, jumpModeLocked: S.jumpModeLocked===true, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showPracticeCounter:S.showPracticeCounter, shot2CueBallOnly:S.shot2CueBallOnly, aimZones:aimZoneFlags(), showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; Object.assign(S,{balls:[],allowMissingCueBall:true,freeAim:{x:S.tableL*.75,y:S.tableW*.5},pocketedLog:[],nextId:1}); resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
     function keepCueOnTable(q){
         const gap=Math.max(S.ballR*2.2,.065),p={x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR)};
         for(const pocket of logicalPockets())if(Math.hypot(p.x-pocket.x,p.y-pocket.y)<gap){
@@ -9979,7 +9982,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             S.speed = 1.50;
             S.follow = 0;
             S.sideSpin = 0;
+            if (!S.airbornePhysics || !S.jumpModeLocked) S.cueElevationDeg = PHYSICS_MODEL.defaultCueElevationDeg;
+        }
+        if (S.airbornePhysics && !S.jumpModeLocked) {
+            S.airbornePhysics = false;
             S.cueElevationDeg = PHYSICS_MODEL.defaultCueElevationDeg;
+            if (S.shot2) S.shot2.cueElevationDeg = PHYSICS_MODEL.defaultCueElevationDeg;
         }
         normalizeBallSet();
         // The shot just committed can be reverted exactly.
@@ -13703,6 +13711,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             S.showShotBudget = !S.showShotBudget;
             updateUI(); refreshPreview(); saveState(); syncProjector();
         };
+        $('jumpModeLock').onchange = event => {
+            S.jumpModeLocked = event.target.checked;
+            saveState();
+        };
         $('jumpMasseFeatures').onclick = () => {
             S.airbornePhysics = !S.airbornePhysics;
             if (!S.airbornePhysics) {
@@ -13711,6 +13723,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             }
             updateUI();
             refreshPreview();
+            saveState();
         };
         $('animate').onclick = () => {
             if (animation) return;
