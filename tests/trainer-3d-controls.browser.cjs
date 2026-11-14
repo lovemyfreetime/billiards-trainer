@@ -142,7 +142,14 @@ const specs = [
           await page.locator('#tableSpeed1').evaluate(e=>{e.value='.25';e.dispatchEvent(new Event('input',{bubbles:true}));});assert.notEqual(await lag.innerText(),previous,'Lag updates with speed');
           for(const [id,start,end] of [['bottomFollow1','Draw','Follow'],['bottomSide1','Left spin','Right spin']]){
             const caption=page.locator('#'+id).locator('..').locator('.phoneSpinCaption');assert.equal(await caption.getAttribute('data-start'),start);assert.equal(await caption.getAttribute('data-end'),end);
-            assert.match(await caption.textContent(),/^[+−-]?\d+%$/);
+            const prefix=id==='bottomFollow1'?'F/D':'L/R',key=id==='bottomFollow1'?'follow':'sideSpin';
+            for(const [value,percent] of [[-.37,-37],[.26,26]]) {
+              await page.locator('#'+id).evaluate((e,v)=>{e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));},value);
+              const text=(await caption.textContent()).trim(),match=/^(F\/D|L\/R) ([+−-]?\d+)%$/.exec(text);
+              assert(match,'Directional spin caption includes its percentage: '+text);assert.equal(match[1],prefix);
+              assert.equal(Number(match[2].replace('−','-')),percent,'Caption matches the selected percentage');
+              assert.equal((await state())[key],value,'Caption and live shot agree on '+key);
+            }
           }
         });
         // The current layout contract uses visibility, hit targets and clearance, not historic colors or coordinates.
