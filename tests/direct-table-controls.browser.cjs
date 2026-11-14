@@ -78,7 +78,7 @@ const near=(a,b,message,tolerance=1e-5)=>assert(Math.abs(a-b)<tolerance,message+
      console.log(`${touch?'touch':'mouse'} ${mode}: eight compass handles, stable pivots, linked ball, camera preservation and undo passed`);
     }
     assert.deepEqual(errors,[]);
-   }finally{await context.close();}
+   }catch(e){await page.screenshot({path:`${dir}/${touch?'touch':'mouse'}-direct-failure.png`});throw e;}finally{await context.close();}
   }
  }finally{await browser?.close();server.kill();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

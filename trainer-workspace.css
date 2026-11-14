@@ -249,8 +249,8 @@ body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DViews,
 body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls button { height:44px!important; min-height:44px!important; }
 body.trainer-workspace.table-3d #workspaceBallShelf { bottom:calc(124px + env(safe-area-inset-bottom)); right:calc(120px + env(safe-area-inset-right)); }
 @media(max-width:700px) {
- body.trainer-workspace.table-3d { --workspace-bottom:230px; }
- body.trainer-workspace.table-3d.phone-tray-hidden { --workspace-bottom:174px; }
- body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls:not([hidden]) { grid-template-rows:44px 44px; }
- body.trainer-workspace.table-3d #workspaceBallShelf { bottom:calc(174px + env(safe-area-inset-bottom)); right:calc(10px + env(safe-area-inset-right)); }
+ body.trainer-workspace.table-3d { --workspace-bottom:244px; }
+ body.trainer-workspace.table-3d.phone-tray-hidden { --workspace-bottom:188px; }
+ body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls:not([hidden]) { grid-template-rows:44px 44px; gap:20px; }
+ body.trainer-workspace.table-3d #workspaceBallShelf { bottom:calc(188px + env(safe-area-inset-bottom)); right:calc(10px + env(safe-area-inset-right)); }
 }
