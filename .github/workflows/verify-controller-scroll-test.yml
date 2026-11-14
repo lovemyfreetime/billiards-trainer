@@ -20,7 +20,29 @@ jobs:
       - name: Install browser
         run: |
           npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
+          npm install --prefix /tmp/controller-scroll-tests --no-save --no-audit --no-fund jsdom@26.1.0
           node local-host/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Verify runtime inventory and controller interlocks
+        env:
+          NODE_PATH: ./local-host/node_modules:/tmp/controller-scroll-tests/node_modules
+        run: |
+          python3 scripts/build-offline-assets.py --check
+          node tests/trainer-controller.test.cjs
+      - name: Reproduce scroll reset with the original controller adapter
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          cp trainer-controller.js /tmp/controller-scroll-candidate.js
+          trap 'cp /tmp/controller-scroll-candidate.js trainer-controller.js' EXIT
+          git fetch --depth=1 origin ef27eeb097dd1a339730599a00bedff2f53d7a4a
+          git show FETCH_HEAD:trainer-controller.js > trainer-controller.js
+          set +e
+          node tests/controller-dialog-scroll.browser.cjs
+          code=$?
+          set -e
+          mv test-results/controller-scroll test-results/controller-scroll-baseline
+          test "$code" -ne 0
+          node -e "const a=require('./test-results/controller-scroll-baseline/results.json');require('node:assert/strict')(a.length===3&&a.every(r=>r.status==='failed'&&r.error.includes('Controller availability refresh moved scroll')),'Baseline must fail specifically at the availability/scroll assertion')"
       - name: Check controller setup scroll under Android telemetry
         env:
           NODE_PATH: ./local-host/node_modules
@@ -29,5 +51,5 @@ jobs:
         if: always()
         with:
           name: controller-scroll-verification
-          path: test-results/controller-scroll
+          path: test-results/controller-scroll*
           retention-days: 14
