@@ -56,6 +56,7 @@ public class MainActivity extends Activity {
 
     private final ApkUpdates apkUpdates = new ApkUpdates(this);
     WebView webView;
+    private TrainerControllerInput controllerInput;
     BundledApp bundledApp;
     private volatile boolean bootstrapPending;
     private boolean fullscreenEnabled=true;
@@ -78,6 +79,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        controllerInput = new TrainerControllerInput(this, payload -> {
+            if (narrationPageOnUiThread()) webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('billiards:controller-state',{detail:" + payload + "}))", null);
+        });
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         try {
@@ -415,7 +419,20 @@ public class MainActivity extends Activity {
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
+        if (controllerInput != null) controllerInput.setFocused(hasFocus);
         if (hasFocus) scheduleImmersiveMode();
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(android.view.KeyEvent event) {
+        if (controllerInput != null && narrationPageOnUiThread() && controllerInput.key(event)) return true;
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public boolean dispatchGenericMotionEvent(android.view.MotionEvent event) {
+        if (controllerInput != null && narrationPageOnUiThread() && controllerInput.motion(event)) return true;
+        return super.dispatchGenericMotionEvent(event);
     }
 
     @Override
@@ -427,6 +444,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onPause() {
+        if (controllerInput != null) controllerInput.setFocused(false);
         pendingDescription=null;if(descriptionVoice!=null)descriptionVoice.stop();
         if (webView != null) webView.onPause();
         super.onPause();
@@ -474,6 +492,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy(){
+        if (controllerInput != null) controllerInput.close();
         if(pendingCameraRequest!=null){pendingCameraRequest.deny();pendingCameraRequest=null;}
         if(pendingAudioRequest!=null){pendingAudioRequest.deny();pendingAudioRequest=null;}
         narrationMicRecorder.discard();
@@ -515,6 +534,10 @@ public class MainActivity extends Activity {
     }
 
     public class AndroidBridge {
+        @JavascriptInterface public int controllerInputVersion(){return 1;}
+        @JavascriptInterface public void setControllerEnabled(boolean enabled){
+            runOnUiThread(() -> {if(controllerInput != null) controllerInput.setEnabled(enabled && narrationPageOnUiThread());});
+        }
         @JavascriptInterface
         public String startNarrationMicrophone(){
             if(!narrationContentAllowed())return "unavailable";

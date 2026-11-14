@@ -1,0 +1,27 @@
+#trainerControllerDialog{box-sizing:border-box;width:min(760px,calc(100vw - 24px));max-height:calc(100dvh - 24px);padding:20px;border:1px solid #47606d;border-radius:16px;background:#101c25;color:#edf5fa;overflow:auto;font:14px system-ui,sans-serif;z-index:100000}
+#trainerControllerDialog::backdrop{background:#000a}
+#trainerControllerDialog *{box-sizing:border-box}
+#trainerControllerDialog header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#trainerControllerDialog h2{font-size:22px;margin:0}
+#trainerControllerDialog h3{font-size:16px;margin:20px 0 8px}
+#trainerControllerDialog p{line-height:1.5;color:#bcd0dd}
+#trainerControllerDialog button,#trainerControllerDialog select{min-height:36px;border:1px solid #4c6679;border-radius:7px;padding:6px 10px;background:#233747;color:#f5f9fc;font:inherit}
+#trainerControllerDialog button:focus-visible,#trainerControllerDialog input:focus-visible,#trainerControllerDialog select:focus-visible{outline:2px solid #79e6c4;outline-offset:2px}
+#trainerControllerDialog label{display:flex;align-items:center;gap:8px;margin:10px 0}
+#trainerControllerDialog input[type=checkbox]{width:20px;height:20px}
+#trainerControllerDialog input[type=range]{flex:1;min-width:80px}
+#trainerControllerDialog output{min-width:55px;text-align:right}
+#trainerControllerDevice{width:100%}
+#trainerControllerStatus,#trainerControllerRaw{display:block;white-space:pre-wrap;overflow-wrap:anywhere;padding:10px;border-radius:8px;background:#09131b;line-height:1.5}
+#trainerControllerRaw{font:12px ui-monospace,monospace;min-height:62px}
+.controllerSettings{display:grid;grid-template-columns:1fr 1fr;gap:0 24px}
+.controllerMapping{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px}
+.controllerMapping label{display:grid!important;grid-template-columns:minmax(90px,1fr) minmax(110px,1.6fr);margin:0!important}
+.controllerAxisRow{display:grid;grid-template-columns:80px 1fr 90px;gap:10px;align-items:center;margin:8px 0}
+.controllerAxisRow label{margin:0!important}
+#trainerControllerCursor{position:fixed;width:22px;height:22px;border:2px solid #a0ffe1;border-radius:50%;box-shadow:0 0 0 2px #071a24,0 0 12px #70ffd970;pointer-events:none;z-index:99999;transform:translate(-50%,-50%)}
+#trainerControllerCursor::before,#trainerControllerCursor::after{content:'';position:absolute;background:#a0ffe1;left:8px;top:3px;width:2px;height:12px}
+#trainerControllerCursor::after{transform:rotate(90deg)}
+#trainerControllerCursor[data-dragging=true]{border-color:#ffcd76}
+#trainerControllerDialog [hidden],#trainerControllerCursor[hidden]{display:none!important}
+@media(max-width:580px){.controllerSettings,.controllerMapping{grid-template-columns:1fr}#trainerControllerDialog{padding:14px}.controllerMapping label{grid-template-columns:100px 1fr}}

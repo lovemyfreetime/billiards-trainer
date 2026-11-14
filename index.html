@@ -4811,6 +4811,35 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         draw();
     }
     window.billiardsSelectShot=setActiveShot;
+    // Controllers call the same shot actions and pointer path as touch/mouse.
+    window.billiardsControllerControls={
+        state(){const second=S.activeShot===2&&S.shot2Enabled,shot=second?ensureShot2():S;return {busy:!!animation,projector:isProjector,activeShot:second?2:1,shot2Enabled:!!S.shot2Enabled,speed:shot.speed,side:shot.sideSpin,follow:shot.follow};},
+        adjust({aim=0,speed=0,side=0,follow=0}){
+            if(animation||isProjector)return false;
+            beginActionUndo();
+            if(aim)rotateAimMicro(aim*Math.PI/180);
+            const second=S.activeShot===2&&S.shot2Enabled,shot=second?ensureShot2():S,input=$(second?'speed2':'speed');
+            shot.speed=clamp(shot.speed+speed,Number(input.min)||.05,Number(input.max)||8);
+            shot.sideSpin=clamp(shot.sideSpin+side,-1,1);shot.follow=clamp(shot.follow+follow,-1,1);
+            if(speed||side||follow){updateUI();refreshPreview();syncProjector();}
+            clearTimeout(actionUndoTimer);actionUndoTimer=setTimeout(finishActionUndo,250);
+            return true;
+        },
+        finish(){finishActionUndo();},
+        shoot(){if(animation||isProjector)return false;finishActionUndo();animateShot();return true;},
+        select(n){if(animation||isProjector||n===2&&!S.shot2Enabled)return false;setActiveShot(n);return true;},
+        undo(){if(!animation&&!isProjector)undoLastShot();},redo(){if(!animation&&!isProjector)redoLastShot();},
+        pointer(type,clientX,clientY){
+            if(isProjector||animation&&type!=='pointercancel')return false;
+            let q=window.billiardsCompassControls.point({clientX,clientY});
+            if(!q&&type==='pointercancel')q={x:0,y:0};
+            if(type==='pointerdown'&&window.Billiards3D?.active){
+                const near=S.balls.filter(b=>b.active!==false&&!b.marker).map(b=>({b,p:window.Billiards3D.project(b,S.ballR)})).filter(v=>v.p?.visible).sort((a,b)=>Math.hypot(a.p.x-clientX,a.p.y-clientY)-Math.hypot(b.p.x-clientX,b.p.y-clientY))[0];
+                if(near&&Math.hypot(near.p.x-clientX,near.p.y-clientY)<20)q={x:near.b.x,y:near.b.y};
+            }
+            return window.billiards3DTableInput(type,q,{pointerId:987,pointerType:'mouse',buttons:type==='pointerdown'||type==='pointermove'?1:0,tableClient:{clientX,clientY}});
+        }
+    };
     function len(x, y) { return Math.hypot(x, y); }
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
     function dot(a, b) { return a.x * b.x + a.y * b.y; }
@@ -14101,6 +14130,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <link rel="stylesheet" href="./trainer-workspace.css?v=1">
   <script src="./trainer-workspace.js?v=1"></script>
   <script src="./trainer-compass-controls.js?v=1"></script>
+  <link rel="stylesheet" href="./trainer-controller.css?v=1">
+  <script src="./trainer-controller.js?v=1"></script>
   <script src="./trainer-spin-lab.js?v=1"></script>
   <script src="./trainer-annotate.js?v=17"></script>
   <script src="./trainer-shot-recorder.js?v=slow-motion-1"></script>

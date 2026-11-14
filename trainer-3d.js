@@ -187,6 +187,14 @@
  }
  button.onclick=()=>active?disable():enable();
  window.Billiards3D={enable,get active(){return active;},get locked(){return active&&viewLocked;},get panning(){return active&&panEnabled;},project(point,height=0){return engine?.project(point,height)||null;},update(frame){lastFrame=frame;if(active){syncBallTools();engine?.update(frame);requestRender();}},disable,
+  controllerMove({rotateX=0,rotateY=0,panX=0,panY=0,zoomBy=0}={}){
+   if(!active||!lastFrame||lastFrame.animating)return false;
+   if(rotateX||rotateY||panX||panY||zoomBy)cameraState.followCue=false;
+   if(rotateX||rotateY)orbit(rotateX,rotateY);
+   if(panX||panY)engine?.pan(panX,panY);
+   if(zoomBy)zoom(Math.exp(zoomBy));
+   return true;
+  },resetView(){if(active)standing();else window.BilliardsTableZoom?.reset();},
   focusCue(){
    if(!active||!lastFrame)return false;
    const b=lastFrame.balls.find(b=>b.id===0&&b.active);

@@ -5,9 +5,12 @@ on:
   push:
     branches:
       - main
+      - test/dualshock4-controller-2026-11-14
     paths:
       - '.github/workflows/build-windows-wrapper.yml'
       - 'index.html'
+      - 'trainer-controller.js'
+      - 'trainer-controller.css'
       - 'trainer-camera-recorder.js'
       - 'trainer-camera-recorder.css'
       - 'trainer-shot-recorder.js'
@@ -128,6 +131,7 @@ jobs:
           & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' 'windows-wrapper\installer.iss'
 
       - name: Publish complete offline Windows installer
+        if: github.ref == 'refs/heads/main'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}

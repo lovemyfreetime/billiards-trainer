@@ -5,9 +5,12 @@ on:
   push:
     branches:
       - main
+      - test/dualshock4-controller-2026-11-14
     paths:
       - 'android-wrapper/**'
       - 'index.html'
+      - 'trainer-controller.js'
+      - 'trainer-controller.css'
       - '.github/workflows/build-android-wrapper.yml'
       - 'trainer-video-narration.js'
       - 'trainer-camera-recorder.js'
@@ -96,10 +99,13 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y ffmpeg
-          npm install --prefix /tmp/trainer-browser-tests --no-audit --no-fund playwright@1.65.0
+          npm install --prefix /tmp/trainer-browser-tests --no-audit --no-fund playwright@1.65.0 jsdom@26.1.0
           /tmp/trainer-browser-tests/node_modules/.bin/playwright install --with-deps chromium
           export NODE_PATH=/tmp/trainer-browser-tests/node_modules
           export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")
+          node tests/trainer-controller.test.cjs
+          node tests/trainer-controller-bridge.test.cjs
+          node tests/trainer-controller.browser.cjs
           node tests/trainer-video-narration.browser.cjs
           node tests/trainer-narration-microphone.browser.cjs
           node tests/trainer-camera-recorder.browser.cjs

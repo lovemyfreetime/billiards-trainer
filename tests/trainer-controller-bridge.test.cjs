@@ -1,0 +1,22 @@
+// Exercise the actual inline Trainer bridge with its existing engine boundaries.
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
+const between=(start,end)=>{const a=html.indexOf(start),b=html.indexOf(end,a);assert(a>=0&&b>a);return html.slice(a,b);};
+const S={activeShot:1,shot2Enabled:false,tableL:2.54,tableW:1.27,ballR:.028575,freeAim:{x:1.5,y:.5},speed:1,sideSpin:0,follow:0,balls:[{id:0,x:.5,y:.5,active:true}],shot2:{x:.7,y:.8,freeAim:{x:1.8,y:.9},speed:2,sideSpin:0,follow:0}};
+const calls=[];
+const context={window:{billiardsCompassControls:{point:()=>({x:1,y:1})},billiards3DTableInput:(...args)=>{calls.push(['pointer',...args]);return true;}},S,isProjector:false,animation:null,microAimRefreshPending:false,actionUndoTimer:0,Math,Number,setTimeout:()=>1,clearTimeout:()=>{},requestAnimationFrame:fn=>fn(),clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),cueBall:()=>S.balls[0],ensureShot2:()=>S.shot2,$:()=>({min:'.05',max:'6'}),beginActionUndo:()=>calls.push(['begin']),finishActionUndo:()=>calls.push(['finish']),updateUI:()=>{},updateShot2UIState:()=>{},updateAngleLockButton:()=>{},draw:()=>{},refreshPreview:()=>{},saveState:()=>{},syncProjector:()=>{},animateShot:()=>{calls.push(['shoot']);context.animation={};},undoLastShot:()=>calls.push(['undo']),redoLastShot:()=>calls.push(['redo'])};
+vm.createContext(context);
+vm.runInContext(between('    function setActiveShot(n)', '    window.billiardsSelectShot='),context);
+vm.runInContext(between('    function rotateAimMicro(radians)', '    function rotateVec('),context);
+vm.runInContext(between('    window.billiardsControllerControls={', '    function len('),context);
+const bridge=context.window.billiardsControllerControls;
+const clone=v=>JSON.parse(JSON.stringify(v));
+assert.equal(bridge.select(2),false);assert.equal(S.shot2Enabled,false);
+const start=clone(S);bridge.adjust({aim:2,speed:.2,side:.3,follow:.4});assert.notDeepEqual(S.freeAim,start.freeAim);assert.equal(S.speed,1.2);assert.equal(S.sideSpin,.3);assert.equal(S.follow,.4);assert.deepEqual(S.shot2,start.shot2);
+S.shot2Enabled=true;assert(bridge.select(2));const first=clone({freeAim:S.freeAim,speed:S.speed,side:S.sideSpin,follow:S.follow});bridge.adjust({aim:-3,speed:.5,side:-.6,follow:-.4});assert.deepEqual(clone({freeAim:S.freeAim,speed:S.speed,side:S.sideSpin,follow:S.follow}),first);assert.equal(S.shot2.speed,2.5);assert.equal(S.shot2.sideSpin,-.6);assert.notDeepEqual(S.shot2.freeAim,start.shot2.freeAim);
+bridge.adjust({speed:99,side:99,follow:-99});assert.equal(S.shot2.speed,6);assert.equal(S.shot2.sideSpin,1);assert.equal(S.shot2.follow,-1);
+assert(bridge.shoot());assert.equal(bridge.shoot(),false);const busy=clone(S);assert.equal(bridge.adjust({aim:10,speed:1}),false);assert.deepEqual(clone(S),busy);assert.equal(bridge.select(1),false);bridge.undo();bridge.redo();assert(!calls.some(c=>c[0]==='undo'||c[0]==='redo'));
+context.animation=null;bridge.undo();bridge.redo();assert(calls.some(c=>c[0]==='undo')&&calls.some(c=>c[0]==='redo'));
+assert(bridge.pointer('pointerdown',123,456));context.window.billiardsCompassControls.point=()=>null;assert(bridge.pointer('pointercancel',0,0));assert.deepEqual(clone(calls.at(-1)[2]),{x:0,y:0});
+context.isProjector=true;assert.equal(bridge.shoot(),false);assert.equal(bridge.adjust({speed:1}),false);assert.equal(bridge.pointer('pointerdown',0,0),false);
+console.log('PASS: actual Trainer bridge preserves Shot 1/2 isolation, bounds, busy/projector guards, shot history routing and pointer cancellation.');
