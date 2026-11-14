@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: android-runtime-diagnostic-${{ github.ref }}
@@ -33,40 +34,35 @@ jobs:
       - uses: android-actions/setup-android@v3
         with:
           packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.10.2'
-          cache-read-only: true
-
       - name: Initialize diagnostic paths
-        run: printf 'RUNTIME_DIAG_DIR=%s/android-runtime-diagnostic\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+        run: |
+          printf 'RUNTIME_DIAG_DIR=%s/android-runtime-diagnostic\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          printf 'APP_APK_DIR=%s/android-runtime-artifacts/apps\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          printf 'TEST_APK_DIR=%s/android-runtime-artifacts/tests\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
 
-      - name: Compile matching app and instrumentation APKs
-        id: compile
-        working-directory: android-wrapper
-        env:
-          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/android-runtime-diagnostic-signing.jks
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      - name: Download retained signed app APKs
+        uses: actions/download-artifact@v4
+        with:
+          name: Android-compiled-APKs-runtime-incomplete
+          run-id: 43576223626
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/android-runtime-artifacts/apps
+      - name: Download matching instrumentation APKs
+        uses: actions/download-artifact@v4
+        with:
+          name: Android-diagnostic-instrumentation-APKs
+          run-id: 43579739690
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/android-runtime-artifacts/tests
+      - name: Verify retained app identity
         run: |
           set -euo pipefail
-          trap 'rm -f "$ANDROID_KEYSTORE_PATH"' EXIT
-          python3 - <<'PY'
-          import base64, os
-          from pathlib import Path
-          required = ['ANDROID_KEYSTORE_BASE64', 'ANDROID_KEYSTORE_PASSWORD', 'ANDROID_KEY_ALIAS', 'ANDROID_KEY_PASSWORD']
-          assert all(os.environ.get(key) for key in required), 'Permanent signing configuration is unavailable'
-          Path(os.environ['ANDROID_KEYSTORE_PATH']).write_bytes(base64.b64decode(os.environ['ANDROID_KEYSTORE_BASE64'], validate=True))
-          PY
-          python3 ../scripts/build-native-updates.py
-          python3 ../scripts/build-offline-assets.py
-          gradle --no-daemon :app:assembleTrainerRelease :app:assembleTrainerReleaseAndroidTest :app:assembleInstallerRelease :app:assembleInstallerReleaseAndroidTest
           mkdir -p "$RUNTIME_DIAG_DIR"
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs app/build/outputs/apk/trainer/release/app-trainer-release.apk > "$RUNTIME_DIAG_DIR/public-signature.txt"
+          app="$APP_APK_DIR/trainer/release/app-trainer-release.apk"
+          printf 'f1f9909dc70d39147bcd8f762ce4210a996dd95125a3a9c311fdfeaf657f2753  %s\n' "$app" | sha256sum --check
+          sha256sum "$app" > "$RUNTIME_DIAG_DIR/app-apk-sha256.txt"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$app" > "$RUNTIME_DIAG_DIR/public-signature.txt"
           grep -F 'a7e01270b7c40cb939d745d391fd8ae34e89c7051c363c11e125ca1616b4d9c7' "$RUNTIME_DIAG_DIR/public-signature.txt"
-          python3 ../scripts/verify-android-app.py app/build/outputs/apk/trainer/release/app-trainer-release.apk app/build/outputs/apk/installer/release/app-installer-release.apk
 
       - name: Prepare direct instrumentation diagnostic
         run: |
@@ -75,6 +71,8 @@ jobs:
           cat > "$RUNTIME_DIAG_DIR/run-test.sh" <<'SH'
           #!/usr/bin/env bash
           set -euo pipefail
+          cat "$ANDROID_HOME/emulator/source.properties" | tee "$RUNTIME_DIAG_DIR/emulator-version.txt"
+          grep -F '37.1.11' "$RUNTIME_DIAG_DIR/emulator-version.txt"
           adb root
           adb wait-for-device
           for firewall in iptables ip6tables; do
@@ -101,8 +99,8 @@ jobs:
           trap 'kill "$log_pid" "$watch_pid" 2>/dev/null || true' EXIT
           install_flavor() {
             local flavor="$1"
-            local app_apk="$GITHUB_WORKSPACE/android-wrapper/app/build/outputs/apk/$flavor/release/app-$flavor-release.apk"
-            local test_apks=("$GITHUB_WORKSPACE"/android-wrapper/app/build/outputs/apk/androidTest/"$flavor"/release/*.apk)
+            local app_apk="$APP_APK_DIR/$flavor/release/app-$flavor-release.apk"
+            local test_apks=("$TEST_APK_DIR"/"$flavor"/release/*.apk)
             test "${#test_apks[@]}" -eq 1
             local test_apk="${test_apks[0]}"
             test -f "$app_apk"
@@ -167,10 +165,6 @@ jobs:
           target: google_apis
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader -feature -Vulkan -no-snapshot -noaudio -no-boot-anim -camera-back emulated -show-kernel
-          pre-emulator-launch-script: |
-            "$ANDROID_HOME/emulator/emulator" -version > "$RUNTIME_DIAG_DIR/emulator-version.txt" 2>&1
-            cat "$RUNTIME_DIAG_DIR/emulator-version.txt"
-            grep -F '37.1.11' "$RUNTIME_DIAG_DIR/emulator-version.txt"
           script: bash "$RUNTIME_DIAG_DIR/run-test.sh"
 
       - name: Preserve emulator crash and host diagnostics
@@ -180,6 +174,8 @@ jobs:
           { date -u; free -h; df -h; ps -eo pid,ppid,comm,rss --sort=-rss | head -20; adb devices -l; } > "$RUNTIME_DIAG_DIR/final-host-state.txt" 2>&1 || true
           sudo dmesg -T > "$RUNTIME_DIAG_DIR/kernel.txt" 2>&1 || true
           cat /proc/sys/kernel/core_pattern > "$RUNTIME_DIAG_DIR/core-pattern.txt"
+          sudo coredumpctl --no-pager info > "$RUNTIME_DIAG_DIR/systemd-coredump.txt" 2>&1 || true
+          sudo journalctl --no-pager -t systemd-coredump > "$RUNTIME_DIAG_DIR/coredump-journal.txt" 2>&1 || true
           # Read crash metadata only; exclude core memory and process environment.
           sudo python3 - "$RUNTIME_DIAG_DIR" <<'PYAPPORT'
           from pathlib import Path
@@ -220,10 +216,3 @@ jobs:
           path: ${{ runner.temp }}/android-runtime-diagnostic
           include-hidden-files: true
           retention-days: 7
-      - uses: actions/upload-artifact@v4
-        if: ${{ always() && steps.compile.outcome == 'success' }}
-        with:
-          name: Android-diagnostic-instrumentation-APKs
-          path: android-wrapper/app/build/outputs/apk/androidTest/*/release/*.apk
-          retention-days: 7
-
