@@ -13,11 +13,16 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
    const shot=()=>page.evaluate(()=>billiardsTourBridge.capture().state);
    const reachable=async selector=>{const el=page.locator(selector);assert(await el.isVisible(),selector+' visible');const box=await el.boundingBox();assert(box&&box.width>0&&box.height>0,selector+' sized');assert(await el.evaluate(e=>{const r=e.getBoundingClientRect();return e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}),selector+' not covered');return box;};
    const screenshot=tag=>page.screenshot({path:`${dir}/${viewport.width}-${tag}.png`});
+   const speedReadouts=async which=>{
+    const values={};for(const suffix of ['Value','Feel','Lag']){const el=page.locator(`#tableSpeed${which}Wrap .phoneSpeed${suffix}`);assert(await el.isVisible(),suffix+' visible for shot '+which);values[suffix]=await el.evaluate(e=>{const s=getComputedStyle(e),r=e.getBoundingClientRect(),rail=e.closest('.tableSpeedControl').getBoundingClientRect();return {text:e.textContent,color:s.color,font:s.font,top:Math.round(r.top-rail.top),bottom:Math.round(rail.bottom-r.bottom)};});}
+    assert.match(values.Feel.text,/♦/);assert.match(values.Lag.text,/lag/);assert.equal(values.Feel.color,'rgb(105, 229, 255)','Keep cyan diamond ratings');return values;
+   };
+   const trayControls=async()=>{const b=await reachable('#phoneTrayToggle'),r=await reachable('#table3DRackToggle'),c=await reachable('#workspaceClearBalls');assert(b.x+b.width<=r.x&&r.x+r.width<=c.x,'Balls, Rack, Clear are adjacent in order');assert.equal(await page.locator('#table3DRackToggle').evaluate(e=>e.parentElement.id),'workspaceBallShelf');assert((await page.locator('#workspaceBalls').boundingBox()).width>=34,'Tray retains a whole ball target');};
    const openAiming=async()=>{if(!(await page.locator('body').evaluate(e=>e.classList.contains('phone-controls-open'))))await page.locator('#phoneControls').click();const section=page.locator('.section').filter({has:page.locator('#featureAimingOptions')});if(!(await section.evaluate(e=>e.classList.contains('open'))))await section.locator('.sectionToggle').click();await page.locator('#workspaceAimTools').scrollIntoViewIfNeeded();};
    const clearAndUndo=async()=>{const before=await shot();await reachable('#workspaceClearBalls');await page.locator('#workspaceClearBalls').click();const cleared=await shot();assert.equal(cleared.balls.length,0);assert.equal(cleared.shot2Enabled,false);assert.deepEqual(cleared.pocketedLog,[]);for(const key of ['speed','follow','sideSpin','tableL','tableW','muRoll','railRest'])assert.equal(cleared[key],before[key],'Clear preserves '+key);await page.keyboard.press('Control+z');assert.deepEqual((await shot()).balls,before.balls,'Clear is action-undoable');assert.equal((await shot()).shot2Enabled,before.shot2Enabled);};
    try{
     await page.goto('http://127.0.0.1:8820/?train=1');await page.waitForFunction(()=>window.billiardsTourBridge&&window.billiardsWorkspaceSync);
-    await page.locator('#workspace-setup summary').click();await page.locator('#table3DRackToggle').click();await page.locator('#table3DRackMenu [data-rack=rack9]').click();assert.equal((await shot()).balls.filter(b=>b.active&&!b.marker).length,10,'Setup racks the 2D table');
+    await trayControls();await page.locator('#table3DRackToggle').click();await screenshot('rack');await page.locator('#table3DRackMenu [data-rack=rack9]').click();assert.equal((await shot()).balls.filter(b=>b.active&&!b.marker).length,10,'Tray Rack sets up the 2D table');
     await page.evaluate(()=>billiardsTourBridge.apply({id:'workspace',title:'Workspace',balls:[[0,.25,.5],[1,.65,.5],[2,.75,.25]],target:1,pocket:[1,1],speed:2.4,followPercent:0,sidePercent:0},{tableL:2.54,tableW:1.27}));
     await reachable('#btZenLauncher .experience-toggle');await reachable('#appCloseControl');await screenshot('2d');
     assert.equal(await page.locator('#panel').isVisible(),false);
@@ -25,6 +30,10 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
     for(const [group,ids]of Object.entries({setup:['analyzePhotoBtn','cameraCaptureBtn','quickLayoutRecall'],view:['tableZoom','btg-fullscreen']})){
      await page.locator('#workspace-'+group+' summary').click();for(const id of ids)assert(await page.locator('#'+id).isVisible(),id+' is discoverable in '+group);await screenshot(group);await page.keyboard.press('Escape');
     }
+    assert.equal(await page.locator('#workspace-setup summary').textContent(),'Import');assert.equal(await page.locator('#workspaceFit').textContent(),'Full Table');
+    await page.locator('#workspace-setup summary').click();assert((await reachable('#quickLayoutRecall')).width<=100);await page.keyboard.press('Escape');
+    await page.evaluate(()=>BilliardsTableZoom.restore({enabled:true,scale:2,x:-.3,y:-.2}));await page.locator('#workspace-view summary').click();await page.locator('#workspaceFit').click();assert.deepEqual(await page.evaluate(()=>BilliardsTableZoom.snapshot()),{enabled:false,scale:1,x:0,y:0},'Full Table restores the complete table');assert.deepEqual(await shot(),initial,'Full Table leaves shot state unchanged');
+    const speed2d=await speedReadouts(1);
     assert.equal(await page.locator('#workspace-plan').count(),0);for(const id of ['kickToolToggle','bankToolToggle','teachingCompassToggle']){assert(!(await page.locator('#'+id).isVisible()),id+' stays in drawer');assert(await page.locator('#'+id).evaluate(e=>!!e.closest('#featureAimingOptions')));}
     await openAiming();await page.locator('#teachingCompassToggle').click();
     assert.equal(await page.locator('#teachingCompassToggle').getAttribute('aria-pressed'),'true');
@@ -37,7 +46,7 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
     const second=await shot();assert(second.shot2.speed>beforeSecond.shot2.speed);assert(second.shot2.follow>beforeSecond.shot2.follow);assert(second.shot2.sideSpin>beforeSecond.shot2.sideSpin);
     await page.evaluate(()=>{const snap=billiardsTourBridge.capture();snap.state.shot2CueBallOnly=true;billiardsTourBridge.restore(snap);});
     for(const id of ['aimRoller2','tableSpeed2','bottomFollow2','bottomSide2','phoneTip2'])await reachable('#'+id);
-    await screenshot('shot-two');
+    await speedReadouts(2);await screenshot('shot-two');
     await page.locator('#phoneAimChoice').click();assert.equal((await shot()).activeShot,1);assert.equal((await shot()).speed,initial.speed);assert.equal((await shot()).follow,initial.follow);
     assert(await page.locator('#aimRoller').isVisible());assert(!(await page.locator('#aimRoller2').isVisible()));
     await page.evaluate(()=>{const snap=billiardsTourBridge.capture();snap.state.pocketedLog=[3];billiardsTourBridge.restore(snap);});
@@ -69,13 +78,14 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
     await clearAndUndo();const modePosition=await page.locator('#table3DToggle').boundingBox();
     const before3d=await shot();await page.locator('#table3DToggle').click();await page.waitForFunction(()=>Billiards3D.active);await page.keyboard.press('Escape');
     await geometry();await screenshot('3d');assert.deepEqual(await page.locator('#table3DToggle').boundingBox(),modePosition,'Mode switch stays at exactly the same position');assert.deepEqual(await shot(),before3d,'View switch preserves shot settings and balls');
+    const speed3d=await speedReadouts(1);for(const type of ['Value','Feel'])for(const key of ['text','color','font','top'])assert.equal(speed3d[type][key],speed2d[type][key],'Top speed readouts match in both modes');for(const key of ['text','color','font','bottom'])assert.equal(speed3d.Lag[key],speed2d.Lag[key],'Lag readout matches in both modes');
     for(const selector of ['#table3DLock','#table3DPan','#table3DRotate','#table3DZoomSlider','#table3DZoomIn','#table3DZoomOut','#table3DRackToggle','#phoneTrayToggle','#table3DViews button:nth-child(2)','#btZenLauncher .experience-toggle','#appCloseControl']){const box=await reachable(selector);assert(!overlaps(box,await page.locator('[data-trainer-action=animate]').boundingBox()),selector+' clears tall Shoot');}
     assert((await reachable('#table3DZoomSlider')).width>=44,'Camera zoom retains a usable drag target');
     await page.locator('#table3DLock [data-adjust=edit]').click();assert(await page.locator('body').evaluate(e=>e.classList.contains('table-3d-locked')));await page.locator('#table3DLock [data-adjust=view]').click();assert(!(await page.locator('body').evaluate(e=>e.classList.contains('table-3d-locked'))));
     await page.locator('#table3DPan').click();assert.equal(await page.locator('#table3DPan').getAttribute('aria-pressed'),'true');await page.locator('#table3DRotate').click();
     await page.locator('#table3DZoomIn').click();await page.locator('#table3DViews button').filter({hasText:'Full View'}).click();
-    await page.locator('#phoneTrayToggle').click();await geometry();await reachable('#workspaceBalls [data-ball-id="4"]');await screenshot('3d-tray');await clearAndUndo();await page.locator('#phoneTrayToggle').click();
-    await page.locator('#phoneAimChoice').click();for(const id of ['aimRoller2','tableSpeed2','bottomFollow2','bottomSide2','phoneTip2'])await reachable('#'+id);await screenshot('3d-shot-two');await page.locator('#phoneAimChoice').click();
+    await page.locator('#phoneTrayToggle').click();await geometry();await trayControls();await reachable('#workspaceBalls [data-ball-id="4"]');await screenshot('3d-tray');await clearAndUndo();await page.locator('#phoneTrayToggle').click();
+    await page.locator('#phoneAimChoice').click();for(const id of ['aimRoller2','tableSpeed2','bottomFollow2','bottomSide2','phoneTip2'])await reachable('#'+id);await speedReadouts(2);await screenshot('3d-shot-two');await page.locator('#phoneAimChoice').click();
     for(const id of ['kickToolToggle','bankToolToggle']){await openAiming();await page.locator('#'+id).click();const panel=await reachable('#bankKickRoutePanel');assert(!overlaps(panel,await page.locator('#phoneControls').boundingBox()),id+' clears Tools');assert(!overlaps(panel,await page.locator('#appCloseControl').boundingBox()),id+' clears Close');await screenshot(id);await openAiming();await page.locator('#'+id).click();}
     const beforeReturn=await shot();await page.locator('#table3DToggle').click();await page.waitForFunction(()=>!Billiards3D.active);await page.keyboard.press('Escape');
     assert.deepEqual(await shot(),beforeReturn,'Return to 2D preserves both shots');assert.deepEqual(errors,[]);console.log(viewport.width+': geometry, drawer, grouped tools, two-shot controls, tray and 3D transition passed');
