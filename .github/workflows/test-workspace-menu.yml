@@ -25,6 +25,7 @@ jobs:
           NODE_PATH: ./local-host/node_modules
         run: |
           export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")
+          node tests/trainer-follow.browser.cjs
           node tests/trainer-workspace.browser.cjs
       - uses: actions/upload-artifact@v4
         if: always()

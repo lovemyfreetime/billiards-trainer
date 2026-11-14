@@ -6,7 +6,7 @@
   const bar = document.createElement('nav');
   bar.id = 'workspaceTools'; bar.setAttribute('aria-label', 'Table tools');
   const groups = {};
-  for (const [key, label] of [['setup', 'Import'], ['view', 'View'], ['motion', 'Motion']]) {
+  for (const [key, label] of [['setup', 'Import'], ['view', 'View'], ['motion', 'Motion'], ['follow', 'Follow View']]) {
     const details = document.createElement('details'); details.id = 'workspace-' + key;
     const summary = document.createElement('summary'); summary.textContent = label;
     const content = document.createElement('div'); content.className = 'workspaceToolGroup';

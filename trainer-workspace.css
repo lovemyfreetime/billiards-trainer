@@ -299,3 +299,58 @@ body.trainer-workspace.table-3d #workspaceBallShelf { bottom:calc(124px + env(sa
 
  body.trainer-workspace #workspace-setup .workspaceToolGroup,body.trainer-workspace #workspace-motion .workspaceToolGroup {position:fixed;top:calc(112px + env(safe-area-inset-top));left:10px;right:auto;max-height:calc(100dvh - 122px)}
 }
+
+/* Each table menu follows the same single-column reading order. */
+body.trainer-workspace #workspaceTools :is(#workspace-view,#workspace-follow) .workspaceToolGroup {
+  display:grid; grid-template-columns:1fr; width:168px; padding:7px; gap:4px; left:0;
+}
+body.trainer-workspace #workspaceTools :is(#workspace-view,#workspace-follow) .workspaceToolGroup>button {
+  width:100%!important; min-height:44px; box-sizing:border-box; margin:0;
+}
+#workspace-follow button { text-align:left; display:flex; align-items:center; gap:6px; }
+#workspace-follow button::before { content:''; width:14px; flex:none; }
+#workspace-follow button[aria-pressed=true]::before { content:'✓'; }
+#workspace-follow button[aria-pressed=true] { background:#245772; border-color:#9cd5f3; }
+body.trainer-workspace #workspaceTools .workspaceToolGroup>.playbackLock {
+  display:flex; align-items:center; gap:8px; padding:8px; box-sizing:border-box; cursor:pointer;
+  width:100%!important; margin:3px 0 0; border:0; border-top:1px solid #526570; border-radius:0;
+  background:transparent; min-height:42px; color:#e3eff4; font:600 12px/1.2 system-ui;
+}
+.playbackLock input { width:18px; height:18px; flex:none; margin:0; accent-color:#65dcac; }
+@media(max-width:700px){
+ body.trainer-workspace #workspaceTools :is(#workspace-view,#workspace-follow) .workspaceToolGroup {
+  position:fixed; top:calc(112px + env(safe-area-inset-top)); left:10px; right:auto; max-height:calc(100dvh - 124px);
+ }
+ /* The lower navigation row shares space with the Shot selector and Undo/Redo. */
+ #workspace-follow { position:fixed!important; top:calc(59px + env(safe-area-inset-top)); left:calc(74px + env(safe-area-inset-left)); }
+ #workspaceTools #workspace-follow>summary {width:73px; padding:12px 3px; text-align:center;}
+}
+@media(min-width:365px) and (max-width:700px){
+ #workspace-follow { position:relative!important; top:auto; left:auto; }
+ #workspaceTools {gap:2px;}
+ #workspaceTools summary {padding:12px 4px; text-align:center; font-size:11px;}
+ #workspaceTools summary::after {margin-left:2px;}
+ #workspaceTools #workspace-follow>summary {width:auto; padding:12px 4px;}
+ body.trainer-workspace #workspaceTools #table3DToggle {width:44px!important; min-width:44px!important; padding:2px!important;}
+ body.trainer-workspace:not(.zen-mode) #workspaceTools #btZenLauncher,
+ body.trainer-workspace:not(.zen-mode) #workspaceTools #btZenLauncher .experience-toggle {width:40px!important;min-width:40px!important;}
+}
+@media(min-width:365px) and (max-width:410px){
+ #workspaceTools #workspace-follow>summary {width:48px;line-height:13px;padding:8px 2px;}
+ #workspaceTools #workspace-follow>summary::after {content:none;}
+}
+body.trainer-workspace:has(#workspaceTools details[open]) #appViewHint { display:none; }
+@media(max-width:700px){
+ body.trainer-workspace #appViewHint { top:calc(112px + env(safe-area-inset-top)); }
+}
+@media(min-width:701px) and (max-width:880px){
+ #workspaceTools {gap:3px;}
+ #workspaceTools summary {padding:12px 5px;font-size:11px;}
+ body.trainer-workspace #workspaceTools #table3DToggle {width:52px!important;min-width:52px!important;}
+}
+@media(max-width:364px){
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=undoShot] { right:calc(134px + env(safe-area-inset-right)); }
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=redoShot] { right:calc(84px + env(safe-area-inset-right)); }
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneControls { right:calc(10px + env(safe-area-inset-right)); }
+ #workspaceTools #workspace-follow>summary { box-sizing:border-box;width:64px;line-height:14px;padding:5px 3px; }
+}
