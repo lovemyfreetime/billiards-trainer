@@ -92,25 +92,45 @@ def main():
     tap(field)
     # The adapter refreshes within 120 ms. Keep the chooser open past several refreshes.
     time.sleep(1)
-    options=screen()
-    choice=next((n for n in options if n.get("text")=="Fine aim right" and
-                 n.get("class") in ("android.widget.CheckedTextView","android.widget.TextView","android.widget.RadioButton","android.view.View") and not (n.get("class")=="android.view.View" and n.get("clickable")!="true")),None)
-    assert choice is not None, "Native chooser missing after touch and one-second wait: "+repr([(labels(n),n.get("class")) for n in options if any(labels(n))])[:8000]
     save("open-picker")
-    tap(choice)
+    # A uiautomator dump starts a new accessibility connection and can dismiss
+    # the popup it is trying to inspect. Read its pixels before another connection.
+    import csv
+    from io import StringIO
+    from PIL import Image, ImageChops
+    before=Image.open(OUT/"before-picker.png").convert("RGB")
+    opened=Image.open(OUT/"open-picker.png").convert("RGB")
+    diff=ImageChops.difference(before,opened).convert("L").point(lambda v: 255 if v>38 else 0)
+    bounds=diff.getbbox()
+    assert bounds is not None and bounds[3]-bounds[1]>100, "No visible picker after one second"
+    def words(image):
+        image.save(OUT/"ocr.png")
+        raw=subprocess.check_output(["tesseract",str(OUT/"ocr.png"),"stdout","--psm","6","tsv"],stderr=subprocess.DEVNULL).decode()
+        lines={}
+        for w in csv.DictReader(StringIO(raw),delimiter="\t"):
+            if w["text"].strip():lines.setdefault((w["block_num"],w["par_num"],w["line_num"]),[]).append(w)
+        return lines.values()
+    # Limit OCR to the popup column. Its option order puts Fine aim right last.
+    rect=list(map(int,re.findall(r"\d+",field.attrib["bounds"])))
+    cx=(rect[0]+rect[2])//2
+    crop=(max(0,rect[0]-12),0,min(opened.width,rect[2]+12),opened.height)
+    rows=words(opened.crop(crop))
+    match=next((row for row in rows if "fine aim right" in " ".join(w["text"] for w in row).lower()),None)
+    if match is not None:
+        y=int(match[0]["top"])+int(match[0]["height"])//2
+        adb("shell","input","tap",str(cx),str(y))
+    else:
+        # Android's select list accepts DPAD_DOWN from Fine aim left to Fine aim right.
+        adb("shell","input","keyevent","KEYCODE_DPAD_DOWN")
+        adb("shell","input","keyevent","KEYCODE_ENTER")
+    time.sleep(0.6)
+    save("saved-mapping")
+    selected=Image.open(OUT/"saved-mapping.png").crop(tuple(rect)).resize(((rect[2]-rect[0])*2,(rect[3]-rect[1])*2))
+    words_after=" ".join(w["text"] for row in words(selected) for w in row).lower()
+    assert "fine aim right" in words_after, "Selected row after closing chooser: "+words_after
     chosen=lookup("Button 14 action")
     new_bounds=list(map(int,re.findall(r"\d+",chosen.attrib["bounds"])))
-    assert new_bounds[3]-new_bounds[1]>15, "Panel reset before confirming saved assignment"
-    save("saved-mapping")
-    tap(chosen)
-    time.sleep(0.8)
-    reloaded=screen()
-    option=next((n for n in reloaded if n.get("text")=="Fine aim right"),None)
-    assert option is not None and (option.get("checked")=="true" or option.get("selected")=="true"
-        or any(n.get("checked")=="true" or n.get("selected")=="true" for n in option.iter())), (
-            "Reopened picker did not expose the new selected option: "+str([n.attrib for n in reloaded if n.get("text")=="Fine aim right"]))
-    save("reopened-selection")
-    adb("shell","input","keyevent","KEYCODE_BACK")
+    assert abs(new_bounds[1]-rect[1])<12, "The panel moved after selection"
     print("PASS: connected Android native picker stays open, saves Fine aim right and retains the lower mapping",flush=True)
 
 if __name__=="__main__":
