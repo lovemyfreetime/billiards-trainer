@@ -98,7 +98,11 @@ const fs = require('node:fs');
     await page.locator('#trainerPlaybackHide').click();
     for(const width of [740,390,360]){
       await page.setViewportSize({width,height:width===740?390:820});
-      await menu('follow').locator('summary').click();await screenshot(String(width));
+      const followSummary=menu('follow').locator('summary');
+      const f=await followSummary.boundingBox();
+      const u=await page.locator('#phoneActions [data-trainer-action=undoShot]').boundingBox();
+      assert(f.x+f.width<=u.x || f.y+f.height<=u.y || u.y+u.height<=f.y,'Follow View clears Undo at '+width);
+      await followSummary.click();await screenshot(String(width));
       const items=menu('follow').locator('button,.playbackLock');
       for(const item of await items.all()){
         await item.scrollIntoViewIfNeeded();

@@ -348,3 +348,9 @@ body.trainer-workspace:has(#workspaceTools details[open]) #appViewHint { display
  #workspaceTools summary {padding:12px 5px;font-size:11px;}
  body.trainer-workspace #workspaceTools #table3DToggle {width:52px!important;min-width:52px!important;}
 }
+@media(max-width:364px){
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=undoShot] { right:calc(134px + env(safe-area-inset-right)); }
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=redoShot] { right:calc(84px + env(safe-area-inset-right)); }
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneControls { right:calc(10px + env(safe-area-inset-right)); }
+ #workspaceTools #workspace-follow>summary { box-sizing:border-box;width:64px;line-height:14px;padding:5px 3px; }
+}
