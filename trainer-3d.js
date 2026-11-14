@@ -221,6 +221,16 @@
    requestRender();window.BilliardsSpinLabUI?.sync();return true;
   },prepareSnapshot(){standing();},renderSnapshot(){engine?.render();},tablePlanePoint(event){return engine?.tablePlanePoint(event)||null;},tablePoint(event){return engine?.tablePoint(event)||null;},renderedBalls(){return engine?.ballViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];},railGeometry(){return engine?.railViews()||[];},contactMarkers(){return engine?.contactViews()||[];}};
  window.addEventListener('resize',()=>{dock();positionToggle();requestRender();});new MutationObserver(positionToggle).observe(document.getElementById('tableZoom'),{attributes:true,attributeFilter:['style']});document.addEventListener('visibilitychange',()=>{if(!document.hidden)requestRender();});
+ // A large ceiling panel above the same side as the fixed key light. A quiet
+ // neutral ceiling and cool lower-room fill retain the resin's saturated color.
+ function ballRoomRadiance(dx,dy,dz){
+  const up=Math.max(0,dy),base=[24+up*58,31+up*57,35+up*54];
+  if(dy<=0)return base.map(Math.round);
+  const distance=3.2/dy,px=dx*distance,pz=dz*distance;
+  const edge=Math.min(1.7-Math.abs(px+1.8),.9-Math.abs(pz-1.2));
+  const blend=Math.max(0,Math.min(1,edge/.08));
+  return base.map((v,i)=>Math.round(v+([250,247,238][i]-v)*blend));
+ }
  function createEngine(T){
   const renderer=new T.WebGLRenderer({antialias:true,alpha:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.setClearColor(0x080d13);renderer.outputColorSpace=T.SRGBColorSpace;
   renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1;
@@ -230,12 +240,21 @@
   scene.add(new T.HemisphereLight(0xf2f5f4,0x303941,.75));
   const light=new T.DirectionalLight(0xfff8ed,1.8);light.position.set(-3,5,2);light.castShadow=true;
   light.shadow.mapSize.set(1024,1024);Object.assign(light.shadow.camera,{left:-3,right:3,top:3,bottom:-3,near:.2,far:14});light.shadow.normalBias=.002;light.shadow.bias=-.00015;scene.add(light);
-  // A quiet room reflection gives polished resin a soft overhead sheen.
+  // One filled overhead softbox, fixed in world space. This is an environment
+  // reflection, not a decal: camera movement changes the reflection naturally,
+  // while rolling the numbered texture cannot rotate the light with the ball.
+  // Rasterize the directions that intersect a real rectangular panel. The
+  // existing renderer prefilters this texture once for material roughness.
   const roomCanvas=document.createElement('canvas');roomCanvas.width=512;roomCanvas.height=256;
-  const roomCtx=roomCanvas.getContext('2d'),roomGradient=roomCtx.createLinearGradient(0,0,0,256);
-  roomGradient.addColorStop(0,'#a0aaad');roomGradient.addColorStop(.5,'#505c62');roomGradient.addColorStop(1,'#192126');roomCtx.fillStyle=roomGradient;roomCtx.fillRect(0,0,512,256);
-  roomCtx.filter='blur(8px)';roomCtx.fillStyle='#f4f2e8';roomCtx.fillRect(55,35,130,25);roomCtx.fillRect(300,35,140,25);
-  const room=new T.CanvasTexture(roomCanvas);room.mapping=T.EquirectangularReflectionMapping;room.colorSpace=T.SRGBColorSpace;scene.environment=room;scene.environmentIntensity=.55;
+  const roomCtx=roomCanvas.getContext('2d'),roomPixels=roomCtx.createImageData(512,256);
+  for(let y=0;y<256;y++)for(let x=0;x<512;x++){
+   const theta=(y+.5)/256*Math.PI,phi=((x+.5)/512-.5)*Math.PI*2;
+   const color=ballRoomRadiance(Math.sin(theta)*Math.cos(phi),Math.cos(theta),Math.sin(theta)*Math.sin(phi));
+   const at=(y*512+x)*4;roomPixels.data.set([...color,255],at);
+  }
+  roomCtx.putImageData(roomPixels,0,0);
+  const room=new T.CanvasTexture(roomCanvas);room.mapping=T.EquirectangularReflectionMapping;room.colorSpace=T.SRGBColorSpace;
+  scene.environment=room;scene.environmentIntensity=.85;
   const floor=new T.Mesh(new T.PlaneGeometry(100,100),new T.MeshStandardMaterial({color:0x131b21,roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-.82;floor.receiveShadow=true;scene.add(floor);
   const textureCanvas=document.createElement('canvas'),textureCtx=textureCanvas.getContext('2d'),texture=new T.CanvasTexture(textureCanvas);texture.colorSpace=T.SRGBColorSpace;texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
   const surfaceMaterial=new T.MeshStandardMaterial({map:texture,color:0xcbd4cf,roughness:.98,envMapIntensity:.15}),bodyMaterial=new T.MeshStandardMaterial({color:0x252b30,roughness:.64}),legMaterial=new T.MeshStandardMaterial({color:0x20272c,roughness:.6});
@@ -244,7 +263,7 @@
   function ballMaterial(id,style='current'){
    const key=id===0?'cue-'+style:id;
    if(materials.has(key))return materials.get(key);
-   const options={roughness:.3,metalness:0,envMapIntensity:.7};
+   const options={roughness:.18,metalness:0,envMapIntensity:1};
    if(id===0&&style!=='current'){const map=new T.CanvasTexture(window.BilliardsTrainingBall.texture(style));map.colorSpace=T.SRGBColorSpace;map.anisotropy=4;options.map=map;}
    else if(id===0){
     // A standard practice-ball pattern makes cue-ball rotation visible as well.

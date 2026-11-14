@@ -1,0 +1,29 @@
+name: Isolated softbox lighting preview
+on:
+  push:
+    branches: [test/lighting-softbox-preview-2026-11-14]
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: |
+          node tests/ball-lighting.test.cjs
+          npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
+          node local-host/node_modules/playwright/cli.js install --with-deps chromium
+      - run: NODE_PATH=./local-host/node_modules node tests/lighting-preview.browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: isolated-lighting-preview
+          path: test-results/lighting
+          retention-days: 14
