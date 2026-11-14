@@ -23,7 +23,7 @@ def screen():
     return list(ET.fromstring(xml).iter("node"))
 
 def labels(node):
-    return [node.get(k, "").strip() for k in ("text", "content-desc", "resource-id")]
+    return [node.get(k, "").strip().rstrip("⌄▾▼▿").strip() for k in ("text", "content-desc", "resource-id")]
 
 def find(label, nodes=None):
     for n in screen() if nodes is None else nodes:
@@ -66,12 +66,18 @@ def main():
     adb("shell","wm","dismiss-keyguard")
     adb("shell","am","start","-W","-n",PACKAGE+"/.MainActivity")
     tap(lookup("Open Trainer","Trainer",limit=45))
-    tap(lookup("View","workspace-view",limit=35))
+    view=lookup("View","workspace-view",limit=35)
+    mode=find("3D Mode")
+    if mode is not None:
+        tap(mode)
+        lookup("2D Mode",limit=16)
+    tap(lookup("View","workspace-view",limit=8))
     tap(lookup("Controller","trainerControllerSetup"))
     enable=lookup("Enable Controller Mode","trainerControllerEnabled")
     if enable.get("checked")!="true":
         tap(enable)
-    lookup("Picker Test Pad", limit=18)
+    if not any("Picker Test Pad" in " ".join(labels(n)) for n in screen()):
+        lookup("Picker Test Pad","Wireless Controller", limit=18)
     print("PASS: input device visible in Controller Setup", flush=True)
     for _ in range(5):
         nodes=screen()
@@ -82,15 +88,15 @@ def main():
             if y1-y>15: break
         adb("shell","input","swipe","850","800","850","270","400")
     else:
-        raise AssertionError("Button 14 mapping could not be reached")
+        raise AssertionError("Button 14 mapping could not be reached: "+repr([labels(n) for n in nodes if any(labels(n))])[:8000])
     save("before-picker")
     tap(field)
     # The adapter refreshes within 120 ms. Keep the chooser open past several refreshes.
     time.sleep(1)
     options=screen()
     choice=next((n for n in options if n.get("text")=="Fine aim right" and
-                 n.get("class") in ("android.widget.CheckedTextView","android.widget.TextView","android.widget.RadioButton")),None)
-    assert choice is not None, "Native chooser missing after touch and one-second wait"
+                 n.get("class") in ("android.widget.CheckedTextView","android.widget.TextView","android.widget.RadioButton","android.view.View") and not (n.get("class")=="android.view.View" and n.get("clickable")!="true")),None)
+    assert choice is not None, "Native chooser missing after touch and one-second wait: "+repr([(labels(n),n.get("class")) for n in options if any(labels(n))])[:8000]
     save("open-picker")
     tap(choice)
     changed=screen()
@@ -113,6 +119,8 @@ if __name__=="__main__":
         while time.monotonic()<end:
             after=screen()
             mapping=find("Button 14 action",after)
+            if mapping is None:
+                mapping=next((n for n in after if n.get("class")=="android.widget.Spinner" and n.get("enabled")=="false"),None)
             if mapping is not None and mapping.get("enabled")=="false":
                 print("PASS: actual device removal disabled the retained mapping field",flush=True)
                 break
