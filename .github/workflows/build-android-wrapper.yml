@@ -99,7 +99,7 @@ jobs:
           NODE_PATH=/tmp/billiards-backup-tests/node_modules node --test tests/app-backup.test.cjs
           node --test tests/offline-loading.test.cjs tests/background-update-session.test.cjs tests/experience-entry.test.cjs tests/play-narration.test.cjs tests/play-announcements.test.cjs
 
-      - name: Verify imported and microphone narration in a real browser
+      - name: Verify controller and recording behavior in a real browser
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y ffmpeg
