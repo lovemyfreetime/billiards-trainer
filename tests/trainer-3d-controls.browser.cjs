@@ -1,45 +1,185 @@
-const assert=require('node:assert/strict'),cp=require('node:child_process'),{chromium,devices}=require('playwright');
-(async()=>{const server=cp.spawn(process.execPath,['tests/range-server.cjs','8796']);await new Promise(r=>server.stdout.once('data',r));const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox','--enable-unsafe-swiftshader','--use-angle=swiftshader']});try{
- for(const spec of [{name:'computer',viewport:{width:1365,height:900}},{name:'tablet',viewport:{width:1024,height:768},hasTouch:true},{...devices['Pixel 7'],name:'phone',viewport:{width:740,height:360}},{...devices['iPhone 13'],name:'portrait',viewport:{width:390,height:844}}]){
-  const {name,...opts}=spec,c=await browser.newContext({...opts,serviceWorkers:'block'});await c.addInitScript(()=>{window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=true;window.chrome={webview:{postMessage(){}}};});const p=await c.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto('http://127.0.0.1:8796/?train=1');await p.waitForFunction(()=>window.Billiards3D&&window.billiardsTourBridge);
-  await p.evaluate(()=>billiardsTourBridge.apply({id:'shared-controls',balls:[[0,.25,.5],[1,.65,.5]],target:1,pocket:[1,1],speed:2.4,followPercent:30,sidePercent:20},{tableL:2.54,tableW:1.27}));if(opts.isMobile)await p.locator('#phoneControls').click();assert.equal(await p.locator('#table3DToggle').textContent(),'3D Mode');assert.equal(await p.locator('#table3DToggle').evaluate(e=>getComputedStyle(e).borderTopColor),'rgb(85, 232, 105)');await p.locator('#table3DToggle').click();await p.waitForFunction(()=>Billiards3D.active&&document.body.classList.contains('phone-focus'));
-  const full=p.getByRole('button',{name:'Full View: standing perspective from beside the table',exact:true}),cue=p.getByRole('button',{name:'Cue View: look along the active cue-ball shot line',exact:true});
-  const layoutBefore=await p.evaluate(()=>billiardsTourBridge.capture().state),near=await p.evaluate(()=>Billiards3D.camera());await full.click();const farSide=await p.evaluate(()=>Billiards3D.camera());assert(Math.abs(farSide.azimuth-near.azimuth-Math.PI)<1e-8,'Repeat Full View looks from the opposite long rail');assert.equal(farSide.elevation,near.elevation);assert.equal(farSide.radius,near.radius);await full.click();assert.equal((await p.evaluate(()=>Billiards3D.camera())).azimuth,near.azimuth);
-  await cue.click();const cueNear=await p.evaluate(()=>Billiards3D.camera());await cue.click();const cueWide=await p.evaluate(()=>Billiards3D.camera());assert(Math.abs(cueWide.radius/cueNear.radius-1.15**5)<1e-8,'Second Cue View equals five zoom-out taps');assert.equal(cueWide.elevation,cueNear.elevation);assert.equal(cueWide.azimuth,cueNear.azimuth);assert.deepEqual(cueWide.target,cueNear.target);await cue.click();assert.equal((await p.evaluate(()=>Billiards3D.camera())).radius,cueNear.radius);assert.deepEqual(await p.evaluate(()=>billiardsTourBridge.capture().state),layoutBefore,'Viewpoint toggles preserve ball positions and shots');await full.click();
-  await p.locator('#table3DLock [data-adjust=edit]').click();assert.equal(await p.locator('#table3DLock [data-adjust=edit]').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(32, 109, 118)');await p.locator('#table3DLock [data-adjust=view]').click();
-  const compact=name==='phone';
-  const menu=await p.locator('#phoneControls').boundingBox(),shoot=await p.locator('[data-trainer-action=animate]').boundingBox(),bar=await p.locator('#table3DPhoneControls').boundingBox(),rail=await p.locator('#phoneSpeedRail').boundingBox();assert(menu.y<=8&&menu.x>opts.viewport.width-60,'Tools is top-right');const views=await p.locator('#table3DViews').boundingBox();assert(shoot.x>opts.viewport.width-110&&(compact?shoot.width<70:shoot.width===90)&&Math.abs(shoot.y-views.y)<1,'Shoot spans both lower rows');assert.equal(await p.locator('[data-trainer-action=animate]').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(61, 213, 109)');
-  const spin=await p.locator('#bottomSpin1').boundingBox();assert(spin.x+spin.width<=shoot.x-(compact?6:12),'Spin row clears Shoot');assert.match(await p.locator('#tableSpeed1Feel').textContent(),/^\d+\.\d ♦$/);const tip=await p.locator('#phoneTip1').boundingBox();assert(tip.width>=spin.height+16,'Cue-tip badge has the larger touch target');assert(bar.y>opts.viewport.height/2&&bar.y+bar.height<=spin.y+1,'Camera controls sit above the spin row');assert(Math.abs(rail.y+rail.height+(compact?5:12)-shoot.y)<1,'Speed rail clears Shoot');const aimRail=await p.locator('#phoneAimRail').boundingBox();assert(Math.abs(aimRail.y+aimRail.height+(compact?5:12)-bar.y)<1,'Aim rail meets the upper controls');
-  if(compact){
-   const aimTrack=await p.locator('#aimRoller .rollerTrack').boundingBox(),speedTrack=await p.locator('#tableSpeed1').boundingBox();
-   for(const side of [aimRail,rail]){
-    assert(side.width<opts.viewport.width*.06,'Phone rails are proportional to the tablet layout');
-    assert(side.height>opts.viewport.height*.65,'Phone rails extend toward the bottom controls');
-   }
-   assert(aimTrack.height>opts.viewport.height*.45&&speedTrack.height>opts.viewport.height*.45,'Both phone tracks have room for fine adjustment');
-   assert(shoot.height<opts.viewport.height*.16,'Both lower rows fit in the compact area');
-  }else{
-   assert(aimRail.width>=54&&rail.width>=54,'Larger screens retain the original rails');
-  }assert(await p.locator('.phoneAimLabel').isVisible());const undoBox=await p.locator('[data-trainer-action=undoShot]').boundingBox(),redoBox=await p.locator('[data-trainer-action=redoShot]').boundingBox();assert(Math.abs(undoBox.x-redoBox.x)<1&&undoBox.y+undoBox.height<=redoBox.y&&redoBox.y+redoBox.height<=aimRail.y,'Undo and Redo stack above Aim');
-  const speedBefore=Number(await p.locator('#tableSpeed1').inputValue());await p.locator('#tableSpeed1Readout').click();assert(Math.abs(Number(await p.locator('#tableSpeed1').inputValue())-speedBefore+.01)<1e-8,'Camera toolbar does not cover the speed decrement button');await p.locator('#tableSpeed1Wrap .tableSpeedLabel').click();
-  const bankBoxes=await p.evaluate(()=>{const a=document.querySelector('#table3DTools').getBoundingClientRect(),b=document.querySelector('#bottomFollow1').parentElement.getBoundingClientRect(),end=document.querySelector('#table3DPan').getBoundingClientRect();return {left:a.left,right:a.right,followLeft:b.left,followRight:b.right,end:end.right};});if(opts.viewport.width>opts.viewport.height)assert(Math.abs(bankBoxes.left-bankBoxes.followLeft)<=4&&Math.abs(bankBoxes.right-bankBoxes.followRight)<=4,'Camera tool bank spans the Draw/Follow bank: '+JSON.stringify(bankBoxes));assert(Math.abs(bankBoxes.end-bankBoxes.right)<=1,'Hand ends at the bank edge without unused space');
-  const lag=p.locator('#tableSpeed1Lag');assert(await lag.isVisible());assert.equal(await lag.innerText(),(await p.locator('#powerFeelText').innerText()).split(' · ')[1],'Lag uses the calibrated speed reference');const lagStart=await lag.innerText(),speedStart=await p.locator('#tableSpeed1').inputValue();await p.locator('#tableSpeed1').evaluate(e=>{e.value='.25';e.dispatchEvent(new Event('input',{bubbles:true}));});assert.notEqual(await lag.innerText(),lagStart,'Lag updates with speed');await p.locator('#tableSpeed1').evaluate((e,v)=>{e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));},speedStart);
-  const picker=p.locator('#phoneAimChoice');assert.equal(await picker.isVisible(),false,'No second-shot selector on a single-shot table');const single=await p.evaluate(()=>billiardsTourBridge.capture().state);assert(await picker.isDisabled());await picker.evaluate(e=>e.click());assert.deepEqual(await p.evaluate(()=>billiardsTourBridge.capture().state),single,'Selector never enables Shot 2 or adds a cue ball');
-  assert.equal(await p.locator('#btg-fullscreen').isVisible(),false);await p.locator('#phoneControls').click();assert(await p.locator('#btg-fullscreen').isVisible());assert(await p.locator('#kickToolToggle').isVisible());assert.equal(await p.locator('#phoneToolShelf #table3DPhoneControls').count(),0,'Camera controls stay out of the drawer');const icons=await p.locator('#btg-pool-launchers .btg-launcher').evaluateAll(es=>es.map(e=>{const r=e.getBoundingClientRect();return {id:e.id,x:r.x,y:r.y,right:r.right};}));assert.equal(icons.length,4);const titleBox=await p.locator('.btg-pool-title h1').boundingBox();assert(icons[0].x-titleBox.x-titleBox.width<12,'Header icons stay close to the Trainer title');for(const icon of icons){assert.equal(icon.y,icons[0].y);assert(icon.right<menu.x,'Learning and Fullscreen icons clear Close');}await p.locator('#toggleShot2').click();await p.locator('#phoneControls').click();await p.waitForFunction(()=>document.body.classList.contains('phone-two-shots'));assert(await picker.isVisible());const pickBox=await picker.boundingBox();assert(pickBox.y<10&&pickBox.x+pickBox.width<menu.x,'Loaded-shot selector sits next to Tools');
-  assert(views.x+views.width<=shoot.x,'View buttons clear the tall Shoot button');assert.equal(await p.locator('.table3DAdjustmentTitle').count(),0);assert.deepEqual(await p.locator('#table3DLock [data-adjust]').evaluateAll(es=>es.map(e=>e.textContent.replace(/\u00ad/g,''))),['Balls and shot adjustment','3D View adjustment']);const labels=await p.locator('#table3DViews>button:not(#table3DLock),.table3DAdjustmentLabel').evaluateAll(es=>es.map(e=>({font:parseFloat(getComputedStyle(e).fontSize),width:e.clientWidth,scrollWidth:e.scrollWidth,height:e.clientHeight,scrollHeight:e.scrollHeight})));for(const label of labels){assert(label.scrollWidth<=label.width+1&&label.scrollHeight<=label.height+1,'Large labels fit existing button dimensions: '+JSON.stringify(label));}assert(labels[0].font<=(opts.viewport.width<=1000?9:11),'View labels retain the original compact font size');
-  for(const [id,start,end] of [['bottomFollow1','Draw','Follow'],['bottomSide1','Left spin','Right spin']]){const caption=p.locator('#'+id).locator('..').locator('.phoneSpinCaption');assert.equal(await caption.getAttribute('data-start'),start);assert.equal(await caption.getAttribute('data-end'),end);assert.match(await caption.textContent(),/^[+−-]?\d+%$/);const tick=await p.locator('.bottomSpinGroup.activeSpin .miniSpinControl').nth(id==='bottomFollow1'?0:1).evaluate(e=>{const a=getComputedStyle(e,'::before'),b=getComputedStyle(e,'::after'),label=e.querySelector('.phoneSpinCaption').getBoundingClientRect(),box=e.getBoundingClientRect();return {start:parseFloat(b.top),end:parseFloat(a.top),labelBottom:label.bottom-box.top,shortHeight:parseFloat(b.height),width:parseFloat(a.width)}});assert(tick.start>tick.labelBottom&&tick.end>tick.start&&tick.shortHeight===4&&tick.width===1,'Subtle center ticks stay below the percentage '+JSON.stringify(tick));}
-  await p.screenshot({path:'/tmp/refined-'+name+'.png'});
-  await p.evaluate(()=>billiardsSelectShot(1));const original=await p.evaluate(()=>billiardsTourBridge.capture().state);await picker.click();await p.waitForFunction(()=>billiardsTourBridge.capture().state.activeShot===2);assert.deepEqual(await p.evaluate(()=>billiardsTourBridge.capture().state.balls),original.balls,'Switching shots preserves the ball set');
-  for(const id of ['aimControls2','tableSpeed2Wrap','bottomSpin2','phoneTip2'])assert(await p.locator('#'+id).isVisible(),'Shot 2 control visible: '+id);for(const id of ['aimControls','tableSpeed1Wrap','bottomSpin1','phoneTip1'])assert.equal(await p.locator('#'+id).isVisible(),false,'Shot 1 control hidden: '+id);
-  for(const [id,value] of [['tableSpeed2',1.65],['bottomFollow2',-.55],['bottomSide2',-.45]])await p.locator('#'+id).evaluate((e,v)=>{e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));},value);
-  const second=await p.evaluate(()=>billiardsTourBridge.capture().state);assert.equal(second.shot2.speed,1.65);assert.equal(second.shot2.follow,-.55);assert.equal(second.shot2.sideSpin,-.45);assert.equal(second.speed,original.speed);assert.equal(second.follow,original.follow);assert.equal(second.sideSpin,original.sideSpin);
-  const aim=await p.locator('#aimRoller2').boundingBox();await p.mouse.move(aim.x+aim.width/2,aim.y+aim.height/2);await p.mouse.down();await p.mouse.move(aim.x+aim.width/2,aim.y+aim.height/2+24,{steps:4});await p.mouse.up();const aimed=await p.evaluate(()=>billiardsTourBridge.capture().state);assert.notDeepEqual(aimed.shot2.freeAim,second.shot2.freeAim);assert.deepEqual(aimed.freeAim,second.freeAim,'Shot 2 aim does not change Shot 1');
-  await picker.click();assert.equal(await p.evaluate(()=>billiardsTourBridge.capture().state.activeShot),1);for(const id of ['aimControls','tableSpeed1Wrap','bottomSpin1','phoneTip1'])assert(await p.locator('#'+id).isVisible(),'Shot 1 controls return together');assert.equal(await p.locator('#tableSpeed1').inputValue(),String(original.speed));await picker.click();assert.equal(await p.locator('#tableSpeed2').inputValue(),'1.65');assert.equal(await p.locator('#bottomFollow2').inputValue(),'-0.55');
-  await p.locator('#table3DLock [data-adjust=edit]').click();assert(await p.evaluate(()=>Billiards3D.locked));assert.equal(await p.locator('#table3DPan').getAttribute('aria-pressed'),'false');await p.locator('#table3DRotate').click();assert.equal(await p.evaluate(()=>Billiards3D.locked),true);await p.locator('#table3DPan').click();assert.equal(await p.locator('#table3DPan').getAttribute('aria-pressed'),'true');assert.equal(await p.locator('#table3DRotate').getAttribute('aria-pressed'),'false');
-  const prior=await p.evaluate(()=>Billiards3D.camera());await p.locator('#table3DZoomSlider').evaluate(e=>{e.value=75;e.dispatchEvent(new Event('input',{bubbles:true}));});const zoomed=await p.evaluate(()=>Billiards3D.camera());assert.notEqual(zoomed.radius,prior.radius);assert.equal(zoomed.azimuth,prior.azimuth);assert.equal(zoomed.elevation,prior.elevation);if(name==='computer'){
-   const shootButton=p.locator('[data-trainer-action=animate]');await shootButton.hover();await p.mouse.down();assert.equal(await shootButton.evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(61, 213, 109)','Pressed Shoot remains green');await p.mouse.up();await p.waitForFunction(()=>billiardsTourBridge.snapshot().busy);assert.equal(await shootButton.getAttribute('aria-busy'),'true');assert.notEqual(await shootButton.evaluate(e=>getComputedStyle(e).boxShadow),'none','Running Shoot glows');assert.equal(await shootButton.evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(61, 213, 109)','Shoot stays green while balls roll');await p.waitForFunction(()=>!billiardsTourBridge.snapshot().busy,{},{timeout:45000});assert.equal(await shootButton.evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(61, 213, 109)','Shoot returns to green when the shot completes');assert.equal(await picker.isVisible(),false,'Consumed second shot hides the selector');const executed=await p.evaluate(()=>billiardsTourBridge.capture().state);
-   await p.locator('[data-trainer-action=undoShot]').click();assert(await picker.isVisible(),'Undo restores the second-shot selector');await p.locator('[data-trainer-action=redoShot]').click();await p.waitForFunction(()=>!billiardsTourBridge.snapshot().busy,{},{timeout:45000});const redone=await p.evaluate(()=>billiardsTourBridge.capture().state);assert.deepEqual(redone.balls,executed.balls,'Corner Shoot and top Undo/Redo use the shared shot history');assert.equal(redone.shot2Enabled,executed.shot2Enabled);
-  }
-  await p.screenshot({path:'/tmp/controls-'+name+'.png'});if(await p.locator('#appViewHint').isVisible())await p.locator('#appViewHint [data-display-dismiss]').click();await p.locator('#table3DToggle').click();if(opts.isMobile)await p.locator('#phoneControls').click();assert.equal(await p.locator('#table3DToggle').textContent(),'3D Mode');assert.equal(await p.locator('#table3DToggle').evaluate(e=>e.style.fontSize),'','2D button restores its compact type');assert.deepEqual(errors,[]);await c.close();console.log(name+': bottom camera row, larger corner actions, header icons, existing-shot selector, both independent shot-control banks, aim, mode toggles and zoom slider passed');
- }
-}finally{await browser.close();server.kill();}})().catch(e=>{console.error(e);process.exitCode=1;});
+const assert = require('node:assert/strict');
+const cp = require('node:child_process');
+const fs = require('node:fs');
+const {chromium, devices} = require('playwright');
+const output = 'test-results/3d-controls';
+fs.mkdirSync(output, {recursive:true});
+const results = [];
+const overlaps = (a,b) => a.x < b.x+b.width-1 && a.x+a.width > b.x+1 && a.y < b.y+b.height-1 && a.y+a.height > b.y+1;
+const specs = [
+  {name:'computer',viewport:{width:1365,height:900}},
+  {name:'tablet',viewport:{width:1024,height:768},hasTouch:true},
+  {...devices['Pixel 7'],name:'phone',viewport:{width:740,height:360}},
+  {...devices['iPhone 13'],name:'portrait',viewport:{width:390,height:844}}
+];
+(async () => {
+  const server = cp.spawn(process.execPath, ['tests/range-server.cjs','8796']);
+  let browser;
+  try {
+    await new Promise((resolve,reject) => {server.stdout.once('data',resolve);server.once('error',reject);server.once('exit',code=>reject(new Error('Fixture server exited: '+code)));});
+    browser = await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox','--enable-unsafe-swiftshader','--use-angle=swiftshader']});
+    for (const {name,...options} of specs) {
+      const context = await browser.newContext({...options,serviceWorkers:'block'});
+      await context.addInitScript(() => {window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=true;window.chrome={webview:{postMessage(){}}};});
+      const page = await context.newPage(), errors=[];
+      page.setDefaultTimeout(8000);
+      page.on('pageerror',error=>errors.push(error.message));
+      const state = () => page.evaluate(()=>billiardsTourBridge.capture().state);
+      const frames = () => page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+      const fixture = async () => {
+        await page.evaluate(()=>billiardsTourBridge.apply({id:'shared-controls',balls:[[0,.25,.5],[1,.65,.5]],target:1,pocket:[1,1],speed:1,followPercent:0,sidePercent:0},{tableL:2.54,tableW:1.27}));
+        await frames();
+      };
+      const dismiss = async () => {
+        if(await page.locator('#appViewHint').isVisible()) await page.locator('#appViewHint [data-display-dismiss]').click();
+        await page.keyboard.press('Escape');
+      };
+      const ensure3D = async () => {
+        if(!await page.evaluate(()=>Billiards3D.active)) {
+          await page.locator('#table3DToggle').click();
+          await page.waitForFunction(()=>Billiards3D.active,null,{timeout:15000});
+        }
+        await dismiss();
+      };
+      const enableSecondShot = async () => {
+        if(!(await state()).shot2Enabled) {
+          await page.locator('#phoneControls').click();
+          await page.locator('#toggleShot2').click();
+          if(await page.locator('body').evaluate(e=>e.classList.contains('phone-controls-open'))) await page.locator('#phoneControls').click();
+          await page.waitForFunction(()=>billiardsTourBridge.capture().state.shot2Enabled);
+        }
+        await frames();
+      };
+      const phase = async (kind,label,run) => {
+        try {await run();results.push({viewport:name,kind,label,status:'passed'});console.log(`PASS ${name} ${kind}: ${label}`);}
+        catch(error) {
+          results.push({viewport:name,kind,label,status:'failed',error:error.stack});
+          console.error(`FAIL ${name} ${kind}: ${label}\n${error.stack}`);
+          await page.screenshot({path:`${output}/${name}-${kind}-${label.replace(/\W+/g,'-')}-failed.png`}).catch(()=>{});
+        }
+      };
+      const reachable = async selector => {
+        const el=page.locator(selector);assert(await el.isVisible(),selector+' visible');
+        const box=await el.boundingBox();assert(box&&box.width>0&&box.height>0,selector+' has a usable size');
+        assert(await el.evaluate(e=>{const r=e.getBoundingClientRect();return e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}),selector+' is not covered');
+        return box;
+      };
+      try {
+        await page.goto('http://127.0.0.1:8796/?train=1');
+        await page.waitForFunction(()=>window.Billiards3D&&window.billiardsTourBridge&&window.billiardsWorkspaceSync);
+        await fixture();
+        // Behavior runs first. A cosmetic mismatch cannot prevent the shot/history checks.
+        await phase('behavior','mode and camera',async()=>{
+          const before=await state();assert.equal(await page.locator('#table3DToggle').textContent(),'3D Mode');
+          await ensure3D();assert.equal(await page.locator('#table3DToggle').getAttribute('aria-pressed'),'true');
+          assert.deepEqual(await state(),before,'Entering 3D preserves balls and shot settings');
+          const full=page.getByRole('button',{name:'Full View: standing perspective from beside the table',exact:true});
+          const cue=page.getByRole('button',{name:'Cue View: look along the active cue-ball shot line',exact:true});
+          const near=await page.evaluate(()=>Billiards3D.camera());await full.click();const far=await page.evaluate(()=>Billiards3D.camera());
+          assert(Math.abs(far.azimuth-near.azimuth-Math.PI)<1e-8,'Repeat Full View chooses the opposite long rail');
+          assert.equal(far.elevation,near.elevation);assert.equal(far.radius,near.radius);
+          await full.click();assert.equal((await page.evaluate(()=>Billiards3D.camera())).azimuth,near.azimuth);
+          await cue.click();const narrow=await page.evaluate(()=>Billiards3D.camera());await cue.click();const wide=await page.evaluate(()=>Billiards3D.camera());
+          assert(Math.abs(wide.radius/narrow.radius-1.15**5)<1e-8,'Second Cue View equals five zoom-out taps');
+          for(const key of ['elevation','azimuth'])assert.equal(wide[key],narrow[key]);assert.deepEqual(wide.target,narrow.target);
+          await cue.click();assert.equal((await page.evaluate(()=>Billiards3D.camera())).radius,narrow.radius);
+          await full.click();
+          await page.locator('#table3DLock [data-adjust=edit]').click();assert(await page.evaluate(()=>Billiards3D.locked));
+          assert.equal(await page.locator('#table3DLock').getAttribute('aria-pressed'),'true');
+          await page.locator('#table3DLock [data-adjust=view]').click();assert.equal(await page.evaluate(()=>Billiards3D.locked),false);
+          await page.locator('#table3DPan').click();assert.equal(await page.locator('#table3DPan').getAttribute('aria-pressed'),'true');
+          assert.equal(await page.locator('#table3DRotate').getAttribute('aria-pressed'),'false');
+          await page.locator('#table3DRotate').click();assert.equal(await page.locator('#table3DRotate').getAttribute('aria-pressed'),'true');
+          const camera=await page.evaluate(()=>Billiards3D.camera());
+          await page.locator('#table3DZoomSlider').evaluate(e=>{e.value=75;e.dispatchEvent(new Event('input',{bubbles:true}));});
+          const zoomed=await page.evaluate(()=>Billiards3D.camera());assert.notEqual(zoomed.radius,camera.radius);
+          assert.equal(zoomed.azimuth,camera.azimuth);assert.equal(zoomed.elevation,camera.elevation);
+          assert.deepEqual(await state(),before,'Camera controls preserve the complete shot');
+        });
+        await phase('behavior','two independent shot banks',async()=>{
+          await fixture();await ensure3D();
+          const picker=page.locator('#phoneAimChoice');assert.equal(await picker.isVisible(),false);assert(await picker.isDisabled());
+          const single=await state();await picker.evaluate(e=>e.click());assert.deepEqual(await state(),single,'Unavailable selector cannot add another shot');
+          await enableSecondShot();await page.evaluate(()=>billiardsSelectShot(1));await frames();const first=await state();
+          await picker.click();await page.waitForFunction(()=>billiardsTourBridge.capture().state.activeShot===2);
+          assert.deepEqual((await state()).balls,first.balls);
+          for(const id of ['aimControls2','tableSpeed2Wrap','bottomSpin2','phoneTip2'])assert(await page.locator('#'+id).isVisible(),id+' visible');
+          for(const id of ['aimControls','tableSpeed1Wrap','bottomSpin1','phoneTip1'])assert.equal(await page.locator('#'+id).isVisible(),false,id+' hidden');
+          for(const [id,value] of [['tableSpeed2',1.65],['bottomFollow2',-.55],['bottomSide2',-.45]])await page.locator('#'+id).evaluate((e,v)=>{e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));},value);
+          const second=await state();assert.equal(second.shot2.speed,1.65);assert.equal(second.shot2.follow,-.55);assert.equal(second.shot2.sideSpin,-.45);
+          for(const key of ['speed','follow','sideSpin'])assert.equal(second[key],first[key],'Shot 1 '+key+' unchanged');
+          const roller=await page.locator('#aimRoller2').boundingBox();await page.mouse.move(roller.x+roller.width/2,roller.y+roller.height/2);await page.mouse.down();
+          await page.mouse.move(roller.x+roller.width/2,roller.y+roller.height/2+24,{steps:4});await page.mouse.up();const aimed=await state();
+          assert.notDeepEqual(aimed.shot2.freeAim,second.shot2.freeAim);assert.deepEqual(aimed.freeAim,second.freeAim);
+          await picker.click();assert.equal((await state()).activeShot,1);assert.equal(await page.locator('#tableSpeed1').inputValue(),String(first.speed));
+          await picker.click();assert.equal(await page.locator('#tableSpeed2').inputValue(),'1.65');assert.equal(await page.locator('#bottomFollow2').inputValue(),'-0.55');
+        });
+        await phase('behavior','Shoot Undo Redo',async()=>{
+          await fixture();await ensure3D();await enableSecondShot();await page.evaluate(()=>billiardsSelectShot(1));await frames();
+          const before=await state(),shoot=page.locator('[data-trainer-action=animate]');await shoot.click();
+          await page.waitForFunction(()=>billiardsTourBridge.snapshot().busy,null,{timeout:10000});
+          assert.equal(await shoot.getAttribute('aria-busy'),'true');
+          await page.waitForFunction(()=>!billiardsTourBridge.snapshot().busy,null,{timeout:45000});
+          const executed=await state();assert.notDeepEqual(executed.balls,before.balls,'Shoot moved the balls');
+          assert.equal(await page.locator('#phoneAimChoice').isVisible(),false,'Completed shot consumes Shot 2');
+          await page.locator('[data-trainer-action=undoShot]').click();const undone=await state();
+          assert.deepEqual(undone.balls,before.balls,'Undo restores exact pre-shot balls');
+          assert.equal(undone.shot2Enabled,before.shot2Enabled);assert(await page.locator('#phoneAimChoice').isVisible());
+          await page.evaluate(()=>{window.__testRedoComplete=false;window.addEventListener('billiards:redo-complete',()=>{window.__testRedoComplete=true;},{once:true});});
+          await page.locator('[data-trainer-action=redoShot]').click();await page.waitForFunction(()=>window.__testRedoComplete);
+          const redone=await state();assert.deepEqual(redone.balls,executed.balls,'Redo restores the saved shot result exactly');
+          for(const key of ['shot2Enabled','speed','follow','sideSpin'])assert.equal(redone[key],executed[key],'Redo restores '+key);
+        });
+        await phase('behavior','drawer and readouts',async()=>{
+          await fixture();await ensure3D();const before=await state();
+          await page.locator('#phoneControls').click();assert(await page.locator('#panel').isVisible());await page.locator('#phoneControls').click();
+          assert.deepEqual(await state(),before,'Opening and closing Tools preserves the shot');
+          assert.equal(await page.locator('#btg-fullscreen').isVisible(),false);await page.locator('#workspace-view summary').click();
+          assert(await page.locator('#btg-fullscreen').isVisible(),'Fullscreen is discoverable under View');await page.keyboard.press('Escape');
+          for(const id of ['kickToolToggle','bankToolToggle','teachingCompassToggle'])assert(await page.locator('#'+id).evaluate(e=>!!e.closest('#featureAimingOptions')),id+' belongs to aiming options');
+          const feel=page.locator('#tableSpeed1Feel'),lag=page.locator('#tableSpeed1Lag');assert.match(await feel.innerText(),/\d+\.\d ♦/);
+          assert.equal(await lag.innerText(),(await page.locator('#powerFeelText').innerText()).split(' · ')[1]);const previous=await lag.innerText();
+          await page.locator('#tableSpeed1').evaluate(e=>{e.value='.25';e.dispatchEvent(new Event('input',{bubbles:true}));});assert.notEqual(await lag.innerText(),previous,'Lag updates with speed');
+          for(const [id,start,end] of [['bottomFollow1','Draw','Follow'],['bottomSide1','Left spin','Right spin']]){
+            const caption=page.locator('#'+id).locator('..').locator('.phoneSpinCaption');assert.equal(await caption.getAttribute('data-start'),start);assert.equal(await caption.getAttribute('data-end'),end);
+            assert.match(await caption.textContent(),/^[+−-]?\d+%$/);
+          }
+        });
+        // The current layout contract uses visibility, hit targets and clearance, not historic colors or coordinates.
+        await phase('layout','workspace clearance and stable mode switch',async()=>{
+          await fixture();await ensure3D();await page.evaluate(()=>billiardsSelectShot(1));await frames();
+          const table=await reachable('#stageWrap'),aim=await reachable('#phoneAimRail'),speed=await reachable('#phoneSpeedRail');
+          const spin=await page.locator('#bottomSpin1').boundingBox(),shoot=await reachable('[data-trainer-action=animate]');
+          assert(aim.x+aim.width<=table.x+1&&speed.x>=table.x+table.width-1,'Aim is left of the table and Speed is right');
+          assert(aim.width>=44&&speed.width>=44,'Side controls retain touch-sized hit areas');
+          assert(!overlaps(table,spin)&&!overlaps(table,shoot),'Table clears the bottom controls');assert(!overlaps(spin,shoot),'Shoot clears spin');
+          assert(shoot.height>=2*spin.height-2,'Shoot spans both lower rows');
+          const tip=await reachable('#phoneTip1');assert(tip.width>=56,'Cue-tip target stays large');
+          for(const id of ['bottomFollow1','bottomSide1'])assert(!overlaps(tip,await page.locator('#'+id).boundingBox()),'Tip clears '+id);
+          const mode=await reachable('#table3DToggle'),experience=await reachable('#btZenLauncher .experience-toggle');
+          assert(mode.x>=experience.x+experience.width&&mode.x-experience.x-experience.width<=8,'Mode directly follows Experiences');assert(Math.abs(mode.y-experience.y)<=1);
+          for(const selector of ['#phoneControls','[data-trainer-action=undoShot]','[data-trainer-action=redoShot]','#appCloseControl','#table3DLock','#table3DPan','#table3DRotate','#table3DZoomSlider','#table3DZoomIn','#table3DZoomOut']){
+            const box=await reachable(selector);assert(!overlaps(box,shoot),selector+' clears Shoot');
+            assert(box.x>=0&&box.y>=0&&box.x+box.width<=options.viewport.width+1&&box.y+box.height<=options.viewport.height+1,selector+' stays in the viewport');
+          }
+          for(const label of await page.locator('#table3DViews>button:not(#table3DLock),.table3DAdjustmentLabel').evaluateAll(es=>es.map(e=>({text:e.textContent,width:e.clientWidth,scrollWidth:e.scrollWidth,height:e.clientHeight,scrollHeight:e.scrollHeight})))){
+            assert(label.scrollWidth<=label.width+1&&label.scrollHeight<=label.height+1,'View label fits: '+JSON.stringify(label));
+          }
+          await page.screenshot({path:`${output}/${name}-3d.png`});const before=await state();
+          await page.locator('#table3DToggle').click();await page.waitForFunction(()=>!Billiards3D.active);await dismiss();
+          assert.equal(await page.locator('#table3DToggle').textContent(),'3D Mode');assert.equal(await page.locator('#table3DToggle').getAttribute('aria-pressed'),'false');
+          assert.deepEqual(await page.locator('#table3DToggle').boundingBox(),mode,'Mode switch retains its position on return to 2D');
+          assert.deepEqual(await state(),before,'Return to 2D preserves both shots and settings');
+          await page.screenshot({path:`${output}/${name}-2d.png`});
+        });
+        await phase('runtime','no page errors',async()=>assert.deepEqual(errors,[]));
+      } catch(error) {
+        results.push({viewport:name,kind:'startup',label:'load workspace',status:'failed',error:error.stack});
+        await page.screenshot({path:`${output}/${name}-startup-failed.png`}).catch(()=>{});
+      } finally {await context.close();fs.writeFileSync(output+'/results.json',JSON.stringify(results,null,2)+'\n');}
+    }
+    const failures=results.filter(r=>r.status==='failed');
+    assert.deepEqual(failures,[],JSON.stringify(failures,null,2));
+    console.log(`${results.length} phases passed across ${specs.length} viewports. Behavior and layout are reported separately.`);
+  } finally {await browser?.close();server.kill();}
+})().catch(error=>{console.error(error);process.exitCode=1;});
