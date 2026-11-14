@@ -64,7 +64,7 @@ body.trainer-workspace #workspaceTools #table3DZoomGroup { flex:1 1 100%; max-wi
 body.trainer-workspace #workspaceTools #table3DZoomSlider { max-width:none; flex:1; }
 body.trainer-workspace #workspaceTools #table3DLock { width:100%!important; min-height:66px; }
 body.trainer-workspace #workspace-setup .workspaceToolGroup,
-body.trainer-workspace #workspace-motion .workspaceToolGroup { display:grid; grid-template-columns:1fr; width:156px; padding:7px; gap:4px; }
+body.trainer-workspace #workspace-motion .workspaceToolGroup { display:grid; grid-template-columns:1fr; width:168px; padding:7px; gap:4px; }
 body.trainer-workspace #workspaceTools #workspace-setup .workspaceToolGroup>*,
 body.trainer-workspace #workspaceTools #workspace-motion button { width:100%!important; min-height:44px; box-sizing:border-box; margin:0; }
 body.trainer-workspace #workspaceTools #workspace-motion button { text-align:left; padding:6px 8px; display:flex; align-items:center; gap:6px; }
@@ -292,6 +292,10 @@ body.trainer-workspace.table-3d #workspaceBallShelf { bottom:calc(124px + env(sa
  body.trainer-workspace.table-3d.phone-focus:not(.zen-mode) #phoneSpeedRail { bottom:calc(138px + env(safe-area-inset-bottom)); }
 }
 @media(max-width:700px) {
- #workspaceTools {gap:4px}
- body.trainer-workspace #workspace-setup .workspaceToolGroup,body.trainer-workspace #workspace-motion .workspaceToolGroup {position:absolute;top:50px;left:auto;right:0;max-height:calc(100dvh - 66px)}
+ #workspaceTools {gap:3px}
+ #workspaceTools summary {padding:12px 6px;font-size:11px}
+ #workspaceTools summary::after {margin-left:3px}
+ body.trainer-workspace #workspaceTools #table3DToggle {width:54px!important;min-width:54px!important;font-size:11px}
+
+ body.trainer-workspace #workspace-setup .workspaceToolGroup,body.trainer-workspace #workspace-motion .workspaceToolGroup {position:fixed;top:calc(112px + env(safe-area-inset-top));left:10px;right:auto;max-height:calc(100dvh - 122px)}
 }

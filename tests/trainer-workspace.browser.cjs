@@ -23,7 +23,7 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
    const motion=async()=>{
     const summary=page.locator('#workspace-motion summary'),button=page.locator('#workspace-motion button');
     assert(await summary.evaluate(e=>e.parentElement.previousElementSibling.id==='workspace-view'));
-    await reachable('#workspace-motion summary');await summary.click();
+    assert(!overlaps(await reachable('#workspace-motion summary'),await page.locator('#appCloseControl').boundingBox()),'Motion clears Close');await summary.click();
     assert.deepEqual(await button.allTextContents(),['Regular Motion','Slow Motion','Really Slow Motion','Super Slow Motion']);
     await screenshot('motion');for(const rate of ['0.5','0.25','0.125','1']){
      await page.locator('#workspace-motion button[data-speed="'+rate+'"]').click();
@@ -35,6 +35,7 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
    };
    const analyzer=async(mode)=>{
     await page.locator('#workspace-setup summary').click();await page.locator('#analyzePhotoBtn').click();
+    assert(await page.locator('#photoAnalyzerStatus').evaluate(e=>e.parentElement.id==='phoneAnalyzeBar'));assert(!(await page.locator('#phoneAnalyzeBar').innerText()).split('\n').includes('null'));
     for(const id of ['photoChooseImage','photoAnalyzeNow','photoAddMissed','photoMoreTools','photoAnalyzerClose'])await reachable('#'+id);
     assert.equal(await page.locator('#photoAnalyzeNow').textContent(),'Analyze Balls');assert.equal(await page.locator('#photoAddMissed').textContent(),'Add Missed Ball');
     const extra=page.locator('#photoMoreTools');if(await extra.getAttribute('aria-expanded')==='false')await extra.click();
@@ -42,7 +43,7 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
     await page.locator('#phonePhotosButton').click();assert(await page.locator('#photoArchiveSelect').isVisible());await page.keyboard.press('Escape');
     if(viewport.width===1366){
      const fixture=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=720;c.height=420;const x=c.getContext('2d');x.fillStyle='#257e8b';x.fillRect(0,0,c.width,c.height);x.fillStyle='white';x.beginPath();x.arc(225,190,10,0,Math.PI*2);x.fill();return c.toDataURL().split(',')[1];});
-     await page.locator('#photoFileInput').setInputFiles({name:'table.png',mimeType:'image/png',buffer:Buffer.from(fixture,'base64')});
+     if(mode==='3d'){await page.locator('#photoAnalyzerClose').click();await page.locator('#workspace-setup summary').click();await page.evaluate(()=>{const c=document.createElement('canvas');c.width=720;c.height=420;const ctx=c.getContext('2d');ctx.fillStyle='#257e8b';ctx.fillRect(0,0,720,420);window.__testCameraFixture=c;Object.defineProperty(navigator.mediaDevices,'getUserMedia',{configurable:true,value:async()=>{const stream=c.captureStream(10);setTimeout(()=>{ctx.fillRect(0,0,720,420);},100);return stream;}});});await page.locator('#cameraCaptureBtn').click();}else await page.locator('#photoFileInput').setInputFiles({name:'table.png',mimeType:'image/png',buffer:Buffer.from(fixture,'base64')});
      await page.locator('#tableCamera [data-action=snap]').click();await page.waitForFunction(()=>!photoAnalyzeNow.disabled);
      const rev=await page.evaluate(()=>billiardsWalkthroughBridge.snapshot().analysisRevision);
      await page.locator('#photoAnalyzeNow').click();await page.waitForFunction(v=>{const s=billiardsWalkthroughBridge.snapshot();return !s.busy&&(s.analysisRevision>v||s.analysisError);},rev,{timeout:120000});
