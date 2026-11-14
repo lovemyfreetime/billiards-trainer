@@ -36,6 +36,7 @@ jobs:
           status=0
           node tests/trainer-workspace.browser.cjs || status=$?
           node tests/direct-table-controls.browser.cjs || status=$?
+          node tests/compass-render.browser.cjs || status=$?
           exit "$status"
       - uses: actions/upload-artifact@v4
         if: always()

@@ -375,7 +375,11 @@
    const f=frame||lastFrame;if(!f)return;const rect=canvas.getBoundingClientRect();if(rect.width<1||rect.height<1)return;
    const size=rect.width+':'+rect.height;if(size!==lastSize){renderer.setSize(rect.width,rect.height);camera.aspect=rect.width/rect.height;camera.fov=2*Math.atan(viewTangent(camera.aspect))*180/Math.PI;camera.updateProjectionMatrix();lastSize=size;}
    if(dimensions!==tableKey(f))rebuild(f);
-   if(dirty){const px=f.L*109/2312,pz=f.W*110/1160,a=f.map({x:-px,y:-pz}),b=f.map({x:f.L+px,y:f.W+pz}),ratio=source.width/source.clientWidth,w=Math.max(1,Math.round((b.x-a.x)*ratio)),h=Math.max(1,Math.round((b.y-a.y)*ratio));if(textureCanvas.width!==w||textureCanvas.height!==h){textureCanvas.width=w;textureCanvas.height=h;}textureCtx.clearRect(0,0,w,h);textureCtx.drawImage(source,a.x*ratio,a.y*ratio,w,h,0,0,w,h);texture.needsUpdate=true;dirty=false;}
+   if(dirty){const px=f.L*109/2312,pz=f.W*110/1160,a=f.map({x:-px,y:-pz}),b=f.map({x:f.L+px,y:f.W+pz}),ratio=source.width/source.clientWidth,w=Math.max(1,Math.round((b.x-a.x)*ratio)),h=Math.max(1,Math.round((b.y-a.y)*ratio));if(textureCanvas.width!==w||textureCanvas.height!==h){
+    // WebGL texture storage is immutable. Reallocate after the tray or viewport
+    // changes size so guides stay aligned and old edge pixels cannot remain.
+    texture.dispose();textureCanvas.width=w;textureCanvas.height=h;
+   }textureCtx.clearRect(0,0,w,h);textureCtx.drawImage(source,a.x*ratio,a.y*ratio,w,h,0,0,w,h);texture.needsUpdate=true;dirty=false;}
    if(cameraState.followCue)updateCueFollow(cameraState,f);
    const target=cameraState.target||{x:0,y:0,z:0};
    window.BilliardsTableOrbit.updateCamera(camera,cameraState,camera.aspect);

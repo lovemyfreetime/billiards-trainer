@@ -30,3 +30,5 @@ Use short labels with clear selected states; do not replace unfamiliar operation
 ## Verification expectations
 
 Check desktop, tablet, narrow landscape and portrait layouts in both 2D and 3D. Verify control hit targets and overlaps, mode-switch position, Shot 2 bindings, clear/undo/re-add, drawer aiming tools, and tray/Shoot separation. Do not treat browser checks as physical Android/Windows installer verification.
+
+Verify the rendered compass center against its projected handles after opening and closing the tray. Reallocate the 3D cloth texture when its dimensions change; a smaller upload into an older allocation shifts guides and retains stale edge pixels. Clear Table must restore the same empty rendered table without leftover cue or guide lines.
