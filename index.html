@@ -7063,11 +7063,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         return length>1 ? {x:corner.x+dx/length*inset,y:corner.y+dy/length*inset}
             : {x:center.x,y:center.y};
     }
-    function drawBall(b, map, label = true) {
+    function drawBall(b, map, label = true, cueNumber = 1) {
         if(window.Billiards3D?.active&&!b.marker)return;
         if (!b.active)
             return;
-        if (b.id === 0 && !cueVisualsVisible(1))
+        if (b.id === 0 && !cueVisualsVisible(cueNumber))
             return;
         const R = S.ballR;
 
@@ -7423,6 +7423,31 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             } else drawTipBadgeDisk(ctx, badge, values, which === 2 ? 'TIP 2' : 'TIP');
         }
     }
+    function drawCueNames(map) {
+        if (!S.shot2Enabled || !cueVisualsVisible(1) || !cueVisualsVisible(2)) return;
+        const first = animation ? animation.current.find(ball => ball.id === 0) : cueBall();
+        if (!first?.active) return;
+        const second = ensureShot2(), cues = [first, second], occupied = [];
+        const top = map({x:0, y:0}), end = map({x:S.tableL, y:S.tableW});
+        const bounds = {left:Math.min(top.x,end.x)+3, right:Math.max(top.x,end.x)-3,
+            top:Math.min(top.y,end.y)+3, bottom:Math.max(top.y,end.y)-3};
+        for (const ball of [...(animation?.current || S.balls), second]) {
+            if (ball.active === false || ball.marker) continue;
+            const center = map(ball), edge = map({x:ball.x+S.ballR, y:ball.y});
+            const r = Math.hypot(edge.x-center.x, edge.y-center.y);
+            occupied.push({left:center.x-r,right:center.x+r,top:center.y-r,bottom:center.y+r});
+        }
+        ctx.save();
+        ctx.font = '600 11px Segoe UI, sans-serif';
+        const options = {bounds,occupied,fontSize:11,pad:0,measureText:text=>ctx.measureText(text).width};
+        const cards = [];
+        cues.forEach((cue,index) => {
+            const card = window.BilliardsShotBudget.placeBadge([{text:'Cue Ball '+(index+1)}],map(cue),options);
+            if (card) cards.push({...card,type:'overlap',opacity:.64});
+        });
+        window.BilliardsShotBudget.drawContacts(ctx,cards);
+        ctx.restore();
+    }
     function drawShotBudget(map, recordingGuides = false) {
         if(animation&&!recordingGuides)return;
         const api=window.BilliardsShotBudget,occupied=[],segments=[];
@@ -7704,18 +7729,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         elapsedMs:aimZoneJob.elapsedMs,pocket:aimZoneJob.pocket,rail:aimZoneJob.rail
     };
     function drawShot2CueBall(map) {
-        if(window.Billiards3D?.active)return;
         if (!S.shot2Enabled || !cueVisualsVisible(2)) return;
-        const s = ensureShot2(), cb = { x:s.x, y:s.y };
-        logicalCircle(cb, S.ballR, map, '#f7f7f3', '#00e5ff', 2.2);
-        const q = map(cb);
-        ctx.save();
-        ctx.fillStyle = '#17343a';
-        ctx.font = '700 10px Segoe UI';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('CB2', q.x, q.y);
-        ctx.restore();
+        const cue = ensureShot2();
+        drawBall({id:0, active:true, x:cue.x, y:cue.y, orientation:cue.orientation}, map, false, 2);
     }
     function drawShot2(map) {
         if (!S.shot2Enabled) return;
@@ -8302,7 +8318,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                     continue;
                 if (b.id === 0 && !cueVisualsVisible(1))
                     continue;
-                drawBall(b, map, true);
+                drawBall(b, map, !(b.id === 0 && S.shot2Enabled));
             }
         }
 
@@ -8323,7 +8339,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if (!document.body.classList.contains('zen-mode')) drawTeachingCompass(map);
             if (!document.body.classList.contains('zen-mode')) drawRollingReferences(map);
             if (!document.body.classList.contains('zen-mode')) drawCalibration(M);
-            if (!document.body.classList.contains('zen-mode')) drawShotBudget(map, recordingGuides);
+            if (!document.body.classList.contains('zen-mode')) {
+                drawShotBudget(map, recordingGuides);
+                if (!clean || S.shot2CueBallOnly) drawCueNames(map);
+            }
         }
         window.BilliardsTableZoom?.end(ctx);
         window.dispatchEvent(new Event("billiards:2d-render"));
@@ -9993,11 +10012,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         let recordFrame=1,frameRequest=0;
         const schedule=()=>{if(animation===running&&!frameRequest&&(!running.paused||recording))frameRequest=requestAnimationFrame(tick);};
         const cancelFrame=()=>{if(frameRequest)cancelAnimationFrame(frameRequest);frameRequest=0;};
-        animation=running;syncHistoryButtons();draw(!!recording,!!recording);
+        animation=running;
+        if (!recording) window.BilliardsSpinLabUI?.onPlaybackStart();
+        syncHistoryButtons();draw(!!recording,!!recording);
         if(recording)recording.frame(60);
         function finish(){
             if(options.replay){const speed=S.shotPlaybackSpeed;animation=null;S=options.restore;S.shotPlaybackSpeed=speed;updateUI();draw();saveState();}
             else{lastShotPlayback={sim,preShot};recording?.frame(60);commitAnimatedShot(sim,preShot);recording?.finish();}
+            if (!recording) window.BilliardsSpinLabUI?.onPlaybackEnd();
             window.BilliardsSpinLabUI?.sync();
         }
         function tick(now){
@@ -10039,7 +10061,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         speed(value){if(window.BilliardsShotRecorder?.busy||animation?.recording||![1,.5,.25,.125].includes(Number(value)))return false;S.shotPlaybackSpeed=Number(value);saveState();window.BilliardsSpinLabUI?.sync();return true;},
         pause(){if(window.BilliardsShotRecorder?.busy||animation?.recording)return false;if(!animation){if(lastShotPlayback)this.replay();else animateShot();return true;}animation.setPaused(!animation.paused);window.BilliardsSpinLabUI?.sync();return true;},
         step(direction=1){if(window.BilliardsShotRecorder?.busy||animation?.recording)return false;if(!animation){if(lastShotPlayback)this.replay(true);else animateShot({paused:true});}if(!animation)return false;animation.setPaused(true);animation.sample(animation.time+direction*S.shotPlaybackSpeed/30);return true;},
-        stop(){if(window.BilliardsShotRecorder?.busy||animation?.recording)return false;animation?.stop();S.shotPlaybackSpeed=1;window.Billiards3D?.followCue(false);saveState();window.BilliardsSpinLabUI?.sync();return true;},
+        stop(){if(window.BilliardsShotRecorder?.busy||animation?.recording)return false;animation?.stop();window.BilliardsSpinLabUI?.onPlaybackEnd();saveState();window.BilliardsSpinLabUI?.sync();return true;},
         replay(paused=false){if(window.BilliardsShotRecorder?.busy)return false;if(animation){animation.setPaused(paused);animation.sample(0);return true;}if(!lastShotPlayback)return false;const restore=cleanSnapshot(),speed=S.shotPlaybackSpeed,style=S.trainingBallStyle;S={...JSON.parse(JSON.stringify(lastShotPlayback.preShot)),shotPlaybackSpeed:speed,trainingBallStyle:style};updateUI();startShotPlayback(lastShotPlayback.sim,lastShotPlayback.preShot,{replay:true,restore,paused});return true;}
     };
     window.billiardsTrainingBall={

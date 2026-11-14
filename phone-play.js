@@ -32,8 +32,9 @@
     if (id === 'animate') { button.classList.add('primary');button.textContent='Shoot';button.setAttribute('aria-label','Execute Shot'); }
     const sync = () => {
       const running=id==='animate'&&source?.dataset.running==='true';
-      button.disabled = !source || !!source.disabled || running;
-      if(id==='animate'){button.classList.toggle('shot-running',running);button.setAttribute('aria-busy',String(running));}
+      const canStop=running && workspace && !window.billiardsPlayback?.state().recording;
+      button.disabled = !source || (!canStop && (!!source.disabled || running));
+      if(id==='animate'){button.textContent=canStop?'Stop':'Shoot';button.setAttribute('aria-label',canStop?'Stop playback and restore shot':'Execute Shot');button.classList.toggle('shot-running',running);button.setAttribute('aria-busy',String(running));}
       if(source?.dataset.guideTopic) button.dataset.guideTopic=source.dataset.guideTopic;
       if(id === 'toggleShot2') button.textContent = source?.textContent?.includes('−') ? '− Shot 2' : '+ Shot 2';
       if(id.startsWith('toggleCueVisuals')) {
@@ -45,7 +46,7 @@
     };
     sync();
     if (source) new MutationObserver(sync).observe(source, {attributes:true,attributeFilter:['disabled','data-guide-topic','aria-pressed','data-running'],childList:true,characterData:true,subtree:true});
-    button.addEventListener('click', () => { if (source && !source.disabled) source.click(); });
+    button.addEventListener('click', () => { if(id==='animate' && workspace && window.billiardsPlayback?.state().running){window.billiardsPlayback.stop();return;}if (source && !source.disabled) source.click(); });
     actions.append(button);
   }
   const trayToggle=document.createElement('button');trayToggle.id='phoneTrayToggle';trayToggle.type='button';trayToggle.textContent='Tray';trayToggle.setAttribute('aria-label','Hide pocketed-ball tray');trayToggle.setAttribute('aria-expanded','true');trayToggle.onclick=()=>{const hidden=document.body.classList.toggle('phone-tray-hidden');trayToggle.setAttribute('aria-expanded',String(!hidden));trayToggle.setAttribute('aria-label',(hidden?'Show':'Hide')+' pocketed-ball tray');};document.body.append(trayToggle);
