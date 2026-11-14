@@ -6,7 +6,7 @@
   const bar = document.createElement('nav');
   bar.id = 'workspaceTools'; bar.setAttribute('aria-label', 'Table tools');
   const groups = {};
-  for (const [key, label] of [['setup', 'Setup'], ['view', 'View']]) {
+  for (const [key, label] of [['setup', 'Import'], ['view', 'View']]) {
     const details = document.createElement('details'); details.id = 'workspace-' + key;
     const summary = document.createElement('summary'); summary.textContent = label;
     const content = document.createElement('div'); content.className = 'workspaceToolGroup';
@@ -33,11 +33,11 @@
     view: ['tableZoom', 'btg-fullscreen']
   };
   const rename = (id, text) => { const el = byId(id); if (el) { el.textContent = text; el.setAttribute('aria-label', text); } };
-  rename('analyzePhotoBtn', 'Open image'); rename('cameraCaptureBtn', 'Take photo');
+  rename('analyzePhotoBtn', 'Real Table Image Import'); rename('cameraCaptureBtn', 'Camera Import');
   rename('quickLayoutRecall', 'Layouts'); rename('table3DRackToggle', 'Rack'); rename('teachingCompassToggle', 'Compass');
   const camera = byId('cameraCaptureBtn');
   if (camera) { camera.tabIndex = 0; camera.setAttribute('role', 'button'); camera.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); camera.click(); } }); }
-  const fit = document.createElement('button'); fit.type = 'button'; fit.textContent = 'Fit table'; fit.id = 'workspaceFit';
+  const fit = document.createElement('button'); fit.type = 'button'; fit.textContent = 'Full Table'; fit.id = 'workspaceFit';
   fit.onclick = () => { window.BilliardsTableZoom?.reset(); closeGroups(); };
   groups.view.append(fit);
   for (const key of Object.keys(groupIds)) for (const id of groupIds[key]) {
@@ -177,10 +177,10 @@
       shelf.prepend(trayToggle);
     }
     fit.hidden = active;
-    move(active ? tools : groups.setup, byId('table3DRackToggle'));
-    if (active) {
-      if(trayToggle.parentNode === tools) trayToggle.after(byId('table3DRackToggle'));
-      else tools.prepend(byId('table3DRackToggle'));
+    const rack = byId('table3DRackToggle');
+    if (rack) {
+      if (active && trayToggle.parentNode === tools) trayToggle.after(rack);
+      else clear.before(rack);
     }
     const experience = byId('btZenLauncher');
     if (experience && experience.parentNode !== bar) bar.prepend(experience);

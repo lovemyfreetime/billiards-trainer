@@ -63,6 +63,8 @@ body.trainer-workspace.table-3d #workspaceTools #tableZoom { display:none!import
 body.trainer-workspace #workspaceTools #table3DZoomGroup { flex:1 1 100%; max-width:none; width:100%; }
 body.trainer-workspace #workspaceTools #table3DZoomSlider { max-width:none; flex:1; }
 body.trainer-workspace #workspaceTools #table3DLock { width:100%!important; min-height:66px; }
+body.trainer-workspace #workspace-setup .workspaceToolGroup { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+body.trainer-workspace #workspaceTools #quickLayoutRecall { grid-column:1/-1; justify-self:center; width:100px!important; min-width:0; flex:none; }
 body.trainer-workspace #workspaceTools #table3DPan svg,body.trainer-workspace #workspaceTools #table3DRotate svg { width:22px; height:22px; }
 body.trainer-workspace #workspaceTools .compassSideControl,
 body.trainer-workspace #workspaceTools .compassTopControl { position:static!important; inset:auto!important; transform:none!important; width:100%!important; height:40px!important; }
@@ -216,10 +218,13 @@ body.trainer-workspace #workspaceAimTools .compassSideLabel,
 body.trainer-workspace #workspaceAimTools .compassTopLabel { position:static; inset:auto; transform:none; order:-1; flex:0 0 52px; font-size:11px; }
 body.trainer-workspace #workspaceAimTools input { writing-mode:horizontal-tb; direction:ltr; min-width:0; width:auto; flex:1; height:32px; }
 body.trainer-workspace:not(.table-3d) #workspaceBallShelf { right:calc(120px + env(safe-area-inset-right)); }
-#workspaceClearBalls { flex:none; width:58px; min-width:58px; height:40px; padding:4px; border:1px solid #7891a0; border-radius:9px; background:#23343f; color:#edf6f9; font:600 12px system-ui; }
+#workspaceClearBalls, body.trainer-workspace #workspaceBallShelf #table3DRackToggle { flex:none; position:static; width:58px; min-width:58px; height:40px; padding:4px; border:1px solid #7891a0; border-radius:9px; background:#23343f; color:#edf6f9; font:600 12px system-ui; }
 body.phone-tray-hidden #workspaceClearBalls { display:none; }
 @media(max-width:700px) {
  body.trainer-workspace:not(.table-3d) #workspaceBallShelf { right:calc(96px + env(safe-area-inset-right)); }
+ #workspaceBallShelf { gap:6px; padding-left:4px; padding-right:4px; }
+ #workspaceClearBalls, body.trainer-workspace #workspaceBallShelf #table3DRackToggle { width:44px; min-width:44px; font-size:11px; }
+ .workspaceTrayScroll { width:24px; min-width:24px; }
 }
 
 /* Direct table editing: color plus shape, with larger transparent touch targets. */
@@ -239,6 +244,22 @@ body.trainer-workspace.phone-focus #phoneActions .miniSpinControl::before,
 body.trainer-workspace.phone-focus #phoneActions .miniSpinControl::after { content:''; position:absolute; left:50%; width:1px; background:#cce4df; opacity:.4; pointer-events:none; }
 body.trainer-workspace.phone-focus #phoneActions .miniSpinControl::before { top:calc(50% + 7px); bottom:3px; }
 body.trainer-workspace.phone-focus #phoneActions .miniSpinControl::after { top:calc(50% + 1px); height:4px; }
+
+/* The same speed, colored diamond, and lag readouts in either table view. */
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail>.tableSpeedControl { padding:65px 2px 57px; }
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail .tableSpeedLabel { height:62px!important; min-height:62px; padding-top:5px; }
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail .phoneSpeedValue { top:23px; font:700 12px/16px system-ui; }
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail .phoneSpeedFeel { display:block; position:absolute; top:39px; left:0; right:0; text-align:center; font:700 12px/16px system-ui; color:#69e5ff; pointer-events:none; }
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail .phoneSpeedLag { display:block; position:absolute; left:0; right:0; bottom:34px; text-align:center; font:700 11px/18px system-ui; color:#c9e6df; white-space:nowrap; pointer-events:none; }
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail .speedTickScale { top:67px; bottom:60px; }
+@media(max-height:450px) and (orientation:landscape) {
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail>.tableSpeedControl { padding-top:43px; padding-bottom:35px; }
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail .tableSpeedLabel { height:40px!important; min-height:40px; padding-top:2px; }
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail .phoneSpeedValue { top:12px; font-size:9px; line-height:12px; }
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail .phoneSpeedFeel { top:24px; font-size:9px; line-height:12px; }
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail .phoneSpeedLag { bottom:8px; font-size:9px; line-height:16px; }
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail .speedTickScale { top:45px; bottom:38px; }
+}
 
 /* Compact 3D bands preserve direct camera tools and give the height to the table. */
 body.trainer-workspace.table-3d { --workspace-bottom:180px; }
