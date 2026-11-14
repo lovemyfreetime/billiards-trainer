@@ -18,3 +18,9 @@ const jump=frame(0,1);jump.balls[0].z=.2;c.updateCueFollow(state,jump);assert.eq
 jump.balls[0].active=false;const before=JSON.stringify(state);assert.equal(c.updateCueFollow(state,jump),false);assert.equal(JSON.stringify(state),before,'Scratch holds final camera position');
 const ready=frame(0);ready.animating=false;ready.aim.target={x:.9,y:1};const setup={followSide:'behind'};c.updateCueFollow(setup,ready);assert(Math.abs(setup.followHeading-Math.PI/2)<1e-10);
 console.log('Four relative follow sides, heading turns, paused stability, rest, replay, backward seek, jump and scratch passed.');
+
+const originalPose=JSON.stringify(setup);
+ready.aim.target={x:.12,y:.12};ready.balls[0].x+=.12;
+c.updateCueFollow(setup,ready);
+assert.equal(JSON.stringify(setup),originalPose,'Stationary aiming and ball edits preserve the projection');
+c.updateCueFollow(setup,frame(0,.03));assert.equal(setup.followHeading,0,'The moving shot resumes tracking');

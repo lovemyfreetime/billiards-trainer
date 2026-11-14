@@ -354,3 +354,13 @@ body.trainer-workspace:has(#workspaceTools details[open]) #appViewHint { display
  body.trainer-workspace.phone-focus:not(.zen-mode) #phoneControls { right:calc(10px + env(safe-area-inset-right)); }
  #workspaceTools #workspace-follow>summary { box-sizing:border-box;width:64px;line-height:14px;padding:5px 3px; }
 }
+
+#workspace-follow .followDistances {
+ display:grid;grid-template-columns:1fr 1fr;gap:4px;padding-bottom:5px;border-bottom:1px solid #526570;
+}
+#workspace-follow .followDistances button {
+ justify-content:center;min-width:0;min-height:44px;padding:4px;font:600 12px/1.2 system-ui;
+}
+#workspace-follow .followDistances button::before {display:none;}
+#workspace-follow .followDistances button[aria-pressed=true]::before {display:inline;width:auto;content:'✓';}
+#trainerPlaybackBar :is(#trainerPlaybackCloseup,#trainerPlaybackWide)[aria-pressed=true] {background:#245772;border-color:#9cd5f3;}

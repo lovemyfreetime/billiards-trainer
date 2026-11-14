@@ -149,6 +149,12 @@
  // Follow the direction of travel without moving the ball or its simulation clock.
  function updateCueFollow(state,f,snap=false){
   const b=f.balls.find(b=>b.id===0&&b.active);if(!b)return false;
+  // A cloth edit changes the aim point through a ray cast from this camera.
+  // Keep that projection fixed until a shot starts or the user picks a new view.
+  if(!snap && !f.animating && Number.isFinite(state.followHeading)){
+   state.followAnimating=false;
+   return true;
+  }
   const moving=f.animating&&Math.hypot(b.vx||0,b.vy||0)>.004;
   let heading=state.followHeading;
   if(moving){
@@ -156,7 +162,7 @@
    if(snap||!Number.isFinite(heading)||!state.followAnimating||time<state.followTime)heading=desired;
    else{const dt=Math.max(0,time-state.followTime),turn=Math.atan2(Math.sin(desired-heading),Math.cos(desired-heading));heading+=turn*(1-Math.exp(-dt/.06));}
    state.followTime=time;
-  }else if(!Number.isFinite(heading)||(!f.animating&&!state.followHasMotion)){
+  }else if(!Number.isFinite(heading)){
    const a=f.aim;heading=a?Math.atan2(a.target.y-a.cue.y,a.target.x-a.cue.x):0;
   }
   state.followHeading=heading;state.followAnimating=!!f.animating;
@@ -174,18 +180,36 @@
   try{if(!engine){const three=await import('./vendor/three/three-renderer.js?v=4');engine=createEngine(three);}if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
    active=true;document.body.classList.add('table-3d');button.setAttribute('aria-pressed','true');button.textContent='2D Mode';tools.hidden=false;for(const b of [standingButton,alongButton,viewLock])b.hidden=false;positionToggle();
    if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();
-   window.billiardsControlLayout?.();dock();setDrawer(false);window.dispatchEvent(new Event('resize'));standing();setViewLocked(viewLocked);setPanEnabled(panEnabled);requestRender();
+   window.billiardsControlLayout?.();dock();setDrawer(false);window.dispatchEvent(new Event('resize'));standing();setViewLocked(viewLocked);setPanEnabled(panEnabled);window.BilliardsSpinLabUI?.onCameraReady();requestRender();
   }catch(error){disable();status.textContent='3D view is unavailable on this device. The top-down table is ready.';console.warn('3D camera unavailable:',error.message);}
   finally{loading=false;button.disabled=false;}
   return active;
  }
  button.onclick=()=>active?disable():enable();
  window.Billiards3D={enable,get active(){return active;},get locked(){return active&&viewLocked;},get panning(){return active&&panEnabled;},project(point,height=0){return engine?.project(point,height)||null;},update(frame){lastFrame=frame;if(active){syncBallTools();engine?.update(frame);requestRender();}},disable,
-  focusCue(){if(!active||!lastFrame)return false;const b=lastFrame.balls.find(b=>b.id===0&&b.active);if(!b)return false;cameraState.target={x:b.x-lastFrame.L/2,y:lastFrame.R,z:b.y-lastFrame.W/2};cameraState.radius=Math.max(.35,lastFrame.R*12);cameraState.elevation=.35;if(cameraState.followCue)updateCueFollow(cameraState,lastFrame,true);requestRender();return true;},
-  followCue(value,side=cameraState.followSide||'behind'){cameraState.followSide=['front','behind','left','right'].includes(side)?side:'behind';if(value&&!cameraState.followCue){cameraState.followHeading=undefined;cameraState.followHasMotion=false;}cameraState.followCue=!!value;if(value)this.focusCue();window.BilliardsSpinLabUI?.sync();},
-  camera(){return {azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},followCue:!!cameraState.followCue,followSide:cameraState.followSide||'behind',followHeading:cameraState.followHeading,followHasMotion:!!cameraState.followHasMotion,...engine?.projection()};},restoreCamera(saved){
+  focusCue(){
+   if(!active||!lastFrame)return false;
+   const b=lastFrame.balls.find(b=>b.id===0&&b.active);
+   if(!b)return false;
+   const wide=cameraState.followDistance==='wide';
+   cameraState.radius=wide?Math.max(lastFrame.L*.42,lastFrame.R*28):Math.max(.35,lastFrame.R*12);
+   cameraState.elevation=wide ? .52 : .35;
+   cameraState.target={x:b.x-lastFrame.L/2,y:lastFrame.R,z:b.y-lastFrame.W/2};
+   if(cameraState.followCue)updateCueFollow(cameraState,lastFrame,true);
+   requestRender();
+   return true;
+  },
+  followCue(value,side=cameraState.followSide||'behind',distance=cameraState.followDistance||'close'){
+   cameraState.followSide=['front','behind','left','right'].includes(side)?side:'behind';
+   cameraState.followDistance=distance==='wide'?'wide':'close';
+   if(value&&!cameraState.followCue){cameraState.followHeading=undefined;cameraState.followHasMotion=false;}
+   cameraState.followCue=!!value;
+   if(value)this.focusCue();
+   window.BilliardsSpinLabUI?.sync();
+  },
+  camera(){return {azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},followCue:!!cameraState.followCue,followSide:cameraState.followSide||'behind',followDistance:cameraState.followDistance||'close',followHeading:cameraState.followHeading,followHasMotion:!!cameraState.followHasMotion,...engine?.projection()};},restoreCamera(saved){
    if(!saved||![saved.azimuth,saved.elevation,saved.radius,saved.target?.x,saved.target?.y,saved.target?.z].every(Number.isFinite))return false;
-   Object.assign(cameraState,{azimuth:saved.azimuth,elevation:saved.elevation,radius:saved.radius,target:{...saved.target},followCue:!!saved.followCue,followSide:['front','behind','left','right'].includes(saved.followSide)?saved.followSide:'behind',followHeading:saved.followHeading,followHasMotion:!!saved.followHasMotion,followAnimating:false});
+   Object.assign(cameraState,{azimuth:saved.azimuth,elevation:saved.elevation,radius:saved.radius,target:{...saved.target},followCue:!!saved.followCue,followSide:['front','behind','left','right'].includes(saved.followSide)?saved.followSide:'behind',followDistance:saved.followDistance==='wide'?'wide':'close',followHeading:saved.followHeading,followHasMotion:!!saved.followHasMotion,followAnimating:false});
    requestRender();window.BilliardsSpinLabUI?.sync();return true;
   },prepareSnapshot(){standing();},renderSnapshot(){engine?.render();},tablePlanePoint(event){return engine?.tablePlanePoint(event)||null;},tablePoint(event){return engine?.tablePoint(event)||null;},renderedBalls(){return engine?.ballViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];},railGeometry(){return engine?.railViews()||[];},contactMarkers(){return engine?.contactViews()||[];}};
  window.addEventListener('resize',()=>{dock();positionToggle();requestRender();});new MutationObserver(positionToggle).observe(document.getElementById('tableZoom'),{attributes:true,attributeFilter:['style']});document.addEventListener('visibilitychange',()=>{if(!document.hidden)requestRender();});
