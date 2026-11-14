@@ -63,8 +63,14 @@ body.trainer-workspace.table-3d #workspaceTools #tableZoom { display:none!import
 body.trainer-workspace #workspaceTools #table3DZoomGroup { flex:1 1 100%; max-width:none; width:100%; }
 body.trainer-workspace #workspaceTools #table3DZoomSlider { max-width:none; flex:1; }
 body.trainer-workspace #workspaceTools #table3DLock { width:100%!important; min-height:66px; }
-body.trainer-workspace #workspace-setup .workspaceToolGroup { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
-body.trainer-workspace #workspaceTools #quickLayoutRecall { grid-column:1/-1; justify-self:center; width:100px!important; min-width:0; flex:none; }
+body.trainer-workspace #workspace-setup .workspaceToolGroup,
+body.trainer-workspace #workspace-motion .workspaceToolGroup { display:grid; grid-template-columns:1fr; width:156px; padding:7px; gap:4px; }
+body.trainer-workspace #workspaceTools #workspace-setup .workspaceToolGroup>*,
+body.trainer-workspace #workspaceTools #workspace-motion button { width:100%!important; min-height:44px; box-sizing:border-box; margin:0; }
+body.trainer-workspace #workspaceTools #workspace-motion button { text-align:left; padding:6px 8px; display:flex; align-items:center; gap:6px; }
+#workspace-motion button::before { content:''; width:14px; flex:none; }
+#workspace-motion button[aria-pressed=true]::before { content:'✓'; }
+#workspace-motion button[aria-pressed=true],#workspace-motion.slowed>summary { background:#245772; border-color:#9cd5f3; }
 body.trainer-workspace #workspaceTools #table3DPan svg,body.trainer-workspace #workspaceTools #table3DRotate svg { width:22px; height:22px; }
 body.trainer-workspace #workspaceTools .compassSideControl,
 body.trainer-workspace #workspaceTools .compassTopControl { position:static!important; inset:auto!important; transform:none!important; width:100%!important; height:40px!important; }
@@ -280,4 +286,12 @@ body.trainer-workspace.table-3d #workspaceBallShelf { bottom:calc(124px + env(sa
  body.trainer-workspace.table-3d.phone-tray-hidden { --workspace-bottom:188px; }
  body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls:not([hidden]) { grid-template-rows:44px 44px; gap:20px; }
  body.trainer-workspace.table-3d #workspaceBallShelf { bottom:calc(188px + env(safe-area-inset-bottom)); right:calc(10px + env(safe-area-inset-right)); }
+}
+
+@media(min-width:701px) {
+ body.trainer-workspace.table-3d.phone-focus:not(.zen-mode) #phoneSpeedRail { bottom:calc(138px + env(safe-area-inset-bottom)); }
+}
+@media(max-width:700px) {
+ #workspaceTools {gap:4px}
+ body.trainer-workspace #workspace-setup .workspaceToolGroup,body.trainer-workspace #workspace-motion .workspaceToolGroup {position:absolute;top:50px;left:auto;right:0;max-height:calc(100dvh - 66px)}
 }

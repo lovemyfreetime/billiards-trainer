@@ -11548,7 +11548,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if ($('photoAnalyzerStatus')) $('photoAnalyzerStatus').textContent = msg;
     }
     function openPhotoAnalyzer() {
-        if(window.Billiards3D?.active){window.Billiards3D.disable();window.billiardsControlLayout?.();}
         $('photoAnalyzerModal').classList.add('open');
         $('photoAnalyzerModal').setAttribute('aria-hidden','false');
         renderPhotoBallSummary();

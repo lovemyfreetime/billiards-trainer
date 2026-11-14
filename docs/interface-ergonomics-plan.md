@@ -34,3 +34,10 @@ Use short labels with clear selected states; do not replace unfamiliar operation
 Check desktop, tablet, narrow landscape and portrait layouts in both 2D and 3D. Verify control hit targets and overlaps, mode-switch position, Shot 2 bindings, clear/undo/re-add, drawer aiming tools, and tray/Shoot separation. Do not treat browser checks as physical Android/Windows installer verification.
 
 Verify the rendered compass center against its projected handles after opening and closing the tray. Reallocate the 3D cloth texture when its dimensions change; a smaller upload into an older allocation shifts guides and retains stale edge pixels. Clear Table must restore the same empty rendered table without leftover cue or guide lines.
+
+
+### Motion, Import and the photo analyzer
+- In both Trainer modes, Motion follows View. Its four named choices share the recorder's playback rate; ball speed stays on the right rail. A check marks the active choice.
+- Import opens one vertical stack: Real Table / Image Import, Camera Import, Layouts. Both image entry points return to the same alignment, detection, review and apply flow.
+- Keep Choose Image, Analyze Balls, Add Missed Ball and Close in sight. Instructions have their own line. Secondary tools start expanded on larger displays; a touch control reveals them on phones.
+- In wide 3D layouts the speed rail ends above Shoot whether the tray is open or closed. Narrow layouts reserve clearance for the wrapped camera row.

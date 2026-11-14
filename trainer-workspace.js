@@ -6,7 +6,7 @@
   const bar = document.createElement('nav');
   bar.id = 'workspaceTools'; bar.setAttribute('aria-label', 'Table tools');
   const groups = {};
-  for (const [key, label] of [['setup', 'Import'], ['view', 'View']]) {
+  for (const [key, label] of [['setup', 'Import'], ['view', 'View'], ['motion', 'Motion']]) {
     const details = document.createElement('details'); details.id = 'workspace-' + key;
     const summary = document.createElement('summary'); summary.textContent = label;
     const content = document.createElement('div'); content.className = 'workspaceToolGroup';
@@ -33,7 +33,9 @@
     view: ['tableZoom', 'btg-fullscreen']
   };
   const rename = (id, text) => { const el = byId(id); if (el) { el.textContent = text; el.setAttribute('aria-label', text); } };
-  rename('analyzePhotoBtn', 'Real Table Image Import'); rename('cameraCaptureBtn', 'Camera Import');
+  rename('analyzePhotoBtn', 'Real Table Image Import');
+  byId('analyzePhotoBtn').replaceChildren('Real Table', document.createElement('br'), 'Image Import');
+  rename('cameraCaptureBtn', 'Camera Import');
   rename('quickLayoutRecall', 'Layouts'); rename('table3DRackToggle', 'Rack'); rename('teachingCompassToggle', 'Compass');
   const camera = byId('cameraCaptureBtn');
   if (camera) { camera.tabIndex = 0; camera.setAttribute('role', 'button'); camera.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); camera.click(); } }); }

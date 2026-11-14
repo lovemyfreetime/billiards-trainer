@@ -212,3 +212,22 @@ body.phone-focus #photoWalkthroughBtn{order:8!important}
 
 /* Camera uses flex; center its label on the same line as the other actions. */
 .photoAnalyzerToolbar #photoTakeImage{align-items:center;justify-content:center}
+
+/* Both trainer modes use the same analyzer. Hints never displace the actions. */
+#photoAnalyzerModal .photoAnalyzerPanel { grid-template-rows:0 auto auto minmax(0,1fr) auto; }
+#photoAnalyzerModal #phoneAnalyzeBar { display:flex; flex-direction:column; align-items:stretch; gap:0; padding:0; }
+#photoMainActions { display:flex; gap:5px; align-items:center; padding:4px 6px; }
+#photoMainActions button { box-sizing:border-box; min-height:38px; padding:4px 9px; font:600 12px/1.15 system-ui; color:#edf6fa; background:#233540; border:1px solid #607783; border-radius:7px; }
+#photoMainActions #photoAnalyzeNow { background:#77ed65; border-color:#95f287; color:#112416; }
+#photoMainActions button:disabled { opacity:.5; }
+#photoMainActions #photoAddMissed.activeToggle,#photoMainActions #photoMoreTools[aria-expanded=true] { border-color:#93d6b7; background:#235243; }
+#photoMoreTools::after { content:' ▾'; }
+#photoMoreTools[aria-expanded=true]::after { content:' ▴'; }
+#photoAnalyzerModal #photoMainActions #photoAnalyzerClose { margin-left:auto; flex:none; min-width:36px; min-height:36px; }
+#phoneAnalyzeBar #photoAnalyzerStatus { flex:none; max-height:3em; overflow:auto; padding:1px 8px 4px; font:12px/1.3 system-ui; color:#cad8df; }
+#photoSecondaryTools[hidden] {display:none!important}
+#photoAnalyzerModal #photoSecondaryTools .photoAnalyzerToolbar { display:flex; flex-wrap:wrap!important; height:auto; max-height:min(24dvh,120px); overflow:auto!important; border-top:1px solid #364651; }
+@media(max-width:450px) {
+ #photoMainActions { gap:3px; padding:3px; }
+ #photoMainActions button { font-size:11px; padding:4px 5px; }
+}
