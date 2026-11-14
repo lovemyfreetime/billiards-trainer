@@ -1,5 +1,6 @@
 """Exercise the installed Trainer's mapping picker through Android touchscreen input."""
 import json
+import traceback
 from pathlib import Path
 import re
 import subprocess
@@ -9,6 +10,26 @@ import xml.etree.ElementTree as ET
 OUT = Path("picker-results")
 OUT.mkdir(exist_ok=True)
 PACKAGE = "com.lovemyfreetime.billiardstrainer"
+START = time.monotonic()
+
+def record(name, **data):
+    with (OUT/"events.jsonl").open("a") as stream:
+        stream.write(json.dumps({"seconds":round(time.monotonic()-START,3),"event":name,**data})+"\n")
+
+def diagnostics(name):
+    # Save pixels BEFORE starting a new accessibility connection, which itself
+    # may affect WebView popup focus. Never use this during the selection test.
+    save(name+"-before-accessibility")
+    try:
+        nodes=screen()
+        if (OUT/"screen.xml").exists():
+            (OUT/(name+"-accessibility.xml")).write_text((OUT/"screen.xml").read_text())
+        record(name, nodes=[n.attrib for n in nodes if any(labels(n))])
+    except Exception as error:
+        record(name+"-accessibility-error", error=str(error))
+    save(name+"-after-accessibility")
+    for service in ["window", "input"]:
+        (OUT/(name+"-"+service+".txt")).write_text(adb("shell","dumpsys",service))
 
 def adb(*args):
     return subprocess.check_output(["adb", *args], timeout=30).decode(errors="replace").strip()
@@ -57,6 +78,10 @@ def save(name):
     (OUT/(name+".png")).write_bytes(subprocess.check_output(["adb","exec-out","screencap","-p"]))
 
 def main():
+    package=adb("shell","dumpsys","package",PACKAGE)
+    (OUT/"installed-package.txt").write_text(package)
+    assert "versionName=4.12.1227" in package, "Probe must run against signed 4.12.1227"
+    adb("logcat","-c")
     adb("shell","wm","size","1080x1728")
     adb("shell","wm","density","210")
     adb("shell","settings","put","secure","immersive_mode_confirmations","confirmed")
@@ -88,8 +113,12 @@ def main():
         adb("shell","input","swipe","850","800","850","270","400")
     else:
         raise AssertionError("Button 14 mapping could not be reached: "+repr([labels(n) for n in nodes if any(labels(n))])[:8000])
+    record("mapping-field-before-tap", attributes=field.attrib)
+    (OUT/"before-picker-accessibility.xml").write_text((OUT/"screen.xml").read_text())
     save("before-picker")
     tap(field)
+    time.sleep(.15)
+    save("picker-150ms")
     # The adapter refreshes within 120 ms. Keep the chooser open past several refreshes.
     time.sleep(1)
     save("open-picker")
@@ -110,11 +139,12 @@ def main():
         for w in csv.DictReader(StringIO(raw),delimiter="\t"):
             if w["text"].strip():lines.setdefault((w["block_num"],w["par_num"],w["line_num"]),[]).append(w)
         return lines.values()
-    # Limit OCR to the popup column. Its option order puts Fine aim right last.
+    # Limit OCR to the popup column. Fine aim right immediately follows Fine aim left.
     rect=list(map(int,re.findall(r"\d+",field.attrib["bounds"])))
     cx=(rect[0]+rect[2])//2
     crop=(max(0,rect[0]-12),0,min(opened.width,rect[2]+12),opened.height)
-    rows=words(opened.crop(crop))
+    rows=list(words(opened.crop(crop)))
+    record("open-picker-ocr", lines=[" ".join(w["text"] for w in row) for row in rows], changed_bounds=bounds)
     match=next((row for row in rows if "fine aim right" in " ".join(w["text"] for w in row).lower()),None)
     if match is not None:
         y=int(match[0]["top"])+int(match[0]["height"])//2
@@ -152,7 +182,17 @@ if __name__=="__main__":
                 break
         else:
             raise AssertionError("Mapping remained editable or disappeared after unplug")
+    except Exception:
+        (OUT/"failure.txt").write_text(traceback.format_exc())
+        raise
     finally:
+        # Capture before unplug: disconnect is expected to disable the field and
+        # would otherwise destroy evidence about an unexpectedly closed popup.
+        try:
+            diagnostics("completion")
+            (OUT/"logcat.txt").write_text(adb("logcat","-d","-v","threadtime"))
+        except Exception as error:
+            record("cleanup-diagnostics-error", error=str(error))
         device.stdin.close()
         device.wait(timeout=10)
         (OUT/"input-devices.txt").write_text(adb("shell","dumpsys","input"))
