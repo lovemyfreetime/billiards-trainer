@@ -123,6 +123,7 @@ jobs:
           retention-days: 3
 
       - name: Build signed app and installer APKs
+        id: compile-apks
         working-directory: android-wrapper
         run: gradle :app:assembleTrainerRelease :app:assembleInstallerRelease :app:assembleTrainerReleaseAndroidTest :app:assembleInstallerReleaseAndroidTest
 
@@ -164,7 +165,7 @@ jobs:
           arch: x86_64
           target: google_apis
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back emulated
+          emulator-options: -no-window -gpu swiftshader -feature -Vulkan -no-snapshot -noaudio -no-boot-anim -camera-back emulated
           working-directory: android-wrapper
           script: |
             adb root
@@ -175,6 +176,15 @@ jobs:
             adb shell svc data disable
             gradle :app:connectedTrainerReleaseAndroidTest :app:connectedInstallerReleaseAndroidTest
 
+      - name: Diagnose interrupted Android emulator
+        if: failure()
+        run: |
+          free -h
+          df -h
+          sudo dmesg -T | tail -80
+          ps -eo pid,comm,rss --sort=-rss | head -15
+          adb devices -l
+
       - name: Preserve Android test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -183,6 +193,13 @@ jobs:
           path: |
             android-wrapper/app/build/reports/androidTests/
             android-wrapper/app/build/outputs/androidTest-results/
+
+      - name: Preserve compiled APKs when runtime validation is incomplete
+        if: ${{ failure() && steps.compile-apks.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Android-compiled-APKs-runtime-incomplete
+          path: android-wrapper/app/build/outputs/apk/*/release/*.apk
 
       - name: Preserve validated APKs for review
         uses: actions/upload-artifact@v4
