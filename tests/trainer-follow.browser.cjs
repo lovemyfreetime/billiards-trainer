@@ -25,7 +25,7 @@ const fs = require('node:fs');
     }
     async function follow(side) {
       await choose('follow','[data-view="'+side+'"]');
-      await page.waitForFunction(side=>Billiards3D.active && document.querySelector('#workspace-follow [aria-pressed=true]')?.dataset.view===side,side);
+      await page.waitForFunction(side=>Billiards3D.active && document.querySelector('#workspace-follow [data-view][aria-pressed=true]')?.dataset.view===side,side);
     }
     const motion = speed => choose('motion','[data-speed="'+speed+'"]');
     const shoot = page.locator('#phoneActions [data-trainer-action=animate]');
@@ -48,7 +48,7 @@ const fs = require('node:fs');
       window.labelCalls=[];
     });
     assert.equal((await playback()).speed,1);
-    assert.equal(await menu('follow').locator('[aria-pressed=true]').textContent(),'Behind');
+    assert.equal(await menu('follow').locator('[data-view][aria-pressed=true]').textContent(),'Behind');
     assert(!(await page.evaluate(()=>captureLabels())).some(c=>c.text.startsWith('Cue Ball')));
     await page.evaluate(()=>document.getElementById('toggleShot2').click());
     await page.evaluate(()=>billiardsTrainingBall.set('spots'));
@@ -64,27 +64,63 @@ const fs = require('node:fs');
     assert(boxes.every((b,i)=>b&&(!i||b.y>=boxes[i-1].y+boxes[i-1].height-1)));await page.keyboard.press('Escape');
 
     const before=(await shot()).balls;
-    await follow('close');await page.waitForFunction(()=>Billiards3D.active && !document.getElementById('workspace-follow').open);assert.equal((await camera()).followCue,false);
-    for(const side of ['front','left','right','behind']){
-      await follow(side);await page.waitForFunction(side=>Billiards3D.camera().followSide===side,side);
-      assert((await camera()).followCue);
+    let closeRadius;
+    for(const distance of ['close','wide']){
+      await choose('follow','[data-distance="'+distance+'"]');
+      assert(await menu('follow').evaluate(el=>el.open),'Distance stays open to choose a direction');
+      for(const side of ['front','left','right','behind']){
+        await follow(side);
+        const c=await camera();assert(c.followCue);assert.equal(c.followSide,side);assert.equal(c.followDistance,distance);
+        if(distance==='close')closeRadius=c.radius;else assert(c.radius>closeRadius*2,'Wide shows more table');
+      }
+    }
+    await page.locator('#table3DLock [data-adjust=edit]').click();
+    const touch=await context.newCDPSession(page);
+    for(const side of ['front','behind','left','right']){
+      await follow(side);
+      const original=await camera();
+      const priorAim=(await shot()).freeAim;
+      const drag=await page.evaluate(()=>{
+        const cb=billiardsTourBridge.capture().state.balls.find(b=>b.id===0);
+        return [.09,.13,.17].map(dx=>Billiards3D.project({x:cb.x+dx,y:cb.y+.10}));
+      });
+      await touch.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:drag[0].x,y:drag[0].y}]});
+      for(const {x,y} of drag.slice(1))await touch.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y}]});
+      await touch.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+      await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+      assert.notDeepEqual((await shot()).freeAim,priorAim,'Cloth edit changes aim for '+side);
+      assert.deepEqual(await camera(),original,'Cloth edit keeps the camera steady for '+side);
     }
     await motion('0.125');await shoot.tap();
     await page.waitForFunction(()=>billiardsPlayback.state().running&&billiardsPlayback.state().time>0);
     assert.equal(await shoot.textContent(),'Stop');
     await page.locator('#table3DCanvas').tap();await page.waitForFunction(()=>!billiardsPlayback.state().running);
     assert.deepEqual((await shot()).balls,before);assert.equal((await playback()).speed,1);
-    await motion('0.25');await choose('motion','#motionLock');await follow('left');await choose('follow','#followLock');
+    await motion('0.25');await choose('motion','#motionLock');await choose('follow','[data-distance=wide]');await follow('left');await choose('follow','#followLock');
     await page.keyboard.press('Escape');await shoot.click();await page.waitForFunction(()=>billiardsPlayback.state().running);
     await shoot.click();assert.equal((await playback()).speed,.25);assert.deepEqual((await shot()).balls,before);
+    async function assertWideLeft(){
+      const c=await camera();assert(c.followCue);assert.equal(c.followSide,'left');assert.equal(c.followDistance,'wide');assert(c.radius>closeRadius*2);
+    }
+    await assertWideLeft();
+    await motion('1');await shoot.tap();
+    await page.waitForFunction(()=>billiardsPlayback.state().running);
+    await page.waitForFunction(()=>!billiardsPlayback.state().running,null,{timeout:45000});
+    await assertWideLeft();
+    await motion('0.25');
     await page.reload();await page.waitForFunction(()=>window.BilliardsSpinLabUI);
-    assert.equal((await playback()).speed,.25);assert.equal(await menu('follow').locator('button[aria-pressed=true]').textContent(),'Left');
+    assert.equal((await playback()).speed,.25);assert.equal(await menu('follow').locator('[data-view][aria-pressed=true]').textContent(),'Left');
+    if(!await page.evaluate(()=>Billiards3D.active))await page.locator('#table3DToggle').click();
+    await page.waitForFunction(()=>Billiards3D.active && Billiards3D.camera().followCue);
+    await assertWideLeft();
     await follow('right');await choose('follow','#followLock');await motion('1');await choose('motion','#motionLock');await page.keyboard.press('Escape');
     if(await page.evaluate(()=>Billiards3D.active))await page.locator('#table3DToggle').click();
     // The actual Play button must arm the default/selected camera even when launched in 2D.
     await page.evaluate(()=>document.getElementById('trainerShowPlayback').click());
     await page.locator('#trainerPlaybackCloseup').tap();
-    await page.waitForFunction(()=>Billiards3D.active && !Billiards3D.camera().followCue);
+    await page.waitForFunction(()=>Billiards3D.active && Billiards3D.camera().followCue && Billiards3D.camera().followDistance==='close');
+    await page.locator('#trainerPlaybackWide').tap();
+    assert.equal((await camera()).followDistance,'wide');
     for(const side of ['front','behind','left','right']){
       await page.locator('#trainerPlaybackBar [data-follow-side="'+side+'"]').check();
       await page.waitForFunction(side=>Billiards3D.camera().followCue && Billiards3D.camera().followSide===side,side);
@@ -94,7 +130,7 @@ const fs = require('node:fs');
     await page.waitForFunction(()=>Billiards3D.active&&billiardsPlayback.state().running);
     assert.equal((await camera()).followSide,'right');
     await page.waitForFunction(()=>!billiardsPlayback.state().running,null,{timeout:45000});
-    assert.equal(await menu('follow').locator('button[aria-pressed=true]').textContent(),'Behind');
+    assert.equal(await menu('follow').locator('[data-view][aria-pressed=true]').textContent(),'Behind');
     await page.locator('#trainerPlaybackHide').click();
     for(const width of [740,390,360]){
       await page.setViewportSize({width,height:width===740?390:820});
@@ -111,6 +147,6 @@ const fs = require('node:fs');
         }),'Visible follow menu target at '+width);
       }await page.keyboard.press('Escape');
     }
-    assert.deepEqual(errors,[]);console.log('Matching cue labels, View stack, 2D camera handoff, five views, cloth tap, Stop, natural finish and both persistent locks passed.');
+    assert.deepEqual(errors,[]);console.log('Matching cue labels, View stack, 2D camera handoff, eight follow combinations, stable touch aim, locked camera on finish and stop, cloth tap, Stop, natural finish and both persistent locks passed.');
   } finally { await browser?.close(); server.kill(); }
 })().catch(error=>{console.error(error);process.exitCode=1});
