@@ -20,7 +20,6 @@ jobs:
     timeout-minutes: 40
     env:
       ANDROID_VERSION_CODE: '1222'
-      RUNTIME_DIAG_DIR: ${{ runner.temp }}/android-runtime-diagnostic
     steps:
       - uses: actions/checkout@v4
         with:
@@ -38,6 +37,9 @@ jobs:
         with:
           gradle-version: '8.10.2'
           cache-read-only: true
+
+      - name: Initialize diagnostic paths
+        run: printf 'RUNTIME_DIAG_DIR=%s/android-runtime-diagnostic\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
 
       - name: Compile matching app and instrumentation APKs
         working-directory: android-wrapper
