@@ -1,0 +1,33 @@
+name: Verify controller setup scroll
+on:
+  workflow_dispatch:
+  push:
+    branches: [test/dualshock4-controller-2026-11-14]
+    paths: [.github/workflows/verify-controller-scroll-test.yml, tests/controller-dialog-scroll.browser.cjs]
+permissions:
+  contents: read
+jobs:
+  controller-scroll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install browser
+        run: |
+          npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
+          node local-host/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Check controller setup scroll under Android telemetry
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: node tests/controller-dialog-scroll.browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: controller-scroll-verification
+          path: test-results/controller-scroll
+          retention-days: 14
