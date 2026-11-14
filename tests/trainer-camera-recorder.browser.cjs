@@ -28,8 +28,11 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),cp=r
   await page.goto('http://127.0.0.1:8824/?train=1');
   await page.waitForFunction(()=>window.BilliardsShotRecorder&&window.BilliardsCameraRecorder&&window.billiardsTourBridge);
   assert.equal(await page.locator('#trainerCameraBar').isVisible(),false,'Floating tools must be off by default');
-  await page.getByRole('button', {name: /TABLE \/ BALLS/}).click();
+  if(!await page.locator('#panel').isVisible())await page.locator('#phoneControls').click();
+  if(!await page.locator('#trainerCameraToggle').evaluate(e=>e.closest('.section').classList.contains('open')))
+   await page.getByRole('button', {name: /TABLE \/ BALLS/}).click();
   await page.locator('#trainerCameraToggle').click();
+  if(await page.evaluate(()=>document.body.classList.contains('phone-controls-open')))await page.locator('#phoneControls').click();
   assert.equal(await page.locator('#trainerCameraBar').isVisible(),true);
   assert.equal(await page.locator('#app #trainerCameraBar').count(),0,'Recorder stays outside captured screen');
   await page.locator('[data-camera-mode="current"]').click();
