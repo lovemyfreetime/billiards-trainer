@@ -84,3 +84,7 @@ body.phone-layout #bt-guide-pool-root.btg-get-started{width:640px}
 #bt-guide-pool-root .btg-toolbar{flex-wrap:wrap}
 #bt-guide-pool-root .btg-reading-actions{margin-left:0}
 }
+
+/* The sidebar stays narrow even when the desktop viewport is wide. */
+body.phone-focus #panel #bt-guide-pool-root .btg-toolbar{flex-wrap:wrap}
+body.phone-focus #panel #bt-guide-pool-root .btg-reading-actions{margin-left:0}
