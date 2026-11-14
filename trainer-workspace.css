@@ -162,7 +162,7 @@ body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DTools 
 body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DViews { grid-area:1/3; }
 body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls button { position:static!important; inset:auto!important; transform:none!important; box-sizing:border-box; height:56px!important; min-height:56px!important; width:auto!important; min-width:44px!important; padding:5px!important; font:600 11px/1.2 system-ui; }
 body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #phoneTrayToggle { display:block!important; flex:none; }
-body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DZoomSlider { min-width:35px; height:44px; }
+body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DZoomSlider { min-width:44px!important; height:44px; }
 body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DLock { min-width:100px!important; flex:2; }
 body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DPan svg,
 body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DRotate svg { width:22px; height:22px; }
@@ -172,7 +172,7 @@ body.trainer-workspace #table3DPhoneControls[hidden] { display:none!important; }
 body.trainer-workspace.phone-focus #bankKickRoutePanel:not([hidden]),
 body.trainer-workspace.table-3d.phone-focus #bankKickRoutePanel:not([hidden]) { position:fixed; z-index:52; top:calc(var(--workspace-top) + 8px + env(safe-area-inset-top))!important; right:calc(var(--workspace-edge) + env(safe-area-inset-right))!important; left:auto!important; width:min(380px,calc(100vw - 2 * var(--workspace-edge))); max-height:calc(100dvh - var(--workspace-top) - var(--workspace-bottom) - 16px); overflow:auto; pointer-events:auto; }
 @media(max-width:900px) {
- body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls:not([hidden]) { grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:8px; right:calc(120px + env(safe-area-inset-right)); }
+ body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls:not([hidden]) { grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:8px; right:calc(120px + env(safe-area-inset-right)); }
  body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DViews { grid-area:1/2; }
 }
 @media(max-width:700px) {
