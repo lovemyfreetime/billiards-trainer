@@ -164,7 +164,7 @@ jobs:
           arch: x86_64
           target: google_apis
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader -feature -Vulkan -no-snapshot -noaudio -no-boot-anim -camera-back emulated -show-kernel
+          emulator-options: -no-window -gpu swangle_indirect -no-snapshot -noaudio -no-boot-anim -camera-back emulated -show-kernel
           script: bash "$RUNTIME_DIAG_DIR/run-test.sh"
 
       - name: Preserve emulator crash and host diagnostics
