@@ -1,31 +1,24 @@
-name: Diagnose Android offline runtime
-
+name: Verify retained 1227 Installer offline runtime
 on:
-  workflow_dispatch:
   push:
     branches: [test/dualshock4-controller-2026-11-14]
     paths: [.github/workflows/diagnose-android-runtime.yml]
-
 permissions:
   contents: read
   actions: read
-
-concurrency:
-  group: android-runtime-diagnostic-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
-  diagnose:
-    if: github.ref == 'refs/heads/test/dualshock4-controller-2026-11-14'
+  installer:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 20
     env:
-      ANDROID_VERSION_CODE: '1222'
+      ANDROID_VERSION_CODE: '1227'
+      ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/android-wrapper/app/test-signing.jks
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
         with:
-          # Reproduce the exact APK source that lost the emulator.
-          ref: 235c1dcccdc59ac660549da9cf82891c69ee9776
           persist-credentials: false
       - uses: actions/setup-java@v5
         with:
@@ -34,185 +27,65 @@ jobs:
       - uses: android-actions/setup-android@v3
         with:
           packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
-      - name: Initialize diagnostic paths
-        run: |
-          printf 'RUNTIME_DIAG_DIR=%s/android-runtime-diagnostic\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
-          printf 'APP_APK_DIR=%s/android-runtime-artifacts/apps\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
-          printf 'TEST_APK_DIR=%s/android-runtime-artifacts/tests\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
-
-      - name: Download retained signed app APKs
-        uses: actions/download-artifact@v4
+      - uses: gradle/actions/setup-gradle@v4
         with:
+          gradle-version: '8.10.2'
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 43646740492
           name: Android-compiled-APKs-runtime-incomplete
-          run-id: 43576223626
-          github-token: ${{ github.token }}
-          path: ${{ runner.temp }}/android-runtime-artifacts/apps
-      - name: Download matching instrumentation APKs
-        uses: actions/download-artifact@v4
-        with:
-          name: Android-diagnostic-instrumentation-APKs
-          run-id: 43579739690
-          github-token: ${{ github.token }}
-          path: ${{ runner.temp }}/android-runtime-artifacts/tests
-      - name: Verify retained app identity
+          path: packages
+      - name: Build matching instrumentation only
+        env:
+          KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
-          set -euo pipefail
-          mkdir -p "$RUNTIME_DIAG_DIR"
-          app="$APP_APK_DIR/trainer/release/app-trainer-release.apk"
-          printf 'f1f9909dc70d39147bcd8f762ce4210a996dd95125a3a9c311fdfeaf657f2753  %s\n' "$app" | sha256sum --check
-          sha256sum "$app" > "$RUNTIME_DIAG_DIR/app-apk-sha256.txt"
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$app" > "$RUNTIME_DIAG_DIR/public-signature.txt"
-          grep -F 'a7e01270b7c40cb939d745d391fd8ae34e89c7051c363c11e125ca1616b4d9c7' "$RUNTIME_DIAG_DIR/public-signature.txt"
-
-      - name: Prepare direct instrumentation diagnostic
+          printf '%s' "$KEYSTORE" | base64 --decode > "$ANDROID_KEYSTORE_PATH"
+          cd android-wrapper
+          gradle :app:assembleInstallerReleaseAndroidTest
+          rm "$ANDROID_KEYSTORE_PATH"
+      - name: Verify retained APK identity and prepare emulator
         run: |
-          set -euo pipefail
-          mkdir -p "$RUNTIME_DIAG_DIR"
-          cat > "$RUNTIME_DIAG_DIR/run-test.sh" <<'SH'
-          #!/usr/bin/env bash
-          set -euo pipefail
-          cat "$ANDROID_HOME/emulator/source.properties" | tee "$RUNTIME_DIAG_DIR/emulator-version.txt"
-          grep -F '37.1.11' "$RUNTIME_DIAG_DIR/emulator-version.txt"
-          adb root
-          adb wait-for-device
-          for firewall in iptables ip6tables; do
-            adb shell "$firewall -w 5 -I OUTPUT -p tcp --dport 80 -j REJECT"
-            adb shell "$firewall -w 5 -I OUTPUT -p tcp --dport 443 -j REJECT"
-            adb shell "$firewall -w 5 -I OUTPUT -p udp --dport 443 -j REJECT"
-          done
-          adb shell cmd connectivity airplane-mode enable
-          adb shell svc wifi disable
-          adb shell svc data disable
-          adb logcat -c
-          adb logcat -v threadtime > "$RUNTIME_DIAG_DIR/logcat.txt" 2>&1 &
-          log_pid=$!
-          (
-            while true; do
-              date -u
-              free -m
-              ps -eo pid,ppid,comm,rss --sort=-rss | head -20 || true
-              adb get-state || true
-              sleep 5
-            done
-          ) > "$RUNTIME_DIAG_DIR/host-device-timeline.txt" 2>&1 &
-          watch_pid=$!
-          trap 'kill "$log_pid" "$watch_pid" 2>/dev/null || true' EXIT
-          install_flavor() {
-            local flavor="$1"
-            local app_apk="$APP_APK_DIR/$flavor/release/app-$flavor-release.apk"
-            local test_apks=("$TEST_APK_DIR"/"$flavor"/release/*.apk)
-            test "${#test_apks[@]}" -eq 1
-            local test_apk="${test_apks[0]}"
-            test -f "$app_apk"
-            test -f "$test_apk"
-            adb install -r "$app_apk"
-            adb install -r -t "$test_apk"
-            adb shell pm list instrumentation
-          }
-          run_tests() {
-            local label="$1" runner="$2" expected="$3"
-            shift 3
-            set +e
-            timeout 600 adb shell am instrument -w "$@" "$runner" 2>&1 | tee "$RUNTIME_DIAG_DIR/$label.txt"
-            result=${PIPESTATUS[0]}
-            set -e
-            if test "$result" -ne 0; then return "$result"; fi
-            python3 - "$RUNTIME_DIAG_DIR/$label.txt" "$expected" <<'PY'
-          import pathlib, re, sys
-          text = pathlib.Path(sys.argv[1]).read_text(errors='replace')
-          expected = int(sys.argv[2])
-          matches = re.findall(r'OK\s*\((\d+) tests?\)', text)
-          assert matches and int(matches[-1]) == expected, 'Instrumentation did not report the expected passing test count'
-          assert 'FAILURES!!!' not in text and 'INSTRUMENTATION_FAILED' not in text, 'Instrumentation reported failure'
-          PY
-          }
-          install_flavor trainer
-          # Run the previously interrupted method first, without cross-test state or UTP.
-          run_tests isolated-offline com.lovemyfreetime.billiardstrainer.test/androidx.test.runner.AndroidJUnitRunner 1 -e class 'com.lovemyfreetime.billiardstrainer.BundledAppTest#completeAppWithoutInternetAndLegacyCacheMigration'
-          # Broaden only if the isolated reproduction passes.
-          adb shell am force-stop com.lovemyfreetime.billiardstrainer
-          adb shell pm clear com.lovemyfreetime.billiardstrainer
-          run_tests trainer-suite com.lovemyfreetime.billiardstrainer.test/androidx.test.runner.AndroidJUnitRunner 8
-          adb uninstall com.lovemyfreetime.billiardstrainer.test
-          adb uninstall com.lovemyfreetime.billiardstrainer
-          install_flavor installer
-          run_tests installer-suite com.lovemyfreetime.billiardstrainer.installer.test/androidx.test.runner.AndroidJUnitRunner 8
-          SH
-          chmod +x "$RUNTIME_DIAG_DIR/run-test.sh"
+          mkdir -p installer-results
+          apk=packages/installer/release/app-installer-release.apk
+          sha256sum "$apk" | tee installer-results/apk-sha256.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$apk" | tee installer-results/signature.txt
+          grep -F a7e01270b7c40cb939d745d391fd8ae34e89c7051c363c11e125ca1616b4d9c7 installer-results/signature.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > installer-results/package.txt
+          grep -F "name='com.lovemyfreetime.billiardstrainer.installer'" installer-results/package.txt
+          grep -F "versionCode='1227'" installer-results/package.txt
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-
-      - name: Run isolated offline test then full native suites if it passes
+      - name: Test exact retained Installer offline
         uses: reactivecircus/android-emulator-runner@v2
         env:
-          # The crash process must not inherit signing or Actions credentials.
-          ANDROID_KEYSTORE_PATH: ''
-          ANDROID_KEYSTORE_BASE64: ''
           ANDROID_KEYSTORE_PASSWORD: ''
           ANDROID_KEY_ALIAS: ''
           ANDROID_KEY_PASSWORD: ''
-          ACTIONS_RUNTIME_TOKEN: ''
-          ACTIONS_ID_TOKEN_REQUEST_TOKEN: ''
-          GITHUB_TOKEN: ''
-          GH_TOKEN: ''
         with:
           api-level: 35
-          # Chromium pinned 37.1.11 to avoid 37.2.13 host GL cleanup crashes:
-          # https://chromium.googlesource.com/chromium/src/tools/android/+/0d2c7590ad90c5e3e5390a1d732ef2b2305d343d
           emulator-build: '15917651'
           arch: x86_64
           target: google_apis
           disable-animations: true
-          emulator-options: -no-window -gpu swangle_indirect -no-snapshot -noaudio -no-boot-anim -camera-back emulated -show-kernel
-          script: bash "$RUNTIME_DIAG_DIR/run-test.sh"
-
-      - name: Preserve emulator crash and host diagnostics
+          emulator-options: -no-window -gpu swangle_indirect -no-snapshot -noaudio -no-boot-anim -camera-back emulated
+          script: |
+            adb root
+            adb wait-for-device
+            for firewall in iptables ip6tables; do adb shell "$firewall -w 5 -I OUTPUT -p tcp --dport 80 -j REJECT"; adb shell "$firewall -w 5 -I OUTPUT -p tcp --dport 443 -j REJECT"; adb shell "$firewall -w 5 -I OUTPUT -p udp --dport 443 -j REJECT"; done
+            adb shell cmd connectivity airplane-mode enable
+            adb shell svc wifi disable
+            adb shell svc data disable
+            adb install -r packages/installer/release/app-installer-release.apk
+            adb install -r -t android-wrapper/app/build/outputs/apk/androidTest/installer/release/app-installer-release-androidTest.apk
+            timeout 600 adb shell am instrument -w -e class com.lovemyfreetime.billiardstrainer.BundledAppTest#completeAppWithoutInternetAndLegacyCacheMigration com.lovemyfreetime.billiardstrainer.installer.test/androidx.test.runner.AndroidJUnitRunner | tee installer-results/instrumentation.txt
+            grep -E 'OK ?\(1 test\)' installer-results/instrumentation.txt
+      - name: Preserve results
         if: always()
-        run: |
-          mkdir -p "$RUNTIME_DIAG_DIR"
-          { date -u; free -h; df -h; ps -eo pid,ppid,comm,rss --sort=-rss | head -20; adb devices -l; } > "$RUNTIME_DIAG_DIR/final-host-state.txt" 2>&1 || true
-          sudo dmesg -T > "$RUNTIME_DIAG_DIR/kernel.txt" 2>&1 || true
-          cat /proc/sys/kernel/core_pattern > "$RUNTIME_DIAG_DIR/core-pattern.txt"
-          sudo coredumpctl --no-pager info > "$RUNTIME_DIAG_DIR/systemd-coredump.txt" 2>&1 || true
-          sudo journalctl --no-pager -t systemd-coredump > "$RUNTIME_DIAG_DIR/coredump-journal.txt" 2>&1 || true
-          # Read crash metadata only; exclude core memory and process environment.
-          sudo python3 - "$RUNTIME_DIAG_DIR" <<'PYAPPORT'
-          from pathlib import Path
-          import sys, time
-          output = Path(sys.argv[1])
-          for _ in range(4):
-              reports = list(Path('/var/crash').glob('*.crash'))
-              if reports:
-                  break
-              time.sleep(5)
-          allowed = {'ProblemType', 'Date', 'ExecutablePath', 'Signal', 'SignalName', 'AssertionMessage', 'AbortMessage', 'Stacktrace', 'StacktraceTop', 'ThreadStacktrace', 'Registers'}
-          rows = []
-          for report in reports:
-              rows.append('Report: ' + report.name)
-              key = ''
-              with report.open(errors='replace') as stream:
-                  for line in stream:
-                      if not line.startswith(' '):
-                          key = line.split(':', 1)[0]
-                      if key in allowed:
-                          rows.append(line.rstrip())
-          (output / 'os-crash-metadata.txt').write_text('\n'.join(rows) + '\n')
-          PYAPPORT
-          if test -d /tmp/android-runner; then
-            cp -a /tmp/android-runner "$RUNTIME_DIAG_DIR/emulator-crash" || true
-          fi
-          python3 - <<'PYINVENTORY'
-          import os
-          from pathlib import Path
-          root = Path(os.environ['RUNTIME_DIAG_DIR'])
-          rows = [f'{p.relative_to(root)} {p.stat().st_size} bytes' for p in root.rglob('*') if p.is_file() and p.name != 'file-inventory.txt']
-          (root / 'file-inventory.txt').write_text('\n'.join(rows) + '\n')
-          PYINVENTORY
+        run: adb logcat -d > installer-results/logcat.txt || true
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Android-offline-isolation-diagnostics
-          path: ${{ runner.temp }}/android-runtime-diagnostic
-          include-hidden-files: true
-          retention-days: 7
+          name: installer-1227-offline-probe
+          path: installer-results
