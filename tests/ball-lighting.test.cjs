@@ -14,5 +14,8 @@ for(let i=0;i<1000;i++){
 }
 assert(source.includes('roughness:.18,metalness:0,envMapIntensity:1'));
 assert(source.includes('scene.environment=room;scene.environmentIntensity=.85'));
+assert(source.includes('radiance *= 8.0;'));
+assert(source.includes('reflectedLight.directSpecular *= 0.12;'));
+assert(radiance(...direction(-4,3.2,1.2))[0]>200, 'Broad panel covers a wide overhead angle');
 assert(source.includes('if(cue)group.children[0].quaternion.fromArray(orientation)'),'Cue rotation preserved');
 console.log('PASS: filled rectangular panel, dark lower environment, bounded fixed-direction radiance, resin and rotation contracts');

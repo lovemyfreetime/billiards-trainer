@@ -227,7 +227,7 @@
   const up=Math.max(0,dy),base=[24+up*58,31+up*57,35+up*54];
   if(dy<=0)return base.map(Math.round);
   const distance=3.2/dy,px=dx*distance,pz=dz*distance;
-  const edge=Math.min(1.7-Math.abs(px+1.8),.9-Math.abs(pz-1.2));
+  const edge=Math.min(2.6-Math.abs(px+1.8),1.55-Math.abs(pz-1.2));
   const blend=Math.max(0,Math.min(1,edge/.08));
   return base.map((v,i)=>Math.round(v+([250,247,238][i]-v)*blend));
  }
@@ -280,7 +280,19 @@
     for(const u of [.25,.75]){x.fillStyle='#faf8ee';x.beginPath();x.arc(c.width*u,128,37,0,Math.PI*2);x.fill();x.fillStyle='#161c20';x.font='700 43px Arial';x.textAlign='center';x.textBaseline='middle';x.fillText(String(id),c.width*u,130);}
     const map=new T.CanvasTexture(c);map.colorSpace=T.SRGBColorSpace;map.anisotropy=4;options.map=map;
    }
-   const material=new T.MeshStandardMaterial(options);materials.set(key,material);return material;
+   const material=new T.MeshStandardMaterial(options);
+   // The directional key supplies diffuse shading/shadows, but its infinitesimal
+   // specular dot is not the visible ceiling fixture. Use the broad environment
+   // emitter for the resin reflection instead. Boost radiance (not irradiance)
+   // so the LDR-generated panel behaves like a bright real softbox without
+   // washing out the pigment or the number patch with extra diffuse light.
+   material.onBeforeCompile=shader=>{
+    shader.fragmentShader=shader.fragmentShader
+     .replace('#include <lights_fragment_maps>','#include <lights_fragment_maps>\n radiance *= 8.0;')
+     .replace('#include <lights_fragment_end>','#include <lights_fragment_end>\n reflectedLight.directSpecular *= 0.12;');
+   };
+   material.customProgramCacheKey=()=> 'ball-softbox-v2';
+   materials.set(key,material);return material;
   }
   const contactCanvas=document.createElement('canvas');contactCanvas.width=contactCanvas.height=64;const contactCtx=contactCanvas.getContext('2d'),contactGradient=contactCtx.createRadialGradient(32,32,2,32,32,30);
   contactGradient.addColorStop(0,'rgba(0,0,0,.24)');contactGradient.addColorStop(.45,'rgba(0,0,0,.13)');contactGradient.addColorStop(1,'rgba(0,0,0,0)');contactCtx.fillStyle=contactGradient;contactCtx.fillRect(0,0,64,64);
