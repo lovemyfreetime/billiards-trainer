@@ -27,3 +27,4 @@ jobs:
           name: isolated-lighting-preview
           path: test-results/lighting
           retention-days: 14
+# Isolated preview only; no release or installer writes.
