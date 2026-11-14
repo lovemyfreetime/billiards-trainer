@@ -1,0 +1,443 @@
+name: Verify remaining shared checks
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [test/dualshock4-controller-2026-11-14]
+    paths: [.github/workflows/verify-shared-test.yml]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: remaining-shared-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Prepare current offline bundle and browser
+        run: |
+          python3 scripts/build-offline-assets.py
+          python3 scripts/verify-guide-release.py
+          npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
+          node local-host/node_modules/playwright/cli.js install --with-deps chromium
+          mkdir -p test-results/shared-checks
+      - name: '01/40 trainer-3d-ball-tools.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/trainer-3d-ball-tools.browser.cjs 2>&1 | tee test-results/shared-checks/01-trainer-3d-ball-tools.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/01-trainer-3d-ball-tools.browser.exit-code.txt
+          exit "$result"
+      - name: '02/40 trainer-3d-edit.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/trainer-3d-edit.browser.cjs 2>&1 | tee test-results/shared-checks/02-trainer-3d-edit.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/02-trainer-3d-edit.browser.exit-code.txt
+          exit "$result"
+      - name: '03/40 shot-geometry.test'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/shot-geometry.test.cjs 2>&1 | tee test-results/shared-checks/03-shot-geometry.test.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/03-shot-geometry.test.exit-code.txt
+          exit "$result"
+      - name: '04/40 trainer-annotations.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/trainer-annotations.browser.cjs 2>&1 | tee test-results/shared-checks/04-trainer-annotations.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/04-trainer-annotations.browser.exit-code.txt
+          exit "$result"
+      - name: '05/40 aim-zones.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/aim-zones.browser.cjs 2>&1 | tee test-results/shared-checks/05-aim-zones.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/05-aim-zones.browser.exit-code.txt
+          exit "$result"
+      - name: '06/40 native-content-updates.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/native-content-updates.browser.cjs 2>&1 | tee test-results/shared-checks/06-native-content-updates.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/06-native-content-updates.browser.exit-code.txt
+          exit "$result"
+      - name: '07/40 app-updates.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/app-updates.browser.cjs 2>&1 | tee test-results/shared-checks/07-app-updates.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/07-app-updates.browser.exit-code.txt
+          exit "$result"
+      - name: '08/40 display-startup.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/display-startup.browser.cjs 2>&1 | tee test-results/shared-checks/08-display-startup.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/08-display-startup.browser.exit-code.txt
+          exit "$result"
+      - name: '09/40 installer-updates.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/installer-updates.browser.cjs 2>&1 | tee test-results/shared-checks/09-installer-updates.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/09-installer-updates.browser.exit-code.txt
+          exit "$result"
+      - name: '10/40 cue-deflection.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/cue-deflection.browser.cjs 2>&1 | tee test-results/shared-checks/10-cue-deflection.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/10-cue-deflection.browser.exit-code.txt
+          exit "$result"
+      - name: '11/40 experience-narration.test'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/experience-narration.test.cjs 2>&1 | tee test-results/shared-checks/11-experience-narration.test.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/11-experience-narration.test.exit-code.txt
+          exit "$result"
+      - name: '12/40 experience-narration.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/experience-narration.browser.cjs 2>&1 | tee test-results/shared-checks/12-experience-narration.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/12-experience-narration.browser.exit-code.txt
+          exit "$result"
+      - name: '13/40 chromebook-sliders.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/chromebook-sliders.browser.cjs 2>&1 | tee test-results/shared-checks/13-chromebook-sliders.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/13-chromebook-sliders.browser.exit-code.txt
+          exit "$result"
+      - name: '14/40 compact-guide-player.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/compact-guide-player.browser.cjs 2>&1 | tee test-results/shared-checks/14-compact-guide-player.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/14-compact-guide-player.browser.exit-code.txt
+          exit "$result"
+      - name: '15/40 trainer-tools-menu.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/trainer-tools-menu.browser.cjs 2>&1 | tee test-results/shared-checks/15-trainer-tools-menu.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/15-trainer-tools-menu.browser.exit-code.txt
+          exit "$result"
+      - name: '16/40 shared-session-history.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/shared-session-history.browser.cjs 2>&1 | tee test-results/shared-checks/16-shared-session-history.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/16-shared-session-history.browser.exit-code.txt
+          exit "$result"
+      - name: '17/40 layout-sharing.test'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/layout-sharing.test.cjs 2>&1 | tee test-results/shared-checks/17-layout-sharing.test.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/17-layout-sharing.test.exit-code.txt
+          exit "$result"
+      - name: '18/40 photo-lighting.test'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/photo-lighting.test.cjs 2>&1 | tee test-results/shared-checks/18-photo-lighting.test.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/18-photo-lighting.test.exit-code.txt
+          exit "$result"
+      - name: '19/40 photo-ball-evidence.test'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/photo-ball-evidence.test.cjs 2>&1 | tee test-results/shared-checks/19-photo-ball-evidence.test.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/19-photo-ball-evidence.test.exit-code.txt
+          exit "$result"
+      - name: '20/40 photo-ball-identity.test'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/photo-ball-identity.test.cjs 2>&1 | tee test-results/shared-checks/20-photo-ball-identity.test.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/20-photo-ball-identity.test.exit-code.txt
+          exit "$result"
+      - name: '21/40 photo-detection-dedupe.test'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/photo-detection-dedupe.test.cjs 2>&1 | tee test-results/shared-checks/21-photo-detection-dedupe.test.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/21-photo-detection-dedupe.test.exit-code.txt
+          exit "$result"
+      - name: '22/40 photo-corner-sensing.test'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/photo-corner-sensing.test.cjs 2>&1 | tee test-results/shared-checks/22-photo-corner-sensing.test.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/22-photo-corner-sensing.test.exit-code.txt
+          exit "$result"
+      - name: '23/40 photo-camera.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/photo-camera.browser.cjs 2>&1 | tee test-results/shared-checks/23-photo-camera.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/23-photo-camera.browser.exit-code.txt
+          exit "$result"
+      - name: '24/40 trainer-sharing-controls.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/trainer-sharing-controls.browser.cjs 2>&1 | tee test-results/shared-checks/24-trainer-sharing-controls.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/24-trainer-sharing-controls.browser.exit-code.txt
+          exit "$result"
+      - name: '25/40 trainer-view-refinements.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/trainer-view-refinements.browser.cjs 2>&1 | tee test-results/shared-checks/25-trainer-view-refinements.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/25-trainer-view-refinements.browser.exit-code.txt
+          exit "$result"
+      - name: '26/40 trainer-3d.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/trainer-3d.browser.cjs 2>&1 | tee test-results/shared-checks/26-trainer-3d.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/26-trainer-3d.browser.exit-code.txt
+          exit "$result"
+      - name: '27/40 bank-kick-selection.test'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/bank-kick-selection.test.cjs 2>&1 | tee test-results/shared-checks/27-bank-kick-selection.test.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/27-bank-kick-selection.test.exit-code.txt
+          exit "$result"
+      - name: '28/40 bank-kick-candidates.test'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/bank-kick-candidates.test.cjs 2>&1 | tee test-results/shared-checks/28-bank-kick-candidates.test.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/28-bank-kick-candidates.test.exit-code.txt
+          exit "$result"
+      - name: '29/40 bank-kick-location.test'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/bank-kick-location.test.cjs 2>&1 | tee test-results/shared-checks/29-bank-kick-location.test.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/29-bank-kick-location.test.exit-code.txt
+          exit "$result"
+      - name: '30/40 bank-kick-contact.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/bank-kick-contact.browser.cjs 2>&1 | tee test-results/shared-checks/30-bank-kick-contact.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/30-bank-kick-contact.browser.exit-code.txt
+          exit "$result"
+      - name: '31/40 bank-kick-arrival.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/bank-kick-arrival.browser.cjs 2>&1 | tee test-results/shared-checks/31-bank-kick-arrival.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/31-bank-kick-arrival.browser.exit-code.txt
+          exit "$result"
+      - name: '32/40 bank-kick-location.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/bank-kick-location.browser.cjs 2>&1 | tee test-results/shared-checks/32-bank-kick-location.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/32-bank-kick-location.browser.exit-code.txt
+          exit "$result"
+      - name: '33/40 bank-kick-routing.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/bank-kick-routing.browser.cjs 2>&1 | tee test-results/shared-checks/33-bank-kick-routing.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/33-bank-kick-routing.browser.exit-code.txt
+          exit "$result"
+      - name: '34/40 bank-kick-practical.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/bank-kick-practical.browser.cjs 2>&1 | tee test-results/shared-checks/34-bank-kick-practical.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/34-bank-kick-practical.browser.exit-code.txt
+          exit "$result"
+      - name: '35/40 bank-kick-performance.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/bank-kick-performance.browser.cjs 2>&1 | tee test-results/shared-checks/35-bank-kick-performance.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/35-bank-kick-performance.browser.exit-code.txt
+          exit "$result"
+      - name: '36/40 bank-kick-full-rack.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/bank-kick-full-rack.browser.cjs 2>&1 | tee test-results/shared-checks/36-bank-kick-full-rack.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/36-bank-kick-full-rack.browser.exit-code.txt
+          exit "$result"
+      - name: '37/40 guide-platform-parity.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/guide-platform-parity.browser.cjs 2>&1 | tee test-results/shared-checks/37-guide-platform-parity.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/37-guide-platform-parity.browser.exit-code.txt
+          exit "$result"
+      - name: '38/40 guide-scenes.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/guide-scenes.browser.cjs 2>&1 | tee test-results/shared-checks/38-guide-scenes.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/38-guide-scenes.browser.exit-code.txt
+          exit "$result"
+      - name: '39/40 resources.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 180s node tests/resources.browser.cjs 2>&1 | tee test-results/shared-checks/39-resources.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/39-resources.browser.exit-code.txt
+          exit "$result"
+      - name: '40/40 lesson-sequence.browser'
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          set +e
+          timeout --kill-after=10s 600s node tests/lesson-sequence.browser.cjs 2>&1 | tee test-results/shared-checks/40-lesson-sequence.browser.log
+          result=${PIPESTATUS[0]}
+          printf '%s\n' "$result" > test-results/shared-checks/40-lesson-sequence.browser.exit-code.txt
+          exit "$result"
+      - name: Preserve every check result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: remaining-shared-checks
+          path: |
+            test-results/shared-checks
+            test-results/workspace
+            test-results/3d-controls
+          retention-days: 14
