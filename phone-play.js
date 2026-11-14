@@ -241,18 +241,34 @@
   photoButton.onclick=()=>{if(photoMenuOpen())closePhotoMenu();else{openPhotoMenu();const r=photoButton.getBoundingClientRect();photoMenu.style.left=Math.max(4,Math.min(innerWidth-photoMenu.offsetWidth-4,r.left))+'px';photoMenu.style.top=(r.bottom+5)+'px';}};
   photoMenu.addEventListener('toggle',()=>photoButton.setAttribute('aria-expanded',String(photoMenuOpen())));
   const archiveMoves=[];for(const id of ['photoArchiveSelect','photoArchiveLoad','photoArchiveDelete','photoArchiveSave','photoArchiveExport']){const element=document.getElementById(id);if(element){const anchor=document.createComment('Photo archive position');element.before(anchor);archiveMoves.push({element,anchor});}}
-  const photoBar=document.createElement('div');photoBar.id='phoneAnalyzeBar';let toolbarAnchor;
-  if(analyzeToolbar){toolbarAnchor=document.createComment('Analyze toolbar desktop position');analyzeToolbar.before(toolbarAnchor);analyzeToolbar.parentNode.append(photoBar);analyzeToolbar.append(photoButton);}
+  const photoBar=document.createElement('div');photoBar.id='phoneAnalyzeBar';
+  const mainActions=document.createElement('div');mainActions.id='photoMainActions';
+  const more=document.createElement('button');more.id='photoMoreTools';more.type='button';more.textContent='Tools';more.setAttribute('aria-controls','photoSecondaryTools');
+  const secondary=document.createElement('div');secondary.id='photoSecondaryTools';
+  function setPhotoTools(open){secondary.hidden=!open;more.setAttribute('aria-expanded',String(open));if(!open)closePhotoMenu();}
+  more.onclick=()=>setPhotoTools(secondary.hidden);
+  if(analyzeToolbar){
+    analyzeToolbar.parentNode.append(photoBar);analyzeToolbar.append(photoButton);
+    mainActions.append(...['photoChooseImage','photoAnalyzeNow','photoAddMissed'].map(id=>document.getElementById(id)),more,document.getElementById('photoAnalyzerClose'));
+    const hint=document.getElementById('photoAnalyzerStatus');
+    secondary.append(analyzeToolbar);photoBar.append(mainActions,hint,secondary);
+    const roomy=matchMedia('(min-width:900px) and (min-height:520px)');
+    setPhotoTools(roomy.matches);
+    document.getElementById('photoAnalyzerClose').addEventListener('click',()=>setPhotoTools(roomy.matches));
+    // Walkthrough and Explorer can also navigate to actions inside the disclosure.
+    const revealTarget=()=>{if(secondary.querySelector('.walkthroughTarget'))setPhotoTools(true);};
+    new MutationObserver(revealTarget).observe(secondary,{subtree:true,attributes:true,attributeFilter:['class']});
+  }
   function layoutAnalyze(){
     if(!analyzeToolbar)return;
     const close=document.getElementById('photoAnalyzerClose');
-    photoBar.append(analyzeToolbar,close);
+    if(close.parentNode!==mainActions)mainActions.append(close);
     for(const {element}of archiveMoves)photoMenu.append(element);
     for(const id of ['photoWelcomePlay','photoWelcomeStop','photoWelcomeRead']){const control=document.getElementById(id);if(control)photoMenu.append(control);}
     closePhotoMenu();
   }
   document.getElementById('photoAnalyzerClose')?.addEventListener('click',closePhotoMenu);
-  const compactText={photoChooseImage:'Image',photoFindCorners:'Corners',photoResetCorners:'Reset',photoFineTune:'Layout',photoAutoRailsBtn:'Sense',photoAnalyzeNow:'Analyze',photoAddMissed:'+ Ball',photoWalkthroughBtn:'Walkthrough',photoWelcomePlay:'Welcome',photoWelcomeStop:'Stop voice',photoApplyTable:'Apply',photoApplySave:'Apply + Save',photoLoadTableFile:'Load',photoSaveTableFile:'Save'};
+  const compactText={photoFindCorners:'Corners',photoResetCorners:'Reset',photoFineTune:'Layout',photoAutoRailsBtn:'Sense',photoWalkthroughBtn:'Walkthrough',photoWelcomePlay:'Welcome',photoWelcomeStop:'Stop voice',photoApplyTable:'Apply',photoApplySave:'Apply + Save',photoLoadTableFile:'Load',photoSaveTableFile:'Save'};
   const originalText=new Map();for(const id of Object.keys(compactText)){const el=document.getElementById(id);if(el){originalText.set(el,el.textContent);if(!el.getAttribute('aria-label'))el.setAttribute('aria-label',el.textContent);}}
   if(analyzeToolbar)new MutationObserver(()=>{if(!focused())return;const ai=document.getElementById('photoAiModeBtn');if(ai&&ai.textContent!=='AI'){ai.setAttribute('aria-label',ai.textContent);ai.textContent='AI';}for(const [el,text]of originalText)if(el.textContent===text&&text!==compactText[el.id])el.textContent=compactText[el.id];}).observe(analyzeToolbar,{childList:true,subtree:true});
   const aimChoice=document.createElement('button');aimChoice.id='phoneAimChoice';aimChoice.type='button';aimChoice.textContent='1';aimChoice.setAttribute('aria-label','Switch active shot');aimChoice.onclick=()=>{const second=document.getElementById('aimControls2')?.classList.contains('activeAim');if(!document.body.classList.contains('phone-two-shots'))return;window.billiardsSelectShot?.(second?1:2);};actions.prepend(aimChoice);

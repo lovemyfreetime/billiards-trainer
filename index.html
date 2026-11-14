@@ -11548,7 +11548,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if ($('photoAnalyzerStatus')) $('photoAnalyzerStatus').textContent = msg;
     }
     function openPhotoAnalyzer() {
-        if(window.Billiards3D?.active){window.Billiards3D.disable();window.billiardsControlLayout?.();}
         $('photoAnalyzerModal').classList.add('open');
         $('photoAnalyzerModal').setAttribute('aria-hidden','false');
         renderPhotoBallSummary();
@@ -12898,7 +12897,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             photoVision.analysisError='Analysis could not finish. Check the corners and try Analyze Again, or choose another image.';pvStatus(photoVision.analysisError);console.warn('Image analysis failed:',error);
         } finally {
             photoVision.aiBusy=false;
-            if(btn){btn.disabled=!pvCalibration();btn.textContent='ANALYZE BALLS';}
+            if(btn){btn.disabled=!pvCalibration();btn.textContent='Analyze Balls';}
             pvUpdateAIButton();
         }
     }
