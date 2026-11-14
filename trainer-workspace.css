@@ -15,8 +15,8 @@ body.trainer-workspace.phone-focus #phoneSpeedRail>.tableSpeedControl { width:42
 body.trainer-workspace.phone-focus #phoneAimRail .aimRollerControl { width:42px; padding-top:22px; box-shadow:none; }
 body.trainer-workspace.phone-focus .phoneAimLabel { display:block; position:absolute; top:5px; left:0; right:0; text-align:center; font:700 9px/14px system-ui; z-index:1; pointer-events:none; }
 body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions { left:calc(10px + env(safe-area-inset-left))!important; right:calc(100px + env(safe-area-inset-right))!important; bottom:calc(6px + env(safe-area-inset-bottom))!important; height:52px; min-height:52px; padding:0; width:auto!important; max-width:none!important; margin:0!important; }
-body.trainer-workspace.phone-focus #phoneActions>.bottomSpinGroup { grid-template-columns:minmax(0,1fr) 60px minmax(0,1fr); grid-template-rows:52px; height:52px!important; gap:10px; }
-body.trainer-workspace.phone-focus #phoneActions .bottomSpinGroup .phoneTipControl:not([hidden]) { width:56px!important; height:56px!important; }
+body.trainer-workspace.phone-focus #phoneActions>.bottomSpinGroup { grid-template-columns:minmax(0,1fr) 84px minmax(0,1fr); grid-template-rows:52px; height:52px!important; gap:10px; }
+body.trainer-workspace.phone-focus #phoneActions .bottomSpinGroup .phoneTipControl:not([hidden]) { width:72px!important; height:72px!important; align-self:center; justify-self:center; }
 body.trainer-workspace.phone-focus #phoneActions .miniSpinControl { height:48px; padding:17px 36px 3px; }
 body.trainer-workspace.phone-focus #phoneActions .miniSpinControl input { height:26px; }
 body.trainer-workspace.phone-focus #phoneActions .phoneSpinCaption { top:2px; left:36px; right:36px; font:600 10px/12px system-ui; }
@@ -48,7 +48,6 @@ body.trainer-workspace #table3DRackMenu:not([hidden]) { display:block!important;
 #workspaceTools summary:focus-visible,#workspaceTools button:focus-visible,.workspaceBall:focus-visible { outline:2px solid #b0e3ff; outline-offset:3px; }
 #workspaceTools .workspaceToolGroup { position:absolute; top:43px; left:0; display:flex; flex-wrap:wrap; gap:8px; width:min(310px,calc(100vw - 32px)); padding:12px; box-sizing:border-box; border:1px solid #67818e; border-radius:12px; background:#14232dfb; box-shadow:0 8px 28px #0009; max-height:calc(100dvh - 66px); overflow:auto; }
 #workspace-view .workspaceToolGroup { left:-100px; }
-#workspace-plan .workspaceToolGroup { left:-65px; }
 body.trainer-workspace #workspaceTools .workspaceToolGroup>button,
 body.trainer-workspace #workspaceTools .workspaceToolGroup>label,
 body.trainer-workspace #workspaceTools #table3DViews>button,
@@ -105,8 +104,8 @@ body.trainer-workspace #workspaceTools #btZenLauncher::after { content:'Play · 
   body.trainer-workspace.phone-focus #phoneAimRail,body.trainer-workspace.phone-focus #phoneSpeedRail { width:36px; }
   body.trainer-workspace.phone-focus #phoneAimRail>.aimControlRow,body.trainer-workspace.phone-focus #phoneSpeedRail>.tableSpeedControl,body.trainer-workspace.phone-focus #phoneAimRail .aimRollerControl { width:36px!important; }
   body.trainer-workspace.phone-focus #phoneActions { right:calc(74px + env(safe-area-inset-right))!important; }
-  body.trainer-workspace.phone-focus #phoneActions>.bottomSpinGroup { grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr); gap:4px; }
-  body.trainer-workspace.phone-focus #phoneActions .bottomSpinGroup .phoneTipControl:not([hidden]) { width:44px!important; height:48px!important; }
+  body.trainer-workspace.phone-focus #phoneActions>.bottomSpinGroup { grid-template-columns:minmax(0,1fr) 64px minmax(0,1fr); gap:4px; }
+  body.trainer-workspace.phone-focus #phoneActions .bottomSpinGroup .phoneTipControl:not([hidden]) { width:56px!important; height:56px!important; }
   body.trainer-workspace.phone-focus #phoneActions .miniSpinControl { padding-left:23px; padding-right:23px; }
   body.trainer-workspace.phone-focus #phoneActions .miniSpinLabel,body.trainer-workspace.phone-focus #phoneActions .phoneSliderValue { width:22px!important; }
   body.trainer-workspace.phone-focus #phoneActions .phoneSpinCaption { left:20px; right:20px; font-size:8px; }
@@ -136,13 +135,13 @@ body.trainer-workspace.phone-focus #phoneAimRail .aimRollerControl { width:60px!
 body.trainer-workspace.phone-focus #phoneAimRail .rollerTrack { width:40px; }
 body.trainer-workspace.phone-focus #phoneAimRail .rollerDir { width:44px; min-height:32px; }
 body.trainer-workspace.phone-focus #phoneSpeedRail input { width:48px; }
-body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions { right:calc(110px + env(safe-area-inset-right))!important; bottom:calc(8px + env(safe-area-inset-bottom))!important; height:64px; min-height:64px; }
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions { right:calc(120px + env(safe-area-inset-right))!important; bottom:calc(8px + env(safe-area-inset-bottom))!important; height:64px; min-height:64px; }
 body.trainer-workspace.phone-focus #phoneActions>.bottomSpinGroup { height:64px!important; grid-template-rows:64px; }
 body.trainer-workspace.phone-focus #phoneActions .miniSpinControl { height:64px; padding-top:19px; padding-bottom:3px; }
 body.trainer-workspace.phone-focus #phoneActions .miniSpinControl input { height:40px; }
 body.trainer-workspace.phone-focus #phoneActions .miniSpinLabel,
 body.trainer-workspace.phone-focus #phoneActions .phoneSliderValue { height:62px!important; min-height:62px; }
-body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=animate] { width:90px!important; height:64px!important; min-height:64px!important; font-size:16px; }
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=animate] { width:100px!important; height:128px!important; min-height:128px!important; font-size:16px; }
 body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=undoShot] { top:8px; right:calc(184px + env(safe-area-inset-right)); width:44px; min-width:44px; height:44px; min-height:44px; }
 body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=redoShot] { top:8px; right:calc(134px + env(safe-area-inset-right)); width:44px; min-width:44px; height:44px; min-height:44px; }
 body.trainer-workspace.phone-focus:not(.zen-mode) #phoneControls { right:calc(60px + env(safe-area-inset-right)); height:44px; min-height:44px; }
@@ -156,14 +155,14 @@ body.trainer-workspace #workspaceTools #btZenLauncher::after { content:none; }
 #workspaceBallShelf { bottom:calc(80px + env(safe-area-inset-bottom)); height:48px; }
 body.trainer-workspace.table-3d #workspaceBallShelf { bottom:calc(144px + env(safe-area-inset-bottom)); }
 body.trainer-workspace.table-3d.phone-tray-hidden #workspaceBallShelf { display:none; }
-body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls:not([hidden]) { display:grid!important; position:fixed; top:auto; bottom:calc(80px + env(safe-area-inset-bottom)); left:calc(10px + env(safe-area-inset-left)); right:calc(110px + env(safe-area-inset-right)); width:auto; max-width:none; margin:0; transform:none; grid-template-columns:minmax(0,1fr) 60px minmax(0,1fr); grid-template-rows:56px; gap:10px; z-index:47; }
+body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls:not([hidden]) { display:grid!important; position:fixed; top:auto; bottom:calc(80px + env(safe-area-inset-bottom)); left:calc(10px + env(safe-area-inset-left)); right:calc(120px + env(safe-area-inset-right)); width:auto; max-width:none; margin:0; transform:none; grid-template-columns:minmax(0,1fr) 84px minmax(0,1fr); grid-template-rows:56px; gap:10px; z-index:47; }
 body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DTools,
 body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DViews { display:flex; position:static; inset:auto!important; flex-direction:row; gap:5px; width:100%; height:56px; min-width:0; }
 body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DTools { grid-area:1/1; }
 body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DViews { grid-area:1/3; }
 body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls button { position:static!important; inset:auto!important; transform:none!important; box-sizing:border-box; height:56px!important; min-height:56px!important; width:auto!important; min-width:44px!important; padding:5px!important; font:600 11px/1.2 system-ui; }
 body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #phoneTrayToggle { display:block!important; flex:none; }
-body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DZoomSlider { min-width:35px; height:44px; }
+body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DZoomSlider { min-width:44px!important; height:44px; }
 body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DLock { min-width:100px!important; flex:2; }
 body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DPan svg,
 body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DRotate svg { width:22px; height:22px; }
@@ -173,7 +172,7 @@ body.trainer-workspace #table3DPhoneControls[hidden] { display:none!important; }
 body.trainer-workspace.phone-focus #bankKickRoutePanel:not([hidden]),
 body.trainer-workspace.table-3d.phone-focus #bankKickRoutePanel:not([hidden]) { position:fixed; z-index:52; top:calc(var(--workspace-top) + 8px + env(safe-area-inset-top))!important; right:calc(var(--workspace-edge) + env(safe-area-inset-right))!important; left:auto!important; width:min(380px,calc(100vw - 2 * var(--workspace-edge))); max-height:calc(100dvh - var(--workspace-top) - var(--workspace-bottom) - 16px); overflow:auto; pointer-events:auto; }
 @media(max-width:900px) {
- body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls:not([hidden]) { grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:8px; right:10px; }
+ body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls:not([hidden]) { grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:8px; right:calc(120px + env(safe-area-inset-right)); }
  body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DViews { grid-area:1/2; }
 }
 @media(max-width:700px) {
@@ -190,16 +189,35 @@ body.trainer-workspace.table-3d.phone-focus #bankKickRoutePanel:not([hidden]) { 
  body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=redoShot] { top:calc(60px + env(safe-area-inset-top))!important; }
  #workspaceTools #phoneAimChoice { position:fixed; top:60px; left:10px; }
  #workspaceTools summary { padding:12px 8px; }
- body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions { right:calc(86px + env(safe-area-inset-right))!important; }
- body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=animate] { width:66px!important; }
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions { right:calc(96px + env(safe-area-inset-right))!important; }
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=animate] { width:76px!important; }
  body.trainer-workspace.table-3d { --workspace-bottom:262px; }
  body.trainer-workspace.table-3d.phone-tray-hidden { --workspace-bottom:206px; }
  body.trainer-workspace.table-3d #workspaceBallShelf { bottom:calc(206px + env(safe-area-inset-bottom)); }
- body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls:not([hidden]) { grid-template-columns:minmax(0,1fr); grid-template-rows:56px 56px; gap:6px; }
- body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DViews { grid-area:2/1; }
+ body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls:not([hidden]) { grid-template-columns:minmax(0,1fr); grid-template-rows:56px 56px; gap:6px; right:calc(10px + env(safe-area-inset-right)); }
+ body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DViews { grid-area:2/1; width:calc(100% - 86px); }
 }
 body.trainer-workspace.phone-focus #phoneActions .phoneTipControl { pointer-events:auto; }
 #workspaceTools:has(details[open]) { z-index:54; }
 @media(max-width:700px) {
  #workspaceTools .workspaceToolGroup { position:fixed; top:calc(114px + env(safe-area-inset-top)); left:10px; right:10px; width:auto; max-height:calc(100dvh - 124px); }
+}
+
+/* Stable mode switch; aiming aids belong in Features & Options. */
+body.trainer-workspace #workspaceTools #table3DToggle { position:static!important; inset:auto!important; transform:none!important; display:block!important; flex:none; width:60px!important; min-width:60px!important; height:46px!important; min-height:46px!important; padding:6px!important; border:1px solid #7695a5; border-radius:10px; background:#1b303d; color:#edf6f9; font:600 12px/1.2 system-ui; }
+body.trainer-workspace #workspaceAimTools { display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 12px; }
+body.trainer-workspace #workspaceAimTools>button,
+body.trainer-workspace #featureCueOptions>#angleLock { position:static!important; inset:auto!important; transform:none!important; width:auto!important; min-width:72px; min-height:44px; height:auto!important; padding:8px 12px; border-radius:9px; font:600 13px/1.3 system-ui; flex:1 1 auto; }
+body.trainer-workspace #workspaceAimTools .compassSideControl,
+body.trainer-workspace #workspaceAimTools .compassTopControl { position:static!important; inset:auto!important; transform:none!important; width:100%!important; height:44px!important; }
+body.trainer-workspace #workspaceAimTools .compassSideControl.visible,
+body.trainer-workspace #workspaceAimTools .compassTopControl.visible { display:flex; flex:1 1 100%; flex-direction:row; gap:10px; padding:6px 10px; }
+body.trainer-workspace #workspaceAimTools .compassSideLabel,
+body.trainer-workspace #workspaceAimTools .compassTopLabel { position:static; inset:auto; transform:none; order:-1; flex:0 0 52px; font-size:11px; }
+body.trainer-workspace #workspaceAimTools input { writing-mode:horizontal-tb; direction:ltr; min-width:0; width:auto; flex:1; height:32px; }
+body.trainer-workspace:not(.table-3d) #workspaceBallShelf { right:calc(120px + env(safe-area-inset-right)); }
+#workspaceClearBalls { flex:none; width:58px; min-width:58px; height:40px; padding:4px; border:1px solid #7891a0; border-radius:9px; background:#23343f; color:#edf6f9; font:600 12px system-ui; }
+body.phone-tray-hidden #workspaceClearBalls { display:none; }
+@media(max-width:700px) {
+ body.trainer-workspace:not(.table-3d) #workspaceBallShelf { right:calc(96px + env(safe-area-inset-right)); }
 }

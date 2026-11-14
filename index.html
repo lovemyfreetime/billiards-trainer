@@ -2893,6 +2893,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     window.billiards3DBallControls={
         status(){return {...window.billiardsZenControls.status(),pocketed:[...(S.pocketedLog||[])]};},
         clear:freshZenTable,
+        clearTable(){
+            if(animation||!document.body.classList.contains('trainer-workspace'))return false;
+            if(!S.balls.length&&!S.pocketedLog.length&&!S.shot2Enabled)return false;
+            finishActionUndo();beginActionUndo();
+            S.activeShot=1;S.shot2Enabled=false;S.balls=[];S.pocketedLog=[];S.allowMissingCueBall=true;
+            normalizeBallSet();resetRunHistory();updateUI();refreshPreview();saveState();syncProjector();finishActionUndo();
+            return true;
+        },
         place(id,q=null){if(animation||!window.Billiards3D?.active)return false;returnPocketBall(id,q);return S.balls.some(b=>b.id===id&&b.active);}
     };
 
