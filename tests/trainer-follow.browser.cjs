@@ -61,7 +61,7 @@ const fs = require('node:fs');
     assert(boxes.every((b,i)=>b&&(!i||b.y>=boxes[i-1].y+boxes[i-1].height-1)));await page.keyboard.press('Escape');
 
     const before=(await shot()).balls;
-    await follow('close');assert(await page.evaluate(()=>Billiards3D.active));assert.equal((await camera()).followCue,false);
+    await follow('close');await page.waitForFunction(()=>Billiards3D.active && !document.getElementById('workspace-follow').open);assert.equal((await camera()).followCue,false);
     for(const side of ['front','left','right','behind']){
       await follow(side);await page.waitForFunction(side=>Billiards3D.camera().followSide===side,side);
       assert((await camera()).followCue);
@@ -79,7 +79,15 @@ const fs = require('node:fs');
     await follow('right');await choose('follow','#followLock');await motion('1');await choose('motion','#motionLock');await page.keyboard.press('Escape');
     if(await page.evaluate(()=>Billiards3D.active))await page.locator('#table3DToggle').click();
     // The actual Play button must arm the default/selected camera even when launched in 2D.
-    await page.evaluate(()=>document.getElementById('trainerShowPlayback').click());await page.locator('#trainerPlaybackPause').tap();
+    await page.evaluate(()=>document.getElementById('trainerShowPlayback').click());
+    await page.locator('#trainerPlaybackCloseup').tap();
+    await page.waitForFunction(()=>Billiards3D.active && !Billiards3D.camera().followCue);
+    for(const side of ['front','behind','left','right']){
+      await page.locator('#trainerPlaybackBar [data-follow-side="'+side+'"]').check();
+      await page.waitForFunction(side=>Billiards3D.camera().followCue && Billiards3D.camera().followSide===side,side);
+    }
+    await page.locator('#table3DToggle').click();
+    await page.locator('#trainerPlaybackPause').tap();
     await page.waitForFunction(()=>Billiards3D.active&&billiardsPlayback.state().running);
     assert.equal((await camera()).followSide,'right');
     await page.waitForFunction(()=>!billiardsPlayback.state().running,null,{timeout:45000});
