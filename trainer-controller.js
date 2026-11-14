@@ -209,7 +209,7 @@
       armed = false; repeatAt = {};
       pendingAdjust = {aim:0, speed:0, side:0, follow:0};
     } else if (!armed) {
-      if (neutral) armed = true;
+      if (neutral) { armed = true; latched = []; repeatAt = {}; }
     } else {
       const camera = mapped('camera') > .5 && !!window.Billiards3D?.active;
       for (let i = 0; i < values.length; i++) {

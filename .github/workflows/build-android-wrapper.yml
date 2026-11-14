@@ -114,6 +114,14 @@ jobs:
           node tests/trainer-narration-microphone.browser.cjs
           node tests/trainer-camera-recorder.browser.cjs
 
+      - name: Preserve controller browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Controller-browser-evidence
+          path: /tmp/trainer-controller-*.png
+          retention-days: 3
+
       - name: Build signed app and installer APKs
         working-directory: android-wrapper
         run: gradle :app:assembleTrainerRelease :app:assembleInstallerRelease :app:assembleTrainerReleaseAndroidTest :app:assembleInstallerReleaseAndroidTest

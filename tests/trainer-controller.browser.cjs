@@ -30,6 +30,7 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
     await page.locator('#workspace-view summary').click(); await page.locator('#trainerControllerSetup').click();
     await page.locator('#trainerControllerEnabled').check(); await sleep(130);
     assert.match(await page.locator('#trainerControllerRaw').textContent(), /standard/);
+    await page.screenshot({path:'/tmp/trainer-controller-desktop.png'});
     const beforeTest = await state(); await axes([1,-1,1,-1]); await button(7);
     assert.deepEqual(await state(), beforeTest, 'Input test never moves or shoots the table');
     await axes([0,0,0,0]); await page.locator('#trainerControllerClose').click(); await neutral();
@@ -63,13 +64,21 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
     await page.locator('#workspace-view summary').click(); await button(7); assert.equal(await page.evaluate(() => __shoots),2,'Open menu suppresses actions'); await page.keyboard.press('Escape'); await neutral();
     console.log('PASS: one-shot trigger, threshold jitter, panel, focus and disconnect interlocks');
     await page.evaluate(() => billiardsControllerControls.shoot=window.__shootOriginal); await apply(); await neutral();
-    await button(7); await page.waitForFunction(() => billiardsTourBridge.snapshot().busy);
+    await setButton(7,1);
+    try { await page.waitForFunction(() => billiardsTourBridge.snapshot().busy, null, {timeout:10000}); }
+    finally { await setButton(7,0); }
     await page.waitForFunction(() => !billiardsTourBridge.snapshot().busy, null, {timeout:45000});
-    const executed = await state(); await neutral(); await button(2); assert.notDeepEqual((await state()).balls,executed.balls,'Square uses actual Undo Last Shot');
+    const executed = await state(); await neutral(); await setButton(2,1);
+    try { await page.waitForFunction(want => JSON.stringify(billiardsTourBridge.capture().state.balls) !== want, JSON.stringify(executed.balls), {timeout:10000}); }
+    finally { await setButton(2,0); }
+    assert.notDeepEqual((await state()).balls,executed.balls,'Square uses actual Undo Last Shot');
     await neutral();
     await page.evaluate(() => {window.__redoCalls=0;const redo=billiardsControllerControls.redo;billiardsControllerControls.redo=()=>{window.__redoCalls++;return redo();};});
     console.log('Redo before:',await page.evaluate(()=>({controller:BilliardsController.status(),history:billiardsZenControls.status(),focus:document.activeElement?.id,enabled:!document.getElementById('redoShot').disabled})));
-    await button(1); await page.waitForFunction(() => !billiardsTourBridge.snapshot().busy, null, {timeout:45000});
+    await setButton(1,1);
+    try { await page.waitForFunction(() => window.__redoCalls > 0, null, {timeout:10000}); }
+    finally { await setButton(1,0); }
+    await page.waitForFunction(() => !billiardsTourBridge.snapshot().busy, null, {timeout:45000});
     console.log('Redo after:',await page.evaluate(()=>({controller:BilliardsController.status(),history:billiardsZenControls.status(),calls:window.__redoCalls,enabled:!document.getElementById('redoShot').disabled})));
     assert.deepEqual((await state()).balls,executed.balls,'Circle restores actual shot result');
     console.log('PASS: real Shoot, Undo and Redo use existing physics/history');
