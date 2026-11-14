@@ -18,7 +18,8 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
     const state = () => page.evaluate(() => billiardsTourBridge.capture().state);
     const axes = values => page.evaluate(values => {window.__pad.axes = values;}, values);
     const setButton = (i, value) => page.evaluate(({i,value}) => {window.__pad.buttons[i] = {value,pressed:value > .5};}, {i,value});
-    const button = async i => {await setButton(i, 1); await sleep(90); await setButton(i, 0); await sleep(100);};
+    const frames = () => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    const button = async i => {await setButton(i, 1); await frames(); await setButton(i, 0); await frames();};
     const neutral = async () => {await axes([0,0,0,0]); await page.evaluate(() => __pad.buttons.forEach(b => {b.value=0;b.pressed=false;})); await page.waitForFunction(() => BilliardsController.status().armed);};
     const apply = () => page.evaluate(() => billiardsTourBridge.apply({id:'controller-test',balls:[[0,.25,.5],[1,.65,.5],[2,.8,.75]],target:1,pocket:[1,1],speed:1,followPercent:0,sidePercent:0},{tableL:2.54,tableW:1.27}));
     await page.goto('http://127.0.0.1:8831/?train=1');
@@ -84,7 +85,12 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
     console.log('PASS: real Shoot, Undo and Redo use existing physics/history');
     await apply(); await neutral(); await button(3); await page.waitForFunction(() => Billiards3D.active); await neutral();
     const cameraBefore = await page.evaluate(() => Billiards3D.camera()), shotBeforeCamera = await state();
-    await setButton(6,1); await axes([1,.5,.5,.5]); await sleep(220); await axes([0,0,0,0]); await button(12); await setButton(6,0); await sleep(100);
+    await setButton(6,1); await axes([1,.5,.5,.5]);
+    try { await page.waitForFunction(want => Billiards3D.camera().azimuth !== want, cameraBefore.azimuth, {timeout:10000}); }
+    catch (error) { console.log('Camera input diagnostic:',await page.evaluate(()=>({controller:BilliardsController.status(),body:document.body.className,focus:document.activeElement?.id,hasFocus:document.hasFocus(),shot:billiardsControllerControls.state(),camera:Billiards3D.camera(),pad:window.__pad}))); throw error; }
+    await axes([0,0,0,0]); const radiusBeforeZoom=await page.evaluate(()=>Billiards3D.camera().radius); await setButton(12,1);
+    try { await page.waitForFunction(want => Billiards3D.camera().radius !== want, radiusBeforeZoom, {timeout:10000}); }
+    finally { await setButton(12,0); await setButton(6,0); await frames(); }
     const cameraAfter = await page.evaluate(() => Billiards3D.camera()); assert.notEqual(cameraAfter.azimuth,cameraBefore.azimuth); assert.notDeepEqual(cameraAfter.target,cameraBefore.target); assert.notEqual(cameraAfter.radius,cameraBefore.radius); assert.deepEqual(await state(),shotBeforeCamera,'Camera mode preserves the shot');
     await button(11); const full = await page.evaluate(() => Billiards3D.camera()); assert.equal(full.azimuth,0);
     await button(3); await page.waitForFunction(() => !Billiards3D.active); await neutral(); await button(10); assert(await page.evaluate(() => BilliardsController.status().pointerMode));
