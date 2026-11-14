@@ -14,6 +14,9 @@ These decisions extend the existing cross-mode control review and supersede the 
 | Follow/draw and side spin | Bottom left/right sliders shortened to give the central cue-tip badge more physical room. Keep Shot 1/2 bindings independent. |
 | Shoot | A large bottom-right target spanning the spin row and the row above. Reserve its space rather than overlaying other controls. |
 | Ball inventory | Dedicated tray with Clear Table beside the balls. Open initially in 2D, toggleable in both views. Shorten the 2D tray at the right to clear Shoot. |
+| Direct compass editing | Four green round handles near the center rotate the compass; four orange square rim handles resize it. Center dragging still moves/links it. Same interaction in 2D and 3D, without reopening the drawer. Preserve optional menu sliders. |
+| Ball tray transfers | Drag any of the 16 balls, including the cue ball, from table to tray and back in 2D or 3D. Highlight the tray on a valid drop. Require clear cloth for placement; support action undo and cancel; block during a shot. Manual tray storage is not a scored pocket. |
+| Compact 3D controls | Camera buttons are 44px tall, down from 56px. Follow/draw and side-spin groups are 56px tall, down from 64px. Keep every tool directly accessible and return the saved height to the playing area. Preserve the larger Shoot and cue-tip badge. |
 | Clear Table | Remove all balls, including the second planning cue ball; keep table calibration, spin and speed settings. Preserve the existing action-undo path. Disable during shot execution. |
 | Window close | Consistent red close control across experiences using the existing native close APIs. Browser restrictions still apply. |
 

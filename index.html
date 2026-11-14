@@ -2886,7 +2886,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 q=controlMap().inv(window.BilliardsTableZoom?.unmapPoint?.(point)||point);
                 if(!onPlayingSurface(q))return false;
             }
-            returnPocketBall(id,q);return S.balls.some(b=>b.id===id&&b.active);
+            if(document.body.classList.contains('trainer-workspace'))finishActionUndo();
+            returnPocketBall(id,q);finishActionUndo();return S.balls.some(b=>b.id===id&&b.active);
         }
     };
 
@@ -2901,7 +2902,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             normalizeBallSet();resetRunHistory();updateUI();refreshPreview();saveState();syncProjector();finishActionUndo();
             return true;
         },
-        place(id,q=null){if(animation||!window.Billiards3D?.active)return false;returnPocketBall(id,q);return S.balls.some(b=>b.id===id&&b.active);}
+        place(id,q=null){if(animation||!window.Billiards3D?.active)return false;finishActionUndo();returnPocketBall(id,q);finishActionUndo();return S.balls.some(b=>b.id===id&&b.active);}
     };
 
     window.billiardsGuideApplyLayout=file=>{applyTableFile(file,false,null,true);if($('photoAnalyzerModal').classList.contains('open'))closePhotoAnalyzer();};
@@ -4449,6 +4450,46 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         $('compassSize').value = Math.round(c.sizePct);
         $('compassRotate').value = Math.round(((c.angle * 180 / Math.PI) % 360 + 360) % 360);
     }
+    // Direct manipulation shares the menu state and the existing action history.
+    window.billiardsCompassControls={
+        state(){const c=compassState();return {...c,radius:compassRadius(),enabled:c.enabled&&!animation&&!isProjector&&!document.body.classList.contains('zen-mode')};},
+        project(q){
+            if(window.Billiards3D?.active)return window.Billiards3D.project(q);
+            const r=canvas.getBoundingClientRect(),p=controlMap().map(q),v=window.BilliardsTableZoom?.mapPoint(p)||p;
+            return {x:r.left+v.x*r.width/(canvas.width/DPR),y:r.top+v.y*r.height/(canvas.height/DPR),visible:true};
+        },
+        point(e){
+            if(window.Billiards3D?.active)return window.Billiards3D.tablePlanePoint(e);
+            const r=canvas.getBoundingClientRect(),p={x:(e.clientX-r.left)*(canvas.width/DPR)/r.width,y:(e.clientY-r.top)*(canvas.height/DPR)/r.height};
+            return controlMap().inv(window.BilliardsTableZoom?.unmapPoint(p)||p);
+        },
+        begin(kind,e){
+            if(!this.state().enabled)return null;
+            const q=this.point(e);if(!q)return null;
+            finishActionUndo();beginActionUndo();
+            const c=compassState(),pivot=kind==='rotate'?(linkedCompassBall()||c):c;
+            return {kind,x:pivot.x,y:pivot.y,angle:c.angle,radius:compassRadius(),bearing:Math.atan2(q.y-pivot.y,q.x-pivot.x),distance:Math.hypot(q.x-pivot.x,q.y-pivot.y),before:{...c}};
+        },
+        move(g,e){
+            if(!g||!this.state().enabled)return;
+            const q=this.point(e);if(!q)return;
+            const c=compassState();
+            if(g.kind==='rotate'){
+                c.angle=g.angle+Math.atan2(q.y-g.y,q.x-g.x)-g.bearing;
+                c.angle=Math.atan2(Math.sin(c.angle),Math.cos(c.angle));
+                if(linkedCompassBall())updateCompassLinkedPosition();
+            }else{
+                const min=Math.max(S.ballR*3.2,.075),max=Math.max(min,S.tableL*.60);
+                const radius=g.radius+Math.hypot(q.x-g.x,q.y-g.y)-g.distance;
+                c.sizePct=10+90*clamp((radius-min)/(max-min||1),0,1);
+            }
+            syncCompassControls();draw();
+        },
+        end(g,cancel=false){
+            if(!g)return;if(cancel)Object.assign(compassState(),g.before);
+            syncCompassControls();draw();saveState();syncProjector();finishActionUndo();
+        }
+    };
     function ensureShot2() {
         if (!S.shot2 || typeof S.shot2 !== 'object')
             S.shot2 = defaultState().shot2;
@@ -9042,7 +9083,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if(!['pointerdown','pointermove','pointerup','pointercancel','wheel'].includes(type))return false;
         const p=controlMap().map(q),r=canvas.getBoundingClientRect(),options={...info,bubbles:true,cancelable:true,clientX:r.left+p.x,clientY:r.top+p.y,button:0,buttons:info.buttons??(type==='pointerup'||type==='pointercancel'||type==='pointermove'?0:1),isPrimary:true};
         const capture=canvas.setPointerCapture,release=canvas.releasePointerCapture;
-        try{canvas.setPointerCapture=()=>{};canvas.releasePointerCapture=()=>{};if(type==='wheel')beginActionUndo();canvas.dispatchEvent(type==='wheel'?new WheelEvent(type,options):new PointerEvent(type,options));}
+        try{canvas.setPointerCapture=()=>{};canvas.releasePointerCapture=()=>{};if(type==='wheel')beginActionUndo();const event=type==='wheel'?new WheelEvent(type,options):new PointerEvent(type,options);event.tableClient=info.tableClient;canvas.dispatchEvent(event);}
         finally{canvas.setPointerCapture=capture;canvas.releasePointerCapture=release;}
         return true;
     };
@@ -9287,6 +9328,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if (best.id === 0)
                 setActiveShot(1);
             drag = { kind: 'ball', id: best.id };
+            if(!best.marker&&document.body.classList.contains('trainer-workspace')){
+                drag.original={x:best.x,y:best.y};drag.originalAim={...S.freeAim};
+                window.billiardsWorkspaceBallDrag?.begin(best.id,ev.tableClient||ev);
+            }
         }
         else {
         if (S.shot2Enabled && !S.shot2CueBallOnly) {
@@ -9371,6 +9416,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if (isProjector)
             return;
         const M = controlMap(), q = M.inv(p), R = S.ballR;
+        if(drag.kind==='ball')window.billiardsWorkspaceBallDrag?.move(ev.tableClient||ev);
         if ((drag.kind === 'aim' || drag.kind === 'aim2') && !onPlayingSurface(q)) return;
         drag.dropPoint = {x:q.x,y:q.y};
         q.x = clamp(q.x, R, S.tableL - R);
@@ -9447,8 +9493,16 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         }
         if (drag && drag.kind === 'ball'){
             const q=controlMap().inv(pointerPos(ev));
-            removeMarkerInPocket(drag.id,q);
-            finishDraggedBall(drag.id,q);
+            const intoTray=window.billiardsWorkspaceBallDrag?.end(ev.tableClient||ev);
+            if(intoTray&&!animation){
+                if(drag.id===0)S.allowMissingCueBall=true;
+                S.balls=S.balls.filter(b=>b.id!==drag.id);
+                S.pocketedLog=(S.pocketedLog||[]).filter(id=>id!==drag.id);
+                normalizeBallSet();updateUI();refreshPreview();
+            }else{
+                removeMarkerInPocket(drag.id,q);
+                finishDraggedBall(drag.id,q);
+            }
         }
         if (drag && drag.kind === 'compassMove') {
             const c = compassState();
@@ -9475,7 +9529,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         saveState();
         syncProjector();
     });
-    canvas.addEventListener('pointercancel', () => {const zenGesture=document.body.classList.contains('zen-mode')&&drag;drag=null;if(zenGesture)finishZenDragPaint();});
+    canvas.addEventListener('pointercancel', () => {
+        window.billiardsWorkspaceBallDrag?.cancel();
+        if(drag?.original){const b=S.balls.find(b=>b.id===drag.id);if(b)Object.assign(b,drag.original);S.freeAim=drag.originalAim;refreshPreview();}
+        const zenGesture=document.body.classList.contains('zen-mode')&&drag;drag=null;if(zenGesture)finishZenDragPaint();
+    });
     // Mouse-wheel fine controls.  Hovering any shot slider uses the same increment
     // as its +/- controls, so the mouse can stay over the table or sidebar.
     window.billiardsStepTableSlider = (id, direction) => {
@@ -14008,6 +14066,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <script src="./trainer-3d.js?v=workspace-1"></script>
   <link rel="stylesheet" href="./trainer-workspace.css?v=1">
   <script src="./trainer-workspace.js?v=1"></script>
+  <script src="./trainer-compass-controls.js?v=1"></script>
   <script src="./trainer-spin-lab.js?v=1"></script>
   <script src="./trainer-annotate.js?v=17"></script>
   <script src="./trainer-shot-recorder.js?v=slow-motion-1"></script>
