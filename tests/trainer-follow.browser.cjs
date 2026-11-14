@@ -99,9 +99,13 @@ const fs = require('node:fs');
     for(const width of [740,390,360]){
       await page.setViewportSize({width,height:width===740?390:820});
       await menu('follow').locator('summary').click();await screenshot(String(width));
-      const target=menu('follow').locator('[data-view=behind]');assert(await target.evaluate(el=>{
-        const r=el.getBoundingClientRect();return el.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));
-      }));await page.keyboard.press('Escape');
+      const items=menu('follow').locator('button,.playbackLock');
+      for(const item of await items.all()){
+        await item.scrollIntoViewIfNeeded();
+        assert(await item.evaluate(el=>{
+          const r=el.getBoundingClientRect();return el.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));
+        }),'Visible follow menu target at '+width);
+      }await page.keyboard.press('Escape');
     }
     assert.deepEqual(errors,[]);console.log('Matching cue labels, View stack, 2D camera handoff, five views, cloth tap, Stop, natural finish and both persistent locks passed.');
   } finally { await browser?.close(); server.kill(); }

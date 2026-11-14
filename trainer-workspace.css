@@ -339,3 +339,12 @@ body.trainer-workspace #workspaceTools .workspaceToolGroup>.playbackLock {
  #workspaceTools #workspace-follow>summary {width:48px;line-height:13px;padding:8px 2px;}
  #workspaceTools #workspace-follow>summary::after {content:none;}
 }
+body.trainer-workspace:has(#workspaceTools details[open]) #appViewHint { display:none; }
+@media(max-width:700px){
+ body.trainer-workspace #appViewHint { top:calc(112px + env(safe-area-inset-top)); }
+}
+@media(min-width:701px) and (max-width:880px){
+ #workspaceTools {gap:3px;}
+ #workspaceTools summary {padding:12px 5px;font-size:11px;}
+ body.trainer-workspace #workspaceTools #table3DToggle {width:52px!important;min-width:52px!important;}
+}
