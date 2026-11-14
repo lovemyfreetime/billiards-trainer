@@ -42,6 +42,7 @@ jobs:
         run: printf 'RUNTIME_DIAG_DIR=%s/android-runtime-diagnostic\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
 
       - name: Compile matching app and instrumentation APKs
+        id: compile
         working-directory: android-wrapper
         env:
           ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/android-runtime-diagnostic-signing.jks
@@ -159,10 +160,17 @@ jobs:
           GH_TOKEN: ''
         with:
           api-level: 35
+          # Chromium pinned 37.1.11 to avoid 37.2.13 host GL cleanup crashes:
+          # https://chromium.googlesource.com/chromium/src/tools/android/+/0d2c7590ad90c5e3e5390a1d732ef2b2305d343d
+          emulator-build: '15917651'
           arch: x86_64
           target: google_apis
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader -feature -Vulkan -no-snapshot -noaudio -no-boot-anim -camera-back emulated
+          emulator-options: -no-window -gpu swiftshader -feature -Vulkan -no-snapshot -noaudio -no-boot-anim -camera-back emulated -show-kernel
+          pre-emulator-launch-script: |
+            "$ANDROID_HOME/emulator/emulator" -version > "$RUNTIME_DIAG_DIR/emulator-version.txt" 2>&1
+            cat "$RUNTIME_DIAG_DIR/emulator-version.txt"
+            grep -F '37.1.11' "$RUNTIME_DIAG_DIR/emulator-version.txt"
           script: bash "$RUNTIME_DIAG_DIR/run-test.sh"
 
       - name: Preserve emulator crash and host diagnostics
@@ -171,6 +179,30 @@ jobs:
           mkdir -p "$RUNTIME_DIAG_DIR"
           { date -u; free -h; df -h; ps -eo pid,ppid,comm,rss --sort=-rss | head -20; adb devices -l; } > "$RUNTIME_DIAG_DIR/final-host-state.txt" 2>&1 || true
           sudo dmesg -T > "$RUNTIME_DIAG_DIR/kernel.txt" 2>&1 || true
+          cat /proc/sys/kernel/core_pattern > "$RUNTIME_DIAG_DIR/core-pattern.txt"
+          # Read crash metadata only; exclude core memory and process environment.
+          sudo python3 - "$RUNTIME_DIAG_DIR" <<'PYAPPORT'
+          from pathlib import Path
+          import sys, time
+          output = Path(sys.argv[1])
+          for _ in range(4):
+              reports = list(Path('/var/crash').glob('*.crash'))
+              if reports:
+                  break
+              time.sleep(5)
+          allowed = {'ProblemType', 'Date', 'ExecutablePath', 'Signal', 'SignalName', 'AssertionMessage', 'AbortMessage', 'Stacktrace', 'StacktraceTop', 'ThreadStacktrace', 'Registers'}
+          rows = []
+          for report in reports:
+              rows.append('Report: ' + report.name)
+              key = ''
+              with report.open(errors='replace') as stream:
+                  for line in stream:
+                      if not line.startswith(' '):
+                          key = line.split(':', 1)[0]
+                      if key in allowed:
+                          rows.append(line.rstrip())
+          (output / 'os-crash-metadata.txt').write_text('\n'.join(rows) + '\n')
+          PYAPPORT
           if test -d /tmp/android-runner; then
             cp -a /tmp/android-runner "$RUNTIME_DIAG_DIR/emulator-crash" || true
           fi
@@ -187,5 +219,11 @@ jobs:
           name: Android-offline-isolation-diagnostics
           path: ${{ runner.temp }}/android-runtime-diagnostic
           include-hidden-files: true
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && steps.compile.outcome == 'success' }}
+        with:
+          name: Android-diagnostic-instrumentation-APKs
+          path: android-wrapper/app/build/outputs/apk/androidTest/*/release/*.apk
           retention-days: 7
 
