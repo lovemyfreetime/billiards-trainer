@@ -36,6 +36,12 @@ def lookup(*labels, limit=12):
     end = time.monotonic()+limit
     while time.monotonic()<end:
         nodes = screen()
+        # Android's one-time immersive confirmation sits above the Trainer and takes focus.
+        if find("Viewing full screen", nodes) is not None:
+            confirm = find("Got it", nodes)
+            if confirm is not None:
+                tap(confirm)
+                continue
         for label in labels:
             node = find(label, nodes)
             if node is not None:
@@ -53,6 +59,7 @@ def save(name):
 def main():
     adb("shell","wm","size","1080x1728")
     adb("shell","wm","density","210")
+    adb("shell","settings","put","secure","immersive_mode_confirmations","confirmed")
     adb("shell","settings","put","system","accelerometer_rotation","0")
     adb("shell","settings","put","system","user_rotation","1")
     adb("shell","input","keyevent","KEYCODE_WAKEUP")
@@ -100,6 +107,17 @@ if __name__=="__main__":
         cmd={"id":1,"type":"uinput","command":"register","name":"Picker Test Pad","vid":6353,"pid":43981,"bus":"usb","configuration":[{"type":100,"data":[1]},{"type":101,"data":[304]}]}
         device.stdin.write(json.dumps(cmd)+"\n");device.stdin.flush()
         main()
+        device.stdin.close()
+        device.wait(timeout=10)
+        end=time.monotonic()+10
+        while time.monotonic()<end:
+            after=screen()
+            mapping=find("Button 14 action",after)
+            if mapping is not None and mapping.get("enabled")=="false":
+                print("PASS: actual device removal disabled the retained mapping field",flush=True)
+                break
+        else:
+            raise AssertionError("Mapping remained editable or disappeared after unplug")
     finally:
         device.stdin.close()
         device.wait(timeout=10)
