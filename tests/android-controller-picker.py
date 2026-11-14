@@ -76,8 +76,7 @@ def main():
     enable=lookup("Enable Controller Mode","trainerControllerEnabled")
     if enable.get("checked")!="true":
         tap(enable)
-    if not any("Picker Test Pad" in " ".join(labels(n)) for n in screen()):
-        lookup("Picker Test Pad","Wireless Controller", limit=18)
+    lookup("Input test active. Table controls are paused.", limit=18)
     print("PASS: input device visible in Controller Setup", flush=True)
     for _ in range(5):
         nodes=screen()
@@ -99,12 +98,19 @@ def main():
     assert choice is not None, "Native chooser missing after touch and one-second wait: "+repr([(labels(n),n.get("class")) for n in options if any(labels(n))])[:8000]
     save("open-picker")
     tap(choice)
-    changed=screen()
-    field_at_bottom=next((n for n in changed if n.get("bounds")==field.get("bounds") and any("Fine aim right" in v for v in labels(n))),None)
-    chosen=field_at_bottom if field_at_bottom is not None else lookup("Button 14 action")
-    assert "Fine aim right" in " ".join(chosen.attrib.values()) or any(
-        "Fine aim right" in n.get("text","") for n in chosen.iter()), chosen.attrib
+    chosen=lookup("Button 14 action")
+    new_bounds=list(map(int,re.findall(r"\d+",chosen.attrib["bounds"])))
+    assert new_bounds[3]-new_bounds[1]>15, "Panel reset before confirming saved assignment"
     save("saved-mapping")
+    tap(chosen)
+    time.sleep(0.8)
+    reloaded=screen()
+    option=next((n for n in reloaded if n.get("text")=="Fine aim right"),None)
+    assert option is not None and (option.get("checked")=="true" or option.get("selected")=="true"
+        or any(n.get("checked")=="true" or n.get("selected")=="true" for n in option.iter())), (
+            "Reopened picker did not expose the new selected option: "+str([n.attrib for n in reloaded if n.get("text")=="Fine aim right"]))
+    save("reopened-selection")
+    adb("shell","input","keyevent","KEYCODE_BACK")
     print("PASS: connected Android native picker stays open, saves Fine aim right and retains the lower mapping",flush=True)
 
 if __name__=="__main__":
