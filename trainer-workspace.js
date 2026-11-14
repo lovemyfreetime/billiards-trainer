@@ -102,6 +102,39 @@
     button.addEventListener('click', e => { if (!moved || e.detail === 0) place(id); moved = false; });
     balls.append(button); return button;
   });
+  // Native table drags retain capture on their canvas, including past its edge.
+  let tableDrag = null, tableGhost = null;
+  const contains = (el, e) => {
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+  };
+  const dropTarget = e => contains(shelf, e) ? shelf : contains(trayToggle, e) ? trayToggle : null;
+  const clearTableDrag = () => {
+    tableDrag = null; tableGhost?.remove(); tableGhost = null;
+    shelf.classList.remove('ball-drop-ready'); trayToggle.classList.remove('ball-drop-ready');
+  };
+  window.billiardsWorkspaceBallDrag = {
+    begin(id, e) { clearTableDrag(); if (id >= 0 && id <= 15) tableDrag = {id, x:e.clientX, y:e.clientY}; },
+    move(e) {
+      if (!tableDrag) return;
+      const target = dropTarget(e);
+      shelf.classList.toggle('ball-drop-ready', target === shelf);
+      trayToggle.classList.toggle('ball-drop-ready', target === trayToggle);
+      const outside = !contains(byId('stageWrap'), e);
+      if ((outside || target) && !tableGhost) {
+        tableGhost = buttons[tableDrag.id].cloneNode(true); tableGhost.disabled = false;
+        tableGhost.classList.remove('on-table', 'pocketed'); tableGhost.classList.add('workspaceBallGhost');
+        tableGhost.setAttribute('aria-hidden', 'true'); tableGhost.tabIndex = -1; document.body.append(tableGhost);
+      }
+      if (tableGhost) { tableGhost.hidden = !outside && !target; tableGhost.style.left = (e.clientX - 17) + 'px'; tableGhost.style.top = (e.clientY - 17) + 'px'; }
+    },
+    end(e) {
+      const accepted = !!tableDrag && Math.hypot(e.clientX - tableDrag.x, e.clientY - tableDrag.y) > 6 && !!dropTarget(e);
+      clearTableDrag(); return accepted;
+    },
+    cancel: clearTableDrag
+  };
+  window.addEventListener('blur', clearTableDrag);
   function sync() {
     const data = window.billiards3DBallControls?.status(); if (!data) return;
     for (const button of buttons) {
@@ -137,14 +170,18 @@
     if (active) {
       cameraRow.hidden = false; move(document.body, cameraRow);
       move(cameraRow, tools); move(cameraRow, views);
-      move(tools, trayToggle); tools.prepend(trayToggle);
+      if(document.body.classList.contains('phone-tray-hidden')) { move(tools, trayToggle); tools.prepend(trayToggle); }
+      else shelf.prepend(trayToggle);
     } else {
       cameraRow.hidden = true; move(groups.view, views); move(groups.view, tools);
       shelf.prepend(trayToggle);
     }
     fit.hidden = active;
     move(active ? tools : groups.setup, byId('table3DRackToggle'));
-    if (active) trayToggle.after(byId('table3DRackToggle'));
+    if (active) {
+      if(trayToggle.parentNode === tools) trayToggle.after(byId('table3DRackToggle'));
+      else tools.prepend(byId('table3DRackToggle'));
+    }
     const experience = byId('btZenLauncher');
     if (experience && experience.parentNode !== bar) bar.prepend(experience);
     const mode = byId('table3DToggle');

@@ -14,6 +14,10 @@ These decisions extend the existing cross-mode control review and supersede the 
 | Follow/draw and side spin | Bottom left/right sliders shortened to give the central cue-tip badge more physical room. Keep Shot 1/2 bindings independent. |
 | Shoot | A large bottom-right target spanning the spin row and the row above. Reserve its space rather than overlaying other controls. |
 | Ball inventory | Dedicated tray with Clear Table beside the balls. Open initially in 2D, toggleable in both views. Shorten the 2D tray at the right to clear Shoot. |
+| Direct compass editing | Four green round handles near the center rotate the compass; four orange square rim handles resize it. Center dragging still moves/links it. Same interaction in 2D and 3D, without reopening the drawer. Preserve optional menu sliders. |
+| Ball tray transfers | Drag any of the 16 balls, including the cue ball, from table to tray and back in 2D or 3D. Highlight the tray on a valid drop. Require clear cloth for placement; support action undo and cancel; block during a shot. Manual tray storage is not a scored pocket. |
+| Compact 3D controls | Camera buttons are 44px tall, down from 56px. Follow/draw and side-spin groups are 56px tall, down from 64px. Keep every tool directly accessible and return the saved height to the playing area. Preserve the larger Shoot and cue-tip badge. |
+| Tray and spin alignment | With the tray open, Balls sits just outside its left edge, followed by Clear, consistently in both modes. Align the tray left with the table workspace and keep its right end clear of Shoot. Keep the spin slider center ticks in 2D as well as 3D. |
 | Clear Table | Remove all balls, including the second planning cue ball; keep table calibration, spin and speed settings. Preserve the existing action-undo path. Disable during shot execution. |
 | Window close | Consistent red close control across experiences using the existing native close APIs. Browser restrictions still apply. |
 
@@ -26,3 +30,5 @@ Use short labels with clear selected states; do not replace unfamiliar operation
 ## Verification expectations
 
 Check desktop, tablet, narrow landscape and portrait layouts in both 2D and 3D. Verify control hit targets and overlaps, mode-switch position, Shot 2 bindings, clear/undo/re-add, drawer aiming tools, and tray/Shoot separation. Do not treat browser checks as physical Android/Windows installer verification.
+
+Verify the rendered compass center against its projected handles after opening and closing the tray. Reallocate the 3D cloth texture when its dimensions change; a smaller upload into an older allocation shifts guides and retains stale edge pixels. Clear Table must restore the same empty rendered table without leftover cue or guide lines.

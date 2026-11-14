@@ -221,3 +221,42 @@ body.phone-tray-hidden #workspaceClearBalls { display:none; }
 @media(max-width:700px) {
  body.trainer-workspace:not(.table-3d) #workspaceBallShelf { right:calc(96px + env(safe-area-inset-right)); }
 }
+
+/* Direct table editing: color plus shape, with larger transparent touch targets. */
+#compassHandles { position:fixed; inset:0; pointer-events:none; z-index:44; }
+#compassHandles[hidden], .compassHandle[hidden] { display:none!important; }
+.compassHandle { position:fixed; transform:translate(-50%,-50%); width:var(--handle-hit,44px); min-width:0; height:var(--handle-hit,44px); min-height:0; padding:0; border:0; border-radius:50%; background:transparent; box-shadow:none; pointer-events:auto; touch-action:none; cursor:grab; }
+.compassHandle::after { content:''; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); box-sizing:border-box; width:15px; height:15px; border-radius:50%; border:2px solid #163d19; background:#76ff49; box-shadow:0 0 0 1px #ffffffa0; }
+.compassHandle.resize::after { width:18px; height:18px; border-radius:3px; border:3px solid #ffa34e; background:#182f3840; box-shadow:0 0 0 1px #171d23, inset 0 0 0 1px #171d23; }
+.compassHandle:focus-visible { outline:2px solid white; outline-offset:1px; }
+.compassHandle.dragging { cursor:grabbing; }
+.compassHandle.dragging::after { box-shadow:0 0 0 3px #fff,0 0 14px #ffffff80; }
+#workspaceBallShelf.ball-drop-ready, #phoneTrayToggle.ball-drop-ready { outline:2px solid #91efb4; outline-offset:-2px; background:#203d32; box-shadow:inset 0 0 18px #51e89540; }
+.workspaceBallGhost { opacity:.95!important; }
+body.trainer-workspace #workspaceBallShelf { left:calc(var(--workspace-edge) + env(safe-area-inset-left)); }
+body.trainer-workspace.phone-focus:not(.zen-mode) #workspaceBallShelf #phoneTrayToggle { position:absolute; left:calc(10px - var(--workspace-edge)); top:4px; height:40px; }
+body.trainer-workspace.phone-focus #phoneActions .miniSpinControl::before,
+body.trainer-workspace.phone-focus #phoneActions .miniSpinControl::after { content:''; position:absolute; left:50%; width:1px; background:#cce4df; opacity:.4; pointer-events:none; }
+body.trainer-workspace.phone-focus #phoneActions .miniSpinControl::before { top:calc(50% + 7px); bottom:3px; }
+body.trainer-workspace.phone-focus #phoneActions .miniSpinControl::after { top:calc(50% + 1px); height:4px; }
+
+/* Compact 3D bands preserve direct camera tools and give the height to the table. */
+body.trainer-workspace.table-3d { --workspace-bottom:180px; }
+body.trainer-workspace.table-3d.phone-tray-hidden { --workspace-bottom:138px; }
+body.trainer-workspace.table-3d.phone-focus #phoneActions { height:56px; min-height:56px; }
+body.trainer-workspace.table-3d.phone-focus #phoneActions>.bottomSpinGroup { height:56px!important; grid-template-rows:56px; }
+body.trainer-workspace.table-3d.phone-focus #phoneActions .miniSpinControl { height:56px; padding-top:15px; padding-bottom:3px; }
+body.trainer-workspace.table-3d.phone-focus #phoneActions .miniSpinControl input { height:36px; }
+body.trainer-workspace.table-3d.phone-focus #phoneActions .miniSpinLabel,
+body.trainer-workspace.table-3d.phone-focus #phoneActions .phoneSliderValue { height:54px!important; min-height:54px; }
+body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls:not([hidden]) { bottom:calc(72px + env(safe-area-inset-bottom)); grid-template-rows:44px; }
+body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DTools,
+body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DViews,
+body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls button { height:44px!important; min-height:44px!important; }
+body.trainer-workspace.table-3d #workspaceBallShelf { bottom:calc(124px + env(safe-area-inset-bottom)); right:calc(120px + env(safe-area-inset-right)); }
+@media(max-width:700px) {
+ body.trainer-workspace.table-3d { --workspace-bottom:244px; }
+ body.trainer-workspace.table-3d.phone-tray-hidden { --workspace-bottom:188px; }
+ body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls:not([hidden]) { grid-template-rows:44px 44px; gap:20px; }
+ body.trainer-workspace.table-3d #workspaceBallShelf { bottom:calc(188px + env(safe-area-inset-bottom)); right:calc(10px + env(safe-area-inset-right)); }
+}
