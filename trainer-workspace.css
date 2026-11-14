@@ -364,3 +364,10 @@ body.trainer-workspace:has(#workspaceTools details[open]) #appViewHint { display
 #workspace-follow .followDistances button::before {display:none;}
 #workspace-follow .followDistances button[aria-pressed=true]::before {display:inline;width:auto;content:'✓';}
 #trainerPlaybackBar :is(#trainerPlaybackCloseup,#trainerPlaybackWide)[aria-pressed=true] {background:#245772;border-color:#9cd5f3;}
+
+#workspace-follow #followMode {justify-content:space-between;}
+#workspace-follow #followMode::before {display:none;}
+#workspace-follow .followModeState {min-width:3em;padding:2px 4px;text-align:center;border:1px solid #718797;border-radius:12px;}
+#workspace-follow #followMode[aria-checked=true] .followModeState {background:#245772;border-color:#9cd5f3;}
+#workspace-follow.followEnabled>summary {border-color:#9cd5f3;}
+#workspace-follow button:disabled {opacity:.53;}

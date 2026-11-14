@@ -24,6 +24,7 @@
  const followLock=makeLock(followMenu,'Lock follow view','followLock',stored.view==='close'||views.some(([v])=>v===stored.view));
  let selectedView=followLock.checked && stored.view!=='close' ? stored.view : 'behind';
  let selectedDistance=followLock.checked && stored.distance==='wide' ? 'wide' : 'close';
+ let followEnabled=followLock.checked && stored.followEnabled===true;
  let returnCamera=null, activation=null;
 
  function makeLock(details,label,id,checked){
@@ -37,7 +38,7 @@
   try {
    const saved={};
    if(speedLock.checked)saved.speed=String(play().state().speed);
-   if(followLock.checked){saved.view=selectedView;saved.distance=selectedDistance;}
+   if(followLock.checked){saved.view=selectedView;saved.distance=selectedDistance;saved.followEnabled=followEnabled;}
    localStorage.setItem(preferenceKey,JSON.stringify(saved));
   }catch{}
  }
@@ -64,19 +65,25 @@
  const distanceGroup=document.createElement('div');
  distanceGroup.className='followDistances';distanceGroup.setAttribute('role','group');distanceGroup.setAttribute('aria-label','Follow distance');
  followMenu?.querySelector('.workspaceToolGroup').prepend(distanceGroup);
+ const followToggle=document.createElement('button');
+ followToggle.id='followMode';followToggle.type='button';followToggle.setAttribute('role','switch');
+ followToggle.setAttribute('aria-label','Follow View');
+ followToggle.innerHTML='Follow View <span class="followModeState">Off</span>';
+ distanceGroup.before(followToggle);
+ followToggle.onclick=()=>setFollowEnabled(!followEnabled);
  const distanceButtons=choices(followMenu,distances,'distance',value=>selectView(selectedView,value),distanceGroup);
  const followButtons=choices(followMenu,views,'view',side=>selectView(side));
 
  function applyView(){
   const camera=window.Billiards3D;
-  if(!camera?.active||!bridge().state().hasCue)return false;
+  if(!followEnabled||!camera?.active||!bridge().state().hasCue)return false;
   if(!returnCamera)returnCamera=camera.camera();
   camera.followCue(true,selectedView,selectedDistance);
   return true;
  }
  async function selectView(view,distance=selectedDistance){
   const camera=window.Billiards3D;
-  if(!camera||play().state().recording||!bridge().state().hasCue)return false;
+  if(!followEnabled||!camera||play().state().recording||!bridge().state().hasCue)return false;
   selectedView=view;selectedDistance=distance;
   savePreferences();sync();
   if(!camera.active){
@@ -85,21 +92,34 @@
   }
   return applyView();
  }
- followLock.onchange=()=>{
-  savePreferences();
-  if(followLock.checked)selectView(selectedView);
- };
+ async function setFollowEnabled(value){
+  if(play().state().recording)return;
+  followEnabled=value;
+  if(value){
+   if(!await selectView(selectedView))followEnabled=false;
+  }else{
+   const camera=window.Billiards3D;
+   if(camera?.active && camera.camera().followCue){
+    if(returnCamera)camera.restoreCamera({...returnCamera,followCue:false});
+    else camera.followCue(false);
+   }
+   returnCamera=null;
+  }
+  savePreferences();sync();
+ }
  function onCameraReady(){
-  if(followLock.checked && !activation)applyView();
+  if(followEnabled && !activation)applyView();
  }
  function onPlaybackStart(){
   if(window.Billiards3D?.active && menu)applyView();
  }
  function onPlaybackEnd(){
   if(!speedLock.checked && play().state().speed!==1)play().speed(1);
+  if(!followEnabled){sync();return;}
   if(followLock.checked){
    applyView();
   }else{
+   followEnabled=false;
    selectedView='behind';selectedDistance='close';
    if(returnCamera && window.Billiards3D?.active)window.Billiards3D.restoreCamera(returnCamera);
    returnCamera=null;
@@ -126,14 +146,14 @@
  byId('trainerPlaybackHide').onclick=()=>show(false);byId('trainerShowPlayback').onclick=()=>show(!opened);
  for(const select of [speed,quick])select.onchange=()=>{play().speed(Number(select.value));savePreferences();if(Number(select.value)<1)show(true);sync();};
  byId('trainerPlaybackPause').onclick=async()=>{
-  if(menu && !play().state().running && !window.Billiards3D.active && !await selectView(selectedView))return;
+  if(menu && followEnabled && !play().state().running && !window.Billiards3D.active && !await selectView(selectedView))return;
   play().pause();sync();
  };
  byId('trainerPlaybackBack').onclick=()=>{play().step(-1);sync();};byId('trainerPlaybackStep').onclick=()=>{play().step(1);sync();};
  byId('trainerPlaybackReplay').onclick=()=>{play().replay();sync();};
  byId('trainerPlaybackCloseup').onclick=()=>selectView(selectedView,'close');
  byId('trainerPlaybackWide').onclick=()=>selectView(selectedView,'wide');
- for(const input of bar.querySelectorAll('[data-follow-side]'))input.onchange=e=>{if(e.target.checked)selectView(input.dataset.followSide);else{window.Billiards3D?.followCue(false);sync();}};
+ for(const input of bar.querySelectorAll('[data-follow-side]'))input.onchange=e=>{if(e.target.checked)selectView(input.dataset.followSide);else setFollowEnabled(false);};
  byId('trainerStopPlayback').onclick=()=>{play().stop();sync();};
  style.onchange=()=>{bridge().set(style.value);previewKey='';sync();};
  function trackball(event){const r=preview.getBoundingClientRect(),x=(event.clientX-r.left-r.width/2)/(r.width*.46),y=(r.top+r.height/2-event.clientY)/(r.height*.46),n=Math.hypot(x,y);return n>1?[x/n,y/n,0]:[x,y,Math.sqrt(1-x*x-y*y)];}
@@ -151,16 +171,26 @@
   byId('trainerPlaybackPause').textContent=p.running&&!p.paused?'Pause':'Play';
   byId('trainerPlaybackPause').setAttribute('aria-label',p.running&&!p.paused?'Pause shot':'Play shot');
   byId('trainerPlaybackStatus').textContent=p.running?(p.recording?'Recording · ':p.paused?'Paused · ':'')+p.time.toFixed(3)+' s · '+p.motion:p.recording?'Preparing or saving video…':'Choose a speed, then Play or Record shot';
-  const in3D=!!window.Billiards3D?.active,camera=window.Billiards3D?.camera();byId('trainerPlaybackCloseup').disabled=!state.hasCue||p.recording;
-  byId('trainerPlaybackWide').disabled=!state.hasCue||p.recording;
+  const in3D=!!window.Billiards3D?.active,camera=window.Billiards3D?.camera();
+  const followOptionsDisabled=!followEnabled||!state.hasCue||p.recording;
+  const checked=String(followEnabled);
+  if(followToggle.getAttribute('aria-checked')!==checked){
+   followToggle.setAttribute('aria-checked',checked);
+   followToggle.lastElementChild.textContent=followEnabled?'On':'Off';
+  }
+  followToggle.disabled=p.recording||(!followEnabled&&!state.hasCue);
+  byId('trainerPlaybackCloseup').disabled=byId('trainerPlaybackWide').disabled=followOptionsDisabled;
   for(const [value,id] of [['close','trainerPlaybackCloseup'],['wide','trainerPlaybackWide']]){
    byId(id).setAttribute('aria-pressed',String(in3D && camera.followCue && selectedDistance===value));
   }
   if(!in3D && !activation)returnCamera=null;
-  for(const button of distanceButtons){button.disabled=!state.hasCue||p.recording;button.setAttribute('aria-pressed',String(selectedDistance===button.dataset.distance));}
-  for(const button of followButtons){button.disabled=!state.hasCue||p.recording;button.setAttribute('aria-pressed',String(selectedView===button.dataset.view));}
-  if(followMenu)followMenu.querySelector('summary').setAttribute('aria-label','Follow View: '+(selectedDistance==='wide'?'Wide':'Close-up')+', '+views.find(([value])=>value===selectedView)[1]);
-  for(const input of bar.querySelectorAll('[data-follow-side]')){input.disabled=!state.hasCue||p.recording;input.checked=in3D&&!!camera?.followCue&&input.dataset.followSide===(camera.followSide||'behind');}
+  for(const button of distanceButtons){button.disabled=followOptionsDisabled;button.setAttribute('aria-pressed',String(selectedDistance===button.dataset.distance));}
+  for(const button of followButtons){button.disabled=followOptionsDisabled;button.setAttribute('aria-pressed',String(selectedView===button.dataset.view));}
+  if(followMenu){
+   followMenu.classList.toggle('followEnabled',followEnabled);
+   followMenu.querySelector('summary').setAttribute('aria-label',followEnabled?'Follow View on: '+(selectedDistance==='wide'?'Wide':'Close-up')+', '+views.find(([value])=>value===selectedView)[1]:'Follow View off');
+  }
+  for(const input of bar.querySelectorAll('[data-follow-side]')){input.disabled=followOptionsDisabled;input.checked=followEnabled&&in3D&&!!camera?.followCue&&input.dataset.followSide===(camera.followSide||'behind');}
   byId('trainerStopPlayback').disabled=p.recording||(!p.running&&!camera?.followCue);
   byId('trainingBallStatus').textContent=!state.hasCue?'Place a cue ball on the table to set its orientation.':state.busy?'Orientation is locked during playback.':'Shot '+state.shot+' · Rotation changes the markings only.';
   const key=JSON.stringify([state.style,state.orientation,state.aim,state.tip]);
