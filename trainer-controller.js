@@ -24,7 +24,7 @@
   let nativePads = [], pads = [], selected = '', profile = null, current = null;
   let raf = 0, lastTime = 0, lastUI = 0, armed = false, previous = [], latched = [], repeatAt = {}, focused = document.hasFocus();
   let pointerMode = false, pointerDown = false, clickTarget = null, cursorX = innerWidth / 2, cursorY = innerHeight / 2;
-  let deviceKey = '', lastBlocked = true, statusText = '', dialogReady = false;
+  let deviceKey = '', renderedProfile = '', lastBlocked = true, statusText = '', dialogReady = false;
   let lastAdjust = 0, pendingAdjust = {aim:0, speed:0, side:0, follow:0};
   const dialog = document.createElement('dialog'); dialog.id = 'trainerControllerDialog';
   dialog.setAttribute('aria-labelledby', 'trainerControllerTitle');
@@ -81,15 +81,24 @@
       el('trainerControllerDevice').dataset.inventory = inventory;
       el('trainerControllerDevice').replaceChildren(...(pads.length ? pads.map(p => new Option(p.id, padToken(p))) : [new Option('No controller detected', '')]));
     }
-    el('trainerControllerDevice').value = selected;
+    if (el('trainerControllerDevice').value !== selected) el('trainerControllerDevice').value = selected;
   }
   function saveProfile() {
     if (current && profile) settings.profiles[profileKey(current)] = profile;
     persist(); resetInput();
   }
-  function renderMapping() {
-    const rows = el('trainerControllerButtons'), axes = el('trainerControllerAxes'); rows.replaceChildren(); axes.replaceChildren();
-    if (!current || !profile) return;
+  function renderMapping(force = false) {
+    const rows = el('trainerControllerButtons'), axes = el('trainerControllerAxes');
+    const available = !!(current && profile);
+    for (const field of [...rows.querySelectorAll('select,input'), ...axes.querySelectorAll('select,input')]) field.disabled = !available;
+    el('trainerControllerReset').disabled = !available;
+    // Android can briefly withdraw input while a native control changes focus.
+    // Keep the form's height and scroll position; unavailable mappings are inert.
+    if (!available) return;
+    const key = `${profileKey(current)}:${profile.buttons.length}`;
+    if (!force && renderedProfile === key) return;
+    const scrollTop = dialog.scrollTop;
+    rows.replaceChildren(); axes.replaceChildren();
     profile.buttons.forEach((action, index) => {
       if (index === 16 && current.mapping === 'standard') return;
       const label = document.createElement('label'), select = document.createElement('select');
@@ -111,6 +120,8 @@
     }
     el('trainerControllerProfileNote').textContent = profile.configured ? 'Profile saved separately for this controller and connection type.' : 'This controller reports a nonstandard layout. Use the live input numbers to assign its buttons and sticks before playing.';
     if (window.BilliardsAndroid && !nativeHost) el('trainerControllerProfileNote').textContent += ' If this Android app shows no input readings, install the controller-enabled app update.';
+    renderedProfile = key;
+    dialog.scrollTop = scrollTop;
   }
   for (const [key, title, min, max, step, suffix] of [['deadzone','Stick dead zone',.05,.4,.01,'%'], ['aim','Aim sensitivity',2,60,1,'deg/s'], ['speed','Speed sensitivity',.2,4,.1,'/s'], ['spin','Spin sensitivity',.2,2,.1,'/s']]) {
     const label = document.createElement('label'), input = document.createElement('input'), output = document.createElement('output');
@@ -134,7 +145,7 @@
   el('trainerControllerEnabled').checked = settings.enabled;
   el('trainerControllerEnabled').onchange = e => { settings.enabled = e.target.checked; persist(); resetInput(); nativeEnable(); start(); };
   el('trainerControllerDevice').onchange = e => { selected = e.target.value; deviceKey = ''; syncDevice(); };
-  el('trainerControllerReset').onclick = () => { if (current) { profile = freshProfile(current); saveProfile(); renderMapping(); } };
+  el('trainerControllerReset').onclick = () => { if (current) { profile = freshProfile(current); saveProfile(); renderMapping(true); } };
   function endPointer(cancel = false) {
     if (pointerDown) bridge.pointer(cancel ? 'pointercancel' : 'pointerup', cursorX, cursorY);
     pointerDown = false; clickTarget = null; cursor.dataset.dragging = 'false';
@@ -254,8 +265,13 @@
     if (time - lastUI >= 120) {
       lastUI = time;
       statusText = !current ? (nativeHost ? 'Waiting for a paired controller. Move a stick to begin.' : 'No controller detected. Pair it and press a button.' + (window.BilliardsAndroid ? ' If no readings appear, install the controller-enabled app update.' : '')) : !settings.enabled ? 'Controller detected. Enable Controller Mode to play.' : dialog.open ? 'Input test active. Table controls are paused.' : !profile?.configured ? 'Assign this controller in Controller Setup before playing.' : current.ready === false ? 'Move a stick, then release all controls to begin.' : stop ? 'Controller paused while another control is open.' : !armed ? 'Release all buttons, triggers and sticks to begin.' : pointerMode ? 'Positioning cursor active. Hold Cross and move the left stick to drag.' : 'Controller ready';
-      el('trainerControllerStatus').textContent = statusText;
-      if (dialog.open) el('trainerControllerRaw').textContent = current ? `${current.source === 'android' ? 'Android' : 'Browser'} input: ${current.mapping || 'nonstandard'}\nAxes: ${current.axes.map((v, i) => `${i}: ${Number(v).toFixed(2)}`).join('  ')}\nButtons: ${values.map((v, i) => v > .05 ? `${i}: ${v.toFixed(2)}` : '').filter(Boolean).join('  ') || 'released'}` : 'Waiting for input...';
+      const status = el('trainerControllerStatus');
+      if (status.textContent !== statusText) status.textContent = statusText;
+      if (dialog.open) {
+        const raw = el('trainerControllerRaw');
+        const text = current ? `${current.source === 'android' ? 'Android' : 'Browser'} input: ${current.mapping || 'nonstandard'}\nAxes: ${current.axes.map((v, i) => `${i}: ${Number(v).toFixed(2)}`).join('  ')}\nButtons: ${values.map((v, i) => v > .05 ? `${i}: ${v.toFixed(2)}` : '').filter(Boolean).join('  ') || 'released'}` : 'Waiting for input...';
+        if (raw.textContent !== text) raw.textContent = text;
+      }
     }
     start();
   }
