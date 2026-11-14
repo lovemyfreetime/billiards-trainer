@@ -1,0 +1,50 @@
+name: Verify current 3D controls
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [test/dualshock4-controller-2026-11-14]
+    paths:
+      - 'tests/trainer-3d-controls.browser.cjs'
+      - '.github/workflows/verify-3d-controls-test.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-3d-controls-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  controls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check camera routing and exact shot history
+        run: |
+          node tests/trainer-3d-viewpoints.test.cjs
+          node tests/trainer-3d-gesture-routing.test.cjs
+          node tests/shot-redo.test.cjs
+      - name: Install browser
+        run: |
+          npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
+          node local-host/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Check behavior then layout on four screen sizes
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")
+          node tests/trainer-3d-controls.browser.cjs
+      - name: Preserve per-phase results and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 3D-controls-verification
+          path: test-results/3d-controls
+          retention-days: 14
