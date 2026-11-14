@@ -30,7 +30,7 @@ public class BundledAppTest {
     private void waitFor(String predicate,int seconds)throws Exception {
         long until=SystemClock.elapsedRealtime()+seconds*1000L;
         while(SystemClock.elapsedRealtime()<until){if("true".equals(js("Boolean("+predicate+")")))return;Thread.sleep(100);}
-        fail("Timed out: "+predicate+"; page="+js("JSON.stringify({url:location.href,text:document.body?.innerText.slice(0,1200),data:document.body?.dataset,native:window.BilliardsBundledAndroid,ready:document.readyState,lessonSequence:window.__lessonSequence,guide:window.billiardsPoolGuide?.getState(),tour:window.billiardsGetStartedTour?.getState()})"));
+        fail("Timed out: "+predicate+"; page="+js("JSON.stringify({url:location.href,text:document.body?.innerText.slice(0,1200),data:document.body?.dataset,native:window.BilliardsBundledAndroid,ready:document.readyState,focused:document.hasFocus(),hidden:document.hidden,controller:window.BilliardsController?.status(),controllerErrors:window.__controllerTestErrors,controllerDevices:document.getElementById('trainerControllerDevice')?.textContent,lessonSequence:window.__lessonSequence,guide:window.billiardsPoolGuide?.getState(),tour:window.billiardsGetStartedTour?.getState()})"));
     }
     private void navigate(ActivityScenario<MainActivity> scenario,String path,String selector)throws Exception {
         long start=SystemClock.elapsedRealtime();String url=BundledApp.ORIGIN+BundledApp.PREFIX+path+(path.contains("?")?"&":"?")+"androidSmoke="+SystemClock.elapsedRealtime();
@@ -87,10 +87,27 @@ public class BundledAppTest {
                 + "\"vid\":6353,\"pid\":43981,\"bus\":\"usb\",\"configuration\":[{\"type\":100,\"data\":[1]},{\"type\":101,\"data\":[304]}]}\n";
             gamepad.write(register.getBytes(StandardCharsets.UTF_8));
             gamepad.flush();
+            // Diagnose OS registration separately from page/bridge discovery.
+            long padDeadline = SystemClock.uptimeMillis() + 10000;
+            boolean padRegistered = false;
+            while (!padRegistered && SystemClock.uptimeMillis() < padDeadline) {
+                for (int id : android.view.InputDevice.getDeviceIds()) {
+                    android.view.InputDevice pad = android.view.InputDevice.getDevice(id);
+                    if (pad != null && pad.getName().equals("Trainer Picker Test Pad")
+                            && pad.supportsSource(android.view.InputDevice.SOURCE_GAMEPAD)) padRegistered = true;
+                }
+                if (!padRegistered) Thread.sleep(100);
+            }
+            assertTrue("uinput test pad must register with Android as a gamepad", padRegistered);
             scenario.onActivity(a -> activity = a);
             waitFor("document.readyState==='complete' && window.BilliardsBundledAndroid && "
                 + "(document.querySelector('main nav') || document.querySelector('[data-device=android]'))", 30);
             navigate(scenario, "?train=1", "#trainerControllerSetup");
+            js("window.__controllerTestErrors=[];window.addEventListener('error',e=>__controllerTestErrors.push(e.message));");
+            // evaluateJavascript does not give the WebView input focus. The adapter
+            // intentionally refuses to capture a gamepad while the page is unfocused.
+            scenario.onActivity(a -> a.webView.requestFocus());
+            waitFor("document.hasFocus() && !document.hidden", 10);
             js("BilliardsController.open();");
             waitFor("document.getElementById('trainerControllerDevice').textContent.includes('Trainer Picker Test Pad')", 15);
             js("const device=document.getElementById('trainerControllerDevice');"
