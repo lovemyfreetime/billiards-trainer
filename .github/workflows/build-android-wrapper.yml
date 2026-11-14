@@ -162,14 +162,17 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
+          # Verified with both full offline native suites on the controller test APK.
+          emulator-build: '15917651' # Emulator 37.1.11
           arch: x86_64
           target: google_apis
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader -feature -Vulkan -no-snapshot -noaudio -no-boot-anim -camera-back emulated
+          emulator-options: -no-window -gpu swangle_indirect -no-snapshot -noaudio -no-boot-anim -camera-back emulated
           working-directory: android-wrapper
           script: |
+            grep -F 'Pkg.Revision=37.1.11' "$ANDROID_HOME/emulator/source.properties"
             adb root
-            adb wait-for-device
+            timeout 60 adb wait-for-device
             for firewall in iptables ip6tables; do adb shell "$firewall -w 5 -I OUTPUT -p tcp --dport 80 -j REJECT"; adb shell "$firewall -w 5 -I OUTPUT -p tcp --dport 443 -j REJECT"; adb shell "$firewall -w 5 -I OUTPUT -p udp --dport 443 -j REJECT"; done
             adb shell cmd connectivity airplane-mode enable
             adb shell svc wifi disable
