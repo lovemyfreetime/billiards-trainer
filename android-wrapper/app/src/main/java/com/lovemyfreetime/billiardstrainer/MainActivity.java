@@ -425,6 +425,16 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean dispatchKeyEvent(android.view.KeyEvent event) {
+        // Square is Back in Companion only. Leave native D-pad and Cross untouched.
+        if (narrationPageOnUiThread()
+                && Uri.parse(webView.getUrl()).getPath().equals(BundledApp.PREFIX + "companion.html")
+                && event.getKeyCode() == android.view.KeyEvent.KEYCODE_BUTTON_X
+                && ((event.getSource() & android.view.InputDevice.SOURCE_GAMEPAD) == android.view.InputDevice.SOURCE_GAMEPAD
+                    || (event.getSource() & android.view.InputDevice.SOURCE_JOYSTICK) == android.view.InputDevice.SOURCE_JOYSTICK)) {
+            if (event.getAction() == android.view.KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0)
+                webView.evaluateJavascript("window.dispatchEvent(new Event('billiards:controller-back'))", null);
+            return true;
+        }
         if (controllerInput != null && narrationPageOnUiThread() && controllerInput.key(event)) return true;
         return super.dispatchKeyEvent(event);
     }
@@ -535,6 +545,7 @@ public class MainActivity extends Activity {
 
     public class AndroidBridge {
         @JavascriptInterface public int controllerInputVersion(){return 1;}
+        @JavascriptInterface public int controllerBackVersion(){return 1;}
         @JavascriptInterface public void setControllerEnabled(boolean enabled){
             runOnUiThread(() -> {if(controllerInput != null) controllerInput.setEnabled(enabled && narrationPageOnUiThread());});
         }

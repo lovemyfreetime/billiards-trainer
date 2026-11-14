@@ -85,12 +85,12 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
     console.log('PASS: real Shoot, Undo and Redo use existing physics/history');
     await apply(); await neutral(); await button(3); await page.waitForFunction(() => Billiards3D.active); await neutral();
     const cameraBefore = await page.evaluate(() => Billiards3D.camera()), shotBeforeCamera = await state();
-    await setButton(6,1); await axes([1,.5,.5,.5]);
+    await setButton(6,1); await setButton(15,1); await axes([1,.5,0,.5]);
     try { await page.waitForFunction(want => Billiards3D.camera().azimuth !== want, cameraBefore.azimuth, {timeout:10000}); }
     catch (error) { console.log('Camera input diagnostic:',await page.evaluate(()=>({controller:BilliardsController.status(),body:document.body.className,focus:document.activeElement?.id,hasFocus:document.hasFocus(),shot:billiardsControllerControls.state(),camera:Billiards3D.camera(),pad:window.__pad}))); throw error; }
-    await axes([0,0,0,0]); const radiusBeforeZoom=await page.evaluate(()=>Billiards3D.camera().radius); await setButton(12,1);
+    await axes([0,0,0,0]); const radiusBeforeZoom=await page.evaluate(()=>Billiards3D.camera().radius); await axes([0,0,0,-.5]);
     try { await page.waitForFunction(want => Billiards3D.camera().radius !== want, radiusBeforeZoom, {timeout:10000}); }
-    finally { await setButton(12,0); await setButton(6,0); await frames(); }
+    finally { await axes([0,0,0,0]); await setButton(15,0); await setButton(6,0); await frames(); }
     const cameraAfter = await page.evaluate(() => Billiards3D.camera()); assert.notEqual(cameraAfter.azimuth,cameraBefore.azimuth); assert.notDeepEqual(cameraAfter.target,cameraBefore.target); assert.notEqual(cameraAfter.radius,cameraBefore.radius); assert.deepEqual(await state(),shotBeforeCamera,'Camera mode preserves the shot');
     await button(11); const full = await page.evaluate(() => Billiards3D.camera()); assert.equal(full.azimuth,0);
     await button(3); await page.waitForFunction(() => !Billiards3D.active); await neutral(); await button(10); assert(await page.evaluate(() => BilliardsController.status().pointerMode));

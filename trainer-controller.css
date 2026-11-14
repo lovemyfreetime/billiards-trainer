@@ -25,3 +25,10 @@
 #trainerControllerCursor[data-dragging=true]{border-color:#ffcd76}
 #trainerControllerDialog [hidden],#trainerControllerCursor[hidden]{display:none!important}
 @media(max-width:580px){.controllerSettings,.controllerMapping{grid-template-columns:1fr}#trainerControllerDialog{padding:14px}.controllerMapping label{grid-template-columns:100px 1fr}}
+
+.controllerMenuFocus{outline:3px solid #a0ffe1!important;outline-offset:3px!important;box-shadow:0 0 14px #70ffd980!important}
+#trainerControllerMenuNotice{position:fixed;top:8px;left:50%;transform:translateX(-50%);max-width:90vw;padding:8px 12px;border:1px solid #a0ffe1;border-radius:8px;background:#101c25;color:#edf5fa;z-index:99998;font:13px system-ui;pointer-events:none}
+#trainerControllerMenuNotice[hidden]{display:none!important}
+
+.controllerComboRow{display:grid;grid-template-columns:1fr 1fr 1.5fr auto;gap:6px;margin:8px 0}.controllerComboRow select{min-width:0}#trainerControllerComboError{display:block;color:#ffb8a8;text-align:left}
+@media(max-width:580px){.controllerComboRow{grid-template-columns:1fr 1fr}.controllerComboRow select:nth-child(3){grid-column:1}.controllerComboRow button{grid-column:2}}

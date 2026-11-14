@@ -89,7 +89,7 @@
     const cleanup = () => { drag = null; ghost?.remove(); ghost = null; };
     button.addEventListener('pointerdown', e => {
       if (e.button !== 0 || button.disabled) return;
-      drag = {x:e.clientX, y:e.clientY}; moved = false; button.setPointerCapture(e.pointerId);
+      drag = {x:e.clientX, y:e.clientY}; moved = false; try { button.setPointerCapture(e.pointerId); } catch (_) { /* Controller drags route directly to this button. */ }
     });
     button.addEventListener('pointermove', e => {
       if (!drag) return;

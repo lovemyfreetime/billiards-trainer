@@ -1,0 +1,11 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const src=fs.readFileSync('trainer-workspace.js','utf8');
+const body=src.slice(src.indexOf('  function place(id, event)'),src.indexOf('  const buttons = Array.from'));
+let calls=[],busy=false,hit={x:1.2,y:.6},active=false;
+const sandbox={sync(){},window:{billiardsZenControls:{status:()=>({busy}),place:(...a)=>calls.push(['2d',...a])},Billiards3D:{get active(){return active;},tablePoint:e=>{calls.push(['map',e]);return hit;}},billiards3DBallControls:{place:(...a)=>calls.push(['3d',...a])}}};vm.createContext(sandbox);vm.runInContext(body+';this.place=place;',sandbox);
+const e={clientX:432,clientY:234};sandbox.place(4,e);assert.deepEqual(calls,[['2d',4,432,234]]);
+calls=[];active=true;sandbox.place(4,e);assert.equal(calls[0][0],'map');assert.equal(calls[0][1],e);assert.deepEqual(calls[1],['3d',4,hit]);
+calls=[];hit=null;sandbox.place(4,e);assert.equal(calls.length,1,'Off-table 3D drop does not place');
+calls=[];sandbox.place(4);assert.deepEqual(calls,[['3d',4,null]],'Ordinary tray tap retains default placement');
+calls=[];busy=true;sandbox.place(4,e);assert.equal(calls.length,0,'Busy shot blocks placement');
+console.log('PASS: controller uses existing tray placement route for 2D coordinates, 3D projection, off-table rejection, tap and busy guard');

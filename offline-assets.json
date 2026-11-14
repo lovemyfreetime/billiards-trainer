@@ -1,5 +1,5 @@
 {
-  "version": "f1a25e1296389323",
+  "version": "9652f18042f6b6ae",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -27,7 +27,7 @@
     "companion-workspace.js": "6337f5f583d953adc26458b10512f6012d1ae81f4df2fd95503d2682c7b831aa",
     "companion.css": "718ee9b8a8bc28a4c45fed95d8f846ef3f1ffe4c69bc57c6862a18a32c714240",
     "companion.html": "9c09246443e08bea559b3888a8c58838793b4da58edcf9f8559181dadb415bff",
-    "companion.js": "08c62e3e0728a5bc53419ff829ffca6d722a97ff4e84b4f6a56c8c9a658127d0",
+    "companion.js": "240342496c63f373ebadda92b340a6d2838f6276395a95746182317bc6c093aa",
     "companion.webmanifest": "26c8ad0a8a12c9fffa2ab9ce19fcdf8f418ff0f5672995e8a99cfbe06f9c1d39",
     "experience-menu.css": "36093f7967c7a16cfbbcac64070b7a2de7e5345f0d6efdc3fe39664766e9475b",
     "experience-menu.js": "07a382992a148e78df4b2c732891843a8028f527a65353faee33723b77cb0d64",
@@ -1349,8 +1349,8 @@
     "trainer-camera-recorder.css": "751e79f11ca856637650dbd570c3ddfdc6d6fe2b1018326634fc33a94160993f",
     "trainer-camera-recorder.js": "aa0be4c8fec3b02b12aeafc8ed18cf0f27b9d397c951e56268f3f3a894fd5bb8",
     "trainer-compass-controls.js": "1bee13b80d477fb1e85c88129de3813b16490c8d0f4d4957a2e72175e7988b9a",
-    "trainer-controller.css": "d0cb860a605900d437b0709b29cea96ba4ba9e077c0b9c24c4873dc5be87dd4a",
-    "trainer-controller.js": "93a8e0827bd1ba0de17dab4abf587c98fb1634825585d2599f6f16a11b247774",
+    "trainer-controller.css": "1ada9fc1d57fca42265763e73ffee0e869ccdf3345cf75fa2cbfe4dc7c82f014",
+    "trainer-controller.js": "cf5bcfe05c4d5d260cdb015f04b72c5e68e1028c6d5cd303ef1abd91d9e0d3a6",
     "trainer-layout-files.js": "262d5dd963d46919608a881d3caca7a798343ab4106d158167d9e19895ecc950",
     "trainer-pocket-entry.js": "25861bb806b495cfa8f92b4867c00cd4cf22cf8d04b11a460cb524282f5b3ec6",
     "trainer-practice-tools.js": "4f3be4afca8e51274aa1b9eb8c9dcd696e466c26a8974650bafe4dccd950650d",
@@ -1365,7 +1365,7 @@
     "trainer-training-ball.js": "3a6387eaded80b4eca65d3a7f261cb7f6107483ab99b6c8231c4e8fbe470c1ab",
     "trainer-video-narration.js": "7f5a56139f3451233a8a2dfb13584c17fc51593c9a31f3c80b540f8977b18581",
     "trainer-workspace.css": "65345ddb46af77d0eaf0d9c8696f05fc0f1038d67b2e7f9769ca42effdc649c2",
-    "trainer-workspace.js": "210d3308f1fff640d9f8df7b9cca65007a3ce7096d570c37a1c966d0581ce726",
+    "trainer-workspace.js": "baff552f85cb6fb3be5c49ccb82dbbb7d263c6a0e0557e8d4b9ab5d211902dd6",
     "vendor/mp4-muxer-5.2.2/LICENSE": "75c54aae7ef6ad652f684f9dd3b71e4dcef86ccebd88cf441ceed7f5eec037c5",
     "vendor/mp4-muxer-5.2.2/mp4-muxer.mjs": "d2c4c782f180c86ed30b1f5d9487a34a0d370bf9b4535285734ea187d38f9bb5",
     "vendor/onnxruntime-1.22.0/LICENSE": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c",
@@ -1378,6 +1378,6 @@
     "vendor/three/three-renderer.js": "ce733d03f481af90ddcdbe8f4dde56f58b5e0b32fd6e99cc103e180591ca3715",
     "welcome-controls.js": "cab3f3699e27b82afc4f79c89b087cd5240d04d950e6875862c26991fcdf5702",
     "welcome.html": "f65643d3248e0cc564db7c17f2e8da5961bdbcd1c30fe145fe86cab7b5be9d72",
-    "zen-mode.js": "bfdbae520c415eef782e43f48b944cbf19e4fad8b5a26c3895157f49022318f2"
+    "zen-mode.js": "40428881da4d086936f2fc41e86b606d188aee092cc088fd65f1e127da57606f"
   }
 }

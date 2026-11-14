@@ -59,7 +59,7 @@ try {
   test('text editing pauses input without stealing keyboard',()=>{const field=a.w.document.getElementById('trainerSnapshotName');field.focus();a.button(7);assert.equal(a.count('shoot'),2);let prevented;const ev=new a.w.KeyboardEvent('keydown',{key:'ArrowRight',code:'ArrowRight',bubbles:true,cancelable:true});field.dispatchEvent(ev);prevented=ev.defaultPrevented;assert.equal(prevented,false);field.blur();a.step();});
   test('open menus suppress shots',()=>{a.w.document.getElementById('workspace-view').open=true;a.button(7);assert.equal(a.count('shoot'),2);a.w.document.getElementById('workspace-view').open=false;a.step();});
   test('Square/Circle call existing shot history',()=>{a.button(2);a.button(1);assert.equal(a.count('undo'),1);assert.equal(a.count('redo'),1);});
-  test('Triangle toggles view and L2 temporarily controls camera',()=>{a.button(3);assert(a.w.Billiards3D.active);a.input(6,1);a.pad.axes=[1,.5,.5,.5];const before=a.count('adjust');a.step(160);a.pad.axes=[0,0,0,0];a.button(12);a.input(6,0);a.step();assert.equal(a.count('adjust'),before);assert(a.calls.some(c=>c[0]==='camera'&&c[1].rotateX&&c[1].panX));assert(a.calls.some(c=>c[0]==='camera'&&c[1].zoomBy));a.pad.axes=[1,0,0,0];a.step();a.pad.axes=[0,0,0,0];assert(a.count('adjust')>before);a.button(11);assert.equal(a.count('reset'),1);a.button(3);});
+  test('Triangle toggles view and L2 temporarily controls camera',()=>{a.button(3);assert(a.w.Billiards3D.active);a.input(6,1);a.pad.axes=[1,.5,.5,.5];const before=a.count('adjust');a.step(160);a.pad.axes=[0,0,0,0];a.button(12);a.input(6,0);a.step();assert.equal(a.count('adjust'),before);assert(a.calls.some(c=>c[0]==='camera'&&c[1].rotateX&&c[1].zoomBy));assert(a.calls.some(c=>c[0]==='camera'&&c[1].zoomBy));a.pad.axes=[1,0,0,0];a.step();a.pad.axes=[0,0,0,0];assert(a.count('adjust')>before);a.button(11);assert.equal(a.count('reset'),1);a.button(3);});
   test('L3 cursor and Cross drag share pointer down/move/up',()=>{a.button(10);assert(a.w.BilliardsController.status().pointerMode);a.input(0,1);a.step();a.pad.axes=[1,0,0,0];a.step(100);a.pad.axes=[0,0,0,0];a.input(0,0);a.step();assert.equal(a.count('pointerdown'),1);assert(a.count('pointermove')>0);assert.equal(a.count('pointerup'),1);});
   test('focus loss cancels an in-progress ball drag',()=>{a.input(0,1);a.step();a.w.dispatchEvent(new a.w.Event('blur'));assert.equal(a.count('pointercancel'),1);assert(!a.w.BilliardsController.status().pointerMode);a.input(0,0);a.w.dispatchEvent(new a.w.Event('focus'));a.step();});
   test('custom button mapping and inverse axes persist',()=>{a.w.BilliardsController.open();a.step();const select=a.w.document.querySelector('[data-button="2"]');select.value='reset';select.dispatchEvent(new a.w.Event('change'));const invert=a.w.document.querySelector('[aria-label="Reverse English"]');invert.checked=true;invert.dispatchEvent(new a.w.Event('change'));a.w.document.getElementById('trainerControllerClose').click();a.step();a.button(2);assert.equal(a.count('reset'),2);const before=a.state.side;a.pad.axes=[0,0,1,0];a.step(160);a.pad.axes=[0,0,0,0];assert(a.state.side<before);const parsed=JSON.parse(a.saved());assert.equal(Object.values(parsed.profiles)[0].buttons[2],'reset');});
@@ -80,3 +80,137 @@ try {
 const raw=setup({mapping:''});
 try {test('nonstandard gamepads never inherit a shooting button',()=>{raw.enable();raw.input(7,1);raw.step(160);assert.equal(raw.count('shoot'),0);assert.equal(raw.w.BilliardsController.status().armed,false);});} finally {raw.close();}
 console.log(`${passed} controller adapter checks passed. Browser renderer and physical hardware are separate checks.`);
+
+for (const requested of [200, 500, 1200, 2400]) {
+  const c = setup();
+  try {
+    c.enable();
+    c.w.BilliardsController.open(); c.step();
+    const slider = c.w.document.querySelector('[aria-label="Cursor speed"]');
+    assert.equal(slider.value, '1200', 'New cursor default is faster than the old 500px/s');
+    slider.value = String(requested); slider.dispatchEvent(new c.w.Event('input'));
+    assert.equal(JSON.parse(c.saved()).cursorSpeed, requested);
+    c.w.document.getElementById('trainerControllerClose').click(); c.step();
+    c.button(10);
+    const cursor = c.w.document.getElementById('trainerControllerCursor');
+    const before = parseFloat(cursor.style.left);
+    c.pad.axes = [1, 0, 0, 0]; c.step(48);
+    assert(Math.abs(parseFloat(cursor.style.left) - before - requested * .048) < .001, 'Cursor follows selected pixels per second');
+    c.pad.axes = [0,0,0,0]; c.step();
+    const stopped = cursor.style.left; c.step(96); assert.equal(cursor.style.left, stopped, 'No glide after release');
+    const saved = c.saved(), reloaded = setup({saved});
+    try { assert.equal(reloaded.w.document.querySelector('[aria-label="Cursor speed"]').value, String(requested)); } finally { reloaded.close(); }
+    console.log('PASS: cursor speed ' + requested + ' px/s, persistence, and immediate stop');
+  } finally { c.close(); }
+}
+
+const menu = setup();
+try {
+  const d = menu.w.document;
+  d.getElementById('panel').insertAdjacentHTML('afterbegin','<div class="section"><button class="sectionToggle" id="menuA">A</button><div class="sectionBody"><button id="menuClick">Action</button><input id="menuRange" type="range" min="0" max="10" step="1" value="5"><select id="menuSelect"><option>A</option><option>B</option></select><button id="menuDisabled" disabled>Disabled</button></div></div><div class="section"><button class="sectionToggle" id="menuB">B</button><div class="sectionBody"><button>Other</button></div></div>');
+  for (const b of d.querySelectorAll('.sectionToggle')) b.onclick=()=>b.parentElement.classList.toggle('open');
+  let clicks=0, scrolls=0;
+  d.getElementById('menuClick').onclick=()=>clicks++;
+  menu.w.HTMLElement.prototype.scrollIntoView=function(){scrolls++;};
+  menu.enable(); menu.button(10); menu.button(13);
+  assert(menu.w.BilliardsController.status().menuMode);
+  assert.equal(d.activeElement.id,'menuA','Starts at first major heading');
+  menu.button(13); assert.equal(d.activeElement.id,'menuB');
+  menu.button(12); menu.button(0);
+  assert(d.getElementById('menuA').parentElement.classList.contains('open'));
+  assert.equal(d.activeElement.id,'menuClick'); menu.button(0); assert.equal(clicks,1);
+  menu.button(13); assert.equal(d.activeElement.id,'menuRange'); menu.button(15); assert.equal(d.getElementById('menuRange').value,'6');
+  menu.button(13); assert.equal(d.activeElement.id,'menuSelect'); menu.button(15); assert.equal(d.getElementById('menuSelect').selectedIndex,1);
+  menu.button(13); assert.equal(d.activeElement.id,'menuClick','Disabled control skipped and controls wrap');
+  const shots=menu.count('shoot'), undos=menu.count('undo'), redos=menu.count('redo');
+  menu.button(7); menu.button(1); assert.equal(menu.count('shoot'),shots); assert.equal(menu.count('redo'),redos);
+  d.elementFromPoint=()=>d.getElementById('menuClick');menu.pad.axes=[.5,0,0,0];menu.step();menu.pad.axes=[0,0,0,0];menu.button(0);assert.equal(clicks,2,'Cursor picks and activates controls');
+  menu.button(2); assert.equal(d.activeElement.id,'menuA','Square returns to headings');
+  menu.button(2); assert(!menu.w.BilliardsController.status().menuMode);assert.equal(menu.count('undo'),undos,'Exit press must never undo');
+  menu.step();menu.button(2);assert.equal(menu.count('undo'),undos+1,'Normal Undo restored');
+  assert(scrolls>5,'Focused headings and controls scroll into view');
+  menu.button(10);menu.button(13);menu.button(0);menu.w.dispatchEvent(new menu.w.Event('blur'));
+  assert(!menu.w.BilliardsController.status().menuMode);assert.equal(d.querySelector('.controllerMenuFocus'),null);
+  console.log('PASS: menu headings, section navigation, activation, values, pointer selection, Square back, safe exit, scrolling and blur');
+} finally { menu.close(); }
+
+const drawer = setup();
+try {
+  const d=drawer.w.document,panel=d.getElementById('panel');
+  panel.insertAdjacentHTML('afterbegin','<div class="section"><button class="sectionToggle" id="drawerHeading">TABLE / BALLS</button><div class="sectionBody"><button id="drawerControl">Control</button></div></div>');
+  const toggle=d.createElement('button');toggle.id='phoneControls';d.body.append(toggle);
+  const sync=()=>{const open=d.body.classList.contains('phone-controls-open');panel.toggleAttribute('inert',!open);panel.style.display=open?'block':'none';toggle.setAttribute('aria-expanded',String(open));};
+  toggle.onclick=()=>{d.body.classList.toggle('phone-controls-open');sync();};sync();
+  d.getElementById('drawerHeading').onclick=()=>d.getElementById('drawerHeading').parentElement.classList.toggle('open');
+  drawer.enable();drawer.button(10);drawer.button(13);
+  assert(d.body.classList.contains('phone-controls-open'),'Menu entry opens the closed Tools drawer');
+  assert.equal(d.activeElement.id,'drawerHeading','Sidebar heading is selected, not toolbar fallback');
+  drawer.button(0);assert.equal(d.activeElement.id,'drawerControl');
+  drawer.button(2);assert.equal(d.activeElement.id,'drawerHeading');assert(d.body.classList.contains('phone-controls-open'));
+  drawer.button(2);assert(!d.body.classList.contains('phone-controls-open'),'Final Square closes the drawer opened by menu navigation');
+  assert.equal(drawer.count('undo'),0);drawer.step();drawer.button(2);assert.equal(drawer.count('undo'),1);
+  console.log('PASS: closed Tools drawer opens, focuses sidebar, Square backs out and closes it without accidental Undo');
+} finally {drawer.close();}
+
+const cameraMap=setup();
+try {
+  cameraMap.enable();cameraMap.button(3);cameraMap.input(6,1);
+  cameraMap.pad.axes=[.7,-.5,.9,-.8];cameraMap.input(12,1);cameraMap.input(15,1);
+  const start=cameraMap.count('adjust');cameraMap.step(96);
+  const frames=cameraMap.calls.filter(c=>c[0]==='camera').slice(-6);
+  assert(frames.length>=5);
+  for(const [,v] of frames){assert(v.rotateX<0&&v.rotateY<0&&v.zoomBy<0&&v.panX>0&&v.panY<0,'Orbit, zoom and diagonal pan simultaneous every frame');}
+  assert.equal(cameraMap.count('adjust'),start,'Camera modifier never changes shot settings');
+  cameraMap.input(12,0);cameraMap.input(15,0);cameraMap.pad.axes=[0,0,1,0];cameraMap.step();
+  const stopped=cameraMap.calls.filter(c=>c[0]==='camera').at(-1)[1];
+  assert.equal(stopped.panX,0);assert.equal(stopped.panY,0);assert.equal(stopped.zoomBy,0,'Right horizontal axis no longer pans or zooms');
+  cameraMap.pad.axes=[0,0,0,1];cameraMap.step();assert(cameraMap.calls.filter(c=>c[0]==='camera').at(-1)[1].zoomBy>0,'Stick down zooms out');
+  cameraMap.input(6,0);cameraMap.step(96);assert(cameraMap.count('adjust')>start,'Releasing L2 restores spin/follow controls');
+  cameraMap.pad.axes=[0,0,0,0];cameraMap.button(3);cameraMap.input(6,1);const cameras=cameraMap.count('camera');cameraMap.button(12);assert.equal(cameraMap.count('camera'),cameras,'2D keeps normal D-pad speed rather than nonexistent orbit');
+  console.log('PASS: simultaneous L2 orbit, continuous zoom, D-pad pan, neutral stop, release restoration and 2D fallback');
+} finally {cameraMap.close();}
+
+const zen=setup();
+try {
+ zen.w.document.body.classList.add('zen-mode');zen.enable();
+ const before=zen.count('adjust');zen.pad.axes=[1,-1,.5,-.5];zen.step(96);zen.pad.axes=[0,0,0,0];
+ assert(zen.count('adjust')>before);zen.button(7);assert.equal(zen.count('shoot'),1);zen.button(2);assert.equal(zen.count('undo'),1);
+ zen.button(10);assert(zen.w.BilliardsController.status().pointerMode);zen.button(12);assert(!zen.w.BilliardsController.status().menuMode,'Zen does not enter hidden Trainer sidebar');
+ const popup=zen.w.document.createElement('div');popup.className='zen-popover-open';zen.w.document.body.append(popup);zen.button(7);assert.equal(zen.count('shoot'),1,'Zen menu blocks shots');
+ console.log('PASS: Zen shared sticks, Shoot, Undo, cursor and popup interlock');
+} finally {zen.close();}
+
+for(const trayId of ['workspaceBalls','zenRack']) {
+ const drag=setup();
+ try {
+  const w=drag.w,d=w.document;w.PointerEvent=class extends w.MouseEvent {constructor(type,opts){super(type,opts);Object.defineProperty(this,'pointerId',{value:opts.pointerId});}};
+  const tray=d.createElement('div');tray.id=trayId;const ball=d.createElement('button');ball.dataset.ballId='4';tray.append(ball);d.body.append(tray);
+  let events=[],clicks=0,hit=ball;d.elementFromPoint=()=>hit;
+  for(const type of ['pointerdown','pointermove','pointerup','pointercancel'])ball.addEventListener(type,e=>events.push([type,e.clientX,e.clientY]));ball.onclick=()=>clicks++;
+  drag.enable();drag.button(10);drag.button(0);assert.equal(clicks,1,'Stationary Cross preserves ordinary tray click');
+  events=[];drag.input(0,1);drag.step();drag.pad.axes=[.5,-.5,0,0];drag.step(96);drag.pad.axes=[0,0,0,0];hit=d.getElementById('canvas');drag.input(0,0);drag.step();
+  assert.equal(events[0][0],'pointerdown');assert(events.some(e=>e[0]==='pointermove'));assert.equal(events.at(-1)[0],'pointerup');assert.equal(clicks,1,'Drag must not also click default placement');
+  assert.notEqual(events.at(-1)[1],events[0][1]);assert.notEqual(events.at(-1)[2],events[0][2]);
+  hit=ball;events=[];drag.input(0,1);drag.step();drag.pad.axes=[-.5,0,0,0];drag.step();drag.pad.axes=[0,0,0,0];hit=d.body;drag.input(0,0);drag.step();assert.equal(events.at(-1)[0],'pointercancel','Outside-table drop cancels');
+  hit=ball;events=[];drag.input(0,1);drag.step();drag.w.dispatchEvent(new w.Event('blur'));assert.equal(events.at(-1)[0],'pointercancel','Focus loss cancels');
+  drag.input(0,0);drag.w.dispatchEvent(new w.Event('focus'));drag.step();drag.button(10);events=[];drag.input(0,1);drag.step();ball.disabled=true;drag.step();assert.equal(events.at(-1)[0],'pointercancel','Disabled ball cancels');
+  console.log('PASS: '+trayId+' controller hold drag, release coordinates, tap preservation and cancellation');
+ } finally {drag.close();}
+}
+
+const combos=setup();
+try {
+ combos.enable();combos.w.BilliardsController.open();combos.step();const d=combos.w.document;
+ const change=(label,value)=>{const s=d.querySelector('[aria-label="'+label+'"]');s.value=String(value);s.dispatchEvent(new combos.w.Event('change'));};
+ assert.equal(d.querySelectorAll('.controllerComboRow').length,4);
+ change('Combination 1 action','fineUp');
+ change('Combination 2 button',12);assert.match(d.getElementById('trainerControllerComboError').textContent,/already/);assert.equal(d.querySelector('[aria-label="Combination 2 button"]').value,'13');
+ change('Combination 1 button',6);assert.match(d.getElementById('trainerControllerComboError').textContent,/different/);
+ change('Combination 1 action','shoot');d.getElementById('trainerControllerClose').click();combos.step();
+ combos.input(6,1);combos.button(12);assert.equal(combos.count('shoot'),1,'Remapped chord performs action');
+ combos.input(12,1);combos.step();assert.equal(combos.count('shoot'),2);combos.input(6,0);combos.step();combos.input(6,1);combos.step();assert.equal(combos.count('shoot'),2,'Modifier release/repress cannot retrigger held target');
+ const before=combos.count('adjust');combos.input(6,0);combos.step();assert.equal(combos.count('adjust'),before,'Partial chord release never triggers base speed action');combos.input(12,0);combos.step();combos.button(12);assert(combos.count('adjust')>before,'Normal target returns after release');
+ const saved=JSON.parse(combos.saved());assert.equal(Object.values(saved.profiles)[0].combos[0].action,'shoot');
+ combos.w.BilliardsController.open();combos.step();d.getElementById('trainerControllerReset').click();assert.equal(d.querySelector('[aria-label="Combination 1 action"]').value,'panUp');
+ console.log('PASS: editable chord defaults, persistence, duplicate/self conflict rejection, target precedence, safe rearm and reset');
+}finally{combos.close();}

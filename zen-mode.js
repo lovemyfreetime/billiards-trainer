@@ -544,7 +544,7 @@ function init(){
  const balls=trayEntries.map(({id,color})=>{
   const b=document.createElement('button');b.type='button';b.innerHTML=id?`<span>${id}</span>`:'';b.dataset.ballId=String(id);b.className=id===0?'zen-cue-ball':id>=9?'stripe':'';b.style.setProperty('--ball',color);b.title=id===0?'Drag or tap to place the cue ball':`Drag or tap to add ball ${id}`;b.setAttribute('aria-label',id===0?'Place cue ball':`Add ball ${id}`);
   let drag=null,suppress=false;
-  b.addEventListener('pointerdown',e=>{if(b.disabled||e.button!==0)return;b.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,preview:null};suppress=false});
+  b.addEventListener('pointerdown',e=>{if(b.disabled||e.button!==0)return;try{b.setPointerCapture(e.pointerId)}catch(_){}drag={x:e.clientX,y:e.clientY,preview:null};suppress=false});
   b.addEventListener('pointermove',e=>{if(!drag)return;if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>5&&!drag.preview){suppress=true;drag.preview=document.createElement('div');drag.preview.className='zen-drag-preview';drag.preview.style.setProperty('--ball',color);document.body.append(drag.preview)}if(drag.preview){drag.preview.style.left=e.clientX+'px';drag.preview.style.top=e.clientY+'px'}});
   b.addEventListener('pointerup',e=>{if(!drag)return;if(drag.preview){engine.place(id,e.clientX,e.clientY);drag.preview.remove()}drag=null;sync()});
   b.addEventListener('pointercancel',()=>{drag?.preview?.remove();drag=null;suppress=true});

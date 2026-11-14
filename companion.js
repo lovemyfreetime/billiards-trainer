@@ -178,9 +178,39 @@ window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installProm
 window.addEventListener('beforeunload',e=>{if(recording||recordPending){e.preventDefault();e.returnValue='';}});
 window.addEventListener('billiards:before-close',e=>{if(recording||recordPending){e.preventDefault();toast('Stop and save the voice note before leaving.');}});
 document.addEventListener('click',e=>{if((recording||recordPending)&&e.target.closest('a')){e.preventDefault();toast('Stop and save the voice note before leaving.');}},true);
+// Controller Back stays within Companion and preserves native D-pad/Cross behavior.
+const controllerRoutes = [];
+let controllerRoute = '', controllerReturning = false;
+function controllerBack(){
+ if(recording||recordPending){toast('Stop and save the voice note first.');return;}
+ const modal=document.querySelector('dialog[open]');
+ if(modal){const cancel=new Event('cancel',{cancelable:true});if(modal.dispatchEvent(cancel)&&modal.open)modal.close();return;}
+ const next=controllerRoutes.pop() || 'home';
+ if(next===(location.hash.slice(1)||'home'))return;
+ controllerReturning=true;navigate(next);
+}
+window.addEventListener('billiards:controller-back',controllerBack);
+let controllerBackFrame=0, controllerBackReady=false, controllerBackHeld=false;
+function pollControllerBack(){
+ controllerBackFrame=0;
+ if(document.hidden||!document.hasFocus())return;
+ let pads=[];try{pads=Array.from(navigator.getGamepads?.()||[]).filter(p=>p?.connected&&p.mapping==='standard');}catch(_){}
+ const held=pads.some(p=>(p.buttons[2]?.value||0)>.5 || p.buttons[2]?.pressed);
+ if(!held)controllerBackReady=true;
+ if(held&&controllerBackReady&&!controllerBackHeld)controllerBack();
+ controllerBackHeld=held;controllerBackFrame=requestAnimationFrame(pollControllerBack);
+}
+function resumeControllerBack(){try{if(window.BilliardsAndroid?.controllerBackVersion?.()>=1)return;}catch(_){}controllerBackReady=false;controllerBackHeld=false;if(!controllerBackFrame)controllerBackFrame=requestAnimationFrame(pollControllerBack);}
+function pauseControllerBack(){cancelAnimationFrame(controllerBackFrame);controllerBackFrame=0;controllerBackReady=false;controllerBackHeld=false;}
+window.addEventListener('blur',pauseControllerBack);window.addEventListener('pagehide',pauseControllerBack);
+window.addEventListener('focus',resumeControllerBack);
+document.addEventListener('visibilitychange',()=>document.hidden?pauseControllerBack():resumeControllerBack());
+resumeControllerBack();
+// End Controller Back.
 window.addEventListener('hashchange',route);
 function route(){
  N.stop();const path=location.hash.slice(1)||'home',parts=path.split('/'),tool=C.toolRoute(path);
+ if(path!==controllerRoute){if(controllerRoute&&!controllerReturning)controllerRoutes.push(controllerRoute);controllerRoute=path;controllerReturning=false;}
  view=parts[0];detailId=parts[1]||'';
  if(!['home','new','session','sessions','discoveries','detail','features','devices','settings',...W.views].includes(view))view='home';
  if(tool?.requiresSession&&!session())pendingTool=path;
