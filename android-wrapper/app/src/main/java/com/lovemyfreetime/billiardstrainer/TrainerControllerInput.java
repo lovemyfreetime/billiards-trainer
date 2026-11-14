@@ -39,18 +39,22 @@ final class TrainerControllerInput implements InputManager.InputDeviceListener {
     }
 
     void setEnabled(boolean value) {
+        if (!value && !enabled) return;
         enabled = value;
         refresh();
     }
 
     void setFocused(boolean value) {
+        if (focused == value) return;
         focused = value;
-        refresh();
+        if (enabled) refresh();
     }
 
     private void refresh() {
         pads.clear();
-        if (enabled && focused) for (int id : InputDevice.getDeviceIds()) {
+        // A WebView selection popup can take window focus and pause input capture.
+        // Reset held input, but only report a disconnect if the OS removed the pad.
+        for (int id : InputDevice.getDeviceIds()) {
             InputDevice d = InputDevice.getDevice(id);
             if (gamepad(d)) pads.put(id, new Pad(d));
         }
@@ -135,7 +139,7 @@ final class TrainerControllerInput implements InputManager.InputDeviceListener {
 
     private void publish() {
         JSONArray result = new JSONArray();
-        if (enabled && focused) for (Map.Entry<Integer, Pad> entry : pads.entrySet()) {
+        for (Map.Entry<Integer, Pad> entry : pads.entrySet()) {
             Pad p = entry.getValue();
             JSONArray axes = new JSONArray(), buttons = new JSONArray();
             for (float value : p.axes) axes.put((Object) Float.valueOf(value));
@@ -151,11 +155,17 @@ final class TrainerControllerInput implements InputManager.InputDeviceListener {
     }
 
     @Override public void onInputDeviceAdded(int id) {
-        if (enabled && focused) { InputDevice d = InputDevice.getDevice(id); if (gamepad(d)) { pads.put(id, new Pad(d)); publish(); } }
+        if (enabled) {
+            InputDevice d = InputDevice.getDevice(id);
+            if (gamepad(d)) { pads.put(id, new Pad(d)); publish(); }
+        }
     }
     @Override public void onInputDeviceRemoved(int id) { if (pads.remove(id) != null) publish(); }
     @Override public void onInputDeviceChanged(int id) {
-        if (pads.containsKey(id)) { pads.remove(id); onInputDeviceAdded(id); publish(); }
+        if (!enabled && !pads.containsKey(id)) return;
+        InputDevice d = InputDevice.getDevice(id);
+        if (gamepad(d)) { pads.put(id, new Pad(d)); publish(); }
+        else onInputDeviceRemoved(id);
     }
     void close() { enabled = false; pads.clear(); if (manager != null) manager.unregisterInputDeviceListener(this); }
 }

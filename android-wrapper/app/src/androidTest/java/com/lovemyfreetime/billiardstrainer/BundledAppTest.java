@@ -38,6 +38,97 @@ public class BundledAppTest {
         waitFor("location.href==="+org.json.JSONObject.quote(url)+"&&document.readyState==='complete'&&window.BilliardsBundledAndroid&&document.querySelector("+org.json.JSONObject.quote(selector)+")",25);
         System.out.println("ANDROID LOCAL "+path+": "+(SystemClock.elapsedRealtime()-start)+" ms");
     }
+    private void tapScreen(float x, float y) {
+        android.app.UiAutomation automation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
+        long down = SystemClock.uptimeMillis();
+        for (int action : new int[]{android.view.MotionEvent.ACTION_DOWN, android.view.MotionEvent.ACTION_UP}) {
+            android.view.MotionEvent event = android.view.MotionEvent.obtain(down, SystemClock.uptimeMillis(), action, x, y, 0);
+            event.setSource(android.view.InputDevice.SOURCE_TOUCHSCREEN);
+            try {
+                assertTrue("Inject picker tap", automation.injectInputEvent(event, true));
+            } finally {
+                event.recycle();
+            }
+        }
+    }
+
+    private android.graphics.Rect nativeChoice(String title) {
+        android.view.accessibility.AccessibilityNodeInfo root =
+            InstrumentationRegistry.getInstrumentation().getUiAutomation().getRootInActiveWindow();
+        if (root == null) return null;
+        for (android.view.accessibility.AccessibilityNodeInfo node : root.findAccessibilityNodeInfosByText(title)) {
+            if (!title.contentEquals(node.getText() == null ? "" : node.getText()) || !node.isVisibleToUser()) continue;
+            // An option in a WebView DOM tree is not proof of an open Android popup.
+            android.view.accessibility.AccessibilityNodeInfo parent = node;
+            boolean webContent = false;
+            while (parent != null) {
+                if ("android.webkit.WebView".contentEquals(String.valueOf(parent.getClassName()))) {
+                    webContent = true;
+                    break;
+                }
+                parent = parent.getParent();
+            }
+            android.graphics.Rect bounds = new android.graphics.Rect();
+            node.getBoundsInScreen(bounds);
+            if (!webContent && !bounds.isEmpty()) return bounds;
+        }
+        return null;
+    }
+
+    @Test public void connectedControllerMappingPickerStaysOpen() throws Exception {
+        Intent intent = new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(), MainActivity.class)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        android.app.UiAutomation automation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
+        android.os.ParcelFileDescriptor[] pipe = automation.executeShellCommandRw("uinput -");
+        try (android.os.ParcelFileDescriptor stdout = pipe[0];
+             android.os.ParcelFileDescriptor.AutoCloseOutputStream gamepad = new android.os.ParcelFileDescriptor.AutoCloseOutputStream(pipe[1]);
+             ActivityScenario<MainActivity> scenario = ActivityScenario.launch(intent)) {
+            String register = "{\"id\":1,\"type\":\"uinput\",\"command\":\"register\",\"name\":\"Trainer Picker Test Pad\","
+                + "\"vid\":6353,\"pid\":43981,\"bus\":\"usb\",\"configuration\":[{\"type\":100,\"data\":[1]},{\"type\":101,\"data\":[304]}]}\n";
+            gamepad.write(register.getBytes(StandardCharsets.UTF_8));
+            gamepad.flush();
+            scenario.onActivity(a -> activity = a);
+            waitFor("document.readyState==='complete' && window.BilliardsBundledAndroid && "
+                + "(document.querySelector('main nav') || document.querySelector('[data-device=android]'))", 30);
+            navigate(scenario, "?train=1", "#trainerControllerSetup");
+            js("BilliardsController.open();");
+            waitFor("document.getElementById('trainerControllerDevice').textContent.includes('Trainer Picker Test Pad')", 15);
+            js("const device=document.getElementById('trainerControllerDevice');"
+                + "device.value=[...device.options].find(o=>o.text.includes('Trainer Picker Test Pad')).value;"
+                + "device.dispatchEvent(new Event('change'));"
+                + "const enabled=document.getElementById('trainerControllerEnabled');if(!enabled.checked)enabled.click();"
+                + "window.pickerDialog=document.getElementById('trainerControllerDialog');"
+                + "window.pickerField=pickerDialog.querySelector('[data-button=\"14\"]');"
+                + "pickerField.scrollIntoView({block:'center'});");
+            waitFor("pickerDialog.scrollTop>50 && !pickerField.disabled", 5);
+            int initial = (int)Double.parseDouble(js("pickerDialog.scrollTop"));
+            String targetValue = js("pickerField.value").equals("\"fineRight\"") ? "fineLeft" : "fineRight";
+            String title = targetValue.equals("fineRight") ? "Fine aim right" : "Fine aim left";
+            org.json.JSONArray point = new org.json.JSONArray(js("(()=>{const r=pickerField.getBoundingClientRect();"
+                + "return [(r.left+r.width/2)/innerWidth,(r.top+r.height/2)/innerHeight]})()"));
+            int[] rect = new int[4];
+            scenario.onActivity(a -> {
+                a.webView.getLocationOnScreen(rect);
+                rect[2] = a.webView.getWidth();
+                rect[3] = a.webView.getHeight();
+            });
+            tapScreen((float)(rect[0]+rect[2]*point.getDouble(0)), (float)(rect[1]+rect[3]*point.getDouble(1)));
+            long deadline = SystemClock.uptimeMillis()+5000;
+            while (nativeChoice(title)==null && SystemClock.uptimeMillis()<deadline) Thread.sleep(100);
+            Thread.sleep(750);
+            android.graphics.Rect option = nativeChoice(title);
+            assertNotNull("Native mapping picker must stay open until selection: "+title, option);
+            tapScreen(option.exactCenterX(), option.exactCenterY());
+            waitFor("pickerField.value==='"+targetValue+"' && !pickerField.disabled", 5);
+            assertTrue("Selection must retain the lower mapping rows", Double.parseDouble(js("pickerDialog.scrollTop"))>50);
+            assertEquals("Mapping saved", "true", js("Object.values(JSON.parse(localStorage.getItem('billiards.controller.v1')).profiles)"
+                + ".some(p=>p.buttons[14]==='"+targetValue+"')"));
+            System.out.println("ANDROID controller native picker saved "+targetValue+", scroll "+initial+" -> "+js("pickerDialog.scrollTop"));
+            gamepad.close();
+            waitFor("pickerField.disabled || !document.getElementById('trainerControllerDevice').textContent.includes('Trainer Picker Test Pad')", 10);
+        }
+    }
+
     @Test public void completeAppWithoutInternetAndLegacyCacheMigration()throws Exception {
         // A local network may remain connected; public web access must fail.
         HttpURLConnection probe=(HttpURLConnection)new URL("https://example.com/").openConnection();
