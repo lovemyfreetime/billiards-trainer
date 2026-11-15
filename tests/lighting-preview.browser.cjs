@@ -23,7 +23,7 @@ for(const variant of ['baseline','softbox']){
   // Actual simulation frames captured immediately after the real renderer draws.
   // No texture editing or synthetic rotation is used for these motion frames.
   await page.evaluate(()=>{
-   billiardsTourBridge.apply({id:'lighting-roll',balls:[[0,.42,.5],[3,.65,.5]],target:1,pocket:[1,1],speed:.35,followPercent:35,sidePercent:30},{tableL:2.54,tableW:1.27});
+   billiardsTourBridge.apply({id:'lighting-roll',balls:[[0,.42,.5],[3,.65,.5]],target:3,pocket:[1,1],speed:.35,followPercent:35,sidePercent:30},{tableL:2.54,tableW:1.27});
    Billiards3D.restoreCamera({azimuth:0,elevation:.6,radius:1.1,target:{x:0,y:.0286,z:0},followCue:false});
   });
   await page.waitForTimeout(400);
