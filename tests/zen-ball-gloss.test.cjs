@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const s=fs.readFileSync('index.html','utf8'),body=s.slice(s.indexOf('    function drawZenBall('),s.indexOf('    function drawTable('));
+let commands=[];
+const ctx=new Proxy({}, {get:(o,k)=>k in o?o[k]:(...a)=>{commands.push([k,...a]);return {addColorStop(){}};},set:(o,k,v)=>{o[k]=v;return true;}});
+const c={ctx,S:{ballR:.03},ballBaseColor:()=> '#bb2233'};vm.createContext(c);vm.runInContext(body,c);
+const draw=(orientation)=>{commands=[];c.drawZenBall({id:3,x:.5,y:.5,orientation},p=>({x:p.x*1000,y:p.y*1000}),true);return commands;};
+const a=draw([0,0,0,1]),b=draw([1,0,0,0]);assert.deepEqual(a,b,'Fixed light does not rotate with markings');
+assert.equal(a.filter(x=>x[0]==='quadraticCurveTo').length,2,'Filled curved rectangle, not outline');
+assert(a.some(x=>x[0]==='fillText'&&x[1]===3),'Number remains present');
+assert(!a.some(x=>['drawImage','getImageData','rotate','stroke'].includes(x[0])),'No expensive pixel path or rotating/glowing outline');
+console.log('PASS: Zen filled fixed-light gloss, retained number, constant-cost vector drawing');

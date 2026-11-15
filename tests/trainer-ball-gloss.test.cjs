@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const s=fs.readFileSync('index.html','utf8'),body=s.slice(s.indexOf('    function drawTrainerBallGloss('),s.indexOf('    function drawBall('));
+let calls=[];const ctx=new Proxy({},{get:(o,k)=>(...a)=>{calls.push([k,...a]);return {addColorStop(){}};}});
+const c={ctx,S:{ballR:.03},isProjector:false};vm.createContext(c);vm.runInContext(body,c);
+const map=p=>({x:p.x*900+p.y*100,y:p.y*500});c.drawTrainerBallGloss({x:.4,y:.5},map);
+assert(calls.some(x=>x[0]==='transform'&&Math.abs(x[1]-27)<1e-6&&Math.abs(x[3]-3)<1e-6&&Math.abs(x[4]-15)<1e-6),'Gloss follows mapped table basis');
+assert.equal(calls.filter(x=>x[0]==='quadraticCurveTo').length,2);
+calls=[];c.isProjector=true;c.drawTrainerBallGloss({x:.4,y:.5},map);assert.equal(calls.length,0,'Projector unchanged');
+assert(s.indexOf('drawTrainerBallGloss(b,map);\n        if (label')>0,'Numbers drawn above gloss');
+console.log('PASS: Trainer2D mapped gloss, labels above reflection, projector unchanged');

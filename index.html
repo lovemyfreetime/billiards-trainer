@@ -6789,9 +6789,17 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         ctx.save();ctx.clip();
         if(b.id>=9){ctx.fillStyle=ballBaseColor(b.id);ctx.fillRect(p.x-r,p.y-r*.58,r*2,r*1.16);}
         const sheen=ctx.createRadialGradient(p.x-r*.38,p.y-r*.42,0,p.x+r*.23,p.y+r*.32,r*1.45);
-        sheen.addColorStop(0,'#fff7dfb0');sheen.addColorStop(.4,'#fff3d516');sheen.addColorStop(1,'#141a1266');ctx.fillStyle=sheen;ctx.fillRect(p.x-r,p.y-r,r*2,r*2);ctx.restore();
+        sheen.addColorStop(0,'#fff7df38');sheen.addColorStop(.4,'#fff3d50c');sheen.addColorStop(1,'#141a1278');ctx.fillStyle=sheen;ctx.fillRect(p.x-r,p.y-r,r*2,r*2);ctx.restore();
         if(b.id&&label){ctx.fillStyle='#f7ebd0';ctx.beginPath();ctx.arc(p.x,p.y,r*.4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#36382c';ctx.font=`600 ${r*.68}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(b.id,p.x,p.y+.3);}
-        ctx.shadowColor='#fff0bf55';ctx.shadowBlur=5;ctx.strokeStyle='#fff4d32b';ctx.lineWidth=.7;ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.stroke();
+        // Filled curved softbox reflection in the fixed top-down light frame.
+        // It follows position, never ball markings, and stays above the number.
+        const panel=ctx.createLinearGradient(p.x,p.y-r*.85,p.x,p.y-r*.30);
+        panel.addColorStop(0,'#fff9e86b');panel.addColorStop(1,'#fff9e829');ctx.fillStyle=panel;
+        ctx.beginPath();ctx.moveTo(p.x-r*.68,p.y-r*.48);
+        ctx.quadraticCurveTo(p.x-r*.22,p.y-r*.98,p.x+r*.36,p.y-r*.72);
+        ctx.lineTo(p.x+r*.40,p.y-r*.38);
+        ctx.quadraticCurveTo(p.x-r*.12,p.y-r*.60,p.x-r*.58,p.y-r*.20);
+        ctx.closePath();ctx.fill();
         ctx.restore();
     }
 
@@ -7094,6 +7102,21 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         return length>1 ? {x:corner.x+dx/length*inset,y:corner.y+dy/length*inset}
             : {x:center.x,y:center.y};
     }
+    function drawTrainerBallGloss(b,map,shade=true){
+        if(isProjector)return; // Projection keeps high-contrast flat registration colors.
+        const q=map(b),ex=map({x:b.x+S.ballR,y:b.y}),ey=map({x:b.x,y:b.y+S.ballR});
+        ctx.save();ctx.transform(ex.x-q.x,ex.y-q.y,ey.x-q.x,ey.y-q.y,q.x,q.y);
+        ctx.beginPath();ctx.arc(0,0,1,0,Math.PI*2);ctx.clip();
+        if(shade){
+            const body=ctx.createRadialGradient(-.38,-.42,0,.23,.32,1.45);
+            body.addColorStop(0,'#ffffff20');body.addColorStop(.4,'#ffffff00');body.addColorStop(1,'#07121d70');
+            ctx.fillStyle=body;ctx.fillRect(-1,-1,2,2);
+        }
+        const panel=ctx.createLinearGradient(0,-.85,0,-.30);
+        panel.addColorStop(0,'#ffffff70');panel.addColorStop(1,'#ffffff29');ctx.fillStyle=panel;
+        ctx.beginPath();ctx.moveTo(-.68,-.48);ctx.quadraticCurveTo(-.22,-.98,.36,-.72);
+        ctx.lineTo(.40,-.38);ctx.quadraticCurveTo(-.12,-.60,-.58,-.20);ctx.closePath();ctx.fill();ctx.restore();
+    }
     function drawBall(b, map, label = true, cueNumber = 1) {
         if(window.Billiards3D?.active&&!b.marker)return;
         if (!b.active)
@@ -7152,7 +7175,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if(S.trainingBallStyle!=='current'){
                 const image=window.BilliardsTrainingBall.sphere(trainingBallCanvas,S.trainingBallStyle,b.orientation,{right:[1,0,0],up:[0,0,-1],front:[0,1,0]});
                 const q=map(b),e=map({x:b.x+R,y:b.y}),v=map({x:b.x,y:b.y+R});
-                ctx.save();ctx.transform((e.x-q.x)/(64*.46),(e.y-q.y)/(64*.46),(v.x-q.x)/(64*.46),(v.y-q.y)/(64*.46),q.x,q.y);ctx.drawImage(image,-32,-32);ctx.restore();return;
+                ctx.save();ctx.transform((e.x-q.x)/(64*.46),(e.y-q.y)/(64*.46),(v.x-q.x)/(64*.46),(v.y-q.y)/(64*.46),q.x,q.y);ctx.drawImage(image,-32,-32);ctx.restore();drawTrainerBallGloss(b,map,false);return;
             }
             logicalCircle(b, R, map, '#f7f7f3', '#999', 1.2);
         }
@@ -7177,6 +7200,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         else {
             logicalCircle(b, R, map, ballBaseColor(b.id), '#111', 1.2);
         }
+        drawTrainerBallGloss(b,map);
         if (label && !isProjector) {
             const q = map(b);
             if (b.id === 0) {
