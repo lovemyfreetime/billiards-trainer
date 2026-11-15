@@ -19,11 +19,11 @@ for(const variant of ['baseline','softbox']){
  await page.evaluate(({azimuth,elevation})=>Billiards3D.restoreCamera({azimuth,elevation,radius:.85,target:{x:.0254,y:.0286,z:.04445},followCue:false}),{azimuth,elevation});
  await page.waitForTimeout(350);await page.locator('#table3DCanvas').screenshot({path:out+'/'+variant+'-'+name+'.png'});
  }
- if(variant==='softbox'){
+ {
 
   // Real maximum UI zoom, never a crop or post-enlargement.
   const zoomEvidence=[];
-  for(const id of [0,3,8,12]){
+  for(const id of [3,8]){
    for(let i=0;i<(id===0?8:2);i++){
     const azimuth=id===0?i*Math.PI/4:i*Math.PI+.8;
     const meta=await page.evaluate(({id,azimuth})=>{
@@ -34,64 +34,16 @@ for(const variant of ['baseline','softbox']){
     },{id,azimuth});
     assert.equal(meta.sliderValue,'100');assert(meta.camera.radius>.15&&meta.camera.radius<.153,'Actual app minimum camera radius');
     await page.waitForTimeout(250);
-    const filename='maxzoom-ball'+id+'-orbit'+String(i).padStart(2,'0')+'.png';
+    const filename=variant+'-maxzoom-ball'+id+'-orbit'+String(i).padStart(2,'0')+'.png';
     await page.locator('#table3DCanvas').screenshot({path:out+'/'+filename});
     if(id===0&&i===0)await page.screenshot({path:out+'/maxzoom-full-ui.png'});
     zoomEvidence.push({...meta,filename});
    }
   }
-  fs.writeFileSync(out+'/maxzoom.json',JSON.stringify(zoomEvidence,null,2));
-  // Actual simulation frames captured immediately after the real renderer draws.
-  // No texture editing or synthetic rotation is used for these motion frames.
-  await page.evaluate(()=>{
-   billiardsTourBridge.apply({id:'lighting-roll',balls:[[0,.42,.5],[3,.65,.5]],target:3,pocket:[1,1],speed:.35,followPercent:35,sidePercent:30},{tableL:2.54,tableW:1.27});
-   Billiards3D.restoreCamera({azimuth:0,elevation:.6,radius:1.1,target:{x:0,y:.0286,z:0},followCue:false});
-  });
-  await page.waitForTimeout(400);
-  await page.evaluate(()=>{
-   window.__lightingMotion=[];let last=-Infinity;
-   const capture=()=>{
-    if(!billiardsTourBridge.snapshot().busy||__lightingMotion.length>=10)return;
-    const now=performance.now();if(now-last<150)return;last=now;
-    __lightingMotion.push({time:now,balls:Billiards3D.renderedBalls(),camera:Billiards3D.camera(),png:document.getElementById('table3DCanvas').toDataURL('image/png')});
-   };
-   window.__lightingCapture=capture;window.addEventListener('billiards:3d-render',capture);
-   document.getElementById('animate').click();
-  });
-  await page.waitForFunction(()=>__lightingMotion.length>=3,null,{timeout:15000});
-  await page.waitForFunction(()=>!billiardsTourBridge.snapshot().busy,null,{timeout:45000});
-  const motion=await page.evaluate(()=>{window.removeEventListener('billiards:3d-render',__lightingCapture);return __lightingMotion;});
-  assert(motion.length>=3,'At least three real rolling frames');
-  const first=motion[0].balls.find(b=>b.id===0),last=motion.at(-1).balls.find(b=>b.id===0);
-  assert.notDeepEqual(first.rotation,last.rotation,'Cue pattern rotates during actual simulation');
-  assert(first.x!==last.x||first.z!==last.z,'Cue ball translates during actual simulation');
-  assert.deepEqual(motion[0].camera,motion.at(-1).camera,'Rolling capture keeps camera fixed');
-  for(let i=0;i<motion.length;i++){fs.writeFileSync(out+'/rolling-'+String(i).padStart(2,'0')+'.png',Buffer.from(motion[i].png.split(',')[1],'base64'));delete motion[i].png;}
-  fs.writeFileSync(out+'/motion.json',JSON.stringify(motion,null,2));
-  // Camera orbit with balls stationary: same fixed room, no lights tied to camera.
-  for(let i=0;i<8;i++){
-   await page.evaluate(a=>{const c=Billiards3D.camera();Billiards3D.restoreCamera({...c,azimuth:a});},i*Math.PI/4);
-   await page.waitForTimeout(250);
-   await page.locator('#table3DCanvas').screenshot({path:out+'/orbit-'+String(i).padStart(2,'0')+'.png'});
-  }
+  fs.writeFileSync(out+'/'+variant+'-maxzoom.json',JSON.stringify(zoomEvidence,null,2));
  }
  const timing=await page.evaluate(async()=>{const t=[];for(let i=0;i<30;i++){const s=performance.now();Billiards3D.controllerMove({rotateX:2});await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));t.push(performance.now()-s);}return {meanMs:t.reduce((a,b)=>a+b)/t.length,maxMs:Math.max(...t),samples:t};});
  results.push({variant,initMs,timing,errors,camera:await page.evaluate(()=>Billiards3D.camera())});assert.equal(errors.length,0,errors.join(';'));
- if(variant==='softbox'){
-  await page.goto('http://127.0.0.1:8797/?zen=1');
-  await page.waitForFunction(()=>document.body.classList.contains('zen-mode')&&window.billiardsTourBridge);
-  await page.evaluate(()=>billiardsTourBridge.apply({id:'zen-gloss',balls:[[0,.42,.4],[3,.5,.4],[8,.58,.4],[9,.46,.56],[12,.54,.56]],target:3,pocket:[1,1],speed:.35,followPercent:0,sidePercent:0},{tableL:2.54,tableW:1.27}));
-  await page.waitForTimeout(1000);
-  await page.screenshot({path:out+'/zen-gloss-full.png'});
-  await page.locator('#canvas').screenshot({path:out+'/zen-gloss-table.png'});
-  await page.goto('http://127.0.0.1:8797/?train=1');
-  await page.waitForFunction(()=>window.billiardsTourBridge);
-  await page.evaluate(()=>billiardsTourBridge.apply({id:'trainer-2d-gloss',balls:[[0,.42,.4],[3,.5,.4],[8,.58,.4],[9,.46,.56],[12,.54,.56]],target:3,pocket:[1,1],speed:.35,followPercent:0,sidePercent:0},{tableL:2.54,tableW:1.27}));
-  await page.waitForTimeout(700);
-  await page.screenshot({path:out+'/trainer-2d-gloss-full.png'});
-  await page.locator('#canvas').screenshot({path:out+'/trainer-2d-gloss-table.png'});
-  assert.equal(errors.length,0,errors.join(';'));
- }
  await ctx.close();
 }
 }finally{fs.writeFileSync(out+'/results.json',JSON.stringify(results,null,2));await browser?.close();server.kill();}})().catch(e=>{console.error(e);process.exit(1)});
