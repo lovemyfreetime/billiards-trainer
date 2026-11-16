@@ -40,7 +40,7 @@ fs.mkdirSync(dir, { recursive: true });
         await page.goto('http://127.0.0.1:8826/?train=1');
         await page.waitForFunction(() => window.billiardsPoolGuide && window.BilliardsShotRecorder && document.querySelector('#trainingBallStyle'));
         assert.deepEqual(await page.locator('#panel > .section > .sectionToggle span').allTextContents(), ['TABLE', 'SHOT', 'DRAW', 'CAPTURE', 'SAVED', 'OPTIONS']);
-        await page.evaluate(() => billiardsTourBridge.apply({ id: 'task-menu', title: 'Menu task check', balls: [[0, .25, .5], [1, .65, .5]], target: 1, pocket: [1, 1], speed: .3 }, { tableL: 2.54, tableW: 1.27 }));
+        await page.evaluate(() => billiardsTourBridge.apply({ id: 'task-menu', title: 'Menu task check', balls: [[0, .25, .5], [1, .65, .5]], target: 1, pocket: [1, 1], speed: .3, followPercent: 0, sidePercent: 0 }, { tableL: 2.54, tableW: 1.27 }));
         const initial = await state();
         for (const key of ['table', 'shot', 'draw', 'capture', 'saved', 'options']) {
           await open(key);
@@ -75,7 +75,7 @@ fs.mkdirSync(dir, { recursive: true });
         await page.locator('#layoutNameInput').fill('Menu recall');
         await page.locator('#saveLayoutBtn').click();
         const saved = await state();
-        await page.evaluate(() => billiardsTourBridge.apply({ id: 'different', title: 'Recall check', balls: [[0, .4, .3], [2, .7, .6]], target: 2, pocket: [1, 1], speed: 1 }, { tableL: 2.54, tableW: 1.27 }));
+        await page.evaluate(() => billiardsTourBridge.apply({ id: 'different', title: 'Recall check', balls: [[0, .4, .3], [2, .7, .6]], target: 2, pocket: [1, 1], speed: 1, followPercent: 0, sidePercent: 0 }, { tableL: 2.54, tableW: 1.27 }));
         await page.locator('#loadLayoutBtn').click();
         assert.deepEqual((await state()).balls, saved.balls, 'Saved layout recall uses its existing state');
         assert(await page.locator('#savedSection .bt-file-library').count(), 'Saved Files remains in Saved');

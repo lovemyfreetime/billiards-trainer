@@ -72,7 +72,7 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
     assert.equal(await page.locator('#teachingCompassToggle').getAttribute('aria-pressed'),'true');
     for(const [label,id]of [['.compassSideLabel','compassSize'],['.compassTopLabel','compassRotate']])assert(!overlaps(await page.locator(label).boundingBox(),await page.locator('#'+id).boundingBox()),'Compass label clears its slider');
     await screenshot('compass');await page.locator('#teachingCompassToggle').click();await page.locator('#phoneControls').click();
-    await page.locator('#phoneControls').click();await page.locator('#toggleShot2').click();await page.locator('#phoneControls').click();
+    await page.locator('#phoneControls').click();if(await page.locator('#shotSection > .sectionToggle').getAttribute('aria-expanded')==='false')await page.locator('#shotSection > .sectionToggle').click();await page.locator('#toggleShot2').click();await page.locator('#phoneControls').click();
     if((await shot()).activeShot!==2)await page.locator('#phoneAimChoice').click();
     for(const id of ['aimRoller2','tableSpeed2','bottomFollow2','bottomSide2','phoneTip2'])await reachable('#'+id);
     const beforeSecond=await shot();await page.locator('#tableSpeed2').press('ArrowRight');await page.locator('#bottomFollow2').press('ArrowRight');await page.locator('#bottomSide2').press('ArrowRight');
