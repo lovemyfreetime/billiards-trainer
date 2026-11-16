@@ -27,6 +27,8 @@ These decisions extend the existing cross-mode control review and supersede the 
 
 The retractable Tools panel uses six expandable task sections in a stable order:
 
+Opening a main task collapses the previous main task, while nested disclosure state and all shot/settings values remain intact. Users can close the active task or the whole drawer.
+
 | Section | Contents |
 | --- | --- |
 | Table | Full racks, ball placement and layout setup; markers and practice targets in a disclosure. |

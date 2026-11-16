@@ -14088,6 +14088,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 if(content){if(!content.id)content.id=(sec.id||'trainer-section-'+Array.from(sec.parentElement.children).indexOf(sec))+'-body';btn.setAttribute('aria-controls',content.id);}
                 btn.setAttribute('aria-expanded',String(sec.classList.contains('open')));
                 btn.addEventListener('click', () => {
+                    if(sec.parentElement.id==='panel'&&!sec.classList.contains('open')){
+                        for(const sibling of sec.parentElement.children){
+                            if(sibling!==sec&&sibling.classList.contains('section')){
+                                sibling.classList.remove('open');
+                                sibling.querySelector(':scope > .sectionToggle')?.setAttribute('aria-expanded','false');
+                            }
+                        }
+                    }
                     sec.classList.toggle('open');
                     btn.setAttribute('aria-expanded',String(sec.classList.contains('open')));
                     if (sec.id === 'liveStatsSection' && sec.classList.contains('open')) {
