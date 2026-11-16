@@ -2775,6 +2775,19 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         toast((file.kind==='session'?'Session resumed: ':'Table loaded: ')+d.name);
     }
     // Get Started uses the same table, solver, shot commit, and Undo history as normal play.
+    function setControlSectionOpen(section, opened) {
+        if(opened && section.parentElement.id === 'panel') {
+            for(const sibling of section.parentElement.children) {
+                if(sibling !== section && sibling.classList.contains('section')) {
+                    sibling.classList.remove('open');
+                    sibling.querySelector(':scope > .sectionToggle')?.setAttribute('aria-expanded', 'false');
+                }
+            }
+        }
+        section.classList.toggle('open', opened);
+        section.querySelector(':scope > .sectionToggle')?.setAttribute('aria-expanded', String(opened));
+        if(opened) requestAnimationFrame(fitLiveStats);
+    }
     window.billiardsTourBridge=(()=>{
         const copy=v=>JSON.parse(JSON.stringify(v,(key,value)=>key==='preview'?null:value));
         function capture(){return {state:copy(S),undo:copy(undoStack),history:copy(runHistory),name:$('layoutNameInput').value,quickName:$('layoutQuickName').value};}
@@ -2784,7 +2797,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const ball=S.balls.find(b=>b.id===id),px=pocket[0]*S.tableL,py=pocket[1]*S.tableW;
             const d=norm({x:px-ball.x,y:py-ball.y});return {x:ball.x-d.x*2*S.ballR,y:ball.y-d.y*2*S.ballR};
         }
-        function openControls(id){for(let el=$(id);el&&el.id!=='panel';el=el.parentElement){if(el.classList.contains('section')){el.classList.add('open');el.querySelector(':scope > .sectionToggle')?.setAttribute('aria-expanded','true');}if(el.tagName==='DETAILS')el.open=true;}}
+        function openControls(id){for(let el=$(id);el&&el.id!=='panel';el=el.parentElement){if(el.classList.contains('section'))setControlSectionOpen(el,true);if(el.tagName==='DETAILS')el.open=true;}}
         function apply(step,profile){
             if(animation)return false;
             S=defaultState();S.tableL=profile.tableL;S.tableW=profile.tableW;S.ballR=.028575;
@@ -14088,16 +14101,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 if(content){if(!content.id)content.id=(sec.id||'trainer-section-'+Array.from(sec.parentElement.children).indexOf(sec))+'-body';btn.setAttribute('aria-controls',content.id);}
                 btn.setAttribute('aria-expanded',String(sec.classList.contains('open')));
                 btn.addEventListener('click', () => {
-                    if(sec.parentElement.id==='panel'&&!sec.classList.contains('open')){
-                        for(const sibling of sec.parentElement.children){
-                            if(sibling!==sec&&sibling.classList.contains('section')){
-                                sibling.classList.remove('open');
-                                sibling.querySelector(':scope > .sectionToggle')?.setAttribute('aria-expanded','false');
-                            }
-                        }
-                    }
-                    sec.classList.toggle('open');
-                    btn.setAttribute('aria-expanded',String(sec.classList.contains('open')));
+                    setControlSectionOpen(sec,!sec.classList.contains('open'));
                     if (sec.id === 'liveStatsSection' && sec.classList.contains('open')) {
                         fitLiveStats();
                         const panel = $('panel');

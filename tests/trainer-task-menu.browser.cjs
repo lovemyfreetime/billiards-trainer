@@ -106,6 +106,8 @@ fs.mkdirSync(dir, { recursive: true });
             const download = await event;
             assert.equal(download.suggestedFilename(), `${mode}-${suffix}.png`);
             const data = fs.readFileSync(await download.path());
+            fs.writeFileSync(`${dir}/${viewport.width}-${mode}-${suffix}-export.png`, data);
+            console.log(`${viewport.width} ${mode}-${suffix}: ${data.readUInt32BE(16)}x${data.readUInt32BE(20)}`);
             assert.equal(data.subarray(1, 4).toString(), 'PNG');
             assert(data.readUInt32BE(16) >= 32 && data.readUInt32BE(20) >= 32, 'Snapshot has usable dimensions, including portrait perspective');
             assert(data.length > 1000, 'Snapshot contains image content');

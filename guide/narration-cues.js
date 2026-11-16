@@ -25,7 +25,7 @@ function mount(host,{page='Main'}={}){
   if(el.closest('#cuePopup')&&!document.getElementById('cuePopup').classList.contains('open')){openedCue=true;document.getElementById('cueRailBtn')?.click();}
   if(el.closest('#layoutQuickPanel')&&!document.getElementById('layoutQuickPanel').classList.contains('open')){openedLayout=true;document.getElementById('quickLayoutRecall')?.click();}
   // Only disclosure/navigation changes; no click on a shot, input, or feature switch.
-  for(let p=el.parentElement;p;p=p.parentElement){if(p.matches('.section'))p.classList.add('open');if(p.tagName==='DETAILS')p.open=true;}
+  for(let p=el.parentElement;p;p=p.parentElement){if(p.matches('.section')&&!p.classList.contains('open')){const toggle=p.querySelector(':scope > .sectionToggle');if(toggle)toggle.click();else p.classList.add('open');}if(p.tagName==='DETAILS')p.open=true;}
   const advanced=el.closest('.advancedBody');if(advanced){advanced.classList.add('open');document.querySelector('[data-advanced="'+advanced.id+'"]')?.classList.add('open');}
   const panel=el.closest('#panel');if(panel){if(document.body.classList.contains('phone-layout')&&!document.body.classList.contains('phone-controls-open')){openedPhone=true;document.getElementById('phoneControls')?.click();}const a=el.getBoundingClientRect(),b=panel.getBoundingClientRect();if(a.top<b.top+12||a.bottom>b.bottom-12)panel.scrollTop+=a.top-b.top-Math.min(50,b.height*.15);}
   else if(!el.closest('#bt-guide-pool-root')){const r=el.getBoundingClientRect();if(r.bottom>innerHeight||r.top<0)el.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});}
