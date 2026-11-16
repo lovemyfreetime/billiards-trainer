@@ -76,6 +76,7 @@ fs.mkdirSync(dir, { recursive: true });
         await page.locator('#saveLayoutBtn').click();
         const saved = await state();
         await page.evaluate(() => billiardsTourBridge.apply({ id: 'different', title: 'Recall check', balls: [[0, .4, .3], [2, .7, .6]], target: 2, pocket: [1, 1], speed: 1, followPercent: 0, sidePercent: 0 }, { tableL: 2.54, tableW: 1.27 }));
+        await open('saved');
         await page.locator('#loadLayoutBtn').click();
         assert.deepEqual((await state()).balls, saved.balls, 'Saved layout recall uses its existing state');
         assert(await page.locator('#savedSection .bt-file-library').count(), 'Saved Files remains in Saved');
