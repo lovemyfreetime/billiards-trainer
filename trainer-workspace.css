@@ -434,3 +434,5 @@ body.trainer-workspace .workspaceBall.on-table { opacity:.55; }
 #workspaceTools #workspace-picker .workspaceTaskMenu > summary { position:relative; z-index:1; pointer-events:auto; }
 #workspaceTools #workspace-picker .workspaceTaskMenu > .workspaceToolGroup { z-index:2; pointer-events:auto; }
 #workspaceTools #workspace-picker .workspaceTaskMenu:not([open]) > .workspaceToolGroup { display:none!important; }
+
+body.trainer-workspace .workspaceBall:focus-visible { outline:2px solid #b0e3ff; outline-offset:3px; }

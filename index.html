@@ -14109,7 +14109,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                     if (sec.id === 'liveStatsSection' && sec.classList.contains('open')) {
                         fitLiveStats();
                         const panel = $('panel');
-                        panel.scrollTop += sec.getBoundingClientRect().top - panel.getBoundingClientRect().top - 8;
+                        panel.scrollTop += sec.getBoundingClientRect().top - panel.getBoundingClientRect().top - (document.body.classList.contains('trainer-workspace') ? 64 : 8);
                     }
                 });
             }
