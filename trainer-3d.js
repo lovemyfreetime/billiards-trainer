@@ -236,7 +236,7 @@
    const key=id===0?'cue-'+style:id;
    if(materials.has(key))return materials.get(key);
    const map=new T.CanvasTexture(window.BilliardsBallArt.texture(id,style));map.colorSpace=T.SRGBColorSpace;map.anisotropy=4;
-   const material=new T.MeshPhysicalMaterial({map,roughness:.22,metalness:0,envMapIntensity:.7,clearcoat:.75,clearcoatRoughness:.18});
+   const material=new T.MeshStandardMaterial({map,roughness:.20,metalness:0,envMapIntensity:.85});
    materials.set(key,material);return material;
   }
   const contactCanvas=document.createElement('canvas');contactCanvas.width=contactCanvas.height=64;const contactCtx=contactCanvas.getContext('2d'),contactGradient=contactCtx.createRadialGradient(32,32,2,32,32,30);

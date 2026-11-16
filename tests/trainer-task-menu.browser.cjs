@@ -106,6 +106,7 @@ fs.mkdirSync(dir, { recursive: true });
           if (viewport.width === 1366) await picture('2d-' + key);
         }
         assert.deepEqual(await state(), initial, 'Menu exploration preserves the shot');
+        await page.locator('#optionsSection > .sectionToggle').click();await picture('compact-tabs');
         await open('shot');
         assert.equal(await page.locator('#shot1Metrics').isVisible(),false,'Shot contains only the original shot controls');
         assert.equal(await page.locator('#shotBody details').count(),0);
