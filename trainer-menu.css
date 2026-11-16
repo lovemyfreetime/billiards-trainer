@@ -8,7 +8,9 @@ body.trainer-workspace #panel > .section > .sectionToggle { display:flex; align-
 body.trainer-workspace #panel > .section.open > .sectionToggle { background:#57a8ef; color:#03101b; box-shadow:inset 4px 0 #d5eeff; }
 body.trainer-workspace #panel > .section > .sectionToggle::after { margin-left:auto; font-size:22px; }
 #panel > .section { border-color:#4e89af; background:#101d28; }
+#panel { scroll-padding-top:60px; }
 #panel .sectionBody { padding:10px; }
+body.trainer-workspace.phone-controls-open #appViewHint { display:none; }
 #panel .menuSubsection { margin:0 0 10px; padding:0; border:1px solid var(--menu-line); border-radius:8px; overflow:hidden; background:#182b3a; }
 #panel .menuSubsection > summary,
 body.trainer-workspace #panel .section .section > .sectionToggle { display:flex; list-style:none; align-items:center; gap:10px; min-height:48px; box-sizing:border-box; padding:10px; background:var(--menu-sub); color:#f2f8fd; cursor:pointer; text-align:left; border:0; }
@@ -85,7 +87,7 @@ body.trainer-workspace #panel #btg-pool-launchers { margin:0; }
 /* The former full-screen dismiss layer blocked live aiming with Tools open. */
 body.trainer-workspace.phone-controls-open #phoneDismiss { display:none!important; pointer-events:none!important; }
 @media(max-width:700px) {
- body.trainer-workspace.phone-focus #panel { width:calc(100vw - 76px); min-width:260px; box-sizing:border-box; }
+ body.trainer-workspace.phone-focus #panel { width:calc(100vw - 76px); min-width:260px; box-sizing:border-box; padding-top:112px; scroll-padding-top:112px; }
  #panel .sectionBody { padding:8px; }
  #panel .menuDescription { font-size:11px; }
  body.trainer-workspace #panel .btg-pool-title h1 { font-size:26px!important; }
@@ -94,7 +96,7 @@ body.trainer-workspace.phone-controls-open #phoneDismiss { display:none!importan
 @media(min-width:1000px) {
  body.trainer-workspace.phone-controls-open { --menu-dock:360px; --workspace-top:116px; }
  body.trainer-workspace.phone-controls-open #panel { width:var(--menu-dock); box-sizing:border-box; }
- body.trainer-workspace.phone-controls-open.phone-focus #stageWrap { right:calc(var(--workspace-edge) + var(--menu-dock) + env(safe-area-inset-right))!important; }
+ body.trainer-workspace.phone-controls-open.phone-focus:not(.zen-mode):not(.projector) #stageWrap { right:calc(var(--workspace-edge) + var(--menu-dock) + env(safe-area-inset-right))!important; }
  body.trainer-workspace.phone-controls-open.phone-focus #phoneSpeedRail { right:calc(10px + var(--menu-dock) + env(safe-area-inset-right)); }
  body.trainer-workspace.phone-controls-open.phone-focus #phoneActions { right:calc(120px + var(--menu-dock) + env(safe-area-inset-right))!important; }
  body.trainer-workspace.phone-controls-open.phone-focus #phoneActions>[data-trainer-action=animate] { right:calc(10px + var(--menu-dock) + env(safe-area-inset-right))!important; }

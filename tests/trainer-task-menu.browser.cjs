@@ -43,6 +43,10 @@ fs.mkdirSync(dir, { recursive: true });
         await open('shot');
         assert(await page.locator('#firstBall').isVisible(), 'Live Results opens with Shot');
         await page.locator('#cutAngle').scrollIntoViewIfNeeded();
+        if(viewport.width>=1000) {
+          const table=await page.locator('#stageWrap').boundingBox(), panel=await page.locator('#panel').boundingBox();
+          assert(table.x+table.width<=panel.x-8,'Docked menu leaves the whole table workspace uncovered');
+        }
         const before = await state(), value = await page.locator('#cutAngle').textContent();
         const roller = page.locator('#aimRoller');
         assert(await roller.evaluate(e=>{const r=e.getBoundingClientRect();return e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}), 'Aim roller is reachable with Tools open');
@@ -64,6 +68,9 @@ fs.mkdirSync(dir, { recursive: true });
         assert.equal(await page.locator('#panel h1 .editionSub').textContent(),'AI Edition');
         assert(await page.locator('#panel h1 .editionSub').isVisible());
         assert(await page.locator('#panel h1').evaluate(e=>parseFloat(getComputedStyle(e).fontSize)>=26));
+        const titleBox=await page.locator('#panel h1').boundingBox(), toolsBox=await page.locator('#phoneControls').boundingBox();
+        assert(titleBox.y>=toolsBox.y+toolsBox.height,'Menu title clears the fixed Tools control');
+        await picture('header');
         const mainBlue=await page.locator('#shotSection > .sectionToggle').evaluate(e=>getComputedStyle(e).backgroundColor);
         const subBlue=await page.locator('#liveStatsSection > .sectionToggle').evaluate(e=>getComputedStyle(e).backgroundColor);
         assert.notEqual(mainBlue,subBlue,'Main and subsection blues have different depths');

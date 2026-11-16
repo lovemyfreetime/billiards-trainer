@@ -1,5 +1,5 @@
 {
-  "version": "7f2592dcfa0dcaec",
+  "version": "9ca13bced331e4a3",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -1350,7 +1350,7 @@
     "trainer-camera-recorder.js": "aa0be4c8fec3b02b12aeafc8ed18cf0f27b9d397c951e56268f3f3a894fd5bb8",
     "trainer-compass-controls.js": "1bee13b80d477fb1e85c88129de3813b16490c8d0f4d4957a2e72175e7988b9a",
     "trainer-layout-files.js": "262d5dd963d46919608a881d3caca7a798343ab4106d158167d9e19895ecc950",
-    "trainer-menu.css": "0395ee3dcca549ea2412e77b1ed4d9e46b2f092dff8450b00a71da19c7fdd3b3",
+    "trainer-menu.css": "9829460661bf42310ad9ae6ff9d9a8d06142c92884ad98ff78d8353dbaa82488",
     "trainer-menu.js": "699ee769a3a525f5bb123a9d60a4d1847cd14be145ef66931cc748d54ee742af",
     "trainer-pocket-entry.js": "25861bb806b495cfa8f92b4867c00cd4cf22cf8d04b11a460cb524282f5b3ec6",
     "trainer-practice-tools.js": "4f3be4afca8e51274aa1b9eb8c9dcd696e466c26a8974650bafe4dccd950650d",
