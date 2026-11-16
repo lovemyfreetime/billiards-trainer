@@ -428,3 +428,9 @@ body.trainer-workspace .workspaceBall.on-table { opacity:.55; }
  #workspaceTopActions { gap:4px; }
  body.trainer-workspace #workspaceTopActions > #phoneControls { margin-left:8px; }
 }
+#workspaceTools #workspace-picker .workspacePickerFan { pointer-events:none; }
+#workspaceTools #workspace-picker .workspaceTaskMenu { pointer-events:none; }
+#workspaceTools #workspace-picker .workspaceTaskMenu[open] { z-index:2; }
+#workspaceTools #workspace-picker .workspaceTaskMenu > summary { position:relative; z-index:1; pointer-events:auto; }
+#workspaceTools #workspace-picker .workspaceTaskMenu > .workspaceToolGroup { z-index:2; pointer-events:auto; }
+#workspaceTools #workspace-picker .workspaceTaskMenu:not([open]) > .workspaceToolGroup { display:none!important; }
