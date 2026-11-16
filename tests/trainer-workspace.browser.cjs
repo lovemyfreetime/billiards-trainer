@@ -11,6 +11,8 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
    await context.addInitScript(()=>{window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=true;window.chrome={webview:{postMessage(){}}}});
    const page=await context.newPage(),errors=[];page.setDefaultTimeout(8000);page.on('pageerror',e=>errors.push(e.message));
    const shot=()=>page.evaluate(()=>billiardsTourBridge.capture().state);
+   const showPicker=async()=>{if(!(await page.locator('#workspace-picker').evaluate(e=>e.open)))await page.locator('#workspace-picker > summary').click();};
+   const tool=async key=>{await showPicker();await page.locator('#workspace-'+key+' > summary').click();};
    const reachable=async selector=>{const el=page.locator(selector);assert(await el.isVisible(),selector+' visible');const box=await el.boundingBox();assert(box&&box.width>0&&box.height>0,selector+' sized');assert(await el.evaluate(e=>{const r=e.getBoundingClientRect();return e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}),selector+' not covered');return box;};
    const screenshot=tag=>page.screenshot({path:`${dir}/${viewport.width}-${tag}.png`});
    const speedReadouts=async which=>{
@@ -21,7 +23,7 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
    const openAiming=async()=>{if(!(await page.locator('body').evaluate(e=>e.classList.contains('phone-controls-open'))))await page.locator('#phoneControls').click();const section=page.locator('.section').filter({has:page.locator('#featureAimingOptions')});if(!(await section.evaluate(e=>e.classList.contains('open'))))await section.locator(':scope > .sectionToggle').click();const group=page.locator('#menu-featureAimingOptions');if(!(await group.evaluate(e=>e.open)))await group.locator(':scope > summary').click();await page.locator('#workspaceAimTools').scrollIntoViewIfNeeded();};
    const clearAndUndo=async()=>{const before=await shot();await reachable('#workspaceClearBalls');await page.locator('#workspaceClearBalls').click();const cleared=await shot();assert.equal(cleared.balls.length,0);assert.equal(cleared.shot2Enabled,false);assert.deepEqual(cleared.pocketedLog,[]);for(const key of ['speed','follow','sideSpin','tableL','tableW','muRoll','railRest'])assert.equal(cleared[key],before[key],'Clear preserves '+key);await page.keyboard.press('Control+z');assert.deepEqual((await shot()).balls,before.balls,'Clear is action-undoable');assert.equal((await shot()).shot2Enabled,before.shot2Enabled);};
    const motion=async()=>{
-    const summary=page.locator('#workspace-motion summary'),button=page.locator('#workspace-motion button');
+    await showPicker();const summary=page.locator('#workspace-motion summary'),button=page.locator('#workspace-motion button');
     assert(await summary.evaluate(e=>e.parentElement.previousElementSibling.id==='workspace-view'));
     assert(!overlaps(await reachable('#workspace-motion summary'),await page.locator('#appCloseControl').boundingBox()),'Motion clears Close');await summary.click();
     assert.deepEqual(await button.allTextContents(),['Regular Motion','Slow Motion','Really Slow Motion','Super Slow Motion']);
@@ -34,7 +36,7 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
     await page.locator('#trainerPlaybackQuickSpeed').selectOption('1');await page.locator('#trainerPlaybackHide').click();
    };
    const analyzer=async(mode)=>{
-    await page.locator('#workspace-setup summary').click();await page.locator('#analyzePhotoBtn').click();
+    await tool('setup');await page.locator('#analyzePhotoBtn').click();
     assert(await page.locator('#photoAnalyzerStatus').evaluate(e=>e.parentElement.id==='phoneAnalyzeBar'));assert(!(await page.locator('#phoneAnalyzeBar').innerText()).split('\n').includes('null'));
     for(const id of ['photoChooseImage','photoAnalyzeNow','photoAddMissed','photoMoreTools','photoAnalyzerClose'])await reachable('#'+id);
     assert.equal(await page.locator('#photoAnalyzeNow').textContent(),'Analyze Balls');assert.equal(await page.locator('#photoAddMissed').textContent(),'Add Missed Ball');
@@ -43,7 +45,7 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
     await page.locator('#phonePhotosButton').click();assert(await page.locator('#photoArchiveSelect').isVisible());await page.keyboard.press('Escape');
     if(viewport.width===1366){
      const fixture=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=720;c.height=420;const x=c.getContext('2d');x.fillStyle='#257e8b';x.fillRect(0,0,c.width,c.height);x.fillStyle='white';x.beginPath();x.arc(225,190,10,0,Math.PI*2);x.fill();return c.toDataURL().split(',')[1];});
-     if(mode==='3d'){await page.locator('#photoAnalyzerClose').click();await page.locator('#workspace-setup summary').click();await page.evaluate(()=>{const c=document.createElement('canvas');c.width=720;c.height=420;const ctx=c.getContext('2d');ctx.fillStyle='#257e8b';ctx.fillRect(0,0,720,420);window.__testCameraFixture=c;Object.defineProperty(navigator.mediaDevices,'getUserMedia',{configurable:true,value:async()=>{const stream=c.captureStream(10);setTimeout(()=>{ctx.fillRect(0,0,720,420);},100);return stream;}});});await page.locator('#cameraCaptureBtn').click();}else await page.locator('#photoFileInput').setInputFiles({name:'table.png',mimeType:'image/png',buffer:Buffer.from(fixture,'base64')});
+     if(mode==='3d'){await page.locator('#photoAnalyzerClose').click();await tool('setup');await page.evaluate(()=>{const c=document.createElement('canvas');c.width=720;c.height=420;const ctx=c.getContext('2d');ctx.fillStyle='#257e8b';ctx.fillRect(0,0,720,420);window.__testCameraFixture=c;Object.defineProperty(navigator.mediaDevices,'getUserMedia',{configurable:true,value:async()=>{const stream=c.captureStream(10);setTimeout(()=>{ctx.fillRect(0,0,720,420);},100);return stream;}});});await page.locator('#cameraCaptureBtn').click();}else await page.locator('#photoFileInput').setInputFiles({name:'table.png',mimeType:'image/png',buffer:Buffer.from(fixture,'base64')});
      await page.locator('#tableCamera [data-action=snap]').click();await page.waitForFunction(()=>!photoAnalyzeNow.disabled);
      const rev=await page.evaluate(()=>billiardsWalkthroughBridge.snapshot().analysisRevision);
      await page.locator('#photoAnalyzeNow').click();await page.waitForFunction(v=>{const s=billiardsWalkthroughBridge.snapshot();return !s.busy&&(s.analysisRevision>v||s.analysisError);},rev,{timeout:120000});
@@ -55,24 +57,32 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
    };
    try{
     await page.goto('http://127.0.0.1:8820/?train=1');await page.waitForFunction(()=>window.billiardsTourBridge&&window.billiardsWorkspaceSync);
+    await showPicker();await screenshot('picker');
+    for(const key of ['setup','view','motion','follow']){
+     await tool(key);const r=await reachable('#workspace-'+key+' > summary'),menu=await reachable('#workspace-'+key+' .workspaceToolGroup');
+     assert(menu.y>=r.y+r.height&&menu.y-r.y-r.height<=10,'Dropdown follows its chosen circle');
+     assert(menu.x>=0&&menu.x+menu.width<=viewport.width+1,'Dropdown fits viewport');
+     assert(await page.locator('#workspace-picker').evaluate(e=>e.open));
+     await screenshot('picker-'+key);await page.keyboard.press('Escape');
+    }
     await motion();await analyzer('2d');await trayControls();await page.locator('#table3DRackToggle').click();await screenshot('rack');await page.locator('#table3DRackMenu [data-rack=rack9]').click();assert.equal((await shot()).balls.filter(b=>b.active&&!b.marker).length,10,'Tray Rack sets up the 2D table');
     await page.evaluate(()=>billiardsTourBridge.apply({id:'workspace',title:'Workspace',balls:[[0,.25,.5],[1,.65,.5],[2,.75,.25]],target:1,pocket:[1,1],speed:2.4,followPercent:0,sidePercent:0},{tableL:2.54,tableW:1.27}));
     await reachable('#btZenLauncher .experience-toggle');await reachable('#appCloseControl');await screenshot('2d');
     assert.equal(await page.locator('#panel').isVisible(),false);
     const initial=await shot();await page.locator('#phoneControls').click();assert(await page.locator('#panel').isVisible());await screenshot('drawer');await page.locator('#phoneControls').click();assert.deepEqual(await shot(),initial,'Drawer preserves the shot');
     for(const [group,ids]of Object.entries({setup:['analyzePhotoBtn','cameraCaptureBtn','quickLayoutRecall'],view:['tableZoom','btg-fullscreen']})){
-     await page.locator('#workspace-'+group+' summary').click();for(const id of ids)assert(await page.locator('#'+id).isVisible(),id+' is discoverable in '+group);await screenshot(group);await page.keyboard.press('Escape');
+     await tool(group);for(const id of ids)assert(await page.locator('#'+id).isVisible(),id+' is discoverable in '+group);await screenshot(group);await page.keyboard.press('Escape');
     }
     assert.equal(await page.locator('#workspace-setup summary').textContent(),'Import');assert.equal(await page.locator('#workspaceFit').textContent(),'Full Table');
-    await page.locator('#workspace-setup summary').click();const stack=await Promise.all(['analyzePhotoBtn','cameraCaptureBtn','quickLayoutRecall'].map(id=>reachable('#'+id)));assert(stack.every(b=>Math.abs(b.x-stack[0].x)<1&&Math.abs(b.width-stack[0].width)<1));assert(stack[0].y+stack[0].height<=stack[1].y&&stack[1].y+stack[1].height<=stack[2].y);await page.keyboard.press('Escape');
-    await page.evaluate(()=>BilliardsTableZoom.restore({enabled:true,scale:2,x:-.3,y:-.2}));await page.locator('#workspace-view summary').click();await page.locator('#workspaceFit').click();assert.deepEqual(await page.evaluate(()=>BilliardsTableZoom.snapshot()),{enabled:false,scale:1,x:0,y:0},'Full Table restores the complete table');assert.deepEqual(await shot(),initial,'Full Table leaves shot state unchanged');
+    await tool('setup');const stack=await Promise.all(['analyzePhotoBtn','cameraCaptureBtn','quickLayoutRecall'].map(id=>reachable('#'+id)));assert(stack.every(b=>Math.abs(b.x-stack[0].x)<1&&Math.abs(b.width-stack[0].width)<1));assert(stack[0].y+stack[0].height<=stack[1].y&&stack[1].y+stack[1].height<=stack[2].y);await page.keyboard.press('Escape');
+    await page.evaluate(()=>BilliardsTableZoom.restore({enabled:true,scale:2,x:-.3,y:-.2}));await tool('view');await page.locator('#workspaceFit').click();assert.deepEqual(await page.evaluate(()=>BilliardsTableZoom.snapshot()),{enabled:false,scale:1,x:0,y:0},'Full Table restores the complete table');assert.deepEqual(await shot(),initial,'Full Table leaves shot state unchanged');
     const speed2d=await speedReadouts(1);
     assert.equal(await page.locator('#workspace-plan').count(),0);for(const id of ['kickToolToggle','bankToolToggle','teachingCompassToggle']){assert(!(await page.locator('#'+id).isVisible()),id+' stays in drawer');assert(await page.locator('#'+id).evaluate(e=>!!e.closest('#featureAimingOptions')));}
     await openAiming();await page.locator('#teachingCompassToggle').click();
     assert.equal(await page.locator('#teachingCompassToggle').getAttribute('aria-pressed'),'true');
     for(const [label,id]of [['.compassSideLabel','compassSize'],['.compassTopLabel','compassRotate']])assert(!overlaps(await page.locator(label).boundingBox(),await page.locator('#'+id).boundingBox()),'Compass label clears its slider');
     await screenshot('compass');await page.locator('#teachingCompassToggle').click();await page.locator('#phoneControls').click();
-    await page.locator('#phoneControls').click();if(await page.locator('#shotSection > .sectionToggle').getAttribute('aria-expanded')==='false')await page.locator('#shotSection > .sectionToggle').click();await page.locator('#menuShotPlanning > summary').click();await page.locator('#toggleShot2').click();await page.locator('#phoneControls').click();
+    await page.locator('#phoneControls').click();if(await page.locator('#shotSection > .sectionToggle').getAttribute('aria-expanded')==='false')await page.locator('#shotSection > .sectionToggle').click();await page.locator('#toggleShot2').click();await page.locator('#phoneControls').click();
     if((await shot()).activeShot!==2)await page.locator('#phoneAimChoice').click();
     for(const id of ['aimRoller2','tableSpeed2','bottomFollow2','bottomSide2','phoneTip2'])await reachable('#'+id);
     const beforeSecond=await shot();await page.locator('#tableSpeed2').press('ArrowRight');await page.locator('#bottomFollow2').press('ArrowRight');await page.locator('#bottomSide2').press('ArrowRight');
@@ -87,7 +97,7 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
     await page.locator('#workspaceBalls [data-ball-id="3"]').click();assert((await shot()).balls.some(b=>b.id===3));assert(!(await shot()).pocketedLog.includes(3));assert(await page.locator('#workspaceBalls [data-ball-id="3"]').isDisabled());
     await page.locator('#phoneTrayToggle').click();assert(!(await page.locator('#workspaceBalls').isVisible()));await page.locator('#phoneTrayToggle').click();
     const geometry=async()=>{
-     const tools=await reachable('#phoneControls');for(const id of ['workspace-setup','workspace-view'])assert(!overlaps(tools,await page.locator('#'+id+' summary').boundingBox()),'Tools clears '+id);
+     const tools=await reachable('#phoneControls');assert(!overlaps(tools,await reachable('#workspace-picker > summary')),'Tools clears the picker');
      const ids=['stageWrap','phoneAimRail','phoneSpeedRail',...(await page.locator('#workspaceBallShelf').isVisible()?['workspaceBallShelf']:[]),'bottomSpin1'];const boxes={};for(const id of ids)boxes[id]=await page.locator('#'+id).boundingBox();
      for(const id of ids.slice(1))assert(!overlaps(boxes.stageWrap,boxes[id]),'Table clears '+id+': '+JSON.stringify(boxes));
      if(boxes.workspaceBallShelf)assert(!overlaps(boxes.workspaceBallShelf,boxes.bottomSpin1),'Balls clear spin');

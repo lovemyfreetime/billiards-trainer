@@ -40,8 +40,8 @@ fs.mkdirSync(dir, { recursive: true });
         for(const id of ids) { const d=page.locator('#'+id); if(!(await d.evaluate(e=>e.open))) await d.locator(':scope > summary').click(); }
       };
       const liveAim = async mode => {
-        await open('shot');
-        assert(await page.locator('#firstBall').isVisible(), 'Live Results opens with Shot');
+        await open('liveStats');
+        assert(await page.locator('#firstBall').isVisible(), 'Live Results has its own tab');
         await page.locator('#cutAngle').scrollIntoViewIfNeeded();
         if(viewport.width>=1000) {
           const table=await page.locator('#stageWrap').boundingBox(), panel=await page.locator('#panel').boundingBox();
@@ -62,7 +62,7 @@ fs.mkdirSync(dir, { recursive: true });
       try {
         await page.goto('http://127.0.0.1:8826/?train=1');
         await page.waitForFunction(() => window.billiardsMenuReady && window.billiardsPoolGuide && window.BilliardsShotRecorder && document.querySelector('#trainingBallStyle'));
-        assert.deepEqual(await page.locator('#panel > .section > .sectionToggle .menuTitle').allTextContents(), ['Shot', 'Table & Balls', 'Table Notes', 'Capture', 'Saved', 'Features & Options']);
+        assert.deepEqual(await page.locator('#panel > .section > .sectionToggle .menuTitle').allTextContents(), ['Shot', 'Live Shot Results', 'Table & Balls', 'Table Notes', 'Capture', 'Saved', 'Features & Options']);
         await drawer();
         assert.equal(await page.locator('#shotSection > .sectionToggle').getAttribute('aria-expanded'),'true');
         assert.equal(await page.locator('#panel h1 .editionSub').textContent(),'AI Edition');
@@ -71,26 +71,48 @@ fs.mkdirSync(dir, { recursive: true });
         const titleBox=await page.locator('#panel h1').boundingBox(), toolsBox=await page.locator('#phoneControls').boundingBox();
         assert(titleBox.y>=toolsBox.y+toolsBox.height,'Menu title clears the fixed Tools control');
         await picture('header');
+        assert.equal(await page.locator('#liveStatsSection').evaluate(e=>e.previousElementSibling.id),'shotSection');
+        const toolbar = ['#btZenLauncher .experience-toggle','#table3DToggle','#workspace-picker > summary','[data-trainer-action=undoShot]','[data-trainer-action=redoShot]','#phoneControls'];
+        const boxes=[];
+        for(const selector of toolbar){
+          const el=page.locator(selector),r=await el.boundingBox(); boxes.push(r);
+          assert(Math.abs(r.width-r.height)<1,selector+' is circular');
+          assert(Math.abs(r.width-46)<1,selector+' uses the same diameter');
+          assert(await el.evaluate(e=>{const r=e.getBoundingClientRect();return e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}),selector+' is reachable');
+        }
+        assert.equal(await page.locator('#table3DToggle').textContent(),'3D');
+        assert(boxes[5].x-boxes[4].x-boxes[4].width>boxes[4].x-boxes[3].x-boxes[3].width+8,'Tools has a distinct gap after Redo');
+        assert.equal(await page.locator('.workspaceBall').first().evaluate(e=>getComputedStyle(e).outlineStyle),'none');
+        assert(await page.locator('.workspaceBall').first().evaluate(e=>getComputedStyle(e).backgroundImage.startsWith('url(')));
+        if(viewport.width===1366){
+          const data=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=1024;c.height=256;const x=c.getContext('2d');for(let id=0;id<16;id++)x.drawImage(BilliardsBallArt.image(id),(id%8)*128,Math.floor(id/8)*128);return c.toDataURL().split(',')[1];});
+          fs.writeFileSync(dir+'/ball-art.png',Buffer.from(data,'base64'));
+        }
         const mainBlue=await page.locator('#shotSection > .sectionToggle').evaluate(e=>getComputedStyle(e).backgroundColor);
-        const subBlue=await page.locator('#liveStatsSection > .sectionToggle').evaluate(e=>getComputedStyle(e).backgroundColor);
+        const subBlue=await page.locator('#menuFullRacks > summary').evaluate(e=>getComputedStyle(e).backgroundColor);
         assert.notEqual(mainBlue,subBlue,'Main and subsection blues have different depths');
         for(const id of ['menuFullRacks','menuLayoutSetup','menuSingleBall','menuMarkers','menuPhoto','menuVideo','menuAudio','menuRecordShot','menuRecordSession','menuCamera','menuSavedLayouts','menuSavedFiles','menuFileActions','menu-featureTableOptions','menu-featureCueOptions','menu-featureAimingOptions','menu-featureOtherOptions','menuPhysics']) assert.equal(await page.locator('#'+id).evaluate(e=>e.tagName),'DETAILS',id+' is collapsible');
         assert.equal(await page.locator('#airbornePhysics').count(),0);
         assert(await page.locator('#menuPhysics').evaluate(e=>e.previousElementSibling.id==='calibrationSection'));
         await page.evaluate(() => billiardsTourBridge.apply({ id: 'task-menu', title: 'Menu task check', balls: [[0, .25, .5], [1, .65, .5]], target: 1, pocket: [1, 1], speed: .3, followPercent: 0, sidePercent: 0 }, { tableL: 2.54, tableW: 1.27 }));
         const initial = await state();
-        for (const key of ['table', 'shot', 'draw', 'capture', 'saved', 'options']) {
+        for (const key of ['shot', 'liveStats', 'table', 'draw', 'capture', 'saved', 'options']) {
           await open(key);
           assert.equal(await page.locator('#panel > .section.open').count(), 1, 'Task switching collapses the previous task');
           const heading = page.locator('#' + key + 'Section > .sectionToggle');
           await heading.scrollIntoViewIfNeeded();
           const box = await heading.boundingBox();
-          assert(box.height >= 44 && box.x >= 0 && box.x + box.width <= viewport.width + 1, key + ' heading fits and is touchable');
+          assert(box.height >= 34 && box.height <= 40 && box.x >= 0 && box.x + box.width <= viewport.width + 1, key + ' heading fits and is touchable');
           if (viewport.width === 1366) await picture('2d-' + key);
         }
         assert.deepEqual(await state(), initial, 'Menu exploration preserves the shot');
         await open('shot');
-        assert(await page.locator('#shot1Metrics').isVisible(), 'Live Results starts open');
+        assert.equal(await page.locator('#shot1Metrics').isVisible(),false,'Shot contains only the original shot controls');
+        assert.equal(await page.locator('#shotBody details').count(),0);
+        assert(await page.locator('#speedNumber').isVisible());
+        assert.equal(await page.locator('#panel > .section > .sectionToggle .menuIcon,#panel > .section > .sectionToggle .menuDescription').count(),0);
+        assert.equal(await page.locator('#trainerAnnotateGroup').evaluate(e=>e.closest('details')?.id||''),'');
+        await open('liveStats');
         assert(await page.locator('#firstBall').isVisible());
         assert.equal(await page.locator('#liveStatsSection > .sectionToggle').getAttribute('data-guide-topic'), 'main-panel-live-stats');
         await page.locator('#liveStatsSection > .sectionToggle').click();
@@ -102,6 +124,13 @@ fs.mkdirSync(dir, { recursive: true });
         assert.equal(await page.locator('#muSlide').isVisible(), false, 'Presets precede advanced coefficients');
         await reveal('#muSlide');
         assert(await page.locator('#muSlide').isVisible());
+        assert.equal(await page.locator('#trainerAppInfo').evaluate(e=>e.previousElementSibling.id),'menuPhysics');
+        assert(await page.locator('#calibrationSection').evaluate(e=>parseFloat(getComputedStyle(e).marginTop)>=20));
+        await page.locator('#trainerAppInfo').evaluate(e=>e.hidden=false);
+        assert.equal(Math.round((await page.locator('#trainerAppInfo').boundingBox()).height),Math.round((await page.locator('#menu-featureOtherOptions > summary').boundingBox()).height));
+        assert.equal(await page.locator('#trainerAppInfo').evaluate(e=>getComputedStyle(e).backgroundColor),subBlue);
+        if(viewport.width===1366){await page.locator('#trainerAppInfo').scrollIntoViewIfNeeded();await picture('features-info');}
+        await page.locator('#trainerAppInfo').evaluate(e=>e.hidden=true);
         for (const id of ['kickToolToggle', 'bankToolToggle', 'teachingCompassToggle']) assert.equal(await page.locator('#' + id).evaluate(e => e.closest('fieldset').id), 'featureAimingOptions');
         for (const [id, topic] of [['table', 'main-panel-table-balls'], ['shot', 'main-panel-shot'], ['options', 'main-panel-features-options']]) {
           assert.equal(await page.locator('#' + id + 'Section > .sectionToggle').getAttribute('data-guide-topic'), topic);
@@ -183,7 +212,7 @@ fs.mkdirSync(dir, { recursive: true });
           assert.equal(await session.getAttribute('aria-pressed'), 'false');
         }
         assert.deepEqual(errors, [], 'No initialization or interaction errors');
-        console.log(viewport.width + ': six sections, state preservation, blue disclosures, title, live aiming/results, physics, Guide, Saved recall, Notes, 2D/3D PNGs and sessions passed');
+        console.log(viewport.width + ': seven compact sections, state preservation, blue disclosures, title, live aiming/results, physics, Guide, Saved recall, Notes, 2D/3D PNGs and sessions passed');
       } catch (error) {
         await picture('failure');
         failures.push(viewport.width + ': ' + error.stack);

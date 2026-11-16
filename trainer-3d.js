@@ -4,7 +4,7 @@
  if(new URLSearchParams(location.search).has('projector')||new URLSearchParams(location.search).get('zen')==='1')return;
  const stage=document.getElementById('stageWrap'),source=document.getElementById('canvas');
  if(!stage||!source)return;
- const button=document.createElement('button');button.type='button';button.id='table3DToggle';button.textContent='3D Mode';button.setAttribute('aria-pressed','false');
+ const button=document.createElement('button');button.type='button';button.id='table3DToggle';button.textContent='3D';button.setAttribute('aria-pressed','false');
  const status=document.createElement('span');status.id='table3DStatus';status.setAttribute('role','status');
  const views=document.createElement('nav');views.id='table3DViews';views.setAttribute('aria-label','Table viewpoints');views.append(button);stage.append(views,status);
  const tools=document.createElement('nav');tools.id='table3DTools';tools.hidden=true;tools.setAttribute('aria-label','3D camera controls');
@@ -172,13 +172,13 @@
   state.target={x:b.x-f.L/2,y:Number.isFinite(b.z)?Math.max(f.R,b.z):f.R,z:b.y-f.W/2};
   return true;
  }
- function disable(){if(!active)return;closePopovers();setDrawer(false);active=false;document.body.classList.remove('table-3d','table-3d-locked','table-3d-pan','table-3d-rotate');button.setAttribute('aria-pressed','false');button.textContent='3D Mode';for(const b of [button,standingButton,alongButton])b.style.removeProperty('font-size');tools.hidden=true;for(const b of [standingButton,alongButton,viewLock])b.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
+ function disable(){if(!active)return;closePopovers();setDrawer(false);active=false;document.body.classList.remove('table-3d','table-3d-locked','table-3d-pan','table-3d-rotate');button.setAttribute('aria-pressed','false');button.textContent='3D';for(const b of [button,standingButton,alongButton])b.style.removeProperty('font-size');tools.hidden=true;for(const b of [standingButton,alongButton,viewLock])b.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
  async function enable(){
   if(active)return true;if(loading)return false;loading=true;button.disabled=true;status.textContent='';
   // Request within the entry gesture, before loading WebGL can consume activation.
   window.BilliardsDisplay?.enter(true);
   try{if(!engine){const three=await import('./vendor/three/three-renderer.js?v=4');engine=createEngine(three);}if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
-   active=true;document.body.classList.add('table-3d');button.setAttribute('aria-pressed','true');button.textContent='2D Mode';tools.hidden=false;for(const b of [standingButton,alongButton,viewLock])b.hidden=false;positionToggle();
+   active=true;document.body.classList.add('table-3d');button.setAttribute('aria-pressed','true');button.textContent='2D';tools.hidden=false;for(const b of [standingButton,alongButton,viewLock])b.hidden=false;positionToggle();
    if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();
    window.billiardsControlLayout?.();dock();setDrawer(false);window.dispatchEvent(new Event('resize'));standing();setViewLocked(viewLocked);setPanEnabled(panEnabled);window.BilliardsSpinLabUI?.onCameraReady();requestRender();
   }catch(error){disable();status.textContent='3D view is unavailable on this device. The top-down table is ready.';console.warn('3D camera unavailable:',error.message);}
@@ -226,34 +226,18 @@
   const roomCanvas=document.createElement('canvas');roomCanvas.width=512;roomCanvas.height=256;
   const roomCtx=roomCanvas.getContext('2d'),roomGradient=roomCtx.createLinearGradient(0,0,0,256);
   roomGradient.addColorStop(0,'#a0aaad');roomGradient.addColorStop(.5,'#505c62');roomGradient.addColorStop(1,'#192126');roomCtx.fillStyle=roomGradient;roomCtx.fillRect(0,0,512,256);
-  roomCtx.filter='blur(8px)';roomCtx.fillStyle='#f4f2e8';roomCtx.fillRect(55,35,130,25);roomCtx.fillRect(300,35,140,25);
+  roomCtx.filter='blur(6px)';roomCtx.fillStyle='#f4f2e8';roomCtx.fillRect(45,28,155,38);roomCtx.fillRect(290,28,165,38);
   const room=new T.CanvasTexture(roomCanvas);room.mapping=T.EquirectangularReflectionMapping;room.colorSpace=T.SRGBColorSpace;scene.environment=room;scene.environmentIntensity=.55;
   const floor=new T.Mesh(new T.PlaneGeometry(100,100),new T.MeshStandardMaterial({color:0x131b21,roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-.82;floor.receiveShadow=true;scene.add(floor);
   const textureCanvas=document.createElement('canvas'),textureCtx=textureCanvas.getContext('2d'),texture=new T.CanvasTexture(textureCanvas);texture.colorSpace=T.SRGBColorSpace;texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
   const surfaceMaterial=new T.MeshStandardMaterial({map:texture,color:0xcbd4cf,roughness:.98,envMapIntensity:.15}),bodyMaterial=new T.MeshStandardMaterial({color:0x252b30,roughness:.64}),legMaterial=new T.MeshStandardMaterial({color:0x20272c,roughness:.6});
   const sphere=new T.SphereGeometry(1,40,28),ballMeshes=new Map(),materials=new Map(),contacts=new Map(),contactGroup=new T.Group();scene.add(contactGroup);let dimensions='',dirty=true,lastSize='',frame=null,pocketSpecs=[];const rollStep=new T.Quaternion(),rollAxis=new T.Vector3();
-  const palette=['#fbfbf4','#f4cd22','#1763bd','#d12e2f','#7135ad','#f07a22','#198952','#a52132','#171b20'];
   function ballMaterial(id,style='current'){
    const key=id===0?'cue-'+style:id;
    if(materials.has(key))return materials.get(key);
-   const options={roughness:.3,metalness:0,envMapIntensity:.7};
-   if(id===0&&style!=='current'){const map=new T.CanvasTexture(window.BilliardsTrainingBall.texture(style));map.colorSpace=T.SRGBColorSpace;map.anisotropy=4;options.map=map;}
-   else if(id===0){
-    // A standard practice-ball pattern makes cue-ball rotation visible as well.
-    const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');x.fillStyle='#f5f3e9';x.fillRect(0,0,512,256);x.fillStyle='#969b96';
-    for(const u of [0,.25,.5,.75,1]){x.beginPath();x.arc(u*512,128,7,0,Math.PI*2);x.fill();}x.fillRect(0,0,512,6);x.fillRect(0,250,512,6);
-    const map=new T.CanvasTexture(c);map.colorSpace=T.SRGBColorSpace;options.map=map;
-   }
-   else{
-    // The number panels are part of the spherical texture, never floating labels.
-    // Two opposite panels and an equatorial stripe match a physical pool ball.
-    const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d'),color=palette[id>8?id-8:id]||palette[0];
-    x.fillStyle=id>8?'#f5f3e9':color;x.fillRect(0,0,512,256);
-    if(id>8){x.fillStyle=color;x.fillRect(0,78,512,100);}
-    for(const u of [.25,.75]){x.fillStyle='#faf8ee';x.beginPath();x.arc(c.width*u,128,37,0,Math.PI*2);x.fill();x.fillStyle='#161c20';x.font='700 43px Arial';x.textAlign='center';x.textBaseline='middle';x.fillText(String(id),c.width*u,130);}
-    const map=new T.CanvasTexture(c);map.colorSpace=T.SRGBColorSpace;map.anisotropy=4;options.map=map;
-   }
-   const material=new T.MeshStandardMaterial(options);materials.set(key,material);return material;
+   const map=new T.CanvasTexture(window.BilliardsBallArt.texture(id,style));map.colorSpace=T.SRGBColorSpace;map.anisotropy=4;
+   const material=new T.MeshPhysicalMaterial({map,roughness:.22,metalness:0,envMapIntensity:.7,clearcoat:.75,clearcoatRoughness:.18});
+   materials.set(key,material);return material;
   }
   const contactCanvas=document.createElement('canvas');contactCanvas.width=contactCanvas.height=64;const contactCtx=contactCanvas.getContext('2d'),contactGradient=contactCtx.createRadialGradient(32,32,2,32,32,30);
   contactGradient.addColorStop(0,'rgba(0,0,0,.24)');contactGradient.addColorStop(.45,'rgba(0,0,0,.13)');contactGradient.addColorStop(1,'rgba(0,0,0,0)');contactCtx.fillStyle=contactGradient;contactCtx.fillRect(0,0,64,64);

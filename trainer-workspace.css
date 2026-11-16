@@ -384,3 +384,47 @@ body.trainer-workspace #panel .sectionToggle:focus-visible,body.trainer-workspac
 #trainerAnnotateGroup .trainerAnnotateTools button,#trainerPhotoControls .trainerAnnotateTools button,#trainerClipTools .row button { min-height:44px; }
 #trainerClipTools .toolDisclosure > label { display:block; margin:6px 0 4px; }
 #trainerClipTools .toolDisclosure > select { width:100%; box-sizing:border-box; }
+
+/* Compact circular controls and a single four-way table-tool picker. */
+body.trainer-workspace:not(.zen-mode) { --top-circle:46px; --workspace-top:64px; }
+body.trainer-workspace #workspaceTools { z-index:67; left:10px; right:60px; max-width:none; flex-wrap:nowrap; gap:6px; height:var(--top-circle); }
+body.trainer-workspace #workspaceTools > #table3DToggle,
+body.trainer-workspace:not(.zen-mode) #workspaceTools > #btZenLauncher,
+body.trainer-workspace:not(.zen-mode) #workspaceTools > #btZenLauncher .experience-toggle,
+body.trainer-workspace #workspace-picker > summary,
+body.trainer-workspace #workspaceTopActions > button {
+ position:static!important; inset:auto!important; flex:0 0 var(--top-circle); width:var(--top-circle)!important; min-width:var(--top-circle)!important; height:var(--top-circle)!important; min-height:var(--top-circle)!important; box-sizing:border-box; padding:0!important; margin:0; border-radius:50%!important; border:1px solid #78929f; background:#1d2c36; color:#edf6fa; box-shadow:none; font:600 11px/1.1 system-ui;
+}
+body.trainer-workspace #workspaceTools > #table3DToggle { font-size:13px; }
+body.trainer-workspace #workspace-picker { flex:none; }
+body.trainer-workspace #workspace-picker > summary { display:grid; place-items:center; list-style:none; cursor:pointer; }
+body.trainer-workspace #workspace-picker > summary::after { content:none; }
+body.trainer-workspace #workspace-picker[open] > summary { background:#2b4c61; border-color:#b3d8e9; }
+#workspaceTopActions { margin-left:auto; display:flex; align-items:center; gap:6px; }
+body.trainer-workspace #workspaceTopActions > #phoneControls { margin-left:12px; border:2px solid #a9d4e9; }
+body.trainer-workspace #workspaceTopActions > #phoneControls::after { content:none; }
+body.trainer-workspace #workspaceTopActions > #phoneControls[aria-expanded=true] { background:#30576d; }
+#workspaceTools #workspace-picker .workspacePickerFan { position:absolute; top:calc(var(--top-circle) + 8px); width:280px; height:148px; box-sizing:border-box; border:1px solid #688291; border-radius:16px 16px 145px 145px; background:#14212aFA; box-shadow:0 8px 24px #0008; }
+#workspaceTools #workspace-picker .workspacePickerFan > details { position:absolute!important; width:64px; }
+#workspaceTools #workspace-picker .workspacePickerFan > details:nth-child(1) { left:6px; top:12px; }
+#workspaceTools #workspace-picker .workspacePickerFan > details:nth-child(2) { left:73px; top:74px; }
+#workspaceTools #workspace-picker .workspacePickerFan > details:nth-child(3) { left:143px; top:74px; }
+#workspaceTools #workspace-picker .workspacePickerFan > details:nth-child(4) { left:210px!important; top:12px!important; }
+#workspaceTools #workspace-picker .workspacePickerFan > details > summary { display:flex; align-items:center; justify-content:center; width:64px; height:64px; min-height:64px; padding:6px; box-sizing:border-box; border-radius:50%; text-align:center; white-space:normal; font:600 11px/1.2 system-ui; }
+#workspaceTools #workspace-picker .workspacePickerFan > details > summary::after { content:none; }
+body.trainer-workspace #workspaceTools #workspace-picker .workspacePickerFan .workspaceToolGroup { position:fixed!important; top:var(--tools-menu-top,140px)!important; left:var(--tools-menu-left,8px)!important; right:auto!important; max-width:calc(100vw - 16px); max-height:calc(100dvh - var(--tools-menu-top,140px) - 12px); margin:0; }
+body.trainer-workspace #workspaceTools > #phoneAimChoice { position:fixed; top:calc(var(--workspace-top) + 8px); left:10px; width:60px; min-height:38px; padding:4px; }
+body.trainer-workspace .workspaceBall { border:0; background:var(--ball-art) center/100% 100% no-repeat; box-shadow:none; }
+body.trainer-workspace .workspaceBall.stripe { background:var(--ball-art) center/100% 100% no-repeat; }
+body.trainer-workspace .workspaceBall.pocketed { outline:none; }
+body.trainer-workspace .workspaceBall.on-table { opacity:.55; }
+@media(max-width:374px) {
+ body.trainer-workspace:not(.zen-mode) { --top-circle:44px; }
+ body.trainer-workspace #workspaceTools { right:44px; }
+}
+@media(max-width:340px) {
+ body.trainer-workspace:not(.zen-mode) { --top-circle:40px; }
+ body.trainer-workspace #workspaceTools { gap:4px; right:36px; }
+ #workspaceTopActions { gap:4px; }
+ body.trainer-workspace #workspaceTopActions > #phoneControls { margin-left:8px; }
+}

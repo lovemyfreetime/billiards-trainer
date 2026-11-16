@@ -2115,6 +2115,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 <script src="./trainer-table-zoom.js?v=2"></script>
 <script src="./trainer-shot-budget.js?v=exit-2"></script>
 <script src="./trainer-training-ball.js?v=1"></script>
+<script src="./trainer-ball-art.js?v=1"></script>
 <script src="./trainer-pocket-entry.js?v=1"></script>
 <script src="./trainer-aim-zones.js?v=8"></script>
 <script>
@@ -7164,6 +7165,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         }
 
         if(document.body.classList.contains('zen-mode')){drawZenBall(b,map,label);return;}
+        if(document.body.classList.contains('trainer-workspace') && (b.id !== 0 || S.trainingBallStyle === 'current')) {
+            const image=window.BilliardsBallArt.image(b.id < 0 ? 0 : b.id), q=map(b), e=map({x:b.x+R,y:b.y}), v=map({x:b.x,y:b.y+R}), r=image.width*.46;
+            ctx.save();ctx.transform((e.x-q.x)/r,(e.y-q.y)/r,(v.x-q.x)/r,(v.y-q.y)/r,q.x,q.y);
+            ctx.save();ctx.translate(1.5,3);const shade=ctx.createRadialGradient(0,0,r*.3,0,0,r*1.08);shade.addColorStop(0,'#0007');shade.addColorStop(1,'#0000');ctx.fillStyle=shade;ctx.beginPath();ctx.arc(0,0,r*1.08,0,Math.PI*2);ctx.fill();ctx.restore();
+            ctx.drawImage(image,-image.width/2,-image.height/2);ctx.restore();return;
+        }
         if (b.id === 0) {
             if(S.trainingBallStyle!=='current'){
                 const image=window.BilliardsTrainingBall.sphere(trainingBallCanvas,S.trainingBallStyle,b.orientation,{right:[1,0,0],up:[0,0,-1],front:[0,1,0]});
@@ -7466,7 +7473,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 const large=!!window.Billiards3D?.active,w=large?Math.max(60,disk.clientWidth):60,h=large?w:64;
                 disk.width = Math.round(w * DPR); disk.height = Math.round(h * DPR);
                 const c = disk.getContext('2d');c.setTransform(disk.width/60,0,0,disk.height/(large?60:64),0,0);
-                drawTipBadgeDisk(c, large?{r:24,cx:30,cy:30}:{r:20,cx:30,cy:27}, values, large?'':'CB ' + which);
+                drawTipBadgeDisk(c, large?{r:24,cx:30,cy:30}:{r:20,cx:30,cy:27}, values, document.body.classList.contains('trainer-workspace') ? '' : large ? '' : 'CB ' + which);
             } else drawTipBadgeDisk(ctx, badge, values, which === 2 ? 'TIP 2' : 'TIP');
         }
     }

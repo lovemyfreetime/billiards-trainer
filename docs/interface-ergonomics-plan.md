@@ -25,20 +25,21 @@ These decisions extend the existing cross-mode control review and supersede the 
 
 ## Organized task menu — November 16, 2026
 
-The retractable Tools panel uses six expandable task sections in a stable order:
+The retractable Tools panel uses seven expandable task sections in a stable order:
 
 Opening a main task collapses the previous main task, while nested disclosure state and all shot/settings values remain intact. Users can close the active task or the whole drawer.
 
 | Section | Contents |
 | --- | --- |
-| Shot | Opens by default when Tools opens, with Live Shot Results visible. Separate disclosures for precision controls, cue contact, planning, Jump/Massé and history. |
+| Shot | Opens by default when Tools opens. Retain the original shot controls, cue contact, planning, Jump/Massé and history directly in the section. |
+| Live Shot Results | A separate main tab immediately below Shot; retain interactive aiming while its readouts stay visible. |
 | Table & Balls | Equal-level disclosures for full racks, layout setup, single-ball placement and markers/targets. |
-| Table Notes | Write/annotate tools, text editing, color, annotation undo/clear and annotation lock. |
+| Table Notes | Write/annotate tools directly inside the tab, with no redundant wrapper subsection. |
 | Capture | Photo, Video and Audio disclosures; nested shot/session/camera recording and narration. Preserve recorder capability checks. |
 | Saved | Distinct collapsible Saved Ball Layouts, Saved Files, and Import/Export/Auto-save sections. |
 | Features & Options | Table, Cue, Aiming, Practice, Calibration and Advanced Physics are peer disclosures. Shot owns the single Jump/Massé switch; the redundant advanced checkbox is removed. |
 
-Main task headers use bright blue; subsections use a deeper blue, with restrained line icons and colored collection edges. Standard actions have consistent 44px minimum height. Expand the Billiards Trainer title and restore the AI Edition subtitle. Use short labels and readable optional reference text.
+Main task headers retain their compact single-line blue treatment with text only. Subsections retain deeper blue headers, restrained line icons and colored collection edges. Standard actions have consistent 44px minimum height. Expand the Billiards Trainer title and restore the AI Edition subtitle. Use short labels and readable optional reference text.
 
 The drawer no longer has a fullscreen dismiss layer that intercepts aiming. At widths of 1000px and above it docks beside the workspace, shifting right-side controls clear of the drawer. At smaller widths preserve access to the left aim rail. Keep Live Shot Results updating while the menu stays open.
 
@@ -64,3 +65,11 @@ Verify the rendered compass center against its projected handles after opening a
 - Import opens one vertical stack: Real Table / Image Import, Camera Import, Layouts. Both image entry points return to the same alignment, detection, review and apply flow.
 - Keep Choose Image, Analyze Balls, Add Missed Ball and Close in sight. Instructions have their own line. Secondary tools start expanded on larger displays; a touch control reveals them on phones.
 - In wide 3D layouts the speed rail ends above Shoot whether the tray is open or closed. Narrow layouts reserve clearance for the wrapped camera row.
+
+## Polish revision — November 16, 2026
+
+Preserve the full main labels and larger Billiards Trainer / AI Edition branding. Main headers are36px tall with no icons or tiny description labels. Restore the original Shot arrangement rather than imposing new subfolders. Table Notes exposes its sole annotation group directly. App Info keeps its native dialog action but uses the subsection size/color at the bottom of Features & Options. Leave24px above Calibration to distinguish calibration/advanced physics from ordinary features.
+
+Use uniform circular top controls for experience,2D/3D, the picker, Undo, Redo and Tools. Keep Undo/Redo paired and add12px extra separation before Tools, with a clearer outline. The picker expands downward as a semicircle containing Import, View, Motion and Follow View circles; each circle opens its existing menu directly below that circle. Preserve IDs, keyboard access, outside dismissal and existing bindings.
+
+Use the existing3D spherical ball textures for both the2D table and shared tray, including all16 identities, stripes and number panels. Shared artwork prevents the modes drifting apart. Preserve bright colors while adding spherical shading and broad reflected highlights;3D uses the same textures with a polished clear coat. Remove dotted pocketed-ball outlines and the CB1 caption from the central cue-tip disk. Keep ball placement, drag/undo, training-ball markings and physics unchanged. Zen remains outside this visual revision.

@@ -16,7 +16,7 @@
   header.id = 'phoneHeader';
   const controls = document.createElement('button');
   controls.id = 'phoneControls'; controls.type = 'button';
-  controls.textContent = 'Controls'; controls.setAttribute('aria-controls', 'panel');
+  controls.textContent = workspace ? 'Tools' : 'Controls'; controls.setAttribute('aria-controls', 'panel');
   controls.setAttribute('aria-expanded', 'false');
   header.append(controls);
   const dismiss = document.createElement('button');
@@ -286,7 +286,7 @@
   function setControls(open) {
     document.body.classList.toggle('phone-controls-open', open && focused());
     controls.setAttribute('aria-expanded', String(open && focused()));
-    controls.textContent = open && focused() ? '×' : '☰';
+    controls.textContent = workspace ? 'Tools' : open && focused() ? '×' : '☰';
     controls.setAttribute('aria-label',document.body.classList.contains('table-3d')?(open?'Close tools':'Open tools'):(open && focused() ? 'Close trainer controls' : 'Open trainer controls'));
     controls.title=open && focused() ? 'Close controls' : 'Controls';
     panel.inert = focused() && !open;

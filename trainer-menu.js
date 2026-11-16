@@ -55,6 +55,7 @@
   function wrap(el, id, title, key, open = false) { const anchor = document.createComment(id); el.before(anchor); const d = disclosure(id, title, key, [el], open); anchor.replaceWith(d); return d; }
   const menus = [
     ['shot', 'Shot', 'shot', 'Aim · Spin · Live Results'],
+    ['liveStats', 'Live Shot Results', 'stats', ''],
     ['table', 'Table & Balls', 'table', 'Racks · Ball Placement · Targets'],
     ['draw', 'Table Notes', 'notes', 'Lines · Shapes · Written Notes'],
     ['capture', 'Capture', 'capture', 'Photos · Video · Audio'],
@@ -64,7 +65,9 @@
   const anchor = document.createComment('Task order'); byId('tableSection').before(anchor);
   for (const [id, title, key, description] of menus) {
     const section = byId(id + 'Section'); section.dataset.menuTask = id;
-    header(section.querySelector(':scope > .sectionToggle'), title, key, description);
+    const heading = section.querySelector(':scope > .sectionToggle');
+    const label = document.createElement('span'); label.className = 'menuTitle'; label.textContent = title;
+    heading.replaceChildren(label); heading.setAttribute('aria-label', title);
     anchor.before(section);
   }
   anchor.remove();
@@ -80,8 +83,7 @@
   markerRoot.querySelector('.tableControlTitle')?.remove();
 
   // Results stay beside aiming. Their existing IDs, observers and expand controls are retained.
-  const stats = byId('liveStatsSection'); stats.classList.add('menuSubsection');
-  header(stats.querySelector(':scope > .sectionToggle'), 'Live Shot Results', 'stats');
+  const stats = byId('liveStatsSection');
   stats.querySelector(':scope > .sectionToggle').dataset.guideTopic = 'main-panel-live-stats';
   stats.querySelector('.liveStatsIntro')?.remove();
   for (const body of stats.querySelectorAll('.shotStatsBody')) {
@@ -95,21 +97,9 @@
     }
     body.replaceChildren(...grouped);
   }
-  const shotBody = byId('shotBody');
-  const precision = disclosure('menuShotControls', 'Aim & Spin Controls', 'options', [byId('shot1Controls'), byId('shot2Controls')]);
-  const tips = disclosure('menuCueContact', 'Cue-tip Contact', 'cue', [byId('tipArea')]);
-  shotBody.append(precision, tips);
-  const featureRow = byId('shotBudget').parentElement;
-  const jump = disclosure('menuJump', 'Jump & Massé', 'cue', [byId('jumpMasseFeatures'), byId('jumpModeLock').closest('label'), byId('cueElevationAdvanced1'), byId('cueElevationAdvanced2')]);
-  for (const which of [1, 2]) jump.querySelector('#cueElevationAdvanced' + which).addEventListener('pointerdown', () => window.billiardsSelectShot?.(which));
-  const planning = disclosure('menuShotPlanning', 'Shot Planning', 'layout', [grid([byId('toggleShot2'), byId('shotBudget')])]);
-  const history = disclosure('menuShotHistory', 'Execute & History', 'stats', [byId('shotExecuteRow'), ...shotBody.querySelectorAll(':scope > .shotHistoryRow'), byId('resetLayoutQuick').parentElement]);
-  featureRow.remove();
-  shotBody.append(precision, tips, planning, jump, history);
 
   // Notes use restrained tool samples rather than the ambiguous Draw heading.
   byId('trainerAnnotateGroup').querySelector('.tableControlTitle')?.remove();
-  wrap(byId('trainerAnnotateGroup'), 'menuNotes', 'Write & Annotate', 'notes', true);
   for (const button of panel.querySelectorAll('[data-annotate-tool]')) {
     const tool = button.dataset.annotateTool, name = tool === 'draw' ? 'Freehand' : button.textContent;
     button.replaceChildren(icon(tool), document.createTextNode(name));
@@ -161,6 +151,10 @@
   advanced.classList.add('menuPhysicsFields'); advanced.classList.remove('advancedBody');
   panel.querySelector('[data-advanced=physicsAdvanced]')?.remove();
   byId('optionsBody').append(physics);
+  const appInfo = byId('trainerAppInfo');
+  appInfo.classList.add('menuSubsection', 'menuInfo');
+  header(appInfo, 'App Info', 'files');
+  byId('optionsBody').append(appInfo);
 
   // Retain detailed reference text on demand and show concise, readable guidance.
   for (const el of panel.querySelectorAll('.hint')) {
@@ -179,7 +173,6 @@
   function openShot() {
     const section = byId('shotSection');
     if (!section.classList.contains('open')) section.querySelector(':scope > .sectionToggle').click();
-    if (!stats.classList.contains('open')) stats.querySelector(':scope > .sectionToggle').click();
     panel.scrollTop = 0;
     window.dispatchEvent(new Event('resize'));
   }

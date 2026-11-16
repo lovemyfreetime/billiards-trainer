@@ -7,15 +7,44 @@
   bar.id = 'workspaceTools'; bar.setAttribute('aria-label', 'Table tools');
   const groups = {};
   for (const [key, label] of [['setup', 'Import'], ['view', 'View'], ['motion', 'Motion'], ['follow', 'Follow View']]) {
-    const details = document.createElement('details'); details.id = 'workspace-' + key;
+    const details = document.createElement('details'); details.id = 'workspace-' + key; details.className = 'workspaceTaskMenu';
     const summary = document.createElement('summary'); summary.textContent = label;
     const content = document.createElement('div'); content.className = 'workspaceToolGroup';
     details.append(summary, content); bar.append(details); groups[key] = content;
     details.addEventListener('toggle', () => {
-      if (details.open) for (const other of bar.querySelectorAll('details')) if (other !== details) other.open = false;
+      if (details.open) {
+        picker.open = true;
+        for (const other of bar.querySelectorAll('.workspaceTaskMenu')) if (other !== details) other.open = false;
+        requestAnimationFrame(() => positionToolMenu(details));
+      }
       summary.setAttribute('aria-expanded', String(details.open));
     });
   }
+  const picker = document.createElement('details'); picker.id = 'workspace-picker';
+  const pickerButton = document.createElement('summary'); pickerButton.setAttribute('aria-label', 'Import, View, Motion and Follow View');
+  pickerButton.innerHTML = '<svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><path d="M4 12a12 12 0 0024 0" fill="none" stroke="currentColor" stroke-width="1.5"/><g fill="currentColor"><circle cx="5" cy="12" r="2.5"/><circle cx="11" cy="22" r="2.5"/><circle cx="21" cy="22" r="2.5"/><circle cx="27" cy="12" r="2.5"/></g></svg>';
+  const fan = document.createElement('div'); fan.className = 'workspacePickerFan';
+  fan.append(...bar.querySelectorAll('.workspaceTaskMenu')); picker.append(pickerButton, fan); bar.append(picker);
+  function positionToolMenu(details) {
+    if (!details.open) return;
+    const summary = details.querySelector(':scope > summary'), menu = details.querySelector('.workspaceToolGroup');
+    const r = summary.getBoundingClientRect(), width = Math.min(menu.offsetWidth, innerWidth-16);
+    menu.style.setProperty('--tools-menu-top', r.bottom+8+'px');
+    menu.style.setProperty('--tools-menu-left', Math.max(8, Math.min(innerWidth-width-8,r.left+(r.width-width)/2))+'px');
+  }
+  function positionPicker() {
+    const r = pickerButton.getBoundingClientRect();
+    fan.style.left = Math.max(8, Math.min(innerWidth-288,r.left+r.width/2-140))-r.left+'px';
+    for (const d of fan.querySelectorAll('.workspaceTaskMenu[open]')) positionToolMenu(d);
+  }
+  picker.addEventListener('toggle', () => {
+    pickerButton.setAttribute('aria-expanded', String(picker.open));
+    if (picker.open) requestAnimationFrame(positionPicker);
+    else fan.querySelectorAll('.workspaceTaskMenu').forEach(d => d.open = false);
+  });
+  const topActions = document.createElement('div'); topActions.id = 'workspaceTopActions';
+  topActions.append(...document.querySelectorAll('#phoneActions > [data-trainer-action=undoShot],#phoneActions > [data-trainer-action=redoShot]'), byId('phoneControls'));
+  bar.append(topActions);
   document.body.append(bar);
   const aiming = document.createElement('div'); aiming.id = 'workspaceAimTools';
   byId('featureAimingOptions').querySelector('legend').after(aiming);
@@ -24,8 +53,8 @@
   document.addEventListener('pointerdown', e => { if (!bar.contains(e.target)) closeGroups(); });
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
-    const open = bar.querySelector('details[open]');
-    if (open) { open.open = false; open.querySelector('summary').focus(); }
+    const open = bar.querySelector('.workspaceTaskMenu[open]') || (picker.open ? picker : null);
+    if (open) { closeGroups(); pickerButton.focus(); }
   });
   const groupIds = {
     setup: ['analyzePhotoBtn', 'cameraCaptureBtn', 'quickLayoutRecall'],
@@ -84,7 +113,8 @@
     const button = document.createElement('button'); button.type = 'button'; button.dataset.ballId = id;
     button.className = 'workspaceBall' + (id > 8 ? ' stripe' : '');
     button.style.setProperty('--ball-color', colors[id > 8 ? id - 8 : id]);
-    const number = document.createElement('span'); number.textContent = id || 'C'; button.append(number);
+    button.style.setProperty('--ball-art', 'url("' + window.BilliardsBallArt.url(id) + '")');
+    const number = document.createElement('span'); number.textContent = id || 'C'; number.hidden = true; button.append(number);
     let drag = null, moved = false, ghost = null;
     const cleanup = () => { drag = null; ghost?.remove(); ghost = null; };
     button.addEventListener('pointerdown', e => {
@@ -187,7 +217,7 @@
     const experience = byId('btZenLauncher');
     if (experience && experience.parentNode !== bar) bar.prepend(experience);
     const mode = byId('table3DToggle');
-    if (mode) { if (experience) experience.after(mode); else bar.prepend(mode); }
+    if (mode) { if (experience) experience.after(mode); else bar.prepend(mode); mode.after(picker); }
     move(bar, byId('phoneAimChoice'));
     sync();
   };
@@ -197,5 +227,6 @@
   });
   experienceObserver.observe(document.body, {childList:true});
   window.billiardsWorkspaceDock();
+  window.addEventListener('resize', positionPicker);
   window.dispatchEvent(new Event('resize'));
 })();
