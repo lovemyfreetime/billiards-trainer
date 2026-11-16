@@ -12,7 +12,7 @@
  const rotationInput=group.querySelector('#trainerTextRotation');
  const angleOutput=group.querySelector('#trainerTextAngle');
  let textEditRecorded=false;
- const folderButton=group.querySelector('#trainerSnapshotFolder');
+ const folderButton=document.getElementById('trainerSnapshotFolder');
  folderButton.addEventListener('click',()=>{
   if(window.BilliardsAndroid?.openSnapshotFolder){
    window.BilliardsAndroid.openSnapshotFolder();
@@ -23,11 +23,11 @@
   }
  });
  let snapshotMode='full',locked=false,savedState;
- const fullButton=group.querySelector('#trainerSnapshotFull');
- const currentButton=group.querySelector('#trainerSnapshotCurrent');
- const strokeButton=group.querySelector('#trainerSnapshotStroke');
- const snapshotGroup=group.querySelector('#trainerSnapshotGroup');
- const snapshotName=group.querySelector('#trainerSnapshotName');
+ const fullButton=document.getElementById('trainerSnapshotFull');
+ const currentButton=document.getElementById('trainerSnapshotCurrent');
+ const strokeButton=document.getElementById('trainerSnapshotStroke');
+ const snapshotGroup=document.getElementById('trainerSnapshotGroup');
+ const snapshotName=document.getElementById('trainerSnapshotName');
  const defaultSnapshotName=mode=>mode==='stroke'?'Billiards table and stroke':'Billiards table snapshot';
  function selectView(mode){
   snapshotMode=mode;
@@ -77,7 +77,7 @@
  const undo=group.querySelector('#trainerAnnotateUndo');
  const clear=group.querySelector('#trainerAnnotateClear');
  const lock=group.querySelector('#trainerAnnotateLock');
- const status=group.querySelector('#trainerSnapshotStatus');
+ const status=document.getElementById('trainerSnapshotStatus');
  const native=window.BilliardsAndroid;
  if(native)status.textContent='Snapshots save to Pictures / Billiards Trainer / Snapshots.';
  function updateTools(){
@@ -253,7 +253,7 @@
  }
  tools.forEach(b=>b.addEventListener('click',()=>choose(b.dataset.annotateTool)));
  group.querySelector('#trainerAnnotateClear').addEventListener('click',()=>{if(!locked&&items.length){remember();items=[];persist();paint();}});
- group.querySelector('#trainerAnnotateSnapshot').addEventListener('click',async()=>{
+ document.getElementById('trainerAnnotateSnapshot').addEventListener('click',async()=>{
   if(native&&!native.saveTrainerExport){status.textContent='Install the updated Android app to save PNG snapshots.';return;}
   const mode=snapshotMode;
   const name=snapshotName.value.trim().replace(/\.png$/i,'').replace(/[\x00-\x1f<>:"/\\|?*]/g,'-').replace(/^[. ]+|[. ]+$/g,'')||defaultSnapshotName(mode);

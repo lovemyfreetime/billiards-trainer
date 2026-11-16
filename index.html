@@ -96,9 +96,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   .sectionToggle { width:100%; text-align:left; background:#4297e6; color:#05121d; border:0; border-radius:0; padding:9px 10px; font-size:13px; font-weight:700; letter-spacing:.02em; display:flex; justify-content:space-between; align-items:center; }
   .sectionToggle:hover { background:#4aa8ff; }
   .sectionToggle::after { content:'+'; font-size:16px; font-weight:700; }
-  .section.open .sectionToggle::after { content:'−'; }
+  .section.open > .sectionToggle::after { content:'−'; }
   .sectionBody { display:none; padding:10px; }
-  .section.open .sectionBody { display:block; }
+  .section.open > .sectionBody { display:block; }
   .advancedToggle { width:100%; margin:4px 0 7px; background:#1b2027; border-color:#46505d; }
   .advancedToggle::after { content:' +'; }
   .advancedToggle.open::after { content:' −'; }
@@ -252,19 +252,19 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   .shotHistoryRow button { width:100%; min-width:0; min-height:38px; padding:6px 4px; font-size:11px; line-height:1.2; }
   .shotToggleRow #toggleShot2 { position:static; width:100%; border-radius:7px; min-height:38px; padding:6px; font-size:11px; }
   .tableControlGroup { padding:8px; margin-bottom:8px; background:#19232e; border:1px solid #354250; border-radius:7px; }
-  #trainerAnnotateGroup .trainerAnnotateTools { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;align-items:stretch; }
-  #trainerAnnotateGroup .trainerAnnotateTools button,#trainerAnnotateGroup .trainerAnnotateColor { display:flex;align-items:center;justify-content:center;min-width:0;min-height:29px;margin:0;padding:4px 5px;border:1px solid #465563;border-radius:6px;background:#26323d;color:#edf2f5;font:600 11px/1.1 Segoe UI,Arial,sans-serif; }
-  #trainerAnnotateGroup .trainerAnnotateTools button[aria-pressed=true] { border-color:#82d8a7;background:#214536;color:#f3fff7; }
-  #trainerAnnotateGroup .trainerSnapshotGroup { grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;padding:4px;border:1px solid #6db8ed;border-radius:7px;--snapshot-accent:#6db8ed;--snapshot-fill:#244d72; }
-  #trainerAnnotateGroup .trainerSnapshotGroup.current-view { --snapshot-accent:#c5a1f1;--snapshot-fill:#594071;border-color:var(--snapshot-accent); }
-  #trainerAnnotateGroup .trainerSnapshotGroup.table-stroke { --snapshot-accent:#ffc78a;--snapshot-fill:#75471f;border-color:var(--snapshot-accent); }
-  #trainerAnnotateGroup .trainerSnapshotGroup #trainerAnnotateSnapshot,
-  #trainerAnnotateGroup .trainerSnapshotGroup button[aria-pressed=true] { border-color:var(--snapshot-accent);background:var(--snapshot-fill);color:#fff; }
+  :is(#trainerAnnotateGroup,#trainerPhotoControls) .trainerAnnotateTools { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;align-items:stretch; }
+  :is(#trainerAnnotateGroup,#trainerPhotoControls) .trainerAnnotateTools button,#trainerAnnotateGroup .trainerAnnotateColor { display:flex;align-items:center;justify-content:center;min-width:0;min-height:29px;margin:0;padding:4px 5px;border:1px solid #465563;border-radius:6px;background:#26323d;color:#edf2f5;font:600 11px/1.1 Segoe UI,Arial,sans-serif; }
+  :is(#trainerAnnotateGroup,#trainerPhotoControls) .trainerAnnotateTools button[aria-pressed=true] { border-color:#82d8a7;background:#214536;color:#f3fff7; }
+  #trainerPhotoControls .trainerSnapshotGroup { grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;padding:4px;border:1px solid #6db8ed;border-radius:7px;--snapshot-accent:#6db8ed;--snapshot-fill:#244d72; }
+  #trainerPhotoControls .trainerSnapshotGroup.current-view { --snapshot-accent:#c5a1f1;--snapshot-fill:#594071;border-color:var(--snapshot-accent); }
+  #trainerPhotoControls .trainerSnapshotGroup.table-stroke { --snapshot-accent:#ffc78a;--snapshot-fill:#75471f;border-color:var(--snapshot-accent); }
+  #trainerPhotoControls .trainerSnapshotGroup #trainerAnnotateSnapshot,
+  #trainerPhotoControls .trainerSnapshotGroup button[aria-pressed=true] { border-color:var(--snapshot-accent);background:var(--snapshot-fill);color:#fff; }
   #trainerAnnotateGroup button:disabled { opacity:.45; }
   #trainerAnnotateGroup .trainerAnnotateColor { flex-direction:row;gap:5px;cursor:pointer;white-space:nowrap; }
   #trainerAnnotateColor { width:24px;height:19px;min-width:24px;padding:0;border:0;background:transparent; }
-  #trainerClipTools > label { display:block; margin:6px 0 4px; }
-  #trainerClipTools > input, #trainerClipTools > select { width:100%; box-sizing:border-box; }
+  #trainerClipTools label { display:block; margin:6px 0 4px; }
+  #trainerClipTools input, #trainerClipTools select { width:100%; box-sizing:border-box; }
   #trainerClipTools .row { grid-template-columns:repeat(2,minmax(0,1fr)); }
   #trainerClipTools .row button { min-width:0; min-height:34px; padding:4px; }
   #trainerClipTools button:disabled { opacity:.45; }
@@ -1636,47 +1636,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
       </div>
     </div>
 
-    <div class="section open">
-      <button class="sectionToggle" type="button"><span>SHOT</span></button>
-      <div class="sectionBody">
-<div id="shot1Controls">
-      <div class="shotMiniTitle">SHOT 1 CONTROLS</div>
-<div class="fineRow"><label>Shot speed <span id="speedText"></span><span id="speed1Diamonds" class="speedDiamonds"></span></label><button id="speedMinus" type="button">−</button><input id="speed" type="range" min="0.25" max="6" step="0.01" value="1.50"><button id="speedPlus" type="button">+</button><input id="speedNumber" type="number" min="0.25" max="6" step="0.01" inputmode="decimal" aria-label="Shot 1 speed value"></div>
-      <div class="fineRow"><label>Follow draw <span id="followText"></span></label><button id="followMinus" type="button">−</button><input id="follow" type="range" min="-1" max="1" step="0.01" value="0"><button id="followPlus" type="button">+</button><input id="followNumber" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 1 follow draw percent"></div>
-      <div class="fineRow"><label>Left right spin <span id="spinText"></span></label><button id="spinMinus" type="button">−</button><input id="sideSpin" type="range" min="-1" max="1" step="0.01" value="0"><button id="spinPlus" type="button">+</button><input id="spinNumber" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 1 left right spin percent"></div>
-      <div id="cueElevationAdvanced1" class="cueElevationSlider"><div class="fineRow"><label>Cue elevation <span id="elevText"></span></label><button id="elevMinus" type="button">−</button><input id="cueElevation" type="range" min="0" max="15" step="0.1" value="3"><button id="elevPlus" type="button">+</button><input id="elevNumber" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 1 cue elevation degrees"></div></div>
-      </div>
-      <div id="shot2Controls">
-        <div class="shotMiniTitle">SHOT 2 CONTROLS</div>
-        <div class="fineRow"><label>Shot speed <span id="speed2Diamonds" class="speedDiamonds"></span></label><button id="speed2Minus" type="button">−</button><input id="speed2" type="range" min="0.25" max="6" step="0.01" value="1.50"><button id="speed2Plus" type="button">+</button><input id="speed2Number" type="number" min="0.25" max="6" step="0.01" inputmode="decimal" aria-label="Shot 2 speed value"></div>
-        <div class="fineRow"><label>Follow draw</label><button id="follow2Minus" type="button">−</button><input id="follow2" type="range" min="-1" max="1" step="0.01" value="0"><button id="follow2Plus" type="button">+</button><input id="follow2Number" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 2 follow draw percent"></div>
-        <div class="fineRow"><label>Left right spin</label><button id="spin2Minus" type="button">−</button><input id="sideSpin2" type="range" min="-1" max="1" step="0.01" value="0"><button id="spin2Plus" type="button">+</button><input id="spin2Number" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 2 left right spin percent"></div>
-        <div id="cueElevationAdvanced2" class="cueElevationSlider"><div class="fineRow"><label>Cue elevation</label><button id="elev2Minus" type="button">−</button><input id="cueElevation2" type="range" min="0" max="15" step="0.1" value="3"><button id="elev2Plus" type="button">+</button><input id="elev2Number" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 2 cue elevation degrees"></div></div>
-      </div>
-      <div class="shotFeatureButtons"><button id="shotBudget" type="button" aria-pressed="false" title="Remaining % and cyan D along each path; compact ball and rail loss badges show deductions at each contact. Percentages use the starting shot. D is a share of its calibrated energy budget, not literal travel remaining; 16D is one lag.">SHOT BUDGET</button><button id="jumpMasseFeatures" class="jumpMasseFeatures" type="button" aria-pressed="false">JUMP / MASSÉ</button><label class="jumpModeLock"><input id="jumpModeLock" type="checkbox">Lock Jump / Massé</label></div>
-      <div id="tipArea">
-        <div class="tipPane" id="tipPane1">
-          <div class="shotPaneTitle">SHOT 1</div>
-          <canvas id="tipCanvas" width="300" height="210"></canvas>
-          <button id="toggleCueVisuals1Btn" class="cueVisualToggleBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">CUE BALL 1</span></button>
-        </div>
-        <div class="tipPane" id="tipPane2">
-          <div class="shotPaneTitle">SHOT 2</div>
-          <canvas id="tipCanvas2" width="300" height="210"></canvas>
-          <button id="toggleCueVisuals2Btn" class="cueVisualToggleBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">CUE BALL 2</span></button>
-        </div>
-      </div>
-      <div class="shotExecuteRow shotToggleRow"><button id="toggleShot2" type="button">+ SHOT 2</button></div>
-      <div id="shotExecuteRow" class="shotExecuteRow"><button id="animate" type="button">Execute Shot</button></div>
-      <div class="shotHistoryRow" role="group" aria-label="Shot history"><button id="undoShot" type="button" disabled>Undo Last Shot</button><button id="redoShot" type="button" disabled>Redo Last Shot</button></div>
-      <div class="shotHistoryRow" role="group" aria-label="Action history"><button id="undoAction" type="button" disabled title="Restore the previous aim, ball position, or control adjustment">Undo Last Action</button><button id="redoAction" type="button" disabled title="Restore the action most recently undone">Redo Last Action</button></div>
-      <div class="shotExecuteRow"><button id="resetLayoutQuick" type="button">Reset Layout</button></div>
-      </div>
-    </div>
-
-    <div class="section">
-      <button class="sectionToggle" type="button"><span>TABLE / BALLS</span></button>
-      <div class="sectionBody">
+    <div class="section open" id="tableSection">
+      <button class="sectionToggle" type="button" data-guide-topic="main-panel-table-balls"><span>TABLE</span></button>
+      <div class="sectionBody" id="tableBody">
       <div class="tableControlGroup layoutSetupGroup" id="fullRackGroup"><div class="tableControlTitle">PICK AND PLAY FULL RACKS</div>
         <div class="layoutSetupSelect"><select id="fullRackSelect" aria-label="Pick and play full rack">
           <option value="rack3">3-Ball — Original</option><option value="rack3-crosswise">3-Ball — Crosswise</option><option value="rack3-backwards">3-Ball — Backwards</option><option value="rack3-straight">3-Ball — Straight</option><option value="rack3-ll" title="Tight triangle, 3-ball left of the 1–2 line viewed from the breaker">3-Ball — Left</option><option value="rack3-lr" title="Tight triangle, 3-ball right of the 1–2 line viewed from the breaker">3-Ball — Right</option><option value="rack6">6-Ball</option><option value="rack7">7-Ball</option><option value="rack8" selected>8-Ball</option><option value="rack9">9-Ball</option><option value="rack10">10-Ball</option><option value="ultimate8">Ultimate 8 Ball</option><option value="straight14">Straight Pool — 14 Balls (Open Front)</option>
@@ -1719,6 +1681,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 <option value="14">Ball 14</option>
 <option value="15">Ball 15</option></select></div>
       </div>
+      <details class="toolDisclosure"><summary>Markers &amp; targets</summary>
       <div class="tableControlGroup layoutSetupGroup"><div class="tableControlTitle">MARKERS</div>
         <div class="buttons layoutSetupReset"><button id="addNextMarker" type="button">Add Next Marker</button></div>
         <div class="buttons layoutSetupButtons"><button id="addMarker" type="button">Add Marker</button><button id="removeMarker" type="button">Remove Marker</button></div>
@@ -1735,76 +1698,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
           </optgroup>
         </select></div>
       </div>
-      <div class="tableControlGroup layoutSetupGroup" id="trainerAnnotateGroup">
-        <div class="tableControlTitle">ANNOTATE TABLE</div>
-        <div class="trainerAnnotateTools" role="group" aria-label="Table annotation tools">
-          <button type="button" data-annotate-tool="line" aria-pressed="false">Line</button>
-          <button type="button" data-annotate-tool="arrow" aria-pressed="false">Arrow</button>
-          <button type="button" data-annotate-tool="circle" aria-pressed="false">Circle</button>
-          <button type="button" data-annotate-tool="draw" aria-pressed="false">Draw</button>
-          <label class="trainerAnnotateColor" title="Annotation color">Color <input id="trainerAnnotateColor" type="color" value="#ff4d4d" aria-label="Annotation color"></label>
-          <button id="trainerAnnotateClear" type="button">Clear</button>
-          <button id="trainerAnnotateUndo" type="button" disabled>Undo</button>
-          <button type="button" data-annotate-tool="erase" aria-pressed="false">Eraser</button>
-          <div id="trainerSnapshotGroup" class="trainerSnapshotGroup" role="group" aria-label="Snapshot capture">
-            <button id="trainerAnnotateSnapshot" type="button">Snapshot</button>
-            <button id="trainerSnapshotFull" type="button" aria-pressed="true">Full table</button>
-            <button id="trainerSnapshotCurrent" type="button" aria-pressed="false">Current view</button>
-            <button id="trainerSnapshotStroke" type="button" aria-pressed="false">Table + stroke</button>
-          </div>
-          <button id="trainerAnnotateLock" type="button" aria-pressed="false" style="grid-column:span 2">Lock annotations</button>
-          <button type="button" data-annotate-tool="text" aria-pressed="false">Text</button>
-          <button id="trainerSnapshotFolder" type="button">Open folder</button>
-        </div>
-        <div id="trainerTextEditor" hidden>
-          <label for="trainerAnnotationText">Label text</label>
-          <textarea id="trainerAnnotationText" rows="2" maxlength="160" placeholder="Type a label, then tap the cloth" style="width:100%;box-sizing:border-box"></textarea>
-          <label for="trainerTextRotation">Rotation <output id="trainerTextAngle">0°</output></label>
-          <input id="trainerTextRotation" type="range" min="0" max="360" step="1" value="0" style="width:100%">
-          <button id="trainerNewText" type="button">New label</button>
-          <div class="hint">Tap a label to edit. Drag it to move. Drag ↻ to rotate or ↔ to resize.</div>
-        </div>
-        <div class="hint">Lock annotations to aim and shoot. Save the layout to recall the same lesson.</div>
-        <label for="trainerSnapshotName">Snapshot name</label>
-        <input id="trainerSnapshotName" type="text" maxlength="80" placeholder="Billiards table snapshot">
-        <div id="trainerSnapshotStatus" class="hint" role="status">On the web, check your browser’s Downloads for snapshots.</div>
-      </div>
-      <div id="trainerClipTools" class="tableControlGroup layoutSetupGroup" role="group" aria-labelledby="trainerClipTitle" hidden>
-        <div id="trainerClipTitle" class="tableControlTitle">VIDEO &amp; AUDIO NARRATION</div>
-        <label for="trainerClipName">Recording name</label>
-        <input id="trainerClipName" type="text" maxlength="80" placeholder="Shot 01" autocomplete="off">
-        <label for="trainerClipView">Shot video view</label>
-        <select id="trainerClipView">
-          <option value="full">Full table</option>
-          <option value="current">Current view</option>
-          <option value="stroke">Table + stroke</option>
-        </select>
-        <div class="row">
-          <button id="trainerClipArm" type="button">Record shot</button>
-          <button id="trainerClipPair" type="button">Current + stroke</button>
-        </div>
-        <label for="trainerSessionView">Session video view</label>
-        <select id="trainerSessionView">
-          <option value="stroke-current">Saved view + stroke</option>
-          <option value="stroke">Full table + stroke</option>
-          <option value="current">Saved view</option>
-          <option value="full">Full table</option>
-        </select>
-        <div class="row">
-          <button id="trainerClipSession" type="button" aria-pressed="false">Start session</button>
-          <button id="trainerClipReplay" type="button" disabled>Record session</button>
-        </div>
-        <div id="trainerClipSessionStatus" class="hint">Start a session before playing your rack.</div>
-        <div class="row">
-          <button id="trainerCameraToggle" type="button" aria-pressed="false" aria-controls="trainerCameraBar">Camera recorder</button>
-          <button id="trainerNarrateVideo" type="button">Narrate a video</button>
-        </div>
-        <div class="row">
-          <button id="trainerClipFolder" type="button">Clips folder</button>
-          <button id="trainerClipSetup" type="button" hidden>Save setup</button>
-        </div>
-        <div id="trainerClipStatus" class="hint" role="status">Choose a shot video view, then Record shot to execute and save the clip and setup.</div>
-      </div>
       <div id="markerZoneControls" style="display:none;border:1px solid #41464f;border-radius:7px;padding:8px;margin-top:8px">
         <label for="markerZoneSelect">Practice target zone</label>
         <select id="markerZoneSelect" aria-label="Choose individual practice target"></select>
@@ -1812,23 +1705,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         <input id="markerDiameter" type="range" min="2.25" max="36" step=".25" value="6" aria-label="Practice target diameter in inches">
         <div class="hint">Drag the center to position. Each zone has its own size. Reduce its diameter as control improves.</div>
       </div>
-      <div class="layoutManage">
-        <div class="layoutManageTitle"><span>SAVED BALL LAYOUTS</span><span id="layoutCount">0 / 20</span></div>
-        <input id="layoutNameInput" type="text" maxlength="60" placeholder="Layout name — e.g. Wednesday league 7-ball" aria-label="Saved layout name">
-        <div class="buttons"><button id="trainerLoadFile" type="button">Load Table File</button><button id="trainerSaveFile" type="button">Save Table File</button></div><div class="buttons"><button id="trainerSaveSession" type="button">Save Session File</button><button id="sessionFolder" type="button" title="Choose a folder for automatic saving; browse its JSON files in Saved Files below">Auto-save Folder</button></div><div id="sessionFolderStatus" class="hint">Saved layouts and Saved Files stay in this app on this device. Exported table and session files go to browser Downloads or Android Downloads / Billiards Trainer. Auto-save uses the folder you select.</div><input id="trainerLayoutFileInput" type="file" accept=".json,.billiards" hidden>
-        <button id="saveLayoutBtn" class="layoutManageSave" type="button">SAVE CURRENT LAYOUT</button>
-        <div class="layoutManageRow">
-          <select id="layoutSelect" aria-label="Saved ball layouts">
-            <option value="">No saved layouts</option>
-          </select>
-          <button id="loadLayoutBtn" type="button">RECALL</button>
-        </div>
-        <div class="buttons"><button id="layoutShareSelected" type="button">Share Selected</button><button id="layoutShareCurrent" type="button">Share Current</button></div>
-      </div>
+      </details>
 
       </div>
     </div>
 
+    <div class="section" id="shotSection">
+      <button class="sectionToggle" type="button" data-guide-topic="main-panel-shot"><span>SHOT</span></button>
+      <div class="sectionBody" id="shotBody">
     <div class="section" id="liveStatsSection">
       <button class="sectionToggle" type="button"><span>LIVE STATS</span></button>
       <div class="sectionBody">
@@ -1883,50 +1767,158 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
       </div>
       </div>
     </div>
+<div id="shot1Controls">
+      <div class="shotMiniTitle">SHOT 1 CONTROLS</div>
+<div class="fineRow"><label>Shot speed <span id="speedText"></span><span id="speed1Diamonds" class="speedDiamonds"></span></label><button id="speedMinus" type="button">−</button><input id="speed" type="range" min="0.25" max="6" step="0.01" value="1.50"><button id="speedPlus" type="button">+</button><input id="speedNumber" type="number" min="0.25" max="6" step="0.01" inputmode="decimal" aria-label="Shot 1 speed value"></div>
+      <div class="fineRow"><label>Follow draw <span id="followText"></span></label><button id="followMinus" type="button">−</button><input id="follow" type="range" min="-1" max="1" step="0.01" value="0"><button id="followPlus" type="button">+</button><input id="followNumber" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 1 follow draw percent"></div>
+      <div class="fineRow"><label>Left right spin <span id="spinText"></span></label><button id="spinMinus" type="button">−</button><input id="sideSpin" type="range" min="-1" max="1" step="0.01" value="0"><button id="spinPlus" type="button">+</button><input id="spinNumber" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 1 left right spin percent"></div>
+      <div id="cueElevationAdvanced1" class="cueElevationSlider"><div class="fineRow"><label>Cue elevation <span id="elevText"></span></label><button id="elevMinus" type="button">−</button><input id="cueElevation" type="range" min="0" max="15" step="0.1" value="3"><button id="elevPlus" type="button">+</button><input id="elevNumber" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 1 cue elevation degrees"></div></div>
+      </div>
+      <div id="shot2Controls">
+        <div class="shotMiniTitle">SHOT 2 CONTROLS</div>
+        <div class="fineRow"><label>Shot speed <span id="speed2Diamonds" class="speedDiamonds"></span></label><button id="speed2Minus" type="button">−</button><input id="speed2" type="range" min="0.25" max="6" step="0.01" value="1.50"><button id="speed2Plus" type="button">+</button><input id="speed2Number" type="number" min="0.25" max="6" step="0.01" inputmode="decimal" aria-label="Shot 2 speed value"></div>
+        <div class="fineRow"><label>Follow draw</label><button id="follow2Minus" type="button">−</button><input id="follow2" type="range" min="-1" max="1" step="0.01" value="0"><button id="follow2Plus" type="button">+</button><input id="follow2Number" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 2 follow draw percent"></div>
+        <div class="fineRow"><label>Left right spin</label><button id="spin2Minus" type="button">−</button><input id="sideSpin2" type="range" min="-1" max="1" step="0.01" value="0"><button id="spin2Plus" type="button">+</button><input id="spin2Number" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 2 left right spin percent"></div>
+        <div id="cueElevationAdvanced2" class="cueElevationSlider"><div class="fineRow"><label>Cue elevation</label><button id="elev2Minus" type="button">−</button><input id="cueElevation2" type="range" min="0" max="15" step="0.1" value="3"><button id="elev2Plus" type="button">+</button><input id="elev2Number" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 2 cue elevation degrees"></div></div>
+      </div>
+      <div class="shotFeatureButtons"><button id="shotBudget" type="button" aria-pressed="false" title="Remaining % and cyan D along each path; compact ball and rail loss badges show deductions at each contact. Percentages use the starting shot. D is a share of its calibrated energy budget, not literal travel remaining; 16D is one lag.">SHOT BUDGET</button><button id="jumpMasseFeatures" class="jumpMasseFeatures" type="button" aria-pressed="false">JUMP / MASSÉ</button><label class="jumpModeLock"><input id="jumpModeLock" type="checkbox">Lock Jump / Massé</label></div>
+      <div id="tipArea">
+        <div class="tipPane" id="tipPane1">
+          <div class="shotPaneTitle">SHOT 1</div>
+          <canvas id="tipCanvas" width="300" height="210"></canvas>
+          <button id="toggleCueVisuals1Btn" class="cueVisualToggleBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">CUE BALL 1</span></button>
+        </div>
+        <div class="tipPane" id="tipPane2">
+          <div class="shotPaneTitle">SHOT 2</div>
+          <canvas id="tipCanvas2" width="300" height="210"></canvas>
+          <button id="toggleCueVisuals2Btn" class="cueVisualToggleBtn" type="button"><span class="visibilityAction">HIDE</span><span class="visibilitySubject">CUE BALL 2</span></button>
+        </div>
+      </div>
+      <div class="shotExecuteRow shotToggleRow"><button id="toggleShot2" type="button">+ SHOT 2</button></div>
+      <div id="shotExecuteRow" class="shotExecuteRow"><button id="animate" type="button">Execute Shot</button></div>
+      <div class="shotHistoryRow" role="group" aria-label="Shot history"><button id="undoShot" type="button" disabled>Undo Last Shot</button><button id="redoShot" type="button" disabled>Redo Last Shot</button></div>
+      <div class="shotHistoryRow" role="group" aria-label="Action history"><button id="undoAction" type="button" disabled title="Restore the previous aim, ball position, or control adjustment">Undo Last Action</button><button id="redoAction" type="button" disabled title="Restore the action most recently undone">Redo Last Action</button></div>
+      <div class="shotExecuteRow"><button id="resetLayoutQuick" type="button">Reset Layout</button></div>
+      </div>
+    </div>
 
-    <div class="section">
-      <button class="sectionToggle" type="button"><span>PHYSICS / CALIBRATION</span></button>
-      <div class="sectionBody">
-      <button class="advancedToggle" type="button" data-advanced="physicsAdvanced">ADVANCED</button>
-      <div class="advancedBody" id="physicsAdvanced">
-        <div class="buttons" aria-label="Physics settings presets">
-          <button id="physicsDefaults" type="button">Revert to Defaults</button>
-          <button id="physicsSave" type="button">Save Settings</button>
-          <button id="physicsLoad" type="button">Load Settings</button>
+    <div class="section" id="drawSection">
+      <button class="sectionToggle" type="button"><span>DRAW</span></button>
+      <div class="sectionBody" id="drawBody">
+      <div class="tableControlGroup layoutSetupGroup" id="trainerAnnotateGroup">
+        <div class="tableControlTitle">ANNOTATE TABLE</div>
+        <div class="trainerAnnotateTools" role="group" aria-label="Table annotation tools">
+          <button type="button" data-annotate-tool="line" aria-pressed="false">Line</button>
+          <button type="button" data-annotate-tool="arrow" aria-pressed="false">Arrow</button>
+          <button type="button" data-annotate-tool="circle" aria-pressed="false">Circle</button>
+          <button type="button" data-annotate-tool="draw" aria-pressed="false">Draw</button>
+          <label class="trainerAnnotateColor" title="Annotation color">Color <input id="trainerAnnotateColor" type="color" value="#ff4d4d" aria-label="Annotation color"></label>
+          <button id="trainerAnnotateClear" type="button">Clear</button>
+          <button id="trainerAnnotateUndo" type="button" disabled>Undo</button>
+          <button type="button" data-annotate-tool="erase" aria-pressed="false">Eraser</button>
+          <button id="trainerAnnotateLock" type="button" aria-pressed="false" style="grid-column:span 2">Lock annotations</button>
+          <button type="button" data-annotate-tool="text" aria-pressed="false">Text</button>
         </div>
-        <div id="physicsPresetPanel" hidden style="padding:8px 0">
-          <label id="physicsPresetLabel" for="physicsPresetName">Settings name</label>
-          <input id="physicsPresetName" type="text" maxlength="100" placeholder="Location, table, or cue" style="width:100%;box-sizing:border-box;margin:6px 0">
-          <select id="physicsPresetList" aria-label="Saved physics settings" hidden style="width:100%;margin:6px 0"></select>
-          <div class="buttons"><button id="physicsPresetApply" type="button">Save</button><button id="physicsPresetCancel" type="button">Cancel</button></div>
+        <div id="trainerTextEditor" hidden>
+          <label for="trainerAnnotationText">Label text</label>
+          <textarea id="trainerAnnotationText" rows="2" maxlength="160" placeholder="Type a label, then tap the cloth" style="width:100%;box-sizing:border-box"></textarea>
+          <label for="trainerTextRotation">Rotation <output id="trainerTextAngle">0°</output></label>
+          <input id="trainerTextRotation" type="range" min="0" max="360" step="1" value="0" style="width:100%">
+          <button id="trainerNewText" type="button">New label</button>
+          <div class="hint">Tap a label to edit. Drag it to move. Drag ↻ to rotate or ↔ to resize.</div>
         </div>
-        <div class="hint" id="physicsPresetStatus" role="status" aria-live="polite"></div>
-        <div class="tableControlTitle">TABLE SIZE &amp; BALLS</div>
-        <div class="row"><label>Playing length (in)</label><input id="tableL" type="number" min="60" max="120" step="0.01"></div>
-        <div class="row"><label>Playing width (in)</label><input id="tableW" type="number" min="30" max="60" step="0.01"></div>
-        <div class="row"><label>Ball diameter (in)</label><input id="ballD" type="number" min="1.5" max="3" step="0.001"></div>
-        <div class="buttons"><button data-preset="7d">7' Diamond 80×40</button><button data-preset="7b">7' Bar 78×39</button><button data-preset="8">8' 88×44</button><button data-preset="9">9' 100×50</button></div>
-        <div class="tableControlTitle" style="margin-top:10px">PHYSICS SETTINGS</div>
-<div class="row"><label>Sliding friction μ</label><input id="muSlide" type="number" min="0" max="0.5" step="0.005"></div>
-      <button id="applyMeasuredPhysics" type="button">Apply measured table settings</button><div class="row"><label>Rolling friction μ</label><input id="muRoll" type="number" min="0" max="0.1" step="0.001"></div>
-      <div class="row"><label>Ball-ball friction μ</label><input id="muBall" type="number" min="0" max="0.2" step="0.001"></div>
-      <div class="row"><label>Ball restitution</label><input id="ballRest" type="number" min="0.5" max="1" step="0.005"></div>
-      <div class="row"><label>Rail rebound</label><input id="railRest" type="number" min="0.3" max="1" step="0.005"></div>
-      <div class="row"><label>Rail tangential damping</label><input id="railTang" type="number" min="0.5" max="1" step="0.005"></div>
-      <div class="row"><label for="cueShaftPreset">Cue / Shaft Preset</label><select id="cueShaftPreset"><option value="standard">Standard shaft</option><option value="low">Low-deflection shaft</option><option value="custom">Custom</option></select></div>
-      <div class="row" id="cueEndmassRow" hidden><label for="cueEndmassRatio">Cue ball / end-mass ratio</label><input id="cueEndmassRatio" type="number" min="8" max="60" step="0.1"></div>
-      <div class="check"><input id="airbornePhysics" type="checkbox"><label for="airbornePhysics">3D jump / massé / airborne physics</label></div>
-      <div class="row"><label>Bed vertical restitution</label><input id="tableRest" type="number" min="0" max="0.95" step="0.01"></div>
-      <div class="row"><label>Bed impact friction μ</label><input id="bedImpactMu" type="number" min="0" max="0.5" step="0.01"></div>
-      <div class="row"><label for="jumpUnits">Jump / massé distance units</label><select id="jumpUnits" aria-label="Jump measurement units"><option value="in">Inches (in)</option><option value="mm">Millimeters (mm)</option></select></div>
-       <div class="hint">Shaft presets control cue-ball deflection. Choose Custom to match your shaft; a higher cue ratio gives less squirt. 3D airborne mode extends cue elevation to 70° and models the immediate bed rebound, projectile flight, repeated hops, 3D ball collisions, and massé return-to-cloth dynamics. Normal mode stays capped at 15°.</div>
+        <div class="hint">Lock annotations to aim and shoot. Save the layout to recall the same lesson.</div>
+      </div>
+
+      </div>
+    </div>
+
+    <div class="section" id="captureSection">
+      <button class="sectionToggle" type="button"><span>CAPTURE</span></button>
+      <div class="sectionBody" id="captureBody">
+      <div id="trainerPhotoControls" class="tableControlGroup layoutSetupGroup">
+        <div class="tableControlTitle">PHOTO</div>
+        <div class="trainerAnnotateTools">
+          <div id="trainerSnapshotGroup" class="trainerSnapshotGroup" role="group" aria-label="Snapshot capture">
+            <button id="trainerAnnotateSnapshot" type="button">Snapshot</button>
+            <button id="trainerSnapshotFull" type="button" aria-pressed="true">Full table</button>
+            <button id="trainerSnapshotCurrent" type="button" aria-pressed="false">Current view</button>
+            <button id="trainerSnapshotStroke" type="button" aria-pressed="false">Table + stroke</button>
+          </div>
+          <button id="trainerSnapshotFolder" type="button">Open folder</button>
+        </div>
+        <label for="trainerSnapshotName">Snapshot name</label>
+        <input id="trainerSnapshotName" type="text" maxlength="80" placeholder="Billiards table snapshot">
+        <div id="trainerSnapshotStatus" class="hint" role="status">On the web, check your browser’s Downloads for snapshots.</div>
+      </div>
+      <div id="trainerClipTools" class="tableControlGroup layoutSetupGroup" role="group" aria-labelledby="trainerClipTitle" hidden>
+        <div id="trainerClipTitle" class="tableControlTitle">VIDEO &amp; AUDIO</div>
+        <label for="trainerClipName">Recording name</label>
+        <input id="trainerClipName" type="text" maxlength="80" placeholder="Shot 01" autocomplete="off">
+        <details class="toolDisclosure" open><summary>Record a shot</summary>
+        <label for="trainerClipView">Shot video view</label>
+        <select id="trainerClipView">
+          <option value="full">Full table</option>
+          <option value="current">Current view</option>
+          <option value="stroke">Table + stroke</option>
+        </select>
+        <div class="row">
+          <button id="trainerClipArm" type="button">Record shot</button>
+          <button id="trainerClipPair" type="button">Current + stroke</button>
+        </div>
+        </details>
+        <details class="toolDisclosure"><summary>Record a session</summary>
+        <label for="trainerSessionView">Session video view</label>
+        <select id="trainerSessionView">
+          <option value="stroke-current">Saved view + stroke</option>
+          <option value="stroke">Full table + stroke</option>
+          <option value="current">Saved view</option>
+          <option value="full">Full table</option>
+        </select>
+        <div class="row">
+          <button id="trainerClipSession" type="button" aria-pressed="false">Start session</button>
+          <button id="trainerClipReplay" type="button" disabled>Record session</button>
+        </div>
+        <div id="trainerClipSessionStatus" class="hint">Start a session before playing your rack.</div>
+        </details>
+        <details class="toolDisclosure"><summary>Camera &amp; narration</summary>
+        <div class="row">
+          <button id="trainerCameraToggle" type="button" aria-pressed="false" aria-controls="trainerCameraBar">Camera recorder</button>
+          <button id="trainerNarrateVideo" type="button">Narrate a video</button>
+        </div>
+        </details>
+        <div class="row">
+          <button id="trainerClipFolder" type="button">Clips folder</button>
+          <button id="trainerClipSetup" type="button" hidden>Save setup</button>
+        </div>
+        <div id="trainerClipStatus" class="hint" role="status">Choose a shot video view, then Record shot to execute and save the clip and setup.</div>
+      </div>
+
+      </div>
+    </div>
+
+    <div class="section" id="savedSection">
+      <button class="sectionToggle" type="button"><span>SAVED</span></button>
+      <div class="sectionBody" id="savedBody">
+      <div class="layoutManage">
+        <div class="layoutManageTitle"><span>SAVED BALL LAYOUTS</span><span id="layoutCount">0 / 20</span></div>
+        <input id="layoutNameInput" type="text" maxlength="60" placeholder="Layout name — e.g. Wednesday league 7-ball" aria-label="Saved layout name">
+        <div class="buttons"><button id="trainerLoadFile" type="button">Load Table File</button><button id="trainerSaveFile" type="button">Save Table File</button></div><div class="buttons"><button id="trainerSaveSession" type="button">Save Session File</button><button id="sessionFolder" type="button" title="Choose a folder for automatic saving; browse its JSON files in Saved Files below">Auto-save Folder</button></div><div id="sessionFolderStatus" class="hint">Saved layouts and Saved Files stay in this app on this device. Exported table and session files go to browser Downloads or Android Downloads / Billiards Trainer. Auto-save uses the folder you select.</div><input id="trainerLayoutFileInput" type="file" accept=".json,.billiards" hidden>
+        <button id="saveLayoutBtn" class="layoutManageSave" type="button">SAVE CURRENT LAYOUT</button>
+        <div class="layoutManageRow">
+          <select id="layoutSelect" aria-label="Saved ball layouts">
+            <option value="">No saved layouts</option>
+          </select>
+          <button id="loadLayoutBtn" type="button">RECALL</button>
+        </div>
+        <div class="buttons"><button id="layoutShareSelected" type="button">Share Selected</button><button id="layoutShareCurrent" type="button">Share Current</button></div>
       </div>
       </div>
     </div>
 
-    <div class="section">
-      <button class="sectionToggle" type="button"><span>FEATURES &amp; OPTIONS</span></button>
-      <div class="sectionBody">
+    <div class="section" id="optionsSection">
+      <button class="sectionToggle" type="button" data-guide-topic="main-panel-features-options"><span>OPTIONS</span></button>
+      <div class="sectionBody" id="optionsBody">
         <fieldset id="featureTableOptions" class="featureOptionsGroup">
           <legend>Table</legend>
           <div class="check"><input id="showGrid" type="checkbox" checked><label for="showGrid">Diamond-connected table grid</label></div>
@@ -1955,11 +1947,52 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         </fieldset>
         </fieldset>
         <fieldset id="featureOtherOptions" class="featureOptionsGroup">
-          <legend>Other</legend>
+          <legend>Practice</legend>
           <div class="check"><input id="showPracticeCounter" type="checkbox"><label for="showPracticeCounter">Drill and exercise counter</label></div>
           <div class="check"><input id="showScoreBoard" type="checkbox"><label for="showScoreBoard">Show Player 1 / Player 2 controls</label></div>
         </fieldset>
         <button id="trainerAppInfo" type="button" hidden>App info</button>
+    <div class="section" id="calibrationSection">
+      <button class="sectionToggle" type="button" data-guide-topic="main-panel-physics-calibration"><span>CALIBRATION</span></button>
+      <div class="sectionBody" id="calibrationBody">
+        <div class="buttons" aria-label="Physics settings presets">
+          <button id="physicsDefaults" type="button">Revert to Defaults</button>
+          <button id="physicsSave" type="button">Save Settings</button>
+          <button id="physicsLoad" type="button">Load Settings</button>
+        </div>
+        <div id="physicsPresetPanel" hidden style="padding:8px 0">
+          <label id="physicsPresetLabel" for="physicsPresetName">Settings name</label>
+          <input id="physicsPresetName" type="text" maxlength="100" placeholder="Location, table, or cue" style="width:100%;box-sizing:border-box;margin:6px 0">
+          <select id="physicsPresetList" aria-label="Saved physics settings" hidden style="width:100%;margin:6px 0"></select>
+          <div class="buttons"><button id="physicsPresetApply" type="button">Save</button><button id="physicsPresetCancel" type="button">Cancel</button></div>
+        </div>
+        <div class="hint" id="physicsPresetStatus" role="status" aria-live="polite"></div>
+        <div class="tableControlTitle">TABLE SIZE &amp; BALLS</div>
+        <div class="row"><label>Playing length (in)</label><input id="tableL" type="number" min="60" max="120" step="0.01"></div>
+        <div class="row"><label>Playing width (in)</label><input id="tableW" type="number" min="30" max="60" step="0.01"></div>
+        <div class="row"><label>Ball diameter (in)</label><input id="ballD" type="number" min="1.5" max="3" step="0.001"></div>
+        <div class="buttons"><button data-preset="7d">7' Diamond 80×40</button><button data-preset="7b">7' Bar 78×39</button><button data-preset="8">8' 88×44</button><button data-preset="9">9' 100×50</button></div>
+      <button class="advancedToggle" type="button" data-advanced="physicsAdvanced">Advanced physics</button>
+      <div class="advancedBody" id="physicsAdvanced">
+        <div class="tableControlTitle" style="margin-top:10px">PHYSICS SETTINGS</div>
+<div class="row"><label>Sliding friction μ</label><input id="muSlide" type="number" min="0" max="0.5" step="0.005"></div>
+      <button id="applyMeasuredPhysics" type="button">Apply measured table settings</button><div class="row"><label>Rolling friction μ</label><input id="muRoll" type="number" min="0" max="0.1" step="0.001"></div>
+      <div class="row"><label>Ball-ball friction μ</label><input id="muBall" type="number" min="0" max="0.2" step="0.001"></div>
+      <div class="row"><label>Ball restitution</label><input id="ballRest" type="number" min="0.5" max="1" step="0.005"></div>
+      <div class="row"><label>Rail rebound</label><input id="railRest" type="number" min="0.3" max="1" step="0.005"></div>
+      <div class="row"><label>Rail tangential damping</label><input id="railTang" type="number" min="0.5" max="1" step="0.005"></div>
+      <div class="row"><label for="cueShaftPreset">Cue / Shaft Preset</label><select id="cueShaftPreset"><option value="standard">Standard shaft</option><option value="low">Low-deflection shaft</option><option value="custom">Custom</option></select></div>
+      <div class="row" id="cueEndmassRow" hidden><label for="cueEndmassRatio">Cue ball / end-mass ratio</label><input id="cueEndmassRatio" type="number" min="8" max="60" step="0.1"></div>
+      <div class="check"><input id="airbornePhysics" type="checkbox"><label for="airbornePhysics">3D jump / massé / airborne physics</label></div>
+      <div class="row"><label>Bed vertical restitution</label><input id="tableRest" type="number" min="0" max="0.95" step="0.01"></div>
+      <div class="row"><label>Bed impact friction μ</label><input id="bedImpactMu" type="number" min="0" max="0.5" step="0.01"></div>
+      <div class="row"><label for="jumpUnits">Jump / massé distance units</label><select id="jumpUnits" aria-label="Jump measurement units"><option value="in">Inches (in)</option><option value="mm">Millimeters (mm)</option></select></div>
+       <div class="hint">Shaft presets control cue-ball deflection. Choose Custom to match your shaft; a higher cue ratio gives less squirt. 3D airborne mode extends cue elevation to 70° and models the immediate bed rebound, projectile flight, repeated hops, 3D ball collisions, and massé return-to-cloth dynamics. Normal mode stays capped at 15°.</div>
+      </div>
+      </div>
+    </div>
+
+
       </div>
     </div>
 
@@ -2751,7 +2784,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const ball=S.balls.find(b=>b.id===id),px=pocket[0]*S.tableL,py=pocket[1]*S.tableW;
             const d=norm({x:px-ball.x,y:py-ball.y});return {x:ball.x-d.x*2*S.ballR,y:ball.y-d.y*2*S.ballR};
         }
-        function openControls(id){const el=$(id);el?.closest('.section')?.classList.add('open');}
+        function openControls(id){for(let el=$(id);el&&el.id!=='panel';el=el.parentElement){if(el.classList.contains('section')){el.classList.add('open');el.querySelector(':scope > .sectionToggle')?.setAttribute('aria-expanded','true');}if(el.tagName==='DETAILS')el.open=true;}}
         function apply(step,profile){
             if(animation)return false;
             S=defaultState();S.tableL=profile.tableL;S.tableW=profile.tableW;S.ballR=.028575;
@@ -14049,16 +14082,21 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     ORIGINAL_TABLE_ASSET.onload = () => draw();
     if (!isProjector) {
         document.querySelectorAll('.section').forEach(sec => {
-            const btn = sec.querySelector('.sectionToggle');
-            if (btn)
+            const btn = sec.querySelector(':scope > .sectionToggle');
+            const content = sec.querySelector(':scope > .sectionBody');
+            if (btn) {
+                if(content){if(!content.id)content.id=(sec.id||'trainer-section-'+Array.from(sec.parentElement.children).indexOf(sec))+'-body';btn.setAttribute('aria-controls',content.id);}
+                btn.setAttribute('aria-expanded',String(sec.classList.contains('open')));
                 btn.addEventListener('click', () => {
                     sec.classList.toggle('open');
+                    btn.setAttribute('aria-expanded',String(sec.classList.contains('open')));
                     if (sec.id === 'liveStatsSection' && sec.classList.contains('open')) {
                         fitLiveStats();
                         const panel = $('panel');
                         panel.scrollTop += sec.getBoundingClientRect().top - panel.getBoundingClientRect().top - 8;
                     }
                 });
+            }
         });
     }
     resize();

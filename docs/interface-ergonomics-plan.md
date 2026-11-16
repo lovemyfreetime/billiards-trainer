@@ -8,7 +8,7 @@ These decisions extend the existing cross-mode control review and supersede the 
 | --- | --- |
 | Experience switching | Upper-left in Trainer 2D/3D, Play and Companion. Companion Back to Play follows it. Zen keeps its existing bottom-toolbar position. |
 | 2D / 3D switching | A direct button immediately beside the experience icon, at the same coordinates in both Trainer views. Never put it inside View or on the lower camera row. |
-| Kick, Bank, Compass | Tools → Features & Options → Aiming. Keep related compass adjustments and aiming options together. No Plan button on the main toolbar. Starting Kick or Bank closes the drawer so the user can select the table route. |
+| Kick, Bank, Compass | Tools → Options → Aiming. Keep related compass adjustments and aiming options together. No Plan button on the main toolbar. Starting Kick or Bank closes the drawer so the user can select the table route. |
 | 3D camera operation | Directly above the bottom spin controls: Full View, Cue View, shot/view adjustment, pan, rotate and zoom. These are primary 3D operations and remain immediately accessible. |
 | Aim and speed | Long side controls, aim on the left and speed on the right, with generous hit targets. |
 | Follow/draw and side spin | Bottom left/right sliders shortened to give the central cue-tip badge more physical room. Keep Shot 1/2 bindings independent. |
@@ -23,7 +23,24 @@ These decisions extend the existing cross-mode control review and supersede the 
 | Clear Table | Remove all balls, including the second planning cue ball; keep table calibration, spin and speed settings. Preserve the existing action-undo path. Disable during shot execution. |
 | Window close | Consistent red close control across experiences using the existing native close APIs. Browser restrictions still apply. |
 
-## Next menu redesign
+## Organized task menu — November 16, 2026
+
+The retractable Tools panel uses six expandable task sections in a stable order:
+
+| Section | Contents |
+| --- | --- |
+| Table | Full racks, ball placement and layout setup; markers and practice targets in a disclosure. |
+| Shot | Live Stats as its own expandable group, precise shot settings, Jump/Massé, cue-tip controls and distinct shot/action history. |
+| Draw | Annotation tools, text editing, color, annotation undo/clear and annotation lock. |
+| Capture | Photo snapshots with their existing three framing modes; separate disclosures for shot recording, sessions, camera and narration. Preserve recorder capability checks. |
+| Saved | Saved layouts, table/session file operations, sharing and the existing device Saved Files collection. Clips remain available through their existing folder action. |
+| Options | Table, Cue, Aiming and Practice choices, followed by Calibration. Calibration presets and table dimensions precede Advanced physics. |
+
+Keep the direct Import, View, Motion and Follow View menus and the established shot/camera/tray controls outside this reorganization. Zen retains its minimal presentation. Preserve all control IDs, state, existing file formats and native APIs.
+
+Snapshot bindings use stable IDs independently of the drawing container. Nested section disclosure styles and programmatic reveals must open the correct ancestors. Keep Live Stats sizing/observers and explicit Guide topics on the renamed existing headings. New task headings do not imply new narration recordings.
+
+## Continuing menu design requirements
 
 Keep the entire right panel retractable. Organize its contents by task, using the same disclosure styles across setup, aiming, shot details, drawing/recording, saved work, and settings. Aiming owns Kick, Bank and Compass; retain that assignment when tabs are renamed or regrouped. Preserve access to Live Stats and Physics/Calibration.
 

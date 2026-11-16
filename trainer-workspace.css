@@ -371,3 +371,16 @@ body.trainer-workspace:has(#workspaceTools details[open]) #appViewHint { display
 #workspace-follow #followMode[aria-checked=true] .followModeState {background:#245772;border-color:#9cd5f3;}
 #workspace-follow.followEnabled>summary {border-color:#9cd5f3;}
 #workspace-follow button:disabled {opacity:.53;}
+/* Task sections share one disclosure language without changing table controls. */
+body.trainer-workspace #panel > .section > .sectionToggle { background:#263440; color:#edf4f7; min-height:46px; padding:12px; }
+body.trainer-workspace #panel > .section.open > .sectionToggle { background:#304b5e; box-shadow:inset 4px 0 #9cd5f3; }
+body.trainer-workspace #panel .section .section > .sectionToggle { background:#25343f; color:#dbeaf2; min-height:44px; }
+body.trainer-workspace #panel .sectionToggle:focus-visible,body.trainer-workspace #panel .toolDisclosure > summary:focus-visible { outline:2px solid #b0e3ff; outline-offset:-3px; }
+.toolDisclosure { margin:8px 0; border:1px solid #40515e; border-radius:7px; padding:0 8px 8px; }
+.toolDisclosure > summary { cursor:pointer; min-height:44px; box-sizing:border-box; padding:12px 3px; color:#e6eff4; font:600 12px/20px system-ui; }
+.toolDisclosure:not([open]) { padding-bottom:0; }
+#trainerPhotoControls input { width:100%; box-sizing:border-box; margin:6px 0; }
+#trainerPhotoControls #trainerSnapshotFolder { grid-column:1/-1; min-height:44px; }
+#trainerAnnotateGroup .trainerAnnotateTools button,#trainerPhotoControls .trainerAnnotateTools button,#trainerClipTools .row button { min-height:44px; }
+#trainerClipTools .toolDisclosure > label { display:block; margin:6px 0 4px; }
+#trainerClipTools .toolDisclosure > select { width:100%; box-sizing:border-box; }

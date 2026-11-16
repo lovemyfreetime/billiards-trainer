@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "cb49420b7c778fbed91a395d307b1a807b52b61b310feb5a66d1fcdc379f8710",
-  "sequence": 1794633852,
+  "version": "880aa21cd466912e6635f967ff5bee734a843662b894c4776c14d75b7ffef5ee",
+  "sequence": 1794857765,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3673,8 +3673,8 @@
       "length": 7897
     },
     "guide/pool-integration.js": {
-      "sha256": "45e2f3ce7f6c6a9aea132d7a993370e371344754f2af4ff929d2a3ba7406d0fb",
-      "length": 10408
+      "sha256": "a8e0a800e1d0eb21d51fa0b81580df4c04bb20da0a87cd823311f4d7daa88116",
+      "length": 10436
     },
     "guide/practice-layouts.js": {
       "sha256": "ad75059a68dae3f380375fd8d846e0021cdfc2031a21ab76fd3d819382d66e40",
@@ -3761,8 +3761,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "c0eaf1fa2099659a7899bf8c90248361b077df2c383e16a98bcc3f5730ee6e93",
-      "length": 943283
+      "sha256": "fd7cfe3cb44b7115b7ccf3ef8257f910c64859920402639e07442aafc4054e61",
+      "length": 945481
     },
     "install/android/index.html": {
       "sha256": "5af2961b4386233b6f9206577ee2acdd6b08068620c3f60c57b176c471ca3681",
@@ -3861,7 +3861,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "b7dcf7ac03fc51b07589353d2dc233bcf232a9cd3f429be9935527d009f7ce3d",
+      "sha256": "c4ce2009e7e3882808ac0d6799011eb5766d29b9db8596e1918101600251f99c",
       "length": 158302
     },
     "phone-play.css": {
@@ -5349,7 +5349,7 @@
       "length": 2103
     },
     "service-worker.js": {
-      "sha256": "8c7bf4653d5f9decd8fef3ae6e2745ffeee55a8ef74029dab9247cdb7e6c07ed",
+      "sha256": "2597d1df0b1deba436d0a581c2d80c3548e55566656ac203bbef7289e2692d4d",
       "length": 7933
     },
     "table-orbit.js": {
@@ -5389,8 +5389,8 @@
       "length": 31284
     },
     "trainer-annotate.js": {
-      "sha256": "bb71bfb7fdbc7482ddb99751380896d061d0d0c4938c3ac67bfa70b2c59266fe",
-      "length": 29380
+      "sha256": "5d3ecef1071a509236bc6ad9b8eaac6e91bffeda34cace993f4cb7869edcce36",
+      "length": 29404
     },
     "trainer-camera-recorder.css": {
       "sha256": "751e79f11ca856637650dbd570c3ddfdc6d6fe2b1018326634fc33a94160993f",
@@ -5457,8 +5457,8 @@
       "length": 37710
     },
     "trainer-workspace.css": {
-      "sha256": "65345ddb46af77d0eaf0d9c8696f05fc0f1038d67b2e7f9769ca42effdc649c2",
-      "length": 37047
+      "sha256": "f82f539d5392d9ec18c4bb963e0195c0f0e91817c7e18c55026b34a733b304f5",
+      "length": 38455
     },
     "trainer-workspace.js": {
       "sha256": "210d3308f1fff640d9f8df7b9cca65007a3ce7096d570c37a1c966d0581ce726",

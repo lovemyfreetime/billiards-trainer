@@ -25,7 +25,7 @@ async function init(){
   }
   for(const button of document.querySelectorAll('#panel .sectionToggle')){
    const label=button.querySelector('span')?.textContent.trim();
-   if(catalog.sections[label])button.dataset.guideTopic=catalog.sections[label];
+   if(!button.dataset.guideTopic&&catalog.sections[label])button.dataset.guideTopic=catalog.sections[label];
   }
   const advanced=document.querySelector('[data-advanced="physicsAdvanced"]');
   if(advanced)advanced.dataset.guideTopic='physics-calibration-intro-quick';
