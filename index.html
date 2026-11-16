@@ -1983,7 +1983,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
       <div class="row"><label>Rail tangential damping</label><input id="railTang" type="number" min="0.5" max="1" step="0.005"></div>
       <div class="row"><label for="cueShaftPreset">Cue / Shaft Preset</label><select id="cueShaftPreset"><option value="standard">Standard shaft</option><option value="low">Low-deflection shaft</option><option value="custom">Custom</option></select></div>
       <div class="row" id="cueEndmassRow" hidden><label for="cueEndmassRatio">Cue ball / end-mass ratio</label><input id="cueEndmassRatio" type="number" min="8" max="60" step="0.1"></div>
-      <div class="check"><input id="airbornePhysics" type="checkbox"><label for="airbornePhysics">3D jump / massé / airborne physics</label></div>
       <div class="row"><label>Bed vertical restitution</label><input id="tableRest" type="number" min="0" max="0.95" step="0.01"></div>
       <div class="row"><label>Bed impact friction μ</label><input id="bedImpactMu" type="number" min="0" max="0.5" step="0.01"></div>
       <div class="row"><label for="jumpUnits">Jump / massé distance units</label><select id="jumpUnits" aria-label="Jump measurement units"><option value="in">Inches (in)</option><option value="mm">Millimeters (mm)</option></select></div>
@@ -8946,7 +8945,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         $('railTang').value = S.railTang;
         $('cueShaftPreset').value=currentCuePreset();$('cueEndmassRow').hidden=S.cuePreset!=='custom';
         $('cueEndmassRatio').value = (+S.cueEndmassRatio).toFixed(3);
-        $('airbornePhysics').checked = S.airbornePhysics === true;
          $('jumpUnits').value = S.jumpUnits === 'mm' ? 'mm' : 'in';
         $('tableRest').value = (+S.tableRest).toFixed(2);
         $('bedImpactMu').value = (+S.bedImpactMu).toFixed(2);
@@ -9060,7 +9058,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         S.speed = +$('speed').value;
         S.follow = +$('follow').value;
         S.sideSpin = +$('sideSpin').value;
-        S.airbornePhysics = $('airbornePhysics').checked;
          S.jumpUnits = $('jumpUnits').value === 'mm' ? 'mm' : 'in';
         S.cueElevationDeg = clamp(+$('cueElevation').value, 0, cueElevationMax());
         S.tableL = +$('tableL').value * inch;
@@ -13654,7 +13651,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             refreshPreview();
         });
         setupPhysicsPresets();
-        const changeIds = ['tableL', 'tableW', 'ballD', 'muSlide', 'muRoll', 'muBall', 'ballRest', 'railRest', 'railTang', 'cueEndmassRatio', 'airbornePhysics', 'jumpUnits', 'tableRest', 'bedImpactMu', 'showImpact', 'showTipBadge', 'showShotLine', 'showCueStick', 'showPaths', 'showGrid', 'showDiamonds', 'showTable', 'showAngleLockControl'];
+        const changeIds = ['tableL', 'tableW', 'ballD', 'muSlide', 'muRoll', 'muBall', 'ballRest', 'railRest', 'railTang', 'cueEndmassRatio', 'jumpUnits', 'tableRest', 'bedImpactMu', 'showImpact', 'showTipBadge', 'showShotLine', 'showCueStick', 'showPaths', 'showGrid', 'showDiamonds', 'showTable', 'showAngleLockControl'];
         $('cueShaftPreset').addEventListener('change',()=>{S.cuePreset=$('cueShaftPreset').value;if(CUE_SHAFT_PRESETS[S.cuePreset])S.cueEndmassRatio=CUE_SHAFT_PRESETS[S.cuePreset];updateUI();refreshPreview();saveState();});
         $('cueEndmassRatio').addEventListener('change',()=>{S.cuePreset='custom';});
         changeIds.forEach(id => $(id).addEventListener('change', applyUI));
@@ -14157,6 +14154,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <link rel="stylesheet" href="./trainer-camera-recorder.css?v=1">
   <script src="./trainer-camera-recorder.js?v=1"></script>
   <script src="./trainer-video-narration.js?v=1"></script>
+  <link rel="stylesheet" href="./trainer-menu.css?v=1">
+  <script src="./trainer-menu.js?v=1"></script>
   <script src="./guide/audio-startup.js?v=native-warmup-v22"></script>
   <script src="./guide/practice-layouts.js?v=walkthrough-v11"></script>
   <link rel="stylesheet" href="./guide/narration-cues.css?v=lesson-scenes-v1">

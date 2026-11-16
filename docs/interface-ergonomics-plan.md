@@ -31,12 +31,16 @@ Opening a main task collapses the previous main task, while nested disclosure st
 
 | Section | Contents |
 | --- | --- |
-| Table | Full racks, ball placement and layout setup; markers and practice targets in a disclosure. |
-| Shot | Live Stats as its own expandable group, precise shot settings, Jump/Massé, cue-tip controls and distinct shot/action history. |
-| Draw | Annotation tools, text editing, color, annotation undo/clear and annotation lock. |
-| Capture | Photo snapshots with their existing three framing modes; separate disclosures for shot recording, sessions, camera and narration. Preserve recorder capability checks. |
-| Saved | Saved layouts, table/session file operations, sharing and the existing device Saved Files collection. Clips remain available through their existing folder action. |
-| Options | Table, Cue, Aiming and Practice choices, followed by Calibration. Calibration presets and table dimensions precede Advanced physics. |
+| Shot | Opens by default when Tools opens, with Live Shot Results visible. Separate disclosures for precision controls, cue contact, planning, Jump/Massé and history. |
+| Table & Balls | Equal-level disclosures for full racks, layout setup, single-ball placement and markers/targets. |
+| Table Notes | Write/annotate tools, text editing, color, annotation undo/clear and annotation lock. |
+| Capture | Photo, Video and Audio disclosures; nested shot/session/camera recording and narration. Preserve recorder capability checks. |
+| Saved | Distinct collapsible Saved Ball Layouts, Saved Files, and Import/Export/Auto-save sections. |
+| Features & Options | Table, Cue, Aiming, Practice, Calibration and Advanced Physics are peer disclosures. Shot owns the single Jump/Massé switch; the redundant advanced checkbox is removed. |
+
+Main task headers use bright blue; subsections use a deeper blue, with restrained line icons and colored collection edges. Standard actions have consistent 44px minimum height. Expand the Billiards Trainer title and restore the AI Edition subtitle. Use short labels and readable optional reference text.
+
+The drawer no longer has a fullscreen dismiss layer that intercepts aiming. At widths of 1000px and above it docks beside the workspace, shifting right-side controls clear of the drawer. At smaller widths preserve access to the left aim rail. Keep Live Shot Results updating while the menu stays open.
 
 Keep the direct Import, View, Motion and Follow View menus and the established shot/camera/tray controls outside this reorganization. Zen retains its minimal presentation. Preserve all control IDs, state, existing file formats and native APIs.
 

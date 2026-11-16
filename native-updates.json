@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "3691c284aab40f67ac44594fbf07143d6475136cab3031315f857ce41406f449",
-  "sequence": 1794858655,
+  "version": "58608f80b8f05dabc5183ce1daa1760e5b8f35a30ece912c1f9afcce71f55935",
+  "sequence": 1794864467,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3761,8 +3761,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "b31cca73d254768e34662575a4ed9a7fd29b3b245beb977e6f8e0e6ff3c6029e",
-      "length": 946027
+      "sha256": "f0da928708eb59e14d085af6a2c75974fab4b33fb838c1e16dae6737a3ad5783",
+      "length": 945839
     },
     "install/android/index.html": {
       "sha256": "5af2961b4386233b6f9206577ee2acdd6b08068620c3f60c57b176c471ca3681",
@@ -3861,8 +3861,8 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "32dac8af4113216e55cf3ba88204d40da0776d82a616570e8aa9496b76b86451",
-      "length": 158302
+      "sha256": "1909c98a5ea15a01a0600c82e4a2d80ae5f12c706011a8226e1479552a268a8e",
+      "length": 158485
     },
     "phone-play.css": {
       "sha256": "cec5017ee25f788690420d4e67241754a1fbb2c047779ad0e7e59d87f7eac720",
@@ -5349,7 +5349,7 @@
       "length": 2103
     },
     "service-worker.js": {
-      "sha256": "73ddf3b6fb7d214a3639b495b3649ef169eb0357bcff26b8da4e2879746302e5",
+      "sha256": "07fe3ac9c5fe1bdc8cc71890df01609a3ad972cbfa979fd617ab872d3dd93b8d",
       "length": 7933
     },
     "table-orbit.js": {
@@ -5407,6 +5407,14 @@
     "trainer-layout-files.js": {
       "sha256": "262d5dd963d46919608a881d3caca7a798343ab4106d158167d9e19895ecc950",
       "length": 3507
+    },
+    "trainer-menu.css": {
+      "sha256": "0395ee3dcca549ea2412e77b1ed4d9e46b2f092dff8450b00a71da19c7fdd3b3",
+      "length": 10958
+    },
+    "trainer-menu.js": {
+      "sha256": "08ccfb43fff7cc71de0d5025a565d7be4b144429cfd089b514ff78c36e96e56f",
+      "length": 14207
     },
     "trainer-pocket-entry.js": {
       "sha256": "25861bb806b495cfa8f92b4867c00cd4cf22cf8d04b11a460cb524282f5b3ec6",

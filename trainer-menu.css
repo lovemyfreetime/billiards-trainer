@@ -1,0 +1,112 @@
+/* One visual language for task navigation, subsections and actions. */
+body.trainer-workspace { --menu-blue:#4297e6; --menu-sub:#245575; --menu-line:#4c7893; }
+#panel .menuIcon { flex:none; width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+#panel .menuHeading { display:flex; flex:1; flex-direction:column; gap:4px; min-width:0; }
+#panel .menuTitle { font-size:15px; line-height:1.25; font-weight:750; }
+#panel .menuDescription { font-size:12px; line-height:1.3; font-weight:550; letter-spacing:0; }
+body.trainer-workspace #panel > .section > .sectionToggle { display:flex; align-items:center; justify-content:flex-start; gap:12px; min-height:66px; padding:12px; background:var(--menu-blue); color:#061622; box-shadow:none; }
+body.trainer-workspace #panel > .section.open > .sectionToggle { background:#57a8ef; color:#03101b; box-shadow:inset 4px 0 #d5eeff; }
+body.trainer-workspace #panel > .section > .sectionToggle::after { margin-left:auto; font-size:22px; }
+#panel > .section { border-color:#4e89af; background:#101d28; }
+#panel .sectionBody { padding:10px; }
+#panel .menuSubsection { margin:0 0 10px; padding:0; border:1px solid var(--menu-line); border-radius:8px; overflow:hidden; background:#182b3a; }
+#panel .menuSubsection > summary,
+body.trainer-workspace #panel .section .section > .sectionToggle { display:flex; list-style:none; align-items:center; gap:10px; min-height:48px; box-sizing:border-box; padding:10px; background:var(--menu-sub); color:#f2f8fd; cursor:pointer; text-align:left; border:0; }
+#panel .menuSubsection > summary::-webkit-details-marker { display:none; }
+#panel .menuSubsection > summary::after { content:'›'; margin-left:auto; font:600 24px/1 system-ui; transform:rotate(0); }
+#panel .menuSubsection[open] > summary::after { transform:rotate(90deg); }
+#panel .section .section > .sectionToggle::after { content:'›'; margin-left:auto; transform:rotate(0); }
+#panel .section .section.open > .sectionToggle::after { content:'›'; transform:rotate(90deg); }
+#panel .menuSubsection > summary .menuTitle,
+#panel .section .section > .sectionToggle .menuTitle { font-size:14px; font-weight:700; }
+#panel .menuSubsection > .menuContent,
+#panel .menuSubsection > .sectionBody { padding:10px; }
+#panel .menuSubsection .menuSubsection { --menu-sub:#183c55; background:#122333; border-color:#3e6078; }
+#panel .menuSubsection .menuSubsection > summary { min-height:46px; }
+#panel .menuSubsection .tableControlGroup,
+#panel .menuSubsection fieldset.featureOptionsGroup { background:transparent; border:0; margin:0; padding:0; min-width:0; }
+#panel .menuSubsection fieldset.featureOptionsGroup > legend { position:absolute; width:1px; height:1px; padding:0; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+#panel #trainerClipTools { border:0; background:transparent; padding:0; margin:0; }
+#panel #trainerClipTools[hidden] { display:none; }
+#panel .menuContent > label { display:block; margin:2px 0 7px; font-size:14px; }
+#panel input:not([type=range]):not([type=checkbox]):not([type=color]),
+#panel select,#panel textarea { font-size:14px; line-height:1.3; min-height:42px; box-sizing:border-box; }
+#panel .menuActionGrid,#panel .buttons,#panel .layoutSetupButtons,#panel .layoutSetupReset { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:8px 0; }
+#panel .menuActionGrid > button,#panel .buttons > button,#panel .row > button,
+#panel .layoutSetupReset > button,#panel .layoutSetupButtons > button,#panel .fullRackStart > button { width:100%; min-width:0; min-height:44px; height:auto; margin:0; padding:8px; box-sizing:border-box; white-space:normal; font:600 13px/1.25 system-ui; border:1px solid #638298; border-radius:7px; background:#253f52; color:#f1f6fa; }
+#panel .layoutSetupReset { grid-template-columns:1fr; }
+#panel .fineRow button { min-height:44px; }
+#panel #animate { background:#3dd56d; color:#062310; border-color:#3dd56d; min-height:48px; }
+#panel .hint,#panel .bt-file-status { font-size:13px; line-height:1.4; color:#c8d7e2; margin:7px 0; }
+#panel .menuContent .check { min-height:38px; align-items:center; }
+#panel .check label,#panel .row label { font-size:13px; line-height:1.35; }
+#panel .menuContent .menuActionGrid input { max-width:100%; }
+#panel #menuJump .menuContent { display:flex; flex-direction:column; gap:10px; }
+#panel #menuJump #jumpMasseFeatures { min-height:44px; width:100%; }
+#panel .cueElevationSlider { width:100%; }
+#panel .menuCount { margin-left:auto; white-space:nowrap; border:1px solid #a6c9df; padding:2px 6px; border-radius:5px; font:600 12px/1.2 system-ui; }
+#panel #savedBody .layoutManage { border:0; padding:0; background:transparent; }
+#panel .bt-saved-files { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; align-items:stretch; }
+#panel .bt-saved-files label { grid-column:1/-1; font-size:14px; flex:none; }
+#panel .bt-saved-files button { min-height:44px; width:100%; white-space:normal; padding:8px; font:600 13px/1.25 system-ui; }
+#panel .bt-file-library { margin:0; }
+#panel #trainerAnnotateGroup .trainerAnnotateTools { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+#panel #trainerAnnotateGroup .trainerAnnotateTools button { flex-direction:row; gap:8px; min-height:44px; font-size:13px; padding:8px; }
+#panel #trainerAnnotateGroup .trainerAnnotateColor { min-height:44px; font-size:13px; }
+#panel #trainerPhotoControls .trainerAnnotateTools { display:block; }
+#panel #trainerPhotoControls .trainerSnapshotGroup { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; padding:6px; margin-bottom:10px; background:#102333; }
+#panel #trainerPhotoControls .trainerSnapshotGroup button { min-height:54px; font:600 13px/1.25 system-ui; }
+#panel #trainerPhotoControls #trainerAnnotateSnapshot { background:#285f84; border-color:#88c4ec; }
+#panel #trainerPhotoControls #trainerSnapshotFolder { min-height:44px; grid-column:auto; }
+#panel #trainerPhotoControls .menuActionGrid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+#panel #liveStatsSection .shotMetricsWrap { display:block; height:auto!important; min-height:0!important; }
+#panel #liveStatsSection .shotMetrics { padding:8px; margin-bottom:10px; height:auto; }
+#panel #liveStatsSection .shotStatsBody { display:block; }
+#panel #liveStatsSection .menuMetricGroup { margin-bottom:8px; }
+#panel #liveStatsSection .menuMetricGroup .menuContent { padding:4px; }
+#panel #liveStatsSection .metric { display:grid; grid-template-columns:minmax(0,1fr) minmax(72px,.7fr); min-height:38px; max-height:none; padding:6px; font-size:13px; }
+#panel #liveStatsSection .metric b { font-size:14px; color:#bfe8ff; }
+#panel #liveStatsSection .metric span,#panel #liveStatsSection .metric b { max-height:none; }
+#panel .menuMetricGroup .menuIcon { width:18px; height:18px; }
+#panel .menuMetricGroup .menuTitle { font-size:13px; }
+#panel .menuPhysicsFields { display:block; border:0; padding:0; margin:0; }
+#panel .menuPhysicsFields .tableControlTitle { display:none; }
+#panel #menuPhysicsReference { margin-top:12px; }
+#panel #menuPhoto { border-left:4px solid #7bc6ec; }
+#panel #menuVideo { border-left:4px solid #70c8c2; }
+#panel #menuAudio { border-left:4px solid #b69bdd; }
+#panel #menuSavedLayouts { border-left:4px solid #7bc6ec; }
+#panel #menuSavedFiles { border-left:4px solid #70c8c2; }
+#panel #menuFileActions { border-left:4px solid #cbb27d; }
+body.trainer-workspace #panel .btg-pool-title { display:flex!important; flex-wrap:wrap; gap:10px; margin:6px 0 16px; }
+body.trainer-workspace #panel .btg-pool-title h1 { flex:0 0 100%; min-width:0; font-size:28px!important; font-weight:750; line-height:1.1; margin:0; }
+body.trainer-workspace #panel .btg-pool-title .editionSub { display:block!important; margin-top:6px; font-size:14px; line-height:1.2; letter-spacing:.08em; color:#bed7e6; }
+body.trainer-workspace #panel #btg-pool-launchers { margin:0; }
+/* The former full-screen dismiss layer blocked live aiming with Tools open. */
+body.trainer-workspace.phone-controls-open #phoneDismiss { display:none!important; pointer-events:none!important; }
+@media(max-width:700px) {
+ body.trainer-workspace.phone-focus #panel { width:calc(100vw - 76px); min-width:260px; box-sizing:border-box; }
+ #panel .sectionBody { padding:8px; }
+ #panel .menuDescription { font-size:11px; }
+ body.trainer-workspace #panel .btg-pool-title h1 { font-size:26px!important; }
+}
+/* A docked inspector leaves both aiming rails and the cloth available. */
+@media(min-width:1000px) {
+ body.trainer-workspace.phone-controls-open { --menu-dock:360px; --workspace-top:116px; }
+ body.trainer-workspace.phone-controls-open #panel { width:var(--menu-dock); box-sizing:border-box; }
+ body.trainer-workspace.phone-controls-open.phone-focus #stageWrap { right:calc(var(--workspace-edge) + var(--menu-dock) + env(safe-area-inset-right))!important; }
+ body.trainer-workspace.phone-controls-open.phone-focus #phoneSpeedRail { right:calc(10px + var(--menu-dock) + env(safe-area-inset-right)); }
+ body.trainer-workspace.phone-controls-open.phone-focus #phoneActions { right:calc(120px + var(--menu-dock) + env(safe-area-inset-right))!important; }
+ body.trainer-workspace.phone-controls-open.phone-focus #phoneActions>[data-trainer-action=animate] { right:calc(10px + var(--menu-dock) + env(safe-area-inset-right))!important; }
+ body.trainer-workspace.phone-controls-open.phone-focus #phoneActions>[data-trainer-action=undoShot] { right:calc(140px + var(--menu-dock) + env(safe-area-inset-right))!important; }
+ body.trainer-workspace.phone-controls-open.phone-focus #phoneActions>[data-trainer-action=redoShot] { right:calc(86px + var(--menu-dock) + env(safe-area-inset-right))!important; }
+ body.trainer-workspace.phone-controls-open #workspaceTools { max-width:calc(100vw - var(--menu-dock) - 210px); flex-wrap:wrap; }
+ body.trainer-workspace.phone-controls-open #workspaceBallShelf { right:calc(120px + var(--menu-dock) + env(safe-area-inset-right)); }
+ body.trainer-workspace.phone-controls-open.table-3d { --workspace-bottom:248px; }
+ body.trainer-workspace.phone-controls-open.table-3d.phone-tray-hidden { --workspace-bottom:192px; }
+ body.trainer-workspace.phone-controls-open.table-3d #workspaceBallShelf { bottom:192px; }
+ body.trainer-workspace.phone-controls-open.table-3d.phone-focus #table3DPhoneControls:not([hidden]) { right:calc(120px + var(--menu-dock) + env(safe-area-inset-right)); grid-template-columns:minmax(0,1fr); grid-template-rows:44px 44px; height:96px; gap:8px; }
+ body.trainer-workspace.phone-controls-open.table-3d.phone-focus #table3DPhoneControls #table3DTools { grid-area:1/1; height:44px; }
+ body.trainer-workspace.phone-controls-open.table-3d.phone-focus #table3DPhoneControls #table3DViews { grid-area:2/1; height:44px; }
+ body.trainer-workspace.phone-controls-open.table-3d.phone-focus #table3DPhoneControls button { height:44px!important; min-height:44px!important; }
+}
