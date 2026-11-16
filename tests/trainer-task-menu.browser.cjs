@@ -23,7 +23,7 @@ fs.mkdirSync(dir, { recursive: true });
       const page = await context.newPage();
       page.setDefaultTimeout(12000);
       const errors = [];
-      page.on('pageerror', e => errors.push(e.message));
+      page.on('pageerror', e => { errors.push(e.message); console.error('Browser initialization/interaction error:', e.stack); });
       const state = () => page.evaluate(() => billiardsTourBridge.capture().state);
       const drawer = async () => {
         if (!(await page.locator('body').evaluate(e => e.classList.contains('phone-controls-open')))) await page.locator('#phoneControls').click();

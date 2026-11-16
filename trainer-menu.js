@@ -98,9 +98,10 @@
   const shotBody = byId('shotBody');
   const precision = disclosure('menuShotControls', 'Aim & Spin Controls', 'options', [byId('shot1Controls'), byId('shot2Controls')]);
   const tips = disclosure('menuCueContact', 'Cue-tip Contact', 'cue', [byId('tipArea')]);
+  shotBody.append(precision, tips);
   const featureRow = byId('shotBudget').parentElement;
   const jump = disclosure('menuJump', 'Jump & Massé', 'cue', [byId('jumpMasseFeatures'), byId('jumpModeLock').closest('label'), byId('cueElevationAdvanced1'), byId('cueElevationAdvanced2')]);
-  for (const which of [1, 2]) byId('cueElevationAdvanced' + which).addEventListener('pointerdown', () => window.billiardsSelectShot?.(which));
+  for (const which of [1, 2]) jump.querySelector('#cueElevationAdvanced' + which).addEventListener('pointerdown', () => window.billiardsSelectShot?.(which));
   const planning = disclosure('menuShotPlanning', 'Shot Planning', 'layout', [grid([byId('toggleShot2'), byId('shotBudget')])]);
   const history = disclosure('menuShotHistory', 'Execute & History', 'stats', [byId('shotExecuteRow'), ...shotBody.querySelectorAll(':scope > .shotHistoryRow'), byId('resetLayoutQuick').parentElement]);
   featureRow.remove();
