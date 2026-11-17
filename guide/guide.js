@@ -208,9 +208,13 @@ function mount(host,options={}){
    if(!options.poolMode&&state.category!=='start')btn('Reset',()=>{if(!confirm('Reset Guide session? The table will not change.'))return;stop();state={enabled:true,exploring:false,autoplay:state.category==='start'||!!options.poolMode&&state.guideAutoplay,guideAutoplay:state.guideAutoplay,level:0,category:options.startOnly||state.category==='start'?'start':'fundamentals',topicId:null,expanded:null,detailsOpen:false,position:0};save();render();if(state.category==='start')openCategory('start')});
    }
   }
-  view.append(toolbar);if(learning&&state.enabled)learningPlayback(view);if(!state.enabled){root.classList.remove('btg-details-open');patchNode(root,view);return;}
+  if(learning&&state.enabled){
+   const player=document.createElement('section');player.className='learningPlayerBox';player.setAttribute('aria-label','Audio player');
+   const heading=document.createElement('strong');heading.className='learningPlayerHeading';heading.textContent='Audio player';player.append(heading,toolbar);learningPlayback(player);view.append(player);
+  }else view.append(toolbar);
+  if(!state.enabled){root.classList.remove('btg-details-open');patchNode(root,view);return;}
   const cats=document.createElement('div');cats.className='btg-row btg-categories';
-  for(const [id,label] of CATEGORIES.filter(([id])=>id!=='explore'&&id!=='start')){const b=document.createElement('button');b.textContent=label;b.setAttribute('aria-pressed',String(state.category===id));b.onclick=()=>{stop();openCategory(id)};cats.append(b)}if(state.category!=='start')view.append(cats);
+  for(const [id,label] of CATEGORIES.filter(([id])=>id!=='explore'&&id!=='start')){const b=document.createElement('button');b.textContent=label;b.setAttribute('aria-pressed',String(state.category===id));b.onclick=()=>{stop();openCategory(id)};cats.append(b)}if(state.category!=='start'){if(learning){const heading=document.createElement('strong');heading.className='learningTopicsHeading';heading.textContent='Explore lessons';view.append(heading);}view.append(cats);}
   if(resourceBrowse&&global.BilliardsResources){
    const toggle=document.createElement('button');toggle.type='button';toggle.className='btg-expansion-tab';
    toggle.textContent=learning?(state.resourcesCollapsed?'Show resources':'Hide resources'):(state.resourcesCollapsed?'+':'−');toggle.title=state.resourcesCollapsed?'Open Resources':'Close Resources';

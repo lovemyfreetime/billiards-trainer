@@ -254,7 +254,7 @@
     mainActions.append(...['photoChooseImage','photoAnalyzeNow','photoAddMissed'].map(id=>document.getElementById(id)),more,document.getElementById('photoAnalyzerClose'));
     const hint=document.getElementById('photoAnalyzerStatus');
     secondary.append(analyzeToolbar);photoBar.append(mainActions,hint,secondary);
-    const summary=document.querySelector('.photoReviewSummary');if(summary)photoBar.append(summary);
+    const summary=document.querySelector('.photoReviewSummary');if(summary)document.querySelector('.photoReview').prepend(summary);
     setPhotoTools(true);
     document.getElementById('photoAnalyzerClose').addEventListener('click',()=>setPhotoTools(true));
     // Walkthrough can also navigate to actions inside the disclosure.

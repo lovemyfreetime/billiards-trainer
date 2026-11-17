@@ -7,6 +7,17 @@
  const interaction=document.createElementNS('http://www.w3.org/2000/svg','svg');interaction.id='trainerAnnotationInput';interaction.setAttribute('aria-hidden','true');const hitArea=document.createElementNS('http://www.w3.org/2000/svg','polygon');hitArea.setAttribute('fill','transparent');interaction.append(hitArea);stage.append(interaction);
  const ctx=layer.getContext('2d'),tools=[...group.querySelectorAll('[data-annotate-tool]')],color=document.getElementById('trainerAnnotateColor');
  let activeTool='',items=[],gesture=null,dpr=1,selectedText=null;
+ const modeBar=document.createElement('div');modeBar.id='trainerAnnotationMode';modeBar.hidden=true;
+ const modeName=document.createElement('span');modeName.setAttribute('role','status');modeName.setAttribute('aria-live','polite');
+ const done=document.createElement('button');done.type='button';done.textContent='Done';done.setAttribute('aria-label','Finish table notes and return to table controls');modeBar.append(modeName,done);stage.append(modeBar);
+ function finish(){activeTool='';gesture=null;selectedText=null;inlineText.blur();updateTools();paint();}
+ done.onclick=finish;
+ document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&activeTool){ev.preventDefault();finish();}},true);
+ const modeNames={text:'Text',line:'Line',arrow:'Arrow',circle:'Circle',draw:'Freehand',erase:'Eraser'};
+ const checkDrawer=()=>{if(!activeTool)return;const section=group.closest('.section');if(!document.body.classList.contains('phone-controls-open')||section&&!section.classList.contains('open'))finish();};
+ new MutationObserver(checkDrawer).observe(document.body,{attributes:true,attributeFilter:['class']});
+ new MutationObserver(checkDrawer).observe(document.getElementById('panel'),{subtree:true,attributes:true,attributeFilter:['class']});
+
  const textEditor=group.querySelector('#trainerTextEditor');
  const textInput=group.querySelector('#trainerAnnotationText');
  const rotationInput=group.querySelector('#trainerTextRotation');
@@ -81,6 +92,8 @@
  const native=window.BilliardsAndroid;
  if(native)status.textContent='Snapshots save to Pictures / Billiards Trainer / Snapshots.';
  function updateTools(){
+  modeBar.hidden=!activeTool||locked;modeName.textContent=(modeNames[activeTool]||'Notes')+' mode';
+  layer.setAttribute('aria-label',activeTool?'Annotate table: '+activeTool:'Table annotations');
   interaction.classList.toggle('active',!!activeTool&&!locked);
   if(locked||activeTool!=='text')inlineText.hidden=true;
   for(const button of tools){

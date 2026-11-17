@@ -243,8 +243,8 @@ body.phone-focus #photoWalkthroughBtn{order:8!important}
 #photoAnalyzerModal #phoneAnalyzeBar .photoToolActions { display:contents!important; }
 #photoAnalyzerModal #photoMoreTools { display:none!important; }
 #photoAnalyzerModal #phoneAnalyzeBar button,
-#photoAnalyzerModal #phoneAnalyzeBar select { box-sizing:border-box; flex:0 0 auto; width:auto; min-width:0; max-width:none; height:24px!important; min-height:24px!important; white-space:nowrap; padding:2px 4px!important; margin:0; border-radius:4px; font:600 10px/1.1 system-ui!important; }
-#photoAnalyzerModal #photoMainActions :is(#photoChooseImage,#photoAnalyzeNow,#photoAddMissed) { min-width:96px; height:28px!important; min-height:28px!important; margin:0 5px; padding:3px 8px!important; font-size:11px!important; }
+#photoAnalyzerModal #phoneAnalyzeBar select { box-sizing:border-box; flex:1 0 auto; width:auto; min-width:0; max-width:none; height:24px!important; min-height:24px!important; white-space:nowrap; padding:2px 4px!important; margin:0; border-radius:4px; font:600 10px/1.1 system-ui!important; }
+#photoAnalyzerModal #photoMainActions :is(#photoChooseImage,#photoAnalyzeNow,#photoAddMissed) { flex:1.5 0 96px; min-width:96px; height:28px!important; min-height:28px!important; margin:0 5px; padding:3px 8px!important; font-size:11px!important; }
 #photoAnalyzerModal #phoneAnalyzeBar #photoChooseImage { order:0!important; margin-left:0; }
 #photoAnalyzerModal #phoneAnalyzeBar #photoTakeImage { order:1!important; }
 #photoAnalyzerModal #phoneAnalyzeBar #photoFrameImage { order:2!important; }
@@ -256,11 +256,12 @@ body.phone-focus #photoWalkthroughBtn{order:8!important}
 #photoAnalyzerModal #phoneAnalyzeBar #phonePhotosButton { order:8!important; }
 #photoAnalyzerModal #phoneAnalyzeBar #photoResetCorners { order:9!important; }
 #photoAnalyzerModal #phoneAnalyzeBar #btg-analyze-explore { order:10!important; width:24px; min-width:24px; padding:2px!important; }
-#photoAnalyzerModal #phoneAnalyzeBar>.photoReviewSummary { order:90; position:static; display:flex; align-items:center; flex:none; margin:0 0 0 auto; padding:0 4px; border:0; background:transparent; }
-#photoAnalyzerModal .photoReviewSummary h3,
-#photoAnalyzerModal #photoBallCount { position:absolute; width:1px; height:1px; min-height:0; padding:0; margin:0; overflow:hidden; clip-path:inset(50%); }
-#photoAnalyzerModal #photoBallStrip { display:flex; flex-wrap:nowrap; align-items:center; width:auto; padding:0; gap:1px; }
-#photoAnalyzerModal #photoBallStrip .photoSummaryBall { position:static; flex:0 0 16px; width:16px; height:16px; min-height:16px!important; min-width:16px; max-width:16px; padding:0!important; margin:0; border-radius:50%; font:700 8px/1 system-ui!important; }
+#photoAnalyzerModal .photoReview>.photoReviewSummary { position:sticky; top:-6px; display:grid; grid-template-columns:1fr auto; align-items:center; gap:4px; margin:-6px -6px 8px; padding:6px; background:#151e26; border-bottom:1px solid #43515f; }
+#photoAnalyzerModal .photoReviewSummary h3 { position:static; width:auto; height:auto; margin:0; padding:0; clip-path:none; overflow:visible; font:600 12px/1.3 system-ui; }
+#photoAnalyzerModal #photoBallCount { position:static; width:auto; height:auto; min-height:0; line-height:1.3; margin:0; padding:0; clip-path:none; overflow:visible; font:11px/1.3 system-ui; }
+#photoAnalyzerModal #photoBallStrip { display:grid; grid-column:1/-1; grid-template-columns:repeat(9,minmax(0,1fr)); align-items:center; width:100%; padding:0; gap:3px; }
+#photoAnalyzerModal #photoBallStrip .photoSummaryBall { position:static; inset:auto; width:100%; height:auto; aspect-ratio:1; min-height:0!important; min-width:0; max-width:none; padding:0!important; margin:0; border-radius:50%; font:700 10px/1 system-ui!important; }
+#photoAnalyzerModal #photoBallStrip .photoSummaryBall.cue { order:-1; }
 #photoAnalyzerModal #phoneAnalyzeBar #photoWalkthroughBtn { order:99!important; margin-left:4px; }
 #photoAnalyzerModal #photoMainActions #photoAnalyzerClose { position:fixed!important; inset:3px 5px auto auto!important; z-index:86; margin:0; width:28px; min-width:28px; height:28px!important; min-height:28px!important; padding:0!important; border-radius:50%; font-size:18px!important; }
 #photoAnalyzerModal .photoAnalyzerBody { grid-template-columns:minmax(0,1fr) var(--photo-review-width); }

@@ -1,0 +1,60 @@
+name: Verify camera labels and grouped learning controls
+on:
+  push:
+    branches: [test/view-learning-ui-20261117]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check source and complete content inventory
+        run: |
+          node --check trainer-3d.js
+          node --check trainer-annotate.js
+          node --check guide/guide.js
+          node --check phone-play.js
+          node tests/photo-number-labels.test.cjs
+          node tests/photo-review-navigation.test.cjs
+          node tests/photo-pan-markers.test.cjs
+          node tests/photo-zoom-summary.test.cjs
+          node tests/photo-calibration-flow.test.cjs
+          python3 scripts/build-offline-assets.py --check
+      - name: Install browser
+        run: |
+          npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
+          node local-host/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Verify camera labels and annotation exit
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")
+          node tests/view-learning-ui.browser.cjs
+      - name: Verify Learning audio continuity and group layout
+        if: success() || failure()
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")
+          node tests/learning-panel.browser.cjs
+      - name: Verify analyzer layout and review actions
+        if: success() || failure()
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")
+          node tests/analyzer-layout.browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: view-learning-ui
+          path: |
+            test-results/view-learning-ui
+            test-results/learning-panel
+            test-results/analyzer-layout

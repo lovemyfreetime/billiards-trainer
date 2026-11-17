@@ -274,6 +274,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   #trainerAnnotationInput polygon { pointer-events:none; }
   #trainerAnnotationInput.active polygon { pointer-events:all;cursor:crosshair; }
   #trainerAnnotationInput .textHandle { pointer-events:all;cursor:grab; }
+  #trainerAnnotationMode { position:absolute;z-index:20;bottom:12px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;padding:4px 5px 4px 12px;border:1px solid #d9ad62;border-radius:8px;background:#382d1a;color:#fff0ca;font:600 13px/1.3 system-ui;box-shadow:0 2px 10px #0007; }
+  #trainerAnnotationMode[hidden] { display:none; }
+  #trainerAnnotationMode button { min-height:32px;padding:4px 12px;border:1px solid #e2be7c;border-radius:5px;background:#775a28;color:#fff3d6;font:600 13px system-ui;cursor:pointer; }
   #trainerInlineText { position:absolute;z-index:12;box-sizing:border-box;width:260px;max-width:90%;min-height:70px;padding:8px;border:2px solid #6db8ed;border-radius:6px;background:#182632;color:#fff;font:16px system-ui;touch-action:auto; }
   .layoutSetupGroup { padding:6px; }
   .layoutSetupReset { display:grid; grid-template-columns:1fr; margin-bottom:5px; }
@@ -6940,7 +6943,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 ctx.font = `700 ${isProjector ? 10 : 8}px Segoe UI`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'bottom';
-                ctx.fillText(label, q.x, q.y - (isProjector ? 7 : 6));
+                if(window.Billiards3D?.active)cameraLabels.push({id:label,point:p,rows:[label],size:11,opacity:.65,placement:'above'});
+                else ctx.fillText(label, q.x, q.y - (isProjector ? 7 : 6));
             }
             spot({ x: headX, y: W / 2 }, 'HEAD / BREAK', .35);
             spot({ x: footX, y: W / 2 }, 'FOOT / RACK', .35);
@@ -6948,31 +6952,18 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             [[1,.25,-.025],[2,.75,-.025],[3,1.017,.5],[4,.75,1.025],[5,.25,1.025],[6,-.017,.5]].forEach(([n,x,y])=>{const q=map({x:x*L,y:y*W});ctx.fillText('R'+n,q.x,q.y);});
             // Pocket numbers sit on the rail-cap area rather than the playing cloth.
             // Clockwise from the head-end upper corner.
-            const off = 0.036;
             const pocketLabels = [
-                { n: 1, p: { x: off, y: -off } },
-                { n: 2, p: { x: L / 2, y: -0.046 } },
-                { n: 3, p: { x: L - off, y: -off } },
-                { n: 4, p: { x: L - off, y: W + off } },
-                { n: 5, p: { x: L / 2, y: W + 0.046 } },
-                { n: 6, p: { x: off, y: W + off } }
+                { n:1, p:{x:-.085,y:-.085} }, { n:2, p:{x:L/2,y:-.095} },
+                { n:3, p:{x:L+.085,y:-.085} }, { n:4, p:{x:L+.085,y:W+.085} },
+                { n:5, p:{x:L/2,y:W+.095} }, { n:6, p:{x:-.085,y:W+.085} }
             ];
-            ctx.globalAlpha = 1;
+            ctx.globalAlpha = .95;
             for (const item of window.Billiards3D?.active?[]:pocketLabels) {
                 const q = map(item.p);
-                const rr = isProjector ? 9 : 7.5;
-                ctx.fillStyle = 'rgba(8,10,13,.76)';
-                ctx.strokeStyle = 'rgba(245,239,216,.82)';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.arc(q.x, q.y, rr, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-                ctx.fillStyle = 'rgba(255,255,255,.94)';
-                ctx.font = `800 ${isProjector ? 11 : 9}px Segoe UI`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(String(item.n), q.x, q.y + .2);
+                ctx.fillStyle = '#dedacb';
+                ctx.font = `600 ${isProjector ? 11 : 9}px Segoe UI`;
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(String(item.n), q.x, q.y);
             }
             ctx.restore();
         }
@@ -7574,7 +7565,16 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             }
             for(const {preview} of previews)api.draw(ctx,api.labels(preview,map,options));
         }
-        api.drawContacts(ctx,badges);
+        if(window.Billiards3D?.active){
+            for(const [i,item] of shotBudgetOverlaps.entries()){
+                const info=shotContactInfo(item.which);
+                cameraLabels.push({id:'overlap-'+i,point:item.contact.cuePos,rows:[
+                    'Overlap '+api.formatOverlap(info.overlapPercent),
+                    'Cut angle '+angle(info.cutDegrees),'Exit angle '+angle(info.exitDegrees)
+                ],size:12,opacity:.85,placement:'beside'});
+            }
+            api.drawContacts(ctx,badges.filter(b=>b.type!=='overlap'));
+        }else api.drawContacts(ctx,badges);
     }
     function drawPreview(map) {
         if (!S.showPaths || !S.preview)
@@ -8350,7 +8350,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             },true);
         });
     }
+    let cameraLabels = [];
     function draw(videoFrame = false, recordingGuides = false) {
+        cameraLabels = [];
         const clean = videoFrame === true;
         shotBudgetOverlaps = [];
         updateAimZones();
@@ -8433,7 +8435,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const live=(animation?.current||S.balls).map(b=>({...S.balls.find(x=>x.id===b.id),...b})).filter(b=>b.id!==0||cueVisualsVisible(1));
             if((!clean||(recordingGuides&&S.shot2CueBallOnly))&&S.shot2Enabled&&cueVisualsVisible(2))live.push({id:'CB2',x:S.shot2.x,y:S.shot2.y,orientation:S.shot2.orientation,active:true});
             const second=S.activeShot===2&&S.shot2Enabled,cb=second?S.shot2:cueBall();
-            window.Billiards3D.update({trainingBallStyle:S.trainingBallStyle,L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:(clean||S.showCueStick===false)?[]:(animation?.cueTips||cueTipsFor3D()).filter(tip=>tip.id!=='CB2'||!S.shot2CueBallOnly),balls:live,ghostBalls:clean&&!recordingGuides?[]:ghostBallsFor3D(),map,aim:!clean&&cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
+            window.Billiards3D.update({cameraLabels,trainingBallStyle:S.trainingBallStyle,L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:(clean||S.showCueStick===false)?[]:(animation?.cueTips||cueTipsFor3D()).filter(tip=>tip.id!=='CB2'||!S.shot2CueBallOnly),balls:live,ghostBalls:clean&&!recordingGuides?[]:ghostBallsFor3D(),map,aim:!clean&&cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
         }
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }

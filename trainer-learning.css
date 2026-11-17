@@ -1,9 +1,9 @@
-/* Learning shares the existing blue section header and subsection colors. */
+/* Main blue tab; distinct player, lesson and navigation groups. */
 #learningBody { min-width:0; }
 #learningBody .learningModes { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:0 0 10px; }
-#learningBody .learningModes button,#learningBody .learningReturn { box-sizing:border-box; min-height:44px; padding:10px; border:1px solid #638da8; border-radius:7px; background:var(--menu-sub,#245575); color:#f2f8fd; font:600 14px/1.3 system-ui; cursor:pointer; }
-#learningBody .learningModes button[aria-pressed=true] { background:#3175a3; border-color:#a5d8f5; box-shadow:inset 0 -3px #9bd6fa; }
-#learningBody .learningReturn { display:block; width:100%; margin:0 0 12px; background:#254659; text-align:left; }
+#learningBody .learningModes button,#learningBody .learningReturn { box-sizing:border-box; min-height:44px; padding:10px; border:1px solid #638da8; border-radius:7px; background:#66502e; color:#f2f8fd; font:600 14px/1.3 system-ui; cursor:pointer; }
+#learningBody .learningModes button[aria-pressed=true] { background:#8a642c; border-color:#eed39c; box-shadow:inset 0 -3px #edcf8c; }
+#learningBody .learningReturn { display:block; width:100%; margin:0 0 12px; background:#5b4682; border-color:#bca3e8; text-align:left; }
 body.trainer-workspace #learningBody #bt-guide-pool-root.learning-player { display:block!important; position:static!important; inset:auto!important; width:100%!important; max-width:none!important; margin:0!important; padding:0; border:0; border-radius:0; background:transparent; box-shadow:none; font:14px/1.5 system-ui; }
 body.trainer-workspace #learningBody #bt-guide-pool-root[hidden] { display:none!important; }
 body.trainer-workspace #learningBody #bt-guide-pool-root .btg-toolbar { display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; padding:0; margin:0 0 12px; overflow:visible; }
@@ -49,7 +49,7 @@ body.trainer-workspace #learningMiniSlot #bt-guide-pool-root .btg-toolbar>*,
 body.trainer-workspace #learningMiniSlot #bt-guide-pool-root .btg-toolbar .btg-reading-actions { display:none!important; }
 body.trainer-workspace #learningMiniSlot #bt-guide-pool-root .btg-toolbar>button:is([data-action="⏮"],[data-action="■"],[data-action="play-pause"],[data-action="⏭"]),
 #learningMiniPlayer>button { display:grid!important; place-items:center; flex:none; box-sizing:border-box; position:static; inset:auto; transform:none; margin:0; width:44px; min-width:44px; max-width:44px; height:40px; min-height:40px; padding:2px; border:1px solid #6f8d9e; border-radius:7px; background:#203746; color:#eff7fc; font:600 11px/1.2 system-ui; white-space:nowrap; cursor:pointer; }
-#learningMiniPlayer>#learningExpand { width:48px; min-width:48px; max-width:48px; font-size:26px; background:#245575; border-color:#8cc6ec; }
+#learningMiniPlayer>#learningExpand { width:48px; min-width:48px; max-width:48px; font-size:26px; background:#5b4682; border-color:#bca3e8; }
 #learningMiniPlayer>#learningClose { font-size:24px; }
 body.trainer-workspace.learning-mini #workspaceBallShelf { display:flex!important; }
 body.trainer-workspace.learning-mini.table-3d.phone-tray-hidden { --workspace-bottom:180px; }
@@ -71,3 +71,12 @@ body.trainer-workspace #learningMiniSlot #bt-guide-pool-root [data-action="■"]
 body.trainer-workspace #learningMiniSlot #bt-guide-pool-root [data-action="⏭"]::before { content:'⏭'; }
 body.trainer-workspace #learningMiniSlot #bt-guide-pool-root [data-action="play-pause"]::before { content:'▶'; }
 body.trainer-workspace #learningMiniSlot #bt-guide-pool-root [data-action="play-pause"][aria-label="Pause"]::before { content:'Ⅱ'; }
+
+body.trainer-workspace #learningBody #bt-guide-pool-root .learningPlayerBox { display:block; box-sizing:border-box; margin:0 0 20px; padding:12px; border:1px solid #64829a; border-radius:9px; background:#152937; }
+.learningPlayerHeading,.learningTopicsHeading { display:block; margin:0 0 10px; color:#dfeef7; font:600 14px/1.3 system-ui; }
+.learningTopicsHeading { padding-top:4px; color:#9ee2d6; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .learningPlayerBox .learningPlayback { margin:0; padding:6px 0 0; border:0; background:transparent; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-categories button { background:#235d57; border-color:#67ada1; color:#edfff9; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-categories button[aria-pressed=true] { background:#347d71; border-color:#a8e5d6; box-shadow:inset 0 -3px #8ed2bf; }
+body.trainer-workspace #learningMiniSlot #bt-guide-pool-root>div>.learningPlayerBox { display:contents!important; }
+body.trainer-workspace #learningMiniSlot .learningPlayerBox>:not(.btg-toolbar) { display:none!important; }

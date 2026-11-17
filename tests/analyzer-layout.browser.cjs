@@ -28,7 +28,9 @@ const file=Buffer.from(JSON.stringify(files.create(layout))),ua='Mozilla/5.0 (Li
      return {bar:box('#phoneAnalyzeBar'),summary:box('.photoReviewSummary'),pane:box('.photoReview'),footer:box('#photoFilesFooter'),name:box('#photoLayoutName'),saved:box('#photoFilesFooter .bt-saved-files select'),controls:controls.map(e=>({id:e.id,...e.getBoundingClientRect().toJSON()})),status:box('#photoAnalyzerStatus')};
     });
     assert(geometry.bar.height<=36,'Top actions stay on one thin line: '+geometry.bar.height);assert(geometry.footer.height<=40,'Bottom bar is compact');
-    assert(geometry.summary.y+geometry.summary.height<=geometry.bar.y+geometry.bar.height+1,'Ball references fit in the same top line');
+    assert(geometry.summary.y>=geometry.bar.bottom-1&&geometry.summary.x>=geometry.pane.x-1&&geometry.summary.right<=geometry.pane.right+1,'Ball references are back above the review cards');
+    assert(await page.locator('.photoReview>.photoReviewSummary').count());
+    if(width>=1024){const last=geometry.controls.find(b=>b.id==='photoWalkthroughBtn');assert(geometry.bar.right-last.right<=40,'Actions fill the top line up to Close');}
     assert(Math.abs(geometry.name.width-geometry.saved.width)<1,'Layout-name and saved-file fields match widths');assert(geometry.name.width>180,'Both file fields expand to fill the bottom bar');
     for(const b of geometry.controls)assert(Math.abs(b.y+b.height/2-geometry.bar.y-geometry.bar.height/2)<2,b.id+' stays on the same top line');
     const primary=geometry.controls.filter(b=>['photoChooseImage','photoAnalyzeNow','photoAddMissed'].includes(b.id));assert(primary.every(b=>b.height>=28&&b.width>=96),'Main image/analyze/add actions remain prominent');
