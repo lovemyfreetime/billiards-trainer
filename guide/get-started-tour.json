@@ -249,61 +249,6 @@
       "recordingStatus": "recorded",
       "layout": "./guide/layouts/get-started-07.billiards.json",
       "topicId": "first-session-undo"
-    },
-    {
-      "id": "practice-8",
-      "title": "Guide and Explorer",
-      "text": "Need drills or deep technical breakdowns? Open the Guide for lessons on fundamentals and table physics. Or flip on Explorer Mode and tap any control on your screen to learn what it does. Dive in, explore the table, and start training smarter.",
-      "prompt": "Take the Wheel enables Explorer here. Turn Explorer off to use controls and shoot.",
-      "balls": [
-        [
-          0,
-          0.25,
-          0.5
-        ],
-        [
-          1,
-          0.5,
-          0.25
-        ],
-        [
-          2,
-          0.5,
-          0.75
-        ],
-        [
-          3,
-          0.75,
-          0.25
-        ],
-        [
-          4,
-          0.75,
-          0.75
-        ],
-        [
-          8,
-          0.7,
-          0.5
-        ]
-      ],
-      "target": 1,
-      "pocket": [
-        1,
-        0
-      ],
-      "speed": 1.6,
-      "followPercent": 0,
-      "sidePercent": 0,
-      "targets": [
-        "btg-pool-guide",
-        "btg-pool-explore",
-        "tipCanvas"
-      ],
-      "audio": "./guide/audio/get-started-08.mp3?v=native-chase-20261021",
-      "recordingStatus": "recorded",
-      "layout": "./guide/layouts/get-started-08.billiards.json",
-      "topicId": "get-started-explore"
     }
   ],
   "transition": {
@@ -313,9 +258,8 @@
   },
   "completion": {
     "seconds": 0,
-    "text": "You're ready to make this table your own! Try a shot, explore the controls and settings, or open the Guide to go deeper. Turn on Explorer to discover what any control does. Your next move is yours!",
-    "audio": "./guide/audio/get-started-complete.mp3?v=native-chase-20261021",
-    "recordingStatus": "recorded",
+    "text": "You are ready to practice. Try another shot, or open Guide to choose a lesson.",
+    "recordingStatus": "visual-only",
     "closeOnEnd": true
   }
 }

@@ -2123,22 +2123,6 @@
       "recordingStatus": "recorded"
     },
     {
-      "id": "get-started-explore",
-      "title": "8. Guide and Explorer",
-      "category": "start",
-      "level": 2,
-      "audio": [
-        "./guide/audio/get-started-08.mp3?v=native-chase-20261021"
-      ],
-      "text": "Need drills or deep technical breakdowns? Open the Guide for lessons on fundamentals and table physics. Or flip on Explorer Mode and tap any control on your screen to learn what it does. Dive in, explore the table, and start training smarter.",
-      "summary": "Take the Wheel enables Explorer here. Turn Explorer off to use controls and shoot.",
-      "sourceTopicIds": [
-        "main-open-technique-guide",
-        "main-main-explorer-mode"
-      ],
-      "recordingStatus": "recorded"
-    },
-    {
       "id": "features-options-overview-quick",
       "title": "Features and Options overview",
       "audio": "./guide/audio/features-options-overview-quick.mp3?v=native-chase-20261021",

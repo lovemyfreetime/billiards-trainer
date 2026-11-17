@@ -1633,7 +1633,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
       <div id="btg-pool-launchers" aria-label="Learning tools">
         <button id="btg-pool-start" class="btg-launcher" type="button" title="Get Started" aria-label="Get Started" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg></button>
         <button id="btg-pool-guide" class="btg-launcher" type="button" title="Guide: techniques and drills" aria-label="Toggle Guide" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 8l10-5 10 5-10 5zM6 10v6c3 3 9 3 12 0v-6M22 8v9"/></svg></button>
-        <button id="btg-pool-explore" class="btg-launcher" type="button" title="Explorer: click a control to hear its explanation" aria-label="Toggle Explorer" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></button>
       </div>
     </div>
 
@@ -2015,7 +2014,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
       <div id="bt-guide-root" class="btg-header-mode" aria-label="Interactive Trainer Guide"></div>
       <button id="photoWalkthroughBtn" type="button" aria-pressed="false" aria-controls="photoWalkthroughPanel" data-btg-allow="1">Walkthrough</button>
       <button id="photoAiModeBtn" type="button" hidden style="display:none" aria-hidden="true" tabindex="-1" title="Automatic AI ball detection">AI: AUTO</button>
-      <button id="btg-analyze-explore" class="btg-launcher" type="button" title="Explorer: click a control to hear its explanation" aria-label="Toggle Explorer" aria-pressed="false" data-btg-allow="1"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></button>
       <button id="photoAnalyzerClose" type="button" title="Close">×</button>
     </div>
     <section id="photoWalkthroughPanel" aria-label="Analyze image walkthrough" data-btg-allow="1" hidden>
@@ -6436,12 +6434,26 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const phoneCanvas = $('phoneFlightCanvas');
         const phoneProfile = document.body.classList.contains('phone-layout') && w >= 650 && phoneCanvas;
         const profileCtx = phoneProfile ? phoneCanvas.getContext('2d') : ctx;
-        const boxW = flightSideProfileWidth(w,phoneProfile);
+        let boxW = flightSideProfileWidth(w,phoneProfile);
+        // Use the free top-bar span between the picker and the speed/actions area.
+        let profileLeft = 0, profileTop = 0;
+        if (phoneProfile && document.body.classList.contains('trainer-workspace')) {
+            const picker = document.querySelector('#workspace-picker > summary')?.getBoundingClientRect();
+            const actions = $('workspaceTopActions')?.getBoundingClientRect();
+            const speed = $('phoneSpeedRail')?.getBoundingClientRect();
+            const bar = $('workspaceTools')?.getBoundingClientRect();
+            const left = (picker?.right || 0) + 12;
+            const right = Math.min(actions?.left || innerWidth, speed?.left || innerWidth) - 12;
+            boxW = Math.min(boxW, Math.max(120, right-left));
+            profileLeft = Math.max(left, right-boxW);
+            profileTop = bar?.top || 0;
+        }
         // Pocket 1 side: keep the profile away from the upper-right rail tools.
         const boxH = phoneProfile ? 50 : 132, x0 = phoneProfile ? 0 : 6, y0 = phoneProfile ? 0 : 8;
         if (phoneProfile) {
             phoneCanvas.width = Math.round(boxW*DPR); phoneCanvas.height = Math.round(boxH*DPR);
             phoneCanvas.style.width = boxW+'px'; phoneCanvas.style.height = boxH+'px'; phoneCanvas.style.display = 'block';
+            phoneCanvas.style.left = profileLeft+'px'; phoneCanvas.style.top = profileTop+'px';
             profileCtx.setTransform(DPR,0,0,DPR,0,0);
         }
         const padL = phoneProfile ? 8 : Math.min(100,boxW*.25), padR = phoneProfile ? 8 : Math.min(18,boxW*.05), padT = phoneProfile ? 19 : 36, padB = phoneProfile ? 5 : 22;

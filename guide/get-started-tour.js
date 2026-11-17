@@ -32,11 +32,8 @@ async function mount(guide){
   if(!state.enabled||!playing){clearAttention();return;}
   if(state.category!=='start'){attention(global.BilliardsNarrationCues?[]:topic?.targets||[]);return;}
   if(topic?.id!==topicId(index)){clearAttention();return;}
-  if(index!==steps.length-1){attention(steps[index].targets||[]);return;}
-  const id=time>=2&&time<6.8?'btg-pool-guide':time>=6.8&&time<11.8?'btg-pool-explore':null;
-  attention(id);
+  attention(steps[index].targets||[]);
  }
- announcement.addEventListener('timeupdate',()=>{if(active()&&!hasNext()&&phase==='announcing'&&!announcement.paused){const t=announcement.currentTime;attention(t>=5.6&&t<8.4?'btg-pool-guide':t>=8.4&&t<11.8?'btg-pool-explore':null)}});
  announcement.addEventListener('pause',clearAttention);
  announcement.addEventListener('ended',clearAttention);
  function cancel(){clearAttention();epoch++;cleanupAnnouncement?.();cleanupAnnouncement=null;clearInterval(timer);clearTimeout(advanceTimer);clearTimeout(voiceTimer);timer=advanceTimer=voiceTimer=null;deadline=0;voice.pause();global.BilliardsPracticePrompt?.hide('start');}

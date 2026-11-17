@@ -39,7 +39,6 @@ async function init(){
  observer.observe(document.getElementById('app'),{childList:true,subtree:true});
  const launchers=document.getElementById('btg-pool-launchers');
  const guideButton=document.getElementById('btg-pool-guide');
- const exploreButton=document.getElementById('btg-pool-explore');
  const startButton=document.getElementById('btg-pool-start');
  launchers.dataset.btgAllow='1';
  const ids=[...new Set([...Object.values(catalog.assignments),...Object.values(catalog.sections),...catalog.canvasTopics,catalog.powerMeterTopic])];
@@ -85,7 +84,6 @@ async function init(){
    tour?.sync(state);lessonPractice?.sync(state);
    guideButton.setAttribute('aria-pressed',String(state.enabled&&state.category!=='start'));
    startButton.setAttribute('aria-pressed',String(!!tour?.getState().active||(state.enabled&&state.category==='start')));
-   exploreButton.setAttribute('aria-pressed',String(state.exploring));
   },
   poolMode:true,storageKey:'billiards-pool-guide-v1',topics:catalog.topics,resources:catalog.resources,exploreTopicIds:ids,
   isActive:()=>!modal.classList.contains('open')&&!document.body.classList.contains('table-3d'),
@@ -118,9 +116,8 @@ async function init(){
   }
  });
  function showLearningIn2D(){if(!document.body.classList.contains('table-3d'))return;document.getElementById('table3DToggle')?.click();requestAnimationFrame(()=>{if(document.body.classList.contains('phone-focus')&&!document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls')?.click();});}
- for(const launcher of [startButton,guideButton,exploreButton])launcher.addEventListener('click',showLearningIn2D,{capture:true});
+ for(const launcher of [startButton,guideButton])launcher.addEventListener('click',showLearningIn2D,{capture:true});
  guideButton.addEventListener('click',()=>{if(guide.getState().enabled&&guide.getState().category!=='start')guide.setEnabled(false);else guide.openGuide()});
- exploreButton.addEventListener('click',()=>guide.setExploring(!guide.getState().exploring));
  window.billiardsPoolAudioMap=catalog;
  tour=await BilliardsGetStartedTour.mount(guide);
  if(tour)tour.steps.forEach((step,index)=>{const topic=catalog.topics.find(t=>t.id===step.topicId);if(!topic)throw Error('Quick Start lesson unavailable: '+step.topicId);topic.guideOrder=index;});

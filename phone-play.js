@@ -257,7 +257,7 @@
     const summary=document.querySelector('.photoReviewSummary');if(summary)photoBar.append(summary);
     setPhotoTools(true);
     document.getElementById('photoAnalyzerClose').addEventListener('click',()=>setPhotoTools(true));
-    // Walkthrough and Explorer can also navigate to actions inside the disclosure.
+    // Walkthrough can also navigate to actions inside the disclosure.
     const revealTarget=()=>{if(secondary.querySelector('.walkthroughTarget'))setPhotoTools(true);};
     new MutationObserver(revealTarget).observe(secondary,{subtree:true,attributes:true,attributeFilter:['class']});
   }

@@ -7,8 +7,6 @@ async function init(){
  const modal=document.getElementById('photoAnalyzerModal');
  if(!host||!modal||!window.BilliardsGuide)return;
  document.getElementById('photoAnalyzerClose').dataset.btgAllow='1';
- const explorer=document.getElementById('btg-analyze-explore');
- explorer.dataset.btgAllow='1';
  host.addEventListener('keydown',event=>event.stopPropagation());
  const topics=[
   {
@@ -434,7 +432,6 @@ async function init(){
   loadLayout:BilliardsPracticeLayouts.apply,
   resolveTopic(e,el){return BilliardsRecordedAudio.resolve(e,recorded,'Analyze')||el?.dataset.guideTopic},
   topics,initialCategory:'start',storageKey:'billiards-analyze-start-v1',startOnly:true,exploreTopicIds:topics.map(t=>t.id),
-  onStateChange(state){explorer.setAttribute('aria-pressed',String(state.exploring));},
   allowNavigation(e){
    if(e.type==='keydown'&&e.key==='Tab')return true;
    return e.type==='wheel'&&!!e.target.closest('.photoReview')&&!e.target.closest('input,select,button');
@@ -442,7 +439,6 @@ async function init(){
  });
  new MutationObserver(applyMappings).observe(document.getElementById('photoDetectionList'),{childList:true,subtree:true});
  new MutationObserver(()=>{if(!modal.classList.contains('open')){guide.setEnabled(false);guide.setExploring(false)}}).observe(modal,{attributes:true,attributeFilter:['class']});
- explorer.addEventListener('click',()=>guide.setExploring(!guide.getState().exploring));
  window.billiardsAnalyzeGuide=guide;
  window.billiardsAnalyzeAudioMap={topics,assignments};
 }

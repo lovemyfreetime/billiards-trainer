@@ -6,6 +6,7 @@ function load(){return pending||(pending=fetch('./guide/recorded-audio.json?v=re
 function merge(topics,data,page){
  for(const record of data.records){
   if(record.page!==page&&record.page!=='Shared')continue;
+  if(['main-main-explorer-mode','analyze-analyze-explorer-mode'].includes(record.topic.id))continue;
   const index=topics.findIndex(t=>t.id===record.topic.id);
   if(index<0)topics.push({...record.topic});else topics[index]={...topics[index],...record.topic};
   delete topics[index<0?topics.length-1:index].deviceSpeech;

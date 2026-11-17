@@ -46,7 +46,7 @@ function mount(host,options={}){
    playback.play().catch(()=>{}).finally(render);render();}
  function syncInspection(){document.body.classList.toggle('btg-inspection',!!document.querySelector('.btg-exploring'))}
  function setEnabled(value){cues?.clear();playback.release();state.enabled=!!value;if(value){state.exploring=false;if(!availableLessons().some(t=>t.id===state.topicId))state.topicId=null;}clearHighlight();save();render()}
- function setExploring(value){cues?.clear();playback.release();state.exploring=!!value;if(value)state.enabled=false;clearHighlight();save();render()}
+ function setExploring(value){cues?.clear();playback.release();state.exploring=false;clearHighlight();save();render()}
  function openCategory(category){
   selectBrowsing=false;
   if(state.category!==category)state.topicId=null;state.resourcesCollapsed=false;state.category=category;state.detailsOpen=false;state.expanded=null;
