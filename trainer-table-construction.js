@@ -28,7 +28,7 @@ function plan(f){
   const firstWidth=(b[0]-innerStart[0])*Math.cos(start)+(b[2]-innerStart[2])*Math.sin(start),lastWidth=(next[0]-innerEnd[0])*Math.cos(finish)+(next[2]-innerEnd[2])*Math.sin(finish),middleWidth=ref.rimWidth*f.L/(A.x1-A.x0);
   p.backPath=p.innerBackPath.map((v,j)=>{if(j===0)return b;if(j===p.innerBackPath.length-1)return next;const t=j/(p.innerBackPath.length-1),width=(1-t)*firstWidth+t*lastWidth+Math.sin(Math.PI*t)*(middleWidth-(firstWidth+lastWidth)/2),dx=v[0]-p.center[0],dz=v[2]-p.center[2],length=Math.hypot(dx,dz);return [v[0]+dx/length*width,capHeight,v[2]+dz/length*width];});
   p.frontPath=[[innerEnd[0],0,innerEnd[2]],...polar.filter(v=>v.theta>sweep+1e-5).map(v=>v.v),[innerStart[0],0,innerStart[2]]];
-  p.dropPath=[...p.contour,p.contour[0]];p.innerRear=Math.max(...p.innerBackPath.map(v=>p.local(v)[0]));
+  p.dropPath=[...p.backPath,...p.frontPath.slice(1)];p.innerRear=Math.max(...p.innerBackPath.map(v=>p.local(v)[0]));
   const nose=r.at(1,0,noseHeight),nose2=rails[(i+1)%6].at(0,0,noseHeight),foreN=(p.local(nose)[0]+p.local(nose2)[0])/2;
   p.front=Math.min(...p.frontPath.map(v=>p.local(v)[0]));p.rear=Math.max(...p.backPath.map(v=>p.local(v)[0]));p.shelf=p.front-foreN;p.visualMouth=Math.hypot(nose[0]-nose2[0],nose[2]-nose2[2]);
   inside.push(a,b,...p.backPath.slice(1));
