@@ -32,7 +32,7 @@ function plan(f){
  const cushionWidth=rails.reduce((n,r)=>n+r.depth,0)/6;
  const profile=[[0,noseHeight],[.02,noseHeight+.0017],[.07,noseHeight+.0030],[.25,noseHeight+.0049],[1,capHeight],[1,.003],[.18,.008],[.05,noseHeight-.004],[.01,noseHeight-.0015]];
  const outer=ref.outer.map(p=>pixel(p)),margin=Math.max(...outer.map(v=>Math.max(Math.abs(v[0])-f.L/2,Math.abs(v[2])-f.W/2)));
- return {L:f.L,W:f.W,R:f.R,G,reference:ref,pixel,outer,railWidth:margin,cushionWidth,capHeight,noseHeight,rails,pockets,inside,profile,linerWidth:ref.rimWidth*f.L/(A.x1-A.x0),linerInset:0,edgeRadius:.0012,sights:ref.sights.map(p=>pixel(p,capHeight+.0003)),sightRadius:ref.sightRadius*f.L/(A.x1-A.x0)};
+ return {L:f.L,W:f.W,R:f.R,G,reference:ref,pixel,outer,railWidth:margin,cushionWidth,capHeight,noseHeight,rails,pockets,inside,profile,linerWidth:ref.rimWidth*f.L/(A.x1-A.x0),linerInset:.0003,edgeRadius:.0012,sights:ref.sights.map(p=>pixel(p,capHeight+.0003)),sightRadius:ref.sightRadius*f.L/(A.x1-A.x0)};
 }
 const api={plan,railWidth};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsTableConstruction=api;
 })(typeof window==='object'?window:globalThis);

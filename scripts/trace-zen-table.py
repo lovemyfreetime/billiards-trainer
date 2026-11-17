@@ -4,7 +4,7 @@
 Pixel coordinates use the same playing-surface registration as drawZenTable.
 Only the dark pocket contours are sampled; cushion corners and the rounded
 outer rail are measured vector anchors, not a new procedural pocket design.
-Requires Pillow for this offline authoring step. Runtime has no Python dependency.
+Requires Pillow, NumPy and SciPy for this offline authoring step. Runtime has no Python dependency.
 """
 import hashlib
 import json
