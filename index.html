@@ -11626,7 +11626,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
 
     function pvStatus(msg) {
-        if ($('photoAnalyzerStatus')) $('photoAnalyzerStatus').textContent = msg;
+        const status=$('photoAnalyzerStatus');
+        if(status){status.textContent=msg;status.classList?.toggle('photoStatusAlert',!!(photoVision.imageError||photoVision.analysisError));}
     }
     function openPhotoAnalyzer() {
         $('photoAnalyzerModal').classList.add('open');
@@ -12409,6 +12410,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if(photoVision.corners.length!==4)return null;
         const H=pvCalibration()?.H;if(!H)return null;
         const q=pvSourceToCanvas(p),c=$('photoAnalyzerCanvas'),r=c.getBoundingClientRect(),padding=8*(r.width?c.width/r.width:1);
+        for(const label of photoVision.detectionLabels||[]){
+            if(Math.hypot(q.x-label.x,q.y-label.y)<=label.r+padding){const match=photoVision.detections.find(d=>pvReviewKey(d)===label.key);if(match)return match;}
+        }
         let best=null,distance=Infinity;
         for(const d of photoVision.detections){
             const point=pvSourceToCanvas(applyHomography(H,d.nx,d.ny)),dist=Math.hypot(q.x-point.x,q.y-point.y);
@@ -12473,7 +12477,27 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             }
         }
     }
+    function pvPhotoNumberLabels(points,width,height) {
+        const placed=[],result=[];
+        for(const p of points){
+            if(p.x+p.r<0||p.y+p.r<0||p.x-p.r>width||p.y-p.r>height){result.push(null);continue;}
+            const r=Math.max(8,Math.min(13,p.r*.75));let best=null;
+            for(let ring=0;ring<3;ring++)for(let direction=0;direction<8;direction++){
+                const angle=-Math.PI/4+direction*Math.PI/4,distance=p.r+r+6+ring*(r*2+5);
+                const x=p.x+Math.cos(angle)*distance,y=p.y+Math.sin(angle)*distance;
+                if(x<r+2||y<r+2||x>width-r-2||y>height-r-2)continue;
+                let cost=ring*12+direction;
+                for(const other of points)cost+=Math.max(0,other.r+r+4-Math.hypot(x-other.x,y-other.y))*1000;
+                for(const other of placed)cost+=Math.max(0,other.r+r+4-Math.hypot(x-other.x,y-other.y))*1000;
+                if(!best||cost<best.cost)best={key:p.key,x,y,r,ballX:p.x,ballY:p.y,ballR:p.r,cost};
+            }
+            if(best)placed.push(best);
+            result.push(best);
+        }
+        return result;
+    }
     function renderPhotoAnalyzer() {
+        photoVision.detectionLabels=[];
         const c=$('photoAnalyzerCanvas'),x=c.getContext('2d');
         if(!photoVision.imageReady) {
             x.fillStyle='#090b0e'; x.fillRect(0,0,c.width,c.height);
@@ -12525,7 +12549,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 x.shadowBlur=0;
                 x.fillStyle='rgba(0,0,0,.75)';x.beginPath();x.arc(px+20,py+20,9,0,Math.PI*2);x.fill();
                 x.strokeStyle='#fff';x.lineWidth=1.5;x.stroke();x.fillStyle='#fff';x.font='900 10px Segoe UI';x.fillText(String(i+1),px+20,py+20);
-                x.font='700 11px Segoe UI';x.textAlign='left';x.fillText(pvAnchorLabel(i),px+34,py+20);
                 x.restore();
             });
             if(photoVision.corners.length<4 && photoVision.hoverPoint){
@@ -12540,7 +12563,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if(photoVision.corners.length===4 && photoVision.detections.length) {
             const H=pvCalibration()?.H;if(!H)return;
             x.save();x.textAlign='center';x.textBaseline='middle';
-            photoVision.detections.forEach(d=>{
+            const points=photoVision.detections.map(d=>{const q=pvSourceToCanvas(applyHomography(H,d.nx,d.ny));return {key:pvReviewKey(d),x:q.x,y:q.y,r:pvPhotoMarkerRadius(d)};});
+            const labels=pvPhotoNumberLabels(points,c.width,c.height);photoVision.detectionLabels=labels.filter(Boolean);
+            photoVision.detections.forEach((d,index)=>{
                 const p=applyHomography(H,d.nx,d.ny),q=pvSourceToCanvas(p),px=q.x,py=q.y;
                 const rr=pvPhotoMarkerRadius(d);
                 const selected=(photoVision.reviewFocusKeys||[]).includes(pvReviewKey(d));
@@ -12549,7 +12574,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 x.fillStyle=unassigned?'rgba(255,216,107,.08)':'rgba(0,229,255,.06)';
                 x.strokeStyle=selected?'#60d394':unassigned?'#ffd86b':'#00e5ff';x.lineWidth=selected?4:2;
                 x.beginPath();x.arc(px,py,rr,0,Math.PI*2);x.fill();x.stroke();
-                x.fillStyle='#fff';x.shadowColor='rgba(0,0,0,.9)';x.shadowBlur=2;x.fillText(unassigned?'?':pvLabel(d.id),px,py);x.shadowBlur=0;
+                const label=labels[index];if(!label)return;
+                const dx=label.x-px,dy=label.y-py,length=Math.hypot(dx,dy);
+                x.lineWidth=1;x.beginPath();x.moveTo(px+dx/length*rr,py+dy/length*rr);x.lineTo(label.x-dx/length*label.r,label.y-dy/length*label.r);x.stroke();
+                x.fillStyle='rgba(9,20,28,.92)';x.beginPath();x.arc(label.x,label.y,label.r,0,Math.PI*2);x.fill();x.stroke();
+                x.fillStyle='#fff';x.font='900 '+Math.round(label.r*1.25)+'px Segoe UI';x.fillText(unassigned?'?':pvLabel(d.id),label.x,label.y);
             });
             x.restore();
         }
@@ -12560,7 +12589,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             x.strokeStyle='rgba(255,255,255,.28)';
             x.lineWidth=1;
             x.font='800 11px Segoe UI';
-            const label=zoom.toFixed(1)+'×  •  wheel / pinch to zoom';
+            const label=zoom.toFixed(1)+'×';
             const w=x.measureText(label).width+18;
             x.fillRect(8,8,w,25);
             x.strokeRect(8.5,8.5,w-1,24);

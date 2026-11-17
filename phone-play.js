@@ -253,6 +253,7 @@
     mainActions.append(...['photoChooseImage','photoAnalyzeNow','photoAddMissed'].map(id=>document.getElementById(id)),more,document.getElementById('photoAnalyzerClose'));
     const hint=document.getElementById('photoAnalyzerStatus');
     secondary.append(analyzeToolbar);photoBar.append(mainActions,hint,secondary);
+    const summary=document.querySelector('.photoReviewSummary');if(summary)photoBar.append(summary);
     const roomy=matchMedia('(min-width:900px) and (min-height:520px)');
     setPhotoTools(roomy.matches);
     document.getElementById('photoAnalyzerClose').addEventListener('click',()=>setPhotoTools(roomy.matches));

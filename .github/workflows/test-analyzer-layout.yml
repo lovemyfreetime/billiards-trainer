@@ -1,0 +1,39 @@
+name: Verify compact analyzer layout
+on:
+  push:
+    branches: [test/analyzer-layout-20261117]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  analyzer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify labels, review, calibration and complete inventory
+        run: |
+          node tests/photo-number-labels.test.cjs
+          node tests/photo-review-navigation.test.cjs
+          node tests/photo-pan-markers.test.cjs
+          node tests/photo-zoom-summary.test.cjs
+          node tests/photo-calibration-flow.test.cjs
+          python3 scripts/build-offline-assets.py --check
+      - name: Install browser
+        run: |
+          npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
+          node local-host/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Verify analyzer controls and actual label/review actions
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")
+          node tests/analyzer-layout.browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: analyzer-layout
+          path: test-results/analyzer-layout
