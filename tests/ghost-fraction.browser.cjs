@@ -33,7 +33,7 @@ for(const [width,height,mobile]of [[2048,1280,false],[1366,768,false],[844,390,t
  await page.locator('#table3DToggle').click();await page.waitForFunction(()=>Billiards3D.active&&Billiards3D.renderedBalls().length>1);await settle();
  const expected=await predict(),rest=expected.finalBalls.find(b=>b.id===0),all=await guides();assert.equal(all.length,2);
  const hit=all.find(g=>g.kind==='contact'),resting=all.find(g=>g.kind==='rest');
- for(const [g,p]of [[hit,expected.firstBallContact.cuePos],[resting,rest]]){assert(Math.hypot(g.x-p.x,g.y-p.y)<1e-9);assert.equal(g.radius,R);assert(g.opacity>0&&g.opacity<.08);assert(g.coreOpacity>g.opacity&&g.coreOpacity<.3);assert.equal(g.depthWrite,false);assert.deepEqual(g.coreVertical,[0,0,0,1]);}
+ for(const [g,p]of [[hit,expected.firstBallContact.cuePos],[resting,rest]]){assert(Math.hypot(g.x-p.x,g.y-p.y)<1e-9);assert.equal(g.radius,R);assert(g.opacity>.1&&g.opacity<.2);assert(g.coreOpacity>.7&&g.coreOpacity<.9);assert.equal(g.coreColor,0xffffff);assert.equal(g.depthWrite,false);assert.deepEqual(g.coreVertical,[0,0,0,1]);}
  assert.deepEqual((await capture()).state.balls,saved.state.balls,'Ghosts never enter the physical ball set');
  await flag('showImpact',false);await flag('showPaths',false);assert.equal((await guides()).length,2,'New guides are independent of old ghost and trajectories');
  await flag('showFullGhostBall',false);assert.deepEqual((await guides()).map(g=>g.kind),['rest']);await flag('showFullGhostBall',true);await flag('showRestingCueBall',false);assert.deepEqual((await guides()).map(g=>g.kind),['contact']);
