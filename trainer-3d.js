@@ -320,9 +320,10 @@
    }
    addMesh(vertices,indices,cushionMaterial,'cushion',uvs);
   }
+  function pocketNormal(path,i){const a=path[Math.max(0,i-1)],b=path[Math.min(path.length-1,i+1)],dx=b[0]-a[0],dz=b[2]-a[2],length=Math.hypot(dx,dz)||1;return [dz/length,-dx/length];}
   function addPocket(p,plan){
    const radius=plan.edgeRadius,arc=Array.from({length:49},(_,i)=>p.ellipse(Math.PI/2+i/48*Math.PI,radius,-radius));
-   const back=p.backPath.map(v=>{const q=p.local(v);return p.at(q[0]-.0012,q[1]*.985,-radius);});
+   const back=p.backPath.map((v,i)=>{const [nx,nz]=pocketNormal(p.backPath,i);return [v[0]-nx*.0012,-radius,v[2]-nz*.0012];});
    const circle=[...back,...arc,back[0]];
    const hole=polygon(circle),floorGeometry=new T.ShapeGeometry(hole,48);floorGeometry.rotateX(-Math.PI/2);const floor=new T.Mesh(floorGeometry,pocketLiner);floor.position.y=-.19;floor.receiveShadow=true;floor.userData.construction='well-floor';table.add(floor);
    joinRows([circle,circle.map(v=>[v[0],-.19,v[2]])],pocketLiner,'well-wall');
@@ -332,7 +333,7 @@
    for(let i=0;i<positions.count;i++)uvs.push((positions.getX(i)+(plan.L+2*plan.railWidth)/2)/(plan.L+2*plan.railWidth),((plan.W+2*plan.railWidth)/2-positions.getZ(i))/(plan.W+2*plan.railWidth));
    edge.geometry.setAttribute('uv',new T.Float32BufferAttribute(uvs,2));p.edge=edge;
    const inner=[],outer=[];
-   p.backPath.forEach((v,i)=>{const a=p.backPath[Math.max(0,i-1)],b=p.backPath[Math.min(p.backPath.length-1,i+1)],dx=b[0]-a[0],dz=b[2]-a[2],len=Math.hypot(dx,dz)||1;let nx=-dz/len,nz=dx/len;if(nx*p.n[0]+nz*p.n[1]<0){nx=-nx;nz=-nz;}inner.push([v[0]-nx*plan.linerInset,plan.capHeight+.0006,v[2]-nz*plan.linerInset]);outer.push([v[0]+nx*plan.linerWidth,plan.capHeight+.0006,v[2]+nz*plan.linerWidth]);});
+   p.backPath.forEach((v,i)=>{const [nx,nz]=pocketNormal(p.backPath,i);inner.push([v[0]-nx*plan.linerInset,plan.capHeight+.0006,v[2]-nz*plan.linerInset]);outer.push([v[0]+nx*plan.linerWidth,plan.capHeight+.0006,v[2]+nz*plan.linerWidth]);});
    // The liner has thickness and sits inside the wood, avoiding coplanar faces.
    joinRows([inner.map(v=>[v[0],-.025,v[2]]),inner],pocketLip,'flush-pocket-liner');
    // A flat, separately shaded flange avoids the inflated rolled-rubber appearance.
