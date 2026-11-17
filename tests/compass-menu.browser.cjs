@@ -13,7 +13,7 @@ const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a)),near=(a,b,m,t=.002)=>assert(Ma
    const project=q=>page.evaluate(q=>billiardsCompassControls.project(q),q);
    const settle=()=>page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
    const start=async p=>{if(touch)await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:p.x,y:p.y}]});else{await page.mouse.move(p.x,p.y);await page.mouse.down();}};
-   const move=async p=>{if(touch)await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:p.x,y:p.y}]});else await page.mouse.move(p.x,p.y);};
+   const move=async p=>{if(touch){await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:p.x,y:p.y}]});await settle();}else await page.mouse.move(p.x,p.y);};
    const end=async cancel=>{if(touch)await cdp.send('Input.dispatchTouchEvent',{type:cancel?'touchCancel':'touchEnd',touchPoints:[]});else{if(cancel)await page.keyboard.press('Escape');await page.mouse.up();}await settle();};
    const drag=async(a,b,cancel=false)=>{await start(a);for(let i=1;i<=5;i++)await move({x:a.x+(b.x-a.x)*i/5,y:a.y+(b.y-a.y)*i/5});await end(cancel);};
    const fixture=async(linked=false)=>{await page.evaluate(linked=>{const s=billiardsTourBridge.capture();Object.assign(s.state,{allowMissingCueBall:true,balls:linked?[{id:1,n:'1',x:1.3,y:.66,active:true}]:[],activeShot:1,shot2Enabled:false,pocketedLog:[],teachingCompass:{enabled:true,x:1.27,y:.635,angle:.35,sizePct:24,linkedBallId:linked?1:null}});billiardsTourBridge.restore(s);},linked);await settle();};
