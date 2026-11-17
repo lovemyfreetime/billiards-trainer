@@ -31,8 +31,11 @@ jobs:
         run: |
           export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")
           node tests/ghost-fraction.browser.cjs
+          node tests/learning-panel.browser.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: ghost-fraction-verification
-          path: test-results/ghost-fraction
+          path: |
+            test-results/ghost-fraction
+            test-results/learning-panel

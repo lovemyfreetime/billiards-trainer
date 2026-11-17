@@ -51,6 +51,15 @@ for(const [width,height,mobile]of [[2048,1280,false],[1366,768,false],[844,390,t
  await restore({balls:[{id:0,n:'CB',x:.6,y:.6,active:true}],freeAim:{x:0,y:0},speed:2,follow:0,sideSpin:0});
  const scratch=await predict();assert.equal(scratch.firstBallContact,null);assert.equal(scratch.finalBalls.find(b=>b.id===0).active,false);assert.equal((await guides()).length,0);
  await page.evaluate(s=>billiardsTourBridge.restore(s),saved);await restore({showFullGhostBall:true,showRestingCueBall:true});
+ if(width===1366){
+  const s=(await capture()).state,obj=s.balls.find(b=>b.id===1),x=.45,y=.75,dist=Math.hypot(obj.x-x,obj.y-y);
+  await restore({shot2Enabled:true,shot2Initialized:true,activeShot:2,shot2:{...s.shot2,x,y,freeAim:{x:obj.x,y:obj.y},speed:1.1,follow:0,sideSpin:0,cueElevationDeg:0}});
+  const second=await guides(),contact=second.find(g=>g.kind==='contact');assert(second.length&&second.every(g=>g.shot===2),'Active Shot 2 uses its own preview');
+  assert(Math.hypot(contact.x-(obj.x-(obj.x-x)/dist*2*R),contact.y-(obj.y-(obj.y-y)/dist*2*R))<.00001,'Shot 2 ghost follows its physical contact position');
+  await restore({shot2CueBallOnly:true});assert.equal((await guides()).length,0,'Cue-ball-only hides Shot 2 guides');
+  await restore({activeShot:1,shot2Enabled:false,shot2CueBallOnly:false});assert((await guides()).every(g=>g.shot===1));
+  await page.locator('#phoneActions>[data-trainer-action=animate]').click();await page.waitForFunction(()=>billiardsPlayback.state().running);await settle();assert.equal((await guides()).length,0,'Prediction ghosts disappear during the moving shot');
+ }
  await page.reload();await page.waitForFunction(()=>window.billiardsTourBridge&&window.billiardsMenuReady);assert.equal((await capture()).state.showFullGhostBall,true);assert.equal((await capture()).state.showRestingCueBall,true);
  assert.deepEqual(errors,[]);fs.writeFileSync(dir+'/'+name+'-geometry.json',JSON.stringify({overlap,expected,all},null,2));console.log(name+': fraction overlay, unchanged prediction, independent ghosts, exact contact/rest placement, faint material, low views, orbit, scratch, persistence and tray alignment passed');
  }catch(e){await page.screenshot({path:dir+'/'+name+'-failure.png'}).catch(()=>{});throw e;}finally{await context.close();}
