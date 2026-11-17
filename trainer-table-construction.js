@@ -28,7 +28,11 @@ function plan(f){
   const bez=(a,b,c,t)=>a*(1-t)**2+2*b*t*(1-t)+c*t*t;
   for(let j=1;j<=24;j++){const t=j/24;samples.push(p.at(bez(aa[0],p.rear,p.rear,t),bez(aa[1],aa[1],0,t),capHeight));}
   for(let j=1;j<=24;j++){const t=j/24;samples.push(p.at(bez(p.rear,p.rear,bb[0],t),bez(0,bb[1],bb[1],t),capHeight));}
-  p.backPath=samples;inside.push(...samples.slice(1));
+  p.backPath=samples;
+  // The slate opening has a rounded front and continues underneath the boot.
+  // A separate closed ellipse would leave an exposed cloth tongue at its rear.
+  p.dropPath=[...samples,...Array.from({length:49},(_,j)=>p.ellipse(Math.PI/2+j/48*Math.PI)),samples[0]];
+  inside.push(...samples.slice(1));
  });
  // Rounded nose, sloping cloth top, underside and backing. Nose at the same
  // horizontal position as the physics rail; height is 63.5% of ball diameter.
