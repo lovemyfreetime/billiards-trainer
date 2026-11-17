@@ -53,8 +53,8 @@ for(const [width,height,mobile]of [[2048,1280,false],[1366,768,false],[844,390,t
  await page.evaluate(s=>billiardsTourBridge.restore(s),saved);await restore({showFullGhostBall:true,showRestingCueBall:true});
  if(width===1366){
   const s=(await capture()).state,obj=s.balls.find(b=>b.id===1),x=.45,y=.75,dist=Math.hypot(obj.x-x,obj.y-y);
-  await restore({shot2Enabled:true,shot2Initialized:true,activeShot:2,shot2:{...s.shot2,x,y,freeAim:{x:obj.x,y:obj.y},speed:1.1,follow:0,sideSpin:0,cueElevationDeg:0}});
-  const second=await guides(),contact=second.find(g=>g.kind==='contact');assert(second.length&&second.every(g=>g.shot===2),'Active Shot 2 uses its own preview');
+  await restore({shot2Enabled:true,shot2Initialized:true,activeShot:2,shot2:{...s.shot2,x,y,autoFollow:false,freeAim:{x:obj.x,y:obj.y},speed:1.1,follow:0,sideSpin:0,cueElevationDeg:0}});
+  const second=await guides(),contact=second.find(g=>g.kind==='contact');assert(second.length&&second.every(g=>g.shot===2),'Active Shot 2 uses its own preview: '+JSON.stringify(second));
   assert(Math.hypot(contact.x-(obj.x-(obj.x-x)/dist*2*R),contact.y-(obj.y-(obj.y-y)/dist*2*R))<.00001,'Shot 2 ghost follows its physical contact position');
   await restore({shot2CueBallOnly:true});assert.equal((await guides()).length,0,'Cue-ball-only hides Shot 2 guides');
   await restore({activeShot:1,shot2Enabled:false,shot2CueBallOnly:false});assert((await guides()).every(g=>g.shot===1));
