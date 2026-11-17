@@ -69,7 +69,7 @@ function mount(guide,host,{seconds=5}={}){
  }
  for(const name of ['pointerdown','pointermove','pointerup','pointercancel','mousedown','mousemove','mouseup','touchstart','touchmove','touchend','click'])global.addEventListener(name,handoff,{capture:true,passive:false});
  document.addEventListener('pointerdown',e=>{
-  if(!active()||e.target.closest('#btg-fullscreen,#phoneControls,#phoneDismiss'))return;
+  if(!active()||e.target.closest('#btg-fullscreen,#phoneControls,#phoneDismiss,[data-learning-navigation]'))return;
   if(e.target.closest('#bt-guide-pool-root')){if(phase==='countdown'&&e.target.closest('select,[data-action="Read"],[data-action="More"],[data-action="Practice"]'))hold();return;}
   if(e.target.closest('#stageWrap input,#panel input,#panel button,#tipCanvas,#tipCanvas2,#phoneTip1,#phoneTip2,#phoneActions button,#pocketTray'))hold();
  },true);

@@ -138,7 +138,7 @@
   function syncGuideSpace() {
     const guide = document.getElementById('bt-guide-pool-root');
     if(guide && guide !== observedGuide && guideResize) {guideResize.disconnect(); guideResize.observe(guide); observedGuide=guide}
-    const height = focused() && guide?.classList.contains('btg-enabled') ? guide.getBoundingClientRect().height : 0;
+    const height = focused() && guide?.dataset.learningDock!=='1' && guide?.classList.contains('btg-enabled') ? guide.getBoundingClientRect().height : 0;
     document.documentElement.style.setProperty('--phone-guide-height',height+'px');
 
   }
@@ -227,7 +227,7 @@
     const anchor=document.createComment(id+' desktop position');element.before(anchor);relocated.push({element,anchor,speed:id.startsWith('tableSpeed'),spin:id.startsWith('bottomSpin')});
   }
   let guideAnchor;
-  function dockGuide(){const guide=document.getElementById('bt-guide-pool-root');if(!guide)return;if(focused()){if(!guideAnchor){guideAnchor=document.createComment('Guide desktop position');guide.before(guideAnchor);}if(guide.parentNode!==panel)toolShelf.after(guide);}else if(guideAnchor&&guide.parentNode!==guideAnchor.parentNode)guideAnchor.after(guide);}
+  function dockGuide(){const guide=document.getElementById('bt-guide-pool-root');if(!guide||guide.dataset.learningDock==='1')return;if(focused()){if(!guideAnchor){guideAnchor=document.createComment('Guide desktop position');guide.before(guideAnchor);}if(guide.parentNode!==panel)toolShelf.after(guide);}else if(guideAnchor&&guide.parentNode!==guideAnchor.parentNode)guideAnchor.after(guide);}
   new MutationObserver(dockGuide).observe(document.body,{childList:true,subtree:true});
   const analyzeToolbar=document.querySelector('.photoAnalyzerToolbar'),analyzeHeader=document.querySelector('.photoAnalyzerHeader'),analyzeMoves=[];
   if(analyzeToolbar&&analyzeHeader){for(const element of [...analyzeHeader.children]){if(element.classList.contains('btg-analyze-title'))continue;const anchor=document.createComment('Analyze header position');element.before(anchor);analyzeMoves.push({element,anchor});}}

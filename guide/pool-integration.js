@@ -55,7 +55,7 @@ async function init(){
  await BilliardsPracticeLayouts.attach(catalog.topics);
  await BilliardsLearning.attach(catalog.topics);
  await BilliardsLessonPractice.attach(catalog.topics);
- let tour=null,lessonPractice=null,layoutRequest=0,lastProfileWidth=0;
+ let tour=null,lessonPractice=null,learningPanel=null,layoutRequest=0,lastProfileWidth=0;
  const guide=BilliardsGuide.mount(host,{
   loadLayout:url=>lessonPractice?lessonPractice.resetUrl(url):BilliardsPracticeLayouts.apply(url),
   onTopicChange(topic){
@@ -70,22 +70,23 @@ async function init(){
    BilliardsPracticeLayouts.apply(topic.setups[0].url,{shouldApply:()=>request===layoutRequest&&guide.getState().enabled&&guide.getState().topicId===topic.id&&!window.billiardsTourBridge?.snapshot().busy}).then(applied=>{if(applied!==false&&request===layoutRequest)lessonPractice?.loaded(topic);}).catch(error=>{if(request===layoutRequest)globalThis.alert(error.message)});
    return true;
   },
-  onTryShot:()=>guide.getState().category==='start'?tour?.tryShot():lessonPractice?.tryShot(),
+  onTryShot:()=>{if(guide.getState().category==='start')tour?.tryShot();else lessonPractice?.tryShot();learningPanel?.mini();},
   onResourcePractice:topic=>{guide.pause();if(topic.scene)window.billiardsTourBridge?.loadLesson(topic.scene);},
   onPlaybackProgress:(topic,time,playing)=>tour?.progress(topic,time,playing),
   onPlaybackStart:()=>guide.getState().category==='start'?tour?.listening():lessonPractice?.listening(),
-  onRendered:()=>{tour?.placeControls();lessonPractice?.placeControls();positionPlayer();},
+  onRendered:()=>{tour?.placeControls();lessonPractice?.placeControls();positionPlayer();learningPanel?.rendered();},
   onPlaybackStop:()=>guide.getState().category==='start'?tour?.hold(false):lessonPractice?.hold(false),
   onLessonEnd:(topic,state)=>topic?.category==='start'?tour?.ended(topic,state):lessonPractice?.ended(topic,state),
   getPracticeSetups:()=>tour?.setups()||[],
   loadPracticeSetup:url=>tour.load(url),
   onStateChange(state){
    if(!state.enabled)layoutRequest++;
+   learningPanel?.sync(state);
    tour?.sync(state);lessonPractice?.sync(state);
    guideButton.setAttribute('aria-pressed',String(state.enabled&&state.category!=='start'));
    startButton.setAttribute('aria-pressed',String(!!tour?.getState().active||(state.enabled&&state.category==='start')));
   },
-  poolMode:true,storageKey:'billiards-pool-guide-v1',topics:catalog.topics,resources:catalog.resources,exploreTopicIds:ids,
+  learningPanel:document.body.classList.contains('trainer-workspace'),poolMode:true,storageKey:'billiards-pool-guide-v1',topics:catalog.topics,resources:catalog.resources,exploreTopicIds:ids,
   isActive:()=>!modal.classList.contains('open')&&!document.body.classList.contains('table-3d'),
   resolveTopic(event,element){
    const direct=BilliardsRecordedAudio.resolve(event,recorded,'Main');if(direct)return direct;
@@ -116,15 +117,16 @@ async function init(){
   }
  });
  function showLearningIn2D(){if(!document.body.classList.contains('table-3d'))return;document.getElementById('table3DToggle')?.click();requestAnimationFrame(()=>{if(document.body.classList.contains('phone-focus')&&!document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls')?.click();});}
- for(const launcher of [startButton,guideButton])launcher.addEventListener('click',showLearningIn2D,{capture:true});
- guideButton.addEventListener('click',()=>{if(guide.getState().enabled&&guide.getState().category!=='start')guide.setEnabled(false);else guide.openGuide()});
+ for(const launcher of [startButton,guideButton])launcher.addEventListener('click',()=>{if(!document.body.classList.contains('trainer-workspace'))showLearningIn2D();},{capture:true});
+ guideButton.addEventListener('click',()=>{if(learningPanel){learningPanel.open('guide');return;}if(guide.getState().enabled&&guide.getState().category!=='start')guide.setEnabled(false);else guide.openGuide()});
  window.billiardsPoolAudioMap=catalog;
  tour=await BilliardsGetStartedTour.mount(guide);
  if(tour)tour.steps.forEach((step,index)=>{const topic=catalog.topics.find(t=>t.id===step.topicId);if(!topic)throw Error('Quick Start lesson unavailable: '+step.topicId);topic.guideOrder=index;});
  lessonPractice=BilliardsLessonPractice.mount(guide,host);
  window.billiardsLessonPractice=lessonPractice;
  window.billiardsGetStartedTour=tour;
- startButton.addEventListener('click',()=>tour?tour.start():guide.openCategory('start'));
+ learningPanel=window.BilliardsLearningPanel?.mount({guide,tour,host});
+ startButton.addEventListener('click',()=>learningPanel?learningPanel.open('start'):(tour?tour.start():guide.openCategory('start')));
  for(const id of ['analyzePhotoBtn','cameraCaptureBtn'])document.getElementById(id)?.addEventListener('click',()=>{if(!guide.getState().exploring){guide.setEnabled(false);guide.setExploring(false)}},true);
  // Also pause if Analyze is opened through another trainer action.
  const modalObserver=new MutationObserver(()=>{if(modal.classList.contains('open')){tour?.pause();guide.setEnabled(false);guide.setExploring(false)}});
@@ -139,7 +141,7 @@ async function init(){
  if(window.ResizeObserver)new ResizeObserver(positionPlayer).observe(stage);
  // Leaving 2D stops audio, pending lessons and narration spotlights together.
  let was3D=false;
- function sync3D(){const in3D=document.body.classList.contains('table-3d');if(in3D&&!was3D){tour?.pause();guide.setEnabled(false);guide.setExploring(false);}was3D=in3D;}
+ function sync3D(){const in3D=document.body.classList.contains('table-3d');if(in3D&&!was3D&&!learningPanel){tour?.pause();guide.setEnabled(false);guide.setExploring(false);}was3D=in3D;}
  new MutationObserver(sync3D).observe(document.body,{attributes:true,attributeFilter:['class']});sync3D();
  window.billiardsPoolGuide=guide;
  window.billiardsPoolAudioMap=catalog;

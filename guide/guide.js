@@ -10,6 +10,7 @@ function mount(host,options={}){
  if(!host || host.dataset.guideMounted) throw Error('Guide needs an unused host element');
  host.dataset.guideMounted='1';host.id=host.id||'bt-guide-root';
  host.classList.add('btg-root');
+ const learning=!!options.learningPanel;
  const STORE=options.storageKey||'billiards-guide-v1';
  const saved=safeLoad(STORE);
  let state=Object.assign({enabled:false,level:0,category:'fundamentals',topicId:null,expanded:null,position:0,detailsOpen:false,autoplay:false,guideAutoplay:true,exploring:false},saved);
@@ -152,6 +153,25 @@ function mount(host,options={}){
   }
   const note=document.createElement('p');note.className='btg-setup-note';note.textContent=t.setups.map(x=>x.note).filter((x,i,a)=>a.indexOf(x)===i).join(' ');group.append(note);container.append(group);
  }
+ function learningPlayback(view){
+  const row=document.createElement('div');row.className='learningPlayback';
+  const seek=document.createElement('input');seek.type='range';seek.className='learningSeek';seek.min='0';seek.max=Number.isFinite(audio.duration)?String(audio.duration):'0';seek.step='.1';seek.value=String(audio.currentTime||0);seek.setAttribute('aria-label','Recording position');
+  seek.oninput=()=>{if(Number.isFinite(audio.duration))audio.currentTime=Number(seek.value);updatePlayback();};
+  const time=document.createElement('output');time.className='learningTime';time.setAttribute('aria-label','Playback time');row.append(seek,time);view.append(row);
+ }
+ function updatePlayback(){
+  if(!learning)return;
+  const seek=host.querySelector('.learningSeek'),time=host.querySelector('.learningTime'),duration=Number.isFinite(audio.duration)?audio.duration:0;
+  if(seek){seek.max=String(duration);seek.value=String(audio.currentTime||0);seek.disabled=!duration;}
+  const clock=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');if(time)time.textContent=clock(audio.currentTime||0)+' / '+clock(duration);
+ }
+ function learningText(drawer,t){
+  const label=document.createElement('label');label.className='learningTextLabel';label.textContent='Full lesson text';label.htmlFor='learningTranscript';
+  const text=document.createElement('textarea');text.id='learningTranscript';text.readOnly=true;text.rows=8;text.textContent=t?.text||'Choose a lesson to read its full text.';text.setAttribute('aria-label','Full lesson text');drawer.append(label,text);
+  const resources=[...(t?.resources||[]),...(options.resources||[])],seen=new Set(),list=document.createElement('ul');list.className='btg-resource-links learningReferences';
+  for(const r of resources){let url;try{url=new URL(r.url);if(!['https:','http:'].includes(url.protocol)||seen.has(url.href))continue;}catch{continue;}seen.add(url.href);const li=document.createElement('li'),a=document.createElement('a');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';a.textContent=r.title||url.hostname;li.append(a);list.append(li);}
+  if(list.children.length){const heading=document.createElement('strong');heading.className='learningTextLabel';heading.textContent='Videos & references';drawer.append(heading,list);}
+ }
  function render(){
   const t=selected(),available=availableLessons();
   syncNarrationAttention();
@@ -162,7 +182,7 @@ function mount(host,options={}){
   const toolbar=document.createElement('div');toolbar.className='btg-row btg-toolbar';
   const resourceBrowse=!!options.poolMode&&state.category==='more';
   host.classList.toggle('btg-resources-mode',resourceBrowse);
-  function btn(label,fn){const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',fn);b.dataset.action=label==='▶'||label==='Ⅱ'?'play-pause':label;toolbar.append(b);return b}
+  function btn(label,fn){const b=document.createElement('button');b.type='button';const names={'⏮':'Previous','■':'Stop','▶':'Play','Ⅱ':'Pause','◀◀':'−10 seconds','▶▶':'+10 seconds','⏭':'Next'};b.textContent=learning?(names[label]||label):label;b.setAttribute('aria-label',names[label]||label);b.addEventListener('click',fn);b.dataset.action=label==='▶'||label==='Ⅱ'?'play-pause':label;toolbar.append(b);return b}
   if(state.enabled){
    if(!resourceBrowse)btn('⏮',()=>skipRecording(-1)).title='Previous audio file / lesson';
    btn('■',()=>{stop();render()}).title='Stop';
@@ -188,12 +208,12 @@ function mount(host,options={}){
    if(!options.poolMode&&state.category!=='start')btn('Reset',()=>{if(!confirm('Reset Guide session? The table will not change.'))return;stop();state={enabled:true,exploring:false,autoplay:state.category==='start'||!!options.poolMode&&state.guideAutoplay,guideAutoplay:state.guideAutoplay,level:0,category:options.startOnly||state.category==='start'?'start':'fundamentals',topicId:null,expanded:null,detailsOpen:false,position:0};save();render();if(state.category==='start')openCategory('start')});
    }
   }
-  view.append(toolbar);if(!state.enabled){root.classList.remove('btg-details-open');patchNode(root,view);return;}
+  view.append(toolbar);if(learning&&state.enabled)learningPlayback(view);if(!state.enabled){root.classList.remove('btg-details-open');patchNode(root,view);return;}
   const cats=document.createElement('div');cats.className='btg-row btg-categories';
   for(const [id,label] of CATEGORIES.filter(([id])=>id!=='explore'&&id!=='start')){const b=document.createElement('button');b.textContent=label;b.setAttribute('aria-pressed',String(state.category===id));b.onclick=()=>{stop();openCategory(id)};cats.append(b)}if(state.category!=='start')view.append(cats);
   if(resourceBrowse&&global.BilliardsResources){
    const toggle=document.createElement('button');toggle.type='button';toggle.className='btg-expansion-tab';
-   toggle.textContent=state.resourcesCollapsed?'+':'−';toggle.title=state.resourcesCollapsed?'Open Resources':'Close Resources';
+   toggle.textContent=learning?(state.resourcesCollapsed?'Show resources':'Hide resources'):(state.resourcesCollapsed?'+':'−');toggle.title=state.resourcesCollapsed?'Open Resources':'Close Resources';
    toggle.setAttribute('aria-label',toggle.title);toggle.setAttribute('aria-expanded',String(!state.resourcesCollapsed));
    toggle.onclick=()=>{state.resourcesCollapsed=!state.resourcesCollapsed;if(state.resourcesCollapsed)stop();save();render()};toolbar.append(toggle);
    state.resourceGroups=state.resourceGroups||{};
@@ -201,7 +221,7 @@ function mount(host,options={}){
     onGroup:(group,open)=>{state.resourceGroups[group]=open;save();},
     onListen:id=>{if(selected()?.id===id&&(!audio.paused||playback.starting)){playback.pause();render();}else{if(selected()?.id!==id&&choose(id)===false)return;play();}},
     onOpen:openResource,onPractice:topic=>{if(choose(topic.id)!==false)options.onResourcePractice?.(topic);}
-   });resourcesPanel.hidden=!!state.resourcesCollapsed;view.append(resourcesPanel);
+   });resourcesPanel.hidden=!!state.resourcesCollapsed;view.append(resourcesPanel);if(learning)learningText(view,t);
    view.className=root.className;patchNode(root,view);root.classList.remove('btg-details-open');options.onRendered?.();return;
   }
   const topic=document.createElement('div');topic.className='btg-topic';
@@ -223,6 +243,7 @@ function mount(host,options={}){
   if(options.poolMode){drawer.className='btg-pool-drawer';view.append(drawer)}
   const playingTitle=document.createElement('strong');playingTitle.className='btg-current-lesson';playingTitle.textContent=(options.poolMode&&available.includes(t)&&state.category!=='start'?(available.indexOf(t)+1)+' / '+available.length+' · ':'')+(t?.title||'Choose a topic');playingTitle.setAttribute('aria-live','polite');drawer.append(playingTitle);
   if(options.poolMode&&(state.category==='start'||t?.setups?.length)){const row=document.createElement('div');row.className='btg-lesson-row';const slot=document.createElement('div');slot.className='btg-practice-slot';slot.dataset.guideSlot='practice';row.append(select,slot);drawer.append(row)}else drawer.append(select);
+  if(learning)learningText(drawer,t);
   if(state.expanded&&state.detailsOpen){const detail=document.createElement('div');detail.className='btg-expanded';
    if(state.category!=='start'||state.expanded==='practice')setupActions(detail,t);
    if(state.expanded==='practice')global.BilliardsLearning?.render(detail,t);
@@ -260,7 +281,7 @@ function mount(host,options={}){
   if(options.poolMode){
    const reading=document.createElement('span');reading.className='btg-reading-actions';
    for(const control of toolbar.querySelectorAll('[data-action="Read"],[data-action="More"]'))reading.append(control);
-   toolbar.append(reading,toggle);
+   toolbar.append(reading);if(!learning)toolbar.append(toggle);
    if(state.category!=='start'){
     const secondary=document.createElement('div');secondary.className='btg-secondary-row';
     cats.replaceWith(secondary);secondary.append(cats);
@@ -272,10 +293,11 @@ function mount(host,options={}){
   if(host.classList.contains('btg-header-mode')){view.insertBefore(select,topic);topic.hidden=!state.detailsOpen;}
   view.className=root.className;patchNode(root,view);
   root.classList.toggle('btg-details-open',!!state.detailsOpen);
-  options.onRendered?.();
+  updatePlayback();options.onRendered?.();
 
  }
- audio.addEventListener('timeupdate',()=>{syncCues();state.position=audio.currentTime;options.onPlaybackProgress?.(selected(),audio.currentTime,narrationPlaying&&!audio.paused&&!audio.ended);save()});
+ audio.addEventListener('timeupdate',()=>{updatePlayback();syncCues();state.position=audio.currentTime;options.onPlaybackProgress?.(selected(),audio.currentTime,narrationPlaying&&!audio.paused&&!audio.ended);save()});
+ for(const event of ['loadedmetadata','durationchange','seeked'])audio.addEventListener(event,updatePlayback);
  audio.addEventListener('playing',()=>{narrationPlaying=true;syncCues();options.onPlaybackProgress?.(selected(),audio.currentTime,true);render()});
  audio.addEventListener('pause',()=>{cues?.clear();narrationPlaying=false;options.onPlaybackProgress?.(selected(),audio.currentTime,false);render()});
  for(const event of ['waiting','ended','emptied','error','loadstart'])audio.addEventListener(event,()=>{cues?.clear();narrationPlaying=false;options.onPlaybackProgress?.(selected(),audio.currentTime,false);syncNarrationAttention()});
@@ -287,7 +309,7 @@ function mount(host,options={}){
  document.addEventListener('pointerover',inspectTarget,true);
  // Explorer alone enables the inspection shield; validate against real trainer interactions before integration.
  render();
- return {setEnabled,setExploring,openCategory,openGuide,tryShot:practice,hasNextLesson(){const list=availableLessons(),i=list.findIndex(t=>t.id===state.topicId);return i+1<list.length;},nextLesson(){const list=availableLessons(),i=list.findIndex(t=>t.id===state.topicId);const next=i<0&&selected()?.categoryWelcome?0:i+1;if(next<0||next>=list.length||i<0&&!selected()?.categoryWelcome)return false;if(choose(list[next].id)===false)return false;play();return true},pause(){playback.pause();render()},selectTopic(id){choose(id);},getCueState(){return cues?.getState();},destroy(){cues?.destroy();narrationPlaying=false;host.classList.remove('btg-narrating');playback.destroy();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
+ return {refresh:render,getSelectedTopic:selected,getPlaybackState(){return {topicId:state.topicId,src:audio.currentSrc||audio.src,time:audio.currentTime,duration:Number.isFinite(audio.duration)?audio.duration:0,paused:audio.paused,track:sequenceIndex};},setEnabled,setExploring,openCategory,openGuide,tryShot:practice,hasNextLesson(){const list=availableLessons(),i=list.findIndex(t=>t.id===state.topicId);return i+1<list.length;},nextLesson(){const list=availableLessons(),i=list.findIndex(t=>t.id===state.topicId);const next=i<0&&selected()?.categoryWelcome?0:i+1;if(next<0||next>=list.length||i<0&&!selected()?.categoryWelcome)return false;if(choose(list[next].id)===false)return false;play();return true},pause(){playback.pause();render()},selectTopic(id){choose(id);},getCueState(){return cues?.getState();},destroy(){cues?.destroy();narrationPlaying=false;host.classList.remove('btg-narrating');playback.destroy();clearHighlight();document.body.classList.remove('btg-inspection');document.removeEventListener('pointerover',inspectTarget,true);blockedEvents.forEach(name=>document.removeEventListener(name,shield,true));host.replaceChildren();delete host.dataset.guideMounted},getState(){return {...state}}};
 }
 global.BilliardsGuide={mount,CATEGORIES,LEVELS};
 })(window);

@@ -53,10 +53,16 @@
   }
   function grid(nodes) { const el = document.createElement('div'); el.className = 'menuActionGrid'; el.append(...nodes.filter(Boolean)); return el; }
   function wrap(el, id, title, key, open = false) { const anchor = document.createComment(id); el.before(anchor); const d = disclosure(id, title, key, [el], open); anchor.replaceWith(d); return d; }
+  const learning = document.createElement('div'); learning.id = 'learningSection'; learning.className = 'section';
+  const learningToggle = document.createElement('button'); learningToggle.type = 'button'; learningToggle.className = 'sectionToggle';
+  learningToggle.setAttribute('aria-controls', 'learningBody'); learningToggle.setAttribute('aria-expanded', 'false');
+  const learningBody = document.createElement('div'); learningBody.id = 'learningBody'; learningBody.className = 'sectionBody';
+  learning.append(learningToggle, learningBody); panel.append(learning);
   const menus = [
     ['shot', 'Shot', 'shot', 'Aim · Spin · Live Results'],
     ['liveStats', 'Live Shot', 'stats', ''],
     ['table', 'Table & Balls', 'table', 'Racks · Ball Placement · Targets'],
+    ['learning', 'Learning', 'practice', ''],
     ['draw', 'Table Notes', 'notes', 'Lines · Shapes · Written Notes'],
     ['capture', 'Capture', 'capture', 'Photos · Video · Audio'],
     ['saved', 'Saved', 'saved', 'Ball Layouts · Files · Sharing'],

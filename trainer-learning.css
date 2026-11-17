@@ -1,0 +1,73 @@
+/* Learning shares the existing blue section header and subsection colors. */
+#learningBody { min-width:0; }
+#learningBody .learningModes { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:0 0 10px; }
+#learningBody .learningModes button,#learningBody .learningReturn { box-sizing:border-box; min-height:44px; padding:10px; border:1px solid #638da8; border-radius:7px; background:var(--menu-sub,#245575); color:#f2f8fd; font:600 14px/1.3 system-ui; cursor:pointer; }
+#learningBody .learningModes button[aria-pressed=true] { background:#3175a3; border-color:#a5d8f5; box-shadow:inset 0 -3px #9bd6fa; }
+#learningBody .learningReturn { display:block; width:100%; margin:0 0 12px; background:#254659; text-align:left; }
+body.trainer-workspace #learningBody #bt-guide-pool-root.learning-player { display:block; position:static!important; inset:auto!important; width:100%!important; max-width:none!important; margin:0!important; padding:0; border:0; border-radius:0; background:transparent; box-shadow:none; font:14px/1.5 system-ui; }
+body.trainer-workspace #learningBody #bt-guide-pool-root[hidden] { display:none!important; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-toolbar { display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; padding:0; margin:0 0 12px; overflow:visible; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-toolbar>button,
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-reading-actions button,
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-categories button,
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-guide-actions button,
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-next-lesson { display:block; position:static; inset:auto; transform:none; box-sizing:border-box; width:100%; min-width:0; max-width:none; min-height:44px; height:auto; padding:9px 6px; margin:0; border-radius:7px; font:600 13px/1.3 system-ui; white-space:normal; flex:none; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-toolbar>button[data-action="play-pause"] { background:#3175a3; border-color:#9acfee; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-reading-actions { display:grid; grid-column:1/-1; grid-template-columns:1fr 1fr; gap:8px; margin:0; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-secondary-row { display:block; margin:0 0 12px; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-categories { display:grid!important; grid-template-columns:1fr 1fr; gap:8px; overflow:visible; padding:0; margin:0 0 8px!important; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-guide-actions { display:block; margin:0; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-pool-drawer { position:static; display:block; width:100%; max-width:none; padding:0; background:transparent; border:0; box-shadow:none; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-current-lesson { display:block; font-size:16px; line-height:1.4; margin:10px 0; white-space:normal; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-lesson-row { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; min-height:0; }
+body.trainer-workspace #learningBody #bt-guide-pool-root select.btg-lesson-select { width:100%!important; min-width:0; max-width:100%; height:44px; min-height:44px; padding:8px; font:14px/1.3 system-ui; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-practice-slot { width:100%; min-height:0; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-pool-drawer .btg-expanded { max-width:none; max-height:420px; font:14px/1.55 system-ui; white-space:normal; margin:12px 0; }
+.learningPlayback { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:8px; padding:8px; margin:0 0 12px; border:1px solid #42647d; border-radius:7px; background:#101e29; }
+.learningSeek { width:100%; min-width:0; min-height:32px; accent-color:#83c7fa; }
+.learningTime { font:600 12px/1.3 system-ui; white-space:nowrap; color:#dbe9f1; }
+.learningTextLabel { display:block; margin:14px 0 6px; font:600 14px/1.4 system-ui; color:#dcecf7; }
+body.trainer-workspace #learningBody #learningTranscript { display:block; box-sizing:border-box; width:100%; min-height:180px; max-height:420px; padding:12px; resize:vertical; overflow:auto; border:1px solid #54738b; border-radius:7px; background:#0d1923; color:#eef6fc; font:14px/1.6 system-ui; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .learningReferences { margin:0; padding-left:22px; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-resources { max-height:none; padding:0; font:14px/1.5 system-ui; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-resource-actions { display:flex; flex-wrap:wrap; gap:8px; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-resource-actions :is(button,a),
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-resources-intro>button { min-height:44px; box-sizing:border-box; padding:9px; font:600 13px/1.4 system-ui; white-space:normal; border-radius:7px; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-resources-intro h2 { font-size:18px; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-resource-card h3 { font-size:16px; }
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-resource-card p,
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-resource-group>summary { font-size:14px; line-height:1.5; }
+/* A retracted ball tray leaves the same band to the mini player. */
+#learningMiniPlayer { display:flex; align-items:center; gap:8px; width:min(760px,100%); min-width:0; height:44px; margin-left:auto; color:#eff7fc; }
+#learningMiniPlayer[hidden] { display:none!important; }
+#learningMiniPlayer .learningMiniTitle { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font:600 13px/1.3 system-ui; }
+#learningMiniSlot { flex:none; min-width:0; }
+body.trainer-workspace #learningMiniSlot #bt-guide-pool-root.learning-player { display:block!important; position:static!important; inset:auto!important; width:auto!important; max-width:none!important; padding:0; margin:0; border:0; border-radius:0; background:transparent; box-shadow:none; font:12px system-ui; }
+body.trainer-workspace #learningMiniSlot #bt-guide-pool-root>div>*:not(.btg-toolbar) { display:none!important; }
+body.trainer-workspace #learningMiniSlot #bt-guide-pool-root .btg-toolbar { display:flex!important; align-items:center; flex-wrap:nowrap; width:auto; padding:0; margin:0; gap:4px; overflow:visible; }
+body.trainer-workspace #learningMiniSlot #bt-guide-pool-root .btg-toolbar>*,
+body.trainer-workspace #learningMiniSlot #bt-guide-pool-root .btg-toolbar .btg-reading-actions { display:none!important; }
+body.trainer-workspace #learningMiniSlot #bt-guide-pool-root .btg-toolbar>button:is([data-action="⏮"],[data-action="■"],[data-action="play-pause"],[data-action="⏭"]),
+#learningMiniPlayer>button { display:grid!important; place-items:center; flex:none; box-sizing:border-box; position:static; inset:auto; transform:none; margin:0; width:44px; min-width:44px; max-width:44px; height:40px; min-height:40px; padding:2px; border:1px solid #6f8d9e; border-radius:7px; background:#203746; color:#eff7fc; font:600 11px/1.2 system-ui; white-space:nowrap; cursor:pointer; }
+#learningMiniPlayer>#learningExpand { width:48px; min-width:48px; max-width:48px; font-size:26px; background:#245575; border-color:#8cc6ec; }
+#learningMiniPlayer>#learningClose { font-size:24px; }
+body.trainer-workspace.learning-mini #workspaceBallShelf { display:flex!important; }
+body.trainer-workspace.learning-mini.table-3d.phone-tray-hidden { --workspace-bottom:180px; }
+@media(min-width:1000px) {body.trainer-workspace.learning-mini.phone-controls-open.table-3d.phone-tray-hidden { --workspace-bottom:248px; }}
+@media(max-width:700px) {body.trainer-workspace.learning-mini.table-3d.phone-tray-hidden { --workspace-bottom:244px; }}
+body.trainer-workspace.learning-active #workspaceBallShelf #workspaceBalls,
+body.trainer-workspace.learning-active #workspaceBallShelf #workspaceBallCount { min-width:0; }
+body.trainer-workspace.learning-mini #workspaceClearBalls,
+body.trainer-workspace.learning-mini #workspaceBallShelf #table3DRackToggle,
+body.trainer-workspace.learning-mini #workspaceBallShelf .workspaceTrayScroll { display:none!important; }
+/* Remove inherited caps so Shoot fills its reserved column with a 4px gap. */
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=animate] { width:106px!important; max-width:none!important; box-sizing:border-box; }
+@media(max-width:700px) {body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions>[data-trainer-action=animate] { width:82px!important; }}
+body.trainer-workspace #learningBody #bt-guide-pool-root .btg-toolbar>.btg-expansion-tab { background:#254659; color:#f2f8fd; border-color:#638da8; font-size:13px; }
+body.trainer-workspace #learningMiniSlot #bt-guide-pool-root .btg-toolbar>button { font-size:0!important; }
+body.trainer-workspace #learningMiniSlot #bt-guide-pool-root .btg-toolbar>button::before { font:600 18px/1 system-ui; }
+body.trainer-workspace #learningMiniSlot #bt-guide-pool-root [data-action="⏮"]::before { content:'⏮'; }
+body.trainer-workspace #learningMiniSlot #bt-guide-pool-root [data-action="■"]::before { content:'■'; }
+body.trainer-workspace #learningMiniSlot #bt-guide-pool-root [data-action="⏭"]::before { content:'⏭'; }
+body.trainer-workspace #learningMiniSlot #bt-guide-pool-root [data-action="play-pause"]::before { content:'▶'; }
+body.trainer-workspace #learningMiniSlot #bt-guide-pool-root [data-action="play-pause"][aria-label="Pause"]::before { content:'Ⅱ'; }
