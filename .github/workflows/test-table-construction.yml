@@ -1,0 +1,36 @@
+name: Verify realistic table construction
+on:
+  push:
+    branches: [test/table-construction-20261117]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  construction:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify construction and complete inventory
+        run: |
+          node --check trainer-3d.js
+          node tests/table-construction.test.cjs
+          python3 scripts/build-offline-assets.py --check
+      - name: Install browser
+        run: |
+          npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
+          node local-host/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Inspect every pocket at overview and cue height
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")
+          node tests/table-construction.browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: table-construction-verification
+          path: test-results/table-construction

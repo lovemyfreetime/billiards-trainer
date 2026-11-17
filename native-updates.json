@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "4c92d49092d1e3ba061801724e34a39a46faef2b2c7443cb1a2e22b6943cbf20",
-  "sequence": 1794915713,
+  "version": "a5193d1077b452a79dbed31fc54956ed4970734c247009a80af8faf227221ea7",
+  "sequence": 1794918097,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3756,6 +3756,18 @@
       "sha256": "a21379a73afe7b8a681472a63cee534cc36f97b0c5f821436789d2658cbaa296",
       "length": 2276
     },
+    "icons/table-materials/LICENSE": {
+      "sha256": "d4f83af07a628bd207d3c4113135b7e4a2874a7b42928092342e5b1c478988e2",
+      "length": 671
+    },
+    "icons/table-materials/walnut-diff.jpg": {
+      "sha256": "d8c971e403b185b5c350d1e6fa75c3e7fcc36130781c7686263f6bcd23ac4db1",
+      "length": 496596
+    },
+    "icons/table-materials/walnut-rough.jpg": {
+      "sha256": "5cb9d78ec685155d2b66a1db01abc61049d00953d783d0c78d829512de9ab0b4",
+      "length": 556628
+    },
     "icons/trainer-original-execute-v2.svg": {
       "sha256": "eaf1f45d99634cdbe87582d857cc2dd6017439dadf9ce251136485422c127da4",
       "length": 2441451
@@ -3865,8 +3877,8 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "44cfed74c46adf02b202034efa6d5dc57ef3ee8ef309b77d2cb20f319573f1b6",
-      "length": 158862
+      "sha256": "dec36b0cd85ab33508aaae68043fce5e170c3703adadb90a108dd60236fc58f7",
+      "length": 159299
     },
     "phone-play.css": {
       "sha256": "cec5017ee25f788690420d4e67241754a1fbb2c047779ad0e7e59d87f7eac720",
@@ -5353,7 +5365,7 @@
       "length": 2168
     },
     "service-worker.js": {
-      "sha256": "780a67044c872cb7b7dfad528c2fdb56842e727c7b689e84757e9cd776dd51e1",
+      "sha256": "6ec46dae8840cb9648aecc48919e26dde99a5989c9f70b5a76fe7c376fbccd6e",
       "length": 7933
     },
     "table-orbit.js": {
@@ -5381,8 +5393,8 @@
       "length": 35575
     },
     "trainer-3d.js": {
-      "sha256": "abf30759865ee1e8d0d91fc2bf160a199f97202a9eb82f1d0e2515248384c481",
-      "length": 51542
+      "sha256": "bde089009f776b39a7bbd3522fa6386aa4bf4fad25c8e8f1ce8afd7176240e36",
+      "length": 53229
     },
     "trainer-action-history.js": {
       "sha256": "83f2afc6a65e2dc18b66313cc709a66407e72144c2278cc2d2acbfb600e4cfb4",
@@ -5459,6 +5471,10 @@
     "trainer-spin-lab.js": {
       "sha256": "4fc10ebaa100342e8b72d03a16683ab61dcc5c73a048efecd3791a4b5ebc0999",
       "length": 18306
+    },
+    "trainer-table-construction.js": {
+      "sha256": "cb445d527afc82157d64a87ffe72232b5cfffb8cd424e59956a5e81c697b80c0",
+      "length": 3210
     },
     "trainer-table-exchange.js": {
       "sha256": "ae9ffe57fa88a9210b835ac7a8d65b3f711763e8d5248b6495d223188b1f51e9",

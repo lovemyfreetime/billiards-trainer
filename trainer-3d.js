@@ -130,7 +130,7 @@
   let radius=Math.max(.94,L*.65);const elevation=60*Math.PI/180;
   for(let step=0;step<70;step++){
    const sn=Math.sin(elevation),cs=Math.cos(elevation),tan=viewTangent(aspect);let fits=true;
-   for(const x of [-L*.548,L*.548])for(const z of [-W*.595,W*.595]){
+   for(const x of [-L/2-window.BilliardsTableConstruction.railWidth,L/2+window.BilliardsTableConstruction.railWidth])for(const z of [-W/2-window.BilliardsTableConstruction.railWidth,W/2+window.BilliardsTableConstruction.railWidth]){
     const depth=radius-cs*z,horizontal=x/(depth*tan*aspect),vertical=-sn*z/(depth*tan);
     if(depth<.2||Math.abs(horizontal)>(innerWidth<1000&&!document.body.classList.contains('table-3d-tablet')?.80:.90)||Math.abs(vertical)>.84)fits=false;
    }
@@ -177,7 +177,7 @@
   if(active)return true;if(loading)return false;loading=true;button.disabled=true;status.textContent='';
   // Request within the entry gesture, before loading WebGL can consume activation.
   window.BilliardsDisplay?.enter(true);
-  try{if(!engine){const three=await import('./vendor/three/three-renderer.js?v=4');engine=createEngine(three);}if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
+  try{if(!engine){const [three]=await Promise.all([import('./vendor/three/three-renderer.js?v=4'),import('./trainer-table-construction.js?v=1')]);engine=createEngine(three);}if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
    active=true;document.body.classList.add('table-3d');button.setAttribute('aria-pressed','true');button.textContent='2D';tools.hidden=false;for(const b of [standingButton,alongButton,viewLock])b.hidden=false;positionToggle();
    if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();
    window.billiardsControlLayout?.();dock();setDrawer(false);window.dispatchEvent(new Event('resize'));standing();setViewLocked(viewLocked);setPanEnabled(panEnabled);window.BilliardsSpinLabUI?.onCameraReady();requestRender();
@@ -221,7 +221,7 @@
   const scene=new T.Scene(),camera=new T.PerspectiveCamera(44,1,.01,100),table=new T.Group(),balls=new T.Group();scene.add(table,balls);scene.fog=new T.Fog(0x080d13,7,25);
   scene.add(new T.HemisphereLight(0xf2f5f4,0x303941,.75));
   const light=new T.DirectionalLight(0xfff8ed,1.8);light.position.set(-3,5,2);light.castShadow=true;
-  light.shadow.mapSize.set(1024,1024);Object.assign(light.shadow.camera,{left:-3,right:3,top:3,bottom:-3,near:.2,far:14});light.shadow.normalBias=.002;light.shadow.bias=-.00015;scene.add(light);
+  light.shadow.mapSize.set(2048,2048);Object.assign(light.shadow.camera,{left:-3,right:3,top:3,bottom:-3,near:.2,far:14});light.shadow.normalBias=.002;light.shadow.bias=-.00015;scene.add(light);
   // A quiet room reflection gives polished resin a soft overhead sheen.
   const roomCanvas=document.createElement('canvas');roomCanvas.width=512;roomCanvas.height=256;
   const roomCtx=roomCanvas.getContext('2d'),roomGradient=roomCtx.createLinearGradient(0,0,0,256);
@@ -273,81 +273,81 @@
    for(const [id,marker]of tipMarkers)if(!showing.has(id))marker.visible=false;
   }
   function box(w,h,d,x,y,z,material){const mesh=new T.Mesh(new T.RoundedBoxGeometry(w,h,d,2,Math.min(.014,h*.2,w*.1,d*.1)),material);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;table.add(mesh);}
-  const pocketLiner=new T.MeshStandardMaterial({color:0x070a0c,roughness:.94,side:T.BackSide,envMapIntensity:.08});
-  const woodMaterial=new T.MeshStandardMaterial({color:0x4b3023,roughness:.42,envMapIntensity:.4});
-  const cushionMaterial=new T.MeshStandardMaterial({color:0x28687b,roughness:.94,envMapIntensity:.12});
-  const sightMaterial=new T.MeshStandardMaterial({color:0xe3dbc6,roughness:.4});
-  const pocketLeather=new T.MeshStandardMaterial({color:0x24292b,roughness:.78,side:T.DoubleSide,envMapIntensity:.25});
-  function tableKey(f){return [f.L,f.W,f.R,JSON.stringify(f.G||{}),f.showDiamonds].join(':');}
-  function makePockets(f){
-   const G=f.G||{cornerMouth:.110,cornerLeg:.110/Math.SQRT2,cornerJawOut:.043,cornerThroatInset:.014,sideMouth:.120,sideThroat:.096,sideJawOut:.026};
-   return [[1,-1,-1],[2,0,-1],[3,1,-1],[4,1,1],[5,0,1],[6,-1,1]].map(([id,sx,sz])=>{
-    const corner=sx!==0,nx=corner?sx*Math.SQRT1_2:0,nz=corner?sz*Math.SQRT1_2:sz,tx=-nz,tz=nx;
-    const cx=sx*f.L/2,cz=sz*f.W/2,front=corner?-G.cornerLeg/Math.SQRT2:0,half=(corner?G.cornerMouth:G.sideMouth)/2;
-    const throat=corner?(G.cornerJawOut-G.cornerThroatInset)/Math.SQRT2:G.sideJawOut,neck=corner?(G.cornerJawOut+G.cornerThroatInset)/Math.SQRT2:G.sideThroat/2,rear=corner?.100:.098;
-    const at=(n,t,y=0)=>new T.Vector3(cx+nx*n+tx*t,y,cz+nz*n+tz*t);
-    const shape=new T.Shape(),move=(n,t)=>{const p=at(n,t);shape.moveTo(p.x,-p.z);},line=(n,t)=>{const p=at(n,t);shape.lineTo(p.x,-p.z);},curve=(cn,ct,n,t)=>{const c=at(cn,ct),p=at(n,t);shape.quadraticCurveTo(c.x,-c.z,p.x,-p.z);};
-    move(front,-half);line(front,half);line(throat,neck);curve(rear,neck,rear,0);curve(rear,-neck,throat,-neck);line(front,-half);shape.closePath();
-    // The back and jaw cuff is open at the mouth, like a real drop pocket.
-    const samples=[[front,half],[throat,neck]];
-    const quadratic=(a,b,c,t)=>a*(1-t)*(1-t)+2*b*t*(1-t)+c*t*t;
-    for(let i=1;i<=16;i++){const t=i/16;samples.push([quadratic(throat,rear,rear,t),quadratic(neck,neck,0,t)]);}
-    for(let i=1;i<=16;i++){const t=i/16;samples.push([quadratic(rear,rear,throat,t),quadratic(0,-neck,-neck,t)]);}samples.push([front,-half]);
-    return {id,shape,at,samples,probe:at((throat+rear)/2,0),back:at(rear+.014,0),wood:at(rear+.045,0),nx,nz,tx,tz};
-   });
+  let tablePlan=null,materialMapsReady=0;
+  function materialMap(file,srgb=false){
+   const tile=document.createElement('canvas');tile.width=tile.height=1;const paint=tile.getContext('2d');paint.fillStyle='#ffffff';paint.fillRect(0,0,1,1);
+   const map=new T.CanvasTexture(tile);if(srgb)map.colorSpace=T.SRGBColorSpace;map.wrapS=map.wrapT=1000;map.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+   const image=new Image();image.onload=()=>{map.image=image;map.needsUpdate=true;materialMapsReady++;requestRender();};image.src='./icons/table-materials/'+file;return map;
   }
-  function addPocket(p){
-   // Back-facing extrusion leaves the mouth open and exposes walls and a bottom
-   // 7.5 inches below the cloth, instead of painting a black disk on the bed.
-   const well=new T.Mesh(new T.ExtrudeGeometry(p.shape,{depth:.19,steps:1,curveSegments:24,bevelEnabled:false}),pocketLiner);
-   well.rotation.x=-Math.PI/2;well.position.y=-.19;well.receiveShadow=true;table.add(well);
-   const positions=[],indices=[],rim=[],woodPositions=[],woodIndices=[];
-   p.samples.forEach(([n,t],i)=>{
-    const a=p.samples[Math.max(0,i-1)],b=p.samples[Math.min(p.samples.length-1,i+1)],dn=b[0]-a[0],dt=b[1]-a[1],length=Math.hypot(dn,dt)||1;
-    const on=-dt/length,ot=dn/length,inner=p.at(n,t),outer=p.at(n+on*.028,t+ot*.028);
-    positions.push(inner.x,-.02,inner.z,inner.x,.026,inner.z,outer.x,.026,outer.z,outer.x,-.04,outer.z);
-    rim.push(p.at(n+on*.014,t+ot*.014,.026));
-    // Carry the wooden cap around the entire raised leather back.
-    for(const [offset,y] of [[.028,-.055],[.028,.035],[.060,.035],[.060,-.055]]){const v=p.at(n+on*offset,t+ot*offset,y);woodPositions.push(v.x,v.y,v.z);}
-    if(i){const prev=(i-1)*4,next=i*4;for(let face=0;face<3;face++){const a=prev+face,b=next+face;woodIndices.push(a,a+1,b,b,a+1,b+1);}}
-    if(i){const prev=(i-1)*4,next=i*4;for(let face=0;face<3;face++){const a=prev+face,b=next+face;indices.push(a,b,a+1,b,b+1,a+1);}}
-   });
-   const capGeometry=new T.BufferGeometry();capGeometry.setAttribute('position',new T.Float32BufferAttribute(woodPositions,3));capGeometry.setIndex(woodIndices);capGeometry.computeVertexNormals();const cap=new T.Mesh(capGeometry,woodMaterial);cap.castShadow=true;cap.receiveShadow=true;table.add(cap);
-   const cuffGeometry=new T.BufferGeometry();cuffGeometry.setAttribute('position',new T.Float32BufferAttribute(positions,3));cuffGeometry.setIndex(indices);cuffGeometry.computeVertexNormals();
-   const cuff=new T.Mesh(cuffGeometry,pocketLeather);cuff.castShadow=true;cuff.receiveShadow=true;table.add(cuff);
-   const lip=new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(rim),72,.012,10,false),pocketLeather);lip.castShadow=true;lip.receiveShadow=true;table.add(lip);
-   const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.fillStyle='#e8dec9';x.font='600 45px Arial';x.textAlign='center';x.textBaseline='middle';x.fillText(p.id,32,34);
+  const woodMap=materialMap('walnut-diff.jpg',true),woodRoughness=materialMap('walnut-rough.jpg');
+  const woodMaterial=new T.MeshStandardMaterial({map:woodMap,roughnessMap:woodRoughness,color:0xc9b6a0,roughness:.42,envMapIntensity:.65});
+  const weave=document.createElement('canvas');weave.width=weave.height=128;const weavePaint=weave.getContext('2d'),weavePixels=weavePaint.createImageData(128,128);
+  for(let y=0;y<128;y++)for(let x=0;x<128;x++){const i=(y*128+x)*4,v=128+((x+y)%2?8:-8)+((x*17+y*31)%7-3);weavePixels.data.set([v,v,v,255],i);}weavePaint.putImageData(weavePixels,0,0);
+  const clothBump=new T.CanvasTexture(weave);clothBump.wrapS=clothBump.wrapT=1000;clothBump.repeat.set(24,12);surfaceMaterial.bumpMap=clothBump;surfaceMaterial.bumpScale=.00010;
+  const cushionBump=new T.CanvasTexture(weave);cushionBump.wrapS=cushionBump.wrapT=1000;
+  const cushionMaterial=new T.MeshStandardMaterial({color:0x2e7487,roughness:.93,bumpMap:cushionBump,bumpScale:.00012,envMapIntensity:.12,side:T.DoubleSide});
+  const shelfMaterial=new T.MeshStandardMaterial({color:0x2e7487,roughness:.98,envMapIntensity:.08,side:T.DoubleSide});
+  const pocketLiner=new T.MeshStandardMaterial({color:0x0b0d0e,roughness:.85,side:T.DoubleSide,envMapIntensity:.08});
+  const pocketLip=new T.MeshStandardMaterial({color:0x1b1e20,roughness:.66,side:T.DoubleSide,envMapIntensity:.28});
+  const sightMaterial=new T.MeshStandardMaterial({color:0xddd9c9,roughness:.32,envMapIntensity:.45});
+  function tableKey(f){return [f.L,f.W,f.R,JSON.stringify(f.G||{}),f.showDiamonds].join(':');}
+  function polygon(points){const s=new T.Shape();points.forEach((p,i)=>i?s.lineTo(p[0],-p[2]):s.moveTo(p[0],-p[2]));s.closePath();return s;}
+  function roundedOutline(L,W,margin){
+   const x=L/2+margin,z=W/2+margin,r=.055,s=new T.Shape();
+   s.moveTo(-x+r,-z);s.lineTo(x-r,-z);s.quadraticCurveTo(x,-z,x,-z+r);s.lineTo(x,z-r);s.quadraticCurveTo(x,z,x-r,z);s.lineTo(-x+r,z);s.quadraticCurveTo(-x,z,-x,z-r);s.lineTo(-x,-z+r);s.quadraticCurveTo(-x,-z,-x+r,-z);s.closePath();return s;
+  }
+  function addMesh(vertices,indices,material,tag,uvs=null){
+   const geometry=new T.BufferGeometry();geometry.setAttribute('position',new T.Float32BufferAttribute(vertices,3));geometry.setIndex(indices);if(uvs)geometry.setAttribute('uv',new T.Float32BufferAttribute(uvs,2));geometry.computeVertexNormals();
+   const mesh=new T.Mesh(geometry,material);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.construction=tag;table.add(mesh);return mesh;
+  }
+  function joinRows(rows,material,tag){
+   const vertices=[],indices=[];for(const row of rows)for(const p of row)vertices.push(...p);
+   const count=rows[0].length;for(let i=1;i<rows.length;i++)for(let j=1;j<count;j++){const a=(i-1)*count+j-1,b=i*count+j-1;indices.push(a,b,a+1,a+1,b,b+1);}return addMesh(vertices,indices,material,tag);
+  }
+  function addCushion(r,plan){
+   const profile=plan.profile,vertices=[],uvs=[],indices=[];
+   for(const end of [0,1])for(const [v,h]of profile){const p=r.at(end,v,h);vertices.push(...p);uvs.push(end*r.length/.12,v/.12);}
+   const count=profile.length;
+   for(let j=0;j<count;j++){const k=(j+1)%count;indices.push(j,k,count+j,k,count+k,count+j);}
+   // Duplicate the two end faces to keep the angled rubber facings crisp.
+   for(const end of [0,1]){const base=vertices.length/3;for(const [v,h]of profile){vertices.push(...r.at(end,v,h));uvs.push(v/.12,h/.12);}for(let j=1;j<count-1;j++)indices.push(base,base+j+(end?1:0),base+j+(end?0:1));}
+   addMesh(vertices,indices,cushionMaterial,'cushion',uvs);
+  }
+  function addPocket(p,plan){
+   const circle=Array.from({length:97},(_,i)=>p.ellipse(i/96*Math.PI*2));
+   const hole=polygon(circle),floorGeometry=new T.ShapeGeometry(hole,48);floorGeometry.rotateX(-Math.PI/2);const floor=new T.Mesh(floorGeometry,pocketLiner);floor.position.y=-.19;floor.receiveShadow=true;floor.userData.construction='well-floor';table.add(floor);
+   joinRows([circle,circle.map(v=>[v[0],-.19,v[2]])],pocketLiner,'well-wall');
+   // Cloth follows the machined, rounded slate cut; no black mouth disk or tube.
+   const bevel=[];for(let j=0;j<=6;j++){const theta=j/6*Math.PI/2,inset=.003*(1-Math.cos(theta)),h=-.003*Math.sin(theta);bevel.push(Array.from({length:97},(_,i)=>p.ellipse(i/96*Math.PI*2,inset,h)));}
+   joinRows(bevel,shelfMaterial,'slate-roundover');
+   const inner=p.backPath,outer=[];
+   inner.forEach((v,i)=>{const a=inner[Math.max(0,i-1)],b=inner[Math.min(inner.length-1,i+1)],dx=b[0]-a[0],dz=b[2]-a[2],len=Math.hypot(dx,dz)||1;let nx=-dz/len,nz=dx/len;if(nx*p.n[0]+nz*p.n[1]<0){nx=-nx;nz=-nz;}outer.push([v[0]+nx*.018,plan.capHeight+.0005,v[2]+nz*.018]);});
+   joinRows([inner.map(v=>[v[0],-.012,v[2]]),inner.map(v=>[v[0],plan.capHeight+.0005,v[2]]),outer],pocketLip,'flush-pocket-liner');
+   const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.fillStyle='#dedacb';x.font='600 42px Arial';x.textAlign='center';x.textBaseline='middle';x.fillText(p.id,32,34);
    const map=new T.CanvasTexture(c);map.colorSpace=T.SRGBColorSpace;const material=new T.MeshBasicMaterial({map,transparent:true,depthWrite:false,toneMapped:false});material.userData.pocketOwned=true;
-   const label=new T.Mesh(new T.PlaneGeometry(.025,.025),material);label.position.copy(p.back);label.position.y=.040;label.rotation.set(-Math.PI/2,0,-Math.atan2(p.nx,p.nz));table.add(label);
+   const label=new T.Mesh(new T.PlaneGeometry(.021,.021),material);const pos=p.at(p.rear+.023,0,plan.capHeight+.001);label.position.fromArray(pos);label.rotation.set(-Math.PI/2,0,-Math.atan2(p.n[0],p.n[1]));table.add(label);
   }
   function rebuild(f){
    for(const child of [...table.children]){table.remove(child);child.geometry.dispose();for(const m of Array.isArray(child.material)?child.material:[child.material])if(m.userData.pocketOwned){m.map?.dispose();m.dispose();}}
-   const px=f.L*109/2312,pz=f.W*110/1160,w=f.L+px*2,d=f.W+pz*2;
-   pocketSpecs=makePockets(f);
-   const outline=new T.Shape();outline.moveTo(-w/2,-d/2);outline.lineTo(w/2,-d/2);outline.lineTo(w/2,d/2);outline.lineTo(-w/2,d/2);outline.closePath();for(const p of pocketSpecs)outline.holes.push(p.shape);
-   const geometry=new T.ShapeGeometry(outline,24);geometry.rotateX(-Math.PI/2);const uv=geometry.attributes.uv,positions=geometry.attributes.position;
+   const plan=tablePlan=window.BilliardsTableConstruction.plan(f),margin=plan.railWidth,w=f.L+margin*2,d=f.W+margin*2;
+   pocketSpecs=plan.pockets.map(p=>({...p,probe:new T.Vector3(...p.at(p.centerN,0)),shelfProbe:new T.Vector3(...p.at(p.front+p.shelf*.45,0)),back:new T.Vector3(...p.at(p.rear+.006,0)),wood:new T.Vector3(...p.at(p.rear+.024,0))}));
+   const outline=roundedOutline(f.L,f.W,margin);for(const p of pocketSpecs)outline.holes.push(polygon(Array.from({length:97},(_,i)=>p.ellipse(i/96*Math.PI*2))));
+   const geometry=new T.ShapeGeometry(outline,32);geometry.rotateX(-Math.PI/2);const uv=geometry.attributes.uv,positions=geometry.attributes.position;
    for(let i=0;i<positions.count;i++)uv.setXY(i,(positions.getX(i)+w/2)/w,(d/2-positions.getZ(i))/d);
-   const bed=new T.Mesh(geometry,surfaceMaterial);bed.receiveShadow=true;table.add(bed);
-   // The case has the same six openings, so no hidden solid slab blocks the wells.
-   const caseGeometry=new T.ExtrudeGeometry(outline,{depth:.255,steps:1,curveSegments:24,bevelEnabled:true,bevelSegments:2,bevelThickness:.003,bevelSize:.003});caseGeometry.rotateX(-Math.PI/2);
-   const body=new T.Mesh(caseGeometry,bodyMaterial);body.position.y=-.26;body.castShadow=true;body.receiveShadow=true;table.add(body);
-   function rail(width,depth,x,z){box(width,.075,depth,x,-.0025,z,woodMaterial);}
-   const G=f.G||{cornerLeg:.110/Math.SQRT2,sideMouth:.120},cl=G.cornerLeg,sm=G.sideMouth/2,segment=f.L/2-cl-sm;
-   for(const sign of [-1,1]){
-    rail(px-.032,f.W-cl*2,sign*(f.L+px+.032)/2,0);
-    box(.032,.035,f.W-cl*2,sign*(f.L+.032)/2,.0175,0,cushionMaterial);
-    for(const side of [-1,1]){
-     const x=side*(f.L/4-(cl-sm)/2);rail(segment,pz-.032,x,sign*(f.W+pz+.032)/2);
-     box(segment,.035,.032,x,.0175,sign*(f.W+.032)/2,cushionMaterial);
-    }
-   }
-   // Real-size inlaid sights sit on the wood cap, beyond the cloth cushion.
+   const bed=new T.Mesh(geometry,surfaceMaterial);bed.receiveShadow=true;bed.userData.construction='slate';table.add(bed);
+   const caseGeometry=new T.ExtrudeGeometry(outline,{depth:.255,steps:1,curveSegments:32,bevelEnabled:false});caseGeometry.rotateX(-Math.PI/2);const body=new T.Mesh(caseGeometry,bodyMaterial);body.position.y=-.26;body.castShadow=true;body.receiveShadow=true;table.add(body);
+   const capOutline=roundedOutline(f.L,f.W,margin);capOutline.holes.push(polygon(plan.inside));
+   const capGeometry=new T.ExtrudeGeometry(capOutline,{depth:.074,steps:1,curveSegments:32,bevelEnabled:true,bevelSegments:3,bevelThickness:.002,bevelSize:.002});capGeometry.rotateX(-Math.PI/2);
+   const capUV=capGeometry.attributes.uv,capP=capGeometry.attributes.position;
+   for(let i=0;i<capP.count;i++){const x=capP.getX(i),z=capP.getZ(i),end=Math.abs(x)>f.L/2+plan.cushionWidth&&Math.abs(z)<f.W/2;capUV.setXY(i,(end?x:z)/1.8,(end?z:x)/1.8);}
+   const cap=new T.Mesh(capGeometry,woodMaterial);cap.position.y=-.032;cap.castShadow=true;cap.receiveShadow=true;cap.userData.construction='rail-cap';table.add(cap);
+   for(const r of plan.rails)addCushion(r,plan);
    if(f.showDiamonds!==false){
-    function sight(x,z){const mesh=new T.Mesh(new T.PlaneGeometry(.006,.010),sightMaterial);mesh.rotation.set(-Math.PI/2,0,Math.PI/4);mesh.position.set(x,.0352,z);mesh.userData.sight=true;table.add(mesh);}
-    for(const i of [1,2,3,5,6,7])for(const sign of [-1,1])sight(f.L*(i/8-.5),sign*(f.W/2+pz*.65));
-    for(const j of [1,2,3])for(const sign of [-1,1])sight(sign*(f.L/2+px*.65),f.W*(j/4-.5));
+    function sight(x,z){const mesh=new T.Mesh(new T.PlaneGeometry(.0115,.025),sightMaterial);mesh.rotation.set(-Math.PI/2,0,Math.PI/4);mesh.position.set(x,plan.capHeight+.0003,z);mesh.userData.sight=true;table.add(mesh);}
+    for(const i of [1,2,3,5,6,7])for(const sign of [-1,1])sight(f.L*(i/8-.5),sign*(f.W/2+.0936625));
+    for(const j of [1,2,3])for(const sign of [-1,1])sight(sign*(f.L/2+.0936625),f.W*(j/4-.5));
    }
-   for(const p of pocketSpecs)addPocket(p);
+   for(const p of pocketSpecs)addPocket(p,plan);
    for(const x of [-w*.36,w*.36])for(const z of [-d*.31,d*.31])box(.12,.54,.12,x,-.54,z,legMaterial);
    dimensions=tableKey(f);renderer.shadowMap.needsUpdate=true;
   }
@@ -398,11 +398,11 @@
   function focusBall(e){cast(e);const hit=inputRay.intersectObjects([...ballMeshes.values()].filter(g=>g.visible),true)[0];if(!hit)return;const p=hit.object.parent.position;cameraState.target={x:p.x,y:p.y,z:p.z};cameraState.radius=.55;cameraState.elevation=8*Math.PI/180;requestRender();}
   canvas.addEventListener('keydown',e=>{if(viewLocked&&e.key.startsWith('Arrow')){e.preventDefault();return;}const actions={ArrowLeft:()=>orbit(-.08,0),ArrowRight:()=>orbit(.08,0),ArrowUp:()=>orbit(0,.06),ArrowDown:()=>orbit(0,-.06),'+':()=>zoom(.9),'-':()=>zoom(1.1),Escape:disable};if(actions[e.key]){e.preventDefault();e.stopPropagation();actions[e.key]();}});
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();disable();status.textContent='3D graphics paused. The top-down table is ready.';});
-  return {cancelInput,pan,tablePlanePoint(e){cast(e);return logical(planePoint());},tablePoint(e){cast(e);const q=logical(planePoint()),f=frame||lastFrame;return q&&f&&q.x>=0&&q.x<=f.L&&q.y>=0&&q.y<=f.W?q:null;},contactViews(){return [...tipMarkers].filter(([,m])=>m.visible).map(([id,m])=>({id,...m.userData.tip,center:m.position.toArray()}));},railViews(){return table.children.filter(m=>m.userData.sight).map(m=>({x:m.position.x,y:m.position.y,z:m.position.z,width:.006,length:.010}));},project(point,height=0){const f=frame||lastFrame;if(!f)return null;camera.updateMatrixWorld(true);const v=new T.Vector3(point.x-f.L/2,height,point.y-f.W/2).project(camera),r=canvas.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2,visible:v.z>=-1&&v.z<=1};},ghostViews(){return [...ghostMeshes.values()].filter(g=>g.visible).map(g=>({...g.userData.guide,center:g.position.toArray(),radius:g.scale.x,opacity:ghostMaterial.opacity,coreOpacity:ghostCoreMaterial.opacity,coreColor:ghostCoreMaterial.color.getHex(),coreVertical:g.quaternion.toArray(),depthWrite:ghostMaterial.depthWrite}));},ballViews(){return [...ballMeshes].filter(([,g])=>g.visible).map(([id,g])=>({id,x:g.position.x,y:g.position.y,z:g.position.z,rotation:g.children[0].quaternion.toArray()}));},pocketViews(){scene.updateMatrixWorld(true);const ray=new T.Raycaster();return pocketSpecs.map(p=>{const height=v=>{ray.set(new T.Vector3(v.x,1,v.z),new T.Vector3(0,-1,0));return ray.intersectObjects(table.children,true).find(hit=>!hit.object.material?.userData?.pocketOwned)?.point.y;};return {id:p.id,floorHeight:height(p.probe),backHeight:height(p.back),woodHeight:height(p.wood)};});},projection(){return {verticalFov:camera.fov,horizontalFov:2*Math.atan(Math.tan(camera.fov*Math.PI/360)*camera.aspect)*180/Math.PI};},stop(){cancelInput();},update(f){if(f.animating&&edit)cancelInput();frame=f;dirty=true;renderer.shadowMap.needsUpdate=true;},render(){
+  return {cancelInput,pan,tablePlanePoint(e){cast(e);return logical(planePoint());},tablePoint(e){cast(e);const q=logical(planePoint()),f=frame||lastFrame;return q&&f&&q.x>=0&&q.x<=f.L&&q.y>=0&&q.y<=f.W?q:null;},contactViews(){return [...tipMarkers].filter(([,m])=>m.visible).map(([id,m])=>({id,...m.userData.tip,center:m.position.toArray()}));},railViews(){return table.children.filter(m=>m.userData.sight).map(m=>({x:m.position.x,y:m.position.y,z:m.position.z,width:.006,length:.010}));},project(point,height=0){const f=frame||lastFrame;if(!f)return null;camera.updateMatrixWorld(true);const v=new T.Vector3(point.x-f.L/2,height,point.y-f.W/2).project(camera),r=canvas.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2,visible:v.z>=-1&&v.z<=1};},ghostViews(){return [...ghostMeshes.values()].filter(g=>g.visible).map(g=>({...g.userData.guide,center:g.position.toArray(),radius:g.scale.x,opacity:ghostMaterial.opacity,coreOpacity:ghostCoreMaterial.opacity,coreColor:ghostCoreMaterial.color.getHex(),coreVertical:g.quaternion.toArray(),depthWrite:ghostMaterial.depthWrite}));},ballViews(){return [...ballMeshes].filter(([,g])=>g.visible).map(([id,g])=>({id,x:g.position.x,y:g.position.y,z:g.position.z,rotation:g.children[0].quaternion.toArray()}));},pocketViews(){scene.updateMatrixWorld(true);const ray=new T.Raycaster();return pocketSpecs.map(p=>{const height=v=>{ray.set(new T.Vector3(v.x,1,v.z),new T.Vector3(0,-1,0));return ray.intersectObjects(table.children,true).find(hit=>!hit.object.material?.userData?.pocketOwned)?.point.y;};return {id:p.id,floorHeight:height(p.probe),backHeight:height(p.back),woodHeight:height(p.wood),shelfHeight:height(p.shelfProbe),shelfDepth:p.shelf,mouth:p.corner?tablePlan.G.cornerMouth:tablePlan.G.sideMouth,capHeight:tablePlan.capHeight,noseHeight:tablePlan.noseHeight,materialMapsReady,profile:tablePlan.profile};});},projection(){return {verticalFov:camera.fov,horizontalFov:2*Math.atan(Math.tan(camera.fov*Math.PI/360)*camera.aspect)*180/Math.PI};},stop(){cancelInput();},update(f){if(f.animating&&edit)cancelInput();frame=f;dirty=true;renderer.shadowMap.needsUpdate=true;},render(){
    const f=frame||lastFrame;if(!f)return;const rect=canvas.getBoundingClientRect();if(rect.width<1||rect.height<1)return;
    const size=rect.width+':'+rect.height;if(size!==lastSize){renderer.setSize(rect.width,rect.height);camera.aspect=rect.width/rect.height;camera.fov=2*Math.atan(viewTangent(camera.aspect))*180/Math.PI;camera.updateProjectionMatrix();lastSize=size;}
    if(dimensions!==tableKey(f))rebuild(f);
-   if(dirty){const px=f.L*109/2312,pz=f.W*110/1160,a=f.map({x:-px,y:-pz}),b=f.map({x:f.L+px,y:f.W+pz}),ratio=source.width/source.clientWidth,w=Math.max(1,Math.round((b.x-a.x)*ratio)),h=Math.max(1,Math.round((b.y-a.y)*ratio));if(textureCanvas.width!==w||textureCanvas.height!==h){
+   if(dirty){const px=tablePlan.railWidth,pz=tablePlan.railWidth,a=f.map({x:-px,y:-pz}),b=f.map({x:f.L+px,y:f.W+pz}),ratio=source.width/source.clientWidth,w=Math.max(1,Math.round((b.x-a.x)*ratio)),h=Math.max(1,Math.round((b.y-a.y)*ratio));if(textureCanvas.width!==w||textureCanvas.height!==h){
     // WebGL texture storage is immutable. Reallocate after the tray or viewport
     // changes size so guides stay aligned and old edge pixels cannot remain.
     texture.dispose();textureCanvas.width=w;textureCanvas.height=h;
