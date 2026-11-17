@@ -6943,7 +6943,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 ctx.font = `700 ${isProjector ? 10 : 8}px Segoe UI`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'bottom';
-                if(window.Billiards3D?.active)cameraLabels.push({id:label,point:p,rows:[label],size:11,opacity:.65,placement:'above'});
+                if(window.Billiards3D?.active){
+                    const scale=Math.hypot(map({x:1,y:0}).x-map({x:0,y:0}).x,map({x:1,y:0}).y-map({x:0,y:0}).y);
+                    cameraLabels.push({id:label,point:{x:p.x,y:p.y-10/scale},rows:[label],size:8,rowGap:0,
+                        width:ctx.measureText(label).width/scale,height:8/scale,unitsPerPixel:1/scale,opacity:Math.min(alpha,.45),weight:700});
+                }
                 else ctx.fillText(label, q.x, q.y - (isProjector ? 7 : 6));
             }
             spot({ x: headX, y: W / 2 }, 'HEAD / BREAK', .35);
@@ -7566,12 +7570,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             for(const {preview} of previews)api.draw(ctx,api.labels(preview,map,options));
         }
         if(window.Billiards3D?.active){
-            for(const [i,item] of shotBudgetOverlaps.entries()){
-                const info=shotContactInfo(item.which);
-                cameraLabels.push({id:'overlap-'+i,point:item.contact.cuePos,rows:[
-                    'Overlap '+api.formatOverlap(info.overlapPercent),
-                    'Cut angle '+angle(info.cutDegrees),'Exit angle '+angle(info.exitDegrees)
-                ],size:12,opacity:.85,placement:'beside'});
+            const origin=map({x:0,y:0}),axis=map({x:1,y:0}),scale=Math.hypot(axis.x-origin.x,axis.y-origin.y);
+            for(const [i,card] of badges.filter(b=>b.type==='overlap').entries()){
+                const box=card.box;
+                cameraLabels.push({id:'overlap-'+i,point:{x:((box.left+box.right)/2-origin.x)/scale,y:((box.top+box.bottom)/2-origin.y)/scale},
+                    rows:card.rows.map(r=>r.text),size:card.fontSize,rowGap:card.row-card.fontSize,
+                    width:(box.right-box.left)/scale,height:(box.bottom-box.top)/scale,unitsPerPixel:1/scale,opacity:card.opacity,weight:600,stroke:true});
             }
             api.drawContacts(ctx,badges.filter(b=>b.type!=='overlap'));
         }else api.drawContacts(ctx,badges);
