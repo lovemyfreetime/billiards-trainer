@@ -34,7 +34,7 @@ for(const [width,height,mobile]of [[1600,1000,false],[844,390,true]]){
   await page.locator('[data-annotate-tool=text]').click();await page.locator('#trainerAnnotationText').fill('Next shot');const p=await point(.4,.65);await page.mouse.click(p.x,p.y);await settle();
   assert((await state()).annotations.items.some(i=>i.tool==='text'&&i.text==='Next shot'),'Text placed on table');assert.match(await page.locator('#trainerAnnotationMode').innerText(),/Text mode/);await page.screenshot({path:dir+'/'+name+'-'+mode+'-text-mode.png'});
   await menu(false);assert.equal(await page.locator('#trainerAnnotationInput').evaluate(e=>e.classList.contains('active')),false,'Closing the drawer ends the notes mode');assert.equal(await page.locator('#trainerAnnotationMode').isVisible(),false);
-  const cue=(await state()).balls.find(b=>b.id===0),s=await state(),a=await point(cue.x/s.tableL,cue.y/s.tableW,true),b=await point(.29,.48,true);await page.mouse.move(a.x,a.y);await page.mouse.down();await page.mouse.move(b.x,b.y,{steps:6});await page.mouse.up();await settle();
+  const cue=(await state()).balls.find(b=>b.id===0),s=await state(),a=await point(cue.x/s.tableL,cue.y/s.tableW,true),b=await point(mode==='3d'?.36:.29,mode==='3d'?.55:.48,true);await page.mouse.move(a.x,a.y);await page.mouse.down();await page.mouse.move(b.x,b.y,{steps:6});await page.mouse.up();await settle();
   const moved=(await state()).balls.find(b=>b.id===0);assert(Math.hypot(moved.x-cue.x,moved.y-cue.y)>.03,'Ball movement works immediately after closing notes in '+mode);
   console.log(name+' '+mode+': notes indicator, Done, close-to-exit, saved text and restored ball movement passed');
  }
