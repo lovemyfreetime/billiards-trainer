@@ -34,9 +34,9 @@
   }
   function positionPicker() {
     const mode = byId('table3DToggle'); if (!mode) return;
-    const size = pickerButton.offsetWidth || 46, firstLeft = mode.getBoundingClientRect().right + 6;
-    const radius = Math.min(96, Math.max(48, (innerWidth - 38 - firstLeft - size) / 2));
-    picker.style.marginLeft = radius + 'px';
+    const size = pickerButton.offsetWidth || 46, firstLeft = mode.getBoundingClientRect().right + 4;
+    const radius = size + 6;
+    picker.style.marginLeft = (radius - 2) + 'px';
     fan.style.setProperty('--picker-left', firstLeft + 'px');
     fan.style.setProperty('--picker-width', 2*radius+size+'px');
     fan.style.setProperty('--picker-height', radius+size+8+'px');
@@ -61,7 +61,10 @@
   byId('featureAimingOptions').querySelector('legend').after(aiming);
   groups.aiming = aiming;
   const closeGroups = () => bar.querySelectorAll('details').forEach(d => d.open = false);
-  document.addEventListener('pointerdown', e => { if (!bar.contains(e.target)) closeGroups(); });
+  document.addEventListener('pointerdown', e => {
+    if (!picker.contains(e.target)) picker.open = false;
+    if (!bar.contains(e.target)) closeGroups();
+  }, {capture:true});
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
     const open = bar.querySelector('.workspaceTaskMenu[open]') || (picker.open ? picker : null);

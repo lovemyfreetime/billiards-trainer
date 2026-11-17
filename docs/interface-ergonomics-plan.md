@@ -81,3 +81,9 @@ The picker center uses a four-square icon and retains the same screen position o
 Branding starts at the top of the side panel. Get Started, Guide, Explorer and Updates share one compact row, with12px between Explorer and Updates. The main metric tab is Live Shot. Shot remains the default every time Tools opens. App Info closes on an outside tap while keeping inside text selection, the Close button and Escape intact. Shoot widens6px to leave4px between its edge and the spin/tray column.
 
 Shot launch-speed controls now allow7.0 m/s instead of6.0, including both shots, side rails, numeric inputs, step buttons and matching power/stroke reference ranges. Keep kick/bank search limits, engine step size, friction and restitution unchanged. Real-physics tests cover6.0,6.5 and7.0 m/s head-on/cut/cushion/rack cases, checking finite output, no energy gain, no stacked balls and identical preview/execution. This small cap extension does not claim validation of full professional break speeds (about11–13 m/s).
+
+## Phone proportions and compact picker
+
+On phones, fit the complete Trainer and Play layout to a logical viewport of at least 1366 by 768, preserving the screen aspect ratio. Let the browser scale the table, controls, menus, text, game catalog and Shot Clock together. Keep desktop and tablet viewport policy unchanged; Zen retains its own proportional layout. Pointer coordinates remain in the same layout coordinate system as canvas bounds. Ignore keyboard-only viewport changes during numeric/text entry.
+
+The picker radius is one circle diameter plus 6px. Four choices have equal 60-degree spacing, 6px gaps to the center and one another, and a 4px gap beside 2D/3D. This reduces the usual fan from 238×150 to 150×106 without changing the center when opened. Capture outside pointer events so cloth gestures cannot prevent dismissal; the center remains a native details toggle.

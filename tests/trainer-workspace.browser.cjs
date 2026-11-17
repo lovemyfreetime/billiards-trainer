@@ -67,6 +67,8 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
     const centers=await page.locator('.workspaceTaskMenu > summary').evaluateAll(es=>es.map(e=>{const r=e.getBoundingClientRect();return [r.x+r.width/2,r.y+r.height/2];}));
     const radii=centers.map(([x,y])=>Math.hypot(x-closedPicker.x-closedPicker.width/2,y-closedPicker.y-closedPicker.height/2));
     assert(Math.max(...radii)-Math.min(...radii)<1,'All four circles share one radius');
+    assert(radii.every(r=>r-closedPicker.width>=4&&r-closedPicker.width<=8),'Picker choices sit close to the center');
+    assert(fan.width<=154&&fan.height<=110,'Compact fan leaves little empty space');
     const chords=centers.slice(1).map(([x,y],i)=>Math.hypot(x-centers[i][0],y-centers[i][1]));assert(Math.max(...chords)-Math.min(...chords)<1,'Picker circles are evenly spaced');
     for(const key of ['setup','view','motion','follow']){
      await tool(key);const r=await reachable('#workspace-'+key+' > summary'),menu=await reachable('#workspace-'+key+' .workspaceToolGroup');
