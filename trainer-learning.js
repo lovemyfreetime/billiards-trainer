@@ -38,7 +38,7 @@
       const slot=next==='full'||next==='off'?fullSlot:miniSlot;if(host.parentNode!==slot)slot.append(host);
       describe();if(changed){byId('workspaceBallShelf').scrollLeft=0;window.billiardsWorkspaceDock?.();window.dispatchEvent(new Event('resize'));}
     }
-    function full() {if(!guide.getState().enabled){open('guide');return;}apply('full');setTray(true);drawer(true);openSection();requestAnimationFrame(()=>{panel.scrollTop+=section.getBoundingClientRect().top-panel.getBoundingClientRect().top-8;});}
+    function full() {if(!guide.getState().enabled){open('guide');return;}apply('full');setTray(true);drawer(true);openSection();requestAnimationFrame(()=>{panel.scrollTop+=section.getBoundingClientRect().top-panel.getBoundingClientRect().top-64;});}
     function miniView() {if(!guide.getState().enabled)return;apply('mini');setTray(true);drawer(false);}
     function open(kind) {
       if(mode==='off')trayBefore=trayHidden();opening=true;
