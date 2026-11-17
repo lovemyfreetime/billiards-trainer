@@ -9,7 +9,7 @@ function create(storage,files){
   const layout=files.parse(JSON.stringify({layout:{name:state.lastLayoutName||'Shared table',tableL:state.tableL,tableW:state.tableW,ballR:state.ballR,balls:state.balls.filter(b=>b.active!==false),freeAim:state.freeAim,setupMode:state.setupMode}})).layout;
   const shot={speed:Number(state.speed),follow:Number(state.follow),sideSpin:Number(state.sideSpin),pocketedLog:Array.isArray(state.pocketedLog)?state.pocketedLog.filter(id=>Number.isInteger(id)&&id>=0&&id<=15):[]};
   if(!Number.isFinite(shot.speed)||!Number.isFinite(shot.follow)||!Number.isFinite(shot.sideSpin))throw Error('Invalid shared shot settings');
-  shot.speed=Math.max(.25,Math.min(6,shot.speed));shot.follow=Math.max(-1,Math.min(1,shot.follow));shot.sideSpin=Math.max(-1,Math.min(1,shot.sideSpin));
+  shot.speed=Math.max(.25,Math.min(7,shot.speed));shot.follow=Math.max(-1,Math.min(1,shot.follow));shot.sideSpin=Math.max(-1,Math.min(1,shot.sideSpin));
   return {layout,shot};
  }
  function publish(state,source){try{const payload={version:1,source:String(source||'table').slice(0,30),...pack(state)};storage.setItem(KEY,JSON.stringify(payload));return true;}catch(_){return false;}}
