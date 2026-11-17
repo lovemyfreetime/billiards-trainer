@@ -31,7 +31,7 @@ const file=Buffer.from(JSON.stringify(files.create(layout))),ua='Mozilla/5.0 (Li
     assert(Math.abs(geometry.summary.x-geometry.pane.x)<2&&geometry.summary.y<geometry.pane.y,'Summary is raised into the right side of header');
     assert(Math.abs(geometry.name.width-geometry.saved.width)<1,'Layout-name and saved-file fields match widths');assert(geometry.name.width<=160,'Both file fields are shortened');
     for(const b of geometry.controls)assert(Math.abs(b.height-28)<1,b.id+' matches control height');
-    const primary=geometry.controls.filter(b=>['photoChooseImage','photoAnalyzeNow','photoAddMissed','photoMoreTools'].includes(b.id));assert(primary.every(b=>Math.abs(b.width-100)<1),'Primary actions have matching widths');
+    const primary=geometry.controls.filter(b=>['photoChooseImage','photoAnalyzeNow','photoAddMissed','photoMoreTools'].includes(b.id));assert(primary.every(b=>Math.abs(b.width-112)<1),'Primary actions have matching widths');
     assert(geometry.status.height<=1,'Routine instruction/status line does not consume image height');
     const drawing=await page.evaluate(()=>({texts:window.__photoTexts,canvas:{width:photoAnalyzerCanvas.width,height:photoAnalyzerCanvas.height},rect:photoAnalyzerCanvas.getBoundingClientRect().toJSON()}));
     assert(!drawing.texts.some(t=>/inside corner|cushion line|wheel|pinch/.test(t.text)),'Verbose canvas words are removed');
