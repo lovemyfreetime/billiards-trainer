@@ -1,4 +1,4 @@
-name: Verify realistic table construction
+name: Verify Zen table shape match
 on:
   push:
     branches: [test/table-construction-20261117]
@@ -17,6 +17,7 @@ jobs:
       - name: Verify construction and complete inventory
         run: |
           node --check trainer-3d.js
+          node --check trainer-zen-shapes.js
           node tests/table-construction.test.cjs
           python3 scripts/build-offline-assets.py --check
       - name: Install browser

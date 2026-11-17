@@ -177,7 +177,7 @@
   if(active)return true;if(loading)return false;loading=true;button.disabled=true;status.textContent='';
   // Request within the entry gesture, before loading WebGL can consume activation.
   window.BilliardsDisplay?.enter(true);
-  try{if(!engine){const [three]=await Promise.all([import('./vendor/three/three-renderer.js?v=4'),import('./trainer-table-construction.js?v=1')]);engine=createEngine(three);}if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
+  try{if(!engine){const [three]=await Promise.all([import('./vendor/three/three-renderer.js?v=4'),import('./trainer-table-construction.js?v=2'),import('./trainer-zen-shapes.js?v=1')]);engine=createEngine(three);}if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
    active=true;document.body.classList.add('table-3d');button.setAttribute('aria-pressed','true');button.textContent='2D';tools.hidden=false;for(const b of [standingButton,alongButton,viewLock])b.hidden=false;positionToggle();
    if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();
    window.billiardsControlLayout?.();dock();setDrawer(false);window.dispatchEvent(new Event('resize'));standing();setViewLocked(viewLocked);setPanEnabled(panEnabled);window.BilliardsSpinLabUI?.onCameraReady();requestRender();
@@ -292,10 +292,6 @@
   const sightMaterial=new T.MeshStandardMaterial({color:0xddd9c9,roughness:.32,envMapIntensity:.45});
   function tableKey(f){return [f.L,f.W,f.R,JSON.stringify(f.G||{}),f.showDiamonds].join(':');}
   function polygon(points){const s=new T.Shape();points.forEach((p,i)=>i?s.lineTo(p[0],-p[2]):s.moveTo(p[0],-p[2]));s.closePath();return s;}
-  function roundedOutline(L,W,margin){
-   const x=L/2+margin,z=W/2+margin,r=.055,s=new T.Shape();
-   s.moveTo(-x+r,-z);s.lineTo(x-r,-z);s.quadraticCurveTo(x,-z,x,-z+r);s.lineTo(x,z-r);s.quadraticCurveTo(x,z,x-r,z);s.lineTo(-x+r,z);s.quadraticCurveTo(-x,z,-x,z-r);s.lineTo(-x,-z+r);s.quadraticCurveTo(-x,-z,-x+r,-z);s.closePath();return s;
-  }
   function addMesh(vertices,indices,material,tag,uvs=null){
    const geometry=new T.BufferGeometry();geometry.setAttribute('position',new T.Float32BufferAttribute(vertices,3));geometry.setIndex(indices);if(uvs)geometry.setAttribute('uv',new T.Float32BufferAttribute(uvs,2));geometry.computeVertexNormals();
    const mesh=new T.Mesh(geometry,material);mesh.castShadow=true;mesh.receiveShadow=false;mesh.userData.construction=tag;table.add(mesh);return mesh;
@@ -305,30 +301,25 @@
    const count=rows[0].length;for(let i=1;i<rows.length;i++)for(let j=1;j<count;j++){const a=(i-1)*count+j-1,b=i*count+j-1;indices.push(a,b,a+1,a+1,b,b+1);}return addMesh(vertices,indices,material,tag);
   }
   function addCushion(r,plan){
-   const profile=plan.profile,vertices=[],uvs=[],indices=[];
-   for(const end of [0,1])for(const [v,h]of profile){const p=r.at(end,v,h);vertices.push(...p);uvs.push(end*r.length/.12,v/.12);}
-   const count=profile.length;
+   const profile=plan.profile,vertices=[],uvs=[],indices=[],count=profile.length;
+   for(const end of [0,1])for(const [t,h]of profile){vertices.push(...r.at(end,t*r.depth,h));uvs.push(end*r.length/.12,t*r.depth/.12);}
    for(let j=0;j<count;j++){const k=(j+1)%count;indices.push(j,k,count+j,k,count+k,count+j);}
-   // The facing ends at the throat, then the cloth returns straight to the wood.
-   // Triangulate those two planes independently so no diagonal flap spans the bend.
-   for(const end of [0,1])for(const front of [true,false]){
-    const limit=end?r.bOut:r.aOut,cut=[];
-    for(let j=0;j<count;j++){const a=profile[j],b=profile[(j+1)%count],inside=v=>front?v[0]<=limit:v[0]>=limit;if(inside(a))cut.push(a);if(inside(a)!==inside(b))cut.push([limit,a[1]+(b[1]-a[1])*(limit-a[0])/(b[0]-a[0])]);}
-    const shape=new T.Shape();cut.forEach(([v,h],i)=>i?shape.lineTo(v,h):shape.moveTo(v,h));shape.closePath();const face=new T.ShapeGeometry(shape),pos=face.attributes.position,base=vertices.length/3;
+   for(const end of [0,1]){
+    const shape=new T.Shape();profile.forEach(([t,h],i)=>i?shape.lineTo(t*r.depth,h):shape.moveTo(t*r.depth,h));shape.closePath();
+    const face=new T.ShapeGeometry(shape),pos=face.attributes.position,base=vertices.length/3;
     for(let j=0;j<pos.count;j++){const v=pos.getX(j),h=pos.getY(j);vertices.push(...r.at(end,v,h));uvs.push(v/.12,h/.12);}
     const order=face.index.array;for(let j=0;j<order.length;j+=3)indices.push(base+order[j],base+order[j+(end?2:1)],base+order[j+(end?1:2)]);face.dispose();
    }
    addMesh(vertices,indices,cushionMaterial,'cushion',uvs);
   }
-  function pocketNormal(path,i){const a=path[Math.max(0,i-1)],b=path[Math.min(path.length-1,i+1)],dx=b[0]-a[0],dz=b[2]-a[2],length=Math.hypot(dx,dz)||1;return [dz/length,-dx/length];}
+  function pocketNormal(path,i,closed=false){const last=path.length-1,a=path[closed?(i===0?last-1:i-1):Math.max(0,i-1)],b=path[closed?(i>=last-1?i===last-1?last:1:i+1):Math.min(last,i+1)],dx=b[0]-a[0],dz=b[2]-a[2],length=Math.hypot(dx,dz)||1;return [dz/length,-dx/length];}
   function addPocket(p,plan){
-   const radius=plan.edgeRadius,arc=Array.from({length:49},(_,i)=>p.ellipse(Math.PI/2+i/48*Math.PI,radius,-radius));
-   const back=p.backPath.map((v,i)=>{const [nx,nz]=pocketNormal(p.backPath,i);return [v[0]-nx*.0012,-radius,v[2]-nz*.0012];});
-   const circle=[...back,...arc,back[0]];
+   const radius=plan.edgeRadius;
+   const circle=p.dropPath.map((v,i)=>{const [nx,nz]=pocketNormal(p.dropPath,i,true);return [v[0]-nx*radius,-radius,v[2]-nz*radius];});
    const hole=polygon(circle),floorGeometry=new T.ShapeGeometry(hole,48);floorGeometry.rotateX(-Math.PI/2);const floor=new T.Mesh(floorGeometry,pocketLiner);floor.position.y=-.19;floor.receiveShadow=true;floor.userData.construction='well-floor';table.add(floor);
    joinRows([circle,circle.map(v=>[v[0],-.19,v[2]])],pocketLiner,'well-wall');
    // Cloth follows the machined, rounded slate cut; no black mouth disk or tube.
-   const bevel=[];for(let j=0;j<=12;j++){const theta=j/12*Math.PI/2,inset=radius*Math.sin(theta),h=-radius*(1-Math.cos(theta));bevel.push(Array.from({length:49},(_,i)=>p.ellipse(Math.PI/2+i/48*Math.PI,inset,h)));}
+   const bevel=[];for(let j=0;j<=12;j++){const theta=j/12*Math.PI/2,inset=radius*Math.sin(theta),h=-radius*(1-Math.cos(theta));bevel.push(p.frontPath.map((v,i)=>{const [nx,nz]=pocketNormal(p.frontPath,i);return [v[0]-nx*inset,h,v[2]-nz*inset];}));}
    const edge=joinRows(bevel,surfaceMaterial,'slate-roundover'),positions=edge.geometry.attributes.position,uvs=[];
    for(let i=0;i<positions.count;i++)uvs.push((positions.getX(i)+(plan.L+2*plan.railWidth)/2)/(plan.L+2*plan.railWidth),((plan.W+2*plan.railWidth)/2-positions.getZ(i))/(plan.W+2*plan.railWidth));
    edge.geometry.setAttribute('uv',new T.Float32BufferAttribute(uvs,2));p.edge=edge;
@@ -345,22 +336,20 @@
   function rebuild(f){
    for(const child of [...table.children]){table.remove(child);child.geometry.dispose();for(const m of Array.isArray(child.material)?child.material:[child.material])if(m.userData.pocketOwned){m.map?.dispose();m.dispose();}}
    const plan=tablePlan=window.BilliardsTableConstruction.plan(f),margin=plan.railWidth,w=f.L+margin*2,d=f.W+margin*2;
-   pocketSpecs=plan.pockets.map(p=>({...p,probe:new T.Vector3(...p.at(p.centerN,0)),shelfProbe:new T.Vector3(...p.at(p.front+p.shelf*.45,0)),back:new T.Vector3(...p.at(p.rear+.006,0)),wood:new T.Vector3(...p.at(p.rear+.024,0))}));
-   const outline=roundedOutline(f.L,f.W,margin);for(const p of pocketSpecs)outline.holes.push(polygon(p.dropPath));
+   pocketSpecs=plan.pockets.map(p=>({...p,probe:new T.Vector3(...p.center),shelfProbe:new T.Vector3(...p.at(p.front-.005,p.centerT)),back:new T.Vector3(...p.at(p.rear+plan.linerWidth*.5,p.centerT)),wood:new T.Vector3(...p.at(p.rear+plan.linerWidth+.015,p.centerT))}));
+   const outline=polygon(plan.outer);for(const p of pocketSpecs)outline.holes.push(polygon(p.dropPath));
    const geometry=new T.ShapeGeometry(outline,32);geometry.rotateX(-Math.PI/2);const uv=geometry.attributes.uv,positions=geometry.attributes.position;
    for(let i=0;i<positions.count;i++)uv.setXY(i,(positions.getX(i)+w/2)/w,(d/2-positions.getZ(i))/d);
    const bed=new T.Mesh(geometry,surfaceMaterial);bed.receiveShadow=true;bed.userData.construction='slate';table.add(bed);
    const caseGeometry=new T.ExtrudeGeometry(outline,{depth:.255,steps:1,curveSegments:32,bevelEnabled:false});caseGeometry.rotateX(-Math.PI/2);const body=new T.Mesh(caseGeometry,bodyMaterial);body.position.y=-.26;body.castShadow=true;body.receiveShadow=true;table.add(body);
-   const capOutline=roundedOutline(f.L,f.W,margin);capOutline.holes.push(polygon(plan.inside));
+   const capOutline=polygon(plan.outer);capOutline.holes.push(polygon(plan.inside));
    const capGeometry=new T.ExtrudeGeometry(capOutline,{depth:.076,steps:1,curveSegments:32,bevelEnabled:false});capGeometry.rotateX(-Math.PI/2);
    const capUV=capGeometry.attributes.uv,capP=capGeometry.attributes.position;
    for(let i=0;i<capP.count;i++){const x=capP.getX(i),z=capP.getZ(i),end=Math.abs(x)>f.L/2+plan.cushionWidth&&Math.abs(z)<f.W/2;capUV.setXY(i,(end?x:z)/1.8,(end?z:x)/1.8);}
    const cap=new T.Mesh(capGeometry,[woodMaterial,pocketLip]);cap.position.y=-.032;cap.castShadow=true;cap.receiveShadow=false;cap.userData.construction='rail-cap';table.add(cap);
    for(const r of plan.rails)addCushion(r,plan);
-   if(f.showDiamonds!==false){
-    function sight(x,z){const mesh=new T.Mesh(new T.PlaneGeometry(.0115,.025),sightMaterial);mesh.rotation.set(-Math.PI/2,0,Math.PI/4);mesh.position.set(x,plan.capHeight+.0003,z);mesh.userData.sight=true;table.add(mesh);}
-    for(const i of [1,2,3,5,6,7])for(const sign of [-1,1])sight(f.L*(i/8-.5),sign*(f.W/2+.0936625));
-    for(const j of [1,2,3])for(const sign of [-1,1])sight(sign*(f.L/2+.0936625),f.W*(j/4-.5));
+   if(f.showDiamonds!==false)for(const point of plan.sights){
+    const shape=new T.Shape();shape.absarc(0,0,plan.sightRadius,0,Math.PI*2,false);const geometry=new T.ShapeGeometry(shape,16);geometry.rotateX(-Math.PI/2);const mesh=new T.Mesh(geometry,sightMaterial);mesh.position.fromArray(point);mesh.userData.sight=true;mesh.userData.radius=plan.sightRadius;table.add(mesh);
    }
    for(const p of pocketSpecs)addPocket(p,plan);
    for(const x of [-w*.36,w*.36])for(const z of [-d*.31,d*.31])box(.12,.54,.12,x,-.54,z,legMaterial);
@@ -413,7 +402,7 @@
   function focusBall(e){cast(e);const hit=inputRay.intersectObjects([...ballMeshes.values()].filter(g=>g.visible),true)[0];if(!hit)return;const p=hit.object.parent.position;cameraState.target={x:p.x,y:p.y,z:p.z};cameraState.radius=.55;cameraState.elevation=8*Math.PI/180;requestRender();}
   canvas.addEventListener('keydown',e=>{if(viewLocked&&e.key.startsWith('Arrow')){e.preventDefault();return;}const actions={ArrowLeft:()=>orbit(-.08,0),ArrowRight:()=>orbit(.08,0),ArrowUp:()=>orbit(0,.06),ArrowDown:()=>orbit(0,-.06),'+':()=>zoom(.9),'-':()=>zoom(1.1),Escape:disable};if(actions[e.key]){e.preventDefault();e.stopPropagation();actions[e.key]();}});
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();disable();status.textContent='3D graphics paused. The top-down table is ready.';});
-  return {cancelInput,pan,tablePlanePoint(e){cast(e);return logical(planePoint());},tablePoint(e){cast(e);const q=logical(planePoint()),f=frame||lastFrame;return q&&f&&q.x>=0&&q.x<=f.L&&q.y>=0&&q.y<=f.W?q:null;},contactViews(){return [...tipMarkers].filter(([,m])=>m.visible).map(([id,m])=>({id,...m.userData.tip,center:m.position.toArray()}));},railViews(){return table.children.filter(m=>m.userData.sight).map(m=>({x:m.position.x,y:m.position.y,z:m.position.z,width:.0115,length:.025}));},project(point,height=0){const f=frame||lastFrame;if(!f)return null;camera.updateMatrixWorld(true);const v=new T.Vector3(point.x-f.L/2,height,point.y-f.W/2).project(camera),r=canvas.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2,visible:v.z>=-1&&v.z<=1};},ghostViews(){return [...ghostMeshes.values()].filter(g=>g.visible).map(g=>({...g.userData.guide,center:g.position.toArray(),radius:g.scale.x,opacity:ghostMaterial.opacity,coreOpacity:ghostCoreMaterial.opacity,coreColor:ghostCoreMaterial.color.getHex(),coreVertical:g.quaternion.toArray(),depthWrite:ghostMaterial.depthWrite}));},ballViews(){return [...ballMeshes].filter(([,g])=>g.visible).map(([id,g])=>({id,x:g.position.x,y:g.position.y,z:g.position.z,rotation:g.children[0].quaternion.toArray()}));},pocketViews(){scene.updateMatrixWorld(true);const ray=new T.Raycaster();return pocketSpecs.map(p=>{const height=v=>{ray.set(new T.Vector3(v.x,1,v.z),new T.Vector3(0,-1,0));return ray.intersectObjects(table.children,true).find(hit=>!hit.object.material?.userData?.pocketOwned)?.point.y;};ray.set(new T.Vector3(...p.at(p.centerN,0,.02)),new T.Vector3(p.n[0],0,p.n[1]));const lining=ray.intersectObjects(table.children,true)[0]?.object.userData.construction;return {id:p.id,lining,woodTextureWidth:woodMap.image.width,floorHeight:height(p.probe),backHeight:height(p.back),woodHeight:height(p.wood),shelfHeight:height(p.shelfProbe),shelfDepth:p.shelf,mouth:p.corner?tablePlan.G.cornerMouth:tablePlan.G.sideMouth,capHeight:tablePlan.capHeight,noseHeight:tablePlan.noseHeight,materialMapsReady,linerWidth:tablePlan.linerWidth,linerInset:tablePlan.linerInset,edgeMaxHeight:Math.max(...p.edge.geometry.attributes.position.array.filter((v,i)=>i%3===1)),edgeMinHeight:Math.min(...p.edge.geometry.attributes.position.array.filter((v,i)=>i%3===1)),edgeTopNormalY:p.edge.geometry.attributes.normal.getY(24),woodTint:woodMaterial.color.getHex(),profile:tablePlan.profile};});},projection(){return {verticalFov:camera.fov,horizontalFov:2*Math.atan(Math.tan(camera.fov*Math.PI/360)*camera.aspect)*180/Math.PI};},stop(){cancelInput();},update(f){if(f.animating&&edit)cancelInput();frame=f;dirty=true;renderer.shadowMap.needsUpdate=true;},render(){
+  return {cancelInput,pan,tablePlanePoint(e){cast(e);return logical(planePoint());},tablePoint(e){cast(e);const q=logical(planePoint()),f=frame||lastFrame;return q&&f&&q.x>=0&&q.x<=f.L&&q.y>=0&&q.y<=f.W?q:null;},contactViews(){return [...tipMarkers].filter(([,m])=>m.visible).map(([id,m])=>({id,...m.userData.tip,center:m.position.toArray()}));},railViews(){return table.children.filter(m=>m.userData.sight).map(m=>({x:m.position.x,y:m.position.y,z:m.position.z,width:2*m.userData.radius,length:2*m.userData.radius}));},project(point,height=0){const f=frame||lastFrame;if(!f)return null;camera.updateMatrixWorld(true);const v=new T.Vector3(point.x-f.L/2,height,point.y-f.W/2).project(camera),r=canvas.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2,visible:v.z>=-1&&v.z<=1};},ghostViews(){return [...ghostMeshes.values()].filter(g=>g.visible).map(g=>({...g.userData.guide,center:g.position.toArray(),radius:g.scale.x,opacity:ghostMaterial.opacity,coreOpacity:ghostCoreMaterial.opacity,coreColor:ghostCoreMaterial.color.getHex(),coreVertical:g.quaternion.toArray(),depthWrite:ghostMaterial.depthWrite}));},ballViews(){return [...ballMeshes].filter(([,g])=>g.visible).map(([id,g])=>({id,x:g.position.x,y:g.position.y,z:g.position.z,rotation:g.children[0].quaternion.toArray()}));},pocketViews(){scene.updateMatrixWorld(true);const ray=new T.Raycaster();return pocketSpecs.map(p=>{const height=v=>{ray.set(new T.Vector3(v.x,1,v.z),new T.Vector3(0,-1,0));return ray.intersectObjects(table.children,true).find(hit=>!hit.object.material?.userData?.pocketOwned)?.point.y;};ray.set(new T.Vector3(...p.at(p.centerN,0,.02)),new T.Vector3(p.n[0],0,p.n[1]));const lining=ray.intersectObjects(table.children,true)[0]?.object.userData.construction;return {id:p.id,lining,woodTextureWidth:woodMap.image.width,floorHeight:height(p.probe),backHeight:height(p.back),woodHeight:height(p.wood),shelfHeight:height(p.shelfProbe),shelfDepth:p.shelf,mouth:p.corner?tablePlan.G.cornerMouth:tablePlan.G.sideMouth,capHeight:tablePlan.capHeight,noseHeight:tablePlan.noseHeight,materialMapsReady,reference:tablePlan.reference.source,referenceSHA256:tablePlan.reference.sha256,visualMouth:p.visualMouth,linerWidth:tablePlan.linerWidth,linerInset:tablePlan.linerInset,edgeMaxHeight:Math.max(...p.edge.geometry.attributes.position.array.filter((v,i)=>i%3===1)),edgeMinHeight:Math.min(...p.edge.geometry.attributes.position.array.filter((v,i)=>i%3===1)),edgeTopNormalY:p.edge.geometry.attributes.normal.getY(24),woodTint:woodMaterial.color.getHex(),profile:tablePlan.profile};});},projection(){return {verticalFov:camera.fov,horizontalFov:2*Math.atan(Math.tan(camera.fov*Math.PI/360)*camera.aspect)*180/Math.PI};},stop(){cancelInput();},update(f){if(f.animating&&edit)cancelInput();frame=f;dirty=true;renderer.shadowMap.needsUpdate=true;},render(){
    const f=frame||lastFrame;if(!f)return;const rect=canvas.getBoundingClientRect();if(rect.width<1||rect.height<1)return;
    const size=rect.width+':'+rect.height;if(size!==lastSize){renderer.setSize(rect.width,rect.height);camera.aspect=rect.width/rect.height;camera.fov=2*Math.atan(viewTangent(camera.aspect))*180/Math.PI;camera.updateProjectionMatrix();lastSize=size;}
    if(dimensions!==tableKey(f))rebuild(f);
