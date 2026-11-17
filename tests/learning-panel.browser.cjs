@@ -41,9 +41,11 @@ for(const [width,height,mobile] of [[2048,1280,false],[1366,768,false],[1024,768
   const links=await page.locator('#learningFullSlot a[href]').evaluateAll(es=>es.map(e=>({text:e.textContent,url:e.href})));assert(links.some(l=>/youtube\.com|youtu\.be/.test(l.url)),'YouTube resources remain available');assert(links.some(l=>!(/youtube\.com|youtu\.be/.test(l.url))),'Other references remain available');
   assert((await page.locator('#learningTranscript').inputValue()).length>50,'Resource narration has full readable text');await page.screenshot({path:dir+'/'+name+'-'+mode+'-resources.png'});
   await page.locator('#learningReturnToTable').click();await waitMode('mini');await page.locator('#learningClose').click();await waitMode('off');assert.equal(await page.locator('#learningMiniPlayer').isVisible(),false);assert.equal(await page.evaluate(()=>billiardsPoolGuide.getState().enabled),false);assert.equal((await audio()).paused,true);
+  console.log(name+' '+mode+': full player, mini continuity, tray restoration, references and Shoot gaps passed');
  }
  assert.deepEqual(errors,[]);console.log(name+': matching Learning tab; both top shortcuts/modes; large player/full text/resources; continuous full↔mini; tray retract/edit/restore; Shoot/LR and 3D adjustment gap passed');
  }catch(e){console.error(name+': '+e.stack);failures.push(name+': '+e.message);await page.screenshot({path:dir+'/'+name+'-failure.png'}).catch(()=>{});}finally{await context.close();}
+ if(failures.length)break;
 }
 assert.deepEqual(failures,[]);
 }finally{await browser?.close();server.kill();}})().catch(e=>{console.error(e);process.exitCode=1});

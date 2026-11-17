@@ -4,7 +4,7 @@
 #learningBody .learningModes button,#learningBody .learningReturn { box-sizing:border-box; min-height:44px; padding:10px; border:1px solid #638da8; border-radius:7px; background:var(--menu-sub,#245575); color:#f2f8fd; font:600 14px/1.3 system-ui; cursor:pointer; }
 #learningBody .learningModes button[aria-pressed=true] { background:#3175a3; border-color:#a5d8f5; box-shadow:inset 0 -3px #9bd6fa; }
 #learningBody .learningReturn { display:block; width:100%; margin:0 0 12px; background:#254659; text-align:left; }
-body.trainer-workspace #learningBody #bt-guide-pool-root.learning-player { display:block; position:static!important; inset:auto!important; width:100%!important; max-width:none!important; margin:0!important; padding:0; border:0; border-radius:0; background:transparent; box-shadow:none; font:14px/1.5 system-ui; }
+body.trainer-workspace #learningBody #bt-guide-pool-root.learning-player { display:block!important; position:static!important; inset:auto!important; width:100%!important; max-width:none!important; margin:0!important; padding:0; border:0; border-radius:0; background:transparent; box-shadow:none; font:14px/1.5 system-ui; }
 body.trainer-workspace #learningBody #bt-guide-pool-root[hidden] { display:none!important; }
 body.trainer-workspace #learningBody #bt-guide-pool-root .btg-toolbar { display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; padding:0; margin:0 0 12px; overflow:visible; }
 body.trainer-workspace #learningBody #bt-guide-pool-root .btg-toolbar>button,
