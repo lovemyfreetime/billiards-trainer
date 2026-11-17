@@ -23,6 +23,7 @@ function compare(actual,expected,label){for(const [s,a] of Object.entries(actual
     assert(Math.abs(fit.physicalWidth-viewport.width)<2&&Math.abs(fit.physicalHeight-viewport.height)<2,'The complete layout fits the actual phone screen');
     desktop=await browser.newContext({viewport:{width:fit.width,height:fit.height},hasTouch:true,deviceScaleFactor:1,serviceWorkers:'block'});await desktop.addInitScript(setup);const reference=await desktop.newPage();reference.setDefaultTimeout(10000);
     await reference.goto('http://127.0.0.1:8829/?train=1');await reference.waitForFunction(()=>window.billiardsMenuReady&&window.billiardsTourBridge);
+    for(const p of [page,reference])await p.evaluate(()=>billiardsTourBridge.apply({id:'phone-proportions',title:'Phone proportions',balls:[[0,.25,.5],[1,.65,.5],[2,.75,.25]],target:1,pocket:[1,1],speed:2.4,followPercent:0,sidePercent:0},{tableL:2.54,tableW:1.27}));
     const controls=['#stageWrap','#phoneAimRail','#phoneSpeedRail','#workspaceBallShelf','#phoneActions','[data-trainer-action=animate]','#table3DToggle','#phoneControls'];
     compare(await rects(page,controls),await rects(reference,controls),name+' 2D');
     const felt=await page.evaluate(()=>billiardsTourBridge.feltBounds()),refFelt=await reference.evaluate(()=>billiardsTourBridge.feltBounds());
@@ -52,6 +53,7 @@ function compare(actual,expected,label){for(const [s,a] of Object.entries(actual
     for(const p of [page,reference]){await p.locator('#table3DToggle').tap();await p.waitForFunction(()=>Billiards3D.active);}
     compare(await rects(page,[...controls,'#table3DPhoneControls']),await rects(reference,[...controls,'#table3DPhoneControls']),name+' 3D');
     await page.screenshot({path:dir+'/'+name+'-3d.png'});
+    console.log(name+': 2D/3D/menu proportions and compact picker spacing, toggling, outside tap and cloth aiming passed');
     const before=await page.evaluate(()=>billiardsTourBridge.capture().state.balls);
     await page.locator('[data-trainer-action=animate]').tap();await page.waitForFunction(()=>billiardsZenControls.status().undo&&!billiardsZenControls.status().busy,{},{timeout:30000});
     assert.notDeepEqual(await page.evaluate(()=>billiardsTourBridge.capture().state.balls),before,'Scaled Shoot remains playable');
