@@ -116,13 +116,13 @@
  }
  if(window.ResizeObserver)new ResizeObserver(fitViewLabels).observe(phoneBox);
  function requestRender(){if(lastFrame){const min=Math.max(lastFrame.R*5,lastFrame.L*.06),max=lastFrame.L*8;zoomSlider.value=String(100*(Math.log(max)-Math.log(cameraState.radius))/(Math.log(max)-Math.log(min)));}if(!active||!engine||scheduled)return;scheduled=requestAnimationFrame(()=>{scheduled=0;if(active){engine.render();window.dispatchEvent(new Event('billiards:3d-render'));}});}
- function orbit(dx,dy){window.BilliardsTableOrbit.orbit(cameraState,dx,dy);requestRender();}
- function zoom(factor){if(!lastFrame)return;window.BilliardsTableOrbit.zoom(cameraState,factor,lastFrame.L,lastFrame.R);requestRender();}
+ function orbit(dx,dy){if(cameraState.playerView&&cameraState.playerViewLock)return;cameraState.playerView=false;window.BilliardsTableOrbit.orbit(cameraState,dx,dy);requestRender();}
+ function zoom(factor){if(cameraState.playerView&&cameraState.playerViewLock)return;cameraState.playerView=false;if(!lastFrame)return;window.BilliardsTableOrbit.zoom(cameraState,factor,lastFrame.L,lastFrame.R);requestRender();}
  // Keep the longer screen dimension at a natural 58° field of view.
  function viewTangent(aspect){return window.BilliardsTableOrbit.viewTangent(aspect);}
  function standing(repeat=false){
   if(!lastFrame)return;
-  cameraState.followCue=false;
+  cameraState.playerView=false;cameraState.followCue=false;
   fullSide=repeat&&viewPreset==='full'?1-fullSide:0;viewPreset='full';cueWide=false;
   const rect=(active?document.getElementById('table3DCanvas'):stage).getBoundingClientRect(),aspect=rect.width/Math.max(1,rect.height),L=lastFrame.L,W=lastFrame.W;
   cameraState.target={x:0,y:0,z:0};cameraState.azimuth=fullSide*Math.PI;
@@ -139,7 +139,7 @@
   cameraState.radius=radius;cameraState.elevation=elevation;requestRender();
  }
  function alongShot(repeat=false){const a=lastFrame?.aim;if(!a)return;const length=Math.hypot(a.target.x-a.cue.x,a.target.y-a.cue.y);if(length<1e-5)return;const dx=(a.target.x-a.cue.x)/length,dz=(a.target.y-a.cue.y)/length;
-  cameraState.followCue=false;
+  cameraState.playerView=false;cameraState.followCue=false;
   cueWide=repeat&&viewPreset==='cue'?!cueWide:false;viewPreset='cue';
   const focus=clamp(length*.18,.05,.22),setback=.48;
   cameraState.target={x:a.cue.x+dx*focus-lastFrame.L/2,y:lastFrame.R,z:a.cue.y+dz*focus-lastFrame.W/2};
@@ -202,16 +202,21 @@
   followCue(value,side=cameraState.followSide||'behind',distance=cameraState.followDistance||'close'){
    cameraState.followSide=['front','behind','left','right'].includes(side)?side:'behind';
    cameraState.followDistance=distance==='wide'?'wide':'close';
+   if(value)cameraState.playerView=false;
    if(value&&!cameraState.followCue){cameraState.followHeading=undefined;cameraState.followHasMotion=false;}
    cameraState.followCue=!!value;
    if(value)this.focusCue();
    window.BilliardsSpinLabUI?.sync();
   },
-  camera(){return {azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},followCue:!!cameraState.followCue,followSide:cameraState.followSide||'behind',followDistance:cameraState.followDistance||'close',followHeading:cameraState.followHeading,followHasMotion:!!cameraState.followHasMotion,...engine?.projection()};},restoreCamera(saved){
+  playerView(settings={}){
+   if(!active||!lastFrame?.cuePose)return false;
+   cameraState.playerView=true;cameraState.playerViewLock=settings.locked!==false;cameraState.playerEyeHeight=clamp(Number(settings.height)||.12,.08,.40);cameraState.playerDistance=.75;cameraState.playerInShot=false;cameraState.followCue=false;viewPreset='player';setViewLocked(true);requestRender();return true;
+  },refresh(){requestRender();},
+  camera(){return {playerView:!!cameraState.playerView,playerViewLock:!!cameraState.playerViewLock,playerEyeHeight:cameraState.playerEyeHeight||.12,playerDistance:cameraState.playerDistance||.75,azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},followCue:!!cameraState.followCue,followSide:cameraState.followSide||'behind',followDistance:cameraState.followDistance||'close',followHeading:cameraState.followHeading,followHasMotion:!!cameraState.followHasMotion,...engine?.projection()};},restoreCamera(saved){
    if(!saved||![saved.azimuth,saved.elevation,saved.radius,saved.target?.x,saved.target?.y,saved.target?.z].every(Number.isFinite))return false;
-   Object.assign(cameraState,{azimuth:saved.azimuth,elevation:saved.elevation,radius:saved.radius,target:{...saved.target},followCue:!!saved.followCue,followSide:['front','behind','left','right'].includes(saved.followSide)?saved.followSide:'behind',followDistance:saved.followDistance==='wide'?'wide':'close',followHeading:saved.followHeading,followHasMotion:!!saved.followHasMotion,followAnimating:false});
+   Object.assign(cameraState,{playerView:!!saved.playerView,playerViewLock:!!saved.playerViewLock,playerEyeHeight:saved.playerEyeHeight||.12,playerDistance:saved.playerDistance||.75,playerInShot:false,azimuth:saved.azimuth,elevation:saved.elevation,radius:saved.radius,target:{...saved.target},followCue:!!saved.followCue,followSide:['front','behind','left','right'].includes(saved.followSide)?saved.followSide:'behind',followDistance:saved.followDistance==='wide'?'wide':'close',followHeading:saved.followHeading,followHasMotion:!!saved.followHasMotion,followAnimating:false});
    requestRender();window.BilliardsSpinLabUI?.sync();return true;
-  },prepareSnapshot(){standing();},renderSnapshot(){engine?.render();},tablePlanePoint(event){return engine?.tablePlanePoint(event)||null;},tablePoint(event){return engine?.tablePoint(event)||null;},renderedBalls(){return engine?.ballViews()||[];},ghostGuides(){return engine?.ghostViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];},railGeometry(){return engine?.railViews()||[];},contactMarkers(){return engine?.contactViews()||[];},overlayLabels(){return engine?.labelViews()||[];}};
+  },prepareSnapshot(){standing();},renderSnapshot(){engine?.render();},tablePlanePoint(event){return engine?.tablePlanePoint(event)||null;},tablePoint(event){return engine?.tablePoint(event)||null;},renderedBalls(){return engine?.ballViews()||[];},ghostGuides(){return engine?.ghostViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];},railGeometry(){return engine?.railViews()||[];},contactMarkers(){return engine?.contactViews()||[];},cueModel(){return engine?.cueView()||null;},overlayLabels(){return engine?.labelViews()||[];}};
  window.addEventListener('resize',()=>{dock();positionToggle();requestRender();});new MutationObserver(positionToggle).observe(document.getElementById('tableZoom'),{attributes:true,attributeFilter:['style']});document.addEventListener('visibilitychange',()=>{if(!document.hidden)requestRender();});
  function createEngine(T){
   const renderer=new T.WebGLRenderer({antialias:true,alpha:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.setClearColor(0x080d13);renderer.outputColorSpace=T.SRGBColorSpace;
@@ -233,6 +238,7 @@
   const surfaceMaterial=new T.MeshStandardMaterial({map:texture,color:0xcbd4cf,roughness:.98,envMapIntensity:.15}),bodyMaterial=new T.MeshStandardMaterial({color:0x252b30,roughness:.64}),legMaterial=new T.MeshStandardMaterial({color:0x20272c,roughness:.6});
   const sphere=new T.SphereGeometry(1,40,28),ballMeshes=new Map(),materials=new Map(),contacts=new Map(),contactGroup=new T.Group();scene.add(contactGroup);let dimensions='',dirty=true,lastSize='',frame=null,pocketSpecs=[];const rollStep=new T.Quaternion(),rollAxis=new T.Vector3();
   const ghostGroup=new T.Group(),ghostMeshes=new Map();scene.add(ghostGroup);
+  const realCue=window.BilliardsCue3D?.create(T,scene,renderer,requestRender);
   // Teaching text stays flat on its original cloth location; only its heading follows the view.
   const cameraLabels=new Map(),labelGeometry=new T.PlaneGeometry(1,1),clothNormal=new T.Vector3(0,1,0),clothRotation=new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0),-Math.PI/2);
   function updateCameraLabels(f){
@@ -382,7 +388,7 @@
   const pointers=new Map();let edit=null,lastTap=null;
   // Screen-space panning translates camera and target together, preserving the
   // current tilt and shot-line angle even when looking nearly across the cloth.
-  function pan(dx,dy){
+  function pan(dx,dy){if(cameraState.playerView&&cameraState.playerViewLock)return;cameraState.playerView=false;
    window.BilliardsTableOrbit.pan(T,camera,cameraState,dx,dy,canvas.getBoundingClientRect().height);requestRender();
   }
   function overControls(e){return [...document.querySelectorAll('#phoneAimRail,#phoneSpeedRail,#phoneActions,.aimControlRow.activeAim,.tableSpeedControl.activeSpeed,.bottomSpinGroup.activeSpin,.phoneTipControl')].some(el=>{const r=el.getBoundingClientRect();return r.width&&r.height&&e.clientX>=r.left-5&&e.clientX<=r.right+5&&e.clientY>=r.top-5&&e.clientY<=r.bottom+5;});}
@@ -426,7 +432,7 @@
   function focusBall(e){cast(e);const hit=inputRay.intersectObjects([...ballMeshes.values()].filter(g=>g.visible),true)[0];if(!hit)return;const p=hit.object.parent.position;cameraState.target={x:p.x,y:p.y,z:p.z};cameraState.radius=.55;cameraState.elevation=8*Math.PI/180;requestRender();}
   canvas.addEventListener('keydown',e=>{if(viewLocked&&e.key.startsWith('Arrow')){e.preventDefault();return;}const actions={ArrowLeft:()=>orbit(-.08,0),ArrowRight:()=>orbit(.08,0),ArrowUp:()=>orbit(0,.06),ArrowDown:()=>orbit(0,-.06),'+':()=>zoom(.9),'-':()=>zoom(1.1),Escape:disable};if(actions[e.key]){e.preventDefault();e.stopPropagation();actions[e.key]();}});
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();disable();status.textContent='3D graphics paused. The top-down table is ready.';});
-  return {labelViews(){return [...cameraLabels.values()].filter(m=>m.visible).map(m=>({...m.userData.data,center:m.position.toArray(),scale:m.scale.toArray(),rotation:m.quaternion.toArray(),depthTest:m.material.depthTest,azimuth:cameraState.azimuth}));},cancelInput,pan,tablePlanePoint(e){cast(e);return logical(planePoint());},tablePoint(e){cast(e);const q=logical(planePoint()),f=frame||lastFrame;return q&&f&&q.x>=0&&q.x<=f.L&&q.y>=0&&q.y<=f.W?q:null;},contactViews(){return [...tipMarkers].filter(([,m])=>m.visible).map(([id,m])=>({id,...m.userData.tip,center:m.position.toArray()}));},railViews(){return table.children.filter(m=>m.userData.sight).map(m=>({x:m.position.x,y:m.position.y,z:m.position.z,width:2*m.userData.radius,length:2*m.userData.radius}));},project(point,height=0){const f=frame||lastFrame;if(!f)return null;camera.updateMatrixWorld(true);const v=new T.Vector3(point.x-f.L/2,height,point.y-f.W/2).project(camera),r=canvas.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2,visible:v.z>=-1&&v.z<=1};},ghostViews(){return [...ghostMeshes.values()].filter(g=>g.visible).map(g=>({...g.userData.guide,center:g.position.toArray(),radius:g.scale.x,opacity:ghostMaterial.opacity,coreOpacity:ghostCoreMaterial.opacity,coreColor:ghostCoreMaterial.color.getHex(),coreVertical:g.quaternion.toArray(),depthWrite:ghostMaterial.depthWrite}));},ballViews(){return [...ballMeshes].filter(([,g])=>g.visible).map(([id,g])=>({id,x:g.position.x,y:g.position.y,z:g.position.z,rotation:g.children[0].quaternion.toArray()}));},pocketViews(){scene.updateMatrixWorld(true);const ray=new T.Raycaster();return pocketSpecs.map(p=>{const height=v=>{ray.set(new T.Vector3(v.x,1,v.z),new T.Vector3(0,-1,0));return ray.intersectObjects(table.children,true).find(hit=>!hit.object.material?.userData?.pocketOwned)?.point.y;};ray.set(new T.Vector3(...p.at(p.centerN,0,.02)),new T.Vector3(p.n[0],0,p.n[1]));const lining=ray.intersectObjects(table.children,true)[0]?.object.userData.construction;return {id:p.id,lining,woodTextureWidth:woodMap.image.width,floorHeight:height(p.probe),backHeight:height(p.back),woodHeight:height(p.wood),shelfHeight:height(p.shelfProbe),shelfDepth:p.shelf,mouth:p.corner?tablePlan.G.cornerMouth:tablePlan.G.sideMouth,capHeight:tablePlan.capHeight,noseHeight:tablePlan.noseHeight,materialMapsReady,reference:tablePlan.reference.source,referenceSHA256:tablePlan.reference.sha256,visualMouth:p.visualMouth,linerWidth:tablePlan.linerWidth,linerInset:tablePlan.linerInset,edgeMaxHeight:Math.max(...p.edge.geometry.attributes.position.array.filter((v,i)=>i%3===1)),edgeMinHeight:Math.min(...p.edge.geometry.attributes.position.array.filter((v,i)=>i%3===1)),edgeTopNormalY:p.edge.geometry.attributes.normal.getY(24),woodTint:woodMaterial.color.getHex(),profile:tablePlan.profile};});},projection(){return {verticalFov:camera.fov,horizontalFov:2*Math.atan(Math.tan(camera.fov*Math.PI/360)*camera.aspect)*180/Math.PI};},stop(){cancelInput();},update(f){if(f.animating&&edit)cancelInput();frame=f;dirty=true;renderer.shadowMap.needsUpdate=true;},render(){
+  return {cueView(){return realCue?.status()||null;},labelViews(){return [...cameraLabels.values()].filter(m=>m.visible).map(m=>({...m.userData.data,center:m.position.toArray(),scale:m.scale.toArray(),rotation:m.quaternion.toArray(),depthTest:m.material.depthTest,azimuth:cameraState.azimuth}));},cancelInput,pan,tablePlanePoint(e){cast(e);return logical(planePoint());},tablePoint(e){cast(e);const q=logical(planePoint()),f=frame||lastFrame;return q&&f&&q.x>=0&&q.x<=f.L&&q.y>=0&&q.y<=f.W?q:null;},contactViews(){return [...tipMarkers].filter(([,m])=>m.visible).map(([id,m])=>({id,...m.userData.tip,center:m.position.toArray()}));},railViews(){return table.children.filter(m=>m.userData.sight).map(m=>({x:m.position.x,y:m.position.y,z:m.position.z,width:2*m.userData.radius,length:2*m.userData.radius}));},project(point,height=0){const f=frame||lastFrame;if(!f)return null;camera.updateMatrixWorld(true);const v=new T.Vector3(point.x-f.L/2,height,point.y-f.W/2).project(camera),r=canvas.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2,visible:v.z>=-1&&v.z<=1};},ghostViews(){return [...ghostMeshes.values()].filter(g=>g.visible).map(g=>({...g.userData.guide,center:g.position.toArray(),radius:g.scale.x,opacity:ghostMaterial.opacity,coreOpacity:ghostCoreMaterial.opacity,coreColor:ghostCoreMaterial.color.getHex(),coreVertical:g.quaternion.toArray(),depthWrite:ghostMaterial.depthWrite}));},ballViews(){return [...ballMeshes].filter(([,g])=>g.visible).map(([id,g])=>({id,x:g.position.x,y:g.position.y,z:g.position.z,rotation:g.children[0].quaternion.toArray()}));},pocketViews(){scene.updateMatrixWorld(true);const ray=new T.Raycaster();return pocketSpecs.map(p=>{const height=v=>{ray.set(new T.Vector3(v.x,1,v.z),new T.Vector3(0,-1,0));return ray.intersectObjects(table.children,true).find(hit=>!hit.object.material?.userData?.pocketOwned)?.point.y;};ray.set(new T.Vector3(...p.at(p.centerN,0,.02)),new T.Vector3(p.n[0],0,p.n[1]));const lining=ray.intersectObjects(table.children,true)[0]?.object.userData.construction;return {id:p.id,lining,woodTextureWidth:woodMap.image.width,floorHeight:height(p.probe),backHeight:height(p.back),woodHeight:height(p.wood),shelfHeight:height(p.shelfProbe),shelfDepth:p.shelf,mouth:p.corner?tablePlan.G.cornerMouth:tablePlan.G.sideMouth,capHeight:tablePlan.capHeight,noseHeight:tablePlan.noseHeight,materialMapsReady,reference:tablePlan.reference.source,referenceSHA256:tablePlan.reference.sha256,visualMouth:p.visualMouth,linerWidth:tablePlan.linerWidth,linerInset:tablePlan.linerInset,edgeMaxHeight:Math.max(...p.edge.geometry.attributes.position.array.filter((v,i)=>i%3===1)),edgeMinHeight:Math.min(...p.edge.geometry.attributes.position.array.filter((v,i)=>i%3===1)),edgeTopNormalY:p.edge.geometry.attributes.normal.getY(24),woodTint:woodMaterial.color.getHex(),profile:tablePlan.profile};});},projection(){return {verticalFov:camera.fov,horizontalFov:2*Math.atan(Math.tan(camera.fov*Math.PI/360)*camera.aspect)*180/Math.PI};},stop(){cancelInput();},update(f){if(f.animating&&edit)cancelInput();frame=f;dirty=true;renderer.shadowMap.needsUpdate=true;},render(){
    const f=frame||lastFrame;if(!f)return;const rect=canvas.getBoundingClientRect();if(rect.width<1||rect.height<1)return;
    const size=rect.width+':'+rect.height;if(size!==lastSize){renderer.setSize(rect.width,rect.height);camera.aspect=rect.width/rect.height;camera.fov=2*Math.atan(viewTangent(camera.aspect))*180/Math.PI;camera.updateProjectionMatrix();lastSize=size;}
    if(dimensions!==tableKey(f))rebuild(f);
@@ -435,6 +441,11 @@
     // changes size so guides stay aligned and old edge pixels cannot remain.
     texture.dispose();textureCanvas.width=w;textureCanvas.height=h;
    }textureCtx.clearRect(0,0,w,h);textureCtx.drawImage(source,a.x*ratio,a.y*ratio,w,h,0,0,w,h);texture.needsUpdate=true;dirty=false;}
+   if(cameraState.playerView&&f.cuePose){
+    if(cameraState.playerInShot&&!f.animating&&!cameraState.playerViewLock)cameraState.playerView=false;
+    else if(!f.animating||!cameraState.playerInShot){const p=window.BilliardsCue3D.playerCamera(f.cuePose,{height:cameraState.playerEyeHeight,distance:cameraState.playerDistance});Object.assign(cameraState,{azimuth:p.azimuth,elevation:p.elevation,radius:p.radius,target:{x:p.target[0]-f.L/2,y:p.target[1],z:p.target[2]-f.W/2}});}
+    cameraState.playerInShot=!!f.animating;
+   }
    if(cameraState.followCue)updateCueFollow(cameraState,f);
    const target=cameraState.target||{x:0,y:0,z:0};
    window.BilliardsTableOrbit.updateCamera(camera,cameraState,camera.aspect);
@@ -468,7 +479,7 @@
    }
    for(const [id,group]of ballMeshes)if(!visible.has(id)){group.visible=false;contacts.get(id).visible=false;}
 
-   updateTipMarkers(f);updateGhosts(f);updateCameraLabels(f);renderer.render(scene,camera);
+   updateTipMarkers(f);updateGhosts(f);realCue?.update(f);updateCameraLabels(f);renderer.render(scene,camera);
   }};
  }
 })();
