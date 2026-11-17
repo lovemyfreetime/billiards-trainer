@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parents[1]
 FILES=['play-announcements.js','play-announcements-data.js','play-recorded-audio.js','play.html','play-viewport.js','play-catalog.js','play-engine.js','play-presentation.js','play-input.js','play-training.js','play-controls.js','play-narration-data.js','play-narration.js','play-mode.js','play-mode.css','play-shot-clock.js','play-shot-clock-ui.js','play-shot-clock.css','play-calibration.js','play-calibration.html','experience-menu.js','experience-menu.css','local-session.js','local-session.css','app-display.js','app-display.css','app-updates.js','tournament.html','tournament-engine.js','tournament-ui.js','tournament.css','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/play-experience-v1.webp','icons/trainer-original-execute-v2.svg','icons/shot-clock-logo.svg','local-host/player.html','local-host/player.js','local-host/player.css']
 def build(out):
  out.mkdir(parents=True,exist_ok=True)
- files=FILES+['play-audio/scripts.json','play-audio/announcements.json']+[str(p.relative_to(ROOT)) for p in sorted((ROOT/'play-audio').glob('*.mp3'))]
+ files=FILES+['app-viewport.js','play-audio/scripts.json','play-audio/announcements.json']+[str(p.relative_to(ROOT)) for p in sorted((ROOT/'play-audio').glob('*.mp3'))]
  for name in files:
   src=ROOT/name
   if not src.is_file(): raise FileNotFoundError(name)
