@@ -88,6 +88,9 @@ body.trainer-workspace #workspaceTools .compassTopControl input { min-width:0; w
 #workspaceBallShelf { position:fixed; z-index:46; bottom:calc(66px + env(safe-area-inset-bottom)); left:calc(10px + env(safe-area-inset-left)); right:calc(10px + env(safe-area-inset-right)); height:46px; display:flex; align-items:center; gap:10px; padding:0 6px; border-top:1px solid #647b8933; border-bottom:1px solid #647b8933; background:#10181ee6; border-radius:12px; }
 body.trainer-workspace.phone-focus:not(.zen-mode) #workspaceBallShelf #phoneTrayToggle { display:block!important; position:static; inset:auto; width:50px; height:36px; min-width:50px; padding:4px; font:600 11px system-ui; }
 #workspaceBalls { display:flex; align-items:center; gap:8px; min-width:0; margin:auto; overflow-x:auto; overscroll-behavior-x:contain; scrollbar-width:thin; padding:5px 4px; }
+body.trainer-workspace #workspaceBalls { position:absolute; top:50%; transform:translateY(-50%); margin:0; box-sizing:border-box; }
+body.trainer-workspace #workspaceBallCount { position:absolute; right:6px; }
+body.trainer-workspace #workspaceBallShelf>.workspaceTrayScroll { position:absolute; }
 .workspaceBall { position:relative; flex:0 0 34px; width:34px; min-width:34px; height:34px; min-height:34px; border:1px solid #b6c6cf; border-radius:50%; padding:0; cursor:grab; touch-action:none; background:radial-gradient(circle at 30% 20%,#fff8,transparent 58%),var(--ball-color); }
 .workspaceBall.stripe { background:linear-gradient(#eee 20%,var(--ball-color) 21% 79%,#eee 80%); }
 .workspaceBall>span { display:grid; place-items:center; width:18px; height:18px; margin:auto; border-radius:50%; background:#f8f7ee; color:#14191d; font:700 11px system-ui; }

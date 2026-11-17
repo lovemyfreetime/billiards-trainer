@@ -1,5 +1,25 @@
 (function(root){
 'use strict';
+// Ball-hit fraction is projected overlap width / ball diameter (Dr. Dave TP A.23),
+// not intersecting circle area. Thirty-seconds refine the usual quarter/eighth anchors.
+function formatBallFraction(percent){
+ if(!Number.isFinite(percent)||percent<0||percent>100)return '—';
+ if(percent===0)return '0B';
+ if(percent===100)return '1B';
+ const steps=Math.round(percent*32/100);
+ // A grazing or almost-full hit must not read as zero contact or an exact full hit.
+ if(steps===0)return '<1/32B';
+ if(steps===32)return '>31/32B';
+ let numerator=steps,denominator=32;
+ while(numerator%2===0){numerator/=2;denominator/=2;}
+ const fraction=numerator+'/'+denominator;
+ const glyph={'1/8':'⅛','1/4':'¼','3/8':'⅜','1/2':'½','5/8':'⅝','3/4':'¾','7/8':'⅞'}[fraction]||fraction;
+ return (Math.abs(percent-steps*100/32)<1e-7?'':'≈')+glyph+'B';
+}
+function formatOverlap(percent){
+ return Number.isFinite(percent)&&percent>=0&&percent<=100
+  ?percent.toFixed(1)+'% · '+formatBallFraction(percent):'—';
+}
 function energy(ball,radius,gravity=9.81){
  const v2=ball.vx**2+ball.vy**2+(ball.vz||0)**2;
  const w2=(ball.wx||0)**2+(ball.wy||0)**2+(ball.wz||0)**2;
@@ -219,7 +239,7 @@ function draw(ctx,items){
  }
  ctx.restore();
 }
-const api={energy,create,labels,draw,contactLabels,drawContacts,format,exchange,placeBadge,segmentIntersects,journey,railLabels};
+const api={energy,create,labels,draw,contactLabels,drawContacts,format,exchange,placeBadge,segmentIntersects,journey,railLabels,formatBallFraction,formatOverlap};
 if(typeof module==='object'&&module.exports)module.exports=api;
 else root.BilliardsShotBudget=api;
 })(typeof window==='object'?window:globalThis);

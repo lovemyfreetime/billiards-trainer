@@ -1,0 +1,38 @@
+name: Verify ghost balls and fractional aiming
+on:
+  push:
+    branches: [test/ghost-fraction-20261117]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ghost-fraction:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify source, aiming references and inventory
+        run: |
+          node --check trainer-3d.js
+          node --check trainer-workspace.js
+          node --check trainer-shot-budget.js
+          node tests/fractional-aiming.test.cjs
+          python3 scripts/build-offline-assets.py --check
+      - name: Install browser
+        run: |
+          npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
+          node local-host/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Check rendered guides, fractions and tray
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")
+          node tests/ghost-fraction.browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ghost-fraction-verification
+          path: test-results/ghost-fraction

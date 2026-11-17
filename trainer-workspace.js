@@ -114,6 +114,39 @@
   balls.addEventListener('scroll', syncScroll, {passive:true});
   new ResizeObserver(syncScroll).observe(balls);
   shelf.append(trayToggle, clear, earlier, balls, later, count); document.body.append(shelf);
+  let trayLayoutPending=false,trayScrollRange=null;
+  function alignBallTray(){
+    trayLayoutPending=false;
+    const tip=document.querySelector('#phoneActions .activeSpin .phoneTipControl:not([hidden])');
+    if(!tip||!balls.getClientRects().length||!tip.getClientRects().length)return;
+    const frame=shelf.getBoundingClientRect(),badge=tip.getBoundingClientRect(),scale=frame.width/shelf.offsetWidth;
+    if(!(scale>0))return;
+    const gap=6,arrow=parseFloat(getComputedStyle(earlier).width)||28;
+    let left=6;
+    for(const control of [trayToggle,byId('table3DRackToggle'),clear]){
+      if(control?.parentElement!==shelf||!control.getClientRects().length)continue;
+      const r=control.getBoundingClientRect();left=Math.max(left,(r.right-frame.left)/scale+gap);
+    }
+    const countWidth=count.textContent?count.getBoundingClientRect().width/scale+gap:0;
+    const right=shelf.clientWidth-6-countWidth,center=(badge.left+badge.width/2-frame.left)/scale;
+    const half=Math.min(center-left-arrow-gap,right-arrow-gap-center);
+    if(half<=0)return;
+    // Symmetric viewport and scroll position keep the true 7/8 midpoint on the
+    // active cue-tip badge, independently of the rack buttons and side drawer.
+    const oldRange=trayScrollRange,oldOffset=oldRange===null?0:balls.scrollLeft-oldRange/2;
+    const first=balls.firstElementChild,last=balls.lastElementChild;
+    const content=last.offsetLeft+last.offsetWidth-first.offsetLeft+8;
+    const width=Math.min(content,half*2);
+    balls.style.left=(center-width/2)+'px';balls.style.width=width+'px';
+    earlier.style.left=left+'px';later.style.left=(right-arrow)+'px';
+    trayScrollRange=Math.max(0,balls.scrollWidth-balls.clientWidth);
+    if(oldRange!==trayScrollRange)balls.scrollLeft=Math.max(0,Math.min(trayScrollRange,trayScrollRange/2+oldOffset));
+    syncScroll();
+  }
+  function queueTrayLayout(){if(!trayLayoutPending){trayLayoutPending=true;requestAnimationFrame(alignBallTray);}}
+  const trayObserver=new ResizeObserver(queueTrayLayout);trayObserver.observe(shelf);trayObserver.observe(balls);
+  if(byId('phoneActions'))trayObserver.observe(byId('phoneActions'));
+  window.addEventListener('resize',queueTrayLayout);
   const colors = ['#f4f4ed', '#f6d21f', '#2678ff', '#e84132', '#744ac4', '#f07a22', '#2e9c4d', '#7b2d20', '#111'];
   function place(id, event) {
     if (window.billiardsZenControls?.status().busy) return;
@@ -191,6 +224,7 @@
       button.setAttribute('aria-label', label); button.title = label;
     }
     count.textContent = data.pocketed.length ? data.pocketed.length + ' pocketed' : '';
+    queueTrayLayout();
     clear.disabled = data.busy;
     trayToggle.setAttribute('aria-label', document.body.classList.contains('phone-tray-hidden') ? 'Show ball tray' : 'Hide ball tray');
   }

@@ -1929,7 +1929,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         <fieldset id="featureCueOptions" class="featureOptionsGroup">
           <legend>Cue</legend>
           <div class="check"><input id="showAngleLockControl" type="checkbox"><label for="showAngleLockControl">Cue-ball target lock control (Free / Sticky)</label></div>
-          <div class="check"><input id="showImpact" type="checkbox" checked><label for="showImpact">Impact cue ball + physical overlap band</label></div>
+          <div class="check"><input id="showImpact" type="checkbox" checked><label for="showImpact">Ghost Ball + physical overlap band</label></div>
+          <div class="check"><input id="showFullGhostBall" type="checkbox"><label for="showFullGhostBall" title="Faint 3D cue ball at the predicted contact position">Full Ghost Ball</label></div>
+          <div class="check"><input id="showRestingCueBall" type="checkbox"><label for="showRestingCueBall" title="Faint 3D cue ball at its predicted resting position">Resting Cue Ball</label></div>
           <div class="check"><input id="showTipBadge" type="checkbox"><label for="showTipBadge">Cue-tip contact badge near cue ball</label></div>
           <div class="check"><input id="showCueStick" type="checkbox" checked><label for="showCueStick">Cue stick</label></div>
           <div class="check"><input id="showShotLine" type="checkbox" checked><label for="showShotLine">Cue-ball shot line</label></div>
@@ -2259,7 +2261,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             },
             muSlide: APK.muSliding, muRoll: APK.muRolling, muBall: APK.muBallBall, ballRest: .96,
             railRest: .90, railTang: .90, cueEndmassRatio: PHYSICS_MODEL.defaultCueEndmassRatio, cuePreset: 'low',
-            jumpUnits: 'in', airbornePhysics: false, jumpModeLocked: false, tableRest: PHYSICS_MODEL.defaultTableVerticalRestitution, bedImpactMu: PHYSICS_MODEL.defaultBedImpactFriction, showImpact: true, showTipBadge: false, showShotLine: true, showCueStick: true, showPaths: true, showGrid: true, showDiamonds: true, showTable: true,
+            jumpUnits: 'in', airbornePhysics: false, jumpModeLocked: false, tableRest: PHYSICS_MODEL.defaultTableVerticalRestitution, bedImpactMu: PHYSICS_MODEL.defaultBedImpactFriction, showImpact: true, showFullGhostBall: false, showRestingCueBall: false, showTipBadge: false, showShotLine: true, showCueStick: true, showPaths: true, showGrid: true, showDiamonds: true, showTable: true,
             showShotBudget: false, preview: null, firstEvent: '—'
         };
     }
@@ -7558,7 +7560,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const angle=value=>Number.isFinite(value)?value.toFixed(1)+'°':'—';
         for(const item of shotBudgetOverlaps){
             const info=shotContactInfo(item.which);
-            const rows=[{text:'Overlap '+info.overlapPercent.toFixed(1)+'%',color:'#fff'},
+            const rows=[{text:'Overlap '+api.formatOverlap(info.overlapPercent),color:'#fff'},
                 {text:'Cut angle '+angle(info.cutDegrees),color:'#fff'},
                 {text:'Exit angle '+angle(info.exitDegrees),color:'#fff'}];
             const anchor=map(item.contact.cuePos);
@@ -8088,6 +8090,19 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         ctx.fillText(label, lx, ly);
         ctx.restore();
     }
+    function ghostBallsFor3D(){
+        const which=S.activeShot===2&&S.shot2Enabled?2:1;
+        if(animation||!S.showTable||!shotGuidesVisible(which)||(!S.showFullGhostBall&&!S.showRestingCueBall))return [];
+        const preview=which===2?ensureShot2().preview:S.preview,ghosts=[];
+        const add=(kind,point,height)=>{
+            if(point&&Number.isFinite(point.x)&&Number.isFinite(point.y)&&point.x>=0&&point.x<=S.tableL&&point.y>=0&&point.y<=S.tableW)
+                ghosts.push({kind,shot:which,x:point.x,y:point.y,z:Number.isFinite(height)?Math.max(S.ballR,height):S.ballR});
+        };
+        if(S.showFullGhostBall)add('contact',preview?.firstBallContact?.cuePos,preview?.firstBallContact?.cueHeight);
+        const rest=preview?.finalBalls?.find(ball=>ball.id===0&&ball.active);
+        if(S.showRestingCueBall)add('rest',rest,rest?.z);
+        return ghosts;
+    }
     function rollingReferenceForShot(which=1){
         if(animation||!S.showTable||!S.showImpact||!shotGuidesVisible(which)||which===2&&!S.shot2Enabled)return null;
         const preview=which===2?ensureShot2().preview:S.preview;
@@ -8418,7 +8433,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const live=(animation?.current||S.balls).map(b=>({...S.balls.find(x=>x.id===b.id),...b})).filter(b=>b.id!==0||cueVisualsVisible(1));
             if((!clean||(recordingGuides&&S.shot2CueBallOnly))&&S.shot2Enabled&&cueVisualsVisible(2))live.push({id:'CB2',x:S.shot2.x,y:S.shot2.y,orientation:S.shot2.orientation,active:true});
             const second=S.activeShot===2&&S.shot2Enabled,cb=second?S.shot2:cueBall();
-            window.Billiards3D.update({trainingBallStyle:S.trainingBallStyle,L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:(clean||S.showCueStick===false)?[]:(animation?.cueTips||cueTipsFor3D()).filter(tip=>tip.id!=='CB2'||!S.shot2CueBallOnly),balls:live,map,aim:!clean&&cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
+            window.Billiards3D.update({trainingBallStyle:S.trainingBallStyle,L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:(clean||S.showCueStick===false)?[]:(animation?.cueTips||cueTipsFor3D()).filter(tip=>tip.id!=='CB2'||!S.shot2CueBallOnly),balls:live,ghostBalls:clean&&!recordingGuides?[]:ghostBallsFor3D(),map,aim:!clean&&cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
         }
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }
@@ -8972,6 +8987,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         $('showShotLine').checked = S.showShotLine !== false;
         $('showCueStick').checked = S.showCueStick !== false;
         $('showImpact').checked = S.showImpact;
+        $('showFullGhostBall').checked = !!S.showFullGhostBall;
+        $('showRestingCueBall').checked = !!S.showRestingCueBall;
         $('showTipBadge').checked = S.showTipBadge;
         $('showPaths').checked = S.showPaths;
         $('shot2CueBallOnly').checked = S.shot2CueBallOnly;
@@ -9100,6 +9117,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         S.showShotLine = $('showShotLine').checked;
         S.showCueStick = $('showCueStick').checked;
         S.showImpact = $('showImpact').checked;
+        S.showFullGhostBall = $('showFullGhostBall').checked;
+        S.showRestingCueBall = $('showRestingCueBall').checked;
         S.showTipBadge = $('showTipBadge').checked;
         S.showPaths = $('showPaths').checked;
         S.showGrid = $('showGrid').checked;
@@ -13700,7 +13719,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             refreshPreview();
         });
         setupPhysicsPresets();
-        const changeIds = ['tableL', 'tableW', 'ballD', 'muSlide', 'muRoll', 'muBall', 'ballRest', 'railRest', 'railTang', 'cueEndmassRatio', 'jumpUnits', 'tableRest', 'bedImpactMu', 'showImpact', 'showTipBadge', 'showShotLine', 'showCueStick', 'showPaths', 'showGrid', 'showDiamonds', 'showTable', 'showAngleLockControl'];
+        const changeIds = ['tableL', 'tableW', 'ballD', 'muSlide', 'muRoll', 'muBall', 'ballRest', 'railRest', 'railTang', 'cueEndmassRatio', 'jumpUnits', 'tableRest', 'bedImpactMu', 'showImpact', 'showFullGhostBall', 'showRestingCueBall', 'showTipBadge', 'showShotLine', 'showCueStick', 'showPaths', 'showGrid', 'showDiamonds', 'showTable', 'showAngleLockControl'];
         $('cueShaftPreset').addEventListener('change',()=>{S.cuePreset=$('cueShaftPreset').value;if(CUE_SHAFT_PRESETS[S.cuePreset])S.cueEndmassRatio=CUE_SHAFT_PRESETS[S.cuePreset];updateUI();refreshPreview();saveState();});
         $('cueEndmassRatio').addEventListener('change',()=>{S.cuePreset='custom';});
         changeIds.forEach(id => $(id).addEventListener('change', applyUI));
