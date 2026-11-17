@@ -28,11 +28,12 @@ for(const [width,height,mobile]of [[1600,1000,false],[844,390,true]]){
   await page.evaluate(()=>Billiards3D.restoreCamera({azimuth:.45,elevation:.55,radius:2.6,target:{x:0,y:0,z:0}}));await settle();await page.screenshot({path:dir+'/'+name+'-'+finish+'.png'});
  }
  await preset('playerViewLow');const before=await camera();
+ await page.evaluate(()=>{window.__strokeCaught=false;const observe=()=>{const m=Billiards3D.cueModel();if(m?.phase==='backstroke'&&m.gap>.035){window.removeEventListener('billiards:3d-render',observe);billiardsPlayback.pause();window.__strokeCaught=true;}};window.addEventListener('billiards:3d-render',observe);});
  await page.locator('#phoneActions>[data-trainer-action=animate]').click();
- await page.waitForFunction(()=>{const m=Billiards3D.cueModel();if(m?.phase==='backstroke'&&m.gap>.035){billiardsPlayback.pause();return true;}return false;});await settle();
+ await page.waitForFunction(()=>window.__strokeCaught);await settle();
  assert.equal(await page.evaluate(()=>billiardsPlayback.state().time),0,'Balls wait for the cue strike');const pulled=await model();assert(pulled.gap>.035);const heldCamera=await camera();assert.deepEqual(heldCamera.target,before.target,'Head remains still during the stroke');await page.screenshot({path:dir+'/'+name+'-backstroke.png'});
- await settle();assert.equal((await model()).gap,pulled.gap,'Pause holds the cue stroke');await page.evaluate(()=>billiardsPlayback.pause());
- await page.waitForFunction(()=>{if(billiardsPlayback.state().time>.04&&billiardsPlayback.state().time<.25){billiardsPlayback.pause();return true;}return false;});await settle();assert.equal((await model()).phase,'follow-through');await page.screenshot({path:dir+'/'+name+'-follow-through.png'});
+ await settle();assert.equal((await model()).gap,pulled.gap,'Pause holds the cue stroke');await page.evaluate(()=>{window.__followCaught=false;const observe=()=>{if(billiardsPlayback.state().time>.04){window.removeEventListener('billiards:3d-render',observe);billiardsPlayback.pause();window.__followCaught=true;}};window.addEventListener('billiards:3d-render',observe);billiardsPlayback.pause();});
+ await page.waitForFunction(()=>window.__followCaught);await settle();assert.equal((await model()).phase,'follow-through');await page.screenshot({path:dir+'/'+name+'-follow-through.png'});
  await page.evaluate(()=>billiardsPlayback.pause());await page.waitForFunction(()=>!billiardsPlayback.state().running,{},{timeout:45000});await settle();assert((await camera()).playerView&& (await camera()).playerViewLock,'Locked Player View remains available for the next ball');assert.equal((await camera()).playerEyeHeight,.12);assert.equal((await model()).phase,'address');
  const next=await page.evaluate(()=>{const s=billiardsTourBridge.capture();s.state.freeAim={x:s.state.balls.find(b=>b.id===0).x+.4,y:.2};billiardsTourBridge.restore(s);return s.state.freeAim;});await settle();assert((await camera()).playerView);assert((await model()).visible);
  // Exercise the real fixed-frame recording timeline without codec or download dependencies.
@@ -40,6 +41,6 @@ for(const [width,height,mobile]of [[1600,1000,false],[844,390,true]]){
  await page.locator('#phoneActions>[data-trainer-action=animate]').click();await page.waitForFunction(()=>window.__recordedCueDone,{},{timeout:45000});
  const frames=await page.evaluate(()=>__recordedCueFrames);assert(frames.some(f=>f.time===0&&f.model.gap>.05),'Fixed-frame recordings include the backstroke before ball motion');assert(frames.some(f=>f.time>0&&f.model.phase==='follow-through'),'Fixed-frame recordings include strike/follow-through');fs.writeFileSync(dir+'/'+name+'-recorded-stroke.json',JSON.stringify(frames.map(f=>({time:f.time,phase:f.model.phase,gap:f.model.gap})),null,2));
  assert.deepEqual(errors,[]);console.log(name+': three full-size finishes, exact spin/elevation contact, Low/Raised/custom Player View, backstroke/strike pause, stationary head, rack lock and recorded-frame timing passed');
- }catch(e){await page.screenshot({path:dir+'/'+name+'-failure.png'}).catch(()=>{});throw e;}finally{await context.close();}
+ }catch(e){console.error('Failure state',await page.evaluate(()=>({model:Billiards3D.cueModel(),camera:Billiards3D.camera(),playback:billiardsPlayback.state(),errors:window.__errors})));await page.screenshot({path:dir+'/'+name+'-failure.png'}).catch(()=>{});throw e;}finally{await context.close();}
 }
 }finally{await browser?.close();server.kill();}})().catch(e=>{console.error(e);process.exitCode=1});
