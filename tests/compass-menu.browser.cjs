@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),cp=require('node:child_process'),{chromium}=require('playwright');
 const dir='test-results/compass-menu';fs.mkdirSync(dir,{recursive:true});
-const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a)),near=(a,b,m,t=.002)=>assert(Math.abs(wrap(a-b))<t,m+': '+a+' vs '+b);
+const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a)),near=(a,b,m,t=.002)=>assert(Math.abs(a-b)<t,m+': '+a+' vs '+b);
 (async()=>{
  const server=cp.spawn(process.execPath,['tests/range-server.cjs','8831']);await new Promise(r=>server.stdout.once('data',r));let browser;const failures=[];
  try{
@@ -22,17 +22,17 @@ const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a)),near=(a,b,m,t=.002)=>assert(Ma
     await page.goto('http://127.0.0.1:8831/?train=1');await page.waitForFunction(()=>window.billiardsMenuReady&&window.billiardsCompassControls);
     let header;
     for(const mode of ['2d','3d','2d','3d']){
-     if(await page.evaluate(()=>Billiards3D.active)!==(mode==='3d')){await page.locator('#table3DToggle').tap();await page.waitForFunction(active=>Billiards3D.active===active,mode==='3d');}
-     await settle();if(!await page.locator('body').evaluate(e=>e.classList.contains('phone-controls-open')))await page.locator('#phoneControls').tap();
+     if(await page.evaluate(()=>Billiards3D.active)!==(mode==='3d')){await page.locator('#table3DToggle').click();await page.waitForFunction(active=>Billiards3D.active===active,mode==='3d');}
+     await settle();if(!await page.locator('body').evaluate(e=>e.classList.contains('phone-controls-open')))await page.locator('#phoneControls').click();
      const data=await page.evaluate(()=>{const panel=document.querySelector('#panel').getBoundingClientRect();return Object.fromEntries(['#panel h1','#menuHeaderActions','#btg-pool-launchers','#trainerUpdateCheck','#shotSection'].map(s=>{const e=document.querySelector(s),r=e.getBoundingClientRect(),c=getComputedStyle(e);return [s,{x:r.x-panel.x,y:r.y-panel.y,width:r.width,height:r.height,font:c.font,padding:c.padding}];}));});
      assert.equal(await page.locator('#trainerUpdateCheck').evaluate(e=>e.parentElement.id),'trainerUpdateRow','Updates remains in shared row after every view transition');
-     if(header)for(const [s,a]of Object.entries(data)){const b=header[s];for(const k of ['x','y','width','height'])assert(Math.abs(a[k]-b[k])<1,name+' '+mode+' '+s+' header '+k);assert.equal(a.font,b.font,s+' font matches across modes');}
+     if(header)for(const [s,a]of Object.entries(data)){const b=header[s];for(const k of ['x','y','width','height'])assert(Math.abs(a[k]-b[k])<1,name+' '+mode+' '+s+' header '+k+': '+JSON.stringify({actual:a,expected:b}));assert.equal(a.font,b.font,s+' font matches across modes');}
      else header=data;
-     await page.screenshot({path:dir+'/'+name+'-'+mode+'-header.png'});await page.locator('#phoneControls').tap();
+     await page.screenshot({path:dir+'/'+name+'-'+mode+'-header.png'});await page.locator('#phoneControls').click();
     }
     console.log(name+': shared header identical after 2D→3D→2D→3D');
     for(const mode of ['2d','3d']){
-     if(await page.evaluate(()=>Billiards3D.active)!==(mode==='3d')){await page.locator('#table3DToggle').tap();await page.waitForFunction(active=>Billiards3D.active===active,mode==='3d');}
+     if(await page.evaluate(()=>Billiards3D.active)!==(mode==='3d')){await page.locator('#table3DToggle').click();await page.waitForFunction(active=>Billiards3D.active===active,mode==='3d');}
      await fixture();assert.equal(await page.locator('.compassHandle').count(),0,'Four extra dots and four squares are gone');assert.equal(await page.locator('.compassHit').count(),3,'Only invisible rim and axis hit strokes remain');
      for(const element of await page.locator('.compassHit').all())assert.equal(await element.evaluate(e=>getComputedStyle(e).stroke),'rgba(0, 0, 0, 0)','Hit areas do not repaint the original compass');
      for(const [i,angle]of [.2,1.4,2.7,4,5.4].entries()){
