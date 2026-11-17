@@ -232,39 +232,51 @@ body.phone-focus #photoWalkthroughBtn{order:8!important}
  #photoMainActions button { font-size:11px; padding:4px 5px; }
 }
 
-/* Compact analyzer controls; the summary shares the header instead of taking image height. */
-#photoAnalyzerModal .photoAnalyzerPanel { --photo-review-width:255px; --photo-file-width:160px; }
-#photoAnalyzerModal #phoneAnalyzeBar { display:grid; grid-template-columns:minmax(0,1fr) var(--photo-review-width); grid-template-rows:auto auto; align-items:stretch; }
-#photoAnalyzerModal #photoMainActions { grid-area:1/1; min-width:0; gap:4px; padding:3px 4px; }
-#photoAnalyzerModal #photoMainActions button,
-#photoAnalyzerModal #photoSecondaryTools .photoAnalyzerToolbar button,
-#photoAnalyzerModal #photoSecondaryTools .photoAnalyzerToolbar select { flex:0 0 112px; width:112px; min-width:112px; max-width:112px; white-space:nowrap; height:28px!important; min-height:28px!important; padding:3px 5px!important; margin:0; font:600 11px/1.1 system-ui!important; }
-#photoAnalyzerModal #photoMainActions #photoAnalyzerClose { flex:0 0 28px; width:28px; min-width:28px; max-width:28px; min-height:28px; font-size:18px!important; }
-#photoAnalyzerModal #photoSecondaryTools { grid-area:2/1; min-width:0; }
-#photoAnalyzerModal #photoSecondaryTools .photoAnalyzerToolbar { min-height:0; padding:3px 4px!important; gap:4px!important; max-height:none; }
-#photoAnalyzerModal #photoSecondaryTools #btg-analyze-explore { flex-basis:28px; width:28px; min-width:28px; max-width:28px; }
-#photoAnalyzerModal #phoneAnalyzeBar>.photoReviewSummary { grid-area:1/2/3/3; position:static; margin:0; padding:3px 6px; border-left:1px solid #394653; border-bottom:0; }
-#photoAnalyzerModal .photoReviewSummary h3 { display:inline; font:700 12px/16px system-ui; margin:0 6px 0 0; }
-#photoAnalyzerModal #photoBallCount { display:inline; padding:0; margin:0; min-height:0; font:11px/16px system-ui; }
-#photoAnalyzerModal #photoBallStrip { display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:2px; padding-top:3px; width:100%; }
-#photoAnalyzerModal .photoSummaryBall { width:22px; height:22px; min-width:0; max-width:100%; font-size:10px; }
-#photoAnalyzerModal .photoSummaryBall.cue { position:static; grid-area:2/8!important; }
+/* One thin action line; acquisition, alignment, analysis, then review and help. */
+#photoAnalyzerModal .photoAnalyzerPanel { --photo-review-width:255px; }
+#photoAnalyzerModal #phoneAnalyzeBar { position:relative; display:flex; flex-direction:row; flex-wrap:nowrap; align-items:center; gap:1px; height:34px; min-height:34px; max-height:34px; padding:3px 36px 3px 3px; overflow-x:auto; overflow-y:hidden; scrollbar-width:none; }
+#phoneAnalyzeBar::-webkit-scrollbar { display:none; }
+#photoAnalyzerModal #photoMainActions,
+#photoAnalyzerModal #photoSecondaryTools:not([hidden]),
+#photoAnalyzerModal #photoSecondaryTools .photoAnalyzerToolbar,
+#photoAnalyzerModal #phoneAnalyzeBar .photoToolGroup,
+#photoAnalyzerModal #phoneAnalyzeBar .photoToolActions { display:contents!important; }
+#photoAnalyzerModal #photoMoreTools { display:none!important; }
+#photoAnalyzerModal #phoneAnalyzeBar button,
+#photoAnalyzerModal #phoneAnalyzeBar select { box-sizing:border-box; flex:0 0 auto; width:auto; min-width:0; max-width:none; height:24px!important; min-height:24px!important; white-space:nowrap; padding:2px 4px!important; margin:0; border-radius:4px; font:600 10px/1.1 system-ui!important; }
+#photoAnalyzerModal #photoMainActions :is(#photoChooseImage,#photoAnalyzeNow,#photoAddMissed) { min-width:96px; height:28px!important; min-height:28px!important; margin:0 5px; padding:3px 8px!important; font-size:11px!important; }
+#photoAnalyzerModal #phoneAnalyzeBar #photoChooseImage { order:0!important; margin-left:0; }
+#photoAnalyzerModal #phoneAnalyzeBar #photoTakeImage { order:1!important; }
+#photoAnalyzerModal #phoneAnalyzeBar #photoFrameImage { order:2!important; }
+#photoAnalyzerModal #phoneAnalyzeBar #photoAutoRailsBtn { order:3!important; }
+#photoAnalyzerModal #phoneAnalyzeBar #photoFindCorners { order:4!important; }
+#photoAnalyzerModal #phoneAnalyzeBar #photoFineTune { order:5!important; }
+#photoAnalyzerModal #phoneAnalyzeBar #photoAnalyzeNow { order:6!important; }
+#photoAnalyzerModal #phoneAnalyzeBar #photoAddMissed { order:7!important; }
+#photoAnalyzerModal #phoneAnalyzeBar #phonePhotosButton { order:8!important; }
+#photoAnalyzerModal #phoneAnalyzeBar #photoResetCorners { order:9!important; }
+#photoAnalyzerModal #phoneAnalyzeBar #btg-analyze-explore { order:10!important; width:24px; min-width:24px; padding:2px!important; }
+#photoAnalyzerModal #phoneAnalyzeBar>.photoReviewSummary { order:90; position:static; display:flex; align-items:center; flex:none; margin:0 0 0 auto; padding:0 4px; border:0; background:transparent; }
+#photoAnalyzerModal .photoReviewSummary h3,
+#photoAnalyzerModal #photoBallCount { position:absolute; width:1px; height:1px; min-height:0; padding:0; margin:0; overflow:hidden; clip-path:inset(50%); }
+#photoAnalyzerModal #photoBallStrip { display:flex; flex-wrap:nowrap; align-items:center; width:auto; padding:0; gap:1px; }
+#photoAnalyzerModal #photoBallStrip .photoSummaryBall { position:static; flex:0 0 16px; width:16px; height:16px; min-height:16px!important; min-width:16px; max-width:16px; padding:0!important; margin:0; border-radius:50%; font:700 8px/1 system-ui!important; }
+#photoAnalyzerModal #phoneAnalyzeBar #photoWalkthroughBtn { order:99!important; margin-left:4px; }
+#photoAnalyzerModal #photoMainActions #photoAnalyzerClose { position:fixed!important; inset:3px 5px auto auto!important; z-index:86; margin:0; width:28px; min-width:28px; height:28px!important; min-height:28px!important; padding:0!important; border-radius:50%; font-size:18px!important; }
 #photoAnalyzerModal .photoAnalyzerBody { grid-template-columns:minmax(0,1fr) var(--photo-review-width); }
 #photoAnalyzerModal #photoAnalyzerStatus { position:absolute; width:1px; height:1px; max-height:none; padding:0; overflow:hidden; clip-path:inset(50%); }
-#photoAnalyzerModal #photoAnalyzerStatus.photoStatusAlert { position:static; grid-column:1/-1; width:auto; height:auto; clip-path:none; padding:4px 8px; color:#ffc6b7; background:#35231f; }
+#photoAnalyzerModal #photoAnalyzerStatus.photoStatusAlert { position:fixed; top:36px; left:8px; right:8px; z-index:90; width:auto; height:auto; clip-path:none; padding:4px 8px; color:#ffc6b7; background:#35231f; }
 #photoAnalyzerModal .photoReviewInstruction { display:none; }
-#photoAnalyzerModal .photoAnalyzerFooter { height:36px!important; min-height:36px; max-height:36px!important; padding:3px 4px; gap:4px; flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; }
-#photoAnalyzerModal .photoAnalyzerFooter button,
-#photoAnalyzerModal .photoAnalyzerFooter input,
-#photoAnalyzerModal .photoAnalyzerFooter select { box-sizing:border-box; height:28px!important; min-height:28px!important; margin:0; padding:3px 6px!important; font:600 11px/1.1 system-ui!important; }
-#photoAnalyzerModal .photoAnalyzerFooter #photoLayoutName { flex:0 0 var(--photo-file-width)!important; width:var(--photo-file-width)!important; min-width:var(--photo-file-width)!important; max-width:var(--photo-file-width)!important; }
-#photoAnalyzerModal .photoAnalyzerFooter .bt-file-library { flex:0 0 auto; width:auto; min-width:0; margin:0; }
-#photoAnalyzerModal .photoAnalyzerFooter .bt-saved-files { flex-wrap:nowrap; align-items:center; gap:4px; }
-#photoAnalyzerModal .photoAnalyzerFooter .bt-saved-files label { flex:0 0 var(--photo-file-width); width:var(--photo-file-width); min-width:var(--photo-file-width); font-size:0; gap:0; }
-#photoAnalyzerModal .photoAnalyzerFooter .bt-saved-files select { width:100%; min-width:0; }
-#photoAnalyzerModal .photoAnalyzerFooter .photoApplyCue { display:none; }
-@media(max-width:900px) {
- #photoAnalyzerModal .photoAnalyzerPanel { --photo-review-width:220px; --photo-file-width:140px; }
- #photoAnalyzerModal #photoMainActions { overflow-x:auto; }
- #photoAnalyzerModal #photoMainActions #photoAnalyzerClose { margin-left:0; }
-}
+/* The two entry fields share the spare width while action buttons keep their natural width. */
+#photoAnalyzerModal #photoFilesFooter { display:flex; height:36px!important; min-height:36px; max-height:36px!important; padding:3px 4px; gap:4px; flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; }
+#photoAnalyzerModal #photoFilesFooter button,
+#photoAnalyzerModal #photoFilesFooter input,
+#photoAnalyzerModal #photoFilesFooter select { box-sizing:border-box; flex:0 0 auto; height:28px!important; min-height:28px!important; margin:0; padding:3px 6px!important; font:600 11px/1.1 system-ui!important; }
+#photoAnalyzerModal #photoFilesFooter #photoLayoutName { flex:1 0 180px!important; width:180px!important; min-width:180px!important; max-width:none!important; font-size:12px!important; }
+#photoAnalyzerModal #photoFilesFooter .bt-file-library { flex:1 0 auto; width:auto; min-width:0; margin:0; }
+#photoAnalyzerModal #photoFilesFooter .bt-saved-files { display:flex; flex-wrap:nowrap; align-items:center; gap:4px; }
+#photoAnalyzerModal #photoFilesFooter .bt-saved-files label { display:flex; flex:1 0 180px; width:180px; min-width:180px; font-size:0; gap:0; }
+#photoAnalyzerModal #photoFilesFooter .bt-saved-files select { width:100%; min-width:0; font-size:12px!important; }
+#photoAnalyzerModal #photoFilesFooter .photoApplyCue { display:none; }
+#photoAnalyzerModal #photoFilesFooter .bt-file-status { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+@media(max-width:900px) { #photoAnalyzerModal .photoAnalyzerPanel { --photo-review-width:220px; } }

@@ -38,7 +38,7 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
    const analyzer=async(mode)=>{
     await tool('setup');await page.locator('#analyzePhotoBtn').click();
     assert(await page.locator('#photoAnalyzerStatus').evaluate(e=>e.parentElement.id==='phoneAnalyzeBar'));assert(!(await page.locator('#phoneAnalyzeBar').innerText()).split('\n').includes('null'));
-    for(const id of ['photoChooseImage','photoAnalyzeNow','photoAddMissed','photoMoreTools','photoAnalyzerClose'])await reachable('#'+id);
+    for(const id of ['photoChooseImage','photoAnalyzeNow','photoAddMissed','photoAnalyzerClose'])await reachable('#'+id);
     assert.equal(await page.locator('#photoAnalyzeNow').textContent(),'Analyze Balls');assert.equal(await page.locator('#photoAddMissed').textContent(),'Add Missed Ball');
     const extra=page.locator('#photoMoreTools');if(await extra.getAttribute('aria-expanded')==='false')await extra.click();
     for(const id of ['photoFindCorners','photoAutoRailsBtn','photoWalkthroughBtn'])assert(await page.locator('#'+id).isVisible());

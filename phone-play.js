@@ -245,6 +245,7 @@
   const photoBar=document.createElement('div');photoBar.id='phoneAnalyzeBar';
   const mainActions=document.createElement('div');mainActions.id='photoMainActions';
   const more=document.createElement('button');more.id='photoMoreTools';more.type='button';more.textContent='Tools';more.setAttribute('aria-controls','photoSecondaryTools');
+  more.hidden=true;
   const secondary=document.createElement('div');secondary.id='photoSecondaryTools';
   function setPhotoTools(open){secondary.hidden=!open;more.setAttribute('aria-expanded',String(open));if(!open)closePhotoMenu();}
   more.onclick=()=>setPhotoTools(secondary.hidden);
@@ -254,9 +255,8 @@
     const hint=document.getElementById('photoAnalyzerStatus');
     secondary.append(analyzeToolbar);photoBar.append(mainActions,hint,secondary);
     const summary=document.querySelector('.photoReviewSummary');if(summary)photoBar.append(summary);
-    const roomy=matchMedia('(min-width:900px) and (min-height:520px)');
-    setPhotoTools(roomy.matches);
-    document.getElementById('photoAnalyzerClose').addEventListener('click',()=>setPhotoTools(roomy.matches));
+    setPhotoTools(true);
+    document.getElementById('photoAnalyzerClose').addEventListener('click',()=>setPhotoTools(true));
     // Walkthrough and Explorer can also navigate to actions inside the disclosure.
     const revealTarget=()=>{if(secondary.querySelector('.walkthroughTarget'))setPhotoTools(true);};
     new MutationObserver(revealTarget).observe(secondary,{subtree:true,attributes:true,attributeFilter:['class']});
@@ -302,7 +302,7 @@
     else{launchers.append(fullscreen);for(const {element,anchor}of relocated)anchor.after(element);for(const {element}of analyzeMoves)analyzeToolbar.append(element);}
     for(const [el,text]of originalText)el.textContent=focused()?compactText[el.id]:text;
     for(const which of [1,2]){const disk=document.getElementById('phoneTip'+which),spin=document.getElementById('bottomSpin'+which);if(disk){if(focused()&&spin)spin.append(disk);else document.body.append(disk);}}
-    if(document.body.classList.contains('table-3d')){launchers.append(fullscreen);if(updateButton.parentNode!==title)title.append(updateButton);}else if(updateButton.parentNode!==updateRow)updateRow.append(updateButton);
+    if(!workspace&&document.body.classList.contains('table-3d')){launchers.append(fullscreen);if(updateButton.parentNode!==title)title.append(updateButton);}else if(updateButton.parentNode!==updateRow)updateRow.append(updateButton);
     layoutAnalyze();
     dockGuide();syncAim();window.billiardsPhoneReadouts();
     setControls(false);

@@ -60,14 +60,15 @@ const near=(a,b,message,tolerance=1e-5)=>assert(Math.abs(a-b)<tolerance,message+
       assert.deepEqual((await state()).balls,before.balls,'Canceled table drag restores ball');await fixture();
      }
      console.log(`${touch?'touch':'mouse'} ${mode}: all 16 balls transferred both ways, undo/redo and invalid drops passed`);
-     await fixture(true);await page.waitForFunction(()=>document.querySelectorAll('.compassHandle:not([hidden])').length===8);
+     await fixture(true);await page.waitForFunction(()=>document.querySelectorAll('.compassHit').length===3);
      if(mode==='3d'){
       const data=await page.evaluate(()=>{const c=document.getElementById('canvas'),s=billiardsTourBridge.capture().state,f=billiardsTourBridge.annotationFrame();return {image:c.toDataURL(),state:s.teachingCompass,L:s.tableL,W:s.tableW,dpr:devicePixelRatio,canvas:{width:c.width,height:c.height,clientWidth:c.clientWidth,clientHeight:c.clientHeight,rect:c.getBoundingClientRect().toJSON()},sourceCenter:f.map({x:s.teachingCompass.x/s.tableL,y:s.teachingCompass.y/s.tableW}),projected:Billiards3D.project(s.teachingCompass),zoom:BilliardsTableZoom.snapshot()};});
       fs.writeFileSync(`${dir}/${touch?'touch':'mouse'}-source.png`,Buffer.from(data.image.split(',')[1],'base64'));delete data.image;fs.writeFileSync(`${dir}/${touch?'touch':'mouse'}-compass-geometry.json`,JSON.stringify(data,null,2));
      }
      for(const kind of ['rotate','resize'])for(let i=0;i<4;i++){
       await fixture(true);const before=(await state()).teachingCompass;
-      const a=await middle(`[data-handle="${kind}${i}"]`);
+      const radius=await page.evaluate(()=>billiardsCompassControls.state().radius),bearing=kind==='rotate'?before.angle+i*Math.PI/2:i*Math.PI/2+.2;
+      const a=await project({x:before.x+Math.cos(bearing)*radius*(kind==='rotate'?.6:1),y:before.y+Math.sin(bearing)*radius*(kind==='rotate'?.6:1)});
       const logical=await page.evaluate(p=>billiardsCompassControls.point({clientX:p.x,clientY:p.y}),a);
       const dx=logical.x-before.x,dy=logical.y-before.y,angle=.23;
       const q=kind==='rotate'?{x:before.x+dx*Math.cos(angle)-dy*Math.sin(angle),y:before.y+dx*Math.sin(angle)+dy*Math.cos(angle)}:{x:before.x+dx*1.15,y:before.y+dy*1.15};
@@ -75,13 +76,13 @@ const near=(a,b,message,tolerance=1e-5)=>assert(Math.abs(a-b)<tolerance,message+
       await start(a);await move(a);near((await state()).teachingCompass.angle,before.angle,'No rotation snap');
       await move(await project(q));await end();const after=(await state()).teachingCompass;
       near(after.x,before.x,'Center x retained');near(after.y,before.y,'Center y retained');
-      if(kind==='rotate'){near(after.angle-before.angle,angle,'Each dot rotates with grab offset',.015);near(after.sizePct,before.sizePct,'Rotation preserves size');}
-      else{assert(after.sizePct>before.sizePct+2,'Each square enlarges compass');near(after.angle,before.angle,'Resize preserves rotation');}
+      if(kind==='rotate'){near(after.angle-before.angle,angle,'Either line rotates with grab offset',.015);near(after.sizePct,before.sizePct,'Rotation preserves size');}
+      else{assert(after.sizePct>before.sizePct+2,'Any rim segment enlarges compass');near(after.angle,before.angle,'Resize preserves rotation');}
       if(camera)assert.deepEqual(await page.evaluate(()=>Billiards3D.camera()),camera,'Compass does not move camera');
       await page.keyboard.press('Control+z');near((await state()).teachingCompass.sizePct,before.sizePct,'Compass size undo');near((await state()).teachingCompass.angle,before.angle,'Compass rotation undo');
      }
      await fixture(true,true);const linked=await state(),ball=linked.balls[0];
-     await page.locator('[data-handle="rotate1"]').press('ArrowRight');const linkedAfter=await state();
+     await page.locator('.compassHit.rotate[data-axis="1"]').press('ArrowRight');const linkedAfter=await state();
      assert.deepEqual(linkedAfter.balls,linked.balls,'Linked rotation leaves object ball fixed');
      near(Math.hypot(linkedAfter.teachingCompass.x-ball.x,linkedAfter.teachingCompass.y-ball.y),2*linkedAfter.ballR,'Linked ghost center remains one diameter from object');
      assert.notEqual(linkedAfter.teachingCompass.angle,linked.teachingCompass.angle);
@@ -89,15 +90,15 @@ const near=(a,b,message,tolerance=1e-5)=>assert(Math.abs(a-b)<tolerance,message+
      const c=(await state()).teachingCompass,center=await project(c),destination=await project({x:c.x+.10,y:c.y+.05});
      await drag(center,destination);const moved=(await state()).teachingCompass;
      near(moved.x,c.x+.10,'Center still moves compass',.015);near(moved.y,c.y+.05,'Center still moves compass vertically',.015);
-     const resize=await middle('[data-handle="resize0"]'),shrink=await project(moved);
+     const movedRadius=await page.evaluate(()=>billiardsCompassControls.state().radius),resize=await project({x:moved.x+movedRadius,y:moved.y}),shrink=await project(moved);
      await drag(resize,shrink);near((await state()).teachingCompass.sizePct,10,'Resize inward reaches minimum');
      await page.evaluate(()=>{const s=billiardsTourBridge.capture();s.state.teachingCompass.sizePct=100;billiardsTourBridge.restore(s);});
-     await page.waitForFunction(()=>document.querySelectorAll('.compassHandle.resize:not([hidden])').length===4);
-     await page.locator('[data-handle="resize0"]').press('ArrowDown');assert((await state()).teachingCompass.sizePct<100,'Oversized compass can shrink without a menu');
+     await page.waitForFunction(()=>document.querySelectorAll('.compassHit.resize').length===1);
+     await page.locator('.compassHit.resize').press('ArrowDown');assert((await state()).teachingCompass.sizePct<100,'Oversized compass can shrink without a menu');
      await fixture(true);await page.screenshot({path:`${dir}/${touch?'touch':'mouse'}-${mode}-direct-controls.png`});
 
      await fixture();assert(await page.locator('#compassHandles').isHidden());
-     console.log(`${touch?'touch':'mouse'} ${mode}: eight compass handles, stable pivots, linked ball, camera preservation and undo passed`);
+     console.log(`${touch?'touch':'mouse'} ${mode}: invisible ring/axes, stable pivots, linked ball, camera preservation and undo passed`);
     }
     assert.deepEqual(errors,[]);
    }catch(e){await page.screenshot({path:`${dir}/${touch?'touch':'mouse'}-direct-failure.png`});throw e;}finally{await context.close();}

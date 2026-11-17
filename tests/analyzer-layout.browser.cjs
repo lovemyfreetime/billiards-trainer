@@ -27,11 +27,15 @@ const file=Buffer.from(JSON.stringify(files.create(layout))),ua='Mozilla/5.0 (Li
      const controls=[...document.querySelectorAll('#photoMainActions button,#photoSecondaryTools .photoAnalyzerToolbar button')].filter(e=>e.getBoundingClientRect().height>0);
      return {bar:box('#phoneAnalyzeBar'),summary:box('.photoReviewSummary'),pane:box('.photoReview'),footer:box('#photoFilesFooter'),name:box('#photoLayoutName'),saved:box('#photoFilesFooter .bt-saved-files select'),controls:controls.map(e=>({id:e.id,...e.getBoundingClientRect().toJSON()})),status:box('#photoAnalyzerStatus')};
     });
-    assert(geometry.bar.height<=110,'Top bar is compact: '+geometry.bar.height);assert(geometry.footer.height<=40,'Bottom bar is compact');
-    assert(Math.abs(geometry.summary.x-geometry.pane.x)<2&&geometry.summary.y<geometry.pane.y,'Summary is raised into the right side of header');
-    assert(Math.abs(geometry.name.width-geometry.saved.width)<1,'Layout-name and saved-file fields match widths');assert(geometry.name.width<=160,'Both file fields are shortened');
-    for(const b of geometry.controls)assert(Math.abs(b.height-28)<1,b.id+' matches control height');
-    const primary=geometry.controls.filter(b=>['photoChooseImage','photoAnalyzeNow','photoAddMissed','photoMoreTools'].includes(b.id));assert(primary.every(b=>Math.abs(b.width-112)<1),'Primary actions have matching widths');
+    assert(geometry.bar.height<=36,'Top actions stay on one thin line: '+geometry.bar.height);assert(geometry.footer.height<=40,'Bottom bar is compact');
+    assert(geometry.summary.y+geometry.summary.height<=geometry.bar.y+geometry.bar.height+1,'Ball references fit in the same top line');
+    assert(Math.abs(geometry.name.width-geometry.saved.width)<1,'Layout-name and saved-file fields match widths');assert(geometry.name.width>180,'Both file fields expand to fill the bottom bar');
+    for(const b of geometry.controls)assert(Math.abs(b.y+b.height/2-geometry.bar.y-geometry.bar.height/2)<2,b.id+' stays on the same top line');
+    const primary=geometry.controls.filter(b=>['photoChooseImage','photoAnalyzeNow','photoAddMissed'].includes(b.id));assert(primary.every(b=>b.height>=28&&b.width>=96),'Main image/analyze/add actions remain prominent');
+    assert.equal(await page.locator('#photoMoreTools').isVisible(),false,'Tools toggle is removed');
+    const actions=geometry.controls.filter(b=>b.id!=='photoAnalyzerClose').sort((a,b)=>a.x-b.x);assert.equal(actions.at(-1).id,'photoWalkthroughBtn','Walkthrough is the last top action');
+    const order=['photoChooseImage','photoTakeImage','photoFrameImage','photoAutoRailsBtn','photoFindCorners','photoFineTune','photoAnalyzeNow','photoAddMissed','phonePhotosButton','photoResetCorners','btg-analyze-explore','photoWalkthroughBtn'];assert.deepEqual(actions.map(b=>b.id),order.filter(id=>actions.some(b=>b.id===id)),'Actions follow acquisition, alignment, analysis, review and help');
+    const filled=await page.evaluate(()=>{const e=document.querySelector('#photoFilesFooter'),buttons=[...e.querySelectorAll('button')].filter(b=>b.getBoundingClientRect().width);return {right:e.getBoundingClientRect().right,last:Math.max(...buttons.map(b=>b.getBoundingClientRect().right))};});assert(filled.right-filled.last<=8,'Bottom bar uses its full width');
     assert(geometry.status.height<=1,'Routine instruction/status line does not consume image height');
     const drawing=await page.evaluate(()=>({texts:window.__photoTexts,canvas:{width:photoAnalyzerCanvas.width,height:photoAnalyzerCanvas.height},rect:photoAnalyzerCanvas.getBoundingClientRect().toJSON()}));
     assert(!drawing.texts.some(t=>/inside corner|cushion line|wheel|pinch/.test(t.text)),'Verbose canvas words are removed');
@@ -46,7 +50,7 @@ const file=Buffer.from(JSON.stringify(files.create(layout))),ua='Mozilla/5.0 (Li
     await page.locator('#photoApplyTable').tap();await page.waitForFunction(()=>!document.querySelector('#photoAnalyzerModal').classList.contains('open'));
     const state=await shot();assert.deepEqual(state.balls.filter(b=>b.active).map(b=>b.id).sort((a,b)=>a-b),[0,6,8,11,15]);
     for(const b of layout.balls){const applied=state.balls.find(n=>n.id===(b.id===5?6:b.id));assert(Math.hypot(applied.x-b.x,applied.y-b.y)<1e-8,'Apply preserves original table coordinates');}
-    assert.deepEqual(errors,[]);console.log(name+': compact bars, equal fields, raised summary, outside number badges, badge selection, identity correction and Apply passed');
+    assert.deepEqual(errors,[]);console.log(name+': single top line, larger equal fields, workflow order, outside number badges, badge selection, identity correction and Apply passed');
    }catch(e){console.error(name+': '+e.stack);failures.push(name+': '+e.message);await page.screenshot({path:dir+'/'+name+'-failure.png'}).catch(()=>{});}
    finally{await context.close();}
   }
