@@ -22,9 +22,13 @@ function plan(f){
   const angle=v=>Math.atan2(v[2]-p.center[2],v[0]-p.center[0]),start=angle(b),finish=angle(next),tau=Math.PI*2;
   let sweep=(finish-start+tau)%tau;
   const polar=p.contour.map(v=>({v,theta:(angle(v)-start+tau)%tau})).sort((a,b)=>a.theta-b.theta);
-  p.backPath=[b,...polar.filter(v=>v.theta>1e-5&&v.theta<sweep-1e-5).map(v=>[v.v[0],capHeight,v.v[2]]),next];
-  p.frontPath=[[next[0],0,next[2]],...polar.filter(v=>v.theta>sweep+1e-5).map(v=>v.v),[b[0],0,b[2]]];
-  p.dropPath=[...p.backPath,...p.frontPath.slice(1)];
+  const onRay=theta=>{const dx=Math.cos(theta),dz=Math.sin(theta),cross=(x,z,u,v)=>x*v-z*u;let distance=Infinity;for(let j=0;j<p.contour.length;j++){const a=p.contour[j],b=p.contour[(j+1)%p.contour.length],x=a[0]-p.center[0],z=a[2]-p.center[2],sx=b[0]-a[0],sz=b[2]-a[2],den=cross(dx,dz,sx,sz);if(Math.abs(den)<1e-12)continue;const r=cross(x,z,sx,sz)/den,t=cross(x,z,dx,dz)/den;if(r>=0&&t>=-1e-8&&t<=1+1e-8)distance=Math.min(distance,r);}return [p.center[0]+dx*distance,capHeight,p.center[2]+dz*distance];};
+  const innerStart=onRay(start),innerEnd=onRay(finish);
+  p.innerBackPath=[innerStart,...polar.filter(v=>v.theta>1e-5&&v.theta<sweep-1e-5).map(v=>[v.v[0],capHeight,v.v[2]]),innerEnd];
+  const firstWidth=(b[0]-innerStart[0])*Math.cos(start)+(b[2]-innerStart[2])*Math.sin(start),lastWidth=(next[0]-innerEnd[0])*Math.cos(finish)+(next[2]-innerEnd[2])*Math.sin(finish),middleWidth=ref.rimWidth*f.L/(A.x1-A.x0);
+  p.backPath=p.innerBackPath.map((v,j)=>{if(j===0)return b;if(j===p.innerBackPath.length-1)return next;const t=j/(p.innerBackPath.length-1),width=(1-t)*firstWidth+t*lastWidth+Math.sin(Math.PI*t)*(middleWidth-(firstWidth+lastWidth)/2),dx=v[0]-p.center[0],dz=v[2]-p.center[2],length=Math.hypot(dx,dz);return [v[0]+dx/length*width,capHeight,v[2]+dz/length*width];});
+  p.frontPath=[[innerEnd[0],0,innerEnd[2]],...polar.filter(v=>v.theta>sweep+1e-5).map(v=>v.v),[innerStart[0],0,innerStart[2]]];
+  p.dropPath=[...p.contour,p.contour[0]];p.innerRear=Math.max(...p.innerBackPath.map(v=>p.local(v)[0]));
   const nose=r.at(1,0,noseHeight),nose2=rails[(i+1)%6].at(0,0,noseHeight),foreN=(p.local(nose)[0]+p.local(nose2)[0])/2;
   p.front=Math.min(...p.frontPath.map(v=>p.local(v)[0]));p.rear=Math.max(...p.backPath.map(v=>p.local(v)[0]));p.shelf=p.front-foreN;p.visualMouth=Math.hypot(nose[0]-nose2[0],nose[2]-nose2[2]);
   inside.push(a,b,...p.backPath.slice(1));

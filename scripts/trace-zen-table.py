@@ -71,7 +71,7 @@ line([1444,111],[1444,659]);curve([1444,659],[1444,712],[1392,712])
 line([1392,712],[286,712]);curve([286,712],[234,712],[234,659])
 line([234,659],[234,111]);curve([234,111],[234,58],[286,58])
 sights = [[x,82] for x in [427,564,700,978,1115,1251]] + [[x,687] for x in [427,565,700,978,1115,1251]] + [[x,y] for x in [258,1419] for y in [248,386,526]]
-data={'source':'icons/zen-reference-table-v1.webp','sha256':hashlib.sha256(ART.read_bytes()).hexdigest(),'registration':{'width':1678,'height':937,'x0':298,'x1':1379,'y0':120,'y1':650},'outer':outer,'rails':rails,'pockets':holes,'sights':sights,'sightRadius':1.8,'rimWidth':2.5}
+data={'source':'icons/zen-reference-table-v1.webp','sha256':hashlib.sha256(ART.read_bytes()).hexdigest(),'registration':{'width':1678,'height':937,'x0':298,'x1':1379,'y0':120,'y1':650},'outer':outer,'rails':rails,'pockets':holes,'sights':sights,'sightRadius':1.8,'rimWidth':5.5}
 target=ROOT/'trainer-zen-shapes.js'
 target.write_text("/* Measured Zen table contours. Regenerate with scripts/trace-zen-table.py. */\n(function(root){'use strict';const shapes="+json.dumps(data,separators=(',',':'))+";if(typeof module==='object'&&module.exports)module.exports=shapes;else root.BilliardsZenShapes=shapes;})(typeof window==='object'?window:globalThis);\n")
 print(f'{target.name}: {len(holes)} pocket contours, six cushion polygons, outer rail and 18 round sights')

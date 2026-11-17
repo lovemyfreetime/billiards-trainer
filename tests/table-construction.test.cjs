@@ -10,6 +10,6 @@ for(const [L,W,R]of [[2.54,1.27,.028575],[2.2352,1.1176,.028575],[2.032,1.016,.0
  const close=(a,b)=>a.forEach((v,i)=>assert(Math.abs(v-b[i])<1e-8));
  p.rails.forEach((r,i)=>{for(const end of [0,1]){close(inverse(r.at(end,0,p.noseHeight)),ref.rails[i].fore[end]);close(inverse(r.at(end,r.depth,p.capHeight)),ref.rails[i].back[end]);}assert(r.depth>.035&&r.depth<.06);});
  p.pockets.forEach((q,i)=>{assert(q.backPath.length>20&&q.frontPath.length>20);close(inverse(q.center),ref.pockets[i].centre);q.contour.forEach((v,j)=>close(inverse(v),ref.pockets[i].contour[j]));assert(q.visualMouth>2*R);assert(q.frontPath.every(v=>v[1]===0));});
- p.outer.forEach((v,i)=>close(inverse(v),ref.outer[i]));p.sights.forEach((v,i)=>close(inverse(v),ref.sights[i]));assert(p.linerWidth<.007);assert(p.edgeRadius<=.0012);
+ p.outer.forEach((v,i)=>close(inverse(v),ref.outer[i]));p.sights.forEach((v,i)=>close(inverse(v),ref.sights[i]));assert(Math.abs(p.linerWidth-ref.rimWidth*L/1081)<1e-10);for(const q of p.pockets)assert.equal(q.backPath.length,q.innerBackPath.length,'Flat collar connects inner cut to cushion-registered outer edge');assert(p.edgeRadius<=.0012);
 }
 console.log('Zen shape reference: source hash, six measured cushion polygons, six source pocket cuts, rounded outer rail and round sight positions match at four table/ball sizes.');

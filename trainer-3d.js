@@ -324,7 +324,7 @@
    for(let i=0;i<positions.count;i++)uvs.push((positions.getX(i)+(plan.L+2*plan.railWidth)/2)/(plan.L+2*plan.railWidth),((plan.W+2*plan.railWidth)/2-positions.getZ(i))/(plan.W+2*plan.railWidth));
    edge.geometry.setAttribute('uv',new T.Float32BufferAttribute(uvs,2));p.edge=edge;
    const inner=[],outer=[];
-   p.backPath.forEach((v,i)=>{const [nx,nz]=pocketNormal(p.backPath,i);inner.push([v[0]-nx*plan.linerInset,plan.capHeight+.0006,v[2]-nz*plan.linerInset]);outer.push([v[0]+nx*plan.linerWidth,plan.capHeight+.0006,v[2]+nz*plan.linerWidth]);});
+   p.innerBackPath.forEach((v,i)=>{const [nx,nz]=pocketNormal(p.innerBackPath,i),back=p.backPath[i];inner.push([v[0]-nx*plan.linerInset,plan.capHeight+.0006,v[2]-nz*plan.linerInset]);outer.push([back[0],plan.capHeight+.0006,back[2]]);});
    // The liner has thickness and sits inside the wood, avoiding coplanar faces.
    joinRows([inner.map(v=>[v[0],-.025,v[2]]),inner],pocketLip,'flush-pocket-liner');
    // A flat, separately shaded flange avoids the inflated rolled-rubber appearance.
@@ -336,7 +336,7 @@
   function rebuild(f){
    for(const child of [...table.children]){table.remove(child);child.geometry.dispose();for(const m of Array.isArray(child.material)?child.material:[child.material])if(m.userData.pocketOwned){m.map?.dispose();m.dispose();}}
    const plan=tablePlan=window.BilliardsTableConstruction.plan(f),margin=plan.railWidth,w=f.L+margin*2,d=f.W+margin*2;
-   pocketSpecs=plan.pockets.map(p=>({...p,probe:new T.Vector3(...p.center),shelfProbe:new T.Vector3(...p.at(p.front-.005,p.centerT)),back:new T.Vector3(...p.at(p.rear+plan.linerWidth*.5,p.centerT)),wood:new T.Vector3(...p.at(p.rear+plan.linerWidth+.015,p.centerT))}));
+   pocketSpecs=plan.pockets.map(p=>({...p,probe:new T.Vector3(...p.center),shelfProbe:new T.Vector3(...p.at(p.front-.005,p.centerT)),back:new T.Vector3(...p.at(p.innerRear+plan.linerWidth*.5,p.centerT)),wood:new T.Vector3(...p.at(p.rear+.006,p.centerT))}));
    const outline=polygon(plan.outer);for(const p of pocketSpecs)outline.holes.push(polygon(p.dropPath));
    const geometry=new T.ShapeGeometry(outline,32);geometry.rotateX(-Math.PI/2);const uv=geometry.attributes.uv,positions=geometry.attributes.position;
    for(let i=0;i<positions.count;i++)uv.setXY(i,(positions.getX(i)+w/2)/w,(d/2-positions.getZ(i))/d);
