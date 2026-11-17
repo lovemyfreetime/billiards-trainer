@@ -69,7 +69,9 @@ function compare(actual,expected,label){for(const [s,a] of Object.entries(actual
     const fits=await page.evaluate(()=>{const f=document.querySelector('.sc-footer').getBoundingClientRect(),o=document.querySelector('.shot-clock-view');return {bottom:f.bottom,height:innerHeight,overflow:o.scrollHeight-o.clientHeight};});
     assert(fits.bottom<=fits.height+1&&fits.overflow<=1,'Whole Shot Clock, including footer, fits: '+JSON.stringify(fits));
     await page.screenshot({path:dir+'/'+name+'-clock.png'});
-    await page.locator('.sc-footer .sc-start').first().tap();assert(await page.locator('.sc-footer .sc-pause').isEnabled(),'Scaled clock starts');
+    await page.locator('.sc-footer .sc-break').tap();
+    await page.locator('.sc-footer .sc-start:not(.sc-break)').first().tap();
+    await page.waitForFunction(()=>!document.querySelector('.sc-footer .sc-pause').disabled);
     await page.locator('.sc-footer .sc-pause').tap();
     assert.deepEqual(errors,[]);console.log(name+': desktop proportions match in 2D,3D,Tools,Play,game,clock; aim,shoot,undo and clock taps passed');
    }catch(e){console.error(name+': '+e.stack);failures.push(name+': '+e.message);await page.screenshot({path:dir+'/'+name+'-failure.png'}).catch(()=>{});}
