@@ -32,7 +32,7 @@ Opening a main task collapses the previous main task, while nested disclosure st
 | Section | Contents |
 | --- | --- |
 | Shot | Opens by default when Tools opens. Retain the original shot controls, cue contact, planning, Jump/Massé and history directly in the section. |
-| Live Shot Results | A separate main tab immediately below Shot; retain interactive aiming while its readouts stay visible. |
+| Live Shot | A separate main tab immediately below Shot; retain interactive aiming while its readouts stay visible. |
 | Table & Balls | Equal-level disclosures for full racks, layout setup, single-ball placement and markers/targets. |
 | Table Notes | Write/annotate tools directly inside the tab, with no redundant wrapper subsection. |
 | Capture | Photo, Video and Audio disclosures; nested shot/session/camera recording and narration. Preserve recorder capability checks. |
@@ -73,3 +73,11 @@ Preserve the full main labels and larger Billiards Trainer / AI Edition branding
 Use uniform circular top controls for experience,2D/3D, the picker, Undo, Redo and Tools. Keep Undo/Redo paired and add12px extra separation before Tools, with a clearer outline. The picker expands downward as a semicircle containing Import, View, Motion and Follow View circles; each circle opens its existing menu directly below that circle. Preserve IDs, keyboard access, outside dismissal and existing bindings.
 
 Use the existing3D spherical ball textures for both the2D table and shared tray, including all16 identities, stripes and number panels. Shared artwork prevents the modes drifting apart. Preserve bright colors while adding spherical shading and broad reflected highlights;3D uses the same textures with a polished resin material. Remove dotted pocketed-ball outlines and the CB1 caption from the central cue-tip disk. Keep ball placement, drag/undo, training-ball markings and physics unchanged. Zen remains outside this visual revision.
+
+## Picker and header refinement — November 16, 2026
+
+The picker center uses a four-square icon and retains the same screen position open or closed. Leave room between it and 2D/3D for Import to appear beside 2D/3D. The open fan has its flat edge at the screen top, with its four equal circles spaced at60-degree intervals on one radius. Keep the center above the fan and reachable. Narrow displays use a second row for Undo/Redo/Tools while closed and hide that row during the fan interaction; Tools returns to the first row while the side panel is open. Hide Undo and Redo when the side panel opens, as shown in the annotated reference. Keep a green ring on 2D/3D and blue on Tools.
+
+Branding starts at the top of the side panel. Get Started, Guide, Explorer and Updates share one compact row, with12px between Explorer and Updates. The main metric tab is Live Shot. Shot remains the default every time Tools opens. App Info closes on an outside tap while keeping inside text selection, the Close button and Escape intact. Shoot widens6px to leave4px between its edge and the spin/tray column.
+
+Shot launch-speed controls now allow7.0 m/s instead of6.0, including both shots, side rails, numeric inputs, step buttons and matching power/stroke reference ranges. Keep kick/bank search limits, engine step size, friction and restitution unchanged. Real-physics tests cover6.0,6.5 and7.0 m/s head-on/cut/cushion/rack cases, checking finite output, no energy gain, no stacked balls and identical preview/execution. This small cap extension does not claim validation of full professional break speeds (about11–13 m/s).

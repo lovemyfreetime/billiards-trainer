@@ -78,12 +78,16 @@
  });
  if(native)window.addEventListener('billiards:content-update',event=>receiveNative(event.detail));
  function bindAppInfo(){
-  if(!window.BilliardsBundledAndroid)return;
   const button=document.getElementById('trainerAppInfo');
   if(!button)return;
   const dialog=document.getElementById('trainerAppInfoDialog');
   const report=document.getElementById('trainerVersionReport');
   const message=document.getElementById('trainerVersionStatus');
+  let outside=false;
+  const within=event=>{const r=dialog.getBoundingClientRect();return event.clientX>=r.left&&event.clientX<=r.right&&event.clientY>=r.top&&event.clientY<=r.bottom;};
+  dialog.addEventListener('pointerdown',event=>{outside=!within(event);});
+  dialog.addEventListener('click',event=>{if(outside&&!within(event))dialog.close();outside=false;});
+  if(!window.BilliardsBundledAndroid)return;
   button.hidden=false;
   button.onclick=async()=>{
    let installedVersion='',contentVersion='';

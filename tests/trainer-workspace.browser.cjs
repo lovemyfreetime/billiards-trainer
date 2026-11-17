@@ -57,7 +57,17 @@ const overlaps=(a,b)=>a.x<b.x+b.width-1&&a.x+a.width>b.x+1&&a.y<b.y+b.height-1&&
    };
    try{
     await page.goto('http://127.0.0.1:8820/?train=1');await page.waitForFunction(()=>window.billiardsTourBridge&&window.billiardsWorkspaceSync);
+    const closedPicker=await page.locator('#workspace-picker > summary').boundingBox();
     await showPicker();await screenshot('picker');
+    assert.deepEqual(await page.locator('#workspace-picker > summary').boundingBox(),closedPicker,'Picker center never moves');
+    const fan=await page.locator('.workspacePickerFan').boundingBox(),mode=await page.locator('#table3DToggle').boundingBox(),importCircle=await reachable('#workspace-setup > summary');
+    assert(Math.abs(fan.y)<1,'Picker flat edge touches the top of the screen');
+    assert(fan.x>=mode.x+mode.width+4,'Expanded picker stays clear of 2D/3D');
+    assert(Math.abs(importCircle.y-mode.y)<1,'Import sits next to the mode circle');
+    const centers=await page.locator('.workspaceTaskMenu > summary').evaluateAll(es=>es.map(e=>{const r=e.getBoundingClientRect();return [r.x+r.width/2,r.y+r.height/2];}));
+    const radii=centers.map(([x,y])=>Math.hypot(x-closedPicker.x-closedPicker.width/2,y-closedPicker.y-closedPicker.height/2));
+    assert(Math.max(...radii)-Math.min(...radii)<1,'All four circles share one radius');
+    const chords=centers.slice(1).map(([x,y],i)=>Math.hypot(x-centers[i][0],y-centers[i][1]));assert(Math.max(...chords)-Math.min(...chords)<1,'Picker circles are evenly spaced');
     for(const key of ['setup','view','motion','follow']){
      await tool(key);const r=await reachable('#workspace-'+key+' > summary'),menu=await reachable('#workspace-'+key+' .workspaceToolGroup');
      assert(menu.y>=r.y+r.height&&menu.y-r.y-r.height<=10,'Dropdown follows its chosen circle');

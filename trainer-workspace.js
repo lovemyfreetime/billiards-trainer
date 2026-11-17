@@ -22,7 +22,7 @@
   }
   const picker = document.createElement('details'); picker.id = 'workspace-picker';
   const pickerButton = document.createElement('summary'); pickerButton.setAttribute('aria-label', 'Import, View, Motion and Follow View');
-  pickerButton.innerHTML = '<svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><path d="M4 12a12 12 0 0024 0" fill="none" stroke="currentColor" stroke-width="1.5"/><g fill="currentColor"><circle cx="5" cy="12" r="2.5"/><circle cx="11" cy="22" r="2.5"/><circle cx="21" cy="22" r="2.5"/><circle cx="27" cy="12" r="2.5"/></g></svg>';
+  pickerButton.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>';
   const fan = document.createElement('div'); fan.className = 'workspacePickerFan';
   fan.append(...bar.querySelectorAll('.workspaceTaskMenu')); picker.append(pickerButton, fan); bar.append(picker);
   function positionToolMenu(details) {
@@ -33,8 +33,19 @@
     menu.style.setProperty('--tools-menu-left', Math.max(8, Math.min(innerWidth-width-8,r.left+(r.width-width)/2))+'px');
   }
   function positionPicker() {
-    const r = pickerButton.getBoundingClientRect();
-    fan.style.left = Math.max(8, Math.min(innerWidth-288,r.left+r.width/2-140))-r.left+'px';
+    const mode = byId('table3DToggle'); if (!mode) return;
+    const size = pickerButton.offsetWidth || 46, firstLeft = mode.getBoundingClientRect().right + 6;
+    const radius = Math.min(96, Math.max(48, (innerWidth - 38 - firstLeft - size) / 2));
+    picker.style.marginLeft = radius + 'px';
+    fan.style.setProperty('--picker-left', firstLeft + 'px');
+    fan.style.setProperty('--picker-width', 2*radius+size+'px');
+    fan.style.setProperty('--picker-height', radius+size+8+'px');
+    fan.style.setProperty('--picker-size', size+'px');
+    [...fan.children].forEach((details, i) => {
+      const angle = Math.PI - i*Math.PI/3;
+      details.style.setProperty('--picker-x', radius+radius*Math.cos(angle)+'px');
+      details.style.setProperty('--picker-y', 8+radius*Math.sin(angle)+'px');
+    });
     for (const d of fan.querySelectorAll('.workspaceTaskMenu[open]')) positionToolMenu(d);
   }
   picker.addEventListener('toggle', () => {
@@ -220,6 +231,7 @@
     if (mode) { if (experience) experience.after(mode); else bar.prepend(mode); mode.after(picker); }
     move(bar, byId('phoneAimChoice'));
     sync();
+    positionPicker();
   };
   byId('phoneControls')?.addEventListener('click', closeGroups);
   const experienceObserver = new MutationObserver(() => {

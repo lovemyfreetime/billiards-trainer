@@ -115,3 +115,16 @@ body.trainer-workspace.phone-controls-open #phoneDismiss { display:none!importan
 #panel .menuInfo { display:flex; align-items:center; gap:10px; width:100%; min-height:48px; padding:10px; box-sizing:border-box; text-align:left; color:#f2f8fd; background:var(--menu-sub); cursor:pointer; }
 #panel .menuInfo .menuTitle { font-size:14px; }
 #panel .menuInfo::after { content:'›'; margin-left:auto; font:600 24px/1 system-ui; }
+
+/* Bring branding and learning/update actions into a compact two-line header. */
+body.trainer-workspace.phone-controls-open.phone-focus #panel { padding-top:8px!important; }
+body.trainer-workspace #panel .btg-pool-title { display:grid!important; grid-template-columns:minmax(0,1fr); gap:6px; margin:0 0 10px; }
+body.trainer-workspace #panel .btg-pool-title h1 { width:calc(100% - 82px); font-size:28px!important; }
+body.trainer-workspace #panel .btg-pool-title .editionSub { margin-top:4px; }
+#menuHeaderActions { display:flex; align-items:center; gap:12px; }
+body.trainer-workspace #panel #menuHeaderActions #btg-pool-launchers { margin:0; padding:0; width:auto; }
+body.trainer-workspace #panel #menuHeaderActions #trainerUpdateRow { display:flex; width:auto; margin:0; padding:0; }
+body.trainer-workspace #panel #menuHeaderActions #trainerUpdateCheck { min-height:32px; padding:4px 10px; margin:0; }
+@media(max-width:700px) {
+ body.trainer-workspace #panel .btg-pool-title h1 { font-size:24px!important; }
+}

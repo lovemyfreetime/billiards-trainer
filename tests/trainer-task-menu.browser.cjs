@@ -62,17 +62,22 @@ fs.mkdirSync(dir, { recursive: true });
       try {
         await page.goto('http://127.0.0.1:8826/?train=1');
         await page.waitForFunction(() => window.billiardsMenuReady && window.billiardsPoolGuide && window.BilliardsShotRecorder && document.querySelector('#trainingBallStyle'));
-        assert.deepEqual(await page.locator('#panel > .section > .sectionToggle .menuTitle').allTextContents(), ['Shot', 'Live Shot Results', 'Table & Balls', 'Table Notes', 'Capture', 'Saved', 'Features & Options']);
+        assert.deepEqual(await page.locator('#panel > .section > .sectionToggle .menuTitle').allTextContents(), ['Shot', 'Live Shot', 'Table & Balls', 'Table Notes', 'Capture', 'Saved', 'Features & Options']);
         await drawer();
         assert.equal(await page.locator('#shotSection > .sectionToggle').getAttribute('aria-expanded'),'true');
         assert.equal(await page.locator('#panel h1 .editionSub').textContent(),'AI Edition');
         assert(await page.locator('#panel h1 .editionSub').isVisible());
-        assert(await page.locator('#panel h1').evaluate(e=>parseFloat(getComputedStyle(e).fontSize)>=26));
+        assert(await page.locator('#panel h1').evaluate(e=>parseFloat(getComputedStyle(e).fontSize)>=22));
         const titleBox=await page.locator('#panel h1').boundingBox(), toolsBox=await page.locator('#phoneControls').boundingBox();
-        assert(titleBox.y>=toolsBox.y+toolsBox.height,'Menu title clears the fixed Tools control');
+        assert(titleBox.y<=14&&titleBox.x+titleBox.width<=toolsBox.x+1,'Compact branding clears Tools horizontally');
+        const explorerBox=await page.locator('#btg-pool-explore').boundingBox(),updateBox=await page.locator('#trainerUpdateCheck').boundingBox();
+        assert(Math.abs(explorerBox.y-updateBox.y)<3,'Learning and update actions share one row');
+        assert(updateBox.x-explorerBox.x-explorerBox.width>=8&&updateBox.x-explorerBox.x-explorerBox.width<=16,'Updates follows Explorer with a small gap');
+        assert.equal(await page.locator('[data-trainer-action=undoShot]').isVisible(),false);
+        assert.equal(await page.locator('[data-trainer-action=redoShot]').isVisible(),false);
         await picture('header');
         assert.equal(await page.locator('#liveStatsSection').evaluate(e=>e.previousElementSibling.id),'shotSection');
-        const toolbar = ['#btZenLauncher .experience-toggle','#table3DToggle','#workspace-picker > summary','[data-trainer-action=undoShot]','[data-trainer-action=redoShot]','#phoneControls'];
+        const toolbar = ['#btZenLauncher .experience-toggle','#table3DToggle','#workspace-picker > summary','#phoneControls'];
         const boxes=[];
         for(const selector of toolbar){
           const el=page.locator(selector),r=await el.boundingBox(); boxes.push(r);
@@ -81,7 +86,13 @@ fs.mkdirSync(dir, { recursive: true });
           assert(await el.evaluate(e=>{const r=e.getBoundingClientRect();return e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}),selector+' is reachable');
         }
         assert.equal(await page.locator('#table3DToggle').textContent(),'3D');
-        assert(boxes[5].x-boxes[4].x-boxes[4].width>boxes[4].x-boxes[3].x-boxes[3].width+8,'Tools has a distinct gap after Redo');
+        assert.equal(await page.locator('#table3DToggle').evaluate(e=>getComputedStyle(e).borderColor),'rgb(85, 232, 105)');
+        assert.equal(await page.locator('#phoneControls').evaluate(e=>getComputedStyle(e).borderColor),'rgb(66, 151, 230)');
+        await page.locator('#speedNumber').fill('7');await page.locator('#speedNumber').press('Tab');assert.equal((await state()).speed,7);
+        for(const id of ['speed','speedNumber','speed2','speed2Number','tableSpeed1','tableSpeed2'])assert.equal(await page.locator('#'+id).getAttribute('max'),'7');
+        await open('options');await page.locator('#phoneControls').click();
+        assert(await page.locator('[data-trainer-action=undoShot]').isVisible());assert(await page.locator('[data-trainer-action=redoShot]').isVisible());
+        await drawer();assert.equal(await page.locator('#shotSection > .sectionToggle').getAttribute('aria-expanded'),'true','Shot reopens by default after another tab');
         assert.equal(await page.locator('.workspaceBall').first().evaluate(e=>getComputedStyle(e).outlineStyle),'none');
         assert(await page.locator('.workspaceBall').first().evaluate(e=>getComputedStyle(e).backgroundImage.startsWith('url(')));
         if(viewport.width===1366){
@@ -131,6 +142,10 @@ fs.mkdirSync(dir, { recursive: true });
         assert.equal(Math.round((await page.locator('#trainerAppInfo').boundingBox()).height),Math.round((await page.locator('#menu-featureOtherOptions > summary').boundingBox()).height));
         assert.equal(await page.locator('#trainerAppInfo').evaluate(e=>getComputedStyle(e).backgroundColor),subBlue);
         if(viewport.width===1366){await page.locator('#trainerAppInfo').scrollIntoViewIfNeeded();await picture('features-info');}
+        const info=page.locator('#trainerAppInfoDialog');
+        await info.evaluate(e=>e.showModal());await page.locator('#trainerVersionReport').click();assert(await info.evaluate(e=>e.open),'Inside taps keep App Info open');
+        await page.mouse.click(4,viewport.height/2);assert.equal(await info.evaluate(e=>e.open),false,'Outside tap dismisses App Info');
+        await info.evaluate(e=>e.showModal());await info.locator('form button').click();assert.equal(await info.evaluate(e=>e.open),false,'Close still works');
         await page.locator('#trainerAppInfo').evaluate(e=>e.hidden=true);
         for (const id of ['kickToolToggle', 'bankToolToggle', 'teachingCompassToggle']) assert.equal(await page.locator('#' + id).evaluate(e => e.closest('fieldset').id), 'featureAimingOptions');
         for (const [id, topic] of [['table', 'main-panel-table-balls'], ['shot', 'main-panel-shot'], ['options', 'main-panel-features-options']]) {

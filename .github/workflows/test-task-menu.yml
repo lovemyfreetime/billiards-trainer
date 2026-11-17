@@ -16,6 +16,7 @@ jobs:
           node-version: '24'
       - name: Check existing state behavior and complete update inventory
         run: |
+          node tests/shot-speed-range.test.cjs
           node tests/shot-redo.test.cjs
           node tests/phone-play.test.cjs
           node tests/trainer-3d-gesture-routing.test.cjs

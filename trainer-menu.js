@@ -55,7 +55,7 @@
   function wrap(el, id, title, key, open = false) { const anchor = document.createComment(id); el.before(anchor); const d = disclosure(id, title, key, [el], open); anchor.replaceWith(d); return d; }
   const menus = [
     ['shot', 'Shot', 'shot', 'Aim · Spin · Live Results'],
-    ['liveStats', 'Live Shot Results', 'stats', ''],
+    ['liveStats', 'Live Shot', 'stats', ''],
     ['table', 'Table & Balls', 'table', 'Racks · Ball Placement · Targets'],
     ['draw', 'Table Notes', 'notes', 'Lines · Shapes · Written Notes'],
     ['capture', 'Capture', 'capture', 'Photos · Video · Audio'],
@@ -170,6 +170,8 @@
   if (byId('sessionFolderStatus').textContent.startsWith('Saved layouts')) byId('sessionFolderStatus').textContent = 'Stored on this device · Export to share';
   const title = panel.querySelector('h1');
   title.querySelector('.editionSub').textContent = 'AI Edition';
+  const headerActions = document.createElement('div'); headerActions.id = 'menuHeaderActions';
+  headerActions.append(byId('btg-pool-launchers'), byId('trainerUpdateRow')); title.append(headerActions);
   function openShot() {
     const section = byId('shotSection');
     if (!section.classList.contains('open')) section.querySelector(':scope > .sectionToggle').click();
