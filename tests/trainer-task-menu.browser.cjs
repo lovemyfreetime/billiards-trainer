@@ -69,7 +69,8 @@ fs.mkdirSync(dir, { recursive: true });
         assert(await page.locator('#panel h1 .editionSub').isVisible());
         assert(await page.locator('#panel h1').evaluate(e=>parseFloat(getComputedStyle(e).fontSize)>=22));
         const titleBox=await page.locator('#panel h1').boundingBox(), toolsBox=await page.locator('#phoneControls').boundingBox();
-        assert(titleBox.y<=14&&titleBox.x+titleBox.width<=toolsBox.x+1,'Compact branding clears Tools horizontally');
+        if(viewport.width<=700)assert(titleBox.y>=62&&titleBox.x+titleBox.width<=viewport.width-12,'Phone branding sits below the control row');
+        else assert(titleBox.y<=14&&titleBox.x+titleBox.width<=toolsBox.x+1,'Compact branding clears Tools horizontally');
         const explorerBox=await page.locator('#btg-pool-explore').boundingBox(),updateBox=await page.locator('#trainerUpdateCheck').boundingBox();
         assert(Math.abs(explorerBox.y-updateBox.y)<3,'Learning and update actions share one row');
         assert(updateBox.x-explorerBox.x-explorerBox.width>=8&&updateBox.x-explorerBox.x-explorerBox.width<=16,'Updates follows Explorer with a small gap');
@@ -83,6 +84,7 @@ fs.mkdirSync(dir, { recursive: true });
           const el=page.locator(selector),r=await el.boundingBox(); boxes.push(r);
           assert(Math.abs(r.width-r.height)<1,selector+' is circular');
           assert(Math.abs(r.width-46)<1,selector+' uses the same diameter');
+          assert(r.x+r.width<=titleBox.x||r.x>=titleBox.x+titleBox.width||r.y+r.height<=titleBox.y||r.y>=titleBox.y+titleBox.height,selector+' does not cover branding');
           assert(await el.evaluate(e=>{const r=e.getBoundingClientRect();return e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}),selector+' is reachable');
         }
         assert.equal(await page.locator('#table3DToggle').textContent(),'3D');

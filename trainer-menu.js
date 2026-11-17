@@ -171,7 +171,7 @@
   const title = panel.querySelector('h1');
   title.querySelector('.editionSub').textContent = 'AI Edition';
   const headerActions = document.createElement('div'); headerActions.id = 'menuHeaderActions';
-  headerActions.append(byId('btg-pool-launchers'), byId('trainerUpdateRow')); title.append(headerActions);
+  headerActions.append(byId('btg-pool-launchers'), byId('trainerUpdateRow')); title.parentElement.append(headerActions);
   function openShot() {
     const section = byId('shotSection');
     if (!section.classList.contains('open')) section.querySelector(':scope > .sectionToggle').click();

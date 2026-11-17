@@ -126,5 +126,6 @@ body.trainer-workspace #panel #menuHeaderActions #btg-pool-launchers { margin:0;
 body.trainer-workspace #panel #menuHeaderActions #trainerUpdateRow { display:flex; width:auto; margin:0; padding:0; }
 body.trainer-workspace #panel #menuHeaderActions #trainerUpdateCheck { min-height:32px; padding:4px 10px; margin:0; }
 @media(max-width:700px) {
- body.trainer-workspace #panel .btg-pool-title h1 { font-size:24px!important; }
+ body.trainer-workspace.phone-controls-open.phone-focus #panel { padding-top:64px!important; }
+ body.trainer-workspace #panel .btg-pool-title h1 { width:100%; font-size:24px!important; }
 }
