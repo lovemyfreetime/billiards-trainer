@@ -20,6 +20,9 @@ for(const [width,height,mobile] of [[2048,1280,false],[1366,768,false],[1024,768
   assert(await menu());assert.equal(await page.locator('#learningSection').evaluate(e=>e.classList.contains('open')),true);assert.equal((await state()).trayRetracted,true,'Learning retracts the balls');
   const headings=await page.locator('#learningSection>.sectionToggle,#tableSection>.sectionToggle').evaluateAll(es=>es.map(e=>{const c=getComputedStyle(e);return{height:e.getBoundingClientRect().height,font:c.font,padding:c.padding};}));assert.deepEqual(headings[0],headings[1],'Learning matches existing main tab sizing');
   await page.waitForFunction(()=>{const a=billiardsPoolGuide.getPlaybackState();return a.duration>2&&!a.paused;});
+  const visibility=await page.locator('#learningFullSlot [data-action=A]').evaluate(e=>{const chain=[];for(let a=e;a;a=a.parentElement){const c=getComputedStyle(a);chain.push({tag:a.tagName,id:a.id,cls:a.className,hidden:a.hidden,display:c.display,visibility:c.visibility,rect:a.getBoundingClientRect().toJSON()});}return chain;});
+  assert(visibility[0].rect.height>0,'Full player visibility: '+JSON.stringify(visibility));
+
   if(await page.locator('#learningFullSlot [data-action=A]').getAttribute('aria-pressed')==='true')await page.locator('#learningFullSlot [data-action=A]').click();
   const controls=await page.locator('#learningFullSlot .btg-toolbar>button').evaluateAll(es=>es.filter(e=>e.getBoundingClientRect().width).map(e=>({label:e.textContent,rect:e.getBoundingClientRect().toJSON()})));assert(controls.every(c=>c.rect.height>=44),'Full transport controls are finger sized');
   assert((await page.locator('#learningTranscript').inputValue()).length>100);assert((await page.locator('#learningTranscript').boundingBox()).height>=180);assert.equal(await page.locator('#learningTranscript').getAttribute('readonly'),'');
