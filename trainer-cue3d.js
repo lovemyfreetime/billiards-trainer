@@ -22,6 +22,12 @@
   }
   return {contact,tip:contact.map((v,i)=>v+back[i]*gap),forward,back,gap,phase,visible,length:LENGTH,tipRadius:TIP_RADIUS,buttRadius:BUTT_RADIUS,elevation:data.elevation};
  }
+ function advanceTime(previous,elapsed,speed,duration){
+  const step=Math.max(0,elapsed)*speed;
+  // Preserve a visible stroke on slow renderers and show the exact impact frame.
+  if(previous<0)return Math.min(0,previous+Math.min(step,.05));
+  return Math.min(duration,previous+(previous<.34?Math.min(step,.05):step));
+ }
  function playerCamera(data,settings={}){
   const p=pose(data),distance=settings.distance||.75,height=settings.height||.12,axis=p.back;
   const eye=[p.contact[0]+axis[0]*distance,p.contact[1]+axis[1]*distance+height,p.contact[2]+axis[2]*distance],target=[p.contact[0]+data.dx*.20,data.z,p.contact[2]+data.dy*.20];
@@ -78,6 +84,6 @@
    status(){return current?{...current,visible:group.visible,finish,referenceReady:ready,reference:'icons/approved-full-cue.png'}:null;}
   };
  }
- const api={LENGTH,TIP_RADIUS,BUTT_RADIUS,PRE_ROLL,pose,playerCamera,create,setFinish,getFinish:()=>finish};
+ const api={LENGTH,TIP_RADIUS,BUTT_RADIUS,PRE_ROLL,pose,advanceTime,playerCamera,create,setFinish,getFinish:()=>finish};
  if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCue3D=api;
 })(typeof window==='object'?window:globalThis);

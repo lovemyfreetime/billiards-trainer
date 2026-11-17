@@ -10137,7 +10137,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if(recording){
                 if(!recording.ready()){schedule();return;}
                 running.visualTime=Math.min(duration,recordFrame*recordSpeed/30-preRoll);
-            }else if(!running.paused)running.visualTime=Math.min(duration,running.visualTime+elapsed*S.shotPlaybackSpeed);
+            }else if(!running.paused)running.visualTime=preRoll?window.BilliardsCue3D.advanceTime(running.visualTime,elapsed,S.shotPlaybackSpeed,duration):Math.min(duration,running.visualTime+elapsed*S.shotPlaybackSpeed);
             running.time=Math.max(0,running.visualTime);
             running.current=window.BilliardsTrainingBall.sample(sim.frames,running.time);
             draw(!!recording,!!recording);
