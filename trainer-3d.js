@@ -114,7 +114,7 @@
  function setPanEnabled(value){engine?.cancelInput();panEnabled=!!value;syncCameraMode();}
  function setViewLocked(value){
   engine?.cancelInput();viewLocked=!!value;document.body.classList.toggle('table-3d-locked',active&&viewLocked);syncCameraMode();
-  viewLock.textContent=viewLocked?'Finish placing':'Balls';
+  viewLock.textContent=viewLocked?'Finish placing':'Arrange';
   viewLock.setAttribute('aria-pressed',String(viewLocked));
   viewLock.setAttribute('aria-label',viewLocked?'Finish placing balls':'Arrange balls on the table');
   viewLock.title=viewLocked?'Drag balls to arrange them. Finish placing to protect the layout.':'Arrange balls; ordinary drags only move the view';
@@ -213,7 +213,7 @@
   return active;
  }
  button.onclick=()=>active?disable():enable();
- window.Billiards3D={enable,get active(){return active;},get locked(){return active&&viewLocked;},get panning(){return active&&panEnabled;},project(point,height=0){return engine?.project(point,height)||null;},update(frame){lastFrame=frame;if(active){syncBallTools();engine?.update(frame);requestRender();}},disable,
+ window.Billiards3D={arrangeBalls(value){if(viewLocked!==!!value)setViewLocked(value);},enable,get active(){return active;},get locked(){return active&&viewLocked;},get panning(){return active&&panEnabled;},project(point,height=0){return engine?.project(point,height)||null;},update(frame){lastFrame=frame;if(active){syncBallTools();engine?.update(frame);requestRender();}},disable,
   focusCue(){
    if(!active||!lastFrame)return false;
    const b=lastFrame.balls.find(b=>b.id===0&&b.active);
@@ -241,7 +241,7 @@
    if(!cameraState.playerView)previousCueCamera={editMode:viewLocked,pose:{azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target}}};
    cameraState.playerView=true;cameraState.playerViewLock=settings.locked!==false;cameraState.playerEyeHeight=window.BilliardsCue3D.clampEyeHeight(settings.height);cameraState.playerDistance=.75;cameraState.playerInShot=false;cameraState.followCue=false;transitionFrom(from);requestRender();return true;
   },exitCueView(){leaveCueView(true);},refresh(){requestRender();},
-  camera(){return {playerView:!!cameraState.playerView,playerViewLock:!!cameraState.playerViewLock,playerEyeHeight:cameraState.playerEyeHeight||.12,playerDistance:cameraState.playerDistance||.75,azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},followCue:!!cameraState.followCue,followSide:cameraState.followSide||'behind',followDistance:cameraState.followDistance||'close',followHeading:cameraState.followHeading,followHasMotion:!!cameraState.followHasMotion,...engine?.projection()};},restoreCamera(saved){
+  camera(){return {transitioning:!!cameraTransition,playerView:!!cameraState.playerView,playerViewLock:!!cameraState.playerViewLock,playerEyeHeight:cameraState.playerEyeHeight||.12,playerDistance:cameraState.playerDistance||.75,azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},followCue:!!cameraState.followCue,followSide:cameraState.followSide||'behind',followDistance:cameraState.followDistance||'close',followHeading:cameraState.followHeading,followHasMotion:!!cameraState.followHasMotion,...engine?.projection()};},restoreCamera(saved){
    if(!saved||![saved.azimuth,saved.elevation,saved.radius,saved.target?.x,saved.target?.y,saved.target?.z].every(Number.isFinite))return false;
    const from={...cameraState,target:{...cameraState.target}};
    Object.assign(cameraState,{playerView:!!saved.playerView,playerViewLock:!!saved.playerViewLock,playerEyeHeight:window.BilliardsCue3D.clampEyeHeight(saved.playerEyeHeight),playerDistance:saved.playerDistance||.75,playerInShot:false,azimuth:saved.azimuth,elevation:saved.elevation,radius:saved.radius,target:{...saved.target},followCue:!!saved.followCue,followSide:['front','behind','left','right'].includes(saved.followSide)?saved.followSide:'behind',followDistance:saved.followDistance==='wide'?'wide':'close',followHeading:saved.followHeading,followHasMotion:!!saved.followHasMotion,followAnimating:false});
@@ -464,7 +464,7 @@
   function pick(e){
    const f=frame||lastFrame;if(!f||f.animating)return null;cast(e);
    const obstruction=inputRay.intersectObjects(table.children,true).find(hit=>!hit.object.material?.userData?.pocketOwned);
-   if(!viewLocked&&!f.animating){
+   if(!f.animating){
     for(const handle of window.billiardsGuidance?.aimHandles()||[]){
      const v=new T.Vector3(handle.point.x-f.L/2,0,handle.point.y-f.W/2).project(camera),r=canvas.getBoundingClientRect();
      if(window.__trainerInputTrace)window.__trainerInputTrace.push({kind:'hit-test',x:e.clientX,y:e.clientY,handle:{...handle.point},screen:{x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2},z:v.z,pointerType:e.pointerType});
@@ -474,7 +474,7 @@
    const hit=inputRay.intersectObjects([...ballMeshes.values()].filter(g=>g.visible),true)[0];
    if(hit&&(!obstruction||hit.distance<obstruction.distance+.00001)){
     const group=hit.object.parent,point=planePoint(f.R);if(!point)return null;
-    return {editable:true,point:logical(group.position),height:f.R,offset:{x:point.x-group.position.x,z:point.z-group.position.z}};
+    return {editable:true,ball:true,point:logical(group.position),height:f.R,offset:{x:point.x-group.position.x,z:point.z-group.position.z}};
    }
    const point=obstruction?.point||planePoint();if(!point)return null;
    const q=logical(point);if(q.x<-.3||q.x>f.L+.3||q.y<-.3||q.y>f.W+.3)return null;
@@ -492,7 +492,7 @@
   function pointerDown(e,outside=false){
    if(window.__trainerInputTrace)window.__trainerInputTrace.push({kind:'pointer-down',x:e.clientX,y:e.clientY,active,viewLocked,pointers:pointers.size,overControls:overControls(e)});
    if(!active||e.button!==0||overControls(e))return;stopTransition();e.preventDefault();e.stopPropagation();canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});
-   {if(edit){if(e.pointerId===edit.id)return;const first=edit;finishEdit('pointercancel',{pointerId:first.id,pointerType:first.pointerType});pointers.set(first.id,{x:first.cx,y:first.cy,sx:first.cx,sy:first.cy,multi:true,pendingViewDrag:true});}const hit=outside?null:pick(e);if(pointers.size===0&&hit?.editable&&(viewLocked||hit.handle)){edit={aimShot:hit.handle?(hit.shot||1):0,id:e.pointerId,cx:e.clientX,cy:e.clientY,pointerType:e.pointerType,height:hit.height,offset:hit.offset,last:hit.point};if(!forward('pointerdown',hit.point,e))edit=null;return;}}
+   {if(edit){if(e.pointerId===edit.id)return;const first=edit;finishEdit('pointercancel',{pointerId:first.id,pointerType:first.pointerType});pointers.set(first.id,{x:first.cx,y:first.cy,sx:first.cx,sy:first.cy,multi:true,pendingViewDrag:true});}const hit=outside?null:pick(e);if(pointers.size===0&&hit?.editable&&(hit.handle||viewLocked&&hit.ball||lastFrame?.railEditing||lastFrame?.overlayEditing)){edit={aimShot:hit.handle?(hit.shot||1):0,id:e.pointerId,cx:e.clientX,cy:e.clientY,pointerType:e.pointerType,height:hit.height,offset:hit.offset,last:hit.point};if(!forward('pointerdown',hit.point,e))edit=null;return;}}
    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,multi:pointers.size>0,pendingViewDrag:true});if(pointers.size>1){for(const p of pointers.values())p.multi=true;lastTap=null;}
   }
   canvas.addEventListener('pointerdown',e=>pointerDown(e));

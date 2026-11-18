@@ -231,7 +231,7 @@
   const trayState = {twoD: true, threeD: false};
   try{Object.assign(trayState,JSON.parse(localStorage.getItem('trainer.ballTray.v1')||'{}'));}catch{}
   let dockMode = null;
-  trayToggle.addEventListener('click', () => { trayState[dockMode ? 'threeD' : 'twoD'] = !document.body.classList.contains('phone-tray-hidden'); try{localStorage.setItem('trainer.ballTray.v1',JSON.stringify(trayState));}catch{}sync(); window.dispatchEvent(new Event('resize')); });
+  trayToggle.addEventListener('click', () => { trayState[dockMode ? 'threeD' : 'twoD'] = !document.body.classList.contains('phone-tray-hidden'); try{localStorage.setItem('trainer.ballTray.v1',JSON.stringify(trayState));}catch{}if(document.body.classList.contains('phone-tray-hidden'))window.Billiards3D?.arrangeBalls(false);sync(); window.dispatchEvent(new Event('resize')); });
   window.billiardsWorkspaceSync = sync;
   // Busy changes during a shot also disable tray placement before the next UI update.
   const shoot = byId('animate');
@@ -248,6 +248,7 @@
       document.body.classList.toggle('phone-tray-hidden', !trayState[active ? 'threeD' : 'twoD']);
       trayToggle.setAttribute('aria-expanded', String(trayState[active ? 'threeD' : 'twoD']));
     }
+    const arrange=byId('table3DLock');if(arrange){move(shelf,arrange);arrange.hidden=!active;}
     if (active) {
       cameraRow.hidden = false; move(document.body, cameraRow);
       move(cameraRow, tools); move(cameraRow, views);

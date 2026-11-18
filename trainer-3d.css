@@ -356,3 +356,6 @@ body.table-3d #table3DLock [data-adjust="edit"].selected{background:#206d76;colo
 #table3DViews #table3DLock{width:auto;min-width:66px;max-width:120px;font-size:11px;line-height:1.2;padding:5px 9px}
 #table3DViews #table3DReturnView{width:auto;max-width:125px;white-space:normal;font-size:11px;line-height:1.2;padding:5px 9px}
 #table3DViews #table3DLock[aria-pressed="true"]{border-color:#f4b75f;box-shadow:0 0 0 2px #f4b75f66}
+
+body.trainer-workspace #workspaceBallShelf #table3DLock{position:static;flex:none;width:76px;min-width:64px;height:36px;padding:4px;font:600 11px system-ui;white-space:normal;border:1px solid #7891a0;border-radius:9px;background:#23343f;color:#edf6f9}
+body.trainer-workspace #workspaceBallShelf #table3DLock[aria-pressed="true"]{border-color:#f4b75f;box-shadow:0 0 0 2px #f4b75f66}

@@ -15,7 +15,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{spawn}=require
   assert.equal(await page.evaluate(()=>billiardsGuidance.status().plan.ballId),1);
   await page.reload();await page.waitForFunction(()=>window.billiardsMenuReady&&window.billiardsGuidance);
   let state=await page.evaluate(()=>billiardsTourBridge.capture().state);assert.equal(state.trainingBallStyle,'spots');assert.equal(state.showImpact,false);assert(state.showRestingCueBall&&state.showFullGhostBall);assert.equal(await page.evaluate(()=>BilliardsCue3D.getFinish()),'carbon');
-  await page.locator('#table3DToggle').tap();await page.waitForFunction(()=>Billiards3D.active&&Billiards3D.cueModel()?.referenceReady);await page.waitForTimeout(850);
+  await page.locator('#table3DToggle').tap();await page.waitForFunction(()=>Billiards3D.active&&Billiards3D.cueModel()?.referenceReady);await page.waitForFunction(()=>!Billiards3D.camera().transitioning);await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
   const settle=()=>page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
   const touch=await context.newCDPSession(page),send=async(type,p)=>{await touch.send('Input.dispatchTouchEvent',{type,touchPoints:p?[p]:[]});await settle();};
   const project=p=>page.evaluate(q=>{const {x,y}=Billiards3D.project(q);return {x,y};},p);
@@ -23,10 +23,10 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{spawn}=require
   const start=await project({x:1.1,y:1.05});await send('touchStart',start);await send('touchMove',{x:start.x+65,y:start.y+12});await send('touchEnd');
   const after=await page.evaluate(()=>({camera:Billiards3D.camera(),state:billiardsTourBridge.capture().state}));
   assert(Math.abs(after.camera.azimuth-before.camera.azimuth)>.05);assert.deepEqual(after.state.freeAim,before.state.freeAim);assert.deepEqual(after.state.balls,before.state.balls);
-  await page.locator('#table3DReturnView').tap();await page.waitForTimeout(850);
+  await page.locator('#table3DReturnView').tap();await page.waitForFunction(()=>!Billiards3D.camera().transitioning);await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
   const restored=await page.evaluate(()=>Billiards3D.camera());assert(Math.abs(restored.azimuth-before.camera.azimuth)<1e-6);assert.equal(restored.radius,before.camera.radius);
   const ballScreen=await project({x:1.3,y:.9});await send('touchStart',ballScreen);await send('touchMove',{x:ballScreen.x+45,y:ballScreen.y+10});await send('touchEnd');assert.deepEqual(await page.evaluate(()=>billiardsTourBridge.capture().state.balls),before.state.balls,'ordinary touching does not relocate physical balls');
-  await page.locator('#table3DReturnView').tap();await page.waitForTimeout(850);
+  await page.locator('#table3DReturnView').tap();await page.waitForFunction(()=>!Billiards3D.camera().transitioning);await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
   await page.evaluate(()=>{window.__trainerInputTrace=[];});
   const aim=await page.evaluate(()=>billiardsTourBridge.capture().state.freeAim),handle=await project(aim),camera=await page.evaluate(()=>Billiards3D.camera());
   console.log('Handle screen',JSON.stringify(await page.evaluate(p=>({point:p,target:document.elementFromPoint(p.x,p.y)?.id,locked:Billiards3D.locked}),handle)));
