@@ -1,0 +1,18 @@
+const assert=require('node:assert/strict'),g=require('../trainer-guidance.js');
+const state={tableL:2.54,tableW:1.27,ballR:.028575,setupMode:'9ball',activePlayer:1,balls:[{id:0,x:.45,y:.65},{id:1,x:1.1,y:.65},{id:2,x:1.7,y:.35},{id:3,x:2,y:.9}]};
+const before=structuredClone(state),one=g.suggest(state);
+assert.equal(one.ballId,1);assert(one.aim);assert.deepEqual(state,before,'suggestion must not mutate table');
+assert.equal(g.suggest({...state,balls:state.balls.filter(b=>b.id!==1)}).ballId,2);
+assert.equal(g.suggest({...state,balls:[state.balls[0]]}).kind,'complete');
+assert.equal(g.suggest({...state,balls:state.balls.slice(1)}).kind,'placement');
+assert.equal(g.suggest({...state,guidanceBreak:true}).kind,'break');
+const eight={...state,setupMode:'8ball',guidanceGroups:{1:'stripes'},balls:[state.balls[0],{id:1,x:1.1,y:.65},{id:8,x:1.7,y:.35},{id:9,x:2,y:.9}]};
+assert.equal(g.suggest(eight).ballId,9);
+assert.equal(g.suggest({...eight,balls:eight.balls.filter(b=>b.id!==9)}).ballId,8);
+assert.notEqual(g.suggest({...eight,guidanceGroups:{}}).ballId,8);
+const crowded={...state,balls:[state.balls[0],{id:1,x:1.4,y:.65},...Array.from({length:12},(_,i)=>({id:i+2,x:1.4+Math.cos(i*Math.PI/6)*.06,y:.65+Math.sin(i*Math.PI/6)*.06}))]};
+const blocked=g.suggest(crowded);assert.equal(blocked.kind,'blocked');assert.equal(blocked.ballId,1,'never choose an easier illegal target');
+const settings={showImpact:false,showRestingCueBall:true,trainingBallStyle:'spots',shotPlaybackSpeed:0,balls:[{id:0}],speed:5};
+const saved=g.preferences(settings),fresh={showImpact:true,showRestingCueBall:false,trainingBallStyle:'current',shotPlaybackSpeed:1};
+g.restorePreferences(fresh,JSON.parse(JSON.stringify(saved)));assert.equal(fresh.showImpact,false);assert.equal(fresh.shotPlaybackSpeed,0);assert.equal(fresh.trainingBallStyle,'spots');assert(!('balls' in saved));assert(!('speed' in saved));
+console.log('Ordered continuation, legal groups, blocked targets, break/completion, immutable planning and false/zero preference recovery passed.');

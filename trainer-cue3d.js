@@ -78,12 +78,19 @@
   part([[.748,.0108],[1.05,.0132],[1.43,BUTT_RADIUS]],original,'butt');
   part([[1.43,BUTT_RADIUS],[1.455,BUTT_RADIUS]],chrome,'cap');
   part([[1.455,BUTT_RADIUS],[1.469,.0154],[LENGTH,.012],[LENGTH,0]],rubber,'bumper');
-  const up=new T.Vector3(0,1,0),direction=new T.Vector3();let lastFinish='';
+  const up=new T.Vector3(0,1,0),direction=new T.Vector3();let lastFinish='',wasVisible=false,enteredAt=0;
   return {
    update(f){
-    const data=f.cuePose,p=pose(data,f.cueStrokeTime,f.balls.find(b=>b.id===data?.id));current=p;group.visible=!!(f.showRealCue&&p?.visible);if(!p)return;
+    const data=f.cuePose,p=pose(data,f.cueStrokeTime,f.balls.find(b=>b.id===data?.id));current=p;group.visible=!!(f.showRealCue&&p?.visible);
+    if(group.visible&&!wasVisible)enteredAt=performance.now();wasVisible=group.visible;
+    if(!p)return false;
+    const entering=group.visible&&!Number.isFinite(f.cueStrokeTime)&&!root.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const progress=entering?Math.min(1,(performance.now()-enteredAt)/350):1;
+    const ease=progress*progress*(3-2*progress),withdraw=(1-ease)*.10;
     if(lastFinish!==finish){lastFinish=finish;for(const part of parts){if(part.userData.cuePart==='shaft')part.material=finish==='carbon'?fiber:maple;if(part.userData.cuePart==='butt')part.material=finish==='carbon'?fiber:finish==='wood'?wood:original;}}
-    group.position.set(p.tip[0]-f.L/2,p.tip[1],p.tip[2]-f.W/2);group.quaternion.setFromUnitVectors(up,direction.fromArray(p.back));
+    for(const material of new Set(parts.map(part=>part.material))){material.transparent=ease<1;material.opacity=ease;}
+    group.position.set(p.tip[0]-f.L/2+p.back[0]*withdraw,p.tip[1]+p.back[1]*withdraw,p.tip[2]-f.W/2+p.back[2]*withdraw);group.quaternion.setFromUnitVectors(up,direction.fromArray(p.back));
+    return group.visible&&progress<1;
    },
    status(){return current?{...current,visible:group.visible,finish,referenceReady:ready,reference:'icons/approved-full-cue.png'}:null;}
   };
