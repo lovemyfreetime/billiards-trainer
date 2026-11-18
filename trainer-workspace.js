@@ -229,8 +229,9 @@
     trayToggle.setAttribute('aria-label', document.body.classList.contains('phone-tray-hidden') ? 'Show ball tray' : 'Hide ball tray');
   }
   const trayState = {twoD: true, threeD: false};
+  try{Object.assign(trayState,JSON.parse(localStorage.getItem('trainer.ballTray.v1')||'{}'));}catch{}
   let dockMode = null;
-  trayToggle.addEventListener('click', () => { trayState[dockMode ? 'threeD' : 'twoD'] = !document.body.classList.contains('phone-tray-hidden'); sync(); window.dispatchEvent(new Event('resize')); });
+  trayToggle.addEventListener('click', () => { trayState[dockMode ? 'threeD' : 'twoD'] = !document.body.classList.contains('phone-tray-hidden'); try{localStorage.setItem('trainer.ballTray.v1',JSON.stringify(trayState));}catch{}sync(); window.dispatchEvent(new Event('resize')); });
   window.billiardsWorkspaceSync = sync;
   // Busy changes during a shot also disable tray placement before the next UI update.
   const shoot = byId('animate');
