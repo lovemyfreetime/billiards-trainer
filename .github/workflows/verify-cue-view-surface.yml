@@ -1,0 +1,31 @@
+name: Verify Cue View surface input
+on:
+  push:
+    branches: [test/cue-view-surface-input-20261118]
+permissions:
+  contents: read
+jobs:
+  gestures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install browser
+        run: |
+          npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
+          node local-host/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Compare previous release and corrected tablet gestures
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")
+          git show 648f5fde6b37c5d78ce3322224ea25ef49ebcf05:trainer-3d.js > trainer-3d.js
+          COMPARE_PREVIOUS=1 node tests/cue-view-cloth-gesture.browser.cjs
+          git restore trainer-3d.js
+          node tests/cue-view-cloth-gesture.browser.cjs
+          python3 scripts/build-offline-assets.py --check
