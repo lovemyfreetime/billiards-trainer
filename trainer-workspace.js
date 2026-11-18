@@ -123,7 +123,7 @@
     if(!(scale>0))return;
     const gap=6,arrow=parseFloat(getComputedStyle(earlier).width)||28;
     let left=6;
-    for(const control of [trayToggle,byId('table3DRackToggle'),clear]){
+    for(const control of [trayToggle,byId('table3DRackToggle'),clear,byId('table3DLock')]){
       if(control?.parentElement!==shelf||!control.getClientRects().length)continue;
       const r=control.getBoundingClientRect();left=Math.max(left,(r.right-frame.left)/scale+gap);
     }

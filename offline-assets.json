@@ -1,5 +1,5 @@
 {
-  "version": "121d002f0f414088",
+  "version": "6f2ca8f1db2ac436",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -1380,7 +1380,7 @@
     "trainer-training-ball.js": "3a6387eaded80b4eca65d3a7f261cb7f6107483ab99b6c8231c4e8fbe470c1ab",
     "trainer-video-narration.js": "7f5a56139f3451233a8a2dfb13584c17fc51593c9a31f3c80b540f8977b18581",
     "trainer-workspace.css": "c5e2225b8275858242ea529bded5ace28a8e17c1f87ab49870a4d0b2c3c8579e",
-    "trainer-workspace.js": "0e3e849e5dd5d0805be69c7a6bf9bc7cfbcb3ea3956274fa6afc5b694a96c915",
+    "trainer-workspace.js": "28280a6509466ec68a4df59c06aae08e48a6404bb92e74408ee549dff697a6dc",
     "trainer-zen-shapes.js": "7e32f9110868d1dfb23c9f2c6b976c03e64dd29dda5a2118369d4e5c39356b00",
     "vendor/mp4-muxer-5.2.2/LICENSE": "75c54aae7ef6ad652f684f9dd3b71e4dcef86ccebd88cf441ceed7f5eec037c5",
     "vendor/mp4-muxer-5.2.2/mp4-muxer.mjs": "d2c4c782f180c86ed30b1f5d9487a34a0d370bf9b4535285734ea187d38f9bb5",
