@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const source=fs.readFileSync('index.html','utf8');
-const code=source.slice(source.indexOf('    const PHYSICS_PRESETS_KEY'),source.indexOf('    function applyUI()'));
+const code=source.slice(source.indexOf('    const PHYSICS_PRESETS_KEY'),source.indexOf('    function applyUI('));
 const defaults={tableL:88*.0254,tableW:44*.0254,ballR:2.25*.0254/2,muSlide:.2,muRoll:.01,muBall:.05,ballRest:.96,railRest:.9,railTang:.9,cuePreset:'low',cueEndmassRatio:30,airbornePhysics:false,tableRest:.4,bedImpactMu:.2,jumpUnits:'in'};
 const elements={};function $(id){return elements[id]??= {hidden:true,value:'',textContent:'',focus(){},addEventListener(){},replaceChildren(...children){this.children=children;this.value=children[0]?.value||'';},click(){this.onclick();}};}
 const storage=new Map();let undo=0,saved=0,confirmation=true,failWrite=false;
