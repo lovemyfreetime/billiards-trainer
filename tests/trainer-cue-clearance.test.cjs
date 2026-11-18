@@ -4,7 +4,12 @@ function data(x,y,dx=0,dy=1,follow=0,side=0,elevation=3){const a=elevation*Math.
 assert.deepEqual(c.ALLOWANCE,{cushion:.009,pocket:.0045,wood:0,slate:0});
 const open=c.solve(data(.65,.635),f,{speed:1.5,hold:2});assert.equal(open.elevation,3);assert(!open.blocked);
 let previous=3;for(const distance of [.24,.12,.08,.04]){const input=data(.65,distance),solved=c.solve(input,f,{speed:1.5,hold:2});assert(!solved.blocked);assert(solved.elevation>previous);assert.equal(c.obstruction(solved,g,solved.stroke.backstroke),null);assert.equal(c.obstruction(solved,g,solved.stroke.backstroke,solved.stroke.followThrough),null);assert.deepEqual(c.contact(solved),c.contact(input),'Auto elevation preserves the physical target exactly');assert(Math.hypot(solved.localFollowR,solved.localSideR)<=.5+1e-8);previous=solved.elevation;}
-const low=c.solve(data(.65,.04,0,1,-.5),f,{speed:1.5,hold:2});assert(low.blocked,'Inaccessible draw point is not silently moved');
+const low=c.solve(data(.65,.04,0,1,-.5),f,{speed:1.5,hold:2});assert(!low.blocked && low.contactLimited && low.elevation>3);
+assert.equal(low.localFollowR,-.5);
+assert.equal(c.obstruction(low,g,low.stroke.backstroke,low.stroke.followThrough),null);
+const manual=c.solve(data(.65,.04,0,1,-.5,0,low.elevation),f,{speed:1.5,hold:2});
+assert(Math.abs(manual.height-low.height)<1e-10 && Math.abs(manual.rear-low.rear)<1e-10);
+assert(Math.abs(manual.elevation-low.elevation)<1e-8,'Auto delivers the same full draw as manually raising the cue');
 const ordinary=c.solve(data(.65,.08),f,{speed:1.5,hold:2}),pocket=c.solve(data(1.27,.08),f,{speed:1.5,hold:2});assert(pocket.elevation<ordinary.elevation,'Actual side-pocket opening allows a lower cue than the adjacent rail');
 const hard=c.obstruction(data(.65,.24),g,.13);assert.equal(hard.material,'wood','Wood behind the cushion is a separate hard limit');
 // A slope, not a flat rail-height approximation: at the cushion nose a lower

@@ -28,28 +28,103 @@
    const inner=j=>{const path=pocket.innerBackPath,v=path[j],a=path[Math.max(0,j-1)],b=path[Math.min(path.length-1,j+1)],dx=b[0]-a[0],dz=b[2]-a[2],len=Math.hypot(dx,dz)||1;return [v[0]-dz/len*p.linerInset,p.capHeight+.0006,v[2]+dx/len*p.linerInset];};
    const top=[inner(i),inner(i+1),pocket.backPath[i+1].map((v,k)=>k===1?p.capHeight+.0006:v),pocket.backPath[i].map((v,k)=>k===1?p.capHeight+.0006:v)],bottom=top.map(v=>[v[0],-.025,v[2]]),tri=[[...top.slice(0,3)],[top[0],top[2],top[3]],[...bottom.slice(0,3)],[bottom[0],bottom[2],bottom[3]]];for(let j=0;j<4;j++){const k=(j+1)%4;tri.push([top[j],bottom[j],bottom[k]],[top[j],bottom[k],top[k]]);}mesh('pocket',tri);
   }
-  cachedKey=key;return cached={plan:p,objects};
+  cachedKey=key;
+  const outer = planarPolygon(p.outer);
+  const solidLayers = [
+   {material:'wood', height:p.capHeight, outer, holes:[planarPolygon(p.inside)]},
+   {material:'slate', height:0, outer, holes:p.pockets.map(q => planarPolygon(q.dropPath))}
+  ];
+  return cached={plan:p,objects,solidLayers};
  }
  function contact(data){return [data.x+data.R*(data.dx*data.rear-data.dy*data.sideR),data.z+data.R*data.height,data.y+data.R*(data.dy*data.rear+data.dx*data.sideR)];}
  // The union of every cue position from impact through the entire backstroke.
  // Each tapered interval is enclosed by a capsule using its larger endpoint radius.
  // At 25 mm interval length the taper overestimate is under 0.35 mm, without gaps.
  function envelope(data,backstroke=.13,follow=0){const a=data.elevation*Math.PI/180,back=[-data.dx*Math.cos(a),Math.sin(a),-data.dy*Math.cos(a)],c=contact(data),breaks=[-follow,...PROFILE.map(v=>v[0]-follow).filter(v=>v>-follow),LENGTH+backstroke];const segments=[];for(let j=1;j<breaks.length;j++){const start=breaks[j-1],end=breaks[j],count=Math.max(1,Math.ceil((end-start)/.025));for(let i=0;i<count;i++){const q=start+(end-start)*i/count,w=start+(end-start)*(i+1)/count,r=Math.max(radius(q+follow),radius(w+follow))+.00015;const u=add(c,back,q),v=add(c,back,w);segments.push({a:u,b:v,r,bounds:box([u,v])});}}return segments;}
- function solidAt(p,outer,holes,r){if(inPoly(p,outer)&&!holes.some(h=>inPoly(p,h)))return true;const distance=poly=>{for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],u=[a[0],0,a[2]],v=[b[0],0,b[2]];if(pointSegment([p[0],0,p[2]],u,v)<=r*r)return true;}return false;};if(!inPoly(p,outer))return distance(outer);return holes.some(h=>inPoly(p,h)&&distance(h));}
- function hardCollision(seg,g){const p=g.plan;for(const [material,height,holes]of [['wood',p.capHeight,[p.inside]],['slate',0,p.pockets.map(q=>q.dropPath)]]){if(Math.min(seg.a[1],seg.b[1])-seg.r>height)continue;if(material==='wood'&&seg.bounds[0][0]-seg.r>-p.L/2&&seg.bounds[0][1]+seg.r<p.L/2&&seg.bounds[2][0]-seg.r>-p.W/2&&seg.bounds[2][1]+seg.r<p.W/2)continue;const steps=Math.max(1,Math.ceil(Math.hypot(...sub(seg.b,seg.a))/.003)),r=Math.hypot(seg.r,.0015);for(let i=0;i<=steps;i++){const v=add(seg.a,sub(seg.b,seg.a),i/steps);if(v[1]-r>height)continue;const horizontal=Math.sqrt(Math.max(0,r*r-Math.max(0,v[1]-height)**2));if(solidAt(v,p.outer,holes,horizontal))return material;}}return null;}
+ // Precompute planar edges once. Most shaft samples are entirely inside the
+ // wood cutout or far from a pocket. Bounds reject those without vector allocation.
+ function planarPolygon(points) {
+  const bounds = box(points);
+  const edges = points.map((a,i) => {
+   const b = points[(i+1)%points.length], dx=b[0]-a[0], dz=b[2]-a[2];
+   return {x:a[0],z:a[2],dx,dz,invLength2:1/(dx*dx+dz*dz||1),
+    left:Math.min(a[0],b[0]),right:Math.max(a[0],b[0]),bottom:Math.min(a[2],b[2]),top:Math.max(a[2],b[2])};
+  });
+  return {edges,left:bounds[0][0],right:bounds[0][1],bottom:bounds[2][0],top:bounds[2][1]};
+ }
+ // -1 outside, 0 touching an edge, 1 inside.
+ function diskLocation(x,z,r,poly) {
+  if(x+r<poly.left || x-r>poly.right || z+r<poly.bottom || z-r>poly.top) return -1;
+  let inside=false;
+  for(const e of poly.edges) {
+   if(z+r<e.bottom || z-r>e.top) continue;
+   if(z>=e.bottom && z<e.top && x<e.x+(z-e.z)*e.dx/e.dz) inside=!inside;
+   if(x+r<e.left || x-r>e.right) continue;
+   const ax=x-e.x,az=z-e.z,t=clamp((ax*e.dx+az*e.dz)*e.invLength2,0,1);
+   if((ax-t*e.dx)**2+(az-t*e.dz)**2<=r*r) return 0;
+  }
+  return inside?1:-1;
+ }
+ function hardCollision(seg,g) {
+  const [x,y,z]=seg.a,dx=seg.b[0]-x,dy=seg.b[1]-y,dz=seg.b[2]-z;
+  const r=Math.hypot(seg.r,.0015);
+  for(const layer of g.solidLayers) {
+   if(Math.min(y,seg.b[1])-r>layer.height) continue;
+   if(layer.material==='wood' && seg.bounds[0][0]-r>-g.plan.L/2 && seg.bounds[0][1]+r<g.plan.L/2 &&
+      seg.bounds[2][0]-r>-g.plan.W/2 && seg.bounds[2][1]+r<g.plan.W/2) continue;
+   const steps=Math.max(1,Math.ceil(Math.hypot(dx,dy,dz)/.003));
+   for(let i=0;i<=steps;i++) {
+    const f=i/steps,h=Math.max(0,y+dy*f-layer.height);
+    if(h>r) continue;
+    const px=x+dx*f,pz=z+dz*f,width=Math.sqrt(r*r-h*h);
+    if(diskLocation(px,pz,width,layer.outer)>=0 && !layer.holes.some(hole=>diskLocation(px,pz,width,hole)>0)) return layer.material;
+   }
+  }
+  return null;
+ }
  function obstruction(data,g,backstroke=.13,follow=0,balls=[]){const centered={...data,x:data.x-g.plan.L/2,y:data.y-g.plan.W/2},segments=envelope(centered,backstroke,follow),whole=box(segments.flatMap(s=>[s.a,s.b])),candidates=g.objects.filter(o=>near(whole,o.bounds,.017));for(const seg of segments){const hard=hardCollision(seg,g);if(hard)return {material:hard};for(const o of candidates){if(!near(seg.bounds,o.bounds,seg.r))continue;for(let i=0;i<o.triangles.length;i++)if(near(seg.bounds,o.boxes[i],seg.r)&&segmentTriangle(seg.a,seg.b,o.triangles[i])<seg.r*seg.r)return {material:o.material};if(verticalInside(seg.a,o.triangles))return {material:o.material};}for(const b of balls)if(b.active!==false&&b.id!==data.id&&b.id!=='CB2'&&pointSegment([b.x-g.plan.L/2,b.z||data.R,b.y-g.plan.W/2],seg.a,seg.b)<(seg.r+data.R)**2)return {material:'ball',id:b.id};}return null;}
  function strokeSettings(speed=1.5,style='auto',hold=2){const scale={auto:1,short:.65,normal:1,long:1.3}[style]||1,power=clamp(speed/4,0,1);return {backstroke:clamp((.075+.09*power)*scale,.04,.22),followThrough:clamp((.055+.09*power)*scale,.025,.19),finishHold:clamp(+hold||0,.5,4),followTime:.18,withdrawTime:.24,style};}
  const results=new Map();
  function solve(data,f,settings={},balls=[]){const g=geometry(f),stroke=strokeSettings(settings.speed,settings.style,settings.hold),key=JSON.stringify([data,f.L,f.W,f.R,stroke,balls.filter(b=>b.active!==false&&b.id!==data.id).map(b=>[b.id,b.x,b.y,b.z])]);if(results.has(key))return results.get(key);solves++;
-  const preferred=clamp(data.elevation||0,0,70),localAt=angle=>{const t=angle*Math.PI/180,followR=data.rear*Math.sin(t)+data.height*Math.cos(t),rear=-data.rear*Math.cos(t)+data.height*Math.sin(t);return {followR,rear};},legal=angle=>{const t=localAt(angle);return t.rear>0&&t.followR*t.followR+data.sideR*data.sideR<=.25+1e-10;};
-  let maximum=preferred;for(let a=preferred+.25;a<=70.00001&&legal(a);a+=.25)maximum=Math.min(70,a);let low=preferred,high=maximum,hit=obstruction(data,g,stroke.backstroke,0,balls),blocked=false;
-  if(hit){if(obstruction({...data,elevation:high},g,stroke.backstroke,0,balls))blocked=true;else{for(let i=0;i<14&&high-low>.015;i++){const mid=(low+high)/2;if(obstruction({...data,elevation:mid},g,stroke.backstroke,0,balls))low=mid;else high=mid;}}}
-  let angle=hit&&!blocked?Math.min(maximum,Math.ceil(high*20)/20):preferred,resolved={...data,elevation:angle};
-  // If full backstroke is impossible, try a shorter actual stroke before rejecting
-  // the tip target. This never moves the target or permits rigid penetration.
-  if(blocked){stroke.backstroke=.04;high=maximum;if(!obstruction({...data,elevation:high},g,stroke.backstroke,0,balls)){blocked=false;low=preferred;for(let i=0;i<14&&high-low>.015;i++){const mid=(low+high)/2;if(obstruction({...data,elevation:mid},g,stroke.backstroke,0,balls))low=mid;else high=mid;}angle=Math.min(maximum,Math.ceil(high*20)/20);resolved={...data,elevation:angle};}}
+  const preferred=clamp(data.elevation||0,0,70);
+  const verticalLimit=Math.sqrt(Math.max(0,.25-data.sideR**2));
+  function poseAt(elevation) {
+   const t=elevation*Math.PI/180,sin=Math.sin(t),cos=Math.cos(t);
+   const requested=data.rear*sin+data.height*cos;
+   const follow=clamp(requested,-verticalLimit,verticalLimit);
+   if(Math.abs(follow-requested)<1e-10) return {...data,elevation,localFollowR:follow};
+   // At the grip limit use the nearest legal contact on the raised cue face,
+   // the same contact the player would obtain by raising the cue manually.
+   const depth=Math.sqrt(Math.max(0,1-data.sideR**2-follow**2));
+   return {...data,elevation,rear:-depth*cos+follow*sin,height:depth*sin+follow*cos,localFollowR:follow};
+  }
+  let resolved=poseAt(preferred);
+  const hit=obstruction(resolved,g,stroke.backstroke,0,balls);
+  let blocked=false;
+  if(hit) {
+   const clear=angle=>!obstruction(poseAt(angle),g,stroke.backstroke,0,balls);
+   // A nearby object ball can close the steep end while leaving an
+   // intermediate window open. Search that case before declaring it blocked.
+   function upperBound() {
+    if(clear(70)) return 70;
+    for(let angle=preferred;angle<70;angle+=1)if(clear(angle))return angle;
+    return null;
+   }
+   let upper=upperBound();
+   if(upper===null){stroke.backstroke=.04;upper=upperBound();}
+   if(upper===null) { blocked=true; resolved=poseAt(70); }
+   else {
+    let low=preferred,high=upper;
+    if(clear(preferred)) high=preferred;
+    else while(high-low>.025) {
+     const mid=(low+high)/2;
+     if(clear(mid)) high=mid; else low=mid;
+    }
+    resolved=poseAt(high);
+   }
+  }
   let travel=stroke.followThrough;if(!blocked&&obstruction(resolved,g,stroke.backstroke,travel,[])){let a=0,b=travel;for(let i=0;i<12;i++){const mid=(a+b)/2;if(obstruction(resolved,g,stroke.backstroke,mid,[]))b=mid;else a=mid;}travel=a;}
-  const local=localAt(angle),out={...resolved,blocked,preferredElevation:preferred,automatic:angle>preferred+.025,localFollowR:local.followR,localSideR:data.sideR,limiter:hit?.material||null,stroke:{...stroke,followThrough:travel,finishAt:stroke.followTime,withdrawAt:stroke.followTime+stroke.finishHold,hideAt:stroke.followTime+stroke.finishHold+stroke.withdrawTime},allowance:ALLOWANCE};
+  const out={...resolved,blocked,preferredElevation:preferred,automatic:resolved.elevation>preferred+.025,contactLimited:Math.abs(resolved.height-data.height)>1e-8,localSideR:data.sideR,limiter:hit?.material||null,stroke:{...stroke,followThrough:travel,finishAt:stroke.followTime,withdrawAt:stroke.followTime+stroke.finishHold,hideAt:stroke.followTime+stroke.finishHold+stroke.withdrawTime},allowance:ALLOWANCE};
   if(results.size>=256)results.delete(results.keys().next().value);results.set(key,out);return out;
  }
  function planFinish(data, frames) {

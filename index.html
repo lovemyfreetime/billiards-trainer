@@ -1775,14 +1775,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 <div class="fineRow"><label>Shot speed <span id="speedText"></span><span id="speed1Diamonds" class="speedDiamonds"></span></label><button id="speedMinus" type="button">−</button><input id="speed" type="range" min="0.25" max="7" step="0.01" value="1.50"><button id="speedPlus" type="button">+</button><input id="speedNumber" type="number" min="0.25" max="7" step="0.01" inputmode="decimal" aria-label="Shot 1 speed value"></div>
       <div class="fineRow"><label>Follow draw <span id="followText"></span></label><button id="followMinus" type="button">−</button><input id="follow" type="range" min="-1" max="1" step="0.01" value="0"><button id="followPlus" type="button">+</button><input id="followNumber" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 1 follow draw percent"></div>
       <div class="fineRow"><label>Left right spin <span id="spinText"></span></label><button id="spinMinus" type="button">−</button><input id="sideSpin" type="range" min="-1" max="1" step="0.01" value="0"><button id="spinPlus" type="button">+</button><input id="spinNumber" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 1 left right spin percent"></div>
-      <div id="cueElevationAdvanced1" class="cueElevationSlider"><div class="fineRow"><label>Preferred cue elevation <span id="elevText"></span></label><button id="elevMinus" type="button">−</button><input id="cueElevation" type="range" min="0" max="15" step="0.1" value="3"><button id="elevPlus" type="button">+</button><input id="elevNumber" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 1 cue elevation degrees"></div></div>
+      <div id="cueElevationAdvanced1" class="cueElevationSlider"><div class="fineRow"><label>Cue elevation <span id="elevText"></span></label><button id="elevMinus" type="button">−</button><input id="cueElevation" type="range" min="0" max="15" step="0.1" value="3"><button id="elevPlus" type="button">+</button><input id="elevNumber" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 1 cue elevation degrees"></div></div>
       </div>
       <div id="shot2Controls">
         <div class="shotMiniTitle">SHOT 2 CONTROLS</div>
         <div class="fineRow"><label>Shot speed <span id="speed2Diamonds" class="speedDiamonds"></span></label><button id="speed2Minus" type="button">−</button><input id="speed2" type="range" min="0.25" max="7" step="0.01" value="1.50"><button id="speed2Plus" type="button">+</button><input id="speed2Number" type="number" min="0.25" max="7" step="0.01" inputmode="decimal" aria-label="Shot 2 speed value"></div>
         <div class="fineRow"><label>Follow draw</label><button id="follow2Minus" type="button">−</button><input id="follow2" type="range" min="-1" max="1" step="0.01" value="0"><button id="follow2Plus" type="button">+</button><input id="follow2Number" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 2 follow draw percent"></div>
         <div class="fineRow"><label>Left right spin</label><button id="spin2Minus" type="button">−</button><input id="sideSpin2" type="range" min="-1" max="1" step="0.01" value="0"><button id="spin2Plus" type="button">+</button><input id="spin2Number" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 2 left right spin percent"></div>
-        <div id="cueElevationAdvanced2" class="cueElevationSlider"><div class="fineRow"><label>Preferred cue elevation <span id="elev2Text"></span></label><button id="elev2Minus" type="button">−</button><input id="cueElevation2" type="range" min="0" max="15" step="0.1" value="3"><button id="elev2Plus" type="button">+</button><input id="elev2Number" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 2 cue elevation degrees"></div></div>
+        <div id="cueElevationAdvanced2" class="cueElevationSlider"><div class="fineRow"><label>Cue elevation <span id="elev2Text"></span></label><button id="elev2Minus" type="button">−</button><input id="cueElevation2" type="range" min="0" max="15" step="0.1" value="3"><button id="elev2Plus" type="button">+</button><input id="elev2Number" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 2 cue elevation degrees"></div></div>
       </div>
       <div class="shotFeatureButtons"><button id="shotBudget" type="button" aria-pressed="false" title="Remaining % and cyan D along each path; compact ball and rail loss badges show deductions at each contact. Percentages use the starting shot. D is a share of its calibrated energy budget, not literal travel remaining; 16D is one lag.">SHOT BUDGET</button><button id="jumpMasseFeatures" class="jumpMasseFeatures" type="button" aria-pressed="false">JUMP / MASSÉ</button><label class="jumpModeLock"><input id="jumpModeLock" type="checkbox">Lock Jump / Massé</label></div>
       <div id="tipArea">
@@ -3088,7 +3088,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 S.bedImpactMu = clamp(Number.isFinite(Number(S.bedImpactMu)) ? Number(S.bedImpactMu) : PHYSICS_MODEL.defaultBedImpactFriction, 0, .5);
                 const savedElevation1 = Number(S.cueElevationDeg);
                 const savedElevation2 = Number(S.shot2.cueElevationDeg);
-                const savedElevationMax = S.airbornePhysics ? PHYSICS_MODEL.maxAirborneCueElevationDeg : PHYSICS_MODEL.maxPlanarCueElevationDeg;
+                const savedElevationMax = PHYSICS_MODEL.maxAirborneCueElevationDeg;
                 S.cueElevationDeg = clamp(Number.isFinite(savedElevation1) ? savedElevation1 : PHYSICS_MODEL.defaultCueElevationDeg, 0, savedElevationMax);
                 S.shot2.cueElevationDeg = clamp(Number.isFinite(savedElevation2) ? savedElevation2 : PHYSICS_MODEL.defaultCueElevationDeg, 0, savedElevationMax);
                 S.cueEndmassRatio = clamp(Number(S.cueEndmassRatio) || PHYSICS_MODEL.defaultCueEndmassRatio, 8, 60);
@@ -4571,9 +4571,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const tips=[];
         for(const which of [1,2]){
             if(!shotGuidesVisible(which)||(which===2&&!S.shot2Enabled))continue;
-            const values=which===2?ensureShot2():S,ball=which===2?values:cueBall();if(!ball)continue;
-            const contact=cueSideContact(values.sideSpin,values.follow,values.cueElevationDeg),d=shotAimDirection(which);
-            tips.push({id:which===2?'CB2':0,dx:d.x,dy:d.y,rear:contact.x,height:contact.z,sideR:contact.tip.sideR,followR:contact.tip.followR});
+            const cue=cuePoseFor3D(which);if(!cue||cue.blocked)continue;
+            tips.push({id:cue.id,dx:cue.dx,dy:cue.dy,rear:cue.rear,height:cue.height,sideR:cue.sideR,followR:cue.localFollowR});
         }
         return tips;
     }
@@ -5320,7 +5319,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const training=typeof window!=='undefined'&&window.BilliardsTrainingBall;
         let cueOrientation=training?training.normalize(cueBall()?.orientation):null;
         const cueSetup=cuePoseFor3D(1);
-        if(cueSetup?.blocked)return {paths:{},frames:[],firstEvent:'Raise the tip target to clear the rail',firstBallContact:null,pocketEvents:[],railEvents:[],finalBalls:B,cueBlocked:true};
+        if(cueSetup?.blocked)return {paths:{},frames:[],firstEvent:'No clear stroke at this aim',firstBallContact:null,pocketEvents:[],railEvents:[],finalBalls:B,cueBlocked:true};
         const shotElevation=cueSetup?.elevation??S.cueElevationDeg,shotFollow=(cueSetup?.localFollowR??effectiveTipOffset().followR)/PHYSICS_MODEL.maxTipOffsetR,shotSide=(cueSetup?.localSideR??effectiveTipOffset().sideR)/PHYSICS_MODEL.maxTipOffsetR;
         const aimD = aimDirection(), d = strikeDirection();
         const airborneMode = S.airbornePhysics === true || shotElevation > .001;
@@ -8624,10 +8623,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const c = canvas;
         const rect = c.getBoundingClientRect();
         if (rect.width < 70 || rect.height < 70) {
-            if (!c._tipRedrawPending) {
-                c._tipRedrawPending = true;
-                requestAnimationFrame(() => requestAnimationFrame(() => { c._tipRedrawPending = false; drawTipControl(); }));
-            }
             return;
         }
         const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
@@ -8764,8 +8759,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 ev.preventDefault();
                 ev.stopPropagation();
                 const range = $(which === 2 ? 'cueElevation2' : 'cueElevation');
-                const shot = which === 2 ? ensureShot2() : S;
-                range.value = clamp(Math.round((shot.cueElevationDeg + (ev.deltaY < 0 ? 0.1 : -0.1))*10)/10, 0, cueElevationMax());
+                const actual = cuePoseFor3D(which)?.elevation??Number(range.value);
+                range.value = clamp(Math.round((actual + (ev.deltaY < 0 ? 0.1 : -0.1))*10)/10, 0, cueElevationMax());
                 setActiveShot(which);
                 range.dispatchEvent(new Event('input', { bubbles:true }));
             }, { passive:false });
@@ -8787,7 +8782,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         x.fillStyle = '#0b0e12'; x.fillRect(0,0,w,h);
         const R = Math.min(22,w*.14), cx = w*.66, cy = 72;
         const solved=cuePoseFor3D(which),theta=(solved?.elevation??shot.cueElevationDeg)*Math.PI/180;
-        const raw=cueSideContact(shot.sideSpin,shot.follow,shot.cueElevationDeg),contact={...raw,co:Math.cos(theta),sn:Math.sin(theta)};
+        const raw=cueSideContact(shot.sideSpin,shot.follow,shot.cueElevationDeg),contact={...raw,x:solved?.rear??raw.x,z:solved?.height??raw.z,co:Math.cos(theta),sn:Math.sin(theta)};
         const tipX = cx+R*contact.x, tipY = cy-R*contact.z;
         const length = Math.min(w*.47, (tipX-8)/Math.max(.01,contact.co), (tipY-24)/Math.max(.01,contact.sn));
         x.strokeStyle = '#73818e'; x.lineWidth = 1;
@@ -9111,13 +9106,13 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         };
         $('physicsPresetName').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('physicsPresetApply').click(); } });
     }
-    function applyUI() {
+    function applyUI(event) {
         const inch = .0254;
         S.speed = +$('speed').value;
         S.follow = +$('follow').value;
         S.sideSpin = +$('sideSpin').value;
          S.jumpUnits = $('jumpUnits').value === 'mm' ? 'mm' : 'in';
-        S.cueElevationDeg = clamp(+$('cueElevation').value, 0, cueElevationMax());
+        if(event?.target?.id==='cueElevation') S.cueElevationDeg = clamp(+$('cueElevation').value, 0, cueElevationMax());
         S.tableL = +$('tableL').value * inch;
         S.tableW = +$('tableW').value * inch;
         S.ballR = +$('ballD').value * inch / 2;
@@ -10167,7 +10162,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     function animateShot(options={}) {
         if(animation)return;
         const preShot=cleanSnapshot(),sim=simulate(true);
-        if(!sim.frames.length){if(sim.cueBlocked)toast('Move the tip target higher to clear the rail');return;}
+        if(!sim.frames.length){if(sim.cueBlocked)toast('No clear stroke at this aim. Change the aim or move the cue ball.');return;}
         window.dispatchEvent(new CustomEvent('billiards:shot-start'));
         startShotPlayback(sim,preShot,{paused:options.paused===true});
     }
@@ -10185,7 +10180,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         reachable(side,follow,which=1){const v=which===2?ensureShot2():S,ball=which===2?v:cueBall();if(!ball)return true;const c=cueSideContact(side,follow,v.cueElevationDeg),d=shotAimDirection(which);return !window.BilliardsCueClearance.solve({id:which===2?'CB2':0,x:ball.x,y:ball.y,z:S.ballR,R:S.ballR,dx:d.x,dy:d.y,rear:c.x,height:c.z,sideR:c.tip.sideR,elevation:v.cueElevationDeg},{L:S.tableL,W:S.tableW,R:S.ballR},{...cueStrokePreferences,speed:v.speed},S.balls).blocked;}
     };
     window.billiardsTrainingBall={
-        state(){const second=S.shot2Enabled&&S.activeShot===2,ball=second?ensureShot2():cueBall(),d=shotAimDirection(second?2:1),values=second?S.shot2:S,contact=cueSideContact(values.sideSpin,values.follow,values.cueElevationDeg);return {hasCue:!!ball,style:S.trainingBallStyle,orientation:window.BilliardsTrainingBall.normalize(ball?.orientation),aim:d,tip:{x:contact.tip.sideR,y:contact.z},busy:!!animation||!!window.BilliardsShotRecorder?.busy,shot:second?2:1};},
+        state(){const second=S.shot2Enabled&&S.activeShot===2,ball=second?ensureShot2():cueBall(),d=shotAimDirection(second?2:1),values=second?S.shot2:S,contact=cueSideContact(values.sideSpin,values.follow,values.cueElevationDeg);return {hasCue:!!ball,style:S.trainingBallStyle,orientation:window.BilliardsTrainingBall.normalize(ball?.orientation),aim:d,tip:{x:contact.tip.sideR,y:cuePoseFor3D(second?2:1)?.height??contact.z},busy:!!animation||!!window.BilliardsShotRecorder?.busy,shot:second?2:1};},
         set(style,orientation){if(animation||window.BilliardsShotRecorder?.busy)return false;beginActionUndo();if(window.BilliardsTrainingBall.styles.includes(style))S.trainingBallStyle=style;const ball=S.shot2Enabled&&S.activeShot===2?ensureShot2():cueBall();if(ball&&orientation)ball.orientation=window.BilliardsTrainingBall.normalize(orientation);draw();saveState();finishActionUndo();return true;}
     };
     function captureShotHistoryState(){
@@ -13767,21 +13762,21 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             else {draw();saveState();}
         });
         ['speed', 'follow', 'sideSpin', 'cueElevation'].forEach(id => $(id).addEventListener('input', applyUI));
-        function applyDirectShotInput() {
+        function applyDirectShotInput(event) {
             S.speed = clamp(parseFloat($('speedNumber').value) || 0.25, 0.25, 7);
             S.follow = clamp((parseFloat($('followNumber').value) || 0) / 100, -1, 1);
             S.sideSpin = clamp((parseFloat($('spinNumber').value) || 0) / 100, -1, 1);
-            S.cueElevationDeg = clamp(parseFloat($('elevNumber').value) || 0, 0, cueElevationMax());
+            if(event.target.id==='elevNumber') S.cueElevationDeg = clamp(parseFloat($('elevNumber').value) || 0, 0, cueElevationMax());
             updateUI();
             refreshPreview();
         }
         ['speedNumber', 'followNumber', 'spinNumber', 'elevNumber'].forEach(id => { $(id).addEventListener('change', applyDirectShotInput); $(id).addEventListener('keydown', ev => { if (ev.key === 'Enter') {
             ev.preventDefault();
-            applyDirectShotInput();
+            applyDirectShotInput(ev);
             ev.target.blur();
         } }); });
         function fineAdjust(key, delta, min, max) {
-            S[key] = clamp(Math.round((S[key] + delta) * 1000) / 1000, min, max);
+            S[key] = clamp(Math.round(((key==='cueElevationDeg'?cuePoseFor3D(1)?.elevation??S[key]:S[key]) + delta) * 1000) / 1000, min, max);
             updateUI();
             refreshPreview();
         }
@@ -13822,14 +13817,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 syncProjector();
             };
         });
-        ['speed2', 'follow2', 'sideSpin2', 'cueElevation2'].forEach(id => $(id).addEventListener('input', () => { const s = ensureShot2(); s.speed = +$('speed2').value; s.follow = +$('follow2').value; s.sideSpin = +$('sideSpin2').value; s.cueElevationDeg = clamp(+$('cueElevation2').value, 0, cueElevationMax()); setActiveShot(2); updateUI(); refreshPreview(); }));
-        function applyDirectShot2Input() { const s = ensureShot2(); s.speed = clamp(parseFloat($('speed2Number').value) || 0.25, 0.25, 7); s.follow = clamp((parseFloat($('follow2Number').value) || 0) / 100, -1, 1); s.sideSpin = clamp((parseFloat($('spin2Number').value) || 0) / 100, -1, 1); s.cueElevationDeg = clamp(parseFloat($('elev2Number').value) || 0, 0, cueElevationMax()); setActiveShot(2); updateUI(); refreshPreview(); }
+        ['speed2', 'follow2', 'sideSpin2', 'cueElevation2'].forEach(id => $(id).addEventListener('input', () => { const s = ensureShot2(); s.speed = +$('speed2').value; s.follow = +$('follow2').value; s.sideSpin = +$('sideSpin2').value; if(id==='cueElevation2') s.cueElevationDeg = clamp(+$('cueElevation2').value, 0, cueElevationMax()); setActiveShot(2); updateUI(); refreshPreview(); }));
+        function applyDirectShot2Input(event) { const s = ensureShot2(); s.speed = clamp(parseFloat($('speed2Number').value) || 0.25, 0.25, 7); s.follow = clamp((parseFloat($('follow2Number').value) || 0) / 100, -1, 1); s.sideSpin = clamp((parseFloat($('spin2Number').value) || 0) / 100, -1, 1); if(event.target.id==='elev2Number') s.cueElevationDeg = clamp(parseFloat($('elev2Number').value) || 0, 0, cueElevationMax()); setActiveShot(2); updateUI(); refreshPreview(); }
         ['speed2Number', 'follow2Number', 'spin2Number', 'elev2Number'].forEach(id => { $(id).addEventListener('change', applyDirectShot2Input); $(id).addEventListener('keydown', ev => { if (ev.key === 'Enter') {
             ev.preventDefault();
-            applyDirectShot2Input();
+            applyDirectShot2Input(ev);
             ev.target.blur();
         } }); });
-        function fineAdjust2(key, delta, min, max) { const s = ensureShot2(); s[key] = clamp(Math.round((s[key] + delta) * 1000) / 1000, min, max); setActiveShot(2); updateUI(); refreshPreview(); }
+        function fineAdjust2(key, delta, min, max) { const s = ensureShot2(); s[key] = clamp(Math.round(((key==='cueElevationDeg'?cuePoseFor3D(2)?.elevation??s[key]:s[key]) + delta) * 1000) / 1000, min, max); setActiveShot(2); updateUI(); refreshPreview(); }
         installHoldAdjust('speed2Minus', () => fineAdjust2('speed', -0.01, 0.25, 7));
         installHoldAdjust('speed2Plus', () => fineAdjust2('speed', 0.01, 0.25, 7));
         installHoldAdjust('follow2Minus', () => fineAdjust2('follow', -0.01, -1, 1));
@@ -14216,6 +14211,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         refreshPreview();
         window.addEventListener('billiards:before-reload',()=>saveState());
         installActionUndo();
+        if(window.ResizeObserver){
+            const tipResize=new ResizeObserver(entries=>{
+                if(entries.some(e=>e.contentRect.width>=70&&e.contentRect.height>=70)) drawTipControl();
+            });
+            tipResize.observe($('tipCanvas'));tipResize.observe($('tipCanvas2'));
+        }
         requestAnimationFrame(() => requestAnimationFrame(() => drawTipControl()));
         window.addEventListener('resize', () => requestAnimationFrame(() => { drawTipControl(); fitLiveStats(); }));
     }

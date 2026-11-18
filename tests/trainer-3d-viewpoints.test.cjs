@@ -1,8 +1,17 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const source=fs.readFileSync('trainer-3d.js','utf8'),orbit=require('../table-orbit.js');
 const helpers=source.slice(source.indexOf(' function viewTangent('),source.indexOf(' function disable('));
-const c={window:{BilliardsTableOrbit:orbit,BilliardsTableConstruction:require('../trainer-table-construction.js')},document:{getElementById:()=>({getBoundingClientRect:()=>({width:1365,height:700})}),body:{classList:{contains:()=>false}}},stage:{},innerWidth:1365,active:true,lastFrame:{L:2.54,W:1.27,R:.028575,aim:{cue:{x:.3,y:.4},target:{x:1.8,y:.8}}},cameraState:{},viewPreset:null,fullSide:0,cueWide:false,clamp:(n,a,b)=>Math.max(a,Math.min(b,n)),requestRender(){}};
+const c={window:{BilliardsTableOrbit:orbit,BilliardsTableConstruction:require('../trainer-table-construction.js')},document:{getElementById:()=>({getBoundingClientRect:()=>({width:1365,height:700})}),body:{classList:{contains:()=>false}}},stage:{},innerWidth:1365,active:true,lastFrame:{L:2.54,W:1.27,R:.028575,aim:{cue:{x:.3,y:.4},target:{x:1.8,y:.8}}},cameraState:{},previousCueCamera:null,viewLocked:false,clamp:(n,a,b)=>Math.max(a,Math.min(b,n)),requestRender(){}};
 vm.createContext(c);vm.runInContext(helpers,c);const copy=()=>JSON.parse(JSON.stringify(c.cameraState));
-c.standing();const a=copy();c.standing(true);const b=copy();assert.equal(b.azimuth,a.azimuth+Math.PI);assert.equal(b.radius,a.radius);assert.equal(b.elevation,a.elevation);c.standing(true);assert.deepEqual(copy(),a);
-c.alongShot(true);const near=copy();c.alongShot(true);const wide=copy();assert(Math.abs(wide.radius-near.radius*1.15**5)<1e-10);assert.equal(wide.elevation,near.elevation);assert.equal(wide.azimuth,near.azimuth);assert.deepEqual(wide.target,near.target);c.alongShot(true);assert.deepEqual(copy(),near);c.standing(true);assert.equal(c.cameraState.azimuth,0);c.alongShot(true);assert.deepEqual(copy(),near);
-console.log('Opposite long-rail Full View and repeat Cue View five-step zoom preserve angle, target and scene.');
+for(const heading of [0,.37,Math.PI/2,2.46,Math.PI,-1.81]){
+ c.cameraState.azimuth=heading;c.standing();const first=copy();
+ assert.equal(first.azimuth,heading);
+ for(const x of [-1.424,1.424])for(const z of [-.789,.789]){
+  const along=x*Math.sin(heading)+z*Math.cos(heading),right=x*Math.cos(heading)-z*Math.sin(heading);
+  const aspect=1365/700,tan=orbit.viewTangent(aspect),depth=first.radius-along*Math.cos(first.elevation);
+  assert(Math.abs(right)/(depth*tan*aspect)<=.900001);
+  assert(Math.abs(along*Math.sin(first.elevation))/(depth*tan)<=.840001);
+ }
+ c.standing();assert.deepEqual(copy(),first);
+}
+console.log('Full View fits the rails at six headings and repeat taps preserve orientation.');

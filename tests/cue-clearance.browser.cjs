@@ -17,7 +17,38 @@ for(const [width,height,mobile]of [[1600,1000,false],[844,390,true]]){
  const before=await page.evaluate(()=>({pose:Billiards3D.cueModel(),camera:Billiards3D.camera(),tips:Billiards3D.contactMarkers()}));assert.equal(before.pose.elevation,rail.elevation);assert.deepEqual(await page.evaluate(()=>billiardsTourBridge.predict({paths:true})),railPrediction,'2D and 3D views use identical effective impact physics');const mark=before.tips.find(t=>t.id===0);assert(mark.normal.every((v,i)=>Math.abs(mark.center[i]+v*rail.R+(i===0?1.27:i===2?.635:0)-before.pose.contact[i])<1e-8));await page.screenshot({path:out+'/'+name+'-rail.png'});
  const stable=await page.evaluate(async()=>{const n=BilliardsCueClearance.diagnostics().solves;for(let i=0;i<12;i++)Billiards3D.refresh();return {before:n,after:BilliardsCueClearance.diagnostics().solves};});assert.equal(stable.after,stable.before,'Camera redraw never recomputes clearance');
  const pocket=await setup(1.27,.08);assert(pocket.elevation<rail.elevation);await settle();await page.screenshot({path:out+'/'+name+'-pocket.png'});
- const blocked=await setup(.65,.04,-1);assert(blocked.blocked);await page.locator('#phoneActions>[data-trainer-action=animate]').evaluate(e=>e.click());assert.equal(await page.evaluate(()=>billiardsPlayback.state().running),false,'Impossible target never shoots through the rail');
+ const drawAtRail=await setup(.65,.04,-1);
+ assert(!drawAtRail.blocked && drawAtRail.contactLimited && drawAtRail.elevation>3);
+ await settle();
+ assert.equal(await page.locator('#elevNumber').inputValue(),drawAtRail.elevation.toFixed(1));
+ assert.equal(await page.evaluate(()=>billiardsTourBridge.capture().state.airbornePhysics),false);
+ const preferred=await page.evaluate(()=>{
+  const speed=document.getElementById('speed');speed.value=1.1;speed.dispatchEvent(new Event('input',{bubbles:true}));
+  return billiardsTourBridge.capture().state.cueElevationDeg;
+ });
+ assert.equal(preferred,3,'Editing speed keeps the automatic angle free to fall again');
+ await settle();
+ const rendered=await page.evaluate(()=>Billiards3D.cueModel());
+ assert(rendered.visible);
+ const railDrawImpact=await page.evaluate(()=>billiardsTourBridge.predict().cueImpact);
+ assert.deepEqual(rendered.contact,railDrawImpact.contact);
+ await page.locator('#phoneActions>[data-trainer-action=animate]').evaluate(e=>e.click());
+ assert(await page.evaluate(()=>billiardsPlayback.state().running));
+ await page.evaluate(()=>billiardsPlayback.stop());
+ const full=page.locator('#table3DFullView'),cueToggle=page.locator('#table3DCueView');
+ const heading=await page.evaluate(()=>Billiards3D.camera().azimuth);
+ await full.click();await settle();
+ const fitted=await page.evaluate(()=>Billiards3D.camera());
+ assert(!fitted.playerView && Math.abs(fitted.azimuth-heading)<1e-9);
+ await full.click();await settle();assert.deepEqual(await page.evaluate(()=>Billiards3D.camera()),fitted);
+ await cueToggle.click();await settle();assert.equal(await cueToggle.getAttribute('aria-pressed'),'true');
+ assert(await page.evaluate(()=>Billiards3D.camera().playerViewLock));
+ await page.locator('#playerViewRaised').evaluate(el=>el.click());await settle();
+ assert.equal(await page.evaluate(()=>Billiards3D.camera().playerEyeHeight),.28);
+ await page.locator('#playerViewLow').evaluate(el=>el.click());await settle();
+ await cueToggle.click();await settle();const returned=await page.evaluate(()=>Billiards3D.camera());
+ assert(!returned.playerView && returned.azimuth===fitted.azimuth && returned.radius===fitted.radius);
+ await cueToggle.click();await settle();
  await setup(.65,.635);await settle();const camera=await page.evaluate(()=>Billiards3D.camera());
  await page.evaluate(()=>{window.__finishCaught=false;const observe=()=>{const m=Billiards3D.cueModel();if(m?.phase==='finish'&&billiardsPlayback.state().visualTime>.25){window.removeEventListener('billiards:3d-render',observe);billiardsPlayback.pause();window.__finishCaught=true;}};window.addEventListener('billiards:3d-render',observe);});await page.locator('#phoneActions>[data-trainer-action=animate]').click();await page.waitForFunction(()=>window.__finishCaught);await settle();
  const held=await page.evaluate(()=>({p:Billiards3D.cueModel(),c:Billiards3D.camera(),clock:billiardsPlayback.state()}));assert(held.p.visible);assert.equal(held.p.phase,'finish');assert.equal(held.clock.stroke.finishHold,2);assert.deepEqual(held.c.target,camera.target,'Player head stays down');await page.screenshot({path:out+'/'+name+'-finish.png'});await page.evaluate(()=>billiardsPlayback.stop());
@@ -25,7 +56,7 @@ for(const [width,height,mobile]of [[1600,1000,false],[844,390,true]]){
  const draw=await page.evaluate(()=>{const s=billiardsTourBridge.capture();Object.assign(s.state,{speed:1.6,follow:-.85,sideSpin:0,cueElevationDeg:3,airbornePhysics:false,freeAim:{x:1.5,y:.635},balls:[{id:0,n:'CB',x:.65,y:.635,active:true},{id:1,n:'1',x:.75,y:.635,active:true}]});billiardsTourBridge.restore(s);return billiardsCueSetup.state().cue;});assert(!draw.blocked);
  await page.evaluate(()=>{document.getElementById('animate').click();billiardsPlayback.pause();});await settle();const returning=await page.evaluate(()=>billiardsPlayback.state().stroke);if(!returning.returnClearance)console.log('Draw path evidence',await page.evaluate(()=>billiardsTourBridge.predict({paths:true})));assert(returning.returnClearance,'Actual fast close draw path retracts held cue');assert(returning.hideAt<returning.conflictAt);await page.evaluate(()=>billiardsPlayback.stop());
  // Fixed 30 fps recording clock must include the hold without extending physics.
- await setup(.65,.635);await page.evaluate(()=>{window.__record=[];const begin=BilliardsShotRecorder.begin;BilliardsShotRecorder.begin=()=>({ready:()=>true,frame(){Billiards3D.renderSnapshot();const s=billiardsPlayback.state();__record.push({visual:s.visualTime,ball:s.time,phase:Billiards3D.cueModel()?.phase});if(s.visualTime>.45)billiardsPlayback.pause();},finish(){BilliardsShotRecorder.begin=begin;},cancel(){BilliardsShotRecorder.begin=begin;}});});await page.locator('#phoneActions>[data-trainer-action=animate]').click();await page.waitForFunction(()=>window.__record.some(f=>f.visual>.4));const recorded=await page.evaluate(()=>__record);assert(recorded.some(f=>f.visual<0&&f.ball===0));assert(recorded.some(f=>f.phase==='finish'));fs.writeFileSync(out+'/'+name+'-evidence.json',JSON.stringify({rail,pocket,blocked:blocked.blocked,stable,returning,recorded},null,2));assert.deepEqual(errors,[]);console.log(name+': auto rail/pocket clearance, fixed tip marker, normal elevation access, blocked target, cached camera, held finish, real draw withdrawal and fixed recording frames passed');
+ await setup(.65,.635);await page.evaluate(()=>{window.__record=[];const begin=BilliardsShotRecorder.begin;BilliardsShotRecorder.begin=()=>({ready:()=>true,frame(){Billiards3D.renderSnapshot();const s=billiardsPlayback.state();__record.push({visual:s.visualTime,ball:s.time,phase:Billiards3D.cueModel()?.phase});if(s.visualTime>.45)billiardsPlayback.pause();},finish(){BilliardsShotRecorder.begin=begin;},cancel(){BilliardsShotRecorder.begin=begin;}});});await page.locator('#phoneActions>[data-trainer-action=animate]').click();await page.waitForFunction(()=>window.__record.some(f=>f.visual>.4));const recorded=await page.evaluate(()=>__record);assert(recorded.some(f=>f.visual<0&&f.ball===0));assert(recorded.some(f=>f.phase==='finish'));fs.writeFileSync(out+'/'+name+'-evidence.json',JSON.stringify({rail,pocket,drawAtRail,stable,returning,recorded},null,2));assert.deepEqual(errors,[]);console.log(name+': auto rail/pocket clearance, fixed tip marker, normal elevation access, blocked target, cached camera, held finish, real draw withdrawal and fixed recording frames passed');
  }catch(e){console.error('Failure state',await page.evaluate(()=>({cue:window.billiardsCueSetup?.state(),playback:window.billiardsPlayback?.state()})));await page.screenshot({path:out+'/'+name+'-failure.png'}).catch(()=>{});throw e;}finally{await context.close();}
 }
 }finally{await browser?.close();server.kill();}})().catch(e=>{console.error(e);process.exitCode=1});

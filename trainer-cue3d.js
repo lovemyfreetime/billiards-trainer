@@ -9,7 +9,8 @@
   if(!data)return null;const angle=data.elevation*Math.PI/180,co=Math.cos(angle),sn=Math.sin(angle),R=data.R;
   const forward=[data.dx*co,-sn,data.dy*co],back=forward.map(v=>-v),contact=[data.x+R*(data.dx*data.rear-data.dy*data.sideR),data.z+R*data.height,data.y+R*(data.dy*data.rear+data.dx*data.sideR)];
   const stroke=data.stroke||{backstroke:.13,followThrough:.12,followTime:.18,finishAt:.18,withdrawAt:2.18,hideAt:2.42,withdrawTime:.24};
-  let gap=.008,phase='address',visible=!data.blocked;
+  let gap=.008,phase='address',visible=true;
+  if(data.blocked)gap=Math.max(.08,(2*R+.018-contact[1])/Math.max(.1,sn));
   if(Number.isFinite(time)){
    if(time<-.30){phase='backstroke';gap=.008+(stroke.backstroke-.008)*smooth((time+PRE_ROLL)/.42);}
    else if(time<-.23){phase='pause';gap=stroke.backstroke;}
