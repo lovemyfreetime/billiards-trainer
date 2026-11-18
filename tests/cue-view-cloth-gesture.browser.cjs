@@ -96,11 +96,17 @@ const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
     const offCloth = await page.evaluate(() => {
       const canvas = document.getElementById('table3DCanvas'), box = canvas.getBoundingClientRect();
-      for (let y = box.top + 10; y < box.bottom - 10; y += 8) {
-        const x = box.left + box.width * .55;
-        if (document.elementFromPoint(x, y) === canvas && !Billiards3D.tablePoint({clientX:x, clientY:y})) return {x, y};
+      const {tableL, tableW} = billiardsTourBridge.capture().state;
+      for (const fraction of [.3, .7, .4, .6, .2, .8]) {
+        const rails = [{x:tableL+.075, y:tableW*fraction}, {x:-.075, y:tableW*fraction},
+          {x:tableL*fraction, y:tableW+.075}, {x:tableL*fraction, y:-.075}];
+        for (const rail of rails) {
+          const {x,y,visible} = Billiards3D.project(rail, .044);
+          if (visible && x > box.left+32 && x < box.right-32 && y > box.top+6 && y < box.bottom-6 &&
+              document.elementFromPoint(x,y) === canvas && !Billiards3D.tablePoint({clientX:x,clientY:y})) return {x,y};
+        }
       }
-      throw Error('No exposed off-cloth canvas point in the test viewport');
+      throw Error('No exposed outer rail in the test viewport');
     });
     const beforeOutside = await state(), held = await camera();
     await send('touchStart', offCloth);
