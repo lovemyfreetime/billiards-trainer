@@ -121,16 +121,16 @@
  }
  if(window.ResizeObserver)new ResizeObserver(fitViewLabels).observe(phoneBox);
  function requestRender(){if(lastFrame){const min=Math.max(lastFrame.R*5,lastFrame.L*.06),max=lastFrame.L*8;zoomSlider.value=String(100*(Math.log(max)-Math.log(cameraState.radius))/(Math.log(max)-Math.log(min)));}if(!active||!engine||scheduled)return;scheduled=requestAnimationFrame(()=>{scheduled=0;if(active){engine.render();window.dispatchEvent(new Event('billiards:3d-render'));}});}
- function orbit(dx,dy){if(cameraState.playerView)leaveCueView(false);window.BilliardsTableOrbit.orbit(cameraState,dx,dy);requestRender();}
- function zoom(factor){if(cameraState.playerView)leaveCueView(false);if(!lastFrame)return;window.BilliardsTableOrbit.zoom(cameraState,factor,lastFrame.L,lastFrame.R);requestRender();}
+ function orbit(dx,dy){if(cameraState.playerView)leaveCueView(false,viewLocked);window.BilliardsTableOrbit.orbit(cameraState,dx,dy);requestRender();}
+ function zoom(factor){if(cameraState.playerView)leaveCueView(false,viewLocked);if(!lastFrame)return;window.BilliardsTableOrbit.zoom(cameraState,factor,lastFrame.L,lastFrame.R);requestRender();}
  // Keep the longer screen dimension at a natural 58° field of view.
  function viewTangent(aspect){return window.BilliardsTableOrbit.viewTangent(aspect);}
- function leaveCueView(restore) {
+ function leaveCueView(restore, adjustmentMode=previousCueCamera?.editMode) {
   cameraState.playerView=false;
   cameraState.playerInShot=false;
   if(previousCueCamera) {
    if(restore) Object.assign(cameraState,previousCueCamera.pose);
-   if(viewLocked!==previousCueCamera.editMode) setViewLocked(previousCueCamera.editMode);
+   if(viewLocked!==adjustmentMode) setViewLocked(adjustmentMode);
    previousCueCamera=null;
   }
   requestRender();
@@ -434,7 +434,7 @@
   const pointers=new Map();let edit=null,lastTap=null;
   // Screen-space panning translates camera and target together, preserving the
   // current tilt and shot-line angle even when looking nearly across the cloth.
-  function pan(dx,dy){if(cameraState.playerView)leaveCueView(false);
+  function pan(dx,dy){if(cameraState.playerView)leaveCueView(false,viewLocked);
    window.BilliardsTableOrbit.pan(T,camera,cameraState,dx,dy,canvas.getBoundingClientRect().height);requestRender();
   }
   function overControls(e){return [...document.querySelectorAll('#phoneAimRail,#phoneSpeedRail,#phoneActions,.aimControlRow.activeAim,.tableSpeedControl.activeSpeed,.bottomSpinGroup.activeSpin,.phoneTipControl')].some(el=>{const r=el.getBoundingClientRect();return r.width&&r.height&&e.clientX>=r.left-5&&e.clientX<=r.right+5&&e.clientY>=r.top-5&&e.clientY<=r.bottom+5;});}
@@ -456,20 +456,32 @@
    return {editable:onCloth||!!f.railEditing,point:onCloth?surface:q,height:0,offset:{x:0,z:0}};
   }
   function forward(type,point,e){return window.billiards3DTableInput?.(type,point,{tableClient:{clientX:e.clientX,clientY:e.clientY},buttons:e.buttons??0,pointerId:e.pointerId||1,pointerType:e.pointerType||'mouse',shiftKey:!!e.shiftKey,altKey:!!e.altKey,ctrlKey:!!e.ctrlKey,metaKey:!!e.metaKey,deltaY:e.deltaY||0,deltaX:e.deltaX||0,deltaMode:e.deltaMode||0});}
-  function cancelInput(){if(edit){forward('pointercancel',edit.last,{pointerId:edit.id,pointerType:edit.pointerType});edit=null;}pointers.clear();}
+  function finishEdit(type,event){
+   const current=edit;
+   edit=null;
+   forward(type,current.last,event);
+   if(cameraState.playerView)requestRender();
+  }
+  function cancelInput(){if(edit)finishEdit('pointercancel',{pointerId:edit.id,pointerType:edit.pointerType});pointers.clear();}
   function pointerDown(e,outside=false){
    if(!active||e.button!==0||overControls(e))return;e.preventDefault();e.stopPropagation();canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});
    if(viewLocked){if(edit)return;const hit=outside?null:pick(e);if(pointers.size===0&&hit?.editable){edit={id:e.pointerId,pointerType:e.pointerType,height:hit.height,offset:hit.offset,last:hit.point};if(!forward('pointerdown',hit.point,e))edit=null;return;}}
-   pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,multi:pointers.size>0});if(pointers.size>1){for(const p of pointers.values())p.multi=true;lastTap=null;}
+   pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,multi:pointers.size>0,pendingViewDrag:viewLocked});if(pointers.size>1){for(const p of pointers.values())p.multi=true;lastTap=null;}
   }
   canvas.addEventListener('pointerdown',e=>pointerDown(e));
   stage.addEventListener('pointerdown',e=>{if(e.target===stage)pointerDown(e,true);});
   canvas.addEventListener('pointermove',e=>{
    if(viewLocked&&!pointers.has(e.pointerId)){if(!edit){cast(e);const q=logical(planePoint());if(q)forward('pointermove',q,e);canvas.style.cursor=source.style.cursor||'crosshair';return;}if(edit.id!==e.pointerId)return;e.preventDefault();e.stopPropagation();cast(e);const p=planePoint(edit.height);if(!p)return;const q=logical(new T.Vector3(p.x-edit.offset.x,0,p.z-edit.offset.z));edit.last=q;forward('pointermove',q,e);return;}
-   const p=pointers.get(e.pointerId);if(!p)return;e.preventDefault();e.stopPropagation();window.BilliardsTableOrbit.move(pointers,e,{pan,zoom,orbit,panning:panEnabled});
+   const p=pointers.get(e.pointerId);if(!p)return;e.preventDefault();e.stopPropagation();
+   // An off-cloth tap can generate small pointer moves on a tablet.
+   if(p.pendingViewDrag){
+    if(Math.hypot(e.clientX-p.sx,e.clientY-p.sy)<6)return;
+    for(const point of pointers.values())point.pendingViewDrag=false;
+   }
+   window.BilliardsTableOrbit.move(pointers,e,{pan,zoom,orbit,panning:panEnabled});
   });
   for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,e=>{
-   if(edit?.id===e.pointerId){const current=edit;edit=null;forward(type==='pointerup'?'pointerup':'pointercancel',current.last,e);}
+   if(edit?.id===e.pointerId)finishEdit(type==='pointerup'?'pointerup':'pointercancel',e);
    const point=pointers.get(e.pointerId);
    if(!viewLocked&&type==='pointerup'&&pointers.size===1&&point&&!point.multi&&!panEnabled&&Math.hypot(e.clientX-point.sx,e.clientY-point.sy)<6){const now=performance.now();if(lastTap&&now-lastTap.time<350&&Math.hypot(e.clientX-lastTap.x,e.clientY-lastTap.y)<20){focusBall(e);lastTap=null;}else lastTap={time:now,x:e.clientX,y:e.clientY};}else if(type!=='lostpointercapture')lastTap=null;
    pointers.delete(e.pointerId);e.stopPropagation();
@@ -487,7 +499,9 @@
     // changes size so guides stay aligned and old edge pixels cannot remain.
     texture.dispose();textureCanvas.width=w;textureCanvas.height=h;
    }textureCtx.clearRect(0,0,w,h);textureCtx.drawImage(source,a.x*ratio,a.y*ratio,w,h,0,0,w,h);texture.needsUpdate=true;dirty=false;}
-   if(cameraState.playerView&&f.cuePose){
+   // The finger is located on the cloth using this camera. Keep its projection
+   // steady through the edit, then align with the completed shot on release.
+   if(cameraState.playerView&&f.cuePose&&!edit){
     if(cameraState.playerInShot&&!f.animating&&!cameraState.playerViewLock)leaveCueView(true);
     else if(!f.animating||!cameraState.playerInShot){const p=window.BilliardsCue3D.playerCamera(f.cuePose,{height:cameraState.playerEyeHeight,distance:cameraState.playerDistance});Object.assign(cameraState,{azimuth:p.azimuth,elevation:p.elevation,radius:p.radius,target:{x:p.target[0]-f.L/2,y:p.target[1],z:p.target[2]-f.W/2}});}
     cameraState.playerInShot=!!f.animating;
