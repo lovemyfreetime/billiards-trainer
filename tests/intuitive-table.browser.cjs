@@ -27,9 +27,12 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{spawn}=require
   const restored=await page.evaluate(()=>Billiards3D.camera());assert(Math.abs(restored.azimuth-before.camera.azimuth)<1e-6);assert.equal(restored.radius,before.camera.radius);
   const ballScreen=await project({x:1.3,y:.9});await send('touchStart',ballScreen);await send('touchMove',{x:ballScreen.x+45,y:ballScreen.y+10});await send('touchEnd');assert.deepEqual(await page.evaluate(()=>billiardsTourBridge.capture().state.balls),before.state.balls,'ordinary touching does not relocate physical balls');
   await page.locator('#table3DReturnView').tap();await page.waitForTimeout(850);
+  await page.evaluate(()=>{window.__trainerInputTrace=[];});
   const aim=await page.evaluate(()=>billiardsTourBridge.capture().state.freeAim),handle=await project(aim),camera=await page.evaluate(()=>Billiards3D.camera());
+  console.log('Handle screen',JSON.stringify(await page.evaluate(p=>({point:p,target:document.elementFromPoint(p.x,p.y)?.id,locked:Billiards3D.locked}),handle)));
   await send('touchStart',handle);await send('touchMove',{x:handle.x-18,y:handle.y+9});await send('touchEnd');
-  console.log('Aim handle result',JSON.stringify(await page.evaluate(()=>({aim:billiardsTourBridge.capture().state.freeAim,camera:Billiards3D.camera(),handles:billiardsGuidance.aimHandles()}))));
+  console.log('Aim handle result',JSON.stringify(await page.evaluate(()=>({trace:window.__trainerInputTrace,aim:billiardsTourBridge.capture().state.freeAim,camera:Billiards3D.camera(),handles:billiardsGuidance.aimHandles()}))));
+  await page.screenshot({path:'test-results/intuitive-table/handle.png'});
   assert.notDeepEqual(await page.evaluate(()=>billiardsTourBridge.capture().state.freeAim),aim);assert.equal((await page.evaluate(()=>Billiards3D.camera())).azimuth,camera.azimuth,'aim edit leaves inspection camera still');
   await page.evaluate(()=>billiardsGuidance.replan());
   fs.mkdirSync('test-results/intuitive-table',{recursive:true});await page.screenshot({path:'test-results/intuitive-table/tablet.png'});
