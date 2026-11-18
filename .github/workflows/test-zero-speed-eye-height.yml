@@ -1,0 +1,21 @@
+name: Check zero shot speed and Cue View heights
+on:
+  push:
+    branches: [test/shot-speed-eye-height-20261118]
+permissions:
+  contents: read
+jobs:
+  touch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Prepare browser
+        run: |
+          npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
+          node local-host/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Check zero shot speed, real touch input and eye-height settings
+        run: NODE_PATH="$PWD/local-host/node_modules" node tests/zero-speed-cue-height.browser.cjs
