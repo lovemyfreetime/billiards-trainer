@@ -9,7 +9,7 @@
  const views=document.createElement('nav');views.id='table3DViews';views.setAttribute('aria-label','Table viewpoints');views.append(button);stage.append(views,status);
  const tools=document.createElement('nav');tools.id='table3DTools';tools.hidden=true;tools.setAttribute('aria-label','3D camera controls');
  const action=(label,title,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('aria-label',title);b.title=title;b.onclick=fn;tools.append(b);return b;};
- const standingButton=action('Full View','Fit the full table from your current heading',()=>{
+ const standingButton=action('Full View','Fit the full table from the nearest long rail',()=>{
   const heading=cameraState.azimuth,follow=document.getElementById('followMode');
   if(follow?.getAttribute('aria-checked')==='true')follow.click();
   standing(heading);
@@ -141,21 +141,19 @@
   cameraState.followCue=false;
   const rect=(active?document.getElementById('table3DCanvas'):stage).getBoundingClientRect();
   const aspect=rect.width/Math.max(1,rect.height),tan=viewTangent(aspect);
-  const widthLimit=innerWidth<1000&&!document.body.classList.contains('table-3d-tablet')?.80:.90;
+  // At an end-on tie either long rail is equally near. Use the head-left view.
+  const azimuth=Math.cos(heading)<-1e-10?Math.PI:0;
   const elevation=Math.PI/3,cs=Math.cos(elevation),sn=Math.sin(elevation);
-  const alongX=Math.sin(heading),alongZ=Math.cos(heading);
   const rail=window.BilliardsTableConstruction.railWidth;
+  const halfLength=lastFrame.L/2+rail,halfWidth=lastFrame.W/2+rail;
   let radius=.94;
-  for(const x of [-lastFrame.L/2-rail,lastFrame.L/2+rail]) {
-   for(const z of [-lastFrame.W/2-rail,lastFrame.W/2+rail]) {
-    const along=x*alongX+z*alongZ,right=x*alongZ-z*alongX;
-    for(const height of [0,.044]) {
-     const depthOffset=cs*along+sn*height,up=cs*height-sn*along;
-     radius=Math.max(radius,depthOffset+Math.abs(right)/(tan*aspect*widthLimit),depthOffset+Math.abs(up)/(tan*.84));
-    }
+  for(const z of [-halfWidth,halfWidth]) {
+   for(const height of [0,.044]) {
+    const depthOffset=cs*z+sn*height,up=cs*height-sn*z;
+    radius=Math.max(radius,depthOffset+halfLength/(tan*aspect*.96),depthOffset+Math.abs(up)/(tan*.88));
    }
   }
-  Object.assign(cameraState,{target:{x:0,y:0,z:0},azimuth:heading,radius,elevation});
+  Object.assign(cameraState,{target:{x:0,y:0,z:0},azimuth,radius,elevation});
   requestRender();
  }
  // Follow the direction of travel without moving the ball or its simulation clock.

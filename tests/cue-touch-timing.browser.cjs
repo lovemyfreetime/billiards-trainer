@@ -14,17 +14,26 @@ async function sample(page, context, kind) {
  const touch = (type,point) => cdp.send('Input.dispatchTouchEvent',{type,touchPoints:point?[point]:[]});
  await touch('touchStart',{x,y});
  await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
- await el.evaluate(node=>{
+ await el.evaluate((node,kind)=>{
   window.timingRows=[];
   let active;
-  const start=event=>{if(event.isTrusted)active={start:performance.now(),timestamp:event.timeStamp};};
+  const heading=()=>{
+   if(kind==='orbit')return Billiards3D.camera().azimuth;
+   const f=Billiards3D.cueModel().forward;return Math.atan2(f[0],f[2]);
+  };
+  const start=event=>{if(event.isTrusted)active={start:performance.now(),timestamp:event.timeStamp,oldHeading:heading(),stale:0};};
   const finish=()=>{if(active)active.end=performance.now();};
-  const render=()=>{if(!active||active.end===undefined)return;const t=performance.now();timingRows.push({handler:active.end-active.start,toRender:t-active.start,queued:active.start-active.timestamp});active=null;};
+  const render=()=>{
+   if(!active||active.end===undefined)return;
+   const t=performance.now();
+   if(Math.abs(heading()-active.oldHeading)<1e-9){active.stale++;return;}
+   timingRows.push({handler:active.end-active.start,toRender:t-active.start,queued:active.start-active.timestamp,stale:active.stale});active=null;
+  };
   node.addEventListener('pointermove',start,true);
   node.addEventListener('pointermove',finish);
   window.addEventListener('billiards:3d-render',render);
   window.clearTiming=()=>{node.removeEventListener('pointermove',start,true);node.removeEventListener('pointermove',finish);window.removeEventListener('billiards:3d-render',render)};
- });
+ },kind);
  const before=await page.evaluate(()=>({aim:billiardsTourBridge.capture().state.freeAim,heading:Billiards3D.camera().azimuth}));
  for(let i=1;i<=13;i++){
   const n=await page.evaluate(()=>timingRows.length);
@@ -63,11 +72,11 @@ async function measure(browser, dir, port) {
   for(const [i,dir] of ['baseline','candidate','candidate','baseline'].entries()){
    const result=await measure(browser,dir,8800+i);
    results.push(result);
-   for(const kind of ['aim','orbit'])console.log('BLOCK',i,dir,kind,JSON.stringify(Object.fromEntries(['handler','toRender','queued'].map(key=>[key,median(result[kind].map(v=>v[key]))]))));
+   for(const kind of ['aim','orbit'])console.log('BLOCK',i,dir,kind,JSON.stringify(Object.fromEntries(['handler','toRender','queued','stale'].map(key=>[key,median(result[kind].map(v=>v[key]))]))));
   }
   for(const dir of ['baseline','candidate'])for(const kind of ['aim','orbit']){
    const rows=results.filter(r=>r.dir===dir).flatMap(r=>r[kind]);
-   console.log('RESULT',dir,kind,JSON.stringify(Object.fromEntries(['handler','toRender','queued'].map(k=>[k,median(rows.map(r=>r[k]))]))),'n='+rows.length);
+   console.log('RESULT',dir,kind,JSON.stringify(Object.fromEntries(['handler','toRender','queued','stale'].map(k=>[k,median(rows.map(r=>r[k]))]))),'n='+rows.length);
   }
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1});

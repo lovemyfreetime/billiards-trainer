@@ -4940,8 +4940,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             requestAnimationFrame(() => {
                 microAimRefreshPending = false;
                 refreshPreview();
-                saveState();
-                syncProjector();
             });
         }
     }
@@ -9738,7 +9736,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if (isProjector || (shot === 2 && !S.shot2Enabled)) return;
             ev.preventDefault();
             ev.stopPropagation();
-            setActiveShot(shot);
+            if (S.activeShot !== shot) setActiveShot(shot);
             let notches = ev.deltaMode === 1 ? ev.deltaY / 3 : (ev.deltaMode === 2 ? ev.deltaY : ev.deltaY / 100);
             notches = clamp(notches, -3, 3);
             rotateAimMicro(notches * (0.15 * Math.PI / 180));
@@ -9918,7 +9916,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 button.addEventListener('pointerdown', event => event.stopPropagation());
                 window.billiardsBindHoldAdjust(button, () => {
                     finishActionUndo(); beginActionUndo();
-                    setActiveShot(shotNo);
+                    if (S.activeShot !== shotNo) setActiveShot(shotNo);
                     rotateAimMicro(Number(button.dataset.aimStep) * 0.15 * Math.PI / 180);
                     requestAnimationFrame(finishActionUndo);
                 }, () => shotNo !== 2 || S.shot2Enabled);
@@ -9928,7 +9926,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             roller.addEventListener('pointerdown', ev => {
                 if (shotNo === 2 && !S.shot2Enabled)
                     return;
-                setActiveShot(shotNo);
+                if (S.activeShot !== shotNo) setActiveShot(shotNo);
                 rollerDrag = true;
                 rollerLastX = document.body.classList.contains('phone-layout') ? ev.clientY : ev.clientX;
                 roller.setPointerCapture(ev.pointerId);
@@ -9942,7 +9940,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 rollerLastX = document.body.classList.contains('phone-layout') ? ev.clientY : ev.clientX;
                 if (Math.abs(dx) < 0.01)
                     return;
-                setActiveShot(shotNo);
+                if (S.activeShot !== shotNo) setActiveShot(shotNo);
                 rotateAimMicro((dx / 12) * (0.15 * Math.PI / 180));
                 rollerVisual = (rollerVisual + dx) % 12;
                 ticks.style.transform = (vertical ? 'translateY(' : 'translateX(') + rollerVisual + 'px)';
