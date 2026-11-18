@@ -36,11 +36,25 @@ for(const [width,height,mobile]of [[1600,1000,false],[844,390,true]]){
  assert(await page.evaluate(()=>billiardsPlayback.state().running));
  await page.evaluate(()=>billiardsPlayback.stop());
  const full=page.locator('#table3DFullView'),cueToggle=page.locator('#table3DCueView');
- const heading=await page.evaluate(()=>Billiards3D.camera().azimuth);
- await full.click();await settle();
- const fitted=await page.evaluate(()=>Billiards3D.camera());
- assert(!fitted.playerView && Math.abs(fitted.azimuth-heading)<1e-9);
- await full.click();await settle();assert.deepEqual(await page.evaluate(()=>Billiards3D.camera()),fitted);
+ await full.click();await settle();assert.equal(await page.evaluate(()=>Billiards3D.camera().playerView),false);
+ let fitted;
+ for(const [heading,side] of [[1.27,1],[2.1,-1]]){
+  await page.evaluate(a=>Billiards3D.restoreCamera({...Billiards3D.camera(),azimuth:a}),heading);
+  await full.click();await settle();
+  fitted=await page.evaluate(()=>Billiards3D.camera());
+  assert.equal(fitted.azimuth,side===1?0:Math.PI);
+  const bounds=await page.evaluate(()=>{
+   const {tableL:L,tableW:W}=billiardsTourBridge.capture().state,rail=BilliardsTableConstruction.railWidth;
+   const r=document.getElementById('table3DCanvas').getBoundingClientRect();
+   const points=[-rail,L+rail].flatMap(x=>[-rail,W+rail].map(y=>Billiards3D.project({x,y},.044)));
+   return {points:points.map(p=>[(p.x-r.left)/r.width,(p.y-r.top)/r.height])};
+  });
+  const points=bounds.points;
+  assert(points.every(([x,y])=>x>=0&&x<=1&&y>=0&&y<=1),'All outer rail corners visible');
+  assert(Math.abs(points[0][1]-points[2][1])<1e-6 && (points[2][0]-points[0][0])*side>0,'Horizontal long rail with the expected head and foot order');
+  await full.click();await settle();assert.deepEqual(await page.evaluate(()=>Billiards3D.camera()),fitted);
+  await page.screenshot({path:out+'/'+name+'-full-'+(side===1?'head-left':'head-right')+'.png'});
+ }
  await cueToggle.click();await settle();assert.equal(await cueToggle.getAttribute('aria-pressed'),'true');
  assert(await page.evaluate(()=>Billiards3D.camera().playerViewLock));
  await page.locator('#playerViewRaised').evaluate(el=>el.click());await settle();
