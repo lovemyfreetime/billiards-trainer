@@ -4565,7 +4565,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const contact=cueSideContact(values.sideSpin,values.follow,values.cueElevationDeg),d=shotAimDirection(which);
         const data={id:which===2?'CB2':0,x:ball.x,y:ball.y,z:S.ballR,R:S.ballR,dx:d.x,dy:d.y,
             rear:contact.x,height:contact.z,sideR:contact.tip.sideR,elevation:values.cueElevationDeg};
-        return window.BilliardsCueClearance.solve(data,{L:S.tableL,W:S.tableW,R:S.ballR}, {...cueStrokePreferences,speed:values.speed},S.balls); 
+        return window.BilliardsCueClearance.solve(data,{L:S.tableL,W:S.tableW,R:S.ballR}, {...cueStrokePreferences,speed:values.speed},S.balls);
     }
     function cueTipsFor3D(){
         const tips=[];
