@@ -2675,7 +2675,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if (d.setupMode) S.setupMode = d.setupMode;
         S.balls = JSON.parse(JSON.stringify(d.balls || []));
         S.annotations = JSON.parse(JSON.stringify(d.annotations||null));
-        S.trainingBallStyle=d.trainingBallStyle||'current';
+        // A recalled layout changes the table, not the player's chosen ball appearance.
+        S.guidancePlan=null;S.guidanceScratch=false;S.guidanceBreak=false;S.guidanceGroups={};guidancePending=false;
         // Preserve intentionally cue-less photo layouts when they are recalled.
         // The ball-list fallback also supports any older saved layout that happened
         // to contain no cue ball before this flag existed.

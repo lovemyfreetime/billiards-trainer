@@ -21,15 +21,20 @@ jobs:
           node tests/trainer-cue3d.test.cjs
           node tests/trainer-cue-follow.test.cjs
           python3 scripts/build-offline-assets.py --check
-      - name: Install browser
+      - name: Prepare browser
+        timeout-minutes: 3
         run: |
           npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
-          node local-host/node_modules/playwright/cli.js install --with-deps chromium
+          if command -v google-chrome >/dev/null; then
+            echo "CHROMIUM_EXECUTABLE_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
+          else
+            node local-host/node_modules/playwright/cli.js install --with-deps chromium
+            echo "CHROMIUM_EXECUTABLE_PATH=$(NODE_PATH=./local-host/node_modules node -p "require('playwright').chromium.executablePath()")" >> "$GITHUB_ENV"
+          fi
       - name: Tablet interaction and actual shot handoff
         env:
           NODE_PATH: ./local-host/node_modules
         run: |
-          export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")
           node tests/intuitive-table.browser.cjs
       - uses: actions/upload-artifact@v4
         if: always()
