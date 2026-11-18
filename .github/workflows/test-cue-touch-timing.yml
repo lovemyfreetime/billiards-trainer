@@ -1,0 +1,26 @@
+name: Measure touch aiming and camera rendering
+on:
+  push:
+    branches: [test/cue-touch-timing-20261118]
+permissions:
+  contents: read
+jobs:
+  timing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: candidate
+      - uses: actions/checkout@v4
+        with:
+          ref: d7adaac4c9d362f2f9f739799104d562f0bec8f7
+          path: baseline
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: |
+          npm ci --prefix candidate/local-host --ignore-scripts --no-audit --no-fund
+          node candidate/local-host/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Compare real touch input and 3D render completion
+        run: NODE_PATH="$PWD/candidate/local-host/node_modules" node candidate/tests/cue-touch-timing.browser.cjs
