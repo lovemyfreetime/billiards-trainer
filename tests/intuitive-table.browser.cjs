@@ -15,6 +15,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{spawn}=require
   assert.equal(await page.evaluate(()=>billiardsGuidance.status().plan.ballId),1);
   await page.reload();await page.waitForFunction(()=>window.billiardsMenuReady&&window.billiardsGuidance);
   let state=await page.evaluate(()=>billiardsTourBridge.capture().state);assert.equal(state.trainingBallStyle,'spots');assert.equal(state.showImpact,false);assert(state.showRestingCueBall&&state.showFullGhostBall);assert.equal(await page.evaluate(()=>BilliardsCue3D.getFinish()),'carbon');
+  await page.evaluate(()=>document.getElementById('showShotLine').click());
+  assert.deepEqual(await page.evaluate(()=>billiardsGuidance.aimHandles()),[],'hidden guidelines have no invisible touch handles');
+  await page.evaluate(()=>document.getElementById('showShotLine').click());
   await page.locator('#table3DToggle').tap();await page.waitForFunction(()=>Billiards3D.active&&Billiards3D.cueModel()?.referenceReady);await page.waitForFunction(()=>!Billiards3D.camera().transitioning);await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
   const settle=()=>page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
   const touch=await context.newCDPSession(page),send=async(type,p)=>{await touch.send('Input.dispatchTouchEvent',{type,touchPoints:p?[p]:[]});await settle();};

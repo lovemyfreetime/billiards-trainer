@@ -2170,7 +2170,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     window.billiardsGuidance={
         replan(){if(animation)return false;guidancePending=true;S.guidanceScratch=false;S.angleLock=false;refreshPreview();updateUI();saveState();return true;},
         status(){return {enabled:!!S.guidanceEnabled,plan:S.guidancePlan,scratch:!!S.guidanceScratch};},
-        aimHandles(){return [S.showShotLine!==false&&{point:S.freeAim,shot:1},S.shot2Enabled&&!S.shot2CueBallOnly&&{point:S.shot2.freeAim,shot:2}].filter(Boolean);}
+        aimHandles(){if(S.showShotLine===false)return [];return [cueVisualsVisible(1)&&{point:S.freeAim,shot:1},S.shot2Enabled&&shotGuidesVisible(2)&&{point:S.shot2.freeAim,shot:2}].filter(Boolean).sort((a,b)=>(b.shot===S.activeShot)-(a.shot===S.activeShot));}
     };
     const tableExchange=window.BilliardsTableExchange.create(localStorage,window.BilliardsLayoutFiles);
     if (isProjector)
