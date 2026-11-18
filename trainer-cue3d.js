@@ -14,8 +14,8 @@
    if(time<-.30){phase='backstroke';gap=.008+(stroke.backstroke-.008)*smooth((time+PRE_ROLL)/.42);}
    else if(time<-.23){phase='pause';gap=stroke.backstroke;}
    else if(time<0){phase='forward';gap=stroke.backstroke*(1-clamp((time+.23)/.23,0,1)**2);}
-   else if(time<stroke.withdrawAt){phase=time<stroke.finishAt?'follow-through':'finish';gap=-stroke.followThrough*smooth(time/Math.max(.025,stroke.finishAt));}
-   else{phase='withdraw';gap=-stroke.followThrough+(stroke.followThrough+.16)*smooth((time-stroke.withdrawAt)/stroke.withdrawTime);visible=visible&&time<stroke.hideAt;}
+   else if(time<stroke.withdrawAt){phase=time<stroke.finishAt?'follow-through':'finish';gap=-stroke.followThrough*smooth(time/Math.max(.000001,stroke.finishAt));}
+   else{phase='withdraw';gap=-stroke.followThrough+(stroke.followThrough+stroke.backstroke)*smooth((time-stroke.withdrawAt)/Math.max(.000001,stroke.withdrawTime));visible=visible&&time<stroke.hideAt;}
   }
   if(gap<0&&ball?.active){
    const delta=[ball.x-contact[0],ball.z-contact[1],ball.y-contact[2]],along=delta.reduce((n,v,i)=>n+v*forward[i],0),side2=delta.reduce((n,v)=>n+v*v,0)-along*along;

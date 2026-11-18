@@ -21,3 +21,22 @@ const p=cue.pose(ordinary),target=[ordinary.x,ordinary.z,0];assert.equal(c.depre
 // A second ball approaching from the side also cancels the held finish.
 const other=[0,.1,.2,.3,.4,.5].map(t=>[{id:0,x:open.x,y:open.y+t,z:f.R,t,active:true},{id:1,x:open.x+.3-t*.6,y:open.y-.05,z:f.R,t,active:true}]);assert(c.planFinish(open,other).returnClearance);
 console.log('Actual rail/pocket geometry, hard wood/slate, material caps, fixed tip target, cached stability, stroke limits, 2-second finish and swept returning-ball clearance passed.');
+
+// A tight draw reverses direction 35 ms after impact. The original fixed
+// minimum timings kept the cue visible inside the returning ball's path.
+const closeDraw = Array.from({length: 121}, (_, i) => {
+ const t = i / 600;
+ const distance = t <= .035 ? 1.1 * t : 1.1 * .035 - .85 * (t - .035);
+ return [{id: 0, x: open.x, y: open.y + distance, z: f.R, t, active: true}];
+});
+const fast = c.planFinish(open, closeDraw);
+assert(fast.followThrough < open.stroke.followThrough, 'Shorten the physical stroke for a close draw');
+assert(fast.returnClearance && fast.hideAt < fast.conflictAt);
+for (const [ball] of closeDraw) {
+ if (ball.t < .035) continue;
+ const pose = cue.pose({...open, stroke: fast}, ball.t, ball);
+ if (!pose.visible) continue;
+ const center = [ball.x, ball.z, ball.y];
+ const tipDistance = Math.hypot(...pose.tip.map((v, i) => v - center[i]));
+ assert(tipDistance >= f.R - 1e-8, 'The visible tip stays outside the returning ball');
+}

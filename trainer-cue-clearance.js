@@ -52,14 +52,71 @@
   const local=localAt(angle),out={...resolved,blocked,preferredElevation:preferred,automatic:angle>preferred+.025,localFollowR:local.followR,localSideR:data.sideR,limiter:hit?.material||null,stroke:{...stroke,followThrough:travel,finishAt:stroke.followTime,withdrawAt:stroke.followTime+stroke.finishHold,hideAt:stroke.followTime+stroke.finishHold+stroke.withdrawTime},allowance:ALLOWANCE};
   if(results.size>=256)results.delete(results.keys().next().value);results.set(key,out);return out;
  }
- function planFinish(data,frames){const stroke={...data.stroke},finish=stroke.followTime;let conflict=Infinity;
-  // Swept ball segments, not just sampled positions: catches fast returning draw
-  // balls and other balls that would cross the held cue between physics frames.
-  const held=envelope(data,0,0).map(s=>({a:add(s.a,[-data.dx*Math.cos(data.elevation*Math.PI/180),Math.sin(data.elevation*Math.PI/180),-data.dy*Math.cos(data.elevation*Math.PI/180)],-stroke.followThrough),b:add(s.b,[-data.dx*Math.cos(data.elevation*Math.PI/180),Math.sin(data.elevation*Math.PI/180),-data.dy*Math.cos(data.elevation*Math.PI/180)],-stroke.followThrough),r:s.r}));
-  for(let i=1;i<frames.length;i++){const previous=frames[i-1],current=frames[i],t=current[0]?.t||0;if(t<.035||t>stroke.withdrawAt+stroke.withdrawTime)continue;for(let j=0;j<current.length;j++){const b=current[j],a=previous.find(q=>q.id===b.id);if(!a||b.active===false)continue;const from=[a.x,a.z||data.R,a.y],to=[b.x,b.z||data.R,b.y];if(b.id===data.id){const c=contact(data),f=[data.dx*Math.cos(data.elevation*Math.PI/180),-Math.sin(data.elevation*Math.PI/180),data.dy*Math.cos(data.elevation*Math.PI/180)];if(dot(sub(to,c),f)>data.R+stroke.followThrough&&dot(sub(to,from),f)>=0)continue; // departing cue ball
-     if(dot(sub(to,from),f)>=0)continue;
-    }if(held.some(s=>segmentDistance(from,to,s.a,s.b)<(data.R+s.r+.003)**2))conflict=Math.min(conflict,previous[0]?.t||t);}}
-  if(Number.isFinite(conflict)){stroke.withdrawTime=Math.min(.24,Math.max(.06,conflict*.45));stroke.withdrawAt=Math.max(.025,conflict-stroke.withdrawTime-.04);stroke.finishAt=Math.min(finish,stroke.withdrawAt);stroke.hideAt=stroke.withdrawAt+stroke.withdrawTime;stroke.returnClearance=true;stroke.conflictAt=conflict;}
+ function planFinish(data, frames) {
+  const stroke = {...data.stroke};
+  const angle = data.elevation * Math.PI / 180;
+  const forward = [data.dx * Math.cos(angle), -Math.sin(angle), data.dy * Math.cos(angle)];
+  const impact = contact(data);
+  const end = add(impact, forward, -LENGTH - stroke.backstroke);
+  const reach = add(impact, forward, stroke.followThrough);
+  const clearance = data.R + .003;
+  const broadRadius = clearance + PROFILE.at(-1)[1] + .001;
+  const nearby = [];
+
+  // Only the initial departure of the struck ball is exempt. After separation,
+  // even a sideways bank back across the shaft must be checked.
+  let departed = false;
+  for (let i = 1; i < frames.length; i++) {
+   const previous = frames[i - 1], current = frames[i];
+   const time = previous[0].t;
+   if (time > stroke.hideAt) break;
+   for (let j = 0; j < current.length; j++) {
+    const ball = current[j];
+    const last = previous[j]?.id === ball.id ? previous[j] : previous.find(p => p.id === ball.id);
+    if (!last || last.active === false) continue;
+    const from = [last.x, last.z ?? data.R, last.y];
+    const to = [ball.x, ball.z ?? data.R, ball.y];
+    if (ball.id === data.id && !departed) {
+     if (dot(sub(to, from), forward) >= 0) {
+      if (pointSegment(to, end, reach) > broadRadius ** 2) departed = true;
+      continue;
+     }
+     departed = true;
+    }
+    if (segmentDistance(from, to, end, reach) <= broadRadius ** 2) nearby.push({time, from, to});
+   }
+  }
+  if (!nearby.length) return stroke;
+
+  // This envelope contains every pose from a full finish to full withdrawal.
+  // Getting out before a ball reaches it also protects the butt end of the cue.
+  function firstConflict(travel) {
+   const segments = envelope(data, stroke.backstroke, travel);
+   for (const event of nearby) {
+    if (segments.some(s => segmentDistance(event.from, event.to, s.a, s.b) <= (clearance + s.r) ** 2)) return event.time;
+   }
+   return Infinity;
+  }
+  let travel = stroke.followThrough;
+  let conflict = firstConflict(travel);
+  if (!Number.isFinite(conflict)) return stroke;
+  // A ball reversing almost at impact can enter the *planned* long finish
+  // before the tip would get there. Shorten the finish first, then find the
+  // deadline for that shorter stroke instead of snapping the full cue back.
+  while (conflict < .24 && travel > 0) {
+   travel = travel > .004 ? travel / 2 : 0;
+   conflict = firstConflict(travel);
+  }
+  stroke.followThrough = travel;
+  if (!Number.isFinite(conflict)) return stroke;
+  const margin = Math.min(.04, conflict * .15);
+  const available = Math.max(0, conflict - margin);
+  stroke.withdrawTime = Math.min(stroke.withdrawTime, available * .65);
+  stroke.withdrawAt = Math.min(stroke.withdrawAt, available - stroke.withdrawTime);
+  stroke.finishAt = Math.min(stroke.finishAt, stroke.withdrawAt);
+  stroke.hideAt = stroke.withdrawAt + stroke.withdrawTime;
+  stroke.returnClearance = true;
+  stroke.conflictAt = conflict;
   return stroke;
  }
  function depression(vertex,pose,material){if(!pose?.visible||vertex[1]<.024)return 0;const axis=pose.back,co=Math.hypot(axis[0],axis[2]);if(co<.25)return 0;const dx=vertex[0]-pose.tip[0],dz=vertex[2]-pose.tip[2],q=(dx*axis[0]+dz*axis[2])/(co*co);if(q<0||q>LENGTH)return 0;const x=pose.tip[0]+axis[0]*q,z=pose.tip[2]+axis[2]*q,lateral=Math.hypot(vertex[0]-x,vertex[2]-z),r=radius(q),blend=.012;if(lateral>r+blend)return 0;const bottom=pose.tip[1]+axis[1]*q-r/co,weight=clamp((r+blend-lateral)/blend,0,1);return clamp(vertex[1]-bottom+.0002,0,ALLOWANCE[material]||0)*weight;}
