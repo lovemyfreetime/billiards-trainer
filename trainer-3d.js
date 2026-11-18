@@ -464,14 +464,13 @@
   function pick(e){
    const f=frame||lastFrame;if(!f||f.animating)return null;cast(e);
    const obstruction=inputRay.intersectObjects(table.children,true).find(hit=>!hit.object.material?.userData?.pocketOwned);
-   if(!f.animating){
+   const hit=inputRay.intersectObjects([...ballMeshes.values()].filter(g=>g.visible),true)[0];
+   if(!f.animating&&!(viewLocked&&hit&&(!obstruction||hit.distance<obstruction.distance+.00001))){
     for(const handle of window.billiardsGuidance?.aimHandles()||[]){
      const v=new T.Vector3(handle.point.x-f.L/2,0,handle.point.y-f.W/2).project(camera),r=canvas.getBoundingClientRect();
-     if(window.__trainerInputTrace)window.__trainerInputTrace.push({kind:'hit-test',x:e.clientX,y:e.clientY,handle:{...handle.point},screen:{x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2},z:v.z,pointerType:e.pointerType});
      if(v.z>=-1&&v.z<=1&&Math.hypot(e.clientX-r.left-(v.x+1)*r.width/2,e.clientY-r.top-(1-v.y)*r.height/2)<(e.pointerType==='touch'?20:12))return {editable:true,handle:true,shot:handle.shot,point:{...handle.point},height:0,offset:{x:0,z:0}};
     }
    }
-   const hit=inputRay.intersectObjects([...ballMeshes.values()].filter(g=>g.visible),true)[0];
    if(hit&&(!obstruction||hit.distance<obstruction.distance+.00001)){
     const group=hit.object.parent,point=planePoint(f.R);if(!point)return null;
     return {editable:true,ball:true,point:logical(group.position),height:f.R,offset:{x:point.x-group.position.x,z:point.z-group.position.z}};
@@ -490,7 +489,6 @@
   }
   function cancelInput(){if(edit)finishEdit('pointercancel',{pointerId:edit.id,pointerType:edit.pointerType});pointers.clear();}
   function pointerDown(e,outside=false){
-   if(window.__trainerInputTrace)window.__trainerInputTrace.push({kind:'pointer-down',x:e.clientX,y:e.clientY,active,viewLocked,pointers:pointers.size,overControls:overControls(e)});
    if(!active||e.button!==0||overControls(e))return;stopTransition();e.preventDefault();e.stopPropagation();canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});
    {if(edit){if(e.pointerId===edit.id)return;const first=edit;finishEdit('pointercancel',{pointerId:first.id,pointerType:first.pointerType});pointers.set(first.id,{x:first.cx,y:first.cy,sx:first.cx,sy:first.cy,multi:true,pendingViewDrag:true});}const hit=outside?null:pick(e);if(pointers.size===0&&hit?.editable&&(hit.handle||viewLocked&&hit.ball||lastFrame?.railEditing||lastFrame?.overlayEditing)){edit={aimShot:hit.handle?(hit.shot||1):0,id:e.pointerId,cx:e.clientX,cy:e.clientY,pointerType:e.pointerType,height:hit.height,offset:hit.offset,last:hit.point};if(!forward('pointerdown',hit.point,e))edit=null;return;}}
    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,multi:pointers.size>0,pendingViewDrag:true});if(pointers.size>1){for(const p of pointers.values())p.multi=true;lastTap=null;}

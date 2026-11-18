@@ -2149,8 +2149,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     const PREFERENCE_KEY='billiards.preferences.v1';
     let savedPreferences={};try{savedPreferences=JSON.parse(localStorage.getItem(PREFERENCE_KEY)||'{}');}catch{}
     let guidancePending=false;
-    function applyShotGuidance(){
-        if(!guidancePending)return;
+    function applyShotGuidance(committing=false){
+        if(!guidancePending||animation&&!committing)return;
         guidancePending=false;
         if(isZenPage||isProjector||!S.guidanceEnabled||S.shot2Enabled||S.angleLock||S.bankKick?.mode||S.guidanceScratch)return;
         const plan=window.BilliardsGuidance.suggest(S);plan.heldAim={...S.freeAim};S.guidancePlan=plan;
@@ -10144,7 +10144,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             S.cueElevationDeg = PHYSICS_MODEL.defaultCueElevationDeg;
             if (S.shot2) S.shot2.cueElevationDeg = PHYSICS_MODEL.defaultCueElevationDeg;
         }
-        if(!shot2Handoff){guidancePending=true;applyShotGuidance();}else S.guidancePlan=null;
+        if(!shot2Handoff){guidancePending=true;applyShotGuidance(true);}else S.guidancePlan=null;
         normalizeBallSet();
         // The shot just committed can be reverted exactly.
         redoStack=[];
