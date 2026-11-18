@@ -4,14 +4,15 @@
  const view=document.querySelector('#workspace-view .workspaceToolGroup'),options=document.getElementById('featureCueOptions'),model=window.BilliardsCue3D;
  if(!view||!options||!model)return;
  let saved={};try{saved=JSON.parse(localStorage.getItem('trainer.playerView.v1'))||{};}catch{}
- let height=Math.max(.08,Math.min(.40,Number(saved.height)||.12)),locked=saved.locked!==false;
+ let height=model.clampEyeHeight(saved.height),locked=saved.locked!==false;
  const appearance=document.createElement('section');appearance.className='cueAppearanceOptions';
  appearance.innerHTML='<div class="tableControlTitle">3D Cue</div><label for="trainerCueFinish">Cue finish</label><select id="trainerCueFinish"><option value="blackSilver">Black &amp; silver</option><option value="carbon">Carbon fiber</option><option value="wood">Wood</option></select><img src="./icons/approved-full-cue.png" alt="Approved full-length black-and-silver cue reference" class="cueAppearanceReference">';
  options.append(appearance);const finish=document.getElementById('trainerCueFinish');finish.value=model.getFinish();finish.onchange=()=>{model.setFinish(finish.value);window.Billiards3D?.refresh();};
  const box=document.createElement('section');box.id='playerViewOptions';
- box.innerHTML='<button type="button" id="playerViewButton" aria-pressed="false">Cue View</button><div class="playerViewPresets" role="group" aria-label="Cue View eye height presets"><button type="button" id="playerViewLow">Low</button><button type="button" id="playerViewRaised">Raised</button></div><label for="playerEyeHeight">Eye height above cue <output id="playerEyeHeightValue"></output></label><input id="playerEyeHeight" type="range" min="8" max="40" step="1"><label class="playerViewLock"><input id="playerViewLock" type="checkbox"> Keep Cue View between shots</label><output id="playerCueAngle"></output>';
+ box.innerHTML='<button type="button" id="playerViewButton" aria-pressed="false">Cue View</button><div class="playerViewPresets" role="group" aria-label="Cue View eye height presets"><button type="button" id="playerViewLow">Low</button><button type="button" id="playerViewRaised">Raised</button></div><label for="playerEyeHeight">Eye height above cue <output id="playerEyeHeightValue"></output></label><input id="playerEyeHeight" type="range" step="0.1"><label class="playerViewLock"><input id="playerViewLock" type="checkbox"> Keep Cue View between shots</label><output id="playerCueAngle"></output>';
  view.prepend(box);
- const byId=id=>document.getElementById(id),slider=byId('playerEyeHeight'),lock=byId('playerViewLock'),button=byId('playerViewButton');slider.value=Math.round(height*100);lock.checked=locked;
+ const byId=id=>document.getElementById(id),slider=byId('playerEyeHeight'),lock=byId('playerViewLock'),button=byId('playerViewButton');
+ slider.min=model.EYE_HEIGHT_INCHES.min;slider.max=model.EYE_HEIGHT_INCHES.max;lock.checked=locked;
  function save(){try{localStorage.setItem('trainer.playerView.v1',JSON.stringify({height,locked}));}catch{}}
  function apply(){return window.Billiards3D?.playerView({height,locked});}
  async function open(){
@@ -28,8 +29,8 @@
  }
  window.billiardsCueView={toggle};
  button.onclick=toggle;
- for(const [id,value]of [['playerViewLow',.12],['playerViewRaised',.28]])byId(id).onclick=()=>{height=value;slider.value=Math.round(height*100);save();if(window.Billiards3D?.camera().playerView)apply();sync();};
- slider.oninput=()=>{height=Number(slider.value)/100;save();if(window.Billiards3D?.camera().playerView)apply();sync();};
+ for(const [id,value]of [['playerViewLow',.12],['playerViewRaised',.28]])byId(id).onclick=()=>{height=value;save();if(window.Billiards3D?.camera().playerView)apply();sync();};
+ slider.oninput=()=>{height=Number(slider.value)*model.METERS_PER_INCH;save();if(window.Billiards3D?.camera().playerView)apply();sync();};
  lock.onchange=()=>{locked=lock.checked;save();if(window.Billiards3D?.camera().playerView)apply();sync();};
  let lastState;
  function sync(){
@@ -41,7 +42,9 @@
   const bottom=byId('table3DCueView');
   if(bottom&&bottom.getAttribute('aria-pressed')!==String(active))bottom.setAttribute('aria-pressed',String(active));
   if(button.getAttribute('aria-pressed')!==String(active))button.setAttribute('aria-pressed',String(active));button.disabled=slider.disabled=lock.disabled=finish.disabled=busy;
-  byId('playerEyeHeightValue').textContent=Math.round(height*100)+' cm';
+  const inches=(height/model.METERS_PER_INCH).toFixed(1);
+  slider.value=inches;slider.setAttribute('aria-valuetext',inches+' inches');
+  byId('playerEyeHeightValue').textContent=inches+' in';
   for(const [id,value]of [['playerViewLow',.12],['playerViewRaised',.28]]){byId(id).disabled=busy;byId(id).setAttribute('aria-pressed',String(Math.abs(value-height)<.005));}
   byId('playerCueAngle').textContent=pose?'Cue elevation '+angle+'°':'';
  }

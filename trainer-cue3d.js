@@ -1,7 +1,8 @@
 /* Cue presentation uses the same normalized tip contact and elevation as the shot engine. */
 (function(root){
  'use strict';
- const LENGTH=58*.0254,TIP_RADIUS=.01275/2,BUTT_RADIUS=.03175/2,PRE_ROLL=.72;
+ const METERS_PER_INCH=.0254, EYE_HEIGHT_INCHES={min:2.5,max:18};
+ const LENGTH=58*METERS_PER_INCH,TIP_RADIUS=.01275/2,BUTT_RADIUS=.03175/2,PRE_ROLL=.72;
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),smooth=v=>{v=clamp(v,0,1);return v*v*(3-2*v);};
  let finish='blackSilver';try{const saved=root.localStorage?.getItem('trainer.cueFinish.v1');if(['blackSilver','carbon','wood'].includes(saved))finish=saved;}catch{}
  function setFinish(value){if(!['blackSilver','carbon','wood'].includes(value))return false;finish=value;try{root.localStorage?.setItem('trainer.cueFinish.v1',value);}catch{}return true;}
@@ -30,8 +31,9 @@
   if(previous<0)return Math.min(0,previous+Math.min(step,.05));
   return Math.min(duration,previous+(previous<.34?Math.min(step,.05):step));
  }
+ function clampEyeHeight(meters){return clamp(Number(meters)||.12,EYE_HEIGHT_INCHES.min*METERS_PER_INCH,EYE_HEIGHT_INCHES.max*METERS_PER_INCH);}
  function playerCamera(data,settings={}){
-  const p=pose(data),distance=settings.distance||.75,height=settings.height||.12,axis=p.back;
+  const p=pose(data),distance=settings.distance||.75,height=clampEyeHeight(settings.height),axis=p.back;
   const eye=[p.contact[0]+axis[0]*distance,p.contact[1]+axis[1]*distance+height,p.contact[2]+axis[2]*distance],target=[p.contact[0]+data.dx*.20,data.z,p.contact[2]+data.dy*.20];
   const dx=eye[0]-target[0],dy=eye[1]-target[1],dz=eye[2]-target[2],radius=Math.hypot(dx,dy,dz);
   return {eye,target,azimuth:Math.atan2(dx,dz),radius,elevation:Math.asin(dy/radius)};
@@ -86,6 +88,6 @@
    status(){return current?{...current,visible:group.visible,finish,referenceReady:ready,reference:'icons/approved-full-cue.png'}:null;}
   };
  }
- const api={LENGTH,TIP_RADIUS,BUTT_RADIUS,PRE_ROLL,pose,advanceTime,playerCamera,create,setFinish,getFinish:()=>finish};
+ const api={METERS_PER_INCH,EYE_HEIGHT_INCHES,clampEyeHeight,LENGTH,TIP_RADIUS,BUTT_RADIUS,PRE_ROLL,pose,advanceTime,playerCamera,create,setFinish,getFinish:()=>finish};
  if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCue3D=api;
 })(typeof window==='object'?window:globalThis);

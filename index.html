@@ -1563,7 +1563,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
       <div id="tableSpeed1Wrap" class="tableSpeedControl">
         <div class="speedTickScale lagTicks" id="lagTicks1" aria-hidden="true"></div>
         <div class="speedTickScale feelTicks" id="feelTicks1" aria-hidden="true"></div>
-        <input id="tableSpeed1" type="range" min="0.25" max="7" step="0.01" value="1.50" aria-label="Shot 1 speed on table edge">
+        <input id="tableSpeed1" type="range" min="0" max="7" step="0.01" value="1.50" aria-label="Shot 1 speed on table edge">
         <span id="tableSpeed1Feel" class="phoneSpeedFeel" aria-label="Shot 1 speed feel in diamonds"></span>
         <span id="tableSpeed1Lag" class="phoneSpeedLag" aria-label="Shot 1 speed in lags"></span>
         <span id="tableSpeed1Label" class="tableSpeedLabel">SPEED</span>
@@ -1571,7 +1571,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
       <div id="tableSpeed2Wrap" class="tableSpeedControl">
         <div class="speedTickScale lagTicks" id="lagTicks2" aria-hidden="true"></div>
         <div class="speedTickScale feelTicks" id="feelTicks2" aria-hidden="true"></div>
-        <input id="tableSpeed2" type="range" min="0.25" max="7" step="0.01" value="1.50" aria-label="Shot 2 speed on table edge">
+        <input id="tableSpeed2" type="range" min="0" max="7" step="0.01" value="1.50" aria-label="Shot 2 speed on table edge">
         <span id="tableSpeed2Feel" class="phoneSpeedFeel" aria-label="Shot 2 speed feel in diamonds"></span>
         <span id="tableSpeed2Lag" class="phoneSpeedLag" aria-label="Shot 2 speed in lags"></span>
         <span class="tableSpeedLabel">SPEED 2</span>
@@ -1772,14 +1772,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     </div>
 <div id="shot1Controls">
       <div class="shotMiniTitle">SHOT 1 CONTROLS</div>
-<div class="fineRow"><label>Shot speed <span id="speedText"></span><span id="speed1Diamonds" class="speedDiamonds"></span></label><button id="speedMinus" type="button">−</button><input id="speed" type="range" min="0.25" max="7" step="0.01" value="1.50"><button id="speedPlus" type="button">+</button><input id="speedNumber" type="number" min="0.25" max="7" step="0.01" inputmode="decimal" aria-label="Shot 1 speed value"></div>
+<div class="fineRow"><label>Shot speed <span id="speedText"></span><span id="speed1Diamonds" class="speedDiamonds"></span></label><button id="speedMinus" type="button">−</button><input id="speed" type="range" min="0" max="7" step="0.01" value="1.50"><button id="speedPlus" type="button">+</button><input id="speedNumber" type="number" min="0" max="7" step="0.01" inputmode="decimal" aria-label="Shot 1 speed value"></div>
       <div class="fineRow"><label>Follow draw <span id="followText"></span></label><button id="followMinus" type="button">−</button><input id="follow" type="range" min="-1" max="1" step="0.01" value="0"><button id="followPlus" type="button">+</button><input id="followNumber" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 1 follow draw percent"></div>
       <div class="fineRow"><label>Left right spin <span id="spinText"></span></label><button id="spinMinus" type="button">−</button><input id="sideSpin" type="range" min="-1" max="1" step="0.01" value="0"><button id="spinPlus" type="button">+</button><input id="spinNumber" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 1 left right spin percent"></div>
       <div id="cueElevationAdvanced1" class="cueElevationSlider"><div class="fineRow"><label>Cue elevation <span id="elevText"></span></label><button id="elevMinus" type="button">−</button><input id="cueElevation" type="range" min="0" max="15" step="0.1" value="3"><button id="elevPlus" type="button">+</button><input id="elevNumber" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 1 cue elevation degrees"></div></div>
       </div>
       <div id="shot2Controls">
         <div class="shotMiniTitle">SHOT 2 CONTROLS</div>
-        <div class="fineRow"><label>Shot speed <span id="speed2Diamonds" class="speedDiamonds"></span></label><button id="speed2Minus" type="button">−</button><input id="speed2" type="range" min="0.25" max="7" step="0.01" value="1.50"><button id="speed2Plus" type="button">+</button><input id="speed2Number" type="number" min="0.25" max="7" step="0.01" inputmode="decimal" aria-label="Shot 2 speed value"></div>
+        <div class="fineRow"><label>Shot speed <span id="speed2Diamonds" class="speedDiamonds"></span></label><button id="speed2Minus" type="button">−</button><input id="speed2" type="range" min="0" max="7" step="0.01" value="1.50"><button id="speed2Plus" type="button">+</button><input id="speed2Number" type="number" min="0" max="7" step="0.01" inputmode="decimal" aria-label="Shot 2 speed value"></div>
         <div class="fineRow"><label>Follow draw</label><button id="follow2Minus" type="button">−</button><input id="follow2" type="range" min="-1" max="1" step="0.01" value="0"><button id="follow2Plus" type="button">+</button><input id="follow2Number" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 2 follow draw percent"></div>
         <div class="fineRow"><label>Left right spin</label><button id="spin2Minus" type="button">−</button><input id="sideSpin2" type="range" min="-1" max="1" step="0.01" value="0"><button id="spin2Plus" type="button">+</button><input id="spin2Number" type="number" min="-100" max="100" step="1" inputmode="numeric" aria-label="Shot 2 left right spin percent"></div>
         <div id="cueElevationAdvanced2" class="cueElevationSlider"><div class="fineRow"><label>Cue elevation <span id="elev2Text"></span></label><button id="elev2Minus" type="button">−</button><input id="cueElevation2" type="range" min="0" max="15" step="0.1" value="3"><button id="elev2Plus" type="button">+</button><input id="elev2Number" type="number" min="0" max="15" step="0.1" inputmode="decimal" aria-label="Shot 2 cue elevation degrees"></div></div>
@@ -5178,7 +5178,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const key = [S.tableL,S.ballR,S.muRoll,S.muSlide,S.railRest].join('|');
         if (key === speedTickCalibrationKey) return;
         speedTickCalibrationKey = key;
-        const min=.25, max=6, steps=160, samples=[];
+        const control=$('tableSpeed1'), min=Number(control.min), max=Number(control.max), steps=160, samples=[];
         for(let i=0;i<=steps;i++) {
             const speed=min+(max-min)*i/steps;
             samples.push({speed, diamonds:rollingPowerReferenceDistance(speed)/(S.tableL/8)});
@@ -5314,6 +5314,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const cb = B.find(b => b.id === 0);
         if (!cb)
             return { paths: {}, frames: [], firstEvent: '—', firstBallContact: null, pocketEvents:[],railEvents:[],finalBalls:[] };
+        if (S.speed === 0)
+            return {paths:{},frames:[],firstEvent:'—',firstBallContact:null,pocketEvents:[],railEvents:[],finalBalls:B};
         const training=typeof window!=='undefined'&&window.BilliardsTrainingBall;
         let cueOrientation=training?training.normalize(cueBall()?.orientation):null;
         const cueSetup=cuePoseFor3D(1);
@@ -7252,8 +7254,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         // descriptive lag labels on every live aim frame.
         const analysis=shotPowerState(1,false);
         return {
-            stroke:clamp((S.speed-.25)/6.75,0,1),
-            cue:analysis?clamp(analysis.currentCueImpact/Math.max(.001,analysis.requiredCueImpact)/2,0,1):clamp((S.speed-.25)/6.75,0,1),
+            stroke:clamp(S.speed/7,0,1),
+            cue:analysis?clamp(analysis.currentCueImpact/Math.max(.001,analysis.requiredCueImpact)/2,0,1):clamp(S.speed/7,0,1),
             object:analysis?clamp(analysis.currentPocketArrival/Math.max(.001,analysis.pocketResidualTarget)/2,0,1):0
         };
     }
@@ -10159,6 +10161,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     function animateShot(options={}) {
         if(animation)return;
+        if (S.speed === 0) { toast('Raise shot speed above zero to shoot.'); return; }
         const preShot=cleanSnapshot(),sim=simulate(true);
         if(!sim.frames.length){if(sim.cueBlocked)toast('No clear stroke at this aim. Change the aim or move the cue ball.');return;}
         window.dispatchEvent(new CustomEvent('billiards:shot-start'));
@@ -13761,7 +13764,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         });
         ['speed', 'follow', 'sideSpin', 'cueElevation'].forEach(id => $(id).addEventListener('input', applyUI));
         function applyDirectShotInput(event) {
-            S.speed = clamp(parseFloat($('speedNumber').value) || 0.25, 0.25, 7);
+            const speed = $('speedNumber').valueAsNumber; if (Number.isFinite(speed)) S.speed = clamp(speed, 0, 7);
             S.follow = clamp((parseFloat($('followNumber').value) || 0) / 100, -1, 1);
             S.sideSpin = clamp((parseFloat($('spinNumber').value) || 0) / 100, -1, 1);
             if(event.target.id==='elevNumber') S.cueElevationDeg = clamp(parseFloat($('elevNumber').value) || 0, 0, cueElevationMax());
@@ -13783,8 +13786,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         function installHoldAdjust(id, adjustFn) {
             window.billiardsBindHoldAdjust($(id), adjustFn);
         }
-        installHoldAdjust('speedMinus', () => fineAdjust('speed', -0.01, 0.25, 7));
-        installHoldAdjust('speedPlus', () => fineAdjust('speed', 0.01, 0.25, 7));
+        installHoldAdjust('speedMinus', () => fineAdjust('speed', -0.01, 0, 7));
+        installHoldAdjust('speedPlus', () => fineAdjust('speed', 0.01, 0, 7));
         installHoldAdjust('followMinus', () => fineAdjust('follow', -0.01, -1, 1));
         installHoldAdjust('followPlus', () => fineAdjust('follow', 0.01, -1, 1));
         installHoldAdjust('spinMinus', () => fineAdjust('sideSpin', -0.01, -1, 1));
@@ -13816,15 +13819,15 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             };
         });
         ['speed2', 'follow2', 'sideSpin2', 'cueElevation2'].forEach(id => $(id).addEventListener('input', () => { const s = ensureShot2(); s.speed = +$('speed2').value; s.follow = +$('follow2').value; s.sideSpin = +$('sideSpin2').value; if(id==='cueElevation2') s.cueElevationDeg = clamp(+$('cueElevation2').value, 0, cueElevationMax()); setActiveShot(2); updateUI(); refreshPreview(); }));
-        function applyDirectShot2Input(event) { const s = ensureShot2(); s.speed = clamp(parseFloat($('speed2Number').value) || 0.25, 0.25, 7); s.follow = clamp((parseFloat($('follow2Number').value) || 0) / 100, -1, 1); s.sideSpin = clamp((parseFloat($('spin2Number').value) || 0) / 100, -1, 1); if(event.target.id==='elev2Number') s.cueElevationDeg = clamp(parseFloat($('elev2Number').value) || 0, 0, cueElevationMax()); setActiveShot(2); updateUI(); refreshPreview(); }
+        function applyDirectShot2Input(event) { const s = ensureShot2(); const speed = $('speed2Number').valueAsNumber; if (Number.isFinite(speed)) s.speed = clamp(speed, 0, 7); s.follow = clamp((parseFloat($('follow2Number').value) || 0) / 100, -1, 1); s.sideSpin = clamp((parseFloat($('spin2Number').value) || 0) / 100, -1, 1); if(event.target.id==='elev2Number') s.cueElevationDeg = clamp(parseFloat($('elev2Number').value) || 0, 0, cueElevationMax()); setActiveShot(2); updateUI(); refreshPreview(); }
         ['speed2Number', 'follow2Number', 'spin2Number', 'elev2Number'].forEach(id => { $(id).addEventListener('change', applyDirectShot2Input); $(id).addEventListener('keydown', ev => { if (ev.key === 'Enter') {
             ev.preventDefault();
             applyDirectShot2Input(ev);
             ev.target.blur();
         } }); });
         function fineAdjust2(key, delta, min, max) { const s = ensureShot2(); s[key] = clamp(Math.round(((key==='cueElevationDeg'?cuePoseFor3D(2)?.elevation??s[key]:s[key]) + delta) * 1000) / 1000, min, max); setActiveShot(2); updateUI(); refreshPreview(); }
-        installHoldAdjust('speed2Minus', () => fineAdjust2('speed', -0.01, 0.25, 7));
-        installHoldAdjust('speed2Plus', () => fineAdjust2('speed', 0.01, 0.25, 7));
+        installHoldAdjust('speed2Minus', () => fineAdjust2('speed', -0.01, 0, 7));
+        installHoldAdjust('speed2Plus', () => fineAdjust2('speed', 0.01, 0, 7));
         installHoldAdjust('follow2Minus', () => fineAdjust2('follow', -0.01, -1, 1));
         installHoldAdjust('follow2Plus', () => fineAdjust2('follow', 0.01, -1, 1));
         installHoldAdjust('spin2Minus', () => fineAdjust2('sideSpin', -0.01, -1, 1));

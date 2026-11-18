@@ -3,6 +3,7 @@
 #table3DCueView[aria-pressed=true], #playerViewOptions button[aria-pressed=true] { background:#326e8e; border-color:#9ed8f1; }
 #playerViewOptions .playerViewPresets { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 #playerViewOptions label { display:flex; align-items:center; justify-content:space-between; gap:8px; font:13px/1.4 system-ui; color:#e3eff7; }
+#playerEyeHeightValue { white-space:nowrap; }
 #playerEyeHeight { width:100%; min-width:0; accent-color:#7fc8ed; }
 #playerViewOptions .playerViewLock { justify-content:flex-start; }
 #playerCueAngle { color:#b9d8e7; font:12px/1.4 system-ui; }
