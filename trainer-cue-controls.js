@@ -7,7 +7,7 @@
  host.append(section);const byId=id=>document.getElementById(id),style=byId('cueStrokeStyle'),hold=byId('cueFinishHold'),status=byId('cueClearanceStatus');
  style.onchange=()=>api.set({style:style.value});hold.oninput=()=>api.set({hold:Number(hold.value)});
  function sync(){const state=api.state(),cue=state.cue;style.value=state.preferences.style;hold.value=state.preferences.hold;style.disabled=hold.disabled=state.busy;byId('cueFinishHoldValue').textContent=Number(hold.value).toFixed(1)+' s';if(!cue)return;status.textContent=cue.blocked?'This tip target cannot clear the rail. Move the tip higher.':`Cue ${cue.elevation.toFixed(1)}°${cue.automatic?' · auto clearance':''} · backstroke ${Math.round(cue.stroke.backstroke*100)} cm · follow-through ${Math.round(cue.stroke.followThrough*100)} cm`;
-  for(const [id,value]of [['elevText',cue.elevation.toFixed(1)+'°'],['tableElevation'+(cue.id==='CB2'?2:1)+'Value',cue.elevation.toFixed(1)+'°']])if(byId(id))byId(id).textContent=value;
+  for(const [id,value]of [[cue.id==='CB2'?'elev2Text':'elevText',cue.elevation.toFixed(1)+'° actual'],['tableElevation'+(cue.id==='CB2'?2:1)+'Value',cue.elevation.toFixed(1)+'°']])if(byId(id))byId(id).textContent=value;
   // Prevent every input method (including gamepad) from striking an unreachable
   // target. The main shoot handler independently enforces the same condition.
   for(const b of document.querySelectorAll('#animate,#animate2,[data-trainer-action="animate"]')){b.classList.toggle('cueTargetBlocked',!!cue.blocked);b.setAttribute('aria-disabled',String(!!cue.blocked));b.title=cue.blocked?'Move the tip target higher to clear the rail':'';}

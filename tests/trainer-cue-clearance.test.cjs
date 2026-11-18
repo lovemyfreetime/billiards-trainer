@@ -9,6 +9,7 @@ const ordinary=c.solve(data(.65,.08),f,{speed:1.5,hold:2}),pocket=c.solve(data(1
 const hard=c.obstruction(data(.65,.24),g,.13);assert.equal(hard.material,'wood','Wood behind the cushion is a separate hard limit');
 // A slope, not a flat rail-height approximation: at the cushion nose a lower
 // top segment permits the cue beneath the backing height, with the chosen give.
+const profile=g.plan.profile,faces=c.triangulate(profile),area=points=>Math.abs(points.reduce((n,a,i)=>{const b=points[(i+1)%points.length];return n+a[0]*b[1]-b[0]*a[1];},0))/2;assert(Math.abs(faces.reduce((n,face)=>n+area(face.map(i=>profile[i])),0)-area(profile))<1e-12,'Concave cushion end caps retain their exact area');
 const r=g.plan.rails[0],nose=r.at(0,0,g.plan.noseHeight);assert(g.plan.profile[0][1]<g.plan.capHeight);assert(g.plan.profile[4][1]===g.plan.capHeight);assert.equal(c.geometry(f).plan.profile,g.plan.profile);
 const count=c.diagnostics().solves;for(let i=0;i<100;i++)assert.equal(c.solve(data(.65,.08),f,{speed:1.5,hold:2}),ordinary);assert.equal(c.diagnostics().solves,count,'Static shots do not rerun the solver');
 const slight=c.solve(data(.65,.0801),f,{speed:1.5,hold:2});assert(Math.abs(slight.elevation-ordinary.elevation)<.1,'Tiny position changes do not switch material modes or jump angles');

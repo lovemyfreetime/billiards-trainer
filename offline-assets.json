@@ -1,5 +1,5 @@
 {
-  "version": "c031c2092c6d867c",
+  "version": "1e0f8dce14254f8f",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -945,7 +945,7 @@
     "icons/table-materials/walnut-rough.jpg": "5cb9d78ec685155d2b66a1db01abc61049d00953d783d0c78d829512de9ab0b4",
     "icons/trainer-original-execute-v2.svg": "eaf1f45d99634cdbe87582d857cc2dd6017439dadf9ce251136485422c127da4",
     "icons/zen-reference-table-v1.webp": "0d9352c54cccca69fbb78fd8bc7a173957424fad151950a3888f895069030da0",
-    "index.html": "9ee4265aedbc915f74ecd2856a3b3035bdcf018176ef8eb83599c67d4220303b",
+    "index.html": "0de2e3e57f11125974418c6c3b2068d6632159b8f23397cf880a0a501da14387",
     "install/android/index.html": "5af2961b4386233b6f9206577ee2acdd6b08068620c3f60c57b176c471ca3681",
     "install/apple/index.html": "baad9dae78322db69bebb071456f37d83e9ba1a7ac849dbe70ef9a88480cf253",
     "install/assets/android-guide/Billiards_Trainer_Android_Installer_Screenshots/android-app-installed.jpg": "545867686776eb4a4ecae0b6d12e6c5df3c58623919fd7935c6c09530e9f7500",
@@ -1355,8 +1355,8 @@
     "trainer-camera-recorder.css": "751e79f11ca856637650dbd570c3ddfdc6d6fe2b1018326634fc33a94160993f",
     "trainer-camera-recorder.js": "aa0be4c8fec3b02b12aeafc8ed18cf0f27b9d397c951e56268f3f3a894fd5bb8",
     "trainer-compass-controls.js": "89bbb86f07f5921cbd335a25b9db687ec402d8f1c1770593b03ac06a21b71cbb",
-    "trainer-cue-clearance.js": "a39d574d1c127039cfb951eb79219bf9a148da904e9cd44950ce61ac05b022bd",
-    "trainer-cue-controls.js": "7c5ad83279aff9ad873327a571b9fe535dd8c91bdfd8f02e8d808a3b5fc18397",
+    "trainer-cue-clearance.js": "d6fa6aaef2af955e92e1b0b7e82d71da37daeefe9f03d752e75f9806dc249372",
+    "trainer-cue-controls.js": "f7e9817f1622c45ab9464e3fd6b1c0cb075934d07af2721251eced88de3ba866",
     "trainer-cue3d.js": "0ed8795f4ae99fb62ab5dcb016ddf4f24858d06d16f4298932616700d4607eac",
     "trainer-layout-files.js": "262d5dd963d46919608a881d3caca7a798343ab4106d158167d9e19895ecc950",
     "trainer-learning.css": "ca11691f29528c968207246ed13d13996c166bc4ab6530d55c3616f9a8fb515d",
