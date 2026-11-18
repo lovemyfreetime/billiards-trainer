@@ -19,6 +19,16 @@ const {chromium} = require('playwright');
     page.on('pageerror', e => errors.push(e.message));
     await page.goto('http://127.0.0.1:8894/?train=1');
     await page.waitForFunction(() => window.billiardsMenuReady && window.billiardsCueView);
+    await page.evaluate(() => {
+      const setup = billiardsTourBridge.capture();
+      Object.assign(setup.state, {
+        balls:[{id:0,n:'CB',x:.6,y:.6,active:true},{id:1,n:'1',x:1.5,y:.6,active:true}],
+        freeAim:{x:1.5,y:.6}, allowMissingCueBall:false, showCueStick:true, showTable:true,
+        shot2Enabled:false, activeShot:1
+      });
+      billiardsTourBridge.restore(setup);
+    });
+    assert.equal(await page.evaluate(()=>billiardsTourBridge.capture().state.balls.length),2);
     const setValue = (id, value, type) => page.locator('#'+id).evaluate((e, [v,t]) => {
       e.value = String(v); e.dispatchEvent(new Event(t,{bubbles:true}));
     },[value,type]);
@@ -35,7 +45,10 @@ const {chromium} = require('playwright');
     for (const in3D of [false,true]) {
       if (in3D) {
         await page.locator('#table3DToggle').click();
-        await page.waitForFunction(() => Billiards3D.active && Billiards3D.cueModel()?.referenceReady);
+        await page.waitForFunction(() => Billiards3D.active && Billiards3D.cueModel()?.referenceReady).catch(async e => {
+          console.error('3D status', await page.evaluate(() => ({active:Billiards3D.active, cue:Billiards3D.cueModel(), status:document.getElementById('table3DStatus').textContent})),errors);
+          throw e;
+        });
       }
       assert.equal(await page.locator('#speedNumber').inputValue(),'0.00');
       assert.equal(await page.locator('#tableSpeed1Feel').textContent(),'0.0 ♦');
