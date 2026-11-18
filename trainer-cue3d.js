@@ -8,19 +8,20 @@
  function pose(data,time,ball){
   if(!data)return null;const angle=data.elevation*Math.PI/180,co=Math.cos(angle),sn=Math.sin(angle),R=data.R;
   const forward=[data.dx*co,-sn,data.dy*co],back=forward.map(v=>-v),contact=[data.x+R*(data.dx*data.rear-data.dy*data.sideR),data.z+R*data.height,data.y+R*(data.dy*data.rear+data.dx*data.sideR)];
-  let gap=.008,phase='address',visible=true;
+  const stroke=data.stroke||{backstroke:.13,followThrough:.12,followTime:.18,finishAt:.18,withdrawAt:2.18,hideAt:2.42,withdrawTime:.24};
+  let gap=.008,phase='address',visible=!data.blocked;
   if(Number.isFinite(time)){
-   if(time<-.30){phase='backstroke';gap=.008+.122*smooth((time+PRE_ROLL)/.42);}
-   else if(time<-.23){phase='pause';gap=.13;}
-   else if(time<0){phase='forward';gap=.13*(1-clamp((time+.23)/.23,0,1)**2);}
-   else if(time<.34){phase='follow-through';gap=-.12*smooth(time/.16);}
-   else{phase='withdraw';gap=-.12+.16*smooth((time-.34)/.26);visible=time<.60;}
+   if(time<-.30){phase='backstroke';gap=.008+(stroke.backstroke-.008)*smooth((time+PRE_ROLL)/.42);}
+   else if(time<-.23){phase='pause';gap=stroke.backstroke;}
+   else if(time<0){phase='forward';gap=stroke.backstroke*(1-clamp((time+.23)/.23,0,1)**2);}
+   else if(time<stroke.withdrawAt){phase=time<stroke.finishAt?'follow-through':'finish';gap=-stroke.followThrough*smooth(time/Math.max(.025,stroke.finishAt));}
+   else{phase='withdraw';gap=-stroke.followThrough+(stroke.followThrough+.16)*smooth((time-stroke.withdrawAt)/stroke.withdrawTime);visible=visible&&time<stroke.hideAt;}
   }
   if(gap<0&&ball?.active){
    const delta=[ball.x-contact[0],ball.z-contact[1],ball.y-contact[2]],along=delta.reduce((n,v,i)=>n+v*forward[i],0),side2=delta.reduce((n,v)=>n+v*v,0)-along*along;
    if(side2<R*R){const available=Math.max(0,along-Math.sqrt(Math.max(0,R*R-side2))-.00015);gap=Math.max(gap,-available);}
   }
-  return {contact,tip:contact.map((v,i)=>v+back[i]*gap),forward,back,gap,phase,visible,length:LENGTH,tipRadius:TIP_RADIUS,buttRadius:BUTT_RADIUS,elevation:data.elevation};
+  return {contact,tip:contact.map((v,i)=>v+back[i]*gap),forward,back,gap,phase,visible,length:LENGTH,tipRadius:TIP_RADIUS,buttRadius:BUTT_RADIUS,elevation:data.elevation,blocked:!!data.blocked,stroke};
  }
  function advanceTime(previous,elapsed,speed,duration){
   const step=Math.max(0,elapsed)*speed;

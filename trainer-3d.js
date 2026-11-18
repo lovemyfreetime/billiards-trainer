@@ -332,15 +332,21 @@
   }
   function addCushion(r,plan){
    const profile=plan.profile,vertices=[],uvs=[],indices=[],count=profile.length;
-   for(const end of [0,1])for(const [t,h]of profile){vertices.push(...r.at(end,t*r.depth,h));uvs.push(end*r.length/.12,t*r.depth/.12);}
-   for(let j=0;j<count;j++){const k=(j+1)%count;indices.push(j,k,count+j,k,count+k,count+j);}
+   const rows=Math.ceil(r.length/.012);
+   for(let row=0;row<=rows;row++)for(const [t,h]of profile){const a=r.at(0,t*r.depth,h),b=r.at(1,t*r.depth,h),fraction=row/rows;vertices.push(...a.map((v,i)=>v+(b[i]-v)*fraction));uvs.push(fraction*r.length/.12,t*r.depth/.12);}
+   for(let row=0;row<rows;row++)for(let j=0;j<count;j++){const k=(j+1)%count,a=row*count,b=(row+1)*count;indices.push(a+j,a+k,b+j,a+k,b+k,b+j);}
    for(const end of [0,1]){
     const shape=new T.Shape();profile.forEach(([t,h],i)=>i?shape.lineTo(t*r.depth,h):shape.moveTo(t*r.depth,h));shape.closePath();
     const face=new T.ShapeGeometry(shape),pos=face.attributes.position,base=vertices.length/3;
     for(let j=0;j<pos.count;j++){const v=pos.getX(j),h=pos.getY(j);vertices.push(...r.at(end,v,h));uvs.push(v/.12,h/.12);}
     const order=face.index.array;for(let j=0;j<order.length;j+=3)indices.push(base+order[j],base+order[j+(end?2:1)],base+order[j+(end?1:2)]);face.dispose();
    }
-   addMesh(vertices,indices,cushionMaterial,'cushion',uvs);
+   const mesh=addMesh(vertices,indices,cushionMaterial,'cushion',uvs);mesh.userData.elastic='cushion';mesh.userData.undeformed=mesh.geometry.attributes.position.array.slice();
+  }
+  let elasticKey='';
+  function updateElastic(f){
+   const pose=realCue?.status(),key=pose&&pose.visible?JSON.stringify([pose.tip,pose.back,f.L,f.W]):'rest';if(key===elasticKey)return;elasticKey=key;
+   for(const mesh of table.children){const original=mesh.userData.undeformed;if(!original)continue;const attr=mesh.geometry.attributes.position;let changed=false;for(let i=0;i<attr.count;i++){const v=[original[i*3]+f.L/2,original[i*3+1],original[i*3+2]+f.W/2],dent=window.BilliardsCueClearance?.depression(v,pose,mesh.userData.elastic)||0,y=original[i*3+1]-dent;if(attr.array[i*3+1]!==y){attr.array[i*3+1]=y;changed=true;}}if(changed){attr.needsUpdate=true;mesh.geometry.computeVertexNormals();}}
   }
   function pocketNormal(path,i,closed=false){const last=path.length-1,a=path[closed?(i===0?last-1:i-1):Math.max(0,i-1)],b=path[closed?(i>=last-1?i===last-1?last:1:i+1):Math.min(last,i+1)],dx=b[0]-a[0],dz=b[2]-a[2],length=Math.hypot(dx,dz)||1;return [dz/length,-dx/length];}
   function addPocket(p,plan){
@@ -356,16 +362,16 @@
    const inner=[],outer=[];
    p.innerBackPath.forEach((v,i)=>{const [nx,nz]=pocketNormal(p.innerBackPath,i),back=p.backPath[i];inner.push([v[0]-nx*plan.linerInset,plan.capHeight+.0006,v[2]-nz*plan.linerInset]);outer.push([back[0],plan.capHeight+.0006,back[2]]);});
    // The liner has thickness and sits inside the wood, avoiding coplanar faces.
-   joinRows([inner.map(v=>[v[0],-.025,v[2]]),inner],pocketLip,'flush-pocket-liner');
+   const liner=joinRows([inner.map(v=>[v[0],-.025,v[2]]),inner],pocketLip,'flush-pocket-liner');liner.userData.elastic='pocket';liner.userData.undeformed=liner.geometry.attributes.position.array.slice();
    // A flat, separately shaded flange avoids the inflated rolled-rubber appearance.
-   joinRows([inner,outer],pocketLip,'pocket-flange');
+   const flange=joinRows([inner,outer],pocketLip,'pocket-flange');flange.userData.elastic='pocket';flange.userData.undeformed=flange.geometry.attributes.position.array.slice();
    const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.fillStyle='#dedacb';x.font='600 42px Arial';x.textAlign='center';x.textBaseline='middle';x.fillText(p.id,32,34);
    const map=new T.CanvasTexture(c);map.colorSpace=T.SRGBColorSpace;const material=new T.MeshBasicMaterial({map,transparent:true,depthWrite:false,toneMapped:false});material.userData.pocketOwned=true;
    const label=new T.Mesh(new T.PlaneGeometry(.021,.021),material);const pos=p.at(p.rear+.023,0,plan.capHeight+.001);label.position.fromArray(pos);label.rotation.set(-Math.PI/2,0,-Math.atan2(p.n[0],p.n[1]));table.add(label);
   }
   function rebuild(f){
    for(const child of [...table.children]){table.remove(child);child.geometry.dispose();for(const m of Array.isArray(child.material)?child.material:[child.material])if(m.userData.pocketOwned){m.map?.dispose();m.dispose();}}
-   const plan=tablePlan=window.BilliardsTableConstruction.plan(f),margin=plan.railWidth,w=f.L+margin*2,d=f.W+margin*2;
+   elasticKey='';const plan=tablePlan=window.BilliardsTableConstruction.plan(f),margin=plan.railWidth,w=f.L+margin*2,d=f.W+margin*2;
    pocketSpecs=plan.pockets.map(p=>({...p,probe:new T.Vector3(...p.center),shelfProbe:new T.Vector3(...p.at(p.front-.005,p.centerT)),back:new T.Vector3(...p.at(p.innerRear+plan.linerWidth*.5,p.centerT)),wood:new T.Vector3(...p.at(p.rear+.006,p.centerT))}));
    const outline=polygon(plan.outer);for(const p of pocketSpecs)outline.holes.push(polygon(p.dropPath));
    const geometry=new T.ShapeGeometry(outline,32);geometry.rotateX(-Math.PI/2);const uv=geometry.attributes.uv,positions=geometry.attributes.position;
@@ -479,7 +485,7 @@
    }
    for(const [id,group]of ballMeshes)if(!visible.has(id)){group.visible=false;contacts.get(id).visible=false;}
 
-   updateTipMarkers(f);updateGhosts(f);realCue?.update(f);updateCameraLabels(f);renderer.render(scene,camera);
+   updateTipMarkers(f);updateGhosts(f);realCue?.update(f);updateElastic(f);updateCameraLabels(f);renderer.render(scene,camera);
   }};
  }
 })();

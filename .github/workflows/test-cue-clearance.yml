@@ -1,0 +1,44 @@
+name: Verify cue clearance and held stroke
+on:
+  push:
+    branches: [test/cue-clearance-20261117]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  clearance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify shared geometry, cue, cameras and inventory
+        run: |
+          node --check trainer-cue-clearance.js
+          node --check trainer-cue-controls.js
+          node --check trainer-cue3d.js
+          node --check trainer-3d.js
+          node tests/trainer-cue-clearance.test.cjs
+          node tests/trainer-cue3d.test.cjs
+          node tests/trainer-3d-viewpoints.test.cjs
+          node tests/trainer-cue-follow.test.cjs
+          node tests/cue-deflection.test.cjs
+          node tests/physics-presets.test.cjs
+          python3 scripts/build-offline-assets.py --check
+      - name: Install browser
+        run: |
+          npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
+          node local-host/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Verify desktop and touch cue clearance and stroke
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
+          export CHROMIUM_EXECUTABLE_PATH=$(node -p "require('playwright').chromium.executablePath()")
+          node tests/cue-clearance.browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cue-clearance-verification
+          path: test-results/cue-clearance
