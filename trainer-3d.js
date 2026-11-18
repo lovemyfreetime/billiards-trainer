@@ -467,7 +467,7 @@
    if(!viewLocked&&!f.animating){
     for(const handle of window.billiardsGuidance?.aimHandles()||[]){
      const v=new T.Vector3(handle.point.x-f.L/2,0,handle.point.y-f.W/2).project(camera),r=canvas.getBoundingClientRect();
-     if(v.z>=-1&&v.z<=1&&Math.hypot(e.clientX-r.left-(v.x+1)*r.width/2,e.clientY-r.top-(1-v.y)*r.height/2)<(e.pointerType==='touch'?20:12))return {editable:true,handle:true,point:{...handle.point},height:0,offset:{x:0,z:0}};
+     if(v.z>=-1&&v.z<=1&&Math.hypot(e.clientX-r.left-(v.x+1)*r.width/2,e.clientY-r.top-(1-v.y)*r.height/2)<(e.pointerType==='touch'?20:12))return {editable:true,handle:true,shot:handle.shot,point:{...handle.point},height:0,offset:{x:0,z:0}};
     }
    }
    const hit=inputRay.intersectObjects([...ballMeshes.values()].filter(g=>g.visible),true)[0];
@@ -480,17 +480,17 @@
    const surface=logical(planePoint()),onCloth=surface&&surface.x>=0&&surface.x<=f.L&&surface.y>=0&&surface.y<=f.W&&(!obstruction||Math.abs(obstruction.point.y)<.004);
    return {editable:onCloth||!!f.railEditing,point:onCloth?surface:q,height:0,offset:{x:0,z:0}};
   }
-  function forward(type,point,e){return window.billiards3DTableInput?.(type,point,{tableClient:{clientX:e.clientX,clientY:e.clientY},buttons:e.buttons??0,pointerId:e.pointerId||1,pointerType:e.pointerType||'mouse',shiftKey:!!e.shiftKey,altKey:!!e.altKey,ctrlKey:!!e.ctrlKey,metaKey:!!e.metaKey,deltaY:e.deltaY||0,deltaX:e.deltaX||0,deltaMode:e.deltaMode||0});}
+  function forward(type,point,e,aimShot=edit?.aimShot){return window.billiards3DTableInput?.(type,point,{aimShot,tableClient:{clientX:e.clientX,clientY:e.clientY},buttons:e.buttons??0,pointerId:e.pointerId||1,pointerType:e.pointerType||'mouse',shiftKey:!!e.shiftKey,altKey:!!e.altKey,ctrlKey:!!e.ctrlKey,metaKey:!!e.metaKey,deltaY:e.deltaY||0,deltaX:e.deltaX||0,deltaMode:e.deltaMode||0});}
   function finishEdit(type,event){
    const current=edit;
    edit=null;
-   forward(type,current.last,event);
+   forward(type,current.last,event,current.aimShot);
    if(cameraState.playerView){transitionFrom({...cameraState,target:{...cameraState.target}});requestRender();}
   }
   function cancelInput(){if(edit)finishEdit('pointercancel',{pointerId:edit.id,pointerType:edit.pointerType});pointers.clear();}
   function pointerDown(e,outside=false){
    if(!active||e.button!==0||overControls(e))return;stopTransition();e.preventDefault();e.stopPropagation();canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});
-   {if(edit){if(e.pointerId===edit.id)return;const first=edit;finishEdit('pointercancel',{pointerId:first.id,pointerType:first.pointerType});pointers.set(first.id,{x:first.cx,y:first.cy,sx:first.cx,sy:first.cy,multi:true,pendingViewDrag:true});}const hit=outside?null:pick(e);if(pointers.size===0&&hit?.editable&&(viewLocked||hit.handle)){edit={id:e.pointerId,cx:e.clientX,cy:e.clientY,pointerType:e.pointerType,height:hit.height,offset:hit.offset,last:hit.point};if(!forward('pointerdown',hit.point,e))edit=null;return;}}
+   {if(edit){if(e.pointerId===edit.id)return;const first=edit;finishEdit('pointercancel',{pointerId:first.id,pointerType:first.pointerType});pointers.set(first.id,{x:first.cx,y:first.cy,sx:first.cx,sy:first.cy,multi:true,pendingViewDrag:true});}const hit=outside?null:pick(e);if(pointers.size===0&&hit?.editable&&(viewLocked||hit.handle)){edit={aimShot:hit.handle?(hit.shot||1):0,id:e.pointerId,cx:e.clientX,cy:e.clientY,pointerType:e.pointerType,height:hit.height,offset:hit.offset,last:hit.point};if(!forward('pointerdown',hit.point,e))edit=null;return;}}
    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,multi:pointers.size>0,pendingViewDrag:true});if(pointers.size>1){for(const p of pointers.values())p.multi=true;lastTap=null;}
   }
   canvas.addEventListener('pointerdown',e=>pointerDown(e));

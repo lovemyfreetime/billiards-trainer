@@ -2153,7 +2153,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if(!guidancePending)return;
         guidancePending=false;
         if(isZenPage||isProjector||!S.guidanceEnabled||S.shot2Enabled||S.angleLock||S.bankKick?.mode||S.guidanceScratch)return;
-        const plan=window.BilliardsGuidance.suggest(S);S.guidancePlan=plan;
+        const plan=window.BilliardsGuidance.suggest(S);plan.heldAim={...S.freeAim};S.guidancePlan=plan;
         if(plan.aim){S.freeAim={...plan.aim};S.ghostLock=null;S.autoGhostLock=false;}
     }
     function syncGuidanceControls(){
@@ -2164,7 +2164,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         $('guidanceGroupRow').hidden=!S.guidanceEnabled||S.setupMode!=='8ball';
         $('guidanceGroup').value=S.guidanceGroups?.[S.activePlayer||1]||'open';
         const plan=S.guidancePlan;
-        const text=!S.guidanceEnabled?'':S.guidanceScratch?'Place the cue ball to resume guidance.':S.shot2Enabled?'Your Shot 2 plan takes priority.':!plan?'Aim and stroke adjustments stay under your control.':plan.kind==='complete'?'Run complete':plan.kind==='placement'?'Place the cue ball':plan.kind==='blocked'?'Ball '+plan.ballId+' blocked — choose a kick or safety':plan.kind==='break'?'Break setup':plan.kind==='contact'?'Ball '+plan.ballId+' — contact route; no direct pocket route found':'Ball '+plan.ballId+' to '+plan.pocket;
+        const text=!S.guidanceEnabled?'':S.guidanceScratch?'Place the cue ball to resume guidance.':S.shot2Enabled?'Your Shot 2 plan takes priority.':!plan?'Aim and stroke adjustments stay under your control.':plan.kind==='complete'?(S.pocketedLog?.length?'Run complete':'Table clear'):plan.kind==='placement'?'Place the cue ball':plan.kind==='blocked'?'Ball '+plan.ballId+' blocked — choose a kick or safety':plan.kind==='break'?'Break setup':plan.kind==='contact'?'Ball '+plan.ballId+' — contact route; no direct pocket route found':'Ball '+plan.ballId+' to '+plan.pocket;
         $('shotGuidanceStatus').textContent=text;
     }
     window.billiardsGuidance={
@@ -2808,6 +2808,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         state.allowMissingCueBall=!state.balls.some(b=>b.id===0);
         state.freeAim=d.freeAim||state.freeAim;state.preview=null;
         state.pocketedLog=(Array.isArray(state.pocketedLog)?state.pocketedLog:[]).filter(id=>id>=1&&id<=15&&!state.balls.some(b=>b.id===id));
+        if(file.kind!=='session'&&!preserveControls)Object.assign(state,window.BilliardsGuidance.preferences(S));
         animation=null;S=state;normalizeBallSet();resetRunHistory();
         if(file.kind==='session'&&file.history.length){runHistory=file.history.filter(h=>h&&Array.isArray(h.balls)&&h.tableL===S.tableL&&h.tableW===S.tableW).slice(-30).map(h=>{try{const v=window.BilliardsLayoutFiles.parse(JSON.stringify({layout:h})).layout;return {...window.BilliardsLayoutFiles.settings(h,defaults),tableL:v.tableL,tableW:v.tableW,ballR:v.ballR,balls:v.balls,allowMissingCueBall:v.allowMissingCueBall,preview:null};}catch(e){return null;}}).filter(Boolean);if(!runHistory.length)runHistory=[cleanSnapshot()];}
         undoStack=runHistory.slice(0,-1).map(h=>JSON.parse(JSON.stringify(h)));
@@ -4896,6 +4897,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     function simulateShot2() { if (!S.shot2Enabled)
         return null; return withShot2Context(() => simulate(false, null, aimZoneEnabled())); }
     function cueVisualsVisible(which) {
+        if(!animation&&S.guidanceEnabled&&S.guidancePlan?.kind==='complete'&&S.pocketedLog?.length)return false;
         return S[which === 2 ? 'showCueVisuals2' : 'showCueVisuals1'] !== false;
     }
     function shotGuidesVisible(which) {
@@ -6040,7 +6042,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     function refreshPreview() {
         applyShotGuidance();
-        if(S.guidancePlan?.aim&&Math.hypot(S.freeAim.x-S.guidancePlan.aim.x,S.freeAim.y-S.guidancePlan.aim.y)>1e-6)S.guidancePlan=null;
+        const guidedAim=S.guidancePlan?.aim||S.guidancePlan?.heldAim;
+        if(guidedAim&&Math.hypot(S.freeAim.x-guidedAim.x,S.freeAim.y-guidedAim.y)>1e-6)S.guidancePlan=null;
         syncGuidanceControls();
         currentCuePreset();
         S.preview = simulate(false, null, aimZoneEnabled());
@@ -9238,9 +9241,21 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     // Projected 3D interactions use the same handlers and save/undo rules as 2D.
     // The visible 3D canvas keeps native pointer capture; this canvas receives
     // table coordinates mapped back into its original control-view pixels.
+    let projectedAimGesture=null;
     window.billiards3DTableInput=(type,q,info={})=>{
         if(isProjector||!q||!Number.isFinite(q.x)||!Number.isFinite(q.y)||(animation&&type!=='pointercancel'))return false;
         if(!['pointerdown','pointermove','pointerup','pointercancel','wheel'].includes(type))return false;
+        if(info.aimShot===1||info.aimShot===2){
+            const which=info.aimShot,shot=which===2&&S.shot2Enabled?ensureShot2():S;
+            if(type==='pointerdown'){beginActionUndo();projectedAimGesture={pointerId:info.pointerId,which,original:{...shot.freeAim}};return true;}
+            if(!projectedAimGesture||projectedAimGesture.pointerId!==info.pointerId)return false;
+            if(type==='pointercancel')shot.freeAim=projectedAimGesture.original;
+            else shot.freeAim={x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR)};
+            if(which===2&&S.showAngleLockControl&&shot.autoGhostLock){shot.angleLock=true;shot.ghostLockDirty=true;}
+            S.activeShot=which;refreshPreview();
+            if(type==='pointerup'||type==='pointercancel'){projectedAimGesture=null;actionPointer=false;finishActionUndo();updateUI();saveState();syncProjector();}
+            return true;
+        }
         const p=controlMap().map(q),r=canvas.getBoundingClientRect(),options={...info,bubbles:true,cancelable:true,clientX:r.left+p.x,clientY:r.top+p.y,button:0,buttons:info.buttons??(type==='pointerup'||type==='pointercancel'||type==='pointermove'?0:1),isPrimary:true};
         const capture=canvas.setPointerCapture,release=canvas.releasePointerCapture;
         try{canvas.setPointerCapture=()=>{};canvas.releasePointerCapture=()=>{};if(type==='wheel')beginActionUndo();const event=type==='wheel'?new WheelEvent(type,options):new PointerEvent(type,options);event.tableClient=info.tableClient;canvas.dispatchEvent(event);}

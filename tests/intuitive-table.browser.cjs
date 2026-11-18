@@ -6,7 +6,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{spawn}=require
   browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
   const context=await browser.newContext({viewport:{width:1024,height:640},isMobile:true,hasTouch:true,serviceWorkers:'block'});
   await context.addInitScript(()=>{window.BilliardsWindowsHostAvailable=window.BilliardsWindowsFullscreen=true;window.chrome={webview:{postMessage(){}}};});
-  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+  const page=await context.newPage(),errors=[];fs.mkdirSync('test-results/intuitive-table',{recursive:true});
+  page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:8896/?train=1');await page.waitForFunction(()=>window.billiardsMenuReady&&window.billiardsGuidance);
   await page.evaluate(()=>{
    const setup=billiardsTourBridge.capture();Object.assign(setup.state,{balls:[{id:0,n:'CB',x:1,y:.63,active:true},{id:1,n:'1',x:1.85,y:.25,active:true},{id:2,n:'2',x:1.3,y:.9,active:true},{id:3,n:'3',x:.7,y:.35,active:true}],freeAim:{x:1.7,y:.6},setupMode:'9ball',guidanceEnabled:true,guidanceBreak:false,shot2Enabled:false,activeShot:1,angleLock:false,showCueStick:true,showTable:true,trainingBallStyle:'spots',showFullGhostBall:true,showRestingCueBall:true,showImpact:false,shotPlaybackSpeed:8});billiardsTourBridge.restore(setup);billiardsGuidance.replan();BilliardsCue3D.setFinish('carbon');
@@ -28,6 +29,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{spawn}=require
   await page.locator('#table3DReturnView').tap();await page.waitForTimeout(850);
   const aim=await page.evaluate(()=>billiardsTourBridge.capture().state.freeAim),handle=await project(aim),camera=await page.evaluate(()=>Billiards3D.camera());
   await send('touchStart',handle);await send('touchMove',{x:handle.x-18,y:handle.y+9});await send('touchEnd');
+  console.log('Aim handle result',JSON.stringify(await page.evaluate(()=>({aim:billiardsTourBridge.capture().state.freeAim,camera:Billiards3D.camera(),handles:billiardsGuidance.aimHandles()}))));
   assert.notDeepEqual(await page.evaluate(()=>billiardsTourBridge.capture().state.freeAim),aim);assert.equal((await page.evaluate(()=>Billiards3D.camera())).azimuth,camera.azimuth,'aim edit leaves inspection camera still');
   await page.evaluate(()=>billiardsGuidance.replan());
   fs.mkdirSync('test-results/intuitive-table',{recursive:true});await page.screenshot({path:'test-results/intuitive-table/tablet.png'});
