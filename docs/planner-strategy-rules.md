@@ -24,6 +24,10 @@ The planner gives priority to legal, repeatable position and uses its configured
 | Use a rail when it improves shape | A rail route can outrank a shorter path when it offers a better leave or better speed tolerance. |
 | Leave a usable bridge and cue stroke | Penalize leaving the cue ball near the cushion, especially with the butt of the cue pointed over that cushion. Also penalize a ball close behind the cue ball in the next stroke's line. |
 | Check the simulation rather than guess | Reject scratch, wrong first contact, loss of a surviving ball, wrong pocket, and shots that fail to settle. |
+| Recognize a combination | Work back through two ghost balls. Favor small gaps, full transfer and a short final pocket route. Probe aim and speed for throw and verify which object ball caused the pot. |
+| Recognize a cue-ball carom | Use the approximate stun tangent and rolling departure to seed routes where the cue ball deflects from the legal first ball into the ball to be pocketed. Retest with the simulator as speed and follow change the actual departure. |
+| Recognize an object-ball kiss | Look for the pocketed ball to deflect from a nearby ball. Use the physical trajectory and collision sequence to verify the kiss, including close ball pairs. |
+| Reassess position after a multi-ball pot route | Require the called pocket, a legal first ball and a continuation that holds under aim and speed error. On a legal early 9, end the route. Keep the direct pot and safety in the comparison. |
 | Have a defensive alternative | In 8-ball and 9-ball, look for a safety if the attack is weak or stalls. An incomplete six-shot forecast on a larger rack can still be a strong offensive start. |
 | Defend against legal targets | In 9-ball evaluate visibility of the lowest ball. In 8-ball evaluate all balls of the opponent's group, or the 8 when their group is clear. On an open table use both groups. |
 | Hide the full ball and both edges | Sample center and edge contact lanes. Prefer a full hook, then an edge-only leave. Where the opponent can see the ball, require longer distance and low direct pot potential. |
@@ -32,6 +36,7 @@ The planner gives priority to legal, repeatable position and uses its configured
 | Test an available one-cushion escape | If a direct-contact safety does not hold, try one-cushion kicks that hit a legal ball and leave a difficult return. |
 | Leave margin for execution | Verify the proposed safety at nominal aim and speed, then four combinations of aim error and ±5% speed. A recommendation requires all five shots to preserve a protective, legal leave. |
 | Keep control with the player | Show **Use Safety** when defense is favored. Applying it sets the controls. The player chooses when to shoot. |
+| Compare a deliberate foul as a last resort | When the offense stalls and neither a direct nor a kick safety holds, test nudges that tie up the opponent's legal target. Check pocket and early-9 lanes from sampled ball-in-hand placements. A foul that holds in all five tests is labeled **Use Foul**. With no other plan, **Review Foul** can identify a narrowly playable option and show its test count. A 9-ball player must check their consecutive foul count. |
 
 ## Professional rules for extending the search
 
@@ -60,7 +65,7 @@ These are part of the documented rule base. Each requires additional candidate g
 | Keep the cue ball off the rail on offense and use it strategically on defense | Verify the required elevation and bridge for both players on the intended reply. Current offense scoring estimates this from geometry. |
 | Account for match state in 9-ball | Use the actual inning and foul count to evaluate a push-out, two-foul pressure, and a stronger three-foul safety. |
 | Evaluate ball in hand as a separate decision | Choose a legal placement and score attack, breakout and safety from several candidate cue-ball positions. |
-| Evaluate bank, combination and carom finishes when direct play stalls | Verify a legal target and called pocket, then compare position and miss outcomes against other options. |
+| Expand the offensive search to rail-first and bank routes | Add banks, rail-first kisses, longer chains and combinations involving more than two object balls. Verify position and whether the miss leaves a safe reply. |
 | Account for declared safeties and game-specific pots | A called 8-ball safety may include a legal pot. A legal 9-ball pot ordinarily continues the inning. The current recommendation searches dry safeties. |
 | Adapt to the opponent | Compare offensive and defensive rack equity using measured potting, kicking and safety performance. Current **Use Safety** is a relative recommendation based on geometry and simulator tolerance. |
 
@@ -70,5 +75,7 @@ These are part of the documented rule base. Each requires additional candidate g
 - Tor Lowry, natural angles, position windows, and full-table pattern practice. [Pattern Puzzles](https://www.zerox-billiards.com/pattern-puzzles) · [Position windows](https://www.youtube.com/watch?v=E9rb1GZxhaQ)
 - Darren Appleton, working backward from the 8, keeping insurance, and choosing the defensive leave by the opponent's response. [Pattern play](https://www.billiardsdigest.com/showinstruction.php?id=132) · [Safety](https://www.billiardsdigest.com/showinstruction.php?id=325)
 - Dave Alciatore and Bob Jewett, defensive routes and ball-in-hand opportunities. [Safety strategy](https://drdavepoolinfo.com/faq/safety/strategy/) · [8-ball](https://drdavepoolinfo.com/faq/strategy/8-ball/) · [9-ball](https://drdavepoolinfo.com/faq/strategy/9-ball/)
+- Dave Alciatore and Bob Jewett, the intentional 9-ball foul that ties up the lowest ball and the reply with ball in hand. [Ball-in-hand options](https://drdavepoolinfo.com/bd_articles/2018/may18.pdf)
 - Dave Alciatore, reference directions and changes with speed. [Cue-ball lines](https://drdavepoolinfo.com/faq/cue-ball-control/lines/) · [Speed effects](https://drdavepoolinfo.com/faq/cue-ball-control/speed/)
+- Dave Alciatore and Bob Jewett, combination aiming, small-gap and frozen-ball throw, cue-ball deflections, and object-ball kisses. [Combination aiming](https://drdavepoolinfo.com/faq/combination/aiming/) · [Small gaps](https://drdavepoolinfo.com/faq/combination/small-gap/) · [Carom and kiss aiming](https://drdavepoolinfo.com/faq/30-90-rules/carom/) · [Two important kiss shots](https://drdavepoolinfo.com/resource_files/trcd/CueTimes%20PDFs/910%20Two%20Important%20Kiss%20Shots.pdf)
 - World Pool-Billiards Association, legal targets, frozen cushions and safeties. [Rules of play](https://www.wpapool.com/wp-content/uploads/2026/01/2026.01.02-WPA-Rules.pdf)

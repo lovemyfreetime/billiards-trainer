@@ -56,3 +56,27 @@ assert.deepEqual(breakout.contact.balls,[2,3]);
 const [incidental]=drain(g.runout(cluster,mock({...contactTrial,finalBalls:survivors}),1));
 assert.equal(incidental.contact.kind,'Extra contact','touching a cluster without opening it earns no breakout credit');
 console.log('Runout contact scoring distinguishes an opened cluster from incidental contact.');
+
+const combination={...state,guidanceMode:'order',balls:[state.balls[0],state.balls[1],state.balls[2],{id:9,x:2.2,y:.24}]};
+const comboPreview={settled:true,firstBallContact:{objId:1,t:.1},pocketEvents:[{id:9,pocket:'TR'}],
+ finalBalls:combination.balls.filter(b=>b.id!==9).map(b=>({...b,active:true}))};
+assert.equal(g.afterScoringShot(combination,comboPreview).wonRack,true,'WPA 9-ball can finish on a legal combination or carom');
+assert.equal(g.afterScoringShot(combination,{...comboPreview,firstBallContact:{objId:2,t:.1}}),null,'the lowest ball must be first');
+assert.equal(g.afterScoringShot(combination,{...comboPreview,pocketEvents:[{id:9},{id:0}]}),null,'a pocketed 9 and cue ball do not win the rack');
+const eightCombo={...combination,setupMode:'8ball',guidanceMode:'groups',guidanceGroups:{1:'solids'},balls:[...combination.balls,{id:8,x:2,y:.3}]};
+assert.equal(g.afterScoringShot(eightCombo,comboPreview),null,'pocketing an opposing stripe does not continue solids');
+const tenCombo={...combination,setupMode:'10ball',balls:combination.balls.map(b=>b.id===9?{...b,id:10}:b)};
+assert.equal(g.afterScoringShot(tenCombo,{...comboPreview,pocketEvents:[{id:10}]}),null,'the early 10 is spotted under WPA rules');
+console.log('Indirect pots preserve group/first-contact legality and allow a legal early nine.');
+
+const railNudge={...state,guidanceMode:'order',speed:1.5,follow:0,sideSpin:0,
+ balls:[[0,.6638,1.2413],[3,1.2773,.8065],[6,2.4552,.2223],[8,1.8345,.6413],[9,2.4785,.2783]]
+ .map(([id,x,y])=>({id,x,y,active:true}))};
+const defensiveFoul={settled:true,firstBallContact:{objId:3,t:.2},pocketEvents:[],railEvents:[],
+ finalBalls:railNudge.balls.map(b=>b.id===3?{...b,x:2.4855,y:.155}:b)};
+const fallback=drain(g.recommendSafety(railNudge,[],mock(defensiveFoul)));
+assert(fallback?.intentionalFoul,'newly tied-up 3 can justify evaluating ball-in-hand as a last resort');
+assert.equal(fallback.passed,5);
+assert.equal(drain(g.recommendSafety({...railNudge,guidanceConsecutiveFouls:2},[],mock(defensiveFoul))),null,'never recommend a third consecutive foul');
+assert.equal(drain(g.recommendSafety(railNudge,[],mock({...defensiveFoul,finalBalls:railNudge.balls}))),null,'no benefit when the opponent has a clear ball-in-hand pot');
+console.log('Intentional-foul fallback requires worse ball-in-hand options and guards against a third foul.');

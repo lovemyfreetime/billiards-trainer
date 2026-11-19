@@ -107,21 +107,24 @@
   const ready=!job.continuation&&job.shots.length>0;
   const safety=!job.continuation&&job.safety;
   planButton.disabled=job.pending&&!ready&&!safety||!!window.billiards3DBallControls?.status()?.busy;
-  const text=safety?'Use Safety':ready?'Use Plan':job.pending?'Planning…':'Plan';
+  const text=safety?(safety.reviewOnly?'Review Foul':safety.intentionalFoul?'Use Foul':'Use Safety'):ready?'Use Plan':job.pending?'Planning…':'Plan';
   const visible=api.planVisible(),visibilityLabel=visible?'Hide':'Show';
   if(planVisibility.textContent!==visibilityLabel)planVisibility.textContent=visibilityLabel;
   planVisibility.setAttribute('aria-pressed',String(visible));
   if(planButton.textContent!==text)planButton.textContent=text;
   planButton.setAttribute('aria-busy',String(job.pending));planButton.dataset.ready=String(ready);
   planButton.dataset.safety=String(!!safety);
-  const count=job.shots.length,route=job.shots.map(s=>s.ballId+' → '+s.pocket+(s.leaveSide?' (leave '+s.leaveSide+')':'')+
+  const count=job.shots.length,route=job.shots.map(s=>(s.kind==='pot'?'':s.kind+' '+s.firstId+
+   (s.kissId?' off '+s.kissId:s.firstId===s.ballId?'':' →')+' · ')+s.ballId+' → '+s.pocket+(s.leaveSide?' (leave '+s.leaveSide+')':'')+
    (s.contact?.kind?' · '+s.contact.kind+' '+s.contact.balls.join(', '):'')).join(' · ');
-  const message=safety?'Safety favored on ball '+safety.ballId+' · '+safety.reason+' · Held in '+safety.passed+'/5 simulations':
+  const message=safety?(safety.reviewOnly?'Review only · Intentional foul on ball ':safety.intentionalFoul?'Last resort · Intentional foul on ball ':'Safety favored on ball ')+safety.ballId+
+   ' · '+safety.reason+' · Held in '+safety.passed+'/5 simulations':
    count?count+(count===1?' shot':' shots')+(job.pending?' ready · Analyzing further · ':' found · ')+route:
-   job.pending?(job.background?'Analyzing in the background…':'Analyzing…'):job.source&&!job.continuation?'No direct route found.':'';
+   job.pending?(job.background?'Analyzing in the background…':'Analyzing…'):job.source&&!job.continuation?'No verified runout or safety found.':'';
   if(orderStatus.textContent!==message)orderStatus.textContent=message;
   planButton.title=message||'Plan a runout';
-  planButton.setAttribute('aria-label',safety?'Apply recommended safety on ball '+safety.ballId:ready?'Apply planned Shot 1':job.pending?'Planning runout':'Plan a runout');
+  planButton.setAttribute('aria-label',safety?(safety.intentionalFoul?'Set up intentional foul on ball ':'Apply recommended safety on ball ')+safety.ballId:
+   ready?'Apply planned Shot 1':job.pending?'Planning runout':'Plan a runout');
  }
  function closePopovers(){
   for(const [popover,anchor] of [[tray,trayToggle],[rackMenu,rackToggle],[orderMenu,orderButton]]){
