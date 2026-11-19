@@ -116,32 +116,23 @@
   shelf.append(trayToggle, clear, earlier, balls, later, count); document.body.append(shelf);
   let trayLayoutPending=false,trayScrollRange=null;
   function alignBallTray(){
-    trayLayoutPending=false;
-    const tip=document.querySelector('#phoneActions .activeSpin .phoneTipControl:not([hidden])');
-    if(!tip||!balls.getClientRects().length||!tip.getClientRects().length)return;
-    const frame=shelf.getBoundingClientRect(),badge=tip.getBoundingClientRect(),scale=frame.width/shelf.offsetWidth;
-    if(!(scale>0))return;
-    const gap=6,arrow=parseFloat(getComputedStyle(earlier).width)||28;
+    trayLayoutPending=false;if(!balls.getClientRects().length)return;
+    const frame=shelf.getBoundingClientRect(),scale=frame.width/shelf.offsetWidth;if(!(scale>0))return;
     let left=6;
     for(const control of [trayToggle,byId('table3DRackToggle'),clear,byId('table3DLock')]){
       if(control?.parentElement!==shelf||!control.getClientRects().length)continue;
-      const r=control.getBoundingClientRect();left=Math.max(left,(r.right-frame.left)/scale+gap);
+      left=Math.max(left,(control.getBoundingClientRect().right-frame.left)/scale+6);
     }
-    const countWidth=count.textContent?count.getBoundingClientRect().width/scale+gap:0;
-    const right=shelf.clientWidth-6-countWidth,center=(badge.left+badge.width/2-frame.left)/scale;
-    const half=Math.min(center-left-arrow-gap,right-arrow-gap-center);
-    if(half<=0)return;
-    // Symmetric viewport and scroll position keep the true 7/8 midpoint on the
-    // active cue-tip badge, independently of the rack buttons and side drawer.
-    const oldRange=trayScrollRange,oldOffset=oldRange===null?0:balls.scrollLeft-oldRange/2;
-    const first=balls.firstElementChild,last=balls.lastElementChild;
-    const content=last.offsetLeft+last.offsetWidth-first.offsetLeft+8;
-    const width=Math.min(content,half*2);
-    balls.style.left=(center-width/2)+'px';balls.style.width=width+'px';
-    earlier.style.left=left+'px';later.style.left=(right-arrow)+'px';
-    trayScrollRange=Math.max(0,balls.scrollWidth-balls.clientWidth);
-    if(oldRange!==trayScrollRange)balls.scrollLeft=Math.max(0,Math.min(trayScrollRange,trayScrollRange/2+oldOffset));
-    syncScroll();
+    const right=shelf.clientWidth-8,available=Math.max(100,right-left);
+    const columns=available>=16*26+15*4?16:8;
+    const separate=available<8*26+7*4;
+    const x=separate?6:left,width=separate?shelf.clientWidth-12:available;
+    balls.style.left=x+'px';balls.style.width=width+'px';balls.style.setProperty('--tray-columns',columns);
+    balls.style.top=(separate?48:4)+'px';balls.style.transform='none';
+    const height=(separate?48:4)+(columns===16?32:68)+6;
+    shelf.style.height=height+'px';shelf.style.setProperty('--tray-extra',Math.max(0,height-48)+'px');
+    document.body.style.setProperty('--workspace-tray-extra',Math.max(0,height-48)+'px');
+    earlier.hidden=later.hidden=true;balls.scrollLeft=0;
   }
   function queueTrayLayout(){if(!trayLayoutPending){trayLayoutPending=true;requestAnimationFrame(alignBallTray);}}
   const trayObserver=new ResizeObserver(queueTrayLayout);trayObserver.observe(shelf);trayObserver.observe(balls);
@@ -224,6 +215,7 @@
       button.setAttribute('aria-label', label); button.title = label;
     }
     count.textContent = data.pocketed.length ? data.pocketed.length + ' pocketed' : '';
+    count.title=count.textContent;trayToggle.title=count.textContent||'All 16 balls';
     queueTrayLayout();
     clear.disabled = data.busy;
     trayToggle.setAttribute('aria-label', document.body.classList.contains('phone-tray-hidden') ? 'Show ball tray' : 'Hide ball tray');

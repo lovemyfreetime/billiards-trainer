@@ -449,3 +449,13 @@ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions > [data-trainer-
  body.trainer-workspace.phone-controls-open #workspaceTopActions { top:8px; }
  body.trainer-workspace.phone-focus:not(.zen-mode) #phoneActions > [data-trainer-action=animate] { width:82px!important; }
 }
+
+/* The complete set stays visible; narrow layouts use two rows instead of clipping balls. */
+body.trainer-workspace #workspaceBallShelf { align-items:flex-start; padding-top:4px; box-sizing:border-box; }
+body.trainer-workspace #workspaceBalls { display:grid; grid-template-columns:repeat(var(--tray-columns,16),minmax(0,1fr)); gap:4px; overflow:visible; padding:0; }
+body.trainer-workspace #workspaceBalls .workspaceBall { width:100%; min-width:0; height:auto; min-height:0; max-width:32px; justify-self:center; aspect-ratio:1; }
+body.trainer-workspace #workspaceBallCount { display:none; }
+body.trainer-workspace #workspaceBallShelf>.workspaceTrayScroll { display:none!important; }
+body.trainer-workspace:not(.zen-mode):not(.phone-tray-hidden) { --workspace-bottom:calc(138px + var(--workspace-tray-extra,0px)); }
+body.trainer-workspace.table-3d:not(.phone-tray-hidden) { --workspace-bottom:calc(180px + var(--workspace-tray-extra,0px)); }
+@media(max-width:700px){body.trainer-workspace.table-3d:not(.phone-tray-hidden){--workspace-bottom:calc(244px + var(--workspace-tray-extra,0px));}}

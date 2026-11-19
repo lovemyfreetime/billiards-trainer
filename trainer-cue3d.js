@@ -33,7 +33,7 @@
  }
  function clampEyeHeight(meters){return clamp(Number(meters)||.12,EYE_HEIGHT_INCHES.min*METERS_PER_INCH,EYE_HEIGHT_INCHES.max*METERS_PER_INCH);}
  function playerCamera(data,settings={}){
-  const p=pose(data),distance=settings.distance||.75,height=clampEyeHeight(settings.height),axis=p.back;
+  const p=pose(data),distance=settings.distance||.75,height=settings.approach?clamp(settings.height,.12,1.4):clampEyeHeight(settings.height),axis=p.back;
   const eye=[p.contact[0]+axis[0]*distance,p.contact[1]+axis[1]*distance+height,p.contact[2]+axis[2]*distance],target=[p.contact[0]+data.dx*.20,data.z,p.contact[2]+data.dy*.20];
   const dx=eye[0]-target[0],dy=eye[1]-target[1],dz=eye[2]-target[2],radius=Math.hypot(dx,dy,dz);
   return {eye,target,azimuth:Math.atan2(dx,dz),radius,elevation:Math.asin(dy/radius)};
@@ -78,21 +78,28 @@
   part([[.748,.0108],[1.05,.0132],[1.43,BUTT_RADIUS]],original,'butt');
   part([[1.43,BUTT_RADIUS],[1.455,BUTT_RADIUS]],chrome,'cap');
   part([[1.455,BUTT_RADIUS],[1.469,.0154],[LENGTH,.012],[LENGTH,0]],rubber,'bumper');
-  const up=new T.Vector3(0,1,0),direction=new T.Vector3();let lastFinish='',wasVisible=false,enteredAt=0;
+  const up=new T.Vector3(0,1,0),direction=new T.Vector3();let lastFinish='',wasVisible=false,enteredAt=0,shown=0,updatedAt=0;
   return {
    update(f){
     const data=f.cuePose,p=pose(data,f.cueStrokeTime,f.balls.find(b=>b.id===data?.id));current=p;group.visible=!!(f.showRealCue&&p?.visible);
-    if(group.visible&&!wasVisible)enteredAt=performance.now();wasVisible=group.visible;
+    const now=performance.now(),dt=Math.min(.08,Math.max(0,(now-updatedAt)/1000));updatedAt=now;
+    if(group.visible&&!wasVisible){enteredAt=now;shown=0;}wasVisible=group.visible;
     if(!p)return false;
     const entering=group.visible&&!Number.isFinite(f.cueStrokeTime)&&!root.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const progress=entering?Math.min(1,(performance.now()-enteredAt)/350):1;
-    const ease=progress*progress*(3-2*progress),withdraw=(1-ease)*.10;
+    const progress=entering?Math.min(1,(performance.now()-enteredAt)/2400):1;
+    const approach=Number.isFinite(f.cueApproachProgress)?f.cueApproachProgress:1;
+    const routine=Number.isFinite(f.cueRoutineProgress)?f.cueRoutineProgress:1;
+    const routinePresence=routine<.2?1-smooth(routine/.2):routine<.38?0:smooth((routine-.38)/.62);
+    const desired=Math.min(progress,routinePresence);
+    shown=Number.isFinite(f.cueStrokeTime)||root.matchMedia?.('(prefers-reduced-motion: reduce)').matches?1:shown+clamp(desired-shown,-dt*1.8,dt*1.8);
+    const ease=shown*shown*(3-2*shown),withdraw=(1-ease)*.22;
     if(lastFinish!==finish){lastFinish=finish;for(const part of parts){if(part.userData.cuePart==='shaft')part.material=finish==='carbon'?fiber:maple;if(part.userData.cuePart==='butt')part.material=finish==='carbon'?fiber:finish==='wood'?wood:original;}}
     for(const material of new Set(parts.map(part=>part.material))){material.transparent=ease<1;material.opacity=ease;}
-    group.position.set(p.tip[0]-f.L/2+p.back[0]*withdraw,p.tip[1]+p.back[1]*withdraw,p.tip[2]-f.W/2+p.back[2]*withdraw);group.quaternion.setFromUnitVectors(up,direction.fromArray(p.back));
-    return group.visible&&progress<1;
+    group.position.set(p.tip[0]-f.L/2+p.back[0]*withdraw,p.tip[1]+p.back[1]*withdraw+(1-ease)*.16,p.tip[2]-f.W/2+p.back[2]*withdraw);group.quaternion.setFromUnitVectors(up,direction.fromArray(p.back));
+    group.rotateZ((1-ease)*.10);
+    return group.visible&&(progress<1||approach<1||Math.abs(shown-desired)>.001);
    },
-   status(){return current?{...current,visible:group.visible,finish,referenceReady:ready,reference:'icons/approved-full-cue.png'}:null;}
+   status(){return current?{...current,visible:group.visible,presentation:{opacity:parts[0].material.opacity,tip:group.position.toArray()},finish,referenceReady:ready,reference:'icons/approved-full-cue.png'}:null;}
   };
  }
  const api={METERS_PER_INCH,EYE_HEIGHT_INCHES,clampEyeHeight,LENGTH,TIP_RADIUS,BUTT_RADIUS,PRE_ROLL,pose,advanceTime,playerCamera,create,setFinish,getFinish:()=>finish};
