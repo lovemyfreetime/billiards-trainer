@@ -1,7 +1,7 @@
 /* Geometry for immediate hints and candidate generation for simulated runouts. */
 (function(root){
  'use strict';
- const preferenceKeys=['trainingBallStyle','showImpact','showFullGhostBall','showRestingCueBall','showTipBadge','showShotLine','showCueStick','showPaths','showGrid','showDiamonds','showTable','showAngleLockControl','shot2CueBallOnly','shotPlaybackSpeed','guidanceEnabled','guidanceOrder','showPocketChances','showPocketGhost','showPocketGlow','guidanceAimErrorDeg','guidanceRailErrorDeg','aimZones'];
+ const preferenceKeys=['trainingBallStyle','showImpact','showFullGhostBall','showRestingCueBall','showTipBadge','showShotLine','showCueStick','showPaths','showGrid','showDiamonds','showTable','showAngleLockControl','shot2CueBallOnly','shotPlaybackSpeed','guidanceEnabled','planSpeed','planFollow','planSpin','guidanceOrder','showPocketChances','showPocketGhost','showPocketGlow','guidanceAimErrorDeg','guidanceRailErrorDeg','aimZones'];
  const copy=value=>JSON.parse(JSON.stringify(value));
  function preferences(state){return Object.fromEntries(preferenceKeys.filter(k=>state[k]!==undefined).map(k=>[k,copy(state[k])]));}
  function restorePreferences(state,saved){for(const k of preferenceKeys)if(Object.hasOwn(saved||{},k)&&typeof saved[k]===typeof state[k])state[k]=copy(saved[k]);return state;}
@@ -56,9 +56,9 @@
   const r=state.ballR,cue=state.balls.find(b=>b.id===0);
   const distance=shot.cueDistance/(2*r);
   const cut=shot.cutAngle;
-  const distanceCost=.055*Math.max(0,distance-4)+.18*Math.max(0,2.5-distance);
-  const steepCost=.027*Math.max(0,cut-45);
-  const straightCost=needsPosition ? .065*Math.max(0,9-cut) : 0;
+  const distanceCost=.068*Math.max(0,distance-4)+.22*Math.max(0,2.5-distance);
+  const steepCost=.036*Math.max(0,cut-45);
+  const straightCost=needsPosition ? .075*Math.max(0,12-cut) : 0;
   const railRoom=Math.min(cue.x,cue.y,state.tableL-cue.x,state.tableW-cue.y)/r;
   return .55*shot.probability-distanceCost-steepCost-straightCost-.34*Math.max(0,1-railRoom/4);
  }
@@ -77,7 +77,7 @@
    return alternate?.probability!=null&&alternate.cutAngle<50?alternate.probability:0;
   };
   const spread=2*r,room=[[dx,dy],[-dx,-dy],[-dy,dx],[dy,-dx]].reduce((sum,[x,y])=>sum+scoreAt(cue.x+x/len*spread,cue.y+y/len*spread),0)/4;
-  return positionQuality(state,best,needsPosition)+.38*room;
+  return positionQuality(state,best,needsPosition)+.55*room;
  }
  function* runout(state,simulate,depth=3,compensate=()=>0){
   if(!live(state).some(b=>b.id===0))return [];
@@ -88,6 +88,10 @@
   const longTravel=[[1.75,-.10,0],[2.02,-.10,0],[2.28,-.10,0],[2.54,-.10,0],[2.8,-.10,0],[3.05,-.10,0],
    [2.24,.18,0],[2.7,.18,0],[2.5,-.15,-.23],[2.5,-.15,.23]];
   const pocketCodes={'top left':'TL','top middle':'TM','top right':'TR','bottom left':'BL','bottom middle':'BM','bottom right':'BR'};
+  const manual={freeAim:state.freeAim,speed:state.speed,follow:state.follow,sideSpin:state.sideSpin,cueElevationDeg:state.cueElevationDeg||0,angleLock:false};
+  const hasManualStroke=Number.isFinite(manual.freeAim?.x)&&Number.isFinite(manual.freeAim?.y)&&
+   [manual.speed,manual.follow,manual.sideSpin].every(Number.isFinite);
+  const manualPreview=hasManualStroke?yield* simulate(state,manual):null;
   for(let step=0;step<depth&&beam.length;step++){
    const next=[];
    for(const node of beam){
@@ -99,10 +103,30 @@
      const dx=shot.aim.x-cue.x,dy=shot.aim.y-cue.y;
      const object=node.state.balls.find(b=>b.id===shot.ballId);
      const farLeave=live(node.state).some(b=>b.id>0&&b.id!==shot.ballId&&Math.hypot(b.x-object.x,b.y-object.y)>state.tableL*.5);
-     const strokes=needsPosition?(farLeave?[...pitches,...longTravel]:pitches):pitches.slice(0,10);
+     const strokes=needsPosition?(farLeave?[...pitches,...longTravel]:[...pitches]):pitches.slice(0,10);
+     if(needsPosition&&shot.cutAngle<24)strokes.push([1.62,-.87,0],[1.95,-.87,0],[2.30,-.95,0]);
+     if(!step&&hasManualStroke)strokes.unshift([manual.speed/base,manual.follow,manual.sideSpin]);
      const tried=new Set();
-     for(const [pace,follow,sideSpin] of strokes){
-      const speed=Math.min(6,base*pace),cueElevationDeg=0;
+     const current=step?node.shots.at(-1).controls:state;
+     function record(controls,preview){
+      const after=afterShot(node.state,preview,shot.ballId);
+      if(!after||preview.pocketEvents[0].pocket!==pocketCodes[shot.pocket])return false;
+      const path=preview.paths[0],rest=after.balls.find(b=>b.id===0);
+      const travel=path.reduce((distance,p,i)=>i?distance+Math.hypot(p.x-path[i-1].x,p.y-path[i-1].y):0,0);
+      const rails=preview.railEvents.filter(e=>e.id===0&&e.t>preview.firstBallContact.t).length;
+      const position=step?positionQuality(node.state,shot,needsPosition):0;
+      const score=node.score+Math.log(Math.max(.01,shot.probability))+position-.17*travel/state.tableL-.05*rails-.075*Math.abs(controls.follow)-.10*Math.abs(controls.sideSpin);
+      const terminal=!eligibleBalls(after).length||!['order','any'].includes(order(after))&&shot.ballId===8;
+      const rank=score+(terminal?0:leaveQuality(after));
+      const shots=[...node.shots,{...shot,controls,preview,start:{x:cue.x,y:cue.y},rest}];
+      next.push({state:after,start:node.state,shots,score,rank,terminal});
+      return true;
+     }
+     if(!step&&manualPreview)record(manual,manualPreview);
+     for(const [pace,draw,english] of strokes){
+      const speed=state.planSpeed===false?current.speed:Math.min(6,base*pace),cueElevationDeg=0;
+      const follow=state.planFollow===false?current.follow:draw;
+      const sideSpin=state.planSpin===false?current.sideSpin:english;
       const key=[speed,follow,sideSpin].join('/');
       if(tried.has(key))continue;
       tried.add(key);
@@ -114,18 +138,7 @@
        const controls={freeAim,speed,follow,sideSpin,cueElevationDeg,angleLock:false};
        const preview=yield* simulate(node.state,controls);
        yield;
-       const after=afterShot(node.state,preview,shot.ballId);
-       if(!after||preview.pocketEvents[0].pocket!==pocketCodes[shot.pocket])continue;
-       const path=preview.paths[0],rest=after.balls.find(b=>b.id===0);
-       const travel=path.reduce((distance,p,i)=>i?distance+Math.hypot(p.x-path[i-1].x,p.y-path[i-1].y):0,0);
-       const rails=preview.railEvents.filter(e=>e.id===0&&e.t>preview.firstBallContact.t).length;
-       const position=step?positionQuality(node.state,shot,needsPosition):0;
-       const score=node.score+Math.log(Math.max(.01,shot.probability))+position-.17*travel/state.tableL-.05*rails-.075*Math.abs(follow)-.10*Math.abs(sideSpin);
-       const terminal=!eligibleBalls(after).length||!['order','any'].includes(order(after))&&shot.ballId===8;
-       const rank=score+(terminal||step===depth-1?0:leaveQuality(after));
-       const shots=[...node.shots,{...shot,controls,preview,start:{x:cue.x,y:cue.y},rest}];
-       next.push({state:after,start:node.state,shots,score,rank,terminal});
-       break;
+       if(record(controls,preview))break;
       }
      }
     }

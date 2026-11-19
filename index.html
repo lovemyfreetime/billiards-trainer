@@ -1948,6 +1948,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
           <label id="guidanceOrderRow">Shot Order <select id="guidanceOrder"><option value="auto">Any Order</option><option value="order">Lowest First</option></select></label>
           <label id="guidanceGroupRow" hidden>8-ball group <select id="guidanceGroup"><option value="open">Open table</option><option value="solids">Solids</option><option value="stripes">Stripes</option></select></label>
           <div class="check"><input id="showPocketChances" type="checkbox" checked><label for="showPocketChances">Estimated shot chances near pockets and route targets</label></div>
+          <div class="check"><input id="planSpeed" type="checkbox" checked><label for="planSpeed">Planner can adjust speed</label></div>
+          <div class="check"><input id="planFollow" type="checkbox" checked><label for="planFollow">Planner can adjust follow / draw</label></div>
+          <div class="check"><input id="planSpin" type="checkbox" checked><label for="planSpin">Planner can adjust left / right spin</label></div>
           <details><summary>How chance estimates work</summary>
             <p class="hint">Each percentage estimates pocketing the selected ball, or contacting it on a kick, under the same reference accuracy. Tap a pocket label for Direct, Bank and Kick alternatives. Each percentage describes a separate shot.</p>
             <label>Aim variation (degrees, standard deviation) <input id="guidanceAimError" type="number" min=".03" max="2" step=".01" value=".15"></label>
@@ -1955,7 +1958,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             <p class="hint">Reference estimates use angular accuracy, ball collision geometry and the pocket opening. Bank and kick alternatives screen up to four rails using ideal rebound geometry. Check a selected route with Calculate before applying its full-physics setup. A current verified route uses its calculated stroke. These values have not been calibrated to your real-table results. Direct comparisons assume sufficient pocketing pace and compensated throw; they do not estimate position-play or scratch avoidance. Hidden or unsupported routes show a dash instead of invented odds.</p>
           </details>
           <output id="shotGuidanceStatus" class="hint" aria-live="polite"></output>
-          <p class="hint">Offers aim only. You control speed and spin. Your manual Shot 2 plan always wins.</p>
+          <p class="hint">Next-ball guidance suggests aim. Runout planning can adjust the enabled stroke settings. A manual Shot 2 takes priority.</p>
           <div class="check"><input id="showPaths" type="checkbox" checked><label for="showPaths">Trajectory preview</label></div>
         <fieldset style="margin:8px 0;padding:4px 8px;border:1px solid #64748b66;border-radius:6px">
           <legend>Aim-to-Position Zones</legend>
@@ -2142,7 +2145,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 <script src="./trainer-shot-chance.js?v=1"></script>
 <script src="./trainer-pocket-feedback.js?v=1"></script>
 <script src="./trainer-route-options.js?v=1"></script>
-<script src="./trainer-guidance.js?v=leave"></script>
+<script src="./trainer-guidance.js?v=practice-plan"></script>
 <script>
 // AI Camera Edition wrapper: v4.12 trainer, app-mode launch package. v4 adds scoreboard placement/default-off + local analysis-photo recall.
 // v4.12: virtual diamond extensions beyond physical corners; fixes source references that previously clipped at the first visible table boundary.
@@ -2188,15 +2191,22 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if(!runoutJob||runoutJob.source!==S.preview)return {pending:false,shots:[]};
         return runoutJob;
     }
+    function isUnplayedRack(){
+        if(!S.guidanceBreak)return false;
+        const balls=S.balls.filter(b=>b.id>0&&!b.marker&&b.active!==false);
+        const count=Number.parseInt(S.setupMode,10);
+        // A setup can use rack rules without being a compact break formation.
+        return Number.isFinite(count)&&balls.length>=count&&balls.every(b=>Math.hypot(b.x-S.tableL*.75,b.y-S.tableW*.5)<S.ballR*10);
+    }
     function requestRunout(continuation=false,automatic=false){
-        if(animation||S.bankKick?.mode||S.guidanceScratch||S.guidanceBreak||!cueBall())return false;
+        if(animation||S.bankKick?.mode||S.guidanceScratch||isUnplayedRack()||!cueBall())return false;
         const state={...S,balls:S.balls.map(b=>({...b})),pocketGeometry:pocketModel()};
         const start=continuation?window.BilliardsGuidance.afterShot(state,S.preview,S.preview?.firstBallContact?.objId):state;
-        const job={source:S.preview,continuation,pending:!!start,shots:[]};
+        if(!start)return false;
+        const job={source:S.preview,continuation,pending:true,shots:[]};
         runoutJob=job;
         window.dispatchEvent(new Event('billiards:runout'));
-        if(!start)return false;
-        const scan=window.BilliardsGuidance.runout(start,simulateRunoutStroke,continuation?4:5,
+        const scan=window.BilliardsGuidance.runout(start,simulateRunoutStroke,continuation?2:6,
             (state,side,follow)=>cueSquirtAngleFor(side,follow,state.cueEndmassRatio));
         const advance=()=>{
             if(runoutJob!==job||job.source!==S.preview||animation)return;
@@ -2243,13 +2253,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if(!guidancePending||animation&&!committing)return;
         guidancePending=false;
         if(isZenPage||isProjector||!S.guidanceEnabled||S.shot2Enabled||S.angleLock||S.bankKick?.mode||S.guidanceScratch)return;
-        const plan=window.BilliardsGuidance.suggest({...S,pocketGeometry:pocketModel()});plan.heldAim={...S.freeAim};S.guidancePlan=plan;
+        const plan=window.BilliardsGuidance.suggest({...S,guidanceBreak:isUnplayedRack(),pocketGeometry:pocketModel()});plan.heldAim={...S.freeAim};S.guidancePlan=plan;
         if(plan.aim){S.freeAim={...plan.aim};S.ghostLock=null;S.autoGhostLock=false;}
     }
     function syncGuidanceControls(){
         const toggle=$('shotGuidance');if(!toggle)return;
         toggle.checked=!!S.guidanceEnabled;
         $('showPocketChances').checked=S.showPocketChances!==false;
+        for(const id of ['planSpeed','planFollow','planSpin']) $(id).checked=S[id]!==false;
         $('showPocketGhost').checked=S.showPocketGhost!==false;$('showPocketGlow').checked=S.showPocketGlow!==false;
         $('guidanceAimError').value=S.guidanceAimErrorDeg||.15;
         $('guidanceRailError').value=S.guidanceRailErrorDeg||.35;
@@ -2382,7 +2393,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const initialAim={x:88*inch*.75,y:44*inch*.5};
         return {
             tableL: 88 * inch, tableW: 44 * inch, ballR: 2.25 * inch / 2,
-            balls: [], annotations: null, trainingBallStyle: 'current', shotPlaybackSpeed: 1, guidanceEnabled: true, guidanceOrder: 'auto', showPocketChances: true, showPocketGlow: true, showPocketGhost: true, guidanceAimErrorDeg: .15, guidanceRailErrorDeg: .35, guidanceGroups: {}, guidancePlan: null, guidanceBreak: false, guidanceScratch: false,
+            balls: [], annotations: null, trainingBallStyle: 'current', shotPlaybackSpeed: 1, guidanceEnabled: true, planSpeed:true, planFollow:true, planSpin:true, guidanceOrder: 'auto', showPocketChances: true, showPocketGlow: true, showPocketGhost: true, guidanceAimErrorDeg: .15, guidanceRailErrorDeg: .35, guidanceGroups: {}, guidancePlan: null, guidanceBreak: false, guidanceScratch: false,
             nextId: 1, markerSeq: 1000, freeAim: initialAim, angleLock: false, speed: 1.50, follow: 0, sideSpin: 0, cueElevationDeg: PHYSICS_MODEL.defaultCueElevationDeg,
             shot2Enabled: false, activeShot: 1, shot2Initialized: false,
             showShot1: true,
@@ -2438,7 +2449,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const toggle=$('practiceCounterToggle');toggle.setAttribute('aria-expanded',String(practiceCounterOpen));toggle.setAttribute('aria-label',(practiceCounterOpen?'Hide':'Open')+' practice counter');
         const text=String(practiceCount).padStart(3,'0');if($('practiceCounterValue').textContent!==text)$('practiceCounterValue').textContent=text;
         $('practiceCounterMinus').disabled=practiceCount===0;$('practiceCounterPlus').disabled=practiceCount===999;
-        if(el.hidden)return;
+        if(el.hidden||document.body.classList.contains('trainer-workspace'))return;
         const M=controlMap(),q=M.map({x:S.tableL*13/16,y:S.tableW}),w=stage.clientWidth,h=stage.clientHeight;
         const panel=$('practiceCounterPanel');panel.style.left=clamp(q.x,54,w-54)+'px';panel.style.top=clamp(q.y+panel.offsetHeight/2,16,h-15)+'px';
         const phone=document.body.classList.contains('phone-layout'),sr=stage.getBoundingClientRect();
@@ -7171,9 +7182,20 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         // keep their existing labels/diamonds. Every non-multiple-of-10 value
         // gets a smaller dot, so each diamond interval is divided into 10 exact steps.
         if (S.showBankKickNumbers || bankKickState().mode) {
+            const in3D=window.Billiards3D?.active;
             const numberingZero = bankKickState().mode && bankKickState().zero ? bankKickState().zero : {x:0,y:0};
             const longNumber = x => systemNumberFromZero(numberingZero,{axis:'h'},x);
             const shortNumber = y => systemNumberFromZero(numberingZero,{axis:'v'},y);
+            function railNumber(value,x,y){
+                const text=String(Math.round(value));
+                if(in3D){
+                    const unit=L/1200;
+                    cameraLabels.push({id:'bank-rail-'+x+'-'+y,point:{x,y},railCap:true,rows:[text],size:12,
+                        weight:700,rowGap:0,color:'#f5efd8',width:unit*text.length*8,height:unit*13,unitsPerPixel:unit,opacity:.90});
+                }else{
+                    const q=map({x,y});ctx.fillText(text,q.x,q.y);
+                }
+            }
             ctx.save();
             ctx.fillStyle = 'rgba(255,255,255,.80)';
             ctx.font = `800 ${isProjector ? 11 : 9}px Segoe UI`;
@@ -7183,16 +7205,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             for (let i = 0; i <= 8; i++) {
                 const x = L * i / 8;
                 for (const y of [yTop, yBot]) {
-                    const q = map({ x, y });
-                    ctx.fillText(String(Math.round(longNumber(x))), q.x, q.y);
+                    railNumber(longNumber(x),x,y);
                 }
             }
             const xLeft = -0.060, xRight = L + 0.060;
             for (let i = 0; i <= 4; i++) {
                 const y = W * i / 4;
                 for (const x of [xLeft, xRight]) {
-                    const q = map({ x, y });
-                    ctx.fillText(String(i * 10), q.x, q.y);
+                    railNumber(i*10,x,y);
                 }
             }
             // Midpoint labels: 5, 15, 25... so the center of every 10-unit span
@@ -7202,15 +7222,13 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             for (let value = 5; value < 80; value += 10) {
                 const x = L * value / 80;
                 for (const y of [yTop, yBot]) {
-                    const q = map({ x, y });
-                    ctx.fillText(String(Math.round(longNumber(x))), q.x, q.y);
+                    railNumber(longNumber(x),x,y);
                 }
             }
             for (let value = 5; value < 40; value += 10) {
                 const y = W * value / 40;
                 for (const x of [xLeft, xRight]) {
-                    const q = map({ x, y });
-                    ctx.fillText(String(Math.round(shortNumber(y))), q.x, q.y);
+                    railNumber(shortNumber(y),x,y);
                 }
             }
             ctx.globalAlpha = 1;
@@ -7220,6 +7238,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const aimingDotR = isProjector ? 2.7 : 2.35;
             ctx.fillStyle = 'rgba(245,239,216,.92)';
             function aimingDotAt(p) {
+                if(in3D)return;
                 const a = map(p);
                 ctx.beginPath();
                 ctx.arc(a.x, a.y, aimingDotR, 0, Math.PI * 2);
@@ -8630,7 +8649,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const second=(S.activeShot===2||runoutView)&&S.shot2Enabled;if(!shotGuidesVisible(second?2:1))return [];
         const state=chanceState();
         if(S.bankKick?.mode){const sol=computeBankKickSolution();if(!sol)return [];const chance=window.BilliardsShotChance.route(state,sol);if(!chance)return [];return [{...chance,id:'route-chance',text:chance.outcome+' '+window.BilliardsShotChance.text(chance.probability),color:window.BilliardsShotChance.color(chance.probability,chance.probability>=.65)}];}
-        if(S.guidanceBreak||S.guidanceScratch)return [];
+        if(isUnplayedRack()||S.guidanceScratch)return [];
         const id=activeChanceTarget(state);if(!Number.isInteger(id)||id<=0)return [];
         const result=comparisonFor(state,id),raw=window.BilliardsShotChance.options(state,id),current=currentRailChance(state,id);
         const groups=result?.groups||raw.map(d=>({pocket:d.pocket,point:d.point,direct:d.probability===null?[]:[{...d,type:'Direct'}],bank:[],kick:[]}));
@@ -8783,7 +8802,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 }
                 live.splice(0,live.length,...leave);
             }
-            window.Billiards3D.update({cuePose:animation?.cuePose||nextPose||cuePoseFor3D(),showRealCue:S.showCueStick!==false&&S.showTable&&shotGuidesVisible(animation?1:second?2:1),cueStrokeTime:animation?.visualTime,pocketFeedback:(!clean||recordingGuides)&&S.showPocketGlow!==false?currentPocketFeedback():[],cameraLabels,trainingBallStyle:S.trainingBallStyle,L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,overlayEditing:!!compassState().enabled,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:(clean||S.showCueStick===false)?[]:(animation?.cueTips||cueTipsFor3D()).filter(tip=>tip.id!=='CB2'||!S.shot2CueBallOnly),balls:live,ghostBalls:clean&&!recordingGuides?[]:ghostBallsFor3D(),map,aim:!clean&&cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
+            window.Billiards3D.update({cuePose:animation?.cuePose||nextPose||cuePoseFor3D(),showRealCue:S.showCueStick!==false&&S.showTable&&shotGuidesVisible(animation?1:second?2:1),cueStrokeTime:animation?.visualTime,pocketFeedback:(!clean||recordingGuides)&&S.showPocketGlow!==false?currentPocketFeedback():[],cameraLabels,showBankKickNumbers:!!(S.showBankKickNumbers||S.bankKick?.mode)&&S.showTable&&!clean,trainingBallStyle:S.trainingBallStyle,L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,overlayEditing:!!compassState().enabled,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:(clean||S.showCueStick===false)?[]:(animation?.cueTips||cueTipsFor3D()).filter(tip=>tip.id!=='CB2'||!S.shot2CueBallOnly),balls:live,ghostBalls:clean&&!recordingGuides?[]:ghostBallsFor3D(),map,aim:!clean&&cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
         }
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }
@@ -10451,7 +10470,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         window.dispatchEvent(new CustomEvent('billiards:shot-complete',{detail:{removed:[...removed],shot2Handoff:!!shot2Handoff}}));
         const remainingObjectBalls=S.balls.filter(b=>b.id>0&&!b.marker&&b.active!==false).length;
         if(!shot2Handoff&&S.guidanceEnabled&&removed.length>0&&!S.guidanceScratch&&!S.angleLock&&
-            remainingObjectBalls>0&&remainingObjectBalls<=5&&legalPot){
+            remainingObjectBalls>0&&remainingObjectBalls<=6&&legalPot){
             if(continuationMatches){
                 runoutJob={source:S.preview,continuation:false,pending:false,shots:savedPlan.shots};
                 useRunout();
@@ -14104,6 +14123,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             refreshPreview();
         });
         setupPhysicsPresets();
+        for(const id of ['planSpeed','planFollow','planSpin']) $(id).onchange=()=>{
+            S[id]=$(id).checked;
+            const wasPlanning=runoutStatus().pending;
+            runoutJob=null;draw();saveState();
+            if(wasPlanning)window.dispatchEvent(new Event('billiards:runout'));
+        };
         $('shotGuidance').onchange=()=>{S.guidanceEnabled=$('shotGuidance').checked;S.guidancePlan=null;guidancePending=S.guidanceEnabled;refreshPreview();updateUI();saveState();};
         for(const [id,key] of [['showPocketGhost','showPocketGhost'],['showPocketGlow','showPocketGlow']])$(id).onchange=()=>{S[key]=$(id).checked;draw();saveState();};
         $('showPocketChances').onchange=()=>{S.showPocketChances=$('showPocketChances').checked;draw();saveState();};
@@ -14608,11 +14633,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=resources-toggle-v8">
   <script src="./phone-play.js?v=workspace-1"></script>
-  <link rel="stylesheet" href="./trainer-3d.css?v=tray-switch">
+  <link rel="stylesheet" href="./trainer-3d.css?v=practice-plan">
   <script src="./trainer-cue3d.js?v=1"></script>
-  <script src="./trainer-3d.js?v=tray-switch"></script>
-  <link rel="stylesheet" href="./trainer-workspace.css?v=tray-switch">
-  <script src="./trainer-workspace.js?v=tray-switch"></script>
+  <script src="./trainer-3d.js?v=practice-plan"></script>
+  <link rel="stylesheet" href="./trainer-workspace.css?v=practice-plan">
+  <script src="./trainer-workspace.js?v=practice-plan"></script>
   <link rel="stylesheet" href="./trainer-player-view.css?v=1">
   <script src="./trainer-player-view.js?v=shot-2-view"></script>
   <script src="./trainer-cue-controls.js?v=1"></script>

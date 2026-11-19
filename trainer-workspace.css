@@ -532,3 +532,40 @@ body.trainer-workspace #workspaceBallShelf #table3DLock[aria-checked=true] {
 @media(prefers-reduced-motion:reduce) {
   body.trainer-workspace #workspaceBallShelf #table3DLock,.ballLockTrack::after { transition:none; }
 }
+
+body.trainer-workspace #practiceCounter {
+  inset:auto 12px 10px auto;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  z-index:15;
+}
+body.trainer-workspace #practiceCounter :is(#practiceCounterToggle,#practiceCounterPanel) {
+  position:static;
+  transform:none;
+}
+body.trainer-workspace #practiceCounterToggle {
+  order:1;
+  width:auto!important;
+  min-width:44px!important;
+  padding:0 9px;
+  border-radius:9px;
+  font:600 0 system-ui;
+}
+body.trainer-workspace #practiceCounterToggle::after { content:"Counter"; font-size:12px; }
+body.trainer-workspace #practiceCounterPanel button { width:32px; height:32px; }
+body.trainer-workspace #scoreBoard { left:50%; z-index:16; }
+@media (min-width:900px) {
+  body.trainer-workspace #scoreBoard { position:fixed; top:calc(8px + env(safe-area-inset-top)); left:39%; z-index:68; }
+}
+body.trainer-workspace :is(#table3DPlan,#table3DNextView)[aria-busy=true] {
+  border-color:#d9b859;
+  animation:trainer-planning-glow 1.7s ease-in-out infinite alternate;
+}
+@keyframes trainer-planning-glow {
+  from { box-shadow:0 0 3px #edc86b42; }
+  to { box-shadow:0 0 13px #edc86ba6; }
+}
+@media (prefers-reduced-motion:reduce) {
+  body.trainer-workspace :is(#table3DPlan,#table3DNextView)[aria-busy=true] { animation:none; }
+}

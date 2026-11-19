@@ -20,9 +20,9 @@
   const api=window.billiardsGuidance;
   if(nextView)setNextView(false);
   else if(api.nextShotAvailable())setNextView(true);
-  else if(!openNextWhenReady||!api.runoutStatus().pending){
+  else if(!api.runoutStatus().pending){
    openNextWhenReady=true;
-   if(!api.requestRunout(true)){openNextWhenReady=false;api.showRunoutMessage('Set up Shot 2 or aim a legal pot to predict its leave.');}
+   if(!api.requestRunout(true)&&openNextWhenReady){openNextWhenReady=false;api.showRunoutMessage('Set up Shot 2 or aim a legal pot to predict its leave.');}
   }
  });
  nextButton.id='table3DNextView';nextButton.setAttribute('aria-pressed','false');
@@ -93,7 +93,7 @@
   orderButton.setAttribute('aria-label','Shot Order: '+orderButton.dataset.shotOrder);
   for(const b of orderChoices)b.setAttribute('aria-pressed',String(b.dataset.order===mode));
   orderSelect.parentElement.hidden=mode!=='groups';if(mode==='groups')orderSelect.value=order;
-  nextButton.setAttribute('aria-busy',String(job.pending&&!!openNextWhenReady));
+  nextButton.setAttribute('aria-busy',String(job.pending));
   const ready=!job.continuation&&job.shots.length>0;
   planButton.disabled=job.pending||!!window.billiards3DBallControls?.status()?.busy;
   const text=job.pending?'Planning…':ready?'Use Plan':'Plan';
@@ -416,7 +416,7 @@
      label.material.map.needsUpdate=true;label.userData.key=key;
     }
     const rail=!!(data.railPoint&&(cameraState.playerView||lowCamera)),point=rail?data.railPoint:data.point;
-    label.visible=true;label.position.set(point.x-f.L/2,rail ? .016 : data.upright?(data.elevation||f.R*2.4):.0002,point.y-f.W/2);
+    label.visible=true;label.position.set(point.x-f.L/2,data.railCap?tablePlan.capHeight+.001:rail ? .016 : data.upright?(data.elevation||f.R*2.4):.0002,point.y-f.W/2);
     if(data.upright){
      label.quaternion.copy(camera.quaternion);
      const perPixel=2*Math.tan(camera.fov*Math.PI/360)*camera.position.distanceTo(label.position)/Math.max(1,canvas.getBoundingClientRect().height),image=label.material.map.image;
@@ -469,6 +469,29 @@
   }
   function box(w,h,d,x,y,z,material){const mesh=new T.Mesh(new T.RoundedBoxGeometry(w,h,d,2,Math.min(.014,h*.2,w*.1,d*.1)),material);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;table.add(mesh);}
   let tablePlan=null,materialMapsReady=0;
+  const railDots=new T.Mesh(new T.BufferGeometry(),new T.MeshBasicMaterial({color:0xf5efd8}));
+  scene.add(railDots);railDots.visible=false;
+  function placeRailDots(f,height){
+   const vertices=[],radius=.0021,offset=.052,segments=10;
+   function dot(x,z){
+    for(let i=0;i<segments;i++){
+     const a=-i*2*Math.PI/segments,b=-(i+1)*2*Math.PI/segments;
+     vertices.push(x,height,z,x+radius*Math.cos(a),height,z+radius*Math.sin(a),x+radius*Math.cos(b),height,z+radius*Math.sin(b));
+    }
+   }
+   function pair(units,length,across,short){
+    for(let n=1;n<units;n++){
+     if(n%10===0)continue;
+     const along=length*(n/units-.5),edge=across/2+offset;
+     if(short){dot(-edge,along);dot(edge,along);}
+     else{dot(along,-edge);dot(along,edge);}
+    }
+   }
+   pair(80,f.L,f.W,false);pair(40,f.W,f.L,true);
+   railDots.geometry.dispose();
+   railDots.geometry=new T.BufferGeometry();
+   railDots.geometry.setAttribute('position',new T.Float32BufferAttribute(vertices,3));
+  }
   function materialMap(file,srgb=false){
    const tile=document.createElement('canvas');tile.width=tile.height=1024;const paint=tile.getContext('2d');paint.fillStyle='#ffffff';paint.fillRect(0,0,1024,1024);
    const map=new T.CanvasTexture(tile);if(srgb)map.colorSpace=T.SRGBColorSpace;map.wrapS=map.wrapT=1000;map.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
@@ -568,6 +591,7 @@
    for(const child of [...table.children]){table.remove(child);child.geometry.dispose();for(const m of Array.isArray(child.material)?child.material:[child.material])if(m.userData.pocketOwned){m.map?.dispose();m.dispose();}}
    elasticKey='';const plan=tablePlan=window.BilliardsTableConstruction.plan(f),margin=plan.railWidth,w=f.L+margin*2,d=f.W+margin*2;
    pocketSpecs=plan.pockets.map(p=>({...p,probe:new T.Vector3(...p.center),shelfProbe:new T.Vector3(...p.at(p.front-.005,p.centerT)),back:new T.Vector3(...p.at(p.innerRear+plan.linerWidth*.5,p.centerT)),wood:new T.Vector3(...p.at(p.rear+.006,p.centerT))}));
+   placeRailDots(f,plan.capHeight+.001);
    const outline=polygon(plan.outer);for(const p of pocketSpecs)outline.holes.push(polygon(p.dropPath));
    const geometry=new T.ShapeGeometry(outline,32);geometry.rotateX(-Math.PI/2);const uv=geometry.attributes.uv,positions=geometry.attributes.position;
    for(let i=0;i<positions.count;i++)uv.setXY(i,(positions.getX(i)+w/2)/w,(d/2-positions.getZ(i))/d);
@@ -673,6 +697,7 @@
    const f=frame||lastFrame;if(!f)return;const rect=canvas.getBoundingClientRect();if(rect.width<1||rect.height<1)return;
    const size=rect.width+':'+rect.height;if(size!==lastSize){renderer.setSize(rect.width,rect.height);camera.aspect=rect.width/rect.height;camera.fov=2*Math.atan(viewTangent(camera.aspect))*180/Math.PI;camera.updateProjectionMatrix();lastSize=size;}
    if(dimensions!==tableKey(f))rebuild(f);
+   railDots.visible=f.showBankKickNumbers;
    if(dirty){const px=tablePlan.railWidth,pz=tablePlan.railWidth,a=f.map({x:-px,y:-pz}),b=f.map({x:f.L+px,y:f.W+pz}),ratio=source.width/source.clientWidth,w=Math.max(1,Math.round((b.x-a.x)*ratio)),h=Math.max(1,Math.round((b.y-a.y)*ratio));if(textureCanvas.width!==w||textureCanvas.height!==h){
     // WebGL texture storage is immutable. Reallocate after the tray or viewport
     // changes size so guides stay aligned and old edge pixels cannot remain.
