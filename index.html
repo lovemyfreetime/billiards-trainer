@@ -2175,8 +2175,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         return {rack,order,label:labels[order],mode};
     }
     function* simulateRunoutStroke(state,controls){
-        const temporary={...state,...controls,showShotBudget:false};
-        const generator=simulateSteps(false,null,5);
+        const temporary={...state,...controls,ghostLock:null,autoGhostLock:false,showShotBudget:false};
+        const generator=simulateSteps(false,null,5,false,true);
         let step;
         do{
             const live=S;
@@ -2189,7 +2189,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     function runoutStatus(){
         if(animation?.nextRunout?.pending)return {pending:true,background:true,shots:[]};
-        if(runoutJob&&runoutJob.source===S.preview&&(runoutJob.pending||runoutJob.shots.length)){
+        if(runoutJob&&runoutJob.source===S.preview&&(runoutJob.pending||runoutJob.shots.length||runoutJob.safety)){
             if(!animation&&runoutJob.continuation&&forecastJob?.source===S.preview&&forecastJob.pending)
                 return {...runoutJob,pending:true,background:true};
             return runoutJob;
@@ -2228,7 +2228,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         forecastTimer=setTimeout(()=>{
             if(animation||S.preview!==source||!allowBackgroundPlan(S))return;
             const saved=runoutJob?.source===source?runoutJob:null;
-            if(saved&&(saved.pending||!saved.continuation&&saved.shots.length))return;
+            if(saved&&(saved.pending||!saved.continuation&&(saved.shots.length||saved.safety)))return;
             const state={...S,balls:S.balls.map(b=>({...b})),pocketGeometry:pocketModel()};
             const predicted=predictedRunoutStart(state,source);
             if(!predicted&&isUnplayedRack(state))return;
@@ -2255,9 +2255,13 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         return true;
     }
     function scheduleRunout(start,depth,job,automatic){
-        const scan=window.BilliardsGuidance.runout(start,simulateRunoutStroke,depth,
-            (state,side,follow)=>cueSquirtAngleFor(side,follow,state.cueEndmassRatio),
-            shots=>{job.nextShots=shots;});
+        const guidance=window.BilliardsGuidance;
+        const compensate=(state,side,follow)=>cueSquirtAngleFor(side,follow,state.cueEndmassRatio);
+        const scan=(function*(){
+            const shots=yield* guidance.runout(start,simulateRunoutStroke,depth,compensate,next=>{job.nextShots=next;});
+            job.safety=yield* guidance.recommendSafety(start,shots,simulateRunoutStroke,compensate);
+            return shots;
+        })();
         const advance=()=>{
             const playing=animation?.nextRunout===job;
             const current=!animation&&job.source===S.preview&&(runoutJob===job||forecastJob===job&&allowBackgroundPlan(S));
@@ -2268,7 +2272,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if(!step.done){
                 if(job.nextShots&&current){
                     job.shots=job.nextShots;job.nextShots=null;
-                    if(job.applyWhenReady&&S.guidanceEnabled){useRunout();return;}
                     draw();
                     window.dispatchEvent(new Event('billiards:runout'));
                 }
@@ -2276,7 +2279,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             }
             job.shots=step.value;job.pending=false;
             if(playing){window.dispatchEvent(new Event('billiards:runout'));return;}
-            if((automatic||job.applyWhenReady)&&S.guidanceEnabled&&job.shots.length){useRunout();return;}
+            if(!job.safety&&(automatic||job.applyWhenReady)&&S.guidanceEnabled&&job.shots.length){useRunout();return;}
             draw();
             window.dispatchEvent(new Event('billiards:runout'));
         };
@@ -2306,6 +2309,17 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         runoutJob={source:S.preview,continuation:true,pending:false,shots:rest};
         window.dispatchEvent(new Event('billiards:runout'));
         draw();
+        return true;
+    }
+    function useSafety(){
+        const job=runoutStatus();
+        if(animation||job.continuation||!job.safety)return false;
+        const {ballId,controls,reason}=job.safety;
+        beginActionUndo();
+        Object.assign(S,controls,{ghostLock:null,autoGhostLock:false,guidancePlan:null});
+        guidancePending=false;
+        refreshPreview();updateUI();saveState();finishActionUndo();
+        toast('Safety on ball '+ballId+' · '+reason);
         return true;
     }
     function plannedNextShot(){
@@ -2349,7 +2363,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     window.billiardsGuidance={
         replan(){if(animation)return false;guidancePending=true;S.guidanceScratch=false;S.angleLock=false;refreshPreview();updateUI();saveState();return true;},
         status(){return {enabled:!!S.guidanceEnabled,plan:S.guidancePlan,scratch:!!S.guidanceScratch};},
-        rackAnalysis,requestRunout,runoutStatus,useRunout,showRunoutMessage(message){toast(message);},
+        rackAnalysis,requestRunout,runoutStatus,useRunout,useSafety,showRunoutMessage(message){toast(message);},
         setShotOrder(mode,group){
             if(animation||!['order','groups','any'].includes(mode))return false;
             S.guidanceMode=mode;
@@ -5576,7 +5590,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         do{step=simulation.next();}while(!step.done);
         return step.value;
     }
-    function* simulateSteps(makeFrames = false, search = null, cooperative = false, trace = false) {
+    function* simulateSteps(makeFrames = false, search = null, cooperative = false, trace = false, collectContacts = false) {
         const B = cloneBallsForPhysics();
         const cb = B.find(b => b.id === 0);
         if (!cb)
@@ -5618,7 +5632,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         let simTime = 0;
         const pocketEvents = [];
         const railEvents = [];
-        const collisionEvents = trace ? [] : null, jawEvents = trace ? [] : null;
+        const collisionEvents = trace||collectContacts ? [] : null, jawEvents = trace ? [] : null;
         const landings = [], clearanceMap = new Map();
         let takeoff = null;
         const lastColl = new Map(), Icoef = 2 / 5; // I = 2/5 mR² for a solid sphere
@@ -6062,7 +6076,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if (budget) for (const b of B) if (b.active) budget.record(b, 'end', simTime);
         return { settled, cueImpact:{elevation:shotElevation,follow:shotFollow,side:shotSide,contact:cueSetup?window.BilliardsCueClearance.contact(cueSetup):null},searchClosest, paths, frames, firstEvent, firstBallContact, pocketEvents, railEvents,
             ...(makeFrames&&training?{cueOrientation}:{}),
-            ...(trace ? {collisionEvents,jawEvents,endTime:simTime,
+            ...(collisionEvents ? {collisionEvents} : {}),
+            ...(trace ? {jawEvents,endTime:simTime,
                 restIds:B.filter(b=>b.active&&b.z<=R+1e-7&&Math.hypot(b.vx,b.vy)<=.002&&Math.abs(b.vz)<=.002
                     &&Math.abs(b.wz)<=.05&&R*Math.hypot(b.wx,b.wy)<=.002).map(b=>b.id)} : {}),
             budgetPaths: budget?.paths, budgetContacts: budget?.contacts, initialEnergy: budget?.initial, strokeFeel: budget?.strokeFeel,
@@ -10558,7 +10573,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             }else if(backgroundMatches){
                 Object.assign(nextRunout,{source:S.preview,continuation:false,applyWhenReady:autoApply});runoutJob=nextRunout;
                 if((nextRunout.nextShots?.length||0)>nextRunout.shots.length)nextRunout.shots=nextRunout.nextShots;
-                if(autoApply&&nextRunout.shots.length)useRunout();
+                if(autoApply&&!nextRunout.pending&&!nextRunout.safety&&nextRunout.shots.length)useRunout();
                 else window.dispatchEvent(new Event('billiards:runout'));
             }else if(remainingObjectBalls<=6)requestRunout(false,true);
         }

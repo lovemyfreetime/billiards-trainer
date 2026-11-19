@@ -24,3 +24,35 @@ const preview={settled:true,firstBallContact:{objId:1},pocketEvents:[{id:1}],fin
 assert(g.afterShot(state,preview,1));
 assert.equal(g.afterShot(state,{...preview,finalBalls:preview.finalBalls.filter(b=>b.id!==2)},1),null);
 assert.equal(g.afterShot(state,{...preview,firstBallContact:{objId:2},pocketEvents:[{id:2}]},2),null);
+
+const defense={...state,setupMode:'8ball',guidanceMode:'any',guidanceGroups:{1:'stripes',2:'solids'},speed:1.25,follow:0,sideSpin:0,
+ balls:[{id:0,x:.55,y:.67},{id:1,x:1.73,y:.65},{id:8,x:1.25,y:.65},{id:9,x:.97,y:.50}]};
+const protective={settled:true,firstBallContact:{objId:9,t:.6},pocketEvents:[],
+ railEvents:[{id:9,t:1,rail:'top rail'}],
+ finalBalls:defense.balls.map(b=>({...b,active:true}))};
+const drain=iterator=>{let step;do{step=iterator.next();}while(!step.done);return step.value;};
+const mock=outcome=>function*(){return outcome;};
+const safe=drain(g.recommendSafety(defense,[],mock(protective)));
+assert.equal(safe.ballId,9,'eight-ball defense obeys the suit even with Any Ball selected');
+assert.deepEqual(safe.leave.targets,[1],'picks the opposite suit for the opponent');
+assert.equal(safe.passed,5);
+assert.equal(drain(g.recommendSafety(defense,[],mock({...protective,firstBallContact:{objId:1,t:.6}}))),null,'wrong first ball');
+assert.equal(drain(g.recommendSafety(defense,[],mock({...protective,railEvents:[]}))),null,'must drive a ball to a rail');
+assert.equal(drain(g.recommendSafety(defense,[],mock({...protective,pocketEvents:[{id:0}]}))),null,'must avoid a scratch');
+assert.equal(drain(g.recommendSafety(defense,[{ballId:9,probability:.8},{ballId:8,probability:.7}],mock(protective))),null,'a strong verified finish wins over safety');
+console.log('Eight-ball safety eligibility, full-route priority and checks for fouls and scratch passed.');
+
+const cluster={...state,speed:1,follow:0,sideSpin:0,planSpeed:false,planFollow:false,planSpin:false,
+ balls:[{id:0,x:.72,y:.62},{id:1,x:1.12,y:.62},{id:2,x:1.18,y:.62},{id:3,x:1.24,y:.62}]};
+const contactTrial={
+ settled:true,firstBallContact:{objId:1,t:.1,objPos:cluster.balls[1]},pocketEvents:[{id:1,pocket:'TM'}],railEvents:[],
+ paths:{0:[cluster.balls[0],cluster.balls[0]]},collisionEvents:[{ids:[0,3],t:.2}]
+};
+const survivors=cluster.balls.filter(b=>b.id!==1).map(b=>({...b,active:true}));
+const opened=survivors.map(b=>b.id===3?{...b,x:1.65,y:.66}:b);
+const [breakout]=drain(g.runout(cluster,mock({...contactTrial,finalBalls:opened}),1));
+assert.equal(breakout.contact.kind,'Breakout');
+assert.deepEqual(breakout.contact.balls,[2,3]);
+const [incidental]=drain(g.runout(cluster,mock({...contactTrial,finalBalls:survivors}),1));
+assert.equal(incidental.contact.kind,'Extra contact','touching a cluster without opening it earns no breakout credit');
+console.log('Runout contact scoring distinguishes an opened cluster from incidental contact.');

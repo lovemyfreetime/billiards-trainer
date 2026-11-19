@@ -72,6 +72,7 @@
  let askedForPlan=false;
  const planButton=action('Plan','Plan a runout',()=>{
   const api=window.billiardsGuidance,job=api.runoutStatus();
+  if(job.safety&&!job.continuation){api.useSafety();return;}
   if(job.shots.length&&!job.continuation){api.useRunout();return;}
   askedForPlan=true;
   if(!api.requestRunout()){askedForPlan=false;api.showRunoutMessage('Plan after the break, with the cue ball on the table and the bank/kick tool closed.');}
@@ -104,19 +105,23 @@
   orderSelect.parentElement.hidden=mode!=='groups';if(mode==='groups')orderSelect.value=order;
   nextButton.setAttribute('aria-busy',String(job.pending));
   const ready=!job.continuation&&job.shots.length>0;
-  planButton.disabled=job.pending&&!ready||!!window.billiards3DBallControls?.status()?.busy;
-  const text=ready?'Use Plan':job.pending?'Planning…':'Plan';
+  const safety=!job.continuation&&job.safety;
+  planButton.disabled=job.pending&&!ready&&!safety||!!window.billiards3DBallControls?.status()?.busy;
+  const text=safety?'Use Safety':ready?'Use Plan':job.pending?'Planning…':'Plan';
   const visible=api.planVisible(),visibilityLabel=visible?'Hide':'Show';
   if(planVisibility.textContent!==visibilityLabel)planVisibility.textContent=visibilityLabel;
   planVisibility.setAttribute('aria-pressed',String(visible));
   if(planButton.textContent!==text)planButton.textContent=text;
   planButton.setAttribute('aria-busy',String(job.pending));planButton.dataset.ready=String(ready);
-  const count=job.shots.length,route=job.shots.map(s=>s.ballId+' → '+s.pocket+(s.leaveSide?' (leave '+s.leaveSide+')':'')).join(' · ');
-  const message=count?count+(count===1?' shot':' shots')+(job.pending?' ready · Analyzing further · ':' found · ')+route:
+  planButton.dataset.safety=String(!!safety);
+  const count=job.shots.length,route=job.shots.map(s=>s.ballId+' → '+s.pocket+(s.leaveSide?' (leave '+s.leaveSide+')':'')+
+   (s.contact?.kind?' · '+s.contact.kind+' '+s.contact.balls.join(', '):'')).join(' · ');
+  const message=safety?'Safety favored on ball '+safety.ballId+' · '+safety.reason+' · Held in '+safety.passed+'/5 simulations':
+   count?count+(count===1?' shot':' shots')+(job.pending?' ready · Analyzing further · ':' found · ')+route:
    job.pending?(job.background?'Analyzing in the background…':'Analyzing…'):job.source&&!job.continuation?'No direct route found.':'';
   if(orderStatus.textContent!==message)orderStatus.textContent=message;
   planButton.title=message||'Plan a runout';
-  planButton.setAttribute('aria-label',ready?'Apply planned Shot 1':job.pending?'Planning runout':'Plan a runout');
+  planButton.setAttribute('aria-label',safety?'Apply recommended safety on ball '+safety.ballId:ready?'Apply planned Shot 1':job.pending?'Planning runout':'Plan a runout');
  }
  function closePopovers(){
   for(const [popover,anchor] of [[tray,trayToggle],[rackMenu,rackToggle],[orderMenu,orderButton]]){
