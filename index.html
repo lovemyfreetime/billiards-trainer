@@ -1934,6 +1934,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
           <div class="check"><input id="showAngleLockControl" type="checkbox"><label for="showAngleLockControl">Cue-ball target lock control (Free / Sticky)</label></div>
           <div class="check"><input id="showImpact" type="checkbox" checked><label for="showImpact">Ghost Ball + physical overlap band</label></div>
           <div class="check"><input id="showFullGhostBall" type="checkbox"><label for="showFullGhostBall" title="Faint 3D cue ball at the predicted contact position">Full Ghost Ball</label></div>
+          <div class="check"><input id="showPocketGhost" type="checkbox" checked><label for="showPocketGhost">Yellow pocket-entry ghost ball</label></div>
+          <div class="check"><input id="showPocketGlow" type="checkbox" checked><label for="showPocketGlow">Pocket alignment brightness</label></div>
           <div class="check"><input id="showRestingCueBall" type="checkbox"><label for="showRestingCueBall" title="Faint 3D cue ball at its predicted resting position">Resting Cue Ball</label></div>
           <div class="check"><input id="showTipBadge" type="checkbox"><label for="showTipBadge">Cue-tip contact badge near cue ball</label></div>
           <div class="check"><input id="showCueStick" type="checkbox" checked><label for="showCueStick">Cue stick</label></div>
@@ -1947,10 +1949,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
           <label id="guidanceGroupRow" hidden>8-ball group <select id="guidanceGroup"><option value="open">Open table</option><option value="solids">Solids</option><option value="stripes">Stripes</option></select></label>
           <div class="check"><input id="showPocketChances" type="checkbox" checked><label for="showPocketChances">Estimated shot chances near pockets and route targets</label></div>
           <details><summary>How chance estimates work</summary>
-            <p class="hint">Each percentage estimates pocketing the selected ball, or contacting it on a kick, under the same reference accuracy. Green marks the best direct pocket; it can still be difficult. Alternatives are separate shots, so percentages do not add to 100.</p>
+            <p class="hint">Each percentage estimates pocketing the selected ball, or contacting it on a kick, under the same reference accuracy. Green marks the best estimated pocket option; it can still be difficult. Tap a pocket label for Direct, Bank and Kick alternatives. Alternatives are separate shots, so percentages do not add to 100.</p>
             <label>Aim variation (degrees, standard deviation) <input id="guidanceAimError" type="number" min=".03" max="2" step=".01" value=".15"></label>
             <label>Rebound variation per rail (degrees) <input id="guidanceRailError" type="number" min=".05" max="3" step=".05" value=".35"></label>
-            <p class="hint">Reference estimates use angular accuracy, ball collision geometry and the pocket opening. Rail routes add rebound variation and use the verified calculated stroke. These values have not been calibrated to your real-table results. Direct comparisons assume sufficient pocketing pace and compensated throw; they do not estimate position-play or scratch avoidance. Hidden or unsupported routes show a dash instead of invented odds.</p>
+            <p class="hint">Reference estimates use angular accuracy, ball collision geometry and the pocket opening. Bank and kick alternatives screen up to four rails using ideal rebound geometry. Check a selected route with Calculate before applying its full-physics setup. A current verified route uses its calculated stroke. These values have not been calibrated to your real-table results. Direct comparisons assume sufficient pocketing pace and compensated throw; they do not estimate position-play or scratch avoidance. Hidden or unsupported routes show a dash instead of invented odds.</p>
           </details>
           <output id="shotGuidanceStatus" class="hint" aria-live="polite"></output>
           <p class="hint">Offers aim only. You control speed and spin. Your manual Shot 2 plan always wins.</p>
@@ -2138,6 +2140,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 <script src="./trainer-pocket-entry.js?v=1"></script>
 <script src="./trainer-aim-zones.js?v=8"></script>
 <script src="./trainer-shot-chance.js?v=1"></script>
+<script src="./trainer-pocket-feedback.js?v=1"></script>
+<script src="./trainer-route-options.js?v=1"></script>
 <script src="./trainer-guidance.js?v=1"></script>
 <script>
 // AI Camera Edition wrapper: v4.12 trainer, app-mode launch package. v4 adds scoreboard placement/default-off + local analysis-photo recall.
@@ -2168,6 +2172,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const toggle=$('shotGuidance');if(!toggle)return;
         toggle.checked=!!S.guidanceEnabled;
         $('showPocketChances').checked=S.showPocketChances!==false;
+        $('showPocketGhost').checked=S.showPocketGhost!==false;$('showPocketGlow').checked=S.showPocketGlow!==false;
         $('guidanceAimError').value=S.guidanceAimErrorDeg||.15;
         $('guidanceRailError').value=S.guidanceRailErrorDeg||.35;
         $('guidanceOrderRow').hidden=!S.guidanceEnabled||S.setupMode==='8ball';
@@ -2182,6 +2187,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         replan(){if(animation)return false;guidancePending=true;S.guidanceScratch=false;S.angleLock=false;refreshPreview();updateUI();saveState();return true;},
         status(){return {enabled:!!S.guidanceEnabled,plan:S.guidancePlan,scratch:!!S.guidanceScratch};},
         chances(){return shotChanceMarkers();},
+        openPocket,
+        comparisonStatus(){return {pending:routeComparison.pending,tested:routeComparison.result?.tested||0,maxSliceMs:routeComparison.maxSliceMs||0};},
+        pocketFeedback(){return currentPocketFeedback();},
         aimHandles(){if(S.showShotLine===false)return [];return [cueVisualsVisible(1)&&{point:S.freeAim,shot:1},S.shot2Enabled&&shotGuidesVisible(2)&&{point:S.shot2.freeAim,shot:2}].filter(Boolean).sort((a,b)=>(b.shot===S.activeShot)-(a.shot===S.activeShot));}
     };
     const tableExchange=window.BilliardsTableExchange.create(localStorage,window.BilliardsLayoutFiles);
@@ -2270,7 +2278,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const initialAim={x:88*inch*.75,y:44*inch*.5};
         return {
             tableL: 88 * inch, tableW: 44 * inch, ballR: 2.25 * inch / 2,
-            balls: [], annotations: null, trainingBallStyle: 'current', shotPlaybackSpeed: 1, guidanceEnabled: true, guidanceOrder: 'auto', showPocketChances: true, guidanceAimErrorDeg: .15, guidanceRailErrorDeg: .35, guidanceGroups: {}, guidancePlan: null, guidanceBreak: false, guidanceScratch: false,
+            balls: [], annotations: null, trainingBallStyle: 'current', shotPlaybackSpeed: 1, guidanceEnabled: true, guidanceOrder: 'auto', showPocketChances: true, showPocketGlow: true, showPocketGhost: true, guidanceAimErrorDeg: .15, guidanceRailErrorDeg: .35, guidanceGroups: {}, guidancePlan: null, guidanceBreak: false, guidanceScratch: false,
             nextId: 1, markerSeq: 1000, freeAim: initialAim, angleLock: false, speed: 1.50, follow: 0, sideSpin: 0, cueElevationDeg: PHYSICS_MODEL.defaultCueElevationDeg,
             shot2Enabled: false, activeShot: 1, shot2Initialized: false,
             showShot1: true,
@@ -2467,13 +2475,19 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         return e;
     }
     function returnPocketBall(id,q=null){
-        if(id<((document.body.classList.contains('zen-mode')||document.body.classList.contains('trainer-workspace')||globalThis.Billiards3D?.active)?0:1)||id>15||S.balls.some(b=>b.id===id))return;
-        if(!q){for(let y=1;y<10&&!q;y++)for(let x=1;x<18;x++){const p={x:S.tableL*x/18,y:S.tableW*y/10};if(S.balls.every(b=>b.marker||Math.hypot(b.x-p.x,b.y-p.y)>S.ballR*2.2)){q=p;break;}}}
+        const existing=S.balls.find(b=>b.id===id);
+        if(animation||id<((document.body.classList.contains('zen-mode')||document.body.classList.contains('trainer-workspace')||globalThis.Billiards3D?.active)?0:1)||id>15||existing&&id!==0&&existing.active!==false)return;
+        if(existing?.active!==false&&!q&&id===0&&existing)return;
+        const others=S.balls.filter(b=>b!==existing&&b.active!==false&&!b.marker);
+        if(!q){for(let y=1;y<10&&!q;y++)for(let x=1;x<18;x++){const p={x:S.tableL*x/18,y:S.tableW*y/10};if(others.every(b=>Math.hypot(b.x-p.x,b.y-p.y)>S.ballR*2.2)){q=p;break;}}}
         if(q&&onPlayingSurface(q))q=keepCueOnTable(q);
-        if(!q||!onPlayingSurface(q)||S.balls.some(b=>!b.marker&&Math.hypot(b.x-q.x,b.y-q.y)<S.ballR*2)){toast('Drop on clear table cloth to return the ball');return;}
+        if(!q||!onPlayingSurface(q)||others.some(b=>Math.hypot(b.x-q.x,b.y-q.y)<S.ballR*2)){toast('Drop on clear table cloth to return the ball');return;}
         if(globalThis.Billiards3D?.active||document.body.classList.contains('trainer-workspace'))beginActionUndo();
-        S.balls.push({id,n:String(id),x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR),active:true});S.pocketedLog=(S.pocketedLog||[]).filter(n=>n!==id);
-        normalizeBallSet();updateUI();refreshPreview();saveState();syncProjector();toast(id===0?'Cue ball returned to play':'Ball '+id+' returned to play');
+        if(existing){if(id===0&&S.angleLock){S.freeAim={x:S.freeAim.x+q.x-existing.x,y:S.freeAim.y+q.y-existing.y};}Object.assign(existing,{x:q.x,y:q.y,active:true});}
+        else S.balls.push({id,n:id===0?'CB':String(id),x:q.x,y:q.y,active:true});
+        S.pocketedLog=(S.pocketedLog||[]).filter(n=>n!==id);
+        if(id===0){S.allowMissingCueBall=false;S.guidanceScratch=false;guidancePending=true;}
+        normalizeBallSet();updateUI();refreshPreview();saveState();syncProjector();toast(id===0?'Cue ball ready':'Ball '+id+' returned to play');
     }
     function installPocketBallReturn(e,id){
         e.setAttribute('role','button');e.tabIndex=0;e.setAttribute('aria-label','Return ball '+id+' to table');e.title='Drag Ball '+id+' onto clear table cloth, or click to return';e.style.touchAction='none';e.style.cursor='grab';
@@ -8169,7 +8183,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     function ghostBallsFor3D(){
         const which=S.activeShot===2&&S.shot2Enabled?2:1;
-        if(animation||!S.showTable||!shotGuidesVisible(which)||(!S.showFullGhostBall&&!S.showRestingCueBall))return [];
+        if(animation||!S.showTable||!shotGuidesVisible(which)||(!S.showFullGhostBall&&!S.showRestingCueBall&&S.showPocketGhost===false))return [];
         const preview=which===2?ensureShot2().preview:S.preview,ghosts=[];
         const add=(kind,point,height)=>{
             if(point&&Number.isFinite(point.x)&&Number.isFinite(point.y)&&point.x>=0&&point.x<=S.tableL&&point.y>=0&&point.y<=S.tableW)
@@ -8178,6 +8192,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if(S.showFullGhostBall)add('contact',preview?.firstBallContact?.cuePos,preview?.firstBallContact?.cueHeight);
         const rest=preview?.finalBalls?.find(ball=>ball.id===0&&ball.active);
         if(S.showRestingCueBall)add('rest',rest,rest?.z);
+        if(S.showPocketGhost!==false)for(const f of currentPocketFeedback())if(f.entry)ghosts.push({kind:'pocket',shot:which,x:f.entry.x,y:f.entry.y,z:S.ballR*1.15,pocket:f.name});
         return ghosts;
     }
     function rollingReferenceForShot(which=1){
@@ -8427,30 +8442,91 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             },true);
         });
     }
+    let routeComparison={key:null,pending:false,result:null,epoch:0,maxSliceMs:0},routeTimer=0,routePanelPocket=null;
+    const pocketPanel=document.createElement('section');pocketPanel.id='pocketRouteDetails';pocketPanel.hidden=true;pocketPanel.setAttribute('aria-label','Pocket route options');stage.append(pocketPanel);
+    let pocketChanceHits=[];
+    function chanceState(){const second=S.activeShot===2&&S.shot2Enabled,shot=second?ensureShot2():S;return {...S,...(second?shot:{}),pocketGeometry:pocketModel(),balls:second?S.balls.map(b=>b.id===0?{...b,x:shot.x,y:shot.y}:b):S.balls};}
+    function comparisonKey(state,id){return JSON.stringify([id,state.tableL,state.tableW,state.ballR,state.guidanceAimErrorDeg,state.guidanceRailErrorDeg,state.balls.map(b=>[b.id,b.x,b.y,b.active,b.marker])]);}
+    function cancelRouteComparison(){clearTimeout(routeTimer);routeComparison={...routeComparison,key:null,pending:false,result:null,epoch:routeComparison.epoch+1};}
+    function comparisonFor(state,id){
+        const key=comparisonKey(state,id);if(routeComparison.key===key)return routeComparison.result;
+        clearTimeout(routeTimer);const epoch=routeComparison.epoch+1;
+        routeComparison={key,epoch,pending:true,result:null,maxSliceMs:0};
+        const snapshot={tableL:state.tableL,tableW:state.tableW,ballR:state.ballR,pocketGeometry:state.pocketGeometry,guidanceAimErrorDeg:state.guidanceAimErrorDeg,guidanceRailErrorDeg:state.guidanceRailErrorDeg,balls:state.balls.map(b=>({id:b.id,x:b.x,y:b.y,active:b.active,marker:b.marker}))};
+        const generator=window.BilliardsRouteOptions.compare(snapshot,id,4);
+        const work=()=>{if(routeComparison.epoch!==epoch)return;const start=performance.now();let step;
+            do{step=generator.next();}while(!step.done&&performance.now()-start<5);
+            routeComparison.maxSliceMs=Math.max(routeComparison.maxSliceMs,performance.now()-start);
+            if(step.done){routeComparison.result=step.value;routeComparison.pending=false;draw();if(routePanelPocket)renderPocketPanel();}
+            else routeTimer=setTimeout(work,0);
+        };routeTimer=setTimeout(work,90);return null;
+    }
+    function activeChanceTarget(state){const plan=S.guidancePlan;if(!(S.activeShot===2&&S.shot2Enabled)&&S.guidanceEnabled&&plan?.ballId&&['blocked','contact'].includes(plan.kind))return plan.ballId;return state.preview?.firstBallContact?.objId??plan?.ballId;}
+    function currentPocketFeedback(){
+        if(animation||isZenPage||isProjector||!S.showTable)return [];
+        const state=chanceState(),id=activeChanceTarget(state);if(!Number.isInteger(id)||id<=0||!shotGuidesVisible(S.activeShot===2&&S.shot2Enabled?2:1))return [];
+        return window.BilliardsPocketFeedback.analyze(state,state.preview,id);
+    }
+    function currentRailChance(state,id){
+        const preview=state.preview,event=preview?.pocketEvents?.find(e=>e.id===id),contact=preview?.firstBallContact;if(!event||!contact||contact.objId!==id)return null;
+        const bankHits=(preview.railEvents||[]).filter(e=>e.id===id&&e.t>contact.t&&e.t<event.t),kickHits=(preview.railEvents||[]).filter(e=>e.id===0&&e.t<contact.t),hits=bankHits.length?bankHits:kickHits;
+        if(!hits.length)return null;
+        if(bankHits.length&&kickHits.length)return null;
+        const bank=!!bankHits.length,sol={mode:bank?'bank':'kick',fullShot:true,reached:true,scratch:preview.pocketEvents.some(e=>e.id===0),ballId:id,target:event,bounces:hits.map(e=>({x:e.x,y:e.y,rail:{name:e.rail.replace(' rail','')}})),points:bank?preview.paths[id]:(preview.paths[0]||[]).filter(p=>p.t<=contact.t),objectPath:bank?null:preview.paths[id],shotSide:state.sideSpin};
+        const chance=window.BilliardsShotChance.route(state,sol);if(!chance)return null;
+        const pocket=window.BilliardsShotChance.pockets(state).reduce((a,b)=>Math.hypot(a.x-event.x,a.y-event.y)<Math.hypot(b.x-event.x,b.y-event.y)?a:b);
+        return {...chance,type:bank?'Bank':'Kick',pocket:pocket.name,verification:'physics'};
+    }
     function shotChanceMarkers(){
         if(S.showPocketChances===false||animation||isZenPage||isProjector||!S.showTable)return [];
-        const second=S.activeShot===2&&S.shot2Enabled,shot=second?ensureShot2():S;
-        if(!shotGuidesVisible(second?2:1))return [];
-        const state={...S,...(second?shot:{}),pocketGeometry:pocketModel(),balls:second?S.balls.map(b=>b.id===0?{...b,x:shot.x,y:shot.y}:b):S.balls};
-        if(S.bankKick?.mode){
-            const t=bankKickState(),sol=computeBankKickSolution();if(!sol)return [];
-            const chance=window.BilliardsShotChance.route(state,sol);if(!chance)return [];
-            return [{...chance,id:'route-chance',text:chance.outcome+' '+window.BilliardsShotChance.text(chance.probability),color:window.BilliardsShotChance.color(chance.probability,chance.probability>=.65)}];
-        }
+        const second=S.activeShot===2&&S.shot2Enabled;if(!shotGuidesVisible(second?2:1))return [];
+        const state=chanceState();
+        if(S.bankKick?.mode){const sol=computeBankKickSolution();if(!sol)return [];const chance=window.BilliardsShotChance.route(state,sol);if(!chance)return [];return [{...chance,id:'route-chance',text:chance.outcome+' '+window.BilliardsShotChance.text(chance.probability),color:window.BilliardsShotChance.color(chance.probability,chance.probability>=.65)}];}
         if(S.guidanceBreak||S.guidanceScratch)return [];
-        const target=shot.preview?.firstBallContact?.objId??S.guidancePlan?.ballId;
-        if(!Number.isInteger(target)||target<=0)return [];
-        const choices=window.BilliardsShotChance.options(state,target),possible=choices.filter(c=>c.probability!==null).slice().sort((a,b)=>b.probability-a.probability||a.pocket.localeCompare(b.pocket));
-        return choices.map((c,i)=>{const best=c===possible[0];return {...c,id:'pocket-chance-'+i,best,text:c.probability===null?(c.reason==='Blocked'?'Blocked':'—'):(best?'Best ':'')+window.BilliardsShotChance.text(c.probability),color:window.BilliardsShotChance.color(c.probability,best)};});
+        const id=activeChanceTarget(state);if(!Number.isInteger(id)||id<=0)return [];
+        const result=comparisonFor(state,id),raw=window.BilliardsShotChance.options(state,id),current=currentRailChance(state,id);
+        const groups=result?.groups||raw.map(d=>({pocket:d.pocket,point:d.point,direct:d.probability===null?[]:[{...d,type:'Direct'}],bank:[],kick:[]}));
+        const choices=groups.map((g,i)=>{const possible=[...g.direct,...g.bank,...g.kick,...(current?.pocket===g.pocket?[current]:[])].sort((a,b)=>b.probability-a.probability);return {...g,id:'pocket-chance-'+i,...possible[0],pocket:g.pocket,point:g.point,probability:possible[0]?.probability??null,reason:raw[i].reason};});
+        const best=choices.filter(c=>c.probability!==null).sort((a,b)=>b.probability-a.probability||a.pocket.localeCompare(b.pocket))[0];
+        return choices.map(c=>({...c,best:c===best,text:c.probability===null?'—':(c===best?'Best · ':'')+(c.type||'Direct')+' '+window.BilliardsShotChance.text(c.probability),color:window.BilliardsShotChance.color(c.probability,c===best)}));
     }
+    function openPocket(name){routePanelPocket=name;pocketPanel.hidden=false;renderPocketPanel();}
+    function closePocketPanel(){routePanelPocket=null;pocketPanel.hidden=true;}
+    function renderPocketPanel(){
+        if(!routePanelPocket)return;const state=chanceState(),id=activeChanceTarget(state);if(!id){closePocketPanel();return;}
+        const result=comparisonFor(state,id),group=result?.groups.find(g=>g.pocket===routePanelPocket),key=comparisonKey(state,id);pocketPanel.replaceChildren();
+        const close=document.createElement('button');close.textContent='×';close.className='pocketDetailsClose';close.setAttribute('aria-label','Close pocket options');close.onclick=closePocketPanel;
+        const title=document.createElement('strong');title.textContent='Ball '+id+' · '+routePanelPocket;pocketPanel.append(close,title);
+        const note=document.createElement('p');note.textContent=routeComparison.pending?'Comparing routes…':'Estimated options · up to four rails';pocketPanel.append(note);
+        const current=currentRailChance(state,id);if(current?.pocket===routePanelPocket){const live=document.createElement('p');live.textContent='Current shot · '+current.type+' '+window.BilliardsShotChance.text(current.probability)+' · predicted pocket';pocketPanel.append(live);}
+        const row=(label,candidate,container=pocketPanel)=>{const item=document.createElement('div'),text=document.createElement('span'),button=document.createElement('button');item.className='pocketRouteRow';item.dataset.routeType=label;text.textContent=label+(candidate?.rails?.length?' · '+candidate.rails.length+' rail'+(candidate.rails.length>1?'s':''):'')+' '+(candidate?window.BilliardsShotChance.text(candidate.probability):'—');button.textContent=label==='Direct'?'Use aim':'Check route';button.disabled=!candidate;
+            button.onclick=()=>{if(key!==comparisonKey(chanceState(),activeChanceTarget(chanceState()))){renderPocketPanel();return;}closePocketPanel();if(label==='Direct'){beginActionUndo();clearBankKickTool();const shot=S.activeShot===2&&S.shot2Enabled?ensureShot2():S;shot.freeAim={...candidate.aim};shot.angleLock=false;shot.autoGhostLock=false;shot.ghostLock=null;S.guidancePlan=null;updateUI();refreshPreview();saveState();finishActionUndo();return;}
+                const contact=label==='Kick contact',index=window.BilliardsShotChance.pockets(state).findIndex(p=>p.name===candidate.pocket),coords=[[0,0],[S.tableL/2,0],[S.tableL,0],[0,S.tableW],[S.tableL/2,S.tableW],[S.tableL,S.tableW]],ball=S.balls.find(b=>b.id===id);
+                invalidateBankKickRoute();S.bankKick={...defaultState().bankKick,mode:label==='Bank'?'bank':'kick',phase:null,zero:contact?{x:ball.x,y:ball.y}:{x:coords[index][0],y:coords[index][1]},rails:[...candidate.rails],railName:candidate.rails[0],ballId:id,routeVersion:2,requested:false};window.Billiards3D?.arrangeBalls(false);syncBankKickControls();draw();requestBankKickCalculation();
+            };item.append(text,button);container.append(item);};
+        const direct=group?.direct[0]||window.BilliardsShotChance.options(state,id).find(d=>d.pocket===routePanelPocket&&d.probability!==null);row('Direct',direct);row('Bank',group?.bank[0]);row('Kick',group?.kick[0]);
+        if(group&&(group.bank.length>1||group.kick.length>1)){const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Other rail paths';details.append(summary);for(const c of group.bank.slice(1))row('Bank',c,details);for(const c of group.kick.slice(1))row('Kick',c,details);pocketPanel.append(details);}
+        if(result?.contact[0]){const heading=document.createElement('p');heading.textContent='Contact only · separate from pocketing';pocketPanel.append(heading);row('Kick contact',result.contact[0]);}
+        const hint=document.createElement('p');hint.textContent='Reference-accuracy estimates. Check route verifies the full shot; Use setup applies it. Automatic next-ball aim stays direct until you choose a rail route.';pocketPanel.append(hint);
+    }
+    canvas.addEventListener('pointerdown',event=>{if(window.Billiards3D?.active||animation)return;const hit=pocketChanceHits.find(h=>event.clientX>=h.left&&event.clientX<=h.right&&event.clientY>=h.top&&event.clientY<=h.bottom);if(hit){event.preventDefault();event.stopImmediatePropagation();openPocket(hit.pocket);}},true);
+    $('animate').addEventListener('click',()=>{closePocketPanel();cancelRouteComparison();},true);
     function drawShotChances(map){
+        pocketChanceHits=[];
         for(const marker of shotChanceMarkers()){
             const pad=S.ballR*3,point={x:clamp(marker.point.x,pad,S.tableL-pad),y:clamp(marker.point.y,pad,S.tableW-pad)};
             if(marker.id==='route-chance'){point.x=clamp(point.x+pad,pad,S.tableL-pad);point.y=clamp(point.y+pad,pad,S.tableW-pad);}
-            const q=map(point),scale=mapper().scale,size=11,width=marker.text.length*6.5,height=15;
-            if(window.Billiards3D?.active){cameraLabels.push({id:marker.id,point,rows:[marker.text],size,rowGap:0,weight:'700',stroke:true,color:marker.color,width:width/scale,height:height/scale,unitsPerPixel:1/scale,opacity:.95});continue;}
-            ctx.save();ctx.font='700 '+size+'px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';
-            ctx.fillStyle='#0b1926dd';ctx.fillRect(q.x-width/2-3,q.y-height/2,width+6,height);ctx.fillStyle=marker.color;ctx.fillText(marker.text,q.x,q.y);ctx.restore();
+            const q=map(point),scale=mapper().scale,size=11,width=marker.text.length*6.5,height=20;
+            if(window.Billiards3D?.active){const p=window.BilliardsShotChance.pockets(chanceState()).find(p=>p.name===marker.pocket),anchor=p?{x:p.x+p.nx*.075,y:p.y+p.ny*.075}:point;cameraLabels.push({id:marker.id,pocketName:marker.pocket,point:anchor,rows:[marker.text],size,rowGap:0,weight:'700',stroke:true,color:marker.color,width:width/scale,height:height/scale,unitsPerPixel:1/scale,opacity:.98,upright:true,elevation:S.ballR*2.4});continue;}
+            ctx.save();ctx.font='700 '+size+'px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#0b1926ee';ctx.fillRect(q.x-width/2-3,q.y-height/2,width+6,height);ctx.fillStyle=marker.color;ctx.fillText(marker.text,q.x,q.y);ctx.restore();
+            if(marker.pocket){const v=window.BilliardsTableZoom?.mapPoint(q)||q,r=canvas.getBoundingClientRect(),sx=r.width/(canvas.width/DPR),sy=r.height/(canvas.height/DPR);pocketChanceHits.push({pocket:marker.pocket,left:r.left+(v.x-width/2-3)*sx,right:r.left+(v.x+width/2+3)*sx,top:r.top+(v.y-height/2)*sy,bottom:r.top+(v.y+height/2)*sy});}
+        }
+    }
+    function drawPocketFeedback(map){
+        if(window.Billiards3D?.active)return;
+        for(const f of currentPocketFeedback()){const p=map(f.center),r=S.ballR*mapper().scale;
+            if(S.showPocketGlow!==false&&f.strength){ctx.save();ctx.strokeStyle='rgba(181,255,222,'+(.15+.7*f.strength)+')';ctx.shadowColor='#b5ffde';ctx.shadowBlur=5+10*f.strength;ctx.lineWidth=2+f.strength*2;ctx.beginPath();ctx.arc(p.x,p.y,r*1.4,0,Math.PI*2);ctx.stroke();ctx.restore();}
+            if(S.showPocketGhost!==false&&f.entry){const q=map(f.entry);ctx.save();ctx.fillStyle='#ffdb5540';ctx.strokeStyle='#ffe27baa';ctx.lineWidth=1;ctx.beginPath();ctx.arc(q.x,q.y,r,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(q.x,q.y-r*.8);ctx.lineTo(q.x,q.y+r*.8);ctx.stroke();ctx.restore();}
         }
     }
     let cameraLabels = [];
@@ -8523,7 +8599,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if (cueVisualsVisible(1) && !document.body.classList.contains('zen-mode')) drawImpactOverlay(map);
             if (!document.body.classList.contains('zen-mode')) drawTipBadge(map);
             if (!document.body.classList.contains('zen-mode') && !(S.shot2Enabled && S.activeShot === 2 && S.shot2CueBallOnly)) drawBankKickGuide(map);
-            drawShotChances(map);
+            drawShotChances(map);drawPocketFeedback(map);
             if (!document.body.classList.contains('zen-mode')) drawTeachingCompass(map);
             if (!document.body.classList.contains('zen-mode')) drawRollingReferences(map);
             if (!document.body.classList.contains('zen-mode')) drawCalibration(M);
@@ -8539,7 +8615,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const live=(animation?.current||S.balls).map(b=>({...S.balls.find(x=>x.id===b.id),...b})).filter(b=>b.id!==0||cueVisualsVisible(1));
             if((!clean||(recordingGuides&&S.shot2CueBallOnly))&&S.shot2Enabled&&cueVisualsVisible(2))live.push({id:'CB2',x:S.shot2.x,y:S.shot2.y,orientation:S.shot2.orientation,active:true});
             const second=S.activeShot===2&&S.shot2Enabled,cb=second?S.shot2:cueBall();
-            window.Billiards3D.update({cuePose:animation?.cuePose||cuePoseFor3D(),showRealCue:S.showCueStick!==false&&S.showTable&&shotGuidesVisible(animation?1:second?2:1),cueStrokeTime:animation?.visualTime,cameraLabels,trainingBallStyle:S.trainingBallStyle,L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,overlayEditing:!!compassState().enabled,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:(clean||S.showCueStick===false)?[]:(animation?.cueTips||cueTipsFor3D()).filter(tip=>tip.id!=='CB2'||!S.shot2CueBallOnly),balls:live,ghostBalls:clean&&!recordingGuides?[]:ghostBallsFor3D(),map,aim:!clean&&cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
+            window.Billiards3D.update({cuePose:animation?.cuePose||cuePoseFor3D(),showRealCue:S.showCueStick!==false&&S.showTable&&shotGuidesVisible(animation?1:second?2:1),cueStrokeTime:animation?.visualTime,pocketFeedback:(!clean||recordingGuides)&&S.showPocketGlow!==false?currentPocketFeedback():[],cameraLabels,trainingBallStyle:S.trainingBallStyle,L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,overlayEditing:!!compassState().enabled,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:(clean||S.showCueStick===false)?[]:(animation?.cueTips||cueTipsFor3D()).filter(tip=>tip.id!=='CB2'||!S.shot2CueBallOnly),balls:live,ghostBalls:clean&&!recordingGuides?[]:ghostBallsFor3D(),map,aim:!clean&&cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
         }
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }
@@ -13847,6 +13923,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         });
         setupPhysicsPresets();
         $('shotGuidance').onchange=()=>{S.guidanceEnabled=$('shotGuidance').checked;S.guidancePlan=null;guidancePending=S.guidanceEnabled;refreshPreview();updateUI();saveState();};
+        for(const [id,key] of [['showPocketGhost','showPocketGhost'],['showPocketGlow','showPocketGlow']])$(id).onchange=()=>{S[key]=$(id).checked;draw();saveState();};
         $('showPocketChances').onchange=()=>{S.showPocketChances=$('showPocketChances').checked;draw();saveState();};
         for(const [id,key,min,max] of [['guidanceAimError','guidanceAimErrorDeg',.03,2],['guidanceRailError','guidanceRailErrorDeg',.05,3]])$(id).onchange=()=>{const value=Number($(id).value);if(Number.isFinite(value))S[key]=clamp(value,min,max);syncGuidanceControls();draw();saveState();};
         $('guidanceOrder').onchange=()=>{S.guidanceOrder=$('guidanceOrder').value;guidancePending=true;refreshPreview();updateUI();saveState();};

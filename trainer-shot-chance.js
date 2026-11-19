@@ -53,6 +53,9 @@
  }
  function route(s,sol){
   if(!sol?.reached||!sol.fullShot||sol.scratch)return null;
+  return estimateGeometryRoute(s,sol);
+ }
+ function estimateGeometryRoute(s,sol){
   const ball=s.balls.find(b=>b.id===sol.ballId&&b.active!==false),cue=s.balls.find(b=>b.id===0&&b.active!==false);
   if(!cue||!ball||!sol.bounces?.length||!valid(sol.target))return null;
   const contact=sol.contactKick,location=sol.locationKick,bank=sol.mode==='bank',kickPot=!sol.contactKick&&!sol.locationKick&&sol.mode==='kick',target=contact||kickPot?ball:sol.target;
@@ -80,6 +83,6 @@
  }
  function text(p){return p==null?'—':p>.975?'>95%':p<.025?'<5%':'~'+Math.round(p*20)*5+'%';}
  function color(p,best=false){return p==null?'#b6c2c9':best?'#79efa1':p<.35?'#ff9d8d':'#f2d77a';}
- const api={pockets,options,route,text,color,sensitivity,interval};
+ const api={pockets,options,route,estimateGeometryRoute,text,color,sensitivity,interval};
  if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsShotChance=api;
 })(typeof window==='object'?window:globalThis);

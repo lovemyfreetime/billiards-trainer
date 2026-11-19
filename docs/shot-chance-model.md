@@ -1,6 +1,6 @@
 # Conditional shot chances
 
-This first model compares direct pockets and estimates an already verified bank/kick route. It is not fitted to Railbird's dataset and is not a measured personal make rate. The video description identifies cue/object distances, cut, pocket, speed and player as relevant variables. Its full transcript was not accessible during this implementation; do not claim it was reviewed or its aggregate rates reproduced.
+The model compares direct pockets, screens bank/kick alternatives through four rails, and estimates full-physics checked bank/kick routes. It is not fitted to Railbird's dataset and is not a measured personal make rate. The video description identifies cue/object distances, cut, pocket, speed and player as relevant variables. Its full transcript was not accessible during this implementation; do not claim it was reviewed or its aggregate rates reproduced.
 
 ## Direct pockets
 
@@ -12,7 +12,7 @@ Default aim standard deviation: **0.15 degrees**, a reference assumption, not a 
 
 ## Banks and kicks
 
-Only a complete, reached, non-scratching route from the existing full-physics solver receives an estimate. No additional solver search runs while drawing. The estimate propagates angular aim variance over route length and independent angular cushion variance over each remaining path length. Bank shots also propagate cue-to-object collision sensitivity. Default cushion standard deviation is **0.35 degrees**, scaled by rebound geometry and side spin; this is an explicit reference assumption, not a measured cloth/cushion model.
+A verified-route estimate requires a complete, reached, non-scratching result from the existing full-physics solver. Pocket comparisons can also show explicitly identified ideal-rail estimates, which require checking before applying. No additional solver search runs while drawing. The estimate propagates angular aim variance over route length and independent angular cushion variance over each remaining path length. Bank shots also propagate cue-to-object collision sensitivity. Default cushion standard deviation is **0.35 degrees**, scaled by rebound geometry and side spin; this is an explicit reference assumption, not a measured cloth/cushion model.
 
 Kick contact uses the two-ball-radius contact corridor and its offset from the final approach line. Bank/kick pocketing uses the final pocket aperture. A location drill uses the existing 0.35-radius destination tolerance. Contact, reach-zone and pocketing outcomes are labelled separately. A percentage represents the whole selected route, not a per-rail success probability. Unsolved, changed, unsupported or scratching routes receive no fabricated percentage. Comparing different bank destinations currently requires selecting and calculating each route with the existing tool.
 
@@ -29,3 +29,14 @@ Green plus “Best” identifies the highest estimated direct-pocket probability
 - Dr. Dave, [Pocket Effective Size and Center](https://drdavepoolinfo.com/faq/pocket/size-and-center/).
 
 These sources motivate the variables and limitations. The numerical reference spreads and the model are this implementation's stated assumptions, not coefficients copied or statistically validated from those sources.
+
+
+## Route comparisons and pocket feedback revision
+
+The comparison now screens direct, bank-pocket and kick-pocket routes across every rail order of one to four rebounds, excluding repeated consecutive rails (160 orders and 1,920 bank/kick pocket candidates, plus contact kicks). It rejects pocket openings, early wall hits, blockers and invalid collision directions. This is a bounded ideal-rail comparison; it does not cover all possible mixed bank-after-kick, combination, carom, jump or massé shots. The best three candidates per family/pocket are retained. A cooperative generator is debounced and processed in short slices. Camera-only changes reuse the result; playback cancels pending work.
+
+One estimate per pocket is shown by default. Tap to reveal Direct, Bank and Kick, optional other rail paths, and a separate contact-only option. The panel distinguishes reference estimates from the actual current predicted pot. Check route invokes the existing complete-physics solver for the selected rail order and destination; Use setup still applies its controls. Automatic next-ball aim remains direct unless the user chooses a rail route. Inspecting options never changes aim, speed or spin. The existing route API still requires full-shot verification; the explicitly named estimateGeometryRoute API handles ideal-rail candidates. These estimates remain uncalibrated to personal real-table results.
+
+Pocket brightness and the yellow ghost use the current simulation's actual pocket event. A miss stays dim with no pocket ghost regardless of alternative-route estimates. The approach-line offset from mouth center controls brightness for a successful pot. Edge/jaw-assisted pots have a quieter indication. The ghost marks the predicted ball-center entry at the mouth. It is a non-physical yellow teaching overlay. Ghost and brightness have separate remembered feature toggles. Pocket labels are upright camera-facing 3D captions above the rail/mouth, preserving readability in Cue View and inclusion in rendered recordings.
+
+Move balls has an adjacent Balls locked / Balls unlocked status. Compact tray spacing makes room for it while retaining the full set. A deliberate cue-ball tray drag can add, revive or reposition the sole cue ball and unlocks 3D ball editing. It never duplicates the cue ball or accepts an overlapping drop. Action Undo remains intact. The 2D movement model is otherwise unchanged.

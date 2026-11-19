@@ -1,7 +1,7 @@
 name: Verify intuitive table and next-ball guidance
 on:
   push:
-    branches: [feat/intuitive-guidance-20261118, feat/pocket-confidence-20261118]
+    branches: [feat/intuitive-guidance-20261118, feat/pocket-confidence-20261118, feat/pocket-feedback-20261118]
   workflow_dispatch:
 permissions:
   contents: read
@@ -18,6 +18,7 @@ jobs:
         run: |
           node tests/trainer-guidance.test.cjs
           node tests/trainer-shot-chance.test.cjs
+          node tests/pocket-feedback.test.cjs
           node tests/trainer-3d-gesture-routing.test.cjs
           node tests/trainer-cue3d.test.cjs
           node tests/trainer-cue-follow.test.cjs
@@ -38,6 +39,7 @@ jobs:
         run: |
           node tests/intuitive-table.browser.cjs
           node tests/shot-chance.browser.cjs
+          node tests/pocket-feedback.browser.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
