@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict'),feedback=require('../trainer-pocket-feedback.js'),routes=require('../trainer-route-options.js'),chance=require('../trainer-shot-chance.js');
+const s={tableL:2.54,tableW:1.27,ballR:.028575,balls:[{id:0,x:.4,y:.6,active:true},{id:1,x:1.3,y:.65,active:true}]};
+function pot(x){return {paths:{1:[{x,y:.5},{x,y:.03},{x,y:-.03}]},pocketEvents:[{id:1,x:1.27,y:0}]};}
+const centered=feedback.analyze(s,pot(1.27),1).find(p=>p.name==='top middle'),edge=feedback.analyze(s,pot(1.29),1).find(p=>p.name==='top middle');
+assert.equal(centered.strength,1);assert(centered.entry);assert(edge.strength<centered.strength&&edge.strength>0);assert(feedback.analyze(s,{...pot(1.27),pocketEvents:[]},1).every(p=>p.strength===0&&!p.entry),'misses do not light or create pocket ghosts');
+const before=structuredClone(s),gen=routes.compare(s,1,4);let step,yields=0;do{step=gen.next();yields++;}while(!step.done);
+const result=step.value;assert.equal(result.groups.length,6);assert.equal(result.tested,1920);assert.equal(yields,161);assert(result.groups.some(g=>g.bank.length&&g.kick.length));assert(result.contact.length);assert.deepEqual(s,before);
+for(const g of result.groups)for(const family of ['bank','kick'])for(const candidate of g[family]){assert(candidate.rails.length>=1&&candidate.rails.length<=4);assert.equal(candidate.verification,'geometry');assert(candidate.probability>=0&&candidate.probability<=1);assert.equal(chance.route(s,candidate.nominal),null,'geometric routes must not masquerade as full-physics verification');}
+assert.equal(routes.trace(s,{x:.3,y:.4},{x:1.27,y:.8},['top'])?.bounces[0].rail.name,'top');
+assert.equal(routes.trace(s,{x:1.27,y:.4},{x:1.27,y:.8},['top']),null,'a cushion rebound cannot bounce through the side-pocket opening');
+const crowded={...s,balls:[...s.balls,...Array.from({length:12},(_,i)=>({id:i+2,x:1.3+.06*Math.cos(i*Math.PI/6),y:.65+.06*Math.sin(i*Math.PI/6),active:true}))]};const blocked=routes.compare(crowded,1);do{step=blocked.next();}while(!step.done);assert(step.value.groups.every(g=>!g.bank.length&&!g.kick.length),'ring of blockers rejects ghost routes');
+console.log('Pocket feedback: centered/edge/miss brightness, bounded four-rail families, blockers, pocket openings and geometry/physics separation passed.');

@@ -459,3 +459,12 @@ body.trainer-workspace #workspaceBallShelf>.workspaceTrayScroll { display:none!i
 body.trainer-workspace:not(.zen-mode):not(.phone-tray-hidden) { --workspace-bottom:calc(138px + var(--workspace-tray-extra,0px)); }
 body.trainer-workspace.table-3d:not(.phone-tray-hidden) { --workspace-bottom:calc(180px + var(--workspace-tray-extra,0px)); }
 @media(max-width:700px){body.trainer-workspace.table-3d:not(.phone-tray-hidden){--workspace-bottom:calc(244px + var(--workspace-tray-extra,0px));}}
+
+/* A compact set leaves room for an explicit lock status. */
+body.trainer-workspace #workspaceBalls{gap:3px;justify-content:start}
+body.trainer-workspace #workspaceBalls .workspaceBall{max-width:30px}
+body.trainer-workspace #workspaceBallShelf #table3DLock{width:76px;min-width:76px;flex:none;height:36px;display:block}
+body.trainer-workspace #workspaceBallShelf #table3DBallState{flex:none;display:flex;align-items:center;justify-content:center;box-sizing:border-box;width:94px;height:36px;padding:3px;border:1px solid #72caff77;border-radius:9px;background:#142936;color:#c3e8ff;font:600 11px system-ui;animation:ballMoveGlow 4s ease-in-out infinite}
+body.trainer-workspace #workspaceBallShelf #table3DBallState[data-unlocked=true]{border-color:#a5dfff;color:#f0fbff;background:#244a64}
+body.trainer-workspace #workspaceBallShelf #table3DBallState[hidden]{display:none!important}
+@media(prefers-reduced-motion:reduce){#table3DBallState{animation:none!important}}

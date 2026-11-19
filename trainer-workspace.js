@@ -119,14 +119,14 @@
     trayLayoutPending=false;if(!balls.getClientRects().length)return;
     const frame=shelf.getBoundingClientRect(),scale=frame.width/shelf.offsetWidth;if(!(scale>0))return;
     let left=6;
-    for(const control of [trayToggle,byId('table3DRackToggle'),clear,byId('table3DLock')]){
+    for(const control of [trayToggle,byId('table3DRackToggle'),clear,byId('table3DLock'),byId('table3DBallState')]){
       if(control?.parentElement!==shelf||!control.getClientRects().length)continue;
       left=Math.max(left,(control.getBoundingClientRect().right-frame.left)/scale+6);
     }
     const right=shelf.clientWidth-8,available=Math.max(100,right-left);
     const columns=available>=16*26+15*4?16:8;
     const separate=available<8*26+7*4;
-    const x=separate?6:left,width=separate?shelf.clientWidth-12:available;
+    const x=separate?6:left,width=Math.min(separate?shelf.clientWidth-12:available,columns*30+(columns-1)*3);
     balls.style.left=x+'px';balls.style.width=width+'px';balls.style.setProperty('--tray-columns',columns);
     balls.style.top=(separate?48:4)+'px';balls.style.transform='none';
     const height=(separate?48:4)+(columns===16?32:68)+6;
@@ -157,12 +157,14 @@
     const cleanup = () => { drag = null; ghost?.remove(); ghost = null; };
     button.addEventListener('pointerdown', e => {
       if (e.button !== 0 || button.disabled) return;
+      e.preventDefault();
       drag = {x:e.clientX, y:e.clientY}; moved = false; button.setPointerCapture(e.pointerId);
     });
     button.addEventListener('pointermove', e => {
       if (!drag) return;
       moved ||= Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 6;
       if (!moved) return;
+      if(id===0&&window.Billiards3D?.active&&!window.Billiards3D.locked)window.Billiards3D.arrangeBalls(true);
       if (!ghost) { ghost = button.cloneNode(true); ghost.classList.add('workspaceBallGhost'); ghost.setAttribute('aria-hidden', 'true'); ghost.tabIndex = -1; document.body.append(ghost); }
       ghost.style.left = (e.clientX - 18) + 'px'; ghost.style.top = (e.clientY - 18) + 'px';
     });
@@ -209,9 +211,9 @@
     const data = window.billiards3DBallControls?.status(); if (!data) return;
     for (const button of buttons) {
       const id = Number(button.dataset.ballId), present = data.balls.includes(id), pocketed = data.pocketed.includes(id);
-      button.disabled = data.busy || present;
+      button.disabled = data.busy || present&&id!==0;
       button.classList.toggle('on-table', present); button.classList.toggle('pocketed', pocketed);
-      const label = (id ? 'Ball ' + id : 'Cue ball') + (present ? ' on table' : pocketed ? ' pocketed. Tap or drag to return' : '. Tap or drag to add');
+      const label = (id ? 'Ball ' + id : 'Cue ball') + (present ? (id===0?' on table. Drag to reposition':' on table') : pocketed ? ' pocketed. Tap or drag to return' : '. Tap or drag to add');
       button.setAttribute('aria-label', label); button.title = label;
     }
     count.textContent = data.pocketed.length ? data.pocketed.length + ' pocketed' : '';
@@ -240,7 +242,7 @@
       document.body.classList.toggle('phone-tray-hidden', !trayState[active ? 'threeD' : 'twoD']);
       trayToggle.setAttribute('aria-expanded', String(trayState[active ? 'threeD' : 'twoD']));
     }
-    const arrange=byId('table3DLock');if(arrange){move(shelf,arrange);arrange.hidden=!active;}
+    for(const id of ['table3DLock','table3DBallState']){const el=byId(id);if(el){move(shelf,el);el.hidden=!active;}}
     if (active) {
       cameraRow.hidden = false; move(document.body, cameraRow);
       move(cameraRow, tools); move(cameraRow, views);

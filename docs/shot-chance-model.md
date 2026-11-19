@@ -29,3 +29,14 @@ Green plus “Best” identifies the highest estimated direct-pocket probability
 - Dr. Dave, [Pocket Effective Size and Center](https://drdavepoolinfo.com/faq/pocket/size-and-center/).
 
 These sources motivate the variables and limitations. The numerical reference spreads and the model are this implementation's stated assumptions, not coefficients copied or statistically validated from those sources.
+
+
+## Route comparisons and pocket feedback revision
+
+The comparison now screens direct, bank-pocket and kick-pocket routes across every rail order of one to four rebounds, excluding repeated consecutive rails (160 orders and 1,920 bank/kick pocket candidates, plus contact kicks). It rejects pocket openings, early wall hits, blockers and invalid collision directions. This is a bounded ideal-rail comparison; it does not cover all possible mixed bank-after-kick, combination, carom, jump or massé shots. The best three candidates per family/pocket are retained. A cooperative generator is debounced and processed in short slices. Camera-only changes reuse the result; playback cancels pending work.
+
+One estimate per pocket is shown by default. Tap to reveal Direct, Bank and Kick, optional other rail paths, and a separate contact-only option. The panel distinguishes reference estimates from the actual current predicted pot. Check route invokes the existing complete-physics solver for the selected rail order and destination; Use setup still applies its controls. Automatic next-ball aim remains direct unless the user chooses a rail route. Inspecting options never changes aim, speed or spin. The existing route API still requires full-shot verification; the explicitly named estimateGeometryRoute API handles ideal-rail candidates. These estimates remain uncalibrated to personal real-table results.
+
+Pocket brightness and the yellow ghost use the current simulation's actual pocket event. A miss stays dim with no pocket ghost regardless of alternative-route estimates. The approach-line offset from mouth center controls brightness for a successful pot. Edge/jaw-assisted pots have a quieter indication. The ghost marks the predicted ball-center entry at the mouth. It is a non-physical yellow teaching overlay. Ghost and brightness have separate remembered feature toggles. Pocket labels are upright camera-facing 3D captions above the rail/mouth, preserving readability in Cue View and inclusion in rendered recordings.
+
+Move balls has an adjacent Balls locked / Balls unlocked status. Compact tray spacing makes room for it while retaining the full set. A deliberate cue-ball tray drag can add, revive or reposition the sole cue ball and unlocks 3D ball editing. It never duplicates the cue ball or accepts an overlapping drop. Action Undo remains intact. The 2D movement model is otherwise unchanged.
