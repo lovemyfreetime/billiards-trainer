@@ -77,6 +77,15 @@
   if(!api.requestRunout()){askedForPlan=false;api.showRunoutMessage('Plan after the break, with the cue ball on the table and the bank/kick tool closed.');}
  });
  planButton.id='table3DPlan';
+ const planVisibility=action('Hide','Show planned paths',()=>{
+  const api=window.billiardsGuidance,visible=!api.planVisible();
+  if(!visible&&nextView&&!api.manualShot2())setNextView(false);
+  api.setPlanVisible(visible);
+ });
+ planVisibility.id='table3DPlanVisibility';
+ const planControls=document.createElement('div');
+ planControls.id='table3DPlanControls';planControls.setAttribute('role','group');planControls.setAttribute('aria-label','Runout planning');
+ planControls.append(planButton,planVisibility);tools.append(planControls);
  const orderMenu=document.createElement('section');orderMenu.id='table3DOrderMenu';orderMenu.hidden=true;
  orderMenu.setAttribute('role','dialog');orderMenu.setAttribute('aria-label','Shot Order');
  orderMenu.innerHTML='<div role="group" aria-label="Analysis mode"><button type="button" data-order="order">1 · Lowest First</button><button type="button" data-order="groups">2 · Groups</button><button type="button" data-order="any">3 · Any Ball</button></div><label>Group <select aria-label="Ball group"><option value="open">Open Table</option><option value="solids">Solids</option><option value="stripes">Stripes</option></select></label>';
@@ -97,10 +106,13 @@
   const ready=!job.continuation&&job.shots.length>0;
   planButton.disabled=job.pending||!!window.billiards3DBallControls?.status()?.busy;
   const text=job.pending?'Planning…':ready?'Use Plan':'Plan';
+  const visible=api.planVisible(),visibilityLabel=visible?'Hide':'Show';
+  if(planVisibility.textContent!==visibilityLabel)planVisibility.textContent=visibilityLabel;
+  planVisibility.setAttribute('aria-pressed',String(visible));
   if(planButton.textContent!==text)planButton.textContent=text;
   planButton.setAttribute('aria-busy',String(job.pending));planButton.dataset.ready=String(ready);
   const count=job.shots.length,route=job.shots.map(s=>s.ballId+' → '+s.pocket+(s.leaveSide?' (leave '+s.leaveSide+')':'')).join(' · ');
-  const message=job.pending?'Analyzing…':count?count+(count===1?' shot':' shots')+' found · '+route:job.source&&!job.continuation?'No direct route found.':'';
+  const message=job.background?'Analyzing the next leave…':job.pending?'Analyzing…':count?count+(count===1?' shot':' shots')+' found · '+route:job.source&&!job.continuation?'No direct route found.':'';
   if(orderStatus.textContent!==message)orderStatus.textContent=message;
   planButton.title=message||'Plan a runout';
   planButton.setAttribute('aria-label',ready?'Apply planned Shot 1':job.pending?'Planning runout':'Plan a runout');
@@ -156,6 +168,7 @@
   if(!value){closeNextView();window.Billiards3D.exitCueView();return;}
   rememberInspection();
   const api=window.billiardsGuidance;
+  if(!api.manualShot2()&&!api.planVisible())api.setPlanVisible(true);
   shotBeforeNext=api.activeShot();nextView=true;nextButton.setAttribute('aria-pressed','true');
   api.setRunoutView(true);
   if(api.manualShot2())window.billiardsSelectShot(2);

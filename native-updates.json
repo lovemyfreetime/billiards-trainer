@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "3b1532079b2596c71954ca39dd7ec5564135975a822ffa28124f3fdb9b39942c",
-  "sequence": 1795090213,
+  "version": "777587a1bc7fb9cc906da78e338ce30c00abdc9d64296871412e84b0f0446fe1",
+  "sequence": 1795092801,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3781,8 +3781,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "ddd05e1455d328db08a8f73e958f1204f2683aaec4865e6c5bb1013038cdbd24",
-      "length": 993198
+      "sha256": "31ce498e47bd534587ec8dcd7c1f800224db3744581c076929befcd84fd8a920",
+      "length": 994993
     },
     "install/android/index.html": {
       "sha256": "5af2961b4386233b6f9206577ee2acdd6b08068620c3f60c57b176c471ca3681",
@@ -3881,7 +3881,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "51a8b24c47d8b44efc4b1e65e85c9112a2285b382aed98d920838caf9a679ccf",
+      "sha256": "057de041556d080b78b2f9b1541e1f49b15e948bc221e12b285d1352a9e6623c",
       "length": 160382
     },
     "phone-play.css": {
@@ -5369,7 +5369,7 @@
       "length": 2168
     },
     "service-worker.js": {
-      "sha256": "1487ef54119f81aac235da068d15008b0def5e267e5c27c1cf87bdb5b7cc061c",
+      "sha256": "39d0208a8f105d89755f17b1ab2414758a8f4feb79fd1a433574ff94ccad8752",
       "length": 7933
     },
     "table-orbit.js": {
@@ -5397,8 +5397,8 @@
       "length": 36923
     },
     "trainer-3d.js": {
-      "sha256": "96f1e9fdbd4067272d3fe1e81c4b1d2f37a9ae9be889533898101c7dd0540d5a",
-      "length": 75755
+      "sha256": "5d205673872d7cebc82a2d16160a30422747275516e98b5c16ef6129763fe9b6",
+      "length": 76639
     },
     "trainer-action-history.js": {
       "sha256": "83f2afc6a65e2dc18b66313cc709a66407e72144c2278cc2d2acbfb600e4cfb4",
@@ -5441,8 +5441,8 @@
       "length": 10498
     },
     "trainer-guidance.js": {
-      "sha256": "e1ffdecdef16b92aa4efc799bcd7e6b92fca897e59bb2ca93eb0193a47053143",
-      "length": 11797
+      "sha256": "ec30c43dcaa7c9b7d0f03e0b096478a952511de0683c13265bb9c2bb5904ec26",
+      "length": 13467
     },
     "trainer-layout-files.js": {
       "sha256": "262d5dd963d46919608a881d3caca7a798343ab4106d158167d9e19895ecc950",
@@ -5537,12 +5537,12 @@
       "length": 37710
     },
     "trainer-workspace.css": {
-      "sha256": "9d58d6f26fe7bbd1c7b8bad8f9f7240c1bbd36215c83af47a6a475b6763faa48",
-      "length": 48790
+      "sha256": "02b01de28ced3147a7dea288b26cc2f166fdc68cf26ece71af230a47a531380f",
+      "length": 49902
     },
     "trainer-workspace.js": {
-      "sha256": "c34196a8ff18f3cc81df6f0d00f39b2bb174b8b1cf47305c390fa26472c5cc94",
-      "length": 18743
+      "sha256": "994888b092f1a229a568539dfce5989b8a5e3882bfc808aa4d76c944e80c7400",
+      "length": 18759
     },
     "trainer-zen-shapes.js": {
       "sha256": "7e32f9110868d1dfb23c9f2c6b976c03e64dd29dda5a2118369d4e5c39356b00",

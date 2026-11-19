@@ -231,7 +231,7 @@ body.trainer-workspace #workspaceBallShelf {
   --tray-control-width:clamp(76px,7.2vw,92px);
   --tray-control-height:40px;
 }
-body.trainer-workspace #workspaceBallShelf :is(#workspaceClearBalls,#phoneTrayToggle,#table3DRackToggle,#table3DShotOrder,#table3DLock,#table3DPlan) {
+body.trainer-workspace #workspaceBallShelf :is(#workspaceClearBalls,#phoneTrayToggle,#table3DRackToggle,#table3DShotOrder,#table3DLock) {
   box-sizing:border-box;
   flex:none;
   width:var(--tray-control-width);
@@ -245,10 +245,31 @@ body.trainer-workspace #workspaceBallShelf :is(#workspaceClearBalls,#phoneTrayTo
   color:#edf6f9;
   font:600 11px system-ui;
 }
-body.trainer-workspace #workspaceBallShelf #table3DPlan {
+#table3DPlanControls {
+  display:inline-grid;
+  grid-template-columns: minmax(0,1.25fr) minmax(0,1fr);
+  min-width:86px;
+  white-space:normal;
+}
+#table3DPlanControls button {
+  min-width:0;
+  padding:3px 2px;
+  border:1px solid #7891a0;
+  background:#23343f;
+  color:#edf6f9;
+  font:600 10px/1.1 system-ui;
+  overflow-wrap:anywhere;
+}
+#table3DPlanControls #table3DPlan { border-radius:9px 0 0 9px; }
+#table3DPlanControls #table3DPlanVisibility { border-left:0; border-radius:0 9px 9px 0; }
+#table3DPlanControls #table3DPlanVisibility[aria-pressed=false] { background:#131f27; }
+body.trainer-workspace #table3DTools #table3DPlanControls { min-width:0; }
+body.trainer-workspace #workspaceBallShelf #table3DPlanControls {
   position:absolute;
   right:6px;
   top:4px;
+  width:max(86px,var(--tray-control-width));
+  height:var(--tray-control-height);
 }
 body.trainer-workspace #workspaceBallShelf #table3DPlan[data-ready=true] {
   border-color:#d4a4ff;
@@ -558,14 +579,22 @@ body.trainer-workspace #scoreBoard { left:50%; z-index:16; }
 @media (min-width:900px) {
   body.trainer-workspace #scoreBoard { position:fixed; top:calc(8px + env(safe-area-inset-top)); left:39%; z-index:68; }
 }
-body.trainer-workspace :is(#table3DPlan,#table3DNextView)[aria-busy=true] {
-  border-color:#d9b859;
-  animation:trainer-planning-glow 1.7s ease-in-out infinite alternate;
+body.trainer-workspace #table3DNextView[aria-busy=true],
+body.trainer-workspace #table3DPlan[aria-busy=true],
+body.trainer-workspace #workspaceBallShelf #table3DPlan[aria-busy=true] {
+  opacity:1;
+  color:#fff3cf;
+  background:#805200;
+  border-color:#ffda72;
+  box-shadow:0 0 12px #ffb62caa,inset 0 0 7px #ffd38244;
+  animation:trainer-planning-glow 1.3s ease-in-out infinite alternate;
 }
 @keyframes trainer-planning-glow {
-  from { box-shadow:0 0 3px #edc86b42; }
-  to { box-shadow:0 0 13px #edc86ba6; }
+  from { box-shadow:0 0 7px #ffbc4766,inset 0 0 5px #ffd38244; }
+  to { box-shadow:0 0 21px 2px #ffb62cbb,inset 0 0 10px #ffd38266; }
 }
 @media (prefers-reduced-motion:reduce) {
-  body.trainer-workspace :is(#table3DPlan,#table3DNextView)[aria-busy=true] { animation:none; }
+  body.trainer-workspace #table3DNextView[aria-busy=true],
+  body.trainer-workspace #table3DPlan[aria-busy=true],
+  body.trainer-workspace #workspaceBallShelf #table3DPlan[aria-busy=true] { animation:none; }
 }
