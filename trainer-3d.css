@@ -24,7 +24,6 @@ body.table-3d:not(.phone-focus) .bottomSpinGroup{top:auto!important;bottom:10px!
 
 
 body.table-3d-locked #table3DCanvas{cursor:crosshair}
-#table3DLock[aria-pressed=true]{border-color:#8cceba;background:#204a43;color:#edfff8}
 body.table-3d:not(.phone-focus) #teachingCompassToggle,body.table-3d:not(.phone-focus) #bankToolToggle,body.table-3d:not(.phone-focus) #kickToolToggle,body.table-3d:not(.phone-focus) #angleLock{z-index:22}
 body.table-3d:not(.phone-focus) #compassSizeWrap{z-index:22;left:8px!important;top:60px!important;bottom:158px!important;height:auto!important;transform:none!important}
 body.table-3d:not(.phone-focus) #compassRotateWrap{z-index:22;left:60px!important;top:52px!important;width:220px!important;height:34px}
@@ -34,7 +33,6 @@ body.table-3d:not(.phone-focus) #compassRotateWrap{z-index:22;left:60px!importan
 #table3DViews{position:absolute;z-index:24;display:flex;flex-direction:column;gap:4px;width:66px;touch-action:none}
 #table3DViews>button{display:flex;align-items:center;justify-content:center;gap:3px;position:static;width:66px;height:34px;min-height:34px;padding:4px 2px;border:1px solid #7898a7;border-radius:10px;background:#1c303be8;color:#edf7fb;font:600 10px system-ui;white-space:nowrap}
 #table3DViews>button[hidden]{display:none!important}
-#table3DViews #table3DLock[aria-pressed=true],#table3DPan[aria-pressed=true],#table3DRotate[aria-pressed=true]{border-color:#8cceba;background:#204a43;color:#edfff8}
 body.phone-focus #stageWrap>#table3DViews{position:fixed;left:auto!important;top:auto!important;right:calc(56px + env(safe-area-inset-right));bottom:61px;width:60px;gap:3px}
 body.phone-focus #table3DViews>button{width:60px;height:30px;min-height:30px;font-size:9px}
 body.phone-focus #phoneToolShelf>#table3DViews{position:static;flex-direction:column}
@@ -55,10 +53,6 @@ body.phone-focus #table3DPhoneControls #table3DTools>button{width:30px;height:30
 
 body.phone-focus #phoneToolShelf>#table3DPhoneControls{position:static;transform:none;width:100%;max-width:100%}
 
-#table3DViews #table3DLock{flex-direction:column;gap:1px;white-space:normal}
-.table3DLockTitle{display:flex;align-items:center;justify-content:center;gap:2px;font-size:9px;line-height:12px;white-space:nowrap}
-.table3DLockHint{display:block;font-size:8px;line-height:10px;white-space:nowrap;opacity:.92}
-body.phone-focus #table3DPhoneControls #table3DLock{min-width:62px}
 
 #table3DPan[aria-pressed=true],#table3DRotate[aria-pressed=true]{border-color:#7bc7ff;background:#24506c;color:#edf8ff}
 
@@ -111,8 +105,6 @@ body.table-3d.phone-focus #table3DPhoneControls #table3DTools{grid-column:1;grid
 body.table-3d.phone-focus #table3DPhoneControls #table3DViews{grid-column:3;grid-row:1}
 body.table-3d.phone-focus #table3DPhoneControls #table3DTools>button{width:var(--control-height);min-width:var(--control-height);height:var(--control-height);min-height:var(--control-height)}
 body.table-3d.phone-focus #table3DPhoneControls #table3DViews>button{flex:1;width:auto;min-width:0;height:var(--control-height);min-height:var(--control-height);padding:3px;font-size:11px;white-space:normal;font-family:system-ui,sans-serif;line-height:1.1}
-body.table-3d.phone-focus #table3DPhoneControls #table3DViews #table3DLock{flex:1.8;width:auto;min-width:0!important;height:var(--control-height);padding:0!important;gap:0;background:#172d36;border-color:#7898a7}
-body.table-3d #table3DViews #table3DLock[aria-pressed=true]{background:#172d36;color:#edf7fb}
 .table3DAdjustmentOptions{display:flex;width:100%;flex:1;align-items:stretch;height:100%;border-radius:9px;overflow:hidden;font:600 9px/1.05 system-ui,sans-serif}
 .table3DAdjustmentOptions>span{display:grid;place-items:center;flex:1;min-width:0;min-height:0;padding:0;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);overflow:hidden}
 .table3DAdjustmentOptions .selected,body.table-3d #table3DPan[aria-pressed=true],body.table-3d #table3DRotate[aria-pressed=true]{background:#3dd56d;color:#062310;border-color:#82f6a4}
@@ -278,7 +270,6 @@ body.table-3d.phone-focus #phoneSpeedRail>.tableSpeedControl{padding-bottom:57px
 body.table-3d.phone-focus #phoneSpeedRail .speedTickScale{bottom:60px}
 
 /* The edit selection echoes the teal-green playing cloth. */
-body.table-3d #table3DLock [data-adjust="edit"].selected{background:#206d76;color:#efffff}
 
 /* Keep the tablet control arrangement on short landscape screens. */
 @media (orientation:landscape) and (max-height:500px){
@@ -364,19 +355,10 @@ body.table-3d #table3DLock [data-adjust="edit"].selected{background:#206d76;colo
 }
 
 /* Deliberate ball setup replaces the former Camera/Shot selector. */
-#table3DViews #table3DLock{width:auto;min-width:66px;max-width:120px;font-size:11px;line-height:1.2;padding:5px 9px}
 #table3DViews #table3DReturnView{width:auto;max-width:125px;white-space:normal;font-size:11px;line-height:1.2;padding:5px 9px}
-#table3DViews #table3DLock[aria-pressed="true"]{border-color:#f4b75f;box-shadow:0 0 0 2px #f4b75f66}
 
-body.trainer-workspace #workspaceBallShelf #table3DLock{position:static;flex:none;width:76px;min-width:64px;height:36px;padding:4px;font:600 11px system-ui;white-space:normal;border:1px solid #7891a0;border-radius:9px;background:#23343f;color:#edf6f9}
-body.trainer-workspace #workspaceBallShelf #table3DLock[aria-pressed="true"]{border-color:#f4b75f;box-shadow:0 0 0 2px #f4b75f66}
 
 /* Slow, quiet reminder at the control itself; reduced motion keeps a steady ring. */
-@keyframes ballMoveGlow { 0%,100%{box-shadow:0 0 0 1px #72caff33,0 0 5px #55bfff22} 50%{box-shadow:0 0 0 2px #72caffaa,0 0 12px #55bfff77} }
-body.trainer-workspace #workspaceBallShelf #table3DLock { display:flex;flex-direction:column;justify-content:center;width:88px;min-width:88px;border-color:#72caff;animation:ballMoveGlow 4s ease-in-out infinite; }
-body.trainer-workspace #workspaceBallShelf #table3DLock small { display:block;font:9px/12px system-ui;color:#bedff5; }
-body.trainer-workspace #workspaceBallShelf #table3DLock[aria-pressed=true] { border-color:#9cdcff;background:#244a64;box-shadow:0 0 0 2px #72caff99; }
-@media(prefers-reduced-motion:reduce){body.trainer-workspace #workspaceBallShelf #table3DLock{animation:none;box-shadow:0 0 0 1px #72caff88;}}
 
 #pocketRouteDetails{position:absolute;z-index:55;right:8px;top:10px;width:min(320px,calc(100% - 16px));box-sizing:border-box;padding:12px;border:1px solid #72caff99;border-radius:12px;background:#10202af5;color:#e6f5ff;font:12px system-ui;box-shadow:0 4px 16px #0008}
 #pocketRouteDetails[hidden]{display:none!important}#pocketRouteDetails>strong{display:block;padding-right:28px}#pocketRouteDetails p{margin:8px 0;font-size:11px;line-height:1.4;color:#bfd2df}.pocketRouteRow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px}.pocketRouteRow button{padding:6px 9px;min-height:30px;background:#284356;border:1px solid #7899b0;border-radius:7px;color:white}#pocketRouteDetails .pocketDetailsClose{position:absolute;right:5px;top:4px;width:24px;height:24px;min-height:24px;padding:0;border-radius:50%;color:#ffd7d2;background:#512825;border:1px solid #e79b8c}

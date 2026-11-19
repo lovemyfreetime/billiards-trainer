@@ -31,8 +31,16 @@
  });
  editNextButton.id='table3DEditNext';
  const zoomIn=action('+','Zoom camera in',()=>zoom(1/1.15)),zoomOut=action('−','Zoom camera out',()=>zoom(1.15));
- const viewLock=action('Lock view','Lock view for ball placement and aiming',()=>setViewLocked(!viewLocked));viewLock.id='table3DLock';viewLock.setAttribute('aria-pressed','false');views.append(standingButton,alongButton,nextButton,viewLock);stage.append(tools);for(const b of [standingButton,alongButton,nextButton,viewLock])b.hidden=true;
- const ballState=document.createElement('output');ballState.id='table3DBallState';ballState.setAttribute('role','status');ballState.setAttribute('aria-live','polite');ballState.textContent='Balls locked';views.append(ballState);ballState.hidden=true;
+ const viewLock=action('','Move balls',()=>setViewLocked(!viewLocked));
+ viewLock.id='table3DLock';viewLock.setAttribute('role','switch');viewLock.setAttribute('aria-checked','false');
+ viewLock.innerHTML='<span class="ballLockLabel">Ball position<strong>Locked</strong></span><span class="ballLockTrack" aria-hidden="true"></span>';
+ viewLock.addEventListener('keydown',event=>{
+  if(event.key!==' ')return;
+  event.preventDefault();
+  if(!event.repeat)viewLock.click();
+ });
+ const lockState=viewLock.querySelector('strong');
+ views.append(standingButton,alongButton,nextButton,viewLock);stage.append(tools);for(const b of [standingButton,alongButton,nextButton,viewLock])b.hidden=true;
  const panButton=action('','Move table: drag to slide the view',()=>chooseCameraMode(true));panButton.id='table3DPan';panButton.setAttribute('aria-pressed','false');panButton.innerHTML='<svg width=18 height=18 viewBox="0 0 24 24" aria-hidden=true><path d="M7 12V6a1.5 1.5 0 0 1 3 0v5-7a1.5 1.5 0 0 1 3 0v7-6a1.5 1.5 0 0 1 3 0v7-4a1.5 1.5 0 0 1 3 0v7c0 4-2 6-6 6h-1c-2 0-3-1-4-2l-4-5c-1-2 1-3 2-2l3 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';panButton.title='Move table: drag with one finger or mouse. Two fingers always slide and pinch.';const rotateButton=action('','Rotate table: drag to orbit and tilt the view',()=>chooseCameraMode(false));rotateButton.id='table3DRotate';rotateButton.setAttribute('aria-pressed','false');rotateButton.innerHTML='<svg width=18 height=18 viewBox="0 0 24 24" aria-hidden=true><path d="M19 8a8 8 0 1 0 1 8M19 3v6h-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';zoomIn.id='table3DZoomIn';zoomOut.id='table3DZoomOut';
  const zoomSlider=document.createElement('input');zoomSlider.id='table3DZoomSlider';zoomSlider.type='range';zoomSlider.min='0';zoomSlider.max='100';zoomSlider.step='.1';zoomSlider.setAttribute('aria-label','3D zoom');
  const zoomGroup=document.createElement('div');zoomGroup.id='table3DZoomGroup';zoomGroup.append(zoomOut,zoomSlider,zoomIn);
@@ -230,22 +238,19 @@
  function setPanEnabled(value){engine?.cancelInput();panEnabled=!!value;syncCameraMode();}
  function setViewLocked(value){
   engine?.cancelInput();viewLocked=!!value;document.body.classList.toggle('table-3d-locked',active&&viewLocked);syncCameraMode();
-  viewLock.textContent='Move balls';
-  viewLock.setAttribute('aria-pressed',String(viewLocked));
-  viewLock.setAttribute('aria-label',viewLocked?'Move balls, unlocked. Press to lock':'Move balls, locked. Press to unlock');
+  lockState.textContent=viewLocked?'Unlocked':'Locked';
+  viewLock.setAttribute('aria-checked',String(viewLocked));
   viewLock.title=viewLocked?'Press to lock balls. Choosing a view or Shoot also locks them.':'Unlock physical balls for moving, including the cue ball';
-  ballState.textContent=viewLocked?'Balls unlocked':'Balls locked';ballState.dataset.unlocked=String(viewLocked);
-  document.getElementById('table3DCanvas')?.setAttribute('aria-label',viewLocked?'Balls unlocked. Drag any ball. Tap Done moving when ready.':'Drag to inspect the table. Drag the aim handle or use Aim to adjust the shot.');
+  document.getElementById('table3DCanvas')?.setAttribute('aria-label',viewLocked?'Balls unlocked. Drag any ball. Use Ball position to lock again.':'Drag to inspect the table. Drag the aim handle or use Aim to adjust the shot.');
  }
  for(const id of ['teachingCompassToggle','bankToolToggle','kickToolToggle'])document.getElementById(id)?.addEventListener('click',()=>{if(!active)return;setViewLocked(true);setDrawer(false);if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();});
- viewLock.onclick=()=>setViewLocked(!viewLocked);
  document.getElementById('startFullRack')?.addEventListener('click',()=>{if(active&&document.body.classList.contains('phone-tray-hidden'))document.getElementById('phoneTrayToggle')?.click();});
  document.getElementById('animate')?.addEventListener('click',()=>{if(active){if(viewLocked)setViewLocked(false);stopTransition();}},true);
  function fitViewLabels(){
   if(!active)return;
-  for(const el of [button,standingButton,alongButton,...viewLock.querySelectorAll('.table3DAdjustmentLabel')]){
+  for(const el of [button,standingButton,alongButton]){
    if(!el.clientWidth||!el.clientHeight)continue;
-   let size=el.classList.contains('table3DAdjustmentLabel')?9:(innerWidth<=1000?9:11);
+   let size=innerWidth<=1000?9:11;
    el.style.fontSize=size+'px';
    const range=document.createRange();range.selectNodeContents(el);
    const fits=()=>{const text=range.getBoundingClientRect();return text.width<=el.clientWidth-6&&text.height<=el.clientHeight-6;};

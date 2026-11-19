@@ -119,7 +119,7 @@
     trayLayoutPending=false;if(!balls.getClientRects().length)return;
     const frame=shelf.getBoundingClientRect(),scale=frame.width/shelf.offsetWidth;if(!(scale>0))return;
     let left=6;
-    for(const control of [trayToggle,byId('table3DRackToggle'),byId('table3DShotOrder'),clear,byId('table3DLock'),byId('table3DBallState')]){
+    for(const control of [trayToggle,byId('table3DRackToggle'),byId('table3DShotOrder'),clear,byId('table3DLock')]){
       if(control?.parentElement!==shelf||!control.getClientRects().length)continue;
       left=Math.max(left,(control.getBoundingClientRect().right-frame.left)/scale+6);
     }
@@ -130,7 +130,7 @@
     const x=separate?6:left,width=Math.min(separate?shelf.clientWidth-12:available,columns*30+(columns-1)*3);
     balls.style.left=x+'px';balls.style.width=width+'px';balls.style.setProperty('--tray-columns',columns);
     balls.style.top=(separate?48:4)+'px';balls.style.transform='none';
-    const height=(separate?48:4)+(columns===16?32:68)+6;
+    const height=Math.max(50,(separate?48:4)+(columns===16?32:68)+6);
     shelf.style.height=height+'px';shelf.style.setProperty('--tray-extra',Math.max(0,height-48)+'px');
     document.body.style.setProperty('--workspace-tray-extra',Math.max(0,height-48)+'px');
     earlier.hidden=later.hidden=true;balls.scrollLeft=0;
@@ -243,7 +243,7 @@
       document.body.classList.toggle('phone-tray-hidden', !trayState[active ? 'threeD' : 'twoD']);
       trayToggle.setAttribute('aria-expanded', String(trayState[active ? 'threeD' : 'twoD']));
     }
-    for(const id of ['table3DLock','table3DBallState']){const el=byId(id);if(el){move(shelf,el);el.hidden=!active;}}
+    const ballLock=byId('table3DLock');if(ballLock){move(shelf,ballLock);ballLock.hidden=!active;}
     if (active) {
       cameraRow.hidden = false; move(document.body, cameraRow);
       move(cameraRow, tools); move(cameraRow, views);
