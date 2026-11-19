@@ -15,7 +15,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{spawn}=require
   assert.equal(await page.evaluate(()=>Billiards3D.overlayLabels().find(l=>l.rows[0].startsWith('Best')).color),'#79efa1');
   await page.evaluate(()=>document.getElementById('showPocketChances').click());assert.deepEqual(await page.evaluate(()=>billiardsGuidance.chances()),[]);await page.evaluate(()=>document.getElementById('showPocketChances').click());
   if(await page.evaluate(()=>document.body.classList.contains('phone-tray-hidden')))await page.locator('#phoneTrayToggle').tap();
-  async function allBallsFit(){await page.waitForFunction(()=>{const tray=document.getElementById('workspaceBalls'),r=tray.getBoundingClientRect();return [...tray.children].every(b=>{const q=b.getBoundingClientRect();return q.width>=24&&q.height>=24&&q.left>=r.left-1&&q.right<=r.right+1&&q.top>=r.top-1&&q.bottom<=r.bottom+1;});});assert.equal(await page.locator('#workspaceBalls .workspaceBall').count(),16);}
+  async function allBallsFit(){await page.waitForFunction(()=>{const tray=document.getElementById('workspaceBalls'),r=tray.getBoundingClientRect();if(r.bottom>innerHeight+1||r.right>innerWidth+1||r.left<0)return false;return [...tray.children].every(b=>{const q=b.getBoundingClientRect();return q.width>=24&&q.height>=24&&q.left>=r.left-1&&q.right<=r.right+1&&q.top>=r.top-1&&q.bottom<=r.bottom+1;});});assert.equal(await page.locator('#workspaceBalls .workspaceBall').count(),16);}
   await allBallsFit();assert.match(await page.locator('#table3DLock').innerText(),/Move balls/);await page.locator('#table3DLock').tap();assert.match(await page.locator('#table3DLock').innerText(),/Done moving.*Balls unlocked/s);assert(await page.evaluate(()=>Billiards3D.locked));
   await page.locator('#table3DFullView').tap();assert.equal(await page.evaluate(()=>Billiards3D.locked),false,'View change finishes moving without a separate commit');assert.equal(await page.evaluate(()=>Billiards3D.camera().transitionDuration),3200);await page.waitForFunction(()=>!Billiards3D.camera().transitioning);
   const start=Date.now(),balls=await page.evaluate(()=>billiardsTourBridge.capture().state.balls);
@@ -24,7 +24,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{spawn}=require
   await page.waitForFunction(()=>!Billiards3D.camera().transitioning);assert(Date.now()-start>=4500);assert.deepEqual(await page.evaluate(()=>billiardsTourBridge.capture().state.balls),balls);
   fs.mkdirSync('test-results/intuitive-table',{recursive:true});await page.screenshot({path:'test-results/intuitive-table/cue-approach.png'});
   await page.locator('#table3DFullView').tap();await page.waitForFunction(()=>!Billiards3D.camera().transitioning);await page.screenshot({path:'test-results/intuitive-table/pocket-chances-tablet.png'});
-  await page.setViewportSize({width:844,height:390});await allBallsFit();await page.screenshot({path:'test-results/intuitive-table/full-tray-phone.png'});
+  await page.setViewportSize({width:844,height:390});await allBallsFit();await page.waitForTimeout(800);await allBallsFit();await page.screenshot({path:'test-results/intuitive-table/full-tray-phone.png'});
   await page.emulateMedia({reducedMotion:'reduce'});await page.locator('#table3DCueView').tap();assert.equal(await page.evaluate(()=>Billiards3D.camera().transitioning),false,'Reduced motion removes approach');await page.locator('#table3DFullView').tap();
   // Use the existing complete physics solver; no synthetic successful route is inserted.
   for(const mode of ['kick','bank']){
