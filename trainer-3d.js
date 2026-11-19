@@ -123,7 +123,7 @@
   planButton.dataset.safety=String(!!safety);
   const count=job.shots.length,route=job.shots.map(s=>(s.kind==='pot'?'':s.kind+' '+s.firstId+
    (s.kissId?' off '+s.kissId:s.firstId===s.ballId?'':' →')+' · ')+s.ballId+' → '+s.pocket+(s.leaveSide?' (leave '+s.leaveSide+')':'')+
-   (s.contact?.kind?' · '+s.contact.kind+' '+s.contact.balls.join(', '):'')).join(' · ');
+   (s.contact?.kind?' · '+s.contact.kind+' '+(s.contact.sequence?s.contact.sequence.map(id=>id||'cue ball').join(' → '):s.contact.balls.join(', ')):'')).join(' · ');
   const message=safety?(safety.reviewOnly?'Review only · Intentional foul on ball ':safety.intentionalFoul?'Last resort · Intentional foul on ball ':'Safety favored on ball ')+safety.ballId+
    ' · '+safety.reason+' · Held in '+safety.passed+'/5 simulations':
    count?count+(count===1?' shot':' shots')+(job.pending?' ready · Analyzing further · ':' found · ')+route:

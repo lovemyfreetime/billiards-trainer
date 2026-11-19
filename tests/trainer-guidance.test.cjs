@@ -57,6 +57,17 @@ const [incidental]=drain(g.runout(cluster,mock({...contactTrial,finalBalls:survi
 assert.equal(incidental.contact.kind,'Extra contact','touching a cluster without opening it earns no breakout credit');
 console.log('Runout contact scoring distinguishes an opened cluster from incidental contact.');
 
+const relay={...cluster,balls:cluster.balls.map(b=>b.id===3?{...b,id:9}:b)};
+const launch={ids:[0,1],t:.1},strikeRelay={ids:[0,9],t:.2},strikeNext={ids:[9,2],t:.3};
+const relayed={...contactTrial,finalBalls:relay.balls.filter(b=>b.id!==1).map(b=>
+ ({...b,active:true,...(b.id===2?{x:1.2,y:.20}:{})}))};
+const runRelay=collisionEvents=>drain(g.runout(relay,mock({...relayed,collisionEvents}),1))[0];
+assert.deepEqual(runRelay([launch,strikeRelay,strikeNext]).contact.sequence,[0,9,2]);
+assert.deepEqual(runRelay([launch,{ids:[1,2],t:.2}]).contact.sequence,[0,1,2]);
+assert.equal(runRelay([launch,strikeNext,strikeRelay]).contact.sequence,undefined,'a contact before the relay cannot be credited to it');
+assert.equal(drain(g.runout(relay,mock({...relayed,collisionEvents:[launch,strikeRelay,strikeNext],pocketEvents:[{id:1,pocket:'TM'},{id:0}]}),1)).length,0);
+console.log('Breakout attribution requires a legal pot and follows cue-ball relays and scoring-ball contacts in order.');
+
 const combination={...state,guidanceMode:'order',balls:[state.balls[0],state.balls[1],state.balls[2],{id:9,x:2.2,y:.24}]};
 const comboPreview={settled:true,firstBallContact:{objId:1,t:.1},pocketEvents:[{id:9,pocket:'TR'}],
  finalBalls:combination.balls.filter(b=>b.id!==9).map(b=>({...b,active:true}))};

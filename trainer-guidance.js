@@ -91,12 +91,16 @@
    (relevant(a)||relevant(b))&&Math.hypot(a.x-b.x,a.y-b.y)<limit?[[a.id,b.id]]:[]));
  }
  function assessContact(state,after,preview,shot,pairs,leave){
-  const other=new Set(),cueBumps=new Set();
+  const other=new Set(),cueBumps=new Set(),paths=new Map([[0,[0]]]);
   for(const event of preview.collisionEvents||[]){
    if(event.t<preview.firstBallContact.t)continue;
+   const [a,b]=event.ids;
+   if(paths.has(a)&&!paths.has(b))paths.set(b,[...paths.get(a),b]);
+   else if(paths.has(b)&&!paths.has(a))paths.set(a,[...paths.get(b),a]);
    const ids=event.ids.filter(id=>id!==0&&id!==shot.ballId&&id!==shot.firstId&&id!==shot.kissId);
    for(const id of ids){other.add(id);if(event.ids.includes(0))cueBumps.add(id);}
   }
+  if(shot.kissId&&paths.has(shot.kissId))other.add(shot.kissId);
   if(!other.size)return {cost:0};
   const laid=new Map(live(after).map(b=>[b.id,b]));
   const newPairs=clusterPairs(after).filter(([a,b])=>!pairs.some(([x,y])=>a===x&&b===y||a===y&&b===x)).length;
@@ -107,7 +111,19 @@
    return [a,b].some(id=>model.options(after,id).some(shot=>shot.probability>=.25));
   });
   const available=candidates(after),insurance=new Set(available.filter(shot=>shot.probability>=.4).map(shot=>shot.ballId));
+  const restored={...after,balls:after.balls.map(b=>other.has(b.id)?state.balls.find(old=>old.id===b.id)||b:b)};
+  for(const target of eligibleBalls(after)){
+   const access=s=>Math.max(0,...model.options(s,target.id).map(route=>route.probability||0));
+   const sequence=paths.get(target.id);
+   const openedAccess=sequence?.length>1&&leave>-.75?access(after):0;
+   if(openedAccess>=.30&&openedAccess-access(restored)>=.15){
+    return {kind:'Breakout',balls:[...new Set([...sequence.slice(1).filter(id=>id!==shot.ballId),...opened.flat()])],
+     sequence,cost:-.29+.28*newPairs};
+   }
+  }
   if(opened.length&&leave>-.4)return {kind:'Breakout',balls:[...new Set(opened.flat())],cost:-.23-.08*Math.min(2,insurance.size)+.28*newPairs};
+  if(shot.kissId)other.delete(shot.kissId);
+  if(!other.size)return {cost:0};
   const [next]=available,cue=laid.get(0),ball=next&&laid.get(next.ballId);
   const distance=ball?Math.hypot(cue.x-ball.x,cue.y-ball.y)/(state.tableL/8):Infinity;
   const moved=b=>Math.hypot(b.x-laid.get(b.id).x,b.y-laid.get(b.id).y)>state.ballR*.3;
@@ -480,8 +496,9 @@
  function indirectCandidates(state,allowOrdinary){
   const balls=live(state),cue=balls.find(b=>b.id===0),objects=balls.filter(b=>b.id>0);
   if(objects.length<2||!cue)return [];
-  if(!allowOrdinary&&state.setupMode!=='9ball')return [];
+  if(!allowOrdinary&&order(state)!=='order')return [];
   const diam=2*state.ballR,pockets=model.pockets(state),choices=[];
+  const next=objects.slice().sort((a,b)=>a.id-b.id)[1];
   const clear=(a,b,...ids)=>balls.every(p=>ids.includes(p.id)||distanceToSegment(p,a,b)>=diam-.0005);
   const isPocketLine=(ball,pocket)=>{
    const a=heading(ball,pocket),aperture=pocket.mouth*Math.abs(Math.cos(a)*pocket.nx+Math.sin(a)*pocket.ny)-diam;
@@ -500,8 +517,10 @@
    for(const ball of objects){
     if(first.id===ball.id)continue;
     const gap=distance(first,ball)-diam;
-    if(gap>state.tableL*.28)continue;
-    if(legalIndirectPot(state,first.id,ball.id)){
+    const breaksOutNext=order(state)==='order'&&ball.id===next?.id&&
+     objects.some(other=>other.id!==first.id&&other.id!==ball.id&&distance(other,ball)<diam*1.8);
+    if(gap>state.tableL*(breaksOutNext ? .50 : .28))continue;
+    if(gap<=state.tableL*.28&&legalIndirectPot(state,first.id,ball.id)){
      for(const pocket of pockets){
       if(!allowOrdinary&&(ball.id!==9||distance(ball,pocket)>.32))continue;
       if(!isPocketLine(ball,pocket)||!clear(ball,pocket,0,first.id,ball.id))continue;
@@ -518,7 +537,8 @@
      }
     }
     for(const pocket of pockets){
-     if((!allowOrdinary&&(first.id!==9||distance(first,pocket)>.32))||!isPocketLine(first,pocket))continue;
+     if(!allowOrdinary&&!breaksOutNext&&(first.id!==9||distance(first,pocket)>.32))continue;
+     if(!isPocketLine(first,pocket)&&!(breaksOutNext&&distance(ball,pocket)<.55))continue;
      for(const seed of deflectionAims(first,ball,pocket,diam,true)){
       if(!clear(first,seed.impact,0,first.id,ball.id)||!clear(seed.impact,pocket,0,first.id,ball.id))continue;
       const aim=along(first,seed.entry,-diam);
@@ -611,6 +631,19 @@
   }
   return .44*benefit;
  }
+ function breakoutContacts(state,scoringBall){
+  const balls=live(state).filter(b=>b.id>0&&b.id!==scoringBall),r=state.ballR;
+  const next=eligibleBalls(state,balls);
+  const targets=[];
+  for(const ball of next){
+   const nearby=balls.filter(b=>b.id!==ball.id&&distance(b,ball)<state.tableL/8);
+   const edge=Math.min(ball.x,ball.y,state.tableL-ball.x,state.tableW-ball.y);
+   if(edge>4*r&&!nearby.some(b=>distance(b,ball)<4*r))continue;
+   targets.push(ball);
+   for(const relay of nearby)targets.push(along(relay,heading(relay,ball),-2*r));
+  }
+  return targets;
+ }
  function* searchRunout(state,simulate,depth,compensate,wideSearch,onProgress,onAlternative){
   let beam=[{state,shots:[],score:0,rank:0,speedMisses:0}],best=beam[0];
   const pitches=[[.74,.24,0],[.9,0,0],[1,0,0],[1,.5,0],[1,-.48,0],[1.15,.8,0],[1.22,-.75,0],
@@ -652,6 +685,8 @@
      const base=Math.max(.78,Math.min(2.7,Math.sqrt((shot.cueDistance+shot.objectDistance/(Math.cos(shot.cutAngle*Math.PI/180)**2+.05))*1.15)));
      const dx=shot.aim.x-cue.x,dy=shot.aim.y-cue.y;
      const object=node.state.balls.find(b=>b.id===shot.ballId);
+     const breakout=indirect?[]:breakoutContacts(node.state,shot.ballId);
+     const breakoutSeeds=[];
      const farLeave=live(node.state).some(b=>b.id>0&&b.id!==shot.ballId&&Math.hypot(b.x-object.x,b.y-object.y)>state.tableL*.5);
      const strokes=needsPosition?(farLeave?[...pitches,...longTravel]:[...pitches]):pitches.slice(0,10);
      if(needsPosition&&!wideSearch)strokes.unshift(...positionTrials);
@@ -664,6 +699,9 @@
       strokes.push([.85,-.28,0],[1.18,-.35,0],[1.45,.65,0],[1.75,.65,0]);
      if(needsPosition&&shot.cutAngle<24)strokes.push([1.62,-.87,0],[1.95,-.87,0],[2.30,-.95,0]);
      if(!step&&hasManualStroke)strokes.unshift([manual.speed/base,manual.follow,manual.sideSpin]);
+     if(breakout.length)strokes.push(
+      [.9,-.34,0],[1.10,-.55,0],[1.27,-.7,0],[1.5,-.83,0],
+      [1.34,-.47,-.19],[1.34,-.47,.19],[1.58,-.62,-.15],[1.58,-.62,.15]);
      if(indirect)strokes.splice(0,strokes.length,
       [.87,shot.follow,0],[1.12,shot.follow,0],[1.35,shot.follow,0],[1.66,shot.follow,0],
       [1.1,Math.max(-1,shot.follow-.15),0],[1.35,Math.min(1,shot.follow+.15),0],
@@ -686,6 +724,12 @@
       const after=afterShot(node.state,preview,shot.ballId,shot.firstId);
       if(!after||preview.pocketEvents[0].pocket!==pocketCodes[shot.pocket]||!verifiesIndirect(shot,preview))return false;
       const path=preview.paths[0],rest=after.balls.find(b=>b.id===0);
+      if(breakout.length){
+       const exit=path.filter(p=>p.t>=preview.firstBallContact.t);
+       const miss=Math.min(...exit.map((p,i)=>Math.min(...breakout.map(target=>
+        distanceToSegment(target,exit[Math.max(0,i-1)],p)))));
+       if(miss<node.state.ballR*8)breakoutSeeds.push({controls,miss});
+      }
       const travel=path.reduce((distance,p,i)=>i?distance+Math.hypot(p.x-path[i-1].x,p.y-path[i-1].y):0,0);
       const rails=preview.railEvents.filter(e=>e.id===0&&e.t>preview.firstBallContact.t).length;
       const position=step?quality:0;
@@ -723,11 +767,7 @@
        if(record(controls,preview)&&++makes>=(indirect?3:1))break;
       }
      }
-     if(strongest&&!indirect&&!wideSearch){
-      const seed=strongest.controls;
-      const refinements=count===2
-       ?[[-.14,0,0],[-.07,0,0],[.07,0,0],[.14,0,0],[0,-.10,0],[0,.10,0],[0,0,-.10],[0,0,.10]]
-       :[[-.08,0,0],[.08,0,0]];
+     function* refine(seed,refinements){
       for(const [pace,draw,english] of refinements){
        if(pace&&state.planSpeed===false||draw&&state.planFollow===false||english&&state.planSpin===false)continue;
        const speed=seed.speed+pace;
@@ -738,6 +778,23 @@
        const controls={...seed,speed,follow,sideSpin,freeAim};
        record(controls,yield* simulate(node.state,controls));
        yield;
+      }
+     }
+     if(strongest&&!indirect&&!wideSearch){
+      yield* refine(strongest.controls,count===2
+       ?[[-.14,0,0],[-.07,0,0],[.07,0,0],[.14,0,0],[0,-.10,0],[0,.10,0],[0,0,-.10],[0,0,.10]]
+       :[[-.08,0,0],[.08,0,0]]);
+     }
+     if(breakoutSeeds.length&&!wideSearch){
+      breakoutSeeds.sort((a,b)=>a.miss-b.miss);
+      const seeds=new Map();
+      for(const {controls} of breakoutSeeds){
+       const key=Math.round(controls.follow*8);
+       if(!seeds.has(key))seeds.set(key,controls);
+       if(seeds.size===2)break;
+      }
+      for(const seed of seeds.values()){
+       yield* refine(seed,[[-.13,0,0],[.13,0,0],[0,-.12,0],[0,.12,0],[0,0,-.12],[0,0,.12]]);
       }
      }
     }

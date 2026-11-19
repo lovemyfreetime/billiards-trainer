@@ -16,6 +16,8 @@ The planner gives priority to legal, repeatable position and uses its configured
 | Leave an insurance shot | Reward a leave with several viable legal balls in group play. In rotation an alternate pocket can help, with the same legal object ball. |
 | Plan around groups of balls | Spot close object-ball pairs involving a ball needed in the current game. Include extra follow, draw, speed, and side-spin trials when clusters are present. |
 | Open trouble balls during a scoring shot | Reward a simulated pot that separates a surviving cluster, creates a pocket route, and leaves a workable next shot. Favor routes that also leave insurance. |
+| Use a relay ball to open the next shot | For a trapped or rail-side next ball, probe scoring strokes whose post-contact cue path approaches the target or a nearby relay. Refine promising speed and spin. Chronological contacts can establish a chain such as cue ball → 9 → 2, or cue ball → scoring ball → 2. Give the chain credit when it improves access to the next legal ball. |
+| Use the scoring ball to open the next shot | Retain a kiss candidate off a clustered next ball even when the scoring ball has a direct pot available. Verify the intended hit, pot, pocket, and resulting leave in the simulator. |
 | Avoid making another cluster | Penalize unintended new tight pairs even when the same stroke frees a different pair. |
 | Preserve clear lanes | Check the cue-ball route to the ghost ball and the object-ball route toward the pocket. Carry any changes from collision into subsequent shots. |
 | Avoid contact with extra balls | Score extra collisions as a cost. A light nudge receives a smaller penalty if the cue ball still leaves a close, open shot. The planner keeps a verified route when contact is the way out. |
