@@ -116,3 +116,21 @@ assert(drain(g.recommendSafety(exchange,[],exchangeTrial)));
 assert(opponentTries>0,'assigned-group safety examines an opponent reply');
 assert(returnTries>0,'an off-suit-only pot returns the inning with the potted solid removed');
 console.log('Eight-ball safety looks for a counter from the actual layout after an opponent pockets only a solid.');
+
+const twoWayLayout={...cluster,balls:[{id:0,x:.60,y:.30},{id:1,x:1.3,y:.35},{id:2,x:1.7,y:.65}]};
+const twoWayAim=g.suggest(twoWayLayout);
+const twoWayAngle=Math.atan2(twoWayAim.aim.y-.30,twoWayAim.aim.x-.60);
+const pockets={'top left':'TL','top middle':'TM','top right':'TR','bottom left':'BL','bottom middle':'BM','bottom right':'BR'};
+const made={...contactTrial,firstBallContact:{objId:1,t:.1},pocketEvents:[{id:1,pocket:pockets[twoWayAim.pocket]}],
+ collisionEvents:[],finalBalls:twoWayLayout.balls.filter(ball=>ball.id!==1).map(ball=>({...ball,active:true}))};
+const coveredMiss={...made,pocketEvents:[],railEvents:[{id:1,t:.5,rail:'top rail'}],finalBalls:[
+ {id:0,x:.55,y:.67,active:true},{id:1,x:1.73,y:.65,active:true},{id:2,x:1.25,y:.65,active:true}
+]};
+const missOffset=.35*Math.PI/180;
+function* twoWayTrial(layout,{freeAim}){
+ const delta=Math.atan2(freeAim.y-.30,freeAim.x-.60)-twoWayAngle;
+ return Math.abs(Math.abs(Math.atan2(Math.sin(delta),Math.cos(delta)))-missOffset)<1e-6?coveredMiss:made;
+}
+assert.deepEqual(drain(g.runout(twoWayLayout,twoWayTrial,1))[0]?.twoWay,{covered:2,missed:2});
+assert.equal(drain(g.runout({...twoWayLayout,setupMode:'straight'},twoWayTrial,1))[0]?.twoWay,undefined);
+console.log('Two-way probes recognize verified miss cover in rotation and bypass it in straight pool.');

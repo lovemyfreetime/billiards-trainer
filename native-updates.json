@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "2d8beca567d377ac863df1b2c8a13754ec1c1486d1d84bb5f666b3612078f484",
-  "sequence": 1795099620,
+  "version": "266abacbacee113a7dbde4ec070281d54cc3911b0b5d5121e3f8af0e7f4f5e0a",
+  "sequence": 1795099894,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3781,8 +3781,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "cad0fa6eb68c7475413aaf44ccd523c8d2f7d054de991022c1a3646fadcdf41e",
-      "length": 1000553
+      "sha256": "795e5fd889ba9c1d65fc66e19f72392a5f5f150be042fe21e3022983d4323d59",
+      "length": 1000692
     },
     "install/android/index.html": {
       "sha256": "5af2961b4386233b6f9206577ee2acdd6b08068620c3f60c57b176c471ca3681",
@@ -3881,7 +3881,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "f9900e7f2c3c9dfe0650f29353f85c0b5193820b93acb6f299925c5e13aaf0e0",
+      "sha256": "e49f4ba6d1e011310778c78dc13e7901004661751f12134cf8172019e974c067",
       "length": 160382
     },
     "phone-play.css": {
@@ -5369,7 +5369,7 @@
       "length": 2168
     },
     "service-worker.js": {
-      "sha256": "5c72d86ed9e99b2c770209b44daae96a3114010f3586ede0622489b26948d80a",
+      "sha256": "007c6618b8792ee509fbd5fabbbc633450885a87fca24a44ad249977fb9888bd",
       "length": 7933
     },
     "table-orbit.js": {
@@ -5441,8 +5441,8 @@
       "length": 10498
     },
     "trainer-guidance.js": {
-      "sha256": "584af7d631f8ce513b5f6f566a765d0dee710d4bf2a8afe857fb9c0d6102c23f",
-      "length": 57892
+      "sha256": "134843e6c0e4a6ab93edaf18f247ba9ea1c4aa5b450df9aec171a1d81574ca5e",
+      "length": 59115
     },
     "trainer-layout-files.js": {
       "sha256": "262d5dd963d46919608a881d3caca7a798343ab4106d158167d9e19895ecc950",

@@ -132,7 +132,8 @@
   return {kind:'Extra contact',balls:[...other],cost:.31+.28*newPairs};
  }
  function safetyState(state,opponent=false){
-  if(state.setupMode==='9ball')return {...state,guidanceMode:'order'};
+  if(['9ball','10ball'].includes(state.setupMode))return {...state,guidanceMode:'order'};
+  if(state.setupMode!=='8ball'&&!['open','stripes','solids'].includes(order(state)))return state;
   const player=state.activePlayer||1,group=state.guidanceGroups?.[player]||'open';
   const targetGroup=opponent?(group==='solids'?'stripes':group==='stripes'?'solids':'open'):group;
   return {...state,guidanceMode:'groups',guidanceGroups:{[player]:targetGroup}};
@@ -978,6 +979,32 @@
     }
    }
    beam.sort(rank);
+   if(!state.guidanceBreak&&state.setupMode!=='straight'){
+    for(const node of beam.slice(0,4)){
+     const shot=node.shots.at(-1),{controls,start}=shot;
+     const aim=heading(start,controls.freeAim),length=distance(start,controls.freeAim);
+     const error=Math.max(.35,1.8*(state.guidanceAimErrorDeg||.15))*Math.PI/180;
+     let missed=0,covered=0,adjustment=0;
+     for(const offset of [-error,error]){
+      const freeAim=along(start,aim+offset,length);
+      const preview=yield* simulate(node.start,{...controls,freeAim});
+      yield;
+      if(!preview?.settled)continue;
+      if(afterShot(node.start,preview,shot.ballId,shot.firstId))continue;
+      missed++;
+      const defense=safetyLeave(node.start,preview);
+      if(defense){
+       covered++;
+       adjustment+=Math.min(.14,.045*Math.max(0,defense.score));
+      }else if(!preview.pocketEvents.length||preview.pocketEvents.some(event=>event.id===0)){
+       adjustment-=.08;
+      }
+     }
+     if(missed&&missed===covered)shot.twoWay={covered,missed};
+     node.rank+=adjustment;node.score+=adjustment;
+    }
+    beam.sort(rank);
+   }
    if(beam.length){
     best=beam.find(node=>node.terminal)||beam[0];
     onProgress?.(best.shots);
