@@ -55,7 +55,7 @@
   if(!sol?.reached||!sol.fullShot||sol.scratch)return null;
   const ball=s.balls.find(b=>b.id===sol.ballId&&b.active!==false),cue=s.balls.find(b=>b.id===0&&b.active!==false);
   if(!cue||!ball||!sol.bounces?.length||!valid(sol.target))return null;
-  const contact=sol.contactKick,location=sol.locationKick,bank=sol.mode==='bank',target=contact?ball:sol.target;
+  const contact=sol.contactKick,location=sol.locationKick,bank=sol.mode==='bank',kickPot=!sol.contactKick&&!sol.locationKick&&sol.mode==='kick',target=contact||kickPot?ball:sol.target;
   const nodes=[bank?ball:cue,...sol.bounces,target];if(nodes.some(p=>!valid(p)))return null;
   const distances=nodes.slice(1).map((p,i)=>length(nodes[i],p)),travel=distances.reduce((a,b)=>a+b,0),last=nodes.at(-2),u=unit(last,target);
   let amplification=1;
@@ -66,10 +66,17 @@
   let half,bias=0,outcome;
   if(contact){half=2*s.ballR;outcome='Contact';const path=sol.points||[],end=path.at(-1);if(valid(end)&&length(last,end)>1e-6)bias=cross({x:ball.x-last.x,y:ball.y-last.y},unit(last,end));}
   else if(location&&!sol.intentionalCuePocket){half=s.ballR*.35;outcome='Reach zone';}
-  else{const p=pockets(s).reduce((a,b)=>length(a,target)<length(b,target)?a:b);if(length(p,target)>.15)return null;half=aperture(s,p,u);outcome=bank?'Bank pocket':'Kick pocket';
-   if(!bank&&!location){const obj=s.balls.find(b=>b.id===sol.ballId),objectPath=sol.objectPath||[];if(!objectPath.length||!obj)return null;const first=objectPath[0],end=objectPath.at(-1),d=length(first,end);variance+=(d*travel/(2*s.ballR)*spread(s))**2;}
+  else{const p=pockets(s).reduce((a,b)=>length(a,sol.target)<length(b,sol.target)?a:b);if(length(p,sol.target)>.15)return null;
+   const departure=kickPot?unit(ball,p):u;half=aperture(s,p,departure);outcome=bank?'Bank pocket':'Kick pocket';
+   if(kickPot){
+    const path=sol.points||[],end=path.at(-1);if(!valid(end)||length(last,end)<.0001)return null;
+    const into=unit(last,end),cosine=dot(into,departure),out=length(ball,p);if(cosine<=.01)return null;
+    // Convert lateral uncertainty at cue/object contact into object departure error.
+    variance=variance*(out/(2*s.ballR*cosine))**2+(s.ballR*.04)**2;
+   }
   }
-  return {probability:interval(half,Math.sqrt(variance),bias),outcome,rails:sol.bounces.length,point:contact?{x:ball.x,y:ball.y}:sol.target,assumption:'reference-accuracy',model:'angular-tolerance-v1'};
+  const probability=interval(half,Math.sqrt(variance),bias);if(!Number.isFinite(probability))return null;
+  return {probability,outcome,rails:sol.bounces.length,point:contact?{x:ball.x,y:ball.y}:sol.target,assumption:'reference-accuracy',model:'angular-tolerance-v1'};
  }
  function text(p){return p==null?'—':p>.975?'>95%':p<.025?'<5%':'~'+Math.round(p*20)*5+'%';}
  function color(p,best=false){return p==null?'#b6c2c9':best?'#79efa1':p<.35?'#ff9d8d':'#f2d77a';}

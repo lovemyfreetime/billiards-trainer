@@ -4417,7 +4417,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const setup=t.requested&&!t.phase?bankKickRouteCache.solution:null;
             if(setup)setup.setupNeeded=bankKickSetupNeeded(setup);
             $('bankKickRouteStatus').textContent=bankKickRouteCache.pending?'Calculating…':!setup?bankKickRouteCache.message:!setup.setupNeeded?'Setup applied — ready to shoot'+(setup.intentionalCuePocket?' (cue ball to selected pocket)':''):setup?.scratch?'Cue ball scratches':setup?.intentionalCuePocket?'Cue ball → selected pocket (intentional)':setup?.locationKick?'Cue ball → target location':setup?.contactKick?'Kick contact verified':setup?.pocketReserveDiamonds!=null?(setup.pocketReserveDiamonds<=1.1?'Pocket pace · ':'Firmer route · ')+setup.pocketReserveDiamonds.toFixed(1)+' ♦ reserve':'';
-            const chance=setup&&S.showPocketChances!==false?window.BilliardsShotChance.route({...S,pocketGeometry:pocketModel()},setup):null;
+            const secondChance=S.activeShot===2&&S.shot2Enabled?ensureShot2():null;
+            const chance=setup&&S.showPocketChances!==false?window.BilliardsShotChance.route({...S,pocketGeometry:pocketModel(),balls:secondChance?S.balls.map(b=>b.id===0?{...b,x:secondChance.x,y:secondChance.y}:b):S.balls},setup):null;
             if(chance)$('bankKickRouteStatus').textContent+=' · Est. '+chance.outcome.toLowerCase()+' '+window.BilliardsShotChance.text(chance.probability);
             if(setup&&!Number.isFinite(setup.shotDiamonds))setup.shotDiamonds=powerFeelForSpeed(setup.shotSpeed).diamonds;
             $('bankKickSpeedValue').textContent=setup?setup.shotSpeed.toFixed(2)+' m/s':'—';
