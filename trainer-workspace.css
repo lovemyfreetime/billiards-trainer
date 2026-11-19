@@ -263,7 +263,20 @@ body.trainer-workspace #workspaceBallShelf :is(#workspaceClearBalls,#phoneTrayTo
 #table3DPlanControls #table3DPlan { border-radius:9px 0 0 9px; }
 #table3DPlanControls #table3DPlanVisibility { border-left:0; border-radius:0 9px 9px 0; }
 #table3DPlanControls #table3DPlanVisibility[aria-pressed=false] { background:#131f27; }
-body.trainer-workspace #table3DTools #table3DPlanControls { min-width:0; }
+body.trainer-workspace #table3DTools #table3DPlanControls { min-width:0; grid-template-columns:repeat(2,minmax(44px,1fr)); }
+body.trainer-workspace #table3DTools #table3DPlanControls button { width:100%; }
+body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DTools.tray-actions-in-tools {
+  display:grid;
+  gap:4px;
+}
+body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DTools.tray-actions-in-tools > button {
+  width:100%!important;
+  min-width:0!important;
+}
+@media(max-width:440px) {
+  body.trainer-workspace #table3DTools.tray-actions-in-tools #table3DZoomGroup button { min-width:20px!important; }
+  body.trainer-workspace #table3DTools.tray-actions-in-tools #table3DZoomSlider { min-width:26px!important; }
+}
 body.trainer-workspace #workspaceBallShelf #table3DPlanControls {
   position:absolute;
   right:6px;
