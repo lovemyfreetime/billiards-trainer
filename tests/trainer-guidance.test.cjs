@@ -165,3 +165,23 @@ function* onlyTightRailRoute(layout,controls){
 assert.equal(drain(g.runout(railRoomLayout,onlyTightRailRoute,1))[0]?.rest.y,.06,
  'keep the tight rail leave when it is the available continuation');
 console.log('Runout ranking prefers cushion clearance and retains a tight fallback.');
+
+const cushionSearchLayout={...twoWayLayout,planSpin:true};
+for(const railCount of [2,3,4]){
+ let extraTrials=0;
+ function* cushionSearchTrial(layout,controls){
+  const longer=Math.abs(controls.sideSpin-.27)<1e-8;
+  if(longer)extraTrials++;
+  const names=['left rail','top rail','right rail','bottom rail'];
+  return {...made,railEvents:names.slice(0,longer?railCount:1).map((rail,index)=>({id:0,t:.2+index*.1,rail})),
+   finalBalls:[
+    {id:0,x:longer?1.27:.06,y:longer?.65:.12,active:true},
+    {id:2,x:1.7,y:.65,active:true}
+   ]};
+ }
+ const [cushionPlan]=drain(g.runout(cushionSearchLayout,cushionSearchTrial,1));
+ assert.equal(cushionPlan?.preview.railEvents.length,railCount,
+  'consider each longer simulated cushion count when the basic leave is poor');
+ assert(extraTrials>0&&extraTrials<16,'keep the extension bounded');
+}
+console.log('Runout search can choose two-, three-, and four-cushion leaves from a bounded trial set.');

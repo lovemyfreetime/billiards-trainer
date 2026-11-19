@@ -763,6 +763,9 @@
   }
   return targets;
  }
+ function exitRailCount(preview){
+  return preview.railEvents.filter(event=>event.id===0&&event.t>preview.firstBallContact.t).length;
+ }
  function* searchRunout(state,simulate,depth,compensate,wideSearch,onProgress,onAlternative){
   let beam=[{state,shots:[],score:0,rank:0,speedMisses:0}],best=beam[0];
   const pitches=[[.74,.24,0],[.9,0,0],[1,0,0],[1,.5,0],[1,-.48,0],[1.15,.8,0],[1.22,-.75,0],
@@ -779,6 +782,7 @@
   const manualPreview=hasManualStroke?yield* simulate(state,manual):null;
   for(let step=0;step<depth&&beam.length;step++){
    const next=[];
+   let railTrials=16;
    for(const node of beam){
     const cue=node.state.balls.find(b=>b.id===0);
     const pairs=clusterPairs(node.state);
@@ -802,8 +806,9 @@
      for(const shot of shortlisted)
       routes.push({shot,quality:-shot.cost});
     }
-    for(const {shot,quality} of routes){
+    for(const [routeIndex,{shot,quality}] of routes.entries()){
      const indirect=shot.kind!=='pot';
+     const exploreRails=!wideSearch&&!indirect&&needsPosition&&node===beam[0]&&routeIndex<2;
      const base=Math.max(.78,Math.min(2.7,Math.sqrt((shot.cueDistance+shot.objectDistance/(Math.cos(shot.cutAngle*Math.PI/180)**2+.05))*1.15)));
      const dx=shot.aim.x-cue.x,dy=shot.aim.y-cue.y;
      const object=node.state.balls.find(b=>b.id===shot.ballId);
@@ -842,7 +847,7 @@
      }
      const tried=new Set();
      const current=step?node.shots.at(-1).controls:state;
-     let strongest=null;
+     let strongest=null,railSeed=null,bestLeave=-Infinity;
      function record(controls,preview){
       const after=afterShot(node.state,preview,shot.ballId,shot.firstId);
       if(!after||preview.pocketEvents[0].pocket!==pocketCodes[shot.pocket]||!verifiesIndirect(shot,preview))return false;
@@ -854,7 +859,7 @@
        if(miss<node.state.ballR*8)breakoutSeeds.push({controls,miss});
       }
       const travel=path.reduce((distance,p,i)=>i?distance+Math.hypot(p.x-path[i-1].x,p.y-path[i-1].y):0,0);
-      const rails=preview.railEvents.filter(e=>e.id===0&&e.t>preview.firstBallContact.t).length;
+      const rails=exitRailCount(preview);
       const position=step?quality:0;
       const spinCost=(wideSearch ? .075 : .20)*Math.abs(controls.follow)+(wideSearch ? .10 : .25)*Math.abs(controls.sideSpin);
       const terminal=after.wonRack||!eligibleBalls(after).length||!['order','any'].includes(order(after))&&shot.ballId===8;
@@ -867,6 +872,11 @@
       const shots=[...node.shots,{...shot,controls,preview,start:{x:cue.x,y:cue.y},rest,contact}];
       next.push({state:after,start:node.state,shots,score,rank,leave,crowding,terminal,speedMisses:node.speedMisses});
       if(!strongest||rank>strongest.rank)strongest={controls,rank};
+      if(exploreRails){
+       bestLeave=Math.max(bestLeave,leave-crowding);
+       if(!terminal&&rails>0&&rails<=4&&(!railSeed||rank>railSeed.rank))railSeed={controls,rank};
+       if(terminal)bestLeave=Infinity;
+      }
       return true;
      }
      if(!step&&manualPreview)record(manual,manualPreview);
@@ -891,8 +901,9 @@
        if(record(controls,preview)&&++makes>=(indirect?3:1))break;
       }
      }
-     function* refine(seed,refinements){
+     function* refine(seed,refinements,multiRail=false){
       for(const [pace,draw,english] of refinements){
+       if(multiRail&&!railTrials)return;
        if(pace&&state.planSpeed===false||draw&&state.planFollow===false||english&&state.planSpin===false)continue;
        const speed=seed.speed+pace;
        if(speed<=0||speed>7)continue;
@@ -900,7 +911,10 @@
        const correction=compensate(node.state,seed.sideSpin,seed.follow)-compensate(node.state,sideSpin,follow);
        const aim=seed.freeAim,freeAim=along(cue,heading(cue,aim)+correction,distance(cue,aim));
        const controls={...seed,speed,follow,sideSpin,freeAim};
-       record(controls,yield* simulate(node.state,controls));
+       if(multiRail)railTrials--;
+       const preview=yield* simulate(node.state,controls);
+       const rails=multiRail&&preview?.firstBallContact?exitRailCount(preview):0;
+       if(!multiRail||rails>=2&&rails<=4)record(controls,preview);
        yield;
       }
      }
@@ -908,6 +922,11 @@
       yield* refine(strongest.controls,count===2
        ?[[-.14,0,0],[-.07,0,0],[.07,0,0],[.14,0,0],[0,-.10,0],[0,.10,0],[0,0,-.10],[0,0,.10]]
        :[[-.08,0,0],[.08,0,0]]);
+     }
+     if(exploreRails&&strongest&&bestLeave<1.05){
+      const seed=(railSeed||strongest).controls;
+      yield* refine(seed,[[.55,0,0],[1.05,0,0],[1.65,0,0],[1.05,0,.26],[1.05,0,-.26],
+       [0,.25,0],[0,0,.27],[0,0,-.27]],true);
      }
      if(breakoutSeeds.length&&!wideSearch){
       breakoutSeeds.sort((a,b)=>a.miss-b.miss);
