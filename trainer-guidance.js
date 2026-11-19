@@ -49,22 +49,39 @@
   if(live(state).some(b=>b.id!==target&&!survivors.has(b.id)))return null;
   let guidanceGroups=state.guidanceGroups;
   if(order(state)==='open')guidanceGroups={...guidanceGroups,[state.activePlayer||1]:target<8?'solids':'stripes'};
+  return {...settledLayout(state,preview),guidanceGroups};
+ }
+ function settledLayout(state,preview){
   const balls=preview.finalBalls.filter(b=>b.active).map(b=>({...state.balls.find(old=>old.id===b.id),...b}));
-  return {...state,balls,guidanceGroups};
+  return {...state,balls};
+ }
+ function afterBreak(state,preview){
+  const contact=preview?.firstBallContact?.objId;
+  if(!preview?.settled||!contact||!preview.finalBalls.some(b=>b.id===0&&b.active))return null;
+  if(order(state)==='order'&&!eligibleBalls(state).some(b=>b.id===contact))return null;
+  const winningBall={'8ball':8,'9ball':9,'10ball':10}[state.setupMode];
+  if(winningBall&&preview.pocketEvents.some(b=>b.id===winningBall))return null;
+  return {...settledLayout(state,preview),guidanceBreak:false,guidanceScratch:false};
+ }
+ function afterUnpocketedShot(state,preview){
+  if(!preview?.settled||preview.pocketEvents.length||!preview.finalBalls.some(b=>b.id===0&&b.active))return null;
+  if(!eligibleBalls(state).some(b=>b.id===preview.firstBallContact?.objId))return null;
+  return settledLayout(state,preview);
  }
  function positionQuality(state,shot,following,wideSearch){
   const r=state.ballR,cue=state.balls.find(b=>b.id===0);
   const ball=state.balls.find(b=>b.id===shot.ballId);
   const distance=Math.hypot(cue.x-ball.x,cue.y-ball.y)/(state.tableL/8);
   const cut=shot.cutAngle;
-  const distanceCost=.25*distance+.65*Math.max(0,distance-2)+.36*Math.max(0,.55-distance);
+  const crowding=3*Math.max(0,.75-distance);
+  const distanceCost=.15*distance+.65*Math.max(0,distance-2)+crowding;
   const steepCost=.036*Math.max(0,cut-45);
   const railRoom=Math.min(cue.x,cue.y,state.tableL-cue.x,state.tableW-cue.y)/r;
   if(wideSearch){
    const diameters=shot.cueDistance/(2*r);
    const travel=.068*Math.max(0,diameters-4)+.22*Math.max(0,2.5-diameters);
    const straight=live(state).filter(b=>b.id>0).length>1?.075*Math.max(0,12-cut):0;
-   return .55*shot.probability-travel-steepCost-straight-.34*Math.max(0,1-railRoom/4);
+   return .55*shot.probability-travel-steepCost-straight-crowding-.34*Math.max(0,1-railRoom/4);
   }
   let shape=0;
   if(following.length){
@@ -106,7 +123,7 @@
   const spread=2*r,room=[[dx,dy],[-dx,-dy],[-dy,dx],[dy,-dx]].reduce((sum,[x,y])=>sum+scoreAt(cue.x+x/len*spread,cue.y+y/len*spread),0)/4;
   return quality+.55*room;
  }
- function* searchRunout(state,simulate,depth,compensate,wideSearch){
+ function* searchRunout(state,simulate,depth,compensate,wideSearch,onProgress){
   let beam=[{state,shots:[],score:0,rank:0,speedMisses:0}],best=beam[0];
   const pitches=[[.74,.24,0],[.9,0,0],[1,0,0],[1,.5,0],[1,-.48,0],[1.15,.8,0],[1.22,-.75,0],
    [1.32,0,0],[1.52,.28,0],[1.7,-.15,0],[1.02,.2,-.34],[1.02,.2,.34],
@@ -133,6 +150,8 @@
      const farLeave=live(node.state).some(b=>b.id>0&&b.id!==shot.ballId&&Math.hypot(b.x-object.x,b.y-object.y)>state.tableL*.5);
      const strokes=needsPosition?(farLeave?[...pitches,...longTravel]:[...pitches]):pitches.slice(0,10);
      if(needsPosition&&!wideSearch)strokes.unshift(...positionTrials);
+     if(needsPosition&&!wideSearch&&shot.cutAngle<24)
+      strokes.push([.85,-.28,0],[1.18,-.35,0],[1.45,.65,0],[1.75,.65,0]);
      if(needsPosition&&shot.cutAngle<24)strokes.push([1.62,-.87,0],[1.95,-.87,0],[2.30,-.95,0]);
      if(!step&&hasManualStroke)strokes.unshift([manual.speed/base,manual.follow,manual.sideSpin]);
      const tried=new Set();
@@ -212,15 +231,18 @@
     }
    }
    beam.sort(rank);
-   if(beam.length)best=beam.find(node=>node.terminal)||beam[0];
+   if(beam.length){
+    best=beam.find(node=>node.terminal)||beam[0];
+    onProgress?.(best.shots);
+   }
    if(best.terminal)break;
    beam=beam.slice(0,depth>3?4:5);
   }
   return best;
  }
- function* runout(state,simulate,depth=3,compensate=()=>0){
+ function* runout(state,simulate,depth=3,compensate=()=>0,onProgress){
   if(!live(state).some(b=>b.id===0))return [];
-  let best=yield* searchRunout(state,simulate,depth,compensate,false);
+  let best=yield* searchRunout(state,simulate,depth,compensate,false,onProgress);
   // If the close-position search stalls, try more varied cue-ball leaves.
   if(!best.terminal&&best.shots.length<depth){
    const fallback=yield* searchRunout(state,simulate,depth,compensate,true);
@@ -234,6 +256,6 @@
    return {...shot,leaveSide:Math.abs(offset)<state.ballR*.35?'on line':offset>0?'right':'left'};
   });
  }
- const api={preferences,restorePreferences,suggest,order,eligibleBalls,afterShot,runout};
+ const api={preferences,restorePreferences,suggest,order,eligibleBalls,afterShot,afterBreak,afterUnpocketedShot,runout};
  if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsGuidance=api;
 })(typeof window==='object'?window:globalThis);

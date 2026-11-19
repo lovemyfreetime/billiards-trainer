@@ -104,15 +104,16 @@
   orderSelect.parentElement.hidden=mode!=='groups';if(mode==='groups')orderSelect.value=order;
   nextButton.setAttribute('aria-busy',String(job.pending));
   const ready=!job.continuation&&job.shots.length>0;
-  planButton.disabled=job.pending||!!window.billiards3DBallControls?.status()?.busy;
-  const text=job.pending?'Planning…':ready?'Use Plan':'Plan';
+  planButton.disabled=job.pending&&!ready||!!window.billiards3DBallControls?.status()?.busy;
+  const text=ready?'Use Plan':job.pending?'Planning…':'Plan';
   const visible=api.planVisible(),visibilityLabel=visible?'Hide':'Show';
   if(planVisibility.textContent!==visibilityLabel)planVisibility.textContent=visibilityLabel;
   planVisibility.setAttribute('aria-pressed',String(visible));
   if(planButton.textContent!==text)planButton.textContent=text;
   planButton.setAttribute('aria-busy',String(job.pending));planButton.dataset.ready=String(ready);
   const count=job.shots.length,route=job.shots.map(s=>s.ballId+' → '+s.pocket+(s.leaveSide?' (leave '+s.leaveSide+')':'')).join(' · ');
-  const message=job.background?'Analyzing the next leave…':job.pending?'Analyzing…':count?count+(count===1?' shot':' shots')+' found · '+route:job.source&&!job.continuation?'No direct route found.':'';
+  const message=count?count+(count===1?' shot':' shots')+(job.pending?' ready · Analyzing further · ':' found · ')+route:
+   job.pending?(job.background?'Analyzing in the background…':'Analyzing…'):job.source&&!job.continuation?'No direct route found.':'';
   if(orderStatus.textContent!==message)orderStatus.textContent=message;
   planButton.title=message||'Plan a runout';
   planButton.setAttribute('aria-label',ready?'Apply planned Shot 1':job.pending?'Planning runout':'Plan a runout');
