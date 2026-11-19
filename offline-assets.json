@@ -1,5 +1,5 @@
 {
-  "version": "604eb284af037705",
+  "version": "e05271022b70da5b",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -1358,7 +1358,7 @@
     "trainer-cue-clearance.js": "150877d3d38c4d98e2d502eb23b9b10f9fc957a31002b63850c6722a786601d7",
     "trainer-cue-controls.js": "7487ff2ac7ee352223ba588395a75c211edc951926f396b90766c0d7d1ff6902",
     "trainer-cue3d.js": "5071e13bd949d46769575f17c1558a7717dd885a78ebe270cd172b5490526953",
-    "trainer-guidance.js": "93e10a2359bbfa9c09c794ad9b263074afd427afbea0d4ab4164623f264dc741",
+    "trainer-guidance.js": "9422fcced5e786c049a7010c13ee5e1bbed7513dfa28b28344080dafb7280c32",
     "trainer-layout-files.js": "262d5dd963d46919608a881d3caca7a798343ab4106d158167d9e19895ecc950",
     "trainer-learning.css": "ca11691f29528c968207246ed13d13996c166bc4ab6530d55c3616f9a8fb515d",
     "trainer-learning.js": "5d0b35a0d61a577ee97acabd11e57af312a32835c42ee03e5e6f35565de264c3",

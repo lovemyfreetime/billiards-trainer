@@ -390,8 +390,10 @@
  }
  function landingClearanceCost(state){
   const balls=live(state),cue=balls.find(ball=>ball.id===0);
+  const diamond=state.tableL/8;
   const nearest=balls.reduce((gap,ball)=>ball.id===0?gap:Math.min(gap,distance(cue,ball)),Infinity);
-  return 4*Math.max(0,.75-nearest/(state.tableL/8));
+  const cushion=Math.min(cue.x,state.tableL-cue.x,cue.y,state.tableW-cue.y);
+  return 4*Math.max(0,.75-nearest/diamond)+3.5*Math.max(0,.5-cushion/diamond);
  }
  function positionQuality(state,shot,following,wideSearch){
   const r=state.ballR,cue=state.balls.find(b=>b.id===0);

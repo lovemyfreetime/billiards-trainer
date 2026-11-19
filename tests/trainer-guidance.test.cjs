@@ -150,3 +150,18 @@ const neighbor=roomPlan.preview.finalBalls.find(ball=>ball.id===3);
 assert(Math.hypot(neighbor.x-landing.x,neighbor.y-landing.y)>=.75*nearestDiamond,
  'give the off-target 3 room even though the distance to the 2 is identical');
 console.log('Runout ranking prefers clearance around the leave from an off-target ball.');
+
+const railRoomLayout={...twoWayLayout,planFollow:true};
+function* railClearanceTrial(layout,controls){
+ return {...made,finalBalls:[
+  {id:0,x:.55,y:controls.follow>.1?.19:.06,active:true},{id:2,x:.32,y:.35,active:true}
+ ]};
+}
+const [railRoomPlan]=drain(g.runout(railRoomLayout,railClearanceTrial,1));
+assert(railRoomPlan?.rest.y>=.5*railRoomLayout.tableL/8,'prefer a leave at least half a diamond off the cushion');
+function* onlyTightRailRoute(layout,controls){
+ return yield* railClearanceTrial(layout,{...controls,follow:0});
+}
+assert.equal(drain(g.runout(railRoomLayout,onlyTightRailRoute,1))[0]?.rest.y,.06,
+ 'keep the tight rail leave when it is the available continuation');
+console.log('Runout ranking prefers cushion clearance and retains a tight fallback.');
