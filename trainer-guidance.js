@@ -388,13 +388,17 @@
   }
   return railPenalty+bridgePenalty;
  }
+ function landingClearanceCost(state){
+  const balls=live(state),cue=balls.find(ball=>ball.id===0);
+  const nearest=balls.reduce((gap,ball)=>ball.id===0?gap:Math.min(gap,distance(cue,ball)),Infinity);
+  return 4*Math.max(0,.75-nearest/(state.tableL/8));
+ }
  function positionQuality(state,shot,following,wideSearch){
   const r=state.ballR,cue=state.balls.find(b=>b.id===0);
   const ball=state.balls.find(b=>b.id===shot.ballId);
   const distance=Math.hypot(cue.x-ball.x,cue.y-ball.y)/(state.tableL/8);
   const cut=shot.cutAngle;
-  const crowding=3*Math.max(0,.75-distance);
-  const distanceCost=.17*Math.abs(distance-1.15)+.70*Math.max(0,distance-2)+crowding;
+  const distanceCost=.17*Math.abs(distance-1.15)+.70*Math.max(0,distance-2);
   const steepCost=.054*Math.max(0,cut-40);
   const clearance=strokeClearanceCost(state,cue,shot.aim);
   const finish=following.length===0;
@@ -406,7 +410,7 @@
    const diameters=shot.cueDistance/(2*r);
    const travel=.068*Math.max(0,diameters-4)+.22*Math.max(0,2.5-diameters);
    const straight=finish?0:.075*Math.max(0,12-cut);
-   return .55*shot.probability-travel-steepCost-straight-crowding-clearance-angleCost;
+   return .55*shot.probability-travel-steepCost-straight-clearance-angleCost;
   }
   let shape=0;
   if(following.length){
@@ -853,12 +857,13 @@
       const spinCost=(wideSearch ? .075 : .20)*Math.abs(controls.follow)+(wideSearch ? .10 : .25)*Math.abs(controls.sideSpin);
       const terminal=after.wonRack||!eligibleBalls(after).length||!['order','any'].includes(order(after))&&shot.ballId===8;
       const leave=terminal?0:leaveQuality(after,wideSearch,path);
-      const contact=assessContact(node.state,after,preview,shot,pairs,leave);
+      const crowding=terminal?0:landingClearanceCost(after);
+      const contact=assessContact(node.state,after,preview,shot,pairs,leave-crowding);
       const score=node.score+Math.log(Math.max(.01,shot.probability))+position+repositionValue(node.state,after)
-       -.17*travel/state.tableL-.05*rails-spinCost-contact.cost-(indirect ? .16 : 0);
+       -.17*travel/state.tableL-.05*rails-spinCost-contact.cost-crowding-(indirect ? .16 : 0);
       const rank=score+leave;
       const shots=[...node.shots,{...shot,controls,preview,start:{x:cue.x,y:cue.y},rest,contact}];
-      next.push({state:after,start:node.state,shots,score,rank,leave,terminal,speedMisses:node.speedMisses});
+      next.push({state:after,start:node.state,shots,score,rank,leave,crowding,terminal,speedMisses:node.speedMisses});
       if(!strongest||rank>strongest.rank)strongest={controls,rank};
       return true;
      }
@@ -972,14 +977,15 @@
      let penalty=wideSearch&&!samePocket ? .46 : 0;
      if(samePocket&&!node.terminal){
       const varied=leaveQuality(leave,wideSearch);
-      penalty=.23*Math.max(0,.85-varied)+.20*Math.max(0,node.leave-varied);
+      penalty=.23*Math.max(0,.85-varied)+.20*Math.max(0,node.leave-varied)
+       +.35*Math.max(0,landingClearanceCost(leave)-node.crowding);
      }
      node.rank-=penalty;node.score-=penalty;
      yield;
     }
    }
    beam.sort(rank);
-   if(!state.guidanceBreak&&state.setupMode!=='straight'){
+   if(!state.guidanceBreak){
     for(const node of beam.slice(0,4)){
      const shot=node.shots.at(-1),{controls,start}=shot;
      const aim=heading(start,controls.freeAim),length=distance(start,controls.freeAim);
@@ -990,7 +996,13 @@
       const preview=yield* simulate(node.start,{...controls,freeAim});
       yield;
       if(!preview?.settled)continue;
-      if(afterShot(node.start,preview,shot.ballId,shot.firstId))continue;
+      const after=afterShot(node.start,preview,shot.ballId,shot.firstId);
+      if(after){
+       if(!node.terminal&&preview.pocketEvents[0].pocket===pocketCodes[shot.pocket])
+        adjustment-=.35*Math.max(0,landingClearanceCost(after)-node.crowding);
+       continue;
+      }
+      if(state.setupMode==='straight')continue;
       missed++;
       const defense=safetyLeave(node.start,preview);
       if(defense){

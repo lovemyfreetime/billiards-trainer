@@ -134,3 +134,19 @@ function* twoWayTrial(layout,{freeAim}){
 assert.deepEqual(drain(g.runout(twoWayLayout,twoWayTrial,1))[0]?.twoWay,{covered:2,missed:2});
 assert.equal(drain(g.runout({...twoWayLayout,setupMode:'straight'},twoWayTrial,1))[0]?.twoWay,undefined);
 console.log('Two-way probes recognize verified miss cover in rotation and bypass it in straight pool.');
+
+const roomLayout={...twoWayLayout,planFollow:true,balls:[...twoWayLayout.balls,{id:3,x:1.27,y:.74}]};
+const nearestDiamond=roomLayout.tableL/8;
+function* crowdingTrial(layout,controls){
+ return {...made,finalBalls:[
+  {id:0,x:1.27,y:.65,active:true},{id:2,x:1.7,y:.65,active:true},
+  {id:3,x:1.27,y:controls.follow>.1?.94:.74,active:true}
+ ]};
+}
+const [roomPlan]=drain(g.runout(roomLayout,crowdingTrial,1));
+assert(roomPlan,'keep a route to the next legal ball');
+const landing=roomPlan.preview.finalBalls.find(ball=>ball.id===0);
+const neighbor=roomPlan.preview.finalBalls.find(ball=>ball.id===3);
+assert(Math.hypot(neighbor.x-landing.x,neighbor.y-landing.y)>=.75*nearestDiamond,
+ 'give the off-target 3 room even though the distance to the 2 is identical');
+console.log('Runout ranking prefers clearance around the leave from an off-target ball.');
