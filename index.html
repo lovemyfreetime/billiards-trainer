@@ -2189,7 +2189,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     function runoutStatus(){
         if(animation?.nextRunout?.pending)return {pending:true,background:true,shots:[]};
-        if(runoutJob&&runoutJob.source===S.preview&&(runoutJob.pending||runoutJob.shots.length||runoutJob.safety)){
+        if(runoutJob&&runoutJob.source===S.preview&&(runoutJob.pending||runoutJob.shots.length||runoutJob.safety||runoutJob.alternative)){
             if(!animation&&runoutJob.continuation&&forecastJob?.source===S.preview&&forecastJob.pending)
                 return {...runoutJob,pending:true,background:true};
             return runoutJob;
@@ -2259,7 +2259,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const guidance=window.BilliardsGuidance;
         const compensate=(state,side,follow)=>cueSquirtAngleFor(side,follow,state.cueEndmassRatio);
         const scan=(function*(){
-            const shots=yield* guidance.runout(start,simulateRunoutStroke,depth,compensate,next=>{job.nextShots=next;});
+            const shots=yield* guidance.runout(start,simulateRunoutStroke,depth,compensate,next=>{job.nextShots=next;},
+                job.background||job.continuation?undefined:shot=>{job.alternative=shot;});
             job.safety=yield* guidance.recommendSafety(start,shots,simulateRunoutStroke,compensate);
             return shots;
         })();
@@ -2268,11 +2269,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const current=!animation&&job.source===S.preview&&(runoutJob===job||forecastJob===job&&allowBackgroundPlan(S));
             if(!playing&&!current)return;
             const finish=performance.now()+(playing&&!animation.paused?6:7);
+            const previousAlternative=job.alternative;
             let step;
             do{step=scan.next();}while(!step.done&&performance.now()<finish);
             if(!step.done){
-                if(job.nextShots&&current){
-                    job.shots=job.nextShots;job.nextShots=null;
+                if(current&&(job.nextShots||previousAlternative!==job.alternative)){
+                    if(job.nextShots){job.shots=job.nextShots;job.nextShots=null;}
                     draw();
                     window.dispatchEvent(new Event('billiards:runout'));
                 }
@@ -2300,8 +2302,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if(!cached)scheduleRunout(start,depth,job,false);
         window.dispatchEvent(new Event('billiards:runout'));
     }
-    function useRunout(){
-        const job=runoutStatus(),[shot,...rest]=job.shots;
+    function useRunout(alternative=false){
+        const job=runoutStatus(),[shot,...rest]=alternative?[job.alternative]:job.shots;
         if(animation||job.continuation||!shot)return false;
         beginActionUndo();
         Object.assign(S,shot.controls,{ghostLock:null,autoGhostLock:false,guidancePlan:null});
@@ -2310,7 +2312,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         runoutJob={source:S.preview,continuation:true,pending:false,shots:rest};
         window.dispatchEvent(new Event('billiards:runout'));
         draw();
-        if(shot.kind!=='pot')toast(shot.kind+' · '+shot.firstId+(shot.kissId?' off '+shot.kissId:shot.firstId===shot.ballId?'':' to '+shot.ballId)+' · '+shot.pocket);
+        if(shot.kind!=='pot')toast(shot.kind+' · '+shot.firstId+(shot.kissId?' off '+shot.kissId:shot.firstId===shot.ballId?'':' to '+shot.ballId)+' · '+shot.pocket+
+            (alternative?' · Held in '+shot.passed+'/5 tests':''));
         return true;
     }
     function useSafety(){

@@ -84,9 +84,12 @@
   api.setPlanVisible(visible);
  });
  planVisibility.id='table3DPlanVisibility';
+ const planAlternative=action('Bank route','Review a cushion-assisted route',()=>window.billiardsGuidance.useRunout(true));
+ planAlternative.id='table3DBankAlternative';
+ planAlternative.hidden=true;
  const planControls=document.createElement('div');
  planControls.id='table3DPlanControls';planControls.setAttribute('role','group');planControls.setAttribute('aria-label','Runout planning');
- planControls.append(planButton,planVisibility);tools.append(planControls);
+ planControls.append(planButton,planAlternative,planVisibility);tools.append(planControls);
  const orderMenu=document.createElement('section');orderMenu.id='table3DOrderMenu';orderMenu.hidden=true;
  orderMenu.setAttribute('role','dialog');orderMenu.setAttribute('aria-label','Shot Order');
  orderMenu.innerHTML='<div role="group" aria-label="Analysis mode"><button type="button" data-order="order">1 · Lowest First</button><button type="button" data-order="groups">2 · Groups</button><button type="button" data-order="any">3 · Any Ball</button></div><label>Group <select aria-label="Ball group"><option value="open">Open Table</option><option value="solids">Solids</option><option value="stripes">Stripes</option></select></label>';
@@ -106,6 +109,10 @@
   nextButton.setAttribute('aria-busy',String(job.pending));
   const ready=!job.continuation&&job.shots.length>0;
   const safety=!job.continuation&&job.safety;
+  const alternative=!job.continuation&&job.alternative;
+  planAlternative.hidden=!alternative;
+  planAlternative.disabled=!!window.billiards3DBallControls?.status()?.busy;
+  if(alternative)planAlternative.title=alternative.kind+' to '+alternative.pocket+' · Held in '+alternative.passed+'/5 tests';
   planButton.disabled=job.pending&&!ready&&!safety||!!window.billiards3DBallControls?.status()?.busy;
   const text=safety?(safety.reviewOnly?'Review Foul':safety.intentionalFoul?'Use Foul':'Use Safety'):ready?'Use Plan':job.pending?'Planning…':'Plan';
   const visible=api.planVisible(),visibilityLabel=visible?'Hide':'Show';
