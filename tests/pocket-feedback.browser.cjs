@@ -23,7 +23,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{spawn}=require
   await page.waitForFunction(()=>billiardsGuidance.pocketFeedback().some(p=>p.strength>.8&&p.entry));
   const feedback=await page.evaluate(()=>billiardsGuidance.pocketFeedback().find(p=>p.strength>0));assert.equal(feedback.name,'top middle');
   await page.waitForFunction(()=>Billiards3D.ghostGuides().some(g=>g.kind==='pocket'));
-  const ghost=await page.evaluate(()=>Billiards3D.ghostGuides().find(g=>g.kind==='pocket'));assert.equal(ghost.coreColor,0xffdb55);assert(Math.hypot(ghost.x-feedback.entry.x,ghost.y-feedback.entry.y)<1e-8);assert((await page.evaluate(()=>Billiards3D.pocketGeometry())).some(p=>p.glow>.15&&p.glow<=.22));
+  const ghost=await page.evaluate(()=>Billiards3D.ghostGuides().find(g=>g.kind==='pocket'));assert.equal(ghost.coreColor,0xffdb55);assert(Math.hypot(ghost.x-feedback.entry.x,ghost.y-feedback.entry.y)<1e-8);assert((await page.evaluate(()=>Billiards3D.pocketGeometry())).some(p=>p.glow>.075&&p.glow<=.10));
   await page.waitForFunction(()=>!billiardsGuidance.comparisonStatus().pending&&billiardsGuidance.comparisonStatus().tested===1920);assert((await page.evaluate(()=>billiardsGuidance.comparisonStatus())).maxSliceMs<80);
   const held=await page.evaluate(()=>({aim:billiardsTourBridge.capture().state.freeAim,speed:billiardsTourBridge.capture().state.speed,side:billiardsTourBridge.capture().state.sideSpin}));
   await page.locator('#table3DCueView').tap();await page.waitForFunction(()=>!Billiards3D.camera().transitioning);await settle();

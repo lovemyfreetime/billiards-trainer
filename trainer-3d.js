@@ -26,6 +26,10 @@
   }
  });
  nextButton.id='table3DNextView';nextButton.setAttribute('aria-pressed','false');
+ const editNextButton=action('Edit Shot 2','Use the controls to edit the planned second shot',()=>{
+  if(window.billiardsGuidance.editPlannedShot2())syncNextControls();
+ });
+ editNextButton.id='table3DEditNext';
  const zoomIn=action('+','Zoom camera in',()=>zoom(1/1.15)),zoomOut=action('−','Zoom camera out',()=>zoom(1.15));
  const viewLock=action('Lock view','Lock view for ball placement and aiming',()=>setViewLocked(!viewLocked));viewLock.id='table3DLock';viewLock.setAttribute('aria-pressed','false');views.append(standingButton,alongButton,nextButton,viewLock);stage.append(tools);for(const b of [standingButton,alongButton,nextButton,viewLock])b.hidden=true;
  const ballState=document.createElement('output');ballState.id='table3DBallState';ballState.setAttribute('role','status');ballState.setAttribute('aria-live','polite');ballState.textContent='Balls locked';views.append(ballState);ballState.hidden=true;
@@ -35,7 +39,7 @@
  zoomSlider.addEventListener('input',()=>{if(!lastFrame)return;const min=Math.max(lastFrame.R*5,lastFrame.L*.06),max=lastFrame.L*8;cameraState.radius=Math.exp(Math.log(max)+(Math.log(min)-Math.log(max))*Number(zoomSlider.value)/100);requestRender();});
  for(const type of ['pointerdown','touchstart','wheel'])zoomGroup.addEventListener(type,event=>event.stopPropagation());
  const trayToggle=action('▤','Show or hide all 16 balls',()=>togglePopover(tray,trayToggle));trayToggle.id='table3DTrayToggle';trayToggle.setAttribute('aria-expanded','false');trayToggle.setAttribute('aria-controls','table3DTray');
- const rackToggle=action('Rack','Choose a rack or change shot order',()=>togglePopover(rackMenu,rackToggle));rackToggle.id='table3DRackToggle';rackToggle.setAttribute('aria-expanded','false');rackToggle.setAttribute('aria-controls','table3DRackMenu');
+ const rackToggle=action('Rack','Choose a rack',()=>togglePopover(rackMenu,rackToggle));rackToggle.id='table3DRackToggle';rackToggle.setAttribute('aria-expanded','false');rackToggle.setAttribute('aria-controls','table3DRackMenu');
  tools.replaceChildren(trayToggle,rackToggle,zoomGroup,rotateButton,panButton);
  const tray=document.createElement('section');tray.id='table3DTray';tray.className='table3DPopover';tray.hidden=true;tray.setAttribute('aria-label','Ball tray');
  const trayCount=document.createElement('output');trayCount.setAttribute('aria-live','polite');tray.append(trayCount);
@@ -55,42 +59,60 @@
  const random=document.createElement('button');random.type='button';random.className='table3DRandom';random.textContent='Random';random.setAttribute('aria-label','Randomize current balls');random.onclick=()=>{if(window.billiards3DBallControls?.status().busy)return;document.getElementById('shuffleTableLayout')?.click();closePopovers();};rackMenu.append(random);
  const labels={rack6:'6',rack7:'7',rack8:'8',rack9:'9',rack10:'10',straight14:'S',ultimate8:'U',rack3:'3'};
  const rackButtons=Object.entries(labels).map(([value,label],i)=>{const b=document.createElement('button');b.type='button';b.dataset.rack=value;b.textContent=label;const option=[...document.getElementById('fullRackSelect').options].find(o=>o.value===value);b.setAttribute('aria-label','Set up '+option.textContent);const a=(-90+i*45)*Math.PI/180;b.style.left=(50+37*Math.cos(a))+'%';b.style.top=(50+37*Math.sin(a))+'%';b.onclick=()=>{if(window.billiards3DBallControls?.status().busy)return;const select=document.getElementById('fullRackSelect');select.value=value;select.dispatchEvent(new Event('change',{bubbles:true}));document.getElementById('startFullRack').click();closePopovers();syncBallTools();};rackMenu.append(b);return b;});
- const rackOptions=document.createElement('section');rackOptions.id='table3DRackOptions';rackOptions.hidden=true;
- rackOptions.innerHTML='<label>Shot Order <select aria-label="Shot Order"></select></label><button type="button">Plan Runout</button><button type="button" hidden>Use Shot 1</button><output aria-live="polite"></output>';
- const [orderSelect,planButton,useButton,planStatus]=rackOptions.querySelectorAll('select,button,output');
- orderSelect.onchange=()=>{const rules=window.billiardsGuidance.rackAnalysis(),control=document.getElementById(rules.grouped?'guidanceGroup':'guidanceOrder');control.value=orderSelect.value;control.dispatchEvent(new Event('change',{bubbles:true}));};
- planButton.onclick=()=>{if(!window.billiardsGuidance.requestRunout())window.billiardsGuidance.showRunoutMessage('Plan after the break, with the cue ball on the table and the bank/kick tool closed.');};
- useButton.onclick=()=>{if(window.billiardsGuidance.useRunout())closePopovers();};
- stage.append(tray,rackMenu,rackOptions);
+ const orderButton=action('Shot Order','Select how the planner chooses balls',()=>togglePopover(orderMenu,orderButton));
+ orderButton.id='table3DShotOrder';orderButton.setAttribute('aria-expanded','false');orderButton.setAttribute('aria-controls','table3DOrderMenu');
+ let askedForPlan=false;
+ const planButton=action('Plan','Plan a runout',()=>{
+  const api=window.billiardsGuidance,job=api.runoutStatus();
+  if(job.shots.length&&!job.continuation){api.useRunout();return;}
+  askedForPlan=true;
+  if(!api.requestRunout()){askedForPlan=false;api.showRunoutMessage('Plan after the break, with the cue ball on the table and the bank/kick tool closed.');}
+ });
+ planButton.id='table3DPlan';
+ const orderMenu=document.createElement('section');orderMenu.id='table3DOrderMenu';orderMenu.hidden=true;
+ orderMenu.setAttribute('role','dialog');orderMenu.setAttribute('aria-label','Shot Order');
+ orderMenu.innerHTML='<div role="group" aria-label="Analysis mode"><button type="button" data-order="order">1 · Lowest First</button><button type="button" data-order="groups">2 · Groups</button><button type="button" data-order="any">3 · Any Ball</button></div><label>Group <select aria-label="Ball group"><option value="open">Open Table</option><option value="solids">Solids</option><option value="stripes">Stripes</option></select></label>';
+ const orderChoices=[...orderMenu.querySelectorAll('button')],orderSelect=orderMenu.querySelector('select');
+ const orderStatus=document.createElement('output');orderStatus.id='table3DPlanStatus';orderStatus.setAttribute('aria-live','polite');stage.append(tray,rackMenu,orderMenu,orderStatus);
+ for(const control of orderChoices)control.onclick=()=>{
+  if(window.billiardsGuidance.setShotOrder(control.dataset.order)&&control.dataset.order!=='groups')closePopovers();
+ };
+ orderSelect.onchange=()=>{if(window.billiardsGuidance.setShotOrder('groups',orderSelect.value))closePopovers();};
  function syncAnalysis(){
-  const api=window.billiardsGuidance,{rack,order,label,grouped,fixed}=api.rackAnalysis(),job=api.runoutStatus();
-  const compact=rack.split(' — ')[0].replace('Ultimate 8 Ball','Ultimate 8').replace('Straight Pool','Straight');
-  if(rackToggle.textContent!==compact)rackToggle.textContent=compact;
-  rackToggle.dataset.shotOrder=job.pending?'Analyzing':label;
-  rackToggle.title=rack+' · '+label+(job.pending?' · Analyzing':'');
-  rackToggle.setAttribute('aria-label',rackToggle.title+' · Rack and Shot Order');
-  rackToggle.setAttribute('aria-busy',String(job.pending));nextButton.setAttribute('aria-busy',String(job.pending&&!!openNextWhenReady));
-  if(orderSelect.dataset.mode!==String(grouped)){
-   orderSelect.dataset.mode=String(grouped);
-   const items=grouped?[['open','Open Table'],['solids','Solids'],['stripes','Stripes']]:[['auto','Any Order'],['order','Lowest First']];
-   orderSelect.replaceChildren(...items.map(([value,text])=>new Option(text,value)));
-  }
-  orderSelect.value=order==='any'?'auto':order;orderSelect.disabled=fixed;
+  const api=window.billiardsGuidance,{rack,order,label,mode}=api.rackAnalysis(),job=api.runoutStatus();
+  rackToggle.title=rack==='Custom'?'Choose a rack':'Choose a rack · Current '+rack;
+  orderButton.dataset.shotOrder=mode==='any'?'Any Ball':label;
+  orderButton.setAttribute('aria-label','Shot Order: '+orderButton.dataset.shotOrder);
+  for(const b of orderChoices)b.setAttribute('aria-pressed',String(b.dataset.order===mode));
+  orderSelect.parentElement.hidden=mode!=='groups';if(mode==='groups')orderSelect.value=order;
+  nextButton.setAttribute('aria-busy',String(job.pending&&!!openNextWhenReady));
+  const ready=!job.continuation&&job.shots.length>0;
   planButton.disabled=job.pending||!!window.billiards3DBallControls?.status()?.busy;
-  useButton.hidden=job.continuation||!job.shots.length;
+  const text=job.pending?'Planning…':ready?'Use Plan':'Plan';
+  if(planButton.textContent!==text)planButton.textContent=text;
+  planButton.setAttribute('aria-busy',String(job.pending));planButton.dataset.ready=String(ready);
   const count=job.shots.length,route=job.shots.map(s=>s.ballId+' → '+s.pocket+(s.leaveSide?' (leave '+s.leaveSide+')':'')).join(' · ');
   const message=job.pending?'Analyzing…':count?count+(count===1?' shot':' shots')+' found · '+route:job.source&&!job.continuation?'No direct route found.':'';
-  if(planStatus.textContent!==message)planStatus.textContent=message;
+  if(orderStatus.textContent!==message)orderStatus.textContent=message;
+  planButton.title=message||'Plan a runout';
+  planButton.setAttribute('aria-label',ready?'Apply planned Shot 1':job.pending?'Planning runout':'Plan a runout');
  }
- function closePopovers(){tray.hidden=true;rackMenu.hidden=true;rackOptions.hidden=true;trayToggle.setAttribute('aria-expanded','false');rackToggle.setAttribute('aria-expanded','false');}
+ function closePopovers(){
+  for(const [popover,anchor] of [[tray,trayToggle],[rackMenu,rackToggle],[orderMenu,orderButton]]){
+   popover.hidden=true;anchor.setAttribute('aria-expanded','false');
+  }
+ }
  function positionPopover(pop,anchor){const r=anchor.getBoundingClientRect(),w=pop.offsetWidth,h=pop.offsetHeight;pop.style.left=Math.max(6,Math.min(innerWidth-w-6,r.left))+'px';pop.style.top=Math.max(6,Math.min(innerHeight-h-6,r.top-h-8))+'px';}
- function placeRackOptions(){const r=rackMenu.getBoundingClientRect(),w=rackOptions.offsetWidth,h=rackOptions.offsetHeight;const right=r.right+w+8<=innerWidth;rackOptions.style.left=Math.max(6,right?r.right+6:r.left-w-6)+'px';rackOptions.style.top=Math.max(6,Math.min(innerHeight-h-6,r.top))+'px';}
- function togglePopover(pop,anchor){if(!active&&pop!==rackMenu)return;const show=pop.hidden;closePopovers();if(show){pop.hidden=false;anchor.setAttribute('aria-expanded','true');syncBallTools();positionPopover(pop,anchor);if(pop===rackMenu){syncAnalysis();rackOptions.hidden=false;placeRackOptions();}}}
+ function togglePopover(pop,anchor){if(!active&&pop===tray)return;const show=pop.hidden;closePopovers();if(show){pop.hidden=false;anchor.setAttribute('aria-expanded','true');syncBallTools();syncAnalysis();positionPopover(pop,anchor);}}
  let ballToolsKey='';
  function syncBallTools(){const data=window.billiards3DBallControls?.status();if(!data)return;const key=JSON.stringify([data.busy,data.balls,data.pocketed]);if(key===ballToolsKey)return;ballToolsKey=key;clear.disabled=data.busy||!data.balls.length;trayCount.textContent=data.pocketed.length+' pocketed';for(const b of ballButtons){const id=+b.dataset.ballId,present=data.balls.includes(id),pocketed=data.pocketed.includes(id);b.disabled=data.busy||present&&id!==0;b.classList.toggle('on-table',present);b.classList.toggle('pocketed',pocketed);b.setAttribute('aria-label',(id?'Ball '+id:'Cue ball')+(present?' on table':pocketed?' pocketed — tap or drag to return':' — tap or drag to add'));}rackToggle.disabled=data.busy;random.disabled=data.busy;rackButtons.forEach(b=>b.disabled=data.busy);}
- document.addEventListener('pointerdown',e=>{if(!rackMenu.contains(e.target)&&!rackOptions.contains(e.target)&&!rackToggle.contains(e.target)){rackMenu.hidden=true;rackOptions.hidden=true;rackToggle.setAttribute('aria-expanded','false');}});
- document.addEventListener('keydown',e=>{if(e.key==='Escape'&&(!tray.hidden||!rackMenu.hidden)){closePopovers();e.stopPropagation();}},true);
- window.addEventListener('resize',()=>{if(!tray.hidden)positionPopover(tray,trayToggle);if(!rackMenu.hidden){positionPopover(rackMenu,rackToggle);placeRackOptions();}});
+ document.addEventListener('pointerdown',e=>{
+  if(![tray,trayToggle,rackMenu,rackToggle,orderMenu,orderButton].some(el=>el.contains(e.target)))closePopovers();
+ });
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&[tray,rackMenu,orderMenu].some(el=>!el.hidden)){closePopovers();e.stopPropagation();}},true);
+ window.addEventListener('resize',()=>{
+  for(const [popover,anchor] of [[tray,trayToggle],[rackMenu,rackToggle],[orderMenu,orderButton]])if(!popover.hidden)positionPopover(popover,anchor);
+ });
  const phoneBox=document.createElement('div');phoneBox.id='table3DPhoneControls';phoneBox.setAttribute('role','group');phoneBox.setAttribute('aria-label','3D table controls');phoneBox.hidden=true;stage.append(phoneBox);
  const panel=document.getElementById('panel'),drawer=document.createElement('button'),dismiss=document.createElement('button');
  drawer.type='button';drawer.id='table3DDrawer';drawer.setAttribute('aria-controls','panel');
@@ -108,18 +130,34 @@
  panel?.addEventListener('click',e=>{if(e.target.closest('#animate,#undoShot,#redoShot,#resetLayoutQuick'))setDrawer(false);});
  let active=false,viewLocked=false,panEnabled=false,loading=false,lastFrame=null,engine=null,scheduled=0;
  let previousCueCamera=null,inspectionCamera=null,cameraTransition=null,visualCamera=null;
- let nextView=false,openNextWhenReady=false;
+ let nextView=false,openNextWhenReady=false,shotBeforeNext=1;
+ function syncNextControls(){
+  const api=window.billiardsGuidance,editing=nextView&&api.manualShot2()&&api.activeShot()===2;
+  nextButton.classList.toggle('editing-shot-two',editing);
+  editNextButton.hidden=!nextView||api.manualShot2()||!api.nextShotAvailable();
+ }
+ function closeNextView(){
+  if(!nextView)return;
+  nextView=false;nextButton.setAttribute('aria-pressed','false');
+  window.billiardsGuidance.setRunoutView(false);
+  if(window.billiardsGuidance.activeShot()!==shotBeforeNext)window.billiardsSelectShot(shotBeforeNext);
+  syncNextControls();
+ }
  function setNextView(value){
   if(nextView===value)return;
-  if(value)rememberInspection();
-  nextView=value;nextButton.setAttribute('aria-pressed',String(value));
-  window.billiardsGuidance.setRunoutView(value);
-  if(value)window.billiardsCueView?.apply();
-  else window.Billiards3D.exitCueView();
+  if(!value){closeNextView();window.Billiards3D.exitCueView();return;}
+  rememberInspection();
+  const api=window.billiardsGuidance;
+  shotBeforeNext=api.activeShot();nextView=true;nextButton.setAttribute('aria-pressed','true');
+  api.setRunoutView(true);
+  if(api.manualShot2())window.billiardsSelectShot(2);
+  syncNextControls();window.billiardsCueView?.apply();
  }
  window.addEventListener('billiards:runout',()=>{
   syncAnalysis();
   const api=window.billiardsGuidance;
+  const job=api.runoutStatus();
+  if(askedForPlan&&!job.pending){askedForPlan=false;if(job.source&&!job.continuation)api.showRunoutMessage(orderStatus.textContent);}
   if(openNextWhenReady&&!api.runoutStatus().pending){
    openNextWhenReady=false;
    if(active&&api.nextShotAvailable())setNextView(true);
@@ -128,10 +166,12 @@
  });
  window.addEventListener('billiards:2d-render',()=>{
   syncAnalysis();
+  syncNextControls();
   if(nextView&&!window.billiardsGuidance.nextShotAvailable())queueMicrotask(()=>{if(nextView&&!window.billiardsGuidance.nextShotAvailable())setNextView(false);});
  });
  const returnView=action('Return to shot view','Restore the view before inspection',()=>{openNextWhenReady=false;if(!inspectionCamera)return;setNextView(false);const saved=inspectionCamera;inspectionCamera=null;previousCueCamera=saved.cue;window.Billiards3D.restoreCamera(saved.camera);returnView.hidden=true;});
  returnView.id='table3DReturnView';returnView.hidden=true;views.append(returnView);
+ editNextButton.hidden=true;views.insertBefore(editNextButton,returnView);
  function rememberInspection(){if(!inspectionCamera){inspectionCamera={camera:window.Billiards3D.camera(),cue:previousCueCamera};returnView.hidden=false;}}
  const VIEW_TRANSITION_MS=3200,CUE_APPROACH_MS=4800;
  let cueApproachProgress=1,cueRoutineProgress=1;
@@ -214,14 +254,14 @@
  }
  if(window.ResizeObserver)new ResizeObserver(fitViewLabels).observe(phoneBox);
  function requestRender(){if(lastFrame){const min=Math.max(lastFrame.R*5,lastFrame.L*.06),max=lastFrame.L*8;zoomSlider.value=String(100*(Math.log(max)-Math.log(cameraState.radius))/(Math.log(max)-Math.log(min)));}if(!active||!engine||scheduled)return;scheduled=requestAnimationFrame(()=>{scheduled=0;if(active){engine.render();window.dispatchEvent(new Event('billiards:3d-render'));}});}
- function orbit(dx,dy){rememberInspection();stopTransition();if(cameraState.playerView)leaveCueView(false,viewLocked);window.BilliardsTableOrbit.orbit(cameraState,dx,dy);requestRender();}
- function zoom(factor){rememberInspection();stopTransition();if(cameraState.playerView)leaveCueView(false,viewLocked);if(!lastFrame)return;window.BilliardsTableOrbit.zoom(cameraState,factor,lastFrame.L,lastFrame.R);requestRender();}
+ function orbit(dx,dy){rememberInspection();stopTransition();if(cameraState.playerView)leaveCueView(false,viewLocked,true);window.BilliardsTableOrbit.orbit(cameraState,dx,dy);requestRender();}
+ function zoom(factor){rememberInspection();stopTransition();if(cameraState.playerView)leaveCueView(false,viewLocked,true);if(!lastFrame)return;window.BilliardsTableOrbit.zoom(cameraState,factor,lastFrame.L,lastFrame.R);requestRender();}
  // Keep the longer screen dimension at a natural 58° field of view.
  function viewTangent(aspect){return window.BilliardsTableOrbit.viewTangent(aspect);}
- function leaveCueView(restore, adjustmentMode=previousCueCamera?.editMode) {
+ function leaveCueView(restore, adjustmentMode=previousCueCamera?.editMode,keepNext=false) {
   const from={...cameraState,target:{...cameraState.target}};
   cameraState.playerView=false;
-  if(nextView){nextView=false;nextButton.setAttribute('aria-pressed','false');window.billiardsGuidance.setRunoutView(false);}
+  if(!keepNext)closeNextView();
   cameraState.playerInShot=false;
   if(previousCueCamera) {
    if(restore) Object.assign(cameraState,previousCueCamera.pose);
@@ -280,7 +320,7 @@
   state.target={x:b.x-f.L/2,y:Number.isFinite(b.z)?Math.max(f.R,b.z):f.R,z:b.y-f.W/2};
   return true;
  }
- function disable(){if(!active)return;openNextWhenReady=false;if(cameraState.playerView)leaveCueView(true);closePopovers();setDrawer(false);active=false;document.body.classList.remove('table-3d','table-3d-locked','table-3d-pan','table-3d-rotate');button.setAttribute('aria-pressed','false');button.textContent='3D';for(const b of [button,standingButton,alongButton,nextButton])b.style.removeProperty('font-size');tools.hidden=true;for(const b of [standingButton,alongButton,nextButton,viewLock])b.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
+ function disable(){if(!active)return;openNextWhenReady=false;if(cameraState.playerView)leaveCueView(true);else closeNextView();closePopovers();setDrawer(false);active=false;document.body.classList.remove('table-3d','table-3d-locked','table-3d-pan','table-3d-rotate');button.setAttribute('aria-pressed','false');button.textContent='3D';for(const b of [button,standingButton,alongButton,nextButton])b.style.removeProperty('font-size');tools.hidden=true;for(const b of [standingButton,alongButton,nextButton,viewLock])b.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
  async function enable(){
   if(active)return true;if(loading)return false;loading=true;button.disabled=true;status.textContent='';
   // Request within the entry gesture, before loading WebGL can consume activation.
@@ -334,7 +374,7 @@
   const renderer=new T.WebGLRenderer({antialias:true,alpha:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.setClearColor(0x080d13);renderer.outputColorSpace=T.SRGBColorSpace;
   renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1;
   renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;
-  const canvas=renderer.domElement;canvas.style.removeProperty('display');canvas.id='table3DCanvas';canvas.tabIndex=0;canvas.setAttribute('aria-label','3D table. Drag to rotate and tilt. Use Lock view for ball placement and aiming.');canvas.setAttribute('role','img');stage.append(canvas);
+  const canvas=renderer.domElement;canvas.style.removeProperty('display');canvas.id='table3DCanvas';canvas.tabIndex=0;canvas.setAttribute('aria-label','3D table. Tap to aim, drag to rotate or pan, and pinch to zoom. Unlock balls to move them.');canvas.setAttribute('role','img');stage.append(canvas);
   const scene=new T.Scene(),camera=new T.PerspectiveCamera(44,1,.01,100),table=new T.Group(),balls=new T.Group();scene.add(table,balls);scene.fog=new T.Fog(0x080d13,7,25);
   scene.add(new T.HemisphereLight(0xf2f5f4,0x303941,.75));
   const light=new T.DirectionalLight(0xfff8ed,1.8);light.position.set(-3,5,2);light.castShadow=true;
@@ -353,9 +393,10 @@
   const realCue=window.BilliardsCue3D?.create(T,scene,renderer,requestRender);
   // Teaching text stays flat on its original cloth location; only its heading follows the view.
   const cameraLabels=new Map(),labelGeometry=new T.PlaneGeometry(1,1),clothNormal=new T.Vector3(0,1,0),clothRotation=new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0),-Math.PI/2);
-  const labelAxis=new T.Vector3(1,0,0),railRotation=new T.Quaternion().setFromAxisAngle(labelAxis,-Math.PI/2+.42);
+  const labelAxis=new T.Vector3(1,0,0),railRotation=new T.Quaternion().setFromAxisAngle(labelAxis,-Math.PI/2+.56),cameraDirection=new T.Vector3();
   function updateCameraLabels(f){
    const visible=new Set();
+   const lowCamera=Math.asin(-camera.getWorldDirection(cameraDirection).y)<.38;
    for(const data of f.cameraLabels||[]){
     visible.add(data.id);let label=cameraLabels.get(data.id);
     if(!label){const image=document.createElement('canvas'),map=new T.CanvasTexture(image);map.colorSpace=T.SRGBColorSpace;map.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());label=new T.Mesh(labelGeometry,new T.MeshBasicMaterial({map,transparent:true,depthWrite:false,depthTest:true,toneMapped:false}));label.renderOrder=1;scene.add(label);cameraLabels.set(data.id,label);}
@@ -369,7 +410,7 @@
      data.rows.forEach((text,i)=>{if(data.stroke)c.strokeText(text,pad,pad+line*(i+.5));c.fillText(text,pad,pad+line*(i+.5));});
      label.material.map.needsUpdate=true;label.userData.key=key;
     }
-    const rail=!!(cameraState.playerView&&data.railPoint),point=rail?data.railPoint:data.point;
+    const rail=!!(data.railPoint&&(cameraState.playerView||lowCamera)),point=rail?data.railPoint:data.point;
     label.visible=true;label.position.set(point.x-f.L/2,rail ? .016 : data.upright?(data.elevation||f.R*2.4):.0002,point.y-f.W/2);
     if(data.upright){
      label.quaternion.copy(camera.quaternion);
@@ -543,7 +584,7 @@
   const pointers=new Map();let edit=null,lastTap=null;
   // Screen-space panning translates camera and target together, preserving the
   // current tilt and shot-line angle even when looking nearly across the cloth.
-  function pan(dx,dy){rememberInspection();stopTransition();if(cameraState.playerView)leaveCueView(false,viewLocked);
+  function pan(dx,dy){rememberInspection();stopTransition();if(cameraState.playerView)leaveCueView(false,viewLocked,true);
    window.BilliardsTableOrbit.pan(T,camera,cameraState,dx,dy,canvas.getBoundingClientRect().height);requestRender();
   }
   function overControls(e){return [...document.querySelectorAll('#phoneAimRail,#phoneSpeedRail,#phoneActions,.aimControlRow.activeAim,.tableSpeedControl.activeSpeed,.bottomSpinGroup.activeSpin,.phoneTipControl')].some(el=>{const r=el.getBoundingClientRect();return r.width&&r.height&&e.clientX>=r.left-5&&e.clientX<=r.right+5&&e.clientY>=r.top-5&&e.clientY<=r.bottom+5;});}
@@ -571,7 +612,7 @@
    return {editable:onCloth||!!f.railEditing,point:onCloth?surface:q,height:0,offset:{x:0,z:0}};
   }
   function pickPocketLabel(e){cast(e);return inputRay.intersectObjects([...cameraLabels.values()].filter(m=>m.visible&&m.userData.data?.pocketName),false)[0];}
-  function forward(type,point,e,aimShot=edit?.aimShot){return window.billiards3DTableInput?.(type,point,{aimShot,tableClient:{clientX:e.clientX,clientY:e.clientY},buttons:e.buttons??0,pointerId:e.pointerId||1,pointerType:e.pointerType||'mouse',shiftKey:!!e.shiftKey,altKey:!!e.altKey,ctrlKey:!!e.ctrlKey,metaKey:!!e.metaKey,deltaY:e.deltaY||0,deltaX:e.deltaX||0,deltaMode:e.deltaMode||0});}
+  function forward(type,point,e,aimShot=edit?.aimShot,aimTap=false){return window.billiards3DTableInput?.(type,point,{aimShot,aimTap,tableClient:{clientX:e.clientX,clientY:e.clientY},buttons:e.buttons??0,pointerId:e.pointerId||1,pointerType:e.pointerType||'mouse',shiftKey:!!e.shiftKey,altKey:!!e.altKey,ctrlKey:!!e.ctrlKey,metaKey:!!e.metaKey,deltaY:e.deltaY||0,deltaX:e.deltaX||0,deltaMode:e.deltaMode||0});}
   function finishEdit(type,event){
    const current=edit;
    edit=null;
@@ -580,9 +621,17 @@
   }
   function cancelInput(){if(edit)finishEdit('pointercancel',{pointerId:edit.id,pointerType:edit.pointerType});pointers.clear();}
   function pointerDown(e,outside=false){
-   if(!active||e.button!==0||overControls(e))return;stopTransition();const badge=outside?null:pickPocketLabel(e);if(badge){e.preventDefault();e.stopPropagation();window.billiardsGuidance?.openPocket(badge.object.userData.data.pocketName);return;}e.preventDefault();e.stopPropagation();canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});
-   {if(edit){if(e.pointerId===edit.id)return;const first=edit;finishEdit('pointercancel',{pointerId:first.id,pointerType:first.pointerType});pointers.set(first.id,{x:first.cx,y:first.cy,sx:first.cx,sy:first.cy,multi:true,pendingViewDrag:true});}const hit=outside?null:pick(e);if(pointers.size===0&&hit?.editable&&(hit.handle||viewLocked&&hit.ball||lastFrame?.railEditing||lastFrame?.overlayEditing)){edit={aimShot:hit.handle?(hit.shot||1):0,id:e.pointerId,cx:e.clientX,cy:e.clientY,pointerType:e.pointerType,height:hit.height,offset:hit.offset,last:hit.point};if(!forward('pointerdown',hit.point,e))edit=null;return;}}
-   pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,multi:pointers.size>0,pendingViewDrag:true});if(pointers.size>1){for(const p of pointers.values())p.multi=true;lastTap=null;}
+   if(!active||e.button!==0||overControls(e))return;
+   stopTransition();const badge=outside?null:pickPocketLabel(e);
+   e.preventDefault();e.stopPropagation();canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});
+   if(edit){if(e.pointerId===edit.id)return;const first=edit;finishEdit('pointercancel',{pointerId:first.id,pointerType:first.pointerType});pointers.set(first.id,{x:first.cx,y:first.cy,sx:first.cx,sy:first.cy,multi:true,pendingViewDrag:true});}
+   const hit=outside||badge?null:pick(e);
+   if(pointers.size===0&&hit?.editable&&(hit.handle||viewLocked&&hit.ball||lastFrame?.railEditing||lastFrame?.overlayEditing)){
+    edit={aimShot:hit.handle?(hit.shot||1):0,id:e.pointerId,cx:e.clientX,cy:e.clientY,pointerType:e.pointerType,height:hit.height,offset:hit.offset,last:hit.point};
+    if(!forward('pointerdown',hit.point,e))edit=null;return;
+   }
+   pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,multi:pointers.size>0,pendingViewDrag:true,ball:!!hit?.ball,pocket:badge?.object.userData.data.pocketName});
+   if(pointers.size>1){for(const p of pointers.values())p.multi=true;lastTap=null;}
   }
   canvas.addEventListener('pointerdown',e=>pointerDown(e));
   stage.addEventListener('pointerdown',e=>{if(e.target===stage)pointerDown(e,true);});
@@ -599,7 +648,16 @@
   for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,e=>{
    if(edit?.id===e.pointerId)finishEdit(type==='pointerup'?'pointerup':'pointercancel',e);
    const point=pointers.get(e.pointerId);
-   if(!viewLocked&&type==='pointerup'&&pointers.size===1&&point&&!point.multi&&!panEnabled&&Math.hypot(e.clientX-point.sx,e.clientY-point.sy)<6){const now=performance.now();if(lastTap&&now-lastTap.time<350&&Math.hypot(e.clientX-lastTap.x,e.clientY-lastTap.y)<20){focusBall(e);lastTap=null;}else lastTap={time:now,x:e.clientX,y:e.clientY};}else if(type!=='lostpointercapture')lastTap=null;
+   const tap=type==='pointerup'&&pointers.size===1&&point&&!point.multi&&point.pendingViewDrag&&Math.hypot(e.clientX-point.sx,e.clientY-point.sy)<6;
+   if(tap&&point.pocket){window.billiardsGuidance?.openPocket(point.pocket);lastTap=null;}
+   else if(tap&&point.ball&&!viewLocked&&!panEnabled){
+    const now=performance.now();if(lastTap&&now-lastTap.time<350&&Math.hypot(e.clientX-lastTap.x,e.clientY-lastTap.y)<20){focusBall(e);lastTap=null;}else lastTap={time:now,x:e.clientX,y:e.clientY};
+   }else if(tap&&!point.ball&&!lastFrame?.animating&&!lastFrame?.overlayEditing&&!lastFrame?.railEditing){
+    cast(e);const q=logical(planePoint());
+    const which=window.billiardsGuidance?.tapAimShot?.();
+    if(q&&which&&Math.hypot(q.x,q.y)<(lastFrame?.L||3)*8&&forward('pointerdown',q,e,which,true))forward('pointerup',q,e,which,true);
+    lastTap=null;
+   }else if(type!=='lostpointercapture')lastTap=null;
    pointers.delete(e.pointerId);e.stopPropagation();
   });
   canvas.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();if(viewLocked&&pick(e)?.editable){cast(e);const p=logical(planePoint());if(p)forward('wheel',p,e);}else zoom(Math.exp(clamp(e.deltaY,-120,120)*.002));},{passive:false});
@@ -655,7 +713,7 @@
    }
    for(const [id,group]of ballMeshes)if(!visible.has(id)){group.visible=false;contacts.get(id).visible=false;}
 
-   for(const child of table.children){const m=child.material;if(!m?.userData?.pocketGlow)continue;const p=pocketSpecs.find(p=>p.id===m.userData.pocketGlow);const point={x:p.center[0]+f.L/2,y:p.center[2]+f.W/2};const glow=(f.pocketFeedback||[]).find(q=>Math.hypot(q.center.x-point.x,q.center.y-point.y)<.16);m.emissive.setHex(0xa7ffe0);m.emissiveIntensity=(glow?.strength||0)*.22;}
+   for(const child of table.children){const m=child.material;if(!m?.userData?.pocketGlow)continue;const p=pocketSpecs.find(p=>p.id===m.userData.pocketGlow);const point={x:p.center[0]+f.L/2,y:p.center[2]+f.W/2};const glow=(f.pocketFeedback||[]).find(q=>Math.hypot(q.center.x-point.x,q.center.y-point.y)<.16);m.emissive.setHex(0xa7ffe0);m.emissiveIntensity=(glow?.strength||0)*.10;}
    updateTipMarkers(f);updateGhosts(f);if(realCue?.update({...f,cueApproachProgress,cueRoutineProgress}))requestRender();updateElastic(f);updateCameraLabels(f);renderer.render(scene,camera);
   }};
  }

@@ -16,3 +16,11 @@ const settings={showImpact:false,showRestingCueBall:true,trainingBallStyle:'spot
 const saved=g.preferences(settings),fresh={showImpact:true,showRestingCueBall:false,trainingBallStyle:'current',shotPlaybackSpeed:1};
 g.restorePreferences(fresh,JSON.parse(JSON.stringify(saved)));assert.equal(fresh.showImpact,false);assert.equal(fresh.shotPlaybackSpeed,0);assert.equal(fresh.trainingBallStyle,'spots');assert(!('balls' in saved));assert(!('speed' in saved));
 console.log('Ordered continuation, legal groups, blocked targets, break/completion, immutable planning and false/zero preference recovery passed.');
+assert.deepEqual(g.eligibleBalls({...state,guidanceMode:'any'}).map(b=>b.id),[1,2,3]);
+assert.deepEqual(g.eligibleBalls({...eight,guidanceMode:'order'}).map(b=>b.id),[1]);
+assert.deepEqual(g.eligibleBalls({...eight,setupMode:'custom',guidanceMode:'groups'}).map(b=>b.id),[9]);
+const liveBalls=state.balls.map(b=>({...b,active:true}));
+const preview={settled:true,firstBallContact:{objId:1},pocketEvents:[{id:1}],finalBalls:liveBalls.filter(b=>b.id!==1)};
+assert(g.afterShot(state,preview,1));
+assert.equal(g.afterShot(state,{...preview,finalBalls:preview.finalBalls.filter(b=>b.id!==2)},1),null);
+assert.equal(g.afterShot(state,{...preview,firstBallContact:{objId:2},pocketEvents:[{id:2}]},2),null);

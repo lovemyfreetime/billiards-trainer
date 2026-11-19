@@ -119,11 +119,12 @@
     trayLayoutPending=false;if(!balls.getClientRects().length)return;
     const frame=shelf.getBoundingClientRect(),scale=frame.width/shelf.offsetWidth;if(!(scale>0))return;
     let left=6;
-    for(const control of [trayToggle,byId('table3DRackToggle'),clear,byId('table3DLock'),byId('table3DBallState')]){
+    for(const control of [trayToggle,byId('table3DRackToggle'),byId('table3DShotOrder'),clear,byId('table3DLock'),byId('table3DBallState')]){
       if(control?.parentElement!==shelf||!control.getClientRects().length)continue;
       left=Math.max(left,(control.getBoundingClientRect().right-frame.left)/scale+6);
     }
-    const right=shelf.clientWidth-8,available=Math.max(100,right-left);
+    const plan=byId('table3DPlan'),planWidth=plan?.parentElement===shelf?plan.offsetWidth+6:0;
+    const right=shelf.clientWidth-8-planWidth,available=Math.max(100,right-left);
     const columns=available>=16*26+15*4?16:8;
     const separate=available<8*26+7*4;
     const x=separate?6:left,width=Math.min(separate?shelf.clientWidth-12:available,columns*30+(columns-1)*3);
@@ -253,10 +254,18 @@
       shelf.prepend(trayToggle);
     }
     fit.hidden = active;
-    const rack = byId('table3DRackToggle');
-    if (rack) {
-      if (active && trayToggle.parentNode === tools) trayToggle.after(rack);
-      else clear.before(rack);
+    const rack=byId('table3DRackToggle'),order=byId('table3DShotOrder'),plan=byId('table3DPlan');
+    if(rack&&order&&plan){
+      const onTools=active&&trayToggle.parentNode===tools;
+      tools.classList.toggle('tray-actions-in-tools',onTools);
+      if(onTools){
+        if(trayToggle.nextElementSibling!==rack||rack.nextElementSibling!==order)trayToggle.after(rack,order);
+        move(tools,plan);
+      }else{
+        if(clear.previousElementSibling!==order||order.previousElementSibling!==rack)clear.before(rack,order);
+        move(shelf,plan);
+      }
+      queueTrayLayout();
     }
     const experience = byId('btZenLauncher');
     if (experience && experience.parentNode !== bar) bar.prepend(experience);

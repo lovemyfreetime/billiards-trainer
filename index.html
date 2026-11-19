@@ -2142,7 +2142,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 <script src="./trainer-shot-chance.js?v=1"></script>
 <script src="./trainer-pocket-feedback.js?v=1"></script>
 <script src="./trainer-route-options.js?v=1"></script>
-<script src="./trainer-guidance.js?v=runout"></script>
+<script src="./trainer-guidance.js?v=leave"></script>
 <script>
 // AI Camera Edition wrapper: v4.12 trainer, app-mode launch package. v4 adds scoreboard placement/default-off + local analysis-photo recall.
 // v4.12: virtual diamond extensions beyond physical corners; fixes source references that previously clipped at the first visible table boundary.
@@ -2168,7 +2168,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const choice=S.rackChoice||racks[S.setupMode];
         const rack=Array.from($('fullRackSelect').options).find(o=>o.value===choice)?.textContent||'Custom';
         const order=window.BilliardsGuidance.order(S),labels={any:'Any Order',order:'Lowest First',open:'Open Table',solids:'Solids',stripes:'Stripes'};
-        return {rack,order,label:labels[order],grouped:S.setupMode==='8ball',fixed:/^(6|7|9|10)ball$/.test(S.setupMode)};
+        const mode=order==='any'||order==='order'?order:'groups';
+        return {rack,order,label:labels[order],mode};
     }
     function* simulateRunoutStroke(state,controls){
         const temporary={...state,...controls,showShotBudget:false};
@@ -2187,7 +2188,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if(!runoutJob||runoutJob.source!==S.preview)return {pending:false,shots:[]};
         return runoutJob;
     }
-    function requestRunout(continuation=false){
+    function requestRunout(continuation=false,automatic=false){
         if(animation||S.bankKick?.mode||S.guidanceScratch||S.guidanceBreak||!cueBall())return false;
         const state={...S,balls:S.balls.map(b=>({...b})),pocketGeometry:pocketModel()};
         const start=continuation?window.BilliardsGuidance.afterShot(state,S.preview,S.preview?.firstBallContact?.objId):state;
@@ -2195,14 +2196,17 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         runoutJob=job;
         window.dispatchEvent(new Event('billiards:runout'));
         if(!start)return false;
-        const scan=window.BilliardsGuidance.runout(start,simulateRunoutStroke,continuation?2:3);
+        const scan=window.BilliardsGuidance.runout(start,simulateRunoutStroke,continuation?4:5,
+            (state,side,follow)=>cueSquirtAngleFor(side,follow,state.cueEndmassRatio));
         const advance=()=>{
             if(runoutJob!==job||job.source!==S.preview||animation)return;
             const finish=performance.now()+7;
             let step;
             do{step=scan.next();}while(!step.done&&performance.now()<finish);
             if(!step.done){setTimeout(advance,0);return;}
-            job.shots=step.value;job.pending=false;draw();
+            job.shots=step.value;job.pending=false;
+            if(automatic&&S.guidanceEnabled&&job.shots.length){useRunout();return;}
+            draw();
             window.dispatchEvent(new Event('billiards:runout'));
         };
         setTimeout(advance,0);
@@ -2261,6 +2265,29 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         replan(){if(animation)return false;guidancePending=true;S.guidanceScratch=false;S.angleLock=false;refreshPreview();updateUI();saveState();return true;},
         status(){return {enabled:!!S.guidanceEnabled,plan:S.guidancePlan,scratch:!!S.guidanceScratch};},
         rackAnalysis,requestRunout,runoutStatus,useRunout,showRunoutMessage(message){toast(message);},
+        setShotOrder(mode,group){
+            if(animation||!['order','groups','any'].includes(mode))return false;
+            S.guidanceMode=mode;
+            if(mode==='groups'&&['open','solids','stripes'].includes(group)){
+                const player=S.activePlayer||1,other=player===1?2:1;
+                S.guidanceGroups={...(S.guidanceGroups||{}),[player]:group,[other]:group==='solids'?'stripes':group==='stripes'?'solids':'open'};
+            }
+            guidancePending=true;refreshPreview();updateUI();saveState();
+            return true;
+        },
+        activeShot(){return S.activeShot===2&&S.shot2Enabled?2:1;},
+        manualShot2(){return S.shot2Enabled;},
+        tapAimShot(){return runoutView&&!S.shot2Enabled?0:S.activeShot===2&&S.shot2Enabled?2:1;},
+        editPlannedShot2(){
+            if(animation||S.shot2Enabled)return false;
+            const planned=plannedNextShot();
+            if(!planned)return false;
+            beginActionUndo();
+            S.shot2Enabled=true;S.shot2Initialized=true;S.showShot2=true;
+            S.shot2={...ensureShot2(),...planned.controls,...planned.start,predictedTable:true,autoFollow:true,autoGhostLock:false,ghostLock:null,preview:null};
+            setActiveShot(2);refreshPreview();updateUI();finishActionUndo();
+            return true;
+        },
         nextShotAvailable(){return !animation&&(S.shot2Enabled||!!plannedNextShot());},
         setRunoutView(value){runoutView=value;draw();},
         chances(){return shotChanceMarkers();},
@@ -2641,6 +2668,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     function resetGameMeta(mode = 'custom') {
         S.setupMode = mode;
         S.rackChoice = null;
+        S.guidanceMode = null;
         S.guidanceGroups={};S.guidancePlan=null;S.guidanceScratch=false;S.guidanceBreak=/^(3|6|7|8|9|10)ball$/.test(mode);guidancePending=true;
         S.pocketedLog = [];
         S.player1Score = 0;
@@ -4711,7 +4739,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const contact=cueSideContact(values.sideSpin,values.follow,values.cueElevationDeg),d=shotAimDirection(which);
         const data={id:which===2?'CB2':0,x:ball.x,y:ball.y,z:S.ballR,R:S.ballR,dx:d.x,dy:d.y,
             rear:contact.x,height:contact.z,sideR:contact.tip.sideR,elevation:values.cueElevationDeg};
-        return window.BilliardsCueClearance.solve(data,{L:S.tableL,W:S.tableW,R:S.ballR}, {...cueStrokePreferences,speed:values.speed},S.balls);
+        const obstacles=which===2?shot2TableBalls(values).filter(b=>b.id!==0):S.balls;
+        return window.BilliardsCueClearance.solve(data,{L:S.tableL,W:S.tableW,R:S.ballR}, {...cueStrokePreferences,speed:values.speed},obstacles);
     }
     function cueTipsFor3D(){
         const tips=[];
@@ -4982,7 +5011,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     function withShot2Context(fn) {
         const s = ensureShot2();
         const backup = { balls: S.balls, freeAim: S.freeAim, speed: S.speed, follow: S.follow, sideSpin: S.sideSpin, cueElevationDeg: S.cueElevationDeg, angleLock: S.angleLock };
-        const objects = S.balls.filter(b => b.id !== 0 && !b.marker).map(b => (Object.assign({}, b)));
+        const objects = shot2TableBalls(s).filter(b => b.id !== 0 && !b.marker).map(b => ({...b}));
         S.balls = [{ id: 0, n: 'CB2', x: s.x, y: s.y, orientation:s.orientation, active: true }, ...objects];
         S.freeAim = Object.assign({}, s.freeAim);
         S.speed = s.speed;
@@ -5002,6 +5031,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             S.cueElevationDeg = backup.cueElevationDeg;
             S.angleLock = backup.angleLock;
         }
+    }
+    function shot2TableBalls(shot){
+        const predicted=shot.predictedTable&&S.preview?.settled&&S.preview.finalBalls;
+        return predicted?predicted.filter(b=>b.active).map(b=>({...S.balls.find(old=>old.id===b.id),...b})):S.balls;
     }
     function simulateShot2() { if (!S.shot2Enabled)
         return null; return withShot2Context(() => simulate(false, null, aimZoneEnabled())); }
@@ -8554,7 +8587,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const planned=runoutView?plannedNextShot():null;
         if(planned)return {...S,...planned.controls,balls:S.preview.finalBalls,pocketGeometry:pocketModel(),preview:planned.preview,inspectingNextShot:true};
         const second=(S.activeShot===2||runoutView)&&S.shot2Enabled,shot=second?ensureShot2():S;
-        return {...S,...(second?shot:{}),pocketGeometry:pocketModel(),balls:second?S.balls.map(b=>b.id===0?{...b,x:shot.x,y:shot.y}:b):S.balls,inspectingNextShot:runoutView};
+        return {...S,...(second?shot:{}),pocketGeometry:pocketModel(),balls:second?shot2TableBalls(shot).map(b=>b.id===0?{...b,x:shot.x,y:shot.y}:b):S.balls,inspectingNextShot:runoutView};
     }
     function comparisonKey(state,id){return JSON.stringify([id,state.tableL,state.tableW,state.ballR,state.guidanceAimErrorDeg,state.guidanceRailErrorDeg,state.balls.map(b=>[b.id,b.x,b.y,b.active,b.marker])]);}
     function cancelRouteComparison(){clearTimeout(routeTimer);routeComparison={...routeComparison,key:null,pending:false,result:null,epoch:routeComparison.epoch+1};}
@@ -8571,7 +8604,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             else routeTimer=setTimeout(work,0);
         };routeTimer=setTimeout(work,90);return null;
     }
-    function activeChanceTarget(state){const plan=S.guidancePlan;if(state.inspectingNextShot)return state.preview?.firstBallContact?.objId;if(!(S.activeShot===2&&S.shot2Enabled)&&S.guidanceEnabled&&plan?.ballId&&['blocked','contact'].includes(plan.kind))return plan.ballId;return state.preview?.firstBallContact?.objId??plan?.ballId;}
+    function activeChanceTarget(state){
+        const plan=S.guidancePlan,hit=state.preview?.firstBallContact?.objId;
+        if(state.inspectingNextShot)return hit??window.BilliardsGuidance.eligibleBalls(state)[0]?.id;
+        if(!(S.activeShot===2&&S.shot2Enabled)&&S.guidanceEnabled&&plan?.ballId)return plan.ballId;
+        return hit??plan?.ballId;
+    }
     function currentPocketFeedback(){
         if(animation||isZenPage||isProjector||!S.showTable)return [];
         const state=chanceState(),id=activeChanceTarget(state);if(!Number.isInteger(id)||id<=0||!shotGuidesVisible((S.activeShot===2||runoutView)&&S.shot2Enabled?2:1))return [];
@@ -8646,7 +8684,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     function drawPocketFeedback(map){
         if(window.Billiards3D?.active)return;
         for(const f of currentPocketFeedback()){const p=map(f.center),r=S.ballR*mapper().scale;
-            if(S.showPocketGlow!==false&&f.strength){ctx.save();ctx.strokeStyle='rgba(181,255,222,'+(.15+.7*f.strength)+')';ctx.shadowColor='#b5ffde';ctx.shadowBlur=5+10*f.strength;ctx.lineWidth=2+f.strength*2;ctx.beginPath();ctx.arc(p.x,p.y,r*1.4,0,Math.PI*2);ctx.stroke();ctx.restore();}
+            if(S.showPocketGlow!==false&&f.strength){ctx.save();ctx.strokeStyle='rgba(181,255,222,'+(.07+.31*f.strength)+')';ctx.shadowColor='#b5ffde';ctx.shadowBlur=3+5*f.strength;ctx.lineWidth=2+f.strength*2;ctx.beginPath();ctx.arc(p.x,p.y,r*1.4,0,Math.PI*2);ctx.stroke();ctx.restore();}
             if(S.showPocketGhost!==false&&f.entry){const q=map(f.entry);ctx.save();ctx.fillStyle='#ffdb5540';ctx.strokeStyle='#ffe27baa';ctx.lineWidth=1;ctx.beginPath();ctx.arc(q.x,q.y,r,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(q.x,q.y-r*.8);ctx.lineTo(q.x,q.y+r*.8);ctx.stroke();ctx.restore();}
         }
     }
@@ -8737,8 +8775,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const live=(animation?.current||S.balls).map(b=>({...S.balls.find(x=>x.id===b.id),...b})).filter(b=>b.id!==0||cueVisualsVisible(1));
             if((!clean||(recordingGuides&&S.shot2CueBallOnly))&&S.shot2Enabled&&cueVisualsVisible(2))live.push({id:'CB2',x:S.shot2.x,y:S.shot2.y,orientation:S.shot2.orientation,active:true});
             const second=S.activeShot===2&&S.shot2Enabled,cb=second?S.shot2:cueBall(),nextPose=runoutView&&!animation?nextShotPose():null;
-            if(nextPose&&!S.shot2Enabled){
+            if(nextPose&&(!S.shot2Enabled||S.shot2.predictedTable)&&S.preview?.settled){
                 const leave=S.preview.finalBalls.filter(b=>b.active).map(b=>({...S.balls.find(old=>old.id===b.id),...b}));
+                if(S.shot2Enabled){
+                    const projected=live.find(b=>b.id==='CB2'),index=leave.findIndex(b=>b.id===0);
+                    if(projected&&index!==-1)leave[index]=projected;
+                }
                 live.splice(0,live.length,...leave);
             }
             window.Billiards3D.update({cuePose:animation?.cuePose||nextPose||cuePoseFor3D(),showRealCue:S.showCueStick!==false&&S.showTable&&shotGuidesVisible(animation?1:second?2:1),cueStrokeTime:animation?.visualTime,pocketFeedback:(!clean||recordingGuides)&&S.showPocketGlow!==false?currentPocketFeedback():[],cameraLabels,trainingBallStyle:S.trainingBallStyle,L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,overlayEditing:!!compassState().enabled,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:(clean||S.showCueStick===false)?[]:(animation?.cueTips||cueTipsFor3D()).filter(tip=>tip.id!=='CB2'||!S.shot2CueBallOnly),balls:live,ghostBalls:clean&&!recordingGuides?[]:ghostBallsFor3D(),map,aim:!clean&&cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
@@ -9495,6 +9537,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if(type==='pointerdown'){beginActionUndo();projectedAimGesture={pointerId:info.pointerId,which,original:{...shot.freeAim}};return true;}
             if(!projectedAimGesture||projectedAimGesture.pointerId!==info.pointerId)return false;
             if(type==='pointercancel')shot.freeAim=projectedAimGesture.original;
+            else if(info.aimTap)shot.freeAim={x:q.x,y:q.y};
             else shot.freeAim={x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR)};
             if(which===2&&S.showAngleLockControl&&shot.autoGhostLock){shot.angleLock=true;shot.ghostLockDirty=true;}
             S.activeShot=which;refreshPreview();
@@ -10270,7 +10313,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         // before Shot 1 is committed.  At the end of the animation this Shot 2 plan
         // becomes the new Shot 1, while Shot 2 itself is hidden.
         const shot2Handoff = S.shot2Enabled ? JSON.parse(JSON.stringify(ensureShot2())) : null;
+        const savedPlan=runoutStatus(),plannedLeave=S.preview?.finalBalls;
         const finalFrame = sim.finalBalls || sim.frames[sim.frames.length - 1];
+        const legalPot=window.BilliardsGuidance.afterShot(preShot,sim,sim.firstBallContact?.objId);
+        const continuationMatches=savedPlan.continuation&&savedPlan.shots.length&&plannedLeave?.length===finalFrame.length&&
+            plannedLeave.every(b=>finalFrame.some(f=>f.id===b.id&&f.active===b.active&&Math.hypot(f.x-b.x,f.y-b.y)<.002));
         S.guidanceScratch=finalFrame.some(b=>b.id===0&&!b.active);S.guidanceBreak=false;
         // Determine actual pocketing order from animation frames, not ball number.
         const pocketFrame = new Map();
@@ -10389,6 +10436,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             S.cueElevationDeg = PHYSICS_MODEL.defaultCueElevationDeg;
             if (S.shot2) S.shot2.cueElevationDeg = PHYSICS_MODEL.defaultCueElevationDeg;
         }
+        if(legalPot&&S.guidanceMode==='groups'&&S.setupMode!=='8ball')S.guidanceGroups=legalPot.guidanceGroups;
         if(!shot2Handoff){guidancePending=true;applyShotGuidance(true);}else S.guidancePlan=null;
         normalizeBallSet();
         // The shot just committed can be reverted exactly.
@@ -10401,6 +10449,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         saveState();
         syncProjector();
         window.dispatchEvent(new CustomEvent('billiards:shot-complete',{detail:{removed:[...removed],shot2Handoff:!!shot2Handoff}}));
+        const remainingObjectBalls=S.balls.filter(b=>b.id>0&&!b.marker&&b.active!==false).length;
+        if(!shot2Handoff&&S.guidanceEnabled&&removed.length>0&&!S.guidanceScratch&&!S.angleLock&&
+            remainingObjectBalls>0&&remainingObjectBalls<=5&&legalPot){
+            if(continuationMatches){
+                runoutJob={source:S.preview,continuation:false,pending:false,shots:savedPlan.shots};
+                useRunout();
+            }else requestRunout(false,true);
+        }
         if (shot2Handoff) {
             if (removed.length)
                 toast('Shot saved · Shot 2 applied · pocketed ' + removed.join(', '));
@@ -14552,11 +14608,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   </div>
   <link rel="stylesheet" href="./guide/pool-guide.css?v=resources-toggle-v8">
   <script src="./phone-play.js?v=workspace-1"></script>
-  <link rel="stylesheet" href="./trainer-3d.css?v=runout">
+  <link rel="stylesheet" href="./trainer-3d.css?v=leave">
   <script src="./trainer-cue3d.js?v=1"></script>
-  <script src="./trainer-3d.js?v=runout"></script>
-  <link rel="stylesheet" href="./trainer-workspace.css?v=1">
-  <script src="./trainer-workspace.js?v=1"></script>
+  <script src="./trainer-3d.js?v=leave"></script>
+  <link rel="stylesheet" href="./trainer-workspace.css?v=order-1">
+  <script src="./trainer-workspace.js?v=order-1"></script>
   <link rel="stylesheet" href="./trainer-player-view.css?v=1">
   <script src="./trainer-player-view.js?v=shot-2-view"></script>
   <script src="./trainer-cue-controls.js?v=1"></script>
