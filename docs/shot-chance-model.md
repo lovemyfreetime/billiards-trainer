@@ -1,6 +1,6 @@
 # Conditional shot chances
 
-This first model compares direct pockets and estimates an already verified bank/kick route. It is not fitted to Railbird's dataset and is not a measured personal make rate. The video description identifies cue/object distances, cut, pocket, speed and player as relevant variables. Its full transcript was not accessible during this implementation; do not claim it was reviewed or its aggregate rates reproduced.
+The model compares direct pockets, screens bank/kick alternatives through four rails, and estimates full-physics checked bank/kick routes. It is not fitted to Railbird's dataset and is not a measured personal make rate. The video description identifies cue/object distances, cut, pocket, speed and player as relevant variables. Its full transcript was not accessible during this implementation; do not claim it was reviewed or its aggregate rates reproduced.
 
 ## Direct pockets
 
@@ -12,7 +12,7 @@ Default aim standard deviation: **0.15 degrees**, a reference assumption, not a 
 
 ## Banks and kicks
 
-Only a complete, reached, non-scratching route from the existing full-physics solver receives an estimate. No additional solver search runs while drawing. The estimate propagates angular aim variance over route length and independent angular cushion variance over each remaining path length. Bank shots also propagate cue-to-object collision sensitivity. Default cushion standard deviation is **0.35 degrees**, scaled by rebound geometry and side spin; this is an explicit reference assumption, not a measured cloth/cushion model.
+A verified-route estimate requires a complete, reached, non-scratching result from the existing full-physics solver. Pocket comparisons can also show explicitly identified ideal-rail estimates, which require checking before applying. No additional solver search runs while drawing. The estimate propagates angular aim variance over route length and independent angular cushion variance over each remaining path length. Bank shots also propagate cue-to-object collision sensitivity. Default cushion standard deviation is **0.35 degrees**, scaled by rebound geometry and side spin; this is an explicit reference assumption, not a measured cloth/cushion model.
 
 Kick contact uses the two-ball-radius contact corridor and its offset from the final approach line. Bank/kick pocketing uses the final pocket aperture. A location drill uses the existing 0.35-radius destination tolerance. Contact, reach-zone and pocketing outcomes are labelled separately. A percentage represents the whole selected route, not a per-rail success probability. Unsolved, changed, unsupported or scratching routes receive no fabricated percentage. Comparing different bank destinations currently requires selecting and calculating each route with the existing tool.
 

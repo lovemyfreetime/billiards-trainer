@@ -8461,14 +8461,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             else routeTimer=setTimeout(work,0);
         };routeTimer=setTimeout(work,90);return null;
     }
-    function activeChanceTarget(state){return state.preview?.firstBallContact?.objId??S.guidancePlan?.ballId;}
+    function activeChanceTarget(state){const plan=S.guidancePlan;if(!(S.activeShot===2&&S.shot2Enabled)&&S.guidanceEnabled&&plan?.ballId&&['blocked','contact'].includes(plan.kind))return plan.ballId;return state.preview?.firstBallContact?.objId??plan?.ballId;}
     function currentPocketFeedback(){
         if(animation||isZenPage||isProjector||!S.showTable)return [];
         const state=chanceState(),id=activeChanceTarget(state);if(!Number.isInteger(id)||id<=0||!shotGuidesVisible(S.activeShot===2&&S.shot2Enabled?2:1))return [];
         return window.BilliardsPocketFeedback.analyze(state,state.preview,id);
     }
     function currentRailChance(state,id){
-        const preview=state.preview,event=preview?.pocketEvents?.find(e=>e.id===id),contact=preview?.firstBallContact;if(!event||!contact)return null;
+        const preview=state.preview,event=preview?.pocketEvents?.find(e=>e.id===id),contact=preview?.firstBallContact;if(!event||!contact||contact.objId!==id)return null;
         const bankHits=(preview.railEvents||[]).filter(e=>e.id===id&&e.t>contact.t&&e.t<event.t),kickHits=(preview.railEvents||[]).filter(e=>e.id===0&&e.t<contact.t),hits=bankHits.length?bankHits:kickHits;
         if(!hits.length)return null;
         if(bankHits.length&&kickHits.length)return null;
