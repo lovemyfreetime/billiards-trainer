@@ -24,7 +24,11 @@ for(const [width,height,mobile]of [[2048,1280,false],[1366,768,false],[844,390,t
  await page.waitForFunction(()=>window.__contactCards?.some(c=>c.type==='overlap'));
  const baseline=await predict(),overlap=baseline.firstBallContact.overlap;
  assert(Math.abs(overlap-50)<.01,'Physical half-ball fixture');
- assert(await page.evaluate(()=>__contactCards.some(c=>c.rows.some(r=>r.text.includes(BilliardsShotBudget.formatOverlap(billiardsTourBridge.predict().firstBallContact.overlap))))),'Percentage and fraction share the existing cloth badge');
+ assert(await page.evaluate(()=>{
+  const overlap=billiardsTourBridge.predict().firstBallContact.overlap;
+  return __contactCards.some(c=>c.rows[0]?.text==='Overlap '+BilliardsShotBudget.formatOverlap(overlap)&&
+   c.rows[1]?.text==='Ball hit '+BilliardsShotBudget.formatBallFraction(overlap));
+ }),'Ball hit appears directly below Overlap in the cloth badge');
  await alignment('2d closed');await page.locator('#phoneControls').click();await settle();await alignment('2d drawer');
  await page.locator('#optionsSection>.sectionToggle').click();await page.locator('#menu-featureCueOptions>summary').click();
  await page.locator('#showFullGhostBall').check();await page.locator('#showRestingCueBall').check();

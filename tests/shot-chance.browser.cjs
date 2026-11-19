@@ -12,7 +12,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{spawn}=require
   assert.equal(await page.evaluate(()=>billiardsGuidance.status().plan.pocket),'bottom right');
   await page.locator('#table3DToggle').tap();await page.waitForFunction(()=>Billiards3D.active&&!Billiards3D.camera().transitioning&&Billiards3D.cueModel()?.referenceReady);
   await page.waitForFunction(()=>Billiards3D.overlayLabels().filter(l=>l.id.startsWith('pocket-chance')).length===6);
-  assert.equal(await page.evaluate(()=>Billiards3D.overlayLabels().find(l=>l.rows[0].startsWith('Best')).color),'#79efa1');
+  assert(await page.evaluate(()=>Billiards3D.overlayLabels().filter(l=>l.pocketName).every(l=>l.color==='#fff'&&l.opacity===.64&&!l.rail)));
   await page.evaluate(()=>document.getElementById('showPocketChances').click());assert.deepEqual(await page.evaluate(()=>billiardsGuidance.chances()),[]);await page.evaluate(()=>document.getElementById('showPocketChances').click());
   if(await page.evaluate(()=>document.body.classList.contains('phone-tray-hidden')))await page.locator('#phoneTrayToggle').tap();
   async function allBallsFit(){await page.waitForFunction(()=>{const tray=document.getElementById('workspaceBalls'),r=tray.getBoundingClientRect();if(r.bottom>innerHeight+1||r.right>innerWidth+1||r.left<0)return false;return [...tray.children].every(b=>{const q=b.getBoundingClientRect();return q.width>=24&&q.height>=24&&q.left>=r.left-1&&q.right<=r.right+1&&q.top>=r.top-1&&q.bottom<=r.bottom+1;});});assert.equal(await page.locator('#workspaceBalls .workspaceBall').count(),16);}

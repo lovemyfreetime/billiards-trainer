@@ -27,14 +27,14 @@
   if(camera?.active&&camera.camera().playerView){camera.exitCueView();sync();}
   else await open();
  }
- window.billiardsCueView={toggle};
+ window.billiardsCueView={toggle,apply};
  button.onclick=toggle;
  for(const [id,value]of [['playerViewLow',.12],['playerViewRaised',.28]])byId(id).onclick=()=>{height=value;save();if(window.Billiards3D?.camera().playerView)apply();sync();};
  slider.oninput=()=>{height=Number(slider.value)*model.METERS_PER_INCH;save();if(window.Billiards3D?.camera().playerView)apply();sync();};
  lock.onchange=()=>{locked=lock.checked;save();if(window.Billiards3D?.camera().playerView)apply();sync();};
  let lastState;
  function sync(){
-  const camera=window.Billiards3D?.camera(),state=window.billiardsPlayback?.state(),busy=!!state?.recording,active=!!(window.Billiards3D?.active&&camera?.playerView);
+  const camera=window.Billiards3D?.camera(),state=window.billiardsPlayback?.state(),busy=!!state?.recording,active=!!(window.Billiards3D?.active&&camera?.playerView&&byId('table3DNextView')?.getAttribute('aria-pressed')!=='true');
   const pose=window.Billiards3D?.cueModel(),angle=pose?.elevation.toFixed(1);
   const stateKey=[active,busy,height,locked,angle].join('/');
   if(stateKey===lastState)return;

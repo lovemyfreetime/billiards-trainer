@@ -254,6 +254,14 @@ body:not(.table-3d) .table3DPopover{display:none!important}
 #table3DRackMenu{width:min(254px,calc(100vw - 12px),calc(100dvh - 12px));aspect-ratio:1;padding:0;border-radius:50%;overflow:hidden}
 #table3DRackMenu button{position:absolute;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;padding:0}
 #table3DRackMenu .table3DRandom{left:50%;top:50%;width:70px;height:70px;background:#2b6549}
+#table3DRackOptions{position:fixed;z-index:61;display:grid;gap:7px;width:min(174px,43vw);padding:9px;border:1px solid #7898a7;border-radius:12px;background:#14232df5;color:#edf7fb;font-size:12px}
+#table3DRackOptions[hidden]{display:none}
+#table3DRackOptions label{display:grid;gap:3px}
+#table3DRackOptions button,#table3DRackOptions select{min-height:28px}
+#table3DNextView[aria-pressed=true]{border-color:#d4a4ff;background:#403452}
+#table3DRackToggle{flex-direction:column;line-height:1.1;white-space:normal}
+#table3DRackToggle::after{content:attr(data-shot-order);display:block;margin-top:2px;font-size:8px;font-weight:500;color:#c3d2da}
+#table3DRackToggle[aria-busy=true]{border-color:#d4a4ff}
 
 /* Both control banks occupy exactly the width of their spin slider below. */
 body.table-3d.phone-focus #table3DPhoneControls #table3DTools{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,2fr) minmax(0,1fr) minmax(0,1fr);gap:4px;align-items:stretch}

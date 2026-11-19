@@ -10,13 +10,24 @@
  const tools=document.createElement('nav');tools.id='table3DTools';tools.hidden=true;tools.setAttribute('aria-label','3D camera controls');
  const action=(label,title,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('aria-label',title);b.title=title;b.onclick=fn;tools.append(b);return b;};
  const standingButton=action('Full View','Fit the full table from the nearest long rail',()=>{
+  openNextWhenReady=false;
   const heading=cameraState.azimuth,follow=document.getElementById('followMode');
   if(follow?.getAttribute('aria-checked')==='true')follow.click();
   standing(heading);
  });
- const alongButton=action('Cue View','Toggle Cue View',()=>window.billiardsCueView?.toggle());
+ const alongButton=action('Cue View','Toggle Cue View',()=>{openNextWhenReady=false;if(nextView)setNextView(false);window.billiardsCueView?.toggle();});
+ const nextButton=action('Shot 2 View','Inspect the second shot from the cue ball',()=>{
+  const api=window.billiardsGuidance;
+  if(nextView)setNextView(false);
+  else if(api.nextShotAvailable())setNextView(true);
+  else if(!openNextWhenReady||!api.runoutStatus().pending){
+   openNextWhenReady=true;
+   if(!api.requestRunout(true)){openNextWhenReady=false;api.showRunoutMessage('Set up Shot 2 or aim a legal pot to predict its leave.');}
+  }
+ });
+ nextButton.id='table3DNextView';nextButton.setAttribute('aria-pressed','false');
  const zoomIn=action('+','Zoom camera in',()=>zoom(1/1.15)),zoomOut=action('−','Zoom camera out',()=>zoom(1.15));
- const viewLock=action('Lock view','Lock view for ball placement and aiming',()=>setViewLocked(!viewLocked));viewLock.id='table3DLock';viewLock.setAttribute('aria-pressed','false');views.append(standingButton,alongButton,viewLock);stage.append(tools);for(const b of [standingButton,alongButton,viewLock])b.hidden=true;
+ const viewLock=action('Lock view','Lock view for ball placement and aiming',()=>setViewLocked(!viewLocked));viewLock.id='table3DLock';viewLock.setAttribute('aria-pressed','false');views.append(standingButton,alongButton,nextButton,viewLock);stage.append(tools);for(const b of [standingButton,alongButton,nextButton,viewLock])b.hidden=true;
  const ballState=document.createElement('output');ballState.id='table3DBallState';ballState.setAttribute('role','status');ballState.setAttribute('aria-live','polite');ballState.textContent='Balls locked';views.append(ballState);ballState.hidden=true;
  const panButton=action('','Move table: drag to slide the view',()=>chooseCameraMode(true));panButton.id='table3DPan';panButton.setAttribute('aria-pressed','false');panButton.innerHTML='<svg width=18 height=18 viewBox="0 0 24 24" aria-hidden=true><path d="M7 12V6a1.5 1.5 0 0 1 3 0v5-7a1.5 1.5 0 0 1 3 0v7-6a1.5 1.5 0 0 1 3 0v7-4a1.5 1.5 0 0 1 3 0v7c0 4-2 6-6 6h-1c-2 0-3-1-4-2l-4-5c-1-2 1-3 2-2l3 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';panButton.title='Move table: drag with one finger or mouse. Two fingers always slide and pinch.';const rotateButton=action('','Rotate table: drag to orbit and tilt the view',()=>chooseCameraMode(false));rotateButton.id='table3DRotate';rotateButton.setAttribute('aria-pressed','false');rotateButton.innerHTML='<svg width=18 height=18 viewBox="0 0 24 24" aria-hidden=true><path d="M19 8a8 8 0 1 0 1 8M19 3v6h-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';zoomIn.id='table3DZoomIn';zoomOut.id='table3DZoomOut';
  const zoomSlider=document.createElement('input');zoomSlider.id='table3DZoomSlider';zoomSlider.type='range';zoomSlider.min='0';zoomSlider.max='100';zoomSlider.step='.1';zoomSlider.setAttribute('aria-label','3D zoom');
@@ -24,7 +35,7 @@
  zoomSlider.addEventListener('input',()=>{if(!lastFrame)return;const min=Math.max(lastFrame.R*5,lastFrame.L*.06),max=lastFrame.L*8;cameraState.radius=Math.exp(Math.log(max)+(Math.log(min)-Math.log(max))*Number(zoomSlider.value)/100);requestRender();});
  for(const type of ['pointerdown','touchstart','wheel'])zoomGroup.addEventListener(type,event=>event.stopPropagation());
  const trayToggle=action('▤','Show or hide all 16 balls',()=>togglePopover(tray,trayToggle));trayToggle.id='table3DTrayToggle';trayToggle.setAttribute('aria-expanded','false');trayToggle.setAttribute('aria-controls','table3DTray');
- const rackToggle=action('△','Choose a rack or randomize',()=>togglePopover(rackMenu,rackToggle));rackToggle.id='table3DRackToggle';rackToggle.setAttribute('aria-expanded','false');rackToggle.setAttribute('aria-controls','table3DRackMenu');
+ const rackToggle=action('Rack','Choose a rack or change shot order',()=>togglePopover(rackMenu,rackToggle));rackToggle.id='table3DRackToggle';rackToggle.setAttribute('aria-expanded','false');rackToggle.setAttribute('aria-controls','table3DRackMenu');
  tools.replaceChildren(trayToggle,rackToggle,zoomGroup,rotateButton,panButton);
  const tray=document.createElement('section');tray.id='table3DTray';tray.className='table3DPopover';tray.hidden=true;tray.setAttribute('aria-label','Ball tray');
  const trayCount=document.createElement('output');trayCount.setAttribute('aria-live','polite');tray.append(trayCount);
@@ -44,15 +55,42 @@
  const random=document.createElement('button');random.type='button';random.className='table3DRandom';random.textContent='Random';random.setAttribute('aria-label','Randomize current balls');random.onclick=()=>{if(window.billiards3DBallControls?.status().busy)return;document.getElementById('shuffleTableLayout')?.click();closePopovers();};rackMenu.append(random);
  const labels={rack6:'6',rack7:'7',rack8:'8',rack9:'9',rack10:'10',straight14:'S',ultimate8:'U',rack3:'3'};
  const rackButtons=Object.entries(labels).map(([value,label],i)=>{const b=document.createElement('button');b.type='button';b.dataset.rack=value;b.textContent=label;const option=[...document.getElementById('fullRackSelect').options].find(o=>o.value===value);b.setAttribute('aria-label','Set up '+option.textContent);const a=(-90+i*45)*Math.PI/180;b.style.left=(50+37*Math.cos(a))+'%';b.style.top=(50+37*Math.sin(a))+'%';b.onclick=()=>{if(window.billiards3DBallControls?.status().busy)return;const select=document.getElementById('fullRackSelect');select.value=value;select.dispatchEvent(new Event('change',{bubbles:true}));document.getElementById('startFullRack').click();closePopovers();syncBallTools();};rackMenu.append(b);return b;});
- stage.append(tray,rackMenu);
- function closePopovers(){tray.hidden=true;rackMenu.hidden=true;trayToggle.setAttribute('aria-expanded','false');rackToggle.setAttribute('aria-expanded','false');}
+ const rackOptions=document.createElement('section');rackOptions.id='table3DRackOptions';rackOptions.hidden=true;
+ rackOptions.innerHTML='<label>Shot Order <select aria-label="Shot Order"></select></label><button type="button">Plan Runout</button><button type="button" hidden>Use Shot 1</button><output aria-live="polite"></output>';
+ const [orderSelect,planButton,useButton,planStatus]=rackOptions.querySelectorAll('select,button,output');
+ orderSelect.onchange=()=>{const rules=window.billiardsGuidance.rackAnalysis(),control=document.getElementById(rules.grouped?'guidanceGroup':'guidanceOrder');control.value=orderSelect.value;control.dispatchEvent(new Event('change',{bubbles:true}));};
+ planButton.onclick=()=>{if(!window.billiardsGuidance.requestRunout())window.billiardsGuidance.showRunoutMessage('Plan after the break, with the cue ball on the table and the bank/kick tool closed.');};
+ useButton.onclick=()=>{if(window.billiardsGuidance.useRunout())closePopovers();};
+ stage.append(tray,rackMenu,rackOptions);
+ function syncAnalysis(){
+  const api=window.billiardsGuidance,{rack,order,label,grouped,fixed}=api.rackAnalysis(),job=api.runoutStatus();
+  const compact=rack.split(' — ')[0].replace('Ultimate 8 Ball','Ultimate 8').replace('Straight Pool','Straight');
+  if(rackToggle.textContent!==compact)rackToggle.textContent=compact;
+  rackToggle.dataset.shotOrder=job.pending?'Analyzing':label;
+  rackToggle.title=rack+' · '+label+(job.pending?' · Analyzing':'');
+  rackToggle.setAttribute('aria-label',rackToggle.title+' · Rack and Shot Order');
+  rackToggle.setAttribute('aria-busy',String(job.pending));nextButton.setAttribute('aria-busy',String(job.pending&&!!openNextWhenReady));
+  if(orderSelect.dataset.mode!==String(grouped)){
+   orderSelect.dataset.mode=String(grouped);
+   const items=grouped?[['open','Open Table'],['solids','Solids'],['stripes','Stripes']]:[['auto','Any Order'],['order','Lowest First']];
+   orderSelect.replaceChildren(...items.map(([value,text])=>new Option(text,value)));
+  }
+  orderSelect.value=order==='any'?'auto':order;orderSelect.disabled=fixed;
+  planButton.disabled=job.pending||!!window.billiards3DBallControls?.status()?.busy;
+  useButton.hidden=job.continuation||!job.shots.length;
+  const count=job.shots.length,route=job.shots.map(s=>s.ballId+' → '+s.pocket+(s.leaveSide?' (leave '+s.leaveSide+')':'')).join(' · ');
+  const message=job.pending?'Analyzing…':count?count+(count===1?' shot':' shots')+' found · '+route:job.source&&!job.continuation?'No direct route found.':'';
+  if(planStatus.textContent!==message)planStatus.textContent=message;
+ }
+ function closePopovers(){tray.hidden=true;rackMenu.hidden=true;rackOptions.hidden=true;trayToggle.setAttribute('aria-expanded','false');rackToggle.setAttribute('aria-expanded','false');}
  function positionPopover(pop,anchor){const r=anchor.getBoundingClientRect(),w=pop.offsetWidth,h=pop.offsetHeight;pop.style.left=Math.max(6,Math.min(innerWidth-w-6,r.left))+'px';pop.style.top=Math.max(6,Math.min(innerHeight-h-6,r.top-h-8))+'px';}
- function togglePopover(pop,anchor){if(!active&&pop!==rackMenu)return;const show=pop.hidden;closePopovers();if(show){pop.hidden=false;anchor.setAttribute('aria-expanded','true');syncBallTools();positionPopover(pop,anchor);}}
+ function placeRackOptions(){const r=rackMenu.getBoundingClientRect(),w=rackOptions.offsetWidth,h=rackOptions.offsetHeight;const right=r.right+w+8<=innerWidth;rackOptions.style.left=Math.max(6,right?r.right+6:r.left-w-6)+'px';rackOptions.style.top=Math.max(6,Math.min(innerHeight-h-6,r.top))+'px';}
+ function togglePopover(pop,anchor){if(!active&&pop!==rackMenu)return;const show=pop.hidden;closePopovers();if(show){pop.hidden=false;anchor.setAttribute('aria-expanded','true');syncBallTools();positionPopover(pop,anchor);if(pop===rackMenu){syncAnalysis();rackOptions.hidden=false;placeRackOptions();}}}
  let ballToolsKey='';
  function syncBallTools(){const data=window.billiards3DBallControls?.status();if(!data)return;const key=JSON.stringify([data.busy,data.balls,data.pocketed]);if(key===ballToolsKey)return;ballToolsKey=key;clear.disabled=data.busy||!data.balls.length;trayCount.textContent=data.pocketed.length+' pocketed';for(const b of ballButtons){const id=+b.dataset.ballId,present=data.balls.includes(id),pocketed=data.pocketed.includes(id);b.disabled=data.busy||present&&id!==0;b.classList.toggle('on-table',present);b.classList.toggle('pocketed',pocketed);b.setAttribute('aria-label',(id?'Ball '+id:'Cue ball')+(present?' on table':pocketed?' pocketed — tap or drag to return':' — tap or drag to add'));}rackToggle.disabled=data.busy;random.disabled=data.busy;rackButtons.forEach(b=>b.disabled=data.busy);}
- document.addEventListener('pointerdown',e=>{if(!rackMenu.contains(e.target)&&!rackToggle.contains(e.target)){rackMenu.hidden=true;rackToggle.setAttribute('aria-expanded','false');}});
+ document.addEventListener('pointerdown',e=>{if(!rackMenu.contains(e.target)&&!rackOptions.contains(e.target)&&!rackToggle.contains(e.target)){rackMenu.hidden=true;rackOptions.hidden=true;rackToggle.setAttribute('aria-expanded','false');}});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&(!tray.hidden||!rackMenu.hidden)){closePopovers();e.stopPropagation();}},true);
- window.addEventListener('resize',()=>{if(!tray.hidden)positionPopover(tray,trayToggle);if(!rackMenu.hidden)positionPopover(rackMenu,rackToggle);});
+ window.addEventListener('resize',()=>{if(!tray.hidden)positionPopover(tray,trayToggle);if(!rackMenu.hidden){positionPopover(rackMenu,rackToggle);placeRackOptions();}});
  const phoneBox=document.createElement('div');phoneBox.id='table3DPhoneControls';phoneBox.setAttribute('role','group');phoneBox.setAttribute('aria-label','3D table controls');phoneBox.hidden=true;stage.append(phoneBox);
  const panel=document.getElementById('panel'),drawer=document.createElement('button'),dismiss=document.createElement('button');
  drawer.type='button';drawer.id='table3DDrawer';drawer.setAttribute('aria-controls','panel');
@@ -70,7 +108,29 @@
  panel?.addEventListener('click',e=>{if(e.target.closest('#animate,#undoShot,#redoShot,#resetLayoutQuick'))setDrawer(false);});
  let active=false,viewLocked=false,panEnabled=false,loading=false,lastFrame=null,engine=null,scheduled=0;
  let previousCueCamera=null,inspectionCamera=null,cameraTransition=null,visualCamera=null;
- const returnView=action('Return to shot view','Restore the view before inspection',()=>{if(!inspectionCamera)return;const saved=inspectionCamera;inspectionCamera=null;previousCueCamera=saved.cue;window.Billiards3D.restoreCamera(saved.camera);returnView.hidden=true;});
+ let nextView=false,openNextWhenReady=false;
+ function setNextView(value){
+  if(nextView===value)return;
+  if(value)rememberInspection();
+  nextView=value;nextButton.setAttribute('aria-pressed',String(value));
+  window.billiardsGuidance.setRunoutView(value);
+  if(value)window.billiardsCueView?.apply();
+  else window.Billiards3D.exitCueView();
+ }
+ window.addEventListener('billiards:runout',()=>{
+  syncAnalysis();
+  const api=window.billiardsGuidance;
+  if(openNextWhenReady&&!api.runoutStatus().pending){
+   openNextWhenReady=false;
+   if(active&&api.nextShotAvailable())setNextView(true);
+   else api.showRunoutMessage('No direct continuation found from this leave.');
+  }
+ });
+ window.addEventListener('billiards:2d-render',()=>{
+  syncAnalysis();
+  if(nextView&&!window.billiardsGuidance.nextShotAvailable())queueMicrotask(()=>{if(nextView&&!window.billiardsGuidance.nextShotAvailable())setNextView(false);});
+ });
+ const returnView=action('Return to shot view','Restore the view before inspection',()=>{openNextWhenReady=false;if(!inspectionCamera)return;setNextView(false);const saved=inspectionCamera;inspectionCamera=null;previousCueCamera=saved.cue;window.Billiards3D.restoreCamera(saved.camera);returnView.hidden=true;});
  returnView.id='table3DReturnView';returnView.hidden=true;views.append(returnView);
  function rememberInspection(){if(!inspectionCamera){inspectionCamera={camera:window.Billiards3D.camera(),cue:previousCueCamera};returnView.hidden=false;}}
  const VIEW_TRANSITION_MS=3200,CUE_APPROACH_MS=4800;
@@ -161,6 +221,7 @@
  function leaveCueView(restore, adjustmentMode=previousCueCamera?.editMode) {
   const from={...cameraState,target:{...cameraState.target}};
   cameraState.playerView=false;
+  if(nextView){nextView=false;nextButton.setAttribute('aria-pressed','false');window.billiardsGuidance.setRunoutView(false);}
   cameraState.playerInShot=false;
   if(previousCueCamera) {
    if(restore) Object.assign(cameraState,previousCueCamera.pose);
@@ -219,13 +280,13 @@
   state.target={x:b.x-f.L/2,y:Number.isFinite(b.z)?Math.max(f.R,b.z):f.R,z:b.y-f.W/2};
   return true;
  }
- function disable(){if(!active)return;if(cameraState.playerView)leaveCueView(true);closePopovers();setDrawer(false);active=false;document.body.classList.remove('table-3d','table-3d-locked','table-3d-pan','table-3d-rotate');button.setAttribute('aria-pressed','false');button.textContent='3D';for(const b of [button,standingButton,alongButton])b.style.removeProperty('font-size');tools.hidden=true;for(const b of [standingButton,alongButton,viewLock])b.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
+ function disable(){if(!active)return;openNextWhenReady=false;if(cameraState.playerView)leaveCueView(true);closePopovers();setDrawer(false);active=false;document.body.classList.remove('table-3d','table-3d-locked','table-3d-pan','table-3d-rotate');button.setAttribute('aria-pressed','false');button.textContent='3D';for(const b of [button,standingButton,alongButton,nextButton])b.style.removeProperty('font-size');tools.hidden=true;for(const b of [standingButton,alongButton,nextButton,viewLock])b.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
  async function enable(){
   if(active)return true;if(loading)return false;loading=true;button.disabled=true;status.textContent='';
   // Request within the entry gesture, before loading WebGL can consume activation.
   window.BilliardsDisplay?.enter(true);
   try{if(!engine){const [three]=await Promise.all([import('./vendor/three/three-renderer.js?v=4'),import('./trainer-table-construction.js?v=2'),import('./trainer-zen-shapes.js?v=1')]);engine=createEngine(three);}if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
-   active=true;document.body.classList.add('table-3d');button.setAttribute('aria-pressed','true');button.textContent='2D';tools.hidden=false;for(const b of [standingButton,alongButton,viewLock])b.hidden=false;positionToggle();
+   active=true;document.body.classList.add('table-3d');button.setAttribute('aria-pressed','true');button.textContent='2D';tools.hidden=false;for(const b of [standingButton,alongButton,nextButton,viewLock])b.hidden=false;positionToggle();
    if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();
    window.billiardsControlLayout?.();dock();setDrawer(false);window.dispatchEvent(new Event('resize'));standing();setViewLocked(viewLocked);setPanEnabled(panEnabled);window.BilliardsSpinLabUI?.onCameraReady();requestRender();
   }catch(error){disable();status.textContent='3D view is unavailable on this device. The top-down table is ready.';console.warn('3D camera unavailable:',error.message);}
@@ -292,6 +353,7 @@
   const realCue=window.BilliardsCue3D?.create(T,scene,renderer,requestRender);
   // Teaching text stays flat on its original cloth location; only its heading follows the view.
   const cameraLabels=new Map(),labelGeometry=new T.PlaneGeometry(1,1),clothNormal=new T.Vector3(0,1,0),clothRotation=new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0),-Math.PI/2);
+  const labelAxis=new T.Vector3(1,0,0),railRotation=new T.Quaternion().setFromAxisAngle(labelAxis,-Math.PI/2+.42);
   function updateCameraLabels(f){
    const visible=new Set();
    for(const data of f.cameraLabels||[]){
@@ -307,13 +369,14 @@
      data.rows.forEach((text,i)=>{if(data.stroke)c.strokeText(text,pad,pad+line*(i+.5));c.fillText(text,pad,pad+line*(i+.5));});
      label.material.map.needsUpdate=true;label.userData.key=key;
     }
-    label.visible=true;label.position.set(data.point.x-f.L/2,data.upright?(data.elevation||f.R*2.4):.0002,data.point.y-f.W/2);
+    const rail=!!(cameraState.playerView&&data.railPoint),point=rail?data.railPoint:data.point;
+    label.visible=true;label.position.set(point.x-f.L/2,rail ? .016 : data.upright?(data.elevation||f.R*2.4):.0002,point.y-f.W/2);
     if(data.upright){
      label.quaternion.copy(camera.quaternion);
      const perPixel=2*Math.tan(camera.fov*Math.PI/360)*camera.position.distanceTo(label.position)/Math.max(1,canvas.getBoundingClientRect().height),image=label.material.map.image;
      const h=22,w=h*image.width/image.height;label.scale.set(w*perPixel,h*perPixel,1);label.material.depthTest=false;label.renderOrder=20;
-    }else{label.quaternion.setFromAxisAngle(clothNormal,cameraState.azimuth).multiply(clothRotation);label.scale.set(data.width+4*data.unitsPerPixel,data.height+4*data.unitsPerPixel,1);label.material.depthTest=true;label.renderOrder=1;}
-    label.material.opacity=data.opacity;label.userData.data=data;
+    }else{const heading=rail?(point.y<f.W/2?0:Math.PI):cameraState.azimuth;label.quaternion.setFromAxisAngle(clothNormal,heading).multiply(rail?railRotation:clothRotation);label.scale.set(data.width+4*data.unitsPerPixel,data.height+4*data.unitsPerPixel,1);label.material.depthTest=true;label.renderOrder=1;}
+    label.material.opacity=data.opacity;label.userData.data={...data,rail};
    }
    for(const [id,label]of cameraLabels)if(!visible.has(id))label.visible=false;
   }
@@ -327,7 +390,8 @@
    for(const guide of f.animating?[]:(f.ghostBalls||[])){
     visible.add(guide.kind);let group=ghostMeshes.get(guide.kind);
     if(!group){
-     group=new T.Group();const shell=new T.Mesh(sphere,guide.kind==='pocket'?new T.MeshBasicMaterial({color:0xffdb55,transparent:true,opacity:.24,depthWrite:false,toneMapped:false}):ghostMaterial),core=new T.Mesh(ghostCore,guide.kind==='pocket'?new T.MeshBasicMaterial({color:0xffdb55,transparent:true,opacity:.9,depthWrite:false,toneMapped:false}):ghostCoreMaterial);
+     const color=guide.color||(guide.kind==='pocket'?0xffdb55:null);
+     group=new T.Group();const shell=new T.Mesh(sphere,color?new T.MeshBasicMaterial({color,transparent:true,opacity:.24,depthWrite:false,toneMapped:false}):ghostMaterial),core=new T.Mesh(ghostCore,color?new T.MeshBasicMaterial({color,transparent:true,opacity:.9,depthWrite:false,toneMapped:false}):ghostCoreMaterial);
      shell.renderOrder=1;core.renderOrder=2;group.add(shell,core);ghostGroup.add(group);ghostMeshes.set(guide.kind,group);
     }
     group.userData.guide=guide;group.visible=true;group.position.set(guide.x-f.L/2,Math.max(f.R,guide.z||f.R),guide.y-f.W/2);group.scale.setScalar(f.R);
@@ -591,7 +655,7 @@
    }
    for(const [id,group]of ballMeshes)if(!visible.has(id)){group.visible=false;contacts.get(id).visible=false;}
 
-   for(const child of table.children){const m=child.material;if(!m?.userData?.pocketGlow)continue;const p=pocketSpecs.find(p=>p.id===m.userData.pocketGlow);const point={x:p.center[0]+f.L/2,y:p.center[2]+f.W/2};const glow=(f.pocketFeedback||[]).find(q=>Math.hypot(q.center.x-point.x,q.center.y-point.y)<.16);m.emissive.setHex(0xa7ffe0);m.emissiveIntensity=(glow?.strength||0)*1.2;}
+   for(const child of table.children){const m=child.material;if(!m?.userData?.pocketGlow)continue;const p=pocketSpecs.find(p=>p.id===m.userData.pocketGlow);const point={x:p.center[0]+f.L/2,y:p.center[2]+f.W/2};const glow=(f.pocketFeedback||[]).find(q=>Math.hypot(q.center.x-point.x,q.center.y-point.y)<.16);m.emissive.setHex(0xa7ffe0);m.emissiveIntensity=(glow?.strength||0)*.22;}
    updateTipMarkers(f);updateGhosts(f);if(realCue?.update({...f,cueApproachProgress,cueRoutineProgress}))requestRender();updateElastic(f);updateCameraLabels(f);renderer.render(scene,camera);
   }};
  }
