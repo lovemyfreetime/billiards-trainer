@@ -2248,7 +2248,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const state={...S,balls:S.balls.map(b=>({...b})),pocketGeometry:pocketModel()};
         const start=continuation?window.BilliardsGuidance.afterScoringShot(state,S.preview):state;
         if(!start||start.wonRack)return false;
-        const job={source:S.preview,continuation,pending:true,shots:[]};
+        const opening=continuation?null:window.BilliardsGuidance.obviousOpening(start);
+        const job={source:S.preview,continuation,pending:true,shots:[],opening};
         forecastJob=null;
         runoutJob=job;
         window.dispatchEvent(new Event('billiards:runout'));

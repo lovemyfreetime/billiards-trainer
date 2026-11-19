@@ -185,3 +185,40 @@ for(const railCount of [2,3,4]){
  assert(extraTrials>0&&extraTrials<16,'keep the extension bounded');
 }
 console.log('Runout search can choose two-, three-, and four-cushion leaves from a bounded trial set.');
+
+const earlyPosition={...state,guidanceMode:'order',speed:1.5,follow:0,sideSpin:0,
+ balls:[[0,.55,.53],[1,.23,.22],[2,.62,.40],[3,.85,.73],[9,2.1,.6]].map(([id,x,y])=>({id,x,y,active:true}))};
+const nearbyOpening={...earlyPosition,
+ balls:[[0,.79,.66],[1,.55,.50],[2,1.9,1.05]].map(([id,x,y])=>({id,x,y,active:true}))};
+const likelyPocket=g.obviousOpening(nearbyOpening);
+assert.equal(likelyPocket.pocket,'top left');
+assert(likelyPocket.objectDistance>2*state.tableL/8&&likelyPocket.objectDistance<3*state.tableL/8);
+assert.equal(g.obviousOpening({...nearbyOpening,balls:[...nearbyOpening.balls,{id:3,x:.31,y:.28,active:true}]}),null,
+ 'a blocked nearby pocket is not a likely opening');
+const nearRail={...state,guidanceMode:'order',balls:[{id:0,x:1,y:.04},{id:1,x:1.2,y:.045}]};
+assert.equal(g.suggest(nearRail).pocket,'top middle','fixture offers a high-margin side pocket');
+assert.equal(g.obviousOpening(nearRail).pocket,'top right','first pass favors a playable corner along the rail');
+assert.equal(g.obviousOpening({...nearRail,balls:[{id:0,x:.37,y:.20},nearRail.balls[1]]}).pocket,'top middle',
+ 'the side pocket stays eligible when the corners are unavailable');
+let earlyTrials=0;
+function* earlyPositionTrial(layout){
+ earlyTrials++;
+ assert.equal(layout.balls.some(ball=>ball.id===1),true,'only simulate the current shot');
+ return {...made,pocketEvents:[{id:1,pocket:'TL'}],
+  finalBalls:layout.balls.filter(ball=>ball.id!==1).map(ball=>ball.id===0?{...ball,x:.23,y:.27}:ball)};
+}
+const early=drain(g.runout(earlyPosition,earlyPositionTrial,6));
+assert.equal(early.length,1);
+assert.equal(early[0].pocket,'top left');
+assert.deepEqual(early[0].quickPosition,{ballId:2,pocket:'bottom right'});
+assert.equal(early[0].leaveSide,'right');
+assert(earlyTrials<=36);
+assert.equal(drain(g.recommendSafety(earlyPosition,early,()=>{throw Error('verified first shot should be ready');})),null);
+function* crowdedEarlyTrial(layout){
+ if(!layout.balls.some(ball=>ball.id===1))return null;
+ const result=yield* earlyPositionTrial(layout);
+ return {...result,finalBalls:result.finalBalls.map(ball=>ball.id===0?{...ball,x:.10,y:.27}:ball)};
+}
+assert.equal(drain(g.runout(earlyPosition,crowdedEarlyTrial,1))[0]?.quickPosition,undefined,
+ 'a marginal continuation that cannot be verified needs the full search');
+console.log('Fast 9-ball verifies just shot one and returns the pocket and shape on ball two.');
