@@ -19,6 +19,7 @@ jobs:
           node tests/trainer-guidance.test.cjs
           node tests/trainer-shot-chance.test.cjs
           node tests/pocket-feedback.test.cjs
+          node tests/zen-fresh-table.test.cjs
           node tests/trainer-3d-gesture-routing.test.cjs
           node tests/trainer-cue3d.test.cjs
           node tests/trainer-cue-follow.test.cjs
