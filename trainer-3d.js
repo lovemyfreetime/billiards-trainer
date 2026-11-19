@@ -73,13 +73,13 @@
  returnView.id='table3DReturnView';returnView.hidden=true;views.append(returnView);
  function rememberInspection(){if(!inspectionCamera){inspectionCamera={camera:window.Billiards3D.camera(),cue:previousCueCamera};returnView.hidden=false;}}
  const VIEW_TRANSITION_MS=3200,CUE_APPROACH_MS=4800;
- let cueApproachProgress=1;
+ let cueApproachProgress=1,cueRoutineProgress=1;
  function transitionFrom(from,kind='view'){
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   cameraTransition=reduced?null:{from:JSON.parse(JSON.stringify(visualCamera||from)),start:performance.now(),duration:kind==='cue'?CUE_APPROACH_MS:VIEW_TRANSITION_MS,kind};
-  cueApproachProgress=reduced?1:kind==='cue'?0:1;
+  cueApproachProgress=reduced?1:kind==='cue'?0:1;cueRoutineProgress=cueApproachProgress;
  }
- function stopTransition(){if(cameraTransition&&visualCamera)Object.assign(cameraState,visualCamera,{target:{...visualCamera.target}});cameraTransition=null;cueApproachProgress=1;}
+ function stopTransition(){if(cameraTransition&&visualCamera)Object.assign(cameraState,visualCamera,{target:{...visualCamera.target}});cameraTransition=null;cueApproachProgress=1;cueRoutineProgress=1;}
  function blendCamera(a,b,t){
   const u=t*t*t*(t*(t*6-15)+10),turn=Math.atan2(Math.sin(b.azimuth-a.azimuth),Math.cos(b.azimuth-a.azimuth)),ta=a.target||{x:0,y:0,z:0},tb=b.target||{x:0,y:0,z:0};
   return {...b,azimuth:a.azimuth+turn*u,elevation:a.elevation+(b.elevation-a.elevation)*u,radius:a.radius+(b.radius-a.radius)*u,target:Object.fromEntries(['x','y','z'].map(k=>[k,ta[k]+(tb[k]-ta[k])*u]))};
@@ -87,9 +87,10 @@
  function renderedCamera(){
   if(!cameraTransition){visualCamera={...cameraState,target:{...cameraState.target}};return cameraState;}
   const tr=cameraTransition,t=Math.min(1,(performance.now()-tr.start)/tr.duration),b=cameraState;
-  if(t===1){cameraTransition=null;cueApproachProgress=1;visualCamera={...b,target:{...b.target}};return b;}
+  if(t===1){cameraTransition=null;cueApproachProgress=1;cueRoutineProgress=1;visualCamera={...b,target:{...b.target}};return b;}
   let out;
   if(tr.kind==='cue'&&lastFrame?.cuePose){
+   cueRoutineProgress=t;
    const p=window.BilliardsCue3D.playerCamera(lastFrame.cuePose,{height:Math.max(.42,b.playerEyeHeight+.26),distance:1.15,approach:true});
    const wide={...b,azimuth:p.azimuth,elevation:p.elevation,radius:p.radius,target:{x:p.target[0]-lastFrame.L/2,y:p.target[1],z:p.target[2]-lastFrame.W/2}};
    out=t<.38?blendCamera(tr.from,wide,t/.38):blendCamera(wide,b,(t-.38)/.62);
@@ -583,7 +584,7 @@
    }
    for(const [id,group]of ballMeshes)if(!visible.has(id)){group.visible=false;contacts.get(id).visible=false;}
 
-   updateTipMarkers(f);updateGhosts(f);if(realCue?.update({...f,cueApproachProgress}))requestRender();updateElastic(f);updateCameraLabels(f);renderer.render(scene,camera);
+   updateTipMarkers(f);updateGhosts(f);if(realCue?.update({...f,cueApproachProgress,cueRoutineProgress}))requestRender();updateElastic(f);updateCameraLabels(f);renderer.render(scene,camera);
   }};
  }
 })();
