@@ -91,3 +91,28 @@ assert.equal(fallback.passed,5);
 assert.equal(drain(g.recommendSafety({...railNudge,guidanceConsecutiveFouls:2},[],mock(defensiveFoul))),null,'never recommend a third consecutive foul');
 assert.equal(drain(g.recommendSafety(railNudge,[],mock({...defensiveFoul,finalBalls:railNudge.balls}))),null,'no benefit when the opponent has a clear ball-in-hand pot');
 console.log('Intentional-foul fallback requires worse ball-in-hand options and guards against a third foul.');
+
+const exchange={...defense,guidanceGroups:{1:'solids',2:'stripes'},balls:[
+ {id:0,x:.55,y:.67},{id:2,x:.97,y:.50},{id:6,x:.8,y:.95},{id:8,x:1.25,y:.65},{id:9,x:1.73,y:.65}
+]};
+const solidSafety={...protective,firstBallContact:{objId:2,t:.6},
+ railEvents:[{id:2,t:1,rail:'top rail'}],finalBalls:exchange.balls.map(ball=>({...ball,active:true}))};
+let opponentTries=0,returnTries=0;
+function* exchangeTrial(layout){
+ const suit=layout.guidanceGroups[1];
+ if(suit==='stripes'){
+  opponentTries++;
+  return {...solidSafety,firstBallContact:{objId:9,t:.6},pocketEvents:[{id:6,t:1}],
+   finalBalls:solidSafety.finalBalls.filter(ball=>ball.id!==6).map(ball=>ball.id===2?{...ball,x:1.73,y:.65}:
+    ball.id===9?{...ball,x:.97,y:.50}:ball)};
+ }
+ if(!layout.balls.some(ball=>ball.id===6)){
+  returnTries++;
+  return null;
+ }
+ return solidSafety;
+}
+assert(drain(g.recommendSafety(exchange,[],exchangeTrial)));
+assert(opponentTries>0,'assigned-group safety examines an opponent reply');
+assert(returnTries>0,'an off-suit-only pot returns the inning with the potted solid removed');
+console.log('Eight-ball safety looks for a counter from the actual layout after an opponent pockets only a solid.');

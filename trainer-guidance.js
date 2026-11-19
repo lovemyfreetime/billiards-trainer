@@ -192,6 +192,88 @@
   return {cue,targets:targets.map(b=>b.id),direct,exposure,distance,kickLanes,
    score:3-exposure+Math.min(distance,7)*.16-3*direct-kickLanes*.13};
  }
+ function* safetyReplies(state,simulate,compensate){
+  const balls=live(state),cue=balls.find(b=>b.id===0),radius=2*state.ballR;
+  const targets=eligibleBalls(state).sort((a,b)=>distance(a,cue)-distance(b,cue));
+  const targetIds=new Set(targets.map(ball=>ball.id));
+  const indirect=indirectCandidates(state,true,true);
+  const seeds=[...candidates(state).slice(0,3),...indirect.filter(shot=>targetIds.has(shot.ballId)).slice(0,2),
+   ...indirect.filter(shot=>!targetIds.has(shot.ballId)).slice(0,2)].map(shot=>({
+   aim:heading(cue,shot.aim),follow:shot.follow??0,speeds:[1,1.8,2.6]
+  }));
+  for(const ball of targets.slice(0,4)){
+   const d=distance(cue,ball);
+   if(d<=radius)continue;
+   const angle=heading(cue,ball),half=Math.asin(radius/d);
+   for(const cut of [-.85,-.45,0,.45,.85])seeds.push({aim:angle+cut*half,follow:0,speeds:[.85,1.55]});
+   for(const {point} of reflectedTargets(state,ball)){
+    const d=distance(cue,point);
+    if(d>radius)seeds.push({aim:heading(cue,point),follow:0,speeds:[1.65]});
+   }
+  }
+  const replies=[];
+  for(const {aim,follow,speeds} of seeds)for(const speed of speeds){
+   const controls={freeAim:along(cue,aim-compensate(state,0,follow),state.tableL),
+    speed,follow,sideSpin:0,cueElevationDeg:0,angleLock:false};
+   const preview=yield* simulate(state,controls);
+   yield;
+   const hit=preview?.firstBallContact;
+   if(!preview?.settled||!targetIds.has(hit?.objId)||!preview.finalBalls.some(b=>b.id===0&&b.active)||
+      preview.pocketEvents.some(e=>e.id===0)||(!preview.pocketEvents.length&&!qualifyingRail(state,preview)))continue;
+   const pots=preview.pocketEvents.map(event=>event.id),after=settledLayout(state,preview);
+   if(pots.includes(8)&&!targetIds.has(8))continue;
+   replies.push({after,preview,continues:pots.some(id=>targetIds.has(id)),wins:pots.includes(8)});
+  }
+  return replies;
+ }
+ function defenseOutlook(state){
+  const [shot]=candidates(state);
+  const indirect=indirectCandidates(state,true)[0];
+  return Math.max(shot?.probability||0,.65*(indirect?.probability||0));
+ }
+ function* safetyExchange(state,shot,simulate,compensate){
+  const after=settledLayout(state,shot.preview),opponent=safetyState(after,true),own=safetyState(after);
+  const replies=yield* safetyReplies(opponent,simulate,compensate);
+  if(!replies.length)return {cost:0};
+  let threat=0;
+  const escapes=[];
+  for(const reply of replies){
+   if(reply.wins)return {cost:2.6};
+   if(reply.continues){
+    threat=Math.max(threat,1+.75*defenseOutlook({...opponent,balls:reply.after.balls}));
+    continue;
+   }
+   const returned={...own,balls:reply.after.balls},attack=defenseOutlook(returned);
+   const cue=live(returned).find(ball=>ball.id===0);
+   const [target]=eligibleBalls(returned).sort((a,b)=>distance(cue,a)-distance(cue,b));
+   if(target)escapes.push({returned,attack,clearance:distance(cue,target)});
+  }
+  escapes.sort((a,b)=>a.attack-b.attack||b.clearance-a.clearance);
+  let recovery=0;
+  const distinct=[];
+  for(const escape of escapes){
+   const balls=escape.returned.balls;
+   if(distinct.some(other=>other.returned.balls.length===balls.length&&balls.every(ball=>
+    other.returned.balls.some(previous=>previous.id===ball.id&&distance(previous,ball)<state.ballR))))continue;
+   distinct.push(escape);
+   if(distinct.length===2)break;
+  }
+  for(const {returned,attack} of distinct){
+   let cost=.85*(1-attack);
+   if(attack<.35){
+    const counters=yield* safetyReplies(returned,simulate,compensate);
+    const canReturn=counters.some(reply=>reply.continues||
+     defenseOutlook({...opponent,balls:reply.after.balls})<.18);
+    if(canReturn)cost*=.45;
+    const pairs=clusterPairs(returned);
+    if(pairs.length&&counters.some(reply=>reply.continues&&
+     assessContact(returned,reply.after,reply.preview,{ballId:reply.preview.pocketEvents[0].id,
+      firstId:reply.preview.firstBallContact.objId},pairs,leaveQuality(reply.after,false)).kind==='Breakout'))cost*=.65;
+   }
+   recovery=Math.max(recovery,cost);
+  }
+  return {cost:Math.max(threat,recovery)};
+ }
  function* recommendSafety(state,shots,simulate,compensate=()=>0){
   if(!['8ball','9ball'].includes(state.setupMode)||state.guidanceBreak)return null;
   const own=safetyState(state),balls=live(own),cue=balls.find(b=>b.id===0);
@@ -233,6 +315,8 @@
    }
   }
   function* verify(options){
+   const exchange=state.setupMode==='8ball'&&['solids','stripes'].includes(group);
+   const verified=[];
    options.sort((a,b)=>b.score-a.score);
    for(const shot of options.slice(0,8)){
     let passed=1;
@@ -243,11 +327,20 @@
      if(safetyLeave(state,tested)&&tested.firstBallContact.objId===shot.ballId&&preContactRails(tested)===Number(!!shot.kick))passed++;
      yield;
     }
-    if(passed===5)return {...shot,passed,
+    if(passed!==5)continue;
+    const verifiedShot={...shot,passed,
      reason:shot.leave.exposure===0?(shot.leave.kickLanes?'Hides the legal targets':'Hides the legal targets and closes simple kick lanes'):
       shot.leave.exposure<3?'Limits the opponent to an edge':'Leaves a low-percentage shot at distance'};
+    if(!exchange)return verifiedShot;
+    if(verified.some(old=>old.ballId===shot.ballId&&distance(old.leave.cue,shot.leave.cue)<state.ballR))continue;
+    verified.push(verifiedShot);
+    if(verified.length===3)break;
    }
-   return null;
+   for(const shot of verified){
+    const {cost}=yield* safetyExchange(state,shot,simulate,compensate);
+    shot.score-=cost;
+   }
+   return verified.sort((a,b)=>b.score-a.score)[0]||null;
   }
   const direct=yield* verify(finalists);
   if(direct)return direct;
@@ -493,7 +586,7 @@
   }
   return seeds;
  }
- function indirectCandidates(state,allowOrdinary){
+ function indirectCandidates(state,allowOrdinary,includeOffSuit=false){
   const balls=live(state),cue=balls.find(b=>b.id===0),objects=balls.filter(b=>b.id>0);
   if(objects.length<2||!cue)return [];
   if(!allowOrdinary&&order(state)!=='order')return [];
@@ -520,7 +613,7 @@
     const breaksOutNext=order(state)==='order'&&ball.id===next?.id&&
      objects.some(other=>other.id!==first.id&&other.id!==ball.id&&distance(other,ball)<diam*1.8);
     if(gap>state.tableL*(breaksOutNext ? .50 : .28))continue;
-    if(gap<=state.tableL*.28&&legalIndirectPot(state,first.id,ball.id)){
+    if(gap<=state.tableL*.28&&(legalIndirectPot(state,first.id,ball.id)||includeOffSuit&&ball.id!==8)){
      for(const pocket of pockets){
       if(!allowOrdinary&&(ball.id!==9||distance(ball,pocket)>.32))continue;
       if(!isPocketLine(ball,pocket)||!clear(ball,pocket,0,first.id,ball.id))continue;
@@ -552,13 +645,15 @@
  }
  function verifiesIndirect(shot,preview){
   if(shot.kind==='pot')return true;
+  if(shot.kind==='Bank')return preview.railEvents.some(e=>e.id===shot.ballId&&e.rail===shot.bankRail&&
+   e.t>=preview.firstBallContact.t&&e.t<preview.pocketEvents[0].t);
   const first=shot.kind==='Cue-ball carom'?0:shot.firstId;
   const second=shot.kissId||shot.ballId,t=preview.firstBallContact.t;
   const delivery=preview.collisionEvents?.find(e=>e.t>=t&&e.ids.includes(second));
   return delivery?.ids.includes(first)&&(!shot.bankRail||preview.railEvents.some(e=>
    e.id===shot.firstId&&e.rail===shot.bankRail&&e.t>=t&&e.t<delivery.t));
  }
- function bankedContactCandidates(state){
+ function bankedContactCandidates(state,includeBreakoutBanks=false){
   const balls=live(state),cue=balls.find(b=>b.id===0);
   if(!cue)return [];
   const r=state.ballR,diam=2*r;
@@ -567,6 +662,23 @@
   const pockets=model.pockets(state),choices=[],rebound=(state.railTang||.9)/(state.railRest||.9);
   const nextId=balls.filter(b=>b.id>0).map(b=>b.id).sort((a,b)=>a-b)[1];
   for(const first of eligibleBalls(state)){
+   if(includeBreakoutBanks&&breakoutContacts(state,first.id).length){
+    const clear=(a,b)=>balls.every(p=>!p.id||p.id===first.id||distanceToSegment(p,a,b)>=diam-.001);
+    for(const pocket of pockets)for(const [axis,rail,bankRail] of rails){
+     const alongRail=axis==='x'?'y':'x',width=axis==='x'?state.tableW:state.tableL;
+     const inbound=Math.abs(first[axis]-rail),outbound=Math.abs(pocket[axis]-rail);
+     if(inbound<diam||outbound<diam)continue;
+     const u=first[alongRail]+(pocket[alongRail]-first[alongRail])*inbound/(inbound+rebound*outbound);
+     const bounce={[axis]:rail,[alongRail]:u};
+     if(u<diam||u>width-diam||axis==='y'&&Math.abs(u-width/2)<diam)continue;
+     const entry=heading(first,bounce),aim=along(first,entry,-diam),cut=angleDiff(heading(cue,aim),entry);
+     if(cut>1.10||!clear(cue,aim)||!clear(first,bounce)||!clear(bounce,pocket))continue;
+     const objectDistance=distance(first,bounce)+distance(bounce,pocket),cost=.55*cut+.09*objectDistance;
+     choices.push({kind:'Bank',ballId:first.id,firstId:first.id,bankRail,pocket:pocket.name,point:pocket,
+      aim,follow:0,cost,priority:cost,probability:.55*Math.exp(-cost),cueDistance:distance(cue,aim),
+      objectDistance,cutAngle:cut*180/Math.PI});
+    }
+   }
    for(const second of balls){
     if(!second.id||second.id===first.id)continue;
     const clear=(a,b)=>balls.every(p=>!p.id||p.id===first.id||p.id===second.id||distanceToSegment(p,a,b)>=diam-.001);
@@ -677,7 +789,10 @@
      if(indirectKinds.size>=(step?2:4))break;
     }
     if(!step||!direct.some(shot=>shot.probability>.4)){
-     for(const shot of bankedContactCandidates(node.state).slice(0,step?1:3))
+     const banks=bankedContactCandidates(node.state,!step);
+     const shortlisted=banks.filter(shot=>shot.kind!=='Bank').slice(0,step?1:3);
+     if(!step)shortlisted.push(...banks.filter(shot=>shot.kind==='Bank').slice(0,2));
+     for(const shot of shortlisted)
       routes.push({shot,quality:-shot.cost});
     }
     for(const {shot,quality} of routes){
@@ -685,7 +800,7 @@
      const base=Math.max(.78,Math.min(2.7,Math.sqrt((shot.cueDistance+shot.objectDistance/(Math.cos(shot.cutAngle*Math.PI/180)**2+.05))*1.15)));
      const dx=shot.aim.x-cue.x,dy=shot.aim.y-cue.y;
      const object=node.state.balls.find(b=>b.id===shot.ballId);
-     const breakout=indirect?[]:breakoutContacts(node.state,shot.ballId);
+     const breakout=indirect&&shot.kind!=='Bank'?[]:breakoutContacts(node.state,shot.ballId);
      const breakoutSeeds=[];
      const farLeave=live(node.state).some(b=>b.id>0&&b.id!==shot.ballId&&Math.hypot(b.x-object.x,b.y-object.y)>state.tableL*.5);
      const strokes=needsPosition?(farLeave?[...pitches,...longTravel]:[...pitches]):pitches.slice(0,10);
@@ -714,7 +829,8 @@
        Math.max(.35,Math.cos(shot.cutAngle*Math.PI/180)**2))*1.67;
       strokes.splice(0,strokes.length,...[.78,.94,1.06,1.17,1.28,1.40,1.53].flatMap(factor=>{
        const power=pace*factor/base;
-       return [[power,.08,.04],[power,0,0],[power,.25,.15]];
+       return shot.kind==='Bank'?[[power,-.60,0],[power,-.72,0],[power,-.87,-.04],[power,-.87,.04]]:
+        [[power,.08,.04],[power,0,0],[power,.25,.15]];
       }));
      }
      const tried=new Set();
@@ -819,7 +935,9 @@
    next.sort(rank);
    if(!step&&!wideSearch&&onAlternative){
     let alternative=null;
-    for(const node of next.filter(n=>n.shots[0].bankRail&&(n.terminal||candidates(n.state).length)).slice(0,5)){
+    for(const node of next.filter(n=>n.shots[0].bankRail&&
+     (n.shots[0].kind!=='Bank'||n.shots[0].contact.kind==='Breakout')&&
+     (n.terminal||candidates(n.state).length)).slice(0,5)){
      node.passed=yield* holds(node,true);
      if(!alternative||node.passed>alternative.passed)alternative={...node.shots[0],passed:node.passed};
     }
