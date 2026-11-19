@@ -9,9 +9,9 @@ The planner gives priority to legal, repeatable position and uses its configured
 | Start from the game's legal target | Rotation starts with the lowest live number. Group play starts with the assigned suit, then the 8. Open-table patterns evaluate the group established by the first pot. |
 | Keep planning after the first pot | Carry every surviving ball's simulated resting position into the next shot. Prefer a completed route over a shorter branch. |
 | Work back from the money ball | Group play evaluates which remaining ball can leave the cue ball well for the 8. Rotation retains the legal order and compares pockets and approaches for that sequence. |
-| Leave a useful angle on the key ball | Score the next cut and the cue ball's natural direction toward the following ball. Prefer room to move through a useful angle. |
-| Choose the useful side of the shot line | Evaluate the expected exit direction against the following target. Report the side of the shot line on the selected route. |
-| Keep a comfortable shooting distance | Prefer a leave from roughly ¾ to 2 diamonds. Penalize crowding and long shots, with room for a better angle or an open pocket when spacing goals conflict. |
+| Leave a useful angle on the key ball | Favor a moderate cut around 20° when the cue ball still needs to travel. Prefer a near-straight finish when no leave is needed. Penalize cuts beyond 40° while retaining a recovery route when it is the available way to finish. |
+| Choose the useful side of the shot line | Score the natural cue-ball exit toward open positions behind the following ball along its pocket lines. Use the simulated route to compare both sides when a position can be reached by crossing the line. Report the side selected. |
+| Keep a comfortable shooting distance | Prefer roughly ¾ to 2 diamonds, centered near 1¼ diamonds. Penalize crowding and long shots while allowing an open pocket or better angle to compensate. |
 | Use the broad part of the position zone | Probe available shots at positions around the simulated leave. Prefer approaches along the next shot line when those nearby positions also work. |
 | Leave an insurance shot | Reward a leave with several viable legal balls in group play. In rotation an alternate pocket can help, with the same legal object ball. |
 | Plan around groups of balls | Spot close object-ball pairs involving a ball needed in the current game. Include extra follow, draw, speed, and side-spin trials when clusters are present. |
@@ -19,7 +19,8 @@ The planner gives priority to legal, repeatable position and uses its configured
 | Avoid making another cluster | Penalize unintended new tight pairs even when the same stroke frees a different pair. |
 | Preserve clear lanes | Check the cue-ball route to the ghost ball and the object-ball route toward the pocket. Carry any changes from collision into subsequent shots. |
 | Avoid contact with extra balls | Score extra collisions as a cost. A light nudge receives a smaller penalty if the cue ball still leaves a close, open shot. The planner keeps a verified route when contact is the way out. |
-| Control the pace | Sample different speeds and retest leading offensive strokes at ±5% speed. A route that holds its pot and shape when speed changes earns more confidence. |
+| Control the pace | Sample different speeds and retest leading offensive strokes at ±5% speed. Penalize deterioration from the nominal leave as well as a difficult leave or missed pocket. |
+| Fine-tune the stroke into the finishing window | On a two-ball finish, compare extra forward routes and refine promising strokes in small speed, follow/draw, and sidespin steps. The planner respects any stroke controls the player locks. |
 | Prefer natural travel | Compare follow, draw, and left/right spin. Simpler settings, shorter paths, and fewer rails have a scoring advantage when they give comparable shape. |
 | Use a rail when it improves shape | A rail route can outrank a shorter path when it offers a better leave or better speed tolerance. |
 | Leave a usable bridge and cue stroke | Penalize leaving the cue ball near the cushion, especially with the butt of the cue pointed over that cushion. Also penalize a ball close behind the cue ball in the next stroke's line. |
@@ -73,6 +74,7 @@ These are part of the documented rule base. Each requires additional candidate g
 
 - Professional Billiard Instructors Association, pattern play and safety curriculum. [Instructor manual](https://drdavepoolinfo.com/resource_files/PBIA_Instructor_Manual.pdf)
 - Tor Lowry, natural angles, position windows, and full-table pattern practice. [Pattern Puzzles](https://www.zerox-billiards.com/pattern-puzzles) · [Position windows](https://www.youtube.com/watch?v=E9rb1GZxhaQ)
+- Dave Alciatore and Darren Appleton, choosing the useful side, entering the shape zone, and planning the angle on the ball before the finish. [Position play principles](https://drdavepoolinfo.com/resource_files/position_play_principles.pdf) · [Three-ball position drill](https://www.billiardsdigest.com/showinstruction.php?id=323)
 - Darren Appleton, working backward from the 8, keeping insurance, and choosing the defensive leave by the opponent's response. [Pattern play](https://www.billiardsdigest.com/showinstruction.php?id=132) · [Safety](https://www.billiardsdigest.com/showinstruction.php?id=325)
 - Dave Alciatore and Bob Jewett, defensive routes and ball-in-hand opportunities. [Safety strategy](https://drdavepoolinfo.com/faq/safety/strategy/) · [8-ball](https://drdavepoolinfo.com/faq/strategy/8-ball/) · [9-ball](https://drdavepoolinfo.com/faq/strategy/9-ball/)
 - Dave Alciatore and Bob Jewett, the intentional 9-ball foul that ties up the lowest ball and the reply with ball in hand. [Ball-in-hand options](https://drdavepoolinfo.com/bd_articles/2018/may18.pdf)

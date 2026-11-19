@@ -284,14 +284,19 @@
   const distance=Math.hypot(cue.x-ball.x,cue.y-ball.y)/(state.tableL/8);
   const cut=shot.cutAngle;
   const crowding=3*Math.max(0,.75-distance);
-  const distanceCost=.15*distance+.65*Math.max(0,distance-2)+crowding;
-  const steepCost=.036*Math.max(0,cut-45);
+  const distanceCost=.17*Math.abs(distance-1.15)+.70*Math.max(0,distance-2)+crowding;
+  const steepCost=.054*Math.max(0,cut-40);
   const clearance=strokeClearanceCost(state,cue,shot.aim);
+  const finish=following.length===0;
+  // A finishing ball needs pocketing margin. A route ball needs an angle out.
+  const angleCost=finish
+   ? .018*Math.max(0,cut-7)+.027*Math.max(0,cut-24)
+   : .024*Math.max(0,16-cut)+.017*Math.max(0,cut-30);
   if(wideSearch){
    const diameters=shot.cueDistance/(2*r);
    const travel=.068*Math.max(0,diameters-4)+.22*Math.max(0,2.5-diameters);
-   const straight=live(state).filter(b=>b.id>0).length>1?.075*Math.max(0,12-cut):0;
-   return .55*shot.probability-travel-steepCost-straight-crowding-clearance;
+   const straight=finish?0:.075*Math.max(0,12-cut);
+   return .55*shot.probability-travel-steepCost-straight-crowding-clearance-angleCost;
   }
   let shape=0;
   if(following.length){
@@ -300,20 +305,28 @@
    const tx=(shot.aim.x-cue.x)/shot.cueDistance,ty=(shot.aim.y-cue.y)/shot.cueDistance;
    const normal=tx*nx+ty*ny,rx=tx-.65*normal*nx,ry=ty-.65*normal*ny;
    const exit=Math.hypot(rx,ry);
-   shape=.30*Math.max(...following.map(next=>{
-    const x=next.x-shot.aim.x,y=next.y-shot.aim.y;
-    return (rx*x+ry*y)/(exit*Math.max(Math.hypot(x,y),r));
+   shape=.50*Math.max(...following.map(next=>{
+    const open=(a,b)=>state.balls.every(obstacle=>obstacle.active===false||obstacle.marker||
+     obstacle.id===0||obstacle.id===shot.ballId||obstacle.id===next.id||distanceToSegment(obstacle,a,b)>=2*r);
+    const zones=model.pockets(state).flatMap(pocket=>{
+     const a=heading(next,pocket),mouth=pocket.mouth*Math.abs(Math.cos(a)*pocket.nx+Math.sin(a)*pocket.ny);
+     const d=state.tableL/8;
+     return mouth>2*r&&open(next,pocket)?[along(next,a+Math.PI,d),along(next,a+Math.PI,1.6*d)]:[];
+    }).filter(p=>p.x>=3*r&&p.x<=state.tableL-3*r&&p.y>=3*r&&p.y<=state.tableW-3*r&&open(p,next));
+    return Math.max(-.4,...zones.map(zone=>{
+     const x=zone.x-shot.aim.x,y=zone.y-shot.aim.y,travel=Math.hypot(x,y);
+     return (rx*x+ry*y)/(exit*Math.max(travel,r))-.55*travel/state.tableL;
+    }));
    }));
   }
-  return .55*shot.probability-distanceCost-steepCost+shape-clearance;
+  return .55*shot.probability-distanceCost-steepCost+shape-clearance-angleCost;
  }
  function rankPositions(state,shots,wideSearch){
   const objects=live(state).filter(b=>b.id>0), group=order(state);
   return shots.map(shot=>{
    const remaining=objects.filter(b=>b.id!==shot.ballId);
-   const following=group==='open'
-    ?remaining.filter(b=>shot.ballId<8?b.id<8:b.id>8)
-    :eligibleBalls(state,remaining);
+   const following=group==='open'?eligibleBalls({...state,guidanceMode:'groups',
+    guidanceGroups:{[state.activePlayer||1]:shot.ballId<8?'solids':'stripes'}},remaining):eligibleBalls(state,remaining);
    return {shot,quality:positionQuality(state,shot,following,wideSearch)};
   }).sort((a,b)=>b.quality-a.quality);
  }
@@ -543,7 +556,8 @@
    for(const node of beam){
     const cue=node.state.balls.find(b=>b.id===0);
     const pairs=clusterPairs(node.state);
-    const needsPosition=live(node.state).filter(b=>b.id>0).length>1;
+    const count=live(node.state).filter(b=>b.id>0).length;
+    const needsPosition=count>1;
     const direct=candidates(node.state);
     const routes=rankPositions(node.state,direct,wideSearch).slice(0,step?4:7);
     const indirect=indirectCandidates(node.state,wideSearch||!direct.some(shot=>shot.probability>.35));
@@ -563,6 +577,10 @@
      const farLeave=live(node.state).some(b=>b.id>0&&b.id!==shot.ballId&&Math.hypot(b.x-object.x,b.y-object.y)>state.tableL*.5);
      const strokes=needsPosition?(farLeave?[...pitches,...longTravel]:[...pitches]):pitches.slice(0,10);
      if(needsPosition&&!wideSearch)strokes.unshift(...positionTrials);
+     if(count===2&&!indirect&&!wideSearch)strokes.push(
+      [1.18,.24,0],[1.42,.28,0],[1.68,.30,0],[1.87,.38,0],[2.06,.42,0],
+      [1.55,.22,-.15],[1.55,.22,.15],[1.82,.36,-.16],[1.82,.36,.16],
+      [1.98,.31,-.12],[1.98,.31,.12]);
      if(pairs.length)strokes.push([1.48,.33,0],[1.8,.65,0],[2.16,.32,0],[1.65,-.52,0],[1.62,.25,-.42],[1.62,.25,.42]);
      if(needsPosition&&!wideSearch&&shot.cutAngle<24)
       strokes.push([.85,-.28,0],[1.18,-.35,0],[1.45,.65,0],[1.75,.65,0]);
@@ -592,7 +610,7 @@
       const score=node.score+Math.log(Math.max(.01,shot.probability))+position-.17*travel/state.tableL-.05*rails-spinCost-contact.cost-(indirect ? .16 : 0);
       const rank=score+leave;
       const shots=[...node.shots,{...shot,controls,preview,start:{x:cue.x,y:cue.y},rest,contact}];
-      next.push({state:after,start:node.state,shots,score,rank,terminal,speedMisses:node.speedMisses});
+      next.push({state:after,start:node.state,shots,score,rank,leave,terminal,speedMisses:node.speedMisses});
       if(!strongest||rank>strongest.rank)strongest={controls,rank};
       return true;
      }
@@ -616,12 +634,19 @@
        if(record(controls,preview)&&++makes>=(indirect?3:1))break;
       }
      }
-     if(strongest&&!indirect&&state.planSpeed!==false&&!wideSearch){
+     if(strongest&&!indirect&&!wideSearch){
       const seed=strongest.controls;
-      for(const offset of [-.08,.08]){
-       const speed=seed.speed+offset;
+      const refinements=count===2
+       ?[[-.14,0,0],[-.07,0,0],[.07,0,0],[.14,0,0],[0,-.10,0],[0,.10,0],[0,0,-.10],[0,0,.10]]
+       :[[-.08,0,0],[.08,0,0]];
+      for(const [pace,draw,english] of refinements){
+       if(pace&&state.planSpeed===false||draw&&state.planFollow===false||english&&state.planSpin===false)continue;
+       const speed=seed.speed+pace;
        if(speed<=0||speed>7)continue;
-       const controls={...seed,speed};
+       const follow=Math.max(-1,Math.min(1,seed.follow+draw)),sideSpin=Math.max(-1,Math.min(1,seed.sideSpin+english));
+       const correction=compensate(node.state,seed.sideSpin,seed.follow)-compensate(node.state,sideSpin,follow);
+       const aim=seed.freeAim,freeAim=along(cue,heading(cue,aim)+correction,distance(cue,aim));
+       const controls={...seed,speed,follow,sideSpin,freeAim};
        record(controls,yield* simulate(node.state,controls));
        yield;
       }
@@ -667,7 +692,11 @@
      const leave=afterShot(node.start,preview,shot.ballId,shot.firstId);
      const samePocket=leave&&preview.pocketEvents[0].pocket===pocketCodes[shot.pocket];
      if(!samePocket)node.speedMisses++;
-     const penalty=samePocket?(node.terminal?0:Math.max(0,.85-leaveQuality(leave,wideSearch))*.23):(wideSearch ? .46 : 0);
+     let penalty=wideSearch&&!samePocket ? .46 : 0;
+     if(samePocket&&!node.terminal){
+      const varied=leaveQuality(leave,wideSearch);
+      penalty=.23*Math.max(0,.85-varied)+.20*Math.max(0,node.leave-varied);
+     }
      node.rank-=penalty;node.score-=penalty;
      yield;
     }
