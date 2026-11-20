@@ -41,7 +41,8 @@
      check(live.balls.length===layout.balls.length,'Wrong practice ball count for '+id);
      for(const ball of layout.balls){const b=live.balls.find(b=>b.id===ball.id);check(b&&Math.abs(b.x/live.tableL-ball.x/layout.tableL)<1e-7&&Math.abs(b.y/live.tableW-ball.y/layout.tableW)<1e-7,'Wrong practice ball for '+id);}
      }
-     const position=ended.length;expected.push(id);audio.currentTime=audio.duration-.08;
+     await until(()=>Number.isFinite(audio.duration)&&audio.duration>0,'Missing media duration for '+id);
+     const position=ended.length;expected.push(id);audio.currentTime=Math.max(0,audio.duration-.08);
      await until(()=>ended.length>position,'No native media end for '+id);result.guide++;
      if(resources){check(guide.getState().topicId===id,'Resource preview advanced automatically');check(billiardsLessonPractice.getState().phase==='idle','Resource preview triggered practice countdown');}
      if(billiardsLessonPractice.getState().phase==='countdown'){check(!document.querySelector('.btg-lesson-prompt').hidden,'Missing visual practice prompt');guide.nextLesson();}
