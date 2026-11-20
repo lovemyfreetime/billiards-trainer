@@ -9,6 +9,7 @@ on:
       - 'android-wrapper/**'
       - 'index.html'
       - '.github/workflows/build-android-wrapper.yml'
+      - '.github/workflows/verify-guide-parity.yml'
       - 'trainer-video-narration.js'
       - 'trainer-camera-recorder.js'
       - 'trainer-camera-recorder.css'

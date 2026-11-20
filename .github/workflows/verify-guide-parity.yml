@@ -1,6 +1,16 @@
 name: Verify shared Guide release
 on:
   workflow_call:
+    inputs:
+      full_suite:
+        type: boolean
+        default: false
+  workflow_dispatch:
+    inputs:
+      full_suite:
+        description: Run the extended browser regression suite
+        type: boolean
+        default: true
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -21,23 +31,31 @@ jobs:
         run: |
           npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
           node local-host/node_modules/playwright/cli.js install --with-deps chromium
-      - name: Check 3D gestures, ball tray and racks
+      - name: Check the offline release and current Trainer controls
         env:
           NODE_PATH: ./local-host/node_modules
         run: |
+          node --test tests/offline-loading.test.cjs tests/background-update-session.test.cjs tests/experience-entry.test.cjs
           node --test tests/trainer-3d-viewpoints.test.cjs tests/trainer-3d-gesture-routing.test.cjs tests/zen-fresh-table.test.cjs tests/trainer-lag-readout.test.cjs
+          node --test tests/trainer-cue3d.test.cjs tests/trainer-cue-clearance.test.cjs tests/trainer-guidance.test.cjs tests/shot-geometry.test.cjs
+          node tests/app-updates.browser.cjs
+          node tests/pocket-feedback.browser.cjs
+      - name: Check extended 3D gestures, ball tray and racks
+        if: inputs.full_suite
+        env:
+          NODE_PATH: ./local-host/node_modules
+        run: |
           node tests/trainer-3d-controls.browser.cjs
           node tests/trainer-3d-ball-tools.browser.cjs
           node tests/trainer-3d-edit.browser.cjs
-          node tests/shot-geometry.test.cjs
           node tests/trainer-annotations.browser.cjs
           node tests/aim-zones.browser.cjs
-      - name: Check desktop, tablet and phone Guide behavior
+      - name: Check extended desktop, tablet and phone behavior
+        if: inputs.full_suite
         env:
           NODE_PATH: ./local-host/node_modules
         run: |
           node tests/native-content-updates.browser.cjs
-          node tests/app-updates.browser.cjs
           node tests/display-startup.browser.cjs
           node tests/installer-updates.browser.cjs
           node tests/cue-deflection.browser.cjs
