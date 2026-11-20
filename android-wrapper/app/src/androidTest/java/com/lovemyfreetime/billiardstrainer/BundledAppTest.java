@@ -69,8 +69,8 @@ public class BundledAppTest {
             scenario.onActivity(a->androidx.webkit.WebViewCompat.addDocumentStartJavaScript(a.webView,probeSource,Collections.singleton(BundledApp.ORIGIN)));
             navigate(scenario,"?train=1&lessonSmoke=1","#canvas");
             waitFor("window.runLessonSequence&&window.billiardsGetStartedTour",25);
-            // A single mobile run includes 150 Guide/Resources clips plus eight Quick Start recordings
-            // and seven real practice waits. Give each section an independent bounded budget;
+            // The mobile run exercises the complete Guide and Quick Start, including the
+            // real practice waits. Give each section an independent bounded budget;
             // the JS probe still fails a missing/stalled recording within its own 20-second wait.
             for(String category:new String[]{"fundamentals","physics","drills","exercises","more"}){
                 js("void runLessonSequence({category:"+org.json.JSONObject.quote(category)+"})");
@@ -82,7 +82,7 @@ public class BundledAppTest {
             js("void runLessonSequence({quickStartOnly:true})");
             waitFor("['passed','failed'].includes(window.__lessonSequence?.status)",180);
             assertEquals(js("JSON.stringify(window.__lessonSequence)"),"\"passed\"",js("window.__lessonSequence.status"));
-            assertEquals("8",js("window.__lessonSequence.quickStart"));
+            assertEquals(js("billiardsGetStartedTour.steps.length"),js("window.__lessonSequence.quickStart"));
             System.out.println("ANDROID LOCAL lesson sequence: "+js("JSON.stringify(window.__lessonSequence)"));
             navigate(scenario,"?zen=1","#zenBar");
             navigate(scenario,"play.html","#playDialog");
