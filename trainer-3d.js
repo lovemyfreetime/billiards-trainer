@@ -166,7 +166,7 @@
  for(const [id,label] of [['animate','Execute Shot'],['undoShot','Undo']]){const original=document.getElementById(id),copy=document.createElement('button');copy.type='button';copy.textContent=label;copy.onclick=()=>original?.click();const sync=()=>{copy.disabled=!original||original.disabled;};if(original)new MutationObserver(sync).observe(original,{attributes:true,attributeFilter:['disabled']});sync();shotActions.append(copy);}
  stage.append(shotActions);
  panel?.addEventListener('click',e=>{if(e.target.closest('#animate,#undoShot,#redoShot,#resetLayoutQuick'))setDrawer(false);});
- let active=false,viewLocked=false,panEnabled=false,loading=false,lastFrame=null,engine=null,scheduled=0;
+ let active=false,viewLocked=false,panEnabled=false,loading=false,lastFrame=null,engine=null,scheduled=0,entryRefresh=0;
  let previousCueCamera=null,inspectionCamera=null,cameraTransition=null,visualCamera=null;
  let nextView=false,openNextWhenReady=false,shotBeforeNext=1;
  function syncNextControls(){
@@ -289,6 +289,19 @@
  }
  if(window.ResizeObserver)new ResizeObserver(fitViewLabels).observe(phoneBox);
  function requestRender(){if(lastFrame){const min=Math.max(lastFrame.R*5,lastFrame.L*.06),max=lastFrame.L*8;zoomSlider.value=String(100*(Math.log(max)-Math.log(cameraState.radius))/(Math.log(max)-Math.log(min)));}if(!active||!engine||scheduled)return;scheduled=requestAnimationFrame(()=>{scheduled=0;if(active){engine.render();window.dispatchEvent(new Event('billiards:3d-render'));}});}
+ function refreshVisibleScene(){
+  if(!active||!engine)return;
+  if(entryRefresh)cancelAnimationFrame(entryRefresh);
+  // Draw once after the 3D canvas becomes visible, then refresh GPU state
+  // after the browser has applied the new layout. Keep the shot and camera.
+  requestRender();
+  entryRefresh=requestAnimationFrame(()=>{
+   entryRefresh=0;
+   if(!active)return;
+   engine.invalidate();
+   requestRender();
+  });
+ }
  function orbit(dx,dy){rememberInspection();stopTransition();if(cameraState.playerView)leaveCueView(false,viewLocked,true);window.BilliardsTableOrbit.orbit(cameraState,dx,dy);requestRender();}
  function zoom(factor){rememberInspection();stopTransition();if(cameraState.playerView)leaveCueView(false,viewLocked,true);if(!lastFrame)return;window.BilliardsTableOrbit.zoom(cameraState,factor,lastFrame.L,lastFrame.R);requestRender();}
  // Keep the longer screen dimension at a natural 58° field of view.
@@ -361,9 +374,10 @@
   // Request within the entry gesture, before loading WebGL can consume activation.
   window.BilliardsDisplay?.enter(true);
   try{if(!engine){const [three]=await Promise.all([import('./vendor/three/three-renderer.js?v=4'),import('./trainer-table-construction.js?v=2'),import('./trainer-zen-shapes.js?v=1')]);engine=createEngine(three);}if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
+   if(lastFrame)engine.update(lastFrame);
    active=true;document.body.classList.add('table-3d');button.setAttribute('aria-pressed','true');button.textContent='2D';tools.hidden=false;for(const b of [standingButton,alongButton,nextButton,viewLock])b.hidden=false;positionToggle();
    if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();
-   window.billiardsControlLayout?.();dock();setDrawer(false);window.dispatchEvent(new Event('resize'));standing();setViewLocked(viewLocked);setPanEnabled(panEnabled);window.BilliardsSpinLabUI?.onCameraReady();requestRender();
+   window.billiardsControlLayout?.();dock();setDrawer(false);window.dispatchEvent(new Event('resize'));standing();setViewLocked(viewLocked);setPanEnabled(panEnabled);window.BilliardsSpinLabUI?.onCameraReady();refreshVisibleScene();
   }catch(error){disable();status.textContent='3D view is unavailable on this device. The top-down table is ready.';console.warn('3D camera unavailable:',error.message);}
   finally{loading=false;button.disabled=false;}
   return active;
@@ -404,12 +418,13 @@
    Object.assign(cameraState,{playerView:!!saved.playerView,playerViewLock:!!saved.playerViewLock,playerEyeHeight:window.BilliardsCue3D.clampEyeHeight(saved.playerEyeHeight),playerDistance:saved.playerDistance||.75,playerInShot:false,azimuth:saved.azimuth,elevation:saved.elevation,radius:saved.radius,target:{...saved.target},followCue:!!saved.followCue,followSide:['front','behind','left','right'].includes(saved.followSide)?saved.followSide:'behind',followDistance:saved.followDistance==='wide'?'wide':'close',followHeading:saved.followHeading,followHasMotion:!!saved.followHasMotion,followAnimating:false});
    transitionFrom(from);requestRender();window.BilliardsSpinLabUI?.sync();return true;
   },prepareSnapshot(){standing(0);},renderSnapshot(){engine?.render();},tablePlanePoint(event){return engine?.tablePlanePoint(event)||null;},tablePoint(event){return engine?.tablePoint(event)||null;},renderedBalls(){return engine?.ballViews()||[];},ghostGuides(){return engine?.ghostViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];},railGeometry(){return engine?.railViews()||[];},contactMarkers(){return engine?.contactViews()||[];},cueModel(){return engine?.cueView()||null;},overlayLabels(){return engine?.labelViews()||[];}};
- window.addEventListener('resize',()=>{dock();positionToggle();requestRender();});new MutationObserver(positionToggle).observe(document.getElementById('tableZoom'),{attributes:true,attributeFilter:['style']});document.addEventListener('visibilitychange',()=>{if(!document.hidden)requestRender();});
+ window.addEventListener('resize',()=>{dock();positionToggle();requestRender();});new MutationObserver(positionToggle).observe(document.getElementById('tableZoom'),{attributes:true,attributeFilter:['style']});document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshVisibleScene();});
  function createEngine(T){
   const renderer=new T.WebGLRenderer({antialias:true,alpha:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.setClearColor(0x080d13);renderer.outputColorSpace=T.SRGBColorSpace;
   renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1;
   renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;
   const canvas=renderer.domElement;canvas.style.removeProperty('display');canvas.id='table3DCanvas';canvas.tabIndex=0;canvas.setAttribute('aria-label','3D table. Tap to aim, drag to rotate or pan, and pinch to zoom. Unlock balls to move them.');canvas.setAttribute('role','img');stage.append(canvas);
+  canvas.addEventListener('webglcontextrestored',refreshVisibleScene);
   const scene=new T.Scene(),camera=new T.PerspectiveCamera(44,1,.01,100),table=new T.Group(),balls=new T.Group();scene.add(table,balls);scene.fog=new T.Fog(0x080d13,7,25);
   scene.add(new T.HemisphereLight(0xf2f5f4,0x303941,.75));
   const light=new T.DirectionalLight(0xfff8ed,1.8);light.position.set(-3,5,2);light.castShadow=true;
@@ -723,7 +738,14 @@
   function focusBall(e){cast(e);const hit=inputRay.intersectObjects([...ballMeshes.values()].filter(g=>g.visible),true)[0];if(!hit)return;const p=hit.object.parent.position;cameraState.target={x:p.x,y:p.y,z:p.z};cameraState.radius=.55;cameraState.elevation=8*Math.PI/180;requestRender();}
   canvas.addEventListener('keydown',e=>{if(viewLocked&&e.key.startsWith('Arrow')){e.preventDefault();return;}const actions={ArrowLeft:()=>orbit(-.08,0),ArrowRight:()=>orbit(.08,0),ArrowUp:()=>orbit(0,.06),ArrowDown:()=>orbit(0,-.06),'+':()=>zoom(.9),'-':()=>zoom(1.1),Escape:disable};if(actions[e.key]){e.preventDefault();e.stopPropagation();actions[e.key]();}});
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();disable();status.textContent='3D graphics paused. The top-down table is ready.';});
-  return {cueView(){return realCue?.status()||null;},labelViews(){return [...cameraLabels.values()].filter(m=>m.visible).map(m=>({...m.userData.data,center:m.position.toArray(),scale:m.scale.toArray(),rotation:m.quaternion.toArray(),depthTest:m.material.depthTest,azimuth:cameraState.azimuth}));},cancelInput,pan,tablePlanePoint(e){cast(e);return logical(planePoint());},tablePoint(e){cast(e);const q=logical(planePoint()),f=frame||lastFrame;return q&&f&&q.x>=0&&q.x<=f.L&&q.y>=0&&q.y<=f.W?q:null;},contactViews(){return [...tipMarkers].filter(([,m])=>m.visible).map(([id,m])=>({id,...m.userData.tip,center:m.position.toArray()}));},railViews(){return table.children.filter(m=>m.userData.sight).map(m=>({x:m.position.x,y:m.position.y,z:m.position.z,width:2*m.userData.radius,length:2*m.userData.radius}));},project(point,height=0){const f=frame||lastFrame;if(!f)return null;camera.updateMatrixWorld(true);const v=new T.Vector3(point.x-f.L/2,height,point.y-f.W/2).project(camera),r=canvas.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2,visible:v.z>=-1&&v.z<=1};},ghostViews(){return [...ghostMeshes.values()].filter(g=>g.visible).map(g=>({...g.userData.guide,center:g.position.toArray(),radius:g.scale.x,opacity:g.children[0].material.opacity,coreOpacity:g.children[1].material.opacity,coreColor:g.children[1].material.color.getHex(),coreVertical:g.quaternion.toArray(),depthWrite:ghostMaterial.depthWrite}));},ballViews(){return [...ballMeshes].filter(([,g])=>g.visible).map(([id,g])=>({id,x:g.position.x,y:g.position.y,z:g.position.z,rotation:g.children[0].quaternion.toArray()}));},pocketViews(){scene.updateMatrixWorld(true);const ray=new T.Raycaster();return pocketSpecs.map(p=>{const height=v=>{ray.set(new T.Vector3(v.x,1,v.z),new T.Vector3(0,-1,0));return ray.intersectObjects(table.children,true).find(hit=>!hit.object.material?.userData?.pocketOwned)?.point.y;};ray.set(new T.Vector3(...p.at(p.centerN,0,.02)),new T.Vector3(p.n[0],0,p.n[1]));const lining=ray.intersectObjects(table.children,true)[0]?.object.userData.construction;return {id:p.id,lining,woodTextureWidth:woodMap.image.width,floorHeight:height(p.probe),backHeight:height(p.back),woodHeight:height(p.wood),shelfHeight:height(p.shelfProbe),shelfDepth:p.shelf,mouth:p.corner?tablePlan.G.cornerMouth:tablePlan.G.sideMouth,capHeight:tablePlan.capHeight,noseHeight:tablePlan.noseHeight,glow:table.children.find(m=>m.material?.userData?.pocketGlow===p.id)?.material.emissiveIntensity||0,materialMapsReady,reference:tablePlan.reference.source,referenceSHA256:tablePlan.reference.sha256,visualMouth:p.visualMouth,linerWidth:tablePlan.linerWidth,linerInset:tablePlan.linerInset,edgeMaxHeight:Math.max(...p.edge.geometry.attributes.position.array.filter((v,i)=>i%3===1)),edgeMinHeight:Math.min(...p.edge.geometry.attributes.position.array.filter((v,i)=>i%3===1)),edgeTopNormalY:p.edge.geometry.attributes.normal.getY(24),woodTint:woodMaterial.color.getHex(),profile:tablePlan.profile};});},projection(){return {verticalFov:camera.fov,horizontalFov:2*Math.atan(Math.tan(camera.fov*Math.PI/360)*camera.aspect)*180/Math.PI};},stop(){cancelInput();},update(f){if(f.animating&&edit)cancelInput();frame=f;dirty=true;renderer.shadowMap.needsUpdate=true;},render(){
+  function invalidate(){
+   renderer.resetState();
+   lastSize='';
+   dirty=true;
+   renderer.shadowMap.needsUpdate=true;
+   for(const group of ballMeshes.values())delete group.userData.viewKey;
+  }
+  return {invalidate,cueView(){return realCue?.status()||null;},labelViews(){return [...cameraLabels.values()].filter(m=>m.visible).map(m=>({...m.userData.data,center:m.position.toArray(),scale:m.scale.toArray(),rotation:m.quaternion.toArray(),depthTest:m.material.depthTest,azimuth:cameraState.azimuth}));},cancelInput,pan,tablePlanePoint(e){cast(e);return logical(planePoint());},tablePoint(e){cast(e);const q=logical(planePoint()),f=frame||lastFrame;return q&&f&&q.x>=0&&q.x<=f.L&&q.y>=0&&q.y<=f.W?q:null;},contactViews(){return [...tipMarkers].filter(([,m])=>m.visible).map(([id,m])=>({id,...m.userData.tip,center:m.position.toArray()}));},railViews(){return table.children.filter(m=>m.userData.sight).map(m=>({x:m.position.x,y:m.position.y,z:m.position.z,width:2*m.userData.radius,length:2*m.userData.radius}));},project(point,height=0){const f=frame||lastFrame;if(!f)return null;camera.updateMatrixWorld(true);const v=new T.Vector3(point.x-f.L/2,height,point.y-f.W/2).project(camera),r=canvas.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2,visible:v.z>=-1&&v.z<=1};},ghostViews(){return [...ghostMeshes.values()].filter(g=>g.visible).map(g=>({...g.userData.guide,center:g.position.toArray(),radius:g.scale.x,opacity:g.children[0].material.opacity,coreOpacity:g.children[1].material.opacity,coreColor:g.children[1].material.color.getHex(),coreVertical:g.quaternion.toArray(),depthWrite:ghostMaterial.depthWrite}));},ballViews(){return [...ballMeshes].filter(([,g])=>g.visible).map(([id,g])=>({id,x:g.position.x,y:g.position.y,z:g.position.z,rotation:g.children[0].quaternion.toArray()}));},pocketViews(){scene.updateMatrixWorld(true);const ray=new T.Raycaster();return pocketSpecs.map(p=>{const height=v=>{ray.set(new T.Vector3(v.x,1,v.z),new T.Vector3(0,-1,0));return ray.intersectObjects(table.children,true).find(hit=>!hit.object.material?.userData?.pocketOwned)?.point.y;};ray.set(new T.Vector3(...p.at(p.centerN,0,.02)),new T.Vector3(p.n[0],0,p.n[1]));const lining=ray.intersectObjects(table.children,true)[0]?.object.userData.construction;return {id:p.id,lining,woodTextureWidth:woodMap.image.width,floorHeight:height(p.probe),backHeight:height(p.back),woodHeight:height(p.wood),shelfHeight:height(p.shelfProbe),shelfDepth:p.shelf,mouth:p.corner?tablePlan.G.cornerMouth:tablePlan.G.sideMouth,capHeight:tablePlan.capHeight,noseHeight:tablePlan.noseHeight,glow:table.children.find(m=>m.material?.userData?.pocketGlow===p.id)?.material.emissiveIntensity||0,materialMapsReady,reference:tablePlan.reference.source,referenceSHA256:tablePlan.reference.sha256,visualMouth:p.visualMouth,linerWidth:tablePlan.linerWidth,linerInset:tablePlan.linerInset,edgeMaxHeight:Math.max(...p.edge.geometry.attributes.position.array.filter((v,i)=>i%3===1)),edgeMinHeight:Math.min(...p.edge.geometry.attributes.position.array.filter((v,i)=>i%3===1)),edgeTopNormalY:p.edge.geometry.attributes.normal.getY(24),woodTint:woodMaterial.color.getHex(),profile:tablePlan.profile};});},projection(){return {verticalFov:camera.fov,horizontalFov:2*Math.atan(Math.tan(camera.fov*Math.PI/360)*camera.aspect)*180/Math.PI};},stop(){cancelInput();},update(f){if(f.animating&&edit)cancelInput();frame=f;dirty=true;renderer.shadowMap.needsUpdate=true;},render(){
    const f=frame||lastFrame;if(!f)return;const rect=canvas.getBoundingClientRect();if(rect.width<1||rect.height<1)return;
    const size=rect.width+':'+rect.height;if(size!==lastSize){renderer.setSize(rect.width,rect.height);camera.aspect=rect.width/rect.height;camera.fov=2*Math.atan(viewTangent(camera.aspect))*180/Math.PI;camera.updateProjectionMatrix();lastSize=size;}
    if(dimensions!==tableKey(f))rebuild(f);
@@ -741,8 +763,8 @@
     cameraState.playerInShot=!!f.animating;
    }
    if(cameraState.followCue)updateCueFollow(cameraState,f);
-   const target=cameraState.target||{x:0,y:0,z:0};
    window.BilliardsTableOrbit.updateCamera(camera,renderedCamera(),camera.aspect);
+   const viewKey=[camera.position.x,camera.position.y,camera.position.z].join(':');
    const visible=new Set();
    for(const b of f.balls){
     if(!b.active||b.marker)continue;visible.add(b.id);let group=ballMeshes.get(b.id);
@@ -755,7 +777,6 @@
     if(cue)group.children[0].quaternion.fromArray(orientation);
     const centerHeight=Number.isFinite(b.z)?Math.max(f.R,b.z):f.R,oldPosition=group.position.clone();
     group.visible=true;group.position.set(b.x-f.L/2,centerHeight,b.y-f.W/2);group.scale.setScalar(f.R);
-    const viewKey=[cameraState.azimuth,cameraState.elevation,cameraState.radius,target.x,target.y,target.z].join(':');
     if(!cue&&!f.animating&&(group.userData.viewKey!==viewKey||(!group.userData.animating&&oldPosition.distanceTo(group.position)>.00001))){
      const dir=camera.position.clone().sub(group.position).normalize();group.children[0].quaternion.setFromUnitVectors(new T.Vector3(0,0,1),dir);group.children[0].rotateZ(((Number(b.id)||0)%5-2)*.06);
     }

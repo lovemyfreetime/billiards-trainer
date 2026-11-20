@@ -1,5 +1,5 @@
 {
-  "version": "3275be21a1d06504",
+  "version": "a0488c4868a5304a",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -1347,7 +1347,7 @@
     "tournament.css": "88d1214bbc88f482e96642898ef74885eaa46d11150e1e3fa58eeae3151b6115",
     "tournament.html": "d3497126a61c1429131ba5fda878090e3a0db57046c0b6116561ebb3075017ca",
     "trainer-3d.css": "6fb8dc35b53db5251ba2b3bc5a149749de7a8404f17abbb780c4ce8392703e14",
-    "trainer-3d.js": "7cb277e187b65b5ca78a4865e71f90c2a73791af8a8f8f3a34cdb98fc4be3dcd",
+    "trainer-3d.js": "4187cca4b0067212c1aae44d8348934d5a6f5253b2ce3c55b66ca38261ada1b3",
     "trainer-action-history.js": "83f2afc6a65e2dc18b66313cc709a66407e72144c2278cc2d2acbfb600e4cfb4",
     "trainer-aim-zones.js": "945660a308c88619f23c2358a445f6a9163f7dffa0783306346618bc91f9068d",
     "trainer-annotate.js": "00b92397850c030baafe0d48fb88e087c25461d274ac651cbf5f17f5aecbcf14",
