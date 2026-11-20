@@ -47,9 +47,9 @@
   const axis=[x/length,z/length];
   return {start,axis,length,widthScale:Math.hypot(1,axis[1]*slopeX-axis[0]*slopeZ)};
  }
- function clothShadow(T,material,light){
+ function clothShadow(material,light){
   const uniforms={
-   cueShadowStart:{value:new T.Vector2()},cueShadowAxis:{value:new T.Vector2(1,0)},
+   cueShadowStart:{value:{x:0,y:0}},cueShadowAxis:{value:{x:1,y:0}},
    cueShadowLength:{value:1},cueShadowWidth:{value:1},cueShadowFade:{value:0}
   };
   material.onBeforeCompile=shader=>{
@@ -79,8 +79,8 @@
    const projection=opacity>0?shadowProjection(tip,butt,light):null;
    uniforms.cueShadowFade.value=projection?opacity:0;
    if(!projection)return;
-   uniforms.cueShadowStart.value.fromArray(projection.start);
-   uniforms.cueShadowAxis.value.fromArray(projection.axis);
+   [uniforms.cueShadowStart.value.x,uniforms.cueShadowStart.value.y]=projection.start;
+   [uniforms.cueShadowAxis.value.x,uniforms.cueShadowAxis.value.y]=projection.axis;
    uniforms.cueShadowLength.value=projection.length;
    uniforms.cueShadowWidth.value=projection.widthScale;
   };
@@ -88,7 +88,7 @@
  function create(T,scene,renderer,redraw,surfaceMaterial,light){
   const group=new T.Group();scene.add(group);let current=null,ready=false;
   // Shade actual cloth fragments, so the cue shadow stops at pocket openings.
-  const updateShadow=clothShadow(T,surfaceMaterial,light.position.toArray()),butt=new T.Vector3();
+  const updateShadow=clothShadow(surfaceMaterial,light.position.toArray()),butt=new T.Vector3();
   const source=document.createElement('canvas'),sourceCtx=source.getContext('2d',{willReadFrequently:true});
   const picture=new Image();picture.onload=()=>{source.width=picture.width;source.height=picture.height;sourceCtx.drawImage(picture,0,0);makeReferenceMap();ready=true;redraw();};picture.src='./icons/approved-full-cue.png';
   const reference=document.createElement('canvas');reference.width=128;reference.height=2048;

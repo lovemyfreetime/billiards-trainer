@@ -1,5 +1,5 @@
 {
-  "version": "a1eba673d52b58c7",
+  "version": "f4c881a1d49f1d3a",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -945,7 +945,7 @@
     "icons/table-materials/walnut-rough.jpg": "5cb9d78ec685155d2b66a1db01abc61049d00953d783d0c78d829512de9ab0b4",
     "icons/trainer-original-execute-v2.svg": "eaf1f45d99634cdbe87582d857cc2dd6017439dadf9ce251136485422c127da4",
     "icons/zen-reference-table-v1.webp": "0d9352c54cccca69fbb78fd8bc7a173957424fad151950a3888f895069030da0",
-    "index.html": "3a6b7d633468559b2b2823999042799d386f4c6a13b45ce1e48bcea29c096be6",
+    "index.html": "ef4cb907561130418e63d2d569689a355b30be4d26f0b71eeca0b5d65edb218d",
     "install/android/index.html": "5af2961b4386233b6f9206577ee2acdd6b08068620c3f60c57b176c471ca3681",
     "install/apple/index.html": "baad9dae78322db69bebb071456f37d83e9ba1a7ac849dbe70ef9a88480cf253",
     "install/assets/android-guide/Billiards_Trainer_Android_Installer_Screenshots/android-app-installed.jpg": "545867686776eb4a4ecae0b6d12e6c5df3c58623919fd7935c6c09530e9f7500",
@@ -1357,7 +1357,7 @@
     "trainer-compass-controls.js": "89bbb86f07f5921cbd335a25b9db687ec402d8f1c1770593b03ac06a21b71cbb",
     "trainer-cue-clearance.js": "150877d3d38c4d98e2d502eb23b9b10f9fc957a31002b63850c6722a786601d7",
     "trainer-cue-controls.js": "7487ff2ac7ee352223ba588395a75c211edc951926f396b90766c0d7d1ff6902",
-    "trainer-cue3d.js": "0618bd615b22081df0a9c0651954c2a56db5afaad9027282390d53ceea787f73",
+    "trainer-cue3d.js": "3adb01a332b2e7effadbac7dd6f4e5f61af0b0a57672a701ae6ff9ba7e5b0a80",
     "trainer-guidance.js": "4394922f301c75b9900e125752da4d6e45894e9810de616d6016a08cf65de18c",
     "trainer-layout-files.js": "262d5dd963d46919608a881d3caca7a798343ab4106d158167d9e19895ecc950",
     "trainer-learning.css": "ca11691f29528c968207246ed13d13996c166bc4ab6530d55c3616f9a8fb515d",
