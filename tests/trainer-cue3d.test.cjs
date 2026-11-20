@@ -12,3 +12,15 @@ for(const finish of ['blackSilver','carbon','wood']){assert(cue.setFinish(finish
 console.log('58-inch scale, exact spin/elevation contacts, full backstroke-to-impact, soft-shot clearance, three finishes and independent player-eye height passed.');
 
 let clock=-cue.PRE_ROLL,frames=0;while(clock<0){clock=cue.advanceTime(clock,2,1,10);frames++;}assert.equal(clock,0);assert(frames>=14);assert.equal(cue.advanceTime(0,2,1,10),.05);assert.equal(cue.advanceTime(.5,2,1,10),2.5);
+
+const light=[-3,5,2],tip=[0,.02,0],butt=[1,.24,.4];
+const shadow=cue.shadowProjection(tip,butt,light);
+assert.deepEqual(shadow.start,[.012,-.008]);
+for(const fraction of [.25,.5,.75,1]){
+ const point=tip.map((value,i)=>value+(butt[i]-value)*fraction);
+ const projected=[point[0]+.6*point[1],point[2]-.4*point[1]];
+ const expected=shadow.start.map((value,i)=>value+shadow.axis[i]*shadow.length*fraction);
+ assert(Math.hypot(projected[0]-expected[0],projected[1]-expected[1])<1e-12);
+}
+assert(shadow.widthScale>=1);
+assert.equal(cue.shadowProjection([0,0,0],light,light),null);

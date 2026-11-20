@@ -135,6 +135,71 @@ assert.deepEqual(drain(g.runout(twoWayLayout,twoWayTrial,1))[0]?.twoWay,{covered
 assert.equal(drain(g.runout({...twoWayLayout,setupMode:'straight'},twoWayTrial,1))[0]?.twoWay,undefined);
 console.log('Two-way probes recognize verified miss cover in rotation and bypass it in straight pool.');
 
+const twoWayEight={...twoWayLayout,setupMode:'8ball',guidanceMode:'groups',guidanceGroups:{1:'solids'},
+ balls:[...twoWayLayout.balls.slice(0,2),{...twoWayLayout.balls[2],id:9}]};
+const eightMiss={...coveredMiss,finalBalls:coveredMiss.finalBalls.map(ball=>
+ ball.id===1?{...ball,id:9}:ball.id===2?{...ball,id:1}:ball)};
+const eightMade={...made,finalBalls:made.finalBalls.map(ball=>ball.id===2?{...ball,id:9}:ball)};
+function* twoWayEightTrial(layout,controls,scratch=false){
+ const {freeAim,speed}=controls;
+ const delta=Math.atan2(freeAim.y-.30,freeAim.x-.60)-twoWayAngle;
+ if(Math.abs(Math.abs(Math.atan2(Math.sin(delta),Math.cos(delta)))-missOffset)>1e-6)return eightMade;
+ if(scratch&&speed<1)return {...eightMiss,pocketEvents:[{id:0}]};
+ return eightMiss;
+}
+assert.deepEqual(drain(g.runout(twoWayEight,twoWayEightTrial,1))[0]?.twoWay,{covered:4,missed:4});
+assert.equal(drain(g.runout(twoWayEight,(s,c)=>twoWayEightTrial(s,c,true),1))[0]?.twoWay,undefined,
+ 'a scratch in the slower miss probe defeats the two-way designation');
+
+const defendedPocket={...exchange,balls:[...exchange.balls,{id:10,x:.095,y:.10}]};
+const deniedPocket={...solidSafety,railEvents:[],pocketEvents:[{id:10,pocket:'TL',t:1}],
+ collisionEvents:[{t:.8,ids:[0,10]}],finalBalls:solidSafety.finalBalls};
+function* defensiveCarom(layout){
+ return layout.guidanceGroups[1]==='solids'?deniedPocket:null;
+}
+const denial=drain(g.recommendSafety(defendedPocket,[],defensiveCarom));
+assert.equal(denial?.passed,5);
+assert.match(denial.reason,/Carom denies the top left pocket for ball 10/);
+assert.equal(drain(g.recommendSafety(defendedPocket,[],mock({...deniedPocket,pocketEvents:[{id:8}]}))),null,
+ 'the 8 cannot be pocketed to claim a defensive advantage');
+
+const pocketClear={...state,setupMode:'8ball',guidanceMode:'groups',guidanceGroups:{1:'solids'},speed:1.7,follow:0,sideSpin:0,
+ balls:[[0,1.45,.70],[1,1.27,.24],[2,.45,.34],[3,.46,.53],[8,1.8,1],[9,.095,.10],[10,2.27,.81]]
+  .map(([id,x,y])=>({id,x,y,active:true}))};
+function* pocketClearTrial(layout,{sideSpin,follow},actualContact=true){
+ const nudge=sideSpin>.15&&follow>-.3;
+ return {settled:true,firstBallContact:{objId:1,t:.1,objPos:layout.balls[1]},pocketEvents:[{id:1,pocket:'TM',t:.2}],
+  railEvents:[{id:0,rail:'top rail',t:.3}],collisionEvents:nudge&&actualContact?[{ids:[0,9],t:.4}]:[],
+  paths:{0:[{...layout.balls[0],t:0},{x:1.2,y:.24,t:.1},{x:.11,y:.03,t:.3},{x:.33,y:.22,t:.4},{x:.72,y:.76,t:.8}]},
+  finalBalls:layout.balls.filter(ball=>ball.id!==1).map(ball=>ball.id===0?{...ball,x:.72,y:.76}:ball.id===9&&nudge?{...ball,x:.19,y:.43}:ball)};
+}
+const [clearPlan]=drain(g.runout(pocketClear,pocketClearTrial,1));
+assert.equal(clearPlan.contact.kind,'Pocket clear');
+assert.equal(clearPlan.contact.cushions,1);
+assert.deepEqual(clearPlan.contact.lanes,[{ballId:2,pocket:'top left'},{ballId:3,pocket:'top left'}]);
+assert.equal(drain(g.runout(pocketClear,(s,c)=>pocketClearTrial(s,c,false),1))[0]?.contact.kind,undefined,
+ 'cannot credit a nudge without contact in the simulated route');
+console.log('Eight-ball planning checks two-way speed errors, defensive caroms and multi-ball pocket clearance.');
+
+const thinRailBreakout={...pocketClear,tableL:2.2352,tableW:1.1176,
+ balls:[[0,.6972,.1566],[1,1.7955,.5635],[2,1.93,1.0687],[5,.6277,1.0515],[8,1.684,.663],
+  [9,1.823,.835],[10,1.496,.961],[11,1.351,.0438],[12,1.914,.0469],[13,.171,.535],[14,2.114,.389],[15,2.148,1.089]]
+  .map(([id,x,y])=>({id,x,y,active:true}))};
+function* thinRailBreakoutTrial(layout,{speed,follow,sideSpin}){
+ if(Math.abs(speed-3.55)>.01||follow||sideSpin)return null;
+ return {settled:true,firstBallContact:{objId:1,t:.1,objPos:layout.balls[1]},pocketEvents:[{id:1,pocket:'TR',t:.3}],
+  railEvents:[{id:0,rail:'right rail',t:.4},{id:0,rail:'bottom rail',t:.5}],collisionEvents:[{ids:[0,2],t:.6}],
+  paths:{0:[{...layout.balls[0],t:0},{x:1.78,y:.61,t:.1},{x:2.20,y:.93,t:.4},
+   {x:2.01,y:1.089,t:.5},{x:1.96,y:1.057,t:.6},{x:1.927,y:.98,t:1}]},
+  finalBalls:layout.balls.filter(ball=>ball.id!==1).map(ball=>ball.id===0?{...ball,x:1.927,y:.98}:
+   ball.id===2?{...ball,x:1.125,y:.445}:ball)};
+}
+const [thinBreakout]=drain(g.runout(thinRailBreakout,thinRailBreakoutTrial,1));
+assert.equal(thinBreakout?.ballId,1,'find the firm thin pot when standard position speeds miss it');
+assert.equal(thinBreakout.contact.kind,'Breakout');
+assert.equal(thinBreakout.contact.cushions,2);
+assert.deepEqual(thinBreakout.contact.sequence,[0,2]);
+
 const roomLayout={...twoWayLayout,planFollow:true,balls:[...twoWayLayout.balls,{id:3,x:1.27,y:.74}]};
 const nearestDiamond=roomLayout.tableL/8;
 function* crowdingTrial(layout,controls){
@@ -222,3 +287,60 @@ function* crowdedEarlyTrial(layout){
 assert.equal(drain(g.runout(earlyPosition,crowdedEarlyTrial,1))[0]?.quickPosition,undefined,
  'a marginal continuation that cannot be verified needs the full search');
 console.log('Fast 9-ball verifies just shot one and returns the pocket and shape on ball two.');
+
+let firstTrials=0;
+const fastPot=drain(g.firstShot(earlyPosition,function*(layout,controls){
+ firstTrials++;
+ return yield* earlyPositionTrial(layout,controls);
+}));
+assert.equal(fastPot?.ballId,1);
+assert(firstTrials<=27);
+assert.equal(drain(g.firstShot(earlyPosition,mock({...made,pocketEvents:[{id:1,pocket:'TL'},{id:0}]}))),null,
+ 'fast results must reject scratches');
+
+const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
+const scheduler=html.slice(html.indexOf('    function scheduleRunout('),html.indexOf('    function planDuringPlayback('));
+function plannerClock({background=false,first=null,fail=false}={}){
+ const source={},job={source,background,pending:true,shots:[]},queue=[];
+ const events=[];
+ let now=0;
+ const context={
+  animation:null,S:{preview:source,guidanceEnabled:true},runoutJob:background?null:job,forecastJob:background?job:null,
+  performance:{now:()=>now},setTimeout(fn,delay){queue.push({fn,delay});},allowBackgroundPlan:()=>true,
+  simulateRunoutStroke(){},cueSquirtAngleFor(){},draw(){},Event,console:{error(){}},
+  runoutStatus:()=>job,window:{
+   dispatchEvent(){events.push({at:now,pending:job.pending,shots:job.shots.length});},
+   BilliardsGuidance:{
+    *firstShot(){if(fail)throw Error('test');return first;},
+    *runout(){while(true){now+=2;yield;}},
+    *recommendSafety(){return null;}
+   }
+  }
+ };
+ vm.createContext(context);
+ vm.runInContext(scheduler,context);
+ context.scheduleRunout({},6,job,false);
+ return {job,events,stop:context.stopRunout,drain(){
+  while(queue.length){const {fn,delay}=queue.shift();now+=Math.max(1,delay);fn();}
+  return now;
+ }};
+}
+const foreground=plannerClock({first:fastPot});
+assert(foreground.drain()>=4000&&foreground.events.at(-1).at<4020);
+assert.deepEqual(foreground.events[0],{at:1,pending:true,shots:1});
+assert.equal(foreground.job.shots[0],fastPot);
+assert.equal(foreground.job.pending,false);
+assert(foreground.job.limitReached);
+const background=plannerClock({background:true});
+assert(background.drain()>=2500&&background.events.at(-1).at<2520);
+assert.equal(background.job.pending,false);
+assert.deepEqual(background.job.shots,[]);
+const stopped=plannerClock();
+assert(stopped.stop());stopped.drain();
+assert.equal(stopped.job.pending,false);
+assert(stopped.job.cancelled);
+const failed=plannerClock({fail:true});failed.drain();
+assert.equal(failed.job.pending,false);
+assert(failed.job.failed);
+console.log('Planner offers a verified first shot and ends on deadline, cancel or error.');

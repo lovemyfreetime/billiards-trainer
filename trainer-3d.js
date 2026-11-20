@@ -67,31 +67,27 @@
  const random=document.createElement('button');random.type='button';random.className='table3DRandom';random.textContent='Random';random.setAttribute('aria-label','Randomize current balls');random.onclick=()=>{if(window.billiards3DBallControls?.status().busy)return;document.getElementById('shuffleTableLayout')?.click();closePopovers();};rackMenu.append(random);
  const labels={rack6:'6',rack7:'7',rack8:'8',rack9:'9',rack10:'10',straight14:'S',ultimate8:'U',rack3:'3'};
  const rackButtons=Object.entries(labels).map(([value,label],i)=>{const b=document.createElement('button');b.type='button';b.dataset.rack=value;b.textContent=label;const option=[...document.getElementById('fullRackSelect').options].find(o=>o.value===value);b.setAttribute('aria-label','Set up '+option.textContent);const a=(-90+i*45)*Math.PI/180;b.style.left=(50+37*Math.cos(a))+'%';b.style.top=(50+37*Math.sin(a))+'%';b.onclick=()=>{if(window.billiards3DBallControls?.status().busy)return;const select=document.getElementById('fullRackSelect');select.value=value;select.dispatchEvent(new Event('change',{bubbles:true}));document.getElementById('startFullRack').click();closePopovers();syncBallTools();};rackMenu.append(b);return b;});
- const orderButton=action('Shot Order','Select how the planner chooses balls',()=>togglePopover(orderMenu,orderButton));
+ const orderButton=action('Ball Detection','Choose which balls shot guidance can suggest',()=>togglePopover(orderMenu,orderButton));
  orderButton.id='table3DShotOrder';orderButton.setAttribute('aria-expanded','false');orderButton.setAttribute('aria-controls','table3DOrderMenu');
  let askedForPlan=false;
  const planButton=action('Plan','Plan a runout',()=>{
   const api=window.billiardsGuidance,job=api.runoutStatus();
   if(job.safety&&!job.continuation){api.useSafety();return;}
   if(job.shots.length&&!job.continuation){api.useRunout();return;}
+  if(job.pending&&(!job.background||job.breakKey)){askedForPlan=false;api.stopRunout();return;}
   askedForPlan=true;
   if(!api.requestRunout()){askedForPlan=false;api.showRunoutMessage('Plan after the break, with the cue ball on the table and the bank/kick tool closed.');}
  });
  planButton.id='table3DPlan';
- const planVisibility=action('Hide','Show planned paths',()=>{
-  const api=window.billiardsGuidance,visible=!api.planVisible();
-  if(!visible&&nextView&&!api.manualShot2())setNextView(false);
-  api.setPlanVisible(visible);
- });
- planVisibility.id='table3DPlanVisibility';
  const planAlternative=action('Bank route','Review a cushion-assisted route',()=>window.billiardsGuidance.useRunout(true));
  planAlternative.id='table3DBankAlternative';
  planAlternative.hidden=true;
  const planControls=document.createElement('div');
  planControls.id='table3DPlanControls';planControls.setAttribute('role','group');planControls.setAttribute('aria-label','Runout planning');
- planControls.append(planButton,planAlternative,planVisibility);tools.append(planControls);
+ planControls.hidden=true;
+ planControls.append(planButton,planAlternative);tools.append(planControls);
  const orderMenu=document.createElement('section');orderMenu.id='table3DOrderMenu';orderMenu.hidden=true;
- orderMenu.setAttribute('role','dialog');orderMenu.setAttribute('aria-label','Shot Order');
+ orderMenu.setAttribute('role','dialog');orderMenu.setAttribute('aria-label','Ball Detection');
  orderMenu.innerHTML='<div role="group" aria-label="Analysis mode"><button type="button" data-order="order">1 · Lowest First</button><button type="button" data-order="groups">2 · Groups</button><button type="button" data-order="any">3 · Any Ball</button></div><label>Group <select aria-label="Ball group"><option value="open">Open Table</option><option value="solids">Solids</option><option value="stripes">Stripes</option></select></label>';
  const orderChoices=[...orderMenu.querySelectorAll('button')],orderSelect=orderMenu.querySelector('select');
  const orderStatus=document.createElement('output');orderStatus.id='table3DPlanStatus';orderStatus.setAttribute('aria-live','polite');stage.append(tray,rackMenu,orderMenu,orderStatus);
@@ -103,23 +99,22 @@
   const api=window.billiardsGuidance,{rack,order,label,mode}=api.rackAnalysis(),job=api.runoutStatus();
   rackToggle.title=rack==='Custom'?'Choose a rack':'Choose a rack · Current '+rack;
   orderButton.dataset.shotOrder=mode==='any'?'Any Ball':label;
-  orderButton.setAttribute('aria-label','Shot Order: '+orderButton.dataset.shotOrder);
+  orderButton.setAttribute('aria-label','Ball Detection: '+orderButton.dataset.shotOrder);
   for(const b of orderChoices)b.setAttribute('aria-pressed',String(b.dataset.order===mode));
   orderSelect.parentElement.hidden=mode!=='groups';if(mode==='groups')orderSelect.value=order;
   nextButton.setAttribute('aria-busy',String(job.pending));
   const ready=!job.continuation&&job.shots.length>0;
   const safety=!job.continuation&&job.safety;
   const alternative=!job.continuation&&job.alternative;
+  const breakForecast=job.continuation&&!!job.breakKey;
   planAlternative.hidden=!alternative;
   planAlternative.disabled=!!window.billiards3DBallControls?.status()?.busy;
   if(alternative)planAlternative.title=alternative.kind+' to '+alternative.pocket+' · Held in '+alternative.passed+'/5 tests';
-  const planning=job.pending&&!job.background;
-  planButton.disabled=planning&&!ready&&!safety||!!window.billiards3DBallControls?.status()?.busy;
+  const planning=job.pending&&(!job.background||breakForecast);
+  planButton.disabled=!!window.billiards3DBallControls?.status()?.busy;
   const opening=planning&&job.opening;
-  const text=safety?(safety.reviewOnly?'Review Foul':safety.intentionalFoul?'Use Foul':'Use Safety'):ready?'Use Plan':opening?opening.ballId+' → '+opening.pocket:planning?'Planning…':'Plan';
-  const visible=api.planVisible(),visibilityLabel=visible?'Hide':'Show';
-  if(planVisibility.textContent!==visibilityLabel)planVisibility.textContent=visibilityLabel;
-  planVisibility.setAttribute('aria-pressed',String(visible));
+  const text=breakForecast?(job.pending?'Analyzing Break…':job.shots.length||job.safety?'Break Analyzed':'Plan'):
+   safety?(safety.reviewOnly?'Review Foul':safety.intentionalFoul?'Use Foul':'Use Safety'):ready?'Use Plan':opening?opening.ballId+' → '+opening.pocket:planning?'Stop Planning':'Plan';
   if(planButton.textContent!==text)planButton.textContent=text;
   planButton.setAttribute('aria-busy',String(planning));planButton.dataset.ready=String(ready);
   planButton.dataset.safety=String(!!safety);
@@ -130,11 +125,15 @@
    ' · '+safety.reason+' · Held in '+safety.passed+'/5 simulations':
    count?count+(count===1?' shot':' shots')+(job.pending?' ready · Analyzing further · ':' found · ')+route:
    opening?opening.ballId+' → '+opening.pocket+' · Checking cue-ball position…':
+   job.failed?'Planning stopped. You can aim and shoot manually.':
+   job.cancelled?'Planning stopped.':
+   job.limitReached?'No shot verified in the available time. You can aim and shoot manually.':
+   breakForecast?(job.pending?'Planning the predicted layout after the break…':'Break analysis held for this setup.'):
    job.pending?(job.background?'Analyzing in the background…':'Analyzing…'):job.source&&!job.continuation?'No verified runout or safety found.':'';
   if(orderStatus.textContent!==message)orderStatus.textContent=message;
   planButton.title=message||'Plan a runout';
   planButton.setAttribute('aria-label',safety?(safety.intentionalFoul?'Set up intentional foul on ball ':'Apply recommended safety on ball ')+safety.ballId:
-   ready?'Apply planned Shot 1':opening?message:planning?'Planning runout':'Plan a runout');
+   ready?'Apply planned Shot 1':planning?'Stop planning':breakForecast?message:'Plan a runout');
  }
  function closePopovers(){
   for(const [popover,anchor] of [[tray,trayToggle],[rackMenu,rackToggle],[orderMenu,orderButton]]){
@@ -187,7 +186,6 @@
   if(!value){closeNextView();window.Billiards3D.exitCueView();return;}
   rememberInspection();
   const api=window.billiardsGuidance;
-  if(!api.manualShot2()&&!api.planVisible())api.setPlanVisible(true);
   shotBeforeNext=api.activeShot();nextView=true;nextButton.setAttribute('aria-pressed','true');
   api.setRunoutView(true);
   if(api.manualShot2())window.billiardsSelectShot(2);
@@ -427,7 +425,7 @@
   const surfaceMaterial=new T.MeshStandardMaterial({map:texture,color:0xcbd4cf,roughness:.98,envMapIntensity:.15}),bodyMaterial=new T.MeshStandardMaterial({color:0x252b30,roughness:.64}),legMaterial=new T.MeshStandardMaterial({color:0x20272c,roughness:.6});
   const sphere=new T.SphereGeometry(1,40,28),ballMeshes=new Map(),materials=new Map(),contacts=new Map(),contactGroup=new T.Group();scene.add(contactGroup);let dimensions='',dirty=true,lastSize='',frame=null,pocketSpecs=[];const rollStep=new T.Quaternion(),rollAxis=new T.Vector3();
   const ghostGroup=new T.Group(),ghostMeshes=new Map();scene.add(ghostGroup);
-  const realCue=window.BilliardsCue3D?.create(T,scene,renderer,requestRender);
+  const realCue=window.BilliardsCue3D?.create(T,scene,renderer,requestRender,surfaceMaterial,light);
   // Teaching text stays flat on its original cloth location; only its heading follows the view.
   const cameraLabels=new Map(),labelGeometry=new T.PlaneGeometry(1,1),clothNormal=new T.Vector3(0,1,0),clothRotation=new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0),-Math.PI/2);
   const labelAxis=new T.Vector3(1,0,0),railRotation=new T.Quaternion().setFromAxisAngle(labelAxis,-Math.PI/2+.56),cameraDirection=new T.Vector3();

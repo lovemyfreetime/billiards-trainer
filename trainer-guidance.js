@@ -90,6 +90,49 @@
   return objects.flatMap((a,i)=>objects.slice(i+1).flatMap(b=>
    (relevant(a)||relevant(b))&&Math.hypot(a.x-b.x,a.y-b.y)<limit?[[a.id,b.id]]:[]));
  }
+ function strategicTargets(state,objects=live(state).filter(ball=>ball.id>0)){
+  const legal=eligibleBalls(state,objects),eight=objects.find(ball=>ball.id===8);
+  return eight&&['solids','stripes'].includes(order(state))&&!legal.includes(eight)?[...legal,eight]:legal;
+ }
+ function pocketLanes(state,targets){
+  const balls=live(state).filter(ball=>ball.id>0),pockets=model.pockets(state),r=state.ballR;
+  return targets.flatMap(ball=>pockets.flatMap(pocket=>{
+   const length=distance(ball,pocket);
+   if(!length||length>3*state.tableL/8)return [];
+   const dx=(pocket.x-ball.x)/length,dy=(pocket.y-ball.y)/length;
+   const aim={x:ball.x-2*r*dx,y:ball.y-2*r*dy};
+   if(pocket.mouth*Math.abs(pocket.nx*dx+pocket.ny*dy)<=2*r||
+      aim.x<r||aim.y<r||aim.x>state.tableL-r||aim.y>state.tableW-r)return [];
+   const blockers=balls.filter(other=>other.id!==ball.id&&distanceToSegment(other,ball,pocket)<2*r+.0005);
+   return [{key:ball.id+'/'+pocket.name,ball,pocket,length,blockers}];
+  }));
+ }
+ function runoutPocketBlockers(state,scoringBall){
+  const balls=state.balls.filter(ball=>ball.id!==scoringBall);
+  const remaining={...state,balls};
+  const blockers=new Map();
+  for(const lane of pocketLanes(remaining,strategicTargets(remaining))){
+   const [ball]=lane.blockers;
+   if(lane.blockers.length!==1||distance(ball,lane.pocket)>5*state.ballR)continue;
+   const entry=blockers.get(ball.id)||{ball,count:0};
+   entry.count++;blockers.set(ball.id,entry);
+  }
+  return [...blockers.values()].sort((a,b)=>b.count-a.count).slice(0,3).map(entry=>entry.ball);
+ }
+ function openedByContact(state,after,paths){
+  const targets=strategicTargets(after);
+  const open=new Set(pocketLanes(after,targets).filter(lane=>!lane.blockers.length).map(lane=>lane.key));
+  if(!open.size)return [];
+  const restored={...after,balls:after.balls.map(ball=>{
+   const old=state.balls.find(original=>original.id===ball.id);
+   return paths.has(ball.id)&&ball.id!==0&&old?old:ball;
+  })};
+  return pocketLanes(restored,targets).flatMap(lane=>{
+   if(!open.has(lane.key))return [];
+   const blockers=lane.blockers.filter(ball=>paths.has(ball.id)&&distance(ball,lane.pocket)<=5*state.ballR);
+   return blockers.length?[{...lane,blockers}]:[];
+  });
+ }
  function assessContact(state,after,preview,shot,pairs,leave){
   const other=new Set(),cueBumps=new Set(),paths=new Map([[0,[0]]]);
   for(const event of preview.collisionEvents||[]){
@@ -104,6 +147,16 @@
   if(!other.size)return {cost:0};
   const laid=new Map(live(after).map(b=>[b.id,b]));
   const newPairs=clusterPairs(after).filter(([a,b])=>!pairs.some(([x,y])=>a===x&&b===y||a===y&&b===x)).length;
+  if(state.setupMode==='8ball'&&leave>-.75){
+   const lanes=openedByContact(state,after,paths);
+   if(lanes.length){
+    const balls=[...new Set(lanes.flatMap(lane=>lane.blockers.map(ball=>ball.id)))];
+    const event=preview.collisionEvents?.find(hit=>hit.t>preview.firstBallContact.t&&hit.ids.includes(0)&&hit.ids.some(id=>balls.includes(id)));
+    const cushions=event?preview.railEvents.filter(rail=>rail.id===0&&rail.t>preview.firstBallContact.t&&rail.t<event.t).length:0;
+    return {kind:'Pocket clear',balls,cushions,lanes:lanes.map(lane=>({ballId:lane.ball.id,pocket:lane.pocket.name})),
+     cost:-.34-.18*Math.min(3,lanes.length)+.28*newPairs};
+   }
+  }
   const opened=pairs.filter(([a,b])=>{
    const left=laid.get(a),right=laid.get(b);
    if(!left||!right||!other.has(a)&&!other.has(b))return false;
@@ -115,10 +168,16 @@
   for(const target of eligibleBalls(after)){
    const access=s=>Math.max(0,...model.options(s,target.id).map(route=>route.probability||0));
    const sequence=paths.get(target.id);
-   const openedAccess=sequence?.length>1&&leave>-.75?access(after):0;
+   const bump=cueBumps.has(target.id)&&preview.collisionEvents.find(event=>
+    event.t>preview.firstBallContact.t&&event.ids.includes(0)&&event.ids.includes(target.id));
+   const cushions=bump?preview.railEvents.filter(event=>event.id===0&&event.t>preview.firstBallContact.t&&event.t<bump.t).length:0;
+   const original=state.balls.find(ball=>ball.id===target.id);
+   const edge=ball=>Math.min(ball.x,ball.y,state.tableL-ball.x,state.tableW-ball.y);
+   const railBreakout=cushions>0&&original&&edge(original)<4*state.ballR&&edge(target)>edge(original)+2*state.ballR;
+   const openedAccess=sequence?.length>1&&(leave>-.75||railBreakout)?access(after):0;
    if(openedAccess>=.30&&openedAccess-access(restored)>=.15){
     return {kind:'Breakout',balls:[...new Set([...sequence.slice(1).filter(id=>id!==shot.ballId),...opened.flat()])],
-     sequence,cost:-.29+.28*newPairs};
+     sequence,...(railBreakout?{cushions}:{}),cost:(railBreakout ? -.44 : -.29)+.28*newPairs};
    }
   }
   if(opened.length&&leave>-.4)return {kind:'Breakout',balls:[...new Set(opened.flat())],cost:-.23-.08*Math.min(2,insurance.size)+.28*newPairs};
@@ -164,12 +223,32 @@
    return ball&&distance&&e.t>preview.firstBallContact.t&&distance(ball)>state.ballR+.0005;
   });
  }
- function safetyLeave(state,preview){
-  if(!preview?.settled||preview.pocketEvents.length||
-     !eligibleBalls(safetyState(state)).some(b=>b.id===preview.firstBallContact?.objId)||
-     !qualifyingRail(state,preview))return null;
+ function contestedPockets(state){
+  const own=safetyState(state),group=order(own);
+  if(state.setupMode!=='8ball'||!['solids','stripes'].includes(group))return null;
+  const opponent=safetyState(state,true);
+  return pocketLanes(opponent,strategicTargets(opponent)).filter(lane=>!lane.blockers.length);
+ }
+ function pocketDenial(after,before){
+  if(!before?.length)return null;
+  const lanes=pocketLanes(after,strategicTargets(after));
+  const open=new Set(lanes.filter(lane=>!lane.blockers.length).map(lane=>lane.key));
+  const old=new Set(before.map(lane=>lane.key));
+  const denied=before.filter(lane=>!open.has(lane.key));
+  const opened=[...open].filter(key=>!old.has(key)).length;
+  const net=denied.length-opened;
+  return net>0?{denied,net}:null;
+ }
+ function safetyLeave(state,preview,contested=null){
+  const own=safetyState(state);
+  const legal=eligibleBalls(own);
+  if(!preview?.settled||!legal.some(b=>b.id===preview.firstBallContact?.objId))return null;
+  const potted=preview.pocketEvents.map(event=>event.id);
+  const group=order(own);
+  const offSuit=id=>group==='solids'?id>8:group==='stripes'?id>0&&id<8:false;
+  if(potted.length?(state.setupMode!=='8ball'||!potted.every(offSuit)):!qualifyingRail(state,preview))return null;
   const after=safetyState(settledLayout(state,preview),true),balls=live(after);
-  if(balls.length!==live(state).length)return null;
+  if(balls.length!==live(state).length-potted.length)return null;
   const cue=balls.find(b=>b.id===0),targets=eligibleBalls(after),radius=2*state.ballR;
   if(!cue||!targets.length)return null;
   let direct=0,distance=Infinity,exposure=0,kickLanes=0;
@@ -189,9 +268,37 @@
    exposure=Math.max(exposure,visible);
    if(!visible)kickLanes=Math.max(kickLanes,openKickLanes(state,balls,cue,ball));
   }
-  if(direct>.15||exposure===3&&distance<4)return null;
-  return {cue,targets:targets.map(b=>b.id),direct,exposure,distance,kickLanes,
-   score:3-exposure+Math.min(distance,7)*.16-3*direct-kickLanes*.13};
+  const control=direct<=.15?pocketDenial(after,contested):null;
+  if(direct>.15||exposure===3&&distance<4&&!control)return null;
+  return {cue,targets:targets.map(b=>b.id),direct,exposure,distance,kickLanes,control,
+   score:3-exposure+Math.min(distance,7)*.16-3*direct-kickLanes*.13+.42*Math.min(3,control?.net||0)};
+ }
+ function* pocketSafetyTrials(state,targets,contested,simulate,compensate,finalists){
+  if(!contested?.length)return;
+  const balls=live(state),cue=balls.find(ball=>ball.id===0),diam=2*state.ballR;
+  const threats=[...contested].sort((a,b)=>a.length-b.length).slice(0,2);
+  const sideSpin=state.planSpin===false?state.sideSpin:0;
+  for(const {ball:opponent,pocket} of threats){
+   for(const ball of targets.slice(0,3)){
+    const destination=along(pocket,heading(pocket,opponent),2*diam);
+    const entry=heading(ball,destination),aim=along(ball,entry,-diam);
+    const seeds=angleDiff(heading(cue,aim),entry)<1.15?[{entry:heading(cue,aim),follow:0}]:[];
+    if(distance(ball,opponent)<.8)seeds.push(...deflectionAims(cue,ball,opponent,diam).slice(0,2));
+    for(const seed of seeds){
+     const follow=state.planFollow===false?state.follow:seed.follow;
+     const aim=seed.entry-compensate(state,sideSpin,follow),d=distance(cue,ball);
+     const freeAim=along(cue,aim,d);
+     for(const speed of state.planSpeed===false?[state.speed]:[.9,1.35,1.8]){
+      const controls={freeAim,speed,sideSpin,follow,cueElevationDeg:0,angleLock:false};
+      const preview=yield* simulate(state,controls);
+      const leave=safetyLeave(state,preview,contested);
+      if(leave?.control&&preview.firstBallContact.objId===ball.id&&preContactRails(preview)===0)
+       finalists.push({ballId:ball.id,controls,preview,leave,aim,d,score:leave.score-.16*Math.abs(follow)-.05*speed});
+      yield;
+     }
+    }
+   }
+  }
  }
  function* safetyReplies(state,simulate,compensate){
   const balls=live(state),cue=balls.find(b=>b.id===0),radius=2*state.ballR;
@@ -275,7 +382,7 @@
   }
   return {cost:Math.max(threat,recovery)};
  }
- function* recommendSafety(state,shots,simulate,compensate=()=>0){
+ function* recommendSafety(state,shots,simulate,compensate=()=>0,quick=false){
   if(!['8ball','9ball'].includes(state.setupMode)||state.guidanceBreak||shots[0]?.quickPosition)return null;
   const own=safetyState(state),balls=live(own),cue=balls.find(b=>b.id===0);
   if(!cue)return null;
@@ -294,21 +401,22 @@
   const soundStart=shots.slice(0,3).every(shot=>shot.probability>=.38);
   if(run.length>6&&soundStart&&(shots.length>=6||shots.length>=3&&
      (!clusterPairs(own).length||shots.slice(0,3).some(shot=>shot.contact?.kind==='Breakout'))))return null;
-  const finalists=[];
-  for(const ball of targets.slice(0,4)){
+  const finalists=[],contested=contestedPockets(own);
+  if(!quick)yield* pocketSafetyTrials(own,targets,contested,simulate,compensate,finalists);
+  for(const ball of targets.slice(0,quick?2:4)){
    const dx=ball.x-cue.x,dy=ball.y-cue.y,d=Math.hypot(dx,dy);
    if(d<=2*state.ballR)continue;
    const angle=Math.atan2(dy,dx),half=Math.asin(2*state.ballR/d);
-   const speeds=state.planSpeed===false?[state.speed]:[.6,.9,1.25,1.65,2.1];
+   const speeds=state.planSpeed===false?[state.speed]:quick?[.85,1.35,1.85]:[.6,.9,1.25,1.65,2.1];
    const spins=state.planSpin===false?[state.sideSpin]:[0];
-   const follows=state.planFollow===false?[state.follow]:[0,-.32,.32];
+   const follows=state.planFollow===false?[state.follow]:quick?[0]:[0,-.32,.32];
    for(const speed of speeds)for(const sideSpin of spins)for(const follow of follows){
-    for(const cut of [-.94,-.75,-.43,0,.43,.75,.94]){
+    for(const cut of quick?[0,-.43,.43,-.85,.85]:[-.94,-.75,-.43,0,.43,.75,.94]){
      const aim=angle+half*cut-compensate(own,sideSpin,follow);
      const freeAim={x:cue.x+d*Math.cos(aim),y:cue.y+d*Math.sin(aim)};
      const controls={freeAim,speed,sideSpin,follow,cueElevationDeg:0,angleLock:false};
      const preview=yield* simulate(own,controls);
-     const leave=safetyLeave(state,preview);
+     const leave=safetyLeave(state,preview,contested);
      if(leave&&preview.firstBallContact.objId===ball.id&&preContactRails(preview)===0)
       finalists.push({ballId:ball.id,controls,preview,leave,aim,d,score:leave.score-.16*Math.abs(follow)-.05*speed});
      yield;
@@ -316,21 +424,27 @@
    }
   }
   function* verify(options){
-   const exchange=state.setupMode==='8ball'&&['solids','stripes'].includes(group);
+   const exchange=!quick&&state.setupMode==='8ball'&&['solids','stripes'].includes(group);
    const verified=[];
    options.sort((a,b)=>b.score-a.score);
-   for(const shot of options.slice(0,8)){
+   for(const shot of options.slice(0,quick?3:8)){
     let passed=1;
     const error=(state.guidanceAimErrorDeg||.15)*Math.PI/180;
     for(const [speedOffset,aimOffset] of [[.95,error],[.95,-error],[1.05,error],[1.05,-error]]){
      const freeAim={x:cue.x+shot.d*Math.cos(shot.aim+aimOffset),y:cue.y+shot.d*Math.sin(shot.aim+aimOffset)};
      const tested=yield* simulate(own,{...shot.controls,freeAim,speed:shot.controls.speed*speedOffset});
-     if(safetyLeave(state,tested)&&tested.firstBallContact.objId===shot.ballId&&preContactRails(tested)===Number(!!shot.kick))passed++;
+     const leave=safetyLeave(state,tested,contested);
+     if(leave&&tested.firstBallContact.objId===shot.ballId&&preContactRails(tested)===Number(!!shot.kick)&&
+        (!shot.leave.control||leave.control?.denied.some(lane=>shot.leave.control.denied.some(old=>old.key===lane.key))))passed++;
      yield;
     }
     if(passed!==5)continue;
+    const denied=shot.leave.control?.denied[0];
+    const carom=denied&&shot.preview.collisionEvents?.some(hit=>hit.t>shot.preview.firstBallContact.t&&
+      hit.ids.includes(0)&&hit.ids.includes(denied.ball.id));
     const verifiedShot={...shot,passed,
-     reason:shot.leave.exposure===0?(shot.leave.kickLanes?'Hides the legal targets':'Hides the legal targets and closes simple kick lanes'):
+     reason:denied?(carom?'Carom denies the ':'Denies the ')+denied.pocket.name+' pocket for ball '+denied.ball.id:
+      shot.leave.exposure===0?(shot.leave.kickLanes?'Hides the legal targets':'Hides the legal targets and closes simple kick lanes'):
       shot.leave.exposure<3?'Limits the opponent to an edge':'Leaves a low-percentage shot at distance'};
     if(!exchange)return verifiedShot;
     if(verified.some(old=>old.ballId===shot.ballId&&distance(old.leave.cue,shot.leave.cue)<state.ballR))continue;
@@ -344,7 +458,7 @@
    return verified.sort((a,b)=>b.score-a.score)[0]||null;
   }
   const direct=yield* verify(finalists);
-  if(direct)return direct;
+  if(direct||quick)return direct;
   // If a direct safety doesn't hold, try a one-cushion kick at a legal ball.
   const kicks=[],r=state.ballR;
   for(const ball of targets.slice(0,3)){
@@ -358,7 +472,7 @@
      const freeAim={x:cue.x+d*Math.cos(aim),y:cue.y+d*Math.sin(aim)};
      const controls={freeAim,speed,sideSpin,follow,cueElevationDeg:0,angleLock:false};
      const preview=yield* simulate(own,controls);
-     const leave=safetyLeave(state,preview),hit=preview.firstBallContact;
+     const leave=safetyLeave(state,preview,contested),hit=preview.firstBallContact;
      if(leave&&hit.objId===ball.id&&preContactRails(preview)===1)
       kicks.push({ballId:ball.id,controls,preview,leave,aim,d,kick:true,score:leave.score-.05*speed});
      yield;
@@ -789,17 +903,20 @@
   const manualPreview=hasManualStroke?yield* simulate(state,manual):null;
   for(let step=0;step<depth&&beam.length;step++){
    const next=[];
-   let railTrials=16;
+   let railTrials=16,pocketTrials=12,thinBreakoutTrials=28;
    for(const node of beam){
     const cue=node.state.balls.find(b=>b.id===0);
     const pairs=clusterPairs(node.state);
     const count=live(node.state).filter(b=>b.id>0).length;
     const needsPosition=count>1;
+    const opponent=node.state.setupMode==='8ball'?safetyState(node.state,true):null;
+    const protectedLanes=opponent?pocketLanes(opponent,strategicTargets(opponent)).filter(lane=>
+     lane.blockers.length===1&&distance(lane.blockers[0],lane.pocket)<=5*node.state.ballR):[];
     const direct=candidates(node.state);
     const pocketPrior=node.state.setupMode==='9ball'&&order(node.state)==='order';
     const previous=pocketPrior?node.start?.balls.find(ball=>ball.id===node.shots.at(-1).ballId):null;
     const routes=rankPositions(node.state,direct,wideSearch,previous,pocketPrior).slice(0,step?4:7);
-    const indirect=indirectCandidates(node.state,wideSearch||!direct.some(shot=>shot.probability>.35));
+    const indirect=indirectCandidates(node.state,wideSearch||node.state.setupMode==='8ball'||!direct.some(shot=>shot.probability>.35));
     const indirectKinds=new Set();
     for(const shot of indirect){
      const key=[shot.kind,shot.ballId,shot.firstId,shot.kissId,shot.pocket].join('/');
@@ -821,7 +938,10 @@
      const base=Math.max(.78,Math.min(2.7,Math.sqrt((shot.cueDistance+shot.objectDistance/(Math.cos(shot.cutAngle*Math.PI/180)**2+.05))*1.15)));
      const dx=shot.aim.x-cue.x,dy=shot.aim.y-cue.y;
      const object=node.state.balls.find(b=>b.id===shot.ballId);
+     const relinquished=protectedLanes.filter(lane=>lane.blockers[0].id===shot.ballId);
      const breakout=indirect&&shot.kind!=='Bank'?[]:breakoutContacts(node.state,shot.ballId);
+     const pocketBlockers=!wideSearch&&!indirect&&node.state.setupMode==='8ball'&&node===beam[0]&&routeIndex<3
+      ?runoutPocketBlockers(node.state,shot.ballId):[];
      const breakoutSeeds=[];
      const farLeave=live(node.state).some(b=>b.id>0&&b.id!==shot.ballId&&Math.hypot(b.x-object.x,b.y-object.y)>state.tableL*.5);
      const strokes=needsPosition?(farLeave?[...pitches,...longTravel]:[...pitches]):pitches.slice(0,10);
@@ -856,7 +976,7 @@
      }
      const tried=new Set();
      const current=step?node.shots.at(-1).controls:state;
-     let strongest=null,railSeed=null,bestLeave=-Infinity;
+     let strongest=null,railSeed=null,pocketSeed=null,bestLeave=-Infinity;
      function record(controls,preview){
       const after=afterShot(node.state,preview,shot.ballId,shot.firstId);
       if(!after||preview.pocketEvents[0].pocket!==pocketCodes[shot.pocket]||!verifiesIndirect(shot,preview))return false;
@@ -869,14 +989,25 @@
       }
       const travel=path.reduce((distance,p,i)=>i?distance+Math.hypot(p.x-path[i-1].x,p.y-path[i-1].y):0,0);
       const rails=exitRailCount(preview);
+      if(rails&&pocketBlockers.length){
+       const firstRail=preview.railEvents.find(event=>event.id===0&&event.t>preview.firstBallContact.t);
+       const miss=Math.min(...path.slice(1).flatMap((point,index)=>point.t>=firstRail.t
+        ?pocketBlockers.map(ball=>distanceToSegment(ball,path[index],point)):[]));
+       if(!pocketSeed||miss<pocketSeed.miss)pocketSeed={controls,miss};
+      }
       const position=step?quality:0;
       const spinCost=(wideSearch ? .075 : .20)*Math.abs(controls.follow)+(wideSearch ? .10 : .25)*Math.abs(controls.sideSpin);
       const terminal=after.wonRack||!eligibleBalls(after).length||!['order','any'].includes(order(after))&&shot.ballId===8;
       const leave=terminal?0:leaveQuality(after,wideSearch,path);
       const crowding=terminal?0:landingClearanceCost(after);
       const contact=assessContact(node.state,after,preview,shot,pairs,leave-crowding);
+      let exposed=0;
+      if(!terminal&&relinquished.length){
+       const open=pocketLanes(after,strategicTargets(safetyState(after,true))).filter(lane=>!lane.blockers.length);
+       exposed=relinquished.filter(lane=>open.some(route=>route.key===lane.key)).length;
+      }
       const score=node.score+Math.log(Math.max(.01,shot.probability))+position+repositionValue(node.state,after)
-       -.17*travel/state.tableL-.05*rails-spinCost-contact.cost-crowding-(indirect ? .16 : 0);
+       -.17*travel/state.tableL-.05*rails-spinCost-contact.cost-crowding-.28*Math.min(3,exposed)-(indirect ? .16 : 0);
       const rank=score+leave;
       const shots=[...node.shots,{...shot,controls,preview,start:{x:cue.x,y:cue.y},rest,contact}];
       next.push({state:after,start:node.state,shots,score,rank,leave,crowding,terminal,speedMisses:node.speedMisses});
@@ -889,6 +1020,25 @@
       return true;
      }
      if(!step&&manualPreview)record(manual,manualPreview);
+     // A thin cut can carry most of the cue-ball speed through the first impact.
+     // Sample firm center-ball routes when the next legal ball needs a cushion breakout.
+     if(!wideSearch&&!indirect&&shot.cutAngle>=60&&breakout.length&&node===beam[0]){
+      const scale=Math.sqrt(node.state.tableL/2.2352);
+      const speeds=state.planSpeed===false?[current.speed]:[3.4,3.55,3.67,3.8].map(speed=>speed*scale);
+      const follow=state.planFollow===false?current.follow:0,sideSpin=state.planSpin===false?current.sideSpin:0;
+      const angle=heading(cue,shot.aim)-compensate(node.state,sideSpin,follow),length=distance(cue,shot.aim);
+      for(const speed of speeds){
+       if(!thinBreakoutTrials)break;
+       for(const offset of [0,-.004,.004,-.008,.008,-.012,.012]){
+        if(!thinBreakoutTrials)break;
+        thinBreakoutTrials--;
+        const controls={freeAim:along(cue,angle+offset,length),speed,follow,sideSpin,cueElevationDeg:0,angleLock:false};
+        const preview=yield* simulate(node.state,controls);
+        yield;
+        record(controls,preview);
+       }
+      }
+     }
      for(const [pace,draw,english] of strokes){
       const speed=state.planSpeed===false?current.speed:Math.min(wideSearch?6:7,base*pace),cueElevationDeg=0;
       const follow=state.planFollow===false?current.follow:draw;
@@ -910,9 +1060,9 @@
        if(record(controls,preview)&&++makes>=(indirect?3:1))break;
       }
      }
-     function* refine(seed,refinements,multiRail=false){
+     function* refine(seed,refinements,railSearch=null){
       for(const [pace,draw,english] of refinements){
-       if(multiRail&&!railTrials)return;
+       if(railSearch==='multiple'&&!railTrials||railSearch==='pocket'&&!pocketTrials)return;
        if(pace&&state.planSpeed===false||draw&&state.planFollow===false||english&&state.planSpin===false)continue;
        const speed=seed.speed+pace;
        if(speed<=0||speed>7)continue;
@@ -920,10 +1070,11 @@
        const correction=compensate(node.state,seed.sideSpin,seed.follow)-compensate(node.state,sideSpin,follow);
        const aim=seed.freeAim,freeAim=along(cue,heading(cue,aim)+correction,distance(cue,aim));
        const controls={...seed,speed,follow,sideSpin,freeAim};
-       if(multiRail)railTrials--;
+       if(railSearch==='multiple')railTrials--;
+       if(railSearch==='pocket')pocketTrials--;
        const preview=yield* simulate(node.state,controls);
-       const rails=multiRail&&preview?.firstBallContact?exitRailCount(preview):0;
-       if(!multiRail||rails>=2&&rails<=4)record(controls,preview);
+       const rails=railSearch&&preview?.firstBallContact?exitRailCount(preview):0;
+       if(!railSearch||railSearch==='multiple'&&rails>=2&&rails<=4||railSearch==='pocket'&&rails)record(controls,preview);
        yield;
       }
      }
@@ -935,7 +1086,12 @@
      if(exploreRails&&strongest&&bestLeave<1.05){
       const seed=(railSeed||strongest).controls;
       yield* refine(seed,[[.55,0,0],[1.05,0,0],[1.65,0,0],[1.05,0,.26],[1.05,0,-.26],
-       [0,.25,0],[0,0,.27],[0,0,-.27]],true);
+       [0,.25,0],[0,0,.27],[0,0,-.27]],'multiple');
+     }
+     if(pocketBlockers.length&&strongest){
+      const seed=(pocketSeed||railSeed||strongest).controls;
+      yield* refine(seed,[[-.25,0,0],[.30,0,0],[.65,0,0],[.35,.20,0],[.35,-.20,0],
+       [.35,0,-.22],[.35,0,.22],[.85,0,0]],'pocket');
      }
      if(breakoutSeeds.length&&!wideSearch){
       breakoutSeeds.sort((a,b)=>a.miss-b.miss);
@@ -1020,26 +1176,31 @@
      const shot=node.shots.at(-1),{controls,start}=shot;
      const aim=heading(start,controls.freeAim),length=distance(start,controls.freeAim);
      const error=Math.max(.35,1.8*(state.guidanceAimErrorDeg||.15))*Math.PI/180;
+     const eightBall=state.setupMode==='8ball',contested=eightBall?contestedPockets(node.start):null;
+     const trials=eightBall?[[1,-error],[1,error],[.95,-error],[1.05,error]]:[[1,-error],[1,error]];
      let missed=0,covered=0,adjustment=0;
-     for(const offset of [-error,error]){
+     for(const [pace,offset] of trials){
       const freeAim=along(start,aim+offset,length);
-      const preview=yield* simulate(node.start,{...controls,freeAim});
+      const preview=yield* simulate(node.start,{...controls,freeAim,speed:controls.speed*pace});
       yield;
-      if(!preview?.settled)continue;
+      if(!preview?.settled){if(eightBall)missed++;continue;}
       const after=afterShot(node.start,preview,shot.ballId,shot.firstId);
-      if(after){
-       if(!node.terminal&&preview.pocketEvents[0].pocket===pocketCodes[shot.pocket])
+      if(after&&(!eightBall||preview.pocketEvents[0].pocket===pocketCodes[shot.pocket]&&verifiesIndirect(shot,preview))){
+       if(!node.terminal&&preview.pocketEvents[0].pocket===pocketCodes[shot.pocket]){
         adjustment-=.35*Math.max(0,landingClearanceCost(after)-node.crowding);
+        if(eightBall&&shot.contact.kind==='Pocket clear'&&
+           assessContact(node.start,after,preview,shot,clusterPairs(node.start),leaveQuality(after,wideSearch)).kind!=='Pocket clear')adjustment-=.16;
+       }
        continue;
       }
       if(state.setupMode==='straight')continue;
       missed++;
-      const defense=safetyLeave(node.start,preview);
+      const defense=safetyLeave(node.start,preview,contested);
       if(defense){
        covered++;
-       adjustment+=Math.min(.14,.045*Math.max(0,defense.score));
-      }else if(!preview.pocketEvents.length||preview.pocketEvents.some(event=>event.id===0)){
-       adjustment-=.08;
+       adjustment+=Math.min(.14,(eightBall ? .065 : .045)*Math.max(0,defense.score));
+      }else if(eightBall||!preview.pocketEvents.length||preview.pocketEvents.some(event=>event.id===0)){
+       adjustment-=eightBall&&preview.pocketEvents.some(event=>event.id===8||event.id===0) ? .24 : .08;
       }
      }
      if(missed&&missed===covered)shot.twoWay={covered,missed};
@@ -1163,9 +1324,42 @@
   }
   return null;
  }
- function* runout(state,simulate,depth=3,compensate=()=>0,onProgress,onAlternative){
+ function* firstShot(state,simulate,compensate=()=>0){
+  const cue=live(state).find(ball=>ball.id===0);
+  if(!cue)return null;
+  const routes=candidates(state).filter(shot=>shot.probability>=.25).slice(0,3);
+  let best=null,bestScore=-Infinity;
+  for(const shot of routes){
+   const cosine=Math.cos(shot.cutAngle*Math.PI/180);
+   const base=Math.max(.78,Math.min(2.7,Math.sqrt((shot.cueDistance+shot.objectDistance/(cosine*cosine+.05))*1.15)));
+   const follow=state.planFollow===false?state.follow:0,sideSpin=state.planSpin===false?state.sideSpin:0;
+   const angle=heading(cue,shot.aim)-compensate(state,sideSpin,follow),length=distance(cue,shot.aim);
+   for(const speed of state.planSpeed===false?[state.speed]:[base,base*1.3,base*.84]){
+    for(const offset of [0,.004,-.004]){
+     const controls={freeAim:along(cue,angle+offset,length),speed,follow,sideSpin,cueElevationDeg:0,angleLock:false};
+     const preview=yield* simulate(state,controls);
+     const after=afterShot(state,preview,shot.ballId);
+     if(after&&preview.pocketEvents[0].pocket===pocketCodes[shot.pocket]){
+      const done=after.wonRack||!eligibleBalls(after).length;
+      const [next]=done?[]:candidates(after);
+      const score=shot.probability+(done?1:next?.probability||0);
+      const rest=after.balls.find(ball=>ball.id===0);
+      const verified={...shot,controls,preview,start:{x:cue.x,y:cue.y},rest};
+      if(done||next?.probability>=.45)return verified;
+      if(score>bestScore){
+       best=verified;
+       bestScore=score;
+      }
+     }
+     yield;
+    }
+   }
+  }
+  return best;
+ }
+ function* runout(state,simulate,depth=3,compensate=()=>0,onProgress,onAlternative,skipOpening=false){
   if(!live(state).some(b=>b.id===0))return [];
-  const first=depth>0?yield* quickPosition(state,simulate,compensate):null;
+  const first=depth>0&&!skipOpening?yield* quickPosition(state,simulate,compensate):null;
   if(first){onProgress?.([first]);return [first];}
   let best=yield* searchRunout(state,simulate,depth,compensate,false,onProgress,onAlternative);
   // If the close-position search stalls, try more varied cue-ball leaves.
@@ -1180,6 +1374,6 @@
    return {...shot,leaveSide:leaveSide(state,shot.rest,object,upcoming.point)};
   });
  }
- const api={preferences,restorePreferences,suggest,obviousOpening,order,eligibleBalls,afterShot,afterScoringShot,afterBreak,afterUnpocketedShot,runout,recommendSafety};
+ const api={preferences,restorePreferences,suggest,obviousOpening,order,eligibleBalls,afterShot,afterScoringShot,afterBreak,afterUnpocketedShot,firstShot,runout,recommendSafety};
  if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsGuidance=api;
 })(typeof window==='object'?window:globalThis);

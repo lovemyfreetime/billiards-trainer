@@ -17,7 +17,10 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{spawn}=require
   cue=await dragCue({x:1.1,y:.75});assert.equal(cue.length,1);assert(Math.hypot(cue[0].x-1.1,cue[0].y-.75)<.02,'an already-present cue ball can be deliberately repositioned from the tray');
   await setup('inactive');cue=await dragCue({x:1.27,y:.8});assert.equal(cue.length,1);assert(cue[0].active,'stale inactive cue is revived rather than rejected or duplicated');
   await page.locator('#table3DLock').tap();assert.match(await page.locator('#table3DLock strong').innerText(),/^Locked$/);
-  const dims=await page.evaluate(()=>['phoneTrayToggle','table3DRackToggle','table3DShotOrder','workspaceClearBalls','table3DLock','table3DPlan'].map(id=>{
+  assert.equal(await page.locator('#table3DPlan').isVisible(),false);
+  assert.equal(await page.locator('#table3DPlanVisibility').count(),0);
+  assert.match(await page.locator('#table3DShotOrder').getAttribute('aria-label'),/^Ball Detection/);
+  const dims=await page.evaluate(()=>['phoneTrayToggle','table3DRackToggle','table3DShotOrder','workspaceClearBalls','table3DLock'].map(id=>{
    const {x,y,width,height}=document.getElementById(id).getBoundingClientRect();return {x,y,width,height};
   }));
   assert(dims.every(d=>Math.abs(d.width-dims[0].width)<.5&&Math.abs(d.height-dims[0].height)<.5&&Math.abs(d.y-dims[0].y)<.5));

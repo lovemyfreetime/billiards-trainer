@@ -247,10 +247,11 @@ body.trainer-workspace #workspaceBallShelf :is(#workspaceClearBalls,#phoneTrayTo
 }
 #table3DPlanControls {
   display:inline-grid;
-  grid-template-columns: minmax(0,1.25fr) minmax(0,1fr);
+  grid-template-columns:minmax(0,1fr);
   min-width:86px;
   white-space:normal;
 }
+#table3DPlanControls[hidden] { display:none!important; }
 #table3DPlanControls button {
   min-width:0;
   padding:3px 2px;
@@ -260,15 +261,14 @@ body.trainer-workspace #workspaceBallShelf :is(#workspaceClearBalls,#phoneTrayTo
   font:600 10px/1.1 system-ui;
   overflow-wrap:anywhere;
 }
-#table3DPlanControls #table3DPlan { border-radius:9px 0 0 9px; }
-#table3DPlanControls #table3DPlanVisibility { border-left:0; border-radius:0 9px 9px 0; }
-#table3DPlanControls #table3DPlanVisibility[aria-pressed=false] { background:#131f27; }
-body.trainer-workspace #table3DTools #table3DPlanControls { min-width:0; grid-template-columns:repeat(2,minmax(44px,1fr)); }
+#table3DPlanControls #table3DPlan { border-radius:9px; }
+body.trainer-workspace #table3DTools #table3DPlanControls { min-width:0; }
 body.trainer-workspace #table3DTools #table3DPlanControls button { width:100%; }
 #table3DBankAlternative[hidden] { display:none!important; }
-#table3DBankAlternative { border-left:0!important; border-radius:0; }
+#table3DBankAlternative { border-left:0!important; border-radius:0 9px 9px 0; }
+#table3DPlanControls:has(#table3DBankAlternative:not([hidden])) #table3DPlan { border-radius:9px 0 0 9px; }
 body.trainer-workspace :is(#table3DTools,#workspaceBallShelf) #table3DPlanControls:has(#table3DBankAlternative:not([hidden])) {
-  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-columns:repeat(2,minmax(0,1fr));
 }
 body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DTools.tray-actions-in-tools {
   display:grid;

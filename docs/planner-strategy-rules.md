@@ -7,6 +7,8 @@ The planner gives priority to legal, repeatable position and uses its configured
 | Rule | How the planner uses it |
 | --- | --- |
 | Start from the game's legal target | Rotation starts with the lowest live number. Group play starts with the assigned suit, then the 8. Open-table patterns evaluate the group established by the first pot. |
+| Offer a first shot promptly | Verify up to three likely direct pots at a few speeds before searching full routes. Keep any verified shot usable while deeper analysis runs. If there is no quick pot, test a small set of direct safeties first. |
+| Bound planning time | Stop after four seconds for an explicit Plan request or 2.5 seconds for background work. Preserve verified results at the deadline. If no result is ready, return control and show that the search reached its time limit. |
 | Keep planning after the first pot | Carry every surviving ball's simulated resting position into the next shot. Prefer a completed route over a shorter branch. |
 | Work back from the money ball | Group play evaluates which remaining ball can leave the cue ball well for the 8. Rotation retains the legal order and compares pockets and approaches for that sequence. |
 | Leave a useful angle on the key ball | Favor a moderate cut around 20° when the cue ball still needs to travel. Prefer a near-straight finish when no leave is needed. Penalize cuts beyond 40° while retaining a recovery route when it is the available way to finish. |
@@ -18,14 +20,17 @@ The planner gives priority to legal, repeatable position and uses its configured
 | Leave an insurance shot | Reward a leave with several viable legal balls in group play. In rotation an alternate pocket can help, with the same legal object ball. |
 | Plan around groups of balls | Spot close object-ball pairs involving a ball needed in the current game. Include extra follow, draw, speed, and side-spin trials when clusters are present. |
 | Open trouble balls during a scoring shot | Reward a simulated pot that separates a surviving cluster, creates a pocket route, and leaves a workable next shot. Favor routes that also leave insurance. |
+| Clear a shared pocket while scoring in 8-ball | Identify the last blocker near a pocket used by remaining balls. Refine cue-ball routes that pass close to the blocker after a cushion, with up to 12 extra trials per planning step. Credit only a legal pot with a workable leave and a recorded contact that opens previously blocked lanes. Show the blocker, cushion count, and affected balls when applying the plan. |
+| Preserve a pocket blocker until it is useful to remove | Penalize a nonfinishing pot in 8-ball when it removes a sole pocket blocker and gives the opponent new lanes. Keep a verified finish available. |
 | Use a relay ball to open the next shot | For a trapped or rail-side next ball, probe scoring strokes whose post-contact cue path approaches the target or a nearby relay. Refine promising speed and spin. Chronological contacts can establish a chain such as cue ball → 9 → 2, or cue ball → scoring ball → 2. Give the chain credit when it improves access to the next legal ball. |
+| Use thin cuts to free a ball from a cushion | On a thin direct pot with a breakout target, also test firm center-ball routes with a wider aim window. Cap the extra search at 28 trials per planning step. Reward a recorded cushion-first nudge when it moves the ball into open cloth and improves the next pot from the simulated cue-ball leave. |
 | Bank the scoring ball while drawing into trouble | For a trapped or rail-side next ball, also try an ordinary one-cushion bank to a pocket with draw for the cue-ball route. Verify the scoring ball’s rail and pocket separately from the contact chain that opens the next shot. |
 | Use the scoring ball to open the next shot | Retain a kiss candidate off a clustered next ball even when the scoring ball has a direct pot available. Verify the intended hit, pot, pocket, and resulting leave in the simulator. |
 | Avoid making another cluster | Penalize unintended new tight pairs even when the same stroke frees a different pair. |
 | Preserve clear lanes | Check the cue-ball route to the ghost ball and the object-ball route toward the pocket. Carry any changes from collision into subsequent shots. |
 | Avoid contact with extra balls | Score extra collisions as a cost. A light nudge receives a smaller penalty if the cue ball still leaves a close, open shot. The planner keeps a verified route when contact is the way out. |
 | Control the pace | Sample different speeds and retest leading offensive strokes at ±5% speed. Penalize deterioration from the nominal leave as well as a difficult leave or missed pocket. |
-| Protect a scoring shot with a two-way leave | Probe either side of the aim on shortlisted strokes. Give a small ranking advantage when a legal miss leaves the opponent hooked, on an edge, or a long low-percentage shot. The made ball, position and speed checks still apply. Straight pool is excluded. |
+| Protect a scoring shot with a two-way leave | Probe either side of the aim on shortlisted strokes. In 8-ball, include faster and slower versions of the misses, check the called pocket on makes, and penalize scratches and losing the 8. On a legal miss, favor a hook, an edge, distance, or a leave that denies a useful pocket. |
 | Fine-tune the stroke into the finishing window | On a two-ball finish, compare extra forward routes and refine promising strokes in small speed, follow/draw, and sidespin steps. The planner respects any stroke controls the player locks. |
 | Prefer natural travel | Compare follow, draw, and left/right spin. Simpler settings, shorter paths, and fewer rails have a scoring advantage when they give comparable shape. |
 | Use a rail when it improves shape | A rail route can outrank a shorter path when it offers a better leave or better speed tolerance. |
@@ -46,11 +51,13 @@ The planner gives priority to legal, repeatable position and uses its configured
 | Defend against legal targets | In 9-ball evaluate visibility of the lowest ball. In 8-ball evaluate all balls of the opponent's group, or the 8 when their group is clear. On an open table use both groups. |
 | Hide the full ball and both edges | Sample center and edge contact lanes. Prefer a full hook, then an edge-only leave. Where the opponent can see the ball, require longer distance and low direct pot potential. |
 | Take away straightforward kicks | Prefer hooks with fewer geometrically clear one-cushion replies. This is a screening heuristic for the opponent's reply. |
-| Check the foul conditions | Require a legal first contact, every ball to stay in play, and a qualifying rail after contact on the attempted safety. Apply a conservative cushion check when a ball starts frozen to it. |
+| Control an opponent's pocket | In assigned-group 8-ball, target a placement into a threatening pocket lane or a cue-ball carom into the opponent's ball. Compare open lanes before and after. Verify that the opponent lacks a strong reply and that the same pocket denial survives aim and speed changes. |
+| Check the foul conditions | Require a legal first contact and a qualifying rail when nothing drops. An assigned-group 8-ball safety may remove an opposing ball legally if the resulting leave still protects against the reply. Reject a scratch or a pocketed 8 on a safety. |
 | Test an available one-cushion escape | If a direct-contact safety does not hold, try one-cushion kicks that hit a legal ball and leave a difficult return. |
 | Leave margin for execution | Verify the proposed safety at nominal aim and speed, then four combinations of aim error and ±5% speed. A recommendation requires all five shots to preserve a protective, legal leave. |
 | Keep control with the player | Show **Use Safety** when defense is favored. Applying it sets the controls. The player chooses when to shoot. |
 | Compare a deliberate foul as a last resort | When the offense stalls and neither a direct nor a kick safety holds, test nudges that tie up the opponent's legal target. Check pocket and early-9 lanes from sampled ball-in-hand placements. A foul that holds in all five tests is labeled **Use Foul**. With no other plan, **Review Foul** can identify a narrowly playable option and show its test count. A 9-ball player must check their consecutive foul count. |
+| Use the time before the break | Start the predicted post-break search after a short settle interval in 8-ball and 9-ball. Hold the work for unchanged inputs and reuse it during playback and on the actual layout when it matches. On a dry break the carried plan is available for manual review. |
 
 ## Professional rules for extending the search
 
@@ -58,9 +65,7 @@ These are part of the documented rule base. Each requires additional candidate g
 
 | Rule | Evidence the planner needs |
 | --- | --- |
-| Plan a two-way shot | Simulated makes preserve position, and realistic misses leave a difficult reply. Score the outcomes separately. |
-| Clear a pocket deliberately | Model an opponent's ball or an obstacle blocking a pocket, then compare routes that open the pocket without helping the opponent. |
-| Preserve a ball that controls a pocket in 8-ball | Measure which opponent balls can use that pocket before and after removal. Keep the blocker until the finish when its defensive value is high. |
+| Choose the safe side of a pocket miss | Adapt the aim-error probes to the two sides of the actual pocket jaws, then compare opponent pot, kick, and return-safety options from each resulting leave. |
 | Pick the suit with the easier finish on an open table | Compare complete group routes with adequate search time for both, including how the last ball connects to the 8. |
 | Move a trouble ball only as far as needed | Measure touch-speed tolerance, which pockets open, and whether a loose ball might roll into another cluster. |
 | Delay a breakout when surrounding traffic makes it risky | Identify the shot that clears the traffic while keeping both a breakout ball and an insurance ball available. |
@@ -80,7 +85,7 @@ These are part of the documented rule base. Each requires additional candidate g
 | Account for match state in 9-ball | Use the actual inning and foul count to evaluate a push-out, two-foul pressure, and a stronger three-foul safety. |
 | Evaluate ball in hand as a separate decision | Choose a legal placement and score attack, breakout and safety from several candidate cue-ball positions. |
 | Expand the offensive search to rail-first and bank routes | Add banks, rail-first kisses, longer chains and combinations involving more than two object balls. Verify position and whether the miss leaves a safe reply. |
-| Account for declared safeties and game-specific pots | A called 8-ball safety may include a legal pot. A legal 9-ball pot ordinarily continues the inning. The current recommendation searches dry safeties. |
+| Track declared safeties and game-specific pots | A called 8-ball safety can legally pocket the shooter's own ball and end the inning. That option requires declared-safety state. A legal 9-ball pot ordinarily continues the inning. |
 | Adapt to the opponent | Compare offensive and defensive rack equity using measured potting, kicking and safety performance. Current **Use Safety** is a relative recommendation based on geometry and simulator tolerance. |
 
 ## Research
@@ -90,6 +95,8 @@ These are part of the documented rule base. Each requires additional candidate g
 - Dave Alciatore and Darren Appleton, choosing the useful side, entering the shape zone, and planning the angle on the ball before the finish. [Position play principles](https://drdavepoolinfo.com/resource_files/position_play_principles.pdf) · [Three-ball position drill](https://www.billiardsdigest.com/showinstruction.php?id=323)
 - Darren Appleton, working backward from the 8, keeping insurance, and choosing the defensive leave by the opponent's response. [Pattern play](https://www.billiardsdigest.com/showinstruction.php?id=132) · [Safety](https://www.billiardsdigest.com/showinstruction.php?id=325)
 - Dave Alciatore, two-way offense and defensive cover. [Safeties You Must Master](https://drdavepoolinfo.com/bd_articles/2020/sept20.pdf)
+- Dave Alciatore, caroming a blocker out of the pocket line, creating short-side shape, and setting up a later breakout against the 8. [Pocket Blockers](https://drdavepoolinfo.com/bd_articles/2015/nov15.pdf) · [End-Game Situations](https://drdavepoolinfo.com/bd_articles/2016/may16.pdf)
+- San Francisco Billiard Academy, keeping favorable pocket control and using caroms, thin hits, and direct contacts to remove opposing blockers. [Eight Ball Techniques](https://drdavepoolinfo.com/resource_files/eightball.pdf)
 - Dave Alciatore and Bob Jewett, defensive routes and ball-in-hand opportunities. [Safety strategy](https://drdavepoolinfo.com/faq/safety/strategy/) · [8-ball](https://drdavepoolinfo.com/faq/strategy/8-ball/) · [9-ball](https://drdavepoolinfo.com/faq/strategy/9-ball/)
 - Dave Alciatore and Bob Jewett, the intentional 9-ball foul that ties up the lowest ball and the reply with ball in hand. [Ball-in-hand options](https://drdavepoolinfo.com/bd_articles/2018/may18.pdf)
 - Dave Alciatore, reference directions and changes with speed. [Cue-ball lines](https://drdavepoolinfo.com/faq/cue-ball-control/lines/) · [Speed effects](https://drdavepoolinfo.com/faq/cue-ball-control/speed/)

@@ -38,8 +38,57 @@
   const dx=eye[0]-target[0],dy=eye[1]-target[1],dz=eye[2]-target[2],radius=Math.hypot(dx,dy,dz);
   return {eye,target,azimuth:Math.atan2(dx,dz),radius,elevation:Math.asin(dy/radius)};
  }
- function create(T,scene,renderer,redraw){
+ function shadowProjection(tip,butt,light){
+  const slopeX=light[0]/light[1],slopeZ=light[2]/light[1];
+  const start=[tip[0]-tip[1]*slopeX,tip[2]-tip[1]*slopeZ];
+  const x=butt[0]-butt[1]*slopeX-start[0],z=butt[2]-butt[1]*slopeZ-start[1];
+  const length=Math.hypot(x,z);
+  if(length<.0001)return null;
+  const axis=[x/length,z/length];
+  return {start,axis,length,widthScale:Math.hypot(1,axis[1]*slopeX-axis[0]*slopeZ)};
+ }
+ function clothShadow(T,material,light){
+  const uniforms={
+   cueShadowStart:{value:new T.Vector2()},cueShadowAxis:{value:new T.Vector2(1,0)},
+   cueShadowLength:{value:1},cueShadowWidth:{value:1},cueShadowFade:{value:0}
+  };
+  material.onBeforeCompile=shader=>{
+   Object.assign(shader.uniforms,uniforms);
+   shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying vec2 vCueCloth;')
+    .replace('#include <begin_vertex>','#include <begin_vertex>\nvCueCloth = (modelMatrix * vec4(transformed, 1.0)).xz;');
+   shader.fragmentShader=shader.fragmentShader.replace('#include <common>',`#include <common>
+    varying vec2 vCueCloth;
+    uniform vec2 cueShadowStart, cueShadowAxis;
+    uniform float cueShadowLength, cueShadowWidth, cueShadowFade;`)
+    .replace('#include <opaque_fragment>',`
+    if (cueShadowFade > 0.0) {
+     vec2 offset = vCueCloth - cueShadowStart;
+     float along = dot(offset, cueShadowAxis);
+     float progress = clamp(along / cueShadowLength, 0.0, 1.0);
+     float across = dot(offset, vec2(-cueShadowAxis.y, cueShadowAxis.x));
+     float beyond = along - progress * cueShadowLength;
+     float distanceToAxis = length(vec2(across, beyond));
+     float radius = cueShadowWidth * mix(${TIP_RADIUS}, ${BUTT_RADIUS}, smoothstep(.22, .97, progress));
+     float feather = max(.003, fwidth(distanceToAxis));
+     float shade = 1.0 - smoothstep(max(0.0, radius - feather), radius + feather, distanceToAxis);
+     outgoingLight *= 1.0 - .44 * cueShadowFade * shade;
+    }
+    #include <opaque_fragment>`);
+  };
+  return (tip,butt,opacity)=>{
+   const projection=opacity>0?shadowProjection(tip,butt,light):null;
+   uniforms.cueShadowFade.value=projection?opacity:0;
+   if(!projection)return;
+   uniforms.cueShadowStart.value.fromArray(projection.start);
+   uniforms.cueShadowAxis.value.fromArray(projection.axis);
+   uniforms.cueShadowLength.value=projection.length;
+   uniforms.cueShadowWidth.value=projection.widthScale;
+  };
+ }
+ function create(T,scene,renderer,redraw,surfaceMaterial,light){
   const group=new T.Group();scene.add(group);let current=null,ready=false;
+  // Shade actual cloth fragments, so the cue shadow stops at pocket openings.
+  const updateShadow=clothShadow(T,surfaceMaterial,light.position.toArray()),butt=new T.Vector3();
   const source=document.createElement('canvas'),sourceCtx=source.getContext('2d',{willReadFrequently:true});
   const picture=new Image();picture.onload=()=>{source.width=picture.width;source.height=picture.height;sourceCtx.drawImage(picture,0,0);makeReferenceMap();ready=true;redraw();};picture.src='./icons/approved-full-cue.png';
   const reference=document.createElement('canvas');reference.width=128;reference.height=2048;
@@ -69,7 +118,7 @@
    const vertices=[],uv=[],indices=[],segments=48;
    profile.forEach(([y,r],row)=>{for(let i=0;i<=segments;i++){const angle=i/segments*Math.PI*2;vertices.push(r*Math.sin(angle),y,r*Math.cos(angle));uv.push(i/segments,1-y/LENGTH);if(row&&i<segments){const a=(row-1)*(segments+1)+i,b=a+1,c=row*(segments+1)+i,d=c+1;indices.push(a,b,d,a,d,c);}}});
    const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(vertices,3));g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));g.setIndex(indices);g.computeVertexNormals();
-   const mesh=new T.Mesh(g,material);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.cuePart=kind;parts.push(mesh);group.add(mesh);
+   const mesh=new T.Mesh(g,material);mesh.receiveShadow=true;mesh.userData.cuePart=kind;parts.push(mesh);group.add(mesh);
   }
   part([[0,0],[.0006,.0038],[.002,.0059],[.003,.006375],[.006,.006375]],leather,'tip');
   part([[.006,TIP_RADIUS],[.025,TIP_RADIUS]],ferrule,'ferrule');
@@ -84,6 +133,7 @@
     const data=f.cuePose,p=pose(data,f.cueStrokeTime,f.balls.find(b=>b.id===data?.id));current=p;group.visible=!!(f.showRealCue&&p?.visible);
     const now=performance.now(),dt=Math.min(.08,Math.max(0,(now-updatedAt)/1000));updatedAt=now;
     if(group.visible&&!wasVisible){enteredAt=now;shown=0;}wasVisible=group.visible;
+    if(!group.visible)updateShadow(null,null,0);
     if(!p)return false;
     const entering=group.visible&&!Number.isFinite(f.cueStrokeTime)&&!root.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     const progress=entering?Math.min(1,(performance.now()-enteredAt)/2400):1;
@@ -97,11 +147,15 @@
     for(const material of new Set(parts.map(part=>part.material))){material.transparent=ease<1;material.opacity=ease;}
     group.position.set(p.tip[0]-f.L/2+p.back[0]*withdraw,p.tip[1]+p.back[1]*withdraw+(1-ease)*.16,p.tip[2]-f.W/2+p.back[2]*withdraw);group.quaternion.setFromUnitVectors(up,direction.fromArray(p.back));
     group.rotateZ((1-ease)*.10);
+    if(group.visible){
+     butt.set(0,LENGTH,0).applyQuaternion(group.quaternion).add(group.position);
+     updateShadow(group.position.toArray(),butt.toArray(),ease);
+    }
     return group.visible&&(progress<1||approach<1||Math.abs(shown-desired)>.001);
    },
    status(){return current?{...current,visible:group.visible,presentation:{opacity:parts[0].material.opacity,tip:group.position.toArray()},finish,referenceReady:ready,reference:'icons/approved-full-cue.png'}:null;}
   };
  }
- const api={METERS_PER_INCH,EYE_HEIGHT_INCHES,clampEyeHeight,LENGTH,TIP_RADIUS,BUTT_RADIUS,PRE_ROLL,pose,advanceTime,playerCamera,create,setFinish,getFinish:()=>finish};
+ const api={METERS_PER_INCH,EYE_HEIGHT_INCHES,clampEyeHeight,LENGTH,TIP_RADIUS,BUTT_RADIUS,PRE_ROLL,pose,advanceTime,playerCamera,shadowProjection,create,setFinish,getFinish:()=>finish};
  if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsCue3D=api;
 })(typeof window==='object'?window:globalThis);

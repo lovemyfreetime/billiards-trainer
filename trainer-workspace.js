@@ -123,7 +123,7 @@
       if(control?.parentElement!==shelf||!control.getClientRects().length)continue;
       left=Math.max(left,(control.getBoundingClientRect().right-frame.left)/scale+6);
     }
-    const plan=byId('table3DPlanControls'),planWidth=plan?.parentElement===shelf?plan.offsetWidth+6:0;
+    const plan=byId('table3DPlanControls'),planWidth=plan?.parentElement===shelf&&!plan.hidden?plan.offsetWidth+6:0;
     const right=shelf.clientWidth-8-planWidth,available=Math.max(100,right-left);
     const columns=available>=16*26+15*4?16:8;
     const separate=available<8*26+7*4;
