@@ -45,8 +45,8 @@ function create(cue,radius,gravity=9.81,reference={}){
   points.push({x:ball.x,y:ball.y,t,percent,feel:feel(percent),kind});
  }
  record(cue,'start',0);
+ const snapshot=ball=>{const percent=initial>1e-12?100*energy(ball,radius,gravity)/initial:0;return {id:ball.id,name:ball.id===0?'CB':String(ball.n||ball.id),x:ball.x,y:ball.y,percent,feel:feel(percent)};};
  function contact(a,b,t){
-  const snapshot=ball=>{const percent=initial>1e-12?100*energy(ball,radius,gravity)/initial:0;return {id:ball.id,name:ball.id===0?'CB':String(ball.n||ball.id),x:ball.x,y:ball.y,percent,feel:feel(percent)};};
   const before=[snapshot(a),snapshot(b)];
   const vx=a.vx-b.vx,vy=a.vy-b.vy,speed=Math.hypot(vx,vy);
   const lateral=speed?Math.abs(vx*(b.y-a.y)-vy*(b.x-a.x))/speed:0;
@@ -58,7 +58,30 @@ function create(cue,radius,gravity=9.81,reference={}){
    contacts.push({t,before,after,incoming,loss:incoming-after[0].percent-after[1].percent,overlap,x:(a.x+b.x)/2,y:(a.y+b.y)/2});
   };
  }
- return {paths,contacts,initial,strokeFeel,record,contact};
+ // A frozen rack or split has one before/after energy balance per connected
+ // group. Pair balances would count the common ball more than once.
+ function contactGroup(hits,t){
+  const pending=new Set(hits);
+  while(pending.size){
+   const seed=pending.values().next().value,group=new Set([seed.a]),beforeByBall=new Map();
+   let changed;
+   do{
+    changed=false;
+    for(const c of pending)if(group.has(c.a)||group.has(c.b)){
+     pending.delete(c);group.add(c.a);group.add(c.b);
+     beforeByBall.set(c.a,c.beforeA);beforeByBall.set(c.b,c.beforeB);changed=true;
+    }
+   }while(changed);
+   if(group.size===2){contact(seed.beforeA,seed.beforeB,t)(seed.a,seed.b);continue;}
+   const members=[...group].sort((a,b)=>a.id-b.id);
+   const before=members.map(b=>snapshot(beforeByBall.get(b))),after=members.map(snapshot);
+   for(const b of members){record(beforeByBall.get(b),'before',t);record(b,'after',t);}
+   const total=states=>states.reduce((sum,b)=>sum+b.percent,0),incoming=total(before);
+   contacts.push({group:true,t,before,after,incoming,loss:incoming-total(after),
+    x:members.reduce((sum,b)=>sum+b.x,0)/members.length,y:members.reduce((sum,b)=>sum+b.y,0)/members.length});
+  }
+ }
+ return {paths,contacts,initial,strokeFeel,record,contact,contactGroup};
 }
 function format(value){return value>0&&value<.05?'<0.1':Number(Math.max(0,value).toFixed(1)).toString();}
 function exchange(event){
@@ -93,6 +116,12 @@ function placeBadge(rows,anchor,options={}){
 function contactLabels(preview,map,options={}){
  const result=[];
  for(const event of preview?.budgetContacts||[]){
+  if(event.group){
+   const loss=format(event.loss)+'%';
+   const rows=[{text:event.before.length+'-ball contact · '+loss+' lost',color:'#f0f4ed'}];
+   const card=placeBadge(rows,map(event),options);if(card)result.push({...card,event});
+   continue;
+  }
   const {target,received}=exchange(event);
   if(received<=.005)continue;
   const text=format(received)+'%'+(Number.isFinite(preview.strokeFeel)?' · '+format(preview.strokeFeel*received/100)+'D':'');
@@ -157,7 +186,9 @@ function drawContacts(ctx,cards){
 }
 function labels(preview,map,options={}){
  const result=[],occupied=options.occupied||[],width=options.width||Infinity,height=options.height||Infinity;
- const number=value=>format(value),fontSize=width<600?9:11;
+ const compact=width<600||height<350, fontSize=compact?9:11;
+ const offsets=compact?[14,26,42,58,74,90]:[14,26,42];
+ const number=value=>format(value);
  for(const [id,samples] of Object.entries(preview?.budgetPaths||{})){
   const raw=preview.paths?.[id];if(!raw||raw.length<2||!samples.length)continue;
   const path=raw.map(p=>({...map(p),t:p.t,s:0}));
@@ -214,7 +245,7 @@ function labels(preview,map,options={}){
    // Keep both units in one reading, including where the path has plenty of room.
    for(const shift of candidate.start||candidate.end?[0,-24,24,-48,48]:[0]){
     const distance=candidate.s+shift;if(distance<8||distance>length-8)continue;
-    item=place(distance,text,color,'energy',[1,-1],[14,26,42],{runs,percent:candidate.percent,feel:candidate.feel,strokeFeel:preview.strokeFeel,endpoint:!!candidate.end});
+    item=place(distance,text,color,'energy',[1,-1],offsets,{runs,percent:candidate.percent,feel:candidate.feel,strokeFeel:preview.strokeFeel,endpoint:!!candidate.end});
     if(item)break;
    }
    if(item)used.push(candidate.s);

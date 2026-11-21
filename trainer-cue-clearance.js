@@ -19,10 +19,26 @@
  function verticalInside(p,triangles){let low=Infinity,high=-Infinity;for(const [a,b,c]of triangles){const den=(b[2]-c[2])*(a[0]-c[0])+(c[0]-b[0])*(a[2]-c[2]);if(Math.abs(den)<1e-15)continue;const u=((b[2]-c[2])*(p[0]-c[0])+(c[0]-b[0])*(p[2]-c[2]))/den,v=((c[2]-a[2])*(p[0]-c[0])+(a[0]-c[0])*(p[2]-c[2]))/den;if(u>=0&&v>=0&&u+v<=1){const h=u*a[1]+v*b[1]+(1-u-v)*c[1];low=Math.min(low,h);high=Math.max(high,h);}}return p[1]>low&&p[1]<high;}
  function triangulate(profile){const ids=profile.map((_,i)=>i),out=[],turn=(a,b,c)=>(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]),area=profile.reduce((n,a,i)=>{const b=profile[(i+1)%profile.length];return n+a[0]*b[1]-b[0]*a[1];},0),sign=Math.sign(area);while(ids.length>3){let cut=false;for(let j=0;j<ids.length;j++){const a=ids[(j+ids.length-1)%ids.length],b=ids[j],c=ids[(j+1)%ids.length];if(turn(profile[a],profile[b],profile[c])*sign<=1e-15)continue;if(ids.some(k=>k!==a&&k!==b&&k!==c&&[turn(profile[a],profile[b],profile[k]),turn(profile[b],profile[c],profile[k]),turn(profile[c],profile[a],profile[k])].every(v=>v*sign>=-1e-15)))continue;out.push([a,b,c]);ids.splice(j,1);cut=true;break;}if(!cut)throw Error('Invalid cushion profile');}out.push(ids);return out;}
  let cached=null,cachedKey='',solves=0;
- function geometry(f){const key=[f.L,f.W,f.R].join('/');if(key===cachedKey)return cached;const p=construction.plan(f),objects=[];
+ function geometry(f){const key=JSON.stringify([f.L,f.W,f.R,f.G]);if(key===cachedKey)return cached;const p=construction.plan(f),objects=[];
   const mesh=(material,triangles)=>{const lower=ALLOWANCE[material],shift=v=>[v[0],v[1]-lower,v[2]],soft=triangles.map(t=>t.map(shift));objects.push({material,triangles:soft,original:triangles,bounds:box(soft.flat()),boxes:soft.map(box)});};
-  for(const r of p.rails){const rows=[0,1].map(end=>p.profile.map(([v,h])=>r.at(end,v*r.depth,h))),tri=[];for(let i=0;i<p.profile.length;i++){const j=(i+1)%p.profile.length;tri.push([rows[0][i],rows[1][i],rows[1][j]],[rows[0][i],rows[1][j],rows[0][j]]);} // The lower nose profile is concave; triangulate exactly as the rendered cap.
-   for(const row of rows)for(const face of triangulate(p.profile))tri.push(face.map(i=>row[i]));mesh('cushion',tri);
+  const endFaces=triangulate(p.profile);
+  function cushion(rows){
+   const triangles=[];
+   for(let k=1;k<rows.length;k++){
+    const a=rows[k-1],b=rows[k];
+    for(let i=0;i<a.length;i++){
+     const j=(i+1)%a.length;
+     triangles.push([a[i],b[i],b[j]],[a[i],b[j],a[j]]);
+    }
+   }
+   for(const row of [rows[0],rows.at(-1)])for(const face of endFaces)triangles.push(face.map(i=>row[i]));
+   mesh('cushion',triangles);
+  }
+  for(const rail of p.rails)cushion([0,1].map(end=>p.profile.map(([t,h])=>rail.at(end,t*rail.depth,h))));
+  for(const jaw of construction.roundedJaws(p.G)){
+   const rows=construction.jawSections(jaw,p).map(({nose,back})=>p.profile.map(([t,h])=>
+    [nose[0]+t*(back[0]-nose[0]),h,nose[2]+t*(back[2]-nose[2])]));
+   cushion(rows);
   }
   for(const pocket of p.pockets)for(let i=0;i<pocket.backPath.length-1;i++){
    const inner=j=>{const path=pocket.innerBackPath,v=path[j],a=path[Math.max(0,j-1)],b=path[Math.min(path.length-1,j+1)],dx=b[0]-a[0],dz=b[2]-a[2],len=Math.hypot(dx,dz)||1;return [v[0]-dz/len*p.linerInset,p.capHeight+.0006,v[2]+dx/len*p.linerInset];};
@@ -85,7 +101,7 @@
  function obstruction(data,g,backstroke=.13,follow=0,balls=[]){const centered={...data,x:data.x-g.plan.L/2,y:data.y-g.plan.W/2},segments=envelope(centered,backstroke,follow),whole=box(segments.flatMap(s=>[s.a,s.b])),candidates=g.objects.filter(o=>near(whole,o.bounds,.017));for(const seg of segments){const hard=hardCollision(seg,g);if(hard)return {material:hard};for(const o of candidates){if(!near(seg.bounds,o.bounds,seg.r))continue;for(let i=0;i<o.triangles.length;i++)if(near(seg.bounds,o.boxes[i],seg.r)&&segmentTriangle(seg.a,seg.b,o.triangles[i])<seg.r*seg.r)return {material:o.material};if(verticalInside(seg.a,o.triangles))return {material:o.material};}for(const b of balls)if(b.active!==false&&b.id!==data.id&&b.id!=='CB2'&&pointSegment([b.x-g.plan.L/2,b.z||data.R,b.y-g.plan.W/2],seg.a,seg.b)<(seg.r+data.R)**2)return {material:'ball',id:b.id};}return null;}
  function strokeSettings(speed=1.5,style='auto',hold=2){const scale={auto:1,short:.65,normal:1,long:1.3}[style]||1,power=clamp(speed/4,0,1);return {backstroke:clamp((.075+.09*power)*scale,.04,.22),followThrough:clamp((.055+.09*power)*scale,.025,.19),finishHold:clamp(+hold||0,.5,4),followTime:.18,withdrawTime:.24,style};}
  const results=new Map();
- function solve(data,f,settings={},balls=[]){const g=geometry(f),stroke=strokeSettings(settings.speed,settings.style,settings.hold),key=JSON.stringify([data,f.L,f.W,f.R,stroke,balls.filter(b=>b.active!==false&&b.id!==data.id).map(b=>[b.id,b.x,b.y,b.z])]);if(results.has(key))return results.get(key);solves++;
+ function solve(data,f,settings={},balls=[]){const g=geometry(f),stroke=strokeSettings(settings.speed,settings.style,settings.hold),key=JSON.stringify([data,cachedKey,stroke,balls.filter(b=>b.active!==false&&b.id!==data.id).map(b=>[b.id,b.x,b.y,b.z])]);if(results.has(key))return results.get(key);solves++;
   const preferred=clamp(data.elevation||0,0,70);
   const verticalLimit=Math.sqrt(Math.max(0,.25-data.sideR**2));
   function poseAt(elevation) {

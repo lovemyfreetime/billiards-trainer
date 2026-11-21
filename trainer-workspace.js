@@ -148,7 +148,7 @@
     } else window.billiardsZenControls?.place(id, event?.clientX, event?.clientY);
     sync();
   }
-  const buttons = Array.from({length: 16}, (_, id) => {
+  const buttons = Array.from({length: 24}, (_, id) => {
     const button = document.createElement('button'); button.type = 'button'; button.dataset.ballId = id;
     button.className = 'workspaceBall' + (id > 8 ? ' stripe' : '');
     button.style.setProperty('--ball-color', colors[id > 8 ? id - 8 : id]);
@@ -210,15 +210,22 @@
   window.addEventListener('blur', clearTableDrag);
   function sync() {
     const data = window.billiards3DBallControls?.status(); if (!data) return;
+    const set=data.ballSet||'classic', art=window.BilliardsInternational, maxId=art.maxId(set);
     for (const button of buttons) {
       const id = Number(button.dataset.ballId), present = data.balls.includes(id), pocketed = data.pocketed.includes(id);
-      button.disabled = data.busy || present&&id!==0;
+      button.hidden=id>maxId;
+      button.disabled = button.hidden || data.busy || present&&id!==0;
+      const design=art.ball(set,id);
+      if(!button.hidden&&button.dataset.set!==set){
+        button.style.setProperty('--ball-art','url("'+window.BilliardsBallArt.url(id,set)+'")');
+        button.dataset.set=set;
+      }
       button.classList.toggle('on-table', present); button.classList.toggle('pocketed', pocketed);
-      const label = (id ? 'Ball ' + id : 'Cue ball') + (present ? (id===0?' on table. Drag to reposition':' on table') : pocketed ? ' pocketed. Tap or drag to return' : '. Tap or drag to add');
+      const label = (design?.name||(id ? 'Ball ' + id : 'Cue ball')) + (present ? (id===0?' on table. Drag to reposition':' on table') : pocketed ? ' pocketed. Tap or drag to return' : '. Tap or drag to add');
       button.setAttribute('aria-label', label); button.title = label;
     }
     count.textContent = data.pocketed.length ? data.pocketed.length + ' pocketed' : '';
-    count.title=count.textContent;trayToggle.title=count.textContent||'All 16 balls';
+    count.title=count.textContent;trayToggle.title=count.textContent||'Ball tray';
     queueTrayLayout();
     clear.disabled = data.busy;
     trayToggle.setAttribute('aria-label', document.body.classList.contains('phone-tray-hidden') ? 'Show ball tray' : 'Hide ball tray');

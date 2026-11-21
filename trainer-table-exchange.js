@@ -6,8 +6,8 @@ const KEY='billiardsSharedTableV1';
 function create(storage,files){
  const copy=value=>JSON.parse(JSON.stringify(value));
  function pack(state){
-  const layout=files.parse(JSON.stringify({layout:{name:state.lastLayoutName||'Shared table',tableL:state.tableL,tableW:state.tableW,ballR:state.ballR,balls:state.balls.filter(b=>b.active!==false),freeAim:state.freeAim,setupMode:state.setupMode}})).layout;
-  const shot={speed:Number(state.speed),follow:Number(state.follow),sideSpin:Number(state.sideSpin),pocketedLog:Array.isArray(state.pocketedLog)?state.pocketedLog.filter(id=>Number.isInteger(id)&&id>=0&&id<=15):[]};
+  const layout=files.parse(JSON.stringify({layout:{name:state.lastLayoutName||'Shared table',tableL:state.tableL,tableW:state.tableW,ballR:state.ballR,balls:state.balls.filter(b=>b.active!==false),freeAim:state.freeAim,setupMode:state.setupMode,...(state.tableType&&state.tableType!=='pool'?{tableType:state.tableType,clothNap:state.clothNap,muRoll:state.muRoll,muSlide:state.muSlide}:{}),...(state.ballSet&&state.ballSet!=='classic'?{ballSet:state.ballSet}:{})}})).layout;
+  const shot={speed:Number(state.speed),follow:Number(state.follow),sideSpin:Number(state.sideSpin),pocketedLog:Array.isArray(state.pocketedLog)?state.pocketedLog.filter(id=>Number.isInteger(id)&&id>=0&&id<=(root.BilliardsInternational?.maxId(state.ballSet)||15)):[]};
   if(!Number.isFinite(shot.speed)||!Number.isFinite(shot.follow)||!Number.isFinite(shot.sideSpin))throw Error('Invalid shared shot settings');
   shot.speed=Math.max(0,Math.min(7,shot.speed));shot.follow=Math.max(-1,Math.min(1,shot.follow));shot.sideSpin=Math.max(-1,Math.min(1,shot.sideSpin));
   return {layout,shot};
@@ -16,7 +16,7 @@ function create(storage,files){
  function read(){try{const raw=JSON.parse(storage.getItem(KEY)||'null');if(raw?.version!==1)return null;const checked=pack({...raw.layout,...raw.shot,lastLayoutName:raw.layout?.name});return {...checked,version:1,source:String(raw.source||'table')};}catch(_){return null;}}
  function apply(state,payload=read()){
   if(!payload)return state;
-  const d=payload.layout;return {...state,tableL:d.tableL,tableW:d.tableW,ballR:d.ballR,balls:copy(d.balls),freeAim:copy(d.freeAim||{x:d.tableL*.75,y:d.tableW*.5}),setupMode:d.setupMode,allowMissingCueBall:!d.balls.some(b=>b.id===0),lastLayoutName:d.name,...copy(payload.shot),preview:null};
+  const d=payload.layout;return {...state,tableL:d.tableL,tableW:d.tableW,ballR:d.ballR,tableType:d.tableType||'pool',ballSet:d.ballSet||'classic',clothNap:d.clothNap||0,...(d.muRoll===undefined?{}:{muRoll:d.muRoll}),...(d.muSlide===undefined?{}:{muSlide:d.muSlide}),balls:copy(d.balls),freeAim:copy(d.freeAim||{x:d.tableL*.75,y:d.tableW*.5}),setupMode:d.setupMode,allowMissingCueBall:!d.balls.some(b=>b.id===0),lastLayoutName:d.name,...copy(payload.shot),preview:null};
  }
  return {publish,read,apply,key:KEY};
 }

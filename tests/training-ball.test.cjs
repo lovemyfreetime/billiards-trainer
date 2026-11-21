@@ -17,7 +17,8 @@ assert.equal(M.motion({...ball,wy:1/R,wz:10},R),'Natural roll + side spin');
 // Run the real fixed-step physics with the orientation module installed.
 const html=fs.readFileSync('index.html','utf8');
 function extract(name){let a=html.indexOf('    function '+name+'(');if(a<0)a=html.indexOf('    function* '+name+'(');assert(a>=0,name);const begin=html.indexOf('{',html.indexOf(')',a));let depth=0;for(let i=begin;i<html.length;i++){if(html[i]==='{')depth++;if(html[i]==='}'&&--depth===0)return html.slice(a,i+1);}throw Error(name);}
-const c={Math,Map,Set,window:{BilliardsTrainingBall:M}};vm.createContext(c);
+// This fixture prescribes the cue strike. Rail and cue clearance are tested separately.
+const c={Math,Map,Set,cuePoseFor3D:()=>null,cueStrokePreferences:{style:"auto",hold:2},window:{BilliardsBallContacts:require('../trainer-ball-contacts'),BilliardsInternational:require('../trainer-international'),BilliardsTableConstruction:require('../trainer-table-construction'),BilliardsCueClearance:require('../trainer-cue-clearance'),BilliardsTrainingBall:M}};vm.createContext(c);
 vm.runInContext(html.slice(html.indexOf('    const APK ='),html.indexOf('    const ORIGINAL_TABLE_ASSET =')),c);
 for(const name of ['defaultState','simulate'])vm.runInContext(extract(name),c);
 function solve(frames){for(let i=0;i<100;i++)try{return c.simulate(frames);}catch(e){const missing=/^(\w+) is not defined$/.exec(e.message);if(!missing)throw e;vm.runInContext(extract(missing[1]),c);}throw Error('Dependencies unresolved');}
@@ -56,7 +57,7 @@ assert.deepEqual(Layout.settings(saved,defaults).shot2.orientation,saved.shot2.o
 // Rendering and recording clocks must sample the same simulated timeline.
 let queued=[],recorded=[],commits=0;
 const frames=Array.from({length:601},(_,i)=>[{id:0,t:i/600,x:i/600,y:0,z:R,vx:1,vy:0,vz:0,wx:0,wy:0,wz:0,active:true,orientation:identity}]);
-const p={window:{BilliardsTrainingBall:M},S:{shotPlaybackSpeed:1},performance:{now:()=>0},requestAnimationFrame:f=>queued.push(f),cancelAnimationFrame:()=>{queued=[];},animation:null,syncHistoryButtons(){},draw(){},cueTipsFor3D:()=>[],commitAnimatedShot(){commits++;p.animation=null;},updateUI(){},saveState(){},refreshPreview(){},cleanSnapshot(){return JSON.parse(JSON.stringify(p.S));}};
+const p={planDuringPlayback(){},cuePoseFor3D:()=>null,window:{BilliardsTrainingBall:M},S:{shotPlaybackSpeed:1},performance:{now:()=>0},requestAnimationFrame:f=>queued.push(f),cancelAnimationFrame:()=>{queued=[];},animation:null,syncHistoryButtons(){},draw(){},cueTipsFor3D:()=>[],commitAnimatedShot(){commits++;p.animation=null;},updateUI(){},saveState(){},refreshPreview(){},cleanSnapshot(){return JSON.parse(JSON.stringify(p.S));}};
 vm.createContext(p);vm.runInContext(extract('startShotPlayback'),p);
 for(const speed of M.speeds){
  queued=[];recorded=[];p.S.shotPlaybackSpeed=speed;
@@ -78,11 +79,11 @@ for(let i=0;i<5;i++){
  p.S={shotPlaybackSpeed:.125,balls:[{id:0,x:.5,y:.6}]};const saved=JSON.parse(JSON.stringify(p.S));
  p.startShotPlayback({frames},saved,{paused:true});p.animation.sample(.5);
  assert(p.window.billiardsPlayback.stop());assert.equal(p.animation,null);assert.equal(queued.length,0);
- assert.equal(p.S.shotPlaybackSpeed,1);assert.equal(JSON.stringify(p.S.balls),JSON.stringify(saved.balls));
+ assert.equal(p.S.shotPlaybackSpeed,saved.shotPlaybackSpeed);assert.equal(JSON.stringify(p.S.balls),JSON.stringify(saved.balls));
 }
 const finalState={shotPlaybackSpeed:.5,balls:[{id:0,x:2,y:.7}]};p.S={shotPlaybackSpeed:.5};
 p.startShotPlayback({frames},{balls:[{id:0,x:.5,y:.6}]},{replay:true,restore:finalState,paused:true});
 p.window.billiardsPlayback.stop();assert.equal(JSON.stringify(p.S.balls),JSON.stringify(finalState.balls),'Closing replay restores the ending layout');
 assert.equal(commits,4,'Closing playback never commits a shot');
-console.log('No paused frame loop; five stop cycles restore layout and normal speed; replay restores final layout.');
+console.log('No paused frame loop; five stop cycles restore layout and saved playback speed; replay restores final layout.');
 console.log('Training patterns, quaternion direction, slide/stun/draw/roll, stop/cut-stun impacts, 600 Hz sampling, unchanged physics, pause and all four recording speeds passed.');

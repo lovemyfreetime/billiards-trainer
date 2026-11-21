@@ -1,8 +1,9 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const html=fs.readFileSync('index.html','utf8');
-function extract(name){const a=html.indexOf('    function '+name+'('),begin=html.indexOf('{',a);assert(a>=0,name);let depth=0;for(let i=begin;i<html.length;i++){if(html[i]==='{')depth++;if(html[i]==='}'&&--depth===0)return html.slice(a,i+1);}throw Error(name);}
+function extract(name){let a=html.indexOf('    function '+name+'(');if(a<0)a=html.indexOf('    function* '+name+'(');assert(a>=0,name);const begin=html.indexOf('{',html.indexOf(')',a));let depth=0;for(let i=begin;i<html.length;i++){if(html[i]==='{')depth++;if(html[i]==='}'&&--depth===0)return html.slice(a,i+1);}throw Error(name);}
 const budget=require('../trainer-shot-budget.js');
-const c={Math,Map,Set,shotBudgetFeelCache:null,window:{BilliardsShotBudget:budget}};vm.createContext(c);
+// This fixture prescribes the cue strike. Rail and cue clearance are tested separately.
+const c={Math,Map,Set,cuePoseFor3D:()=>null,cueStrokePreferences:{style:"auto",hold:2},shotBudgetFeelCache:null,window:{BilliardsBallContacts:require('../trainer-ball-contacts'),BilliardsInternational:require('../trainer-international'),BilliardsTableConstruction:require('../trainer-table-construction'),BilliardsCueClearance:require('../trainer-cue-clearance'),BilliardsShotBudget:budget}};vm.createContext(c);
 vm.runInContext(html.slice(html.indexOf('    const APK ='),html.indexOf('    const ORIGINAL_TABLE_ASSET =')),c);
 for(const name of ['defaultState','simulate'])vm.runInContext(extract(name),c);
 function solve(frames=false){
@@ -22,7 +23,7 @@ for(const [speed,angle,follow,side] of [[1,0,0,0],[2,.15,0,0],[3,1,-.7,.4],[4,-1
  assert.deepEqual(tracked.paths,plain.paths,'Existing path geometry and styling inputs stay identical');
  assert.deepEqual(tracked.firstBallContact,plain.firstBallContact);
  assert.equal(tracked.budgetPaths[0][0].percent,100);
- assert(tracked.initialEnergy>=.5*speed*speed);
+ assert(tracked.initialEnergy+1e-12>=.5*speed*speed);
  for(const points of Object.values(tracked.budgetPaths))for(const p of points)assert(Number.isFinite(p.percent)&&p.percent>=0);
  assert(tracked.budgetPaths[0].some(p=>p.kind==='before'));assert(tracked.budgetPaths[1].some(p=>p.kind==='after'));
  // The first transfer uses the same denominator for both balls.
@@ -134,3 +135,15 @@ const badge=budget.placeBadge([{text:'48% overlap'}],{x:200,y:200},space);assert
 assert(space.segments.every(([a,b])=>!budget.segmentIntersects(badge.box,a,b)),'Overlap badge clears crossing lines');
 assert(badge.box.right<170||badge.box.left>230||badge.box.bottom<170||badge.box.top>230,'Overlap clears ghost and object bounds');
 console.log('Compact transfer badges, tiny nonzero values, complete journey and line/ball collision avoidance pass.');
+
+setup(1.5,0);c.S.showShotBudget=true;c.S.cueElevationDeg=0;
+const radius=c.S.ballR;
+c.S.balls=[{id:0,n:'CB',x:.7,y:.635,active:true},...[-1,1].map((sign,i)=>({id:i+1,n:String(i+1),x:1,y:.635+sign*1.2*radius,active:true}))];
+c.S.freeAim={x:2,y:.635};
+const multi=solve(),group=multi.budgetContacts[0];
+assert(group.group);assert.deepEqual(Array.from(group.before,b=>b.id),[0,1,2]);
+assert(group.loss>=0 && group.loss<group.incoming);
+assert(Math.abs(group.incoming-group.after.reduce((sum,b)=>sum+b.percent,0)-group.loss)<1e-10);
+for(const id of [0,1,2])assert.equal(multi.budgetPaths[id].filter(p=>p.kind==='after'&&p.t===group.t).length,1);
+assert(budget.contactLabels(multi,map,{width:1200,height:700}).some(card=>card.rows[0].text.includes('3-ball contact')));
+console.log('Simultaneous split records one three-ball energy balance and one set of changes per ball.');

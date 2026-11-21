@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const html=fs.readFileSync('index.html','utf8');
 function extract(name){let a=html.indexOf('    function '+name+'(');if(a<0)a=html.indexOf('    function* '+name+'(');assert(a>=0,name);const begin=html.indexOf('{',html.indexOf(')',a));let depth=0;for(let i=begin;i<html.length;i++){if(html[i]==='{')depth++;if(html[i]==='}'&&--depth===0)return html.slice(a,i+1);}throw Error(name);}
-const c={Math,Map,Set,window:{}};vm.createContext(c);
+const c={Math,Map,Set,cueStrokePreferences:{style:"auto",hold:2},window:{BilliardsBallContacts:require('../trainer-ball-contacts'),BilliardsInternational:require('../trainer-international'),BilliardsTableConstruction:require('../trainer-table-construction'),BilliardsCueClearance:require('../trainer-cue-clearance'),}};vm.createContext(c);
 vm.runInContext(html.slice(html.indexOf('    const APK ='),html.indexOf('    const ORIGINAL_TABLE_ASSET =')),c);
 for(const n of ['defaultState','simulate'])vm.runInContext(extract(n),c);
 function solve(frames){for(let i=0;i<100;i++)try{return c.simulate(frames,null,true);}catch(e){const m=/^(\w+) is not defined$/.exec(e.message);if(!m)throw e;vm.runInContext(extract(m[1]),c);}throw Error('Dependencies unresolved');}

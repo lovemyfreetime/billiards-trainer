@@ -1645,7 +1645,13 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
       <div class="tableControlGroup layoutSetupGroup" id="fullRackGroup"><div class="tableControlTitle">PICK AND PLAY FULL RACKS</div>
         <div class="layoutSetupSelect"><select id="fullRackSelect" aria-label="Pick and play full rack">
           <option value="rack3">3-Ball — Original</option><option value="rack3-crosswise">3-Ball — Crosswise</option><option value="rack3-backwards">3-Ball — Backwards</option><option value="rack3-straight">3-Ball — Straight</option><option value="rack3-ll" title="Tight triangle, 3-ball left of the 1–2 line viewed from the breaker">3-Ball — Left</option><option value="rack3-lr" title="Tight triangle, 3-ball right of the 1–2 line viewed from the breaker">3-Ball — Right</option><option value="rack6">6-Ball</option><option value="rack7">7-Ball</option><option value="rack8" selected>8-Ball</option><option value="rack9">9-Ball</option><option value="rack10">10-Ball</option><option value="ultimate8">Ultimate 8 Ball</option><option value="straight14">Straight Pool — 14 Balls (Open Front)</option>
+          <optgroup label="International practice (experimental)">
+            <option value="carom3">Three-Cushion</option><option value="caromStraight">Straight Rail</option><option value="carom4">Four-Ball Carom</option>
+            <option value="snooker15">15-Red Snooker</option><option value="snookerPlus">Snooker Plus</option><option value="englishBilliards">English Billiards</option>
+            <option value="blackballRY">Blackball — Red / Yellow</option><option value="blackballBY">Blackball — Blue / Yellow</option><option value="pyramid15">Russian Pyramid</option>
+          </optgroup>
         </select></div>
+        <div class="row" id="poolBallSetRow"><label for="poolBallSet">Pool ball set</label><select id="poolBallSet"><option value="classic">Classic</option><option value="tv">Broadcast pink / tan</option><option value="black">Tournament Black</option></select></div>
         <div class="fullRackStart"><button id="startFullRack" type="button">Start</button></div>
       </div>
       <div class="tableControlGroup layoutSetupGroup"><div class="tableControlTitle">LAYOUT SETUP</div>
@@ -1990,8 +1996,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         </div>
         <div class="hint" id="physicsPresetStatus" role="status" aria-live="polite"></div>
         <div class="tableControlTitle">TABLE SIZE &amp; BALLS</div>
-        <div class="row"><label>Playing length (in)</label><input id="tableL" type="number" min="60" max="120" step="0.01"></div>
-        <div class="row"><label>Playing width (in)</label><input id="tableW" type="number" min="30" max="60" step="0.01"></div>
+        <div class="row"><label>Playing length (in)</label><input id="tableL" type="number" min="60" max="145" step="0.01"></div>
+        <div class="row"><label>Playing width (in)</label><input id="tableW" type="number" min="30" max="73" step="0.01"></div>
         <div class="row"><label>Ball diameter (in)</label><input id="ballD" type="number" min="1.5" max="3" step="0.001"></div>
         <div class="buttons"><button data-preset="7d">7' Diamond 80×40</button><button data-preset="7b">7' Bar 78×39</button><button data-preset="8">8' 88×44</button><button data-preset="9">9' 100×50</button></div>
       <button class="advancedToggle" type="button" data-advanced="physicsAdvanced">Advanced physics</button>
@@ -1999,6 +2005,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         <div class="tableControlTitle" style="margin-top:10px">PHYSICS SETTINGS</div>
 <div class="row"><label>Sliding friction μ</label><input id="muSlide" type="number" min="0" max="0.5" step="0.005"></div>
       <button id="applyMeasuredPhysics" type="button">Apply measured table settings</button><div class="row"><label>Rolling friction μ</label><input id="muRoll" type="number" min="0" max="0.1" step="0.001"></div>
+      <div class="row" id="clothNapRow" hidden><label for="clothNap">Directional rolling resistance (%)</label><input id="clothNap" type="number" min="0" max="50" step="0.5"></div>
       <div class="row"><label>Ball-ball friction μ</label><input id="muBall" type="number" min="0" max="0.2" step="0.001"></div>
       <div class="row"><label>Ball restitution</label><input id="ballRest" type="number" min="0.5" max="1" step="0.005"></div>
       <div class="row"><label>Rail rebound</label><input id="railRest" type="number" min="0.3" max="1" step="0.005"></div>
@@ -2114,9 +2121,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 </div>
 
 <link rel="stylesheet" href="./photo-calibration.css?v=focused-start-v17">
+<script src="./trainer-international.js?v=1"></script>
 <script src="./trainer-zen-shapes.js?v=1"></script>
-<script src="./trainer-table-construction.js?v=2"></script>
+<script src="./trainer-table-construction.js?v=3"></script>
 <script src="./trainer-cue-clearance.js?v=1"></script>
+<script src="./trainer-ball-contacts.js?v=1"></script>
 <script src="./bank-kick-routing.js?v=1"></script>
 <link rel="stylesheet" href="./photo-camera.css">
 <script src="./table-orbit.js"></script>
@@ -2124,9 +2133,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 <script src="./photo-calibration.js?v=walkthrough-v11"></script>
 <script src="./trainer-practice-tools.js?v=3"></script>
 <script src="./trainer-action-history.js?v=3"></script>
-<script src="./trainer-layout-files.js?v=2"></script>
+<script src="./trainer-layout-files.js?v=3"></script>
 <script src="./layout-sharing.js?v=2"></script>
-<script src="./trainer-table-exchange.js?v=1"></script>
+<script src="./trainer-table-exchange.js?v=2"></script>
 <script src="./trainer-saved-files.js?v=2"></script>
 <script src="./photo-ball-crops.js?v=1"></script>
 <script src="./photo-ball-evidence.js?v=1"></script>
@@ -2137,12 +2146,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 <script src="./photo-corner-sensing.js?v=1"></script>
 <script src="./photo-lighting.js?v=1"></script>
 <script src="./trainer-table-zoom.js?v=2"></script>
-<script src="./trainer-shot-budget.js?v=eighths"></script>
+<script src="./trainer-shot-budget.js?v=simultaneous-contacts"></script>
 <script src="./trainer-training-ball.js?v=1"></script>
-<script src="./trainer-ball-art.js?v=1"></script>
-<script src="./trainer-pocket-entry.js?v=1"></script>
+<script src="./trainer-ball-art.js?v=2"></script>
+<script src="./trainer-pocket-entry.js?v=2"></script>
 <script src="./trainer-aim-zones.js?v=8"></script>
-<script src="./trainer-shot-chance.js?v=1"></script>
+<script src="./trainer-shot-chance.js?v=2"></script>
 <script src="./trainer-pocket-feedback.js?v=1"></script>
 <script src="./trainer-route-options.js?v=1"></script>
 <script src="./trainer-guidance.js?v=predictive-leaves"></script>
@@ -2215,7 +2224,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         return left.length===right.length&&left.every(ball=>right.some(other=>other.id===ball.id&&Math.hypot(ball.x-other.x,ball.y-other.y)<.002));
     }
     function allowBackgroundPlan(state,carriedBreak=false){
-        return !isProjector&&!isZenPage&&state.guidanceEnabled&&!state.shot2Enabled&&
+        return (!state.tableType||state.tableType==='pool')&&!isProjector&&!isZenPage&&state.guidanceEnabled&&!state.shot2Enabled&&
             (!state.angleLock||carriedBreak||isForecastBreak(state))&&!state.bankKick?.mode&&!state.guidanceScratch;
     }
     function isForecastBreak(state){
@@ -2401,19 +2410,20 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const contact=cueSideContact(controls.sideSpin,controls.follow,controls.cueElevationDeg);
         const data={id:0,x:start.x,y:start.y,z:S.ballR,R:S.ballR,dx:d.x,dy:d.y,
             rear:contact.x,height:contact.z,sideR:contact.tip.sideR,elevation:controls.cueElevationDeg};
-        return window.BilliardsCueClearance.solve(data,{L:S.tableL,W:S.tableW,R:S.ballR},
+        return window.BilliardsCueClearance.solve(data,{L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel()},
             {...cueStrokePreferences,speed:controls.speed},S.preview.finalBalls);
     }
     function applyShotGuidance(committing=false){
         if(!guidancePending||animation&&!committing)return;
         guidancePending=false;
-        if(isZenPage||isProjector||!S.guidanceEnabled||S.shot2Enabled||S.angleLock||S.bankKick?.mode||S.guidanceScratch)return;
+        if(S.tableType!=='pool'||isZenPage||isProjector||!S.guidanceEnabled||S.shot2Enabled||S.angleLock||S.bankKick?.mode||S.guidanceScratch)return;
         const plan=window.BilliardsGuidance.suggest({...S,guidanceBreak:isUnplayedRack(),pocketGeometry:pocketModel()});plan.heldAim={...S.freeAim};S.guidancePlan=plan;
         if(plan.aim){S.freeAim={...plan.aim};S.ghostLock=null;S.autoGhostLock=false;}
     }
     function syncGuidanceControls(){
         const toggle=$('shotGuidance');if(!toggle)return;
-        toggle.checked=!!S.guidanceEnabled;
+        toggle.disabled=S.tableType!=='pool';
+        toggle.checked=!toggle.disabled&&!!S.guidanceEnabled;
         $('showPocketChances').checked=S.showPocketChances!==false;
         for(const id of ['planSpeed','planFollow','planSpin']) $(id).checked=S[id]!==false;
         $('showPocketGhost').checked=S.showPocketGhost!==false;$('showPocketGlow').checked=S.showPocketGlow!==false;
@@ -2424,7 +2434,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         $('guidanceGroupRow').hidden=!S.guidanceEnabled||S.setupMode!=='8ball';
         $('guidanceGroup').value=S.guidanceGroups?.[S.activePlayer||1]||'open';
         const plan=S.guidancePlan;
-        const text=!S.guidanceEnabled?'':S.guidanceScratch?'Place the cue ball to resume guidance.':S.shot2Enabled?'Your Shot 2 plan takes priority.':!plan?'Aim and stroke adjustments stay under your control.':plan.kind==='complete'?(S.pocketedLog?.length?'Run complete':'Table clear'):plan.kind==='placement'?'Place the cue ball':plan.kind==='blocked'?'Ball '+plan.ballId+' blocked — choose a kick or safety':plan.kind==='break'?'Break setup':plan.kind==='contact'?'Ball '+plan.ballId+' — contact route; no direct pocket route found':'Ball '+plan.ballId+' to '+plan.pocket;
+        const text=toggle.disabled||!S.guidanceEnabled?'':S.guidanceScratch?'Place the cue ball to resume guidance.':S.shot2Enabled?'Your Shot 2 plan takes priority.':!plan?'Aim and stroke adjustments stay under your control.':plan.kind==='complete'?(S.pocketedLog?.length?'Run complete':'Table clear'):plan.kind==='placement'?'Place the cue ball':plan.kind==='blocked'?'Ball '+plan.ballId+' blocked — choose a kick or safety':plan.kind==='break'?'Break setup':plan.kind==='contact'?'Ball '+plan.ballId+' — contact route; no direct pocket route found':'Ball '+plan.ballId+' to '+plan.pocket;
         $('shotGuidanceStatus').textContent=text;
     }
     window.billiardsGuidance={
@@ -2548,6 +2558,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const initialAim={x:88*inch*.75,y:44*inch*.5};
         return {
             tableL: 88 * inch, tableW: 44 * inch, ballR: 2.25 * inch / 2,
+            tableType:'pool', ballSet:'classic', poolBallSet:'classic', poolCalibration:null, clothNap:0,
             balls: [], annotations: null, trainingBallStyle: 'current', shotPlaybackSpeed: 1, guidanceEnabled: true, planSpeed:true, planFollow:true, planSpin:true, guidanceOrder: 'auto', showPocketChances: true, showPocketGlow: true, showPocketGhost: true, guidanceAimErrorDeg: .15, guidanceRailErrorDeg: .35, guidanceGroups: {}, guidancePlan: null, guidanceBreak: false, guidanceScratch: false,
             nextId: 1, markerSeq: 1000, freeAim: initialAim, angleLock: false, speed: 1.50, follow: 0, sideSpin: 0, cueElevationDeg: PHYSICS_MODEL.defaultCueElevationDeg,
             shot2Enabled: false, activeShot: 1, shot2Initialized: false,
@@ -2733,6 +2744,13 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     function pocketBallEl(id) {
         const e = document.createElement('div');
         e.className = 'pocketBall' + (id >= 9 ? ' stripe' : '');
+        if(S.ballSet!=='classic'&&id>=0){
+            const name=window.BilliardsInternational.ball(S.ballSet,id)?.name||'Ball '+id;
+            e.className='pocketBall';
+            e.style.background='center / contain no-repeat url("'+window.BilliardsBallArt.url(id,S.ballSet)+'")';
+            installPocketBallReturn(e,id);e.setAttribute('aria-label','Return '+name+' to table');
+            return e;
+        }
         const c = id === 0 || id === -2 ? '#f4f4f4' : poolBallColor(id);
         if (id >= 9) {
             e.style.background = `linear-gradient(to bottom,#f4f4f4 0 29%,${c} 29% 71%,#f4f4f4 71% 100%)`;
@@ -2746,7 +2764,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     function returnPocketBall(id,q=null){
         const existing=S.balls.find(b=>b.id===id);
-        if(animation||id<((document.body.classList.contains('zen-mode')||document.body.classList.contains('trainer-workspace')||globalThis.Billiards3D?.active)?0:1)||id>15||existing&&id!==0&&existing.active!==false)return;
+        if(animation||id<((document.body.classList.contains('zen-mode')||document.body.classList.contains('trainer-workspace')||globalThis.Billiards3D?.active)?0:1)||id>window.BilliardsInternational.maxId(S.ballSet)||existing&&id!==0&&existing.active!==false)return;
         if(existing?.active!==false&&!q&&id===0&&existing)return;
         const others=S.balls.filter(b=>b!==existing&&b.active!==false&&!b.marker);
         if(!q){for(let y=1;y<10&&!q;y++)for(let x=1;x<18;x++){const p={x:S.tableL*x/18,y:S.tableW*y/10};if(others.every(b=>Math.hypot(b.x-p.x,b.y-p.y)>S.ballR*2.2)){q=p;break;}}}
@@ -2775,7 +2793,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if (!tray)
             return;
         tray.innerHTML = '';
-        const log = (S.pocketedLog || []).filter(id => id >= 1 && id <= 15);
+        const log = (S.pocketedLog || []).filter(id => id >= 1 && id <= window.BilliardsInternational.maxId(S.ballSet));
         if (!log.length) {
             tray.classList.remove('visible');
             return;
@@ -2917,6 +2935,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             tableL: S.tableL,
             tableW: S.tableW,
             ballR: S.ballR,
+            tableType:S.tableType,ballSet:S.ballSet,clothNap:S.clothNap,muRoll:S.muRoll,muSlide:S.muSlide,
             setupMode: S.setupMode,
             trainingBallStyle: S.trainingBallStyle,
             allowMissingCueBall: !!S.allowMissingCueBall,
@@ -2970,6 +2989,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if (Number.isFinite(+d.tableL)) S.tableL = +d.tableL;
         if (Number.isFinite(+d.tableW)) S.tableW = +d.tableW;
         if (Number.isFinite(+d.ballR)) S.ballR = +d.ballR;
+        if(S.tableType==='pool'&&d.tableType&&d.tableType!=='pool')S.poolCalibration={...capturePhysicsSettings(),poolBallSet:S.ballSet};
+        S.tableType=d.tableType||'pool';S.ballSet=d.ballSet||'classic';S.clothNap=d.clothNap||0;
+        if(Number.isFinite(d.muRoll))S.muRoll=d.muRoll;
+        if(Number.isFinite(d.muSlide))S.muSlide=d.muSlide;
         if (d.setupMode) S.setupMode = d.setupMode;
         S.balls = JSON.parse(JSON.stringify(d.balls || []));
         S.annotations = JSON.parse(JSON.stringify(d.annotations||null));
@@ -3100,13 +3123,16 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const d=file.layout,defaults=defaultState(),state=preserveControls?window.BilliardsLayoutFiles.settings(cleanSnapshot(),defaults):{...defaults};
         if(preserveControls){state.shot2Enabled=false;state.shot2Initialized=false;state.activeShot=1;state.pocketedLog=[];state.bankKick=JSON.parse(JSON.stringify(defaults.bankKick));}
         if(file.kind==='session'&&file.state)Object.assign(state,window.BilliardsLayoutFiles.settings(file.state,defaults));
-        state.lastLayoutName=d.name;state.tableL=d.tableL;state.tableW=d.tableW;state.ballR=d.ballR;state.setupMode=d.setupMode||'custom';
+        state.lastLayoutName=d.name;state.tableL=d.tableL;state.tableW=d.tableW;state.ballR=d.ballR;
+        state.tableType=d.tableType||'pool';state.ballSet=d.ballSet||'classic';state.clothNap=d.clothNap||0;
+        if(Number.isFinite(d.muRoll))state.muRoll=d.muRoll;
+        if(Number.isFinite(d.muSlide))state.muSlide=d.muSlide;state.setupMode=d.setupMode||'custom';
         state.balls=detections?detections.filter(b=>String(b.id)!=='ignore').map(b=>({id:Number(b.id),n:Number(b.id)===0?'CB':String(b.id),x:b.nx*d.tableL,y:b.ny*d.tableW,active:true})).concat(d.balls.filter(b=>b.marker)):JSON.parse(JSON.stringify(d.balls));
         state.annotations=d.annotations||state.annotations||null;
         state.trainingBallStyle=d.trainingBallStyle||state.trainingBallStyle;
         state.allowMissingCueBall=!state.balls.some(b=>b.id===0);
         state.freeAim=d.freeAim||state.freeAim;state.preview=null;
-        state.pocketedLog=(Array.isArray(state.pocketedLog)?state.pocketedLog:[]).filter(id=>id>=1&&id<=15&&!state.balls.some(b=>b.id===id));
+        state.pocketedLog=(Array.isArray(state.pocketedLog)?state.pocketedLog:[]).filter(id=>id>=1&&id<=window.BilliardsInternational.maxId(state.ballSet)&&!state.balls.some(b=>b.id===id));
         if(file.kind!=='session'&&!preserveControls)Object.assign(state,window.BilliardsGuidance.preferences(S));
         animation=null;S=state;normalizeBallSet();resetRunHistory();
         if(file.kind==='session'&&file.history.length){runHistory=file.history.filter(h=>h&&Array.isArray(h.balls)&&h.tableL===S.tableL&&h.tableW===S.tableW).slice(-30).map(h=>{try{const v=window.BilliardsLayoutFiles.parse(JSON.stringify({layout:h})).layout;return {...window.BilliardsLayoutFiles.settings(h,defaults),tableL:v.tableL,tableW:v.tableW,ballR:v.ballR,balls:v.balls,allowMissingCueBall:v.allowMissingCueBall,preview:null};}catch(e){return null;}}).filter(Boolean);if(!runHistory.length)runHistory=[cleanSnapshot()];}
@@ -3237,7 +3263,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if(kind==='table'||kind==='grid'){const a=M.map({x:0,y:0}),b=M.map({x:S.tableL,y:S.tableW});return [{x:c.left+a.x*sx,y:c.top+a.y*sy,width:b.x*sx-a.x*sx,height:b.y*sy-a.y*sy}];}
             return [];
         }
-        return {capture,restore,apply,loadLesson,narrationRegions,snapshot,strokeSnapshot,annotations(){return S.annotations||null;},saveAnnotations(data){S.annotations=data;saveState();},feltBounds(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR);return {left:c.left-s.left+m.corners[0].x*sx,top:c.top-s.top+m.corners[0].y*sy,right:c.left-s.left+m.corners[1].x*sx,width:(m.corners[1].x-m.corners[0].x)*sx,height:(m.corners[2].y-m.corners[0].y)*sy};},annotationFrame(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR),A=ORIGINAL_ASSET_GEOM,L=S.tableL,W=S.tableW,dx=L/(A.x1-A.x0),dy=W/(A.y1-A.y0),logical=[{x:-A.x0*dx,y:-A.y0*dy},{x:L+(A.width-A.x1)*dx,y:-A.y0*dy},{x:L+(A.width-A.x1)*dx,y:W+(A.height-A.y1)*dy},{x:-A.x0*dx,y:W+(A.height-A.y1)*dy}],screen=p=>{const q=window.BilliardsTableZoom?.mapPoint?.(m.map(p))||m.map(p);return {x:c.left-s.left+q.x*sx,y:c.top-s.top+q.y*sy};};return {length:L,width:W,corners:logical.map(screen),surface:[{x:0,y:0},{x:L,y:0},{x:L,y:W},{x:0,y:W}].map(screen),map:p=>screen({x:p.x*L,y:p.y*W}),inverse(p){const v={x:(p.x-s.left)/sx,y:(p.y-s.top)/sy},q=m.inv(window.BilliardsTableZoom?.unmapPoint?.(v)||v);return {x:q.x/L,y:q.y/W};}};},exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},flightProfileBounds(){const which=S.activeShot===2&&S.shot2Enabled?2:1,preview=which===2?S.shot2?.preview:S.preview;if(document.body.classList.contains('phone-layout')||!shouldShowFlightOverlay(preview,which))return null;const r=canvas.getBoundingClientRect(),w=canvas.width/DPR;return {left:r.left+6,right:r.left+6+flightSideProfileWidth(w,false),bottom:r.top+140};},rollingReference(which=1){return rollingReferenceForShot(which);},predict(options={}){const p=simulate(false);return {cueImpact:p.cueImpact,...(options.paths?{paths:p.paths}:{}),pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact,railEvents:p.railEvents,pocketEvents:p.pocketEvents};}};
+        return {capture,restore,apply,loadLesson,narrationRegions,snapshot,strokeSnapshot,annotations(){return S.annotations||null;},saveAnnotations(data){S.annotations=data;saveState();},feltBounds(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR);return {left:c.left-s.left+m.corners[0].x*sx,top:c.top-s.top+m.corners[0].y*sy,right:c.left-s.left+m.corners[1].x*sx,width:(m.corners[1].x-m.corners[0].x)*sx,height:(m.corners[2].y-m.corners[0].y)*sy};},annotationFrame(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR),A=ORIGINAL_ASSET_GEOM,L=S.tableL,W=S.tableW,dx=L/(A.x1-A.x0),dy=W/(A.y1-A.y0),logical=[{x:-A.x0*dx,y:-A.y0*dy},{x:L+(A.width-A.x1)*dx,y:-A.y0*dy},{x:L+(A.width-A.x1)*dx,y:W+(A.height-A.y1)*dy},{x:-A.x0*dx,y:W+(A.height-A.y1)*dy}],screen=p=>{const q=window.BilliardsTableZoom?.mapPoint?.(m.map(p))||m.map(p);return {x:c.left-s.left+q.x*sx,y:c.top-s.top+q.y*sy};};return {length:L,width:W,corners:logical.map(screen),surface:[{x:0,y:0},{x:L,y:0},{x:L,y:W},{x:0,y:W}].map(screen),map:p=>screen({x:p.x*L,y:p.y*W}),inverse(p){const v={x:(p.x-s.left)/sx,y:(p.y-s.top)/sy},q=m.inv(window.BilliardsTableZoom?.unmapPoint?.(v)||v);return {x:q.x/L,y:q.y/W};}};},exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},flightProfileBounds(){const which=S.activeShot===2&&S.shot2Enabled?2:1,preview=which===2?S.shot2?.preview:S.preview;if(document.body.classList.contains('phone-layout')||!shouldShowFlightOverlay(preview,which))return null;const r=canvas.getBoundingClientRect(),w=canvas.width/DPR;return {left:r.left+6,right:r.left+6+flightSideProfileWidth(w,false),bottom:r.top+140};},rollingReference(which=1){return rollingReferenceForShot(which);},predict(options={}){const p=simulate(false,null,!!options.trace);return {...(options.trace?{jawEvents:p.jawEvents||[]}:{}),cueImpact:p.cueImpact,...(options.paths?{paths:p.paths}:{}),pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact,railEvents:p.railEvents,pocketEvents:p.pocketEvents};}};
     })();
 
     function freshZenTable(){
@@ -3257,7 +3283,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     window.billiardsZenControls={
         enter(){normalizeBallSet();updateUI();refreshPreview();syncActionUndo();},
         aim(degrees){if(!animation){S.activeShot=1;rotateAimMicro(degrees*Math.PI/180);}},
-        status(){return {overlap:S.preview?.firstBallContact?.overlap||0,busy:!!animation,undo:undoStack.length>0,redo:redoStack.length>0,undoAction:!!actionHistory?.count,redoAction:!!actionHistory?.redoCount,tip:{...effectiveTipOffsetValues(S.sideSpin,S.follow),limit:PHYSICS_MODEL.maxTipOffsetR},balls:S.balls.filter(b=>b.active&&!b.marker).map(b=>b.id)};},
+        status(){return {overlap:S.preview?.firstBallContact?.overlap||0,busy:!!animation,undo:undoStack.length>0,redo:redoStack.length>0,undoAction:!!actionHistory?.count,redoAction:!!actionHistory?.redoCount,tip:{...effectiveTipOffsetValues(S.sideSpin,S.follow),limit:PHYSICS_MODEL.maxTipOffsetR},balls:S.balls.filter(b=>b.active&&!b.marker).map(b=>b.id),ballSet:S.ballSet};},
         freshTable:freshZenTable,tableBounds:zenTableScreenBounds,shareTable(){saveState();},
         undoAction:undoLastAction,redoAction:redoLastAction,undoShot:undoLastShot,redoShot:redoLastShot,
         tip(side,follow){
@@ -3455,6 +3481,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         catch (e) { }
     }
     function normalizeBallSet() {
+        const international=window.BilliardsInternational;
+        S.tableType=international.tableType(S.tableType);
+        S.ballSet=international.ballSet(S.ballSet);
+        S.clothNap=clamp(Number(S.clothNap)||0,0,.5);
+        const lastId=international.maxId(S.ballSet);
         if(!['current','spots','split','stripe'].includes(S.trainingBallStyle))S.trainingBallStyle='current';
         if(![1,.5,.25,.125].includes(S.shotPlaybackSpeed))S.shotPlaybackSpeed=1;
         const seen = new Set();
@@ -3491,10 +3522,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 b.n = 'CB';
                 return !seen.has(0) && seen.add(0);
             }
-            if (b.id < 1 || b.id > 15 || seen.has(b.id))
+            if (!Number.isInteger(b.id) || b.id < 1 || b.id > lastId || seen.has(b.id))
                 return false;
             seen.add(b.id);
-            b.n = String(b.id);
+            b.n = international.ball(S.ballSet,b.id)?.name||String(b.id);
             return true;
         });
         const hasCueBall = S.balls.some(b => b.id === 0);
@@ -3506,10 +3537,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             S.balls.unshift({ id: 0, n: 'CB', x: S.tableL * .23, y: S.tableW * .5, active: true });
         }
         const missing = [];
-        for (let i = 1; i <= 15; i++)
+        for (let i = 1; i <= lastId; i++)
             if (!seen.has(i))
                 missing.push(i);
-        S.nextId = missing.length ? missing[0] : 16;
+        S.nextId = missing.length ? missing[0] : lastId+1;
         S.markerSeq = S.balls.some(b=>b.marker) ? Math.max(Number(S.markerSeq) || 1000, maxMarkerId + 1, 1000) : 1000;
         repairBallOverlaps(S.balls);
     }
@@ -3560,6 +3591,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         }
     }
     function randomLooseSetup(count) {
+        count=Math.min(count,window.BilliardsInternational.maxId(S.ballSet));
         const cue = cueBall();
         const R = S.ballR, L = S.tableL, W = S.tableW;
         const edge = R * 3.0;
@@ -3568,8 +3600,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const placed = [];
         const balls = [cue ? Object.assign({}, cue) : { id: 0, n: 'CB', x: L * .23, y: W * .5, active: true }];
         function clearOfPockets(x, y) {
-            const pc = [[0, 0], [L / 2, 0], [L, 0], [0, W], [L / 2, W], [L, W]];
-            return pc.every(([px, py]) => Math.hypot(x - px, y - py) > R * 4.2);
+            return logicalPockets().every(p=>Math.hypot(x-p.x,y-p.y)>R*4.2);
         }
         for (let id = 1; id <= count; id++) {
             let pos = null;
@@ -3781,12 +3812,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     function shuffleTableLayout() {
         const balls = S.balls.filter(b => !b.marker && b.active !== false);
         const R = S.ballR, L = S.tableL, W = S.tableW, edge = R*3;
-        const positions = [], pockets = [[0,0],[L/2,0],[L,0],[0,W],[L/2,W],[L,W]];
+        const positions = [], pockets = logicalPockets();
         for (const ball of balls) {
             let pos = null;
             for (let tries=0; tries<2500; tries++) {
                 const x=edge+Math.random()*(L-2*edge), y=edge+Math.random()*(W-2*edge);
-                if (pockets.some(([px,py]) => Math.hypot(x-px,y-py)<R*4.2)) continue;
+                if (pockets.some(p => Math.hypot(x-p.x,y-p.y)<R*4.2)) continue;
                 if (positions.some(p => Math.hypot(x-p.x,y-p.y)<R*4.6)) continue;
                 pos={x,y}; break;
             }
@@ -3858,8 +3889,27 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         }
         finishRackSetup(balls, 'Straight pool: 14 balls ready, front position open', 'straight');
     }
+    function startInternationalRack(rack, choice) {
+        if(S.tableType==='pool')S.poolCalibration={...capturePhysicsSettings(),poolBallSet:S.ballSet};
+        Object.assign(S,{tableL:rack.table.tableL,tableW:rack.table.tableW,ballR:rack.table.ballR,
+            tableType:rack.type,ballSet:rack.set,muSlide:rack.table.muSlide??defaultState().muSlide,muRoll:rack.table.muRoll,clothNap:rack.table.nap||0});
+        S.bankKick=defaultState().bankKick;
+        S.angleLock=false;
+        S.ghostLock=null;
+        S.freeAim={x:S.tableL*.75,y:S.tableW/2};
+        finishRackSetup(rack.balls,rack.name+' practice setup ready','custom',choice);
+    }
+    function restorePoolEquipment() {
+        const pool=S.poolCalibration||{...capturePhysicsSettings(defaultState()),poolBallSet:S.poolBallSet};
+        Object.assign(S,pool,{tableType:'pool',ballSet:pool.poolBallSet||'classic',clothNap:0,poolCalibration:null,balls:[],bankKick:defaultState().bankKick});
+        S.freeAim={x:S.tableL*.75,y:S.tableW/2};
+    }
     function startFullRack() {
+        if(typeof animation!=='undefined'&&animation)return;
         const v = $('fullRackSelect').value;
+        const rack=globalThis.window?.BilliardsInternational.setup(v);
+        if(rack){startInternationalRack(rack,v);syncProjector();return;}
+        if(typeof S!=='undefined'&&S.tableType!=='pool')restorePoolEquipment();
         if (v === 'rack3')
             randomThreeBallRack();
         else if (v.startsWith('rack3-'))
@@ -3904,19 +3954,22 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     function pocketModel() {
         const R = S.ballR, D = 2 * R, L = S.tableL, W = S.tableW;
         // Direct constants recovered from the original native engine.
-        const sideMouth = 0.120;
-        const cornerMouth = 0.110;
+        const profile=window.BilliardsInternational.tables[S.tableType];
+        const pocketless=S.tableType==='carom';
+        const sideMouth = profile.sideMouth || .120;
+        const cornerMouth = profile.cornerMouth || .110;
         // Corner mouth is measured diagonally between the two cushion-nose endpoints.
         const cornerLeg = cornerMouth / Math.SQRT2;
         // The original xhdpi artwork shows the facing continuing OUTWARD from the
         // playing-surface nose, rather than protruding inward into the cloth.
-        const cornerThroatInset = 0.014;
-        const cornerJawOut = 0.043;
-        const sideThroat = 0.096;
-        const sideJawOut = 0.026;
-        return { L, W, R, D, sideMouth, cornerMouth, cornerLeg, cornerThroatInset, cornerJawOut, sideThroat, sideJawOut };
+        const cornerThroatInset = .014*cornerMouth/.110;
+        const cornerJawOut = .043*cornerMouth/.110;
+        const sideThroat = sideMouth*.8;
+        const sideJawOut = .026*sideMouth/.120;
+        return { L, W, R, D, type:S.tableType, pocketless, nose:profile.nose, sideMouth, cornerMouth, cornerLeg, cornerThroatInset, cornerJawOut, sideThroat, sideJawOut };
     }
     function logicalPockets() {
+        if(S.tableType==='carom')return [];
         const G = pocketModel(), L = G.L, W = G.W;
         return [
             { name: 'TL', kind: 'corner', x: 0, y: 0 }, { name: 'TM', kind: 'side', x: L / 2, y: 0 }, { name: 'TR', kind: 'corner', x: L, y: 0 },
@@ -4315,8 +4368,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     function assessBankKickShot(t,preview,angle) {
         const locationKick=t.mode==='kick'&&t.ballId===0;
-        if(!preview||(!locationKick&&preview.firstBallContact?.objId!==t.ballId))return null;
-        const contact=preview.firstBallContact,carrier=t.mode==='bank'?t.ballId:0;
+        if(!preview)return null;
+        const first=preview.firstBallContact;
+        const target=first?.targets?.find(hit=>hit.objId===t.ballId);
+        if(!locationKick && !target && first?.objId!==t.ballId)return null;
+        const contact=target?{...first,...target}:first,carrier=t.mode==='bank'?t.ballId:0;
         if(t.mode==='bank'&&preview.railEvents.some(e=>e.id===0&&e.t<contact.t))return null;
         const allHits=preview.railEvents.filter(e=>e.id===carrier&&(t.mode!=='kick'||e.t<=(contact?.t??Infinity)));
         if(allHits.length<t.rails.length||!t.rails.every((r,i)=>allHits[i].rail===r+' rail'))return null;
@@ -4753,6 +4809,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         saveState();
     }
     function openSpans() {
+        if(S.tableType==='carom')return {top:[],bottom:[],left:[],right:[]};
         const G = pocketModel(), L = G.L, W = G.W, cl = G.cornerLeg, sm = G.sideMouth / 2;
         return {
             top: [[0, cl], [L / 2 - sm, L / 2 + sm], [L - cl, L]],
@@ -4762,6 +4819,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     function inAnySpan(v, spans) { return spans.some(([a, b]) => v >= a && v <= b); }
     function jawSegments() {
+        if(S.tableType==='carom')return [];
         const G = pocketModel(), L = G.L, W = G.W, cl = G.cornerLeg, ci = G.cornerThroatInset, co = G.cornerJawOut, sm = G.sideMouth / 2, st = G.sideThroat / 2, so = G.sideJawOut;
         return [
             // Side pocket facings: mouth at the nose line, throat outside the cloth.
@@ -4773,6 +4831,16 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             [{ x: cl, y: W }, { x: ci, y: W + co }], [{ x: 0, y: W - cl }, { x: -co, y: W - ci }],
             [{ x: L - cl, y: W }, { x: L - ci, y: W + co }], [{ x: L, y: W - cl }, { x: L + co, y: W - ci }]
         ];
+    }
+    function nearestRoundedJawSegment(b,path,R) {
+        let result=null,best=R*R;
+        for(let i=1;i<path.length;i++){
+            const a=path[i-1],c=path[i],dx=c.x-a.x,dy=c.y-a.y;
+            const t=clamp(((b.x-a.x)*dx+(b.y-a.y)*dy)/(dx*dx+dy*dy),0,1);
+            const distance=(b.x-a.x-t*dx)**2+(b.y-a.y-t*dy)**2;
+            if(distance<best){best=distance;result=[a,c];}
+        }
+        return result;
     }
     function collideWithJaw(b, a, c, name) {
         const R = S.ballR, sx = c.x - a.x, sy = c.y - a.y, l2 = sx * sx + sy * sy;
@@ -4786,6 +4854,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         nx /= dist;
         ny /= dist;
         const pen = R - dist;
+        b.freeDrift = false;
         b.x += nx * (pen + 1e-6);
         b.y += ny * (pen + 1e-6);
         const vn = b.vx * nx + b.vy * ny;
@@ -4906,7 +4975,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const data={id:which===2?'CB2':0,x:ball.x,y:ball.y,z:S.ballR,R:S.ballR,dx:d.x,dy:d.y,
             rear:contact.x,height:contact.z,sideR:contact.tip.sideR,elevation:values.cueElevationDeg};
         const obstacles=which===2?shot2TableBalls(values).filter(b=>b.id!==0):S.balls;
-        return window.BilliardsCueClearance.solve(data,{L:S.tableL,W:S.tableW,R:S.ballR}, {...cueStrokePreferences,speed:values.speed},obstacles);
+        return window.BilliardsCueClearance.solve(data,{L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel()}, {...cueStrokePreferences,speed:values.speed},obstacles);
     }
     function cueTipsFor3D(){
         const tips=[];
@@ -5343,6 +5412,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             wz: k * (                 - tip.sideR * uz)
         };
     }
+    function effectiveBallFriction(speed) {
+        const floor=clamp(+S.muBall||0,0,.2);
+        return clamp(floor+PHYSICS_MODEL.ballBallFrictionVelocityBoost*Math.exp(-PHYSICS_MODEL.ballBallFrictionVelocityDecay*speed),floor,.2);
+    }
     function applyBedImpactImpulse(state, R, restitution, friction) {
         if (!state || state.vz >= -1e-12)
             return { hit:false, reboundAngle:0, predictedRange:0, jn:0 };
@@ -5364,18 +5437,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const predictedRange = 2 * vh * Math.max(0, state.vz) / APK.gravity;
         return { hit:true, reboundAngle, predictedRange, jn };
     }
-    function ballBallTangentialImpulse3(ux, uy, uz, jn) {
-        const vRel = Math.hypot(ux, uy, uz);
-        if (vRel < 1e-12 || Math.abs(jn) < 1e-12)
-            return { jx:0, jy:0, jz:0, muEff:S.muBall, vRel };
-        const floorMu = clamp(+S.muBall || 0, 0, .2);
-        const muEff = clamp(
-            floorMu + PHYSICS_MODEL.ballBallFrictionVelocityBoost * Math.exp(-PHYSICS_MODEL.ballBallFrictionVelocityDecay * vRel),
-            floorMu, .2
-        );
-        const jMag = Math.min(vRel / 7, muEff * Math.abs(jn));
-        return { jx:-jMag*ux/vRel, jy:-jMag*uy/vRel, jz:-jMag*uz/vRel, muEff, vRel };
-    }
     function ballBallTangentialImpulse(relT, relZ, jn) {
         // Contact friction acts in the full tangent plane. relT is horizontal
         // surface slip (CIT/SIT); relZ is vertical surface slip from follow/draw.
@@ -5384,11 +5445,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const vRel = Math.hypot(relT, relZ);
         if (vRel < 1e-12 || Math.abs(jn) < 1e-12)
             return { jt: 0, jz: 0, muEff: S.muBall, vRel };
-        const floorMu = clamp(+S.muBall || 0, 0, .2);
-        const muEff = clamp(
-            floorMu + PHYSICS_MODEL.ballBallFrictionVelocityBoost * Math.exp(-PHYSICS_MODEL.ballBallFrictionVelocityDecay * vRel),
-            floorMu, .2
-        );
+        const muEff = effectiveBallFriction(vRel);
         const jMag = Math.min(vRel / 7, muEff * Math.abs(jn));
         return {
             jt: -jMag * relT / vRel,
@@ -5617,16 +5674,27 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         return balls;
     }
     function pocketCapture(b) {
+        if(S.tableType==='carom')return null;
         const G = pocketModel(), L = G.L, W = G.W, R = G.R;
         // Side pockets: only pocket after the center has crossed behind the throat.
-        const sw = G.sideThroat / 2 + R * .38;
-        if (b.y < -R * .18 && Math.abs(b.x - L / 2) < sw)
+        const rounded=G.type==='snooker';
+        const sw=rounded?Math.max(0,G.sideThroat/2-R*.65):G.sideThroat/2+R*.38;
+        const sideDepth=rounded?G.sideJawOut*.73:R*.18;
+        if (b.y < -sideDepth && Math.abs(b.x - L / 2) < sw)
             return 'TM';
-        if (b.y > W + R * .18 && Math.abs(b.x - L / 2) < sw)
+        if (b.y > W + sideDepth && Math.abs(b.x - L / 2) < sw)
             return 'BM';
         // Corner pockets: capture behind the diagonal mouth, after the ball has passed
         // between the two outward-facing jaws.
-        const c = G.cornerLeg, gate = c * .58;
+        const c = G.cornerLeg, gate = rounded?G.cornerThroatInset-G.cornerJawOut*.25:c*.58;
+        if(rounded){
+            if(b.y>=c&&b.y<=W-c)return null;
+            const across=Math.SQRT2*Math.max(0,G.cornerMouth/2-R*.66);
+            for(const [name,x,y] of [['TL',b.x,b.y],['TR',L-b.x,b.y],['BL',b.x,W-b.y],['BR',L-b.x,W-b.y]]){
+                if(x+y<gate && Math.abs(x-y)<across && x>-.10 && y>-.10)return name;
+            }
+            return null;
+        }
         if (b.x < c && b.y < c && b.x + b.y < gate)
             return 'TL';
         if (L - b.x < c && b.y < c && (L - b.x) + b.y < gate)
@@ -5636,19 +5704,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if (L - b.x < c && W - b.y < c && (L - b.x) + (W - b.y) < gate)
             return 'BR';
         return null;
-    }
-    function planarContactRewind(a, b, diameter, maxTime) {
-        // Recover first touch within this integration step, before any positional
-        // separation. Using the penetrated centers distorts both cut and overlap.
-        const dx = b.x - a.x, dy = b.y - a.y;
-        const vx = b.vx - a.vx, vy = b.vy - a.vy;
-        const closing = dx * vx + dy * vy;
-        const penetration = diameter * diameter - dx * dx - dy * dy;
-        const speed2 = vx * vx + vy * vy;
-        if (closing >= 0 || penetration <= 0 || speed2 < 1e-18) return 0;
-        // Stable positive root of |relativePosition - relativeVelocity*t| = D.
-        const rewind = penetration / (Math.sqrt(closing * closing + speed2 * penetration) - closing);
-        return rewind <= maxTime + 1e-12 ? Math.min(maxTime, rewind) : 0;
     }
     function simulate(makeFrames = false, search = null, trace = false) {
         const simulation=simulateSteps(makeFrames,search,false,trace);let step;
@@ -5687,6 +5742,16 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         let searchClosest = null;
         const dt = 1 / 600, maxT = 20, maxSteps = Math.ceil(maxT / dt), g = APK.gravity, R = S.ballR;
         const budget = !search && S.showShotBudget ? window.BilliardsShotBudget.create(cb, R, g, shotBudgetFeelReference()) : null;
+        // Negative X rolls against the nap toward the baulk cushion.
+        const nap=S.tableType==='snooker'?S.clothNap:0;
+        const geometry=pocketModel();
+        const noseHeight=geometry.nose||2*R*PHYSICS_MODEL.cushionNoseHeightD;
+        const roundedJaws=window.BilliardsTableConstruction.roundedJaws(geometry);
+        const jaws=roundedJaws.length?roundedJaws.map(({points})=>({
+            points,x0:Math.min(...points.map(p=>p.x))-R,x1:Math.max(...points.map(p=>p.x))+R,
+            y0:Math.min(...points.map(p=>p.y))-R,y1:Math.max(...points.map(p=>p.y))+R
+        })):jawSegments();
+        const spans=openSpans();
         const paths = {};
         for (const b of B)
             paths[b.id] = [{ x: b.x, y: b.y, z: b.z, t: 0 }];
@@ -5700,7 +5765,6 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const collisionEvents = trace||collectContacts ? [] : null, jawEvents = trace ? [] : null;
         const landings = [], clearanceMap = new Map();
         let takeoff = null;
-        const lastColl = new Map(), Icoef = 2 / 5; // I = 2/5 mR² for a solid sphere
         function approach(v, target, maxDelta) {
             if (v < target)
                 return Math.min(target, v + maxDelta);
@@ -5750,7 +5814,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             uy = b.vy + R * b.wx;
             us = Math.hypot(ux, uy);
             if (remaining > 0 && sp > 0.001 && us < 1e-6) {
-                const dec = S.muRoll * g * remaining, ns = Math.max(0, sp - dec);
+                const dec = S.muRoll * (1 - nap*b.vx/sp) * g * remaining, ns = Math.max(0, sp - dec);
                 if (ns === 0) {
                     b.vx = 0;
                     b.vy = 0;
@@ -5812,19 +5876,20 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         }
         function canReachCushion(b) {
             if (!airborneMode) return true;
-            const maxCenterZ = R * (1 + 2 * PHYSICS_MODEL.cushionNoseHeightD);
+            const maxCenterZ = R + noseHeight;
             return b.z <= maxCenterZ;
         }
-        function railHit(b, nx, ny, name) {
+        function railHit(b, nx, ny, name, impactTime) {
             // n points inward from the cushion. Screen coordinates use +Y downward.
             // t is the local cushion tangent; positive t = 90deg clockwise from n.
             const vn = b.vx * nx + b.vy * ny;
             if (vn >= 0)
                 return false;
             const tx = -ny, ty = nx;
-            budget?.record(b, 'before', simTime);
+            budget?.record(b, 'before', impactTime);
             // Normal impulse / rebound.
-            railEvents.push({id:b.id,x:b.x,y:b.y,t:simTime,rail:name});
+            railEvents.push({id:b.id,x:b.x,y:b.y,t:impactTime,rail:name});
+            paths[b.id].push({x:b.x,y:b.y,z:b.z,t:impactTime});
             const jn = -(1 + S.railRest) * vn;
             b.vx += jn * nx;
             b.vy += jn * ny;
@@ -5848,11 +5913,83 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             b.vx = vnAfter * nx + vtDamped * tx;
             b.vy = vnAfter * ny + vtDamped * ty;
             b.wz *= 1 - APK.railSpinDamping;
-            budget?.record(b, 'after', simTime);
+            budget?.record(b, 'after', impactTime);
             if (firstEvent === '—')
                 firstEvent = `${b.n} → ${name}`;
             return true;
         }
+        const cushionPlanes=[
+            {axis:'x',along:'y',bound:R,sign:1,spans:spans.left,name:'left rail'},
+            {axis:'x',along:'y',bound:S.tableL-R,sign:-1,spans:spans.right,name:'right rail'},
+            {axis:'y',along:'x',bound:R,sign:1,spans:spans.top,name:'top rail'},
+            {axis:'y',along:'x',bound:S.tableW-R,sign:-1,spans:spans.bottom,name:'bottom rail'}
+        ];
+        function straightCushions(b) {
+            // The incoming drift has already ended. Recover the first nose
+            // crossing, reflect there, then use the remaining time for rebound.
+            if(b.x>=R && b.x<=S.tableL-R && b.y>=R && b.y<=S.tableW-R)return;
+            let available=b.freeDrift?dt:0;
+            for(let i=0;i<2;i++){
+                let first=null, rewind=-1;
+                for(const plane of cushionPlanes){
+                    const over=(b[plane.axis]-plane.bound)*plane.sign;
+                    const vn=b['v'+plane.axis]*plane.sign;
+                    if(over>=0 || vn>=0)continue;
+                    const back=clamp(over/vn,0,available);
+                    const along=b[plane.along]-b['v'+plane.along]*back;
+                    if(back>rewind && !inAnySpan(along,plane.spans)){first=plane;rewind=back;}
+                }
+                if(!first)return;
+                const incoming=Math.hypot(b.vx,b.vy);
+                b.x-=b.vx*rewind; b.y-=b.vy*rewind;
+                b[first.axis]=first.bound;
+                railHit(b,first.axis==='x'?first.sign:0,first.axis==='y'?first.sign:0,
+                    first.name,simTime+dt-rewind);
+                b.x+=b.vx*rewind; b.y+=b.vy*rewind;
+                b.travel+=(Math.hypot(b.vx,b.vy)-incoming)*rewind;
+                b.freeDrift=false;
+                available=rewind;
+            }
+        }
+        const ballContacts={
+            radius:R,gravity:g,airborne:airborneMode,restitution:S.ballRest,
+            friction(speed){return effectiveBallFriction(speed);},
+            land:bedHit,
+            before(contacts){
+                for(const c of contacts){
+                    if(budget){c.beforeA={...c.a};c.beforeB={...c.b};}
+                    if(firstBallContact || (c.a!==cb && c.b!==cb))continue;
+                    const obj=c.a===cb?c.b:c.a;
+                    const incoming=norm({x:cb.vx,y:cb.vy});
+                    const rv={x:obj.x-cb.x,y:obj.y-cb.y}, normal=norm(rv), lateral=cross(incoming,rv);
+                    const speed=Math.hypot(cb.vx,cb.vy);
+                    c.cueHit={objId:obj.id,objName:obj.n,cuePos:{x:cb.x,y:cb.y},objPos:{x:obj.x,y:obj.y},
+                        incoming,normal,signedOffset:lateral,cutAngle:Math.acos(clamp(dot(incoming,normal),-1,1)),
+                        overlap:clamp(100*(1-Math.abs(lateral)/(2*R)),0,100),distanceBalls:cb.travel/(2*R),
+                        motion:{appliedSide:S.sideSpin,speed,slipRatio:Math.hypot(cb.vx-R*cb.wy,cb.vy+R*cb.wx)/Math.max(.001,speed),
+                            sideRatio:Math.abs(R*cb.wz)/Math.max(.001,speed),objectSpeed:Math.hypot(obj.vx,obj.vy),elevation:shotElevation}};
+                    if(airborneMode)Object.assign(c.cueHit,{cueHeight:cb.z,verticalNormal:c.a===cb?c.nz:-c.nz});
+                }
+            },
+            after(contacts,offset){
+                const t=simTime+offset, hits=[], firstGroup=firstEvent==='—';
+                if(budget)budget.contactGroup(contacts.filter(c=>c.normal>=1e-11),t);
+                for(const c of contacts){
+                    if(c.normal<1e-11)continue;
+                    if(collisionEvents)collisionEvents.push({ids:[c.a.id,c.b.id],t});
+                    if(c.cueHit)hits.push(c.cueHit);
+                    if(firstEvent==='—')firstEvent=c.a.n+' → '+c.b.n;
+                }
+                if(hits.length){
+                    // The legacy label needs a primary object. Keep all physical
+                    // first targets and use ID only to break a display-label tie.
+                    hits.sort((a,b)=>a.objId-b.objId);
+                    firstBallContact={...hits[0],objIds:hits.map(h=>h.objId),targets:hits,t,
+                        after:{vx:cb.vx,vy:cb.vy,wx:cb.wx,wy:cb.wy}};
+                    if(firstGroup && hits.length>1)firstEvent='CB → '+hits.map(h=>h.objName).join(' + ');
+                }
+            }
+        };
         if (airborneMode && cb.vz < 0) bedHit(cb, true);
         let sliceStarted=cooperative?performance.now():0;
         const sliceMs=typeof cooperative==='number'?cooperative:8;
@@ -5868,6 +6005,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 if (airborneMode && b.z <= R + 1e-8 && b.vz < -1e-8) bedHit(b);
                 const inAir = airborneMode && (b.z > R + 1e-7 || b.vz > 1e-7);
                 const oldOmega=b.id===0&&training&&makeFrames?[b.wx,b.wy,b.wz]:null;
+                b.freeDrift = true;
+                b.driftVz = inAir ? b.vz - .5*g*dt : 0;
+                b.driftGravity = inAir ? g : 0;
                 const horizontalSpeed = Math.hypot(b.vx, b.vy);
                 const rotationalSlip = R * Math.hypot(b.wx, b.wy);
                 if (horizontalSpeed > .002 || Math.abs(b.wz) > .05 || rotationalSlip > .002 || inAir || Math.abs(b.vz) > .002) moving = true;
@@ -5878,7 +6018,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                     b.vz -= g * dt;
                     b.travel += Math.hypot(dx, dy);
                     if (b.id === 0) { maxCueHeight = Math.max(maxCueHeight, b.z); airborneDistance += Math.hypot(dx, dy); }
-                    if (b.z <= R && b.vz < 0) { b.z = R; bedHit(b); }
+                    if (b.z <= R && b.vz < 0) { b.freeDrift=false; b.z = R; bedHit(b); }
                 }
                 else {
                     b.z = R; b.vz = 0;
@@ -5905,192 +6045,43 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 const lowEnoughForPocket = !airborneMode || b.z <= R * 1.12;
                 const pocket = b.active && lowEnoughForPocket ? pocketCapture(b) : null;
                 if (pocket) {
-                    budget?.record(b, 'pocket', t);
-                    pocketEvents.push({id:b.id,x:b.x,y:b.y,t,speed:Math.hypot(b.vx,b.vy),pocket});
-                    paths[b.id].push({x:b.x,y:b.y,z:b.z,t});
+                    budget?.record(b, 'pocket', t+dt);
+                    pocketEvents.push({id:b.id,x:b.x,y:b.y,t:t+dt,speed:Math.hypot(b.vx,b.vy),pocket});
+                    paths[b.id].push({x:b.x,y:b.y,z:b.z,t:t+dt});
                     b.active = false;
                     b.vx = b.vy = b.vz = b.wx = b.wy = b.wz = 0;
                     if (firstEvent === '—') firstEvent = `${b.n} pocket`;
                 }
             }
             // Cushions. Open spans remove rail collisions inside pocket mouths so a ball can actually enter the opening.
-            const spans = openSpans();
             for (const b of B) {
                 if (!b.active)
                     continue;
                 if (!canReachCushion(b)) continue;
-                if (b.x < R && !inAnySpan(b.y, spans.left)) {
-                    b.x = R;
-                    railHit(b, 1, 0, 'left rail');
-                }
-                else if (b.x > S.tableL - R && !inAnySpan(b.y, spans.right)) {
-                    b.x = S.tableL - R;
-                    railHit(b, -1, 0, 'right rail');
-                }
-                if (b.y < R && !inAnySpan(b.x, spans.top)) {
-                    b.y = R;
-                    railHit(b, 0, 1, 'top rail');
-                }
-                else if (b.y > S.tableW - R && !inAnySpan(b.x, spans.bottom)) {
-                    b.y = S.tableW - R;
-                    railHit(b, 0, -1, 'bottom rail');
-                }
+                straightCushions(b);
             }
             // Angled pocket jaws/facings. These are real collision surfaces, so a ball
             // can catch a facing and deflect into (or away from) the pocket instead of
             // treating every pocket as a circular hole.
-            const jaws = jawSegments();
             for (const b of B) {
                 if (!b.active || !canReachCushion(b))
                     continue;
                 for (let ji = 0; ji < jaws.length; ji++) {
+                    const jaw=jaws[ji];
+                    if(roundedJaws.length&&(b.x<jaw.x0||b.x>jaw.x1||b.y<jaw.y0||b.y>jaw.y1))continue;
+                    const segment=roundedJaws.length?nearestRoundedJawSegment(b,jaw.points,R):jaw;
+                    if(!segment)continue;
                     const incoming = budget ? {...b} : null;
-                    if (collideWithJaw(b, jaws[ji][0], jaws[ji][1], 'pocket jaw')) {
+                    if (collideWithJaw(b, segment[0], segment[1], 'pocket jaw')) {
                         if (jawEvents) jawEvents.push({id:b.id,jaw:ji,t});
                         if (budget) { budget.record(incoming, 'before', t); budget.record(b, 'after', t); }
                         if (firstEvent === '—') firstEvent = `${b.n} → pocket jaw`;
                     }
                 }
             }
-            // Equal-mass solid-sphere collisions. Normal impulse transfers the line-of-centers
-            // component; Coulomb-limited tangential impulse produces collision-induced throw.
-            for (let i = 0; i < B.length; i++)
-                for (let j = i + 1; j < B.length; j++) {
-                    const a = B[i], b = B[j];
-                    if (!a.active || !b.active)
-                        continue;
-                    const dx = b.x - a.x, dy = b.y - a.y;
-                    const minD = 2 * R;
-                    if (!airborneMode) {
-                        let dist = Math.hypot(dx, dy);
-                        if (dist < minD) {
-                            const key = a.id < b.id ? `${a.id}:${b.id}` : `${b.id}:${a.id}`;
-                            const rewind = planarContactRewind(a, b, minD, dt);
-                            if (rewind > 0) {
-                                for (const ball of [a, b]) {
-                                    ball.x -= ball.vx * rewind; ball.y -= ball.vy * rewind;
-                                    ball.travel -= Math.hypot(ball.vx, ball.vy) * rewind;
-                                }
-                            }
-                            const contactDx = b.x - a.x, contactDy = b.y - a.y;
-                            dist = Math.hypot(contactDx, contactDy);
-                            const nx = dist>1e-9?contactDx/dist:1, ny = dist>1e-9?contactDy/dist:0, tx = -ny, ty = nx;
-                            const rvx = b.vx - a.vx, rvy = b.vy - a.vy;
-                            const relN = rvx * nx + rvy * ny;
-                            const overlap = Math.max(0, minD - dist);
-                            a.x -= nx * overlap * .501; a.y -= ny * overlap * .501;
-                            b.x += nx * overlap * .501; b.y += ny * overlap * .501;
-                            if (relN < 0 && (!lastColl.has(key) || step - lastColl.get(key) > 2)) {
-                                if (collisionEvents) collisionEvents.push({ids:[a.id,b.id],t});
-                                if (!firstBallContact && (a.id === 0 || b.id === 0)) {
-                                    const cue = a.id === 0 ? a : b, obj = a.id === 0 ? b : a;
-                                    const iv = norm({ x: cue.vx, y: cue.vy });
-                                    const rv = { x: obj.x - cue.x, y: obj.y - cue.y };
-                                    const nc = norm(rv);
-                                    const lateral = cross(iv, rv);
-                                    const ca = Math.acos(clamp(dot(iv, nc), -1, 1));
-                                    firstBallContact = {
-                                        objId: obj.id, objName: obj.n,
-                                        cuePos: { x: cue.x, y: cue.y }, objPos: { x: obj.x, y: obj.y },
-                                        incoming: iv, normal: nc, signedOffset: lateral,
-                                        motion:{appliedSide:S.sideSpin,speed:Math.hypot(cue.vx,cue.vy),slipRatio:Math.hypot(cue.vx-R*cue.wy,cue.vy+R*cue.wx)/Math.max(.001,Math.hypot(cue.vx,cue.vy)),sideRatio:Math.abs(R*cue.wz)/Math.max(.001,Math.hypot(cue.vx,cue.vy)),objectSpeed:Math.hypot(obj.vx,obj.vy),elevation:S.cueElevationDeg},
-                                        overlap: clamp(100 * (1 - Math.abs(lateral) / (2 * R)), 0, 100),
-                                        cutAngle: ca, distanceBalls: cue.travel / (2 * R), t
-                                    };
-                                }
-                                const finishBudgetContact = budget?.contact(a, b, t);
-                                lastColl.set(key, step);
-                                const jn = -(1 + S.ballRest) * relN / 2;
-                                a.vx -= jn * nx; a.vy -= jn * ny;
-                                b.vx += jn * nx; b.vy += jn * ny;
-                                const relT = (b.vx - a.vx) * tx + (b.vy - a.vy) * ty - R * (a.wz + b.wz);
-                                const relZ = R * ((a.wx + b.wx) * tx + (a.wy + b.wy) * ty);
-                                const tangential = ballBallTangentialImpulse(relT, relZ, jn);
-                                const jt = tangential.jt, jz = tangential.jz;
-                                a.vx -= jt * tx; a.vy -= jt * ty;
-                                b.vx += jt * tx; b.vy += jt * ty;
-                                a.wz -= 2.5 * jt / R; b.wz -= 2.5 * jt / R;
-                                const dwT = 2.5 * jz / R;
-                                a.wx += dwT * tx; a.wy += dwT * ty;
-                                b.wx += dwT * tx; b.wy += dwT * ty;
-                                finishBudgetContact?.(a, b);
-                                if(firstBallContact&&firstBallContact.t===t&&!firstBallContact.after&&(a.id===0||b.id===0)){
-                                    const cue=a.id===0?a:b;firstBallContact.after={vx:cue.vx,vy:cue.vy,wx:cue.wx,wy:cue.wy};
-                                }
-                                if (firstEvent === "—") firstEvent = `${a.n} → ${b.n}`;
-                            }
-                            // Complete the remaining fraction using post-impact velocities.
-                            // The exact contact normal drives the actual shot as well as UI metrics.
-                            if (rewind > 0) {
-                                for (const ball of [a, b]) {
-                                    ball.x += ball.vx * rewind; ball.y += ball.vy * rewind;
-                                    ball.travel += Math.hypot(ball.vx, ball.vy) * rewind;
-                                }
-                            }
-                        }
-                    }
-                    else {
-                        const dz = (b.z || R) - (a.z || R);
-                        let dist = Math.hypot(dx, dy, dz);
-                        if (dist < minD) {
-                            const key = a.id < b.id ? `${a.id}:${b.id}` : `${b.id}:${a.id}`;
-                            const nx = dist>1e-9?dx/dist:1, ny = dist>1e-9?dy/dist:0, nz = dist>1e-9?dz/dist:0;
-                            const rvx = b.vx - a.vx, rvy = b.vy - a.vy, rvz = b.vz - a.vz;
-                            const relN = rvx * nx + rvy * ny + rvz * nz;
-                            const overlap = minD - dist;
-                            a.x -= nx * overlap * .501; a.y -= ny * overlap * .501;
-                            a.z = Math.max(R, a.z - nz * overlap * .501);
-                            b.x += nx * overlap * .501; b.y += ny * overlap * .501;
-                            b.z = Math.max(R, b.z + nz * overlap * .501);
-                            if (relN < 0 && (!lastColl.has(key) || step - lastColl.get(key) > 2)) {
-                                if (collisionEvents) collisionEvents.push({ids:[a.id,b.id],t});
-                                if (!firstBallContact && (a.id === 0 || b.id === 0)) {
-                                    const cue = a.id === 0 ? a : b, obj = a.id === 0 ? b : a;
-                                    const iv = norm({ x: cue.vx, y: cue.vy });
-                                    const horizontalN = norm({ x: obj.x - cue.x, y: obj.y - cue.y });
-                                    const rv = { x: obj.x - cue.x, y: obj.y - cue.y };
-                                    const lateral = cross(iv, rv);
-                                    const ca = Math.acos(clamp(dot(iv, horizontalN), -1, 1));
-                                    firstBallContact = {
-                                        objId: obj.id, objName: obj.n,
-                                        cuePos: { x: cue.x, y: cue.y }, objPos: { x: obj.x, y: obj.y },
-                                        incoming: iv, normal: horizontalN, signedOffset: lateral,
-                                        overlap: clamp(100 * (1 - Math.abs(lateral) / (2 * R)), 0, 100),
-                                        cutAngle: ca, distanceBalls: cue.travel / (2 * R),
-                                        cueHeight: cue.z, verticalNormal: (a.id === 0 ? nz : -nz), t
-                                    };
-                                }
-                                const finishBudgetContact = budget?.contact(a, b, t);
-                                lastColl.set(key, step);
-                                const jn = -(1 + S.ballRest) * relN / 2;
-                                a.vx -= jn * nx; a.vy -= jn * ny; a.vz -= jn * nz;
-                                b.vx += jn * nx; b.vy += jn * ny; b.vz += jn * nz;
-                                const swx = a.wx + b.wx, swy = a.wy + b.wy, swz = a.wz + b.wz;
-                                const cx = swy * nz - swz * ny;
-                                const cy = swz * nx - swx * nz;
-                                const cz = swx * ny - swy * nx;
-                                let ux = (b.vx - a.vx) - R * cx;
-                                let uy = (b.vy - a.vy) - R * cy;
-                                let uz = (b.vz - a.vz) - R * cz;
-                                const un = ux * nx + uy * ny + uz * nz;
-                                ux -= un * nx; uy -= un * ny; uz -= un * nz;
-                                const jt = ballBallTangentialImpulse3(ux, uy, uz, jn);
-                                a.vx -= jt.jx; a.vy -= jt.jy; a.vz -= jt.jz;
-                                b.vx += jt.jx; b.vy += jt.jy; b.vz += jt.jz;
-                                const jcx = ny * jt.jz - nz * jt.jy;
-                                const jcy = nz * jt.jx - nx * jt.jz;
-                                const jcz = nx * jt.jy - ny * jt.jx;
-                                const k = -2.5 / R;
-                                a.wx += k * jcx; a.wy += k * jcy; a.wz += k * jcz;
-                                b.wx += k * jcx; b.wy += k * jcy; b.wz += k * jcz;
-                                finishBudgetContact?.(a, b);
-                                if (firstEvent === "—") firstEvent = `${a.n} → ${b.n}`;
-                            }
-                        }
-                    }
-                }
+            window.BilliardsBallContacts.resolveStep(B,dt,ballContacts);
             if (search) {
-                if(firstBallContact&&firstBallContact.objId!==search.ballId)break;
+                if(firstBallContact && !firstBallContact.objIds.includes(search.ballId))break;
                 if(firstBallContact&&search.contactOnly)break;
                 const carrier=search.mode==='bank'?search.ballId:0;
                 const before=search.mode==='kick'?(firstBallContact?.t??Infinity):Infinity;
@@ -6116,10 +6107,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 if(!cb.active&&!firstBallContact)break;
             }
             if (step % sampleEvery === 0) {
-                if (budget) for (const b of B) if (b.active) budget.record(b, 'travel', t);
+                if (budget) for (const b of B) if (b.active) budget.record(b, 'travel', t+dt);
                 for (const b of B)
                     if (b.active)
-                        paths[b.id].push({ x: b.x, y: b.y, z: b.z, t });
+                        paths[b.id].push({ x: b.x, y: b.y, z: b.z, t:t+dt });
             }
             if (makeFrames && step % frameEvery === 0)
                 frames.push(captureFrame(t+dt));
@@ -6138,7 +6129,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 primaryClearance = candidates[0];
             }
         }
-        if (budget) for (const b of B) if (b.active) budget.record(b, 'end', simTime);
+        if (budget) for (const b of B) if (b.active) budget.record(b, 'end', simTime+dt);
         return { settled, cueImpact:{elevation:shotElevation,follow:shotFollow,side:shotSide,contact:cueSetup?window.BilliardsCueClearance.contact(cueSetup):null},searchClosest, paths, frames, firstEvent, firstBallContact, pocketEvents, railEvents,
             ...(makeFrames&&training?{cueOrientation}:{}),
             ...(collisionEvents ? {collisionEvents} : {}),
@@ -7200,7 +7191,83 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         ctx.restore();
     }
 
+    let snookerPlanKey, snookerPlan;
+    function snookerDrawingPlan(G) {
+        const key=JSON.stringify(G);
+        if(key!==snookerPlanKey){
+            snookerPlan=window.BilliardsTableConstruction.plan({L:G.L,W:G.W,R:G.R,G});
+            snookerPlanKey=key;
+        }
+        return snookerPlan;
+    }
+    function drawSnookerBed(map,G,cloth) {
+        const plan=snookerDrawingPlan(G);
+        function fill(points,color){
+            ctx.beginPath();
+            points.forEach(([x,,z],i)=>{
+                const p=map({x:x+G.L/2,y:z+G.W/2});
+                if(i)ctx.lineTo(p.x,p.y);else ctx.moveTo(p.x,p.y);
+            });
+            ctx.closePath();
+            ctx.fillStyle=color;ctx.fill();
+        }
+        fill(plan.outer,'#453127');
+        fill(plan.inside,cloth);
+        for(const pocket of plan.pockets)fill(pocket.dropPath,'#101816');
+        for(const rail of plan.rails){
+            fill([rail.at(0,0,0),rail.at(1,0,0),rail.at(1,rail.depth,0),rail.at(0,rail.depth,0)],'#377054');
+        }
+        for(const jaw of window.BilliardsTableConstruction.roundedJaws(G)){
+            const rows=window.BilliardsTableConstruction.jawSections(jaw,plan);
+            fill([...rows.map(row=>row.nose),...rows.map(row=>row.back).reverse()],'#377054');
+        }
+    }
+    function drawInternationalTable(map) {
+        const G=pocketModel(),{L,W,type}=G,profile=window.BilliardsInternational.tables[type];
+        const box=(x0,y0,x1,y1,color)=>{
+            const a=map({x:x0,y:y0}),b=map({x:x1,y:y1});
+            ctx.fillStyle=color;ctx.fillRect(a.x,a.y,b.x-a.x,b.y-a.y);
+        };
+        const line=(a,b)=>{
+            const p=map(a),q=map(b);
+            ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();
+        };
+        const cap=.125,cu=.035,threeD=window.Billiards3D?.active;
+        if(type==='snooker'&&!threeD){
+            drawSnookerBed(map,G,profile.cloth);
+        }else{
+            if(!threeD){box(-cap,-cap,L+cap,W+cap,'#453127');box(-cu,-cu,L+cu,W+cu,'#203d32');}
+            box(threeD?-cap:0,threeD?-cap:0,threeD?L+cap:L,threeD?W+cap:W,profile.cloth);
+            if(!threeD){
+                for(const p of logicalPockets()){
+                    const q={x:p.x+(p.x===0?-.019:p.x===L?.019:0),y:p.y+(p.y===0?-.025:.025)};
+                    logicalCircle(q,(p.kind==='side'?G.sideMouth:G.cornerMouth)*.54,map,'#101816','#51463a',1);
+                }
+                if(type==='carom'&&S.showDiamonds){
+                    for(let i=1;i<8;i++)for(const y of [-.065,W+.065])logicalCircle({x:L*i/8,y},.007,map,'#e6dac2',null,1);
+                    for(let i=1;i<4;i++)for(const x of [-.065,L+.065])logicalCircle({x,y:W*i/4},.007,map,'#e6dac2',null,1);
+                }
+            }
+        }
+        ctx.strokeStyle='#f1ecdb88';ctx.lineWidth=1;
+        if(profile.baulk)line({x:profile.baulk,y:0},{x:profile.baulk,y:W});
+        if(type==='snooker'){
+            ctx.beginPath();
+            for(let i=0;i<=24;i++){
+                const a=Math.PI/2+Math.PI*i/24;
+                const q=map({x:profile.baulk+profile.d*Math.cos(a),y:W/2+profile.d*Math.sin(a)});
+                if(i)ctx.lineTo(q.x,q.y);else ctx.moveTo(q.x,q.y);
+            }
+            ctx.stroke();
+        }
+        const spots=type==='snooker'?[[profile.baulk,W/2-profile.d],[profile.baulk,W/2],[profile.baulk,W/2+profile.d],[L/2,W/2],[L*.75,W/2],[L-profile.black,W/2]]:type==='carom'?[[L/4,W/2-.1825],[L/4,W/2],[L/4,W/2+.1825],[L/2,W/2],[L*.75,W/2]]:[[L*.75,W/2]];
+        for(const [x,y] of spots)logicalCircle({x,y},.004,map,'#ece7d2a8',null,1);
+    }
     function drawTable(map, M) {
+        if(S.tableType!=='pool'){
+            if(S.showTable&&!(isProjector&&projectorProjectionOnly))drawInternationalTable(map);
+            return;
+        }
         if (document.body.classList.contains('zen-mode')) { drawZenTable(map); return; }
         const projectionOnly = isProjector && projectorProjectionOnly;
         if (projectionOnly || !S.showTable)
@@ -7552,9 +7619,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             return;
         }
 
-        if(document.body.classList.contains('zen-mode')){drawZenBall(b,map,label);return;}
-        if(document.body.classList.contains('trainer-workspace') && (b.id !== 0 || S.trainingBallStyle === 'current')) {
-            const image=window.BilliardsBallArt.image(b.id < 0 ? 0 : b.id), q=map(b), e=map({x:b.x+R,y:b.y}), v=map({x:b.x,y:b.y+R}), r=image.width*.46;
+        if(S.ballSet==='classic'&&document.body.classList.contains('zen-mode')){drawZenBall(b,map,label);return;}
+        if(S.ballSet!=='classic'||(document.body.classList.contains('trainer-workspace') && (b.id !== 0 || S.trainingBallStyle === 'current'))) {
+            const image=window.BilliardsBallArt.image(b.id < 0 ? 0 : b.id,S.ballSet), q=map(b), e=map({x:b.x+R,y:b.y}), v=map({x:b.x,y:b.y+R}), r=image.width*.46;
             ctx.save();ctx.transform((e.x-q.x)/r,(e.y-q.y)/r,(v.x-q.x)/r,(v.y-q.y)/r,q.x,q.y);
             ctx.save();ctx.translate(1.5,3);const shade=ctx.createRadialGradient(0,0,r*.3,0,0,r*1.08);shade.addColorStop(0,'#0007');shade.addColorStop(1,'#0000');ctx.fillStyle=shade;ctx.beginPath();ctx.arc(0,0,r*1.08,0,Math.PI*2);ctx.fill();ctx.restore();
             ctx.drawImage(image,-image.width/2,-image.height/2);ctx.restore();return;
@@ -7941,7 +8008,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 {text:'Cut angle '+angle(info.cutDegrees),color:'#fff'},
                 {text:'Exit angle '+angle(info.exitDegrees),color:'#fff'}];
             const anchor=map(item.contact.cuePos);
-            const badge=api.placeBadge(rows,anchor,placement)||api.placeBadge(rows,anchor,{...placement,segments:[]});
+            const badge=api.placeBadge(rows,anchor,placement)||api.placeBadge(rows,anchor,{...placement,segments:[]})||
+                (!window.Billiards3D?.active && api.placeBadge(rows,anchor,{...placement,bounds,segments:[]}));
             if(badge)badges.push({...badge,type:'overlap',opacity:.64});
         }
         if(S.showShotBudget&&S.showPaths){
@@ -8796,7 +8864,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         return hit??plan?.ballId;
     }
     function currentPocketFeedback(){
-        if(animation||isZenPage||isProjector||!S.showTable)return [];
+        if(S.tableType==='carom'||animation||isZenPage||isProjector||!S.showTable)return [];
         const state=chanceState(),id=activeChanceTarget(state);if(!Number.isInteger(id)||id<=0||!shotGuidesVisible((S.activeShot===2||runoutView)&&S.shot2Enabled?2:1))return [];
         return window.BilliardsPocketFeedback.analyze(state,state.preview,id);
     }
@@ -8807,11 +8875,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if(bankHits.length&&kickHits.length)return null;
         const bank=!!bankHits.length,sol={mode:bank?'bank':'kick',fullShot:true,reached:true,scratch:preview.pocketEvents.some(e=>e.id===0),ballId:id,target:event,bounces:hits.map(e=>({x:e.x,y:e.y,rail:{name:e.rail.replace(' rail','')}})),points:bank?preview.paths[id]:(preview.paths[0]||[]).filter(p=>p.t<=contact.t),objectPath:bank?null:preview.paths[id],shotSide:state.sideSpin};
         const chance=window.BilliardsShotChance.route(state,sol);if(!chance)return null;
-        const pocket=window.BilliardsShotChance.pockets(state).reduce((a,b)=>Math.hypot(a.x-event.x,a.y-event.y)<Math.hypot(b.x-event.x,b.y-event.y)?a:b);
+        const pocket=nearestLogicalPocket(event);
+        if(!pocket)return null;
         return {...chance,type:bank?'Bank':'Kick',pocket:pocket.name,verification:'physics'};
     }
     function shotChanceMarkers(){
-        if(S.showPocketChances===false||animation||isZenPage||isProjector||!S.showTable)return [];
+        if(S.tableType==='carom'||S.showPocketChances===false||animation||isZenPage||isProjector||!S.showTable)return [];
         const second=(S.activeShot===2||runoutView)&&S.shot2Enabled;if(!shotGuidesVisible(second?2:1))return [];
         const state=chanceState();
         if(S.bankKick?.mode){const sol=computeBankKickSolution();if(!sol)return [];const chance=window.BilliardsShotChance.route(state,sol);if(!chance)return [];return [{...chance,id:'route-chance',text:chance.outcome+' '+window.BilliardsShotChance.text(chance.probability),color:window.BilliardsShotChance.color(chance.probability,chance.probability>=.65)}];}
@@ -8968,7 +9037,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 }
                 live.splice(0,live.length,...leave);
             }
-            window.Billiards3D.update({cuePose:animation?.cuePose||nextPose||cuePoseFor3D(),showRealCue:S.showCueStick!==false&&S.showTable&&shotGuidesVisible(animation?1:second?2:1),cueStrokeTime:animation?.visualTime,pocketFeedback:(!clean||recordingGuides)&&S.showPocketGlow!==false?currentPocketFeedback():[],cameraLabels,showBankKickNumbers:!!(S.showBankKickNumbers||S.bankKick?.mode)&&S.showTable&&!clean,trainingBallStyle:S.trainingBallStyle,L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds,animating:!!animation,overlayEditing:!!compassState().enabled,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:(clean||S.showCueStick===false)?[]:(animation?.cueTips||cueTipsFor3D()).filter(tip=>tip.id!=='CB2'||!S.shot2CueBallOnly),balls:live,ghostBalls:clean&&!recordingGuides?[]:ghostBallsFor3D(),map,aim:!clean&&cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
+            window.Billiards3D.update({cuePose:animation?.cuePose||nextPose||cuePoseFor3D(),showRealCue:S.showCueStick!==false&&S.showTable&&shotGuidesVisible(animation?1:second?2:1),cueStrokeTime:animation?.visualTime,pocketFeedback:(!clean||recordingGuides)&&S.showPocketGlow!==false?currentPocketFeedback():[],cameraLabels,showBankKickNumbers:!!(S.showBankKickNumbers||S.bankKick?.mode)&&S.showTable&&!clean,trainingBallStyle:S.trainingBallStyle,ballSet:S.ballSet,L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel(),showDiamonds:S.showDiamonds&&['pool','carom'].includes(S.tableType),animating:!!animation,overlayEditing:!!compassState().enabled,railEditing:!!S.bankKick?.mode&&!!S.bankKick.phase,cueTips:(clean||S.showCueStick===false)?[]:(animation?.cueTips||cueTipsFor3D()).filter(tip=>tip.id!=='CB2'||!S.shot2CueBallOnly),balls:live,ghostBalls:clean&&!recordingGuides?[]:ghostBallsFor3D(),map,aim:!clean&&cb?{cue:{x:cb.x,y:cb.y},target:{...(second?S.shot2.freeAim:S.freeAim)}}:null});
         }
     }
     function tipDescription() { return tipDescriptionValues(S.sideSpin, S.follow); }
@@ -9512,7 +9581,21 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         $('elevText').textContent = (+S.cueElevationDeg).toFixed(1) + '°';
         updateMarkerZoneControls();
         const ballSel = $('ballSelect');
+        const art=window.BilliardsInternational;
+        const maxBall=art.maxId(S.ballSet);
+        $('poolBallSetRow').hidden=S.tableType!=='pool';
+        $('poolBallSet').value=S.tableType==='pool'?S.ballSet:S.poolBallSet;
         if (ballSel) {
+            if(ballSel.dataset.set!==S.ballSet){
+                const previous=ballSel.value;
+                ballSel.querySelectorAll('option').forEach(o=>{if(/^\d+$/.test(o.value))o.remove();});
+                for(let id=maxBall;id>=0;id--){
+                    const option=new Option(art.ball(S.ballSet,id)?.name||(id?'Ball '+id:'Cue Ball'),id);
+                    ballSel.prepend(option);
+                }
+                if([...ballSel.options].some(o=>o.value===previous))ballSel.value=previous;
+                ballSel.dataset.set=S.ballSet;
+            }
             const choice = ballSel.value || '';
             if (choice.startsWith('marker:')) {
                 const type = choice.split(':')[1];
@@ -9531,6 +9614,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 $('removeBall').textContent = 'Remove Ball';
             }
         }
+        $('clothNapRow').hidden=S.tableType!=='snooker';
+        $('clothNap').value=Number((S.clothNap*100).toFixed(1));
         $('tableL').value = (S.tableL / inch).toFixed(2);
         $('tableW').value = (S.tableW / inch).toFixed(2);
         $('ballD').value = (S.ballR * 2 / inch).toFixed(3);
@@ -9597,7 +9682,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             values[key] = value;
         }
         if (!['standard','low','custom'].includes(values.cuePreset) || !['in','mm'].includes(values.jumpUnits)) return false;
-        const limits = {tableL:[60*.0254,120*.0254],tableW:[30*.0254,60*.0254],ballR:[1.5*.0254/2,3*.0254/2],muSlide:[0,.5],muRoll:[0,.1],muBall:[0,.2],ballRest:[.5,1],railRest:[.3,1],railTang:[.5,1],cueEndmassRatio:[8,60],tableRest:[0,.95],bedImpactMu:[0,.5]};
+        const limits = {tableL:[60*.0254,145*.0254],tableW:[30*.0254,73*.0254],ballR:[1.5*.0254/2,3*.0254/2],muSlide:[0,.5],muRoll:[0,.1],muBall:[0,.2],ballRest:[.5,1],railRest:[.3,1],railTang:[.5,1],cueEndmassRatio:[8,60],tableRest:[0,.95],bedImpactMu:[0,.5]};
         for (const [key,[min,max]] of Object.entries(limits)) values[key] = clamp(values[key],min,max);
         beginActionUndo();
         Object.assign(S, values);
@@ -9660,9 +9745,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         S.sideSpin = +$('sideSpin').value;
          S.jumpUnits = $('jumpUnits').value === 'mm' ? 'mm' : 'in';
         if(event?.target?.id==='cueElevation') S.cueElevationDeg = clamp(+$('cueElevation').value, 0, cueElevationMax());
-        S.tableL = +$('tableL').value * inch;
-        S.tableW = +$('tableW').value * inch;
-        S.ballR = +$('ballD').value * inch / 2;
+        if(S.tableType==='pool'||event?.target?.id==='tableL')S.tableL = +$('tableL').value * inch;
+        if(S.tableType==='pool'||event?.target?.id==='tableW')S.tableW = +$('tableW').value * inch;
+        if(S.tableType==='pool'||event?.target?.id==='ballD')S.ballR = +$('ballD').value * inch / 2;
+        if(event?.target?.id==='clothNap')S.clothNap=clamp(+$('clothNap').value/100,0,.5);
         S.muSlide = +$('muSlide').value;
         S.muRoll = +$('muRoll').value;
         S.muBall = +$('muBall').value;
@@ -9725,7 +9811,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         b.classList.toggle('locked', locked);
         b.setAttribute('aria-pressed', locked ? 'true' : 'false');
     }
-    function resetLayout() { animation = null; const keep = { ...window.BilliardsGuidance.preferences(S), tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, cuePreset:S.cuePreset, airbornePhysics: S.airbornePhysics, jumpModeLocked: S.jumpModeLocked===true, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showPracticeCounter:S.showPracticeCounter, shot2CueBallOnly:S.shot2CueBallOnly, aimZones:aimZoneFlags(), showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; Object.assign(S,{balls:[],allowMissingCueBall:true,freeAim:{x:S.tableL*.75,y:S.tableW*.5},pocketedLog:[],nextId:1}); resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
+    function resetLayout() { animation = null; const keep = { ...window.BilliardsGuidance.preferences(S), tableType:S.tableType,ballSet:S.ballSet,poolBallSet:S.poolBallSet,poolCalibration:S.poolCalibration,clothNap:S.clothNap, tableL: S.tableL, tableW: S.tableW, ballR: S.ballR, muSlide: S.muSlide, muRoll: S.muRoll, muBall: S.muBall, ballRest: S.ballRest, railRest: S.railRest, railTang: S.railTang, cueEndmassRatio: S.cueEndmassRatio, cuePreset:S.cuePreset, airbornePhysics: S.airbornePhysics, jumpModeLocked: S.jumpModeLocked===true, tableRest: S.tableRest, bedImpactMu: S.bedImpactMu, showScoreBoard: S.showScoreBoard, showPracticeCounter:S.showPracticeCounter, shot2CueBallOnly:S.shot2CueBallOnly, aimZones:aimZoneFlags(), showBankKickNumbers: S.showBankKickNumbers, showAngleLockControl: S.showAngleLockControl }; S = defaultState(); Object.assign(S, keep); S.showShot1 = true; S.showShot2 = true; S.showCueVisuals = true; S.showCueVisuals1 = true; S.showCueVisuals2 = true; Object.assign(S,{balls:[],allowMissingCueBall:true,freeAim:{x:S.tableL*.75,y:S.tableW*.5},pocketedLog:[],nextId:1}); resetGameMeta('custom'); normalizeBallSet(); updateUI(); refreshPreview(); resetRunHistory(); }
     function keepCueOnTable(q){
         const gap=Math.max(S.ballR*2.2,.065),p={x:clamp(q.x,S.ballR,S.tableL-S.ballR),y:clamp(q.y,S.ballR,S.tableW-S.ballR)};
         for(const pocket of logicalPockets())if(Math.hypot(p.x-pocket.x,p.y-pocket.y)<gap){
@@ -10057,7 +10143,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     function returnZenBallToTray(id){
         const ball=S.balls.find(b=>b.id===id&&!b.marker);
-        if(!ball||id<0||id>15)return false;
+        if(!ball||id<0||id>window.BilliardsInternational.maxId(S.ballSet))return false;
         if(id===0)S.allowMissingCueBall=true;
         S.balls=S.balls.filter(b=>b!==ball);
         S.pocketedLog=[...new Set([...(S.pocketedLog||[]),id])];
@@ -10766,7 +10852,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     window.billiardsCueSetup={
         state(which=S.activeShot===2&&S.shot2Enabled?2:1){return {cue:animation?.cuePose||cuePoseFor3D(which),preferences:{...cueStrokePreferences},busy:!!animation||!!window.BilliardsShotRecorder?.busy};},
         set(value){if(animation||window.BilliardsShotRecorder?.busy)return false;if(['auto','short','normal','long'].includes(value.style))cueStrokePreferences.style=value.style;if(Number.isFinite(+value.hold))cueStrokePreferences.hold=clamp(+value.hold,.5,4);try{localStorage.setItem('trainer.cueStroke.v1',JSON.stringify(cueStrokePreferences));}catch{}refreshPreview();saveState();return true;},
-        reachable(side,follow,which=1){const v=which===2?ensureShot2():S,ball=which===2?v:cueBall();if(!ball)return true;const c=cueSideContact(side,follow,v.cueElevationDeg),d=shotAimDirection(which);return !window.BilliardsCueClearance.solve({id:which===2?'CB2':0,x:ball.x,y:ball.y,z:S.ballR,R:S.ballR,dx:d.x,dy:d.y,rear:c.x,height:c.z,sideR:c.tip.sideR,elevation:v.cueElevationDeg},{L:S.tableL,W:S.tableW,R:S.ballR},{...cueStrokePreferences,speed:v.speed},S.balls).blocked;}
+        reachable(side,follow,which=1){const v=which===2?ensureShot2():S,ball=which===2?v:cueBall();if(!ball)return true;const c=cueSideContact(side,follow,v.cueElevationDeg),d=shotAimDirection(which);return !window.BilliardsCueClearance.solve({id:which===2?'CB2':0,x:ball.x,y:ball.y,z:S.ballR,R:S.ballR,dx:d.x,dy:d.y,rear:c.x,height:c.z,sideR:c.tip.sideR,elevation:v.cueElevationDeg},{L:S.tableL,W:S.tableW,R:S.ballR,G:pocketModel()},{...cueStrokePreferences,speed:v.speed},S.balls).blocked;}
     };
     window.billiardsTrainingBall={
         state(){const second=S.shot2Enabled&&S.activeShot===2,ball=second?ensureShot2():cueBall(),d=shotAimDirection(second?2:1),values=second?S.shot2:S,contact=cueSideContact(values.sideSpin,values.follow,values.cueElevationDeg);return {hasCue:!!ball,style:S.trainingBallStyle,orientation:window.BilliardsTrainingBall.normalize(ball?.orientation),aim:d,tip:{x:contact.tip.sideR,y:cuePoseFor3D(second?2:1)?.height??contact.z},busy:!!animation||!!window.BilliardsShotRecorder?.busy,shot:second?2:1};},
@@ -14346,7 +14432,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         for(const [id,key,min,max] of [['guidanceAimError','guidanceAimErrorDeg',.03,2],['guidanceRailError','guidanceRailErrorDeg',.05,3]])$(id).onchange=()=>{const value=Number($(id).value);if(Number.isFinite(value))S[key]=clamp(value,min,max);queueRunoutForecast();syncGuidanceControls();draw();saveState();};
         $('guidanceOrder').onchange=()=>{S.guidanceOrder=$('guidanceOrder').value;guidancePending=true;refreshPreview();updateUI();saveState();};
         $('guidanceGroup').onchange=()=>{const player=S.activePlayer||1,value=$('guidanceGroup').value;S.guidanceGroups={...(S.guidanceGroups||{}),[player]:value,[player===1?2:1]:value==='solids'?'stripes':value==='stripes'?'solids':'open'};guidancePending=true;refreshPreview();updateUI();saveState();};
-        const changeIds = ['tableL', 'tableW', 'ballD', 'muSlide', 'muRoll', 'muBall', 'ballRest', 'railRest', 'railTang', 'cueEndmassRatio', 'jumpUnits', 'tableRest', 'bedImpactMu', 'showImpact', 'showFullGhostBall', 'showRestingCueBall', 'showTipBadge', 'showShotLine', 'showCueStick', 'showPaths', 'showGrid', 'showDiamonds', 'showTable', 'showAngleLockControl'];
+        const changeIds = ['tableL', 'tableW', 'ballD', 'clothNap', 'muSlide', 'muRoll', 'muBall', 'ballRest', 'railRest', 'railTang', 'cueEndmassRatio', 'jumpUnits', 'tableRest', 'bedImpactMu', 'showImpact', 'showFullGhostBall', 'showRestingCueBall', 'showTipBadge', 'showShotLine', 'showCueStick', 'showPaths', 'showGrid', 'showDiamonds', 'showTable', 'showAngleLockControl'];
         $('cueShaftPreset').addEventListener('change',()=>{S.cuePreset=$('cueShaftPreset').value;if(CUE_SHAFT_PRESETS[S.cuePreset])S.cueEndmassRatio=CUE_SHAFT_PRESETS[S.cuePreset];updateUI();refreshPreview();saveState();});
         $('cueEndmassRatio').addEventListener('change',()=>{S.cuePreset='custom';});
         changeIds.forEach(id => $(id).addEventListener('change', applyUI));
@@ -14475,6 +14561,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         $('resetLayoutQuick').onclick = resetLayout;
         $('makeRandomSetup').onclick = createRandomSetup;
         $('startFullRack').onclick = startFullRack;
+        $('poolBallSet').onchange=()=>{
+            if(animation||S.tableType!=='pool')return;
+            S.ballSet=S.poolBallSet=$('poolBallSet').value;
+            updateUI();draw();saveState();syncProjector();
+        };
         $('shuffleTableLayout').onclick = shuffleTableLayout;
         $('resetLayout').onclick = resetLayout;
         document.querySelectorAll('.advancedToggle').forEach(btn => btn.addEventListener('click', () => {
@@ -14595,11 +14686,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             updateRunCount();toast('Removed '+color+' '+shape+' marker');
         };
         function addSpecificBallById(id) {
-            if (!Number.isInteger(id) || id < 0 || id > 15)
+            if (!Number.isInteger(id) || id < 0 || id > window.BilliardsInternational.maxId(S.ballSet))
                 return false;
             if (S.balls.some(b => b.id === id))
                 return false;
-            const present = S.balls.filter(b => b.id >= 1 && b.id <= 15).length;
+            const present = S.balls.filter(b => b.id >= 1 && b.id <= window.BilliardsInternational.maxId(S.ballSet)).length;
             const col = present % 5, row = Math.floor(present / 5) % 3;
             const x = clamp(S.tableL * (.55 + col * .055), S.ballR * 2, S.tableL - S.ballR * 2);
             const y = clamp(S.tableW * (.22 + row * .20), S.ballR * 2, S.tableW - S.ballR * 2);
@@ -14616,10 +14707,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             return true;
         }
         $('addNextBall').onclick = () => {
-            const ids = S.balls.filter(b => b.id >= 1 && b.id <= 15).map(b => b.id);
+            const ids = S.balls.filter(b => b.id >= 1 && b.id <= window.BilliardsInternational.maxId(S.ballSet)).map(b => b.id);
             const used = new Set(ids);
-            if (used.size >= 15) {
-                toast('All balls 1–15 are already on the table');
+            const limit=window.BilliardsInternational.maxId(S.ballSet);
+            if (used.size >= limit) {
+                toast('All balls in this set are already on the table');
                 return;
             }
             // "Next ball" means the next sequential number after the highest-numbered
@@ -14627,14 +14719,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             // missing number.
             const maxId = ids.length ? Math.max(...ids) : 0;
             let id = 0;
-            for (let n = maxId + 1; n <= 15; n++) {
+            for (let n = maxId + 1; n <= limit; n++) {
                 if (!used.has(n)) {
                     id = n;
                     break;
                 }
             }
             if (!id) {
-                for (let n = 1; n <= 15; n++) {
+                for (let n = 1; n <= limit; n++) {
                     if (!used.has(n)) {
                         id = n;
                         break;
@@ -14652,7 +14744,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 return;
             }
             const id = selectedObjectBallId();
-            if (!Number.isInteger(id) || id < 0 || id > 15)
+            if (!Number.isInteger(id) || id < 0 || id > window.BilliardsInternational.maxId(S.ballSet))
                 return;
             if (S.balls.some(b => b.id === id)) {
                 toast('Ball ' + id + ' is already on the table');
@@ -14684,7 +14776,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             }
 
             const id = selectedObjectBallId();
-            if (!id || id < 1 || id > 15)
+            if (!id || id < 1 || id > window.BilliardsInternational.maxId(S.ballSet))
                 return;
             if (!S.balls.some(b => b.id === id)) {
                 toast('Ball ' + id + ' is not on the table');
@@ -14700,7 +14792,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             updateRunCount();
             toast('Removed ball ' + id);
         };
-        document.querySelectorAll('[data-preset]').forEach(btn => btn.onclick = () => { const p = presets[btn.dataset.preset], inch = .0254; S.tableL = p[0] * inch; S.tableW = p[1] * inch; resetLayout(); });
+        document.querySelectorAll('[data-preset]').forEach(btn => btn.onclick = () => { const p = presets[btn.dataset.preset], inch = .0254; if(S.tableType!=='pool')restorePoolEquipment(); S.tableL = p[0] * inch; S.tableW = p[1] * inch; resetLayout(); });
     }
     else {
         try {
@@ -14846,9 +14938,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <script src="./phone-play.js?v=workspace-1"></script>
   <link rel="stylesheet" href="./trainer-3d.css?v=position-speed-r2">
   <script src="./trainer-cue3d.js?v=cloth-shadow-2"></script>
-  <script src="./trainer-3d.js?v=20261121-elevation-detection"></script>
+  <script src="./trainer-3d.js?v=international-contact-accuracy"></script>
   <link rel="stylesheet" href="./trainer-workspace.css?v=20261121-elevation-detection">
-  <script src="./trainer-workspace.js?v=position-speed-r2"></script>
+  <script src="./trainer-workspace.js?v=international-contact-accuracy"></script>
   <link rel="stylesheet" href="./trainer-player-view.css?v=1">
   <script src="./trainer-player-view.js?v=shot-2-view"></script>
   <script src="./trainer-cue-controls.js?v=1"></script>

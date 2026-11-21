@@ -12,6 +12,7 @@
  const spread=s=>clamp(Number(s.guidanceAimErrorDeg)||.15,.03,2)*Math.PI/180;
  const railSpread=s=>clamp(Number(s.guidanceRailErrorDeg)||.35,.05,3)*Math.PI/180;
  function pockets(s){
+  if(s.tableType==='carom'||s.pocketGeometry?.pocketless)return [];
   const L=s.tableL,W=s.tableW,g=s.pocketGeometry||{},corner=g.cornerMouth||.110,side=g.sideMouth||.120,a=corner/Math.SQRT2/2;
   return [{name:'top left',x:a,y:a,nx:-Math.SQRT1_2,ny:-Math.SQRT1_2,mouth:corner},
    {name:'top middle',x:L/2,y:0,nx:0,ny:-1,mouth:side},
@@ -69,7 +70,7 @@
   let half,bias=0,outcome;
   if(contact){half=2*s.ballR;outcome='Contact';const path=sol.points||[],end=path.at(-1);if(valid(end)&&length(last,end)>1e-6)bias=cross({x:ball.x-last.x,y:ball.y-last.y},unit(last,end));}
   else if(location&&!sol.intentionalCuePocket){half=s.ballR*.35;outcome='Reach zone';}
-  else{const p=pockets(s).reduce((a,b)=>length(a,sol.target)<length(b,sol.target)?a:b);if(length(p,sol.target)>.15)return null;
+  else{const p=pockets(s).reduce((a,b)=>!a||length(b,sol.target)<length(a,sol.target)?b:a,null);if(!p||length(p,sol.target)>.15)return null;
    const departure=kickPot?unit(ball,p):u;half=aperture(s,p,departure);outcome=bank?'Bank pocket':'Kick pocket';
    if(kickPot){
     const path=sol.points||[],end=path.at(-1);if(!valid(end)||length(last,end)<.0001)return null;

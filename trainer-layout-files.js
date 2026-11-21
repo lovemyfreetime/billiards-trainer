@@ -8,6 +8,7 @@ function clean(value,depth=0){
  if(value&&typeof value==='object'){const out={};for(const [k,v]of Object.entries(value))if(!['__proto__','constructor','prototype'].includes(k))out[k]=clean(v,depth+1);return out;}
  throw Error('Invalid file content.');
 }
+const equipment=typeof module!=='undefined'&&module.exports?require('./trainer-international.js'):root.BilliardsInternational;
 function parse(text){
  if(text.length>2000000)throw Error('Layout file is too large.');
  const p=clean(JSON.parse(text));if(p.format&&p.format!=='billiards-trainer')throw Error('This is not a Billiards Trainer file.');
@@ -19,8 +20,15 @@ function parse(text){
  layout.tableL=L;layout.tableW=W;layout.ballR=R;
  if(layout.freeAim&&(!Number.isFinite(layout.freeAim.x)||!Number.isFinite(layout.freeAim.y)))throw Error('Invalid aim position.');
  layout.setupMode=['custom','8ball','9ball','10ball','3ball'].includes(layout.setupMode)?layout.setupMode:'custom';
+ const set=equipment?.ballSet(layout.ballSet)||'classic';
+ const lastId=equipment?.maxId(set)||15;
+ if(layout.tableType!==undefined)layout.tableType=equipment?.tableType(layout.tableType)||'pool';
+ if(layout.ballSet!==undefined)layout.ballSet=set;
+ if(layout.clothNap!==undefined)layout.clothNap=Math.min(.5,Math.max(0,Number(layout.clothNap)||0));
+ if(layout.muSlide!==undefined)layout.muSlide=Math.min(.5,Math.max(0,Number(layout.muSlide)||0));
+ if(layout.muRoll!==undefined)layout.muRoll=Math.min(.1,Math.max(0,Number(layout.muRoll)||0));
  const seen=new Set();layout.balls=layout.balls.map(b=>{
-  if(!b||!Number.isInteger(b.id)||seen.has(b.id)||!(b.marker?b.id>=1000:b.id>=0&&b.id<=15)||!Number.isFinite(b.x)||!Number.isFinite(b.y))throw Error('Invalid or duplicate ball.');
+  if(!b||!Number.isInteger(b.id)||seen.has(b.id)||!(b.marker?b.id>=1000:b.id>=0&&b.id<=lastId)||!Number.isFinite(b.x)||!Number.isFinite(b.y))throw Error('Invalid or duplicate ball.');
   seen.add(b.id);return {...b,x:Math.max(R,Math.min(L-R,b.x)),y:Math.max(R,Math.min(W-R,b.y)),active:true};
  });
  layout.name=String(p.name||layout.name||'Shared table').slice(0,60);layout.allowMissingCueBall=!seen.has(0);

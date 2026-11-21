@@ -14,6 +14,7 @@
   const addScaled = (a, b, t) => ({ x: a.x + b.x * t, y: a.y + b.y * t });
 
   function mouths(g) {
+    if(g.pocketless)return [];
     const { L, W, cornerLeg: c, sideMouth } = g, h = sideMouth / 2;
     return [
       { name: 'TL', kind: 'corner', a: { x: c, y: 0 }, b: { x: 0, y: c }, outside: { x: -1, y: -1 } },

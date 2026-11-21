@@ -502,10 +502,10 @@
    }
    for(const [kind,group]of ghostMeshes)if(!visible.has(kind))group.visible=false;
   }
-  function ballMaterial(id,style='current'){
-   const key=id===0?'cue-'+style:id;
+  function ballMaterial(id,style='current',set='classic'){
+   const key=set+':'+id+':'+style;
    if(materials.has(key))return materials.get(key);
-   const map=new T.CanvasTexture(window.BilliardsBallArt.texture(id,style));map.colorSpace=T.SRGBColorSpace;map.anisotropy=4;
+   const map=new T.CanvasTexture(window.BilliardsBallArt.texture(id,style,set));map.colorSpace=T.SRGBColorSpace;map.anisotropy=4;
    const material=new T.MeshStandardMaterial({map,roughness:.20,metalness:0,envMapIntensity:.85});
    materials.set(key,material);return material;
   }
@@ -589,6 +589,23 @@
    }
    const mesh=addMesh(vertices,indices,cushionMaterial,'cushion',uvs);mesh.userData.elastic='cushion';mesh.userData.undeformed=mesh.geometry.attributes.position.array.slice();
   }
+  function addRoundedJaw(jaw,plan){
+   const {profile}=plan,vertices=[],indices=[],uvs=[];
+   const rows=window.BilliardsTableConstruction.jawSections(jaw,plan);
+   for(let i=0;i<rows.length;i++){
+    const {nose,back}=rows[i];
+    for(const [t,h] of profile){
+     vertices.push(nose[0]+t*(back[0]-nose[0]),h,nose[2]+t*(back[2]-nose[2]));
+     uvs.push(i/(rows.length-1),t);
+    }
+   }
+   const count=profile.length;
+   for(let row=0;row<rows.length-1;row++)for(let j=0;j<count;j++){
+    const a=row*count,b=(row+1)*count,k=(j+1)%count;
+    indices.push(a+j,a+k,b+j,a+k,b+k,b+j);
+   }
+   addMesh(vertices,indices,cushionMaterial,'rounded-jaw',uvs);
+  }
   let elasticKey='';
   function updateElastic(f){
    const pose=realCue?.status(),key=pose&&pose.visible?JSON.stringify([pose.tip,pose.back,f.L,f.W]):'rest';if(key===elasticKey)return;elasticKey=key;
@@ -660,7 +677,9 @@
    const capUV=capGeometry.attributes.uv,capP=capGeometry.attributes.position;
    for(let i=0;i<capP.count;i++){const x=capP.getX(i),z=capP.getZ(i),end=Math.abs(x)>f.L/2+plan.cushionWidth&&Math.abs(z)<f.W/2;capUV.setXY(i,(end?x:z)/1.8,(end?z:x)/1.8);}
    const cap=new T.Mesh(capGeometry,[woodMaterial,pocketLip]);cap.position.y=-.032;cap.castShadow=true;cap.receiveShadow=false;cap.userData.construction='rail-cap';table.add(cap);
+   cushionMaterial.color.set(plan.G.type==='snooker'?0x377054:0x2e7487);
    for(const r of plan.rails)addCushion(r,plan);
+   for(const jaw of window.BilliardsTableConstruction.roundedJaws(plan.G))addRoundedJaw(jaw,plan);
    if(f.showDiamonds!==false)for(const point of plan.sights){
     const shape=new T.Shape();shape.absarc(0,0,plan.sightRadius,0,Math.PI*2,false);const geometry=new T.ShapeGeometry(shape,16);geometry.rotateX(-Math.PI/2);const mesh=new T.Mesh(geometry,sightMaterial);mesh.position.fromArray(point);mesh.userData.sight=true;mesh.userData.radius=plan.sightRadius;table.add(mesh);
    }
@@ -785,7 +804,7 @@
      const contact=new T.Mesh(contactGeometry,new T.MeshBasicMaterial({map:contactTexture,transparent:true,depthWrite:false,toneMapped:false}));contactGroup.add(contact);contacts.set(b.id,contact);
     }
     const cue=b.id===0||b.id==='CB2';
-    if(cue)group.children[0].material=ballMaterial(0,f.trainingBallStyle||'current');
+    group.children[0].material=ballMaterial(cue?0:b.id,cue?f.trainingBallStyle||'current':'current',f.ballSet);
     const orientation=cue?window.BilliardsTrainingBall.normalize(b.orientation):null;
     if(cue)group.children[0].quaternion.fromArray(orientation);
     const centerHeight=Number.isFinite(b.z)?Math.max(f.R,b.z):f.R,oldPosition=group.position.clone();

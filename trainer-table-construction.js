@@ -2,10 +2,73 @@
 'use strict';
 const reference=typeof module==='object'&&module.exports?require('./trainer-zen-shapes.js'):null;
 const railWidth=.154;
+function roundedJaws(G){
+ if(G.type!=='snooker')return [];
+ const {L,W,cornerLeg:cl,cornerThroatInset:ci,cornerJawOut:co,sideMouth,sideThroat,sideJawOut:so}=G;
+ const sm=sideMouth/2,st=sideThroat/2,paths=[];
+ function add(a,b,tangent,outward){
+  const reach=Math.hypot(b.x-a.x,b.y-a.y)*.55;
+  const control={x:a.x+tangent.x*reach,y:a.y+tangent.y*reach};
+  const points=Array.from({length:13},(_,i)=>{
+   const t=i/12,u=1-t;
+   return {x:u*u*a.x+2*u*t*control.x+t*t*b.x,y:u*u*a.y+2*u*t*control.y+t*t*b.y};
+  });
+  paths.push({points,outward});
+ }
+ for(const ySign of [1,-1]){
+  const y=ySign===1?0:W;
+  for(const xSign of [1,-1]){
+   add({x:L/2-xSign*sm,y},{x:L/2-xSign*st,y:y-ySign*so},{x:xSign,y:0},{x:0,y:-ySign});
+   const x=xSign===1?0:L;
+   add({x:x+xSign*cl,y},{x:x+xSign*ci,y:y-ySign*co},{x:-xSign,y:0},{x:0,y:-ySign});
+   add({x,y:y+ySign*cl},{x:x-xSign*co,y:y+ySign*ci},{x:0,y:-ySign},{x:-xSign,y:0});
+  }
+ }
+ return paths;
+}
+// The nose is the collision curve. Its backing extends only toward the rail.
+function jawSections(jaw,plan){
+ const {points,outward}=jaw;
+ return points.map((point,i)=>{
+  const a=points[Math.max(0,i-1)],b=points[Math.min(points.length-1,i+1)];
+  const dx=b.x-a.x,dy=b.y-a.y,length=Math.hypot(dx,dy);
+  const sign=dy*outward.x-dx*outward.y<0?-1:1;
+  const depth=plan.cushionWidth*(1-.8*i/(points.length-1));
+  const nose=[point.x-plan.L/2,plan.noseHeight,point.y-plan.W/2];
+  return {nose,back:[nose[0]+sign*dy/length*depth,plan.capHeight,nose[2]-sign*dx/length*depth]};
+ });
+}
+function pocketlessPlan(f,ref,G){
+ const halfL=f.L/2,halfW=f.W/2,depth=.04,margin=.125,capHeight=.044,noseHeight=G.nose||.037;
+ const ring=(d,h)=>[[-halfL-d,h,-halfW-d],[halfL+d,h,-halfW-d],[halfL+d,h,halfW+d],[-halfL-d,h,halfW+d]];
+ const noses=ring(0,0),backs=ring(depth,0);
+ const rails=noses.map((a,i)=>{
+  const j=(i+1)%4,b=noses[j],length=Math.hypot(b[0]-a[0],b[2]-a[2]),u=[(b[0]-a[0])/length,(b[2]-a[2])/length],n=[u[1],-u[0]];
+  const at=(end,v,h)=>{const k=end?j:i,point=noses[k],back=backs[k];return [point[0]+(back[0]-point[0])*v/depth,h,point[2]+(back[2]-point[2])*v/depth];};
+  return {a:[a[0],a[2]],b:[b[0],b[2]],length,depth,u,n,at};
+ });
+ const sights=[];
+ for(let i=1;i<8;i++)for(const z of [-halfW-.065,halfW+.065])sights.push([(i/8-.5)*f.L,capHeight+.0003,z]);
+ for(let i=1;i<4;i++)for(const x of [-halfL-.065,halfL+.065])sights.push([x,capHeight+.0003,(i/4-.5)*f.W]);
+ const profile=[[0,noseHeight],[.15,noseHeight+.003],[1,capHeight],[1,.003],[.1,.008]];
+ return {L:f.L,W:f.W,R:f.R,G,reference:ref,outer:ring(margin,0),inside:ring(depth,capHeight),railWidth:margin,
+  cushionWidth:depth,capHeight,noseHeight,rails,pockets:[],profile,sights,sightRadius:.007};
+}
 function plan(f){
  const ref=reference||root.BilliardsZenShapes,A=ref.registration,G=f.G||{cornerMouth:.110,sideMouth:.120};
- const pixel=(p,h=0)=>[(p[0]-A.x0)/(A.x1-A.x0)*f.L-f.L/2,h,(p[1]-A.y0)/(A.y1-A.y0)*f.W-f.W/2];
- const capHeight=.044,noseHeight=f.R*2*.635;
+ if(G.pocketless)return pocketlessPlan(f,ref,G);
+ function scale(value,knots){
+  let i=1;
+  while(i<knots.length-1&&value>knots[i][0])i++;
+  const [a,x]=knots[i-1],[b,y]=knots[i];
+  return x+(value-a)*(y-x)/(b-a);
+ }
+ const custom=G.type&&G.type!=='pool',cl=G.cornerLeg,sm=G.sideMouth/2;
+ const xKnots=[[A.x0,0],[337,cl],[806,f.L/2-sm],[873,f.L/2+sm],[1340,f.L-cl],[A.x1,f.L]];
+ const yKnots=[[A.y0,0],[160,cl],[612,f.W-cl],[A.y1,f.W]];
+ const pixel=(p,h=0)=>[custom?scale(p[0]===805&&p[1]===650?806:p[0],xKnots)-f.L/2:(p[0]-A.x0)/(A.x1-A.x0)*f.L-f.L/2,h,
+  custom?scale(p[1],yKnots)-f.W/2:(p[1]-A.y0)/(A.y1-A.y0)*f.W-f.W/2];
+ const capHeight=.044,noseHeight=G.nose||f.R*2*.635;
  const rails=ref.rails.map(q=>{
   const [a,b]=q.fore.map(p=>pixel(p)),back=q.back.map(p=>pixel(p)),length=Math.hypot(b[0]-a[0],b[2]-a[2]),u=[(b[0]-a[0])/length,(b[2]-a[2])/length],n=[u[1],-u[0]],depth=Math.abs((back[0][0]-a[0])*n[0]+(back[0][2]-a[2])*n[1]);
   const at=(end,v,h)=>{const fore=end?b:a,t=v/depth;return [fore[0]+(back[end][0]-fore[0])*t,h,fore[2]+(back[end][2]-fore[2])*t];};
@@ -38,5 +101,5 @@ function plan(f){
  const outer=ref.outer.map(p=>pixel(p)),margin=Math.max(...outer.map(v=>Math.max(Math.abs(v[0])-f.L/2,Math.abs(v[2])-f.W/2)));
  return {L:f.L,W:f.W,R:f.R,G,reference:ref,pixel,outer,railWidth:margin,cushionWidth,capHeight,noseHeight,rails,pockets,inside,profile,linerWidth:ref.rimWidth*f.L/(A.x1-A.x0),linerInset:.0003,edgeRadius:.0012,sights:ref.sights.map(p=>pixel(p,capHeight+.0003)),sightRadius:ref.sightRadius*f.L/(A.x1-A.x0)};
 }
-const api={plan,railWidth};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsTableConstruction=api;
+const api={plan,railWidth,roundedJaws,jawSections};if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsTableConstruction=api;
 })(typeof window==='object'?window:globalThis);
