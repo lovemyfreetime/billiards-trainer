@@ -1,0 +1,39 @@
+name: Check Play layouts
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['test/play-*']
+
+permissions:
+  contents: read
+
+jobs:
+  layout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install locked browser test dependencies
+        run: |
+          npm ci --prefix local-host --ignore-scripts --no-audit --no-fund
+          node local-host/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Check Play controls and complete asset inventories
+        run: |
+          python scripts/package-play.py --android
+          python scripts/build-offline-assets.py --check
+          node --test tests/play-controls.test.cjs tests/play-input.test.cjs tests/play-features.test.cjs tests/play-narration.test.cjs tests/play-shot-clock.test.cjs
+      - name: Check desktop and Android layouts
+        env:
+          NODE_PATH: ${{ github.workspace }}/local-host/node_modules
+          PLAY_REVIEW_DIR: test-results/play
+        run: node tests/play-viewport.browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: play-layout-review
+          path: test-results/play
+          if-no-files-found: ignore

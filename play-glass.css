@@ -238,8 +238,16 @@ body.play-mode{background:#111b19}
 #playDialog.play-catalog-dialog .play-catalog-nav>*{margin:0}
 #playRoot #playDialog .play-game-card>.play-narration-status{position:absolute;right:0;bottom:48px;z-index:8;width:260px;max-width:90vw;background:#152b21}
 .play-game-photo svg,.play-photo-emblem svg{overflow:hidden}
-.play-tools-dialog{box-sizing:border-box;width:min(1080px,calc(100vw - 24px));max-height:calc(var(--play-height,100dvh) - 24px);padding:16px;overflow:hidden}
-.play-tools-top{position:relative;top:auto;padding:0 0 10px}
+.play-tools-dialog{--play-tools-edge:max(24px,calc((100vw - 1080px)/2));box-sizing:border-box;position:fixed;inset:0;margin:0;width:100vw;max-width:none;height:100dvh;max-height:none;padding:24px var(--play-tools-edge);overflow:hidden;border:0;border-radius:0;background:radial-gradient(ellipse at 35% 0,#294538,#101d17 70%);box-shadow:none;backdrop-filter:none}
+.play-tools-dialog::backdrop{background:#101d17}
+.play-tools-top{position:relative;top:auto;flex-wrap:nowrap;min-height:48px;padding:0 104px 16px 0;background:transparent}
+.play-tools-actions{display:flex;align-items:center;gap:12px}
+.play-tools-audio{position:relative;display:flex;align-items:center}
+.play-tools-dialog .play-tools-actions button{margin:0;white-space:nowrap}
+.play-tools-dialog .play-tools-audio .play-speaker{box-sizing:border-box;width:48px;height:48px;min-height:48px;padding:10px}
+.play-tools-audio .play-narration-status{position:absolute;right:0;top:100%;z-index:4;width:260px;padding:12px;background:#142b20;border-radius:8px}
+body .play-tools-dialog #appDisplayControl{position:absolute;right:calc(var(--play-tools-edge) + 48px);top:26px}
+body .play-tools-dialog #appCloseControl{position:absolute;right:var(--play-tools-edge);top:26px}
 .play-tool-tabs{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
 .play-tool-tabs button[aria-pressed=true]{border-color:#c7e5cf;background:#355d47}
 .play-tools-dialog .play-tool-panel{padding:8px 0 0;border:0}
@@ -300,8 +308,8 @@ body.play-mode{background:#111b19}
 /* Match the normal phone meta-viewport canvas when browser fullscreen resets it. */
 html.play-screen-fit body.play-mode #playRoot{inset:0 auto auto 0;width:var(--play-layout-width);height:var(--play-height);transform:scale(var(--play-screen-scale));transform-origin:top left}
 html.play-screen-fit #playRoot #playDialog.play-home-dialog,html.play-screen-fit #playRoot #playDialog.play-catalog-dialog,html.play-screen-fit #playRoot #playDialog.play-family-page{inset:0 auto auto 0;margin:0;width:var(--play-layout-width);max-width:none;height:var(--play-height)!important;max-height:var(--play-height);transform:scale(var(--play-screen-scale));transform-origin:top left}
-html.play-screen-fit #playDialog:not(.play-home-dialog):not(.play-catalog-dialog):not(.play-family-page),html.play-screen-fit .play-tools-dialog{position:fixed;inset:50% auto auto 50%;margin:0;max-width:none;max-height:calc(var(--play-height) - 24px);transform:scale(var(--play-screen-scale)) translate(-50%,-50%);transform-origin:top left}
-html.play-screen-fit .play-tools-dialog{width:min(1080px,calc(var(--play-layout-width) - 24px))}
+html.play-screen-fit #playDialog:not(.play-home-dialog):not(.play-catalog-dialog):not(.play-family-page){position:fixed;inset:50% auto auto 50%;margin:0;max-width:none;max-height:calc(var(--play-height) - 24px);transform:scale(var(--play-screen-scale)) translate(-50%,-50%);transform-origin:top left}
+html.play-screen-fit .play-tools-dialog{--play-tools-edge:max(24px,calc((var(--play-layout-width) - 1080px)/2));width:var(--play-layout-width);height:var(--play-height);transform:scale(var(--play-screen-scale));transform-origin:top left}
 html.play-screen-fit #playDialog.play-setup-dialog{width:min(960px,calc(var(--play-layout-width) - 24px))}
 html.play-screen-fit #playRoot #playDialog .play-home-top{flex-direction:row;flex-wrap:nowrap;align-items:center;min-height:72px;padding:10px 136px 10px 76px}
 html.play-screen-fit #playRoot #playDialog .play-home-brand{font-size:26px}
@@ -341,7 +349,7 @@ html.play-screen-fit body>.experience-corner{transform:scale(var(--play-screen-s
 #playRoot #playDialog.play-catalog-dialog .play-catalog-heading{margin-left:calc(60px + env(safe-area-inset-left));margin-right:88px;padding-right:0}
 #playRoot #playDialog.play-catalog-dialog .play-glass-back{order:3;margin-left:auto}
 #playRoot #playDialog.play-catalog-dialog .play-game-card .play-game-tile strong{font-size:20px;max-width:78%}
-@media(max-height:500px){.play-tools-dialog{padding:8px 12px}.play-tools-top{padding-bottom:6px}.play-tool-tabs{margin:6px 0}.play-tools-dialog .play-tool-panel{padding-top:4px}}
+@media(max-height:500px){.play-tool-tabs{margin:6px 0}.play-tools-dialog .play-tool-panel{padding-top:4px}}
 html.play-screen-fit body.play-mode #playRoot:has(dialog[open]){transform:none}
 
 /* One evenly spaced catalogue on desktop and Android, with a consistent action row. */
