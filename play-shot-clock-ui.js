@@ -54,7 +54,7 @@
   };
   const sections = [
     ['Timing defaults', [
-      ['players', 'Players', { table: 'Table players', solo: 'Solo Practice' }],
+      ['players', 'Players', { table: 'Two players', solo: 'Solo Practice' }],
       ['mode', 'Shot clock', { countdown: 'Countdown', advisory: 'Advisory', off: 'Off' }],
       ['shot', 'Standard shot (s)'], ['opening', 'First shot after break', { special: 'Post-break time', standard: 'Standard time', untimed: 'Untimed' }],
       ['postBreak', 'Post-break (s)'], ['postPush', 'Post-push-out (s), 0 = off']
@@ -95,6 +95,7 @@
     const migrated = M.migrate(options.legacy, Date.now());
     let settings = old?.settings ? M.profile(old.settings) : migrated.settings;
     let session = old?.session?.run ? old.session : migrated.session;
+    if (![0, 1].includes(session.turn) || ![0, 1].includes(session.run.seat)) session = M.initial();
     let profiles = Array.isArray(old?.profiles) ? old.profiles : [];
     let audio = old?.audio === true, page = 'clock', undo = null, lastSecond = null, lastPhase = null;
     let matchExpiry = false, reopenCatalog = false, ownsAudio = false;
@@ -152,7 +153,7 @@
     document.body.append(overlay);
     const now = () => Date.now();
     const names = () => {
-      const players = options.table()?.players?.map(player => player.name) || ['Player 1', 'Player 2'];
+      const players = ['Player 1', 'Player 2'];
       return settings.players === 'solo' ? [players[session.turn] || players[0] || 'Player 1'] : players;
     };
     const seats = () => settings.players === 'solo' ? [session.turn] : names().map((_, i) => i);

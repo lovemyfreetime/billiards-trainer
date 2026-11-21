@@ -38,13 +38,11 @@ function init(){
  });
  function sizeBoard(node,draw){draw();if(window.ResizeObserver){pageSizer=new ResizeObserver(draw);pageSizer.observe(node);}}
  const clock=window.BilliardsShotClockUI.mount({
-  legacy:legacyClock,root,change:save,
+  legacy:legacyClock,root,change:()=>{},
   trainerHref:link('train'),beforeNavigate:()=>{if(bridge.busy())return false;save();bridge.save();return true;},
-  compact:(visible,label)=>{const box=$('playShotClock');box.hidden=!visible;if(box.textContent!==label)box.textContent=label;},
+  compact:()=>{},
   close:catalog=>{if(standaloneClock){location.assign('./play.html');return;}if(catalog){if(familyReturn)familyPage(familyReturn);else setup();}else $('playShotClockOpen').focus({preventScroll:true});},
-  table:()=>state?{players:state.players,tied:state.phase==='result'&&state.result?.winners?.length===2,
-   bothOnHill:state.game==='highlow'&&state.wins?.every(wins=>wins===1),
-   score:state.wins?.length===2?state.wins.map((games,i)=>({games,balls:state.players[i].score||0})):null}:null
+  table:()=>null
  });
  function openClock(fromCatalog=false){if(bridge.busy())return;closeDialog();stopSpeech();clock.open(fromCatalog);}
  N.backdrop(dialog,()=>{if(dialog.classList.contains('play-setup-dialog')){if(familyReturn)familyPage(familyReturn);else setup();}else if(!dialog.classList.contains('play-catalog-dialog')||state)closeDialog();});
@@ -53,14 +51,14 @@ function init(){
  function text(tag,value,cls){const e=document.createElement(tag);e.textContent=value;if(cls)e.className=cls;return e;}
  function button(label,action,cls=''){const b=text('button',label,cls);b.type='button';b.onclick=action;return b;}
  function capture(){return {state:JSON.parse(JSON.stringify(state))};}
- function save(){if(!state)return;try{localStorage.setItem(KEY,JSON.stringify({version:2,...capture(),history}));window.BilliardsLocalSession?.publish({...state,localPaused:paused,localClock:clock.remote(),localHostSeat:hostSeat,localGameName:E.games[state.game].name,localRules:E.games[state.game].rules,localPlayerStats:state.players.map((p,i)=>C.games[state.game]?C.stat(state,i):state.game==='killer'?`${p.lives} lives`:state.game==='poker'?`${p.hand.length} cards`:state.game==='ghost'?`${state.points[0]} – ${state.points[1]}`:`Balls ${i*5+1}–${i*5+5}`)});storageError='';}catch(e){storageError='Browser storage is full or unavailable. This game is in memory only.';}}
+ function save(){if(!state)return;try{localStorage.setItem(KEY,JSON.stringify({version:2,...capture(),history}));window.BilliardsLocalSession?.publish({...state,localPaused:paused,localClock:null,localHostSeat:hostSeat,localGameName:E.games[state.game].name,localRules:E.games[state.game].rules,localPlayerStats:state.players.map((p,i)=>C.games[state.game]?C.stat(state,i):state.game==='killer'?`${p.lives} lives`:state.game==='poker'?`${p.hand.length} cards`:state.game==='ghost'?`${state.points[0]} – ${state.points[1]}`:`Balls ${i*5+1}–${i*5+5}`)});storageError='';}catch(e){storageError='Browser storage is full or unavailable. This game is in memory only.';}}
  function commit(event,before){
   if(!state||bridge.busy())return false;
-  try{const previous=state,next=E.reduce(state,event);history.push(before||capture());history=history.slice(-45);state=next;inputRevision++;selected.clear();clock.sync(event,previous,state);save();render();speech(A.event(previous,state,event));}
+  try{const previous=state,next=E.reduce(state,event);history.push(before||capture());history=history.slice(-45);state=next;inputRevision++;selected.clear();save();render();speech(A.event(previous,state,event));}
   catch(e){$('playNotice').textContent=e.message;throw e;}
  }
  function transact(event,before){return inputs.dispatch({type:'engine',event,before});}
- function undo(){if(bridge.busy()||!history.length)return;const previous=history.pop();state=previous.state;inputRevision++;state.mode='real';clock.syncUndo(state.active);selected.clear();closeDialog();paused=false;stopSpeech();save();render();}
+ function undo(){if(bridge.busy()||!history.length)return;const previous=history.pop();state=previous.state;inputRevision++;state.mode='real';selected.clear();closeDialog();paused=false;stopSpeech();save();render();}
  function openDialog(title,privateView=false){closeDialog();returnFocus=document.activeElement;privacy=privateView;dialog.className='';dialog.removeAttribute('aria-label');dialog.setAttribute('aria-labelledby','playDialogTitle');dialog.replaceChildren(text('h2',title));dialog.firstChild.id='playDialogTitle';dialog.showModal();return dialog;}
  function closeDialog(){pageSizer?.disconnect();pageSizer=null;N.stop();privacy=false;if(dialog.open)dialog.close();dialog.replaceChildren();}
  dialog.addEventListener('close',()=>{if(dialog.open)return;privacy=false;dialog.replaceChildren();returnFocus?.focus?.({preventScroll:true});});
@@ -82,7 +80,7 @@ function init(){
  function dismiss(label='Back to table'){const row=text('div','','play-dialog-actions');row.append(button(label,label==='Back to table'?backToTable:closeDialog,'play-return'));dialog.append(row);}
  function narrate(parent,keys,label){const holder=text('div','','play-popup-audio');N.attach(holder,keys,label?{label}:undefined);parent.append(holder);}
  async function clearSavedGame(){
-  try{if(bridge.busy())return;await window.BilliardsLocalSession?.clearGame?.();localStorage.removeItem(KEY);N.stop();stopSpeech();state=null;history=[];hostSeat=null;inputRevision++;selected.clear();paused=false;clock.reset(state?.active||0);render();setup();}
+  try{if(bridge.busy())return;await window.BilliardsLocalSession?.clearGame?.();localStorage.removeItem(KEY);N.stop();stopSpeech();state=null;history=[];hostSeat=null;inputRevision++;selected.clear();paused=false;render();setup();}
   catch(e){const notice=text('p',e.message||'The saved game could not be cleared.');notice.setAttribute('role','alert');dialog.append(notice);}
  }
  function confirmClear(){openDialog('Clear saved game?');dialog.append(text('p','Clear the saved game and its shot history? Your drills, table-tool settings and tournament events will stay. Connected player screens will be disconnected.'));narrate(dialog,'clear-game-help');const row=text('div','','play-dialog-actions');row.append(button('Keep saved game',()=>setup(),'play-return'),button('Clear saved game',clearSavedGame,'play-clear-game'));dialog.append(row);}
@@ -178,7 +176,7 @@ function init(){
   const error=text('p','','play-setup-error');error.setAttribute('role','alert');form.append(error);
   if(state)form.append(text('p','Starting a new game replaces the saved game. Back to table keeps your current game.','play-setup-saved'));
   const row=text('div','','play-dialog-actions');row.append(button('Back to table',backToTable,'play-return'),button(familyReturn?'Back to '+P.groups.find(f=>f.id===familyReturn).name:'Other games',()=>{if(familyReturn)familyPage(familyReturn);else setup();}));const start=button(state?'Start new game':'Rack them up',null,'play-primary');start.type='submit';row.append(start);form.append(row);
-  form.onsubmit=e=>{e.preventDefault();try{const seed=crypto.getRandomValues(new Uint32Array(1))[0],next=E.create({game,mode:'real',names:names.value.split(',').map(n=>n.slice(0,28)),balls:count?.value,allowances:allowances?.value.split(',').map(Number),seed});window.BilliardsLocalSession?.newGame();state=next;inputRevision++;hostSeat=null;history=[];paused=false;clock.reset(state?.active||0);selected.clear();save();closeDialog();render();speech(A.start(state));}catch(e){error.textContent=e.message;}};panel.append(form);
+  form.onsubmit=e=>{e.preventDefault();try{const seed=crypto.getRandomValues(new Uint32Array(1))[0],next=E.create({game,mode:'real',names:names.value.split(',').map(n=>n.slice(0,28)),balls:count?.value,allowances:allowances?.value.split(',').map(Number),seed});window.BilliardsLocalSession?.newGame();state=next;inputRevision++;hostSeat=null;history=[];paused=false;selected.clear();save();closeDialog();render();speech(A.start(state));}catch(e){error.textContent=e.message;}};panel.append(form);
  }
  function report(foul=false){if(!state||state.phase!=='ready')return;if(!foul&&needsBalls()&&!selected.size){$('playNotice').textContent='Select the ball numbers made, then Record balls.';return;}if(foul){openDialog('Record a foul');narrate(dialog,'foul-help');dialog.append(text('p',selected.size?`Balls made: ${[...selected].join(', ')}. The foul will be resolved with these balls as one shot.`:'Report any balls made first if this game needs their numbers.'));const row=text('div','','play-dialog-actions');row.append(button('Scratch',()=>{closeDialog();transact({type:'shot',potted:[...selected],foul:true,scratch:true});},'play-foul'),button('Other foul',()=>{closeDialog();transact({type:'shot',potted:[...selected],foul:true});},'play-foul'));dialog.append(row);dismiss('Cancel');return;}transact({type:'shot',potted:[...selected],made:!needsBalls(),pockets:selectedPockets(),now:Date.now()});}
 
@@ -275,7 +273,7 @@ function init(){
   closeDialog();
   if(!toolDialog){toolDialog=document.createElement('dialog');toolDialog.className='play-tools-dialog';toolDialog.setAttribute('aria-label','Tools');N.backdrop(toolDialog,()=>toolDialog.close());document.body.append(toolDialog);}
   const top=text('header','','play-tools-top'),actions=text('div','','play-tools-actions'),narration=text('span','','play-tools-audio');
-  actions.append(button('Shot Clock',()=>{toolDialog.close();openClock(true);}),button('Back to table',backToTable,'play-return'),narration);top.append(text('h2','Tools'),actions);toolDialog.replaceChildren(top);
+  actions.append(button('Back to table',backToTable,'play-return'),narration);top.append(text('h2','Tools'),actions);toolDialog.replaceChildren(top);
   const controls=document.createElement('section');toolDialog.append(controls);window.BilliardsPlayControls.mount(controls,{dispatch:(c,m)=>inputs.dispatch(c,m),voice:(v,m)=>inputs.voice(v,m)});
   controls.querySelector('h3').textContent='Clicker';controls.querySelectorAll('[data-play-narration]').forEach(node=>node.remove());
   function number(label,value,min,max){const l=text('label',label),i=document.createElement('input');i.type='number';i.min=min;i.max=max;i.value=value;l.append(i);return {l,i};}
@@ -286,7 +284,9 @@ function init(){
   for(let node=voiceStart;node;){const next=node.nextElementSibling;voicePanel.append(node);node=next;}toolDialog.append(voicePanel);const inputStatus=voicePanel.querySelector('[data-input-status]');if(inputStatus)toolDialog.append(inputStatus);
   const panels=[controls,voicePanel,drills],labels=['Clicker','Voice','Drills'],help=['clicker-help','clicker-help','drill-help'];
   const select=index=>{N.stop();panels.forEach((panel,i)=>{panel.hidden=i!==index;tabs.children[i].setAttribute('aria-pressed',String(i===index));});narration.replaceChildren();N.attach(narration,help[index],{label:labels[index]+' help'});};
-  panels.forEach((panel,index)=>{panel.classList.add('play-tool-panel');tabs.append(button(labels[index],()=>select(index)));});top.after(tabs);select(0);drawDrill();toolDialog.showModal();
+  panels.forEach((panel,index)=>{panel.classList.add('play-tool-panel');tabs.append(button(labels[index],()=>select(index)));});top.after(tabs);
+  const clockSection=text('section','','play-tools-clock');clockSection.setAttribute('aria-label','Shot Clock');clockSection.append(button('Shot Clock',()=>{toolDialog.close();openClock(true);}));toolDialog.append(clockSection);
+  select(0);drawDrill();toolDialog.showModal();
  }
  function drawDrill(){
   for(const id of ['playDrillStatus','playDrillLive']){const box=$(id);if(!box)continue;box.hidden=!drillState;box.replaceChildren();if(!drillState)continue;
@@ -297,7 +297,7 @@ function init(){
  const inputs=window.BilliardsInput.create({context:()=>({busy:bridge.busy(),paused,modal:dialog.open||!!toolDialog?.open||clock.editing(),hidden:document.hidden,actor:state?.phase==='vote'?state.voteSeat:state?.active,revision:inputRevision}),feedback:r=>{if(r.ok&&r.command==='engine'){if(r.source!=='touch')navigator.vibrate?.(40);return;}if(r.source!=='touch'||!r.ok){$('playNotice').textContent=r.message;if(r.ok)navigator.vibrate?.(40);}},execute(command){
   const type=command.type;
   if(type==='engine'){if(privacy)closeDialog();return commit(command.event,command.before);}
-  if(type==='pause'||type==='resume'){const next=type==='pause';if(next===paused)return false;if(state?.game==='speed'&&state.timer&&next)commit({type:'interrupt'});paused=next;if(next)clock.input('pause');stopSpeech();save();render();return;}
+  if(type==='pause'||type==='resume'){const next=type==='pause';if(next===paused)return false;if(state?.game==='speed'&&state.timer&&next)commit({type:'interrupt'});paused=next;stopSpeech();save();render();return;}
   if(type==='undo'){if(!history.length)return false;undo();return;}
   if(type==='private'){myPlayer();return;}
   if(type.startsWith('clock-'))return clock.input(type.slice(6));
@@ -321,7 +321,7 @@ function init(){
  try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if([1,2].includes(saved?.version)&&E.games[saved.state?.game]){state=saved.state;state.mode='real';if(state.game==='speed'&&state.timer)state.interrupted=true;history=(saved.history||[]).filter(h=>h.state&&E.games[h.state.game]).map(h=>({state:{...h.state,mode:'real'}}));save();}}catch(e){storageError='Saved game could not be restored. Start a new game.';}
  // The photographic Play entrance keeps the restored session and Undo history.
  render();drawDrill();if(standaloneClock)openClock(true);else if(params.get('catalog')==='all')setup(null,'all');else if(familyReturn)familyPage(familyReturn);else setup();
- window.BilliardsLocalSession?.mount({getState:()=>state?{...state,localPaused:paused,localClock:clock.remote(),localHostSeat:hostSeat,localGameName:E.games[state.game].name,localRules:E.games[state.game].rules,localPlayerStats:state.players.map((p,i)=>C.games[state.game]?C.stat(state,i):state.game==='killer'?`${p.lives} lives`:state.game==='poker'?`${p.hand.length} cards`:state.game==='ghost'?`${state.points[0]} – ${state.points[1]}`:`Balls ${i*5+1}–${i*5+5}`)}:null,applyAction(event,seat,meta={}){return inputs.dispatch({type:'engine',event},{source:'remote',seat,id:meta.id});}});
+ window.BilliardsLocalSession?.mount({getState:()=>state?{...state,localPaused:paused,localClock:null,localHostSeat:hostSeat,localGameName:E.games[state.game].name,localRules:E.games[state.game].rules,localPlayerStats:state.players.map((p,i)=>C.games[state.game]?C.stat(state,i):state.game==='killer'?`${p.lives} lives`:state.game==='poker'?`${p.hand.length} cards`:state.game==='ghost'?`${state.points[0]} – ${state.points[1]}`:`Balls ${i*5+1}–${i*5+5}`)}:null,applyAction(event,seat,meta={}){return inputs.dispatch({type:'engine',event},{source:'remote',seat,id:meta.id});}});
  // Read-only inspection supports browser QA without exposing secret cards through a public UI.
  window.billiardsPlayStatus=()=>state?{game:state.game,phase:state.phase,mode:state.mode,active:state.active,round:state.round,shots:state.shots,lives:state.players.map(p=>p.lives),remaining:[...state.remaining],undo:history.length}:null;
 }

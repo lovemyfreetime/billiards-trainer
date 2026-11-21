@@ -529,6 +529,14 @@ body.trainer-workspace.table-3d:not(.phone-tray-hidden) { --workspace-bottom:cal
 @media(max-width:700px){body.trainer-workspace.table-3d:not(.phone-tray-hidden){--workspace-bottom:calc(244px + var(--workspace-tray-extra,0px));}}
 
 /* A compact set leaves room for an explicit lock status. */
+body.trainer-workspace {
+  --ball-state-on:#3dd56d;
+  --ball-state-on-ink:#062310;
+  --ball-state-on-edge:#82f6a4;
+  --ball-state-off:#ce3344;
+  --ball-state-off-ink:#fff4f4;
+  --ball-state-off-edge:#ff8a97;
+}
 body.trainer-workspace #workspaceBalls{gap:3px;justify-content:start}
 body.trainer-workspace #workspaceBalls .workspaceBall{max-width:30px}
 body.trainer-workspace #workspaceBallShelf #table3DLock {
@@ -537,17 +545,37 @@ body.trainer-workspace #workspaceBallShelf #table3DLock {
   justify-content:space-between;
   gap:3px;
   padding-inline:4px;
-  background:#442c32;
-  color:#f6dce0;
-  border-color:#a96f78;
+  background:var(--ball-state-off);
+  color:var(--ball-state-off-ink);
+  border-color:var(--ball-state-off-edge);
   transition:background-color 160ms,color 160ms,border-color 160ms;
 }
 body.trainer-workspace #workspaceBallShelf #table3DLock[hidden] { display:none; }
 body.trainer-workspace #workspaceBallShelf #table3DLock[aria-checked=true] {
-  background:#24463a;
-  color:#ddf3e7;
-  border-color:#77aa8d;
+  background:var(--ball-state-on);
+  color:var(--ball-state-on-ink);
+  border-color:var(--ball-state-on-edge);
 }
+body.trainer-workspace #table3DShotOrder[data-enabled=false],
+body.trainer-workspace #table3DOrderMenu [data-detection=off][aria-pressed=true] {
+  background:var(--ball-state-off);
+  color:var(--ball-state-off-ink);
+  border-color:var(--ball-state-off-edge);
+}
+body.trainer-workspace #table3DShotOrder[data-enabled=true],
+body.trainer-workspace #table3DOrderMenu [data-detection=on][aria-pressed=true] {
+  background:var(--ball-state-on);
+  color:var(--ball-state-on-ink);
+  border-color:var(--ball-state-on-edge);
+}
+body.trainer-workspace #workspaceBallShelf #table3DShotOrder[data-enabled=false] {
+  background:var(--ball-state-off);color:var(--ball-state-off-ink);border-color:var(--ball-state-off-edge);
+}
+body.trainer-workspace #workspaceBallShelf #table3DShotOrder[data-enabled=true] {
+  background:var(--ball-state-on);color:var(--ball-state-on-ink);border-color:var(--ball-state-on-edge);
+}
+body.trainer-workspace #table3DShotOrder::after { color:inherit; }
+body.trainer-workspace #table3DOrderMenu .ballDetectionPower { grid-template-columns:1fr 1fr;gap:6px; }
 .ballLockLabel { display:grid; text-align:left; font-size:8px; line-height:1.2; white-space:nowrap; }
 .ballLockLabel strong { font-size:9px; }
 .ballLockTrack {

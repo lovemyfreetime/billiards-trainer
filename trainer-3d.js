@@ -88,8 +88,14 @@
  planControls.append(planButton,planAlternative);tools.append(planControls);
  const orderMenu=document.createElement('section');orderMenu.id='table3DOrderMenu';orderMenu.hidden=true;
  orderMenu.setAttribute('role','dialog');orderMenu.setAttribute('aria-label','Ball Detection');
- orderMenu.innerHTML='<div role="group" aria-label="Analysis mode"><button type="button" data-order="order">1 · Lowest First</button><button type="button" data-order="groups">2 · Groups</button><button type="button" data-order="any">3 · Any Ball</button></div><label>Group <select aria-label="Ball group"><option value="open">Open Table</option><option value="solids">Solids</option><option value="stripes">Stripes</option></select></label>';
- const orderChoices=[...orderMenu.querySelectorAll('button')],orderSelect=orderMenu.querySelector('select');
+ orderMenu.innerHTML='<div class="ballDetectionPower" role="group" aria-label="Ball Detection state"><button type="button" data-detection="off">Off</button><button type="button" data-detection="on">On</button></div><div role="group" aria-label="Analysis mode"><button type="button" data-order="order">1 · Lowest First</button><button type="button" data-order="groups">2 · Groups</button><button type="button" data-order="any">3 · Any Ball</button></div><label>Group <select aria-label="Ball group"><option value="open">Open Table</option><option value="solids">Solids</option><option value="stripes">Stripes</option></select></label>';
+ const orderChoices=[...orderMenu.querySelectorAll('[data-order]')],detectionChoices=[...orderMenu.querySelectorAll('[data-detection]')],orderSelect=orderMenu.querySelector('select');
+ for(const control of detectionChoices)control.onclick=()=>{
+  if(window.billiards3DBallControls?.status()?.busy)return;
+  const toggle=document.getElementById('shotGuidance'),enabled=control.dataset.detection==='on';
+  if(toggle&&toggle.checked!==enabled){toggle.checked=enabled;toggle.dispatchEvent(new Event('change',{bubbles:true}));}
+  syncAnalysis();
+ };
  const orderStatus=document.createElement('output');orderStatus.id='table3DPlanStatus';orderStatus.setAttribute('aria-live','polite');stage.append(tray,rackMenu,orderMenu,orderStatus);
  for(const control of orderChoices)control.onclick=()=>{
   if(window.billiardsGuidance.setShotOrder(control.dataset.order)&&control.dataset.order!=='groups')closePopovers();
@@ -98,8 +104,11 @@
  function syncAnalysis(){
   const api=window.billiardsGuidance,{rack,order,label,mode}=api.rackAnalysis(),job=api.runoutStatus();
   rackToggle.title=rack==='Custom'?'Choose a rack':'Choose a rack · Current '+rack;
-  orderButton.dataset.shotOrder=mode==='any'?'Any Ball':label;
-  orderButton.setAttribute('aria-label','Ball Detection: '+orderButton.dataset.shotOrder);
+  const enabled=api.status().enabled,selection=mode==='any'?'Any Ball':label;
+  orderButton.dataset.enabled=String(enabled);
+  orderButton.dataset.shotOrder=enabled?'On · '+selection:'Off';
+  orderButton.setAttribute('aria-label','Ball Detection: '+(enabled?'On, '+selection:'Off'));
+  for(const b of detectionChoices){b.setAttribute('aria-pressed',String((b.dataset.detection==='on')===enabled));b.disabled=!!window.billiards3DBallControls?.status()?.busy;}
   for(const b of orderChoices)b.setAttribute('aria-pressed',String(b.dataset.order===mode));
   orderSelect.parentElement.hidden=mode!=='groups';if(mode==='groups')orderSelect.value=order;
   nextButton.setAttribute('aria-busy',String(job.pending));

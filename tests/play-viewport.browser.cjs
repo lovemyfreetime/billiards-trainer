@@ -60,7 +60,9 @@ const games=require('../play-engine').games;
     assert(tools.gaps.every(gap=>gap>=0&&gap<=24),'Tools window actions stay together without overlap '+JSON.stringify(tools));
    }
    await toolTabs.nth(0).click();await page.getByRole('button',{name:'Assign next remote button',exact:true}).click();await page.keyboard.press('F8');assert.match(await page.locator('.play-tools-dialog > [data-input-status]').textContent(),/assigned/);
-   await page.locator('.play-tools-top').getByRole('button',{name:'Shot Clock',exact:true}).click();await fits(page,'.sc-layout','Clock from Tools '+JSON.stringify(spec));
+   assert.equal(await page.locator('.play-tools-top').getByRole('button',{name:'Shot Clock',exact:true}).count(),0,'Shot Clock is outside the header');
+   const clockSection=await page.locator('.play-tools-clock').boundingBox(),panel=await page.locator('.play-tool-panel:not([hidden])').boundingBox();assert(clockSection.y>panel.y+panel.height,'Shot Clock has its own section below the controls');
+   await page.locator('.play-tools-clock').getByRole('button',{name:'Shot Clock',exact:true}).click();await fits(page,'.sc-layout','Clock from Tools '+JSON.stringify(spec));
    await page.locator('.sc-navigation .sc-back').click();await fits(page,'#playDialog','Home from clock '+JSON.stringify(spec));
    await page.locator('.play-home-footer').getByRole('button',{name:'Tools',exact:true}).click();
    await page.locator('.play-tools-top').getByRole('button',{name:'Back to table',exact:true}).click();await fits(page,'#playDialog','Home after fullscreen '+JSON.stringify(spec));

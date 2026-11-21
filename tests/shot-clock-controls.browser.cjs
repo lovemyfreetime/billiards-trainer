@@ -1,0 +1,71 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),{chromium}=require('playwright'),{createHost}=require('../local-host/server.cjs');
+(async()=>{
+ const service=createHost({port:0,bind:'127.0.0.1',addressProvider:()=>['127.0.0.1']}),{port}=await service.listen();let browser;
+ const exercised=new Set(),checks=[];
+ try{
+  browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_EXECUTABLE_PATH});
+  const context=await browser.newContext({viewport:{width:1366,height:768},serviceWorkers:'block'});
+  await context.addInitScript(()=>{window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=true;window.__hostMessages=[];window.chrome={webview:{postMessage(value){window.__hostMessages.push(value);}}};window.__clockNow=Date.now();Date.now=()=>window.__clockNow;});
+  const page=await context.newPage(),errors=[];page.setDefaultTimeout(15000);page.on('pageerror',error=>errors.push(error.message));
+  const click=async(locator,label)=>{assert(await locator.isEnabled(),label+' enabled');await locator.click();exercised.add(label);};
+  const role=name=>page.locator('.shot-clock-view').getByRole('button',{name,exact:true});
+  const session=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('billiardsPlayShotClock-v1')).session);
+  const settings=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('billiardsPlayShotClock-v1')).settings);
+  const advance=ms=>page.evaluate(value=>{window.__clockNow+=value;},ms);
+  const more=async name=>{const box=page.locator('.sc-more');if(!await box.evaluate(node=>node.open)){await box.locator(':scope > summary').click();exercised.add('More');}await click(box.getByRole('button',{name,exact:true}),name);const current=page.locator('.sc-more');if(await current.count()&&await current.evaluate(node=>node.open))await current.locator(':scope > summary').click();};
+  const sections={players:0,mode:0,shot:0,opening:0,postBreak:0,postPush:0,timeout:1,timeouts:1,timeoutEnd:1,autoResume:1,extension:2,extensions:2,extensionCap:2,extensionWindow:2,warning:3,countdown:3,expiry:3,match:4,matchEnd:4,matchBreak:4,matchBreaks:4,hold:4,run:5,target:5,foul:5,breakFoul:5,shootout:5};
+  async function configure(values){
+   await click(page.locator('.sc-gear'),'Settings');
+   for(const [key,value]of Object.entries(values)){
+    const tab=page.locator('.sc-settings-tabs button').nth(sections[key]);await click(tab,'Settings tab '+await tab.textContent());const field=page.locator('.sc-settings [name='+key+']');
+    const tag=await field.evaluate(node=>node.tagName);if(tag==='SELECT')await field.selectOption(String(value));else if(typeof value==='boolean')await field.setChecked(value);else await field.fill(String(value));
+   }
+   await click(role('Save Defaults'),'Save Defaults');
+  }
+  await page.goto('http://127.0.0.1:'+port+'/shot-clock.html');await page.locator('.sc-player').first().waitFor();
+  assert(await page.locator('.sc-footer > .sc-pause').isDisabled());assert(await page.locator('.sc-player .sc-extension').first().isDisabled());assert(await page.locator('.sc-player .sc-timeout').nth(1).isDisabled());checks.push('Initial and inactive-player button gates');
+  await click(page.locator('.sc-header-audio'),'Header Audio on');assert.equal(await page.locator('.sc-header-audio').getAttribute('aria-pressed'),'true');await click(page.locator('.sc-header-audio'),'Header Audio off');
+  await click(page.locator('.sc-gear'),'Settings');
+  for(let i=0;i<6;i++){const tab=page.locator('.sc-settings-tabs button').nth(i);await click(tab,'Settings tab '+await tab.textContent());assert.equal(await tab.getAttribute('aria-pressed'),'true');}
+  await page.locator('.sc-settings-tabs button').nth(0).click();await page.locator('[name=shot]').fill('45');await click(role('Reset'),'Settings Reset');assert.equal(await page.locator('[name=shot]').inputValue(),'30');
+  await page.locator('[name=shot]').fill('0');await click(role('Save Defaults'),'Save Defaults validation');assert.equal(await page.locator('.shot-clock-view').getAttribute('data-page'),'settings');assert.equal(await page.locator('[name=shot]').evaluate(node=>node.validity.valid),false);await page.locator('[name=shot]').fill('30');
+  await page.getByLabel('New profile name',{exact:true}).fill('League test');await click(role('Save as Profile'),'Save as Profile');assert.equal(await page.getByLabel('Saved clock profiles',{exact:true}).locator('option').count(),2);
+  await click(role('Save as Profile'),'Duplicate profile validation');assert.match(await page.locator('.sc-status').textContent(),/already in use/);
+  await page.locator('[name=shot]').fill('45');await page.getByLabel('Saved clock profiles',{exact:true}).selectOption('0');await click(role('Load Profile'),'Load Profile');assert.equal(await page.locator('[name=shot]').inputValue(),'30');await click(role('Save Defaults'),'Save Defaults');
+  await click(page.locator('.sc-gear'),'Settings');await page.locator('[name=shot]').fill('45');await click(role('Cancel'),'Settings Cancel');assert.equal((await settings()).shot,30);checks.push('Six settings sections, reset, validation, profile save/load, duplicate protection and cancel');
+  await configure({extensions:1,postPush:20,matchBreak:10,matchBreaks:2,hold:10,run:'custom',target:3,foul:10,breakFoul:5,shootout:true});
+  await click(page.locator('.sc-player .sc-ring').first(),'Active dial Start');assert.equal((await session()).shot.status,'running');
+  await advance(5000);await page.waitForFunction(()=>document.querySelector('.sc-active .sc-ring-text strong').textContent==='25');
+  await click(page.locator('.sc-footer > .sc-pause'),'Pause');assert.equal((await session()).shot.left,25000);
+  await advance(5000);await click(page.locator('.sc-footer > .sc-start'),'Resume');assert.equal((await session()).shot.left,25000);
+  await click(page.locator('.sc-active .sc-extension'),'Extension');assert.equal((await session()).shot.left,40000);assert(await page.locator('.sc-active .sc-extension').isDisabled());
+  await click(page.locator('.sc-active .sc-timeout'),'Coaching Timeout');assert.equal((await session()).interruption.kind,'coaching');assert(await page.locator('.sc-footer > .sc-start').isDisabled());
+  await advance(10000);await more('End Coaching');assert.equal((await session()).interruption,null);assert.equal((await session()).shot.left,40000);assert.equal((await session()).shot.status,'running');
+  await more('All Stop');assert((await session()).held);assert(await page.locator('.sc-footer > .sc-start').isDisabled());await more('Resume All');assert.equal((await session()).held,null);
+  await click(page.locator('.sc-player .sc-name').nth(1),'Player 2 name');assert.equal((await session()).turn,1);await more('Undo Clock');assert.equal((await session()).turn,0);
+  await click(page.locator('.sc-player .sc-name').nth(1),'Player 2 name again');await click(page.locator('.sc-player .sc-name').first(),'Player 1 name');assert.equal((await session()).turn,0);await click(page.locator('.sc-footer > .sc-switch'),'Switch Player');assert.equal((await session()).turn,1);await more('Next Shot');assert.equal((await session()).turn,1);
+  await click(page.locator('.sc-player .sc-ring').first(),'Inactive dial select');assert.equal((await session()).turn,0);await click(page.locator('.sc-player .sc-ring').first(),'Active dial Next Shot');assert.equal((await session()).shot.left,30000);
+  await more('Reset');assert.equal((await session()).shot,null);assert.equal((await session()).turn,0);assert.deepEqual((await session()).extensions,{});
+  await more('Match Break');assert.equal((await session()).interruption.kind,'match-break');await more('End Match Break');assert.equal((await session()).interruption,null);
+  await click(role('Break'),'Break');assert.equal((await session()).shot.status,'armed');assert.equal((await session()).shot.kind,'post-break');assert(await role('Break').isDisabled());await click(page.locator('.sc-footer > .sc-start'),'Start after break');assert.equal((await session()).shot.left,60000);
+  await click(role('Switch Player'),'Dry break switch');assert.equal((await session()).turn,1);assert.equal((await session()).shot.left,60000,'Incoming player keeps opening allowance');
+  await more('Post-Push-Out');assert.equal((await session()).shot.status,'armed');assert.equal((await session()).shot.kind,'post-push');await click(page.locator('.sc-footer > .sc-start'),'Start post-push');assert.equal((await session()).shot.left,20000);
+  await advance(10000);await page.waitForFunction(()=>document.querySelector('.sc-active .sc-ring-text strong').textContent==='10');await more('Hold at Warning');assert.equal((await session()).shot.status,'held');await more('Release Hold');assert.equal((await session()).shot.status,'running');
+  await advance(11000);await page.waitForFunction(()=>document.querySelector('.sc-active .sc-ring-text small').textContent==='TIME EXPIRED');assert.equal((await session()).shot.status,'expired');await click(page.locator('.sc-player.sc-active .sc-ring'),'Expired dial Next Shot');assert.equal((await session()).shot.status,'running');await more('Stop');assert.equal((await session()).shot,null);checks.push('Dials, names, countdown/pause/resume, extension limits, coaching, All Stop, Undo, switches, next shot, reset, break/dry-break/post-push, referee hold, expiry and Stop');
+  await click(role('Timed Run'),'Timed Run');assert(await page.locator('.sc-run .sc-seat-list button').first().isDisabled());await click(page.locator('.sc-run .sc-seat-list button').nth(1),'Run Player 2 selection');await click(page.locator('.sc-run .sc-seat-list button').first(),'Run Player 1');
+  await click(page.locator('.sc-footer > .sc-start'),'Start Run');await advance(2000);await click(role('+10s Foul'),'Run Foul');await click(role('+5s Break Scratch'),'Run Break Scratch');assert.equal((await session()).run.penalty,15000);
+  await click(page.locator('.sc-footer > .sc-start'),'Finish Run');assert.equal((await session()).run.phase,'review');await click(page.locator('.sc-footer > .sc-start'),'Confirm Result');assert.equal((await session()).run.phase,'done');await click(page.locator('.sc-footer > .sc-start'),'Next Run');assert.equal((await session()).run.phase,'ready');
+  await click(page.locator('.sc-run .sc-seat-list button').nth(1),'Run Player 2');await click(page.locator('.sc-footer > .sc-start'),'Start second Run');await click(role('Mark Incomplete'),'Mark Incomplete');assert.equal((await session()).run.results[1].invalid,true);
+  await click(role('New Shootout'),'New Shootout');assert.equal((await session()).run.duel,true);await click(role('Exit Shootout'),'Exit Shootout');assert.equal((await session()).run.duel,false);
+  await click(page.locator('.sc-footer .sc-audio'),'Timed Run Audio on');assert.equal(await page.locator('.sc-footer .sc-audio').getAttribute('aria-pressed'),'true');await click(page.locator('.sc-footer .sc-audio'),'Timed Run Audio off');await click(page.locator('.sc-footer').getByRole('button',{name:'Shot Clock',exact:true}),'Return from Timed Run');checks.push('Timed Run seats, start/finish/review/confirm/next, both foul buttons, incomplete runs, shootout start/exit, audio and return');
+  await more('Reset');await configure({match:10,matchEnd:'shootout',shootout:true,matchBreak:1});await click(page.locator('.sc-footer > .sc-start'),'Start match countdown');await more('Match Break');await advance(1100);await page.waitForFunction(()=>document.querySelector('.sc-more button')&&JSON.parse(localStorage.getItem('billiardsPlayShotClock-v1')).session.match.pending);await more('Resume Match Clock');assert.equal((await session()).match.pending,undefined);
+  await advance(11000);await page.waitForFunction(()=>document.querySelector('.sc-status').textContent.includes('MATCH TIME EXPIRED'));await more('Start Shootout');assert.equal((await session()).run.duel,true);await click(role('Exit Shootout'),'Exit expired-match Shootout');await click(page.locator('.sc-footer').getByRole('button',{name:'Shot Clock',exact:true}),'Return from Shootout');checks.push('Match-break expiry/resume, match countdown and tied-match shootout');
+  await configure({players:'solo'});assert.equal(await page.locator('.sc-player').count(),1);await configure({players:'table'});assert.equal(await page.locator('.sc-player').count(),2);checks.push('Solo practice and two-player settings');
+  await page.locator('.sc-app-menu > summary').click();exercised.add('App options');await page.evaluate(()=>window.dispatchEvent(new CustomEvent('billiards:native-fullscreen',{detail:false})));await click(page.locator('.sc-app-menu').getByRole('button',{name:'Full screen',exact:true}),'Full screen');assert((await page.evaluate(()=>window.__hostMessages)).some(message=>message.type==='set-fullscreen'&&message.active));
+  await click(page.locator('.sc-app-menu').getByRole('button',{name:'Back to Play',exact:true}),'App menu Back to Play');await page.locator('#playDialog').waitFor({state:'visible'});
+  await page.goto('http://127.0.0.1:'+port+'/shot-clock.html');await page.locator('.sc-app-menu > summary').click();await click(page.locator('.sc-app-menu').getByRole('button',{name:'Close app',exact:true}),'Close app request');assert((await page.evaluate(()=>window.__hostMessages)).some(message=>message.type==='close-app'));
+  await click(page.locator('.sc-navigation .sc-back'),'Header Back to Play');await page.locator('#playDialog').waitFor({state:'visible'});checks.push('App options, fullscreen request, both Back controls and native close request');
+  assert.deepEqual(errors,[]);fs.mkdirSync('test-results/ball-controls',{recursive:true});fs.writeFileSync('test-results/ball-controls/clock-button-results.json',JSON.stringify({exercised:[...exercised],checks,errors,limits:'Native fullscreen/close messages and audio toggle wiring tested in a browser fixture; physical speakers and OS window closure are not asserted.'},null,2));console.log('Clock buttons passed:',exercised.size,'actions;',checks.length,'behavior groups');await context.close();
+ }finally{await browser?.close();service.server.closeAllConnections();await new Promise(resolve=>service.server.close(resolve));}
+})().catch(error=>{console.error(error);process.exitCode=1;});

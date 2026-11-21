@@ -257,6 +257,8 @@ body .play-tools-dialog #appCloseControl{position:absolute;right:var(--play-tool
 .play-tools-dialog .play-tool-panel>a{display:block;padding:14px 0}
 .play-tools-dialog .play-tool-panel>label{display:inline-flex;align-items:center;gap:10px;margin-right:18px}
 .play-tools-dialog .play-tool-panel input[aria-label='Drill player names']{display:block;width:100%;max-width:480px}
+.play-tools-dialog .play-tools-clock{margin-top:28px;padding:24px 0;border-top:1px solid #819e8a66;border-bottom:1px solid #819e8a66}
+.play-tools-dialog .play-tools-clock button{min-width:160px;margin:0}
 #playDialog.play-setup-dialog{width:min(960px,96vw);max-width:96vw;max-height:calc(var(--play-height,100dvh) - 24px);padding:22px;overflow:hidden}
 #playDialog.play-setup-dialog label{margin-top:10px}
 #playDialog.play-setup-dialog .play-dialog-actions{margin-top:12px}
