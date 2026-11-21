@@ -25,7 +25,7 @@ const out='test-results/ball-controls';fs.mkdirSync(out,{recursive:true});
    const turn=async(which,delta,cancel=false)=>{const p=await points(which),a=delta*Math.PI/180;await start(p.start);const before=await angle(which);const target={x:p.pivot.x+p.dx*Math.cos(a)-p.dy*Math.sin(a),y:p.pivot.y+p.dx*Math.sin(a)+p.dy*Math.cos(a)};for(let i=1;i<=4;i++)await move({x:p.start.x+(target.x-p.start.x)*i/4,y:p.start.y+(target.y-p.start.y)*i/4});await end(cancel);return {before,after:await angle(which)};};
    await page.goto('http://127.0.0.1:8831/?train=1');await page.waitForFunction(()=>window.billiardsCueSetup&&window.billiardsMenuReady);
    for(const mode of ['2d','3d']){
-    if(mode==='3d'){await page.locator('#table3DToggle').click();await page.waitForFunction(()=>Billiards3D.active);}
+    if(mode==='3d'){await page.locator('#table3DToggle').click();await page.waitForFunction(()=>Billiards3D.active&&!Billiards3D.camera().transitioning);}
     await setup();const before=await state(),camera=mode==='3d'?await page.evaluate(()=>Billiards3D.camera()):null;
     let result=await turn(1,8);assert.equal(result.before,3,'Grabbing does not jump');assert(Math.abs(result.after-11)<.3,'Dragging shaft upward raises elevation '+JSON.stringify(result));
     result=await turn(1,-6);assert(Math.abs(result.after-5)<.3,'Dragging downward lowers elevation');
