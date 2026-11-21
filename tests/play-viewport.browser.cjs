@@ -22,7 +22,7 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),{cre
    await page.goto(base+'/play.html');await fits(page,'#playDialog','Home '+JSON.stringify(spec));
    const overlap=await page.evaluate(()=>{
     const stage=document.querySelector('.play-home-scene'),r=stage.getBoundingClientRect(),dialog=document.getElementById('playDialog'),photo=getComputedStyle(dialog,'::before'),closer=photo.content!=='none';
-    const scale=closer?parseFloat(photo.width)/1536:Math.min(r.width/1536,r.height/1024),left=closer?parseFloat(photo.left):r.left+r.width*.485-1536*scale/2,top=closer?parseFloat(photo.top):r.top+(r.height-1024*scale)/2;
+    const crop=getComputedStyle(dialog),scale=closer?parseFloat(crop.getPropertyValue('--play-photo-width'))/1536:Math.min(r.width/1536,r.height/1024),left=closer?parseFloat(crop.getPropertyValue('--play-photo-left')):r.left+r.width*.485-1536*scale/2,top=closer?parseFloat(crop.getPropertyValue('--play-photo-top')):r.top+(r.height-1024*scale)/2;
     // A little overlap on the standing man's lower body is allowed; keep his face and all of her clear.
     const players=(closer?[[548,196,165,190],[580,306,700,485]]:[[530,196,253,488],[580,306,700,485]]).map(([x,y,w,h])=>({left:left+x*scale,top:top+y*scale,right:left+(x+w)*scale,bottom:top+(y+h)*scale}));
     const blocked=[...document.querySelectorAll('.play-home-family,.play-home-companion,.play-home-footer')].filter(e=>players.some(p=>{const b=e.getBoundingClientRect();return b.left<p.right&&b.right>p.left&&b.top<p.bottom&&b.bottom>p.top;})).map(e=>e.className);

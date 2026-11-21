@@ -312,12 +312,14 @@ html.play-screen-fit #playRoot #playDialog .play-home-cards .play-family-open{fo
 html.play-screen-fit #playRoot #playDialog .play-home-footer{flex-wrap:nowrap}
 /* On PC the photograph continues behind the bottom controls, without a separate strip. */
 @media(min-width:1001px) and (pointer:fine){
- #playRoot #playDialog.play-home-dialog::before{content:"";position:absolute;inset:auto;left:var(--play-photo-left);top:var(--play-photo-top);width:var(--play-photo-width);height:var(--play-photo-height);background:url('./play-lounge.webp') center/100% 100% no-repeat;mask-image:linear-gradient(90deg,transparent,#000 4%,#000 94%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 94%,transparent);transform:none;pointer-events:none;z-index:-1}
+ #playRoot #playDialog.play-home-dialog::before{content:"";position:absolute;inset:0;width:100%;height:100%;background:url('./play-lounge.webp') var(--play-photo-left) var(--play-photo-top)/var(--play-photo-width) var(--play-photo-height) no-repeat;mask-image:linear-gradient(90deg,transparent,#000 4%,#000 94%,transparent);mask-size:var(--play-photo-width) 100%;mask-position:var(--play-photo-left) 0;mask-repeat:no-repeat;-webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 94%,transparent);-webkit-mask-size:var(--play-photo-width) 100%;-webkit-mask-position:var(--play-photo-left) 0;-webkit-mask-repeat:no-repeat;transform:none;pointer-events:none;z-index:-1}
  #playRoot #playDialog.play-home-dialog .play-home-scene::before{content:none}
  #playRoot #playDialog.play-home-dialog .play-home-secret,#playRoot #playDialog.play-home-dialog .play-home-cards,#playRoot #playDialog.play-home-dialog .play-home-tactical{right:1%;width:min(30%,var(--play-photo-side))}
  #playRoot #playDialog.play-home-dialog .play-home-pub{top:55%;width:min(440px,var(--play-photo-pub));padding-inline:14px}
  #playRoot #playDialog.play-home-dialog .play-home-pub h2,#playRoot #playDialog.play-home-dialog .play-home-pub .play-home-choices{padding-left:0}
  #playRoot #playDialog.play-home-dialog .play-home-pub .play-home-choices button:not(.play-family-more){padding-inline:10px}
+ #playRoot #playDialog.play-home-dialog .play-home-tactical .play-home-choices{padding-left:0}
+ #playRoot #playDialog.play-home-dialog .play-home-choices button{white-space:nowrap}
 }
 html.play-screen-fit #playRoot #playDialog .play-home-footer>*{flex:none}
 html.play-screen-fit #playRoot #playDialog .play-family-intro h1{font-size:52px}
