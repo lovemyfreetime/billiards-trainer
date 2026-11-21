@@ -22,7 +22,7 @@ const out='test-results/ball-controls';fs.mkdirSync(out,{recursive:true});
    };
    // Start on the visible shaft, then change its angle around the tip without a grab jump.
    const points=which=>page.locator('#cueElevationView'+which).evaluate(node=>{const g=node.cueGeometry,r=node.getBoundingClientRect(),f=.72,dx=(g.buttX-g.tipX)*f,dy=(g.buttY-g.tipY)*f;return {start:{x:r.left+node.clientLeft+g.tipX+dx,y:r.top+node.clientTop+g.tipY+dy},pivot:{x:r.left+node.clientLeft+g.tipX,y:r.top+node.clientTop+g.tipY},dx,dy};});
-   const turn=async(which,delta,cancel=false)=>{const p=await points(which),a=delta*Math.PI/180;await start(p.start);const before=await angle(which);const target={x:p.pivot.x+p.dx*Math.cos(a)-p.dy*Math.sin(a),y:p.pivot.y-p.dx*Math.sin(a)+p.dy*Math.cos(a)};for(let i=1;i<=4;i++)await move({x:p.start.x+(target.x-p.start.x)*i/4,y:p.start.y+(target.y-p.start.y)*i/4});await end(cancel);return {before,after:await angle(which)};};
+   const turn=async(which,delta,cancel=false)=>{const p=await points(which),a=delta*Math.PI/180;await start(p.start);const before=await angle(which);const target={x:p.pivot.x+p.dx*Math.cos(a)-p.dy*Math.sin(a),y:p.pivot.y+p.dx*Math.sin(a)+p.dy*Math.cos(a)};for(let i=1;i<=4;i++)await move({x:p.start.x+(target.x-p.start.x)*i/4,y:p.start.y+(target.y-p.start.y)*i/4});await end(cancel);return {before,after:await angle(which)};};
    await page.goto('http://127.0.0.1:8831/?train=1');await page.waitForFunction(()=>window.billiardsCueSetup&&window.billiardsMenuReady);
    for(const mode of ['2d','3d']){
     if(mode==='3d'){await page.locator('#table3DToggle').click();await page.waitForFunction(()=>Billiards3D.active);}
