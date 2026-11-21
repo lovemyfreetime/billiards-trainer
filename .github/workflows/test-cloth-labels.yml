@@ -1,7 +1,12 @@
 name: Verify cloth label orientation
 on:
   push:
-    branches: [test/cloth-labels-20261117]
+    branches: [main, test/cloth-labels-20261117]
+    paths:
+      - 'index.html'
+      - 'trainer-3d.js'
+      - 'tests/view-learning-ui.browser.cjs'
+      - '.github/workflows/test-cloth-labels.yml'
   workflow_dispatch:
 permissions:
   contents: read

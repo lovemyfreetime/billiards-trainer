@@ -36,6 +36,20 @@ for(const [width,height,mobile]of [[1600,1000,false],[844,390,true]]){
     await page.screenshot({path:dir+'/'+name+'-orbit-'+i+'.png'});
    }
    await page.evaluate(camera=>Billiards3D.restoreCamera(camera),camera);await settle();assert.deepEqual(await page.evaluate(()=>billiardsTourBridge.predict({paths:true})),before,'Camera-facing text never changes physics');
+   const originalSetup=await page.evaluate(()=>billiardsTourBridge.capture());
+   await page.evaluate(()=>{const s=billiardsTourBridge.capture();Object.assign(s.state,{shot2Enabled:false,activeShot:1,airbornePhysics:true,cueElevationDeg:55,speed:3.63,follow:.02,sideSpin:0,showPaths:true,freeAim:{x:2.2,y:.635},balls:[{id:0,n:'CB',x:.4,y:.635,active:true},{id:3,n:'3',x:.9,y:.635,active:true}]});billiardsTourBridge.restore(s);});
+   await page.waitForFunction(()=>Billiards3D.overlayLabels().some(l=>l.id==='flight-1-TAKEOFF')&&Billiards3D.overlayLabels().some(l=>l.id==='flight-1-L1')&&Billiards3D.overlayLabels().some(l=>l.id==='flight-1-clearance'));
+   const flightBefore=await page.evaluate(()=>billiardsTourBridge.predict({paths:true})),flightFixed=await page.evaluate(()=>Billiards3D.overlayLabels().filter(l=>l.id.startsWith('flight-')));
+   for(const [i,azimuth]of [0,Math.PI/2,Math.PI,Math.PI*1.5].entries()){
+    await page.evaluate(({camera,azimuth})=>Billiards3D.restoreCamera({...camera,azimuth}),{camera,azimuth});await settle();
+    const flight=await page.evaluate(()=>Billiards3D.overlayLabels().filter(l=>l.id.startsWith('flight-')));
+    assert.equal(flight.length,flightFixed.length,'Every flight label remains visible');
+    for(const l of flight){const original=flightFixed.find(v=>v.id===l.id),[x,y,z,w]=l.rotation,right=[1-2*(y*y+z*z),2*(x*z-w*y)];assert(Math.abs(right[0]-Math.cos(azimuth))<1e-8&&Math.abs(right[1]+Math.sin(azimuth))<1e-8,'Flight text faces the reader like the metrics');assert.deepEqual(l.center,original.center,'Flight text stays anchored');assert.deepEqual(l.scale,original.scale,'Flight text keeps its size');assert(l.depthTest,'Flight text remains on the cloth');}
+    assert.equal(await page.evaluate(()=>__clothTexts.some(t=>/^(TAKEOFF|L[1-4]|(?:CLEARS|CLIPS) BALL)/.test(t.text))),false,'Flight text is not baked upside down into the cloth texture');
+    await page.screenshot({path:dir+'/'+name+'-flight-orbit-'+i+'.png'});
+   }
+   assert.deepEqual(await page.evaluate(()=>billiardsTourBridge.predict({paths:true})),flightBefore,'Flight label headings never change physics');
+   await page.evaluate(({saved,camera})=>{billiardsTourBridge.restore(saved);Billiards3D.restoreCamera(camera);},{saved:originalSetup,camera});await settle();
    await page.locator('#table3DLock [data-adjust=edit]').click();
   }
   if(process.env.CLOTH_LABELS_ONLY)continue;

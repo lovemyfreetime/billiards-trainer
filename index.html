@@ -6714,7 +6714,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         }
         flush();
     }
-    function drawFlightPoint(p, map, label, color, filled = false) {
+    function drawFlightText(p, map, label, color, size, weight, offset, id) {
+        if (window.Billiards3D?.active) {
+            const origin=map({x:0,y:0}),axis=map({x:1,y:0}),scale=Math.hypot(axis.x-origin.x,axis.y-origin.y);
+            cameraLabels.push({id,point:{x:p.x,y:p.y-(offset+size/2)/scale},rows:[label],size,rowGap:0,
+                width:ctx.measureText(label).width/scale,height:size/scale,unitsPerPixel:1/scale,opacity:1,weight,color});
+        } else {const q=map(p);ctx.fillText(label,q.x,q.y-offset);}
+    }
+    function drawFlightPoint(p, map, label, color, filled = false, which = 1) {
         if (!p) return;
         const q = map(p);
         ctx.save();
@@ -6733,7 +6740,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
         ctx.fillStyle = color;
-        ctx.fillText(label, q.x, q.y-12);
+        drawFlightText(p,map,label,color,isProjector?12:10,800,12,`flight-${which}-${label}`);
         ctx.restore();
     }
     function jumpLength(meters, digits = 2) { const units = S.jumpUnits === 'mm' ? 'mm' : 'in'; return (meters * (units === 'mm' ? 1000 : 1000 / 25.4)).toFixed(digits) + ' ' + units; }
@@ -6752,11 +6759,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     function drawAirborneTableOverlay(preview, map, which, stroke) {
         const a = preview && preview.airborne;
         if (!shouldShowFlightOverlay(preview, which)) return;
-        if (a.takeoff) drawFlightPoint(a.takeoff, map, 'TAKEOFF', stroke, false);
+        if (a.takeoff) drawFlightPoint(a.takeoff, map, 'TAKEOFF', stroke, false, which);
         if (Array.isArray(a.landings)) {
             a.landings.slice(0,4).forEach((p,i) => {
                 const label = `L${i+1}`;
-                drawFlightPoint(p, map, label, i === 0 ? '#ffd86b' : stroke, false);
+                drawFlightPoint(p, map, label, i === 0 ? '#ffd86b' : stroke, false, which);
             });
         }
         const g = a.guidance, primary = g && g.primary;
@@ -6779,7 +6786,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
             ctx.fillStyle = color;
-            ctx.fillText(`${status} BALL ${primary.n} ${clearance}${guide}`, q.x, q.y-(isProjector?20:17));
+            drawFlightText({x:primary.objX,y:primary.objY},map,`${status} BALL ${primary.n} ${clearance}${guide}`,color,isProjector?13:11,900,isProjector?20:17,`flight-${which}-clearance`);
             ctx.restore();
         }
         if (!isProjector && S.activeShot === which)
