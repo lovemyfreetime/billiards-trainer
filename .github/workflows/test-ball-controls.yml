@@ -33,10 +33,12 @@ jobs:
           NODE_PATH: ${{ github.workspace }}/local-host/node_modules
           PLAY_REVIEW_DIR: test-results/ball-controls/play
         run: |
-          node tests/ball-control-states.browser.cjs
-          node tests/standalone-shot-clock.browser.cjs
-          node tests/shot-clock-controls.browser.cjs
-          node tests/play-viewport.browser.cjs
+          status=0
+          node tests/ball-control-states.browser.cjs || status=$?
+          node tests/standalone-shot-clock.browser.cjs || status=$?
+          node tests/shot-clock-controls.browser.cjs || status=$?
+          node tests/play-viewport.browser.cjs || status=$?
+          exit "$status"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

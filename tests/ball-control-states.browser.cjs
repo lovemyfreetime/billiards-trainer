@@ -28,9 +28,9 @@ const out='test-results/ball-controls';fs.mkdirSync(out,{recursive:true});
    assert.equal(await color('#table3DLock'),'rgb(206, 51, 68)','Locked is the same stronger red as detection Off');
    assert.equal(await color('#table3DRotate'),green,'Detection uses the existing active green');
    await page.locator('#table3DLock').click();await page.waitForFunction(()=>getComputedStyle(document.getElementById('table3DLock')).backgroundColor==='rgb(61, 213, 109)');assert(await page.evaluate(()=>Billiards3D.locked));assert.match(await page.locator('#table3DLock').textContent(),/Unlocked/);assert.equal(await color('#table3DLock'),green);
-   await page.screenshot({path:out+'/'+spec.width+'-3d-on-unlocked.png'});
+   await page.locator('#workspaceBallShelf').screenshot({path:out+'/'+spec.width+'-3d-on-unlocked.png',timeout:45000,animations:'disabled'});
    await power(false);await page.keyboard.press('Escape');await page.locator('#table3DLock').click();await page.waitForFunction(()=>getComputedStyle(document.getElementById('table3DLock')).backgroundColor==='rgb(206, 51, 68)');assert.equal(await color('#table3DShotOrder'),await color('#table3DLock'));assert.equal(await page.evaluate(()=>Billiards3D.locked),false);
-   await page.screenshot({path:out+'/'+spec.width+'-3d-off-locked.png'});
+   await page.locator('#workspaceBallShelf').screenshot({path:out+'/'+spec.width+'-3d-off-locked.png',timeout:45000,animations:'disabled'});
    await page.locator('#table3DToggle').click();await page.waitForFunction(()=>!Billiards3D.active);await state(false);assert.equal((await snapshot()).guidanceMode,'order');
    assert.deepEqual(errors,[]);await context.close();console.log(spec.width+'x'+spec.height+': On/Off behavior, saved mode, 2D/3D continuity, exact shared colors and locking passed');
   }
