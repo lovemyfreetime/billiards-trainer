@@ -27,6 +27,7 @@
     break: '<path d="M14 2 27 25H1z" stroke-width="2" stroke-linejoin="round"/>' +
       [0,1,2,3].flatMap(row=>Array.from({length:row+1},(_,col)=>'<circle cx="'+(14-row*2.8+col*5.6)+'" cy="'+(8+row*4.8)+'" r="1.8" fill="currentColor" stroke="none"/>')).join(''),
     clock: '<circle cx="14" cy="16" r="10"/><path d="M14 9v7l4 3M10 2h8m-4 0v4"/>',
+    timeout: '<circle cx="14" cy="15" r="10"/><path d="M14 8v7l5 4"/>',
     extension: '<path d="M14 5v18M5 14h18"/><path d="M5 4h-3v22h3m18-22h3v22h-3"/>',
     switch: '<path d="M3 9h22l-6-6M25 19H3l6 6" stroke-width="3" stroke-linejoin="round"/>',
     reset: '<path d="M5 9a10 10 0 1 1-1 10M5 2v7h7" stroke-width="3" stroke-linejoin="round"/>'
@@ -97,18 +98,42 @@
     let profiles = Array.isArray(old?.profiles) ? old.profiles : [];
     let audio = old?.audio === true, page = 'clock', undo = null, lastSecond = null, lastPhase = null;
     let matchExpiry = false, reopenCatalog = false, ownsAudio = false;
-    const overlay = element('section', null, 'shot-clock-view');
+    const overlay = element('section', null, 'shot-clock-view sc-reference');
     overlay.hidden = true;
     overlay.setAttribute('aria-label', 'Shot Clock');
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
     const headline = element('h1', 'Shot Clock');
-    const brand = element('img', null, 'sc-brand');
-    brand.src = './icons/shot-clock-logo.svg';
-    brand.alt = 'Shot Clock';
+    headline.tabIndex = -1;
+    const appBrand = element('a', null, 'sc-app-brand');
+    appBrand.href = './play.html';
+    const brandWords = element('span', null, 'sc-brand-words');
+    brandWords.append('Billiards ', element('span', 'Trainer', 'trainer-title-color'));
+    appBrand.append(element('span', '', 'sc-orb'), brandWords);
+    const topbar = element('div', null, 'sc-topbar');
+    const navigation = element('nav', null, 'sc-navigation');
+    navigation.setAttribute('aria-label', 'Billiards Play navigation');
+    function navigationLink(label, href, className) {
+      const a = element('a', label, className);
+      a.href = href;
+      a.onclick = event => { if (options.beforeNavigate?.() === false) event.preventDefault(); else save(); };
+      return a;
+    }
+    navigation.append(navigationLink('Play', './play.html', 'sc-nav-play'),
+      navigationLink('Back to Table', options.trainerHref || './?train=1'),
+      navigationLink('All games', './play.html?catalog=all'),
+      button('Shot Clock', () => show('clock'), 'sc-nav-clock'));
+    const appMenu = element('details', null, 'sc-app-menu');
+    const appSummary = element('summary', '···');
+    appSummary.setAttribute('aria-label', 'App options');
+    const appMenuPanel = element('div', null, 'sc-app-menu-panel');
+    appMenuPanel.append(button('Full screen', () => window.BilliardsDisplay?.enter(true)),
+      button('Back to Play', close), button('Close app', () => { save(); document.getElementById('appCloseControl')?.click(); }));
+    appMenu.append(appSummary, appMenuPanel);
+    topbar.append(appBrand, navigation, appMenu);
     const headerActions = element('div', null, 'sc-header-actions');
     const total = element('div', null, 'sc-total');
-    const totalLabel = element('span', 'TOTAL TIME');
+    const totalLabel = element('span', 'Match time');
     const totalValue = element('strong', '00:00');
     total.append(totalLabel, totalValue);
     const inning = element('div', null, 'sc-inning');
@@ -118,14 +143,16 @@
     status.setAttribute('role', 'status');
     const body = element('div', null, 'sc-body');
     const footer = element('footer', null, 'sc-footer');
-    const back = button('Back to Table', close, 'sc-back');
+    const back = button('Back to Play', close, 'sc-back');
     const gear = decorate(button('', () => show('settings'), 'sc-gear'), 'gear', 'Settings');
     gear.setAttribute('aria-label', 'Shot Clock Settings');
     const header = element('header', null, 'sc-header');
     const settingsActions = element('div', null, 'sc-settings-actions');
-    headerActions.append(back, gear, settingsActions);
-    header.append(brand, headline, total, inning, headerActions);
-    overlay.append(header, status, body, footer);
+    headerActions.append(total, gear, settingsActions);
+    header.append(back, headline, headerActions);
+    const layout = element('div', null, 'sc-layout');
+    layout.append(topbar, header, status, body, footer);
+    overlay.append(layout);
     document.body.append(overlay);
     const now = () => Date.now();
     const names = () => {
@@ -168,7 +195,7 @@
       toggleScreen(true);
       window.BilliardsDisplay?.enter(true);
       show('clock');
-      back.focus({ preventScroll: true });
+      headline.focus({ preventScroll: true });
     }
     function close() {
       toggleScreen(false);
@@ -179,7 +206,7 @@
       status.textContent = '';
       headline.textContent = { clock: 'Shot Clock', settings: 'Settings', run: 'Timed Run' }[view];
       overlay.setAttribute('data-page', view);
-      headline.hidden = view === 'clock';
+      headline.hidden = false;
       gear.hidden = view === 'settings';
       body.replaceChildren();
       footer.replaceChildren();
@@ -238,14 +265,17 @@
       player.setAttribute('aria-label', 'Select ' + name(seat));
       const timeout = button('', () => command('timeout'), 'sc-timeout');
       timeout.setAttribute('aria-label', 'Coaching timeout for ' + name(seat));
-      const timeoutTitle = element('span', 'T.O.', 'sc-timeout-title');
+      const timeoutTitle = element('span', 'Timeout', 'sc-timeout-title');
       const timeoutValue = element('strong', '', 'sc-timeout-value');
-      const timeoutCaption = element('small', 'TIMEOUTS');
-      const timeoutDots = element('span', '', 'sc-timeout-dots');
-      timeout.replaceChildren(timeoutTitle, timeoutValue, timeoutCaption);
+      const timeoutDots = element('small', '', 'sc-timeout-dots');
+      const timeoutLine = element('span', null, 'sc-timeout-line');
+      timeoutLine.append(timeoutTitle, timeoutValue);
+      const timeoutCopy = element('span', null, 'sc-timeout-copy');
+      timeoutCopy.append(timeoutLine, timeoutDots);
+      timeout.replaceChildren(symbol('timeout'), timeoutCopy);
       const timeoutGroup = element('div', null, 'sc-timeout-group');
-      timeoutGroup.append(timeout, timeoutDots);
-      header.append(player, timeoutGroup);
+      timeoutGroup.append(timeout);
+      header.append(player);
       const ring = button('', () => {
         if (seat !== session.turn) return command('switch', { seat });
         if (session.interruption) return command('end-timeout');
@@ -253,10 +283,10 @@
         return command('start');
       }, 'sc-ring');
       ring.innerHTML = '<svg aria-hidden="true" viewBox="0 0 200 200"><defs><linearGradient id="sc-arc-' + seat +
-        '" gradientUnits="userSpaceOnUse" x1="0" y1="100" x2="200" y2="100" gradientTransform="rotate(-130 100 100)">' +
-        '<stop stop-color="#00f2fe"/><stop offset=".52" stop-color="#99fcf4"/><stop offset="1" stop-color="#ffff42"/>' +
-        '</linearGradient></defs><circle class="sc-track" cx="100" cy="100" r="83" pathLength="100"/>' +
-        '<circle class="sc-progress" cx="100" cy="100" r="83" pathLength="100"/></svg>';
+        '" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="200" y2="200">' +
+        '<stop stop-color="#8ce9b3"/><stop offset="1" stop-color="#43ac75"/>' +
+        '</linearGradient></defs><circle class="sc-track" cx="100" cy="100" r="88" pathLength="100"/>' +
+        '<circle class="sc-progress" cx="100" cy="100" r="88" pathLength="100"/></svg>';
       const ringText = element('span', null, 'sc-ring-text');
       const number = element('strong', '30');
       const caption = element('small', 'SECONDS');
@@ -267,9 +297,13 @@
       extension.setAttribute('aria-label', 'Extend shot clock for ' + name(seat));
       const stats = element('p', '', 'sc-stats');
       const dial = element('div', null, 'sc-dial');
-      dial.append(ring, extension);
-      panel.append(header, dial, stats);
-      return { seat, panel, player, timeout, timeoutValue, timeoutDots, timeoutGroup, ring, number, caption, hint, extension, stats, progress: ring.querySelector('.sc-progress') };
+      dial.append(ring);
+      const playerControls = element('div', null, 'sc-player-controls');
+      playerControls.append(extension, timeoutGroup);
+      const stateLabel = element('span', '', 'sc-player-state');
+      header.append(stateLabel);
+      panel.append(header, dial, playerControls, stats);
+      return { seat, panel, player, stateLabel, timeout, timeoutValue, timeoutDots, timeoutGroup, ring, number, caption, hint, extension, stats, progress: ring.querySelector('.sc-progress') };
     }
     function clockPage() {
       const grid = element('div', null, 'sc-grid');
@@ -280,14 +314,14 @@
       ui.cards = shown.map(card);
       grid.classList.toggle('sc-solo', shown.length === 1);
       grid.append(ui.cards[0].panel);
-      if (shown.length === 2) grid.append(switcher, ui.cards[1].panel);
+      if (shown.length === 2) grid.append(ui.cards[1].panel);
       body.append(grid);
       if (choices.length > 2) {
         const list = element('div', null, 'sc-seat-list');
         choices.forEach(seat => list.append(button(name(seat), () => command('switch', { seat }))));
         body.append(list);
       }
-      ui.break = decorate(button('', () => command('break'), 'sc-start sc-break'), 'break', 'Break');
+      ui.break = decorate(button('', () => command('break'), 'sc-break'), 'break', 'Break');
       ui.start = decorate(button('', () => command('start'), 'sc-start'), 'start', 'Start');
       ui.next = button('Next Shot', () => command('next'));
       ui.pause = decorate(button('', () => command('pause'), 'sc-pause'), 'pause', 'Pause');
@@ -299,7 +333,7 @@
       ui.matchBreak = button('Match Break', () => command('match-break'));
       ui.resumeMatch = button('Resume Match Clock', () => command('resume-match'));
       ui.push = button('Post-Push-Out', () => command('post-push'));
-      ui.runButton = button('Timed Run', () => show('run'));
+      ui.runButton = decorate(button('', () => show('run'), 'sc-timed-run'), 'clock', 'Timed Run');
       ui.reset = decorate(button('', () => reset(), 'sc-reset'), 'reset', 'Reset');
       ui.shootoutButton = button('Start Shootout', () => {
         if (dispatch('run-reset', { seat: seats()[0], duel: true })) show('run');
@@ -328,7 +362,12 @@
         }
         body.append(scores);
       }
-      footer.append(ui.break, ui.start, ui.next, ui.pause, ui.stop, ui.end, ui.undo, ui.official, ui.stance, ui.matchBreak, ui.resumeMatch, ui.push, ui.runButton, ui.shootoutButton, audioButton, ui.reset);
+      const more = element('details', null, 'sc-more');
+      const morePanel = element('div', null, 'sc-more-panel');
+      morePanel.append(ui.next, ui.end, ui.resumeMatch, ui.shootoutButton, ui.stop, ui.undo, ui.official, ui.stance, ui.matchBreak, ui.push, ui.reset, inning);
+      ui.cards.forEach(c => morePanel.append(c.stats));
+      more.append(element('summary', 'More'), morePanel);
+      footer.append(ui.runButton, ui.break, ui.start, ui.pause, switcher, more);
     }
     function bothOnHill() { return options.table()?.bothOnHill === true; }
     function setText(node, value) {
@@ -353,6 +392,7 @@
       for (const c of ui.cards) {
         const active = c.seat === session.turn;
         c.panel.classList.toggle('sc-active', active);
+        setText(c.stateLabel, active ? 'YOUR TURN' : 'WAITING');
         c.player.disabled = active || !!interruption || !!session.held;
         c.ring.disabled = !!session.held || (!active && !!interruption) || active && shot?.status === 'held';
         const clock = active ? interruption?.clock || shot : null;
@@ -362,31 +402,35 @@
         c.panel.classList.toggle('sc-warning', warning && seconds > 5);
         c.panel.classList.toggle('sc-danger', !!clock && (clock.status === 'expired' || warning && seconds <= 5));
         c.progress.style.stroke = active && !warning && clock?.status !== 'expired' ? 'url(#sc-arc-' + c.seat + ')' : '';
-        c.progress.style.strokeDasharray = Math.min(78, 78 * left / (clock?.limit || settings.shot * 1000)) + ' 100';
+        c.progress.style.strokeDasharray = Math.min(50, 50 * left / (clock?.limit || settings.shot * 1000)) + ' 100';
+        c.number.classList.toggle('sc-time-format', !!interruption && active);
         setText(c.number, interruption && active ? time(left) : modeOff || clock?.status === 'untimed' ? '—' : String(seconds));
         const caption = clock?.status === 'expired' ? (settings.mode === 'advisory' ? 'TIME GUIDELINE' : 'TIME EXPIRED') :
           clock?.status === 'armed' ? labels[clock.kind] + ' READY' : clock?.status === 'untimed' ? 'UNTIMED SHOT' :
           modeOff && !interruption ? 'SHOT CLOCK OFF' : labels[clock?.kind] || 'SECONDS';
         setText(c.caption, caption);
+        c.caption.hidden = caption === 'SECONDS';
         const action = !active ? 'Select player' : interruption ? 'End ' + (interruption.kind === 'coaching' ? 'coaching' : 'break') :
           ['running', 'untimed', 'expired'].includes(clock?.status) ? 'Next Shot' : clock?.status === 'paused' || clock?.status === 'resume-ready' ? 'Resume' : 'Start';
         c.ring.setAttribute('aria-label', action + ' · ' + name(c.seat));
         setText(c.hint, !active ? '' : session.held ? 'ALL STOP' : interruption && shot?.started ? 'SHOT CLOCK PAUSED · ' + time(shot.left) :
           clock?.status === 'held' ? 'REFEREE HOLD' : clock?.status === 'armed' ? (clock.kind === 'post-push' ? 'Select the next shooter or Start' : 'Start after the break') : action);
+        c.hint.hidden = !active || !(session.held || interruption || ['held', 'armed'].includes(clock?.status));
         const timeoutKey = settings.timeoutOwner === 'shared' ? 'shared' : c.seat;
         const tos = Math.max(0, settings.timeouts - (session.timeouts[timeoutKey] || 0));
         c.timeoutGroup.hidden = !settings.timeouts;
         c.timeout.disabled = !active || !tos || !!interruption || !!session.held || shot?.status === 'armed' || settings.mode !== 'off' && ['expired', 'untimed'].includes(shot?.status);
         setText(c.timeoutValue, time(settings.timeout * 1000));
-        setText(c.timeoutDots, dotAllowance(tos, settings.timeouts, '').trim());
+        setText(c.timeoutDots, tos + ' available');
         const extensionKey = settings.extensionOwner === 'shared' ? 'shared' : c.seat;
         const budget = settings.extensions + (bothOnHill() ? settings.hillExtensions : 0);
         const leftExtensions = Math.max(0, budget - (session.extensions[extensionKey] || 0));
         c.extension.hidden = !budget || modeOff;
         c.extension.disabled = !active || !leftExtensions || shot?.status !== 'running' || !!interruption || !!session.held;
-        setText(c.extension, dotAllowance(leftExtensions, budget, '+' + settings.extension + 's'));
+        setText(c.extension, '+' + settings.extension + 's Extension');
+        c.extension.setAttribute('aria-label', 'Extend shot clock for ' + name(c.seat) + ' · ' + leftExtensions + ' left');
         const stats = session.stats[c.seat];
-        setText(c.stats, 'Avg  ' + (stats?.shots ? (stats.total / stats.shots / 1000).toFixed(1) + 's' : '—') +
+        setText(c.stats, name(c.seat) + ' · Avg  ' + (stats?.shots ? (stats.total / stats.shots / 1000).toFixed(1) + 's' : '—') +
           '    |    Total  ' + time(stats?.total || 0));
       }
       const blocked = !!interruption || !!session.held;
@@ -603,7 +647,7 @@
       const left = M.matchLeft(session, settings, stamp);
       total.hidden = page === 'settings';
       inning.hidden = page !== 'clock' || settings.players === 'solo';
-      setText(totalLabel, left === null ? 'TOTAL TIME' : 'MATCH TIME');
+      setText(totalLabel, 'Match time');
       setText(totalValue, time(left ?? M.elapsed(session.match, stamp)));
       setText(inningValue, session.inning);
       setText(audioButton, 'Audio');

@@ -1,0 +1,306 @@
+{
+  "review_status": "integrated_local",
+  "interpretation": "User wrote billiards A after Golf Pool; recorded as Bowliards A from the complete ordered game list.",
+  "games": [
+    {
+      "slug": "kelly",
+      "game": "Kelly Pool",
+      "source_board": "exec-63df8e7a-b2d9-41cd-ac8b-d59a690909ea.png",
+      "description": "Burgundy velvet revealing the polished maroon7 ball.",
+      "choice": "D",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/kelly.webp",
+      "render_view_box": [
+        1330.5,
+        510.02,
+        412.46,
+        354.8
+      ]
+    },
+    {
+      "slug": "bounty",
+      "game": "Secret Bounty",
+      "source_board": "exec-b8838f1c-c504-4bce-8579-d28dd47b4db0.png",
+      "description": "Chrome magnifying lens tracking the yellow-striped9 target ball.",
+      "choice": "D",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/bounty.webp",
+      "render_view_box": [
+        1330.5,
+        510.02,
+        412.46,
+        354.8
+      ]
+    },
+    {
+      "slug": "saboteur",
+      "game": "Undercover Saboteur",
+      "source_board": "exec-9a2a1b47-34b3-41f6-bd3d-577dd6e1a282.png",
+      "description": "Polished black masquerade mask.",
+      "choice": "A",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/saboteur.webp",
+      "render_view_box": [
+        443.5,
+        66.52,
+        412.46,
+        354.8
+      ]
+    },
+    {
+      "slug": "highlow",
+      "game": "High-Low",
+      "source_board": "exec-baf37414-91e6-4829-ad0c-c6857e090085.png",
+      "description": "Yellow 1 low and maroon 15 high on dramatic black marble steps.",
+      "choice": "A",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/highlow.webp",
+      "render_view_box": [
+        443.5,
+        66.52,
+        412.46,
+        354.8
+      ]
+    },
+    {
+      "slug": "ghost",
+      "game": "Ghost Runout",
+      "source_board": "exec-634e6e3a-6d9e-4bcd-8002-601f1a9edb46.png",
+      "description": "Luminous opalescent glass 8-ball with pearly vapor against deep navy darkness.",
+      "choice": "C",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/ghost.webp",
+      "render_view_box": [
+        443.5,
+        510.02,
+        412.46,
+        354.8
+      ]
+    },
+    {
+      "slug": "cutthroat",
+      "game": "Cutthroat",
+      "source_board": "exec-3fd3b23c-b708-489f-a7c8-c9cb90037134.png",
+      "description": "Open polished barber straight razor with ebony handle and blue 2 ball.",
+      "choice": "A",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/cutthroat.webp",
+      "render_view_box": [
+        443.5,
+        66.52,
+        412.46,
+        354.8
+      ]
+    },
+    {
+      "slug": "killer",
+      "game": "Killer",
+      "source_board": "exec-04963c65-615f-4928-bf2e-56af61f26ea5.png",
+      "description": "Satin pewter hooded reaper sculpture with an empty dark hood and flowing metal robe.",
+      "choice": "D",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/killer.webp",
+      "render_view_box": [
+        1330.5,
+        510.02,
+        412.46,
+        354.8
+      ]
+    },
+    {
+      "slug": "horse",
+      "game": "H-O-R-S-E",
+      "source_board": "exec-d200e6d1-f7e1-4df6-9ccf-c6422ffc203a.png",
+      "description": "Cognac leather saddle and polished steel stirrup over forest-green wool.",
+      "choice": "B",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/horse.webp",
+      "render_view_box": [
+        1330.5,
+        66.52,
+        412.46,
+        354.8
+      ]
+    },
+    {
+      "slug": "speed",
+      "game": "Speed Pool",
+      "source_board": "exec-3a63f7a5-067b-4934-b8c8-92f9400818eb.png",
+      "description": "Oversized polished chrome racing stopwatch with ivory seconds dial and dark leather.",
+      "choice": "A",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/speed.webp",
+      "render_view_box": [
+        443.5,
+        66.52,
+        412.46,
+        354.8
+      ]
+    },
+    {
+      "slug": "three",
+      "game": "Three-Ball",
+      "source_board": "exec-4dc98694-aa50-4605-858e-ac985204b4cf.png",
+      "description": "Bold glossy trio of yellow 1, blue 2, and red 3 pool balls.",
+      "choice": "A",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/three.webp",
+      "render_view_box": [
+        443.5,
+        66.52,
+        412.46,
+        354.8
+      ]
+    },
+    {
+      "slug": "poker",
+      "game": "Poker Pool",
+      "source_board": "exec-a3342126-0e57-4244-ab7a-5c418226de24.png",
+      "description": "Luxury burgundy, ivory and black poker-chip towers with oversized king of hearts corner on espresso glass.",
+      "choice": "C",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/poker.webp",
+      "render_view_box": [
+        443.5,
+        510.02,
+        412.46,
+        354.8
+      ]
+    },
+    {
+      "slug": "blackjack",
+      "game": "Twenty-One (Blackjack)",
+      "source_board": "exec-59c5decf-9c82-428a-8b38-8a8cc25da11f.png",
+      "description": "Ivory ace-and-king blackjack pair with black-and-gold 21 chip.",
+      "choice": "A",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/blackjack.webp",
+      "render_view_box": [
+        443.5,
+        66.52,
+        412.46,
+        354.8
+      ]
+    },
+    {
+      "slug": "cribbage",
+      "game": "Cribbage Pool",
+      "source_board": "exec-a5f6e3e2-1e34-46ed-8016-48e3ff3d1efe.png",
+      "description": "Walnut cribbage pegboard with oversized polished brass scoring pegs.",
+      "choice": "A",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/cribbage.webp",
+      "render_view_box": [
+        443.5,
+        66.52,
+        412.46,
+        354.8
+      ]
+    },
+    {
+      "slug": "bingo",
+      "game": "Billiards Bingo",
+      "source_board": "exec-1251b94a-92f4-4a7b-963f-a1cc4ae35f20.png",
+      "description": "Ivory cotton-paper challenge card with three crimson stamps completing a row and a burgundy brass stamp.",
+      "choice": "C",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/bingo.webp",
+      "render_view_box": [
+        443.5,
+        510.02,
+        412.46,
+        354.8
+      ]
+    },
+    {
+      "slug": "ring",
+      "game": "Ring Game",
+      "source_board": "exec-20df3faf-abf8-4990-bfb4-aceadcfc9515.png",
+      "description": "Interlocking bronze rings frame polished 5 and 9 billiard balls.",
+      "choice": "A",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/ring.webp",
+      "render_view_box": [
+        443.5,
+        66.52,
+        412.46,
+        354.8
+      ]
+    },
+    {
+      "slug": "turf",
+      "game": "Turf War",
+      "source_board": "exec-a05b2486-1dc6-4905-b3f2-985f71169e15.png",
+      "description": "Emerald grass and ivory turf divided by a polished brass boundary, with burgundy and ivory territory markers.",
+      "choice": "A",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/turf.webp",
+      "render_view_box": [
+        443.5,
+        66.52,
+        412.46,
+        354.8
+      ]
+    },
+    {
+      "slug": "battleship",
+      "game": "Battleship Billiards",
+      "source_board": "exec-c7892d2e-ab0a-4e65-881e-4cffdec14d5c.png",
+      "description": "Walnut 3x3 naval strategy grid with pewter ship pegs and chart",
+      "choice": "C",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/battleship.webp",
+      "render_view_box": [
+        381.41,
+        510.02,
+        474.55,
+        354.8
+      ]
+    },
+    {
+      "slug": "golf",
+      "game": "Golf Pool",
+      "source_board": "exec-b3c9d355-93e4-40a1-ab96-6c98edff1e53.png",
+      "description": "Brass golf cup and scarlet fabric flag in emerald turf beside glossy ivory cue ball.",
+      "choice": "A",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/golf.webp",
+      "render_view_box": [
+        443.5,
+        66.52,
+        412.46,
+        354.8
+      ]
+    },
+    {
+      "slug": "bowliards",
+      "game": "Bowliards",
+      "source_board": "exec-a13314da-c128-43ef-af7b-2ff65853bc5a.png",
+      "description": "Oversized polished ivory bowling pin beside a glossy cobalt 2 billiard ball.",
+      "choice": "A",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/bowliards.webp",
+      "render_view_box": [
+        443.5,
+        66.52,
+        412.46,
+        354.8
+      ]
+    },
+    {
+      "slug": "equalizer",
+      "game": "Equalizer",
+      "source_board": "exec-62e2b4d8-08ab-43b8-8319-5df4c2a330b6.png",
+      "description": "Polished brass balance scale carrying identical ivory, red and amber three-ball sets in perfect equilibrium.",
+      "choice": "A",
+      "status": "integrated_local",
+      "production_asset": "play-game-images/equalizer.webp",
+      "render_view_box": [
+        443.5,
+        66.52,
+        412.46,
+        354.8
+      ]
+    }
+  ]
+}

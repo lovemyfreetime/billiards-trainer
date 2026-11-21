@@ -1,10 +1,10 @@
 (function(){
 'use strict';
-const params=new URLSearchParams(location.search),enabled=params.get('play')==='1'||location.pathname.endsWith('/play.html'),E=window.BilliardsPlay,C=window.BilliardsCatalog,P=window.BilliardsPlayPresentation;
-function link(mode){const url=new URL(location.href);if(url.pathname.endsWith('/play.html')&&mode!=='play')url.pathname=url.pathname.slice(0,-9);url.searchParams.delete('zen');url.searchParams.delete('play');if(mode!=='train')url.searchParams.set(mode,'1');return url.toString();}
+const params=new URLSearchParams(location.search),standaloneClock=location.pathname.endsWith('/shot-clock.html'),enabled=params.get('play')==='1'||location.pathname.endsWith('/play.html')||standaloneClock,E=window.BilliardsPlay,C=window.BilliardsCatalog,P=window.BilliardsPlayPresentation;
+function link(mode){const url=new URL(location.href);if((url.pathname.endsWith('/play.html')||url.pathname.endsWith('/shot-clock.html'))&&mode!=='play')url.pathname=url.pathname.slice(0,url.pathname.lastIndexOf('/')+1);url.searchParams.delete('zen');url.searchParams.delete('play');url.searchParams.delete('category');url.searchParams.delete('catalog');if(mode!=='train')url.searchParams.set(mode,'1');return url.toString();}
 function init(){
  if(!enabled)return;
- const bridge=window.billiardsPlayBridge||{busy:()=>false,save:()=>{}},KEY='billiardsPlaySession-v1';let state=null,history=[],privacy=false,paused=false,audio=false,storageError='',selected=new Set(),returnFocus=null,catalogChoice='killer',inputRevision=0,hostSeat=null;
+ const bridge=window.billiardsPlayBridge||{busy:()=>false,save:()=>{}},KEY='billiardsPlaySession-v1';let state=null,history=[],privacy=false,paused=false,audio=false,storageError='',selected=new Set(),returnFocus=null,catalogChoice='killer',inputRevision=0,hostSeat=null,familyReturn=P.groups.some(g=>g.id===params.get('category'))?params.get('category'):null;
  const A=window.BilliardsAnnouncements,T=window.BilliardsTraining;let legacyClock=null,drillState=null,drillHistory=[],toolDialog=null;
  try{const saved=JSON.parse(localStorage.getItem('billiardsPlayTools-v1')||'null');drillState=Array.isArray(saved?.drill?.names)&&Array.isArray(saved?.drill?.results)?saved.drill:null;legacyClock=saved?.clock||null;}catch{}
  document.body.classList.add('play-mode');
@@ -18,14 +18,15 @@ function init(){
  const $=id=>document.getElementById(id),dialog=$('playDialog'),N=window.BilliardsNarration;
  const clock=window.BilliardsShotClockUI.mount({
   legacy:legacyClock,root,change:save,
+  trainerHref:link('train'),beforeNavigate:()=>{if(bridge.busy())return false;save();bridge.save();return true;},
   compact:(visible,label)=>{const box=$('playShotClock');box.hidden=!visible;if(box.textContent!==label)box.textContent=label;},
-  close:catalog=>{if(catalog)setup();else $('playShotClockOpen').focus({preventScroll:true});},
+  close:catalog=>{if(standaloneClock){location.assign('./play.html');return;}if(catalog){if(familyReturn)familyPage(familyReturn);else setup();}else $('playShotClockOpen').focus({preventScroll:true});},
   table:()=>state?{players:state.players,tied:state.phase==='result'&&state.result?.winners?.length===2,
    bothOnHill:state.game==='highlow'&&state.wins?.every(wins=>wins===1),
    score:state.wins?.length===2?state.wins.map((games,i)=>({games,balls:state.players[i].score||0})):null}:null
  });
  function openClock(fromCatalog=false){if(bridge.busy())return;closeDialog();stopSpeech();clock.open(fromCatalog);}
- N.backdrop(dialog,()=>{if(dialog.classList.contains('play-setup-dialog'))setup();else if(!dialog.classList.contains('play-catalog-dialog')||state)closeDialog();});
+ N.backdrop(dialog,()=>{if(dialog.classList.contains('play-setup-dialog')){if(familyReturn)familyPage(familyReturn);else setup();}else if(!dialog.classList.contains('play-catalog-dialog')||state)closeDialog();});
  function stopSpeech(){window.BilliardsLocalSession?.cancelSpeech();window.BilliardsAudio?.cancel();}
  function speech(message){if(N.speaking())return;if(!audio||!window.BilliardsAudio?.available()||privacy||paused)return;if(window.BilliardsLocalSession?.active){window.BilliardsLocalSession.speak(message);return;}window.BilliardsAudio.cancel();window.BilliardsAudio.speak(message);}
  function text(tag,value,cls){const e=document.createElement(tag);e.textContent=value;if(cls)e.className=cls;return e;}
@@ -51,7 +52,7 @@ function init(){
  const dockExperience=()=>{const host=dialog.open?dialog:document.body;if(experienceCorner.parentNode!==host)host.append(experienceCorner);};
  new MutationObserver(dockExperience).observe(dialog,{attributes:true,attributeFilter:['open'],childList:true});dockExperience();
  document.addEventListener('billiards-audio-error',e=>{$('playNotice').textContent=e.detail;});
- function companionLink(){if(window.BilliardsOfflinePlay||window.BilliardsLocalSession?.active)return document.createDocumentFragment();const a=text('a','','play-companion-link');a.href='./companion.html';a.setAttribute('aria-label','Open Companion Play');const icon=document.createElement('span');icon.setAttribute('aria-hidden','true');icon.textContent='● ●';const label=text('span','Companion Play');a.append(icon,label);a.onclick=e=>{if(bridge.busy()){e.preventDefault();return;}save();bridge.save();};return a;}
+ function companionLink(){if(window.BilliardsOfflinePlay||window.BilliardsLocalSession?.active)return document.createDocumentFragment();const a=text('a','','play-companion-link');a.href='./companion.html';a.setAttribute('aria-label','Open Companion Play');const icon=document.createElement('span');icon.className='play-ui-icon';icon.setAttribute('aria-hidden','true');icon.innerHTML=P.uiIcon('people');const label=text('span','Companion Play');a.append(icon,label);a.onclick=e=>{if(bridge.busy()){e.preventDefault();return;}save();bridge.save();};return a;}
  function updatesButton(){if(!window.BilliardsAppUpdates?.supported||window.BilliardsLocalSession?.active)return document.createDocumentFragment();return button('Check for updates',()=>window.BilliardsAppUpdates.check(),'play-updates');}
  function tournamentLink(){const a=text('a','Tournament Play','play-tournament-link');a.href='./tournament.html';return a;}
  root.querySelector('.play-footer nav').append(window.BilliardsLocalSession.button(),companionLink(),tournamentLink());
@@ -78,10 +79,45 @@ function init(){
  }
  function card(c,action){const node=action?button(E.cardLabel(c),action):text('div',E.cardLabel(c));node.className='play-card'+([1,2].includes(Math.floor(c/13))?' red':'');return node;}
  function showRules(){if(!state)return;openDialog(`${E.games[state.game].name} · our rules`);narrate(dialog,['rules-'+state.game,'house-rules'],'rules for '+E.games[state.game].name);dialog.append(text('p',E.games[state.game].rules),text('p','A foul takes priority over a made ball. Unless this game says otherwise, foul-shot balls return and the next player gets cue ball anywhere. In real-table mode, report the result honestly; Undo corrects mistakes.'));dismiss();}
- function setup(game){
+ function selectionHref(category,all=false){const url=new URL(location.href);url.searchParams.delete('category');url.searchParams.delete('catalog');if(category)url.searchParams.set('category',category);else if(all)url.searchParams.set('catalog','all');return url.toString();}
+ function selectionLink(label,href){const a=text('a',label);a.href=href;a.onclick=e=>{if(bridge.busy()){e.preventDefault();return;}N.stop();stopSpeech();save();bridge.save();};return a;}
+ function navigateFamily(id){if(bridge.busy()||!P.groups.some(g=>g.id===id))return;N.stop();stopSpeech();save();bridge.save();location.assign(selectionHref(id));}
+ function makeGameCard(id,order){
+  const g=E.games[id],b=button('',()=>setup(id),'play-game-tile');b.dataset.game=id;b.style.setProperty('--family','#aacbbb');b.setAttribute('aria-label',`${g.name} ${g.tag} · ${g.min===g.max?g.min:g.min+'–'+g.max} player${g.max===1?'':'s'}`);b.setAttribute('aria-pressed','false');
+  const art=text('span','','play-game-photo');art.setAttribute('aria-hidden','true');art.innerHTML=P.gameArt(id);const count=text('span',String(order).padStart(2,'0'),'play-tile-number');count.setAttribute('aria-hidden','true');b.append(count,art,text('strong',g.name),text('small',`${g.min===g.max?g.min:g.min+'–'+g.max} player${g.max===1?'':'s'}`));
+  const card=text('div','','play-game-card');card.style.setProperty('--family','#aacbbb');card.append(b);N.attach(card,'setup-'+id,{label:g.name+' preview',className:'play-game-preview'});return {card,tile:b};
+ }
+ function familyPage(id){
+  const family=P.groups.find(g=>g.id===id);if(!family){setup();return;}familyReturn=id;
+  openDialog(family.name);dialog.className='play-family-page';dialog.dataset.family=id;dialog.replaceChildren();dialog.setAttribute('aria-labelledby','playFamilyTitle');document.title=family.name+' · Billiards Play';
+  const top=text('header','','play-home-top play-family-top'),brand=text('div','Billiards ','play-home-brand'),nav=text('nav','','play-family-nav');brand.append(text('span','Trainer','trainer-title-color'));nav.setAttribute('aria-label',family.name+' navigation');
+  nav.append(selectionLink('Back to Billiards Play',selectionHref(null)),selectionLink('All 20 games',selectionHref(null,true)),button('Shot Clock',()=>openClock(true)));top.append(brand,nav);dialog.append(top);
+  const intro=text('div','','play-family-intro'),title=text('h1',family.name);title.id='playFamilyTitle';
+  const descriptions={secret:'Hidden targets. Shared suspense.',pub:'Friendly rivalries. One more round.',cards:'Play the table. Read the possibilities.',tactical:'A little strategy. A different kind of challenge.'};
+  intro.append(title,text('p',descriptions[id]));dialog.append(intro);
+  const stage=text('main','','play-family-stage');stage.setAttribute('aria-label',family.name+' games');family.games.forEach((game,index)=>{const {card}=makeGameCard(game,index+1);card.classList.add('play-family-game');stage.append(card);});dialog.append(stage);
+ }
+ function playHome(){
+  openDialog('Billiards Play');dialog.className='play-home-dialog';dialog.setAttribute('aria-label','Billiards Play');dialog.removeAttribute('aria-labelledby');dialog.replaceChildren();
+  const top=text('header','','play-home-top'),brand=text('div','Billiards ','play-home-brand'),nav=text('nav','','play-home-nav');brand.append(text('span','Trainer','trainer-title-color'));nav.setAttribute('aria-label','Play navigation');
+  const back=text('a','Back to Table');back.href=link('train');back.onclick=e=>{if(bridge.busy()){e.preventDefault();return;}save();bridge.save();};
+  nav.append(text('span','Play','play-home-current'),back,button('All games',()=>setup(null,'all')),button('Shot Clock',()=>{save();location.assign('./shot-clock.html');}));top.append(brand,nav);dialog.append(top);
+  const scene=text('main','','play-home-scene'),intro=text('div','','play-home-intro'),homeTitle=text('h1','Billiards ');homeTitle.append(text('span','Play','play-title-color'));intro.append(homeTitle,text('p','Our table. Our rules.'));
+  const voice=text('div','','play-home-voice');N.attach(voice,'play-introduction',{label:'Listen to Billiards Play introduction'});intro.append(voice);scene.append(intro);
+  const featured={secret:['kelly'],pub:['killer','horse'],cards:['poker'],tactical:['turf']};
+  P.groups.forEach(family=>{const card=text('section','','play-home-family play-home-'+family.id);card.setAttribute('aria-label',family.name);const art=text('span','','play-family-art');art.setAttribute('aria-hidden','true');art.innerHTML=P.familyArt(family.id);const heading=text('h2');heading.append(button(family.name,()=>setup(null,family.id),'play-family-open'));const choices=text('div','','play-home-choices');featured[family.id].forEach(id=>{const b=button(E.games[id].name,()=>setup(id));b.dataset.game=id;choices.append(b);});choices.append(button('Explore all 5',()=>setup(null,family.id),'play-family-more'));card.append(art,heading,choices);scene.append(card);});
+  dialog.append(scene);
+  const companion=companionLink();if(companion.nodeType===1){companion.classList.add('play-home-companion');companion.append(text('small','Play. Connect. Improve together.'));dialog.append(companion);}
+  const decorate=(node,icon)=>{if(node.nodeType===1){const art=text('span','','play-ui-icon');art.setAttribute('aria-hidden','true');art.innerHTML=P.uiIcon(icon);node.prepend(art);}return node;};
+  const foot=text('footer','','play-home-footer');foot.append(decorate(button('All 20 games',()=>setup(null,'all'),'play-home-all'),'games'),decorate(tournamentLink(),'trophy'));if(!window.BilliardsLocalSession?.active)foot.append(decorate(window.BilliardsLocalSession.button(),'people'));foot.append(decorate(button('Tools & voice',()=>{closeDialog();tools();}),'tools'));
+  const resume=button('Resume game',closeDialog,'play-resume');resume.id='playResume';resume.disabled=!state;foot.append(decorate(resume,'resume'),decorate(updatesButton(),'updates'));dialog.append(foot);
+ }
+ function setup(game,groupId){
+  if(!game&&groupId&&groupId!=='all'){navigateFamily(groupId);return;}
+  if(!game&&!groupId){playHome();return;}
   if(!game){
    openDialog('Games');dialog.firstChild.remove();dialog.setAttribute('aria-label','Games');dialog.removeAttribute('aria-labelledby');dialog.className='play-catalog-dialog';const compact=matchMedia('(pointer:coarse), (max-width:1000px), (max-height:650px)').matches;dialog.classList.toggle('play-catalog-compact',compact);
-   const catalogHeading=text('div','','play-catalog-heading');const catalogTitle=text('h2','Billiards ');catalogTitle.append(text('span','Play','play-title-color'));catalogHeading.append(catalogTitle);N.attach(catalogHeading,'play-introduction');dialog.append(catalogHeading);
+   const catalogHeading=text('div','','play-catalog-heading');const catalogTitle=text('h2','Billiards ');catalogTitle.append(text('span','Play','play-title-color'));catalogHeading.append(catalogTitle);N.attach(catalogHeading,'play-introduction');catalogHeading.append(button('Back to Play',()=>setup(),'play-glass-back'));dialog.append(catalogHeading);
    dialog.append(text('p',compact?'Tap a game to set up your players.':'Our table. Our rules. Pick your kind of pressure.','play-catalog-intro'));
    const layout=text('div','','play-catalog-layout'),hero=text('section','','play-catalog-hero');hero.setAttribute('aria-label','Selected game preview');
    const heroArt=text('div','','play-hero-emblem'),eyebrow=text('div','','play-eyebrow'),title=text('h3',''),pitch=text('p','','play-hero-pitch'),tags=text('div','','play-hero-tags');
@@ -89,18 +125,18 @@ function init(){
    const right=text('div','','play-catalog-roster');
    const grid=text('div','','play-game-grid');
    const tiles=new Map();
-   function preview(id){catalogChoice=id;const g=E.games[id],family=P.group(id);hero.style.setProperty('--family',family.color);heroArt.innerHTML=P.icon(id);eyebrow.textContent=family.name;title.textContent=g.name;pitch.textContent=g.tag+' '+g.rules.split('. ')[0]+'.';tags.replaceChildren(text('span',`${g.min===g.max?g.min:g.min+'–'+g.max} player${g.max===1?'':'s'}`),text('span','Our house rules'));for(const [key,b] of tiles){b.classList.toggle('selected',key===id);b.setAttribute('aria-pressed',String(key===id));}}
-   P.groups.forEach((family,col)=>{const column=text('section','','play-game-family');column.style.setProperty('--family',family.color);column.append(text('h3',family.name));family.games.forEach((id,row)=>{const g=E.games[id],b=button('',()=>compact?setup(id):preview(id),'play-game-tile');b.dataset.game=id;b.style.setProperty('--family',family.color);b.setAttribute('aria-label',`${g.name} ${g.tag} · ${g.min===g.max?g.min:g.min+'–'+g.max} player${g.max===1?'':'s'}`);b.setAttribute('aria-pressed','false');const art=text('span','','play-tile-icon');art.innerHTML=P.icon(id);const count=text('span',String(col*5+row+1).padStart(2,'0'),'play-tile-number');count.setAttribute('aria-hidden','true');b.append(count,art,text('strong',g.name),text('small',`${g.min===g.max?g.min:g.min+'–'+g.max} player${g.max===1?'':'s'}`));b.onfocus=()=>preview(id);const card=text('div','','play-game-card');card.style.setProperty('--family',family.color);card.append(b);N.attach(card,'setup-'+id,{label:g.name+' preview',className:'play-game-preview'});column.append(card);tiles.set(id,b);});grid.append(column);});
-   right.append(grid);if(state){const saved=text('div','','play-saved-actions');const resume=button('Resume game',closeDialog,'play-resume');resume.id='playResume';const clear=button('Clear saved game',confirmClear,'play-clear-game');clear.id='playClearSaved';saved.append(clear,resume);right.append(saved);}layout.append(hero,right);dialog.append(layout);preview(catalogChoice);{const nav=text('div','','play-catalog-nav');if(!window.BilliardsLocalSession?.active)nav.append(window.BilliardsLocalSession.button());nav.append(companionLink(),tournamentLink(),button('Shot Clock',()=>openClock(true)),button('Tools',()=>{closeDialog();tools();}),updatesButton());dialog.append(nav);}dialog.scrollTop=0;return;
+   function preview(id){catalogChoice=id;const g=E.games[id],family=P.group(id);hero.style.setProperty('--family',family.color);heroArt.innerHTML=P.gameArt(id);eyebrow.textContent=family.name;title.textContent=g.name;pitch.textContent=g.tag+' '+g.rules.split('. ')[0]+'.';tags.replaceChildren(text('span',`${g.min===g.max?g.min:g.min+'–'+g.max} player${g.max===1?'':'s'}`),text('span','Our house rules'));for(const [key,b] of tiles){b.classList.toggle('selected',key===id);b.setAttribute('aria-pressed',String(key===id));}}
+   P.groups.filter(family=>groupId==='all'||family.id===groupId).forEach((family,col)=>{const column=text('section','','play-game-family play-game-family--'+family.id);column.style.setProperty('--family',family.color);column.append(text('h3',family.name));family.games.forEach((id,row)=>{const {card,tile:b}=makeGameCard(id,col*5+row+1);b.onfocus=()=>preview(id);column.append(card);tiles.set(id,b);});grid.append(column);});
+   right.append(grid);if(state){const saved=text('div','','play-saved-actions');const resume=button('Resume game',closeDialog,'play-resume');resume.id='playResume';const clear=button('Clear saved game',confirmClear,'play-clear-game');clear.id='playClearSaved';saved.append(clear,resume);right.append(saved);}layout.append(hero,right);dialog.append(layout);preview(tiles.has(catalogChoice)?catalogChoice:tiles.keys().next().value);{const nav=text('div','','play-catalog-nav');if(!window.BilliardsLocalSession?.active)nav.append(window.BilliardsLocalSession.button());nav.append(companionLink(),tournamentLink(),button('Shot Clock',()=>openClock(true)),button('Tools',()=>{closeDialog();tools();}),updatesButton());dialog.append(nav);}dialog.scrollTop=0;return;
   }
-  const g=E.games[game];catalogChoice=game;openDialog(g.name);dialog.className='play-setup-dialog';dialog.style.setProperty('--family',P.group(game)?.color||'#d3b68b');const emblem=text('div','','play-setup-emblem');emblem.innerHTML=P.icon(game);dialog.append(emblem);dialog.append(text('p',g.rules));narrate(dialog,'rules-'+game,'rules for '+g.name);
+  const g=E.games[game];catalogChoice=game;openDialog(g.name);dialog.className='play-setup-dialog';dialog.style.setProperty('--family',P.group(game)?.color||'#d3b68b');const emblem=text('div','','play-setup-emblem play-photo-emblem');emblem.setAttribute('aria-hidden','true');emblem.innerHTML=P.gameArt(game);dialog.append(emblem);dialog.append(text('p',g.rules));narrate(dialog,'rules-'+game,'rules for '+g.name);
   const form=document.createElement('form');
   form.append(text('p','Real-table scorekeeper · play the shots at your pool table.'));
   const namesLabel=text('label',`Players · separate names with commas (${g.min===g.max?g.min:g.min+'–'+g.max})`);namesLabel.htmlFor='playSetupNames';const names=document.createElement('input');names.id='playSetupNames';names.maxLength=500;names.value=Array.from({length:Math.max(g.min,Math.min(2,g.max))},(_,i)=>'Player '+(i+1)).join(', ');names.autocomplete='off';
   form.append(namesLabel,names);
   let count=null;if(game==='ghost'){const label=text('label','How many balls?');label.htmlFor='playSetupCount';count=document.createElement('select');count.id='playSetupCount';[3,6,9,10].forEach(n=>{const o=text('option',`${n} balls`);o.value=n;count.append(o);});form.append(label,count);}
   let allowances=null;if(game==='equalizer'){allowances=document.createElement('input');allowances.id='playAllowances';allowances.value='1, 1';const l=text('label','Allowed misses per player (0–2), separated by commas');l.htmlFor=allowances.id;form.append(l,allowances);form.append(text('p','Each player also has one optional cue-ball reset per layout.'));}
-  const error=text('p','');error.setAttribute('role','alert');form.append(error);const row=text('div','','play-dialog-actions');row.append(button('Other games',()=>setup()));const start=button(state?'Start new game':'Rack them up',null,'play-primary');start.type='submit';row.append(start);form.append(row);
+  const error=text('p','');error.setAttribute('role','alert');form.append(error);const row=text('div','','play-dialog-actions');row.append(button(familyReturn?'Back to '+P.groups.find(f=>f.id===familyReturn).name:'Other games',()=>{if(familyReturn)familyPage(familyReturn);else setup();}));const start=button(state?'Start new game':'Rack them up',null,'play-primary');start.type='submit';row.append(start);form.append(row);
   if(state)form.append(text('p','Starting a new game replaces the saved game. Back to table keeps your current game.'));
   form.onsubmit=e=>{e.preventDefault();try{const seed=crypto.getRandomValues(new Uint32Array(1))[0],next=E.create({game,mode:'real',names:names.value.split(',').map(n=>n.slice(0,28)),balls:count?.value,allowances:allowances?.value.split(',').map(Number),seed});window.BilliardsLocalSession?.newGame();state=next;inputRevision++;hostSeat=null;history=[];paused=false;clock.reset(state?.active||0);selected.clear();save();closeDialog();render();speech(A.start(state));}catch(e){error.textContent=e.message;}};dialog.append(form);dismiss();
  }
@@ -226,7 +262,7 @@ function init(){
  }});
  window.billiardsPlayInput=inputs;
  $('playShotClockOpen').onclick=()=>openClock();$('playTools').onclick=tools;$('playMyView').onclick=myPlayer;
- $('playNew').onclick=()=>{if(!bridge.busy())setup();};$('playRules').onclick=showRules;$('playUndo').onclick=()=>inputs.dispatch({type:'undo'});
+ $('playNew').onclick=()=>{if(!bridge.busy()){if(familyReturn)familyPage(familyReturn);else setup();}};$('playRules').onclick=showRules;$('playUndo').onclick=()=>inputs.dispatch({type:'undo'});
  $('playAudio').onclick=()=>{audio=!audio;$('playAudio').textContent=audio?'Audio on':'Audio off';$('playAudio').setAttribute('aria-pressed',String(audio));if(!audio)stopSpeech();else{window.BilliardsAudio.unlock().catch(()=>{});speech(['audio-on']);}};
  $('playPause').onclick=()=>inputs.dispatch({type:paused?'resume':'pause'});
  root.querySelectorAll('.play-footer a').forEach(a=>a.addEventListener('click',e=>{if(bridge.busy()){e.preventDefault();return;}save();bridge.save();}));
@@ -234,8 +270,8 @@ function init(){
  document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&!e.target.matches('input,textarea')){e.preventDefault();e.stopImmediatePropagation();inputs.dispatch({type:'undo'},{source:'clicker'});}},true);
  window.addEventListener('pagehide',()=>{save();saveTools();});
  try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if([1,2].includes(saved?.version)&&E.games[saved.state?.game]){state=saved.state;state.mode='real';if(state.game==='speed'&&state.timer)state.interrupted=true;history=(saved.history||[]).filter(h=>h.state&&E.games[h.state.game]).map(h=>({state:{...h.state,mode:'real'}}));save();}}catch(e){storageError='Saved game could not be restored. Start a new game.';}
- // Always enter through the full catalog; Resume game keeps the restored session and Undo history.
- render();drawDrill();setup();
+ // The photographic Play entrance keeps the restored session and Undo history.
+ render();drawDrill();if(standaloneClock)openClock(true);else if(params.get('catalog')==='all')setup(null,'all');else if(familyReturn)familyPage(familyReturn);else setup();
  window.BilliardsLocalSession?.mount({getState:()=>state?{...state,localPaused:paused,localClock:clock.remote(),localHostSeat:hostSeat,localGameName:E.games[state.game].name,localRules:E.games[state.game].rules,localPlayerStats:state.players.map((p,i)=>C.games[state.game]?C.stat(state,i):state.game==='killer'?`${p.lives} lives`:state.game==='poker'?`${p.hand.length} cards`:state.game==='ghost'?`${state.points[0]} – ${state.points[1]}`:`Balls ${i*5+1}–${i*5+5}`)}:null,applyAction(event,seat,meta={}){return inputs.dispatch({type:'engine',event},{source:'remote',seat,id:meta.id});}});
  // Read-only inspection supports browser QA without exposing secret cards through a public UI.
  window.billiardsPlayStatus=()=>state?{game:state.game,phase:state.phase,mode:state.mode,active:state.active,round:state.round,shots:state.shots,lives:state.players.map(p=>p.lives),remaining:[...state.remaining],undo:history.length}:null;

@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "27165b2b37303d6e0c89ee01ca4dea4e741ac50f4072a0c1b4d43cb1b2ea0ad2",
-  "sequence": 1795157679,
+  "version": "7372261b5d9d07b45049980d6dea7172f05e15be146a8ccd8e9edb3a9b19969a",
+  "sequence": 1795230668,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -53,8 +53,8 @@
       "length": 2771
     },
     "backup.html": {
-      "sha256": "1521165f563d9d7755b8c632530ca224c1ff37774c700f09c49c3d9f1b65d14c",
-      "length": 2541
+      "sha256": "70eae75efe68617a56b5e194c890ad2ec466bbb5b232ceff0d71b3864ee86990",
+      "length": 2635
     },
     "bank-kick-routing.js": {
       "sha256": "7862ed55e26a75541b4c0cc43ef54113633ebab650f44126f5af6f0c0c45f785",
@@ -121,8 +121,8 @@
       "length": 605
     },
     "experience-menu.css": {
-      "sha256": "36093f7967c7a16cfbbcac64070b7a2de7e5345f0d6efdc3fe39664766e9475b",
-      "length": 7587
+      "sha256": "5c8b4405816ab0dcb5cbd87656753b2bd8151e71235e232ada5df834a6c3d90a",
+      "length": 7766
     },
     "experience-menu.js": {
       "sha256": "07a382992a148e78df4b2c732891843a8028f527a65353faee33723b77cb0d64",
@@ -3881,8 +3881,8 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "cb1fbad5c60bbc1207ce9f50df31d584787d8b45dead79a2d3426a1c082e7bd7",
-      "length": 160382
+      "sha256": "4265b8deb442dc487e3febbec6651f89685139ec0b48735bd038269f5ae79944",
+      "length": 163425
     },
     "phone-play.css": {
       "sha256": "cec5017ee25f788690420d4e67241754a1fbb2c047779ad0e7e59d87f7eac720",
@@ -5297,8 +5297,8 @@
       "length": 215061
     },
     "play-calibration.html": {
-      "sha256": "bb82816a91d0d962dbe23291a684820618c15cdd74ae9550a1c44b32dc9cd9fd",
-      "length": 3041
+      "sha256": "1d964cf5dfa5439597fd5172e52e3426311d84efb802eac35672ed5d1e539d90",
+      "length": 3135
     },
     "play-calibration.js": {
       "sha256": "29b3e400c06631af6a8f72f15c83c03d31bb2aefb4429ad9fc6c1cb9b9c6afcd",
@@ -5316,17 +5316,105 @@
       "sha256": "3277135afa32c2685b017d97b983681b5ca293262b1b89d1c7c018ec4b5b356b",
       "length": 11499
     },
+    "play-game-images/battleship.webp": {
+      "sha256": "f73192d31d6801056c92e412caab95f5df1c9e5f721da7e31734af7f9546bb98",
+      "length": 187638
+    },
+    "play-game-images/bingo.webp": {
+      "sha256": "9a08dbe304a6361206e44420e09a4684de4b573e8a3f7f210e6fd76345bee1f6",
+      "length": 189140
+    },
+    "play-game-images/blackjack.webp": {
+      "sha256": "566b1963e99631a2bdd84e63dcd58f28de23a5794811eb0f3fdd6f84116e04f2",
+      "length": 206488
+    },
+    "play-game-images/bounty.webp": {
+      "sha256": "f04864bdbc7b300d8e359e93bd28fed7924f75ef2ae8dd4158c4839af6a0db5a",
+      "length": 160436
+    },
+    "play-game-images/bowliards.webp": {
+      "sha256": "d5cb2cdce905591e87798d7fcd833b0b1fdc44fa9b99ade5ea0bf5285f9bb1d5",
+      "length": 113338
+    },
+    "play-game-images/cribbage.webp": {
+      "sha256": "7ca203b8ebcbd012bd2af1e7fc2818a18dbc424d1f9f9fd806e80f10b196c4fc",
+      "length": 144776
+    },
+    "play-game-images/cutthroat.webp": {
+      "sha256": "33aca01b71951fbe5969c9de2c796cf4b3214b0ee84ada5a6441064daa36ed84",
+      "length": 145236
+    },
+    "play-game-images/equalizer.webp": {
+      "sha256": "1372644199b27b96c76e17fbcc3b658ceb5637a7c830f7d7ea500f639ce26bf8",
+      "length": 132130
+    },
+    "play-game-images/ghost.webp": {
+      "sha256": "8800eef5df1556c3bb67d8ba6c7a2d708cb12f14f0491d58e35c0af087800c31",
+      "length": 132060
+    },
+    "play-game-images/golf.webp": {
+      "sha256": "bfc875a747a9ed1fb937cee55d955117a249f017271217d09dea5d99e97db4bf",
+      "length": 141836
+    },
+    "play-game-images/highlow.webp": {
+      "sha256": "26025d5e20fbc2bc1b099b14ca0faf9c0484043ca9f2f174d988d498b7232a45",
+      "length": 133550
+    },
+    "play-game-images/horse.webp": {
+      "sha256": "9cda1423faca3dc95431ab55f77253e5b899701281fadb2a4dbe68a51b75c175",
+      "length": 169442
+    },
+    "play-game-images/kelly.webp": {
+      "sha256": "9f73adc5758bc94ad8def0abfb5785617e37c5efe4c4c9914e5b36d6c549dda4",
+      "length": 138208
+    },
+    "play-game-images/killer.webp": {
+      "sha256": "20e147e922e9df2301fd59e7f84cd1c3f63b2f3fef2ab3c1b22737c9dc9a6444",
+      "length": 118636
+    },
+    "play-game-images/poker.webp": {
+      "sha256": "4963299ffe51ec194d45ce487633a7a95374050910d379ecd4dc123fe35c7e41",
+      "length": 186120
+    },
+    "play-game-images/ring.webp": {
+      "sha256": "c126aa82ee303bf7dd7287bbed2d15853c72b6ec5a6b54f3d877803875f1fc2b",
+      "length": 175346
+    },
+    "play-game-images/saboteur.webp": {
+      "sha256": "4d277de4c357dcab6c4e3e8f061cf38f9de8981bb214320139fa66f531e5f449",
+      "length": 141890
+    },
+    "play-game-images/speed.webp": {
+      "sha256": "de6d5fd6eb6566d3d27738d6f3c525d33497d430a3520fbaf5e0c5a09eaee9e5",
+      "length": 168664
+    },
+    "play-game-images/three.webp": {
+      "sha256": "0f1771409bc8469d23ec84f89cd44dba2618f24bc97097f2f4c0809497597873",
+      "length": 146498
+    },
+    "play-game-images/turf.webp": {
+      "sha256": "58ad2f3b299c7b54d3162435b6262863fd7a846d676846135163247002d1415e",
+      "length": 172798
+    },
+    "play-glass.css": {
+      "sha256": "f59384fa631c6fada442d18ef586defc3a79ca3059652a3147a5b52122ecd4ab",
+      "length": 30029
+    },
     "play-input.js": {
       "sha256": "0ef84022711e5c94a6ecd60ccef0be80ec996b7d23430f6f342c14afee860081",
       "length": 3530
+    },
+    "play-lounge.webp": {
+      "sha256": "119f5dfd9580040a3ae1ad918ad96dda323b6a4a8210b68d5a7ee1d74cbf1bed",
+      "length": 178218
     },
     "play-mode.css": {
       "sha256": "a91b2804d28c3cfb4bf064f36f017909a9371dc99dffb387b3b770e0f2169d87",
       "length": 29889
     },
     "play-mode.js": {
-      "sha256": "7931f5abcea4cad7bfa97963d0c188cefc20c0064d015b425c3eacc1d0cdb4c2",
-      "length": 43432
+      "sha256": "d65a025b449a89d2961e54b156e84011775c42eb1646a2c665cde078eb55216c",
+      "length": 49951
     },
     "play-narration-data.js": {
       "sha256": "bc39f8b3d8a1043a9bb0301ed4e7625feec95e6d07a16ef9778a8505634e8e2c",
@@ -5336,21 +5424,37 @@
       "sha256": "b126280a143f218e0c64b93b4e9e6ed483bba69316a220f5e9b4aff53f5de0b1",
       "length": 3917
     },
+    "play-panel-cards.webp": {
+      "sha256": "9b63c453b0d035a42b684b1366d31af8f5f7dec2042bcc5eaec0f292ecec05cf",
+      "length": 44090
+    },
+    "play-panel-pub.webp": {
+      "sha256": "b4bb4d44b1f821a6bd89f917f2bd35ee1da379baf52a2e80b71edaa57ee68807",
+      "length": 29240
+    },
+    "play-panel-secret.webp": {
+      "sha256": "e91b7f7c15ba7f5d5801f5caf90537941e896b884b46e1d73d06e16df1d7bdff",
+      "length": 45260
+    },
+    "play-panel-tactical.webp": {
+      "sha256": "05528c3bedc9b78b29c02a7422d8f7e6bdf359b982c92d6394c1b208e5689895",
+      "length": 79676
+    },
     "play-presentation.js": {
-      "sha256": "f4133283179ab85ed844ebfe0b5c46e50d6adb7c87169be64f76ab04b627b962",
-      "length": 3119
+      "sha256": "5e73d986c6f94d804680dee70531152791896fd138bd0372ec6fbc991f2bfef7",
+      "length": 6742
     },
     "play-recorded-audio.js": {
       "sha256": "956d093babb6bcedc3a248a0509bf58e2a0178826bae3d9162a848bbc4b4578d",
       "length": 3329
     },
     "play-shot-clock-ui.js": {
-      "sha256": "f3389de2bbd5bdf8e9875efeb46ddbad42a81699fd689cef95162b1f552ae1c7",
-      "length": 38318
+      "sha256": "46a760d9f0428b6fb5f1c2c25bc714ed71810cbc29b019c7e66e604f372ff1fd",
+      "length": 40915
     },
     "play-shot-clock.css": {
-      "sha256": "2bed829751d0f5a2af806194a4f108f06d0e22c406886996a186a4afba6db13a",
-      "length": 23736
+      "sha256": "60db222ed4c1d87da0ccb2dca9788576867891a0f3960a0c6168604388fede8d",
+      "length": 15262
     },
     "play-shot-clock.js": {
       "sha256": "0ac037ecf704b72590e290db8b24556ad2d25f3b2e457a1ba1c0d925bf86c4ff",
@@ -5365,12 +5469,28 @@
       "length": 532
     },
     "play.html": {
-      "sha256": "e5742ab9c9e21d9a0e43e8ff7fce9dc236bbb889b366f96a21c25664ac8fdeb4",
-      "length": 2168
+      "sha256": "8ad6767b4e25beb972448b1101ab9328d6aba96e276445fb1b50683cad4998f5",
+      "length": 2353
     },
     "service-worker.js": {
-      "sha256": "d467ad705ed6d3dff55a207474ef662205d1af08bb4822b98dec5401343e30d2",
+      "sha256": "7d2713ac742960aeeb8e32ea4cea1219f7b1779edf6eb805060b4d0e9a1d6738",
       "length": 7933
+    },
+    "shot-clock-dial.webp": {
+      "sha256": "b15ffb9c0c791123cc280fcd551a6bcf89ccc394b4c36f87d35d5c26b876ba68",
+      "length": 65680
+    },
+    "shot-clock-reference.css": {
+      "sha256": "2db8a23f51c94d1ce4eec1669c5b0281e2239cc84e436d684be14b279f2b1293",
+      "length": 19218
+    },
+    "shot-clock-room.webp": {
+      "sha256": "6793f09264fd16d417e794e368bfbb22ec6ee13ebe46fdaf47591e22647e3afa",
+      "length": 57122
+    },
+    "shot-clock.html": {
+      "sha256": "99866f76e80c95e7ce7d435a78f2890432e9c3039e0da977a9e805f429e7a3c4",
+      "length": 2350
     },
     "table-orbit.js": {
       "sha256": "63ba1150074ca0b951f6dcceddf55a9d6f2e85bf90096500bbd4224aff9f4add",
@@ -5389,8 +5509,8 @@
       "length": 6565
     },
     "tournament.html": {
-      "sha256": "d3497126a61c1429131ba5fda878090e3a0db57046c0b6116561ebb3075017ca",
-      "length": 928
+      "sha256": "245ec02d706301367dd8e122018e8cba2705d015ae07d08871f037c4f7592f86",
+      "length": 1022
     },
     "trainer-3d.css": {
       "sha256": "6fb8dc35b53db5251ba2b3bc5a149749de7a8404f17abbb780c4ce8392703e14",

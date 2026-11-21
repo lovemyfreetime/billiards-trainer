@@ -62,6 +62,8 @@ body:has(#companionExperience) .topbar { padding-left:70px; padding-right:108px;
 @media(max-width:600px) { body:has(#companionExperience) .topbar { grid-template-columns:auto minmax(0,1fr); height:auto; min-height:88px; padding-top:54px; padding-right:18px; } }
 .experience-corner .experience-menu--play:popover-open,
 .experience-corner .experience-menu--companion:popover-open { display:flex; flex-wrap:wrap; max-width:280px; }
+.experience-corner .experience-menu--play:popover-open,
+.experience-corner .experience-menu--play.legacy-popover-open { flex-direction:column; flex-wrap:nowrap; max-width:60px; }
 body.play-mode #playRoot .play-header { padding-left:70px; padding-right:108px; flex-wrap:wrap; }
 body.play-mode #playRoot .play-header nav { flex-wrap:wrap; }
 @media(max-width:760px) {
