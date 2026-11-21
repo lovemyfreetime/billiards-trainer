@@ -21,7 +21,7 @@ const out='test-results/ball-controls';fs.mkdirSync(out,{recursive:true});
     await page.locator('#cueElevationView'+which).scrollIntoViewIfNeeded();console.log('Ready '+(touch?'touch':'mouse')+' shot '+which+' at '+elevation+' degrees, '+(airborne?'airborne':'normal'));
    };
    // Start on the visible shaft, then change its angle around the tip without a grab jump.
-   const points=which=>page.locator('#cueElevationView'+which).evaluate(node=>{const g=node.cueGeometry,r=node.getBoundingClientRect(),f=.72,dx=(g.buttX-g.tipX)*f,dy=(g.buttY-g.tipY)*f;return {start:{x:r.left+node.clientLeft+g.tipX+dx,y:r.top+node.clientTop+g.tipY+dy},pivot:{x:r.left+node.clientLeft+g.tipX,y:r.top+node.clientTop+g.tipY},dx,dy};});
+   const points=which=>page.locator('#cueElevationView'+which).evaluate(node=>{const g=node.cueGeometry,r=node.getBoundingClientRect(),f=.72,sx=node.clientWidth/g.width,sy=node.clientHeight/110,dx=(g.buttX-g.tipX)*f*sx,dy=(g.buttY-g.tipY)*f*sy;return {start:{x:r.left+node.clientLeft+g.tipX*sx+dx,y:r.top+node.clientTop+g.tipY*sy+dy},pivot:{x:r.left+node.clientLeft+g.tipX*sx,y:r.top+node.clientTop+g.tipY*sy},dx,dy};});
    const turn=async(which,delta,cancel=false)=>{const p=await points(which),a=delta*Math.PI/180;await start(p.start);const before=await angle(which);const target={x:p.pivot.x+p.dx*Math.cos(a)-p.dy*Math.sin(a),y:p.pivot.y+p.dx*Math.sin(a)+p.dy*Math.cos(a)};for(let i=1;i<=4;i++)await move({x:p.start.x+(target.x-p.start.x)*i/4,y:p.start.y+(target.y-p.start.y)*i/4});await end(cancel);return {before,after:await angle(which)};};
    await page.goto('http://127.0.0.1:8831/?train=1');await page.waitForFunction(()=>window.billiardsCueSetup&&window.billiardsMenuReady);
    for(const mode of ['2d','3d']){
@@ -35,7 +35,7 @@ const out='test-results/ball-controls';fs.mkdirSync(out,{recursive:true});
     await page.evaluate(()=>document.getElementById('undoAction').click());assert(Math.abs(await angle(1)-11)<.3,'One drag is one undo action');
     await page.evaluate(()=>document.getElementById('redoAction').click());assert(Math.abs(await angle(1)-5)<.3,'Drag can be redone');
     await turn(1,85);assert.equal(await angle(1),Number(await page.locator('#cueElevation').getAttribute('max')),'Existing elevation limit');
-    await turn(1,-60);assert.equal(await angle(1),0,'Lower limit');
+    await turn(1,-85);assert.equal(await angle(1),0,'Lower limit');
     await setup(2,true,20);result=await turn(2,12);assert(Math.abs(result.after-32)<.3,'Shot 2 elevation is independent');assert.equal(await angle(1),20);
     await turn(2,60);assert.equal(await angle(2),70,'Jump / Massé elevation limit');
     await setup(1,true,20);await turn(1,5,touch);const stopped=await angle(1);await move({x:30,y:30});assert.equal(await angle(1),stopped,'Released/cancelled drag stops');

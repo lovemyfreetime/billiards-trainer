@@ -9286,13 +9286,13 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 const along = clamp(((p.x-g.buttX)*dx+(p.y-g.buttY)*dy)/(dx*dx+dy*dy), 0, 1);
                 if (Math.hypot(p.x-g.buttX-along*dx,p.y-g.buttY-along*dy) > 18 || p.x > g.tipX) return;
                 ev.preventDefault();
-                drag = { pointerId:ev.pointerId, tipX:g.tipX, tipY:g.tipY, angle:g.angle, start:Math.atan2(g.tipY-p.y,Math.max(18,g.tipX-p.x)) };
+                drag = { pointerId:ev.pointerId, tipX:g.tipX, tipY:g.tipY, angle:g.angle, start:Math.atan2(g.tipY-p.y,Math.max(1,g.tipX-p.x)) };
                 inset.setPointerCapture(ev.pointerId);
             });
             inset.addEventListener('pointermove', ev => {
                 if (!drag || drag.pointerId !== ev.pointerId || !canAdjust()) return;
                 ev.preventDefault();
-                const p = point(ev), angle = Math.atan2(drag.tipY-p.y,Math.max(18,drag.tipX-p.x));
+                const p = point(ev), angle = Math.atan2(drag.tipY-p.y,Math.max(1,drag.tipX-p.x));
                 setElevation(drag.angle+(angle-drag.start)*180/Math.PI);
             });
             const endDrag = ev => {
