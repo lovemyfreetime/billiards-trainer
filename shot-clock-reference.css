@@ -140,3 +140,4 @@ body.play-shot-clock-open #appCloseControl{display:none}
 .sc-reference .sc-setting{margin:6px 0;min-height:40px}
 .sc-reference .sc-setting input,.sc-reference .sc-setting select{min-height:36px;padding:7px 10px}
 .sc-reference .sc-profile-row{flex:none;margin:0;gap:8px}
+.sc-reference .sc-layout{box-sizing:border-box}

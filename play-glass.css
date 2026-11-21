@@ -293,3 +293,6 @@ body.play-mode{background:#111b19}
 #playDialog .play-saved-menu>summary{box-sizing:border-box;display:flex;align-items:center;min-height:48px;padding:10px 18px;border:1px solid var(--play-glass-edge);border-radius:999px;background:var(--play-glass-face);box-shadow:var(--play-glass-shadow);cursor:pointer}
 #playDialog .play-saved-menu .play-saved-actions{position:absolute;top:calc(100% + 8px);right:0;z-index:12;min-width:300px;padding:12px;border-radius:18px;border:1px solid var(--play-glass-edge);background:#152b22;box-shadow:var(--play-glass-shadow)}
 #playDialog .play-catalog-nav .play-companion-link{border-radius:999px;min-height:48px;background:var(--play-glass-face);box-shadow:var(--play-glass-shadow)}
+#playRoot #playDialog.play-catalog-dialog{display:flex;flex-direction:column;height:var(--play-height,100dvh)!important}
+#playRoot #playDialog.play-catalog-dialog:not([open]){display:none}
+#playRoot #playDialog.play-catalog-dialog .play-catalog-roster{display:flex;flex-direction:column;height:100%;min-height:0}

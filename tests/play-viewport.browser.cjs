@@ -33,10 +33,10 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),{cre
    await page.goto(base+'/play.html');await page.getByRole('button',{name:'Tools & voice',exact:true}).click();
    const toolTabs=page.locator('.play-tool-tabs button');for(let i=0;i<await toolTabs.count();i++){await toolTabs.nth(i).click();await fits(page,'.play-tools-dialog','Tools tab '+i+' '+JSON.stringify(spec));}
    await page.locator('.play-tools-top').getByRole('button',{name:'Back to table',exact:true}).click();
-   await page.goto(base+'/play.html?catalog=all');await fits(page,'#playDialog','All 20 '+JSON.stringify(spec));assert.equal(await page.locator('.play-game-tile').count(),20);
+   await page.goto(base+'/play.html?catalog=all');await fits(page,'#playDialog','All 20 '+JSON.stringify(spec));assert.equal(await page.locator('.play-game-tile').count(),20);assert(await page.locator('.play-catalog-nav').evaluate(e=>e.getBoundingClientRect().bottom>=(window.visualViewport?.height||innerHeight)-24),'Catalogue must fill the viewport');
    await page.locator('.play-game-tile[data-game=kelly]').click();await fits(page,'#playDialog','Setup '+JSON.stringify(spec));
    await page.goto(base+'/shot-clock.html');await fits(page,'.sc-layout','Clock '+JSON.stringify(spec));
-   await page.getByRole('button',{name:'Settings',exact:true}).click();await fits(page,'.sc-layout','Clock settings '+JSON.stringify(spec));
+   await page.getByRole('button',{name:'Shot Clock Settings',exact:true}).click();await fits(page,'.sc-layout','Clock settings '+JSON.stringify(spec));
    const tabs=page.locator('.sc-settings-tabs button');for(let i=0;i<await tabs.count();i++){await tabs.nth(i).click();await fits(page,'.sc-layout','Settings tab '+i+' '+JSON.stringify(spec));}
    await page.getByRole('button',{name:'Cancel',exact:true}).click();await fits(page,'.sc-layout','Clock return '+JSON.stringify(spec));
    assert.deepEqual(errors,[]);await context.close();console.log('Play viewport passed',spec);

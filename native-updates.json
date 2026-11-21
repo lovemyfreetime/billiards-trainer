@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "a6be236147ed2848f08dc214e5a58ae0c6c644693a87364a2771c64730db413d",
-  "sequence": 1795232554,
+  "version": "13b0a0439a365f59146cfaa1dec26760ef6cfe246107ba52dbd8038e27dc8ea6",
+  "sequence": 1795233008,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3881,7 +3881,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "d03100c0c97ca0c3fe12ecd9cba64636f742d191b3420afff8a05604537f40bf",
+      "sha256": "45296789a7a0bebc39c0e6201796f741ff4480e9e6e1759f062271549266b3a5",
       "length": 163425
     },
     "phone-play.css": {
@@ -5397,8 +5397,8 @@
       "length": 172798
     },
     "play-glass.css": {
-      "sha256": "7696f8957738e164e1686d31c0ad58fc624520d179c8ffd992529e3e783e6cb2",
-      "length": 40314
+      "sha256": "4332a62a21f346ffa695eac46d393123843cc20d420fe8e15f29242f364ba61a",
+      "length": 40627
     },
     "play-input.js": {
       "sha256": "0ef84022711e5c94a6ecd60ccef0be80ec996b7d23430f6f342c14afee860081",
@@ -5469,11 +5469,11 @@
       "length": 532
     },
     "play.html": {
-      "sha256": "4375aee398a4bacf8a25b5d7cc80237c95ec18957db2a46dc0ae782beca07314",
-      "length": 2354
+      "sha256": "27aadcd03fad288c247705e7e4e072f449afe1ec962ce4c723b6d832b6bcffb2",
+      "length": 2360
     },
     "service-worker.js": {
-      "sha256": "5abd74db8c7678d5298f5632af10f5251293b267b06199b0bdd4d4383f5868da",
+      "sha256": "690f728f1048ffb38d29f3fc034edc7c7916068119e975429dde520571ed5f0d",
       "length": 7933
     },
     "shot-clock-dial.webp": {
@@ -5481,16 +5481,16 @@
       "length": 65680
     },
     "shot-clock-reference.css": {
-      "sha256": "a236dd74220c6551973b19f497d7f464adbeeed0a4f1b31ed262a0c5f1052790",
-      "length": 20763
+      "sha256": "bb06739351cf723f674503284b5676def397bdbcf3a59a1cde42a28ca9475590",
+      "length": 20811
     },
     "shot-clock-room.webp": {
       "sha256": "6793f09264fd16d417e794e368bfbb22ec6ee13ebe46fdaf47591e22647e3afa",
       "length": 57122
     },
     "shot-clock.html": {
-      "sha256": "6931953c8bfb86a994732dcb0f854c5e994f11891ca2467cf6a2580a9aaa6d5f",
-      "length": 2351
+      "sha256": "ce377bffd9e4af7e2a2e24cb6d5766b42bb672c9c918e00e9564d13f1d4fb9fe",
+      "length": 2357
     },
     "table-orbit.js": {
       "sha256": "63ba1150074ca0b951f6dcceddf55a9d6f2e85bf90096500bbd4224aff9f4add",
