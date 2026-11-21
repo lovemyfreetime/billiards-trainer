@@ -1,5 +1,7 @@
 Billiards Trainer for Android
 
+Android phone fullscreen now keeps the complete Play layout, dialogs and Shot Clock together as the display changes size. The final layout has passed the Windows and Android landscape screen checks.
+
 Play screens now fit the full viewport without page scrolling, the five-game pages use larger proportional buttons around a centered fifth game, and All 20 games fills the screen. Tools and clock settings use section tabs.
 
 Billiards Play now has a photographic lounge entrance, polished glass controls, and 20 individually selected game images. Each Explore all 5 link opens a category page with five staggered game choices and return links to Play and All 20 games. The Shot Clock uses glossy black dials and coordinated glass panels. Companion Play remains unchanged. All new page artwork is included in the offline app.
