@@ -50,7 +50,7 @@ for(const [width,height,mobile]of [[1600,1000,false],[844,390,true]]){
    }
    assert.deepEqual(await page.evaluate(()=>billiardsTourBridge.predict({paths:true})),flightBefore,'Flight label headings never change physics');
    await page.evaluate(({saved,camera})=>{billiardsTourBridge.restore(saved);Billiards3D.restoreCamera(camera);},{saved:originalSetup,camera});await settle();
-   await page.locator('#table3DLock [data-adjust=edit]').click();
+   if(!process.env.CLOTH_LABELS_ONLY)await page.locator('#table3DLock [data-adjust=edit]').click();
   }
   if(process.env.CLOTH_LABELS_ONLY)continue;
   await menu(true);if(!await page.locator('#drawSection').evaluate(e=>e.classList.contains('open')))await page.locator('#drawSection>.sectionToggle').click();
