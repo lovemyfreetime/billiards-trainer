@@ -338,7 +338,7 @@ html.play-screen-fit body>.experience-corner{transform:scale(var(--play-screen-s
 #playRoot #playDialog.play-home-dialog .play-home-pub .play-home-choices button:not(.play-family-more){padding-inline:10px}
 #playRoot #playDialog.play-home-dialog .play-home-choices button{white-space:nowrap}
 #playRoot #playDialog.play-home-dialog .play-home-companion{width:min(420px,90%);padding:4px 16px;column-gap:10px}
-#playRoot #playDialog.play-catalog-dialog .play-catalog-heading{margin-left:calc(60px + env(safe-area-inset-left));margin-right:88px}
+#playRoot #playDialog.play-catalog-dialog .play-catalog-heading{margin-left:calc(60px + env(safe-area-inset-left));margin-right:88px;padding-right:0}
 #playRoot #playDialog.play-catalog-dialog .play-glass-back{order:3;margin-left:auto}
 #playRoot #playDialog.play-catalog-dialog .play-game-card .play-game-tile strong{font-size:20px;max-width:78%}
 @media(max-height:500px){.play-tools-dialog{padding:8px 12px}.play-tools-top{padding-bottom:6px}.play-tool-tabs{margin:6px 0}.play-tools-dialog .play-tool-panel{padding-top:4px}}
