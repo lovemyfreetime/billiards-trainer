@@ -16,9 +16,9 @@ const out='test-results/ball-controls';fs.mkdirSync(out,{recursive:true});
    const state=()=>page.evaluate(()=>billiardsTourBridge.capture().state);
    const angle=async which=>{const s=await state();return which===2?s.shot2.cueElevationDeg:s.cueElevationDeg;};
    const setup=async(which=1,airborne=false,elevation=3)=>{
-    await page.evaluate(({which,airborne,elevation})=>{const snap=billiardsTourBridge.capture();Object.assign(snap.state,{tableL:2.54,tableW:1.27,balls:[{id:0,n:'CB',x:.7,y:.635,active:true}],freeAim:{x:1.7,y:.635},showCueVisuals:true,showCueStick:true,showShot1:true,showShot2:true,shot2Enabled:which===2,activeShot:which,airbornePhysics:airborne,cueElevationDeg:elevation,follow:0,sideSpin:0,speed:1.5,shot2:{x:1.2,y:.7,freeAim:{x:2,y:.7},cueElevationDeg:elevation,follow:0,sideSpin:0,speed:1.5}});billiardsTourBridge.restore(snap);},{which,airborne,elevation});
-    if(await page.locator('#table3DDrawer').isVisible()&&await page.locator('#table3DDrawer').getAttribute('aria-expanded')!=='true')await page.locator('#table3DDrawer').click();
-    await page.locator('#cueElevationView'+which).scrollIntoViewIfNeeded();
+    await page.evaluate(({which,airborne,elevation})=>{const snap=billiardsTourBridge.capture();Object.assign(snap.state,{tableL:2.54,tableW:1.27,balls:[{id:0,n:'CB',x:.7,y:.635,active:true}],freeAim:{x:1.7,y:.635},showCueVisuals:true,showCueStick:true,showShot1:true,showShot2:true,shot2Enabled:which===2,shot2Initialized:true,activeShot:which,airbornePhysics:airborne,cueElevationDeg:elevation,follow:0,sideSpin:0,speed:1.5,shot2:{x:1.2,y:.7,freeAim:{x:2,y:.7},cueElevationDeg:elevation,follow:0,sideSpin:0,speed:1.5}});billiardsTourBridge.restore(snap);},{which,airborne,elevation});
+    if(!await page.evaluate(()=>document.body.classList.contains('phone-controls-open')))await page.locator('#phoneControls').click();
+    await page.locator('#cueElevationView'+which).scrollIntoViewIfNeeded();console.log('Ready '+(touch?'touch':'mouse')+' shot '+which+' at '+elevation+' degrees, '+(airborne?'airborne':'normal'));
    };
    // Start on the visible shaft, then change its angle around the tip without a grab jump.
    const points=which=>page.locator('#cueElevationView'+which).evaluate(node=>{const g=node.cueGeometry,r=node.getBoundingClientRect(),f=.72,dx=(g.buttX-g.tipX)*f,dy=(g.buttY-g.tipY)*f;return {start:{x:r.left+node.clientLeft+g.tipX+dx,y:r.top+node.clientTop+g.tipY+dy},pivot:{x:r.left+node.clientLeft+g.tipX,y:r.top+node.clientTop+g.tipY},dx,dy};});
