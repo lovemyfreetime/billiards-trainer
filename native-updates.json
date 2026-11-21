@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "fbddb8104355ac052caada77d4b0c532bc5cf11383c18fafaa19087e075706ca",
-  "sequence": 1795250673,
+  "version": "85ea1ee991c80a5775441fe1020d096e4c756c99d6fea5ddc501be04c6a0dd19",
+  "sequence": 1795251031,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3881,7 +3881,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "3771f1a2e6ff0cc9dc4d98b734a4a4f8028f5ca4300e88e68d2dd28c0d87c00e",
+      "sha256": "afcfb250fa6cf6a099e3406b23f79e20d52296e2f91001711a9594642d9907d2",
       "length": 163425
     },
     "phone-play.css": {
@@ -5397,8 +5397,8 @@
       "length": 172798
     },
     "play-glass.css": {
-      "sha256": "4b7ce0b0e128ad0eb9b8c5df18a487b934008d164dd23619c2f362f8bf8bb0af",
-      "length": 54148
+      "sha256": "141d22d0f2fe642a7ff33472ce12ab6cee4056b8ffa45d3f9a175a945b9dd163",
+      "length": 54170
     },
     "play-input.js": {
       "sha256": "0ef84022711e5c94a6ecd60ccef0be80ec996b7d23430f6f342c14afee860081",
@@ -5413,8 +5413,8 @@
       "length": 29889
     },
     "play-mode.js": {
-      "sha256": "ce7c11772cf68d4be002f6b299642efdf7d601c13231bfc8235c6f79a1aa03d7",
-      "length": 55268
+      "sha256": "5ff7f715a397938422c4456c86fcafacf920162493148862994351ad8c199005",
+      "length": 55328
     },
     "play-narration-data.js": {
       "sha256": "bc39f8b3d8a1043a9bb0301ed4e7625feec95e6d07a16ef9778a8505634e8e2c",
@@ -5473,7 +5473,7 @@
       "length": 2384
     },
     "service-worker.js": {
-      "sha256": "48c0e0a202b1cf57eaf7468d5286c2af897c36fc1332b2ff5cb5e7b9d1ed78d1",
+      "sha256": "cfc0099024897683823c3865046d102de4c04dacb07dbacdb2298a699775aa7f",
       "length": 7933
     },
     "shot-clock-dial.webp": {

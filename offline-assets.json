@@ -1,5 +1,5 @@
 {
-  "version": "867a43d996bed93f",
+  "version": "1522655031ac6dff",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -1348,11 +1348,11 @@
     "play-game-images/speed.webp": "de6d5fd6eb6566d3d27738d6f3c525d33497d430a3520fbaf5e0c5a09eaee9e5",
     "play-game-images/three.webp": "0f1771409bc8469d23ec84f89cd44dba2618f24bc97097f2f4c0809497597873",
     "play-game-images/turf.webp": "58ad2f3b299c7b54d3162435b6262863fd7a846d676846135163247002d1415e",
-    "play-glass.css": "4b7ce0b0e128ad0eb9b8c5df18a487b934008d164dd23619c2f362f8bf8bb0af",
+    "play-glass.css": "141d22d0f2fe642a7ff33472ce12ab6cee4056b8ffa45d3f9a175a945b9dd163",
     "play-input.js": "0ef84022711e5c94a6ecd60ccef0be80ec996b7d23430f6f342c14afee860081",
     "play-lounge.webp": "119f5dfd9580040a3ae1ad918ad96dda323b6a4a8210b68d5a7ee1d74cbf1bed",
     "play-mode.css": "a91b2804d28c3cfb4bf064f36f017909a9371dc99dffb387b3b770e0f2169d87",
-    "play-mode.js": "ce7c11772cf68d4be002f6b299642efdf7d601c13231bfc8235c6f79a1aa03d7",
+    "play-mode.js": "5ff7f715a397938422c4456c86fcafacf920162493148862994351ad8c199005",
     "play-narration-data.js": "bc39f8b3d8a1043a9bb0301ed4e7625feec95e6d07a16ef9778a8505634e8e2c",
     "play-narration.js": "b126280a143f218e0c64b93b4e9e6ed483bba69316a220f5e9b4aff53f5de0b1",
     "play-panel-cards.webp": "9b63c453b0d035a42b684b1366d31af8f5f7dec2042bcc5eaec0f292ecec05cf",

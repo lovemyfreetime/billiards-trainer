@@ -67,7 +67,7 @@ function init(){
  dialog.addEventListener('cancel',()=>{privacy=false;});
  // Native fullscreen joins the browser top layer after the initial game dialog.
  // Reopen the same dialog above it, preserving its selection and private content.
- document.addEventListener('fullscreenchange',()=>{if(dialog.open){dialog.close();dialog.showModal();}});
+ document.addEventListener('fullscreenchange',()=>{const active=toolDialog?.open?toolDialog:dialog.open?dialog:null;if(active){active.close();active.showModal();}});
  const modeSwitch=()=>window.BilliardsExperienceMenu({current:'play',beforeNavigate:()=>{if(bridge.busy())return false;save();bridge.save();return true;}});
  const experienceCorner=root.querySelector('#playModeSwitch');experienceCorner.classList.add('experience-corner');experienceCorner.append(modeSwitch());
  const dockExperience=()=>{const host=dialog.open?dialog:document.body;if(experienceCorner.parentNode!==host)host.append(experienceCorner);};

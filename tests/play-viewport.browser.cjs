@@ -47,15 +47,17 @@ const games=require('../play-engine').games;
    const toolTabs=page.locator('.play-tool-tabs button[aria-pressed]');assert.deepEqual(await toolTabs.allTextContents(),['Clicker','Voice','Drills']);
    for(let i=0;i<await toolTabs.count();i++){
     await toolTabs.nth(i).click();
-    if(process.env.PLAY_REVIEW_DIR){require('node:fs').mkdirSync(process.env.PLAY_REVIEW_DIR,{recursive:true});await page.screenshot({path:process.env.PLAY_REVIEW_DIR+'/tools-'+spec.width+'-'+i+'.png'});}
     await fits(page,'.play-tools-dialog','Tools tab '+i+' '+JSON.stringify(spec));
+    await page.waitForFunction(()=>{const root=document.querySelector('.play-tools-dialog'),r=root.querySelector('h2').getBoundingClientRect();return root.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));});
+    if(process.env.PLAY_REVIEW_DIR){require('node:fs').mkdirSync(process.env.PLAY_REVIEW_DIR,{recursive:true});await page.screenshot({path:process.env.PLAY_REVIEW_DIR+'/tools-'+spec.width+'-'+i+'.png'});}
     const tools=await page.locator('.play-tools-dialog').evaluate(root=>{
      const r=root.getBoundingClientRect(),controls=['.play-tools-audio .play-speaker','#appDisplayControl','#appCloseControl'].map(selector=>root.querySelector(selector).getBoundingClientRect());
-     return {x:r.x,y:r.y,width:r.width,height:r.height,narrators:root.querySelectorAll('[data-play-narration]').length,clock:[...root.querySelectorAll('button')].filter(b=>b.textContent==='Shot Clock').length,alignment:controls.map(r=>r.y+r.height/2),background:getComputedStyle(root,'::backdrop').backgroundColor,picker:root.querySelectorAll('.experience-corner').length};
+     return {x:r.x,y:r.y,width:r.width,height:r.height,narrators:root.querySelectorAll('[data-play-narration]').length,clock:[...root.querySelectorAll('button')].filter(b=>b.textContent==='Shot Clock').length,alignment:controls.map(r=>r.y+r.height/2),gaps:controls.slice(1).map((r,i)=>r.left-controls[i].right),background:getComputedStyle(root,'::backdrop').backgroundColor,picker:root.querySelectorAll('.experience-corner').length};
     });
     assert(Math.abs(tools.x)<1&&Math.abs(tools.y)<1&&Math.abs(tools.width-spec.width)<1&&Math.abs(tools.height-spec.height)<1,'Tools fills the screen '+JSON.stringify(tools));
     assert.equal(tools.narrators,1);assert.equal(tools.clock,1);assert.equal(tools.picker,0);assert.equal(tools.background,'rgb(16, 29, 23)');
     assert(Math.max(...tools.alignment)-Math.min(...tools.alignment)<1,'Tools narration and dots align '+JSON.stringify(tools));
+    assert(tools.gaps.every(gap=>gap>=0&&gap<=24),'Tools window actions stay together without overlap '+JSON.stringify(tools));
    }
    await toolTabs.nth(0).click();await page.getByRole('button',{name:'Assign next remote button',exact:true}).click();await page.keyboard.press('F8');assert.match(await page.locator('.play-tools-dialog > [data-input-status]').textContent(),/assigned/);
    await page.locator('.play-tools-top').getByRole('button',{name:'Shot Clock',exact:true}).click();await fits(page,'.sc-layout','Clock from Tools '+JSON.stringify(spec));
