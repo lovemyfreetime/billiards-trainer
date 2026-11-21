@@ -111,7 +111,14 @@ function init(){
   const companion=companionLink();if(companion.nodeType===1){companion.classList.add('play-home-companion');companion.append(text('small','Play. Connect. Improve together.'));dialog.append(companion);}
   const decorate=(node,icon)=>{if(node.nodeType===1){const art=text('span','','play-ui-icon');art.setAttribute('aria-hidden','true');art.innerHTML=P.uiIcon(icon);node.prepend(art);}return node;};
   const foot=text('footer','','play-home-footer');foot.append(decorate(button('All 20 games',()=>setup(null,'all'),'play-home-all'),'games'),decorate(tournamentLink(),'trophy'));if(!window.BilliardsLocalSession?.active)foot.append(decorate(window.BilliardsLocalSession.button(),'people'));foot.append(decorate(button('Tools & voice',()=>{closeDialog();tools();}),'tools'));
-  const resume=button('Resume game',closeDialog,'play-resume');resume.id='playResume';resume.disabled=!state;foot.append(decorate(resume,'resume'),decorate(updatesButton(),'updates'));dialog.append(foot);sizeBoard(scene,()=>scene.style.setProperty('--play-scene-height',scene.clientHeight+'px'));
+  const resume=button('Resume game',closeDialog,'play-resume');resume.id='playResume';resume.disabled=!state;foot.append(decorate(resume,'resume'),decorate(updatesButton(),'updates'));dialog.append(foot);sizeBoard(scene,()=>{
+   scene.style.setProperty('--play-scene-height',scene.clientHeight+'px');
+   // Crop the PC photograph closer while keeping her bridge arm above Companion Play.
+   const width=dialog.clientWidth,height=dialog.clientHeight,headTop=top.offsetHeight+12,lowerEdge=companion.nodeType===1?companion.offsetTop-18:foot.offsetTop-18;
+   const scale=Math.max(.01,Math.min(Math.max(width*1.1/1536,(height-headTop)/828),(lowerEdge-headTop)/595));
+   const left=width*.48-905*scale;
+   for(const [name,value] of Object.entries({width:1536*scale,height:1024*scale,left,top:headTop-196*scale,side:width-(left+1280*scale)-width*.01-18,pub:left+580*scale-width*.01-18}))dialog.style.setProperty('--play-photo-'+name,value+'px');
+  });
  }
  function setup(game,groupId){
   if(!game&&groupId&&groupId!=='all'){navigateFamily(groupId);return;}
