@@ -16,6 +16,26 @@ function init(){
  <dialog id="playDialog" aria-labelledby="playDialogTitle"></dialog>`;
  document.body.append(root);
  const $=id=>document.getElementById(id),dialog=$('playDialog'),N=window.BilliardsNarration;let pageSizer=null;
+ const setupOrder=P.groups.flatMap(group=>group.games),setupDrafts=new Map();let setupSwipe=null,suppressSwipeClick=0;
+ const setupInteractive='button,a,input,select,textarea,summary,[contenteditable],#appDisplayMenu,#appViewHint';
+ function rememberSetup(){if(!dialog.classList.contains('play-setup-dialog'))return;const names=$('playSetupNames');if(names)setupDrafts.set(dialog.dataset.game,{names:names.value,balls:$('playSetupCount')?.value,allowances:$('playAllowances')?.value});}
+ function browseSetup(direction){if(!dialog.open||!dialog.classList.contains('play-setup-dialog'))return;const index=setupOrder.indexOf(dialog.dataset.game);setup(setupOrder[(index+direction+setupOrder.length)%setupOrder.length]);}
+ dialog.addEventListener('pointerdown',event=>{
+  setupSwipe=null;if(!dialog.classList.contains('play-setup-dialog')||event.isPrimary===false||event.button!==0||event.target.closest(setupInteractive))return;
+  setupSwipe={id:event.pointerId,x:event.clientX,y:event.clientY,time:performance.now(),width:dialog.getBoundingClientRect().width};dialog.setPointerCapture(event.pointerId);
+ });
+ dialog.addEventListener('pointercancel',()=>{setupSwipe=null;});
+ dialog.addEventListener('pointerup',event=>{
+  const start=setupSwipe;setupSwipe=null;if(!start||start.id!==event.pointerId)return;
+  const dx=event.clientX-start.x,dy=event.clientY-start.y,threshold=Math.max(40,Math.min(90,start.width*.06));
+  if(Math.abs(dx)<threshold||Math.abs(dx)<Math.abs(dy)*1.5||performance.now()-start.time>1500||window.getSelection()?.toString())return;
+  event.preventDefault();suppressSwipeClick=performance.now()+350;browseSetup(dx<0?1:-1);
+ });
+ dialog.addEventListener('click',event=>{if(event.detail&&performance.now()<suppressSwipeClick){event.preventDefault();event.stopImmediatePropagation();}},true);
+ dialog.addEventListener('keydown',event=>{
+  if(event.defaultPrevented||event.repeat||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey||event.target.closest('input,select,textarea,[contenteditable]')||!dialog.classList.contains('play-setup-dialog'))return;
+  if(event.key==='ArrowLeft'||event.key==='ArrowRight'){event.preventDefault();browseSetup(event.key==='ArrowRight'?1:-1);}
+ });
  function sizeBoard(node,draw){draw();if(window.ResizeObserver){pageSizer=new ResizeObserver(draw);pageSizer.observe(node);}}
  const clock=window.BilliardsShotClockUI.mount({
   legacy:legacyClock,root,change:save,
@@ -123,6 +143,7 @@ function init(){
   });
  }
  function setup(game,groupId){
+  rememberSetup();setupSwipe=null;
   if(!game&&groupId&&groupId!=='all'){navigateFamily(groupId);return;}
   if(!game&&!groupId){playHome();return;}
   if(!game){
@@ -143,12 +164,17 @@ function init(){
   const scene=text('div','','play-setup-scene');scene.setAttribute('aria-hidden','true');
   for(const cls of ['play-setup-ambience','play-setup-art']){const layer=text('div','',cls);layer.innerHTML=P.gameArt(game);scene.append(layer);}
   const panel=text('section','','play-setup-panel');panel.setAttribute('aria-labelledby','playDialogTitle');panel.append(dialog.firstChild,text('p',g.rules,'play-setup-rules'));dialog.append(scene,panel);narrate(dialog,'rules-'+game,'rules for '+g.name);
+  const browse=text('nav','','play-setup-browse');browse.setAttribute('aria-label','Browse all 20 games');
+  const previous=button('‹',()=>browseSetup(-1)),next=button('›',()=>browseSetup(1)),position=text('span',`${setupOrder.indexOf(game)+1} / ${setupOrder.length}`);
+  previous.setAttribute('aria-label','Previous game');next.setAttribute('aria-label','Next game');position.setAttribute('aria-label',`Game ${setupOrder.indexOf(game)+1} of ${setupOrder.length}`);position.setAttribute('role','status');
+  browse.append(previous,position,next,text('small','Swipe to explore'));dialog.append(browse);
   const form=document.createElement('form');
   form.append(text('p','Real-table scorekeeper · play the shots at your pool table.'));
   const namesLabel=text('label',`Players · separate names with commas (${g.min===g.max?g.min:g.min+'–'+g.max})`);namesLabel.htmlFor='playSetupNames';const names=document.createElement('input');names.id='playSetupNames';names.maxLength=500;names.value=Array.from({length:Math.max(g.min,Math.min(2,g.max))},(_,i)=>'Player '+(i+1)).join(', ');names.autocomplete='off';
   form.append(namesLabel,names);
   let count=null;if(game==='ghost'){const label=text('label','How many balls?');label.htmlFor='playSetupCount';count=document.createElement('select');count.id='playSetupCount';[3,6,9,10].forEach(n=>{const o=text('option',`${n} balls`);o.value=n;count.append(o);});form.append(label,count);}
   let allowances=null;if(game==='equalizer'){allowances=document.createElement('input');allowances.id='playAllowances';allowances.value='1, 1';const l=text('label','Allowed misses per player (0–2), separated by commas');l.htmlFor=allowances.id;form.append(l,allowances);form.append(text('p','Each player also has one optional cue-ball reset per layout.'));}
+  const draft=setupDrafts.get(game);if(draft){names.value=draft.names;if(count&&draft.balls)count.value=draft.balls;if(allowances&&draft.allowances!==undefined)allowances.value=draft.allowances;}
   const error=text('p','','play-setup-error');error.setAttribute('role','alert');form.append(error);
   if(state)form.append(text('p','Starting a new game replaces the saved game. Back to table keeps your current game.','play-setup-saved'));
   const row=text('div','','play-dialog-actions');row.append(button('Back to table',backToTable,'play-return'),button(familyReturn?'Back to '+P.groups.find(f=>f.id===familyReturn).name:'Other games',()=>{if(familyReturn)familyPage(familyReturn);else setup();}));const start=button(state?'Start new game':'Rack them up',null,'play-primary');start.type='submit';row.append(start);form.append(row);

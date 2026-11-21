@@ -404,3 +404,8 @@ html.play-screen-fit #playRoot #playDialog.play-setup-dialog{
 #playDialog.play-setup-dialog>.play-popup-audio{position:absolute;top:max(4px,env(safe-area-inset-top));right:108px;height:44px;display:flex;align-items:center}
 #playDialog.play-setup-dialog>.play-popup-audio .play-speaker{width:44px;height:44px;min-height:44px;box-sizing:border-box}
 @media(max-width:1000px){#playDialog .play-setup-panel{width:min(760px,92%)}}
+#playRoot #playDialog.play-setup-dialog{touch-action:pan-y pinch-zoom;overscroll-behavior-x:none}
+.play-setup-browse{position:absolute;top:max(4px,env(safe-area-inset-top));left:max(4%,24px);display:flex;align-items:center;gap:10px;height:44px}
+#playRoot #playDialog .play-setup-browse button{width:44px;height:44px;min-width:44px;min-height:44px;padding:0;font-size:28px;line-height:1}
+.play-setup-browse>span{min-width:56px;text-align:center;font-variant-numeric:tabular-nums}
+.play-setup-browse>small{font-size:13px;color:#e2e8e2;text-shadow:0 1px 4px #000}

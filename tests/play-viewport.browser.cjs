@@ -56,6 +56,7 @@ const games=require('../play-engine').games;
    });
    for(const name of ['cardHeights','cardWidths','rowGaps','navWidths','navHeights'])assert(Math.max(...catalogue[name])-Math.min(...catalogue[name])<1,'Catalogue '+name+' must be even '+JSON.stringify(spec));
    assert.equal(catalogue.ordinals,0,'No ordinal labels on game choices');
+   const gameOrder=await page.locator('.play-game-tile').evaluateAll(nodes=>nodes.map(e=>e.dataset.game));
    for(const [id,game] of Object.entries(games)){
     await page.locator('.play-game-tile[data-game='+id+']').click();await fits(page,'#playDialog','Setup '+id+' '+JSON.stringify(spec));
     const setup=await page.locator('#playDialog').evaluate(root=>{
@@ -72,6 +73,26 @@ const games=require('../play-engine').games;
     if(id==='equalizer')assert.equal(await page.locator('#playAllowances').inputValue(),'1, 1');
     await page.getByRole('button',{name:'Back to table',exact:true}).click();await page.locator('.play-home-footer').getByRole('button',{name:'All 20 games',exact:true}).click();
    }
+   await page.locator('.play-game-tile[data-game=kelly]').click();
+   await page.locator('#playSetupNames').fill('Nora, Eli');await page.locator('#playSetupNames').press('ArrowRight');
+   assert.equal(await page.locator('#playDialog').getAttribute('data-game'),'kelly','Editing names must not browse');
+   for(let i=1;i<=gameOrder.length;i++){
+    await page.getByRole('button',{name:'Next game',exact:true}).click();
+    assert.equal(await page.locator('#playDialog').getAttribute('data-game'),gameOrder[i%gameOrder.length],'Browse every game in catalogue order, including wraparound');
+   }
+   assert.equal(await page.locator('#playSetupNames').inputValue(),'Nora, Eli','Browsing preserves the per-game draft');
+   await page.getByRole('button',{name:'Previous game',exact:true}).click();assert.equal(await page.locator('#playDialog').getAttribute('data-game'),'equalizer','Previous wraps from first to last');
+   await page.locator('#playAllowances').fill('0, 2');await page.getByRole('button',{name:'Next game',exact:true}).click();await page.getByRole('button',{name:'Previous game',exact:true}).click();assert.equal(await page.locator('#playAllowances').inputValue(),'0, 2','Miss allowances survive browsing');
+   await page.locator('#playDialog').press('ArrowRight');assert.equal(await page.locator('#playDialog').getAttribute('data-game'),'kelly','Keyboard browsing wraps forward');
+   const canvas=await page.locator('#playDialog').boundingBox(),point={x:canvas.x+canvas.width*.85,y:canvas.y+canvas.height*.85},drag=async(dx,dy)=>{
+    if(spec.mobile){const cdp=await context.newCDPSession(page);await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[point]});for(let i=1;i<=6;i++)await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:point.x+dx*i/6,y:point.y+dy*i/6}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await cdp.detach();}
+    else{await page.mouse.move(point.x,point.y);await page.mouse.down();await page.mouse.move(point.x+dx,point.y+dy,{steps:6});await page.mouse.up();}
+   };
+   await drag(-150,0);assert.equal(await page.locator('#playDialog').getAttribute('data-game'),'bounty','Swipe left opens next full-screen game');
+   await drag(120,0);assert.equal(await page.locator('#playDialog').getAttribute('data-game'),'kelly','Swipe right opens previous full-screen game');
+   await drag(8,-100);assert.equal(await page.locator('#playDialog').getAttribute('data-game'),'kelly','Vertical motion must not browse');
+   assert.equal(await page.evaluate(()=>localStorage.getItem('billiardsPlaySession-v1')),null,'Browsing must not create or replace a saved game');
+   await fits(page,'#playDialog','Swipe browser '+JSON.stringify(spec));
    await page.goto(base+'/shot-clock.html');await fits(page,'.sc-layout','Clock '+JSON.stringify(spec));
    await page.getByRole('button',{name:'Shot Clock Settings',exact:true}).click();await fits(page,'.sc-layout','Clock settings '+JSON.stringify(spec));
    const tabs=page.locator('.sc-settings-tabs button');for(let i=0;i<await tabs.count();i++){await tabs.nth(i).click();await fits(page,'.sc-layout','Settings tab '+i+' '+JSON.stringify(spec));}
