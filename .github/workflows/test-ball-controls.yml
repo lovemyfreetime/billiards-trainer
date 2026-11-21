@@ -42,6 +42,9 @@ jobs:
           if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] || ! git diff --quiet HEAD^ HEAD -- trainer-3d.js trainer-workspace.css tests/ball-control-states.browser.cjs; then
             node tests/ball-control-states.browser.cjs || status=$?
           fi
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] || ! git diff --quiet HEAD^ HEAD -- index.html tests/cue-elevation-gesture.browser.cjs; then
+            node tests/cue-elevation-gesture.browser.cjs || status=$?
+          fi
           if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] || ! git diff --quiet HEAD^ HEAD -- play-mode.js play-shot-clock.js play-shot-clock-ui.js play-glass.css play.html shot-clock.html tests/standalone-shot-clock.browser.cjs tests/shot-clock-controls.browser.cjs tests/play-viewport.browser.cjs; then
             node tests/standalone-shot-clock.browser.cjs || status=$?
             node tests/shot-clock-controls.browser.cjs || status=$?

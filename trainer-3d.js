@@ -155,8 +155,11 @@
  let ballToolsKey='';
  function syncBallTools(){const data=window.billiards3DBallControls?.status();if(!data)return;const key=JSON.stringify([data.busy,data.balls,data.pocketed]);if(key===ballToolsKey)return;ballToolsKey=key;clear.disabled=data.busy||!data.balls.length;trayCount.textContent=data.pocketed.length+' pocketed';for(const b of ballButtons){const id=+b.dataset.ballId,present=data.balls.includes(id),pocketed=data.pocketed.includes(id);b.disabled=data.busy||present&&id!==0;b.classList.toggle('on-table',present);b.classList.toggle('pocketed',pocketed);b.setAttribute('aria-label',(id?'Ball '+id:'Cue ball')+(present?' on table':pocketed?' pocketed — tap or drag to return':' — tap or drag to add'));}rackToggle.disabled=data.busy;random.disabled=data.busy;rackButtons.forEach(b=>b.disabled=data.busy);}
  document.addEventListener('pointerdown',e=>{
+  if(!orderMenu.contains(e.target)&&!orderButton.contains(e.target)){
+   orderMenu.hidden=true;orderButton.setAttribute('aria-expanded','false');
+  }
   if(![tray,trayToggle,rackMenu,rackToggle,orderMenu,orderButton].some(el=>el.contains(e.target)))closePopovers();
- });
+ },true);
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&[tray,rackMenu,orderMenu].some(el=>!el.hidden)){closePopovers();e.stopPropagation();}},true);
  window.addEventListener('resize',()=>{
   for(const [popover,anchor] of [[tray,trayToggle],[rackMenu,rackToggle],[orderMenu,orderButton]])if(!popover.hidden)positionPopover(popover,anchor);

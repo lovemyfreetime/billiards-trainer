@@ -9265,11 +9265,44 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if (!inset) {
             inset = document.createElement('canvas');
             inset.id = id;
-            inset.style.cssText = 'position:static;inset:auto;width:100%;height:110px;border:1px solid #3b424c;border-radius:8px;margin-top:5px;pointer-events:auto;cursor:ns-resize';
+            inset.style.cssText = 'position:static;inset:auto;width:100%;height:110px;border:1px solid #3b424c;border-radius:8px;margin-top:5px;pointer-events:auto;cursor:ns-resize;touch-action:none';
             inset.setAttribute('aria-label','Side view of cue elevation and cue-ball strike point');
-            inset.title = 'Scroll to adjust this shot’s cue elevation';
+            inset.title = 'Drag the cue up or down, or scroll, to adjust this shot’s cue elevation';
+            let drag = null;
+            const canAdjust = () => !isProjector && !animation && !window.BilliardsShotRecorder?.busy && cueVisualsVisible(which) && (which !== 2 || S.shot2Enabled);
+            const point = ev => {
+                const r = inset.getBoundingClientRect();
+                return { x:(ev.clientX-r.left-inset.clientLeft)*inset.cueGeometry.width/inset.clientWidth, y:(ev.clientY-r.top-inset.clientTop)*110/inset.clientHeight };
+            };
+            const setElevation = angle => {
+                const range = $(which === 2 ? 'cueElevation2' : 'cueElevation');
+                range.value = clamp(Math.round(angle*10)/10, 0, cueElevationMax());
+                setActiveShot(which);
+                range.dispatchEvent(new Event('input', { bubbles:true }));
+            };
+            inset.addEventListener('pointerdown', ev => {
+                if (ev.button !== 0 || drag || !canAdjust() || !inset.cueGeometry) return;
+                const g = inset.cueGeometry, p = point(ev), dx = g.tipX-g.buttX, dy = g.tipY-g.buttY;
+                const along = clamp(((p.x-g.buttX)*dx+(p.y-g.buttY)*dy)/(dx*dx+dy*dy), 0, 1);
+                if (Math.hypot(p.x-g.buttX-along*dx,p.y-g.buttY-along*dy) > 18 || p.x > g.tipX) return;
+                ev.preventDefault();
+                drag = { pointerId:ev.pointerId, tipX:g.tipX, tipY:g.tipY, angle:g.angle, start:Math.atan2(g.tipY-p.y,Math.max(18,g.tipX-p.x)) };
+                inset.setPointerCapture(ev.pointerId);
+            });
+            inset.addEventListener('pointermove', ev => {
+                if (!drag || drag.pointerId !== ev.pointerId || !canAdjust()) return;
+                ev.preventDefault();
+                const p = point(ev), angle = Math.atan2(drag.tipY-p.y,Math.max(18,drag.tipX-p.x));
+                setElevation(drag.angle+(angle-drag.start)*180/Math.PI);
+            });
+            const endDrag = ev => {
+                if (!drag || drag.pointerId !== ev.pointerId) return;
+                drag = null;
+                if (inset.hasPointerCapture(ev.pointerId)) inset.releasePointerCapture(ev.pointerId);
+            };
+            for (const type of ['pointerup','pointercancel','lostpointercapture']) inset.addEventListener(type,endDrag);
             inset.addEventListener('wheel', ev => {
-                if (!ev.deltaY || isProjector || !cueVisualsVisible(which) || (which === 2 && !S.shot2Enabled)) return;
+                if (!ev.deltaY || !canAdjust()) return;
                 ev.preventDefault();
                 ev.stopPropagation();
                 const range = $(which === 2 ? 'cueElevation2' : 'cueElevation');
@@ -9299,6 +9332,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const raw=cueSideContact(shot.sideSpin,shot.follow,shot.cueElevationDeg),contact={...raw,x:solved?.rear??raw.x,z:solved?.height??raw.z,co:Math.cos(theta),sn:Math.sin(theta)};
         const tipX = cx+R*contact.x, tipY = cy-R*contact.z;
         const length = Math.min(w*.47, (tipX-8)/Math.max(.01,contact.co), (tipY-24)/Math.max(.01,contact.sn));
+        inset.cueGeometry = { width:w, tipX, tipY, buttX:tipX-contact.co*length, buttY:tipY-contact.sn*length, angle:theta*180/Math.PI };
         x.strokeStyle = '#73818e'; x.lineWidth = 1;
         x.beginPath(); x.moveTo(8,cy+R); x.lineTo(w-8,cy+R); x.stroke();
         x.fillStyle = '#f7f7f3'; x.strokeStyle = '#aab2bc';
@@ -14814,8 +14848,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <script src="./phone-play.js?v=workspace-1"></script>
   <link rel="stylesheet" href="./trainer-3d.css?v=position-speed-r2">
   <script src="./trainer-cue3d.js?v=cloth-shadow-2"></script>
-  <script src="./trainer-3d.js?v=ball-state-20261121"></script>
-  <link rel="stylesheet" href="./trainer-workspace.css?v=ball-state-20261121">
+  <script src="./trainer-3d.js?v=20261121-elevation-detection"></script>
+  <link rel="stylesheet" href="./trainer-workspace.css?v=20261121-elevation-detection">
   <script src="./trainer-workspace.js?v=position-speed-r2"></script>
   <link rel="stylesheet" href="./trainer-player-view.css?v=1">
   <script src="./trainer-player-view.js?v=shot-2-view"></script>
