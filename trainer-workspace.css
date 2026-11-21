@@ -272,6 +272,7 @@ body.trainer-workspace :is(#table3DTools,#workspaceBallShelf) #table3DPlanContro
 }
 body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DTools.tray-actions-in-tools {
   display:grid;
+  grid-template-columns:minmax(0,.8fr) minmax(0,.8fr) minmax(84px,1fr) minmax(0,2fr) minmax(0,.72fr) minmax(0,.72fr) minmax(88px,1fr);
   gap:4px;
 }
 body.trainer-workspace.table-3d.phone-focus #table3DPhoneControls #table3DTools.tray-actions-in-tools > button {
