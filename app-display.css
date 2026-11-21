@@ -46,6 +46,7 @@ body #welcomeFullscreen,body #welcomeClose{
  background:transparent!important;background-image:none!important;border:0!important;
  box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
  animation:none!important;padding:0!important;
+ width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;
 }
 body #appDisplayControl::before,body #appDisplayControl::after,
 body #appCloseControl::before,body #appCloseControl::after{content:none!important}

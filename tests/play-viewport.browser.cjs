@@ -66,7 +66,7 @@ const games=require('../play-engine').games;
     assert.equal(setup.rules,game.rules,id+' rules are preserved');assert.equal(setup.inset,0);assert.equal(setup.picker,'none');assert.equal(setup.art,'xMidYMid meet','Keep the whole selected scene visible');assert(setup.artSource.endsWith('/'+id+'.webp'));
     assert(setup.r.width>=spec.width-1&&setup.r.height>=spec.height-1,'Game artwork covers the setup screen');assert.equal(setup.actions.length,3);
     assert(Math.max(...setup.actions.map(a=>a.r.top))-Math.min(...setup.actions.map(a=>a.r.top))<1,id+' actions share one row');
-    assert(Math.max(...setup.controls.map(c=>c.r.top+c.r.height/2))-Math.min(...setup.controls.map(c=>c.r.top+c.r.height/2))<1,id+' narration aligns with window controls');
+    assert(Math.max(...setup.controls.map(c=>c.r.top+c.r.height/2))-Math.min(...setup.controls.map(c=>c.r.top+c.r.height/2))<1,id+' narration aligns with window controls '+JSON.stringify(setup.controls));
     for(const control of setup.controls.slice(1)){assert.equal(control.background,'none');assert.equal(control.border,0);assert.equal(control.shadow,'none');assert(control.r.width>20&&control.r.height>20,'Window actions retain separate targets');}
     if(id==='ghost')assert.equal(await page.locator('#playSetupCount option').count(),4);
     if(id==='equalizer')assert.equal(await page.locator('#playAllowances').inputValue(),'1, 1');
