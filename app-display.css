@@ -38,3 +38,14 @@ body:has(#appCloseControl) #appDisplayControl { right:56px; }
 #playDialog:has(#appCloseControl)>.play-popup-audio { right:108px; }
 #playDialog:has(#appCloseControl):not(.play-catalog-dialog)>h2 { padding-right:150px; }
 body.zen-mode #appDisplayMenu:popover-open { display:block!important; }
+
+/* Window actions keep their generous touch targets; only the colored dots are visible. */
+body #appDisplayControl,body #appCloseControl,
+body #appDisplayControl.display-needs-attention,
+body #welcomeFullscreen,body #welcomeClose{
+ background:transparent!important;background-image:none!important;border:0!important;
+ box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+ animation:none!important;padding:0!important;
+}
+body #appDisplayControl::before,body #appDisplayControl::after,
+body #appCloseControl::before,body #appCloseControl::after{content:none!important}

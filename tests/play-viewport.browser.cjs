@@ -1,5 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict'),{chromium}=require('playwright'),{createHost}=require('../local-host/server.cjs');
+const games=require('../play-engine').games;
 (async()=>{
  const service=createHost({port:0,bind:'127.0.0.1',addressProvider:()=>['127.0.0.1']}),{port}=await service.listen(),base='http://127.0.0.1:'+port;
  const browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,headless:true});
@@ -49,7 +50,28 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),{cre
    await page.locator('.play-home-footer').getByRole('button',{name:'Tools',exact:true}).click();
    await page.locator('.play-tools-top').getByRole('button',{name:'Back to table',exact:true}).click();await fits(page,'#playDialog','Home after fullscreen '+JSON.stringify(spec));
    await page.goto(base+'/play.html?catalog=all');await fits(page,'#playDialog','All 20 '+JSON.stringify(spec));assert.equal(await page.locator('.play-game-tile').count(),20);assert(await page.locator('.play-catalog-nav').evaluate(e=>e.getBoundingClientRect().bottom>=(window.visualViewport?.height||innerHeight)-24),'Catalogue must fill the viewport');
-   await page.locator('.play-game-tile[data-game=kelly]').click();await fits(page,'#playDialog','Setup '+JSON.stringify(spec));
+   const catalogue=await page.locator('#playDialog').evaluate(root=>{
+    const rects=[...root.querySelectorAll('.play-game-tile')].map(e=>e.getBoundingClientRect()),nav=[...root.querySelector('.play-catalog-nav').children].map(e=>e.getBoundingClientRect());
+    return {cardHeights:rects.map(r=>r.height),cardWidths:rects.map(r=>r.width),rowGaps:[5,10,15].map(i=>rects[i].top-rects[i-5].bottom),navWidths:nav.map(r=>r.width),navHeights:nav.map(r=>r.height),ordinals:root.querySelectorAll('.play-tile-number').length};
+   });
+   for(const name of ['cardHeights','cardWidths','rowGaps','navWidths','navHeights'])assert(Math.max(...catalogue[name])-Math.min(...catalogue[name])<1,'Catalogue '+name+' must be even '+JSON.stringify(spec));
+   assert.equal(catalogue.ordinals,0,'No ordinal labels on game choices');
+   for(const [id,game] of Object.entries(games)){
+    await page.locator('.play-game-tile[data-game='+id+']').click();await fits(page,'#playDialog','Setup '+id+' '+JSON.stringify(spec));
+    const setup=await page.locator('#playDialog').evaluate(root=>{
+     const panel=root.querySelector('.play-setup-panel'),r=root.getBoundingClientRect(),actions=[...panel.querySelector('.play-dialog-actions').children].map(e=>({label:e.textContent,r:e.getBoundingClientRect().toJSON()}));
+     const controls=['.play-popup-audio .play-speaker','#appDisplayControl','#appCloseControl'].map(selector=>{const e=root.querySelector(selector),r=e.getBoundingClientRect(),s=getComputedStyle(e);return {r:r.toJSON(),background:s.backgroundImage,border:parseFloat(s.borderTopWidth),shadow:s.boxShadow};});
+     const art=root.querySelector('.play-setup-art svg');return {r:r.toJSON(),actions,controls,art:art?.getAttribute('preserveAspectRatio'),artSource:art?.querySelector('image')?.getAttribute('href'),inset:root.querySelectorAll('.play-setup-emblem').length,picker:getComputedStyle(root.querySelector('#playModeSwitch')).display,rules:panel.querySelector('.play-setup-rules').textContent,background:getComputedStyle(panel).backgroundImage};
+    });
+    assert.equal(setup.rules,game.rules,id+' rules are preserved');assert.equal(setup.inset,0);assert.equal(setup.picker,'none');assert.equal(setup.art,'xMidYMid meet','Keep the whole selected scene visible');assert(setup.artSource.endsWith('/'+id+'.webp'));
+    assert(setup.r.width>=spec.width-1&&setup.r.height>=spec.height-1,'Game artwork covers the setup screen');assert.equal(setup.actions.length,3);
+    assert(Math.max(...setup.actions.map(a=>a.r.top))-Math.min(...setup.actions.map(a=>a.r.top))<1,id+' actions share one row');
+    assert(Math.max(...setup.controls.map(c=>c.r.top+c.r.height/2))-Math.min(...setup.controls.map(c=>c.r.top+c.r.height/2))<1,id+' narration aligns with window controls');
+    for(const control of setup.controls.slice(1)){assert.equal(control.background,'none');assert.equal(control.border,0);assert.equal(control.shadow,'none');assert(control.r.width>20&&control.r.height>20,'Window actions retain separate targets');}
+    if(id==='ghost')assert.equal(await page.locator('#playSetupCount option').count(),4);
+    if(id==='equalizer')assert.equal(await page.locator('#playAllowances').inputValue(),'1, 1');
+    await page.getByRole('button',{name:'Back to table',exact:true}).click();await page.locator('.play-home-footer').getByRole('button',{name:'All 20 games',exact:true}).click();
+   }
    await page.goto(base+'/shot-clock.html');await fits(page,'.sc-layout','Clock '+JSON.stringify(spec));
    await page.getByRole('button',{name:'Shot Clock Settings',exact:true}).click();await fits(page,'.sc-layout','Clock settings '+JSON.stringify(spec));
    const tabs=page.locator('.sc-settings-tabs button');for(let i=0;i<await tabs.count();i++){await tabs.nth(i).click();await fits(page,'.sc-layout','Settings tab '+i+' '+JSON.stringify(spec));}

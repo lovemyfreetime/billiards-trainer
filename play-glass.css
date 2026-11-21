@@ -343,3 +343,64 @@ html.play-screen-fit body>.experience-corner{transform:scale(var(--play-screen-s
 #playRoot #playDialog.play-catalog-dialog .play-game-card .play-game-tile strong{font-size:20px;max-width:78%}
 @media(max-height:500px){.play-tools-dialog{padding:8px 12px}.play-tools-top{padding-bottom:6px}.play-tool-tabs{margin:6px 0}.play-tools-dialog .play-tool-panel{padding-top:4px}}
 html.play-screen-fit body.play-mode #playRoot:has(dialog[open]){transform:none}
+
+/* One evenly spaced catalogue on desktop and Android, with a consistent action row. */
+#playRoot #playDialog.play-catalog-dialog .play-game-family{grid-template-rows:minmax(0,1fr);gap:0 16px}
+#playRoot #playDialog.play-catalog-dialog .play-game-family>h3{display:none}
+#playRoot #playDialog.play-catalog-dialog .play-game-card{grid-row:1}
+#playRoot #playDialog.play-catalog-dialog .play-game-grid{gap:16px;padding:2px}
+#playRoot #playDialog.play-catalog-dialog .play-catalog-nav{gap:10px;flex-wrap:nowrap;margin:0;justify-content:center}
+#playRoot #playDialog.play-catalog-dialog .play-catalog-nav>*{
+ flex:0 1 190px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;
+ min-height:48px;margin:0;padding:10px 14px;font:550 14px/1.2 system-ui,sans-serif;
+ border:1px solid var(--play-glass-edge);border-radius:999px;background:var(--play-glass-face);
+ box-shadow:var(--play-glass-shadow);text-decoration:none;color:var(--play-glass-ink);
+}
+#playRoot #playDialog.play-catalog-dialog .play-catalog-nav .play-ui-icon{display:none}
+#playRoot #playDialog.play-catalog-dialog .play-catalog-heading{align-items:center;min-height:44px}
+#playRoot #playDialog.play-catalog-dialog{padding-top:4px}
+#playRoot #playDialog.play-catalog-dialog .play-catalog-heading h2{margin:0}
+#playRoot #playDialog.play-catalog-dialog .play-saved-menu>summary{min-height:44px}
+#playRoot #playDialog.play-catalog-dialog .play-catalog-heading .play-speaker,
+#playRoot #playDialog.play-catalog-dialog .play-glass-back{height:44px;min-height:44px}
+
+/* The selected scene fills the page; its complete artwork is kept in proportion. */
+#playRoot #playDialog.play-setup-dialog,
+html.play-screen-fit #playRoot #playDialog.play-setup-dialog{
+ position:fixed;inset:0;margin:0;box-sizing:border-box;width:100%;max-width:none;
+ height:var(--play-height,100dvh);max-height:var(--play-height,100dvh);
+ padding:64px max(4%,24px) 24px;display:flex;align-items:center;isolation:isolate;
+ border:0;border-radius:0;background:#08120f;box-shadow:none;overflow:hidden;
+ backdrop-filter:none;-webkit-backdrop-filter:none;transform:none;
+}
+#playRoot #playDialog.play-setup-dialog:not([open]){display:none}
+html.play-screen-fit #playRoot #playDialog.play-setup-dialog{
+ width:var(--play-layout-width);transform:scale(var(--play-screen-scale));transform-origin:top left;
+}
+#playDialog.play-setup-dialog::backdrop{background:#08120f;backdrop-filter:none}
+.play-setup-scene,.play-setup-scene>div{position:absolute;inset:0;pointer-events:none;z-index:-1}
+.play-setup-scene{overflow:hidden}
+.play-setup-scene svg{display:block;width:100%;height:100%;overflow:hidden}
+.play-setup-scene .play-setup-ambience{inset:-12%;filter:blur(54px);opacity:.55}
+.play-setup-scene .play-setup-ambience svg{transform:scale(2.5)}
+.play-setup-scene .play-setup-art{left:32%;mask-image:linear-gradient(90deg,transparent,#000 16%,#000 94%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 16%,#000 94%,transparent)}
+.play-setup-scene::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#08120f55,transparent 65%),linear-gradient(0deg,#08120f55,transparent 25%,transparent 85%,#08120f44)}
+#playDialog .play-setup-panel{
+ box-sizing:border-box;width:min(760px,65%);padding:26px 28px;
+ border:1px solid #d1e0d085;border-radius:24px;
+ background:linear-gradient(145deg,#66786c70,#11251db3 60%,#10221cb8);
+ box-shadow:var(--play-glass-shadow);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+}
+#playDialog .play-setup-panel h2{padding:0;min-height:0;margin:0 0 14px;font-size:25px}
+#playDialog .play-setup-panel p{margin:10px 0;line-height:1.5;color:#e2e8e2}
+#playDialog .play-setup-panel .play-setup-rules{margin-top:0}
+#playDialog .play-setup-panel label{margin:12px 0 6px}
+#playDialog .play-setup-panel input,#playDialog .play-setup-panel select{box-sizing:border-box;background:#0c1d17b3}
+#playDialog .play-setup-panel .play-setup-error:empty{display:none}
+#playDialog .play-setup-panel .play-setup-saved{font-size:13px;color:#cdd8ce}
+#playDialog .play-setup-panel .play-dialog-actions{margin-top:16px;flex-wrap:nowrap;gap:10px}
+#playDialog .play-setup-panel .play-dialog-actions button{white-space:nowrap}
+#playDialog.play-setup-dialog #playModeSwitch{display:none!important}
+#playDialog.play-setup-dialog>.play-popup-audio{position:absolute;top:max(4px,env(safe-area-inset-top));right:108px;height:44px;display:flex;align-items:center}
+#playDialog.play-setup-dialog>.play-popup-audio .play-speaker{width:44px;height:44px;min-height:44px;box-sizing:border-box}
+@media(max-width:1000px){#playDialog .play-setup-panel{width:min(760px,92%)}}
