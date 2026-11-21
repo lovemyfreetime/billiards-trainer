@@ -124,3 +124,19 @@ body.play-shot-clock-open #appCloseControl{display:none}
  .shot-clock-view.sc-reference[data-page=settings] .sc-layout{height:auto;min-height:calc(100dvh - 16px);overflow:visible}.shot-clock-view.sc-reference[data-page=settings] .sc-header-actions{justify-content:center}
 }
 .shot-clock-view.sc-reference .sc-navigation button:not(.sc-ring):not(.sc-name){border:0;background:transparent;box-shadow:none;backdrop-filter:none}
+/* Settings are grouped into pages so defaults and return controls stay visible. */
+.shot-clock-view.sc-reference{height:var(--play-height,100dvh);max-height:var(--play-height,100dvh);overflow:hidden;box-sizing:border-box}
+.shot-clock-view.sc-reference[data-page=settings] .sc-layout{height:calc(var(--play-height,100dvh) - 16px);min-height:0;overflow:hidden;padding-bottom:12px;width:min(100%,1320px)}
+.shot-clock-view.sc-reference[data-page=settings] .sc-topbar{display:none}
+.shot-clock-view.sc-reference[data-page=settings] .sc-header{position:relative;min-height:60px;margin-top:8px;padding-block:4px}
+.shot-clock-view.sc-reference[data-page=settings] .sc-body{flex:1;min-height:0;justify-content:flex-start;gap:10px;margin-top:10px}
+.sc-reference .sc-settings-tabs{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;flex:none}
+.shot-clock-view.sc-reference .sc-settings-tabs button{font-size:14px;min-height:40px;padding:8px 14px}
+.shot-clock-view.sc-reference .sc-settings-tabs button[aria-pressed=true]{background:#365e48;border-color:#c5ddbd}
+.sc-reference .sc-settings{display:block;flex:1;min-height:0;max-width:1000px;margin:0 auto}
+.sc-reference .sc-settings-card[hidden]{display:none}
+.sc-reference .sc-settings-card{padding:14px 20px}
+.sc-reference .sc-settings-card h2{margin-bottom:10px}
+.sc-reference .sc-setting{margin:6px 0;min-height:40px}
+.sc-reference .sc-setting input,.sc-reference .sc-setting select{min-height:36px;padding:7px 10px}
+.sc-reference .sc-profile-row{flex:none;margin:0;gap:8px}

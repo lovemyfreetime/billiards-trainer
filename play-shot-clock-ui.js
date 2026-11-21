@@ -529,6 +529,17 @@
     function settingsPage() {
       const form = element('form', null, 'sc-settings');
       const controls = new Map();
+      const tabs = element('nav', null, 'sc-settings-tabs');
+      tabs.setAttribute('aria-label', 'Clock settings sections');
+      const panels = [], tabButtons = [];
+      function selectSection(index) {
+        panels.forEach((panel, i) => { panel.hidden = i !== index; tabButtons[i].setAttribute('aria-pressed', String(i === index)); });
+      }
+      function validSettings() {
+        const invalid = form.querySelector(':invalid');
+        if (invalid) selectSection(panels.indexOf(invalid.closest('.sc-settings-card')));
+        return form.reportValidity();
+      }
       const profileRow = element('div', null, 'sc-profile-row');
       const profileChoice = element('select');
       profileChoice.setAttribute('aria-label', 'Saved clock profiles');
@@ -546,7 +557,7 @@
         if (item) fill(item.settings);
       }), profileName, button('Save as Profile', () => {
         const title = profileName.value.trim();
-        if (!title || !form.reportValidity()) return;
+        if (!title || !validSettings()) return;
         if (profiles.some(item => item.name === title)) { status.textContent = 'That profile name is already in use.'; return; }
         profiles = [...profiles, { name: title, settings: values() }];
         refreshProfiles();
@@ -573,6 +584,10 @@
           controls.set(key, input);
         }
         form.append(section);
+        const index = panels.length;
+        panels.push(section);
+        const tab = button(title, () => selectSection(index));
+        tabButtons.push(tab); tabs.append(tab);
       }
       function values() {
         return M.profile(Object.fromEntries([...controls].map(([key, input]) =>
@@ -591,7 +606,7 @@
       const runOptions = ['target', 'foul', 'breakFoul'];
       for (const key of runOptions) controls.get(key).oninput = () => { controls.get('run').value = 'custom'; };
       const applySettings = button('Save Defaults', () => {
-        if (!form.reportValidity()) return;
+        if (!validSettings()) return;
         const next = values();
         if (next.players === 'solo' && !session.run.duel && !['running', 'review'].includes(session.run.phase)) {
           M.apply(session, settings, { type: 'run-select', seat: session.turn }, now());
@@ -615,7 +630,8 @@
       }, 'sc-start');
       form.onsubmit = event => { event.preventDefault(); applySettings.click(); };
       fill(settings);
-      body.append(profileRow, form);
+      selectSection(0);
+      body.append(tabs, profileRow, form);
       settingsActions.append(applySettings, button('Cancel', () => show('clock'), 'sc-pause'), button('Reset', () => fill(M.defaults), 'sc-stop'));
     }
 
