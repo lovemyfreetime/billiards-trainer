@@ -96,7 +96,7 @@ function init(){
   const intro=text('div','','play-family-intro'),title=text('h1',family.name);title.id='playFamilyTitle';
   const descriptions={secret:'Hidden targets. Shared suspense.',pub:'Friendly rivalries. One more round.',cards:'Play the table. Read the possibilities.',tactical:'A little strategy. A different kind of challenge.'};
   intro.append(title,text('p',descriptions[id]));dialog.append(intro);
-  const stage=text('main','','play-family-stage');stage.setAttribute('aria-label',family.name+' games');family.games.forEach((game,index)=>{const {card}=makeGameCard(game,index+1),holder=text('div','','play-family-game');holder.append(card);stage.append(holder);});dialog.append(stage);sizeBoard(stage,()=>{const box=stage.getBoundingClientRect();stage.style.setProperty('--play-family-scale',String(Math.min(box.width*.30,box.height*.60)/340));});
+  const stage=text('main','','play-family-stage');stage.setAttribute('aria-label',family.name+' games');family.games.forEach((game,index)=>{const {card}=makeGameCard(game,index+1),holder=text('div','','play-family-game');holder.append(card);stage.append(holder);});dialog.append(stage);sizeBoard(stage,()=>{stage.style.setProperty('--play-family-scale',String(Math.min(stage.clientWidth*.30,stage.clientHeight*.60)/340));});
  }
  function playHome(){
   openDialog('Billiards Play');dialog.className='play-home-dialog';dialog.setAttribute('aria-label','Billiards Play');dialog.removeAttribute('aria-labelledby');dialog.replaceChildren();
@@ -111,7 +111,7 @@ function init(){
   const companion=companionLink();if(companion.nodeType===1){companion.classList.add('play-home-companion');companion.append(text('small','Play. Connect. Improve together.'));dialog.append(companion);}
   const decorate=(node,icon)=>{if(node.nodeType===1){const art=text('span','','play-ui-icon');art.setAttribute('aria-hidden','true');art.innerHTML=P.uiIcon(icon);node.prepend(art);}return node;};
   const foot=text('footer','','play-home-footer');foot.append(decorate(button('All 20 games',()=>setup(null,'all'),'play-home-all'),'games'),decorate(tournamentLink(),'trophy'));if(!window.BilliardsLocalSession?.active)foot.append(decorate(window.BilliardsLocalSession.button(),'people'));foot.append(decorate(button('Tools & voice',()=>{closeDialog();tools();}),'tools'));
-  const resume=button('Resume game',closeDialog,'play-resume');resume.id='playResume';resume.disabled=!state;foot.append(decorate(resume,'resume'),decorate(updatesButton(),'updates'));dialog.append(foot);sizeBoard(scene,()=>scene.style.setProperty('--play-scene-height',scene.getBoundingClientRect().height+'px'));
+  const resume=button('Resume game',closeDialog,'play-resume');resume.id='playResume';resume.disabled=!state;foot.append(decorate(resume,'resume'),decorate(updatesButton(),'updates'));dialog.append(foot);sizeBoard(scene,()=>scene.style.setProperty('--play-scene-height',scene.clientHeight+'px'));
  }
  function setup(game,groupId){
   if(!game&&groupId&&groupId!=='all'){navigateFamily(groupId);return;}

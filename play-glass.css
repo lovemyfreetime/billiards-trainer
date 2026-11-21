@@ -296,3 +296,23 @@ body.play-mode{background:#111b19}
 #playRoot #playDialog.play-catalog-dialog{display:flex;flex-direction:column;height:var(--play-height,100dvh)!important}
 #playRoot #playDialog.play-catalog-dialog:not([open]){display:none}
 #playRoot #playDialog.play-catalog-dialog .play-catalog-roster{display:flex;flex-direction:column;height:100%;min-height:0}
+/* Match the normal phone meta-viewport canvas when browser fullscreen resets it. */
+html.play-screen-fit body.play-mode #playRoot{inset:0 auto auto 0;width:var(--play-layout-width);height:var(--play-height);transform:scale(var(--play-screen-scale));transform-origin:top left}
+html.play-screen-fit #playRoot #playDialog.play-home-dialog,html.play-screen-fit #playRoot #playDialog.play-catalog-dialog,html.play-screen-fit #playRoot #playDialog.play-family-page{inset:0 auto auto 0;margin:0;width:var(--play-layout-width);max-width:none;height:var(--play-height)!important;max-height:var(--play-height);transform:scale(var(--play-screen-scale));transform-origin:top left}
+html.play-screen-fit #playDialog:not(.play-home-dialog):not(.play-catalog-dialog):not(.play-family-page),html.play-screen-fit .play-tools-dialog{position:fixed;inset:50% auto auto 50%;margin:0;max-width:none;max-height:calc(var(--play-height) - 24px);transform:scale(var(--play-screen-scale)) translate(-50%,-50%);transform-origin:top left}
+html.play-screen-fit .play-tools-dialog{width:min(1080px,calc(var(--play-layout-width) - 24px))}
+html.play-screen-fit #playDialog.play-setup-dialog{width:min(960px,calc(var(--play-layout-width) - 24px))}
+html.play-screen-fit #playRoot #playDialog .play-home-top{flex-direction:row;flex-wrap:nowrap;align-items:center;min-height:72px;padding:10px 136px 10px 76px}
+html.play-screen-fit #playRoot #playDialog .play-home-brand{font-size:26px}
+html.play-screen-fit #playRoot #playDialog .play-home-nav{flex-wrap:nowrap}
+html.play-screen-fit #playRoot #playDialog .play-home-nav a{display:inline-flex!important}
+html.play-screen-fit #playRoot #playDialog .play-home-intro h1{font-size:86px;max-width:320px}
+html.play-screen-fit #playRoot #playDialog .play-family-open{font-size:38px!important}
+html.play-screen-fit #playRoot #playDialog .play-home-cards .play-family-open{font-size:32px!important}
+html.play-screen-fit #playRoot #playDialog .play-home-footer{flex-wrap:nowrap}
+html.play-screen-fit #playRoot #playDialog .play-home-footer>*{flex:none}
+html.play-screen-fit #playRoot #playDialog .play-family-intro h1{font-size:52px}
+html.play-screen-fit #playRoot #playDialog .play-family-stage{display:block;padding:0;min-height:0}
+html.play-screen-fit body>.experience-corner{transform:scale(var(--play-screen-scale));transform-origin:top left;left:calc(10px*var(--play-screen-scale));top:calc(8px*var(--play-screen-scale))}
+@media(max-height:500px){.play-tools-dialog{padding:8px 12px}.play-tools-top{padding-bottom:6px}.play-tool-tabs{margin:6px 0}.play-tools-dialog .play-tool-panel{padding-top:4px}}
+html.play-screen-fit body.play-mode #playRoot:has(dialog[open]){transform:none}

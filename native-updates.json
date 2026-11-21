@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "40036d7185490a1ec899190453d7e4a473e094ef548bc918d9af6c37435d874e",
-  "sequence": 1795233692,
+  "version": "18dd6b6d128c93bf013a183d9e08a10d8c7e76b32bbd815c09b477827272d329",
+  "sequence": 1795234255,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3881,7 +3881,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "f0db40a7167a38db54fcd655519726192a4b7f50ff6f43b97ed4c3a169c22e2a",
+      "sha256": "456074beff67f610638b5c5d764caadb4e110489316cf001c17d5eb2af03f888",
       "length": 163425
     },
     "phone-play.css": {
@@ -5397,8 +5397,8 @@
       "length": 172798
     },
     "play-glass.css": {
-      "sha256": "4332a62a21f346ffa695eac46d393123843cc20d420fe8e15f29242f364ba61a",
-      "length": 40627
+      "sha256": "b8d5daf8bd31e84c44180ad62a911be877fc191cedadc9a4bf14633660fd6275",
+      "length": 43317
     },
     "play-input.js": {
       "sha256": "0ef84022711e5c94a6ecd60ccef0be80ec996b7d23430f6f342c14afee860081",
@@ -5413,8 +5413,8 @@
       "length": 29889
     },
     "play-mode.js": {
-      "sha256": "96290f7329191ec036c9afd34be3dcd3f71879da688860e91033c74d3fb9bfef",
-      "length": 51518
+      "sha256": "24f58091d5b8e6556a1ad98c6fe5d8c3a48a2dcaa2a7078f4e2eda52aa276b50",
+      "length": 51476
     },
     "play-narration-data.js": {
       "sha256": "bc39f8b3d8a1043a9bb0301ed4e7625feec95e6d07a16ef9778a8505634e8e2c",
@@ -5465,15 +5465,15 @@
       "length": 2438
     },
     "play-viewport.js": {
-      "sha256": "f607e48b94642e9b40c8b2430d45c3f5aa256522e1bb165ac7bebdcc0feabbb0",
-      "length": 552
+      "sha256": "4014d4a7a5bb7b72b71d7d889378b9cdd62cb84af8b94c82e4e22daa28051f63",
+      "length": 1248
     },
     "play.html": {
-      "sha256": "0719ddb7e0bddfaa300347bee9ff4731cbad6f38bbabe31a123106e65a28af55",
+      "sha256": "13308d24f506069d831ecb829df8ec0c6b10b78e65f55e91a3a49f4b9748ac78",
       "length": 2369
     },
     "service-worker.js": {
-      "sha256": "7fa4aa4ef254d9f511f7d3f28684081e460cc4880472b937adf5c00722bc06ad",
+      "sha256": "95d2ffcf57fcc602100b0842378036763126dc0d97478c111033526a4270d295",
       "length": 7933
     },
     "shot-clock-dial.webp": {
@@ -5481,15 +5481,15 @@
       "length": 65680
     },
     "shot-clock-reference.css": {
-      "sha256": "bb06739351cf723f674503284b5676def397bdbcf3a59a1cde42a28ca9475590",
-      "length": 20811
+      "sha256": "ec8a6bfd29a43e48e47468b85c77c4f90c56688aa333630aba77d77380a9f52b",
+      "length": 21057
     },
     "shot-clock-room.webp": {
       "sha256": "6793f09264fd16d417e794e368bfbb22ec6ee13ebe46fdaf47591e22647e3afa",
       "length": 57122
     },
     "shot-clock.html": {
-      "sha256": "e49ceb78f92b8cbaf4f0b2e7d28733b6e43faee83341899e67c4ded900d52cf8",
+      "sha256": "f2d728e2e424bd69788935d622a8f379af639f5d60cacc946d16a3fb40341770",
       "length": 2366
     },
     "table-orbit.js": {
