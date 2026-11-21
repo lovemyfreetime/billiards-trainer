@@ -7,6 +7,7 @@ on:
       - main
     paths:
       - '.github/workflows/build-windows-wrapper.yml'
+      - 'local-host/browser.cjs'
       - '.github/workflows/verify-guide-parity.yml'
       - 'index.html'
       - 'trainer-camera-recorder.js'

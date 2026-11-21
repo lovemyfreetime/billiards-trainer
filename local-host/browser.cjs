@@ -8,7 +8,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{cre
  try{
   const host=await browser.newPage({viewport:{width:1366,height:936},serviceWorkers:'block'});host.on('pageerror',e=>errors.push(e.message));
   await host.route('**/*',route=>route.request().url().startsWith(base)?route.continue():route.abort());
-  await observeAudio(host);await host.goto(hostUrl);await host.locator('[data-game=poker]').click();await host.getByRole('button',{name:'Start game',exact:true}).click();await host.locator('#playSetupNames').fill('Jeff, Cindy');await host.getByRole('button',{name:'Rack them up',exact:true}).click();
+  await observeAudio(host);await host.goto(hostUrl);await host.locator('[data-game=poker]').click();await host.locator('#playSetupNames').fill('Jeff, Cindy');await host.getByRole('button',{name:'Rack them up',exact:true}).click();
   const c1=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,serviceWorkers:'block'}),c2=await browser.newContext({viewport:{width:412,height:915},hasTouch:true,serviceWorkers:'block'});
   const p1=await c1.newPage(),p2=await c2.newPage();for(const p of [p1,p2]){p.on('pageerror',e=>errors.push(e.message));await observeAudio(p);}
   const invite=(await api()).invite;
