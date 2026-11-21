@@ -1,10 +1,10 @@
 {
-  "version": "8a619364f8bfe381",
+  "version": "7dbb7c97c83b28a4",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
     "ai_model/pool_ball_detector.part2.bin": "c4d0c531ef9454200b16dab8ec30a3d53c39b9c2b22a71585760b3e04f7b0cb2",
-    "android-release.json": "6493b93db0f0a7af10f82b374895429042012ec8a6afaefcad9e2efa1be803e2",
+    "android-release.json": "535d24cb986c741f12dbef89107215890bf2b4a647c591cedef33a5a218a4edc",
     "app-backup.js": "6b15e9a572970a374a264fa19db35abc89623800003eb7d56489bcd266905bc4",
     "app-display.css": "4d7e90bbe96f1cb5aa26b8e8de42e196de6cefdd69b8b3da6bf16c474cd861d8",
     "app-display.js": "c3035a593ce0b2eab6ad2be26c2319a2a7b4e55a36b75119c582dd5f7ed1c539",
