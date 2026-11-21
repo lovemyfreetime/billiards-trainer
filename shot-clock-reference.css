@@ -124,7 +124,6 @@ body.play-shot-clock-open #appCloseControl{display:none}
  .shot-clock-view.sc-reference[data-page=settings] .sc-header{display:flex;min-height:0;flex-direction:column}.shot-clock-view.sc-reference[data-page=settings] .sc-header h1{font-size:30px}
  .shot-clock-view.sc-reference[data-page=settings] .sc-layout{height:auto;min-height:calc(100dvh - 16px);overflow:visible}.shot-clock-view.sc-reference[data-page=settings] .sc-header-actions{justify-content:center}
 }
-.shot-clock-view.sc-reference .sc-navigation button:not(.sc-ring):not(.sc-name){border:0;background:transparent;box-shadow:none;backdrop-filter:none}
 /* Settings are grouped into pages so defaults and return controls stay visible. */
 .shot-clock-view.sc-reference{height:var(--play-height,100dvh);max-height:var(--play-height,100dvh);overflow:hidden;box-sizing:border-box}
 .shot-clock-view.sc-reference[data-page=settings] .sc-layout{height:calc(var(--play-height,100dvh) - 16px);min-height:0;overflow:hidden;padding-bottom:12px;width:min(100%,1320px)}

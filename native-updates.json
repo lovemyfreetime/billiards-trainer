@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "08b044ea822276b03e5882a6e043dab4b0267431049522d897553b54f415a881",
-  "sequence": 1795243387,
+  "version": "d8972c9f968f3a2983740b2a140f87efd92343c8edaced9a157884c48c4eb774",
+  "sequence": 1795243816,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3881,7 +3881,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "44d0aa2ce1beaa1819f3f6e932c8b54cb194316721308c677949f88e32c6d4cb",
+      "sha256": "6c0e540fca9c30bed91d99e3ad8b2993aba222ebd8a7bd89d80a3eb25aaa31dd",
       "length": 163425
     },
     "phone-play.css": {
@@ -5473,7 +5473,7 @@
       "length": 2369
     },
     "service-worker.js": {
-      "sha256": "1b89adde75d653fd5092619b8956763df8c63643b034c289593ea258d4ae81a3",
+      "sha256": "2d84d19a04376bcca3e7c279a720d90e5836a582e3f51b94dd645d884243109d",
       "length": 7933
     },
     "shot-clock-dial.webp": {
@@ -5481,8 +5481,8 @@
       "length": 65680
     },
     "shot-clock-reference.css": {
-      "sha256": "cd81948f3258da6fc875421c76dd368d115bd8765733404bda2fa12d6e4388e1",
-      "length": 21349
+      "sha256": "bb01e4d3f938e10460418514b45cee455fc33f49e8b4f38bf38570522311c65a",
+      "length": 21199
     },
     "shot-clock-room.webp": {
       "sha256": "6793f09264fd16d417e794e368bfbb22ec6ee13ebe46fdaf47591e22647e3afa",
