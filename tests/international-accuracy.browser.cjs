@@ -18,8 +18,11 @@ const {chromium} = require('playwright');
     const anchor = '    function drawInternationalTable(map) {';
     assert.equal(html.split(anchor).length, 2);
     // Exercise the production solver, construction plan and canvas painter directly.
-    await page.route(url, route => route.fulfill({contentType:'text/html', body:html.replace(anchor,
-      '    window.auditEngine = { state:()=>S, run:()=>simulate(false,null,true), draw:drawInternationalTable, geometry:pocketModel, ctx };\n'+anchor)}));
+    const launchAnchor='        let searchClosest = null;';
+    assert.equal(html.split(launchAnchor).length,2);
+    const instrumented=html.replace(launchAnchor,`        if(window.measuredLaunch)Object.assign(cb,window.measuredLaunch);\n`+launchAnchor);
+    await page.route(url, route => route.fulfill({contentType:'text/html', body:instrumented.replace(anchor,
+      '    window.auditEngine = { state:()=>S, run:(frames=false)=>simulate(frames,null,true), draw:drawInternationalTable, geometry:pocketModel, ctx };\n'+anchor)}));
     await page.goto(url);
     await page.waitForFunction(() => window.billiardsMenuReady && window.auditEngine);
     const result = await page.evaluate(() => {
@@ -80,6 +83,23 @@ const {chromium} = require('playwright');
       const snooker=geometryAt(G);
       const clearance={caromRails:carom.plan.rails.length,caromPockets:carom.plan.pockets.length,
         snookerCushions:snooker.objects.filter(o=>o.material==='cushion').length};
+      // Measured pure sidespin deceleration on snooker cloth is 22 rad/s².
+      s.balls=[ball(0,1,.75)];s.freeAim={x:2,y:.75};
+      const spinDown=[-44,44].map(wz=>{
+        window.measuredLaunch={vx:0,vy:0,vz:0,wx:0,wy:0,wz};
+        const q=api.run(true),middle=q.frames.find(f=>f[0].t>=1)[0];
+        return {start:wz,atOne:middle.wz,middleTime:middle.t,stop:q.endTime};
+      });
+      // This 17 mm side-pocket entry used to fall at 600 Hz and reject at 4800 Hz.
+      // Mirroring it probes both jaws. A central entry at the same speed drops.
+      const entries=[-.017,0,.017].map(offset=>{
+        s.balls=[ball(0,s.tableL/2+offset,.115)];
+        s.freeAim={x:s.tableL/2+offset,y:-.5};
+        window.measuredLaunch={vx:0,vy:-2,vz:0,wx:2/s.ballR,wy:0,wz:0};
+        const q=api.run();
+        return {offset,pot:q.pocketEvents.find(e=>e.t<.6)?.pocket||null,jaw:q.jawEvents[0]};
+      });
+      delete window.measuredLaunch;
       select.value='carom3'; document.getElementById('startFullRack').click();
       const L=s.tableL,W=s.tableW,R=s.ballR,x=.61,y=.53,dx=.7,dy=-1;
       function route(mirror){
@@ -90,11 +110,20 @@ const {chromium} = require('playwright');
       }
       const routes=[route(false),route(true)];
       const firstContactErrorMm=Math.abs(routes[0][0].x-(x+dx*(R-y)/dy))*1000;
-      return {shots,splitDeltaMm,splitRuns,splitIds,matchedContours,clearance,routes,firstContactErrorMm};
+      return {spinDown,entries,shots,splitDeltaMm,splitRuns,splitIds,matchedContours,clearance,routes,firstContactErrorMm};
     });
     assert.deepEqual(errors,[]);
     console.log(JSON.stringify(result));
     if (!process.env.AUDIT_OBSERVE) {
+      for(const sample of result.spinDown){
+        assert(Math.abs(sample.atOne-(sample.start-Math.sign(sample.start)*22*sample.middleTime))<1e-6);
+        assert(Math.abs(sample.stop-2)<=.004);
+      }
+      assert.deepEqual(result.entries.map(e=>e.pot),[null,'TM',null]);
+      for(const e of [result.entries[0],result.entries[2]]){
+        assert(e.jaw.t>.05 && e.jaw.t<.053);
+        assert(Math.abs(Math.hypot(e.jaw.nx,e.jaw.ny)-1)<1e-9);
+      }
       for(const shot of result.shots)assert.equal(shot.firstPass,shot.offsetMm<0,JSON.stringify(shot));
       assert(result.splitDeltaMm<1e-6);
       for(const targets of result.splitIds)assert.deepEqual(targets,[1,2]);

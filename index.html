@@ -2121,9 +2121,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 </div>
 
 <link rel="stylesheet" href="./photo-calibration.css?v=focused-start-v17">
-<script src="./trainer-international.js?v=1"></script>
+<script src="./trainer-international.js?v=snooker-spin"></script>
 <script src="./trainer-zen-shapes.js?v=1"></script>
 <script src="./trainer-table-construction.js?v=3"></script>
+<script src="./trainer-snooker-boundary.js?v=1"></script>
 <script src="./trainer-cue-clearance.js?v=1"></script>
 <script src="./trainer-ball-contacts.js?v=1"></script>
 <script src="./bank-kick-routing.js?v=1"></script>
@@ -5673,28 +5674,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         repairBallOverlaps(balls);
         return balls;
     }
-    function pocketCapture(b) {
-        if(S.tableType==='carom')return null;
-        const G = pocketModel(), L = G.L, W = G.W, R = G.R;
-        // Side pockets: only pocket after the center has crossed behind the throat.
-        const rounded=G.type==='snooker';
-        const sw=rounded?Math.max(0,G.sideThroat/2-R*.65):G.sideThroat/2+R*.38;
-        const sideDepth=rounded?G.sideJawOut*.73:R*.18;
-        if (b.y < -sideDepth && Math.abs(b.x - L / 2) < sw)
-            return 'TM';
-        if (b.y > W + sideDepth && Math.abs(b.x - L / 2) < sw)
-            return 'BM';
-        // Corner pockets: capture behind the diagonal mouth, after the ball has passed
-        // between the two outward-facing jaws.
-        const c = G.cornerLeg, gate = rounded?G.cornerThroatInset-G.cornerJawOut*.25:c*.58;
-        if(rounded){
-            if(b.y>=c&&b.y<=W-c)return null;
-            const across=Math.SQRT2*Math.max(0,G.cornerMouth/2-R*.66);
-            for(const [name,x,y] of [['TL',b.x,b.y],['TR',L-b.x,b.y],['BL',b.x,W-b.y],['BR',L-b.x,W-b.y]]){
-                if(x+y<gate && Math.abs(x-y)<across && x>-.10 && y>-.10)return name;
-            }
-            return null;
-        }
+    function pocketCapture(b, G) {
+        if(G.pocketless)return null;
+        const {L,W,R,cornerLeg:c}=G, sw=G.sideThroat/2+R*.38, sideDepth=R*.18;
+        if (b.y < -sideDepth && Math.abs(b.x-L/2)<sw) return 'TM';
+        if (b.y > W+sideDepth && Math.abs(b.x-L/2)<sw) return 'BM';
+        const gate=c*.58;
         if (b.x < c && b.y < c && b.x + b.y < gate)
             return 'TL';
         if (L - b.x < c && b.y < c && (L - b.x) + b.y < gate)
@@ -5745,6 +5730,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         // Negative X rolls against the nap toward the baulk cushion.
         const nap=S.tableType==='snooker'?S.clothNap:0;
         const geometry=pocketModel();
+        // Marked-ball spin-down on snooker cloth, Mathavan et al., Robotic Billiards (section III).
+        const measuredSpinDecay=window.BilliardsInternational.tables[S.tableType]?.spinDeceleration;
         const noseHeight=geometry.nose||2*R*PHYSICS_MODEL.cushionNoseHeightD;
         const roundedJaws=window.BilliardsTableConstruction.roundedJaws(geometry);
         const jaws=roundedJaws.length?roundedJaws.map(({points})=>({
@@ -5832,7 +5819,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             // APK state behavior: vertical-axis spin decays at only 25% of the
             // full spinning-friction rate while the ball is sliding, then at the
             // full rate once rolling/no-slip motion is reached.
-            const alphaZ = (5 * APK.muSpinning * g) / (2 * R);
+            const alphaZ = measuredSpinDecay ?? (5 * APK.muSpinning * g) / (2 * R);
             const rollingTime = Math.max(0, dt - slidingTime);
             const spinDecayTime = PHYSICS_MODEL.slidingSpinDecayFactor * slidingTime + rollingTime;
             b.wz = approach(b.wz, 0, alphaZ * spinDecayTime);
@@ -5924,6 +5911,27 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             {axis:'y',along:'x',bound:R,sign:1,spans:spans.top,name:'top rail'},
             {axis:'y',along:'x',bound:S.tableW-R,sign:-1,spans:spans.bottom,name:'bottom rail'}
         ];
+        const snookerBoundary=roundedJaws.length?window.BilliardsSnookerBoundary.prepare(geometry,roundedJaws,cushionPlanes):null;
+        function captureAt(b,pocket,t){
+            budget?.record(b,'pocket',t);
+            pocketEvents.push({id:b.id,x:b.x,y:b.y,t,speed:Math.hypot(b.vx,b.vy),pocket});
+            paths[b.id].push({x:b.x,y:b.y,z:b.z,t});
+            b.active=false;
+            b.vx=b.vy=b.vz=b.wx=b.wy=b.wz=0;
+            if(firstEvent==='—')firstEvent=b.n+' pocket';
+        }
+        function snookerImpact(b,hit,offset){
+            const t=simTime+offset;
+            if(hit.kind==='pocket'){captureAt(b,hit.name,t);return;}
+            if(hit.kind==='rail'){railHit(b,hit.nx,hit.ny,hit.plane.name,t);return;}
+            budget?.record(b,'before',t);
+            const vn=b.vx*hit.nx+b.vy*hit.ny,e=Math.max(.72,S.railRest*.92);
+            b.vx-=(1+e)*vn*hit.nx;b.vy-=(1+e)*vn*hit.ny;
+            paths[b.id].push({x:b.x,y:b.y,z:b.z,t});
+            if(jawEvents)jawEvents.push({id:b.id,jaw:hit.jaw,t,x:b.x,y:b.y,nx:hit.nx,ny:hit.ny});
+            budget?.record(b,'after',t);
+            if(firstEvent==='—')firstEvent=b.n+' → pocket jaw';
+        }
         function straightCushions(b) {
             // The incoming drift has already ended. Recover the first nose
             // crossing, reflect there, then use the remaining time for rebound.
@@ -6040,31 +6048,26 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                     }
                 }
             }
-            // Simplified pocketing before cushion response.
             for (const b of B) {
-                const lowEnoughForPocket = !airborneMode || b.z <= R * 1.12;
-                const pocket = b.active && lowEnoughForPocket ? pocketCapture(b) : null;
-                if (pocket) {
-                    budget?.record(b, 'pocket', t+dt);
-                    pocketEvents.push({id:b.id,x:b.x,y:b.y,t:t+dt,speed:Math.hypot(b.vx,b.vy),pocket});
-                    paths[b.id].push({x:b.x,y:b.y,z:b.z,t:t+dt});
-                    b.active = false;
-                    b.vx = b.vy = b.vz = b.wx = b.wy = b.wz = 0;
-                    if (firstEvent === '—') firstEvent = `${b.n} pocket`;
-                }
+                const lowEnoughForPocket=!airborneMode || b.z<=R*1.12;
+                b.sweptSnooker=!!snookerBoundary && b.active && b.freeDrift && canReachCushion(b);
+                if(b.sweptSnooker){snookerBoundary.advance(b,dt,lowEnoughForPocket,snookerImpact);continue;}
+                if(!b.active || !lowEnoughForPocket)continue;
+                const pocket=snookerBoundary?snookerBoundary.pocketAt(b):pocketCapture(b,geometry);
+                if(pocket)captureAt(b,pocket,t+dt);
             }
             // Cushions. Open spans remove rail collisions inside pocket mouths so a ball can actually enter the opening.
             for (const b of B) {
                 if (!b.active)
                     continue;
-                if (!canReachCushion(b)) continue;
+                if (b.sweptSnooker || !canReachCushion(b)) continue;
                 straightCushions(b);
             }
             // Angled pocket jaws/facings. These are real collision surfaces, so a ball
             // can catch a facing and deflect into (or away from) the pocket instead of
             // treating every pocket as a circular hole.
             for (const b of B) {
-                if (!b.active || !canReachCushion(b))
+                if (!b.active || b.sweptSnooker || !canReachCushion(b))
                     continue;
                 for (let ji = 0; ji < jaws.length; ji++) {
                     const jaw=jaws[ji];

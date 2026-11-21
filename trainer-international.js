@@ -3,7 +3,7 @@
 const tables={
  pool:{},
  carom:{tableL:2.84,tableW:1.42,ballR:.03075,cloth:'#28768a',nose:.037,muRoll:.008},
- snooker:{tableL:3.569,tableW:1.778,ballR:.02625,cloth:'#27653d',cornerMouth:.086,sideMouth:.092,muSlide:.21,muRoll:.0128,nap:.025,baulk:.737,d:.292,black:.324},
+ snooker:{tableL:3.569,tableW:1.778,ballR:.02625,cloth:'#27653d',cornerMouth:.086,sideMouth:.092,muSlide:.21,muRoll:.0128,spinDeceleration:22,nap:.025,baulk:.737,d:.292,black:.324},
  blackball:{tableL:1.829,tableW:.9145,ballR:.0254,cloth:'#2a674c',cornerMouth:.082,sideMouth:.088,muRoll:.016,baulk:.366},
  pyramid:{tableL:3.50,tableW:1.75,ballR:.034,cloth:'#2c6b45',cornerMouth:.072,sideMouth:.082,nose:.042,muRoll:.013}
 };
