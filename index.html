@@ -9276,8 +9276,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             };
             const setElevation = angle => {
                 const range = $(which === 2 ? 'cueElevation2' : 'cueElevation');
-                range.value = clamp(Math.round(angle*10)/10, 0, cueElevationMax());
                 setActiveShot(which);
+                range.value = clamp(Math.round(angle*10)/10, 0, cueElevationMax());
                 range.dispatchEvent(new Event('input', { bubbles:true }));
             };
             inset.addEventListener('pointerdown', ev => {
@@ -9307,9 +9307,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 ev.stopPropagation();
                 const range = $(which === 2 ? 'cueElevation2' : 'cueElevation');
                 const actual = cuePoseFor3D(which)?.elevation??Number(range.value);
-                range.value = clamp(Math.round((actual + (ev.deltaY < 0 ? 0.1 : -0.1))*10)/10, 0, cueElevationMax());
-                setActiveShot(which);
-                range.dispatchEvent(new Event('input', { bubbles:true }));
+                setElevation(actual + (ev.deltaY < 0 ? 0.1 : -0.1));
             }, { passive:false });
             face.insertAdjacentElement('afterend',inset);
         }

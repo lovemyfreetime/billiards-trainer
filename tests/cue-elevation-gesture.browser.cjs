@@ -34,7 +34,7 @@ const out='test-results/ball-controls';fs.mkdirSync(out,{recursive:true});
     assert.equal(await page.locator('#elevNumber').inputValue(),(await angle(1)).toFixed(1));
     await page.evaluate(()=>document.getElementById('undoAction').click());assert(Math.abs(await angle(1)-11)<.3,'One drag is one undo action');
     await page.evaluate(()=>document.getElementById('redoAction').click());assert(Math.abs(await angle(1)-5)<.3,'Drag can be redone');
-    await turn(1,60);assert.equal(await angle(1),15,'Normal elevation limit');
+    await turn(1,85);assert.equal(await angle(1),Number(await page.locator('#cueElevation').getAttribute('max')),'Existing elevation limit');
     await turn(1,-60);assert.equal(await angle(1),0,'Lower limit');
     await setup(2,true,20);result=await turn(2,12);assert(Math.abs(result.after-32)<.3,'Shot 2 elevation is independent');assert.equal(await angle(1),20);
     await turn(2,60);assert.equal(await angle(2),70,'Jump / Massé elevation limit');
