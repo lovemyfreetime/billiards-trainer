@@ -100,9 +100,8 @@ function init(){
  }
  function playHome(){
   openDialog('Billiards Play');dialog.className='play-home-dialog';dialog.setAttribute('aria-label','Billiards Play');dialog.removeAttribute('aria-labelledby');dialog.replaceChildren();
-  const top=text('header','','play-home-top'),brand=text('div','Billiards ','play-home-brand'),nav=text('nav','','play-home-nav');brand.append(text('span','Trainer','trainer-title-color'));nav.setAttribute('aria-label','Play navigation');
-  const back=text('a','Back to Table');back.href=link('train');back.onclick=e=>{if(bridge.busy()){e.preventDefault();return;}save();bridge.save();};
-  nav.append(text('span','Play','play-home-current'),back,button('All games',()=>setup(null,'all')),button('Shot Clock',()=>{save();location.assign('./shot-clock.html');}));top.append(brand,nav);dialog.append(top);
+  const top=text('header','','play-home-top'),brand=text('div','Billiards ','play-home-brand');brand.append(text('span','Trainer','trainer-title-color'));
+  top.append(brand);dialog.append(top);
   const scene=text('main','','play-home-scene'),intro=text('div','','play-home-intro'),homeTitle=text('h1','Billiards ');homeTitle.append(text('span','Play','play-title-color'));intro.append(homeTitle,text('p','Our table. Our rules.'));
   const voice=text('div','','play-home-voice');N.attach(voice,'play-introduction',{label:'Listen to Billiards Play introduction'});intro.append(voice);scene.append(intro);
   const featured={secret:['kelly'],pub:['killer','horse'],cards:['poker'],tactical:['turf']};
@@ -110,14 +109,17 @@ function init(){
   dialog.append(scene);
   const companion=companionLink();if(companion.nodeType===1){companion.classList.add('play-home-companion');companion.append(text('small','Play. Connect. Improve together.'));dialog.append(companion);}
   const decorate=(node,icon)=>{if(node.nodeType===1){const art=text('span','','play-ui-icon');art.setAttribute('aria-hidden','true');art.innerHTML=P.uiIcon(icon);node.prepend(art);}return node;};
-  const foot=text('footer','','play-home-footer');foot.append(decorate(button('All 20 games',()=>setup(null,'all'),'play-home-all'),'games'),decorate(tournamentLink(),'trophy'));if(!window.BilliardsLocalSession?.active)foot.append(decorate(window.BilliardsLocalSession.button(),'people'));foot.append(decorate(button('Tools & voice',()=>{closeDialog();tools();}),'tools'));
+  const foot=text('footer','','play-home-footer');foot.append(decorate(button('All 20 games',()=>setup(null,'all'),'play-home-all'),'games'),decorate(tournamentLink(),'trophy'));if(!window.BilliardsLocalSession?.active)foot.append(decorate(window.BilliardsLocalSession.button(),'people'));foot.append(decorate(button('Tools',()=>{closeDialog();tools();}),'tools'));
   const resume=button('Resume game',closeDialog,'play-resume');resume.id='playResume';resume.disabled=!state;foot.append(decorate(resume,'resume'),decorate(updatesButton(),'updates'));dialog.append(foot);sizeBoard(scene,()=>{
    scene.style.setProperty('--play-scene-height',scene.clientHeight+'px');
-   // Crop the PC photograph closer while keeping her bridge arm above Companion Play.
+   // Keep the photograph large while reserving clear areas for the surrounding controls.
    const width=dialog.clientWidth,height=dialog.clientHeight,headTop=top.offsetHeight+12,lowerEdge=companion.nodeType===1?companion.offsetTop-18:foot.offsetTop-18;
-   const scale=Math.max(.01,Math.min(Math.max(width*1.1/1536,(height-headTop)/828),(lowerEdge-headTop)/595));
-   const left=width*.48-905*scale;
-   for(const [name,value] of Object.entries({width:1536*scale,height:1024*scale,left,top:headTop-196*scale,side:width-(left+1280*scale)-width*.01-18,pub:left+580*scale-width*.01-18}))dialog.style.setProperty('--play-photo-'+name,value+'px');
+   const leftLane=Math.max(width*.25,height/width<.62?400:320),rightLane=Math.max(300,width*.22);
+   const scale=Math.max(.01,Math.min(width*1.1/1536,(width-leftLane-rightLane-width*.02-36)/750,(lowerEdge-headTop)/595));
+   const left=width*.01+leftLane+18-530*scale;
+   for(const [name,value] of Object.entries({width:1536*scale,height:1024*scale,left,top:Math.max(height-1024*scale,headTop-196*scale),side:rightLane,pub:leftLane}))dialog.style.setProperty('--play-photo-'+name,value+'px');
+   dialog.style.setProperty('--play-heading-width',homeTitle.offsetWidth+'px');
+   dialog.style.setProperty('--play-pub-height',scene.querySelector('.play-home-pub').offsetHeight+'px');
   });
  }
  function setup(game,groupId){
@@ -135,7 +137,7 @@ function init(){
    const tiles=new Map();
    function preview(id){catalogChoice=id;const g=E.games[id],family=P.group(id);hero.style.setProperty('--family',family.color);heroArt.innerHTML=P.gameArt(id);eyebrow.textContent=family.name;title.textContent=g.name;pitch.textContent=g.tag+' '+g.rules.split('. ')[0]+'.';tags.replaceChildren(text('span',`${g.min===g.max?g.min:g.min+'–'+g.max} player${g.max===1?'':'s'}`),text('span','Our house rules'));for(const [key,b] of tiles){b.classList.toggle('selected',key===id);b.setAttribute('aria-pressed',String(key===id));}}
    P.groups.filter(family=>groupId==='all'||family.id===groupId).forEach((family,col)=>{const column=text('section','','play-game-family play-game-family--'+family.id);column.style.setProperty('--family',family.color);column.append(text('h3',family.name));family.games.forEach((id,row)=>{const {card,tile:b}=makeGameCard(id,col*5+row+1);b.onfocus=()=>preview(id);column.append(card);tiles.set(id,b);});grid.append(column);});
-   right.append(grid);if(state){const saved=text('div','','play-saved-actions');const resume=button('Resume game',closeDialog,'play-resume');resume.id='playResume';const clear=button('Clear saved game',confirmClear,'play-clear-game');clear.id='playClearSaved';saved.append(clear,resume);const savedMenu=text('details','','play-saved-menu');savedMenu.append(text('summary','Saved game'),saved);catalogHeading.append(savedMenu);}layout.append(hero,right);dialog.append(layout);preview(tiles.has(catalogChoice)?catalogChoice:tiles.keys().next().value);{const nav=text('div','','play-catalog-nav');if(!window.BilliardsLocalSession?.active)nav.append(window.BilliardsLocalSession.button());nav.append(companionLink(),tournamentLink(),button('Shot Clock',()=>openClock(true)),button('Tools',()=>{closeDialog();tools();}),updatesButton());dialog.append(nav);}dialog.scrollTop=0;return;
+   right.append(grid);if(state){const saved=text('div','','play-saved-actions');const resume=button('Resume game',closeDialog,'play-resume');resume.id='playResume';const clear=button('Clear saved game',confirmClear,'play-clear-game');clear.id='playClearSaved';saved.append(clear,resume);const savedMenu=text('details','','play-saved-menu');savedMenu.append(text('summary','Saved game'),saved);catalogHeading.append(savedMenu);}layout.append(hero,right);dialog.append(layout);preview(tiles.has(catalogChoice)?catalogChoice:tiles.keys().next().value);{const nav=text('div','','play-catalog-nav');if(!window.BilliardsLocalSession?.active)nav.append(window.BilliardsLocalSession.button());nav.append(companionLink(),tournamentLink(),button('Tools',()=>{closeDialog();tools();}),updatesButton());dialog.append(nav);}dialog.scrollTop=0;return;
   }
   const g=E.games[game];catalogChoice=game;openDialog(g.name);dialog.className='play-setup-dialog';dialog.style.setProperty('--family',P.group(game)?.color||'#d3b68b');const emblem=text('div','','play-setup-emblem play-photo-emblem');emblem.setAttribute('aria-hidden','true');emblem.innerHTML=P.gameArt(game);dialog.append(emblem);dialog.append(text('p',g.rules));narrate(dialog,'rules-'+game,'rules for '+g.name);
   const form=document.createElement('form');
@@ -253,7 +255,7 @@ function init(){
   for(let node=voiceStart;node;){const next=node.nextElementSibling;voicePanel.append(node);node=next;}toolDialog.append(voicePanel);
   const panels=[controls,voicePanel,drills,manage],labels=['Clicker','Voice','Drills','Saved data & calibration'];
   const select=index=>{panels.forEach((panel,i)=>{panel.hidden=i!==index;tabs.children[i].setAttribute('aria-pressed',String(i===index));});};
-  panels.forEach((panel,index)=>{panel.classList.add('play-tool-panel');tabs.append(button(labels[index],()=>select(index)));});top.after(tabs);select(0);drawDrill();toolDialog.showModal();
+  panels.forEach((panel,index)=>{panel.classList.add('play-tool-panel');tabs.append(button(labels[index],()=>select(index)));});tabs.append(button('Shot Clock',()=>{toolDialog.close();openClock(true);}));top.after(tabs);select(0);drawDrill();toolDialog.showModal();
  }
  function drawDrill(){
   for(const id of ['playDrillStatus','playDrillLive']){const box=$(id);if(!box)continue;box.hidden=!drillState;box.replaceChildren();if(!drillState)continue;

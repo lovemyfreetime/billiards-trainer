@@ -119,10 +119,6 @@
       a.onclick = event => { if (options.beforeNavigate?.() === false) event.preventDefault(); else save(); };
       return a;
     }
-    navigation.append(navigationLink('Play', './play.html', 'sc-nav-play'),
-      navigationLink('Back to Table', options.trainerHref || './?train=1'),
-      navigationLink('All games', './play.html?catalog=all'),
-      button('Shot Clock', () => show('clock'), 'sc-nav-clock'));
     const appMenu = element('details', null, 'sc-app-menu');
     const appSummary = element('summary', '···');
     appSummary.setAttribute('aria-label', 'App options');
@@ -148,8 +144,8 @@
     gear.setAttribute('aria-label', 'Shot Clock Settings');
     const header = element('header', null, 'sc-header');
     const settingsActions = element('div', null, 'sc-settings-actions');
-    headerActions.append(total, gear, settingsActions);
-    header.append(back, headline, headerActions);
+    headerActions.append(total, settingsActions);
+    header.append(headline, headerActions);
     const layout = element('div', null, 'sc-layout');
     layout.append(topbar, header, status, body, footer);
     overlay.append(layout);
@@ -171,7 +167,7 @@
     }
     const audioButton = decorate(button('', toggleAudio, 'sc-audio'), 'audio', 'Audio');
     const headerAudio = decorate(button('', toggleAudio, 'sc-header-audio'), 'audio', 'Audio');
-    headerActions.append(headerAudio);
+    navigation.append(gear, headerAudio, back);
     function save() {
       try {
         localStorage.setItem(KEY, JSON.stringify({ settings, session: M.snapshot(session, now()), profiles, audio }));

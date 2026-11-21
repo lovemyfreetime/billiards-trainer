@@ -40,7 +40,7 @@ function speak(message){
 window.addEventListener('pagehide',cancelSpeech);document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelSpeech();});
 
 function createDialog(){
- dialog=el('dialog','','local-room');dialog.setAttribute('aria-labelledby','localRoomTitle');const title=el('h2','Local table');title.id='localRoomTitle';dialog.append(title);
+ dialog=el('dialog','','local-room');dialog.setAttribute('aria-labelledby','localRoomTitle');const title=el('h2','Local share');title.id='localRoomTitle';dialog.append(title);
  const note=el('p');note.id='localRoomNote';dialog.append(note);
  if(!active){
   note.textContent='Host a table from the current Windows app. Phones and tablets scan its QR code and join on the same Wi-Fi. The host keeps score; each player gets their own private screen.';
@@ -57,7 +57,7 @@ function createDialog(){
  }
  const status=el('p');status.id='localError';status.setAttribute('role','status');dialog.append(status,button('Back to table',()=>{dialog.close();window.BilliardsPlayNavigation?.backToTable();},'play-return'));window.BilliardsNarration?.attach(dialog,'local-table-help');window.BilliardsNarration?.backdrop(dialog,()=>dialog.close());document.body.append(dialog);
 }
-async function qr(url){const img=document.getElementById('localQR'),label=document.getElementById('localJoinLink');if(!url){img.hidden=true;label.textContent='No local Wi-Fi address found. Connect this host to Wi-Fi, then reopen Local table.';return;}label.textContent=url.split('#')[0];try{const r=await api('/qr',{url});img.src=r.image;img.hidden=false;}catch(e){error(e.message);}}
+async function qr(url){const img=document.getElementById('localQR'),label=document.getElementById('localJoinLink');if(!url){img.hidden=true;label.textContent='No local Wi-Fi address found. Connect this host to Wi-Fi, then reopen Local share.';return;}label.textContent=url.split('#')[0];try{const r=await api('/qr',{url});img.src=r.image;img.hidden=false;}catch(e){error(e.message);}}
 function roster(data){
  const list=document.getElementById('localMembers');if(!list)return;const signature=JSON.stringify([data.members,data.players]);if(signature===lastMembers)return;lastMembers=signature;list.replaceChildren(el('h3','Players'));
  if(!data.members.length)list.append(el('p','No joining requests yet. Show players the QR code.'));
@@ -72,5 +72,5 @@ async function poll(){if(!active||polling)return;polling=true;try{
  error('');
  }catch(e){error('Local host disconnected. '+e.message);}finally{polling=false;}}
 function open(){if(!dialog)createDialog();if(!dialog.open)dialog.showModal();if(active){publish(adapter?.getState());lastURLs='';poll();}}
-window.BilliardsLocalSession={active,open,speak,cancelSpeech,button:()=>button('Local table',open),publish,newGame(){newGame=true;sharing=true;},async clearGame(){if(!active)return;if(uploading)throw Error('Wait for the current table update, then clear the saved game.');cancelSpeech();pending=null;const ended=await api('/end',{});revision=ended.revision??revision;sharing=false;newGame=true;lastMembers='';lastURLs='';eventsSeen.clear();},mount(value){adapter=value;if(active){publish(adapter.getState());setInterval(poll,1000);poll();}}};
+window.BilliardsLocalSession={active,open,speak,cancelSpeech,button:()=>button('Local share',open),publish,newGame(){newGame=true;sharing=true;},async clearGame(){if(!active)return;if(uploading)throw Error('Wait for the current table update, then clear the saved game.');cancelSpeech();pending=null;const ended=await api('/end',{});revision=ended.revision??revision;sharing=false;newGame=true;lastMembers='';lastURLs='';eventsSeen.clear();},mount(value){adapter=value;if(active){publish(adapter.getState());setInterval(poll,1000);poll();}}};
 })();

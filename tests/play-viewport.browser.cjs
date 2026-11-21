@@ -22,10 +22,10 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),{cre
    await page.goto(base+'/play.html');await fits(page,'#playDialog','Home '+JSON.stringify(spec));
    const overlap=await page.evaluate(()=>{
     const stage=document.querySelector('.play-home-scene'),r=stage.getBoundingClientRect(),dialog=document.getElementById('playDialog'),photo=getComputedStyle(dialog,'::before'),closer=photo.content!=='none';
-    const crop=getComputedStyle(dialog),scale=closer?parseFloat(crop.getPropertyValue('--play-photo-width'))/1536:Math.min(r.width/1536,r.height/1024),left=closer?parseFloat(crop.getPropertyValue('--play-photo-left')):r.left+r.width*.485-1536*scale/2,top=closer?parseFloat(crop.getPropertyValue('--play-photo-top')):r.top+(r.height-1024*scale)/2;
+    const crop=getComputedStyle(dialog),canvas=dialog.getBoundingClientRect(),pixelScale=canvas.width/dialog.clientWidth,scale=closer?parseFloat(crop.getPropertyValue('--play-photo-width'))/1536*pixelScale:Math.min(r.width/1536,r.height/1024),left=closer?canvas.left+parseFloat(crop.getPropertyValue('--play-photo-left'))*pixelScale:r.left+r.width*.485-1536*scale/2,top=closer?canvas.top+parseFloat(crop.getPropertyValue('--play-photo-top'))*pixelScale:r.top+(r.height-1024*scale)/2;
     // A little overlap on the standing man's lower body is allowed; keep his face and all of her clear.
     const players=(closer?[[548,196,165,190],[580,306,700,485]]:[[530,196,253,488],[580,306,700,485]]).map(([x,y,w,h])=>({left:left+x*scale,top:top+y*scale,right:left+(x+w)*scale,bottom:top+(y+h)*scale}));
-    const blocked=[...document.querySelectorAll('.play-home-family,.play-home-companion,.play-home-footer')].filter(e=>players.some(p=>{const b=e.getBoundingClientRect();return b.left<p.right&&b.right>p.left&&b.top<p.bottom&&b.bottom>p.top;})).map(e=>e.className);
+    const blocked=[...document.querySelectorAll('.play-home-family,.play-home-companion,.play-home-footer,.play-home-voice')].filter(e=>players.some(p=>{const b=e.getBoundingClientRect();return b.left<p.right&&b.right>p.left&&b.top<p.bottom&&b.bottom>p.top;})).map(e=>e.className);
     if(closer&&top+1024*scale<innerHeight-1)blocked.push('Photo stops above the bottom controls');
     if(closer&&scale<Math.min(r.width/1536,r.height/1024)*1.2)blocked.push('Photo did not zoom in');
     return blocked;
@@ -42,8 +42,11 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),{cre
     assert(composition.centerError<1,'Fifth game must remain centered '+JSON.stringify(spec));
     assert(composition.span<=composition.cardWidth*3.2,'Outer games must form a compact group '+JSON.stringify(spec));
    }
-   await page.goto(base+'/play.html');await page.getByRole('button',{name:'Tools & voice',exact:true}).click();
-   const toolTabs=page.locator('.play-tool-tabs button');for(let i=0;i<await toolTabs.count();i++){await toolTabs.nth(i).click();await fits(page,'.play-tools-dialog','Tools tab '+i+' '+JSON.stringify(spec));}
+   await page.goto(base+'/play.html');await page.locator('.play-home-footer').getByRole('button',{name:'Tools',exact:true}).click();
+   const toolTabs=page.locator('.play-tool-tabs button[aria-pressed]');for(let i=0;i<await toolTabs.count();i++){await toolTabs.nth(i).click();await fits(page,'.play-tools-dialog','Tools tab '+i+' '+JSON.stringify(spec));}
+   await page.locator('.play-tool-tabs').getByRole('button',{name:'Shot Clock',exact:true}).click();await fits(page,'.sc-layout','Clock from Tools '+JSON.stringify(spec));
+   await page.locator('.sc-navigation .sc-back').click();await fits(page,'#playDialog','Home from clock '+JSON.stringify(spec));
+   await page.locator('.play-home-footer').getByRole('button',{name:'Tools',exact:true}).click();
    await page.locator('.play-tools-top').getByRole('button',{name:'Back to table',exact:true}).click();await fits(page,'#playDialog','Home after fullscreen '+JSON.stringify(spec));
    await page.goto(base+'/play.html?catalog=all');await fits(page,'#playDialog','All 20 '+JSON.stringify(spec));assert.equal(await page.locator('.play-game-tile').count(),20);assert(await page.locator('.play-catalog-nav').evaluate(e=>e.getBoundingClientRect().bottom>=(window.visualViewport?.height||innerHeight)-24),'Catalogue must fill the viewport');
    await page.locator('.play-game-tile[data-game=kelly]').click();await fits(page,'#playDialog','Setup '+JSON.stringify(spec));
