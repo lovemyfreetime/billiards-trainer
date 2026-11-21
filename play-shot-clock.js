@@ -8,7 +8,7 @@
   const defaults = Object.freeze({
     players: 'table', mode: 'countdown', shot: 30, opening: 'special', postBreak: 60, postPush: 0,
     timeout: 60, timeouts: 2, timeoutScope: 'match', timeoutOwner: 'player', timeoutEnd: 'remaining', autoResume: false,
-    extension: 15, extensions: 3, extensionScope: 'rack', extensionOwner: 'player', extensionCap: 0, extensionWindow: 0, hillExtensions: 0,
+    extension: 15, extensions: 3, extensionScope: 'rack', extensionOwner: 'player', extensionCap: 0, extensionWindow: 0, hillExtensions: 0, bothOnHill: false,
     match: 0, lateAt: 0, lateShot: 15, matchEnd: 'notice', matchBreak: 0, matchBreaks: 1, hold: 0,
     warning: 'ten', countdown: 0, expiry: true, zero: 'time', run: 'stopwatch', target: 0, foul: 0, breakFoul: 0, shootout: false
   });
@@ -39,7 +39,7 @@
     for (const [key, values] of Object.entries(choices)) {
       if (values.includes(input[key])) settings[key] = input[key];
     }
-    for (const key of ['autoResume', 'expiry', 'shootout']) {
+    for (const key of ['autoResume', 'expiry', 'shootout', 'bothOnHill']) {
       if (typeof input[key] === 'boolean') settings[key] = input[key];
     }
     return settings;

@@ -71,7 +71,7 @@
       ['extensionScope', 'Extension allowance resets', { rack: 'Per rack', match: 'Per match' }],
       ['extensionOwner', 'Extension allowance', { player: 'Per player', shared: 'Shared' }],
       ['extensionWindow', 'Extension call window (s), 0 = anytime'], ['extensionCap', 'Remaining-time cap (s), 0 = none'],
-      ['hillExtensions', 'Extra extensions when both are on the hill']
+      ['bothOnHill', 'Both players are on the hill'], ['hillExtensions', 'Extra extensions when both are on the hill']
     ]],
     ['Audio alerts', [
       ['warning', 'Warning call', { ten: 'Ten seconds', time: 'Time at 10 seconds', 'ten-five': 'Ten and five seconds', off: 'Off' }],
@@ -366,7 +366,7 @@
       more.append(element('summary', 'More'), morePanel);
       footer.append(ui.runButton, ui.break, ui.start, ui.pause, switcher, more);
     }
-    function bothOnHill() { return options.table()?.bothOnHill === true; }
+    function bothOnHill() { return settings.bothOnHill === true; }
     function setText(node, value) {
       const label = node.querySelector('.sc-control-label') || node;
       if (label.textContent !== value) label.textContent = value;

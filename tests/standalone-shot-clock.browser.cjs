@@ -25,7 +25,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{chromium}=requ
   assert.equal(await savedClock(),paused,'Starting another game does not reset the clock');
   await page.evaluate(()=>{billiardsPlayInput.dispatch({type:'ready'});billiardsPlayInput.dispatch({type:'miss'});billiardsPlayInput.dispatch({type:'pause'});billiardsPlayInput.dispatch({type:'undo'});});
   assert.equal(await savedClock(),paused,'Game turns, pause and Undo do not change the clock');
-  await page.goto(base+'/shot-clock.html');assert.equal(await page.locator('.sc-player').count(),2);assert.deepEqual(await page.locator('.sc-player-header button').allTextContents(),['Player 1','Player 2']);assert.equal(await savedClock(),paused,'Standalone page retains its own timer');
+  await page.goto(base+'/shot-clock.html');assert.equal(await page.locator('.sc-player').count(),2);assert.deepEqual(await page.locator('.sc-player-header button').allTextContents(),['Player 1','Player 2']);
+  const retained=JSON.parse(await savedClock()),beforeNavigation=JSON.parse(paused);assert.deepEqual(retained.session.shot,beforeNavigation.session.shot,'Standalone page retains its paused shot');assert.equal(retained.session.turn,beforeNavigation.session.turn);assert.deepEqual(retained.settings,beforeNavigation.settings);assert(retained.session.match.elapsed>=beforeNavigation.session.match.elapsed,'Independent match stopwatch can advance until page exit');
   fs.mkdirSync('test-results/ball-controls',{recursive:true});await page.screenshot({path:'test-results/ball-controls/standalone-two-player-clock.png'});
   assert.deepEqual(errors,[]);await context.close();console.log('Standalone clock: two players, old player-3 recovery, no game inheritance/mutation/reset/synchronization, persistent timer passed');
  }finally{await browser?.close();service.server.closeAllConnections();await new Promise(resolve=>service.server.close(resolve));}
