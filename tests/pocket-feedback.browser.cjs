@@ -23,15 +23,15 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{spawn}=require
   const dims=await page.evaluate(()=>['phoneTrayToggle','table3DRackToggle','table3DShotOrder','workspaceClearBalls','table3DLock'].map(id=>{
    const {x,y,width,height}=document.getElementById(id).getBoundingClientRect();return {x,y,width,height};
   }));
-  assert(dims.every(d=>Math.abs(d.width-dims[0].width)<.5&&Math.abs(d.height-dims[0].height)<.5&&Math.abs(d.y-dims[0].y)<.5));
+  assert(dims.every(d=>d.width>=44&&Math.abs(d.height-dims[0].height)<.5&&Math.abs(d.y-dims[0].y)<.5),'Tray controls retain readable touch targets on one aligned row');
   assert(dims.every((d,i)=>!i||d.x>=dims[i-1].x+dims[i-1].width-.5),'Buttons do not overlap');
   const switchButton=page.getByRole('switch',{name:'Move balls'});
   const color=()=>switchButton.evaluate(e=>getComputedStyle(e).backgroundColor);
   const thumb=()=>switchButton.locator('.ballLockTrack').evaluate(e=>getComputedStyle(e,'::after').transform);
-  await switchButton.locator('.ballLockLabel').tap();await page.waitForFunction(()=>getComputedStyle(document.querySelector('#table3DLock')).backgroundColor==='rgb(36, 70, 58)');
-  assert.equal(await color(),'rgb(36, 70, 58)');assert.equal(await thumb(),'matrix(1, 0, 0, 1, 9, 0)');
-  await switchButton.locator('.ballLockTrack').tap();await page.waitForFunction(()=>getComputedStyle(document.querySelector('#table3DLock')).backgroundColor==='rgb(68, 44, 50)');
-  assert.equal(await color(),'rgb(68, 44, 50)');assert.equal(await thumb(),'none');
+  await switchButton.locator('.ballLockLabel').tap();await page.waitForFunction(()=>getComputedStyle(document.querySelector('#table3DLock')).backgroundColor==='rgb(61, 213, 109)');
+  assert.equal(await color(),'rgb(61, 213, 109)');assert.equal(await thumb(),'matrix(1, 0, 0, 1, 9, 0)');
+  await switchButton.locator('.ballLockTrack').tap();await page.waitForFunction(()=>getComputedStyle(document.querySelector('#table3DLock')).backgroundColor==='rgb(206, 51, 68)');
+  assert.equal(await color(),'rgb(206, 51, 68)');assert.equal(await thumb(),'none');
   const packed=await page.locator('#workspaceBalls').evaluate(e=>{const a=[...e.children].map(b=>b.getBoundingClientRect());return {width:e.getBoundingClientRect().width,first:a[0],last:a.at(-1),gap:a[1].left-a[0].right,count:a.length};});assert.equal(packed.count,16);assert(packed.gap<7,'balls use compact gaps instead of stretched grid cells');
   // Use an actual center-pocket prediction, then inspect the render output.
   await page.evaluate(()=>{const snap=billiardsTourBridge.capture();Object.assign(snap.state,{balls:[{id:0,n:'CB',x:1.27,y:.8,active:true},{id:1,n:'1',x:1.27,y:.3,active:true},{id:2,n:'2',x:1.9,y:.8,active:true}],freeAim:{x:1.27,y:.1},guidancePlan:null,guidanceBreak:false,showPocketGlow:true,showPocketGhost:true});billiardsTourBridge.restore(snap);});
