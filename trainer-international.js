@@ -2,7 +2,7 @@
 'use strict';
 const tables={
  pool:{},
- carom:{tableL:2.84,tableW:1.42,ballR:.03075,cloth:'#28768a',nose:.037,muRoll:.008},
+ carom:{tableL:2.84,tableW:1.42,ballR:.03075,cloth:'#28768a',nose:.037,muRoll:.008,fastMuRoll:.0045,muSpin:.022},
  snooker:{tableL:3.569,tableW:1.778,ballR:.02625,cloth:'#27653d',cornerMouth:.086,sideMouth:.092,muSlide:.21,muRoll:.0128,spinDeceleration:22,nap:.025,baulk:.737,d:.292,black:.324},
  blackball:{tableL:1.829,tableW:.9145,ballR:.0254,cloth:'#2a674c',cornerMouth:.082,sideMouth:.088,muRoll:.016,baulk:.366},
  pyramid:{tableL:3.50,tableW:1.75,ballR:.034,cloth:'#2c6b45',cornerMouth:.072,sideMouth:.082,nose:.042,muRoll:.013}
@@ -79,6 +79,34 @@ function setup(key){
  }
  return {type,set,name,table,balls};
 }
-const api={tables,setups,tableType,ballSet,poolSet,maxId,ball,setup};
+function caromRebound(b,nx,ny,R,height,restitution,tangentialRetention){
+    const rise = height / R - 1;
+    if (Math.abs(rise) >= 1) return false;
+    const span = Math.sqrt(1 - rise * rise);
+    const tx = -ny, ty = nx;
+    const vn = b.vx * nx + b.vy * ny, vt = b.vx * tx + b.vy * ty;
+    const wn = b.wx * nx + b.wy * ny, wt = b.wx * tx + b.wy * ty;
+    if (vn >= 0) return false;
+    // Resolve at the raised cushion nose in its normal and two tangent directions.
+    // A solid sphere has inverse effective tangential mass 1 + mR²/I = 3.5.
+    const normalImpulse = -(1 + restitution) * vn * span;
+    const tangentSlip = vt - R * (span * b.wz + rise * wn);
+    const faceSlip = rise * vn + R * wt;
+    const slip = Math.hypot(tangentSlip, faceSlip);
+    const frictionScale = slip ? Math.min(1 / 3.5, .18 * normalImpulse / slip) : 0;
+    const along = -frictionScale * tangentSlip, up = -frictionScale * faceSlip;
+    const normalOut = vn + span * normalImpulse + rise * up;
+    // Tuning the ball diameter can put the nose almost over its pole. Use the
+    // planar rail response if projecting the impulse onto the bed cannot separate it.
+    if (normalOut <= 0) return false;
+    const tangentOut = (vt + along) * tangentialRetention;
+    b.vx = normalOut * nx + tangentOut * tx;
+    b.vy = normalOut * ny + tangentOut * ty;
+    b.wx += 2.5 / R * (up * tx - rise * along * nx);
+    b.wy += 2.5 / R * (up * ty - rise * along * ny);
+    b.wz -= 2.5 / R * span * along;
+    return true;
+}
+const api={caromRebound,tables,setups,tableType,ballSet,poolSet,maxId,ball,setup};
 if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsInternational=api;
 })(typeof window==='object'?window:globalThis);

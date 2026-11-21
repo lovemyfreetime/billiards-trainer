@@ -2000,11 +2000,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         <div class="row"><label>Playing width (in)</label><input id="tableW" type="number" min="30" max="73" step="0.01"></div>
         <div class="row"><label>Ball diameter (in)</label><input id="ballD" type="number" min="1.5" max="3" step="0.001"></div>
         <div class="buttons"><button data-preset="7d">7' Diamond 80×40</button><button data-preset="7b">7' Bar 78×39</button><button data-preset="8">8' 88×44</button><button data-preset="9">9' 100×50</button></div>
+        <div id="caromClothRow" hidden><label for="caromCloth">Carom cloth</label>
+          <select id="caromCloth"><option value="standard">Standard</option><option value="fast">Fast</option><option value="custom" disabled>Custom</option></select>
+        </div>
       <button class="advancedToggle" type="button" data-advanced="physicsAdvanced">Advanced physics</button>
       <div class="advancedBody" id="physicsAdvanced">
         <div class="tableControlTitle" style="margin-top:10px">PHYSICS SETTINGS</div>
 <div class="row"><label>Sliding friction μ</label><input id="muSlide" type="number" min="0" max="0.5" step="0.005"></div>
-      <button id="applyMeasuredPhysics" type="button">Apply measured table settings</button><div class="row"><label>Rolling friction μ</label><input id="muRoll" type="number" min="0" max="0.1" step="0.001"></div>
+      <button id="applyMeasuredPhysics" type="button">Apply measured table settings</button><div class="row"><label>Rolling friction μ</label><input id="muRoll" type="number" min="0" max="0.1" step="0.0001"></div>
       <div class="row" id="clothNapRow" hidden><label for="clothNap">Directional rolling resistance (%)</label><input id="clothNap" type="number" min="0" max="50" step="0.5"></div>
       <div class="row"><label>Ball-ball friction μ</label><input id="muBall" type="number" min="0" max="0.2" step="0.001"></div>
       <div class="row"><label>Ball restitution</label><input id="ballRest" type="number" min="0.5" max="1" step="0.005"></div>
@@ -3893,7 +3896,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     function startInternationalRack(rack, choice) {
         if(S.tableType==='pool')S.poolCalibration={...capturePhysicsSettings(),poolBallSet:S.ballSet};
         Object.assign(S,{tableL:rack.table.tableL,tableW:rack.table.tableW,ballR:rack.table.ballR,
-            tableType:rack.type,ballSet:rack.set,muSlide:rack.table.muSlide??defaultState().muSlide,muRoll:rack.table.muRoll,clothNap:rack.table.nap||0});
+            tableType:rack.type,ballSet:rack.set,muSlide:rack.table.muSlide??defaultState().muSlide,muRoll:rack.type==='carom' && S.tableType==='carom'?S.muRoll:rack.table.muRoll,clothNap:rack.table.nap||0});
         S.bankKick=defaultState().bankKick;
         S.angleLock=false;
         S.ghostLock=null;
@@ -5523,6 +5526,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const dt = 1 / 600;
         let x = L - R;
         let vx = -Math.max(0, v0);
+        const carom = S.tableType === 'carom' ? window.BilliardsInternational.tables.carom : null;
+        const referenceBall = carom ? {vx:0,vy:0,wx:0,wy:0,wz:0} : null;
         let wy = 0; // center-ball hit begins with no rolling spin
         let travel = 0;
         for (let step = 0; step < 12000; step++) { // 20 s max
@@ -5557,19 +5562,19 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             }
             travel += Math.abs(vx) * dt;
             x += vx * dt;
-            // End-rail collisions.  Translational velocity reverses and is reduced by
-            // rail restitution, while the old rolling spin is retained.  That retained
-            // spin creates the heavy post-rail skid seen on a real lag shot and in the
-            // main simulator.
-            if (x < R) {
-                x = R;
-                if (vx < 0)
-                    vx = -e * vx;
-            }
-            else if (x > L - R) {
-                x = L - R;
-                if (vx > 0)
-                    vx = -e * vx;
+            if (x < R || x > L - R) {
+                const normal = x < R ? 1 : -1;
+                x = normal === 1 ? R : L - R;
+                if (vx * normal < 0) {
+                    if (carom) {
+                        referenceBall.vx = vx;
+                        referenceBall.wy = wy;
+                    }
+                    if (carom && window.BilliardsInternational.caromRebound(referenceBall,normal,0,R,carom.nose,e,S.railTang)) {
+                        vx = referenceBall.vx;
+                        wy = referenceBall.wy;
+                    } else vx = -e * vx;
+                }
             }
             if (Math.abs(vx) <= 0.002)
                 break;
@@ -5579,7 +5584,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     let speedTickCalibrationKey = '';
     function updateSpeedTickScales() {
         if (isProjector) return;
-        const key = [S.tableL,S.ballR,S.muRoll,S.muSlide,S.railRest].join('|');
+        const key = [S.tableType,S.tableL,S.ballR,S.muRoll,S.muSlide,S.railRest].join('|');
         if (key === speedTickCalibrationKey) return;
         speedTickCalibrationKey = key;
         const control=$('tableSpeed1'), min=Number(control.min), max=Number(control.max), steps=160, samples=[];
@@ -5616,7 +5621,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     }
     let shotBudgetFeelCache = null;
     function shotBudgetFeelReference() {
-        const key=[S.tableL,S.ballR,S.muRoll,S.muSlide,S.railRest].join('|');
+        const key=[S.tableType,S.tableL,S.ballR,S.muRoll,S.muSlide,S.railRest].join('|');
         if (!shotBudgetFeelCache || shotBudgetFeelCache.key!==key) {
             const table=[];
             for(let i=0;i<=128;i++) {
@@ -5731,7 +5736,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const nap=S.tableType==='snooker'?S.clothNap:0;
         const geometry=pocketModel();
         // Marked-ball spin-down on snooker cloth, Mathavan et al., Robotic Billiards (section III).
-        const measuredSpinDecay=window.BilliardsInternational.tables[S.tableType]?.spinDeceleration;
+        const tablePhysics=window.BilliardsInternational.tables[S.tableType];
+        const spinDecay=tablePhysics?.spinDeceleration ?? (5*(tablePhysics?.muSpin ?? APK.muSpinning)*g)/(2*R);
+        // Van Balen, A Virtual Billiard Assistant, §2.2: one carom spin law in slide and roll.
+        const slideSpinFactor=tablePhysics?.muSpin !== undefined ? 1 : PHYSICS_MODEL.slidingSpinDecayFactor;
         const noseHeight=geometry.nose||2*R*PHYSICS_MODEL.cushionNoseHeightD;
         const roundedJaws=window.BilliardsTableConstruction.roundedJaws(geometry);
         const jaws=roundedJaws.length?roundedJaws.map(({points})=>({
@@ -5819,10 +5827,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             // APK state behavior: vertical-axis spin decays at only 25% of the
             // full spinning-friction rate while the ball is sliding, then at the
             // full rate once rolling/no-slip motion is reached.
-            const alphaZ = measuredSpinDecay ?? (5 * APK.muSpinning * g) / (2 * R);
             const rollingTime = Math.max(0, dt - slidingTime);
-            const spinDecayTime = PHYSICS_MODEL.slidingSpinDecayFactor * slidingTime + rollingTime;
-            b.wz = approach(b.wz, 0, alphaZ * spinDecayTime);
+            const spinDecayTime = slideSpinFactor * slidingTime + rollingTime;
+            b.wz = approach(b.wz, 0, spinDecay * spinDecayTime);
         }
         let maxCueHeight = R, airborneDistance = 0, bedBounceCount = 0;
         function bedHit(b, initial = false) {
@@ -5877,29 +5884,33 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             // Normal impulse / rebound.
             railEvents.push({id:b.id,x:b.x,y:b.y,t:impactTime,rail:name});
             paths[b.id].push({x:b.x,y:b.y,z:b.z,t:impactTime});
-            const jn = -(1 + S.railRest) * vn;
-            b.vx += jn * nx;
-            b.vy += jn * ny;
-            // Tangential contact speed at the rail-contact point.
-            // With our screen-coordinate convention, positive UI RIGHT English is stored
-            // as negative wz. This term then makes a right-English hit on the right long
-            // rail push the rebound toward the shooter's right, as on a real table.
-            const vt = b.vx * tx + b.vy * ty;
-            const uContact = vt - R * b.wz;
-            // Coulomb-limited friction impulse. A solid sphere has I=2/5 mR^2, giving
-            // effective tangential mass denominator 1 + R^2/I = 3.5 (m normalized to 1).
-            let jt = -uContact / 3.5;
-            const railMu = .18;
-            jt = clamp(jt, -railMu * Math.abs(jn), railMu * Math.abs(jn));
-            b.vx += jt * tx;
-            b.vy += jt * ty;
-            b.wz -= 2.5 * jt / R;
-            // APK-informed cushion losses.
-            const vtAfter = b.vx * tx + b.vy * ty, vnAfter = b.vx * nx + b.vy * ny;
-            const vtDamped = vtAfter * S.railTang;
-            b.vx = vnAfter * nx + vtDamped * tx;
-            b.vy = vnAfter * ny + vtDamped * ty;
-            b.wz *= 1 - APK.railSpinDamping;
+            const raisedNose = S.tableType === 'carom' && b.z <= R+1e-7 && Math.abs(b.vz)<1e-7 &&
+                window.BilliardsInternational.caromRebound(b,nx,ny,R,noseHeight,S.railRest,S.railTang);
+            if (!raisedNose) {
+                const jn = -(1 + S.railRest) * vn;
+                b.vx += jn * nx;
+                b.vy += jn * ny;
+                // Tangential contact speed at the rail-contact point.
+                // With our screen-coordinate convention, positive UI RIGHT English is stored
+                // as negative wz. This term then makes a right-English hit on the right long
+                // rail push the rebound toward the shooter's right, as on a real table.
+                const vt = b.vx * tx + b.vy * ty;
+                const uContact = vt - R * b.wz;
+                // Coulomb-limited friction impulse. A solid sphere has I=2/5 mR^2, giving
+                // effective tangential mass denominator 1 + R^2/I = 3.5 (m normalized to 1).
+                let jt = -uContact / 3.5;
+                const railMu = .18;
+                jt = clamp(jt, -railMu * Math.abs(jn), railMu * Math.abs(jn));
+                b.vx += jt * tx;
+                b.vy += jt * ty;
+                b.wz -= 2.5 * jt / R;
+                // APK-informed cushion losses.
+                const vtAfter = b.vx * tx + b.vy * ty, vnAfter = b.vx * nx + b.vy * ny;
+                const vtDamped = vtAfter * S.railTang;
+                b.vx = vnAfter * nx + vtDamped * tx;
+                b.vy = vnAfter * ny + vtDamped * ty;
+                b.wz *= 1 - APK.railSpinDamping;
+            }
             budget?.record(b, 'after', impactTime);
             if (firstEvent === '—')
                 firstEvent = `${b.n} → ${name}`;
@@ -9617,6 +9628,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 $('removeBall').textContent = 'Remove Ball';
             }
         }
+        const carom = window.BilliardsInternational.tables.carom;
+        $('caromClothRow').hidden = S.tableType !== 'carom';
+        $('caromCloth').value = S.muRoll === carom.muRoll ? 'standard' : S.muRoll === carom.fastMuRoll ? 'fast' : 'custom';
         $('clothNapRow').hidden=S.tableType!=='snooker';
         $('clothNap').value=Number((S.clothNap*100).toFixed(1));
         $('tableL').value = (S.tableL / inch).toFixed(2);
@@ -9713,7 +9727,20 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 $(mode === 'save' ? 'physicsPresetName' : 'physicsPresetList').focus();
             } catch (_) { status.textContent = 'Saved settings could not be read on this device.'; }
         }
+        $('caromCloth').onchange = () => {
+            if (S.tableType !== 'carom') return;
+            const profile = window.BilliardsInternational.tables.carom;
+            const muRoll = $('caromCloth').value === 'fast' ? profile.fastMuRoll : profile.muRoll;
+            if (!applyPhysicsSettings({...capturePhysicsSettings(),muRoll})) updateUI();
+        };
         $('physicsDefaults').onclick = () => {
+            if (S.tableType === 'carom') {
+                const profile = window.BilliardsInternational.tables.carom;
+                if (applyPhysicsSettings({...capturePhysicsSettings(defaultState()), tableL:profile.tableL, tableW:profile.tableW, ballR:profile.ballR, muRoll:profile.muRoll})) {
+                    close(); status.textContent = 'Standard carom settings restored.';
+                }
+                return;
+            }
             if (applyPhysicsSettings({...capturePhysicsSettings(defaultState()), tableL:80*.0254, tableW:40*.0254})) { close(); status.textContent = 'Default physics restored with a 7-foot Diamond 80×40 table. Named presets are kept.'; }
         };
         $('physicsSave').onclick = () => open('save');

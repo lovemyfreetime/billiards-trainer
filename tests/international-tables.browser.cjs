@@ -51,6 +51,15 @@ for(const key of Object.keys(international.setups)){
    assert.equal(state.ballR,expected.table.ballR);
   }
   await start('carom3');
+  const selectCloth = value => page.locator('#caromCloth').evaluate((el,v)=>{el.value=v;el.dispatchEvent(new Event('change',{bubbles:true}));},value);
+  assert.equal(await page.locator('#caromCloth').inputValue(),'standard');
+  await selectCloth('fast');
+  assert.equal((await capture()).state.muRoll,international.tables.carom.fastMuRoll);
+  await start('caromStraight');
+  await page.reload();
+  await page.waitForFunction(()=>window.billiardsTourBridge&&window.billiardsMenuReady);
+  assert.equal(await page.locator('#caromCloth').inputValue(),'fast');
+  await selectCloth('standard');
   const carom=await capture(),{tableL:L,tableW:W,ballR:R}=carom.state;
   for(const aim of [{x:0,y:0},{x:L/2,y:0},{x:L,y:W},{x:L/2,y:W}]){
    const saved=structuredClone(carom);
@@ -69,6 +78,7 @@ for(const key of Object.keys(international.setups)){
   await page.waitForFunction(()=>Billiards3D.renderedBalls().length===22&&Billiards3D.pocketGeometry().length===6);
   await page.evaluate(()=>document.getElementById('table3DToggle').click());
   await page.waitForFunction(()=>!Billiards3D.active);
+  assert.equal(await page.locator('#caromClothRow').evaluate(el=>el.hidden),true);
   const snooker=await capture();
  async function pocketProbe(from,aim){
   const saved=structuredClone(snooker);

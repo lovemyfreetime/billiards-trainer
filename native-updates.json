@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "6f439a477e7bed65833cd9924bd7dac25219c317f629ebf3b456d7cce667a5ea",
-  "sequence": 1795288510,
+  "version": "0a117d8ca2be3262293bd4fae924b8fd4c328c556f6fca5a672f5a258cc1cc21",
+  "sequence": 1795292506,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3781,8 +3781,8 @@
       "length": 78650
     },
     "index.html": {
-      "sha256": "94d7d1586665e968d2fb400498fa164fd2751915879188b2f95d9bd268a043a3",
-      "length": 1012654
+      "sha256": "0b260b269e89aca4316ca80f2f714ca960c1afb720e5cc1e0f259bcae0e57eac",
+      "length": 1014817
     },
     "install/android/index.html": {
       "sha256": "5af2961b4386233b6f9206577ee2acdd6b08068620c3f60c57b176c471ca3681",
@@ -3881,7 +3881,7 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "3f18f4c971c41273fdabc8743c68c1915bc0790afc9eacbcbde45f8b51e0c263",
+      "sha256": "9aae69829950d23e4cef1024b7a0233c6b85510eee086677c38aeb294e5c24fa",
       "length": 163728
     },
     "phone-play.css": {
@@ -5473,7 +5473,7 @@
       "length": 2434
     },
     "service-worker.js": {
-      "sha256": "89915fbf81e192dfd14debe5cb8e083964f2153ea99be8311493efb0945c830e",
+      "sha256": "96e38e142e69437f006677f71ddc5673b8d3592c25d15a7995f0552cba4fa034",
       "length": 7933
     },
     "shot-clock-dial.webp": {
@@ -5569,8 +5569,8 @@
       "length": 79579
     },
     "trainer-international.js": {
-      "sha256": "4c5cae591d3814590d397e8219f36ac959b7828c1d1c739d6bbc5661333ad18e",
-      "length": 4342
+      "sha256": "cfb6cf2f3ab024171b2887efd09b5ce86f3e2688e9c10301cec9f5c37baf94a0",
+      "length": 5882
     },
     "trainer-layout-files.js": {
       "sha256": "0e3e8b92a52b67e3708a294e25cce4e2035528ec7158a97b254850d28ed2b063",
@@ -5633,8 +5633,8 @@
       "length": 19558
     },
     "trainer-snooker-boundary.js": {
-      "sha256": "dd569f693148bb180441446bbbc832ef0c0e7865fbba38874e830ed413e4ac9b",
-      "length": 4864
+      "sha256": "4f520a6ab462f0718b38b849cc267c2d4af3a898247d98f83c4472d1c51ed974",
+      "length": 4931
     },
     "trainer-spin-lab.css": {
       "sha256": "3a1a0d67e0c7a7e147bb7e64797bcb0834ea06d8135c096c1abe99aff31e52c6",

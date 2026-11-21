@@ -72,6 +72,7 @@ function prepare(G,paths,planes){
    const t=Math.max(0,-dist/v);
    if(t>time || (hit&&t>=hit.t))continue;
    const coordinate=b[plane.along]+b['v'+plane.along]*t;
+   if(coordinate<0 || coordinate>(plane.along==='x'?L:W))continue;
    if(plane.spans.some(([a,c])=>coordinate>=a&&coordinate<=c))continue;
    hit={kind:'rail',t,plane,nx:plane.axis==='x'?plane.sign:0,ny:plane.axis==='y'?plane.sign:0};
   }

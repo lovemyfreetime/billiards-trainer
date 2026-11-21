@@ -38,4 +38,19 @@ assert.equal(gate.name,'TM');close(gate.t,(.20+depth)/3);
 assert.equal(gates.first(towards,.1,false),null);
 const atGate=prepare(G,[],[{axis:'y',along:'x',bound:-depth,sign:1,spans:[]}]);
 assert.equal(atGate.first(towards,.1,true).kind,'rail');
+// A ball already in the corner opening can cross a rail plane beyond its physical end.
+for (const axis of ['x','y']) {
+ const along=axis==='x'?'y':'x', limit=along==='x'?G.L:G.W;
+ for (const sign of [-1,1]) {
+  const bound=sign===1?R:(axis==='x'?G.L:G.W)-R;
+  const finite=prepare(G,[],[{axis,along,bound,sign,spans:[]}]);
+  for (const coordinate of [-.005,limit+.005]) {
+   const ball=shot(0,0,0,0);
+   ball[axis]=bound+sign*.001; ball[along]=coordinate; ball['v'+axis]=-sign;
+   assert.equal(finite.first(ball,.002,false),null);
+   ball[along]=limit/2;
+   assert.equal(finite.first(ball,.002,false).kind,'rail');
+  }
+ }
+}
 console.log('Snooker planar contacts passed face, cap, near miss, swept rebound, travel, six gates and simultaneous rail/gate checks.');

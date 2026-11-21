@@ -109,12 +109,29 @@ const {chromium} = require('playwright');
         return api.run().railEvents.slice(0,3);
       }
       const routes=[route(false),route(true)];
+      // billclub's carom film, launch at 20.40 s. Assume regulation dimensions
+      // and natural roll. Spin is fitted on second-rail location, not its time.
+      // Recorded second rail: 1.942 s. The old standard profile took 2.965 s.
+      const vx=-1.0388317474, vy=.3636707740, start=ball(0,.6996368006,.5262673311);
+      Object.assign(s,{balls:[start],speed:Math.hypot(vx,vy),freeAim:{x:start.x+vx,y:start.y+vy}});
+      const recordedRoute=[['standard',1.4375],['fast',1.46875]].map(([cloth,spin])=>{
+        s.muRoll=cloth==='fast'?BilliardsInternational.tables.carom.fastMuRoll:BilliardsInternational.tables.carom.muRoll;
+        window.measuredLaunch={vx,vy,vz:0,wx:-vy/R,wy:vx/R,wz:spin*s.speed/R};
+        const q=api.run();
+        return {cloth,events:q.railEvents.slice(0,2)};
+      });
+      delete window.measuredLaunch;
       const firstContactErrorMm=Math.abs(routes[0][0].x-(x+dx*(R-y)/dy))*1000;
-      return {spinDown,entries,shots,splitDeltaMm,splitRuns,splitIds,matchedContours,clearance,routes,firstContactErrorMm};
+      return {recordedRoute,spinDown,entries,shots,splitDeltaMm,splitRuns,splitIds,matchedContours,clearance,routes,firstContactErrorMm};
     });
     assert.deepEqual(errors,[]);
     console.log(JSON.stringify(result));
     if (!process.env.AUDIT_OBSERVE) {
+      for(const {cloth,events} of result.recordedRoute){
+        assert.deepEqual(events.map(e=>e.rail),['left rail','bottom rail']);
+        assert(Math.abs(events[1].x-.775)<.012,cloth+' second-cushion position');
+        assert(Math.abs(events[1].t-1.942)<(cloth==='fast'?.1:.2),cloth+' second-cushion timing');
+      }
       for(const sample of result.spinDown){
         assert(Math.abs(sample.atOne-(sample.start-Math.sign(sample.start)*22*sample.middleTime))<1e-6);
         assert(Math.abs(sample.stop-2)<=.004);
