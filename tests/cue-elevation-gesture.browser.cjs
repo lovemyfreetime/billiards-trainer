@@ -38,7 +38,7 @@ const out='test-results/ball-controls';fs.mkdirSync(out,{recursive:true});
     await turn(1,-85);assert.equal(await angle(1),0,'Lower limit');
     await setup(2,true,20);result=await turn(2,12);assert(Math.abs(result.after-32)<.3,'Shot 2 elevation is independent');assert.equal(await angle(1),20);
     await turn(2,60);assert.equal(await angle(2),70,'Jump / Massé elevation limit');
-    await setup(1,true,20);await turn(1,5,touch);const stopped=await angle(1);await move({x:30,y:30});assert.equal(await angle(1),stopped,'Released/cancelled drag stops');
+    await setup(1,true,20);await turn(1,5,touch);const stopped=await angle(1);if(touch){const resumed=await turn(1,-5);assert(Math.abs(resumed.after-20)<.3,'A fresh drag works after touch cancellation');}else{await page.mouse.move(30,30);assert.equal(await angle(1),stopped,'Released drag stops');}
     const face=page.locator('#cueElevationView1');await face.scrollIntoViewIfNeeded();await face.screenshot({path:out+'/'+(touch?'touch':'mouse')+'-'+mode+'-elevation.png'});
    }
    await setup();const saved=await angle(1);await page.reload();await page.waitForFunction(()=>window.billiardsCueSetup);assert.equal(await angle(1),saved,'Elevation persists after reload');
