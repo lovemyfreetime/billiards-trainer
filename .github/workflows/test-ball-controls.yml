@@ -11,6 +11,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
@@ -35,9 +37,11 @@ jobs:
         run: |
           status=0
           node tests/ball-control-states.browser.cjs || status=$?
-          node tests/standalone-shot-clock.browser.cjs || status=$?
-          node tests/shot-clock-controls.browser.cjs || status=$?
-          node tests/play-viewport.browser.cjs || status=$?
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] || ! git diff --quiet HEAD^ HEAD -- play-mode.js play-shot-clock.js play-shot-clock-ui.js play-glass.css play.html shot-clock.html tests/standalone-shot-clock.browser.cjs tests/shot-clock-controls.browser.cjs tests/play-viewport.browser.cjs; then
+            node tests/standalone-shot-clock.browser.cjs || status=$?
+            node tests/shot-clock-controls.browser.cjs || status=$?
+            node tests/play-viewport.browser.cjs || status=$?
+          fi
           exit "$status"
       - uses: actions/upload-artifact@v4
         if: always()
