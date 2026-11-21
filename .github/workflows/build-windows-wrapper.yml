@@ -9,6 +9,8 @@ on:
       - '.github/workflows/build-windows-wrapper.yml'
       - 'local-host/browser.cjs'
       - 'tests/play-viewport.browser.cjs'
+      - 'app-viewport.js'
+      - 'play-viewport.js'
       - 'play-glass.css'
       - 'play-mode.js'
       - 'play-presentation.js'

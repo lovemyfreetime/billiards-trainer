@@ -241,7 +241,10 @@ function init(){
   const drills=text('section');N.attach(drills,'drill-help');drills.append(text('h3','Individual & group drills'));const names=document.createElement('input');names.setAttribute('aria-label','Drill player names');names.placeholder='Names separated by commas';names.value=drillState?.names.join(', ')||state?.players.map(p=>p.name).join(', ')||'Player 1';const tries=number('Attempts per set',drillState?.size||10,1,100),sets=number('Sets',drillState?.sets||3,1,100);drills.append(names,tries.l,sets.l,button('Start new drill',()=>{try{drillState=T.drill(names.value.split(','),+tries.i.value,+sets.i.value);drillHistory=[];saveTools();drawDrill();}catch(e){$('playNotice').textContent=e.message;}}));const output=text('div');output.id='playDrillStatus';drills.append(output,button('Drill made',()=>inputs.dispatch({type:'drill-made'})),button('Drill miss',()=>inputs.dispatch({type:'drill-miss'})),button('Undo drill attempt',()=>{if(drillHistory.length){drillState=drillHistory.pop();saveTools();drawDrill();}}));const calibration=text('a','Guided table calibration');calibration.href='./play-calibration.html';toolDialog.append(calibration);toolDialog.append(drills);
   const manage=text('section','','play-tool-panel');manage.append(...toolDialog.querySelectorAll(':scope > a'));toolDialog.append(manage);
   const tabs=text('nav','','play-tool-tabs');tabs.setAttribute('aria-label','Table tools sections');
-  const panels=[controls,drills,manage],labels=['Clicker & voice','Drills','Saved data & calibration'];
+  const voicePanel=text('section','','play-tool-panel');voicePanel.append(text('h3','Voice commands'));
+  const voiceStart=[...controls.children].find(node=>node.tagName==='P'&&node.textContent.startsWith('Voice commands start'));
+  for(let node=voiceStart;node;){const next=node.nextElementSibling;voicePanel.append(node);node=next;}toolDialog.append(voicePanel);
+  const panels=[controls,voicePanel,drills,manage],labels=['Clicker','Voice','Drills','Saved data & calibration'];
   const select=index=>{panels.forEach((panel,i)=>{panel.hidden=i!==index;tabs.children[i].setAttribute('aria-pressed',String(i===index));});};
   panels.forEach((panel,index)=>{panel.classList.add('play-tool-panel');tabs.append(button(labels[index],()=>select(index)));});top.after(tabs);select(0);drawDrill();toolDialog.showModal();
  }

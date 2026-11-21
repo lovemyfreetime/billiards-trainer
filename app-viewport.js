@@ -26,10 +26,13 @@
   meta.content=`width=${layoutWidth}, height=${layoutHeight}, initial-scale=${scale.toFixed(6)}, viewport-fit=cover`;
  }
  function schedule(){if(!pending){pending=true;requestAnimationFrame(fit);}}
+ function refitFullscreen(){lastWidth=0;lastHeight=0;meta.content=original;schedule();}
  fit();
  addEventListener('resize',schedule);
  addEventListener('orientationchange',schedule);
  addEventListener('pageshow',schedule);
+ document.addEventListener('fullscreenchange',refitFullscreen);
+ document.addEventListener('webkitfullscreenchange',refitFullscreen);
  document.addEventListener('DOMContentLoaded',schedule,{once:true});
  window.visualViewport?.addEventListener('resize',schedule);
 })();

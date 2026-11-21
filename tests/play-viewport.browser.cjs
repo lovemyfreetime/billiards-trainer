@@ -9,8 +9,9 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),{cre
   const result=await page.locator(selector).evaluate(root=>{
    const v=window.visualViewport,w=v?.width||innerWidth,h=v?.height||innerHeight;
    const bad=[...root.querySelectorAll('button,a,summary,input,select')].filter(e=>e.getClientRects().length&&getComputedStyle(e).visibility!=='hidden'&&!e.closest('[hidden]')).map(e=>({label:e.textContent.trim()||e.getAttribute('aria-label'),r:e.getBoundingClientRect().toJSON()})).filter(x=>x.r.width&&x.r.height&&(x.r.left<-.5||x.r.top<-.5||x.r.right>w+1||x.r.bottom>h+1));
-   return {w,h,bad,client:root.clientHeight,scroll:root.scrollHeight};
+   const cards=[...root.querySelectorAll('.play-home-family')].map(e=>e.getBoundingClientRect()),collision=cards.some((a,i)=>cards.slice(i+1).some(b=>a.left<b.right-1&&a.right>b.left+1&&a.top<b.bottom-1&&a.bottom>b.top+1));return {w,h,bad,client:root.clientHeight,scroll:root.scrollHeight,collision};
   });
+  assert.equal(result.collision,false,label+' overlapping main cards');
   assert.deepEqual(result.bad,[],label+' offscreen controls '+JSON.stringify(result));
   assert(result.scroll<=result.client+2,label+' has vertical overflow '+JSON.stringify(result));
  }
@@ -32,7 +33,7 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),{cre
    }
    await page.goto(base+'/play.html');await page.getByRole('button',{name:'Tools & voice',exact:true}).click();
    const toolTabs=page.locator('.play-tool-tabs button');for(let i=0;i<await toolTabs.count();i++){await toolTabs.nth(i).click();await fits(page,'.play-tools-dialog','Tools tab '+i+' '+JSON.stringify(spec));}
-   await page.locator('.play-tools-top').getByRole('button',{name:'Back to table',exact:true}).click();
+   await page.locator('.play-tools-top').getByRole('button',{name:'Back to table',exact:true}).click();await fits(page,'#playDialog','Home after fullscreen '+JSON.stringify(spec));
    await page.goto(base+'/play.html?catalog=all');await fits(page,'#playDialog','All 20 '+JSON.stringify(spec));assert.equal(await page.locator('.play-game-tile').count(),20);assert(await page.locator('.play-catalog-nav').evaluate(e=>e.getBoundingClientRect().bottom>=(window.visualViewport?.height||innerHeight)-24),'Catalogue must fill the viewport');
    await page.locator('.play-game-tile[data-game=kelly]').click();await fits(page,'#playDialog','Setup '+JSON.stringify(spec));
    await page.goto(base+'/shot-clock.html');await fits(page,'.sc-layout','Clock '+JSON.stringify(spec));
