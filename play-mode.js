@@ -92,7 +92,7 @@ function init(){
   const family=P.groups.find(g=>g.id===id);if(!family){setup();return;}familyReturn=id;
   openDialog(family.name);dialog.className='play-family-page';dialog.dataset.family=id;dialog.replaceChildren();dialog.setAttribute('aria-labelledby','playFamilyTitle');document.title=family.name+' · Billiards Play';
   const top=text('header','','play-home-top play-family-top'),brand=text('div','Billiards ','play-home-brand'),nav=text('nav','','play-family-nav');brand.append(text('span','Trainer','trainer-title-color'));nav.setAttribute('aria-label',family.name+' navigation');
-  nav.append(selectionLink('Back to Billiards Play',selectionHref(null)),selectionLink('All 20 games',selectionHref(null,true)),button('Shot Clock',()=>openClock(true)));top.append(brand,nav);dialog.append(top);
+  nav.append(selectionLink('Back to Billiards Play',selectionHref(null)),selectionLink('All 20 games',selectionHref(null,true)));top.append(brand,nav);dialog.append(top);
   const intro=text('div','','play-family-intro'),title=text('h1',family.name);title.id='playFamilyTitle';
   const descriptions={secret:'Hidden targets. Shared suspense.',pub:'Friendly rivalries. One more round.',cards:'Play the table. Read the possibilities.',tactical:'A little strategy. A different kind of challenge.'};
   intro.append(title,text('p',descriptions[id]));dialog.append(intro);

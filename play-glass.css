@@ -274,14 +274,15 @@ body.play-mode{background:#111b19}
 #playRoot #playDialog.play-catalog-dialog{width:100%;max-width:100%;height:var(--play-height,100dvh);max-height:var(--play-height,100dvh);padding:14px 20px 12px;border:0;border-radius:0;box-shadow:none}
 #playRoot #playDialog.play-catalog-dialog .play-catalog-heading{margin-left:60px;margin-right:120px}
 #playRoot #playDialog.play-family-page .play-family-intro{width:100%;padding-inline:4%}
+#playRoot #playDialog.play-family-page .play-home-top.play-family-top{padding-left:calc(76px + env(safe-area-inset-left))}
 #playRoot #playDialog.play-family-page .play-family-stage{width:100%;max-width:none;--play-family-scale:1}
 #playRoot #playDialog.play-family-page .play-family-game{position:absolute;width:calc(340px*var(--play-family-scale));height:calc(168px*var(--play-family-scale));min-width:0;max-width:none;inset:auto;align-self:auto}
 #playRoot #playDialog.play-family-page .play-family-game>.play-game-card{width:340px;height:168px;transform:scale(var(--play-family-scale));transform-origin:top left}
 #playRoot #playDialog.play-family-page .play-family-game .play-game-tile{height:168px;width:340px;padding:18px;min-height:0}
-#playRoot #playDialog.play-family-page .play-family-game:nth-child(1){left:3%;top:6%;right:auto;bottom:auto}
-#playRoot #playDialog.play-family-page .play-family-game:nth-child(2){right:3%;top:3%;left:auto;bottom:auto}
-#playRoot #playDialog.play-family-page .play-family-game:nth-child(3){left:5%;bottom:5%;right:auto;top:auto}
-#playRoot #playDialog.play-family-page .play-family-game:nth-child(4){right:5%;bottom:2%;left:auto;top:auto}
+#playRoot #playDialog.play-family-page .play-family-game:nth-child(1){left:calc(50% - 523.6px*var(--play-family-scale));top:calc(50% - 201.6px*var(--play-family-scale));right:auto;bottom:auto}
+#playRoot #playDialog.play-family-page .play-family-game:nth-child(2){right:calc(50% - 523.6px*var(--play-family-scale));top:calc(50% - 215.04px*var(--play-family-scale));left:auto;bottom:auto}
+#playRoot #playDialog.play-family-page .play-family-game:nth-child(3){left:calc(50% - 523.6px*var(--play-family-scale));bottom:calc(50% - 201.6px*var(--play-family-scale));right:auto;top:auto}
+#playRoot #playDialog.play-family-page .play-family-game:nth-child(4){right:calc(50% - 523.6px*var(--play-family-scale));bottom:calc(50% - 215.04px*var(--play-family-scale));left:auto;top:auto}
 #playRoot #playDialog.play-family-page .play-family-game:nth-child(5){left:50%;top:50%;right:auto;bottom:auto;transform:translate(-50%,-50%)}
 @media(max-height:720px){#playRoot #playDialog.play-catalog-dialog .play-catalog-heading{margin-right:120px}#playRoot #playDialog.play-home-dialog .play-home-pub{top:60%}}
 #playRoot #playDialog.play-catalog-dialog .play-game-grid{grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(4,minmax(0,1fr));gap:10px}

@@ -35,6 +35,12 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),{cre
     assert.equal(await page.locator('.play-family-game').count(),5);
     const collision=await page.locator('.play-family-game').evaluateAll(nodes=>nodes.some((a,i)=>nodes.slice(i+1).some(b=>{const ar=a.getBoundingClientRect(),br=b.getBoundingClientRect();return ar.left<br.right-1&&ar.right>br.left+1&&ar.top<br.bottom-1&&ar.bottom>br.top+1;})));
     assert.equal(collision,false,'Category cards overlap '+JSON.stringify(spec));
+    const composition=await page.locator('.play-family-stage').evaluate(stage=>{
+     const board=stage.getBoundingClientRect(),cards=[...stage.querySelectorAll('.play-family-game')].map(e=>e.getBoundingClientRect()),middle=cards[4];
+     return {centerError:Math.max(Math.abs(middle.left+middle.width/2-board.left-board.width/2),Math.abs(middle.top+middle.height/2-board.top-board.height/2)),span:Math.max(...cards.map(r=>r.right))-Math.min(...cards.map(r=>r.left)),cardWidth:middle.width};
+    });
+    assert(composition.centerError<1,'Fifth game must remain centered '+JSON.stringify(spec));
+    assert(composition.span<=composition.cardWidth*3.2,'Outer games must form a compact group '+JSON.stringify(spec));
    }
    await page.goto(base+'/play.html');await page.getByRole('button',{name:'Tools & voice',exact:true}).click();
    const toolTabs=page.locator('.play-tool-tabs button');for(let i=0;i<await toolTabs.count();i++){await toolTabs.nth(i).click();await fits(page,'.play-tools-dialog','Tools tab '+i+' '+JSON.stringify(spec));}
