@@ -107,7 +107,7 @@
   rackToggle.title=rack==='Custom'?'Choose a rack':'Choose a rack · Current '+rack;
   const enabled=api.status().enabled,selection=mode==='any'?'Any Ball':label;
   orderButton.dataset.enabled=String(enabled);
-  orderButton.dataset.shotOrder=enabled?'On · '+selection:'Off';
+  orderButton.dataset.shotOrder=enabled?selection:'Off';
   orderButton.setAttribute('aria-label','Ball Detection: '+(enabled?'On, '+selection:'Off'));
   for(const b of detectionChoices){b.setAttribute('aria-pressed',String((b.dataset.detection==='on')===enabled));b.disabled=!!window.billiards3DBallControls?.status()?.busy;}
   for(const b of orderChoices)b.setAttribute('aria-pressed',String(b.dataset.order===mode));
