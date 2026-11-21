@@ -69,6 +69,7 @@
  const rackButtons=Object.entries(labels).map(([value,label],i)=>{const b=document.createElement('button');b.type='button';b.dataset.rack=value;b.textContent=label;const option=[...document.getElementById('fullRackSelect').options].find(o=>o.value===value);b.setAttribute('aria-label','Set up '+option.textContent);const a=(-90+i*45)*Math.PI/180;b.style.left=(50+37*Math.cos(a))+'%';b.style.top=(50+37*Math.sin(a))+'%';b.onclick=()=>{if(window.billiards3DBallControls?.status().busy)return;const select=document.getElementById('fullRackSelect');select.value=value;select.dispatchEvent(new Event('change',{bubbles:true}));document.getElementById('startFullRack').click();closePopovers();syncBallTools();};rackMenu.append(b);return b;});
  const orderButton=action('Ball Detection','Choose which balls shot guidance can suggest',()=>togglePopover(orderMenu,orderButton));
  orderButton.id='table3DShotOrder';orderButton.setAttribute('aria-expanded','false');orderButton.setAttribute('aria-controls','table3DOrderMenu');
+ orderButton.innerHTML='<span class="ballDetectionLabel">Ball Detection</span>';
  let askedForPlan=false;
  const planButton=action('Plan','Plan a runout',()=>{
   const api=window.billiardsGuidance,job=api.runoutStatus();

@@ -574,7 +574,9 @@ body.trainer-workspace #workspaceBallShelf #table3DShotOrder[data-enabled=false]
 body.trainer-workspace #workspaceBallShelf #table3DShotOrder[data-enabled=true] {
   background:var(--ball-state-on);color:var(--ball-state-on-ink);border-color:var(--ball-state-on-edge);
 }
-body.trainer-workspace #table3DShotOrder::after { color:inherit; }
+body.trainer-workspace #table3DShotOrder { width:var(--tray-control-width);min-width:var(--tray-control-width);height:var(--tray-control-height);min-height:var(--tray-control-height);padding:4px;font-size:10px;white-space:nowrap; }
+body.trainer-workspace #table3DShotOrder .ballDetectionLabel { font:600 10px/1.1 system-ui;white-space:nowrap; }
+body.trainer-workspace #table3DShotOrder::after { color:inherit;white-space:nowrap; }
 body.trainer-workspace #table3DOrderMenu .ballDetectionPower { grid-template-columns:1fr 1fr;gap:6px; }
 .ballLockLabel { display:grid; text-align:left; font-size:8px; line-height:1.2; white-space:nowrap; }
 .ballLockLabel strong { font-size:9px; }
