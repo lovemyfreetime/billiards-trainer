@@ -26,16 +26,26 @@ function roundedJaws(G){
  }
  return paths;
 }
-// The nose is the collision curve. Its backing extends only toward the rail.
+// Sweep the straight cushion's section into the throat. The backing turns
+// toward the rail as the nose turns outward, without changing normal sign.
 function jawSections(jaw,plan){
- const {points,outward}=jaw;
+ const {points,outward}=jaw,first=points[0],last=points.at(-1);
+ const x=first.x-plan.L/2,z=first.y-plan.W/2;
+ const rail=plan.rails.find(r=>[r.a,r.b].some(([a,b])=>Math.hypot(a-x,b-z)<1e-7));
+ const end=Math.hypot(rail.b[0]-x,rail.b[1]-z)<1e-7?1:0;
+ const start=rail.at(end,rail.depth,plan.capHeight);
+ const alongX=outward.x===0?Math.sign(last.x-first.x):0;
+ const alongY=outward.y===0?Math.sign(last.y-first.y):0;
+ const along=(last.x-first.x)*alongX+(last.y-first.y)*alongY;
+ const throatDepth=(last.x-first.x)*outward.x+(last.y-first.y)*outward.y;
+ const tipDepth=Math.min(rail.depth*.28,along*.75);
+ const rearDepth=Math.max(rail.depth,throatDepth)+.002;
+ const rear=[x+alongX*(along-tipDepth)+outward.x*rearDepth,
+  z+alongY*(along-tipDepth)+outward.y*rearDepth];
  return points.map((point,i)=>{
-  const a=points[Math.max(0,i-1)],b=points[Math.min(points.length-1,i+1)];
-  const dx=b.x-a.x,dy=b.y-a.y,length=Math.hypot(dx,dy);
-  const sign=dy*outward.x-dx*outward.y<0?-1:1;
-  const depth=plan.cushionWidth*(1-.8*i/(points.length-1));
-  const nose=[point.x-plan.L/2,plan.noseHeight,point.y-plan.W/2];
-  return {nose,back:[nose[0]+sign*dy/length*depth,plan.capHeight,nose[2]-sign*dx/length*depth]};
+  const t=i/(points.length-1),nose=[point.x-plan.L/2,plan.noseHeight,point.y-plan.W/2];
+  const back=[start[0]+t*(rear[0]-start[0]),plan.capHeight,start[2]+t*(rear[1]-start[2])];
+  return {nose,back};
  });
 }
 function pocketlessPlan(f,ref,G){
@@ -71,6 +81,9 @@ function plan(f){
  const capHeight=.044,noseHeight=G.nose||f.R*2*.635;
  const rails=ref.rails.map(q=>{
   const [a,b]=q.fore.map(p=>pixel(p)),back=q.back.map(p=>pixel(p)),length=Math.hypot(b[0]-a[0],b[2]-a[2]),u=[(b[0]-a[0])/length,(b[2]-a[2])/length],n=[u[1],-u[0]],depth=Math.abs((back[0][0]-a[0])*n[0]+(back[0][2]-a[2])*n[1]);
+  if(G.type==='snooker')for(const [i,fore] of [a,b].entries()){
+   back[i]=[fore[0]+n[0]*depth,0,fore[2]+n[1]*depth];
+  }
   const at=(end,v,h)=>{const fore=end?b:a,t=v/depth;return [fore[0]+(back[end][0]-fore[0])*t,h,fore[2]+(back[end][2]-fore[2])*t];};
   return {a:[a[0],a[2]],b:[b[0],b[2]],back,n,u,length,depth,pocket:q.pocket,at};
  });
@@ -80,21 +93,51 @@ function plan(f){
   return {id:i+1,corner,n,t,origin,center,centerN:c[0],centerT:c[1],contour,source:q,at,local};
  });
  const inside=[];
+ const throats=new Map();
+ const anchor=(x,z)=>x.toFixed(7)+','+z.toFixed(7);
+ if(G.type==='snooker' && Number.isFinite(G.sideJawOut)){
+  for(const jaw of roundedJaws({...G,L:f.L,W:f.W})){
+   const rows=jawSections(jaw,{L:f.L,W:f.W,rails,noseHeight,capHeight});
+   const first=rows[0].nose;
+   throats.set(anchor(first[0],first[2]),rows.at(-1));
+  }
+ }
  rails.forEach((r,i)=>{
-  const a=r.at(0,r.depth,capHeight),b=r.at(1,r.depth,capHeight),next=rails[(i+1)%6].at(0,rails[(i+1)%6].depth,capHeight),p=pockets[r.pocket-1],q=p.source;
-  const angle=v=>Math.atan2(v[2]-p.center[2],v[0]-p.center[0]),start=angle(b),finish=angle(next),tau=Math.PI*2;
+  const following=rails[(i+1)%6],p=pockets[r.pocket-1];
+  const left=throats.get(anchor(...r.b)),right=throats.get(anchor(...following.a));
+  const a=r.at(0,r.depth,capHeight),end=r.at(1,r.depth,capHeight);
+  const b=left?.back||end,next=right?.back||following.at(0,following.depth,capHeight);
+  const angle=v=>Math.atan2(v[2]-p.center[2],v[0]-p.center[0]),start=angle(left?.nose||b),finish=angle(right?.nose||next),tau=Math.PI*2;
   let sweep=(finish-start+tau)%tau;
   const polar=p.contour.map(v=>({v,theta:(angle(v)-start+tau)%tau})).sort((a,b)=>a.theta-b.theta);
   const onRay=theta=>{const dx=Math.cos(theta),dz=Math.sin(theta),cross=(x,z,u,v)=>x*v-z*u;let distance=Infinity;for(let j=0;j<p.contour.length;j++){const a=p.contour[j],b=p.contour[(j+1)%p.contour.length],x=a[0]-p.center[0],z=a[2]-p.center[2],sx=b[0]-a[0],sz=b[2]-a[2],den=cross(dx,dz,sx,sz);if(Math.abs(den)<1e-12)continue;const r=cross(x,z,sx,sz)/den,t=cross(x,z,dx,dz)/den;if(r>=0&&t>=-1e-8&&t<=1+1e-8)distance=Math.min(distance,r);}return [p.center[0]+dx*distance,capHeight,p.center[2]+dz*distance];};
-  const innerStart=onRay(start),innerEnd=onRay(finish);
-  p.innerBackPath=[innerStart,...polar.filter(v=>v.theta>1e-5&&v.theta<sweep-1e-5).map(v=>[v.v[0],capHeight,v.v[2]]),innerEnd];
+  const lipEnd=row=>[row.nose[0],capHeight,row.nose[2]];
+  const innerStart=left?lipEnd(left):onRay(start),innerEnd=right?lipEnd(right):onRay(finish);
+  // Blend the traced liner into the physical throat at both ends. Keeping
+  // the next stock tracing point unadjusted would leave a notch at the joint.
+  const refStart=left?onRay(start):innerStart,refEnd=right?onRay(finish):innerEnd;
+  function contourPoint(sample,t,h){
+   const v=sample.v,a=(1-t)**3,b=t**3;
+   return [v[0]+a*(innerStart[0]-refStart[0])+b*(innerEnd[0]-refEnd[0]),h,
+    v[2]+a*(innerStart[2]-refStart[2])+b*(innerEnd[2]-refEnd[2])];
+  }
+  p.innerBackPath=[innerStart,...polar.filter(v=>v.theta>1e-5&&v.theta<sweep-1e-5).map(v=>contourPoint(v,v.theta/sweep,capHeight)),innerEnd];
   const firstWidth=(b[0]-innerStart[0])*Math.cos(start)+(b[2]-innerStart[2])*Math.sin(start),lastWidth=(next[0]-innerEnd[0])*Math.cos(finish)+(next[2]-innerEnd[2])*Math.sin(finish),middleWidth=ref.rimWidth*f.L/(A.x1-A.x0);
   p.backPath=p.innerBackPath.map((v,j)=>{if(j===0)return b;if(j===p.innerBackPath.length-1)return next;const t=j/(p.innerBackPath.length-1),width=(1-t)*firstWidth+t*lastWidth+Math.sin(Math.PI*t)*(middleWidth-(firstWidth+lastWidth)/2),dx=v[0]-p.center[0],dz=v[2]-p.center[2],length=Math.hypot(dx,dz);return [v[0]+dx/length*width,capHeight,v[2]+dz/length*width];});
-  p.frontPath=[[innerEnd[0],0,innerEnd[2]],...polar.filter(v=>v.theta>sweep+1e-5).map(v=>v.v),[innerStart[0],0,innerStart[2]]];
+  if(left && right){
+   const residue=(back,inner,angle,width)=>[back[0]-inner[0]-Math.cos(angle)*width,back[2]-inner[2]-Math.sin(angle)*width];
+   const first=residue(b,innerStart,start,firstWidth),last=residue(next,innerEnd,finish,lastWidth);
+   for(let j=1;j<p.backPath.length-1;j++){
+    const t=j/(p.backPath.length-1),v=p.backPath[j];
+    v[0]+=first[0]*(1-t)**3+last[0]*t**3;
+    v[2]+=first[1]*(1-t)**3+last[1]*t**3;
+   }
+  }
+  p.frontPath=[[innerEnd[0],0,innerEnd[2]],...polar.filter(v=>v.theta>sweep+1e-5).map(v=>contourPoint(v,(tau-v.theta)/(tau-sweep),0)),[innerStart[0],0,innerStart[2]]];
   p.dropPath=[...p.backPath,...p.frontPath.slice(1)];p.innerRear=Math.max(...p.innerBackPath.map(v=>p.local(v)[0]));
   const nose=r.at(1,0,noseHeight),nose2=rails[(i+1)%6].at(0,0,noseHeight),foreN=(p.local(nose)[0]+p.local(nose2)[0])/2;
   p.front=Math.min(...p.frontPath.map(v=>p.local(v)[0]));p.rear=Math.max(...p.backPath.map(v=>p.local(v)[0]));p.shelf=p.front-foreN;p.visualMouth=Math.hypot(nose[0]-nose2[0],nose[2]-nose2[2]);
-  inside.push(a,b,...p.backPath.slice(1));
+  inside.push(a,end,...(left?[b]:[]),...p.backPath.slice(1));
  });
  const cushionWidth=rails.reduce((n,r)=>n+r.depth,0)/6;
  const profile=[[0,noseHeight],[.02,noseHeight+.0017],[.07,noseHeight+.0030],[.25,noseHeight+.0049],[1,capHeight],[1,.003],[.18,.008],[.05,noseHeight-.004],[.01,noseHeight-.0015]];

@@ -1645,9 +1645,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
       <div class="tableControlGroup layoutSetupGroup" id="fullRackGroup"><div class="tableControlTitle">PICK AND PLAY FULL RACKS</div>
         <div class="layoutSetupSelect"><select id="fullRackSelect" aria-label="Pick and play full rack">
           <option value="rack3">3-Ball — Original</option><option value="rack3-crosswise">3-Ball — Crosswise</option><option value="rack3-backwards">3-Ball — Backwards</option><option value="rack3-straight">3-Ball — Straight</option><option value="rack3-ll" title="Tight triangle, 3-ball left of the 1–2 line viewed from the breaker">3-Ball — Left</option><option value="rack3-lr" title="Tight triangle, 3-ball right of the 1–2 line viewed from the breaker">3-Ball — Right</option><option value="rack6">6-Ball</option><option value="rack7">7-Ball</option><option value="rack8" selected>8-Ball</option><option value="rack9">9-Ball</option><option value="rack10">10-Ball</option><option value="ultimate8">Ultimate 8 Ball</option><option value="straight14">Straight Pool — 14 Balls (Open Front)</option>
-          <optgroup label="International practice (experimental)">
-            <option value="carom3">Three-Cushion</option><option value="caromStraight">Straight Rail</option><option value="carom4">Four-Ball Carom</option>
-            <option value="snooker15">15-Red Snooker</option><option value="snookerPlus">Snooker Plus</option><option value="englishBilliards">English Billiards</option>
+          <optgroup label="International practice">
+            <option value="carom3">Three-Cushion</option><option value="caromStraight">Straight Rail</option><option value="caromSmall">Straight Rail — Small Table</option><option value="caromHalf">One-Cushion — Half-Match Table</option><option value="carom4">Four-Ball Carom</option>
+            <option value="snooker15">15-Red Snooker</option><option value="snooker6">Six-Red Snooker</option><option value="snookerPlus">Snooker Plus</option><option value="englishBilliards">English Billiards</option>
             <option value="blackballRY">Blackball — Red / Yellow</option><option value="blackballBY">Blackball — Blue / Yellow</option><option value="pyramid15">Russian Pyramid</option>
           </optgroup>
         </select></div>
@@ -1996,6 +1996,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         </div>
         <div class="hint" id="physicsPresetStatus" role="status" aria-live="polite"></div>
         <div class="tableControlTitle">TABLE SIZE &amp; BALLS</div>
+        <label for="equipmentRack">International table setup</label>
+        <div class="layoutSetupSelect"><select id="equipmentRack" aria-label="International table setup"></select></div>
+        <div class="buttons"><button id="applyEquipmentRack" type="button">Start selected setup</button></div>
+        <div id="equipmentSummary" class="hint"></div>
         <div class="row"><label>Playing length (in)</label><input id="tableL" type="number" min="60" max="145" step="0.01"></div>
         <div class="row"><label>Playing width (in)</label><input id="tableW" type="number" min="30" max="73" step="0.01"></div>
         <div class="row"><label>Ball diameter (in)</label><input id="ballD" type="number" min="1.5" max="3" step="0.001"></div>
@@ -3900,7 +3904,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         S.bankKick=defaultState().bankKick;
         S.angleLock=false;
         S.ghostLock=null;
-        S.freeAim={x:S.tableL*.75,y:S.tableW/2};
+        S.freeAim=rack.aim||{x:S.tableL*.75,y:S.tableW/2};
         finishRackSetup(rack.balls,rack.name+' practice setup ready','custom',choice);
     }
     function restorePoolEquipment() {
@@ -7205,17 +7209,17 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         ctx.restore();
     }
 
-    let snookerPlanKey, snookerPlan;
-    function snookerDrawingPlan(G) {
+    let pocketTablePlanKey, pocketTablePlan;
+    function pocketTableDrawingPlan(G) {
         const key=JSON.stringify(G);
-        if(key!==snookerPlanKey){
-            snookerPlan=window.BilliardsTableConstruction.plan({L:G.L,W:G.W,R:G.R,G});
-            snookerPlanKey=key;
+        if(key!==pocketTablePlanKey){
+            pocketTablePlan=window.BilliardsTableConstruction.plan({L:G.L,W:G.W,R:G.R,G});
+            pocketTablePlanKey=key;
         }
-        return snookerPlan;
+        return pocketTablePlan;
     }
-    function drawSnookerBed(map,G,cloth) {
-        const plan=snookerDrawingPlan(G);
+    function drawInternationalPocketBed(map,G,cloth) {
+        const plan=pocketTableDrawingPlan(G);
         function fill(points,color){
             ctx.beginPath();
             points.forEach(([x,,z],i)=>{
@@ -7228,12 +7232,13 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         fill(plan.outer,'#453127');
         fill(plan.inside,cloth);
         for(const pocket of plan.pockets)fill(pocket.dropPath,'#101816');
+        const cushionColor='color-mix(in srgb, '+cloth+' 85%, white)';
         for(const rail of plan.rails){
-            fill([rail.at(0,0,0),rail.at(1,0,0),rail.at(1,rail.depth,0),rail.at(0,rail.depth,0)],'#377054');
+            fill([rail.at(0,0,0),rail.at(1,0,0),rail.at(1,rail.depth,0),rail.at(0,rail.depth,0)],cushionColor);
         }
         for(const jaw of window.BilliardsTableConstruction.roundedJaws(G)){
             const rows=window.BilliardsTableConstruction.jawSections(jaw,plan);
-            fill([...rows.map(row=>row.nose),...rows.map(row=>row.back).reverse()],'#377054');
+            fill([...rows.map(row=>row.nose),...rows.map(row=>row.back).reverse()],cushionColor);
         }
     }
     function drawInternationalTable(map) {
@@ -7247,20 +7252,14 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();
         };
         const cap=.125,cu=.035,threeD=window.Billiards3D?.active;
-        if(type==='snooker'&&!threeD){
-            drawSnookerBed(map,G,profile.cloth);
+        if(!G.pocketless&&!threeD){
+            drawInternationalPocketBed(map,G,profile.cloth);
         }else{
-            if(!threeD){box(-cap,-cap,L+cap,W+cap,'#453127');box(-cu,-cu,L+cu,W+cu,'#203d32');}
+            if(!threeD){box(-cap,-cap,L+cap,W+cap,'#453127');box(-cu,-cu,L+cu,W+cu,'color-mix(in srgb, '+profile.cloth+' 85%, white)');}
             box(threeD?-cap:0,threeD?-cap:0,threeD?L+cap:L,threeD?W+cap:W,profile.cloth);
-            if(!threeD){
-                for(const p of logicalPockets()){
-                    const q={x:p.x+(p.x===0?-.019:p.x===L?.019:0),y:p.y+(p.y===0?-.025:.025)};
-                    logicalCircle(q,(p.kind==='side'?G.sideMouth:G.cornerMouth)*.54,map,'#101816','#51463a',1);
-                }
-                if(type==='carom'&&S.showDiamonds){
-                    for(let i=1;i<8;i++)for(const y of [-.065,W+.065])logicalCircle({x:L*i/8,y},.007,map,'#e6dac2',null,1);
-                    for(let i=1;i<4;i++)for(const x of [-.065,L+.065])logicalCircle({x,y:W*i/4},.007,map,'#e6dac2',null,1);
-                }
+            if(!threeD&&S.showDiamonds){
+                for(let i=1;i<8;i++)for(const y of [-.065,W+.065])logicalCircle({x:L*i/8,y},.007,map,'#e6dac2',null,1);
+                for(let i=1;i<4;i++)for(const x of [-.065,L+.065])logicalCircle({x,y:W*i/4},.007,map,'#e6dac2',null,1);
             }
         }
         ctx.strokeStyle='#f1ecdb88';ctx.lineWidth=1;
@@ -9629,6 +9628,17 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             }
         }
         const carom = window.BilliardsInternational.tables.carom;
+        const equipment = window.BilliardsInternational;
+        const currentRack = Object.hasOwn(equipment.setups,S.rackChoice)?S.rackChoice:null;
+        const names={pool:'American pool',carom:'Carom',snooker:'Snooker / English billiards',blackball:'Blackball',pyramid:'Russian Pyramid'};
+        const mm=m=>Number((m*1000).toFixed(2));
+        const details=[names[S.tableType],mm(S.tableL)+' × '+mm(S.tableW)+' mm',mm(2*S.ballR)+' mm balls'];
+        if(S.tableType==='carom') details.push('pocketless');
+        else {const g=pocketModel();details.push('corner / side mouths '+mm(g.cornerMouth)+' / '+mm(g.sideMouth)+' mm');}
+        details.push('Cue-ball launch '+S.speed.toFixed(2)+' m/s ('+(S.speed*2.23694).toFixed(1)+' mph)');
+        $('equipmentSummary').textContent=details.join(' · ');
+        if(currentRack && $('equipmentRack').dataset.active!==currentRack)$('equipmentRack').value=currentRack;
+        $('equipmentRack').dataset.active=currentRack||'';
         $('caromClothRow').hidden = S.tableType !== 'carom';
         $('caromCloth').value = S.muRoll === carom.muRoll ? 'standard' : S.muRoll === carom.fastMuRoll ? 'fast' : 'custom';
         $('clothNapRow').hidden=S.tableType!=='snooker';
@@ -9688,7 +9698,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if (!Array.isArray(saved)) throw new Error('Invalid saved settings');
         return saved.filter(p => p && typeof p.name === 'string' && p.settings);
     }
-    function applyPhysicsSettings(settings) {
+    function applyPhysicsSettings(settings, equipmentPreset=null) {
         if (animation) { toast('Wait for the shot to finish'); return false; }
         const defaults = defaultState(), values = {};
         for (const key of physicsSettingKeys) {
@@ -9701,8 +9711,23 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if (!['standard','low','custom'].includes(values.cuePreset) || !['in','mm'].includes(values.jumpUnits)) return false;
         const limits = {tableL:[60*.0254,145*.0254],tableW:[30*.0254,73*.0254],ballR:[1.5*.0254/2,3*.0254/2],muSlide:[0,.5],muRoll:[0,.1],muBall:[0,.2],ballRest:[.5,1],railRest:[.3,1],railTang:[.5,1],cueEndmassRatio:[8,60],tableRest:[0,.95],bedImpactMu:[0,.5]};
         for (const [key,[min,max]] of Object.entries(limits)) values[key] = clamp(values[key],min,max);
+        if(equipmentPreset?.tableType && equipmentPreset.tableType!==(S.tableType||'pool')){
+            const equipment=window.BilliardsInternational;
+            const fallback=Object.keys(equipment.setups).find(key=>equipment.setups[key][0]===equipmentPreset.tableType);
+            const key=equipment.setups[equipmentPreset.rackChoice]?.[0]===equipmentPreset.tableType?equipmentPreset.rackChoice:fallback;
+            if(equipmentPreset.tableType!=='pool' && !key)return false;
+            const dimensions={tableL:values.tableL,tableW:values.tableW,ballR:values.ballR};
+            $('fullRackSelect').value=key||'rack8';
+            if(key)startInternationalRack(equipment.setup(key,dimensions),key);
+            else {
+                restorePoolEquipment();
+                Object.assign(S,dimensions);
+                randomEightBallRack();
+            }
+        }
         beginActionUndo();
         Object.assign(S, values);
+        if(S.tableType==='snooker' && Number.isFinite(settings.clothNap)) S.clothNap=clamp(settings.clothNap,0,.1);
         S.cueElevationDeg = Math.min(S.cueElevationDeg, cueElevationMax());
         if (S.shot2) S.shot2.cueElevationDeg = Math.min(S.shot2.cueElevationDeg, cueElevationMax());
         updateUI(); refreshPreview(); saveState(); syncProjector();
@@ -9722,10 +9747,26 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 $('physicsPresetList').hidden = mode !== 'load';
                 $('physicsPresetLabel').textContent = mode === 'save' ? 'Settings name' : 'Saved settings';
                 $('physicsPresetLabel').htmlFor = mode === 'save' ? 'physicsPresetName' : 'physicsPresetList';
-                $('physicsPresetApply').textContent = mode === 'save' ? 'Save' : 'Load';
+                const syncLoadLabel=()=>{
+                    const selected=presets.find(p=>p.name===$('physicsPresetList').value);
+                    const changeTable=selected?.tableType && selected.tableType!==(S.tableType||'pool');
+                    $('physicsPresetApply').textContent=mode==='save'?'Save':changeTable?'Load and start rack':'Load';
+                };
+                $('physicsPresetList').onchange=syncLoadLabel;
+                syncLoadLabel();
                 panel.hidden = false;
                 $(mode === 'save' ? 'physicsPresetName' : 'physicsPresetList').focus();
             } catch (_) { status.textContent = 'Saved settings could not be read on this device.'; }
+        }
+        const picker=$('equipmentRack');
+        if(typeof window!=='undefined') {
+            picker.replaceChildren(...Object.entries(window.BilliardsInternational.setups).map(([key,[,,name]])=>new Option(name,key)));
+            if(Object.hasOwn(window.BilliardsInternational.setups,S.rackChoice))picker.value=S.rackChoice;
+            $('applyEquipmentRack').onclick=()=>{
+                if(animation)return;
+                $('fullRackSelect').value=picker.value;
+                startFullRack();
+            };
         }
         $('caromCloth').onchange = () => {
             if (S.tableType !== 'carom') return;
@@ -9734,10 +9775,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if (!applyPhysicsSettings({...capturePhysicsSettings(),muRoll})) updateUI();
         };
         $('physicsDefaults').onclick = () => {
-            if (S.tableType === 'carom') {
-                const profile = window.BilliardsInternational.tables.carom;
-                if (applyPhysicsSettings({...capturePhysicsSettings(defaultState()), tableL:profile.tableL, tableW:profile.tableW, ballR:profile.ballR, muRoll:profile.muRoll})) {
-                    close(); status.textContent = 'Standard carom settings restored.';
+            if (S.tableType && S.tableType !== 'pool') {
+                const equipment=window.BilliardsInternational;
+                const rack=equipment.setup(S.rackChoice),profile=rack?.type===S.tableType?rack.table:equipment.tables[S.tableType];
+                if (applyPhysicsSettings({...capturePhysicsSettings(defaultState()), tableL:profile.tableL, tableW:profile.tableW, ballR:profile.ballR, muRoll:profile.muRoll, muSlide:profile.muSlide??defaultState().muSlide,clothNap:profile.nap||0})) {
+                    close(); status.textContent = 'Standard table settings restored.';
                 }
                 return;
             }
@@ -9754,13 +9796,13 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                     if (!name) { status.textContent = 'Enter a name for these settings.'; $('physicsPresetName').focus(); return; }
                     const index = presets.findIndex(p => p.name.toLocaleLowerCase() === name.toLocaleLowerCase());
                     if (index >= 0 && !confirm('Replace saved settings “' + presets[index].name + '”?')) return;
-                    const preset = {name, settings:capturePhysicsSettings()};
+                    const preset = {name, tableType:S.tableType||'pool', rackChoice:S.rackChoice, settings:{...capturePhysicsSettings(),clothNap:S.clothNap}};
                     if (index >= 0) presets[index] = preset; else presets.push(preset);
                     localStorage.setItem(PHYSICS_PRESETS_KEY, JSON.stringify(presets));
                     status.textContent = 'Saved “' + name + '” on this device.';
                 } else {
                     const preset = presets.find(p => p.name === $('physicsPresetList').value);
-                    if (!preset || !applyPhysicsSettings(preset.settings)) return;
+                    if (!preset || !applyPhysicsSettings(preset.settings,preset)) return;
                     status.textContent = 'Loaded “' + preset.name + '”.';
                 }
                 close();

@@ -13,3 +13,24 @@ for(const [L,W,R]of [[2.54,1.27,.028575],[2.2352,1.1176,.028575],[2.032,1.016,.0
  p.outer.forEach((v,i)=>close(inverse(v),ref.outer[i]));p.sights.forEach((v,i)=>close(inverse(v),ref.sights[i]));assert(Math.abs(p.linerWidth-ref.rimWidth*L/1081)<1e-10);for(const q of p.pockets)assert.equal(q.backPath.length,q.innerBackPath.length,'Flat collar connects inner cut to cushion-registered outer edge');assert(p.edgeRadius<=.0012);
 }
 console.log('Zen shape reference: source hash, six measured cushion polygons, six source pocket cuts, rounded outer rail and round sight positions match at four table/ball sizes.');
+const snooker=require('../trainer-international').tables.snooker;
+const L=snooker.tableL,W=snooker.tableW,R=snooker.ballR;
+const G={...snooker,type:'snooker',L,W,cornerLeg:snooker.cornerMouth/Math.SQRT2,
+ cornerThroatInset:.014*snooker.cornerMouth/.110,cornerJawOut:.043*snooker.cornerMouth/.110,
+ sideThroat:.8*snooker.sideMouth,sideJawOut:.026*snooker.sideMouth/.120};
+const construction=require('../trainer-table-construction'),table=plan({L,W,R,G});
+const area=(a,b,c)=>(b[0]-a[0])*(c[2]-a[2])-(b[2]-a[2])*(c[0]-a[0]);
+for(const jaw of construction.roundedJaws(G)){
+ const rows=construction.jawSections(jaw,table),first=rows[0];
+ const matches=table.rails.flatMap(rail=>[0,1].map(end=>({nose:rail.at(end,0,table.noseHeight),back:rail.at(end,rail.depth,table.capHeight)})))
+  .filter(end=>Math.hypot(end.nose[0]-first.nose[0],end.nose[2]-first.nose[2])<1e-7);
+ assert.equal(matches.length,1);
+ for(let k=0;k<3;k++)assert(Math.abs(matches[0].back[k]-first.back[k])<1e-8);
+ const winding=Math.sign(area(first.nose,first.back,rows[1].nose));
+ for(let i=1;i<rows.length;i++){
+  const a=rows[i-1],b=rows[i];
+  assert(winding*area(a.nose,a.back,b.nose)>1e-10,'Nose-side triangle folds');
+  assert(winding*area(a.back,b.back,b.nose)>1e-10,'Backing-side triangle folds');
+ }
+}
+console.log('All 12 snooker jaws meet the straight cushion profile and preserve triangle orientation.');

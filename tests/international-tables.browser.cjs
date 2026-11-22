@@ -49,7 +49,28 @@ for(const key of Object.keys(international.setups)){
    assert.equal(state.balls.length,expected.balls.length);
    assert.equal(state.tableL,expected.table.tableL);
    assert.equal(state.ballR,expected.table.ballR);
+   if(['snooker15','snooker6','snookerPlus'].includes(key)){
+    const hit=await page.evaluate(()=>billiardsTourBridge.predict().firstBallContact);
+    assert.equal(hit?.objName,'Red',key+' opening should hit a red first');
+   }
+   if(key==='snooker6')assert.equal(international.maxId(state.ballSet),12);
   }
+  await page.evaluate(()=>{document.getElementById('equipmentRack').value='caromHalf';});
+  await page.evaluate(()=>document.getElementById('applyEquipmentRack').click());
+  assert.equal((await capture()).state.tableL,2.30);
+  await page.evaluate(()=>{
+   document.getElementById('physicsSave').click();
+   document.getElementById('physicsPresetName').value='Half-match verification';
+   document.getElementById('physicsPresetApply').click();
+  });
+  await start('snooker6');
+  await page.evaluate(()=>{
+   document.getElementById('physicsLoad').click();
+   document.getElementById('physicsPresetApply').click();
+  });
+  assert.equal((await capture()).state.rackChoice,'caromHalf');
+  assert.equal((await capture()).state.tableL,2.30);
+  assert.match(await page.locator('#equipmentSummary').textContent(),/2300 × 1150 mm/);
   await start('carom3');
   const selectCloth = value => page.locator('#caromCloth').evaluate((el,v)=>{el.value=v;el.dispatchEvent(new Event('change',{bubbles:true}));},value);
   assert.equal(await page.locator('#caromCloth').inputValue(),'standard');
@@ -117,6 +138,6 @@ for(const key of Object.keys(international.setups)){
   await page.evaluate(()=>{const s=document.getElementById('poolBallSet');s.value='black';s.dispatchEvent(new Event('change'));});
   assert.equal((await capture()).state.ballSet,'black');
   assert.deepEqual(errors,[]);
-  console.log('Nine layouts, 2D/3D profile switches, carom rebounds, snooker nap, reload, and pool palette passed.');
+  console.log(Object.keys(international.setups).length+' layouts, 2D/3D profile switches, carom rebounds, snooker nap, reload, and pool palette passed.');
  }finally{await browser?.close();server.kill();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

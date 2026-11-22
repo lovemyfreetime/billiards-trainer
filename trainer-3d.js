@@ -480,6 +480,11 @@
      const perPixel=2*Math.tan(camera.fov*Math.PI/360)*camera.position.distanceTo(label.position)/Math.max(1,canvas.getBoundingClientRect().height),image=label.material.map.image;
      const h=22,w=h*image.width/image.height;label.scale.set(w*perPixel,h*perPixel,1);label.material.depthTest=false;label.renderOrder=20;
     }else{const heading=rail?(point.y<f.W/2?0:Math.PI):cameraState.azimuth;label.quaternion.setFromAxisAngle(clothNormal,heading).multiply(rail?railRotation:clothRotation);label.scale.set(data.width+4*data.unitsPerPixel,data.height+4*data.unitsPerPixel,1);label.material.depthTest=true;label.renderOrder=1;}
+    if(data.pocketName&&!rail){
+     const halfDiagonal=.5*Math.hypot(label.scale.x,label.scale.y),pad=halfDiagonal+f.R*1.1;
+     label.position.x=clamp(label.position.x,-f.L/2+pad,f.L/2-pad);
+     label.position.z=clamp(label.position.z,-f.W/2+pad,f.W/2-pad);
+    }
     label.material.opacity=data.opacity;label.userData.data={...data,rail};
    }
    for(const [id,label]of cameraLabels)if(!visible.has(id))label.visible=false;
@@ -581,7 +586,7 @@
    const rows=Math.ceil(r.length/.012);
    for(let row=0;row<=rows;row++)for(const [t,h]of profile){const a=r.at(0,t*r.depth,h),b=r.at(1,t*r.depth,h),fraction=row/rows;vertices.push(...a.map((v,i)=>v+(b[i]-v)*fraction));uvs.push(fraction*r.length/.12,t*r.depth/.12);}
    for(let row=0;row<rows;row++)for(let j=0;j<count;j++){const k=(j+1)%count,a=row*count,b=(row+1)*count;indices.push(a+j,a+k,b+j,a+k,b+k,b+j);}
-   for(const end of [0,1]){
+   for(const end of (plan.G.type==='snooker'?[]:[0,1])){
     const shape=new T.Shape();profile.forEach(([t,h],i)=>i?shape.lineTo(t*r.depth,h):shape.moveTo(t*r.depth,h));shape.closePath();
     const face=new T.ShapeGeometry(shape),pos=face.attributes.position,base=vertices.length/3;
     for(let j=0;j<pos.count;j++){const v=pos.getX(j),h=pos.getY(j);vertices.push(...r.at(end,v,h));uvs.push(v/.12,h/.12);}
@@ -599,12 +604,26 @@
      uvs.push(i/(rows.length-1),t);
     }
    }
+   // Match the winding of the straight cushion at either end of each rail.
+   const [x,,z]=rows[0].nose;
+   const reverse=plan.rails.some(r=>Math.hypot(r.a[0]-x,r.a[1]-z)<1e-7);
    const count=profile.length;
    for(let row=0;row<rows.length-1;row++)for(let j=0;j<count;j++){
     const a=row*count,b=(row+1)*count,k=(j+1)%count;
-    indices.push(a+j,a+k,b+j,a+k,b+k,b+j);
+    if(reverse)indices.push(a+j,b+j,a+k,a+k,b+j,b+k);
+    else indices.push(a+j,a+k,b+j,a+k,b+k,b+j);
    }
-   addMesh(vertices,indices,cushionMaterial,'rounded-jaw',uvs);
+   const last=rows.length-1,shape=new T.Shape();
+   profile.forEach(([t,h],i)=>i?shape.lineTo(t,h):shape.moveTo(t,h));
+   const face=new T.ShapeGeometry(shape),pos=face.attributes.position,base=vertices.length/3;
+   for(let i=0;i<pos.count;i++){
+    const t=pos.getX(i),{nose,back}=rows[last];
+    vertices.push(nose[0]+t*(back[0]-nose[0]),pos.getY(i),nose[2]+t*(back[2]-nose[2]));
+    uvs.push(t,pos.getY(i));
+   }
+   const order=face.index.array;
+   for(let i=0;i<order.length;i+=3)indices.push(base+order[i],base+order[i+(reverse?1:2)],base+order[i+(reverse?2:1)]);
+   face.dispose();addMesh(vertices,indices,cushionMaterial,'rounded-jaw',uvs);
   }
   let elasticKey='';
   function updateElastic(f){
@@ -677,7 +696,7 @@
    const capUV=capGeometry.attributes.uv,capP=capGeometry.attributes.position;
    for(let i=0;i<capP.count;i++){const x=capP.getX(i),z=capP.getZ(i),end=Math.abs(x)>f.L/2+plan.cushionWidth&&Math.abs(z)<f.W/2;capUV.setXY(i,(end?x:z)/1.8,(end?z:x)/1.8);}
    const cap=new T.Mesh(capGeometry,[woodMaterial,pocketLip]);cap.position.y=-.032;cap.castShadow=true;cap.receiveShadow=false;cap.userData.construction='rail-cap';table.add(cap);
-   cushionMaterial.color.set(plan.G.type==='snooker'?0x377054:0x2e7487);
+   cushionMaterial.color.set(window.BilliardsInternational.tables[plan.G.type]?.cloth||0x2e7487);
    for(const r of plan.rails)addCushion(r,plan);
    for(const jaw of window.BilliardsTableConstruction.roundedJaws(plan.G))addRoundedJaw(jaw,plan);
    if(f.showDiamonds!==false)for(const point of plan.sights){

@@ -7,18 +7,25 @@ const tables={
  blackball:{tableL:1.829,tableW:.9145,ballR:.0254,cloth:'#2a674c',cornerMouth:.082,sideMouth:.088,muRoll:.016,baulk:.366},
  pyramid:{tableL:3.50,tableW:1.75,ballR:.034,cloth:'#2c6b45',cornerMouth:.072,sideMouth:.082,nose:.042,muRoll:.013}
 };
+const caromSizes={
+ caromSmall:{tableL:2.10,tableW:1.05,openingOffset:.135},
+ caromHalf:{tableL:2.30,tableW:1.15,openingOffset:.148}
+};
 const setups={
  carom3:['carom','carom','Three-Cushion'],
  caromStraight:['carom','carom','Straight Rail'],
+ caromSmall:['carom','carom','Straight Rail — Small Table'],
+ caromHalf:['carom','carom','One-Cushion — Half-Match Table'],
  carom4:['carom','carom4','Four-Ball Carom'],
  snooker15:['snooker','snooker','15-Red Snooker'],
+ snooker6:['snooker','snooker6','Six-Red Snooker'],
  snookerPlus:['snooker','snookerPlus','Snooker Plus'],
  englishBilliards:['snooker','english','English Billiards'],
  blackballRY:['blackball','blackball','Blackball — Red / Yellow'],
  blackballBY:['blackball','blackballBlue','Blackball — Blue / Yellow'],
  pyramid15:['pyramid','pyramid','Russian Pyramid']
 };
-const sets={classic:15,tv:15,black:15,carom:2,carom4:3,snooker:21,snookerPlus:23,english:2,blackball:15,blackballBlue:15,pyramid:15};
+const sets={classic:15,tv:15,black:15,carom:2,carom4:3,snooker:21,snooker6:12,snookerPlus:23,english:2,blackball:15,blackballBlue:15,pyramid:15};
 const cue='#f5f3e9',yellow='#efd035',red='#cf3035',blue='#2360b9',pink='#ed79ad',black='#15181d';
 const snookerColors=[yellow,'#24824c','#825135',blue,pink,black,'#ed8829','#7944a0'];
 const snookerNames=['Yellow','Green','Brown','Blue','Pink','Black','Orange','Purple'];
@@ -48,28 +55,36 @@ function ball(set,id){
   return {color:id===0?cue:id>8?yellow:value==='blackballBlue'?blue:red,name:id===0?'Cue ball':id>8?'Yellow':value==='blackballBlue'?'Blue':'Red'};
  }
  if(!id)return {color:cue,name:'Cue ball'};
- return id<=15?{color:red,name:'Red'}:{color:snookerColors[id-16],name:snookerNames[id-16]};
+ const firstColour=value==='snooker6'?7:16;
+ return id<firstColour?{color:red,name:'Red'}:{color:snookerColors[id-firstColour],name:snookerNames[id-firstColour]};
 }
-function setup(key){
+function setup(key, dimensions){
  if(!owns(setups,key))return null;
- const [type,set,name]=setups[key],table=tables[type],{tableL:L,tableW:W,ballR:R}=table,mid=W/2;
+ const [type,set,name]=setups[key];
+ const table={...tables[type],...caromSizes[key],...dimensions};
+ const {tableL:L,tableW:W,ballR:R}=table,mid=W/2;
  const balls=[];
+ let aim=null;
  const place=(id,x,y=mid)=>balls.push({id,n:id?String(id):'CB',x,y,active:true});
  const triangle=(ids,x,size=5)=>{
   let i=0;
   for(let row=0;row<size;row++)for(let col=0;col<=row;col++)place(ids[i++],x+row*Math.sqrt(3)*R,mid+(2*col-row)*R);
  };
  if(type==='carom'){
-  place(0,L/4,mid-.1825);place(1,L/4);place(2,L*3/4);
+  place(0,L/4,mid-(table.openingOffset??.1825));place(1,L/4);place(2,L*3/4);
   if(set==='carom4')place(3,L/2);
  }else if(type==='snooker'){
   const x=table.baulk,pinkX=L*3/4;
-  place(0,x-table.d*.5,mid);
+  place(0,x-table.d*.5,set==='english'?mid:mid+table.d*.72);
   if(set==='english'){place(2,L-table.black);}
   else{
-   place(16,x,mid+table.d);place(17,x,mid-table.d);place(18,x);
-   place(19,L/2);place(20,pinkX);place(21,L-table.black);
-   triangle(Array.from({length:15},(_,i)=>i+1),pinkX+2*R+.0005);
+   const colour=set==='snooker6'?7:16;
+   place(colour,x,mid+table.d);place(colour+1,x,mid-table.d);place(colour+2,x);
+   place(colour+3,L/2);place(colour+4,pinkX);place(colour+5,L-table.black);
+   const rows=key==='snooker6'?3:5;
+   triangle(Array.from({length:rows*(rows+1)/2},(_,i)=>i+1),pinkX+2*R+.0005,rows);
+   const outsideRed=balls.at(-1);
+   aim={x:outsideRed.x,y:outsideRed.y+1.4*R};
    if(set==='snookerPlus'){place(22,(L/2+pinkX)/2);place(23,(x+L/2)/2);}
   }
  }else if(type==='blackball'){
@@ -77,7 +92,7 @@ function setup(key){
  }else{
   place(0,L/4);triangle(Array.from({length:15},(_,i)=>i+1),L*3/4);
  }
- return {type,set,name,table,balls};
+ return {type,set,name,table,balls,aim};
 }
 function caromRebound(b,nx,ny,R,height,restitution,tangentialRetention){
     const rise = height / R - 1;
