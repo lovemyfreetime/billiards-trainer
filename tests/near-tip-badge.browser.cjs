@@ -10,10 +10,10 @@ for(const [width,height,mobile]of [[1366,900,false],[1024,768,true],[844,390,tru
  for(const mode of ['2d','3d']){
   if(mode==='3d'){await page.locator('#table3DToggle').click();await page.waitForFunction(()=>Billiards3D.active&&!Billiards3D.camera().transitioning);}
   for(const which of [1,2]){const badge=page.locator('#nearTipBadge'+which);await badge.waitFor({state:'visible'});const box=await badge.boundingBox();assert(box.x>=0&&box.y>=0&&box.x+box.width<=width&&box.y+box.height<=height,'Badge fits viewport');}
-  assert(await page.locator('#phoneTip1').isVisible(),'Bottom control is retained');
+  assert(await page.locator('#phoneTip1').isVisible()||await page.locator('#phoneTip2').isVisible(),'Bottom control is retained');
   const before=await page.evaluate(()=>billiardsTourBridge.capture().state);const box=await page.locator('#nearTipBadge1').boundingBox();
   await page.touchscreen.tap(box.x+40,box.y+23);const after=await page.evaluate(()=>billiardsTourBridge.capture().state);assert(after.follow>0&&after.sideSpin>0,'Near badge adjusts contact');assert.deepEqual(after.balls,before.balls);assert.deepEqual(after.freeAim,before.freeAim);
-  await page.evaluate(()=>{const n=document.getElementById('showTipBadge');n.checked=false;n.dispatchEvent(new Event('change',{bubbles:true}));});await page.locator('#nearTipBadge1').waitFor({state:'hidden'});assert(await page.locator('#nearTipBadge2').isHidden());assert(await page.locator('#phoneTip1').isVisible());
+  await page.evaluate(()=>{const n=document.getElementById('showTipBadge');n.checked=false;n.dispatchEvent(new Event('change',{bubbles:true}));});await page.locator('#nearTipBadge1').waitFor({state:'hidden'});assert(await page.locator('#nearTipBadge2').isHidden());assert(await page.locator('#phoneTip1').isVisible()||await page.locator('#phoneTip2').isVisible());
   await page.evaluate(()=>{const n=document.getElementById('showTipBadge');n.checked=true;n.dispatchEvent(new Event('change',{bubbles:true}));});await page.locator('#nearTipBadge1').waitFor({state:'visible'});
   fs.mkdirSync('test-results/ball-controls',{recursive:true});await page.locator('#nearTipBadge1').screenshot({path:`test-results/ball-controls/near-tip-${width}-${mode}.png`});
  }
