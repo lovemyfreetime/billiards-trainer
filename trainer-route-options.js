@@ -6,7 +6,7 @@
  const dot=(a,b)=>a.x*b.x+a.y*b.y;
  function rails(s){return {top:{name:'top',axis:'y',at:s.ballR},bottom:{name:'bottom',axis:'y',at:s.tableW-s.ballR},left:{name:'left',axis:'x',at:s.ballR},right:{name:'right',axis:'x',at:s.tableL-s.ballR}};}
  function* orders(max=4,prefix=[]){for(const name of ['top','right','bottom','left']){if(prefix.at(-1)===name)continue;const next=[...prefix,name];yield next;if(next.length<max)yield* orders(max,next);}}
- function solid(s,name,p){const g=s.pocketGeometry||{},leg=(g.cornerMouth||.110)/Math.SQRT2+s.ballR*.25;
+ function solid(s,name,p){const g=s.pocketGeometry||{},leg=(g.cornerLeg??(g.cornerMouth||.110)/Math.SQRT2)+s.ballR*.25;
   return name==='top'||name==='bottom'?p.x>leg&&p.x<s.tableL-leg&&Math.abs(p.x-s.tableL/2)>(g.sideMouth||.120)/2+s.ballR*.25:p.y>leg&&p.y<s.tableW-leg;}
  function trace(s,source,target,order){
   const all=rails(s);let mirror={...target};for(const name of order.slice().reverse()){const r=all[name];mirror[r.axis]=2*r.at-mirror[r.axis];}

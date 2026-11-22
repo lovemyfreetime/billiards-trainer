@@ -2,6 +2,7 @@
    Units are metres and seconds. A pocket gate remains a profile-specific capture model. */
 (function(root){
 'use strict';
+const equipment=typeof module==='object'&&module.exports?require('./trainer-international.js'):root.BilliardsInternational;
 const timeSlop=1e-11;
 function jawContact(b,remaining,R,jaw){
  const {x,y,vx,vy}=b,speed2=vx*vx+vy*vy;
@@ -55,13 +56,21 @@ function prepare(G,paths,planes){
   return {id,points,edges,x0:Math.min(...points.map(p=>p.x))-R,x1:Math.max(...points.map(p=>p.x))+R,
    y0:Math.min(...points.map(p=>p.y))-R,y1:Math.max(...points.map(p=>p.y))+R};
  });
- const half=G.sideThroat/2-R*.65,depth=G.sideJawOut*.73,diagonal=G.cornerThroatInset-G.cornerJawOut*.25;
+ const half=G.sideThroat/2-R*.65,depth=G.sideJawOut*.73;
  const width=Math.SQRT2*(G.cornerMouth/2-R*.66),gates=[];
  if(half>0)for(const [name,ny,limit] of [['TM',1,-depth],['BM',-1,-W-depth]]){
   gates.push({name,planes:[[1,0,L/2+half],[-1,0,-L/2+half],[0,ny,limit]]});
  }
  if(width>0)for(const [name,sx,sy,x0,y0] of [['TL',1,1,0,0],['TR',-1,1,L,0],['BL',1,-1,0,W],['BR',-1,-1,L,W]]){
-  const local=[[1,1,diagonal],[1,-1,width],[-1,1,width],[-1,0,.10],[0,-1,.10]];
+  const local=[[1,-1,width],[-1,1,width],[-1,0,.10],[0,-1,.10]];
+  // In corner coordinates, drop when depth reaches the curved slate fall.
+  // Each mirrored lip segment bounds a half-plane; their intersection is the gate.
+  const fall=equipment.snookerCorner.fall;
+  for(let i=1;i<fall.length;i++){
+   const a=fall[i-1],b=fall[i],slope=(b.depth-a.depth)/(b.halfWidth-a.halfWidth);
+   const limit=(slope*a.halfWidth-a.depth)*Math.SQRT2;
+   local.push([1+slope,1-slope,limit],[1-slope,1+slope,limit]);
+  }
   gates.push({name,planes:local.map(([x,y,d])=>[sx*x,sy*y,d+sx*x*x0+sy*y*y0])});
  }
  function first(b,time,capture){

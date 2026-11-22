@@ -2128,10 +2128,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 </div>
 
 <link rel="stylesheet" href="./photo-calibration.css?v=focused-start-v17">
-<script src="./trainer-international.js?v=snooker-spin"></script>
+<script src="./trainer-international.js?v=snooker-corners-1"></script>
 <script src="./trainer-zen-shapes.js?v=1"></script>
-<script src="./trainer-table-construction.js?v=3"></script>
-<script src="./trainer-snooker-boundary.js?v=1"></script>
+<script src="./trainer-table-construction.js?v=snooker-corners-1"></script>
+<script src="./trainer-snooker-boundary.js?v=snooker-corners-1"></script>
 <script src="./trainer-cue-clearance.js?v=1"></script>
 <script src="./trainer-ball-contacts.js?v=1"></script>
 <script src="./bank-kick-routing.js?v=1"></script>
@@ -2161,7 +2161,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 <script src="./trainer-aim-zones.js?v=8"></script>
 <script src="./trainer-shot-chance.js?v=2"></script>
 <script src="./trainer-pocket-feedback.js?v=1"></script>
-<script src="./trainer-route-options.js?v=1"></script>
+<script src="./trainer-route-options.js?v=snooker-corners-1"></script>
 <script src="./trainer-guidance.js?v=predictive-leaves"></script>
 <script>
 // AI Camera Edition wrapper: v4.12 trainer, app-mode launch package. v4 adds scoreboard placement/default-off + local analysis-photo recall.
@@ -3966,12 +3966,12 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const pocketless=S.tableType==='carom';
         const sideMouth = profile.sideMouth || .120;
         const cornerMouth = profile.cornerMouth || .110;
-        // Corner mouth is measured diagonally between the two cushion-nose endpoints.
-        const cornerLeg = cornerMouth / Math.SQRT2;
+        const fitted=S.tableType==='snooker'?window.BilliardsInternational.snookerCorner:null;
+        const cornerLeg = fitted?.leg ?? cornerMouth / Math.SQRT2;
         // The original xhdpi artwork shows the facing continuing OUTWARD from the
         // playing-surface nose, rather than protruding inward into the cloth.
-        const cornerThroatInset = .014*cornerMouth/.110;
-        const cornerJawOut = .043*cornerMouth/.110;
+        const cornerThroatInset = fitted?.inset ?? .014*cornerMouth/.110;
+        const cornerJawOut = fitted?.out ?? .043*cornerMouth/.110;
         const sideThroat = sideMouth*.8;
         const sideJawOut = .026*sideMouth/.120;
         return { L, W, R, D, type:S.tableType, pocketless, nose:profile.nose, sideMouth, cornerMouth, cornerLeg, cornerThroatInset, cornerJawOut, sideThroat, sideJawOut };
@@ -9634,6 +9634,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const mm=m=>Number((m*1000).toFixed(2));
         const details=[names[S.tableType],mm(S.tableL)+' × '+mm(S.tableW)+' mm',mm(2*S.ballR)+' mm balls'];
         if(S.tableType==='carom') details.push('pocketless');
+        else if(S.tableType==='snooker')details.push('corner at slate fall '+mm(equipment.snookerCorner.mouth)+' mm · side mouth '+mm(equipment.tables.snooker.sideMouth)+' mm');
         else {const g=pocketModel();details.push('corner / side mouths '+mm(g.cornerMouth)+' / '+mm(g.sideMouth)+' mm');}
         details.push('Cue-ball launch '+S.speed.toFixed(2)+' m/s ('+(S.speed*2.23694).toFixed(1)+' mph)');
         $('equipmentSummary').textContent=details.join(' · ');
@@ -15010,7 +15011,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <script src="./phone-play.js?v=workspace-1"></script>
   <link rel="stylesheet" href="./trainer-3d.css?v=position-speed-r2">
   <script src="./trainer-cue3d.js?v=cloth-shadow-2"></script>
-  <script src="./trainer-3d.js?v=international-contact-accuracy"></script>
+  <script src="./trainer-3d.js?v=snooker-corners-1"></script>
   <link rel="stylesheet" href="./trainer-workspace.css?v=20261121-elevation-detection">
   <script src="./trainer-workspace.js?v=international-contact-accuracy"></script>
   <link rel="stylesheet" href="./trainer-player-view.css?v=1">

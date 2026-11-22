@@ -1,9 +1,28 @@
 (function(root){
 'use strict';
+// Reconstructed from GCL Billiards' template-fitted Riley Aristocrat (Derby, 16 Oct 2015):
+// https://gclbilliards.com/enlarge-to-template-size-snooker-table-pockets-on-riley-aristocrat-in-derby/
+// Average the two photographed edges about the bisector. The straight cushion
+// extensions set zero depth and the 45° scale. Nominal width at the slate fall
+// is 89.5 mm ("a shade over 3.5 inch"). This is a photographic approximation.
+const mmPoints=pairs=>pairs.map(([depth,halfWidth])=>({depth:depth/1000,halfWidth:halfWidth/1000}));
+const cornerNose=mmPoints([
+ [-78,78],[-71,71.2],[-64,65.4],[-58,60.8],[-51.5,56.6],[-45,53.4],[-39,50.9],
+ [-32.5,48.6],[-26,46.9],[-20,45.8],[-13.5,45.2],[-7,44.8],[-4.5,44.75],
+ [0,44.5],[6,44.7],[12,45],[18.5,45.3],[25,45.7],[31,46.1],[37.5,46.5]
+]);
+// The second (undercut) gauge shows the centre of the slate lip farther
+// toward the bed than its ends. Both the bed outline and capture use this lip.
+const cornerFall=mmPoints([[-20,0],[-19.2,11],[-16.5,22],[-12,33],[-4.5,44.75]]);
+const cornerEnd=cornerNose.at(-1);
+const snookerCorner={nose:cornerNose,fall:cornerFall,mouth:2*cornerFall.at(-1).halfWidth,
+ leg:cornerNose[0].halfWidth*Math.SQRT2,
+ inset:(cornerEnd.halfWidth-cornerEnd.depth)*Math.SQRT1_2,
+ out:(cornerEnd.halfWidth+cornerEnd.depth)*Math.SQRT1_2};
 const tables={
  pool:{},
  carom:{tableL:2.84,tableW:1.42,ballR:.03075,cloth:'#28768a',nose:.037,muRoll:.008,fastMuRoll:.0045,muSpin:.022},
- snooker:{tableL:3.569,tableW:1.778,ballR:.02625,cloth:'#27653d',cornerMouth:.086,sideMouth:.092,muSlide:.21,muRoll:.0128,spinDeceleration:22,nap:.025,baulk:.737,d:.292,black:.324},
+ snooker:{tableL:3.569,tableW:1.778,ballR:.02625,cloth:'#27653d',cornerMouth:snookerCorner.mouth,sideMouth:.092,muSlide:.21,muRoll:.0128,spinDeceleration:22,nap:.025,baulk:.737,d:.292,black:.324},
  blackball:{tableL:1.829,tableW:.9145,ballR:.0254,cloth:'#2a674c',cornerMouth:.082,sideMouth:.088,muRoll:.016,baulk:.366},
  pyramid:{tableL:3.50,tableW:1.75,ballR:.034,cloth:'#2c6b45',cornerMouth:.072,sideMouth:.082,nose:.042,muRoll:.013}
 };
@@ -122,6 +141,6 @@ function caromRebound(b,nx,ny,R,height,restitution,tangentialRetention){
     b.wz -= 2.5 / R * span * along;
     return true;
 }
-const api={caromRebound,tables,setups,tableType,ballSet,poolSet,maxId,ball,setup};
+const api={snookerCorner,caromRebound,tables,setups,tableType,ballSet,poolSet,maxId,ball,setup};
 if(typeof module==='object'&&module.exports)module.exports=api;else root.BilliardsInternational=api;
 })(typeof window==='object'?window:globalThis);

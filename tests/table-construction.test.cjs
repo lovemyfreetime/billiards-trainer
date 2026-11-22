@@ -13,10 +13,10 @@ for(const [L,W,R]of [[2.54,1.27,.028575],[2.2352,1.1176,.028575],[2.032,1.016,.0
  p.outer.forEach((v,i)=>close(inverse(v),ref.outer[i]));p.sights.forEach((v,i)=>close(inverse(v),ref.sights[i]));assert(Math.abs(p.linerWidth-ref.rimWidth*L/1081)<1e-10);for(const q of p.pockets)assert.equal(q.backPath.length,q.innerBackPath.length,'Flat collar connects inner cut to cushion-registered outer edge');assert(p.edgeRadius<=.0012);
 }
 console.log('Zen shape reference: source hash, six measured cushion polygons, six source pocket cuts, rounded outer rail and round sight positions match at four table/ball sizes.');
-const snooker=require('../trainer-international').tables.snooker;
+const {tables:{snooker},snookerCorner}=require('../trainer-international');
 const L=snooker.tableL,W=snooker.tableW,R=snooker.ballR;
-const G={...snooker,type:'snooker',L,W,cornerLeg:snooker.cornerMouth/Math.SQRT2,
- cornerThroatInset:.014*snooker.cornerMouth/.110,cornerJawOut:.043*snooker.cornerMouth/.110,
+const G={...snooker,type:'snooker',L,W,cornerLeg:snookerCorner.leg,
+ cornerThroatInset:snookerCorner.inset,cornerJawOut:snookerCorner.out,
  sideThroat:.8*snooker.sideMouth,sideJawOut:.026*snooker.sideMouth/.120};
 const construction=require('../trainer-table-construction'),table=plan({L,W,R,G});
 const area=(a,b,c)=>(b[0]-a[0])*(c[2]-a[2])-(b[2]-a[2])*(c[0]-a[0]);
@@ -34,3 +34,26 @@ for(const jaw of construction.roundedJaws(G)){
  }
 }
 console.log('All 12 snooker jaws meet the straight cushion profile and preserve triangle orientation.');
+
+// Recover the actual clear width from rendered/physical vertices in world space.
+const boundary=require('../trainer-snooker-boundary').prepare({...G,R},construction.roundedJaws(G),[]);
+for(const pocket of table.pockets.filter(p=>p.corner)){
+ const jaws=construction.roundedJaws(G).filter(j=>j.corner && j.points.every(pt=>
+  Math.hypot(pt.x-L/2-pocket.origin[0],pt.y-W/2-pocket.origin[1])<.15));
+ assert.equal(jaws.length,2);
+ let minimum=Infinity;
+ for(const a of jaws[0].points)for(const b of jaws[1].points)minimum=Math.min(minimum,Math.hypot(a.x-b.x,a.y-b.y));
+ assert(Math.abs(minimum-.089)<1e-8,'Minimum physical gap between cushion noses');
+ assert(Math.abs(pocket.visualMouth-.0895)<1e-8,'Width at slate fall');
+ for(const t of [-.010,0,.010]){
+  const edge=pocket.frontPath.map(pocket.local).filter(([v])=>v<-.004);
+  const i=edge.findIndex((p,i)=>i && (edge[i-1][1]-t)*(p[1]-t)<=0);
+  assert(i>0);
+  const [a,b]=edge.slice(i-1,i+1),depth=a[0]+(t-a[1])/(b[1]-a[1])*(b[0]-a[0]);
+  for(const [offset,inside] of [[-.0001,false],[.0001,true]]){
+   const [x,,z]=pocket.at(depth+offset,t);
+   assert.equal(!!boundary.pocketAt({x:x+L/2,y:z+W/2}),inside,'Capture follows the visible slate lip');
+  }
+ }
+}
+console.log('Four template-fit snooker corners passed jaw gaps, fall widths and capture crossings.');

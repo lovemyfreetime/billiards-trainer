@@ -1,10 +1,11 @@
 (function(root){
 'use strict';
 const reference=typeof module==='object'&&module.exports?require('./trainer-zen-shapes.js'):null;
+const equipment=reference?require('./trainer-international.js'):root.BilliardsInternational;
 const railWidth=.154;
 function roundedJaws(G){
  if(G.type!=='snooker')return [];
- const {L,W,cornerLeg:cl,cornerThroatInset:ci,cornerJawOut:co,sideMouth,sideThroat,sideJawOut:so}=G;
+ const {L,W,sideMouth,sideThroat,sideJawOut:so}=G;
  const sm=sideMouth/2,st=sideThroat/2,paths=[];
  function add(a,b,tangent,outward){
   const reach=Math.hypot(b.x-a.x,b.y-a.y)*.55;
@@ -20,8 +21,14 @@ function roundedJaws(G){
   for(const xSign of [1,-1]){
    add({x:L/2-xSign*sm,y},{x:L/2-xSign*st,y:y-ySign*so},{x:xSign,y:0},{x:0,y:-ySign});
    const x=xSign===1?0:L;
-   add({x:x+xSign*cl,y},{x:x+xSign*ci,y:y-ySign*co},{x:-xSign,y:0},{x:0,y:-ySign});
-   add({x,y:y+ySign*cl},{x:x-xSign*co,y:y+ySign*ci},{x:0,y:-ySign},{x:-xSign,y:0});
+   const nose=equipment.snookerCorner.nose;
+   for(const horizontal of [true,false]){
+    const points=nose.map(({depth,halfWidth})=>{
+     const along=(halfWidth-depth)*Math.SQRT1_2,across=-(halfWidth+depth)*Math.SQRT1_2;
+     return {x:x+xSign*(horizontal?along:across),y:y+ySign*(horizontal?across:along)};
+    });
+    paths.push({points,corner:true,outward:horizontal?{x:0,y:-ySign}:{x:-xSign,y:0}});
+   }
   }
  }
  return paths;
@@ -73,7 +80,10 @@ function plan(f){
   const [a,x]=knots[i-1],[b,y]=knots[i];
   return x+(value-a)*(y-x)/(b-a);
  }
- const custom=G.type&&G.type!=='pool',cl=G.cornerLeg,sm=G.sideMouth/2;
+ const custom=G.type&&G.type!=='pool',sm=G.sideMouth/2;
+ // Keep the traced woodwork and side pockets at their existing registration.
+ // Move only the corner ends of the straight rubber to the fitted template.
+ const cl=G.type==='snooker'?.086/Math.SQRT2:G.cornerLeg;
  const xKnots=[[A.x0,0],[337,cl],[806,f.L/2-sm],[873,f.L/2+sm],[1340,f.L-cl],[A.x1,f.L]];
  const yKnots=[[A.y0,0],[160,cl],[612,f.W-cl],[A.y1,f.W]];
  const pixel=(p,h=0)=>[custom?scale(p[0]===805&&p[1]===650?806:p[0],xKnots)-f.L/2:(p[0]-A.x0)/(A.x1-A.x0)*f.L-f.L/2,h,
@@ -82,10 +92,12 @@ function plan(f){
  const rails=ref.rails.map(q=>{
   const [a,b]=q.fore.map(p=>pixel(p)),back=q.back.map(p=>pixel(p)),length=Math.hypot(b[0]-a[0],b[2]-a[2]),u=[(b[0]-a[0])/length,(b[2]-a[2])/length],n=[u[1],-u[0]],depth=Math.abs((back[0][0]-a[0])*n[0]+(back[0][2]-a[2])*n[1]);
   if(G.type==='snooker')for(const [i,fore] of [a,b].entries()){
+   const axis=Math.abs(u[0])>.5?0:2,half=(axis===0?f.L:f.W)/2;
+   if(Math.abs(fore[axis])>half/2)fore[axis]=Math.sign(fore[axis])*(half-equipment.snookerCorner.leg);
    back[i]=[fore[0]+n[0]*depth,0,fore[2]+n[1]*depth];
   }
   const at=(end,v,h)=>{const fore=end?b:a,t=v/depth;return [fore[0]+(back[end][0]-fore[0])*t,h,fore[2]+(back[end][2]-fore[2])*t];};
-  return {a:[a[0],a[2]],b:[b[0],b[2]],back,n,u,length,depth,pocket:q.pocket,at};
+  return {a:[a[0],a[2]],b:[b[0],b[2]],back,n,u,length:Math.hypot(b[0]-a[0],b[2]-a[2]),depth,pocket:q.pocket,at};
  });
  const pockets=ref.pockets.map((q,i)=>{
   const [sx,sz]=[[-1,-1],[0,-1],[1,-1],[1,1],[0,1],[-1,1]][i],corner=sx!==0,n=[corner?sx*Math.SQRT1_2:0,corner?sz*Math.SQRT1_2:sz],t=[-n[1],n[0]],origin=[sx*f.L/2,sz*f.W/2],center=pixel(q.centre),contour=q.contour.map(p=>pixel(p));
@@ -134,9 +146,16 @@ function plan(f){
    }
   }
   p.frontPath=[[innerEnd[0],0,innerEnd[2]],...polar.filter(v=>v.theta>sweep+1e-5).map(v=>contourPoint(v,(tau-v.theta)/(tau-sweep),0)),[innerStart[0],0,innerStart[2]]];
+  if(G.type==='snooker'&&p.corner){
+   const {nose,fall}=equipment.snookerCorner,sign=Math.sign(p.local(innerEnd)[1]);
+   const tail=nose.filter(row=>row.depth>fall.at(-1).depth);
+   const half=[...fall,...tail];
+   p.frontPath=[...half.slice(1).reverse().map(r=>p.at(r.depth,sign*r.halfWidth)),
+    ...half.map(r=>p.at(r.depth,-sign*r.halfWidth))];
+  }
   p.dropPath=[...p.backPath,...p.frontPath.slice(1)];p.innerRear=Math.max(...p.innerBackPath.map(v=>p.local(v)[0]));
   const nose=r.at(1,0,noseHeight),nose2=rails[(i+1)%6].at(0,0,noseHeight),foreN=(p.local(nose)[0]+p.local(nose2)[0])/2;
-  p.front=Math.min(...p.frontPath.map(v=>p.local(v)[0]));p.rear=Math.max(...p.backPath.map(v=>p.local(v)[0]));p.shelf=p.front-foreN;p.visualMouth=Math.hypot(nose[0]-nose2[0],nose[2]-nose2[2]);
+  p.front=Math.min(...p.frontPath.map(v=>p.local(v)[0]));p.rear=Math.max(...p.backPath.map(v=>p.local(v)[0]));p.shelf=p.front-foreN;p.visualMouth=G.type==='snooker'&&p.corner?equipment.snookerCorner.mouth:Math.hypot(nose[0]-nose2[0],nose[2]-nose2[2]);
   inside.push(a,end,...(left?[b]:[]),...p.backPath.slice(1));
  });
  const cushionWidth=rails.reduce((n,r)=>n+r.depth,0)/6;

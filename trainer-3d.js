@@ -386,7 +386,7 @@
   if(active)return true;if(loading)return false;loading=true;button.disabled=true;status.textContent='';
   // Request within the entry gesture, before loading WebGL can consume activation.
   window.BilliardsDisplay?.enter(true);
-  try{if(!engine){const [three]=await Promise.all([import('./vendor/three/three-renderer.js?v=4'),import('./trainer-table-construction.js?v=2'),import('./trainer-zen-shapes.js?v=1')]);engine=createEngine(three);}if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
+  try{if(!engine){const [three]=await Promise.all([import('./vendor/three/three-renderer.js?v=4'),import('./trainer-table-construction.js?v=snooker-corners-1'),import('./trainer-zen-shapes.js?v=1')]);engine=createEngine(three);}if(document.getElementById('tableZoom')?.getAttribute('aria-pressed')==='true')document.getElementById('tableZoom').click();
    if(lastFrame)engine.update(lastFrame);
    active=true;document.body.classList.add('table-3d');button.setAttribute('aria-pressed','true');button.textContent='2D';tools.hidden=false;for(const b of [standingButton,alongButton,nextButton,viewLock])b.hidden=false;positionToggle();
    if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();
@@ -592,7 +592,22 @@
     for(let j=0;j<pos.count;j++){const v=pos.getX(j),h=pos.getY(j);vertices.push(...r.at(end,v,h));uvs.push(v/.12,h/.12);}
     const order=face.index.array;for(let j=0;j<order.length;j+=3)indices.push(base+order[j],base+order[j+(end?2:1)],base+order[j+(end?1:2)]);face.dispose();
    }
-   const mesh=addMesh(vertices,indices,cushionMaterial,'cushion',uvs);mesh.userData.elastic='cushion';mesh.userData.undeformed=mesh.geometry.attributes.position.array.slice();
+   const mesh=addMesh(vertices,indices,cushionMaterial,'cushion',uvs);
+   if(plan.G.type==='snooker'){
+    const normals=mesh.geometry.attributes.normal;
+    r.sectionNormals=normals;
+    // A separate mesh has half as many incident faces at a seam. Use the
+    // straight interior section's lighting on both copies of the joint.
+    mesh.userData.restoreCornerNormals=()=>{
+     for(const [end,fore] of [r.a,r.b].entries()){
+      if(Math.abs(fore[0])<plan.L/4)continue;
+      for(let j=0;j<count;j++)normals.copyAt(end*rows*count+j,normals,count+j);
+     }
+     normals.needsUpdate=true;
+    };
+    mesh.userData.restoreCornerNormals();
+   }
+   mesh.userData.elastic='cushion';mesh.userData.undeformed=mesh.geometry.attributes.position.array.slice();
   }
   function addRoundedJaw(jaw,plan){
    const {profile}=plan,vertices=[],indices=[],uvs=[];
@@ -623,7 +638,13 @@
    }
    const order=face.index.array;
    for(let i=0;i<order.length;i+=3)indices.push(base+order[i],base+order[i+(reverse?1:2)],base+order[i+(reverse?2:1)]);
-   face.dispose();addMesh(vertices,indices,cushionMaterial,'rounded-jaw',uvs);
+   face.dispose();
+   const mesh=addMesh(vertices,indices,cushionMaterial,'rounded-jaw',uvs);
+   if(jaw.corner){
+    const rail=plan.rails.find(r=>[r.a,r.b].some(([rx,rz])=>Math.hypot(rx-x,rz-z)<1e-7));
+    const normals=mesh.geometry.attributes.normal;
+    for(let j=0;j<count;j++)normals.copyAt(j,rail.sectionNormals,count+j);
+   }
   }
   let elasticKey='';
   function updateElastic(f){
@@ -656,7 +677,7 @@
      if(attr.array[j]!==y){attr.array[j]=y;changed=true;}
     }
     mesh.userData.deformed=deformed;
-    if(changed){attr.needsUpdate=true;mesh.geometry.computeVertexNormals();}
+    if(changed){attr.needsUpdate=true;mesh.geometry.computeVertexNormals();if(!deformed)mesh.userData.restoreCornerNormals?.();}
    }
   }
   function pocketNormal(path,i,closed=false){const last=path.length-1,a=path[closed?(i===0?last-1:i-1):Math.max(0,i-1)],b=path[closed?(i>=last-1?i===last-1?last:1:i+1):Math.min(last,i+1)],dx=b[0]-a[0],dz=b[2]-a[2],length=Math.hypot(dx,dz)||1;return [dz/length,-dx/length];}

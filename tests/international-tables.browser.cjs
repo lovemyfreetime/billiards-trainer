@@ -15,6 +15,9 @@ for(const key of Object.keys(international.setups)){
  const layout=files.parse(JSON.stringify({tableL:L,tableW:W,ballR:R,tableType:setup.type,ballSet:setup.set,balls:setup.balls})).layout;
  assert.equal(layout.balls.length,setup.balls.length);
  const G={type:setup.type,pocketless:setup.type==='carom',nose:setup.table.nose,cornerLeg:setup.table.cornerMouth/Math.SQRT2,sideMouth:setup.table.sideMouth};
+ if(setup.type==='snooker')Object.assign(G,{L,W,R,cornerMouth:setup.table.cornerMouth,cornerLeg:international.snookerCorner.leg,
+  cornerThroatInset:international.snookerCorner.inset,cornerJawOut:international.snookerCorner.out,
+  sideThroat:G.sideMouth*.8,sideJawOut:.026*G.sideMouth/.120});
  const plan=construction.plan({L,W,R,G});
  assert.equal(plan.pockets.length,setup.type==='carom'?0:6);
  assert.equal(plan.rails.length,setup.type==='carom'?4:6);
@@ -114,6 +117,18 @@ for(const key of Object.keys(international.setups)){
  const corner=await pocketProbe({x:.24,y:.24},{x:0,y:0});
  assert.equal(corner.pocketEvents[0]?.pocket,'TL');
  assert.equal(corner.jawEvents.length,0);
+ // The old 55 mm constriction rejected a diagonal shot at an 8 mm offset.
+ // Repeat on both hands of each corner and include an entry wide of the jaw.
+ for(const [pocket,sx,sy] of [['TL',1,1],['TR',-1,1],['BR',-1,-1],['BL',1,-1]]){
+  const x=sx===1?0:snooker.state.tableL,y=sy===1?0:snooker.state.tableW;
+  for(const offset of [-.060,-.012,.012,.060]){
+   const t=offset/Math.SQRT2,aim={x:x+sx*t,y:y-sy*t};
+   const q=await pocketProbe({x:aim.x+sx*.24,y:aim.y+sy*.24},aim);
+   if(Math.abs(offset)<.02){
+    assert.equal(q.pocketEvents[0]?.pocket,pocket);assert.equal(q.jawEvents.length,0);
+   }else assert(!q.pocketEvents.some(e=>e.pocket===pocket && e.t<.9),'Wide entry must stay out');
+  }
+ }
  const jaw=await pocketProbe({x:mid+.033,y:.3},{x:mid+.033,y:0});
  assert(jaw.jawEvents.length>0,'Off-center entry contacts the rounded jaw');
  assert.equal(jaw.pocketEvents.length,0,'Glancing shot rejects at the jaw');
