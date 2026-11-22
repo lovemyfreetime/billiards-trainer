@@ -1,5 +1,5 @@
 {
-  "version": "0380b101605cba3c",
+  "version": "4ee4222918244462",
   "files": {
     "ai_model/pool_ball_classifier.onnx": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
     "ai_model/pool_ball_detector.part1.bin": "4e65f0a9757e11558b8d4137f69a833ba7215a54d30f2c55c15348d96191e7af",
@@ -945,7 +945,7 @@
     "icons/table-materials/walnut-rough.jpg": "5cb9d78ec685155d2b66a1db01abc61049d00953d783d0c78d829512de9ab0b4",
     "icons/trainer-original-execute-v2.svg": "eaf1f45d99634cdbe87582d857cc2dd6017439dadf9ce251136485422c127da4",
     "icons/zen-reference-table-v1.webp": "0d9352c54cccca69fbb78fd8bc7a173957424fad151950a3888f895069030da0",
-    "index.html": "65f23df63aeebea28a08a548f14efef9f8aa1dce7e48737afc94cad03096f2e9",
+    "index.html": "8bb755e25f7e037745cb1da154a1865e61fbb48188df4a55f05f425ca2b9320d",
     "install/android/index.html": "5af2961b4386233b6f9206577ee2acdd6b08068620c3f60c57b176c471ca3681",
     "install/apple/index.html": "baad9dae78322db69bebb071456f37d83e9ba1a7ac849dbe70ef9a88480cf253",
     "install/assets/android-guide/Billiards_Trainer_Android_Installer_Screenshots/android-app-installed.jpg": "545867686776eb4a4ecae0b6d12e6c5df3c58623919fd7935c6c09530e9f7500",
@@ -1299,7 +1299,7 @@
     "play-audio/rules-ring.mp3": "f046477dd1b1ca871d960a22192d5b66d99939e2a75bef7bc74b4e83f67ef00a",
     "play-audio/rules-saboteur.mp3": "65e2530635657dc35db7cc60b5ba8ec456f1ddc7d53c3e101db98e9d3cf388b3",
     "play-audio/rules-speed.mp3": "7d7427ae63480118842d2267765fd3e3f8952f4b8b5b31f641ae31841f6b6437",
-    "play-audio/rules-three.mp3": "48af0f175599e97f890ec28bfb3736150a0b13c0c96f0b050078057646189453",
+    "play-audio/rules-three.mp3": "0d8687f6fbbc8b5150d210263ebedadcf3fad4d1870fe20ebd9e49b95213c405",
     "play-audio/rules-turf.mp3": "71de5a4ed0e718f4bd94c55e01566bcbf5659669df12f8dd806b4707e6bd1012",
     "play-audio/scripts.json": "3880d96b70ec323b8f20330e005be648c689e76c1d019134bb85e17e0e7f9765",
     "play-audio/setup-battleship.mp3": "1c478d39c6e8d647f149a809097cd647a939c9a483e5dc0555ef9314bcdd7061",
@@ -1401,6 +1401,8 @@
     "trainer-pocket-entry.js": "9d48349871c65a003e863f6638f7a7a1cc7bd0123d8031017280eb90cef728ac",
     "trainer-pocket-feedback.js": "95e9f30aef9837a558d263e980e6d0b3f20110b98c9c515aa67f9845fb848f26",
     "trainer-practice-tools.js": "4f3be4afca8e51274aa1b9eb8c9dcd696e466c26a8974650bafe4dccd950650d",
+    "trainer-rack-reader.js": "ce54e95217e3a0bf4d6c49a15225f75c051a6d4554e4ac9c791b7c759be742ee",
+    "trainer-rack-recordings.js": "eb177bfd6bc08dc8517d40a7b50a25039d999dd38674368bbd0c49107c8b4cbd",
     "trainer-route-options.js": "e3c62ef8592c88afdc6fdd0a10e5b806eaf1bbdd59f6fa1c053016bbabb9e3b4",
     "trainer-saved-files.js": "fe24a7ffe1011cd8874688303f87183d8a8b9b97cefd16bb580cb8f7eb2e6522",
     "trainer-shot-budget.js": "419f35c9cc5449a5f753feeff889c2e49babf6bef81f2fb30ffa75f821e62096",

@@ -285,7 +285,10 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   .layoutSetupButtons button { height:48px; width:100%; min-width:0; box-sizing:border-box; padding:4px; font-size:11px; line-height:15px; }
   .layoutSetupSelect { margin-top:5px; }
   .layoutSetupSelect select { width:100%; box-sizing:border-box; padding:4px 6px; min-height:30px; }
-  .fullRackStart { display:flex; justify-content:center; margin-top:8px; }
+  .fullRackStart { display:flex; justify-content:center; gap:8px; margin-top:8px; }
+  #rackRuleBook { margin-top:8px; line-height:1.5; }
+  #rackRuleBook summary { cursor:pointer; padding:6px 0; }
+  #rackRuleText a { color:#a8ddff; }
   .fullRackStart button { min-width:110px; min-height:34px; }
   .tableControlTitle { color:#93c9f5; font-size:11px; font-weight:800; margin-bottom:6px; }
   .shotVisibilityBtn, .cueVisualToggleBtn, .shotStatsToggleBtn {
@@ -1650,7 +1653,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
           <option value="blackballRY">Blackball — Red / Yellow</option><option value="blackballBY">Blackball — Blue / Yellow</option><option value="pyramid15">Russian Pyramid</option>
         </select></div>
         <div class="row" id="poolBallSetRow"><label for="poolBallSet">Pool ball set</label><select id="poolBallSet"><option value="classic">Classic</option><option value="tv">Broadcast pink / tan</option><option value="black">Tournament Black</option></select></div>
-        <div class="fullRackStart"><button id="startFullRack" type="button">Start</button></div>
+        <details id="rackRuleBook"><summary>Read rules</summary><div id="rackRuleText"></div></details>
+        <div class="fullRackStart"><button id="rackRulePlay" type="button" disabled>Chase audio pending</button><button id="startFullRack" type="button">Start</button></div>
       </div>
       <div class="tableControlGroup layoutSetupGroup"><div class="tableControlTitle">LAYOUT SETUP</div>
       <div class="buttons layoutSetupReset"><button id="resetLayout">Reset Layout</button></div>
@@ -2126,6 +2130,8 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
 </div>
 
 <link rel="stylesheet" href="./photo-calibration.css?v=focused-start-v17">
+<script defer src="./trainer-rack-recordings.js"></script>
+<script defer src="./trainer-rack-reader.js"></script>
 <script src="./trainer-international.js?v=snooker-corners-1"></script>
 <script src="./trainer-zen-shapes.js?v=1"></script>
 <script src="./trainer-table-construction.js?v=snooker-corners-1"></script>
@@ -3184,7 +3190,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
                 const ids=[1,2,3,4,9,5,6,7,8],rows=[1,2,3,2,1];let k=0;
                 S.balls=[{id:0,n:'CB',x:L*.2,y:W*.4,active:true}];
                 for(let row=0;row<5;row++)for(let col=0;col<rows[row];col++)S.balls.push({id:ids[k],n:String(ids[k++]),x:L*.75+row*Math.sqrt(3)*R,y:W*.5+(col-(rows[row]-1)/2)*2*R,active:true});
-                S.setupMode='9ball';$('fullRackSelect').value='rack9';openControls('fullRackSelect');
+                S.setupMode='9ball';selectFullRack('rack9');openControls('fullRackSelect');
             }
             S.freeAim=aimAt(step.target,step.pocket);
             if(step.id==='practice-3'){
@@ -3909,6 +3915,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const pool=S.poolCalibration||{...capturePhysicsSettings(defaultState()),poolBallSet:S.poolBallSet};
         Object.assign(S,pool,{tableType:'pool',ballSet:pool.poolBallSet||'classic',clothNap:0,poolCalibration:null,balls:[],bankKick:defaultState().bankKick});
         S.freeAim={x:S.tableL*.75,y:S.tableW/2};
+    }
+    function selectFullRack(value) {
+        const picker = $('fullRackSelect');
+        picker.value = value;
+        picker.dispatchEvent(new Event('change', {bubbles:true}));
     }
     function startFullRack() {
         if(typeof animation!=='undefined'&&animation)return;
@@ -9771,7 +9782,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             const key=equipment.setups[equipmentPreset.rackChoice]?.[0]===equipmentPreset.tableType?equipmentPreset.rackChoice:fallback;
             if(equipmentPreset.tableType!=='pool' && !key)return false;
             const dimensions={tableL:values.tableL,tableW:values.tableW,ballR:values.ballR};
-            $('fullRackSelect').value=key||'rack8';
+            selectFullRack(key||'rack8');
             if(key)startInternationalRack(equipment.setup(key,dimensions),key);
             else {
                 restorePoolEquipment();
@@ -9818,7 +9829,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             if(Object.hasOwn(window.BilliardsInternational.setups,S.rackChoice))picker.value=S.rackChoice;
             $('applyEquipmentRack').onclick=()=>{
                 if(animation)return;
-                $('fullRackSelect').value=picker.value;
+                selectFullRack(picker.value);
                 startFullRack();
             };
         }

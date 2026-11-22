@@ -4,6 +4,17 @@ import hashlib,json,re,runpy,argparse
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 def generate(check=False):
+ # The reader offers only recordings actually included in this build.
+ audio_dir=ROOT/'play-audio'
+ tracks={p.stem:p.relative_to(ROOT).as_posix() for p in sorted((audio_dir/'rack-rules').glob('*.mp3'))}
+ if (audio_dir/'rules-three.mp3').is_file():
+  tracks.setdefault('three-ball','play-audio/rules-three.mp3')
+ recording_index=ROOT/'trainer-rack-recordings.js'
+ index_text='window.TrainerRackRecordings = '+json.dumps(tracks,indent=2,sort_keys=True)+';\n'
+ if check:
+  assert recording_index.read_text(encoding='utf-8')==index_text,'Rebuild the rack recordings index.'
+ else:
+  recording_index.write_text(index_text,encoding='utf-8',newline='\n')
  files=runpy.run_path(str(ROOT/'scripts/package-windows-app.py'))['assets']()
  files.pop('offline-assets.json',None);files.pop('service-worker.js',None);files.pop('native-updates.json',None)
  hashes={name:hashlib.sha256(p.read_bytes()).hexdigest() for name,p in files.items()}
