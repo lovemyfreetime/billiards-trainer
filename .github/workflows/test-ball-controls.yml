@@ -36,6 +36,7 @@ jobs:
           PLAY_REVIEW_DIR: test-results/ball-controls/play
         run: |
           status=0
+          if [ -f tests/near-tip-badge.browser.cjs ]; then node tests/near-tip-badge.browser.cjs || status=$?; fi
           if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] || ! git diff --quiet HEAD^ HEAD -- tests/pocket-feedback.browser.cjs; then
             node tests/pocket-feedback.browser.cjs || status=$?
           fi

@@ -7927,7 +7927,56 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         }
         ctx.restore();
     }
+    function drawNearTipBadges() {
+        const three = !!window.Billiards3D?.active;
+        const overlay = three || document.body.classList.contains('phone-layout');
+        const surface = three ? $('table3DCanvas') : canvas;
+        const bounds = surface?.getBoundingClientRect();
+        for (const which of [1, 2]) {
+            let disk = $('nearTipBadge' + which);
+            const cb = which === 2 ? S.shot2Enabled && ensureShot2() : cueBall();
+            const visible = overlay && !isProjector && !isZenPage && !animation && S.showTipBadge && shotGuidesVisible(which) && cb && cb.active !== false && bounds?.width > 64;
+            if (!visible) { if (disk) disk.hidden = true; continue; }
+            const point = window.billiardsCompassControls.project(cb);
+            if (!point || !Number.isFinite(point.x) || !Number.isFinite(point.y)) { if (disk) disk.hidden = true; continue; }
+            if (!disk) {
+                disk = document.createElement('canvas'); disk.id = 'nearTipBadge' + which;
+                disk.setAttribute('aria-label', 'Cue ball ' + which + ' near-ball tip contact');
+                disk.title = 'Drag to adjust follow, draw and English';
+                disk.style.cssText = 'position:fixed;width:64px;height:80px;z-index:45;touch-action:none;cursor:crosshair';
+                document.body.append(disk);
+                let pointer = null;
+                const adjust = ev => {
+                    const r = disk.getBoundingClientRect(), base = canvas.getBoundingClientRect();
+                    updateTipBadge(ev, {which, r:22, cx:r.left-base.left+32, cy:r.top-base.top+32});
+                };
+                disk.addEventListener('pointerdown', ev => {
+                    if (ev.button !== 0 || animation || pointer !== null) return;
+                    stopTipBadgeEvent(ev); beginActionUndo(); pointer = ev.pointerId;
+                    disk.setPointerCapture(pointer); adjust(ev);
+                });
+                disk.addEventListener('pointermove', ev => {
+                    if (ev.pointerId !== pointer) return;
+                    stopTipBadgeEvent(ev); adjust(ev);
+                });
+                for (const type of ['pointerup','pointercancel','lostpointercapture']) disk.addEventListener(type, ev => {
+                    if (ev.pointerId !== pointer) return;
+                    stopTipBadgeEvent(ev); pointer = null;
+                    if (disk.hasPointerCapture(ev.pointerId)) disk.releasePointerCapture(ev.pointerId);
+                    finishActionUndo(); saveState(); syncProjector();
+                });
+            }
+            disk.hidden = false;
+            disk.style.left = clamp(point.x+20, bounds.left+2, bounds.right-66) + 'px';
+            disk.style.top = clamp(point.y-80, bounds.top+2, bounds.bottom-82) + 'px';
+            disk.width = 64*DPR; disk.height = 80*DPR;
+            const c = disk.getContext('2d'); c.setTransform(DPR,0,0,DPR,0,0);
+            drawTipBadgeDisk(c, {r:22,cx:32,cy:32}, which === 2 ? ensureShot2() : S, which === 2 ? 'TIP 2' : 'TIP');
+        }
+    }
+    window.addEventListener('billiards:3d-render', drawNearTipBadges);
     function drawTipBadge(map) {
+        drawNearTipBadges();
         const fixed = !isProjector && document.body.classList.contains('phone-layout');
         for (const which of [1, 2]) {
             const badge = fixed
