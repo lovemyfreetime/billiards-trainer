@@ -494,6 +494,42 @@
   const ghostCoreMaterial=new T.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.82,depthWrite:false,toneMapped:false});
   // A world-up core stays centered from every viewing direction, including cue height.
   const ghostCore=new T.TubeGeometry(new T.CatmullRomCurve3([new T.Vector3(0,-.94,0),new T.Vector3(0,.94,0)]),1,.022,8,false);
+  // Distances in this group are in ball radii. The sight sits in the
+  // ghost's centre plane; the small red cap lies on the real object's skin.
+  const ringRadius=.134,ringTube=.017;
+  const rimPoints=Array.from({length:32},(_,i)=>{
+   const angle=i*Math.PI/16;return new T.Vector3(ringRadius*Math.cos(angle),ringRadius*Math.sin(angle),0);
+  });
+  const sightRing=new T.TubeGeometry(new T.CatmullRomCurve3(rimPoints,true),64,ringTube,8,true);
+  const sightStem=new T.TubeGeometry(new T.CatmullRomCurve3([new T.Vector3(0,ringRadius,0),new T.Vector3(0,.94,0)]),1,.022,8,false);
+  const whiteRim=new T.MeshBasicMaterial({color:0xffffff,toneMapped:false});
+  const ringAxis=new T.Vector3(0,0,1),sightDirection=new T.Vector3(),stemDirection=new T.Vector3(),targetCenter=new T.Vector3();
+  function addSight(group,coreMaterial){
+   const sight=new T.Group(),ring=new T.Mesh(sightRing,whiteRim),dot=new T.Mesh(tipDot,tipDotMaterial);
+   const upper=new T.Mesh(sightStem,coreMaterial),lower=new T.Mesh(sightStem,coreMaterial);
+   lower.rotation.z=Math.PI;upper.renderOrder=lower.renderOrder=2;
+   const stems=new T.Group();stems.add(upper,lower);
+   sight.add(ring,dot,stems);group.add(sight);
+  }
+  function updateSight(group,guide,f){
+   const [,core,sight]=group.children,target=guide.target;
+   const object=ballMeshes.get(target?.id);
+   if(target)targetCenter.set(target.x-f.L/2,target.z,target.y-f.W/2);
+   // A future runout shot can reference an object that still appears elsewhere.
+   // Only mark the surface when that ball is actually displayed at impact.
+   sight.visible=!!(target&&object?.visible&&object.position.distanceTo(targetCenter)<f.R*.01);
+   core.visible=!sight.visible;
+   if(!sight.visible)return;
+   const [ring,dot,stems]=sight.children;
+   sightDirection.subVectors(targetCenter,group.position).normalize();
+   ring.quaternion.setFromUnitVectors(ringAxis,sightDirection);
+   // Keep the core upright in the sight plane, including elevated contacts.
+   stemDirection.copy(clothNormal).addScaledVector(sightDirection,-sightDirection.y);
+   if(stemDirection.lengthSq()<1e-10)stemDirection.copy(ringAxis);
+   stems.quaternion.setFromUnitVectors(clothNormal,stemDirection.normalize());
+   dot.position.subVectors(object.position,group.position).divideScalar(f.R);
+   dot.quaternion.setFromUnitVectors(clothNormal,sightDirection.negate());
+  }
   function updateGhosts(f){
    const visible=new Set();
    for(const guide of f.animating?[]:(f.ghostBalls||[])){
@@ -501,9 +537,10 @@
     if(!group){
      const color=guide.color||(guide.kind==='pocket'?0xffdb55:null);
      group=new T.Group();const shell=new T.Mesh(sphere,color?new T.MeshBasicMaterial({color,transparent:true,opacity:.24,depthWrite:false,toneMapped:false}):ghostMaterial),core=new T.Mesh(ghostCore,color?new T.MeshBasicMaterial({color,transparent:true,opacity:.9,depthWrite:false,toneMapped:false}):ghostCoreMaterial);
-     shell.renderOrder=1;core.renderOrder=2;group.add(shell,core);ghostGroup.add(group);ghostMeshes.set(guide.kind,group);
+     shell.renderOrder=1;core.renderOrder=2;group.add(shell,core);if(guide.kind==='contact'||guide.kind==='next-contact')addSight(group,core.material);ghostGroup.add(group);ghostMeshes.set(guide.kind,group);
     }
     group.userData.guide=guide;group.visible=true;group.position.set(guide.x-f.L/2,Math.max(f.R,guide.z||f.R),guide.y-f.W/2);group.scale.setScalar(f.R);
+    if(group.children[2])updateSight(group,guide,f);
    }
    for(const [kind,group]of ghostMeshes)if(!visible.has(kind))group.visible=false;
   }

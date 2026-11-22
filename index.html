@@ -1939,7 +1939,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
           <legend>Cue</legend>
           <div class="check"><input id="showAngleLockControl" type="checkbox"><label for="showAngleLockControl">Cue-ball target lock control (Free / Sticky)</label></div>
           <div class="check"><input id="showImpact" type="checkbox" checked><label for="showImpact">Ghost Ball + physical overlap band</label></div>
-          <div class="check"><input id="showFullGhostBall" type="checkbox"><label for="showFullGhostBall" title="Faint 3D cue ball at the predicted contact position">Full Ghost Ball</label></div>
+          <div class="check"><input id="showFullGhostBall" type="checkbox"><label for="showFullGhostBall" title="Rotate the 3D view to center the red object-ball contact dot in the white ghost-ball ring.">Full Ghost Ball</label></div>
           <div class="check"><input id="showPocketGhost" type="checkbox" checked><label for="showPocketGhost">Yellow pocket-entry ghost ball</label></div>
           <div class="check"><input id="showPocketGlow" type="checkbox" checked><label for="showPocketGlow">Pocket alignment brightness</label></div>
           <div class="check"><input id="showRestingCueBall" type="checkbox"><label for="showRestingCueBall" title="Faint 3D cue ball at its predicted resting position">Resting Cue Ball</label></div>
@@ -8625,19 +8625,25 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         const which=(S.activeShot===2||runoutView)&&S.shot2Enabled?2:1;
         if(animation||!S.showTable||!shotGuidesVisible(which)||(!S.showFullGhostBall&&!S.showRestingCueBall&&S.showPocketGhost===false))return [];
         const preview=which===2?ensureShot2().preview:S.preview,ghosts=[],planned=plannedNextShot();
-        const add=(kind,point,height)=>{
+        const add=(kind,point,height,details)=>{
             if(point&&Number.isFinite(point.x)&&Number.isFinite(point.y)&&point.x>=0&&point.x<=S.tableL&&point.y>=0&&point.y<=S.tableW)
-                ghosts.push({kind,shot:which,x:point.x,y:point.y,z:Number.isFinite(height)?Math.max(S.ballR,height):S.ballR});
+                ghosts.push({kind,shot:which,x:point.x,y:point.y,z:Number.isFinite(height)?Math.max(S.ballR,height):S.ballR,...details});
         };
+        function addContact(kind,hit,shot,color){
+            if(!hit?.cuePos)return;
+            const z=hit.cueHeight??S.ballR;
+            const target=hit.objPos && {id:hit.objId,x:hit.objPos.x,y:hit.objPos.y,z:z+2*S.ballR*(hit.verticalNormal||0)};
+            add(kind,hit.cuePos,z,{shot,color,target});
+        }
         if(!runoutView||!planned){
-            if(S.showFullGhostBall)add('contact',preview?.firstBallContact?.cuePos,preview?.firstBallContact?.cueHeight);
+            if(S.showFullGhostBall)addContact('contact',preview?.firstBallContact,which);
             const rest=preview?.finalBalls?.find(ball=>ball.id===0&&ball.active);
             if(S.showRestingCueBall)add('rest',rest,rest?.z);
             if(S.showPocketGhost!==false)for(const f of currentPocketFeedback())if(f.entry)ghosts.push({kind:'pocket',shot:which,x:f.entry.x,y:f.entry.y,z:S.ballR*1.15,pocket:f.name});
         }
         if(planned&&cueVisualsVisible(2)){
             const extra=(kind,point,color)=>{if(point)ghosts.push({kind,shot:2,x:point.x,y:point.y,z:S.ballR,color});};
-            if(S.showFullGhostBall)extra('next-contact',planned.preview.firstBallContact?.cuePos,runoutColors.cue);
+            if(S.showFullGhostBall)addContact('next-contact',planned.preview.firstBallContact,2,runoutColors.cue);
             if(S.showRestingCueBall)extra('next-rest',planned.rest,runoutColors.cue);
             if(S.showPocketGhost!==false){
                 const state={...S,balls:S.preview.finalBalls,pocketGeometry:pocketModel()};
@@ -15060,7 +15066,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <script src="./phone-play.js?v=workspace-1"></script>
   <link rel="stylesheet" href="./trainer-3d.css?v=position-speed-r2">
   <script src="./trainer-cue3d.js?v=cloth-shadow-2"></script>
-  <script src="./trainer-3d.js?v=snooker-corners-1"></script>
+  <script src="./trainer-3d.js?v=ghost-contact-ring"></script>
   <link rel="stylesheet" href="./trainer-workspace.css?v=20261121-elevation-detection">
   <script src="./trainer-workspace.js?v=international-contact-accuracy"></script>
   <link rel="stylesheet" href="./trainer-player-view.css?v=1">
