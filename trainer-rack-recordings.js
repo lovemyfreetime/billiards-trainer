@@ -1,3 +1,22 @@
 window.TrainerRackRecordings = {
-  "three-ball": "play-audio/rules-three.mp3"
+  "blackball-blue-yellow": "play-audio/rack-rules/blackball-blue-yellow.mp3",
+  "blackball-red-yellow": "play-audio/rack-rules/blackball-red-yellow.mp3",
+  "combined-pyramid": "play-audio/rack-rules/combined-pyramid.mp3",
+  "eight-ball": "play-audio/rack-rules/eight-ball.mp3",
+  "english-billiards": "play-audio/rack-rules/english-billiards.mp3",
+  "fifteen-red-snooker": "play-audio/rack-rules/fifteen-red-snooker.mp3",
+  "four-ball-carom": "play-audio/rack-rules/four-ball-carom.mp3",
+  "nine-ball": "play-audio/rack-rules/nine-ball.mp3",
+  "one-cushion-half-match": "play-audio/rack-rules/one-cushion-half-match.mp3",
+  "seven-ball": "play-audio/rack-rules/seven-ball.mp3",
+  "six-ball": "play-audio/rack-rules/six-ball.mp3",
+  "six-red-snooker": "play-audio/rack-rules/six-red-snooker.mp3",
+  "snooker-plus": "play-audio/rack-rules/snooker-plus.mp3",
+  "straight-pool": "play-audio/rack-rules/straight-pool.mp3",
+  "straight-rail": "play-audio/rack-rules/straight-rail.mp3",
+  "straight-rail-small-table": "play-audio/rack-rules/straight-rail-small-table.mp3",
+  "ten-ball": "play-audio/rack-rules/ten-ball.mp3",
+  "three-ball": "play-audio/rules-three.mp3",
+  "three-cushion": "play-audio/rack-rules/three-cushion.mp3",
+  "ultimate-eight-ball": "play-audio/rack-rules/ultimate-eight-ball.mp3"
 };

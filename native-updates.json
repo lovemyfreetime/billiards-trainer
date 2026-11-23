@@ -1,8 +1,8 @@
 {
   "format": 1,
   "minimumProtocol": 1,
-  "version": "44d580fac6a072e59ffa636ba46ba8723a9ceb65de8d7ff7095532744abe1b75",
-  "sequence": 1795365938,
+  "version": "80a34b5b834a591f9f49bfcfa5f070e8322652f2811de304a45ef88fdda4bef9",
+  "sequence": 1795443807,
   "files": {
     "ai_model/pool_ball_classifier.onnx": {
       "sha256": "1d47963498bc88d3955d6f15fa0ebee7404d2ec9b4ac1f15ecaeab1243815193",
@@ -3881,8 +3881,8 @@
       "length": 790
     },
     "offline-assets.json": {
-      "sha256": "3b4435195335d00e9f9f694a2fe83f800e7f35835bba8b6fcdc41884324e6d21",
-      "length": 163928
+      "sha256": "48e5bf48b1fd9f779c5cb3506962a5066e16b2e6dc44395ca436c7edbbe048f3",
+      "length": 166151
     },
     "phone-play.css": {
       "sha256": "cec5017ee25f788690420d4e67241754a1fbb2c047779ad0e7e59d87f7eac720",
@@ -5128,6 +5128,82 @@
       "sha256": "2c85835137c4a52cfe643ee452de4763aba85be18a7aafd86a37ada4e22a96bf",
       "length": 104925
     },
+    "play-audio/rack-rules/blackball-blue-yellow.mp3": {
+      "sha256": "bc8bea05325fa577a93094e34536a3172e79d0fc6aaacab479ca0c93657af39a",
+      "length": 199488
+    },
+    "play-audio/rack-rules/blackball-red-yellow.mp3": {
+      "sha256": "db03d0c8544b6601901e2a39580306ca7c2e8645b5fccf5cd28ccf95f83ee45f",
+      "length": 252672
+    },
+    "play-audio/rack-rules/combined-pyramid.mp3": {
+      "sha256": "3845c3a3333da0caef242d48418d84eee87a6ed131bfe11550c47eb65cf3609a",
+      "length": 286848
+    },
+    "play-audio/rack-rules/eight-ball.mp3": {
+      "sha256": "20d8bd8d4dea024469ed8e5771b7eaea882764ed101bea5427f35a6f3623fe13",
+      "length": 166656
+    },
+    "play-audio/rack-rules/english-billiards.mp3": {
+      "sha256": "820572f1573d8bf1d1fc6c215c2567d12faa7f887e2e17b74fbee68d48ccdbf3",
+      "length": 286848
+    },
+    "play-audio/rack-rules/fifteen-red-snooker.mp3": {
+      "sha256": "2157a56ced45997c26adbf4a373e1620bcfbc34c0aa74f5fb35c4647d49e41e1",
+      "length": 462912
+    },
+    "play-audio/rack-rules/four-ball-carom.mp3": {
+      "sha256": "df6e89cacf8f5b7eca820f69af29a83b11d19f2ead75ef94c7c8b2894a9eae45",
+      "length": 121536
+    },
+    "play-audio/rack-rules/nine-ball.mp3": {
+      "sha256": "3192521a541a7aa8963ca12ce54a74188e6ad01261a46d74984ababe5d7d932c",
+      "length": 206208
+    },
+    "play-audio/rack-rules/one-cushion-half-match.mp3": {
+      "sha256": "b9086204266e1aa0626404794cb1c13837c9c94c36011a358704689554f17424",
+      "length": 206400
+    },
+    "play-audio/rack-rules/seven-ball.mp3": {
+      "sha256": "0635434413d5dd9a92d250d2ffe39da25dd5eacaf80a477289a8a2e0d9e20a5a",
+      "length": 210624
+    },
+    "play-audio/rack-rules/six-ball.mp3": {
+      "sha256": "27ecfb335422228ad603acd2828b0222901e22d349960ffc6a34baeee7837bd8",
+      "length": 179136
+    },
+    "play-audio/rack-rules/six-red-snooker.mp3": {
+      "sha256": "0ec27c327a118acb5ad3fa2303c318ff4c65d9edc31229e1474b9840bc12d827",
+      "length": 453504
+    },
+    "play-audio/rack-rules/snooker-plus.mp3": {
+      "sha256": "3fd752349b4fd9c7be6a724f884e9f42177153ae539a5e5e8003f0b676ad39c8",
+      "length": 396096
+    },
+    "play-audio/rack-rules/straight-pool.mp3": {
+      "sha256": "a8f22981d2cc15f6bedbf2b9678f6cfcda4045739602a43e4f86048aa42ffaf3",
+      "length": 229440
+    },
+    "play-audio/rack-rules/straight-rail-small-table.mp3": {
+      "sha256": "699d2faa3c60dccc8ace21cc60c14ab3cd9cb4c2e653dd363108b4cacb6dbdbd",
+      "length": 209088
+    },
+    "play-audio/rack-rules/straight-rail.mp3": {
+      "sha256": "ff7ef7895864fa654ac5532be750f778a1f64650edd68186cea6666e6c9fbc4d",
+      "length": 209088
+    },
+    "play-audio/rack-rules/ten-ball.mp3": {
+      "sha256": "fc0d6ffb0cd8bc6477481a9b64ba1ba18c2102a361f982ba92c9dabc8b9ab190",
+      "length": 184704
+    },
+    "play-audio/rack-rules/three-cushion.mp3": {
+      "sha256": "06a1e21f38c5cd934a062a3a9f5cb59b91dddcfe5c6ab51f2cf7fb8d489fd212",
+      "length": 221376
+    },
+    "play-audio/rack-rules/ultimate-eight-ball.mp3": {
+      "sha256": "3c8714f2933fe5130cbb9ad3d3d9ab0a885e0458e073794da98d42d541636213",
+      "length": 241728
+    },
     "play-audio/rules-battleship.mp3": {
       "sha256": "fdd49e4d6098c36a671cee8666da473faaea692c07451cf2a22111f99302c0d2",
       "length": 242109
@@ -5473,7 +5549,7 @@
       "length": 2434
     },
     "service-worker.js": {
-      "sha256": "5c4f0bd6bdafb34445f359b29d80af80d8b55a35937c032f149eb2022f19e7b8",
+      "sha256": "01366ffaf02abdce073b227ad7badf29445f25e61fd43a40c76c2637f3cffda6",
       "length": 7933
     },
     "shot-clock-dial.webp": {
@@ -5617,8 +5693,8 @@
       "length": 15431
     },
     "trainer-rack-recordings.js": {
-      "sha256": "eb177bfd6bc08dc8517d40a7b50a25039d999dd38674368bbd0c49107c8b4cbd",
-      "length": 81
+      "sha256": "a8449adc5ac2656acd15f5271c5301023d57934c36347114b71733d642da7818",
+      "length": 1335
     },
     "trainer-route-options.js": {
       "sha256": "e3c62ef8592c88afdc6fdd0a10e5b806eaf1bbdd59f6fa1c053016bbabb9e3b4",
