@@ -56,6 +56,7 @@ public class MainActivity extends Activity {
 
     private final ApkUpdates apkUpdates = new ApkUpdates(this);
     WebView webView;
+    private final ChasePreview chasePreview = new ChasePreview(this);
     BundledApp bundledApp;
     private volatile boolean bootstrapPending;
     private boolean fullscreenEnabled=true;
@@ -109,6 +110,8 @@ public class MainActivity extends Activity {
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
 
         webView.addJavascriptInterface(new AndroidBridge(), "BilliardsAndroid");
+        final boolean chasePreviewAttached = bundledApp != null && !APP_URL.contains("/install/")
+            && chasePreview.attach(webView);
         if(bundledApp!=null){
             if(!WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT))throw new IllegalStateException("Update Android System WebView or Chrome to open this version of Billiards Trainer.");
             String migration="window.BilliardsBundledAndroid=true;window.BilliardsContentUpdateProtocol="+(bundledApp.updates==null?0:ContentUpdates.PROTOCOL)+";(()=>{if(location.pathname!=="+org.json.JSONObject.quote(BOOTSTRAP_PATH)+")return;"+
@@ -138,12 +141,15 @@ public class MainActivity extends Activity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
+                if (chasePreviewAttached && ChasePreview.isTrainerPage(url))
+                    view.evaluateJavascript(ChasePreview.ENTRY_SCRIPT, null);
                 scheduleImmersiveMode();
             }
 
             @Override
             public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
                 try {
+                    chasePreview.close();
                     if (webView != null) {
                         webView.destroy();
                         webView = null;
@@ -422,12 +428,14 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         if (webView != null) webView.onResume();
+        chasePreview.resume();
         scheduleImmersiveMode();
     }
 
     @Override
     protected void onPause() {
         pendingDescription=null;if(descriptionVoice!=null)descriptionVoice.stop();
+        chasePreview.pause();
         if (webView != null) webView.onPause();
         super.onPause();
     }
@@ -474,6 +482,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy(){
+        chasePreview.close();
         if(pendingCameraRequest!=null){pendingCameraRequest.deny();pendingCameraRequest=null;}
         if(pendingAudioRequest!=null){pendingAudioRequest.deny();pendingAudioRequest=null;}
         narrationMicRecorder.discard();

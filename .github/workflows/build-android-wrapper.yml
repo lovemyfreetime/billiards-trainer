@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - preview/chase-in-trainer
     paths:
       - 'android-wrapper/**'
       - 'index.html'
