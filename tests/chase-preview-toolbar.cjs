@@ -178,3 +178,149 @@ click(true);
 window.cueChatDictationResult('', true);
 assert.match(speech['coach-voice-status'].textContent, /keyboard mic/);
 console.log('Android dictation script passed for draft, opt-in auto-send, hidden dialog, and keyboard fallback.');
+
+{
+const pickerSource = source('TRAINER_PICKER_SCRIPT');
+let viewport = 1280;
+const index = new Map();
+const recorded = [];
+const shortcuts = new Map();
+let nextUrl = 0;
+let photoFile;
+const listeners = {};
+class DOM {
+    constructor(tag) {
+        this.tagName = tag;
+        this.style = {};
+        this.attrs = {};
+        this.events = {};
+        this.children = [];
+        this.flags = new Set();
+        this.classList = {contains:name=>this.flags.has(name)};
+        this.disabled = false;
+        this.open = false;
+    }
+    set id(v) { this._id = v; index.set(v,this); }
+    get id() { return this._id; }
+    get nextElementSibling() { return this.parentNode?.children[this.parentNode.children.indexOf(this)+1]; }
+    append(...elements) { elements.forEach(el=>{el.remove();el.parentNode=this;this.children.push(el);}); }
+    after(el) { el.remove(); el.parentNode=this.parentNode; this.parentNode.children.splice(this.parentNode.children.indexOf(this)+1,0,el); }
+    remove() { if(this.parentNode){this.parentNode.children=this.parentNode.children.filter(el=>el!==this);this.parentNode=null;} }
+    querySelector(s) { if(s.includes('summary'))return this.children.find(el=>el.tagName==='summary');return this.children.find(el=>el.className==='sectionToggle'); }
+    contains(el) { return this===el || this.children.some(c=>c.contains(el)); }
+    closest() { return this.parentNode; }
+    setAttribute(k,v) { this.attrs[k]=v; }
+    removeAttribute(k) { delete this.attrs[k];delete this[k]; }
+    addEventListener(k,fn) { (this.events[k] ||= []).push(fn); }
+    fire(k,event={}) { for(const fn of this.events[k]||[]) fn(event); }
+    click() { if(this.disabled)return;this.fire('click');if(this.tagName==='summary'){this.parentNode.open=!this.parentNode.open;this.parentNode.fire('toggle');} }
+    dispatchEvent(event) { this.fire(event.type,event); }
+    focus() { this.focused=true; }
+    showModal() { this.open=true; }
+    close() { this.open=false;this.fire('close'); }
+    scrollIntoView() { this.scrolled=true; }
+    pause() { this.paused=true; }
+    load() {}
+    getBoundingClientRect() {
+        if(this.parentNode?.id==='cue-trainer-picker') {
+            const start = anchor.getBoundingClientRect().right+6+parseFloat(this.parentNode.style.marginInlineStart||'0');
+            return {left:start,right:start+anchor.rect.width,width:anchor.rect.width,top:8};
+        }
+        return this.rect;
+    }
+}
+const doc = {body:new DOM('body'),head:new DOM('head'),getElementById:k=>index.get(k),createElement(tag){
+    const el=new DOM(tag);
+    if(tag==='canvas'){
+        el.getContext=()=>({drawImage(...args){recorded.push(['frame',...args.slice(1)]);}});
+        el.toBlob=fn=>fn(new Blob(['frame'],{type:'image/png'}));
+    }
+    return el;
+},addEventListener:(k,v)=>(listeners[k] ||= []).push(v)};
+const nav = new DOM('nav'), mode = new DOM('button'), original = new DOM('details'), anchor = new DOM('summary');
+nav.id='workspaceTools';mode.id='table3DToggle';original.id='workspace-picker';
+mode.rect={right:106};anchor.rect={left:162,right:208,width:46,top:8};
+doc.body.append(nav);nav.append(mode,original);original.append(anchor);
+for(const id of ['quickLayoutRecall','analyzePhotoBtn','photoFileInput','phoneControls','captureSection','trainerClipTools','trainerClipArm']){
+    const el=new DOM('button');el.id=id;shortcuts.set(id,el);
+    el.addEventListener('click',()=>recorded.push([id]));
+}
+const capture=shortcuts.get('captureSection'),captureToggle=new DOM('button'),recordView=new DOM('details');
+captureToggle.className='sectionToggle';
+captureToggle.addEventListener('click',()=>capture.flags.add('open'));
+capture.append(captureToggle,recordView);
+recordView.append(shortcuts.get('trainerClipArm'));
+shortcuts.get('photoFileInput').addEventListener('change',()=>{photoFile=shortcuts.get('photoFileInput').files[0];});
+doc.body.flags.add('phone-layout');
+const window={};
+const env={window,document:doc,get innerWidth(){return viewport;},getComputedStyle:()=>({columnGap:'6px'}),
+    requestAnimationFrame:fn=>fn(),Blob,File,Event,
+    URL:{createObjectURL:()=>('blob:test'+(++nextUrl)),revokeObjectURL:url=>recorded.push(['revoke',url])},
+    DataTransfer:class{constructor(){this.files=[];this.items={add:f=>this.files.push(f)};}}
+};
+vm.runInNewContext(pickerSource,env);
+const install=()=>window.installCueTrainerPicker(nav);
+install();
+const picker=index.get('cue-trainer-picker'),summary=picker.children[0],fan=index.get('cue-trainer-fan');
+assert.equal(original.nextElementSibling,picker);
+assert.equal(summary.attrs['aria-label'],'Send to Trainer');
+assert.equal(+parseFloat(picker.style.marginInlineStart)+6, anchor.rect.left-mode.rect.right);
+install();
+assert.equal(nav.children.filter(e=>e.id===picker.id).length,1);
+const px = value => parseFloat(value);
+const checkSpace = () => {
+    const oldFanRight = (anchor.rect.left+anchor.rect.right)/2+(anchor.rect.width+6)+anchor.rect.width/2;
+    assert.ok(summary.getBoundingClientRect().left>=oldFanRight+4);
+    assert.ok(px(fan.style.left)>=anchor.rect.right+4);
+    assert.ok(px(fan.style.left)+px(fan.style.width)<=viewport);
+    const boxes=fan.children.map(el=>({x:px(el.style.left),y:px(el.style.top),w:px(el.style.width)}));
+    boxes.forEach((a,i)=>boxes.slice(i+1).forEach(b=>{
+        assert.ok(Math.hypot(a.x-b.x,a.y-b.y)>=a.w+1e-6,'menu targets overlap');
+    }));
+};
+anchor.click();
+assert.equal(original.open,true);
+summary.click();
+assert.equal(original.open,false);
+assert.equal(picker.open,true);
+checkSpace();
+anchor.click();
+assert.equal(original.open,true);
+assert.equal(picker.open,false);
+summary.click();
+for(const width of [1280,844,700,600,390,320]){
+    viewport=width;
+    if(width===320){mode.rect={right:92};anchor.rect={left:142,right:182,width:40,top:8};}
+    install();
+    checkSpace();
+}
+listeners.keydown[0]({key:'Escape',preventDefault(){}});
+assert.equal(picker.open,false);assert.equal(summary.focused,true);
+summary.click();
+listeners.pointerdown[0]({target:mode});
+assert.equal(picker.open,false);
+const choose = i => { if(!picker.open)summary.click(); fan.children[i].click();assert.equal(picker.open,false); };
+choose(0);choose(1);choose(3);
+assert.deepEqual(recorded.slice(0,3),[['quickLayoutRecall'],['analyzePhotoBtn'],['phoneControls']]);
+assert.equal(capture.flags.has('open'),true);
+assert.equal(recordView.open,true);
+assert.equal(shortcuts.get('trainerClipTools').scrolled,true);
+assert.equal(recorded.some(e=>e[0]==='trainerClipArm'),false);
+choose(2);
+const clip = doc.body.children.find(el=>el.tagName==='dialog');
+const file = clip.children.find(el=>el.tagName==='input'), video=clip.children.find(el=>el.tagName==='video');
+const use=clip.children.at(-1).children[1];
+assert.equal(file.accept,'video/*');
+assert.equal(use.disabled,true);
+file.files=[new File(['test-video'],'pool.mp4',{type:'video/mp4'})];file.fire('change');
+video.readyState=2;video.videoWidth=3840;video.videoHeight=2160;video.fire('loadeddata');
+assert.equal(use.disabled,false);
+video.seeking=true;video.fire('seeking');assert.equal(use.disabled,true);
+video.seeking=false;video.fire('seeked');use.click();
+assert.equal(photoFile.name,'video-frame.png');
+assert.equal(photoFile.type,'image/png');
+assert.deepEqual(recorded.find(e=>e[0]==='frame'),['frame',0,0,2048,1152]);
+assert.equal(clip.open,false);
+assert.deepEqual(recorded.filter(e=>e[0]==='revoke'),[['revoke','blob:test1']]);
+console.log('Trainer picker passed: equal gap, no covered launchers or options at six widths, one picker at a time, keyboard/dismiss behavior, and all four actions.');
+}

@@ -142,7 +142,7 @@ public class MainActivity extends Activity {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 if (chasePreviewAttached && ChasePreview.isTrainerPage(url))
-                    view.evaluateJavascript(ChasePreview.ENTRY_SCRIPT, null);
+                    view.evaluateJavascript(ChasePreview.TRAINER_PICKER_SCRIPT + ChasePreview.ENTRY_SCRIPT, null);
                 scheduleImmersiveMode();
             }
 

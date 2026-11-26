@@ -32,6 +32,246 @@ import org.json.JSONObject;
 
 /** Android-only preview. The remote page never receives Trainer's native bridge. */
 final class ChasePreview {
+    static final String TRAINER_PICKER_SCRIPT =
+        "(() => {\n" +
+        "  'use strict';\n" +
+        "  if (window.installCueTrainerPicker) return;\n" +
+        "  const byId = id => document.getElementById(id), make = tag => document.createElement(tag);\n" +
+        "  const actions = [\n" +
+        "    ['layout','Open layout','Layout'],\n" +
+        "    ['photo','Take or choose photo','Photo'],\n" +
+        "    ['video','Use a video frame','Video frame'],\n" +
+        "    ['record','Start recording','Record shot']\n" +
+        "  ];\n" +
+        "  let picker, trigger, fan, choices, oldPicker, bar, style;\n" +
+        "  let videoDialog;\n" +
+        "  function click(id) { const target = byId(id); if (target && !target.disabled) target.click(); }\n" +
+        "\n" +
+        "  function openRecorder() {\n" +
+        "    const capture = byId('captureSection'), tools = byId('trainerClipTools'), record = byId('trainerClipArm');\n" +
+        "    if (!capture || !tools || tools.hidden || !record) return;\n" +
+        "    const sidebar = byId('phoneControls');\n" +
+        "    if (document.body.classList.contains('phone-layout') && !document.body.classList.contains('phone-controls-open')) sidebar?.click();\n" +
+        "    const section = capture.querySelector('.sectionToggle');\n" +
+        "    if (!capture.classList.contains('open')) section?.click();\n" +
+        "    const disclosure = record.closest('details');\n" +
+        "    if (disclosure) disclosure.open = true;\n" +
+        "    requestAnimationFrame(() => tools.scrollIntoView({block:'nearest'}));\n" +
+        "  }\n" +
+        "\n" +
+        "  function openVideo() {\n" +
+        "    if (videoDialog?.open) return;\n" +
+        "    const dialog = videoDialog = make('dialog');\n" +
+        "    dialog.className = 'cue-frame-dialog';\n" +
+        "    dialog.setAttribute('aria-label','Use a video frame');\n" +
+        "    const title = make('h2'), file = make('input'), video = make('video'), status = make('p');\n" +
+        "    const actions = make('div'), cancel = make('button'), use = make('button');\n" +
+        "    actions.className = 'cue-frame-actions';\n" +
+        "    title.textContent = 'Use a video frame';\n" +
+        "    file.type = 'file';\n" +
+        "    file.accept = 'video/*';\n" +
+        "    file.setAttribute('aria-label','Choose video');\n" +
+        "    video.controls = true;\n" +
+        "    video.playsInline = true;\n" +
+        "    video.preload = 'auto';\n" +
+        "    video.hidden = true;\n" +
+        "    status.setAttribute('role','status');\n" +
+        "    status.textContent = 'Choose a video, then pause on the frame you want to analyze.';\n" +
+        "    cancel.type = use.type = 'button';\n" +
+        "    cancel.textContent = 'Cancel';\n" +
+        "    use.textContent = 'Analyze frame';\n" +
+        "    use.disabled = true;\n" +
+        "    let url;\n" +
+        "    let capturing = false;\n" +
+        "    const ready = () => Boolean(url && !video.seeking && video.readyState >= 2 && video.videoWidth > 0);\n" +
+        "    const sync = () => { use.disabled = capturing || !ready(); };\n" +
+        "    const clear = () => {\n" +
+        "      if (!url) return;\n" +
+        "      video.pause();\n" +
+        "      video.removeAttribute('src');\n" +
+        "      video.load();\n" +
+        "      URL.revokeObjectURL(url);\n" +
+        "      url = null;\n" +
+        "    };\n" +
+        "    for (const event of ['loadeddata','seeking','seeked','canplay']) video.addEventListener(event,sync);\n" +
+        "    video.addEventListener('error',() => {\n" +
+        "      use.disabled = true;\n" +
+        "      status.textContent = 'This video could not be played. Choose another video, or use a screenshot under Photo.';\n" +
+        "    });\n" +
+        "    file.addEventListener('change',() => {\n" +
+        "      const chosen = file.files?.[0];\n" +
+        "      if (!chosen) return;\n" +
+        "      clear();\n" +
+        "      capturing = false;\n" +
+        "      url = URL.createObjectURL(chosen);\n" +
+        "      video.hidden = false;\n" +
+        "      video.src = url;\n" +
+        "      status.textContent = 'Pause or scrub to the frame you want, then tap Analyze frame.';\n" +
+        "      sync();\n" +
+        "    });\n" +
+        "    cancel.addEventListener('click',() => dialog.close());\n" +
+        "    dialog.addEventListener('close',() => { clear(); dialog.remove(); videoDialog = null; });\n" +
+        "    use.addEventListener('click',() => {\n" +
+        "      if (!ready() || capturing) return;\n" +
+        "      video.pause();\n" +
+        "      capturing = true;\n" +
+        "      sync();\n" +
+        "      const canvas = make('canvas'), source = url;\n" +
+        "      const scale = Math.min(1,2048/Math.max(video.videoWidth,video.videoHeight));\n" +
+        "      canvas.width = Math.max(1,Math.round(video.videoWidth*scale));\n" +
+        "      canvas.height = Math.max(1,Math.round(video.videoHeight*scale));\n" +
+        "      const failed = () => { capturing = false; sync(); status.textContent = 'Could not use that frame. Try a paused frame or use a screenshot under Photo.'; };\n" +
+        "      try {\n" +
+        "        canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);\n" +
+        "        canvas.toBlob(blob => {\n" +
+        "          if (!dialog.open || url !== source) return;\n" +
+        "          if (!blob) { failed(); return; }\n" +
+        "          try {\n" +
+        "            const target = byId('photoFileInput');\n" +
+        "            if (!target) throw Error('No photo input');\n" +
+        "            const transfer = new DataTransfer();\n" +
+        "            transfer.items.add(new File([blob],'video-frame.png',{type:'image/png'}));\n" +
+        "            target.files = transfer.files;\n" +
+        "            dialog.close();\n" +
+        "            click('analyzePhotoBtn');\n" +
+        "            target.dispatchEvent(new Event('change',{bubbles:true}));\n" +
+        "          } catch (_) { failed(); }\n" +
+        "        },'image/png');\n" +
+        "      } catch (_) { failed(); }\n" +
+        "    });\n" +
+        "    actions.append(cancel,use);\n" +
+        "    dialog.append(title,file,video,status,actions);\n" +
+        "    document.body.append(dialog);\n" +
+        "    dialog.showModal();\n" +
+        "    file.click();\n" +
+        "  }\n" +
+        "\n" +
+        "  function sync() {\n" +
+        "    if (!picker || picker.parentNode !== bar) return;\n" +
+        "    const old = oldPicker.querySelector(':scope > summary');\n" +
+        "    if (!old) return;\n" +
+        "    const r = old.getBoundingClientRect();\n" +
+        "    if (!r.width) return;\n" +
+        "    const mode = byId('table3DToggle')?.getBoundingClientRect();\n" +
+        "    const size = r.width, radius = size + 6;\n" +
+        "    const gap = Math.max(radius+4, mode ? r.left-mode.right : 0);\n" +
+        "    const flexGap = parseFloat(getComputedStyle(bar).columnGap)||0;\n" +
+        "    picker.style.marginInlineStart = Math.max(0,gap-flexGap)+'px';\n" +
+        "    if (!picker.open) return;\n" +
+        "    choices[0].disabled = !byId('quickLayoutRecall') || byId('quickLayoutRecall').disabled;\n" +
+        "    choices[1].disabled = !byId('analyzePhotoBtn') || byId('analyzePhotoBtn').disabled;\n" +
+        "    choices[2].disabled = !byId('photoFileInput');\n" +
+        "    choices[3].disabled = !byId('trainerClipTools') || byId('trainerClipTools').hidden;\n" +
+        "    const nr = trigger.getBoundingClientRect();\n" +
+        "    const minimum = r.right+4;\n" +
+        "    const width = Math.min(2*radius+size,Math.max(size+8,innerWidth-minimum-4));\n" +
+        "    const left = Math.max(minimum,Math.min(innerWidth-width-4,nr.left+nr.width/2-width/2));\n" +
+        "    fan.style.left = left+'px';\n" +
+        "    fan.style.top = Math.max(0,r.top-8)+'px';\n" +
+        "    fan.style.width = width+'px';\n" +
+        "    const radial = width >= size*3+8;\n" +
+        "    const columns = width >= size*2+12 ? 2 : 1;\n" +
+        "    fan.style.height = (radial ? radius+size+8 : size+10+Math.ceil(choices.length/columns)*(size+6)+10)+'px';\n" +
+        "    const span = (width-size)/2;\n" +
+        "    choices.forEach((option,i) => {\n" +
+        "      const angle = Math.PI-i*Math.PI/3;\n" +
+        "      const x = radial ? span+span*Math.cos(angle) : (width-columns*size-(columns-1)*6)/2+(i%columns)*(size+6);\n" +
+        "      const y = radial ? 8+radius*Math.sin(angle) : size+10+Math.floor(i/columns)*(size+6);\n" +
+        "      option.style.left = x+'px';\n" +
+        "      option.style.top = y+'px';\n" +
+        "      option.style.width = option.style.height = size+'px';\n" +
+        "    });\n" +
+        "  }\n" +
+        "\n" +
+        "  window.installCueTrainerPicker = host => {\n" +
+        "    const old = byId('workspace-picker');\n" +
+        "    if (!old || old.parentNode !== host) return;\n" +
+        "    if (picker && old === oldPicker) {\n" +
+        "      if (old.nextElementSibling !== picker) old.after(picker);\n" +
+        "      sync();\n" +
+        "      return;\n" +
+        "    }\n" +
+        "    if (picker) picker.remove();\n" +
+        "    if (!style) {\n" +
+        "      style = make('style');\n" +
+        "      style.textContent = `\n" +
+        "body:not(.trainer-workspace) #cue-trainer-picker,body.zen-mode #cue-trainer-picker,body.play-mode #cue-trainer-picker {display:none!important}\n" +
+        "#workspaceTools #cue-trainer-picker {flex:none; position:relative}\n" +
+        "#workspaceTools #cue-trainer-picker > summary {position:relative;z-index:3;display:grid;place-items:center;box-sizing:border-box;width:var(--top-circle,46px);height:var(--top-circle,46px);min-height:0;padding:0;border:1px solid #78929f;border-radius:50%;list-style:none;background:#1d2c36;color:#edf6fa;font:600 10px/1 system-ui}\n" +
+        "#workspaceTools #cue-trainer-picker > summary::-webkit-details-marker,#workspaceTools #cue-trainer-picker > summary::after {display:none}\n" +
+        "#workspaceTools #cue-trainer-picker[open] > summary {background:#2b4c61;border-color:#b3d8e9}\n" +
+        "#cue-trainer-picker:not([open]) .cue-trainer-fan {display:none}\n" +
+        ".cue-trainer-fan {position:fixed;z-index:1;border-radius:0 0 50% 50% / 0 0 78% 78%;background:#14212afa;pointer-events:none;box-shadow:inset 0 0 0 1px #688291,0 8px 24px #0008}\n" +
+        ".cue-trainer-fan > button {position:absolute;box-sizing:border-box;border-radius:50%;border:1px solid #6b889b;padding:2px;background:#213b4d;color:#f3f9fc;font:600 10px/1.05 system-ui;pointer-events:auto;white-space:normal;cursor:pointer}\n" +
+        ".cue-trainer-fan > button:hover {background:#345d74}\n" +
+        ".cue-trainer-fan > button:disabled {opacity:.45;cursor:default}\n" +
+        "#cue-trainer-picker :focus-visible,.cue-frame-dialog :focus-visible {outline:2px solid #b0e3ff;outline-offset:2px}\n" +
+        ".cue-frame-dialog {width:min(620px,calc(100% - 28px));max-height:calc(100% - 24px);box-sizing:border-box;margin:auto;padding:16px;border:1px solid #78929f;border-radius:14px;background:#172a38;color:#edf6fa;overflow:auto;font:14px system-ui}\n" +
+        ".cue-frame-dialog::backdrop {background:#001020a6}\n" +
+        ".cue-frame-dialog h2 {margin:0 0 9px;font-size:18px}\n" +
+        ".cue-frame-dialog input {max-width:100%}\n" +
+        ".cue-frame-dialog video {display:block;width:100%;max-height:53dvh;background:#071521;margin-top:10px}\n" +
+        ".cue-frame-dialog video[hidden] {display:none}\n" +
+        ".cue-frame-dialog .cue-frame-actions {display:flex;gap:8px;justify-content:flex-end}\n" +
+        ".cue-frame-actions button {min-height:40px;padding:8px 12px;border:1px solid #7b9eb4;border-radius:8px;background:#243b4a;color:#edf6fa}\n" +
+        ".cue-frame-actions button:disabled {opacity:.5}\n" +
+        "`;\n" +
+        "      document.head.append(style);\n" +
+        "    }\n" +
+        "    bar = host; oldPicker = old;\n" +
+        "    picker = make('details');\n" +
+        "    picker.id = 'cue-trainer-picker';\n" +
+        "    const own = picker;\n" +
+        "    trigger = make('summary');\n" +
+        "    trigger.setAttribute('aria-label','Send to Trainer');\n" +
+        "    trigger.setAttribute('aria-expanded','false');\n" +
+        "    trigger.setAttribute('aria-controls','cue-trainer-fan');\n" +
+        "    trigger.title = 'Send to Trainer';\n" +
+        "    trigger.innerHTML = '<svg width=\"23\" height=\"23\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 5h16v10h-5m-6 0H4zM12 10v10m-4-4 4 4 4-4\"/></svg>';\n" +
+        "    fan = make('div');\n" +
+        "    fan.id = 'cue-trainer-fan';\n" +
+        "    fan.className = 'cue-trainer-fan';\n" +
+        "    fan.setAttribute('role','group');\n" +
+        "    fan.setAttribute('aria-label','Send to Trainer tools');\n" +
+        "    choices = actions.map(([key,label,short]) => {\n" +
+        "      const button = make('button');\n" +
+        "      button.type = 'button';\n" +
+        "      button.textContent = short;\n" +
+        "      button.setAttribute('aria-label',label);\n" +
+        "      button.addEventListener('click',() => {\n" +
+        "        own.open = false;\n" +
+        "        if (key === 'layout') click('quickLayoutRecall');\n" +
+        "        if (key === 'photo') click('analyzePhotoBtn');\n" +
+        "        if (key === 'video') openVideo();\n" +
+        "        if (key === 'record') openRecorder();\n" +
+        "      });\n" +
+        "      fan.append(button);\n" +
+        "      return button;\n" +
+        "    });\n" +
+        "    picker.append(trigger,fan);\n" +
+        "    const oldTrigger = old.querySelector(':scope > summary');\n" +
+        "    oldTrigger?.addEventListener('click',() => { if (!old.open) own.open = false; });\n" +
+        "    old.addEventListener('toggle',() => { if (old.open) own.open = false; });\n" +
+        "    trigger.addEventListener('click',() => { if (!own.open) old.open = false; });\n" +
+        "    own.addEventListener('toggle',() => {\n" +
+        "      trigger.setAttribute('aria-expanded',String(own.open));\n" +
+        "      if (own.open) { old.open = false; sync(); }\n" +
+        "    });\n" +
+        "    document.addEventListener('pointerdown',event => {\n" +
+        "      if (own.open && !own.contains(event.target)) own.open = false;\n" +
+        "    },true);\n" +
+        "    document.addEventListener('keydown',event => {\n" +
+        "      if (event.key === 'Escape' && own.open) {\n" +
+        "        event.preventDefault();\n" +
+        "        own.open = false;\n" +
+        "        trigger.focus();\n" +
+        "      }\n" +
+        "    },true);\n" +
+        "    old.after(picker);\n" +
+        "    sync();\n" +
+        "  };\n" +
+        "})();\n";
+
     static final String ENTRY_SCRIPT =
         "(() => {\n" +
         "  const bridge = window.TrainerChasePreview;\n" +
@@ -128,6 +368,7 @@ final class ChasePreview {
         "    Object.assign(button.style,{position:'fixed',bottom:'auto',height:'44px',borderRadius:'14px'});\n" +
         "    label.hidden = false;\n" +
         "    const bar = document.getElementById('workspaceTools');\n" +
+        "    if (bar) window.installCueTrainerPicker?.(bar);\n" +
         "    const panel = box(document.getElementById('panel'));\n" +
         "    const display = box(document.getElementById('appDisplayControl'));\n" +
         "    const close = box(document.getElementById('appCloseControl'));\n" +
@@ -144,12 +385,14 @@ final class ChasePreview {
         "    if (stage) {\n" +
         "      const edge = panel && panel.left > stage.left && panel.left < stage.right ? panel.left : stage.right;\n" +
         "      const center = (stage.left + edge) / 2;\n" +
-        "      const titleWidth = Math.round(Math.max(16,Math.min(29,innerWidth*.0275))*8.15);\n" +
-        "      const left = center - titleWidth / 2;\n" +
-        "      Object.assign(wordmark.style, {display:'block', width:titleWidth+'px', left:left+'px', top:top+'px'});\n" +
-        "      if (oldWordmark) oldWordmark.hidden = true;\n" +
-        "      low = Math.max(min, left + titleWidth + 8);\n" +
-        "      if (max - low < 44 && left - 8 - min >= 44) { low = min; high = left - 8; }\n" +
+        "      const fontSize = Math.max(16,Math.min(29,innerWidth*.0275));\n" +
+        "      const titleWidth = Math.round(fontSize*8.15), left = center - titleWidth / 2;\n" +
+        "      if (left >= min && left+titleWidth <= max) {\n" +
+        "        Object.assign(wordmark.style, {display:'block', width:titleWidth+'px', left:left+'px', top:top+'px'});\n" +
+        "        if (oldWordmark) oldWordmark.hidden = true;\n" +
+        "        low = Math.max(min, left + titleWidth + 8);\n" +
+        "        if (max - low < 44 && left - 8 - min >= 44) { low = min; high = left - 8; }\n" +
+        "      }\n" +
         "    }\n" +
         "    if (high - low < 44) { button.style.display = 'none'; return; }\n" +
         "    const compact = high - low < 111;\n" +
