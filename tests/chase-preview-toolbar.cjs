@@ -22,6 +22,7 @@ class Element {
     get lastElementChild() { return this.label ||= new Element(); }
     getBoundingClientRect() { return this.rect; }
     setAttribute(key, value) { this[key] = value; }
+    getAttribute(key) { return this[key]; }
     removeAttribute(key) { delete this[key]; }
     addEventListener(key, fn) { this[key] = fn; }
 }
@@ -66,41 +67,47 @@ const [button, wordmark] = body.children;
 assert.equal(button.id, 'cue-chat-launch');
 assert.equal(button['aria-label'], 'Cue Chat');
 assert.match(button.innerHTML, /data:image\/webp;base64,.*<span>Cue Chat/);
-assert.equal(button.style.left, '534.5px');
+assert.equal(button.style.left, '678px');
 assert.equal(button.lastElementChild.hidden, false);
 ids.panel = new Element('panel', 710, 290);
 frame.resize();
-assert.equal(button.style.left, '534.5px');
+assert.equal(button.style.left, '558px');
 ids.panel = new Element('panel', 625, 375);
 frame.resize();
-assert.equal(button.style.left, '506px');
+assert.equal(button.style.left, '473px');
 delete ids.panel;
 oldWordmark = new Element();
 ids.stageWrap = new Element('stageWrap', 60, 880, 52, 400);
 frame.resize();
-assert.equal(wordmark.style.left, '413px');
+assert.equal(wordmark.style.left, '388px');
 assert.equal(wordmark.style.display,'block');
 assert.equal(oldWordmark.hidden,true);
 assert.ok(parseFloat(button.style.left) >= 595);
 ids.panel = new Element('panel', 720, 280, 30, 500);
 frame.resize();
-assert.equal(wordmark.style.left, '303px');
+assert.equal(wordmark.style.left, '278px');
 delete ids.stageWrap;
 delete ids.panel;
 body.classList.add('table-3d');
 frame.resize();
-assert.equal(button.style.left, '579.5px');
+assert.equal(button.style.left, '678px');
 ids.workspaceTopActions.rect.left = 240;
 frame.resize();
 assert.equal(button.lastElementChild.hidden, true);
 assert.equal(button.style.width, '44px');
 body.classList.add('zen-mode');
+ids.zenModeMenu = new Element('zenModeMenu');
+ids.zenModeBtn = new Element('zenModeBtn');
+ids.zenModeBtn.setAttribute('aria-expanded','true');
+ids.zenModeBtn.click = () => ids.zenModeBtn.setAttribute('aria-expanded','false');
 frame.resize();
-assert.equal(button.style.right, '85px');
-assert.equal(button.style.width, '44px');
+assert.equal(button.parentNode, ids.zenModeMenu);
+assert.equal(ids.zenModeMenu.style.width, '222px');
+assert.equal(button.style.width, '48px');
 assert.equal(button.lastElementChild.hidden, true);
 assert.equal(wordmark.style.display,'none');
 button.click();
+assert.equal(ids.zenModeBtn.getAttribute('aria-expanded'),'false');
 body.classList.add('play-mode');
 playModal = new Element();
 play = new Element();
@@ -108,7 +115,9 @@ play.href = './companion.html';
 frame.resize();
 assert.equal(button.style.display, 'none');
 assert.equal(play.href, undefined);
-assert.match(play.innerHTML, /<span>Cue Chat/);
+assert.match(play.innerHTML, /46px\)\/1\.1 Georgia,serif">Cue Chat/);
+assert.doesNotMatch(play.innerHTML,/Chat with Chase/);
+assert.equal(play.style.justifyContent,'center');
 play.click = () => play.onclick({preventDefault(){}});
 play.onkeydown({key:'Enter', preventDefault(){}});
 play = null;

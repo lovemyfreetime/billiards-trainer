@@ -47,11 +47,15 @@ final class ChasePreview {
         "  const label = button.lastElementChild;\n" +
         "  button.style.cssText = 'position:fixed;z-index:68;display:inline-flex;align-items:center;justify-content:center;gap:6px;box-sizing:border-box;height:44px;padding:0 10px;min-width:44px;border:1px solid #658293;border-radius:14px;background:#152f3f;color:#eff7ff;font:600 13px system-ui;white-space:nowrap;cursor:pointer';\n" +
         "  button.style.display = 'none';\n" +
-        "  button.addEventListener('click', open);\n" +
+        "  button.addEventListener('click', () => {\n" +
+        "    const lotus = document.getElementById('zenModeBtn');\n" +
+        "    if (button.parentNode?.id === 'zenModeMenu' && lotus?.getAttribute('aria-expanded') === 'true') lotus.click();\n" +
+        "    open();\n" +
+        "  });\n" +
         "  const wordmark = document.createElement('div');\n" +
         "  wordmark.id = 'cue-chat-trainer-wordmark';\n" +
         "  wordmark.innerHTML = 'Billiards <span class=\"trainer-title-color\">Trainer</span>';\n" +
-        "  wordmark.style.cssText = 'display:none;position:fixed;z-index:68;pointer-events:none;white-space:nowrap;text-align:center;font:750 clamp(14px,2.3vw,23px)/44px system-ui;color:#fff';\n" +
+        "  wordmark.style.cssText = 'display:none;position:fixed;z-index:68;pointer-events:none;white-space:nowrap;text-align:center;font:750 clamp(16px,2.75vw,29px)/44px system-ui;color:#fff';\n" +
         "  document.body.append(button);\n" +
         "  document.body.append(wordmark);\n" +
         "\n" +
@@ -68,7 +72,10 @@ final class ChasePreview {
         "      play.setAttribute('role', 'button');\n" +
         "      play.setAttribute('aria-label', 'Cue Chat');\n" +
         "      play.tabIndex = 0;\n" +
-        "      play.innerHTML = '<span class=\"play-ui-icon\">' + crest + '</span><span>Cue Chat</span><small>Chat with Chase.</small>';\n" +
+        "      const playMark = crest.replace('width:27px;height:27px','width:clamp(34px,4.3vw,54px);height:clamp(34px,4.3vw,54px)').replace('-8px -4px/44px 44px','-0.41em -0.22em/2.22em 2.22em;font-size:clamp(25.2px,3.2vw,40px)').replace(' no-repeat',';background-repeat:no-repeat');\n" +
+        "      // One centered logo-and-label lockup in the existing Play card.\n" +
+        "      Object.assign(play.style, {display:'flex',alignItems:'center',justifyContent:'center',gap:'clamp(8px,1.5vw,18px)'});\n" +
+        "      play.innerHTML = playMark + '<span style=\"font:500 clamp(30px,4.2vw,46px)/1.1 Georgia,serif\">Cue Chat</span>';\n" +
         "      play.onclick = event => { event.preventDefault(); open(); };\n" +
         "      play.onkeydown = event => {\n" +
         "        if (event.key === 'Enter' || event.key === ' ') {\n" +
@@ -101,28 +108,29 @@ final class ChasePreview {
         "      }\n" +
         "      return;\n" +
         "    }\n" +
-        "    if (button.parentNode !== document.body) document.body.append(button);\n" +
-        "    button.style.position = 'fixed';\n" +
-        "    button.style.bottom = 'auto';\n" +
-        "    if ((!zen && !trainer) || classes.contains('app-experience-host')) {\n" +
+        "    if (classes.contains('app-experience-host') || (!zen && !trainer)) {\n" +
         "      button.style.display = 'none';\n" +
         "      return;\n" +
         "    }\n" +
+        "    if (zen) {\n" +
+        "      const menu = document.getElementById('zenModeMenu');\n" +
+        "      if (!menu) { button.style.display = 'none'; return; }\n" +
+        "      if (button.parentNode !== menu) menu.append(button);\n" +
+        "      menu.style.width = '222px';\n" +
+        "      label.hidden = true;\n" +
+        "      Object.assign(button.style, {\n" +
+        "        display:'grid', placeItems:'center', position:'static', width:'48px', height:'48px',\n" +
+        "        borderRadius:'50%', background:'#181b20', borderColor:'#c5a88055', padding:'0'\n" +
+        "      });\n" +
+        "      return;\n" +
+        "    }\n" +
+        "    if (button.parentNode !== document.body) document.body.append(button);\n" +
+        "    Object.assign(button.style,{position:'fixed',bottom:'auto',height:'44px',borderRadius:'14px'});\n" +
         "    label.hidden = false;\n" +
         "    const bar = document.getElementById('workspaceTools');\n" +
         "    const panel = box(document.getElementById('panel'));\n" +
         "    const display = box(document.getElementById('appDisplayControl'));\n" +
         "    const close = box(document.getElementById('appCloseControl'));\n" +
-        "    if (zen) {\n" +
-        "      const dots = [display, close].filter(Boolean).sort((a,b) => a.left-b.left);\n" +
-        "      label.hidden = true;\n" +
-        "      Object.assign(button.style, {\n" +
-        "        display:'inline-flex', width:'44px', left:'auto', top:Math.max(0, (dots[0]?.top ?? 7) + ((dots[0]?.height ?? 44) - 44)/2) + 'px',\n" +
-        "        right:Math.max(8, dots.length ? innerWidth - dots[0].left + 5 : 72) + 'px',\n" +
-        "        borderColor:'transparent', background:'transparent', padding:'0'\n" +
-        "      });\n" +
-        "      return;\n" +
-        "    }\n" +
         "    const barBox = box(bar);\n" +
         "    if (!barBox) { button.style.display = 'none'; return; }\n" +
         "    const top = Math.max(0, barBox.top + (barBox.height - 44) / 2);\n" +
@@ -136,7 +144,7 @@ final class ChasePreview {
         "    if (stage) {\n" +
         "      const edge = panel && panel.left > stage.left && panel.left < stage.right ? panel.left : stage.right;\n" +
         "      const center = (stage.left + edge) / 2;\n" +
-        "      const titleWidth = innerWidth < 700 ? 124 : 174;\n" +
+        "      const titleWidth = Math.round(Math.max(16,Math.min(29,innerWidth*.0275))*8.15);\n" +
         "      const left = center - titleWidth / 2;\n" +
         "      Object.assign(wordmark.style, {display:'block', width:titleWidth+'px', left:left+'px', top:top+'px'});\n" +
         "      if (oldWordmark) oldWordmark.hidden = true;\n" +
@@ -147,7 +155,7 @@ final class ChasePreview {
         "    const compact = high - low < 111;\n" +
         "    label.hidden = compact;\n" +
         "    const width = compact ? 44 : 111;\n" +
-        "    const preferred = innerWidth * (classes.contains('table-3d') ? .635 : .59) - width / 2;\n" +
+        "    const preferred = high === max ? high - width - Math.min(48,innerWidth*.033) : high-width;\n" +
         "    Object.assign(button.style, {\n" +
         "      display:'inline-flex', width:width+'px', top:top+'px', right:'auto',\n" +
         "      left:Math.max(low, Math.min(high - width, preferred))+'px',\n" +
@@ -271,36 +279,31 @@ final class ChasePreview {
     }
 
     private void show(String url) {
-        String conversationUrl = url + "?chat=chase";
+        String conversationUrl = url + "?from=trainer";
         Dialog sheet = new Dialog(activity);
         sheet.requestWindowFeature(Window.FEATURE_NO_TITLE);
         LinearLayout body = new LinearLayout(activity);
         body.setOrientation(LinearLayout.VERTICAL);
         body.setBackgroundColor(Color.rgb(9, 24, 35));
-        LinearLayout header = new LinearLayout(activity);
-        body.addView(header);
-        Button back = new Button(activity);
-        back.setText("Back to Table");
-        back.setOnClickListener(v -> sheet.dismiss());
-        header.addView(back);
-        TextView title = new TextView(activity);
-        title.setText("Cue Chat · Under construction");
-        title.setTextColor(Color.WHITE);
-        title.setGravity(android.view.Gravity.CENTER_VERTICAL);
-        header.addView(title, new LinearLayout.LayoutParams(0, -1, 1));
-        Button settings = new Button(activity);
-        settings.setText("Server");
-        settings.setOnClickListener(v -> configure());
-        header.addView(settings);
         TextView status = new TextView(activity);
         status.setTextColor(Color.WHITE);
         status.setPadding(14, 8, 14, 8);
         status.setVisibility(View.GONE);
         body.addView(status);
+        LinearLayout recovery = new LinearLayout(activity);
+        recovery.setVisibility(View.GONE);
+        body.addView(recovery);
         Button retry = new Button(activity);
         retry.setText("Retry");
-        retry.setVisibility(View.GONE);
-        body.addView(retry);
+        recovery.addView(retry);
+        Button settings = new Button(activity);
+        settings.setText("Server settings");
+        settings.setOnClickListener(v -> configure());
+        recovery.addView(settings);
+        Button back = new Button(activity);
+        back.setText("Back to Table");
+        back.setOnClickListener(v -> sheet.dismiss());
+        recovery.addView(back);
 
         WebView page = new WebView(activity);
         body.addView(page, new LinearLayout.LayoutParams(-1, 0, 1));
@@ -316,6 +319,14 @@ final class ChasePreview {
         boolean dictationBridge = WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER);
         if (dictationBridge) {
             String origin = url.substring(0, url.length() - 1);
+            WebViewCompat.addWebMessageListener(page, "CueChatHost", Collections.singleton(origin),
+                (view, message, source, mainFrame, reply) -> {
+                    if (view != page || panel != page || !mainFrame || !origin.equals(source.toString())
+                            || !ChasePreviewAddress.sameOrigin(url, page.getUrl())) return;
+                    String action = message.getData();
+                    if ("return".equals(action)) sheet.dismiss();
+                    else if ("settings".equals(action)) configure();
+                });
             WebViewCompat.addWebMessageListener(page, "CueChatDictation", Collections.singleton(origin),
                 (view, message, source, mainFrame, reply) -> {
                     if (view == page && panel == page && mainFrame && origin.equals(source.toString())
@@ -327,11 +338,11 @@ final class ChasePreview {
             if (panel != page) return;
             status.setText("Can’t open Cue Chat. Check Tailscale and Start-With-Speechify on the PC.");
             status.setVisibility(View.VISIBLE);
-            retry.setVisibility(View.VISIBLE);
+            recovery.setVisibility(View.VISIBLE);
         };
         retry.setOnClickListener(v -> {
             status.setVisibility(View.GONE);
-            retry.setVisibility(View.GONE);
+            recovery.setVisibility(View.GONE);
             page.loadUrl(conversationUrl);
         });
         page.setWebViewClient(new WebViewClient() {
@@ -373,6 +384,7 @@ final class ChasePreview {
         });
         sheet.show();
         if (sheet.getWindow() != null) {
+            sheet.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(Color.rgb(9, 24, 35)));
             sheet.getWindow().setLayout(-1, -1);
             sheet.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         }
