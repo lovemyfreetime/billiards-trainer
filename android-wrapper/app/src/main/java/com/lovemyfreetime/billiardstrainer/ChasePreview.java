@@ -3,8 +3,11 @@ package com.lovemyfreetime.billiardstrainer;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.speech.RecognizerIntent;
 import android.text.InputType;
 import android.view.View;
 import android.view.Window;
@@ -23,29 +26,150 @@ import android.widget.TextView;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.Collections;
+import org.json.JSONObject;
 
 /** Android-only preview. The remote page never receives Trainer's native bridge. */
 final class ChasePreview {
     static final String ENTRY_SCRIPT =
         "(() => {\n" +
-        "  if (!document.body?.classList.contains('trainer-workspace')) return;\n" +
-        "  const bar = document.getElementById('workspaceTools');\n" +
-        "  if (!bar || document.getElementById('chase-preview-launch')) return;\n" +
+        "  const bridge = window.TrainerChasePreview;\n" +
+        "  if (!bridge || window.cueChatEntryInstalled || !document.body) return;\n" +
+        "  window.cueChatEntryInstalled = true;\n" +
+        "  const open = () => bridge.postMessage('open');\n" +
+        "  const crest = '<svg width=\"26\" height=\"26\" viewBox=\"0 0 32 32\" aria-hidden=\"true\"><path d=\"M13 4Q16 0 19 4L29 23Q32 29 26 29H23L25 32L18 29H6Q0 29 3 23Z\" fill=\"#f5f4ea\" stroke=\"#b4834d\" stroke-width=\"2\"/><circle cx=\"16\" cy=\"10.5\" r=\"4\" fill=\"#fff\" stroke=\"#a6a193\"/><circle cx=\"11\" cy=\"21\" r=\"4.7\" fill=\"#078374\"/><circle cx=\"21\" cy=\"21\" r=\"4.7\" fill=\"#175abb\"/></svg>';\n" +
         "  const button = document.createElement('button');\n" +
         "  button.type = 'button';\n" +
-        "  button.id = 'chase-preview-launch';\n" +
-        "  button.textContent = 'Chase Preview';\n" +
-        "  button.setAttribute('aria-label', 'Chat with Chase (under construction)');\n" +
-        "  button.style.cssText = 'flex:none;white-space:nowrap;padding:4px 8px;font-size:12px';\n" +
-        "  button.addEventListener('click', () => window.TrainerChasePreview.postMessage('open'));\n" +
-        "  bar.append(button);\n" +
+        "  button.id = 'cue-chat-launch';\n" +
+        "  button.setAttribute('aria-label', 'Cue Chat');\n" +
+        "  button.innerHTML = crest + '<span>Cue Chat</span>';\n" +
+        "  const label = button.lastElementChild;\n" +
+        "  button.style.cssText = 'position:fixed;z-index:68;display:inline-flex;align-items:center;justify-content:center;gap:6px;box-sizing:border-box;height:44px;padding:0 10px;min-width:44px;border:1px solid #658293;border-radius:14px;background:#152f3f;color:#eff7ff;font:600 13px system-ui;white-space:nowrap;cursor:pointer';\n" +
+        "  button.style.display = 'none';\n" +
+        "  button.addEventListener('click', open);\n" +
+        "  document.body.append(button);\n" +
+        "\n" +
+        "  const box = el => {\n" +
+        "    if (!el) return null;\n" +
+        "    const r = el.getBoundingClientRect();\n" +
+        "    return r.width && r.height && getComputedStyle(el).visibility !== 'hidden' ? r : null;\n" +
+        "  };\n" +
+        "  function update() {\n" +
+        "    const play = document.querySelector('.play-home-companion');\n" +
+        "    if (play && play.dataset.cueChat !== '1') {\n" +
+        "      play.dataset.cueChat = '1';\n" +
+        "      play.removeAttribute('href');\n" +
+        "      play.setAttribute('role', 'button');\n" +
+        "      play.setAttribute('aria-label', 'Cue Chat');\n" +
+        "      play.tabIndex = 0;\n" +
+        "      play.innerHTML = '<span class=\"play-ui-icon\">' + crest + '</span><span>Cue Chat</span><small>Chat with Chase.</small>';\n" +
+        "      play.onclick = event => { event.preventDefault(); open(); };\n" +
+        "      play.onkeydown = event => {\n" +
+        "        if (event.key === 'Enter' || event.key === ' ') {\n" +
+        "          event.preventDefault(); play.click();\n" +
+        "        }\n" +
+        "      };\n" +
+        "    }\n" +
+        "    const classes = document.body.classList;\n" +
+        "    const zen = classes.contains('zen-mode');\n" +
+        "    const trainer = classes.contains('trainer-workspace');\n" +
+        "    if ((!zen && !trainer) || classes.contains('play-mode') || classes.contains('app-experience-host')) {\n" +
+        "      button.style.display = 'none';\n" +
+        "      return;\n" +
+        "    }\n" +
+        "    label.hidden = false;\n" +
+        "    const bar = document.getElementById('workspaceTools');\n" +
+        "    const panel = box(document.getElementById('panel'));\n" +
+        "    const display = box(document.getElementById('appDisplayControl'));\n" +
+        "    const close = box(document.getElementById('appCloseControl'));\n" +
+        "    if (zen) {\n" +
+        "      const dots = [display, close].filter(Boolean).sort((a,b) => a.left-b.left);\n" +
+        "      label.hidden = true;\n" +
+        "      Object.assign(button.style, {\n" +
+        "        display:'inline-flex', width:'44px', left:'auto', top:Math.max(0, (dots[0]?.top ?? 7) + ((dots[0]?.height ?? 44) - 44)/2) + 'px',\n" +
+        "        right:Math.max(8, dots.length ? innerWidth - dots[0].left + 5 : 72) + 'px',\n" +
+        "        borderColor:'transparent', background:'transparent', padding:'0'\n" +
+        "      });\n" +
+        "      return;\n" +
+        "    }\n" +
+        "    const barBox = box(bar);\n" +
+        "    if (!barBox) { button.style.display = 'none'; return; }\n" +
+        "    const top = Math.max(0, barBox.top + (barBox.height - 44) / 2);\n" +
+        "    const topRow = r => r && r.top < top + 44 && r.bottom > top;\n" +
+        "    const leftBoxes = [...bar.children].filter(e => e.id !== 'workspaceTopActions').map(box).filter(topRow);\n" +
+        "    const rightBoxes = [box(document.getElementById('workspaceTopActions')), display, close].filter(topRow);\n" +
+        "    const min = Math.max(8, ...leftBoxes.map(r => r.right + 8));\n" +
+        "    const max = Math.min(innerWidth - 8, ...rightBoxes.map(r => r.left - 8), panel && panel.left > innerWidth / 2 ? panel.left - 8 : innerWidth);\n" +
+        "    if (max - min < 44) { button.style.display = 'none'; return; }\n" +
+        "    const compact = max - min < 111;\n" +
+        "    label.hidden = compact;\n" +
+        "    const width = compact ? 44 : 111;\n" +
+        "    const preferred = innerWidth * (classes.contains('table-3d') ? .635 : .59) - width / 2;\n" +
+        "    Object.assign(button.style, {\n" +
+        "      display:'inline-flex', width:width+'px', top:top+'px', right:'auto',\n" +
+        "      left:Math.max(min, Math.min(max - width, preferred))+'px',\n" +
+        "      background:'#152f3f', borderColor:'#658293', padding:'0'\n" +
+        "    });\n" +
+        "  }\n" +
+        "  let queued = false;\n" +
+        "  function queue() {\n" +
+        "    if (queued) return;\n" +
+        "    queued = true;\n" +
+        "    window.requestAnimationFrame(() => { queued = false; update(); });\n" +
+        "  }\n" +
+        "  const observer = new MutationObserver(queue);\n" +
+        "  observer.observe(document.body, {childList:true, subtree:true});\n" +
+        "  observer.observe(document.body, {attributes:true, attributeFilter:['class']});\n" +
+        "  window.addEventListener('resize', queue);\n" +
+        "  document.addEventListener('billiards:display-change', queue);\n" +
+        "  update();\n" +
+        "})();\n";
+
+    static final String DICTATION_SCRIPT =
+        "(() => {\n" +
+        "  const bridge = window.CueChatDictation;\n" +
+        "  const byId = id => document.getElementById(id);\n" +
+        "  const dialog = byId('private-coach'), input = byId('coach-input'), mic = byId('coach-mic');\n" +
+        "  const send = byId('coach-voice-send'), status = byId('coach-voice-status');\n" +
+        "  if (!bridge || !dialog || !input || !mic || !send || !status || window.cueChatDictationResult) return;\n" +
+        "  let pending = false;\n" +
+        "  function sync() {\n" +
+        "    if (dialog.open && !input.disabled && mic.disabled) mic.disabled = false;\n" +
+        "    if (dialog.open && send.disabled) send.disabled = false;\n" +
+        "  }\n" +
+        "  const obs = new MutationObserver(sync);\n" +
+        "  obs.observe(dialog, {attributes:true, attributeFilter:['open','disabled'], subtree:true});\n" +
+        "  sync();\n" +
+        "  mic.title = 'Dictate with Android';\n" +
+        "  mic.addEventListener('click', event => {\n" +
+        "    event.preventDefault();\n" +
+        "    event.stopImmediatePropagation();\n" +
+        "    if (!event.isTrusted || pending || !dialog.open || input.disabled) return;\n" +
+        "    pending = true;\n" +
+        "    byId('coach-audio')?.pause();\n" +
+        "    bridge.postMessage('dictate');\n" +
+        "  }, true);\n" +
+        "  window.cueChatDictationResult = (transcript, unavailable) => {\n" +
+        "    if (!pending) return;\n" +
+        "    pending = false;\n" +
+        "    if (!dialog.open || input.disabled) return;\n" +
+        "    if (unavailable) { status.textContent = 'Android dictation is unavailable. Try your keyboard mic.'; return; }\n" +
+        "    if (!transcript.trim()) return;\n" +
+        "    const draft = input.value;\n" +
+        "    input.value = (draft + (draft && !/\\s$/.test(draft) ? ' ' : '') + transcript.trim()).slice(0, input.maxLength);\n" +
+        "    input.dispatchEvent(new Event('input', {bubbles:true}));\n" +
+        "    if (send.checked && input.value !== draft) input.form?.requestSubmit();\n" +
+        "  };\n" +
         "})();\n";
 
     private final Activity activity;
+    private static final int DICTATION_REQUEST = 4202;
     private Dialog dialog;
     private AlertDialog setup;
     private WebView panel;
+    private WebView dictationPage;
+    private boolean dictationInFlight;
 
     ChasePreview(Activity activity) { this.activity = activity; }
 
@@ -64,7 +188,8 @@ final class ChasePreview {
         Uri uri = Uri.parse(url);
         String path = uri.getPath();
         return BundledApp.isAppOrigin(uri) && (BundledApp.PREFIX.equals(path)
-            || (BundledApp.PREFIX + "index.html").equals(path));
+            || (BundledApp.PREFIX + "index.html").equals(path)
+            || (BundledApp.PREFIX + "play.html").equals(path));
     }
 
     private android.content.SharedPreferences prefs() {
@@ -143,6 +268,16 @@ final class ChasePreview {
         web.setSupportMultipleWindows(false);
         // Cue Chat still asks the player to opt in to automatic replies.
         web.setMediaPlaybackRequiresUserGesture(false);
+        boolean dictationBridge = WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER);
+        if (dictationBridge) {
+            String origin = url.substring(0, url.length() - 1);
+            WebViewCompat.addWebMessageListener(page, "CueChatDictation", Collections.singleton(origin),
+                (view, message, source, mainFrame, reply) -> {
+                    if (view == page && panel == page && mainFrame && origin.equals(source.toString())
+                            && ChasePreviewAddress.sameOrigin(url, page.getUrl())
+                            && "dictate".equals(message.getData())) dictate(page);
+                });
+        }
         Runnable unavailable = () -> {
             if (panel != page) return;
             status.setText("Can’t open Cue Chat. Check Tailscale and Start-With-Speechify on the PC.");
@@ -155,6 +290,13 @@ final class ChasePreview {
             page.loadUrl(url);
         });
         page.setWebViewClient(new WebViewClient() {
+            @Override public void onPageStarted(WebView view, String target, android.graphics.Bitmap icon) {
+                if (dictationPage == view) dictationPage = null;
+            }
+            @Override public void onPageFinished(WebView view, String target) {
+                if (dictationBridge && panel == view && ChasePreviewAddress.sameOrigin(url, target))
+                    view.evaluateJavascript(DICTATION_SCRIPT, null);
+            }
             @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 return !ChasePreviewAddress.sameOrigin(url, request.getUrl().toString());
             }
@@ -180,6 +322,7 @@ final class ChasePreview {
         sheet.setContentView(body);
         sheet.setOnDismissListener(ignored -> {
             if (dialog == sheet) { dialog = null; panel = null; }
+            if (dictationPage == page) dictationPage = null;
             body.removeView(page);
             page.destroy();
         });
@@ -189,6 +332,45 @@ final class ChasePreview {
             sheet.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         }
         page.loadUrl(url);
+    }
+
+    private void dictate(WebView page) {
+        if (dictationInFlight) {
+            reportDictation(page, "", true);
+            return;
+        }
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+            .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            .putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+            .putExtra(RecognizerIntent.EXTRA_PROMPT, "Ask Chase");
+        dictationPage = page;
+        dictationInFlight = true;
+        try {
+            activity.startActivityForResult(intent, DICTATION_REQUEST);
+        } catch (ActivityNotFoundException | SecurityException unavailable) {
+            dictationPage = null;
+            dictationInFlight = false;
+            reportDictation(page, "", true);
+        }
+    }
+
+    boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode != DICTATION_REQUEST) return false;
+        WebView page = dictationPage;
+        dictationPage = null;
+        dictationInFlight = false;
+        if (page != null && page == panel) {
+            ArrayList<String> results = resultCode == Activity.RESULT_OK && data != null
+                ? data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS) : null;
+            String text = results == null || results.isEmpty() ? null : results.get(0);
+            reportDictation(page, text == null ? "" : text.substring(0, Math.min(text.length(), 1800)), false);
+        }
+        return true;
+    }
+
+    private void reportDictation(WebView page, String transcript, boolean unavailable) {
+        page.evaluateJavascript("window.cueChatDictationResult?.(" + JSONObject.quote(transcript)
+            + "," + unavailable + ")", null);
     }
 
     void pause() {

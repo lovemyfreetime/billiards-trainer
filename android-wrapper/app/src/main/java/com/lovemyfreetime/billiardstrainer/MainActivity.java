@@ -368,6 +368,10 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (chasePreview.onActivityResult(requestCode, resultCode, data)) {
+            scheduleImmersiveMode();
+            return;
+        }
         if (requestCode != FILE_CHOOSER_REQUEST) return;
         Uri[] out = null;
         if (resultCode == RESULT_OK) {
