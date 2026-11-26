@@ -19,6 +19,10 @@ class Element {
         el.parentNode = this;
         this.children.push(el);
     }
+    remove() {
+        if (this.parentNode) this.parentNode.children = this.parentNode.children.filter(x=>x!==this);
+        this.parentNode = null;
+    }
     get lastElementChild() { return this.label ||= new Element(); }
     getBoundingClientRect() { return this.rect; }
     setAttribute(key, value) { this[key] = value; }
@@ -37,7 +41,7 @@ const ids = {
 };
 ids.workspaceTools.append(new Element('workspace-picker', 80, 66));
 ids.workspaceTools.append(ids.workspaceTopActions);
-let play, playModal, playNav, oldWordmark;
+let play, oldWordmark;
 body.classList = new Set(['trainer-workspace']);
 body.classList.contains = body.classList.has;
 const document = {
@@ -45,8 +49,6 @@ const document = {
     getElementById(id) { return ids[id]; },
     querySelector(selector) {
         if (selector === '.play-home-companion') return play;
-        if (selector.includes('#playDialog')) return playModal;
-        if (selector === '.play-footer nav') return playNav;
         if (selector === '#panel .btg-pool-title h1') return oldWordmark;
         assert.fail(selector);
     },
@@ -109,11 +111,10 @@ assert.equal(wordmark.style.display,'none');
 button.click();
 assert.equal(ids.zenModeBtn.getAttribute('aria-expanded'),'false');
 body.classList.add('play-mode');
-playModal = new Element();
 play = new Element();
 play.href = './companion.html';
 frame.resize();
-assert.equal(button.style.display, 'none');
+assert.equal(button.parentNode, null);
 assert.equal(play.href, undefined);
 assert.match(play.innerHTML, /46px\)\/1\.1 Georgia,serif">Cue Chat/);
 assert.doesNotMatch(play.innerHTML,/Chat with Chase/);
@@ -122,17 +123,11 @@ play.click = () => play.onclick({preventDefault(){}});
 play.onkeydown({key:'Enter', preventDefault(){}});
 play = null;
 frame.resize();
-assert.equal(button.parentNode, playModal);
-assert.equal(button.style.display, 'inline-flex');
-playModal = null;
-playNav = new Element();
-frame.resize();
-assert.equal(button.parentNode, playNav);
-assert.equal(button.style.position, 'static');
+assert.equal(button.parentNode, null);
 run();
 assert.equal(body.children.length, 1);
 assert.deepEqual(messages, ['open','open']);
-console.log('Cue Chat placements passed for 2D, open sidebar, 3D, compact, Zen, and Play.');
+console.log('Cue Chat placements passed for 2D, open sidebar, 3D, compact, Zen, and home-only in Play.');
 
 const speech = {
     'private-coach': new Element(),

@@ -330,22 +330,8 @@ final class ChasePreview {
         "    wordmark.style.display = 'none';\n" +
         "    if (oldWordmark) oldWordmark.hidden = false;\n" +
         "    if (classes.contains('play-mode')) {\n" +
-        "      const modal = document.querySelector('.play-tools-dialog[open], #playDialog[open]');\n" +
-        "      const nav = document.querySelector('.play-footer nav');\n" +
-        "      if (modal && !play) {\n" +
-        "        if (button.parentNode !== modal) modal.append(button);\n" +
-        "        label.hidden = false;\n" +
-        "        Object.assign(button.style, {\n" +
-        "          display:'inline-flex', position:'fixed', width:'110px', top:'auto', bottom:'10px', left:'auto',\n" +
-        "          right:'max(10px, env(safe-area-inset-right))', background:'#152f3f', borderColor:'#658293'\n" +
-        "        });\n" +
-        "      } else if (!modal && nav) {\n" +
-        "        if (button.parentNode !== nav) nav.append(button);\n" +
-        "        label.hidden = false;\n" +
-        "        Object.assign(button.style, {display:'inline-flex',position:'static',width:'110px'});\n" +
-        "      } else {\n" +
-        "        button.style.display = 'none';\n" +
-        "      }\n" +
+        "      // Play only uses its own home card. Never add a floating or footer shortcut.\n" +
+        "      button.remove();\n" +
         "      return;\n" +
         "    }\n" +
         "    if (classes.contains('app-experience-host') || (!zen && !trainer)) {\n" +
