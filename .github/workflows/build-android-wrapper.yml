@@ -27,6 +27,7 @@ on:
       - 'tests/trainer-3d-ball-tools.browser.cjs'
       - 'tests/trainer-3d-gesture-routing.test.cjs'
       - 'scripts/build-offline-assets.py'
+      - 'tests/zen-fresh-table.test.cjs'
       - 'scripts/verify-android-app.py'
       - 'scripts/update-android-downloads.py'
 
