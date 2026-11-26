@@ -1,0 +1,47 @@
+--- index.html
++++ index.html
+@@ -2849,7 +2849,7 @@
+             if(kind==='table'||kind==='grid'){const a=M.map({x:0,y:0}),b=M.map({x:S.tableL,y:S.tableW});return [{x:c.left+a.x*sx,y:c.top+a.y*sy,width:b.x*sx-a.x*sx,height:b.y*sy-a.y*sy}];}
+             return [];
+         }
+-        return {capture,restore,apply,loadLesson,narrationRegions,snapshot,strokeSnapshot,annotations(){return S.annotations||null;},saveAnnotations(data){S.annotations=data;saveState();},feltBounds(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR);return {left:c.left-s.left+m.corners[0].x*sx,top:c.top-s.top+m.corners[0].y*sy,right:c.left-s.left+m.corners[1].x*sx,width:(m.corners[1].x-m.corners[0].x)*sx,height:(m.corners[2].y-m.corners[0].y)*sy};},annotationFrame(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR),A=ORIGINAL_ASSET_GEOM,L=S.tableL,W=S.tableW,dx=L/(A.x1-A.x0),dy=W/(A.y1-A.y0),logical=[{x:-A.x0*dx,y:-A.y0*dy},{x:L+(A.width-A.x1)*dx,y:-A.y0*dy},{x:L+(A.width-A.x1)*dx,y:W+(A.height-A.y1)*dy},{x:-A.x0*dx,y:W+(A.height-A.y1)*dy}],screen=p=>{const q=window.BilliardsTableZoom?.mapPoint?.(m.map(p))||m.map(p);return {x:c.left-s.left+q.x*sx,y:c.top-s.top+q.y*sy};};return {length:L,width:W,corners:logical.map(screen),surface:[{x:0,y:0},{x:L,y:0},{x:L,y:W},{x:0,y:W}].map(screen),map:p=>screen({x:p.x*L,y:p.y*W}),inverse(p){const v={x:(p.x-s.left)/sx,y:(p.y-s.top)/sy},q=m.inv(window.BilliardsTableZoom?.unmapPoint?.(v)||v);return {x:q.x/L,y:q.y/W};}};},exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},flightProfileBounds(){const which=S.activeShot===2&&S.shot2Enabled?2:1,preview=which===2?S.shot2?.preview:S.preview;if(document.body.classList.contains('phone-layout')||!shouldShowFlightOverlay(preview,which))return null;const r=canvas.getBoundingClientRect(),w=canvas.width/DPR;return {left:r.left+6,right:r.left+6+flightSideProfileWidth(w,false),bottom:r.top+140};},rollingReference(which=1){return rollingReferenceForShot(which);},predict(options={}){const p=simulate(false);return {...(options.paths?{paths:p.paths}:{}),pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact,railEvents:p.railEvents,pocketEvents:p.pocketEvents};}};
++        return {capture,restore,apply,loadLesson,narrationRegions,snapshot,strokeSnapshot,annotations(){return S.annotations||null;},saveAnnotations(data){S.annotations=data;saveState();},feltBounds(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR);return {left:c.left-s.left+m.corners[0].x*sx,top:c.top-s.top+m.corners[0].y*sy,right:c.left-s.left+m.corners[1].x*sx,width:(m.corners[1].x-m.corners[0].x)*sx,height:(m.corners[2].y-m.corners[0].y)*sy};},annotationFrame(){const m=controlMap(),c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect(),sx=c.width/(canvas.width/DPR),sy=c.height/(canvas.height/DPR),A=ORIGINAL_ASSET_GEOM,L=S.tableL,W=S.tableW,dx=L/(A.x1-A.x0),dy=W/(A.y1-A.y0),logical=[{x:-A.x0*dx,y:-A.y0*dy},{x:L+(A.width-A.x1)*dx,y:-A.y0*dy},{x:L+(A.width-A.x1)*dx,y:W+(A.height-A.y1)*dy},{x:-A.x0*dx,y:W+(A.height-A.y1)*dy}],screen=p=>{const q=window.BilliardsTableZoom?.mapPoint?.(m.map(p))||m.map(p);return {x:c.left-s.left+q.x*sx,y:c.top-s.top+q.y*sy};};return {length:L,width:W,corners:logical.map(screen),surface:[{x:0,y:0},{x:L,y:0},{x:L,y:W},{x:0,y:W}].map(screen),map:p=>screen({x:p.x*L,y:p.y*W}),inverse(p){const v={x:(p.x-s.left)/sx,y:(p.y-s.top)/sy},q=m.inv(window.BilliardsTableZoom?.unmapPoint?.(v)||v);return {x:q.x/L,y:q.y/W};}};},exportFile(){return window.BilliardsLayoutFiles.create(captureBallLayout(S.lastLayoutName),cleanSnapshot(),runHistory);},flightProfileBounds(){const which=S.activeShot===2&&S.shot2Enabled?2:1,preview=which===2?S.shot2?.preview:S.preview;if(document.body.classList.contains('phone-layout')||!shouldShowFlightOverlay(preview,which))return null;const r=canvas.getBoundingClientRect(),w=canvas.width/DPR;return {left:r.left+6,right:r.left+6+flightSideProfileWidth(w,false),bottom:r.top+140};},rollingReference(which=1){return rollingReferenceForShot(which);},coachDrawPlan,predict(options={}){const p=simulate(false);return {...(options.paths?{paths:p.paths}:{}),pocketed:p.pocketEvents.map(e=>e.id),finalBalls:p.finalBalls,firstBallContact:p.firstBallContact,railEvents:p.railEvents,pocketEvents:p.pocketEvents};}};
+     })();
+ 
+     function freshZenTable(){
+@@ -5248,6 +5248,28 @@
+         const rewind = penetration / (Math.sqrt(closing * closing + speed2 * penetration) - closing);
+         return rewind <= maxTime + 1e-12 ? Math.min(maxTime, rewind) : 0;
+     }
++    async function coachDrawPlan(goal, attached) {
++        if(!window.CueChatCoachPhysics||!window.billiardsTourBridge) return null;
++        if(animation||S.airbornePhysics||S.activeShot===2&&S.shot2Enabled)
++            return {status:'unavailable',reason:'For this pilot, use a stopped table and aim Shot 1 for a near-straight draw.'};
++        const liveFile=window.billiardsTourBridge.exportFile();
++        if(!window.CueChatCoachPhysics.sameLayout(attached,liveFile))
++            return {status:'unavailable',reason:'The table or shot settings changed. Tap Use Current Table again to update the attachment.'};
++        const cue=cueBall();
++        if(!cue||!S.freeAim) return {status:'unavailable',reason:'Place the cue ball and aim toward the pocket before attaching the table.'};
++        const fixed=JSON.parse(JSON.stringify(S,(key,value)=>key==='preview'||key==='solution'?undefined:value));
++        const elevation=Number(fixed.cueElevationDeg)||0;
++        if(elevation>8) return {status:'unavailable',reason:'Lower the cue and reattach the table for this ground-shot draw calculation.'};
++        const inState=(overrides,run)=>{
++            const live=S;
++            try{S={...fixed,...overrides};return run();}finally{S=live;}
++        };
++        return window.CueChatCoachPhysics.solveDraw(goal,
++            {length:fixed.tableL,follow:fixed.follow,elevation,cue:{x:cue.x,y:cue.y}},
++            {simulate:(speed,follow)=>inState({speed,follow,sideSpin:0,airbornePhysics:false,showShotBudget:false},
++                ()=>simulate(false,null,true)),
++             diamonds:speed=>inState({},()=>powerFeelForSpeed(speed).diamonds)});
++    }
+     function simulate(makeFrames = false, search = null, trace = false) {
+         const simulation=simulateSteps(makeFrames,search,false,trace);let step;
+         do{step=simulation.next();}while(!step.done);
+@@ -14131,5 +14153,5 @@
+   <script src="./beta-ui.js?v=offline-startup-v158"></script>
+ 
+ 
+-</body>
++<script src="../coach-physics.js"></script><script src="../trainer-bridge.js"></script></body>
+ </html>

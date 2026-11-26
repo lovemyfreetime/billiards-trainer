@@ -1,0 +1,77 @@
+#private-coach {
+  padding: 0;
+  width: min(620px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  margin: auto;
+  overflow: hidden;
+  color: var(--ink);
+}
+.coach-panel { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; height: min(740px, calc(100dvh - 28px)); }
+#coach-thread[hidden], #room-thread[hidden] { display: none; }
+#coach-thread { min-width: 0; min-height: 0; }
+#coach-thread .coach-panel { flex: 1; height: 100%; min-height: 0; }
+#coach-thread #coach-form { background: var(--panel, #103451); }
+#coach-thread #coach-back { display: none; }
+@media (max-width: 720px) { #coach-thread #coach-back { display: inline-flex; } }
+.coach-panel header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px; border-bottom: 1px solid var(--line); }
+.coach-panel header h2 { margin: 0; font-size: 21px; }
+.coach-panel header p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+#coach-messages { overflow: auto; overscroll-behavior: contain; padding: 12px 16px; }
+.coach-example { color: var(--muted); font-size: 14px; }
+.coach-turn { max-width: 93%; width: fit-content; background: #103451; border-radius: 12px; padding: 10px 13px; margin: 0 0 10px; overflow-wrap: anywhere; }
+.coach-player { margin-left: auto; background: #205275; }
+.coach-turn strong, .coach-turn small { color: var(--accent); font-size: 12px; }
+.coach-turn p { white-space: pre-wrap; margin: 4px 0; }
+#coach-form { display: grid; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--line); }
+.coach-table-tools, .coach-shortcuts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+#coach-table-chip { display: flex; align-items: center; gap: 6px; padding: 3px 7px; border-radius: 10px; background: #103451; overflow-wrap: anywhere; min-width: 0; }
+#coach-table-chip[hidden], #coach-table-use[hidden], #coach-error[hidden] { display: none; }
+#coach-input { resize: vertical; min-height: 52px; max-height: 110px; width: 100%; padding: 8px; border-radius: 9px; border: 1px solid var(--line); color: var(--ink); background: #0a2c48; font: inherit; }
+#coach-send { justify-self: end; min-width: 110px; }
+#coach-error { color: #ffd8aa; margin: 0; font-size: 13px; }
+.coach-voice { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.coach-voice label { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; }
+.coach-voice input[type=checkbox] { width: 16px; height: 16px; margin: 0; }
+#coach-mic { min-height: 42px; }
+#coach-voice-speechify[hidden], #coach-voice-stop[hidden] { display: none; }
+#coach-voice-status { margin: 0; color: var(--muted); font-size: 12px; }
+@media (max-width: 600px) {
+  .coach-shortcuts { gap: 3px; }
+  .coach-shortcuts button { padding-inline: 3px; }
+  #trainer-coach { white-space: nowrap; }
+}
+
+/* Inbox refresh. Only the visible work stays in the header and composer. */
+#app .cue-room-list { min-height: 0; overflow: auto; overscroll-behavior: contain; }
+#app .cue-new-room { justify-content: space-between; background: #2a648c; margin-block: 8px 7px; }
+#app .cue-new-room span { font-size: 24px; line-height: 1; }
+#app .sidebar-bottom { padding-top: 10px; }
+#app .section-label { flex: none; }
+#app .empty-state { max-width: min(460px,100%); margin: clamp(0px, 2vh, 18px) auto; }
+#app .empty-state p { font-size: clamp(17px, 2.25vw, 27px); font-weight: 600; margin: 0 0 10px; line-height: 1.35; }
+#app .empty-table { max-width: min(100%, 350px); margin: 0 auto; }
+#app .cue-share-table { color:#bfdded; background:none; border:0; font:600 11px/1.15 system-ui; padding: 5px 0; cursor:pointer; text-align:right; }
+#app .cue-share-table:hover { text-decoration:underline; }
+#app .cue-share-table:focus-visible, .cue-return:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+#app .compose-foot { justify-content:flex-end; padding:0; }
+#app .compose-foot .save-state:not(.is-busy):not(.has-error) { display:none; }
+#app #room-thread[data-no-room] .compose-area,
+#app #room-thread[data-no-room] #sample-button,
+#app #room-thread[data-no-room] #invite,
+#app #room-thread[data-no-room] #connection,
+#app #room-thread[data-no-room] #menu-button { display:none; }
+.cue-return[hidden] { display:none !important; }
+.cue-profile-form { display:grid; gap:12px; }
+.cue-profile-form label { display:grid; gap:6px; }
+.cue-profile-form .primary { justify-self:start; }
+.cue-profile-choices:not(:empty) { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+body[data-cue-embedded] #app { max-width:none; height:100svh; margin:0; border:0; border-radius:0; box-shadow:none; }
+@media(max-width:600px) {
+  #app .cue-share-table { font-size:10px; max-width:60px; }
+  #app .header-actions { flex-wrap:wrap; justify-content:flex-end; }
+}
+@media(max-height:500px) {
+  #app .sidebar .brand-logo { width:100px; height:100px; }
+  #app .sidebar-tagline { margin-bottom:8px; }
+  #app .empty-table { max-width:min(100%, 250px); }
+}

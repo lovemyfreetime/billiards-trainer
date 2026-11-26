@@ -1,0 +1,34 @@
+CUE CHAT — COMPLETE PREVIEW
+
+WINDOWS
+1. Close any old Cue Chat windows that are still running.
+2. Extract the entire ZIP to one folder. Keep the app folder beside Start-Cue-Chat.cmd.
+3. Double-click Start-Cue-Chat.cmd. This is the dashboard and the only launcher.
+4. Click Start Cue Chat, then Open Inbox. No history or old settings are copied.
+
+Use the Python 3.10+ installation with Tk and Tailscale that are already on your PC.
+The dashboard tells you if an older copy is still using port 3003. Stop that
+copy before you start. Keep the new dashboard open while you use Cue Chat.
+
+VOICE AND AI (OPTIONAL)
+For voice, check Speechify and enter your Speechify API key. For cloud replies,
+check OpenAI and enter your OpenAI API key. Leave both unchecked for the local
+preview. With Remember on this PC checked, the Windows dashboard encrypts these
+settings for your Windows user account, outside the install folder. They are not
+in this ZIP or on Android. API charges, if enabled, are by the providers.
+
+ANDROID
+1. In the Android folder, install Billiards-Trainer-Cue-Chat.apk over the existing
+   app. Keep Tailscale connected. A new PC or phone still needs private routing.
+2. In the dashboard, confirm that the Android Tailscale link is Ready. Use Copy
+   Android link to get the phone address, or enter your existing HTTPS Serve
+   address if it is not discovered.
+3. Open Cue Chat in Trainer. Keep the same server address if it was paired before.
+   The inbox starts empty. It asks for a name when you start or join a conversation.
+
+If the PC is Ready but the Android link is not, check Tailscale Serve and make
+sure its HTTPS address forwards to http://127.0.0.1:3003 on the PC.
+Regular Billiards Trainer releases and Signal are unchanged.
+
+Once the dashboard starts this copy successfully, you only need this folder
+and the installed Android app. Old Cue Chat ZIPs and update scripts aren't needed.

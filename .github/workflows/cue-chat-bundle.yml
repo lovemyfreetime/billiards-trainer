@@ -1,0 +1,78 @@
+name: Cue Chat complete preview
+on:
+  push:
+    branches:
+      - preview/chase-in-trainer
+    paths:
+      - 'cue-chat/**'
+      - '.github/workflows/cue-chat-bundle.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-checks:
+    runs-on: windows-latest
+    if: github.ref == 'refs/heads/preview/chase-in-trainer'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check the launcher configuration and Windows account encryption
+        run: python cue-chat/test_bundle.py
+
+  release:
+    runs-on: ubuntu-latest
+    needs: windows-checks
+    if: github.ref == 'refs/heads/preview/chase-in-trainer'
+    timeout-minutes: 55
+    permissions:
+      contents: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ANDROID_RUN: '45768322832'
+      ANDROID_HEAD: 74896c23c6b5a38d6e0e1f378d469d5d5f0111cc
+      TAG: cue-chat-preview-2026.11.26
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Get the exact signed and validated Android preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          success=false
+          for attempt in {1..80}; do
+            payload=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$ANDROID_RUN")
+            test "$(jq -r .head_sha <<< "$payload")" = "$ANDROID_HEAD"
+            if [ "$(jq -r .status <<< "$payload")" = completed ]; then
+              test "$(jq -r .conclusion <<< "$payload")" = success
+              success=true
+              break
+            fi
+            sleep 30
+          done
+          test "$success" = true
+          gh run download "$ANDROID_RUN" --name Android-validated-APKs --dir .validated-android
+          test -s .validated-android/trainer/release/app-trainer-release.apk
+      - name: Assemble and smoke-test the full Windows and Android ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          python cue-chat/build_bundle.py --android .validated-android/trainer/release/app-trainer-release.apk --output dist/Cue-Chat-Complete.zip
+          unzip -q dist/Cue-Chat-Complete.zip -d "$RUNNER_TEMP/cue-chat-test"
+          export CUE_CHAT_TEST_APP="$RUNNER_TEMP/cue-chat-test/Cue-Chat/app"
+          test -s "$CUE_CHAT_TEST_APP/public/trainer/guide/learning-catalog.json"
+          python cue-chat/test_bundle.py
+      - name: Publish the clean preview as a separate GitHub prerelease
+        shell: bash
+        run: |
+          gh release create "$TAG" dist/Cue-Chat-Complete.zip \
+            --prerelease --target "$GITHUB_SHA" --title 'Cue Chat complete preview' \
+            --notes 'One ZIP with the Windows dashboard and matching Android Trainer APK. Extract it in one folder and open Start-Cue-Chat.cmd. No chat history, private network settings, or API keys are included. The normal Billiards Trainer release is unchanged.'

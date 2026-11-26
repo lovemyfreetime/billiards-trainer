@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#124f79"><title>Cue Chat · Billiards Companion</title><link rel="icon" href="/assets/chalk-send.webp" type="image/png"><link rel="stylesheet" href="/style.css?v=complete-20261126"><link rel="stylesheet" href="/private-coach.css?v=complete-20261126"></head>
+<body>
+<div id="toast" role="status" aria-live="polite"></div>
+<main id="app" class="app">
+ <aside id="sidebar" class="sidebar"><div class="brand"><img class="brand-logo" src="/assets/cue-chat-logo.webp" alt="Cue Chat"><button id="close-sidebar" class="icon-button mobile-only" aria-label="Close conversations">×</button></div><p class="sidebar-tagline">A better game, together.</p><div class="section-label">YOUR CONVERSATIONS</div><div class="cue-room-list"><button id="new-room" class="room-button cue-new-room" type="button"><strong>Start a new group chat</strong><span aria-hidden="true">＋</span></button><nav id="rooms" aria-label="Conversations"></nav></div><div class="sidebar-bottom"><button id="profile-button" class="profile-button"><span id="profile-avatar" class="avatar"></span><span><strong id="profile-name">Player profile</strong><small>Player profile</small></span><span class="more">•••</span></button></div></aside>
+ <section id="room-thread" class="conversation" data-no-room><header class="chat-header"><button id="open-sidebar" class="icon-button mobile-only" aria-label="Show conversations">☰</button><div class="room-heading"><span class="room-symbol">◉</span><div><h1 id="room-title">Cue Chat</h1><button id="member-button" class="member-button"></button></div></div><div class="header-actions"><button id="sample-button" class="cue-share-table" type="button" title="Attach the sample table to this draft">Start with a shared table</button><span id="connection" class="connection"><i></i>Connected</span><button id="invite" class="secondary">Invite <span>＋</span></button><button id="menu-button" class="icon-button" aria-label="Conversation menu">•••</button><button class="cue-return icon-button" type="button" data-cuechat-return aria-label="Back to table" title="Back to table" hidden>↶</button></div></header>
+ <div id="connection-error" class="connection-error" role="status" hidden></div>
+ <div id="messages" class="messages" aria-label="Conversation messages"><div id="message-list"></div></div>
+ <div class="compose-area"><div id="reply-preview" class="reply-preview" hidden></div><div id="attachment-preview" class="attachment-preview" hidden></div><form id="compose-form" class="composer"><button id="attach-button" class="icon-button attach-button" type="button" aria-label="Add picture, recording or Trainer layout">＋</button><textarea id="message-input" rows="1" maxlength="4000" placeholder="Share a thought, or a shot…" aria-label="Message"></textarea><button id="send-button" class="send-button" type="submit" aria-label="Send message" title="Send message"><img src="/assets/chalk-send.webp" alt="" draggable="false"><span class="chalk-label" aria-hidden="true">Send</span></button></form><div class="compose-foot"><span class="save-state" role="status" aria-live="polite"><span class="cue-activity " aria-hidden="true"><i class="waiting-cue"></i><i class="waiting-ball ball-one"></i><i class="waiting-ball ball-two"></i><i class="waiting-ball ball-three"></i></span><span id="save-status">Messages and files stay saved on this host.</span></span></div></div>
+ </section>
+ <section id="coach-thread" class="conversation" aria-label="Private conversation with Chase" hidden></section>
+</main>
+<input id="attachment-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif,video/mp4,video/webm,audio/*,.json" hidden><input id="archive-input" type="file" accept=".zip" hidden>
+<dialog id="info-dialog"><button id="dialog-close" class="dialog-close" aria-label="Close">×</button><div id="dialog-content"></div></dialog>
+<section id="trainer-overlay" class="trainer-overlay" hidden><header><div><strong>Back at the table</strong><span class="cue-activity trainer-activity" aria-hidden="true"><i class="waiting-cue"></i><i class="waiting-ball ball-one"></i><i class="waiting-ball ball-two"></i><i class="waiting-ball ball-three"></i></span><small id="trainer-status" role="status">Opening a separate Trainer test copy…</small></div><button id="trainer-coach" class="secondary" type="button">Chat with Chase</button><button id="trainer-cancel" class="secondary cancel">Cancel</button><button id="trainer-send" class="primary" disabled>Send edited table </button></header><div id="trainer-frame"></div></section>
+<dialog id="private-coach" aria-labelledby="coach-title">
+ <div id="coach-panel" class="coach-panel">
+  <header class="chat-header"><div class="room-heading"><span class="room-symbol" aria-hidden="true">✦</span><div><h2 id="coach-title">Chase</h2><p id="coach-status">Private to your player profile</p></div></div><div class="header-actions"><button id="coach-back" type="button" class="secondary">Conversations</button><button class="cue-return icon-button" type="button" data-cuechat-return aria-label="Back to table" title="Back to table" hidden>↶</button></div></header>
+  <section id="coach-messages" aria-label="Private coaching conversation" aria-live="polite"></section>
+  <form id="coach-form">
+   <div class="coach-table-tools"><button id="coach-draw-example" type="button" class="secondary">Try the draw example</button><button id="coach-table-use" class="secondary" type="button" hidden>Use Current Table</button>
+   <div id="coach-table-chip" hidden><span id="coach-table-name"></span><button id="coach-table-remove" class="text-button" type="button" aria-label="Remove attached table">×</button></div></div>
+   <label for="coach-input">Ask Chase privately</label>
+   <textarea id="coach-input" rows="2" maxlength="1800" required placeholder="I keep missing to the left. What should I check?"></textarea>
+   <div class="coach-voice"><button type="button" id="coach-mic" class="secondary" aria-pressed="false">🎙 Mic</button>
+    <label><input type="checkbox" id="coach-voice-send"> Send after dictation</label>
+    <span id="coach-voice-speechify" class="coach-voice" hidden>
+      <label><input type="checkbox" id="coach-voice-read"> Read new replies with Speechify</label>
+      <button type="button" id="coach-voice-play" class="secondary">Play reply</button>
+      <button type="button" id="coach-voice-stop" class="secondary" hidden>Stop audio</button>
+    </span></div>
+   <p id="coach-voice-status" role="status"></p><audio id="coach-audio" preload="none" hidden></audio>
+   <p id="coach-error" role="alert" hidden></p><button id="coach-send" class="primary" type="submit">Ask Chase</button>
+  </form>
+ </div>
+</dialog>
+<script src="/trainer/trainer-layout-files.js"></script><script src="/app.js?v=complete-20261126" defer></script><script src="/coach-physics.js" defer></script><script src="/private-coach.js?v=complete-20261126" defer></script></body></html>
