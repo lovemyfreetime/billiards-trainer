@@ -14,7 +14,11 @@ class Element {
         this.style = {};
         this.rect = {left, width, top, height, right:left+width, bottom:top+height};
     }
-    append(el) { this.children.push(el); }
+    append(el) {
+        if(el.parentNode) el.parentNode.children = el.parentNode.children.filter(x=>x!==el);
+        el.parentNode = this;
+        this.children.push(el);
+    }
     get lastElementChild() { return this.label ||= new Element(); }
     getBoundingClientRect() { return this.rect; }
     setAttribute(key, value) { this[key] = value; }
@@ -32,14 +36,20 @@ const ids = {
 };
 ids.workspaceTools.append(new Element('workspace-picker', 80, 66));
 ids.workspaceTools.append(ids.workspaceTopActions);
-let play;
+let play, playModal, playNav, oldWordmark;
 body.classList = new Set(['trainer-workspace']);
 body.classList.contains = body.classList.has;
 const document = {
     body,
     getElementById(id) { return ids[id]; },
-    querySelector(selector) { assert.equal(selector,'.play-home-companion'); return play; },
-    createElement(tag) { assert.equal(tag, 'button'); return new Element(); },
+    querySelector(selector) {
+        if (selector === '.play-home-companion') return play;
+        if (selector.includes('#playDialog')) return playModal;
+        if (selector === '.play-footer nav') return playNav;
+        if (selector === '#panel .btg-pool-title h1') return oldWordmark;
+        assert.fail(selector);
+    },
+    createElement(tag) { assert.ok(tag === 'button' || tag === 'div'); return new Element(); },
     addEventListener(key, fn) { frame[key] = fn; }
 };
 const window = {
@@ -52,10 +62,10 @@ const run = () => vm.runInNewContext(source('ENTRY_SCRIPT'), {
     document, window, MutationObserver, innerWidth:1000, getComputedStyle:()=>({})
 });
 run();
-const [button] = body.children;
+const [button, wordmark] = body.children;
 assert.equal(button.id, 'cue-chat-launch');
 assert.equal(button['aria-label'], 'Cue Chat');
-assert.match(button.innerHTML, /<svg.*<span>Cue Chat/);
+assert.match(button.innerHTML, /data:image\/webp;base64,.*<span>Cue Chat/);
 assert.equal(button.style.left, '534.5px');
 assert.equal(button.lastElementChild.hidden, false);
 ids.panel = new Element('panel', 710, 290);
@@ -64,6 +74,18 @@ assert.equal(button.style.left, '534.5px');
 ids.panel = new Element('panel', 625, 375);
 frame.resize();
 assert.equal(button.style.left, '506px');
+delete ids.panel;
+oldWordmark = new Element();
+ids.stageWrap = new Element('stageWrap', 60, 880, 52, 400);
+frame.resize();
+assert.equal(wordmark.style.left, '413px');
+assert.equal(wordmark.style.display,'block');
+assert.equal(oldWordmark.hidden,true);
+assert.ok(parseFloat(button.style.left) >= 595);
+ids.panel = new Element('panel', 720, 280, 30, 500);
+frame.resize();
+assert.equal(wordmark.style.left, '303px');
+delete ids.stageWrap;
 delete ids.panel;
 body.classList.add('table-3d');
 frame.resize();
@@ -77,8 +99,10 @@ frame.resize();
 assert.equal(button.style.right, '85px');
 assert.equal(button.style.width, '44px');
 assert.equal(button.lastElementChild.hidden, true);
+assert.equal(wordmark.style.display,'none');
 button.click();
 body.classList.add('play-mode');
+playModal = new Element();
 play = new Element();
 play.href = './companion.html';
 frame.resize();
@@ -87,6 +111,15 @@ assert.equal(play.href, undefined);
 assert.match(play.innerHTML, /<span>Cue Chat/);
 play.click = () => play.onclick({preventDefault(){}});
 play.onkeydown({key:'Enter', preventDefault(){}});
+play = null;
+frame.resize();
+assert.equal(button.parentNode, playModal);
+assert.equal(button.style.display, 'inline-flex');
+playModal = null;
+playNav = new Element();
+frame.resize();
+assert.equal(button.parentNode, playNav);
+assert.equal(button.style.position, 'static');
 run();
 assert.equal(body.children.length, 1);
 assert.deepEqual(messages, ['open','open']);
@@ -121,8 +154,9 @@ window.cueChatDictationResult('  8-ball  ', false);
 assert.equal(input.value, 'APA 8-ball');
 assert.equal(submits, 0);
 send.checked = true;
+input.value = '';
 click(true);
-window.cueChatDictationResult('rules', false);
+window.cueChatDictationResult('APA 8-ball rules', false);
 assert.equal(submits, 1);
 assert.equal(events, 2);
 click(true);
