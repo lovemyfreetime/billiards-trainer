@@ -1,8 +1,9 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),orbit=require('../table-orbit.js');
 const sourceCode=fs.readFileSync('trainer-3d.js','utf8'),events=new Map(),stageEvents=new Map(),edits=[],views=[];
 const canvas={style:{},setPointerCapture(){},focus(){},addEventListener(name,handler){events.set(name,handler);}},stage={addEventListener(name,handler){stageEvents.set(name,handler);}};
-const c={lastFrame:{},stopTransition(){},focusBall(){},canvas,stage,cameraState:{playerView:false},active:true,viewLocked:true,panEnabled:false,source:{style:{}},lastTap:null,performance,Math,Map,edit:null,pointers:new Map(),pick:e=>e.clientX<100?{editable:true,ball:true,height:0,offset:{x:0,z:0},point:{x:.5,y:.5}}:null,overControls:()=>false,pickPocketLabel:()=>null,cast(){},planePoint:()=>({x:.6,z:.6}),logical:p=>({x:p.x,y:p.z}),T:{Vector3:class{constructor(x,y,z){this.x=x;this.y=y;this.z=z;}}},pan:(...args)=>views.push(['pan',...args]),zoom:value=>views.push(['zoom',value]),orbit:(...args)=>views.push(['orbit',...args]),window:{BilliardsTableOrbit:orbit,billiards3DTableInput:(type,q)=>{edits.push({type,q});return true;}}};
-vm.createContext(c);vm.runInContext(sourceCode.slice(sourceCode.indexOf('  function forward('),sourceCode.indexOf('  function focusBall(')),c);
+let clock=1000;
+const c={frame:null,lastFrame:{L:2.54,W:1.27},stopTransition(){},focusBall(){},canvas,stage,cameraState:{playerView:false},active:true,viewLocked:true,panEnabled:false,source:{style:{}},lastTap:null,lastAimTap:null,performance:{now:()=>clock},Math,Map,edit:null,pointers:new Map(),pick:e=>e.clientX<100?{editable:true,ball:true,height:0,offset:{x:0,z:0},point:{x:.5,y:.5}}:null,overControls:()=>false,pickPocketLabel:()=>null,cast(){},planePoint:()=>({x:.6,z:.6}),logical:p=>({x:p.x,y:p.z}),T:{Vector3:class{constructor(x,y,z){this.x=x;this.y=y;this.z=z;}}},pan:(...args)=>views.push(['pan',...args]),zoom:value=>views.push(['zoom',value]),orbit:(...args)=>views.push(['orbit',...args]),window:{BilliardsTableOrbit:orbit,billiards3DTableInput:(type,q)=>{edits.push({type,q});return true;}}};
+vm.createContext(c);vm.runInContext(sourceCode.match(/const holdToRotateMs=.*;/)[0],c);vm.runInContext(sourceCode.slice(sourceCode.indexOf('  function forward('),sourceCode.indexOf('  function focusBall(')),c);
 const event=(x,y=10,id=1)=>({button:0,buttons:1,clientX:x,clientY:y,pointerId:id,pointerType:'touch',preventDefault(){},stopPropagation(){}});
 events.get('pointerdown')(event(150));events.get('pointermove')(event(170));events.get('pointerup')(event(170));assert.equal(views[0][0],'orbit');assert.equal(edits.length,0);assert(c.viewLocked,'off-table view drag retains editing mode');
 views.length=0;events.get('pointerdown')(event(20));events.get('pointermove')(event(160));events.get('pointerup')(event(160));assert.deepEqual(edits.map(e=>e.type),['pointerdown','pointermove','pointerup']);assert.equal(views.length,0,'drag beginning on cloth stays a ball drag outside cloth');
@@ -10,13 +11,23 @@ edits.length=0;c.panEnabled=true;events.get('pointerdown')(event(150));events.ge
 views.length=0;c.panEnabled=false;events.get('pointerdown')(event(150,10,1));events.get('pointerdown')(event(190,10,2));events.get('pointermove')(event(210,15,2));assert(views.some(v=>v[0]==='pan'));assert(views.some(v=>v[0]==='zoom'));assert.equal(edits.length,0);events.get('pointercancel')(event(150,10,1));events.get('pointercancel')(event(210,15,2));assert.equal(c.pointers.size,0);
 views.length=0;stageEvents.get('pointerdown')({...event(20),target:stage});events.get('pointermove')(event(40));events.get('pointerup')(event(40));assert.equal(views[0][0],'orbit','empty stage margin is usable for view control');assert(c.viewLocked);
 views.length=0;edits.length=0;c.viewLocked=false;
-events.get('pointerdown')(event(20));events.get('pointermove')(event(50));events.get('pointerup')(event(50));assert.equal(edits.length,0,'ordinary cloth inspection never edits the shot');assert(views.some(v=>v[0]==='orbit'));
+events.get('pointerdown')(event(20));events.get('pointermove')(event(50));events.get('pointerup')(event(50));
+assert.equal(edits.length,0,'ordinary cloth inspection never edits the shot');assert.equal(views.length,0,'quick swipes do not rotate locked touch view');
+events.get('pointerdown')(event(20));clock+=300;events.get('pointermove')(event(50));events.get('pointerup')(event(50));
+assert.equal(edits.length,0,'hold and rotate must not aim');assert(views.some(v=>v[0]==='orbit'));
 views.length=0;c.pick=()=>({editable:true,handle:true,height:0,offset:{x:0,z:0},point:{x:.5,y:.5}});
 events.get('pointerdown')(event(20));events.get('pointermove')(event(35));events.get('pointerup')(event(35));assert.equal(views.length,0,'explicit aim-handle edit holds camera');assert.deepEqual(edits.map(e=>e.type),['pointerdown','pointermove','pointerup']);
 let opened=null;edits.length=0;views.length=0;c.pickPocketLabel=()=>({object:{userData:{data:{pocketName:'top middle'}}}});c.window.billiardsGuidance={openPocket:name=>{opened=name;}};events.get('pointerdown')(event(40));events.get('pointerup')(event(40));assert.equal(opened,'top middle');assert.equal(edits.length,0);assert.equal(views.length,0,'visible pocket label opens details without editing or orbiting');
 console.log('Off-table orbit, hand pan, pinch/pan, stable cloth editing, margin input and cancellation passed.');
 c.pickPocketLabel=()=>null;c.pick=()=>null;c.window.billiardsGuidance.tapAimShot=()=>2;edits.length=0;views.length=0;
-events.get('pointerdown')(event(150));events.get('pointerup')(event(150));
-assert.deepEqual(edits.map(e=>e.type),['pointerdown','pointerup']);assert.equal(views.length,0);
+function tap(x,pointerType='touch'){
+ const e={...event(x),pointerType};events.get('pointerdown')(e);events.get('pointerup')(e);
+}
+tap(150);assert.equal(edits.length,0,'a locked single touch does not aim');
+clock+=100;tap(220);assert.equal(edits.length,0,'far-apart taps do not aim');
+clock+=100;tap(221);assert.deepEqual(edits.map(e=>e.type),['pointerdown','pointerup']);assert.equal(views.length,0);
 events.get('pointerdown')(event(150));events.get('pointermove')(event(178));events.get('pointerup')(event(150));
 assert.equal(edits.length,2,'returning a drag to its origin does not turn it into a tap');
+clock+=400;tap(150);clock+=400;tap(150);assert.equal(edits.length,2,'delayed taps do not aim');
+clock+=400;tap(150,'mouse');assert.equal(edits.length,4,'mouse single click still aims');
+console.log('Locked touch hold, spatial and temporal double taps, and mouse single-click aiming passed.');
