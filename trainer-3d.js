@@ -284,7 +284,7 @@
   lockState.textContent=viewLocked?'Unlocked':'Locked';
   viewLock.setAttribute('aria-checked',String(viewLocked));
   viewLock.title=viewLocked?'Press to lock balls. Choosing a view or Shoot also locks them.':'Unlock physical balls for moving, including the cue ball';
-  document.getElementById('table3DCanvas')?.setAttribute('aria-label',viewLocked?'Balls unlocked. Drag any ball. Use Ball position to lock again.':'Balls locked. On touch, hold then drag to rotate, double-tap the cloth to aim, or use Aim to fine-tune.');
+  document.getElementById('table3DCanvas')?.setAttribute('aria-label',viewLocked?'Balls unlocked. Drag any ball. Use Ball position to lock again.':'Balls locked. Drag to rotate, pinch to zoom, tap to aim, or use Aim to fine-tune.');
  }
  for(const id of ['teachingCompassToggle','bankToolToggle','kickToolToggle'])document.getElementById(id)?.addEventListener('click',()=>{if(!active)return;setViewLocked(true);setDrawer(false);if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();});
  document.getElementById('startFullRack')?.addEventListener('click',()=>{if(active&&document.body.classList.contains('phone-tray-hidden'))document.getElementById('phoneTrayToggle')?.click();});
@@ -764,8 +764,7 @@
    for(const x of [-w*.36,w*.36])for(const z of [-d*.31,d*.31])box(.12,.54,.12,x,-.54,z,legMaterial);
    dimensions=tableKey(f);renderer.shadowMap.needsUpdate=true;
   }
-  const pointers=new Map();let edit=null,lastTap=null,lastAimTap=null;
-  const holdToRotateMs=275,doubleTapMs=330,doubleTapRadius=28;
+  const pointers=new Map();let edit=null,lastTap=null;
   // Screen-space panning translates camera and target together, preserving the
   // current tilt and shot-line angle even when looking nearly across the cloth.
   function pan(dx,dy){rememberInspection();stopTransition();if(cameraState.playerView)leaveCueView(false,viewLocked,true);
@@ -803,62 +802,51 @@
    forward(type,current.last,event,current.aimShot);
    if(cameraState.playerView){transitionFrom({...cameraState,target:{...cameraState.target}});requestRender();}
   }
-  function cancelInput(){if(edit)finishEdit('pointercancel',{pointerId:edit.id,pointerType:edit.pointerType});pointers.clear();lastTap=lastAimTap=null;}
+  function cancelInput(){if(edit)finishEdit('pointercancel',{pointerId:edit.id,pointerType:edit.pointerType});pointers.clear();lastTap=null;}
   function pointerDown(e,outside=false){
    if(!active||e.button!==0||overControls(e))return;
    stopTransition();const badge=outside?null:pickPocketLabel(e);
    e.preventDefault();e.stopPropagation();canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});
    if(edit){if(e.pointerId===edit.id)return;const first=edit;finishEdit('pointercancel',{pointerId:first.id,pointerType:first.pointerType});pointers.set(first.id,{x:first.cx,y:first.cy,sx:first.cx,sy:first.cy,multi:true,pendingViewDrag:true});}
+   const lockedTouch=e.pointerType==='touch'&&!viewLocked&&!lastFrame?.railEditing&&!lastFrame?.overlayEditing;
    const hit=outside||badge?null:pick(e);
-   if(pointers.size===0&&hit?.editable&&(hit.handle||viewLocked&&hit.ball||lastFrame?.railEditing||lastFrame?.overlayEditing)){
-    lastAimTap=null;
+   // On locked touch input, the same cloth point can start either a tap or a camera drag.
+   if(!lockedTouch&&pointers.size===0&&hit?.editable&&(hit.handle||viewLocked&&hit.ball||lastFrame?.railEditing||lastFrame?.overlayEditing)){
     edit={aimShot:hit.handle?(hit.shot||1):0,id:e.pointerId,cx:e.clientX,cy:e.clientY,pointerType:e.pointerType,height:hit.height,offset:hit.offset,last:hit.point};
     if(!forward('pointerdown',hit.point,e))edit=null;return;
    }
-   const lockedTouch=e.pointerType==='touch'&&!viewLocked&&!lastFrame?.railEditing&&!lastFrame?.overlayEditing;
-   pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,multi:pointers.size>0,pendingViewDrag:true,lockedTouch,outside,downAt:performance.now(),ball:!!hit?.ball,pocket:badge?.object.userData.data.pocketName});
-   if(pointers.size>1){for(const p of pointers.values())p.multi=true;lastTap=lastAimTap=null;}
+   pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,multi:pointers.size>0,pendingViewDrag:true,lockedTouch,outside,ball:!!hit?.ball,pocket:badge?.object.userData.data.pocketName});
+   if(pointers.size>1){for(const p of pointers.values())p.multi=true;lastTap=null;}
   }
+  // Distinguish finger jitter from camera motion by distance only, not time.
+  const tapSlop=p=>p.lockedTouch&&!p.pocket?4:6;
   canvas.addEventListener('pointerdown',e=>pointerDown(e));
-  canvas.addEventListener('contextmenu',e=>{
-   if(!viewLocked&&(e.pointerType==='touch'||[...pointers.values()].some(p=>p.lockedTouch)))e.preventDefault();
-  });
   stage.addEventListener('pointerdown',e=>{if(e.target===stage)pointerDown(e,true);});
   canvas.addEventListener('pointermove',e=>{
    if(!pointers.has(e.pointerId)){if(!edit){if(!viewLocked){canvas.style.cursor=pick(e)?.handle?'crosshair':'grab';return;}cast(e);const q=logical(planePoint());if(q)forward('pointermove',q,e);canvas.style.cursor=source.style.cursor||'crosshair';return;}if(edit.id!==e.pointerId)return;e.preventDefault();e.stopPropagation();cast(e);const p=planePoint(edit.height);if(!p)return;const q=logical(new T.Vector3(p.x-edit.offset.x,0,p.z-edit.offset.z));edit.last=q;edit.cx=e.clientX;edit.cy=e.clientY;forward('pointermove',q,e);return;}
    const p=pointers.get(e.pointerId);if(!p)return;e.preventDefault();e.stopPropagation();
-   // An off-cloth tap can generate small pointer moves on a tablet.
    if(p.pendingViewDrag){
-    if(Math.hypot(e.clientX-p.sx,e.clientY-p.sy)<6)return;
+    if(Math.hypot(e.clientX-p.sx,e.clientY-p.sy)<tapSlop(p))return;
     for(const point of pointers.values())point.pendingViewDrag=false;
-    lastTap=lastAimTap=null;
-    // A quick one-finger swipe must not turn into a hold if the finger stays down.
-    p.earlySwipe=p.lockedTouch&&!p.multi&&!panEnabled&&performance.now()-p.downAt<holdToRotateMs;
-   }
-   if(p.earlySwipe&&!p.multi){
-    p.x=e.clientX;p.y=e.clientY;return;
+    lastTap=null;
    }
    window.BilliardsTableOrbit.move(pointers,e,{pan,zoom,orbit,panning:panEnabled});
   });
   for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,e=>{
    if(edit?.id===e.pointerId)finishEdit(type==='pointerup'?'pointerup':'pointercancel',e);
-   const point=pointers.get(e.pointerId),now=performance.now();
-   const tap=type==='pointerup'&&pointers.size===1&&point&&!point.multi&&point.pendingViewDrag&&Math.hypot(e.clientX-point.sx,e.clientY-point.sy)<6&&(!point.lockedTouch||point.pocket||now-point.downAt<holdToRotateMs);
-   if(tap&&point.pocket){window.billiardsGuidance?.openPocket(point.pocket);lastTap=lastAimTap=null;}
-   else if(tap&&point.ball&&!viewLocked&&!panEnabled){
-    lastAimTap=null;
+   const point=pointers.get(e.pointerId);
+   const tap=type==='pointerup'&&pointers.size===1&&point&&!point.multi&&point.pendingViewDrag&&Math.hypot(e.clientX-point.sx,e.clientY-point.sy)<tapSlop(point);
+   if(tap&&point.pocket){window.billiardsGuidance?.openPocket(point.pocket);lastTap=null;}
+   else if(tap&&point.ball&&!point.lockedTouch&&!viewLocked&&!panEnabled){
+    const now=performance.now();
     if(lastTap&&now-lastTap.time<350&&Math.hypot(e.clientX-lastTap.x,e.clientY-lastTap.y)<20){focusBall(e);lastTap=null;}else lastTap={time:now,x:e.clientX,y:e.clientY};
-   }else if(tap&&!point.ball&&!lastFrame?.animating&&!lastFrame?.overlayEditing&&!lastFrame?.railEditing){
+   }else if(tap&&(!point.ball||point.lockedTouch)&&!lastFrame?.animating&&!lastFrame?.overlayEditing&&!lastFrame?.railEditing){
     cast(e);const q=logical(planePoint()),f=frame||lastFrame;
-    let aimNow=!point.lockedTouch;
-    if(point.lockedTouch&&q&&f&&!point.outside&&q.x>=0&&q.x<=f.L&&q.y>=0&&q.y<=f.W){
-     aimNow=!!lastAimTap&&now-lastAimTap.time<=doubleTapMs&&Math.hypot(e.clientX-lastAimTap.x,e.clientY-lastAimTap.y)<=doubleTapRadius;
-     lastAimTap=aimNow?null:{time:now,x:e.clientX,y:e.clientY};
-    }else lastAimTap=null;
+    const aimNow=q&&(!point.lockedTouch||(!point.outside&&f&&q.x>=0&&q.x<=f.L&&q.y>=0&&q.y<=f.W));
     const which=aimNow&&window.billiardsGuidance?.tapAimShot?.();
-    if(q&&which&&Math.hypot(q.x,q.y)<(lastFrame?.L||3)*8&&forward('pointerdown',q,e,which,true))forward('pointerup',q,e,which,true);
+    if(which&&Math.hypot(q.x,q.y)<(lastFrame?.L||3)*8&&forward('pointerdown',q,e,which,true))forward('pointerup',q,e,which,true);
     lastTap=null;
-   }else if(type!=='lostpointercapture')lastTap=lastAimTap=null;
+   }else if(type!=='lostpointercapture')lastTap=null;
    pointers.delete(e.pointerId);e.stopPropagation();
   });
   canvas.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();if(viewLocked&&pick(e)?.editable){cast(e);const p=logical(planePoint());if(p)forward('wheel',p,e);}else zoom(Math.exp(clamp(e.deltaY,-120,120)*.002));},{passive:false});
