@@ -17,7 +17,7 @@ events.get('pointerdown')(event(20));clock+=300;events.get('pointermove')(event(
 assert.equal(edits.length,0,'hold and rotate must not aim');assert(views.some(v=>v[0]==='orbit'));
 views.length=0;c.pick=()=>({editable:true,handle:true,height:0,offset:{x:0,z:0},point:{x:.5,y:.5}});
 events.get('pointerdown')(event(20));events.get('pointermove')(event(35));events.get('pointerup')(event(35));assert.equal(views.length,0,'explicit aim-handle edit holds camera');assert.deepEqual(edits.map(e=>e.type),['pointerdown','pointermove','pointerup']);
-let opened=null;edits.length=0;views.length=0;c.pickPocketLabel=()=>({object:{userData:{data:{pocketName:'top middle'}}}});c.window.billiardsGuidance={openPocket:name=>{opened=name;}};events.get('pointerdown')(event(40));events.get('pointerup')(event(40));assert.equal(opened,'top middle');assert.equal(edits.length,0);assert.equal(views.length,0,'visible pocket label opens details without editing or orbiting');
+let opened=null;edits.length=0;views.length=0;c.pickPocketLabel=()=>({object:{userData:{data:{pocketName:'top middle'}}}});c.window.billiardsGuidance={openPocket:name=>{opened=name;}};events.get('pointerdown')(event(40));clock+=400;events.get('pointerup')(event(40));assert.equal(opened,'top middle');assert.equal(edits.length,0);assert.equal(views.length,0,'visible pocket label opens details without editing or orbiting');
 console.log('Off-table orbit, hand pan, pinch/pan, stable cloth editing, margin input and cancellation passed.');
 c.pickPocketLabel=()=>null;c.pick=()=>null;c.window.billiardsGuidance.tapAimShot=()=>2;edits.length=0;views.length=0;
 function tap(x,pointerType='touch'){

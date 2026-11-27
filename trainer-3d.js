@@ -843,7 +843,7 @@
   for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,e=>{
    if(edit?.id===e.pointerId)finishEdit(type==='pointerup'?'pointerup':'pointercancel',e);
    const point=pointers.get(e.pointerId),now=performance.now();
-   const tap=type==='pointerup'&&pointers.size===1&&point&&!point.multi&&point.pendingViewDrag&&Math.hypot(e.clientX-point.sx,e.clientY-point.sy)<6&&(!point.lockedTouch||now-point.downAt<holdToRotateMs);
+   const tap=type==='pointerup'&&pointers.size===1&&point&&!point.multi&&point.pendingViewDrag&&Math.hypot(e.clientX-point.sx,e.clientY-point.sy)<6&&(!point.lockedTouch||point.pocket||now-point.downAt<holdToRotateMs);
    if(tap&&point.pocket){window.billiardsGuidance?.openPocket(point.pocket);lastTap=lastAimTap=null;}
    else if(tap&&point.ball&&!viewLocked&&!panEnabled){
     lastAimTap=null;
