@@ -130,3 +130,13 @@ body.trainer-workspace #panel #menuHeaderActions #trainerUpdateCheck { height:32
  body.trainer-workspace.phone-controls-open.phone-focus #panel { padding-top:64px!important; }
  body.trainer-workspace #panel .btg-pool-title h1 { width:100%; font-size:24px!important; }
 }
+
+/* Put the Trainer's real controls in a touchable header in both table views. */
+#menuHeaderActions { flex-wrap:wrap; row-gap:4px; }
+body.trainer-workspace #panel #menuHeaderActions #btg-pool-launchers .btg-launcher,
+body.trainer-workspace #panel #menuHeaderActions #trainerUpdateCheck {
+ height:44px; min-height:44px; min-width:44px; touch-action:manipulation; pointer-events:auto;
+}
+body.trainer-workspace #panel #menuHeaderActions #btg-pool-launchers .btg-launcher { width:44px; }
+#trainerLearningStatus { flex-basis:100%; order:3; margin:0; color:#cbe9ff; font:600 12px/1.4 system-ui; }
+#trainerLearningStatus[hidden] { display:none; }

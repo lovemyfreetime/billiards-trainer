@@ -53,9 +53,16 @@
   return starting;
  }
  async function check(show=false){
-  if(!supported)return;
+  if(!supported){if(show){dismissed=false;render('Updates are unavailable in this view.');}return;}
   if(!navigator.onLine){if(show){dismissed=false;render(ready?(native?'Update ready. Restart when you’re ready.':'Update ready. Reload when you’re ready.'):'You’re offline. Your saved app is still available.',ready);}return;}
-  if(native){if(!show&&Date.now()-lastCheck<60000)return;lastCheck=Date.now();manual=show;if(show){dismissed=false;render(ready?'Update ready. Restart when you’re ready.':'Checking for updates…',ready);}if(navigator.onLine)nativeMessage('check',{force:show});return;}
+  if(native){
+   if(!show&&(checking||Date.now()-lastCheck<60000))return;
+   lastCheck=Date.now();manual=show;
+   if(show){dismissed=false;render(ready?'Update ready. Restart when you’re ready.':'Checking for updates…',ready);}
+   try{nativeMessage('check',{force:show});}
+   catch(error){checking=false;if(show)render('Couldn’t check for updates. Keep using the app and try again later.',ready);}
+   return;
+  }
   if(checking){if(show){manual=true;dismissed=false;render('Checking for updates…');}return;}
   if(!show&&Date.now()-lastCheck<60000)return;
   checking=true;lastCheck=Date.now();manual=show;
@@ -70,6 +77,15 @@
   finally{checking=false;}
  }
  window.BilliardsAppUpdates={supported,native,check:()=>check(true)};
+ // Button wiring must not depend on a native status response or the last audio/image finishing.
+ function bind(){
+  document.querySelectorAll('[data-app-update]').forEach(button=>{
+   if(!supported&&button.id!=='trainerUpdateCheck')return;
+   button.hidden=false;button.onclick=()=>check(true);
+  });
+  if(supported)bindAppInfo();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
  if(!supported)return;
  if(!native)navigator.serviceWorker.addEventListener('controllerchange',()=>{const current=navigator.serviceWorker.controller;if(previous&&current&&current!==previous)offerWhenActive(current);previous=current;});
  if(!native)navigator.serviceWorker.addEventListener('message',event=>{
@@ -121,8 +137,8 @@
    }
   };
  }
- function bind(){bindAppInfo();if(native)nativeMessage('status');document.querySelectorAll('[data-app-update]').forEach(button=>{button.hidden=false;button.onclick=()=>check(true);});check(false);}
- if(document.readyState==='complete')bind();else window.addEventListener('load',bind,{once:true});
+ function startUpdates(){if(native)try{nativeMessage('status');}catch{}check(false);}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startUpdates,{once:true});else startUpdates();
  window.addEventListener('online',()=>check(false));
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)check(false);});
  window.addEventListener('pageshow',event=>{if(event.persisted)check(false);});

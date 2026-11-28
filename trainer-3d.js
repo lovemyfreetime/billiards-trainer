@@ -18,6 +18,7 @@
  const alongButton=action('Cue View','Toggle Cue View',()=>{openNextWhenReady=false;if(nextView)setNextView(false);window.billiardsCueView?.toggle();});
  const nextButton=action('Shot 2 View','Inspect the second shot from the cue ball',()=>{
   const api=window.billiardsGuidance;
+  if(window.billiardsTableGuides?.enabled()===false)return;
   if(nextView)setNextView(false);
   else if(api.nextShotAvailable())setNextView(true);
   else if(!api.runoutStatus().pending){
@@ -217,6 +218,7 @@
  });
  window.addEventListener('billiards:2d-render',()=>{
   syncAnalysis();
+  nextButton.disabled=window.billiardsTableGuides?.enabled()===false;
   syncNextControls();
   if(nextView&&!window.billiardsGuidance.nextShotAvailable())queueMicrotask(()=>{if(nextView&&!window.billiardsGuidance.nextShotAvailable())setNextView(false);});
  });
@@ -355,21 +357,27 @@
   Object.assign(cameraState,{target:{x:0,y:0,z:0},azimuth,radius,elevation});transitionFrom(from);
   requestRender();
  }
- // Follow the direction of travel without moving the ball or its simulation clock.
+ // Follow the direction of travel without moving any ball or the simulation clock.
  function updateCueFollow(state,f,snap=false){
-  const b=f.balls.find(b=>b.id===0&&b.active);if(!b)return false;
+  const track=state.followTrack==='shot'&&f.animating;
+  const at=track?window.BilliardsShotFollow?.at(f.followPlan,f.playbackTime??0):null;
+  const id=at?.id??0, pocket=at?.pocket;
+  const b=f.balls.find(b=>b.id===id&&(b.active||track));
+  if(!b&&!pocket)return false;
   // A cloth edit changes the aim point through a ray cast from this camera.
   // Keep that projection fixed until a shot starts or the user picks a new view.
   if(!snap && !f.animating && Number.isFinite(state.followHeading)){
    state.followAnimating=false;
    return true;
   }
-  const moving=f.animating&&Math.hypot(b.vx||0,b.vy||0)>.004;
+  const moving=!pocket&&f.animating&&b?.active&&Math.hypot(b.vx||0,b.vy||0)>.004;
+  const changed=state.followBallId!==id;
   let heading=state.followHeading;
+  state.followBallId=id;state.followPocket=pocket?.pocket??null;
   if(moving){
-   const desired=Math.atan2(b.vy,b.vx),time=Number.isFinite(b.t)?b.t:0;
-   if(snap||!Number.isFinite(heading)||!state.followAnimating||time<state.followTime)heading=desired;
-   else{const dt=Math.max(0,time-state.followTime),turn=Math.atan2(Math.sin(desired-heading),Math.cos(desired-heading));heading+=turn*(1-Math.exp(-dt/.06));}
+   const desired=Math.atan2(b.vy,b.vx),time=f.playbackTime??(Number.isFinite(b.t)?b.t:0);
+   if(snap||!Number.isFinite(heading)||!Number.isFinite(state.followTime)||!state.followAnimating||time<state.followTime)heading=desired;
+   else{const dt=Math.max(0,time-state.followTime),turn=Math.atan2(Math.sin(desired-heading),Math.cos(desired-heading));heading+=turn*(1-Math.exp(-(changed?Math.max(dt,.016):dt)/.06));}
    state.followTime=time;
   }else if(!Number.isFinite(heading)){
    const a=f.aim;heading=a?Math.atan2(a.target.y-a.cue.y,a.target.x-a.cue.x):0;
@@ -378,7 +386,8 @@
   if(moving)state.followHasMotion=true;
   const offset={behind:0,front:Math.PI,left:-Math.PI/2,right:Math.PI/2}[state.followSide]||0;
   state.azimuth=Math.atan2(-Math.cos(heading),-Math.sin(heading))+offset;
-  state.target={x:b.x-f.L/2,y:Number.isFinite(b.z)?Math.max(f.R,b.z):f.R,z:b.y-f.W/2};
+  const target=pocket||b;
+  state.target={x:target.x-f.L/2,y:Number.isFinite(target.z)?Math.max(f.R,target.z):f.R,z:target.y-f.W/2};
   return true;
  }
  function disable(){if(!active)return;openNextWhenReady=false;if(cameraState.playerView)leaveCueView(true);else closeNextView();closePopovers();setDrawer(false);active=false;document.body.classList.remove('table-3d','table-3d-locked','table-3d-pan','table-3d-rotate');button.setAttribute('aria-pressed','false');button.textContent='3D';for(const b of [button,standingButton,alongButton,nextButton])b.style.removeProperty('font-size');tools.hidden=true;for(const b of [standingButton,alongButton,nextButton,viewLock])b.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
@@ -409,13 +418,15 @@
    requestRender();
    return true;
   },
-  followCue(value,side=cameraState.followSide||'behind',distance=cameraState.followDistance||'close'){
+  followCue(value,side=cameraState.followSide||'behind',distance=cameraState.followDistance||'close',track=cameraState.followTrack||'cue'){
+   if(value&&cameraTransition)stopTransition();
+   cameraState.followTrack=track==='shot'?'shot':'cue';
    cameraState.followSide=['front','behind','left','right'].includes(side)?side:'behind';
    cameraState.followDistance=distance==='wide'?'wide':'close';
    if(value&&cameraState.playerView)leaveCueView(false);
    if(value&&!cameraState.followCue){cameraState.followHeading=undefined;cameraState.followHasMotion=false;}
    cameraState.followCue=!!value;
-   if(value)this.focusCue();
+   if(value)this.focusCue();else{cameraState.followBallId=null;cameraState.followPocket=null;}
    window.BilliardsSpinLabUI?.sync();
   },
   playerView(settings={}){
@@ -425,10 +436,10 @@
    if(!cameraState.playerView)previousCueCamera={editMode:viewLocked,pose:{azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target}}};
    cameraState.playerView=true;cameraState.playerViewLock=settings.locked!==false;cameraState.playerEyeHeight=window.BilliardsCue3D.clampEyeHeight(settings.height);cameraState.playerDistance=.75;cameraState.playerInShot=false;cameraState.followCue=false;transitionFrom(from,'cue');requestRender();return true;
   },exitCueView(){leaveCueView(true);},refresh(){requestRender();},
-  camera(){return {transitioning:!!cameraTransition,transitionDuration:cameraTransition?.duration||0,approachProgress:cueApproachProgress,playerView:!!cameraState.playerView,playerViewLock:!!cameraState.playerViewLock,playerEyeHeight:cameraState.playerEyeHeight||.12,playerDistance:cameraState.playerDistance||.75,azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},followCue:!!cameraState.followCue,followSide:cameraState.followSide||'behind',followDistance:cameraState.followDistance||'close',followHeading:cameraState.followHeading,followHasMotion:!!cameraState.followHasMotion,...engine?.projection()};},restoreCamera(saved){
+  camera(){return {transitioning:!!cameraTransition,transitionDuration:cameraTransition?.duration||0,approachProgress:cueApproachProgress,playerView:!!cameraState.playerView,playerViewLock:!!cameraState.playerViewLock,playerEyeHeight:cameraState.playerEyeHeight||.12,playerDistance:cameraState.playerDistance||.75,azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},followCue:!!cameraState.followCue,followTrack:cameraState.followTrack||'cue',followBallId:cameraState.followBallId??null,followPocket:cameraState.followPocket??null,followSide:cameraState.followSide||'behind',followDistance:cameraState.followDistance||'close',followHeading:cameraState.followHeading,followHasMotion:!!cameraState.followHasMotion,...engine?.projection()};},restoreCamera(saved){
    if(!saved||![saved.azimuth,saved.elevation,saved.radius,saved.target?.x,saved.target?.y,saved.target?.z].every(Number.isFinite))return false;
    const from={...cameraState,target:{...cameraState.target}};
-   Object.assign(cameraState,{playerView:!!saved.playerView,playerViewLock:!!saved.playerViewLock,playerEyeHeight:window.BilliardsCue3D.clampEyeHeight(saved.playerEyeHeight),playerDistance:saved.playerDistance||.75,playerInShot:false,azimuth:saved.azimuth,elevation:saved.elevation,radius:saved.radius,target:{...saved.target},followCue:!!saved.followCue,followSide:['front','behind','left','right'].includes(saved.followSide)?saved.followSide:'behind',followDistance:saved.followDistance==='wide'?'wide':'close',followHeading:saved.followHeading,followHasMotion:!!saved.followHasMotion,followAnimating:false});
+   Object.assign(cameraState,{playerView:!!saved.playerView,playerViewLock:!!saved.playerViewLock,playerEyeHeight:window.BilliardsCue3D.clampEyeHeight(saved.playerEyeHeight),playerDistance:saved.playerDistance||.75,playerInShot:false,azimuth:saved.azimuth,elevation:saved.elevation,radius:saved.radius,target:{...saved.target},followCue:!!saved.followCue,followTrack:saved.followTrack==='shot'?'shot':'cue',followBallId:saved.followBallId??null,followPocket:saved.followPocket??null,followSide:['front','behind','left','right'].includes(saved.followSide)?saved.followSide:'behind',followDistance:saved.followDistance==='wide'?'wide':'close',followHeading:saved.followHeading,followHasMotion:!!saved.followHasMotion,followAnimating:false});
    transitionFrom(from);requestRender();window.BilliardsSpinLabUI?.sync();return true;
   },prepareSnapshot(){standing(0);},renderSnapshot(){engine?.render();},tablePlanePoint(event){return engine?.tablePlanePoint(event)||null;},tablePoint(event){return engine?.tablePoint(event)||null;},renderedBalls(){return engine?.ballViews()||[];},ghostGuides(){return engine?.ghostViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];},railGeometry(){return engine?.railViews()||[];},contactMarkers(){return engine?.contactViews()||[];},cueModel(){return engine?.cueView()||null;},overlayLabels(){return engine?.labelViews()||[];}};
  window.addEventListener('resize',()=>{dock();positionToggle();requestRender();});new MutationObserver(positionToggle).observe(document.getElementById('tableZoom'),{attributes:true,attributeFilter:['style']});document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshVisibleScene();});
