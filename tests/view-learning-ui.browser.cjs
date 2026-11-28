@@ -13,6 +13,11 @@ for(const [width,height,mobile]of [[1600,1000,false],[844,390,true]]){
  try{
  await page.goto('http://127.0.0.1:8836/?train=1');await page.waitForFunction(()=>window.billiardsTourBridge&&window.billiardsMenuReady);
  await page.evaluate(()=>{const place=BilliardsShotBudget.placeBadge;BilliardsShotBudget.placeBadge=(rows,anchor,options)=>{const card=place(rows,anchor,options);if(card&&rows[0]?.text.startsWith('Overlap '))window.__clothOverlapCard=card;return card;};return billiardsTourBridge.apply({id:'view-labels',title:'View labels',balls:[[0,.22,.4],[1,.52,.4]],target:1,pocket:[1,1],speed:1.3,followPercent:0,sidePercent:0},{tableL:2.54,tableW:1.27});});await menu(false);
+ // These overlay placement checks exercise Guides On. Aim-only is the default.
+ const guides=page.locator('#workspaceTableGuides');
+ assert.equal(await guides.getAttribute('aria-checked'),'false');
+ await guides.evaluate(button=>button.click());await settle();
+ assert.equal(await guides.getAttribute('aria-checked'),'true');
  const labels=await page.evaluate(()=>{const s=billiardsTourBridge.capture().state,f=billiardsTourBridge.annotationFrame(),expected=[[-.085,-.085],[s.tableL/2,-.095],[s.tableL+.085,-.085],[s.tableL+.085,s.tableW+.085],[s.tableL/2,s.tableW+.095],[-.085,s.tableW+.085]];return expected.map(([x,y],i)=>{const q=f.map({x:x/s.tableL,y:y/s.tableW});return __clothTexts.some(t=>t.text===String(i+1)&&Math.hypot(t.x-q.x,t.y-q.y)<.1);});});assert(labels.every(Boolean),'All six 2D pocket numbers sit behind the pockets');await page.screenshot({path:dir+'/'+name+'-2d-pockets.png'});
  for(const mode of ['2d','3d']){
   if(mode==='3d'){
@@ -39,6 +44,9 @@ for(const [width,height,mobile]of [[1600,1000,false],[844,390,true]]){
    const originalSetup=await page.evaluate(()=>billiardsTourBridge.capture());
    await page.evaluate(()=>{const s=billiardsTourBridge.capture();Object.assign(s.state,{shot2Enabled:false,activeShot:1,airbornePhysics:true,cueElevationDeg:55,speed:3.63,follow:.02,sideSpin:0,showPaths:true,freeAim:{x:2.2,y:.635},balls:[{id:0,n:'CB',x:.4,y:.635,active:true},{id:3,n:'3',x:.9,y:.635,active:true}]});billiardsTourBridge.restore(s);});
    await page.waitForFunction(()=>Billiards3D.overlayLabels().some(l=>l.id==='flight-1-TAKEOFF')&&Billiards3D.overlayLabels().some(l=>l.id==='flight-1-L1')&&Billiards3D.overlayLabels().some(l=>l.id==='flight-1-clearance'));
+   // The profile can reserve a new row. Sample fixed labels after the
+   // resulting stage ResizeObserver and 3D redraw have both finished.
+   await settle();await settle();
    const flightBefore=await page.evaluate(()=>billiardsTourBridge.predict({paths:true})),flightFixed=await page.evaluate(()=>Billiards3D.overlayLabels().filter(l=>l.id.startsWith('flight-')));
    for(const [i,azimuth]of [0,Math.PI/2,Math.PI,Math.PI*1.5].entries()){
     await page.evaluate(({camera,azimuth})=>Billiards3D.restoreCamera({...camera,azimuth}),{camera,azimuth});await settle();
