@@ -138,7 +138,7 @@
   };
  }
  function startUpdates(){if(native)try{nativeMessage('status');}catch{}check(false);}
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startUpdates,{once:true});else startUpdates();
+ if(document.readyState==='complete')startUpdates();else window.addEventListener('load',startUpdates,{once:true});
  window.addEventListener('online',()=>check(false));
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)check(false);});
  window.addEventListener('pageshow',event=>{if(event.persisted)check(false);});
