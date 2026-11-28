@@ -806,6 +806,17 @@
    return {editable:onCloth||!!f.railEditing,point:onCloth?surface:q,height:0,offset:{x:0,z:0}};
   }
   function pickPocketLabel(e){cast(e);return inputRay.intersectObjects([...cameraLabels.values()].filter(m=>m.visible&&m.userData.data?.pocketName),false)[0];}
+  function clothPoint(e){
+   const f=frame||lastFrame;if(!f)return null;
+   const r=canvas.getBoundingClientRect();
+   if(e.clientX<r.left||e.clientX>=r.right||e.clientY<r.top||e.clientY>=r.bottom)return null;
+   cast(e);
+   // A flat plane alone also extends visibly through rails and open pockets.
+   const nearest=inputRay.intersectObjects(table.children,false)[0];
+   if(nearest?.object.userData.construction!=='slate')return null;
+   const q=logical(nearest.point);
+   return q.x>0&&q.x<f.L&&q.y>0&&q.y<f.W?q:null;
+  }
   function forward(type,point,e,aimShot=edit?.aimShot,aimTap=false){return window.billiards3DTableInput?.(type,point,{aimShot,aimTap,tableClient:{clientX:e.clientX,clientY:e.clientY},buttons:e.buttons??0,pointerId:e.pointerId||1,pointerType:e.pointerType||'mouse',shiftKey:!!e.shiftKey,altKey:!!e.altKey,ctrlKey:!!e.ctrlKey,metaKey:!!e.metaKey,deltaY:e.deltaY||0,deltaX:e.deltaX||0,deltaMode:e.deltaMode||0});}
   function finishEdit(type,event){
    const current=edit;
@@ -852,10 +863,9 @@
     const now=performance.now();
     if(lastTap&&now-lastTap.time<350&&Math.hypot(e.clientX-lastTap.x,e.clientY-lastTap.y)<20){focusBall(e);lastTap=null;}else lastTap={time:now,x:e.clientX,y:e.clientY};
    }else if(tap&&(!point.ball||point.lockedTouch)&&!lastFrame?.animating&&!lastFrame?.overlayEditing&&!lastFrame?.railEditing){
-    cast(e);const q=logical(planePoint()),f=frame||lastFrame;
-    const aimNow=q&&(!point.lockedTouch||(!point.outside&&f&&q.x>=0&&q.x<=f.L&&q.y>=0&&q.y<=f.W));
-    const which=aimNow&&window.billiardsGuidance?.tapAimShot?.();
-    if(which&&Math.hypot(q.x,q.y)<(lastFrame?.L||3)*8&&forward('pointerdown',q,e,which,true))forward('pointerup',q,e,which,true);
+    const q=!point.outside&&clothPoint(e);
+    const which=q&&window.billiardsGuidance?.tapAimShot?.();
+    if(which&&forward('pointerdown',q,e,which,true))forward('pointerup',q,e,which,true);
     lastTap=null;
    }else if(type!=='lostpointercapture')lastTap=null;
    pointers.delete(e.pointerId);e.stopPropagation();

@@ -2873,8 +2873,11 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
         if (isProjector)
             return;
         const board = $('scoreBoard');
-        if (board)
-            board.style.display = S.showScoreBoard === true ? 'flex' : 'none';
+        if (board) {
+            const show=S.showScoreBoard===true;
+            board.style.display=show?'flex':'none';
+            document.body.classList.toggle('workspace-score-active',show);
+        }
         $('p1Score').textContent = S.player1Score || 0;
         $('p2Score').textContent = S.player2Score || 0;
         $('p1Turn').classList.toggle('active', S.activePlayer === 1);
@@ -10020,6 +10023,39 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
     function onPlayingSurface(q) {
         return q.x > 0 && q.x < S.tableL && q.y > 0 && q.y < S.tableW;
     }
+    let poolPocketPixel;
+    function onFlat2DCloth(q) {
+        if(!onPlayingSurface(q))return false;
+        if(!document.body.classList.contains('trainer-workspace')||window.Billiards3D?.active)return true;
+        const G=pocketModel();
+        if(G.pocketless)return true;
+        if(G.type==='pool' && ORIGINAL_TABLE_ASSET.complete && ORIGINAL_TABLE_ASSET.naturalWidth){
+            const A=ORIGINAL_ASSET_GEOM,x=A.x0+q.x/G.L*(A.x1-A.x0),y=A.y0+q.y/G.W*(A.y1-A.y0);
+            if(Math.min(y-A.y0,A.y1-y)>80 || Math.min(x-A.x0,A.x1-x,Math.abs(x-(A.x0+A.x1)/2))>80)return true;
+            // Only the six cutouts need pixel testing. Read the original artwork,
+            // not the composed frame, so shadows, balls and guides never change the result.
+            if(!poolPocketPixel){
+                const pixel=document.createElement('canvas');pixel.width=pixel.height=1;
+                poolPocketPixel=pixel.getContext('2d',{willReadFrequently:true});
+            }
+            poolPocketPixel.drawImage(ORIGINAL_TABLE_ASSET,Math.floor(x),Math.floor(y),1,1,0,0,1,1);
+            const [r,g,b]=poolPocketPixel.getImageData(0,0,1,1).data;
+            return g>r+12&&b>r+12;
+        }
+        const plan=pocketTableDrawingPlan(G), x=q.x-G.L/2, z=q.y-G.W/2;
+        const inside=polygon=>{
+            let hit=false;
+            for(let i=0,j=polygon.length-1;i<polygon.length;j=i++){
+                const [ax,,az]=polygon[i],[bx,,bz]=polygon[j];
+                if((az>z)!==(bz>z)&&x<(bx-ax)*(z-az)/(bz-az)+ax)hit=!hit;
+            }
+            return hit;
+        };
+        return !plan.pockets.some(p=>inside(p.dropPath))&&!window.BilliardsTableConstruction.roundedJaws(G).some(jaw=>{
+            const rows=window.BilliardsTableConstruction.jawSections(jaw,plan);
+            return inside([...rows.map(row=>row.nose),...rows.map(row=>row.back).reverse()]);
+        });
+    }
     function manualPocketAt(q) {
         // Include the visible pocket well outside the cushion nose.
         return nearestLogicalPocket(q, Math.max(S.ballR * 4.8, .135));
@@ -10297,6 +10333,7 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
             }
         }
         else {
+        if (!onFlat2DCloth(q)) return;
         if (S.shot2Enabled && !S.shot2CueBallOnly) {
             const s = ensureShot2();
             if (Math.hypot(q.x - s.freeAim.x, q.y - s.freeAim.y) < S.ballR * 1.8) {
@@ -15139,9 +15176,9 @@ body.phone-focus:not(.table-3d) #phoneSpeedRail>.tableSpeedControl{padding-top:6
   <script src="./phone-play.js?v=slider-labels-1"></script>
   <link rel="stylesheet" href="./trainer-3d.css?v=position-speed-r2">
   <script src="./trainer-cue3d.js?v=cloth-shadow-2"></script>
-  <script src="./trainer-3d.js?v=follow-shot-1"></script>
-  <link rel="stylesheet" href="./trainer-workspace.css?v=picker-polish-1">
-  <script src="./trainer-workspace.js?v=table-guides-1"></script>
+  <script src="./trainer-3d.js?v=cloth-aim-1"></script>
+  <link rel="stylesheet" href="./trainer-workspace.css?v=guides-dock-1">
+  <script src="./trainer-workspace.js?v=guides-dock-1"></script>
   <link rel="stylesheet" href="./trainer-player-view.css?v=1">
   <script src="./trainer-player-view.js?v=shot-2-view"></script>
   <script src="./trainer-cue-controls.js?v=1"></script>

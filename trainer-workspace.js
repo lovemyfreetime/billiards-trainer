@@ -124,19 +124,19 @@
   }
   guides.onclick=()=>window.billiardsTableGuides?.set(!window.billiardsTableGuides.enabled());
   window.addEventListener('billiards:table-guides',syncGuides);syncGuides();
-  // Keep the same switch at the right edge of the tray band even when the ball list is retracted.
-  shelf.append(trayToggle, clear, earlier, balls, later, count); document.body.append(shelf,guides);
+  // Give the guides switch a stable slot in each view, independent of tray visibility.
+  shelf.append(trayToggle, clear, guides, earlier, balls, later, count); document.body.append(shelf);
   let trayLayoutPending=false,trayScrollRange=null;
   function alignBallTray(){
     trayLayoutPending=false;if(!balls.getClientRects().length)return;
     const frame=shelf.getBoundingClientRect(),scale=frame.width/shelf.offsetWidth;if(!(scale>0))return;
     let left=6;
-    for(const control of [trayToggle,byId('table3DRackToggle'),byId('table3DShotOrder'),clear,byId('table3DLock')]){
+    for(const control of [trayToggle,byId('table3DRackToggle'),byId('table3DShotOrder'),clear,guides,byId('table3DLock')]){
       if(control?.parentElement!==shelf||!control.getClientRects().length)continue;
       left=Math.max(left,(control.getBoundingClientRect().right-frame.left)/scale+6);
     }
     const plan=byId('table3DPlanControls'),planWidth=plan?.parentElement===shelf&&!plan.hidden?plan.offsetWidth+6:0;
-    const right=shelf.clientWidth-8-planWidth-(guides.parentElement===shelf?guides.offsetWidth+6:0),available=Math.max(0,right-left);
+    const right=shelf.clientWidth-8-planWidth,available=Math.max(0,right-left);
     const columns=available>=16*26+15*4?16:8;
     const separate=available<8*26+7*4;
     const x=separate?6:left,width=Math.min(separate?shelf.clientWidth-12:available,columns*30+(columns-1)*3);
@@ -264,16 +264,16 @@
       trayToggle.setAttribute('aria-expanded', String(trayState[active ? 'threeD' : 'twoD']));
     }
     const ballLock=byId('table3DLock');if(ballLock){move(shelf,ballLock);ballLock.hidden=!active;}
-    const tabOnly=document.body.classList.contains('phone-tray-hidden');
-    move(tabOnly?document.body:shelf,guides);
     if (active) {
       cameraRow.hidden = false; move(document.body, cameraRow);
       move(cameraRow, tools); move(cameraRow, views);
       if(document.body.classList.contains('phone-tray-hidden')) { move(tools, trayToggle); tools.prepend(trayToggle); }
       else shelf.prepend(trayToggle);
+      if(tools.firstElementChild!==guides)tools.prepend(guides);
     } else {
       cameraRow.hidden = true; move(groups.view, views); move(groups.view, tools);
       shelf.prepend(trayToggle);
+      if(clear.nextElementSibling!==guides)clear.after(guides);
     }
     fit.hidden = active;
     const rack=byId('table3DRackToggle'),order=byId('table3DShotOrder'),plan=byId('table3DPlanControls');

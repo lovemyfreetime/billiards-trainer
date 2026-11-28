@@ -1,7 +1,7 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),orbit=require('../table-orbit.js');
 const sourceCode=fs.readFileSync('trainer-3d.js','utf8'),events=new Map(),stageEvents=new Map(),edits=[],views=[];
 const canvas={style:{},setPointerCapture(){},focus(){},addEventListener(name,handler){events.set(name,handler);}},stage={addEventListener(name,handler){stageEvents.set(name,handler);}};
-const c={frame:null,lastFrame:{L:2.54,W:1.27},stopTransition(){},focusBall(){},canvas,stage,cameraState:{playerView:false},active:true,viewLocked:true,panEnabled:false,source:{style:{}},lastTap:null,performance,Math,Map,edit:null,pointers:new Map(),pick:e=>e.clientX<100?{editable:true,ball:true,height:0,offset:{x:0,z:0},point:{x:.5,y:.5}}:null,overControls:()=>false,pickPocketLabel:()=>null,cast(){},planePoint:()=>({x:.6,z:.6}),logical:p=>({x:p.x,y:p.z}),T:{Vector3:class{constructor(x,y,z){this.x=x;this.y=y;this.z=z;}}},pan:(...args)=>views.push(['pan',...args]),zoom:value=>views.push(['zoom',value]),orbit:(...args)=>views.push(['orbit',...args]),window:{BilliardsTableOrbit:orbit,billiards3DTableInput:(type,q,input)=>{edits.push({type,q,input});return true;}}};
+const c={frame:null,lastFrame:{L:2.54,W:1.27},stopTransition(){},focusBall(){},canvas,stage,cameraState:{playerView:false},active:true,viewLocked:true,panEnabled:false,source:{style:{}},lastTap:null,performance,Math,Map,edit:null,pointers:new Map(),pick:e=>e.clientX<100?{editable:true,ball:true,height:0,offset:{x:0,z:0},point:{x:.5,y:.5}}:null,overControls:()=>false,pickPocketLabel:()=>null,clothPoint:e=>e.clientX>=100?{x:.6,y:.6}:null,cast(){},planePoint:()=>({x:.6,z:.6}),logical:p=>({x:p.x,y:p.z}),T:{Vector3:class{constructor(x,y,z){this.x=x;this.y=y;this.z=z;}}},pan:(...args)=>views.push(['pan',...args]),zoom:value=>views.push(['zoom',value]),orbit:(...args)=>views.push(['orbit',...args]),window:{BilliardsTableOrbit:orbit,billiards3DTableInput:(type,q,input)=>{edits.push({type,q,input});return true;}}};
 vm.createContext(c);vm.runInContext(sourceCode.slice(sourceCode.indexOf('  function forward('),sourceCode.indexOf('  function focusBall(')),c);
 const event=(x,y=10,id=1)=>({button:0,buttons:1,clientX:x,clientY:y,pointerId:id,pointerType:'touch',preventDefault(){},stopPropagation(){}});
 events.get('pointerdown')(event(150));events.get('pointermove')(event(170));events.get('pointerup')(event(170));assert.equal(views[0][0],'orbit');assert.equal(edits.length,0);assert(c.viewLocked,'off-table view drag retains editing mode');
@@ -36,5 +36,8 @@ edits.length=0;views.length=0;
 fire('pointerdown',150);fire('pointerdown',190,10,2);fire('pointermove',215,10,2);
 fire('pointerup',150);fire('pointerup',215,10,2);
 assert(views.some(v=>v[0]==='zoom'),'pinch zoom responds without delay');assert.equal(edits.length,0,'pinch does not aim');
-edits.length=0;tap(150,'mouse');assert.equal(edits.length,2,'mouse single click still aims');
+for(const kind of ['touch','mouse','pen']){
+ edits.length=0;tap(40,kind);assert.equal(edits.length,0,kind+' taps outside the cloth never aim');
+ tap(150,kind);assert.equal(edits.length,2,kind+' single tap on the cloth still aims');
+}
 console.log('Instant drag, one-tap rough aim, touch slop, locked ball and handle routing, pinch, and explicit pocket controls passed.');
