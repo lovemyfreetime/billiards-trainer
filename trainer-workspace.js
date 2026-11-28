@@ -113,7 +113,19 @@
   };
   balls.addEventListener('scroll', syncScroll, {passive:true});
   new ResizeObserver(syncScroll).observe(balls);
-  shelf.append(trayToggle, clear, earlier, balls, later, count); document.body.append(shelf);
+  const guides=document.createElement('button');
+  guides.id='workspaceTableGuides';guides.type='button';guides.setAttribute('role','switch');
+  guides.setAttribute('aria-label','Table guides');guides.dataset.btgAllow='1';
+  function syncGuides(){
+    const on=window.billiardsTableGuides?.enabled()!==false, next=on?'Guides On':'Guides Off';
+    if(guides.textContent!==next)guides.textContent=next;
+    guides.setAttribute('aria-checked',String(on));
+    guides.title=on?'Turn off table aids for aim-only practice':'Restore your table aids';
+  }
+  guides.onclick=()=>window.billiardsTableGuides?.set(!window.billiardsTableGuides.enabled());
+  window.addEventListener('billiards:table-guides',syncGuides);syncGuides();
+  // Keep the same switch at the right edge of the tray band even when the ball list is retracted.
+  shelf.append(trayToggle, clear, earlier, balls, later, count); document.body.append(shelf,guides);
   let trayLayoutPending=false,trayScrollRange=null;
   function alignBallTray(){
     trayLayoutPending=false;if(!balls.getClientRects().length)return;
@@ -124,7 +136,7 @@
       left=Math.max(left,(control.getBoundingClientRect().right-frame.left)/scale+6);
     }
     const plan=byId('table3DPlanControls'),planWidth=plan?.parentElement===shelf&&!plan.hidden?plan.offsetWidth+6:0;
-    const right=shelf.clientWidth-8-planWidth,available=Math.max(100,right-left);
+    const right=shelf.clientWidth-8-planWidth-(guides.parentElement===shelf?guides.offsetWidth+6:0),available=Math.max(0,right-left);
     const columns=available>=16*26+15*4?16:8;
     const separate=available<8*26+7*4;
     const x=separate?6:left,width=Math.min(separate?shelf.clientWidth-12:available,columns*30+(columns-1)*3);
@@ -233,13 +245,14 @@
   const trayState = {twoD: true, threeD: false};
   try{Object.assign(trayState,JSON.parse(localStorage.getItem('trainer.ballTray.v1')||'{}'));}catch{}
   let dockMode = null;
-  trayToggle.addEventListener('click', () => { trayState[dockMode ? 'threeD' : 'twoD'] = !document.body.classList.contains('phone-tray-hidden'); try{localStorage.setItem('trainer.ballTray.v1',JSON.stringify(trayState));}catch{}if(document.body.classList.contains('phone-tray-hidden'))window.Billiards3D?.arrangeBalls(false);sync(); window.dispatchEvent(new Event('resize')); });
+  trayToggle.addEventListener('click', () => { trayState[dockMode ? 'threeD' : 'twoD'] = !document.body.classList.contains('phone-tray-hidden'); try{localStorage.setItem('trainer.ballTray.v1',JSON.stringify(trayState));}catch{}if(document.body.classList.contains('phone-tray-hidden'))window.Billiards3D?.arrangeBalls(false);window.billiardsWorkspaceDock?.(); window.dispatchEvent(new Event('resize')); });
   window.billiardsWorkspaceSync = sync;
   // Busy changes during a shot also disable tray placement before the next UI update.
   const shoot = byId('animate');
   if (shoot) new MutationObserver(sync).observe(shoot, {attributes:true, attributeFilter:['disabled', 'data-running']});
   const move = (parent, element) => { if (element && element.parentNode !== parent) parent.append(element); };
   window.billiardsWorkspaceDock = () => {
+    window.billiardsTableGuides?.sync();
     for (const [key, ids] of Object.entries(groupIds)) for (const id of ids) move(groups[key], byId(id));
     move(byId('featureCueOptions'), byId('angleLock'));
     const active = document.body.classList.contains('table-3d');
@@ -251,6 +264,8 @@
       trayToggle.setAttribute('aria-expanded', String(trayState[active ? 'threeD' : 'twoD']));
     }
     const ballLock=byId('table3DLock');if(ballLock){move(shelf,ballLock);ballLock.hidden=!active;}
+    const tabOnly=document.body.classList.contains('phone-tray-hidden');
+    move(tabOnly?document.body:shelf,guides);
     if (active) {
       cameraRow.hidden = false; move(document.body, cameraRow);
       move(cameraRow, tools); move(cameraRow, views);

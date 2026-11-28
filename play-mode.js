@@ -19,22 +19,37 @@ function init(){
  const setupOrder=P.groups.flatMap(group=>group.games),setupDrafts=new Map();let setupSwipe=null,suppressSwipeClick=0;
  const setupInteractive='button,a,input,select,textarea,summary,[contenteditable],#appDisplayMenu,#appViewHint';
  function rememberSetup(){if(!dialog.classList.contains('play-setup-dialog'))return;const names=$('playSetupNames');if(names)setupDrafts.set(dialog.dataset.game,{names:names.value,balls:$('playSetupCount')?.value,allowances:$('playAllowances')?.value});}
+ function browseFamily(direction){
+  if(bridge.busy())return;
+  const index=P.groups.findIndex(group=>group.id===dialog.dataset.family);
+  if(index<0)return;
+  const family=P.groups[(index+direction+P.groups.length)%P.groups.length];
+  N.stop();stopSpeech();historyReplaceFamily(family.id);familyPage(family.id);
+  dialog.querySelector(direction>0?'.play-family-next':'.play-family-prev')?.focus({preventScroll:true});
+ }
+ function historyReplaceFamily(id){window.history.replaceState(window.history.state,'',selectionHref(id));}
  function browseSetup(direction){if(!dialog.open||!dialog.classList.contains('play-setup-dialog'))return;const index=setupOrder.indexOf(dialog.dataset.game);setup(setupOrder[(index+direction+setupOrder.length)%setupOrder.length]);}
  dialog.addEventListener('pointerdown',event=>{
-  setupSwipe=null;if(!dialog.classList.contains('play-setup-dialog')||event.isPrimary===false||event.button!==0||event.target.closest(setupInteractive))return;
-  setupSwipe={id:event.pointerId,x:event.clientX,y:event.clientY,time:performance.now(),width:dialog.getBoundingClientRect().width};dialog.setPointerCapture(event.pointerId);
+  setupSwipe=null;
+  const family=dialog.classList.contains('play-family-page');
+  if(event.isPrimary===false||event.button!==0||(!family&&!dialog.classList.contains('play-setup-dialog')))return;
+  const control=event.target.closest(setupInteractive);
+  if(control&&(!family||!control.matches('.play-game-tile')))return;
+  setupSwipe={id:event.pointerId,x:event.clientX,y:event.clientY,time:performance.now(),width:dialog.getBoundingClientRect().width,family};
+  if(!family)dialog.setPointerCapture(event.pointerId);
  });
  dialog.addEventListener('pointercancel',()=>{setupSwipe=null;});
  dialog.addEventListener('pointerup',event=>{
   const start=setupSwipe;setupSwipe=null;if(!start||start.id!==event.pointerId)return;
   const dx=event.clientX-start.x,dy=event.clientY-start.y,threshold=Math.max(40,Math.min(90,start.width*.06));
   if(Math.abs(dx)<threshold||Math.abs(dx)<Math.abs(dy)*1.5||performance.now()-start.time>1500||window.getSelection()?.toString())return;
-  event.preventDefault();suppressSwipeClick=performance.now()+350;browseSetup(dx<0?1:-1);
+  event.preventDefault();suppressSwipeClick=performance.now()+350;(start.family?browseFamily:browseSetup)(dx<0?1:-1);
  });
  dialog.addEventListener('click',event=>{if(event.detail&&performance.now()<suppressSwipeClick){event.preventDefault();event.stopImmediatePropagation();}},true);
  dialog.addEventListener('keydown',event=>{
-  if(event.defaultPrevented||event.repeat||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey||event.target.closest('input,select,textarea,[contenteditable]')||!dialog.classList.contains('play-setup-dialog'))return;
-  if(event.key==='ArrowLeft'||event.key==='ArrowRight'){event.preventDefault();browseSetup(event.key==='ArrowRight'?1:-1);}
+  const family=dialog.classList.contains('play-family-page');
+  if(event.defaultPrevented||event.repeat||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey||event.target.closest('input,select,textarea,[contenteditable]')||(!family&&!dialog.classList.contains('play-setup-dialog')))return;
+  if(event.key==='ArrowLeft'||event.key==='ArrowRight'){event.preventDefault();(family?browseFamily:browseSetup)(event.key==='ArrowRight'?1:-1);}
  });
  function sizeBoard(node,draw){draw();if(window.ResizeObserver){pageSizer=new ResizeObserver(draw);pageSizer.observe(node);}}
  const clock=window.BilliardsShotClockUI.mount({
@@ -115,6 +130,13 @@ function init(){
   const descriptions={secret:'Hidden targets. Shared suspense.',pub:'Friendly rivalries. One more round.',cards:'Play the table. Read the possibilities.',tactical:'A little strategy. A different kind of challenge.'};
   intro.append(title,text('p',descriptions[id]));dialog.append(intro);
   const stage=text('main','','play-family-stage');stage.setAttribute('aria-label',family.name+' games');family.games.forEach((game,index)=>{const {card}=makeGameCard(game,index+1),holder=text('div','','play-family-game');holder.append(card);stage.append(holder);});dialog.append(stage);sizeBoard(stage,()=>{stage.style.setProperty('--play-family-scale',String(Math.min(stage.clientWidth*.30,stage.clientHeight*.60)/340));});
+  const index=P.groups.indexOf(family);
+  for(const [arrow,dir,side] of [['‹',-1,'prev'],['›',1,'next']]){
+   const target=P.groups[(index+dir+P.groups.length)%P.groups.length];
+   const control=button(arrow,()=>browseFamily(dir),'play-family-step play-family-'+side);
+   const label=(dir<0?'Previous 5 games':'Next 5 games')+' · '+target.name;
+   control.setAttribute('aria-label',label);control.title=label;dialog.append(control);
+  }
  }
  function playHome(){
   openDialog('Billiards Play');dialog.className='play-home-dialog';dialog.setAttribute('aria-label','Billiards Play');dialog.removeAttribute('aria-labelledby');dialog.replaceChildren();

@@ -1,6 +1,19 @@
 /* Pool-table inspection mappings. Uses existing, approved narration recordings. */
 (function(){
 'use strict';
+const launchers=document.getElementById('btg-pool-launchers');
+const guideButton=document.getElementById('btg-pool-guide'),startButton=document.getElementById('btg-pool-start');
+if(!launchers||!guideButton||!startButton||document.body.classList.contains('projector'))return;
+launchers.dataset.btgAllow='1';
+const status=document.createElement('p');status.id='trainerLearningStatus';status.setAttribute('role','status');status.hidden=true;
+launchers.after(status);
+function indicate(message=''){status.textContent=message;status.hidden=!message;}
+let activate=null,queued=null,failed=false;
+for(const [kind,button] of [['start',startButton],['guide',guideButton]])button.addEventListener('click',()=>{
+ if(activate)activate(kind);
+ else if(failed)indicate('Learning could not load. Reopen the Trainer to try again.');
+ else {queued=kind;indicate('Loading lessons…');}
+});
 async function init(){
  const recorded=await BilliardsRecordedAudio.load();
  const stage=document.getElementById('stageWrap');
@@ -37,10 +50,6 @@ async function init(){
  // Elevation side views and marker visibility buttons are created by the trainer.
  const observer=new MutationObserver(mapControls);
  observer.observe(document.getElementById('app'),{childList:true,subtree:true});
- const launchers=document.getElementById('btg-pool-launchers');
- const guideButton=document.getElementById('btg-pool-guide');
- const startButton=document.getElementById('btg-pool-start');
- launchers.dataset.btgAllow='1';
  const ids=[...new Set([...Object.values(catalog.assignments),...Object.values(catalog.sections),...catalog.canvasTopics,catalog.powerMeterTopic])];
  // Explorer mappings explain controls; they must not remove lessons from Guide.
  for(const topic of catalog.topics)topic.explorerOnly=topic.category==='reference'||topic.category==='explore';
@@ -117,8 +126,6 @@ async function init(){
   }
  });
  function showLearningIn2D(){if(!document.body.classList.contains('table-3d'))return;document.getElementById('table3DToggle')?.click();requestAnimationFrame(()=>{if(document.body.classList.contains('phone-focus')&&!document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls')?.click();});}
- for(const launcher of [startButton,guideButton])launcher.addEventListener('click',()=>{if(!document.body.classList.contains('trainer-workspace'))showLearningIn2D();},{capture:true});
- guideButton.addEventListener('click',()=>{if(learningPanel){learningPanel.open('guide');return;}if(guide.getState().enabled&&guide.getState().category!=='start')guide.setEnabled(false);else guide.openGuide()});
  window.billiardsPoolAudioMap=catalog;
  tour=await BilliardsGetStartedTour.mount(guide);
  if(tour)tour.steps.forEach((step,index)=>{const topic=catalog.topics.find(t=>t.id===step.topicId);if(!topic)throw Error('Quick Start lesson unavailable: '+step.topicId);topic.guideOrder=index;});
@@ -126,7 +133,18 @@ async function init(){
  window.billiardsLessonPractice=lessonPractice;
  window.billiardsGetStartedTour=tour;
  learningPanel=window.BilliardsLearningPanel?.mount({guide,tour,host});
- startButton.addEventListener('click',()=>learningPanel?learningPanel.open('start'):(tour?tour.start():guide.openCategory('start')));
+ activate=kind=>{
+  const s=guide.getState(),already=s.enabled&&((kind==='start')===(s.category==='start'));
+  if(!already&&window.billiardsTourBridge?.snapshot().busy){indicate('Finish the shot before opening a lesson.');return;}
+  indicate();
+  if(learningPanel){
+   if(!learningPanel.open(kind))indicate('Could not open this lesson. Try again from Tools → Learning.');
+   return;
+  }
+  showLearningIn2D();
+  if(kind==='start'){if(tour)tour.start();else guide.openCategory('start');}
+  else if(already)guide.setEnabled(false);else guide.openGuide();
+ };
  for(const id of ['analyzePhotoBtn','cameraCaptureBtn'])document.getElementById(id)?.addEventListener('click',()=>{if(!guide.getState().exploring){guide.setEnabled(false);guide.setExploring(false)}},true);
  // Also pause if Analyze is opened through another trainer action.
  const modalObserver=new MutationObserver(()=>{if(modal.classList.contains('open')){tour?.pause();guide.setEnabled(false);guide.setExploring(false)}});
@@ -145,7 +163,8 @@ async function init(){
  new MutationObserver(sync3D).observe(document.body,{attributes:true,attributeFilter:['class']});sync3D();
  window.billiardsPoolGuide=guide;
  window.billiardsPoolAudioMap=catalog;
+ if(queued){const kind=queued;queued=null;activate(kind);}
 }
-function start(){init().catch(error=>console.error('Pool Guide:',error))}
+function start(){init().catch(error=>{failed=true;if(queued)indicate('Learning could not load. Reopen the Trainer to try again.');console.error('Pool Guide:',error);});}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();

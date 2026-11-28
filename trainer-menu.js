@@ -176,7 +176,7 @@
   if (byId('sessionFolderStatus').textContent.startsWith('Saved layouts')) byId('sessionFolderStatus').textContent = 'Stored on this device · Export to share';
   const title = panel.querySelector('h1');
   title.querySelector('.editionSub').textContent = 'AI Edition';
-  const headerActions = document.createElement('div'); headerActions.id = 'menuHeaderActions';
+  const headerActions = document.createElement('div'); headerActions.id = 'menuHeaderActions'; headerActions.dataset.btgAllow='1';
   headerActions.append(byId('btg-pool-launchers'), byId('trainerUpdateRow')); title.parentElement.append(headerActions);
   function openShot() {
     const section = byId('shotSection');

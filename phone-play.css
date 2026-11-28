@@ -202,7 +202,7 @@ body.phone-focus #phoneAimRail .rollerCenter{left:0;top:50%;bottom:auto;width:10
 body.phone-focus #phoneSpeedRail>.tableSpeedControl{display:none!important;position:static!important;inset:auto!important;transform:none!important;width:40px!important;height:100%!important;flex-direction:column;padding:48px 3px 9px;border:1px solid #78969f;border-radius:17px;background:#111a20}
 body.phone-focus #phoneSpeedRail>.tableSpeedControl.activeSpeed{display:flex!important}
 body.phone-focus #phoneSpeedRail input{writing-mode:vertical-lr;direction:rtl;width:28px;height:100%;min-height:25px;flex:1;margin:0;touch-action:none}
-body.phone-focus #phoneSpeedRail .tableSpeedLabel{font-size:8px!important;top:0!important}
+body.phone-focus #phoneSpeedRail .tableSpeedLabel{font-size:var(--phone-speed-label-size,8px)!important;top:0!important}
 body.phone-focus #phoneSpeedRail .tableSpeedLabel::after{display:none!important}
 body.phone-focus #phoneSpeedRail .phoneSliderValue{top:22px!important;font-size:10px}
 body.phone-focus #phoneSpeedRail .speedTickScale{top:49px;bottom:13px}

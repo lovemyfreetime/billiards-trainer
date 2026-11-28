@@ -14,6 +14,17 @@ function homeArt(){
  preview.append(choices);return preview;
 }
 window.BilliardsExperienceHomeArt=homeArt;
+window.BilliardsMakeMinimizeButton=function(onMinimize){
+ const android=window.BilliardsAndroid,windows=window.chrome?.webview;
+ const minimize=typeof android?.minimizeApp==='function'?()=>android.minimizeApp():
+  window.BilliardsWindowsCanMinimize&&windows?()=>windows.postMessage({type:'minimize-app'}):null;
+ if(!minimize)return null;
+ const button=document.createElement('button');
+ button.type='button';button.className='experience-minimize';button.setAttribute('aria-label','Minimize app');button.title='Minimize app';
+ button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-4-4 4 4 4-4M5 17v3h14v-3"/></svg>';
+ button.onclick=()=>{onMinimize();minimize();};
+ return button;
+};
 window.BilliardsExperienceMenu=function({current,beforeNavigate=()=>true}={}){
  if(window.BilliardsOfflinePlay){const link=document.createElement('a');link.href='./play.html';link.textContent='Play games';return link;}
  const wrap=document.createElement('span');wrap.className='experience-switcher';
@@ -32,6 +43,7 @@ window.BilliardsExperienceMenu=function({current,beforeNavigate=()=>true}={}){
   const a=document.createElement('a');a.href=url.href;a.dataset.experience=mode;a.setAttribute('aria-label','Open '+label);a.title=label;const art=document.createElement('span');art.className='experience-art';art.setAttribute('aria-hidden','true');if(mode==='home')art.append(homeArt());else if(mode==='zen')art.innerHTML=lotusIcon();else{const img=document.createElement('img');img.src=mode==='train'?'./icons/trainer-original-execute-v2.svg':'./icons/play-experience-v1.webp';img.alt='';art.append(img);}const name=document.createElement('span');name.textContent=label;a.append(art,name);
   a.onclick=e=>{if(beforeNavigate(mode)===false)e.preventDefault();};menu.append(a);
  }
+ const minimize=window.BilliardsMakeMinimizeButton(closeMenu);if(minimize)menu.append(minimize);
  if(current==='zen'&&window.BilliardsAppUpdates?.supported){const update=document.createElement('button');update.type='button';update.className='experience-update';update.textContent='Check for updates';update.onclick=()=>{closeMenu();window.BilliardsAppUpdates.check();};menu.append(update);}
  toggle.onclick=()=>{if(isOpen()){closeMenu();return;}openMenu();const r=toggle.getBoundingClientRect(),v=visualViewport,h=v?.height||innerHeight,w=v?.width||innerWidth;menu.style.left=Math.max(8,Math.min(r.left,w-menu.offsetWidth-8))+'px';const below=r.top<h/2;menu.style.top=Math.max(8,Math.min(below?r.bottom+8:r.top-menu.offsetHeight-8,h-menu.offsetHeight-8))+'px';};
  document.addEventListener('pointerdown',e=>{if(isOpen()&&!wrap.contains(e.target))closeMenu();});

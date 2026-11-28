@@ -40,6 +40,8 @@ jobs:
           node --test tests/trainer-cue3d.test.cjs tests/trainer-cue-clearance.test.cjs tests/trainer-guidance.test.cjs tests/shot-geometry.test.cjs
           node tests/app-updates.browser.cjs
           node tests/pocket-feedback.browser.cjs
+          node --test tests/trainer-shot-follow.test.cjs
+          node tests/trainer-practice-workspace.browser.cjs
       - name: Check extended 3D gestures, ball tray and racks
         if: inputs.full_suite
         env:

@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - preview/chase-in-trainer
     paths:
       - 'android-wrapper/**'
       - 'index.html'
@@ -25,7 +26,11 @@ on:
       - 'tests/photo-camera.browser.cjs'
       - 'tests/trainer-3d-ball-tools.browser.cjs'
       - 'tests/trainer-3d-gesture-routing.test.cjs'
+      - 'trainer-shot-follow.js'
+      - 'tests/trainer-shot-follow.test.cjs'
+      - 'tests/trainer-practice-workspace.browser.cjs'
       - 'scripts/build-offline-assets.py'
+      - 'tests/zen-fresh-table.test.cjs'
       - 'scripts/verify-android-app.py'
       - 'scripts/update-android-downloads.py'
 

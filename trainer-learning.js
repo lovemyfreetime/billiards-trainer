@@ -45,7 +45,7 @@
       const s=guide.getState();
       if(kind==='start'){if(!s.enabled||s.category!=='start'){if(tour)tour.start();else guide.openCategory('start');}}
       else if(!s.enabled||s.category==='start')guide.openGuide();
-      opening=false;full();
+      opening=false;if(!guide.getState().enabled)return false;full();return true;
     }
     function off() {apply('off');if(trayBefore!==null){const saved=trayBefore;trayBefore=null;setTray(saved);}}
     function sync(state) {if(opening)return;if(!state.enabled){off();return;}if(mode==='off'){trayBefore=trayHidden();full();}else describe();}

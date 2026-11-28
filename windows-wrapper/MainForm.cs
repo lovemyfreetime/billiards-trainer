@@ -98,7 +98,7 @@ public sealed class MainForm : Form
             core.Settings.AreBrowserAcceleratorKeysEnabled = true;
             core.Settings.IsZoomControlEnabled = true;
 
-            await core.AddScriptToExecuteOnDocumentCreatedAsync("if(location.origin==='https://lovemyfreetime.github.io'){window.BilliardsBundledWindows=true;window.BilliardsContentUpdateProtocol=" + (updates == null ? 0 : ContentUpdates.Protocol) + ";window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=true;}");
+            await core.AddScriptToExecuteOnDocumentCreatedAsync("if(location.origin==='https://lovemyfreetime.github.io'){window.BilliardsBundledWindows=true;window.BilliardsContentUpdateProtocol=" + (updates == null ? 0 : ContentUpdates.Protocol) + ";window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsCanMinimize=true;window.BilliardsWindowsFullscreen=true;}");
             core.NavigationCompleted += async (_, _) =>
             {
                 await core.ExecuteScriptAsync("window.BilliardsWindowsHostAvailable=true;window.BilliardsWindowsFullscreen=" +
@@ -126,6 +126,7 @@ public sealed class MainForm : Form
                         { updates.Apply(); core.Reload(); }
                         else if (publicApp && type.GetString() == "start-local-play") await StartLocalHostAsync();
                         else if (type.GetString() == "close-app") Close();
+                        else if (publicApp && type.GetString() == "minimize-app") WindowState = FormWindowState.Minimized;
                         else if (type.GetString() == "set-fullscreen" &&
                                  message.RootElement.TryGetProperty("active", out var active) &&
                                  active.ValueKind is JsonValueKind.True or JsonValueKind.False)

@@ -167,7 +167,17 @@
     if(plusLabel)plusLabel.dataset.stepLabel=plusLabel.textContent;
     const caption=document.createElement('span');
     caption.className=kind==='percent'?'phoneSpinCaption':'phoneSpeedValue';
-    if(kind==='percent'){caption.dataset.start=input.id.includes('Follow')?'Draw':'Left spin';caption.dataset.end=input.id.includes('Follow')?'Follow':'Right spin';}
+    let captionValue=null;
+    if(kind==='percent'){
+      caption.dataset.start=input.id.includes('Follow')?'Draw':'Left spin';caption.dataset.end=input.id.includes('Follow')?'Follow':'Right spin';
+      if(workspace){
+        caption.classList.add('phoneSpinDirections');
+        const left=document.createElement('span'),right=document.createElement('span');
+        captionValue=document.createElement('span');captionValue.className='phoneSpinPercent';
+        left.textContent=caption.dataset.start;right.textContent=caption.dataset.end;
+        caption.append(left,captionValue,right);
+      }
+    }
     input.parentNode.append(caption);
     if(kind==='speed'&&!document.getElementById(input.id+'Feel')){const feel=document.createElement('span');feel.className='phoneSpeedFeel';feel.id=input.id+'Feel';feel.setAttribute('aria-label','Speed feel in diamonds');const initialFeel=parseFloat(document.getElementById(input.id==='tableSpeed1'?'powerFeelText':'powerFeel2Text')?.textContent);if(Number.isFinite(initialFeel))feel.textContent=initialFeel.toFixed(1)+' ♦';input.parentNode.append(feel);}
     // Phone ranges act as relative rollers: a new touch never changes the value.
@@ -192,10 +202,10 @@
       if(!drag||event.pointerId!==drag.id)return;
       drag=null;input.dispatchEvent(new Event('change',{bubbles:true}));
     });
-    readouts.push({input,output,kind,plusLabel,caption});
+    readouts.push({input,output,kind,plusLabel,caption,captionValue});
   }
   window.billiardsPhoneReadouts = () => {
-    for(const {input,output,kind,plusLabel,caption} of readouts) {
+    for(const {input,output,kind,plusLabel,caption,captionValue} of readouts) {
       const value=Number(input.value)||0;
       const percent=Math.round(value*100);
       const text=kind==='speed'?value.toFixed(2):((percent>0?'+':'')+percent+'%');
@@ -205,21 +215,21 @@
       if(output.textContent!==valueText)output.textContent=valueText;
       if(plusLabel){const label=compact?'+':plusLabel.dataset.stepLabel;if(plusLabel.textContent!==label)plusLabel.textContent=label;}
       const captionText=kind==='speed'?text:(input.id.includes('Follow')?'F/D ':'L/R ')+text;
-      if(caption.textContent!==captionText)caption.textContent=captionText;
+      if(captionValue){if(captionValue.textContent!==text)captionValue.textContent=text;}else if(caption.textContent!==captionText)caption.textContent=captionText;
     }
   };
   for(const {input} of readouts)input.addEventListener('input',window.billiardsPhoneReadouts);
   window.billiardsPhoneReadouts();
   // Reuse the existing controls and event handlers in a table-first phone layout.
   const toolShelf=document.createElement('div');toolShelf.id='phoneToolShelf';toolShelf.setAttribute('aria-label','Table tools');title.after(toolShelf);
-  const updateButton=document.createElement('button');updateButton.id='trainerUpdateCheck';updateButton.type='button';updateButton.textContent='Updates';updateButton.setAttribute('data-app-update','');updateButton.hidden=true;const updateRow=document.createElement('div');updateRow.id='trainerUpdateRow';toolShelf.after(updateRow);updateRow.append(updateButton);
+  const updateButton=document.createElement('button');updateButton.id='trainerUpdateCheck';updateButton.dataset.btgAllow='1';updateButton.type='button';updateButton.textContent='Updates';updateButton.setAttribute('data-app-update','');updateButton.hidden=true;const updateRow=document.createElement('div');updateRow.id='trainerUpdateRow';toolShelf.after(updateRow);updateRow.append(updateButton);
   const relocated=[];
   for(const id of ['analyzePhotoBtn','cameraCaptureBtn','quickLayoutRecall','kickToolToggle','bankToolToggle','teachingCompassToggle','compassSizeWrap','compassRotateWrap','angleLock','aimControls','aimControls2']){
     const element=document.getElementById(id);if(!element)continue;
     const anchor=document.createComment(id+' desktop position');element.before(anchor);relocated.push({element,anchor,aim:id.startsWith('aimControls')});
   }
   const leftRail=document.createElement('div');leftRail.id='phoneAimRail';leftRail.setAttribute('aria-label','Fine aim');
-  const aimLabel=document.createElement('span');aimLabel.className='phoneAimLabel';aimLabel.textContent='AIM';leftRail.append(aimLabel);
+  const aimLabel=document.createElement('span');aimLabel.className='phoneAimLabel';aimLabel.textContent='Aim';leftRail.append(aimLabel);
   const rightRail=document.createElement('div');rightRail.id='phoneSpeedRail';rightRail.setAttribute('aria-label','Shot speed');
   document.body.append(leftRail,rightRail);
   for(const id of ['tableSpeed1Wrap','tableSpeed2Wrap','bottomSpin1','bottomSpin2']){

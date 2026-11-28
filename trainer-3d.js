@@ -18,6 +18,7 @@
  const alongButton=action('Cue View','Toggle Cue View',()=>{openNextWhenReady=false;if(nextView)setNextView(false);window.billiardsCueView?.toggle();});
  const nextButton=action('Shot 2 View','Inspect the second shot from the cue ball',()=>{
   const api=window.billiardsGuidance;
+  if(window.billiardsTableGuides?.enabled()===false)return;
   if(nextView)setNextView(false);
   else if(api.nextShotAvailable())setNextView(true);
   else if(!api.runoutStatus().pending){
@@ -217,6 +218,7 @@
  });
  window.addEventListener('billiards:2d-render',()=>{
   syncAnalysis();
+  nextButton.disabled=window.billiardsTableGuides?.enabled()===false;
   syncNextControls();
   if(nextView&&!window.billiardsGuidance.nextShotAvailable())queueMicrotask(()=>{if(nextView&&!window.billiardsGuidance.nextShotAvailable())setNextView(false);});
  });
@@ -284,7 +286,7 @@
   lockState.textContent=viewLocked?'Unlocked':'Locked';
   viewLock.setAttribute('aria-checked',String(viewLocked));
   viewLock.title=viewLocked?'Press to lock balls. Choosing a view or Shoot also locks them.':'Unlock physical balls for moving, including the cue ball';
-  document.getElementById('table3DCanvas')?.setAttribute('aria-label',viewLocked?'Balls unlocked. Drag any ball. Use Ball position to lock again.':'Drag to inspect the table. Drag the aim handle or use Aim to adjust the shot.');
+  document.getElementById('table3DCanvas')?.setAttribute('aria-label',viewLocked?'Balls unlocked. Drag any ball. Use Ball position to lock again.':'Balls locked. Drag to rotate, pinch to zoom, tap to aim, or use Aim to fine-tune.');
  }
  for(const id of ['teachingCompassToggle','bankToolToggle','kickToolToggle'])document.getElementById(id)?.addEventListener('click',()=>{if(!active)return;setViewLocked(true);setDrawer(false);if(document.body.classList.contains('phone-controls-open'))document.getElementById('phoneControls').click();});
  document.getElementById('startFullRack')?.addEventListener('click',()=>{if(active&&document.body.classList.contains('phone-tray-hidden'))document.getElementById('phoneTrayToggle')?.click();});
@@ -355,21 +357,27 @@
   Object.assign(cameraState,{target:{x:0,y:0,z:0},azimuth,radius,elevation});transitionFrom(from);
   requestRender();
  }
- // Follow the direction of travel without moving the ball or its simulation clock.
+ // Follow the direction of travel without moving any ball or the simulation clock.
  function updateCueFollow(state,f,snap=false){
-  const b=f.balls.find(b=>b.id===0&&b.active);if(!b)return false;
+  const track=state.followTrack==='shot'&&f.animating;
+  const at=track?window.BilliardsShotFollow?.at(f.followPlan,f.playbackTime??0):null;
+  const id=at?.id??0, pocket=at?.pocket;
+  const b=f.balls.find(b=>b.id===id&&(b.active||track));
+  if(!b&&!pocket)return false;
   // A cloth edit changes the aim point through a ray cast from this camera.
   // Keep that projection fixed until a shot starts or the user picks a new view.
   if(!snap && !f.animating && Number.isFinite(state.followHeading)){
    state.followAnimating=false;
    return true;
   }
-  const moving=f.animating&&Math.hypot(b.vx||0,b.vy||0)>.004;
+  const moving=!pocket&&f.animating&&b?.active&&Math.hypot(b.vx||0,b.vy||0)>.004;
+  const changed=state.followBallId!==id;
   let heading=state.followHeading;
+  state.followBallId=id;state.followPocket=pocket?.pocket??null;
   if(moving){
-   const desired=Math.atan2(b.vy,b.vx),time=Number.isFinite(b.t)?b.t:0;
-   if(snap||!Number.isFinite(heading)||!state.followAnimating||time<state.followTime)heading=desired;
-   else{const dt=Math.max(0,time-state.followTime),turn=Math.atan2(Math.sin(desired-heading),Math.cos(desired-heading));heading+=turn*(1-Math.exp(-dt/.06));}
+   const desired=Math.atan2(b.vy,b.vx),time=f.playbackTime??(Number.isFinite(b.t)?b.t:0);
+   if(snap||!Number.isFinite(heading)||!Number.isFinite(state.followTime)||!state.followAnimating||time<state.followTime)heading=desired;
+   else{const dt=Math.max(0,time-state.followTime),turn=Math.atan2(Math.sin(desired-heading),Math.cos(desired-heading));heading+=turn*(1-Math.exp(-(changed?Math.max(dt,.016):dt)/.06));}
    state.followTime=time;
   }else if(!Number.isFinite(heading)){
    const a=f.aim;heading=a?Math.atan2(a.target.y-a.cue.y,a.target.x-a.cue.x):0;
@@ -378,7 +386,8 @@
   if(moving)state.followHasMotion=true;
   const offset={behind:0,front:Math.PI,left:-Math.PI/2,right:Math.PI/2}[state.followSide]||0;
   state.azimuth=Math.atan2(-Math.cos(heading),-Math.sin(heading))+offset;
-  state.target={x:b.x-f.L/2,y:Number.isFinite(b.z)?Math.max(f.R,b.z):f.R,z:b.y-f.W/2};
+  const target=pocket||b;
+  state.target={x:target.x-f.L/2,y:Number.isFinite(target.z)?Math.max(f.R,target.z):f.R,z:target.y-f.W/2};
   return true;
  }
  function disable(){if(!active)return;openNextWhenReady=false;if(cameraState.playerView)leaveCueView(true);else closeNextView();closePopovers();setDrawer(false);active=false;document.body.classList.remove('table-3d','table-3d-locked','table-3d-pan','table-3d-rotate');button.setAttribute('aria-pressed','false');button.textContent='3D';for(const b of [button,standingButton,alongButton,nextButton])b.style.removeProperty('font-size');tools.hidden=true;for(const b of [standingButton,alongButton,nextButton,viewLock])b.hidden=true;engine?.stop();window.dispatchEvent(new Event('resize'));}
@@ -409,13 +418,15 @@
    requestRender();
    return true;
   },
-  followCue(value,side=cameraState.followSide||'behind',distance=cameraState.followDistance||'close'){
+  followCue(value,side=cameraState.followSide||'behind',distance=cameraState.followDistance||'close',track=cameraState.followTrack||'cue'){
+   if(value&&cameraTransition)stopTransition();
+   cameraState.followTrack=track==='shot'?'shot':'cue';
    cameraState.followSide=['front','behind','left','right'].includes(side)?side:'behind';
    cameraState.followDistance=distance==='wide'?'wide':'close';
    if(value&&cameraState.playerView)leaveCueView(false);
    if(value&&!cameraState.followCue){cameraState.followHeading=undefined;cameraState.followHasMotion=false;}
    cameraState.followCue=!!value;
-   if(value)this.focusCue();
+   if(value)this.focusCue();else{cameraState.followBallId=null;cameraState.followPocket=null;}
    window.BilliardsSpinLabUI?.sync();
   },
   playerView(settings={}){
@@ -425,10 +436,10 @@
    if(!cameraState.playerView)previousCueCamera={editMode:viewLocked,pose:{azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target}}};
    cameraState.playerView=true;cameraState.playerViewLock=settings.locked!==false;cameraState.playerEyeHeight=window.BilliardsCue3D.clampEyeHeight(settings.height);cameraState.playerDistance=.75;cameraState.playerInShot=false;cameraState.followCue=false;transitionFrom(from,'cue');requestRender();return true;
   },exitCueView(){leaveCueView(true);},refresh(){requestRender();},
-  camera(){return {transitioning:!!cameraTransition,transitionDuration:cameraTransition?.duration||0,approachProgress:cueApproachProgress,playerView:!!cameraState.playerView,playerViewLock:!!cameraState.playerViewLock,playerEyeHeight:cameraState.playerEyeHeight||.12,playerDistance:cameraState.playerDistance||.75,azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},followCue:!!cameraState.followCue,followSide:cameraState.followSide||'behind',followDistance:cameraState.followDistance||'close',followHeading:cameraState.followHeading,followHasMotion:!!cameraState.followHasMotion,...engine?.projection()};},restoreCamera(saved){
+  camera(){return {transitioning:!!cameraTransition,transitionDuration:cameraTransition?.duration||0,approachProgress:cueApproachProgress,playerView:!!cameraState.playerView,playerViewLock:!!cameraState.playerViewLock,playerEyeHeight:cameraState.playerEyeHeight||.12,playerDistance:cameraState.playerDistance||.75,azimuth:cameraState.azimuth,elevation:cameraState.elevation,radius:cameraState.radius,target:{...cameraState.target},followCue:!!cameraState.followCue,followTrack:cameraState.followTrack||'cue',followBallId:cameraState.followBallId??null,followPocket:cameraState.followPocket??null,followSide:cameraState.followSide||'behind',followDistance:cameraState.followDistance||'close',followHeading:cameraState.followHeading,followHasMotion:!!cameraState.followHasMotion,...engine?.projection()};},restoreCamera(saved){
    if(!saved||![saved.azimuth,saved.elevation,saved.radius,saved.target?.x,saved.target?.y,saved.target?.z].every(Number.isFinite))return false;
    const from={...cameraState,target:{...cameraState.target}};
-   Object.assign(cameraState,{playerView:!!saved.playerView,playerViewLock:!!saved.playerViewLock,playerEyeHeight:window.BilliardsCue3D.clampEyeHeight(saved.playerEyeHeight),playerDistance:saved.playerDistance||.75,playerInShot:false,azimuth:saved.azimuth,elevation:saved.elevation,radius:saved.radius,target:{...saved.target},followCue:!!saved.followCue,followSide:['front','behind','left','right'].includes(saved.followSide)?saved.followSide:'behind',followDistance:saved.followDistance==='wide'?'wide':'close',followHeading:saved.followHeading,followHasMotion:!!saved.followHasMotion,followAnimating:false});
+   Object.assign(cameraState,{playerView:!!saved.playerView,playerViewLock:!!saved.playerViewLock,playerEyeHeight:window.BilliardsCue3D.clampEyeHeight(saved.playerEyeHeight),playerDistance:saved.playerDistance||.75,playerInShot:false,azimuth:saved.azimuth,elevation:saved.elevation,radius:saved.radius,target:{...saved.target},followCue:!!saved.followCue,followTrack:saved.followTrack==='shot'?'shot':'cue',followBallId:saved.followBallId??null,followPocket:saved.followPocket??null,followSide:['front','behind','left','right'].includes(saved.followSide)?saved.followSide:'behind',followDistance:saved.followDistance==='wide'?'wide':'close',followHeading:saved.followHeading,followHasMotion:!!saved.followHasMotion,followAnimating:false});
    transitionFrom(from);requestRender();window.BilliardsSpinLabUI?.sync();return true;
   },prepareSnapshot(){standing(0);},renderSnapshot(){engine?.render();},tablePlanePoint(event){return engine?.tablePlanePoint(event)||null;},tablePoint(event){return engine?.tablePoint(event)||null;},renderedBalls(){return engine?.ballViews()||[];},ghostGuides(){return engine?.ghostViews()||[];},pocketGeometry(){return engine?.pocketViews()||[];},railGeometry(){return engine?.railViews()||[];},contactMarkers(){return engine?.contactViews()||[];},cueModel(){return engine?.cueView()||null;},overlayLabels(){return engine?.labelViews()||[];}};
  window.addEventListener('resize',()=>{dock();positionToggle();requestRender();});new MutationObserver(positionToggle).observe(document.getElementById('tableZoom'),{attributes:true,attributeFilter:['style']});document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshVisibleScene();});
@@ -802,43 +813,49 @@
    forward(type,current.last,event,current.aimShot);
    if(cameraState.playerView){transitionFrom({...cameraState,target:{...cameraState.target}});requestRender();}
   }
-  function cancelInput(){if(edit)finishEdit('pointercancel',{pointerId:edit.id,pointerType:edit.pointerType});pointers.clear();}
+  function cancelInput(){if(edit)finishEdit('pointercancel',{pointerId:edit.id,pointerType:edit.pointerType});pointers.clear();lastTap=null;}
   function pointerDown(e,outside=false){
    if(!active||e.button!==0||overControls(e))return;
    stopTransition();const badge=outside?null:pickPocketLabel(e);
    e.preventDefault();e.stopPropagation();canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});
    if(edit){if(e.pointerId===edit.id)return;const first=edit;finishEdit('pointercancel',{pointerId:first.id,pointerType:first.pointerType});pointers.set(first.id,{x:first.cx,y:first.cy,sx:first.cx,sy:first.cy,multi:true,pendingViewDrag:true});}
+   const lockedTouch=e.pointerType==='touch'&&!viewLocked&&!lastFrame?.railEditing&&!lastFrame?.overlayEditing;
    const hit=outside||badge?null:pick(e);
-   if(pointers.size===0&&hit?.editable&&(hit.handle||viewLocked&&hit.ball||lastFrame?.railEditing||lastFrame?.overlayEditing)){
+   // On locked touch input, the same cloth point can start either a tap or a camera drag.
+   if(!lockedTouch&&pointers.size===0&&hit?.editable&&(hit.handle||viewLocked&&hit.ball||lastFrame?.railEditing||lastFrame?.overlayEditing)){
     edit={aimShot:hit.handle?(hit.shot||1):0,id:e.pointerId,cx:e.clientX,cy:e.clientY,pointerType:e.pointerType,height:hit.height,offset:hit.offset,last:hit.point};
     if(!forward('pointerdown',hit.point,e))edit=null;return;
    }
-   pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,multi:pointers.size>0,pendingViewDrag:true,ball:!!hit?.ball,pocket:badge?.object.userData.data.pocketName});
+   pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,multi:pointers.size>0,pendingViewDrag:true,lockedTouch,outside,ball:!!hit?.ball,pocket:badge?.object.userData.data.pocketName});
    if(pointers.size>1){for(const p of pointers.values())p.multi=true;lastTap=null;}
   }
+  // Distinguish finger jitter from camera motion by distance only, not time.
+  const tapSlop=p=>p.lockedTouch&&!p.pocket?4:6;
   canvas.addEventListener('pointerdown',e=>pointerDown(e));
   stage.addEventListener('pointerdown',e=>{if(e.target===stage)pointerDown(e,true);});
   canvas.addEventListener('pointermove',e=>{
    if(!pointers.has(e.pointerId)){if(!edit){if(!viewLocked){canvas.style.cursor=pick(e)?.handle?'crosshair':'grab';return;}cast(e);const q=logical(planePoint());if(q)forward('pointermove',q,e);canvas.style.cursor=source.style.cursor||'crosshair';return;}if(edit.id!==e.pointerId)return;e.preventDefault();e.stopPropagation();cast(e);const p=planePoint(edit.height);if(!p)return;const q=logical(new T.Vector3(p.x-edit.offset.x,0,p.z-edit.offset.z));edit.last=q;edit.cx=e.clientX;edit.cy=e.clientY;forward('pointermove',q,e);return;}
    const p=pointers.get(e.pointerId);if(!p)return;e.preventDefault();e.stopPropagation();
-   // An off-cloth tap can generate small pointer moves on a tablet.
    if(p.pendingViewDrag){
-    if(Math.hypot(e.clientX-p.sx,e.clientY-p.sy)<6)return;
+    if(Math.hypot(e.clientX-p.sx,e.clientY-p.sy)<tapSlop(p))return;
     for(const point of pointers.values())point.pendingViewDrag=false;
+    lastTap=null;
    }
    window.BilliardsTableOrbit.move(pointers,e,{pan,zoom,orbit,panning:panEnabled});
   });
   for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,e=>{
    if(edit?.id===e.pointerId)finishEdit(type==='pointerup'?'pointerup':'pointercancel',e);
    const point=pointers.get(e.pointerId);
-   const tap=type==='pointerup'&&pointers.size===1&&point&&!point.multi&&point.pendingViewDrag&&Math.hypot(e.clientX-point.sx,e.clientY-point.sy)<6;
+   const tap=type==='pointerup'&&pointers.size===1&&point&&!point.multi&&point.pendingViewDrag&&Math.hypot(e.clientX-point.sx,e.clientY-point.sy)<tapSlop(point);
    if(tap&&point.pocket){window.billiardsGuidance?.openPocket(point.pocket);lastTap=null;}
-   else if(tap&&point.ball&&!viewLocked&&!panEnabled){
-    const now=performance.now();if(lastTap&&now-lastTap.time<350&&Math.hypot(e.clientX-lastTap.x,e.clientY-lastTap.y)<20){focusBall(e);lastTap=null;}else lastTap={time:now,x:e.clientX,y:e.clientY};
-   }else if(tap&&!point.ball&&!lastFrame?.animating&&!lastFrame?.overlayEditing&&!lastFrame?.railEditing){
-    cast(e);const q=logical(planePoint());
-    const which=window.billiardsGuidance?.tapAimShot?.();
-    if(q&&which&&Math.hypot(q.x,q.y)<(lastFrame?.L||3)*8&&forward('pointerdown',q,e,which,true))forward('pointerup',q,e,which,true);
+   else if(tap&&point.ball&&!point.lockedTouch&&!viewLocked&&!panEnabled){
+    const now=performance.now();
+    if(lastTap&&now-lastTap.time<350&&Math.hypot(e.clientX-lastTap.x,e.clientY-lastTap.y)<20){focusBall(e);lastTap=null;}else lastTap={time:now,x:e.clientX,y:e.clientY};
+   }else if(tap&&(!point.ball||point.lockedTouch)&&!lastFrame?.animating&&!lastFrame?.overlayEditing&&!lastFrame?.railEditing){
+    cast(e);const q=logical(planePoint()),f=frame||lastFrame;
+    const aimNow=q&&(!point.lockedTouch||(!point.outside&&f&&q.x>=0&&q.x<=f.L&&q.y>=0&&q.y<=f.W));
+    const which=aimNow&&window.billiardsGuidance?.tapAimShot?.();
+    if(which&&Math.hypot(q.x,q.y)<(lastFrame?.L||3)*8&&forward('pointerdown',q,e,which,true))forward('pointerup',q,e,which,true);
     lastTap=null;
    }else if(type!=='lostpointercapture')lastTap=null;
    pointers.delete(e.pointerId);e.stopPropagation();

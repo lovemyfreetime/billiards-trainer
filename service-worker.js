@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billiards-trainer-4-12-offline-f5c0ef0449aec497';
+const CACHE_NAME = 'billiards-trainer-4-12-offline-db4ee26723c7bcbd';
 const CACHE_PREFIX = 'billiards-trainer-4-12-';
 const APP_SHELL = [
   './play-narration-data.js?v=3',
@@ -41,7 +41,7 @@ const APP_SHELL = [
   './trainer-action-history.js?v=2',
   './trainer-table-exchange.js?v=1',
   './icons/zen-reference-table-v1.webp',
-  './zen-mode.js?v=home-badge-v59',
+  './zen-mode.js?v=picker-polish-1',
   './beta-ui.js?v=offline-startup-v158',
   './index.html',
   './trainer-practice-tools.js?v=3',

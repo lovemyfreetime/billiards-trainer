@@ -1,7 +1,7 @@
 /* Reserved workspace bands: tools, table with side rails, balls, then spin. */
 body.trainer-workspace:not(.zen-mode) { --workspace-top:54px; --workspace-bottom:122px; --workspace-edge:62px; }
 body.trainer-workspace.phone-focus:not(.zen-mode):not(.projector) #stageWrap {
-  inset:calc(var(--workspace-top) + env(safe-area-inset-top)) calc(var(--workspace-edge) + env(safe-area-inset-right)) calc(var(--workspace-bottom) + env(safe-area-inset-bottom)) calc(var(--workspace-edge) + env(safe-area-inset-left))!important;
+  inset:max(calc(var(--workspace-top) + env(safe-area-inset-top)),var(--trainer-flight-bottom,0px)) calc(var(--workspace-edge) + env(safe-area-inset-right)) calc(var(--workspace-bottom) + env(safe-area-inset-bottom)) calc(var(--workspace-edge) + env(safe-area-inset-left))!important;
 }
 body.trainer-workspace.table-3d.phone-focus #stageWrap #table3DCanvas { inset:0!important; width:100%!important; height:100%!important; }
 body.trainer-workspace.phone-focus:not(.zen-mode) #phoneAimRail,
@@ -640,4 +640,74 @@ body.trainer-workspace #workspaceBallShelf #table3DPlan[aria-busy=true] {
 @media (prefers-reduced-motion:reduce) {
   body.trainer-workspace #table3DPlan[aria-busy=true],
   body.trainer-workspace #workspaceBallShelf #table3DPlan[aria-busy=true] { animation:none; }
+}
+
+/* The player's guide layer is independent of shot and layout settings. */
+body.trainer-workspace #workspaceTableGuides {
+ position:fixed; z-index:47; right:calc(10px + env(safe-area-inset-right)); bottom:calc(72px + env(safe-area-inset-bottom));
+ min-width:82px; height:44px; min-height:44px; box-sizing:border-box; padding:4px 8px;
+ border:2px solid var(--ball-state-off-edge); border-radius:22px;
+ background:#17242e; color:#eef7ff; font:700 12px/1.15 system-ui; white-space:nowrap; touch-action:manipulation;
+}
+body.trainer-workspace #workspaceTableGuides[aria-checked=true] { border-color:var(--ball-state-on-edge); }
+body.trainer-workspace #workspaceBallShelf #workspaceTableGuides { position:absolute; right:6px; bottom:auto; top:4px; }
+body.trainer-workspace.phone-controls-open > #workspaceTableGuides { right:calc(10px + var(--menu-dock,0px) + env(safe-area-inset-right)); }
+body.trainer-workspace.learning-mini #workspaceBallShelf #workspaceTableGuides { display:none; }
+@media(max-width:700px) {
+ body.trainer-workspace.table-3d > #workspaceTableGuides { bottom:calc(180px + env(safe-area-inset-bottom)); }
+}
+body.trainer-workspace.table-guides-off :is(#trainerAnnotationCanvas,#trainerAnnotationInput,#trainerAnnotationMode,#compassHandles) { display:none!important; }
+body.trainer-workspace { --stroke-control-label:#8dd0ff; }
+body.trainer-workspace.phone-focus #phoneAimRail .phoneAimLabel,
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail .tableSpeedLabel {
+ color:var(--stroke-control-label); font:700 clamp(11px,1.55vw,15px)/16px system-ui;
+}
+body.trainer-workspace.phone-focus #phoneActions .phoneSpinDirections {
+ display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:4px;
+ top:1px; left:clamp(34px,10vw,145px); right:clamp(34px,10vw,145px); color:var(--stroke-control-label);
+ font:700 clamp(11px,1.55vw,15px)/16px system-ui;
+}
+body.trainer-workspace.phone-focus #phoneActions .phoneSpinDirections span:first-child { text-align:left; }
+body.trainer-workspace.phone-focus #phoneActions .phoneSpinDirections span:last-child { text-align:right; }
+body.trainer-workspace.phone-focus #phoneActions .phoneSpinPercent { color:#f2f8ff; text-align:center; font-variant-numeric:tabular-nums; }
+@media(max-width:700px) {
+ body.trainer-workspace.phone-focus #phoneActions .phoneSpinDirections { left:clamp(23px,6vw,42px); right:clamp(23px,6vw,42px); gap:2px; font-size:10px; line-height:11px; white-space:normal; }
+}
+#workspace-follow .followTracks { display:grid;grid-template-columns:1fr 1fr;gap:4px; }
+#workspace-follow .followTracks button { justify-content:center;min-width:0;min-height:44px;padding:4px;text-align:center;font:600 12px/1.2 system-ui; }
+#workspace-follow .followTracks button::before { display:none; }
+#workspace-follow .followTrackHint { margin:0 0 4px; font:500 11px/1.35 system-ui; color:#cbe1ef; }
+
+/* A passive, green direction cue does not intercept the relative Aim roller. */
+body.trainer-workspace #phoneAimRail .rollerTrack::before,
+body.trainer-workspace #phoneAimRail .rollerTrack::after {
+ content:""; position:absolute; z-index:2; left:50%; width:8px; height:8px;
+ border:solid #6fff58; border-width:2px 0 0 2px; border-radius:1px;
+ filter:drop-shadow(0 0 3px #6fff5899); pointer-events:none;
+}
+body.trainer-workspace #phoneAimRail .rollerTrack::before { top:calc(50% - clamp(18px,4vh,38px)); transform:translate(-50%,-50%) rotate(45deg); }
+body.trainer-workspace #phoneAimRail .rollerTrack::after { top:calc(50% + clamp(18px,4vh,38px)); transform:translate(-50%,-50%) rotate(225deg); }
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail {
+ container-type:inline-size;
+}
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail>.tableSpeedControl {
+ --phone-speed-label-size:clamp(12px,32cqw,18px); padding-top:73px;
+}
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail .tableSpeedLabel {
+ display:flex; align-items:flex-start; justify-content:center;
+ line-height:1; box-sizing:border-box; height:70px!important; min-height:70px;
+}
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail .speedTickScale {top:75px;}
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail .phoneSpeedValue {
+ top:calc(17px + var(--phone-speed-label-size));
+}
+body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail .phoneSpeedFeel {
+ top:calc(33px + var(--phone-speed-label-size));
+}
+@media(max-height:450px) and (orientation:landscape) {
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail>.tableSpeedControl {padding-top:54px;}
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail .tableSpeedLabel {height:51px!important;min-height:51px;}
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail .phoneSpeedValue {top:calc(11px + var(--phone-speed-label-size));line-height:11px;}
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail .phoneSpeedFeel {top:calc(23px + var(--phone-speed-label-size));line-height:11px;}
+ body.trainer-workspace.phone-focus:not(.zen-mode) #phoneSpeedRail .speedTickScale {top:56px;}
 }

@@ -70,3 +70,13 @@ body.play-mode #playRoot .play-header nav { flex-wrap:wrap; }
  body:has(#companionExperience) .topbar { position:relative; display:block; padding:64px 18px 12px; }
  body:has(#companionExperience) .topbar .back-link { position:absolute; top:8px; left:70px; display:flex; align-items:center; min-height:46px; }
 }
+
+body .experience-menu .experience-minimize {
+ display:grid; place-items:center; box-sizing:border-box; padding:0; width:60px; height:60px;
+ min-width:60px; min-height:60px; border:1px solid #c5a88055; border-radius:50%;
+ background:linear-gradient(145deg,#343b3e,#171c22); color:#d0e8f6; cursor:pointer; pointer-events:auto;
+}
+.experience-minimize svg { width:27px; height:27px; }
+.experience-menu .experience-minimize:focus-visible { outline:3px solid #58dbe3; outline-offset:2px; }
+.experience-menu--train .experience-minimize { grid-area:2/1; }
+.experience-menu--train:has(.experience-update) .experience-minimize { grid-area:3/1; }

@@ -4,7 +4,7 @@ import argparse,hashlib,json,zipfile
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
 audio=root/'play-audio'
-expected_recordings={p.relative_to(root).as_posix() for folder in (audio,audio/'companion') for p in folder.glob('*.mp3')}
+expected_recordings={p.relative_to(root).as_posix() for folder in (audio,audio/'companion',audio/'rack-rules') for p in folder.glob('*.mp3')}
 p=argparse.ArgumentParser();p.add_argument('apks',nargs='+',type=Path);args=p.parse_args()
 for apk in args.apks:
  with zipfile.ZipFile(apk) as z:

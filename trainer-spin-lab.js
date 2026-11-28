@@ -16,6 +16,7 @@
  const menu=byId('workspace-motion'),summary=menu?.querySelector('summary');
  const followMenu=byId('workspace-follow');
  const distances=[['close','Close-up'],['wide','Wide']];
+ const tracks=[['cue','Cue Ball Only'],['shot','Follow Shot']];
  const views=[['front','Front'],['behind','Behind'],['left','Left'],['right','Right']];
  const preferenceKey='trainer.playbackLocks.v1';
  let stored={};
@@ -24,6 +25,7 @@
  const followLock=makeLock(followMenu,'Lock follow view','followLock',stored.view==='close'||views.some(([v])=>v===stored.view));
  let selectedView=followLock.checked && stored.view!=='close' ? stored.view : 'behind';
  let selectedDistance=followLock.checked && stored.distance==='wide' ? 'wide' : 'close';
+ let selectedTrack=stored.track==='shot'?'shot':'cue';
  let followEnabled=followLock.checked && stored.followEnabled===true;
  let returnCamera=null, activation=null;
 
@@ -36,7 +38,7 @@
  }
  function savePreferences(){
   try {
-   const saved={};
+   const saved={track:selectedTrack};
    if(speedLock.checked)saved.speed=String(play().state().speed);
    if(followLock.checked){saved.view=selectedView;saved.distance=selectedDistance;saved.followEnabled=followEnabled;}
    localStorage.setItem(preferenceKey,JSON.stringify(saved));
@@ -48,7 +50,7 @@
    const button=document.createElement('button');
    button.type='button';button.textContent=label;button.dataset[attribute]=value;
    button.onclick=()=>{
-    if(attribute!=='distance'){details.open=false;details.querySelector('summary').focus();}
+    if(attribute!=='distance'&&attribute!=='track'){details.open=false;details.querySelector('summary').focus();}
     choose(value);
    };
    if(container)container.append(button);
@@ -71,6 +73,14 @@
  followToggle.innerHTML='Follow View <span class="followModeState">Off</span>';
  distanceGroup.before(followToggle);
  followToggle.onclick=()=>setFollowEnabled(!followEnabled);
+ const trackGroup=document.createElement('div');
+ trackGroup.className='followTracks';trackGroup.setAttribute('role','group');trackGroup.setAttribute('aria-label','Ball tracking');
+ const trackHint=document.createElement('p');trackHint.className='followTrackHint';trackHint.textContent='Follow Shot tracks the cue ball, then the object ball through contacts and into the pocket.';
+ distanceGroup.before(trackGroup,trackHint);
+ const trackButtons=choices(followMenu,tracks,'track',value=>{
+  if(play().state().recording)return;
+  selectedTrack=value;savePreferences();if(followEnabled)applyView();sync();
+ },trackGroup);
  const distanceButtons=choices(followMenu,distances,'distance',value=>selectView(selectedView,value),distanceGroup);
  const followButtons=choices(followMenu,views,'view',side=>selectView(side));
 
@@ -78,7 +88,7 @@
   const camera=window.Billiards3D;
   if(!followEnabled||!camera?.active||!bridge().state().hasCue)return false;
   if(!returnCamera)returnCamera=camera.camera();
-  camera.followCue(true,selectedView,selectedDistance);
+  camera.followCue(true,selectedView,selectedDistance,selectedTrack);
   return true;
  }
  async function selectView(view,distance=selectedDistance){
@@ -184,11 +194,12 @@
    byId(id).setAttribute('aria-pressed',String(in3D && camera.followCue && selectedDistance===value));
   }
   if(!in3D && !activation)returnCamera=null;
+  for(const button of trackButtons){button.disabled=p.recording;button.setAttribute('aria-pressed',String(selectedTrack===button.dataset.track));}
   for(const button of distanceButtons){button.disabled=followOptionsDisabled;button.setAttribute('aria-pressed',String(selectedDistance===button.dataset.distance));}
   for(const button of followButtons){button.disabled=followOptionsDisabled;button.setAttribute('aria-pressed',String(selectedView===button.dataset.view));}
   if(followMenu){
    followMenu.classList.toggle('followEnabled',followEnabled);
-   followMenu.querySelector('summary').setAttribute('aria-label',followEnabled?'Follow View on: '+(selectedDistance==='wide'?'Wide':'Close-up')+', '+views.find(([value])=>value===selectedView)[1]:'Follow View off');
+   followMenu.querySelector('summary').setAttribute('aria-label',followEnabled?'Follow View on: '+(selectedDistance==='wide'?'Wide':'Close-up')+', '+views.find(([value])=>value===selectedView)[1]+', '+tracks.find(([value])=>value===selectedTrack)[1]:'Follow View off');
   }
   for(const input of bar.querySelectorAll('[data-follow-side]')){input.disabled=followOptionsDisabled;input.checked=followEnabled&&in3D&&!!camera?.followCue&&input.dataset.followSide===(camera.followSide||'behind');}
   byId('trainerStopPlayback').disabled=p.recording||(!p.running&&!camera?.followCue);
