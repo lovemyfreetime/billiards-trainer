@@ -109,28 +109,33 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{spawn}=require
    const entry=prediction.pocketEvents.find(e=>e.id===expected);
    assert(entry,'live solver pockets the selected test ball');
    await selectTrack(kind);
-   await page.evaluate(()=>{
-    window.subjects=[];const take=()=>{if(!billiardsPlayback.state().running)return;const c=Billiards3D.camera(),subject=c.followBallId+':'+(c.followPocket||'');
-     if(window.subjects.at(-1)!==subject)window.subjects.push(subject);};
-    window.addEventListener('billiards:3d-render',take);
-   });
-   await tap('#phoneActions>[data-trainer-action="animate"]');
-   // Observe the whole camera handoff and entry. Unrelated balls can
-   // take much longer to settle on a software-rendered CI runner.
-   try{
-    await page.waitForFunction(({kind,expected,t,pocket})=>{
-     return kind==='cue'?window.subjects.length>0&&billiardsPlayback.state().time>t:
-      window.subjects.includes(expected+':'+pocket);
-    },{kind,expected,t:entry.t,pocket:entry.pocket},{timeout:45000});
-   }catch(error){
-    console.error('Playback and camera trace:',await page.evaluate(()=>({time:billiardsPlayback.state().time,subjects:window.subjects})));
-    throw error;
-   }
-   const found=await page.evaluate(()=>{const trace=[...window.subjects];billiardsPlayback.stop();return trace;});
+   const found=await page.evaluate(entry=>{
+    // Exercise the real shot physics and rendered camera, but sample each
+    // interval with the existing playback step control. Software GL may
+    // otherwise skip the short interval between contact and pocket entry.
+    const playback=billiardsPlayback, follow=BilliardsShotFollow, original=follow.plan;
+    let route;
+    follow.plan=sim=>{route=original(sim);return route;};
+    try{
+     document.getElementById('animate').click();
+     if(!playback.state().running||!route)throw Error('The real shot did not start');
+     const times=route.segments.map((step,i)=>{
+      const end=route.segments[i+1]?.t??entry.t;
+      return step.t+Math.min(.025,Math.max(0,(end-step.t)/2));
+     });
+     times.push(entry.t+.002);
+     return times.map(t=>{
+      const now=playback.state();
+      if(!playback.step((t-Math.max(0,now.visualTime))*30/now.speed))throw Error('Could not step playback');
+      Billiards3D.renderSnapshot();
+      const view=Billiards3D.camera();
+      return view.followBallId+':'+(view.followPocket||'');
+     });
+    }finally{follow.plan=original;playback.stop();}
+   },entry);
    if(kind==='cue')assert(found.length&&found.every(id=>id==='0:'),'Cue Ball Only never hands off');
    else{
-    assert(found.includes('1:')&&found.includes(expected+':TM'),'the camera follows the first contacted ball and reaches the actual pocket: '+found);
-    if(combo)assert(found.includes('2:'),'the combination hands off to the second object before the pocket');
+    assert.deepEqual(found,combo?['0:','1:','2:','2:TM']:['0:','1:','1:TM'],'camera samples must match the complete played sequence');
    }
    console.log(kind+(combo?' combination':' direct')+': '+found.join(' → '));
   };
