@@ -105,7 +105,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{spawn}=require
   const trace=async(kind,combo)=>{
    await setup(combo);
    const expected=combo?2:1;
-   assert((await page.evaluate(()=>billiardsTourBridge.predict())).pocketed.includes(expected),'live solver pockets the selected test ball');
+   const prediction=await page.evaluate(()=>billiardsTourBridge.predict());
+   const entry=prediction.pocketEvents.find(e=>e.id===expected);
+   assert(entry,'live solver pockets the selected test ball');
    await selectTrack(kind);
    await page.evaluate(()=>{
     window.subjects=[];const take=()=>{if(!billiardsPlayback.state().running)return;const c=Billiards3D.camera(),subject=c.followBallId+':'+(c.followPocket||'');
@@ -113,8 +115,18 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{spawn}=require
     window.addEventListener('billiards:3d-render',take);
    });
    await tap('#phoneActions>[data-trainer-action="animate"]');
-   await page.waitForFunction(()=>billiardsPlayback.state().hasReplay&&!billiardsPlayback.state().running,null,{timeout:25000});
-   const found=await page.evaluate(()=>window.subjects);
+   // Observe the whole camera handoff and entry. Unrelated balls can
+   // take much longer to settle on a software-rendered CI runner.
+   try{
+    await page.waitForFunction(({kind,expected,t,pocket})=>{
+     return kind==='cue'?window.subjects.length>0&&billiardsPlayback.state().time>t:
+      window.subjects.includes(expected+':'+pocket);
+    },{kind,expected,t:entry.t,pocket:entry.pocket},{timeout:45000});
+   }catch(error){
+    console.error('Playback and camera trace:',await page.evaluate(()=>({time:billiardsPlayback.state().time,subjects:window.subjects})));
+    throw error;
+   }
+   const found=await page.evaluate(()=>{const trace=[...window.subjects];billiardsPlayback.stop();return trace;});
    if(kind==='cue')assert(found.length&&found.every(id=>id==='0:'),'Cue Ball Only never hands off');
    else{
     assert(found.includes('1:')&&found.includes(expected+':TM'),'the camera follows the first contacted ball and reaches the actual pocket: '+found);
